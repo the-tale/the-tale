@@ -7,7 +7,6 @@ from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PersonRemove
 
 from the_tale.game.persons.models import Person
-from the_tale.game.persons.relations import PERSON_STATE
 
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
 
@@ -93,7 +92,6 @@ class PersonRemoveTests(BaseTestPrototypes):
 
         self.assertNotEqual(self.place1.persons[0].id, self.person1.id)
         self.assertTrue(self.person1.out_game)
-        self.assertTrue(Person.objects.get(id=self.person1.id).state, PERSON_STATE.OUT_GAME)
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)

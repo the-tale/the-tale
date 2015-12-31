@@ -2,8 +2,8 @@
 
 from the_tale.common.utils import storage
 
-from the_tale.game.map.roads.prototypes import RoadPrototype, WaymarkPrototype
-from the_tale.game.map.roads import exceptions
+from the_tale.game.roads.prototypes import RoadPrototype, WaymarkPrototype
+from the_tale.game.roads import exceptions
 
 
 class RoadsStorage(storage.Storage):

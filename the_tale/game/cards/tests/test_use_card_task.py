@@ -10,7 +10,8 @@ from the_tale.common.utils import testcase
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
 
-from the_tale.common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT, PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT, PostponedTaskPrototype
+from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
 
 from the_tale.game import names
 
@@ -21,7 +22,7 @@ from the_tale.game.cards import effects
 from the_tale.game.cards import objects
 from the_tale.game.cards.postponed_tasks import UseCardTask
 
-from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.places.prototypes import BuildingPrototype
 
 
 class UseCardTaskTests(testcase.TestCase):

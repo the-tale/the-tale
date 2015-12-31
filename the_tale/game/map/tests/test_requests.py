@@ -22,10 +22,10 @@ from the_tale.game.chronicle import RecordPrototype as ChronicleRecordPrototype
 
 from the_tale.game.persons import logic as persons_logic
 
-from the_tale.game.map.places.modifiers import TradeCenter
-from the_tale.game.map.places.relations import CITY_MODIFIERS
-from the_tale.game.map.places.prototypes import BuildingPrototype
-from the_tale.game.map.places import conf as places_conf
+from the_tale.game.places.modifiers import TradeCenter
+from the_tale.game.places.relations import CITY_MODIFIERS
+from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import conf as places_conf
 
 from the_tale.game.map.conf import map_settings
 
@@ -91,11 +91,11 @@ class CellInfoTests(RequestsTestsBase):
         self.place_1.save()
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=[('pgf-new-place-message', 0)])
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', True)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_frontier', True)
     def test_place_frontier_message(self):
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=['pgf-frontier-message'])
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', False)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_frontier', False)
     def test_place_frontier_message__not_new(self):
         self.check_html_ok(self.request_html(reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=[('pgf-frontier-message', 0)])
 

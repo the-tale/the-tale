@@ -6,7 +6,8 @@ from dext.common.utils.urls import url
 
 from the_tale.common.utils.fake import FakeLogger
 from the_tale.common.utils.testcase import TestCase
-from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype
+from the_tale.common.postponed_tasks.models import PostponedTask
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.post_service.models import Message
 

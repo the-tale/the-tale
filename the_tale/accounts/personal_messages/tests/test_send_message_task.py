@@ -2,9 +2,9 @@
 
 import mock
 
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts import logic as accounts_logic
 from the_tale.accounts import conf as accounts_conf

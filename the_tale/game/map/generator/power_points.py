@@ -6,10 +6,11 @@ from deworld import power_points, layers, normalizers
 from the_tale.game.prototypes import TimePrototype, MONTHS
 from the_tale.game.relations import RACE
 
-from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.persons import objects as persons_objects
 
-from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototype
-from the_tale.game.map.places.storage import places_storage, buildings_storage
+from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import objects as places_objects
+from the_tale.game.places import storage as places_storage
 from the_tale.game.map import exceptions
 from the_tale.game.map.conf import map_settings
 
@@ -44,12 +45,12 @@ def _point_circle_height(obj, borders, normalizer, power_percent):
 class MapObject(object):
 
     def __init__(self, game_object, suffix=''):
-        if isinstance(game_object, PlacePrototype):
+        if isinstance(game_object, places_objects.Place):
             self.uid = 'place_%d_%s' % (game_object.id, suffix)
             self.x = game_object.x
             self.y = game_object.y
             self.r = game_object.terrain_change_power
-        elif isinstance(game_object, PersonPrototype):
+        elif isinstance(game_object, persons_objects.Person):
             self.uid = 'person_%d_%s' % (game_object.id, suffix)
             self.x = game_object.place.x
             self.y = game_object.place.y
@@ -69,7 +70,7 @@ def _point_arrow_height(obj, borders, length_normalizer, width_normalizer, power
 
     distances = []
 
-    for other_place in places_storage.all():
+    for other_place in places_storage.places.all():
         if obj.id != other_place.id:
             distances.append((math.hypot(obj.x - other_place.x, obj.y - other_place.y), other_place))
 
@@ -320,12 +321,12 @@ def get_power_points():
               _default_vegetation_points(),
               _default_soil_points()]
 
-    for place in places_storage.all():
+    for place in places_storage.places.all():
         points.extend(get_place_power_points(place))
         for race in RACE.records:
             points.extend(get_place_race_power_points(place, race))
 
-    for building in buildings_storage.all():
+    for building in places_storage.buildings.all():
         points.extend(get_building_power_points(building))
 
     return points

@@ -8,7 +8,7 @@ from the_tale.game.bills.bills import PlaceModifier
 
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
 
-from the_tale.game.map.places.modifiers import TradeCenter, CraftCenter
+from the_tale.game.places.modifiers import TradeCenter, CraftCenter
 
 
 class PlaceModifierTests(BaseTestPrototypes):
@@ -32,7 +32,7 @@ class PlaceModifierTests(BaseTestPrototypes):
     def test_actors(self):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.place)])
 
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
@@ -50,7 +50,7 @@ class PlaceModifierTests(BaseTestPrototypes):
         self.assertEqual(self.bill.data.modifier_name, CraftCenter.TYPE.text)
         self.assertEqual(self.bill.data.old_modifier_name, None)
 
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
     def test_success_form_validation(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
@@ -59,7 +59,7 @@ class PlaceModifierTests(BaseTestPrototypes):
                                                          'new_modifier': CraftCenter.get_id()})
         self.assertTrue(form.is_valid())
 
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', False)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', False)
     def test_invalid_form_validation(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',

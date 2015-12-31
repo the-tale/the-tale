@@ -7,8 +7,8 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game import names
 
-from the_tale.game.map.places.prototypes import BuildingPrototype
-from the_tale.game.map.places.relations import BUILDING_TYPE
+from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places.relations import BUILDING_TYPE
 from the_tale.game.map.generator.power_points import get_building_power_points
 from the_tale.game.map.generator.descriptors import UICell, UICells
 from the_tale.game.map.storage import map_info_storage

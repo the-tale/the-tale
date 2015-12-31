@@ -6,16 +6,16 @@ from rels.django import DjangoEnum
 
 from utg import words as utg_words
 
-from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.balance import constants as c
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game import relations as game_relations
 
@@ -278,12 +278,12 @@ class ChoosePreferencesTask(PostponedLogic):
 
         if place_id is not None:
 
-            if place_id not in places_storage:
+            if place_id not in places_storage.places:
                 main_task.comment = u'unknown place id: %s' % (place_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        hero.preferences.set_place(places_storage.get(place_id))
+        hero.preferences.set_place(places_storage.places.get(place_id))
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
@@ -302,17 +302,17 @@ class ChoosePreferencesTask(PostponedLogic):
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            if friend_id not in persons_storage:
+            if friend_id not in persons_storage.persons:
                 main_task.comment = u'unknown person id: %s' % (friend_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            if persons_storage[friend_id].out_game:
+            if persons_storage.persons[friend_id].out_game:
                 main_task.comment = u'person was moved out game: %s' % (friend_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        hero.preferences.set_friend(persons_storage.get(friend_id))
+        hero.preferences.set_friend(persons_storage.persons.get(friend_id))
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
@@ -331,17 +331,17 @@ class ChoosePreferencesTask(PostponedLogic):
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            if enemy_id not in persons_storage:
+            if enemy_id not in persons_storage.persons:
                 main_task.comment = u'unknown person id: %s' % (enemy_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            if persons_storage[enemy_id].out_game:
+            if persons_storage.persons[enemy_id].out_game:
                 main_task.comment = u'person was moved out game: %s' % (enemy_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        hero.preferences.set_enemy(persons_storage.get(enemy_id))
+        hero.preferences.set_enemy(persons_storage.persons.get(enemy_id))
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 

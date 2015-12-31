@@ -1,15 +1,13 @@
 # coding: utf-8
-
-from django.utils.log import getLogger
+import logging
 
 from the_tale.game.heroes import messages
 
-logger = getLogger('the-tale.workers.game_logic')
+logger = logging.getLogger('the-tale.workers.game_logic')
 
 
 class Writer(object):
-
-    __init__ = ('type', 'message', 'substitution', 'hero')
+    __slots__ = ('type', 'message', 'substitution', 'hero')
 
     def __init__(self, type, message, substitution, hero):
         self.type = type

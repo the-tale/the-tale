@@ -2,7 +2,7 @@
 
 from the_tale.common.utils import testcase
 
-from the_tale.game.map.places.relations import CITY_MODIFIERS
+from the_tale.game.places.relations import CITY_MODIFIERS
 from the_tale.game.relations import RACE
 
 from the_tale.game.persons.relations import PROFESSION_TO_RACE_MASTERY, PROFESSION_TO_CITY_MODIFIERS

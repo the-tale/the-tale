@@ -19,7 +19,7 @@ from the_tale.game.bills import bills
 from the_tale.game.bills.prototypes import BillPrototype
 from the_tale.game.bills.tests.helpers import choose_exchange_resources, choose_conversions
 
-from the_tale.game.map.places.relations import CITY_MODIFIERS
+from the_tale.game.places.relations import CITY_MODIFIERS
 
 from the_tale.game.chronicle import records
 from the_tale.game.chronicle.models import RECORD_TYPE, Record, Actor

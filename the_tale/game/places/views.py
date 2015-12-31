@@ -50,7 +50,7 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 # views
 ########################################
 
-@api.Processor(versions=(conf.places_settings.API_LIST_VERSION,))
+@api.Processor(versions=(conf.settings.API_LIST_VERSION,))
 @resource('api', 'list', name='api-list')
 def api_list(context):
     u'''
@@ -93,7 +93,7 @@ def api_list(context):
     return dext_views.AjaxOk(content=data)
 
 
-@api.Processor(versions=(conf.places_settings.API_SHOW_VERSION,))
+@api.Processor(versions=(conf.settings.API_SHOW_VERSION,))
 @PlaceProcessor(error_message=u'Город не найден', url_name='place', context_name='place')
 @resource('#place', 'api', 'show', name='api-show')
 def api_show(context):

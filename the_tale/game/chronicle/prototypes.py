@@ -121,7 +121,7 @@ class ExternalPerson(ExternalActorBase):
 
 def create_external_actor(actor):
     from the_tale.game.bills.prototypes import BillPrototype
-    from the_tale.game.map.places.prototypes import PlacePrototype
+    from the_tale.game.places.prototypes import PlacePrototype
     from the_tale.game.persons.prototypes import PersonPrototype
 
     if isinstance(actor, BillPrototype): return ExternalBill(actor)
@@ -159,7 +159,7 @@ class ActorPrototype(BasePrototype):
     def name(self):
         from the_tale.game.bills.prototypes import BillPrototype
         from the_tale.game.persons.storage import persons_storage
-        from the_tale.game.map.places.storage import places_storage
+        from the_tale.game.places.storage import places_storage
 
         if self.bill_id is not None:
             return BillPrototype.get_by_id(self.bill_id).caption

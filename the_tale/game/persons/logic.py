@@ -10,7 +10,9 @@ from the_tale.game import prototypes as game_protypes
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.map.roads.storage import waymarks_storage
+from the_tale.game.prototypes import TimePrototype
+
+from the_tale.game.roads.storage import waymarks_storage
 
 from . import models
 from . import objects
@@ -25,31 +27,45 @@ def save_person(person, new=False):
     data = {'name': person.utg_name.serialize()}
 
     arguments = {'place_id': person.place_id,
-                 'state': person.state,
                  'gender': person.gender,
                  'race': person.race,
                  'type': person.type,
                  'friends_number': person.friends_number,
                  'enemies_number': person.enemies_number,
-                 'name': person.utg_name.normal_form(),
                  'data': s11n.to_json(data),
                  'created_at_turn': person.created_at_turn,
-                 'power': person.power
-                 }
+                 'power': person.power }
 
     if new:
-        models.Person.objects.create(id=person.id, **arguments)
+        person_model = models.Person.objects.create(**arguments)
+
+        person.id = person_model.id
 
         # TODO: that string was in .create method, is it needed here?
         person.place.persons_changed_at_turn = game_protypes.TimePrototype.get_current_turn_number()
 
-        storage.persons_storage.add_item(person.id, person)
-        storage.persons_storage.update_version()
+        storage.persons.add_item(person.id, person)
+        storage.persons.update_version()
 
     else:
         models.Person.filter(id=person.id).update(**arguments)
 
-        storage.persons_storage.update_version()
+        storage.persons.update_version()
+
+
+def create_person(place, race, type, utg_name, gender):
+    person = objects.Person(id=None,
+                            created_at_turn=TimePrototype.get_current_turn_number(),
+                            place_id=place.id,
+                            gender=gender,
+                            race=race,
+                            type=type,
+                            friends_number=0,
+                            enemies_number=0,
+                            power=0,
+                            utg_name=utg_name)
+    save_person(person, new=True)
+    return person
 
 
 def load_person(person_id=None, person_model=None):
@@ -71,7 +87,6 @@ def load_person(person_id=None, person_model=None):
                           gender=person_model.gender,
                           race=person_model.race,
                           type=person_model.type,
-                          state=person_model.state,
                           friends_number=person_model.friends_number,
                           enemies_number=person_model.enemies_number,
                           power=person_model.power,
@@ -122,6 +137,7 @@ def remove_connection(connection):
     storage.social_connections.refresh()
 
 
+
 def get_next_connection_minimum_distance(person):
     if conf.settings.SOCIAL_CONNECTIONS_MINIMUM > len(storage.social_connections.get_connected_persons_ids(person)) + 1:
         return 0
@@ -129,7 +145,7 @@ def get_next_connection_minimum_distance(person):
     minimum_distance = conf.settings.SOCIAL_CONNECTIONS_MINIMUM * c.QUEST_AREA_RADIUS * conf.settings.SOCIAL_CONNECTIONS_AVERAGE_PATH_FRACTION
 
     for connected_person_id in storage.social_connections.get_connected_persons_ids(person):
-        connected_person = storage.persons_storage[connected_person_id]
+        connected_person = storage.persons[connected_person_id]
         path_length = waymarks_storage.look_for_road(person.place, connected_person.place).length
         minimum_distance -= path_length
 
@@ -139,7 +155,7 @@ def get_next_connection_minimum_distance(person):
 def search_available_connections(person, minimum_distance=None):
     excluded_persons_ids = storage.social_connections.get_connected_persons_ids(person)
 
-    persons = storage.persons_storage.filter(state=relations.PERSON_STATE.IN_GAME)
+    persons = storage.persons.all()
 
     candidates = []
 
@@ -169,13 +185,6 @@ def search_available_connections(person, minimum_distance=None):
     return candidates
 
 
-def out_game_obsolete_connections():
-    for connection in storage.social_connections.all():
-        for person in connection.persons:
-            if not person.state.is_IN_GAME:
-                remove_connection(connection)
-
-
 def create_missing_connection(person):
 
     candidates = search_available_connections(person)
@@ -194,7 +203,7 @@ def create_missing_connection(person):
 
 @storage.social_connections.postpone_version_update
 def create_missing_connections():
-    persons = storage.persons_storage.filter(state=relations.PERSON_STATE.IN_GAME)
+    persons = storage.persons.all()
 
     for person in persons:
         connections = storage.social_connections.get_connected_persons_ids(person)
@@ -205,5 +214,4 @@ def create_missing_connections():
             connections.append(connected_person.id)
 
 def sync_social_connections():
-    out_game_obsolete_connections()
     create_missing_connections()

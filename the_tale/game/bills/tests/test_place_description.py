@@ -8,8 +8,8 @@ from the_tale.game.bills.bills import PlaceDescripton
 
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
 
-from the_tale.game.map.places.storage import places_storage
-from the_tale.game.map.places.conf import places_settings
+from the_tale.game.places.storage import places_storage
+from the_tale.game.places.conf import places_settings
 
 
 class PlaceDescriptionTests(BaseTestPrototypes):

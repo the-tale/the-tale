@@ -7,9 +7,9 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
-from the_tale.game.map.places.models import Building
-from the_tale.game.map.places.storage import buildings_storage
-from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.places.models import Building
+from the_tale.game.places import storage as places_storage
+from the_tale.game.places.prototypes import BuildingPrototype
 
 from the_tale.game.bills.relations import BILL_STATE
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
@@ -103,7 +103,7 @@ class BuildingCreateTests(BaseTestPrototypes):
 
         self.assertEqual(Building.objects.all().count(), 1)
 
-        building = buildings_storage.all()[0]
+        building = places_storage.buildings.all()[0]
 
         self.assertEqual(building.person.id, self.person_1.id)
         self.assertEqual(building.place.id, self.place1.id)

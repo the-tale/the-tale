@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from the_tale.game.bills import signals as bills_signals
 from the_tale.game.bills import relations as bill_relations
 
-from the_tale.game.map.places import signals as places_signals
+from the_tale.game.places import signals as places_signals
 
 from the_tale.game.chronicle import records
 from the_tale.game.chronicle.relations import ACTOR_ROLE

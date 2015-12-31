@@ -12,36 +12,11 @@ class PersonsStorage(dext_storage.Storage):
     EXCEPTION = exceptions.PersonsStorageError
 
     def _construct_object(self, model):
-        from the_tale.game.persons import logic
+        from . import logic
         return logic.load_person(person_model=model)
 
     def _get_all_query(self):
-        return models.Person.objects.filter(state=relations.PERSON_STATE.IN_GAME)
-
-
-    # def filter(self, place_id=None, state=None):
-    #     return [person
-    #             for person in self.all()
-    #             if ((state is None or person.state==state) and
-    #                 (place_id is None or place_id==person.place_id))]
-
-    def remove_out_game_persons(self):
-        from the_tale.game.bills.prototypes import BillPrototype
-        from the_tale.game.heroes import logic as heroes_logic
-
-        remove_time_border = min(BillPrototype.get_minimum_created_time_of_active_bills(),
-                                 heroes_logic.get_minimum_created_time_of_active_quests())
-
-        changed = False
-
-        for person in self.all():
-            if person.state == relations.PERSON_STATE.OUT_GAME and person.out_game_at < remove_time_border:
-                person.remove_from_game()
-                person.save()
-                changed = True
-
-        if changed:
-            self.update_version()
+        return models.Person.objects.all()
 
 
 persons = PersonsStorage()
@@ -82,17 +57,13 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
             connected_person = persons.get(connected_person_id)
             if connected_person is None:
                 continue
-            if not connected_person.state.is_IN_GAME:
-                continue
             result.append((item.connection, connected_person.id))
 
         return result
 
     def get_connected_persons_ids(self, person):
         self.sync()
-        return [person_id
-                for person_id in self._person_connections.get(person.id, {}).iterkeys()
-                if persons[person_id].state.is_IN_GAME]
+        return self._person_connections.get(person.id, {}).keys()
 
     def is_connected(self, person_1, person_2):
         return person_2.id in self.get_connected_persons_ids(person_1)

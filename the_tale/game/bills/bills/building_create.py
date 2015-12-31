@@ -9,10 +9,10 @@ from the_tale.game import names
 
 from the_tale.linguistics.forms import WordField
 
-from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.persons import objects as persons_objects
 
-from the_tale.game.map.places.prototypes import BuildingPrototype
-from the_tale.game.map.places.storage import buildings_storage
+from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.bills.relations import BILL_TYPE
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
@@ -27,7 +27,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = PersonPrototype.form_choices(predicate=lambda place, person: not person.has_building)
+        self.fields['person'].choices = persons_objects.form_choices(predicate=lambda place, person: not person.has_building)
 
 
 class ModeratorForm(BaseModeratorForm):
@@ -58,7 +58,7 @@ class BuildingCreate(BasePersonBill):
     def base_name(self): return self.building_name_forms.normal_form()
 
     def has_meaning(self):
-        return self.person and self.person.in_game and buildings_storage.get_by_person_id(self.person.id) is None
+        return self.person and self.person.in_game and places_storage.buildings.get_by_person_id(self.person.id) is None
 
     def apply(self, bill=None):
         if self.has_meaning():

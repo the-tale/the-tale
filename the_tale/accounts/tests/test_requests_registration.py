@@ -4,7 +4,7 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from the_tale.common.utils.testcase import TestCase
-from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype, POSTPONED_TASK_STATE
+from the_tale.common.postponed_tasks.prototypes import PostponedTask, PostponedTaskPrototype, POSTPONED_TASK_STATE
 
 from the_tale.accounts.logic import register_user
 

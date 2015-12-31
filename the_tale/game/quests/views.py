@@ -4,7 +4,7 @@ from dext.views import handler
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils import api
 
 from the_tale.amqp_environment import environment

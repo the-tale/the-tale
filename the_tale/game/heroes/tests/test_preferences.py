@@ -6,7 +6,9 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from the_tale.common.utils.testcase import TestCase
-from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype, FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.models import PostponedTask
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
 
 from the_tale.accounts.logic import register_user, login_page_url
 from the_tale.accounts.prototypes import AccountPrototype
@@ -16,15 +18,14 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs import relations as mobs_relations
 
-from the_tale.game.map.places.models import Place
+from the_tale.game.places.models import Place
 
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game import relations as game_relations
 
 from the_tale.game.persons.models import Person
-from the_tale.game.persons.relations import PERSON_STATE
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game.heroes import relations
 from the_tale.game.heroes.postponed_tasks import ChoosePreferencesTask, CHOOSE_PREFERENCES_TASK_STATE
@@ -541,12 +542,12 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         self.enemy_id = self.enemy.id
 
     def test_preferences_serialization(self):
-        self.hero.preferences.set_friend(persons_storage[self.friend_id])
+        self.hero.preferences.set_friend(persons_storage.persons[self.friend_id])
         data = self.hero.preferences.serialize()
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        friend = persons_storage[self.friend_id]
+        friend = persons_storage.persons[self.friend_id]
 
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_friend(friend)
@@ -594,7 +595,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
     def test_set_enemy_as_friend(self):
-        self.hero.preferences.set_enemy(persons_storage[self.enemy_id])
+        self.hero.preferences.set_enemy(persons_storage.persons[self.enemy_id])
         logic.save_hero(self.hero)
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FRIEND, self.enemy_id)
@@ -602,7 +603,7 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND)
 
     def test_set_outgame_friend(self):
-        friend = persons_storage[self.friend_id]
+        friend = persons_storage.persons[self.friend_id]
         friend.move_out_game()
         friend.save()
 
@@ -613,22 +614,22 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
 
 
     def test_set_friend(self):
-        self.assertEqual(HeroPreferences.get_friends_of(persons_storage[self.friend_id], all=False), [])
-        self.assertEqual(HeroPreferences.get_friends_of(persons_storage[self.friend_id], all=True), [])
+        self.assertEqual(HeroPreferences.get_friends_of(persons_storage.persons[self.friend_id], all=False), [])
+        self.assertEqual(HeroPreferences.get_friends_of(persons_storage.persons[self.friend_id], all=True), [])
 
         changed_at = self.hero.preferences.friend_changed_at
         self.check_set_friend(self.friend_id)
 
         self.assertTrue(changed_at < self.hero.preferences.friend_changed_at)
 
-        self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage[self.friend_id], all=False)], [])
-        self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage[self.friend_id], all=True)], [self.hero.id])
+        self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage.persons[self.friend_id], all=False)], [])
+        self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage.persons[self.friend_id], all=True)], [self.hero.id])
 
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=1)
         logic.save_hero(self.hero)
 
-        self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage[self.friend_id], all=False)], [self.hero.id])
-        self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage[self.friend_id], all=True)], [self.hero.id])
+        self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage.persons[self.friend_id], all=False)], [self.hero.id])
+        self.assertEqual([hero.id for hero in HeroPreferences.get_friends_of(persons_storage.persons[self.friend_id], all=True)], [self.hero.id])
 
     def check_change_friend(self, new_friend_id, expected_friend_id, expected_state):
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FRIEND, self.friend_id)
@@ -791,12 +792,12 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         self.friend_id =  self.friend.id
 
     def test_preferences_serialization(self):
-        self.hero.preferences.set_enemy(persons_storage[self.enemy_id])
+        self.hero.preferences.set_enemy(persons_storage.persons[self.enemy_id])
         data = self.hero.preferences.serialize()
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        enemy = persons_storage[self.enemy_id]
+        enemy = persons_storage.persons[self.enemy_id]
 
         self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_enemy(enemy)
@@ -845,7 +846,7 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
     def test_set_outgame_enemy(self):
-        enemy = persons_storage[self.enemy_id]
+        enemy = persons_storage.persons[self.enemy_id]
         enemy.move_out_game()
         enemy.save()
 
@@ -855,24 +856,24 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         self.assertEqual(self.hero.preferences.enemy, None)
 
     def test_set_enemy(self):
-        self.assertEqual(HeroPreferences.get_enemies_of(persons_storage[self.enemy_id], all=False), [])
-        self.assertEqual(HeroPreferences.get_enemies_of(persons_storage[self.enemy_id], all=True), [])
+        self.assertEqual(HeroPreferences.get_enemies_of(persons_storage.persons[self.enemy_id], all=False), [])
+        self.assertEqual(HeroPreferences.get_enemies_of(persons_storage.persons[self.enemy_id], all=True), [])
 
         changed_at = self.hero.preferences.enemy_changed_at
         self.check_set_enemy(self.enemy_id)
         self.assertTrue(changed_at < self.hero.preferences.enemy_changed_at)
 
-        self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage[self.enemy_id], all=False)], [])
-        self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage[self.enemy_id], all=True)], [self.hero.id])
+        self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage.persons[self.enemy_id], all=False)], [])
+        self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage.persons[self.enemy_id], all=True)], [self.hero.id])
 
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=1)
         logic.save_hero(self.hero)
 
-        self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage[self.enemy_id], all=False)], [self.hero.id])
-        self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage[self.enemy_id], all=True)], [self.hero.id])
+        self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage.persons[self.enemy_id], all=False)], [self.hero.id])
+        self.assertEqual([hero.id for hero in HeroPreferences.get_enemies_of(persons_storage.persons[self.enemy_id], all=True)], [self.hero.id])
 
     def test_set_friend_as_enemy(self):
-        self.hero.preferences.set_friend(persons_storage[self.friend_id])
+        self.hero.preferences.set_friend(persons_storage.persons[self.friend_id])
         logic.save_hero(self.hero)
 
         task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENEMY, self.friend_id)
@@ -1723,7 +1724,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
         texts = []
 
-        for person in Person.objects.filter(state=PERSON_STATE.IN_GAME):
+        for person in Person.objects.all():
             texts.append(('data-preference-id="%d"' % person.id, 1))
 
         self.check_html_ok(response, texts=texts)
@@ -1734,7 +1735,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
         texts = []
 
-        for person in Person.objects.filter(state=PERSON_STATE.IN_GAME):
+        for person in Person.objects.all():
             texts.append(('data-preference-id="%d"' % person.id, 1))
 
         self.check_html_ok(response, texts=texts)

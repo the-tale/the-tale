@@ -10,9 +10,9 @@ from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.game.mobs.storage import mobs_storage
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game import relations as game_relations
 
@@ -158,9 +158,9 @@ class HeroPreferences(object):
 
         return mob
 
-    def _prepair_place(self, place_id): return places_storage.get(place_id)
+    def _prepair_place(self, place_id): return places_storage.places.get(place_id)
 
-    def _prepair_person(self, person_id): return persons_storage.get(person_id)
+    def _prepair_person(self, person_id): return persons_storage.persons.get(person_id)
 
     def _prepair_energy_regeneration(self, energy_regeneration_id):
         return relations.ENERGY_REGENERATION.index_value.get(int(energy_regeneration_id))

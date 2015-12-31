@@ -6,7 +6,7 @@ from dext.common.utils.urls import url
 from dext.settings import settings
 
 from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.finances.bank.prototypes import InvoicePrototype as BankInvoicePrototype
 from the_tale.finances.bank.tests.helpers import BankTestsMixin

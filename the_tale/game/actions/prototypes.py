@@ -25,8 +25,8 @@ from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.artifacts.storage import artifacts_storage
 
-from the_tale.game.map.roads.storage import waymarks_storage
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.roads.storage import waymarks_storage
+from the_tale.game.places import storage as places_storage
 from the_tale.game.map.storage import map_info_storage
 
 from the_tale.game.abilities.relations import HELP_CHOICES
@@ -227,7 +227,7 @@ class ActionBase(object):
         self.storage = storage
 
     @property
-    def place(self): return places_storage[self.place_id]
+    def place(self): return places_storage.places[self.place_id]
 
     def get_destination(self): return self.destination_x, self.destination_y
     def set_destination(self, x, y):

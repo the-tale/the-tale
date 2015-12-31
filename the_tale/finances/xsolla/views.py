@@ -1,7 +1,6 @@
 # coding: utf-8
 import sys
-
-from django.utils.log import getLogger
+import logging
 
 from dext.views import handler
 from dext.common.utils.decorators import debug_required
@@ -15,7 +14,7 @@ from the_tale.finances.xsolla import logic as xsolla_logic
 from the_tale.finances.xsolla.conf import xsolla_settings
 
 
-logger = getLogger('the-tale.bank_xsolla_requests')
+logger = logging.getLogger('the-tale.bank_xsolla_requests')
 
 class XsollaResource(Resource):
 

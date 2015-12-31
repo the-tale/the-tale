@@ -9,7 +9,7 @@ from the_tale.game import relations as game_relations
 from the_tale.game.actions import relations as actions_relations
 from the_tale.game.artifacts import relations as artifacts_relations
 from the_tale.game.persons import relations as persons_relations
-from the_tale.game.map.places import relations as places_relations
+from the_tale.game.places import relations as places_relations
 from the_tale.game.map import relations as map_relations
 from the_tale.game.companions import relations as companions_relations
 

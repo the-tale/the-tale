@@ -3,11 +3,13 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.persons.relations import PERSON_TYPE
 
-from the_tale.game.map.places.modifiers import MODIFIERS
-from the_tale.game.map.places.modifiers.prototypes import TradeCenter, CraftCenter, Fort, PoliticalCenter, Polic, Resort, TransportNode, Outlaws
-from the_tale.game.map.places.conf import places_settings
+from the_tale.game.places.modifiers import MODIFIERS
+from the_tale.game.places.modifiers.prototypes import TradeCenter, CraftCenter, Fort, PoliticalCenter, Polic, Resort, TransportNode, Outlaws
+
 
 class ModifiersTests(testcase.TestCase):
 
@@ -52,7 +54,7 @@ class ModifiersTests(testcase.TestCase):
         self.assertEqual(CraftCenter(self.place_1).modify_economic_size(100), 100)
         self.assertEqual(CraftCenter(self.place_1).modify_terrain_change_power(100), 100)
 
-        self.assertEqual(Polic(self.place_1).modify_economic_size(places_settings.MAX_SIZE+2), places_settings.MAX_SIZE+3)
+        self.assertEqual(Polic(self.place_1).modify_economic_size(c.PLACE_MAX_SIZE+2), c.PLACE_MAX_SIZE+3)
         self.assertEqual(Polic(self.place_1).modify_economic_size(1), 2)
         self.assertEqual(Polic(self.place_1).modify_terrain_change_power(100), 120)
 

@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import datetime
-
 from django.db import models
 
 from rels.django import RelationIntegerField
@@ -18,11 +16,7 @@ class Person(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_at_turn = models.IntegerField(null=False, default=0)
 
-    out_game_at = models.DateTimeField(null=False, default=datetime.datetime(2000, 1, 1))
-
     place = models.ForeignKey('places.Place', related_name='persons', on_delete=models.PROTECT)
-
-    state = RelationIntegerField(relation=relations.PERSON_STATE)
 
     gender = RelationIntegerField(relation=GENDER, relation_column='value')
     race = RelationIntegerField(relation=RACE, relation_column='value')

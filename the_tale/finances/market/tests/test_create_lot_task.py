@@ -2,7 +2,7 @@
 import mock
 
 from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.game import logic_storage
 

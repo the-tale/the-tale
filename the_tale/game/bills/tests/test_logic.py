@@ -20,7 +20,7 @@ class LogicTests(BaseTestPrototypes):
         from the_tale.game.bills import prototypes as bills_prototypes
         from the_tale.game.bills import bills
         from the_tale.game.bills import conf as bills_conf
-        from the_tale.game.map.places import modifiers as places_modifiers
+        from the_tale.game.places import modifiers as places_modifiers
         from the_tale.forum import models as forum_models
 
         self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [])

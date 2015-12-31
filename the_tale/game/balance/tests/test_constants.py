@@ -230,6 +230,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PVP_EFFECTIVENESS_INITIAL, 300)
 
         self.assertEqual(c.PLACE_MAX_SIZE, 10)
+        self.assertEqual(c.PLACE_MAX_FRONTIER_SIZE, 7)
+
+        self.assertEqual(c.PLACE_NEW_PLACE_LIVETIME, 2*7*24*60*60)
 
         self.assertEqual(c.PLACE_POWER_HISTORY_WEEKS, 6)
         self.assertEqual(c.PLACE_POWER_HISTORY_LENGTH, 0)
@@ -268,6 +271,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_HABITS_EVENT_PROBABILITY, 0.025)
 
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
+        self.assertEqual(c.BUILDING_POSITION_RADIUS, 2)
         self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2*7*24)
         self.assertTrue(0.0029 < c.BUILDING_AMORTIZATION_SPEED < 0.0030)
         self.assertEqual(c.BUILDING_FULL_REPAIR_ENERGY_COST, 168.0)

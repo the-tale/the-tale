@@ -9,9 +9,9 @@ from the_tale.game.bills.bills.place_resource_exchange import ALLOWED_EXCHANGE_T
 
 from the_tale.game.bills.tests.helpers import choose_exchange_resources, BaseTestPrototypes
 
-from the_tale.game.map.places.storage import resource_exchange_storage
-from the_tale.game.map.places.prototypes import ResourceExchangePrototype
-from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+from the_tale.game.places.storage import resource_exchange_storage
+from the_tale.game.places.prototypes import ResourceExchangePrototype
+from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
 
 
 class PlaceResourceExchangeTests(BaseTestPrototypes):

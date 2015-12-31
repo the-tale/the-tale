@@ -3,7 +3,7 @@
 import mock
 import datetime
 
-from the_tale.game.map.places.storage import resource_exchange_storage
+from the_tale.game.places.storage import resource_exchange_storage
 
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PlaceResourceExchange, BillDecline, PlaceDescripton

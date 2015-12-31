@@ -41,7 +41,9 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.worker.logger = mock.Mock()
 
     def test_initialization(self):
-        from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype, POSTPONED_TASK_STATE, FakePostponedInternalTask
+        from the_tale.common.postponed_tasks.models import PostponedTask
+        from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_STATE
+        from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
 
         PostponedTaskPrototype.create(FakePostponedInternalTask())
 

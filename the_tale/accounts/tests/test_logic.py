@@ -4,7 +4,7 @@ import datetime
 
 from the_tale.common.utils import testcase
 
-from the_tale.common.postponed_tasks import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT, PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import FakePostpondTaskPrototype, POSTPONED_TASK_LOGIC_RESULT, PostponedTaskPrototype
 
 from the_tale.game.heroes.models import Hero
 from the_tale.game.logic import create_test_map

@@ -7,7 +7,8 @@ from dext.common.utils.urls import url
 
 
 from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype
+from the_tale.common.postponed_tasks.models import PostponedTask
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype

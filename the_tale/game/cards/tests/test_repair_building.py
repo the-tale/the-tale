@@ -20,7 +20,7 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 from the_tale.game.postponed_tasks import ComplexChangeTask
 from the_tale.game.balance import constants as c
 
-from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.places.prototypes import BuildingPrototype
 
 
 class RepairBuildingTests(CardsTestMixin, testcase.TestCase):

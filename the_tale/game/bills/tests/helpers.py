@@ -2,7 +2,7 @@
 
 import random
 
-from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
 
 from the_tale.common.utils.testcase import TestCase
 

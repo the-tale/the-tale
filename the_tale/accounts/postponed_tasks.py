@@ -12,7 +12,7 @@ from the_tale import amqp_environment
 from the_tale.common.utils.enum import create_enum
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.finances.bank import transaction as bank_transaction
 from the_tale.finances.bank import prototypes as bank_prototypes

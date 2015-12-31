@@ -42,8 +42,8 @@ class MarketManagerTests(testcase.TransactionTestCase):
     def test_process_logic_task(self):
         task = logic.send_good_to_market(seller_id=self.account_1.id, good=self.good_1, price=666)
 
-        with mock.patch('the_tale.common.postponed_tasks.PostponedTaskPrototype.process') as process:
-            with mock.patch('the_tale.common.postponed_tasks.PostponedTaskPrototype.do_postsave_actions') as do_postsave_actions:
+        with mock.patch('the_tale.common.postponed_tasks.prototypes.PostponedTaskPrototype.process') as process:
+            with mock.patch('the_tale.common.postponed_tasks.prototypes.PostponedTaskPrototype.do_postsave_actions') as do_postsave_actions:
                 self.worker.process_logic_task(self.account_1.id, task.id)
 
         self.assertEqual(process.call_count, 1)

@@ -6,7 +6,7 @@ from dext.common.utils.urls import url
 from django.contrib.auth import authenticate as django_authenticate
 
 from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts.prototypes import ChangeCredentialsTaskPrototype, AccountPrototype
 from the_tale.accounts.postponed_tasks import ChangeCredentials, CHANGE_CREDENTIALS_STATE

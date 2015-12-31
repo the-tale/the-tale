@@ -423,6 +423,9 @@ PVP_EFFECTIVENESS_INITIAL = float(300)
 ###########################
 
 PLACE_MAX_SIZE = int(10)
+PLACE_MAX_FRONTIER_SIZE = int(7)
+
+PLACE_NEW_PLACE_LIVETIME = int(2*7*24*60*60)
 
 PLACE_POWER_HISTORY_WEEKS = int(6) # количество недель, которое хранится влияние города
 PLACE_POWER_HISTORY_LENGTH = int(PLACE_POWER_HISTORY_WEEKS*7*24*TURNS_IN_HOUR) # в ходах
@@ -471,6 +474,8 @@ PLACE_HABITS_EVENT_PROBABILITY = float(0.025)
 ###########################
 
 BUILDING_MASTERY_BONUS = float(0.15)
+
+BUILDING_POSITION_RADIUS = int(2)
 
 # на починку зданий игроки тратят энергию
 # желательно, чтобы для единственного здания в городе эффект единичной траты энергии был заметен

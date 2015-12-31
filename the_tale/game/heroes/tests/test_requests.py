@@ -9,7 +9,8 @@ from django.test import client
 from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
-from the_tale.common.postponed_tasks import PostponedTask, PostponedTaskPrototype
+from the_tale.common.postponed_tasks.models import PostponedTask
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.logic import register_user, login_page_url
@@ -22,9 +23,6 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game import names
-
-from the_tale.game.cards import relations as cards_relations
-from the_tale.game.cards import objects as cards_objects
 
 from .. import relations
 from .. import meta_relations

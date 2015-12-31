@@ -8,8 +8,6 @@ from questgen.knowledge_base import KnowledgeBase
 from questgen import facts
 from questgen import relations as questgen_relations
 
-from dext.common.utils import s11n
-
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import register_user
@@ -23,13 +21,12 @@ from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.mobs.storage import mobs_storage
 
-from the_tale.game.map.roads.storage import waymarks_storage
+from the_tale.game.roads.storage import waymarks_storage
 
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
 from the_tale.game.quests import uids
 from the_tale.game.quests import logic
-from the_tale.game.quests import relations
 
 
 class LogicTestsBase(testcase.TestCase):

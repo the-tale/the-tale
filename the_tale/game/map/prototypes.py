@@ -13,14 +13,13 @@ from the_tale.common.utils.decorators import lazy_property
 
 from the_tale.game.relations import RACE
 
-from the_tale.game.persons.relations import PERSON_STATE
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 
-from the_tale.game.map.places.models import Place
-from the_tale.game.map.places.prototypes import PlacePrototype
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places.models import Place
+from the_tale.game.places import logic as places_logic
+from the_tale.game.places import storage as places_storage
 
-from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.roads.storage import roads_storage
 
 from the_tale.game.map.models import MapInfo, WorldInfo
 from the_tale.game.map.utils import get_person_race_percents, get_race_percents
@@ -77,7 +76,7 @@ class MapInfoPrototype(BasePrototype):
     def race_cities(self): return self.statistics['race_cities']
 
     def get_dominant_place(self, x, y):
-        for place in places_storage.all():
+        for place in places_storage.places.all():
             if (x, y) in place.nearest_cells:
                 return place
         return None
@@ -122,13 +121,13 @@ class MapInfoPrototype(BasePrototype):
 
         terrain_percents = dict( (id_.value, float(square) / total_cells) for id_, square in terrain_squares.items())
 
-        person_race_percents = get_person_race_percents(persons_storage.filter(state=PERSON_STATE.IN_GAME))
-        race_percents = get_race_percents(places_storage.all())
+        person_race_percents = get_person_race_percents(persons_storage.persons.all())
+        race_percents = get_race_percents(places_storage.places.all())
 
         #race to cities percents
         race_cities = dict( (race.value, 0) for race in RACE.records)
         for place_model in Place.objects.all():
-            place = PlacePrototype(place_model)
+            place = places_logic.load_place(place_model=place_model)
             race_cities[place.race.value] += 1
 
         statistics = {'terrain_percents': terrain_percents,

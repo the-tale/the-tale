@@ -20,7 +20,7 @@ from . import effects
 from . import relations
 
 
-class PlacePrototype(names.ManageNameMixin2):
+class Place(names.ManageNameMixin2):
     __slots__ = ('id',
                  'x', 'y',
                  'heroes_number',
@@ -43,7 +43,12 @@ class PlacePrototype(names.ManageNameMixin2):
                  'utg_name',
                  'races',
                  'nearest_cells',
-                 'effects')
+                 'effects',
+                 'modifier',
+
+                 # mames mixin
+                 '_utg_name_form__lazy',
+                 '_name__lazy')
 
     def __init__(self,
                  id,
@@ -68,7 +73,8 @@ class PlacePrototype(names.ManageNameMixin2):
                  utg_name,
                  races,
                  nearest_cells,
-                 effects):
+                 effects,
+                 modifier):
         self.id = id
         self.x = x
         self.y = y
@@ -93,6 +99,7 @@ class PlacePrototype(names.ManageNameMixin2):
         self.races = races
         self.nearest_cells = nearest_cells
         self.effects = effects
+        self.modifier = modifier
 
     @property
     def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self.updated_at_turn))
@@ -108,14 +115,6 @@ class PlacePrototype(names.ManageNameMixin2):
     def shift(self, dx, dy):
         self.x += dx
         self.y += dy
-
-    def get_modifier(self): return modifiers.MODIFIERS[self.modifier](self) if self.modifier is not None else None
-    def set_modifier(self, value):
-        if isinstance(value, modifiers.PlaceModifierBase):
-            self.modifier = value.get_id()
-        else:
-            self.modifier = value
-    modifier = property(get_modifier, set_modifier)
 
     def sync_modifier(self):
         if self.modifier and not self.modifier.is_enough_power:
@@ -193,11 +192,10 @@ class PlacePrototype(names.ManageNameMixin2):
     def can_habit_event(self):
         return random.uniform(0, 1) < c.PLACE_HABITS_EVENT_PROBABILITY
 
-    # @property
-    # def persons(self):
-    #     from the_tale.game.persons import storage as persons_storage
-    #     from the_tale.game.persons import relations as persons_relations
-    #     return sorted(persons_storage.persons.filter(place_id=self.id, state=persons_relations.PERSON_STATE.IN_GAME), key=lambda p: -p.power)
+    @property
+    def persons(self):
+        from the_tale.game.persons import storage as persons_storage
+        return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id), key=lambda p: -p.power)
 
     @property
     def total_persons_power(self): return sum([person.power for person in self.persons])
@@ -207,9 +205,6 @@ class PlacePrototype(names.ManageNameMixin2):
         return sorted([modifier(self) for modifier in modifiers.MODIFIERS.values()], key=lambda m: -m.power)
 
     def mark_as_updated(self): self.updated_at_turn = TimePrototype.get_current_turn_number()
-
-    @property
-    def max_persons_number(self): return conf.settings.SIZE_TO_PERSONS_NUMBER[self.size]
 
     # def add_person(self):
     #     from the_tale.game.persons.relations import PERSON_TYPE
@@ -233,13 +228,6 @@ class PlacePrototype(names.ManageNameMixin2):
     #     if 'stability_modifiers' not in self.data:
     #         self.data['stability_modifiers'] = []
     #     return self.data['stability_modifiers']
-
-    @property
-    def terrain_owning_radius(self):
-        radius = self.size * 1.25
-        if self.modifier:
-            radius = self.modifier.modify_terrain_owning_radius(radius)
-        return radius
 
 
     @property
@@ -276,6 +264,7 @@ class PlacePrototype(names.ManageNameMixin2):
 
     def _effects_generator(self):
         yield effects.Effect(actor_name=u'город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
+        yield effects.Effect(actor_name=u'город', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size*1.25)
 
         for effect in self.effect.effects:
             yield effect
@@ -317,7 +306,7 @@ class PlacePrototype(names.ManageNameMixin2):
         return self.modifier.EXPERIENCE_MODIFIER if self.modifier else 0
 
     # def _update_powers(self, powers, parameter):
-    #     from the_tale.game.map.places.storage import resource_exchange_storage
+    #     from the_tale.game.places.storage import resource_exchange_storage
 
     #     for exchange in resource_exchange_storage.get_exchanges_for_place(self):
     #         resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)

@@ -5,13 +5,13 @@ from django.db import transaction
 
 from dext.common.utils.logic import run_django_command
 
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 
-from the_tale.game.map.roads.models import Road
-from the_tale.game.map.places.models import Place
+from the_tale.game.roads.models import Road
+from the_tale.game.places.models import Place
 from the_tale.game.map.relations import TERRAIN
-from the_tale.game.map.places.storage import places_storage
-from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.places import storage as places_storage
+from the_tale.game.roads.storage import roads_storage
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
 from the_tale.game.map.conf import map_settings
@@ -87,13 +87,13 @@ class Command(BaseCommand):
         self.create_road(p28x19, p24x13)
         self.create_road(p28x19, p27x13)
 
-        places_storage.update_version()
+        places_storage.places.update_version()
         roads_storage.update_version()
 
         for place in places_storage.all():
             place.sync_persons(force_add=True)
 
-        persons_storage.update_version()
+        persons_storage.persons.update_version()
 
         terrain = []
         for y in xrange(0, map_settings.HEIGHT): # pylint: disable=W0612

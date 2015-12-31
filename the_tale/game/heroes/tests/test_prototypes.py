@@ -33,8 +33,8 @@ from the_tale.game.companions import relations as companions_relations
 from the_tale.game.companions.abilities import effects as companions_effects
 from the_tale.game.companions.abilities import container as companions_abilities_container
 
-from the_tale.game.map.places.storage import places_storage
-from the_tale.game.map.places.relations import CITY_MODIFIERS
+from the_tale.game.places import storage as places_storage
+from the_tale.game.places.relations import CITY_MODIFIERS
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.bills import conf as bills_conf
@@ -220,13 +220,13 @@ class HeroTest(testcase.TestCase):
         self.assertTrue(self.hero.can_change_person_power(self.place_1.persons[0]))
 
     def test_can_change_person_power__depends_from_all_heroes(self):
-        with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
+        with mock.patch('the_tale.game.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
             self.assertTrue(self.hero.can_change_person_power(self.place_1.persons[0]))
 
     def test_can_change_person_power__banned(self):
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
-        with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
+        with mock.patch('the_tale.game.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
             with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
                 self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
 
@@ -239,13 +239,13 @@ class HeroTest(testcase.TestCase):
         self.assertTrue(self.hero.can_change_place_power(self.place_1))
 
     def test_can_change_place_power__depends_from_all_heroes(self):
-        with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
+        with mock.patch('the_tale.game.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
             self.assertTrue(self.hero.can_change_place_power(self.place_1))
 
     def test_can_change_place_power__banned(self):
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
-        with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
+        with mock.patch('the_tale.game.places.prototypes.PlacePrototype.depends_from_all_heroes', True):
             with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
                 self.assertFalse(self.hero.can_change_person_power(self.place_1))
 
@@ -947,7 +947,7 @@ class HeroQuestsTest(testcase.TestCase):
 
         self.hero = logic.load_hero(account_id=account_id)
 
-        self.place = places_storage.all()[0]
+        self.place = places_storage.places.all()[0]
         self.person = self.place.persons[0]
 
 

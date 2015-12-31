@@ -20,16 +20,16 @@ def setUp(self):
     from the_tale.game.artifacts.storage import artifacts_storage
     from the_tale.game.heroes import storage as heroes_storage
     from the_tale.game.map.storage import map_info_storage
-    from the_tale.game.map.places.storage import places_storage, buildings_storage, resource_exchange_storage
-    from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
+    from the_tale.game.places import storage as places_storage
+    from the_tale.game.roads.storage import roads_storage, waymarks_storage
 
     settings.refresh(force=True)
 
     heroes_storage.position_descriptions.clear()
 
-    places_storage.clear()
-    buildings_storage.clear()
-    persons_storage.persons_storage.clear()
+    places_storage.places.clear()
+    places_storage.buildings.clear()
+    persons_storage.persons.clear()
     persons_storage.social_connections.clear()
     waymarks_storage.clear()
     roads_storage.clear()
@@ -37,7 +37,7 @@ def setUp(self):
     companions_storage.companions.clear()
     artifacts_storage.clear()
     map_info_storage.clear()
-    resource_exchange_storage.clear()
+    places_storage.resource_exchanges.clear()
     collections_storage.clear()
     kits_storage.clear()
     items_storage.clear()

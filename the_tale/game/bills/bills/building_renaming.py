@@ -7,9 +7,9 @@ from utg import relations as utg_relations
 
 from the_tale.linguistics.forms import WordField
 
-from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.persons import objects as persons_objects
 
-from the_tale.game.map.places.storage import buildings_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.bills.relations import BILL_TYPE
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
@@ -23,11 +23,11 @@ class UserForm(BaseUserForm):
 
     def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = PersonPrototype.form_choices(predicate=self._person_has_building)
+        self.fields['person'].choices = persons_objects.Person.form_choices(predicate=self._person_has_building)
 
     @classmethod
     def _person_has_building(cls, place, person): # pylint: disable=W0613
-        return buildings_storage.get_by_person_id(person.id) is not None
+        return places_storage.buildings.get_by_person_id(person.id) is not None
 
 
 class ModeratorForm(BaseModeratorForm):
@@ -55,7 +55,7 @@ class BuildingRenaming(BasePersonBill):
         self.new_building_name_forms = new_building_name_forms
 
         if self.old_building_name_forms is None:
-            building = buildings_storage.get_by_person_id(self.person_id)
+            building = places_storage.buildings.get_by_person_id(self.person_id)
             if building is not None:
                 self.old_building_name_forms = building.utg_name
 
@@ -66,7 +66,7 @@ class BuildingRenaming(BasePersonBill):
     def new_name(self): return self.new_building_name_forms.normal_form()
 
     @property
-    def building(self): return buildings_storage.get_by_person_id(self.person.id)
+    def building(self): return places_storage.buildings.get_by_person_id(self.person.id)
 
     def has_meaning(self):
         return self.building and not self.building.state.is_DESTROYED and self.building.utg_name != self.new_building_name_forms
@@ -93,7 +93,7 @@ class BuildingRenaming(BasePersonBill):
         super(BuildingRenaming, self).initialize_with_user_data(user_form)
         self.new_building_name_forms = user_form.c.name
 
-        building = buildings_storage.get_by_person_id(self.person_id)
+        building = places_storage.buildings.get_by_person_id(self.person_id)
         if building is not None:
             self.old_building_name_forms = building.utg_name
 

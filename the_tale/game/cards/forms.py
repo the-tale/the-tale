@@ -3,8 +3,8 @@
 from dext.forms import forms, fields
 
 
-from the_tale.game.map.places.storage import places_storage, buildings_storage
-from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.places import storage as places_storage
+from the_tale.game.persons import objects as persons_objects
 
 
 class EmptyForm(forms.Form):
@@ -19,7 +19,7 @@ class PersonForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(PersonForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = PersonPrototype.form_choices(only_weak=False)
+        self.fields['person'].choices = persons_objects.Person.form_choices(only_weak=False)
 
     def get_card_data(self):
         return {'person_id': int(self.c.person)}
@@ -31,7 +31,7 @@ class PlaceForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(PlaceForm, self).__init__(*args, **kwargs)
-        self.fields['place'].choices = places_storage.get_choices()
+        self.fields['place'].choices = places_storage.places.get_choices()
 
     def get_card_data(self):
         return {'place_id': int(self.c.place)}
@@ -43,7 +43,7 @@ class BuildingForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(BuildingForm, self).__init__(*args, **kwargs)
-        self.fields['building'].choices = buildings_storage.get_choices()
+        self.fields['building'].choices = places_storage.buildings.get_choices()
 
     def get_card_data(self):
         return {'building_id': int(self.c.building)}

@@ -1,6 +1,7 @@
 # coding: utf-8
 
-from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+
 from the_tale.common.utils.enum import create_enum
 
 from the_tale.game.pvp.prototypes import Battle1x1Prototype

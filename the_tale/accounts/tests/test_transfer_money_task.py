@@ -2,10 +2,8 @@
 import mock
 
 from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks import POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
 
-from the_tale.finances.bank import transaction as bank_transaction
-from the_tale.finances.bank import prototypes as bank_prototypes
 from the_tale.finances.bank import relations as bank_relations
 
 from the_tale.game.logic import create_test_map

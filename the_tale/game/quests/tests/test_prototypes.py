@@ -25,14 +25,13 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
 
-from the_tale.game.map.places.storage import places_storage
-from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.places import storage as places_storage
+from the_tale.game.roads.storage import roads_storage
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import relations as persons_relations
 from the_tale.game.persons import logic as persons_logic
 from the_tale.game.persons import models as persons_models
 
-from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype
@@ -186,7 +185,7 @@ class PrototypeTests(PrototypeTestsBase):
     @mock.patch('the_tale.game.quests.prototypes.QuestInfo.get_person_power_for_quest', classmethod(lambda cls, hero: 1))
     def test_power_on_end_quest_for_normal_account_hero__in_frontier(self):
 
-        for place in places_storage.all():
+        for place in places_storage.places.all():
             place._model.is_frontier = True
 
         self.hero.is_fast = False
@@ -223,7 +222,7 @@ class PrototypeTests(PrototypeTestsBase):
     def test_modify_experience(self):
         self.assertEqual(self.quest.modify_experience(100), 100)
 
-        with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.get_experience_modifier',
+        with mock.patch('the_tale.game.places.prototypes.PlacePrototype.get_experience_modifier',
                         mock.Mock(return_value=0.1)) as get_experience_modifier:
             self.assertTrue(self.quest.modify_experience(100) > 100)
 
@@ -693,12 +692,12 @@ class CheckRequirementsTests(PrototypeTestsBase):
 
     def get_check_places(self, place_id):
         for place in self.quest.knowledge_base.filter(facts.Place):
-            if places_storage[place.externals['id']].id == place_id:
+            if places_storage.places[place.externals['id']].id == place_id:
                 place_fact = place
                 break
 
         for place in self.quest.knowledge_base.filter(facts.Place):
-            if places_storage[place.externals['id']].id != place_id:
+            if places_storage.places[place.externals['id']].id != place_id:
                 non_place_fact = place
                 break
 
@@ -916,12 +915,12 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
 
     def get_check_places(self, place_id):
         for place in self.quest.knowledge_base.filter(facts.Place):
-            if places_storage[place.externals['id']].id == place_id:
+            if places_storage.places[place.externals['id']].id == place_id:
                 place_fact = place
                 break
 
         for place in self.quest.knowledge_base.filter(facts.Place):
-            if places_storage[place.externals['id']].id != place_id:
+            if places_storage.places[place.externals['id']].id != place_id:
                 non_place_fact = place
                 break
 

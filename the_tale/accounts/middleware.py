@@ -2,7 +2,7 @@
 
 from rels.django import DjangoEnum
 
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts.logic import login_user

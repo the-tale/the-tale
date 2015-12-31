@@ -1,6 +1,5 @@
 # coding: utf-8
 import mock
-import datetime
 import contextlib
 
 from dext.settings import settings
@@ -8,9 +7,6 @@ from dext.settings import settings
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import testcase
-
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game import names
 
@@ -20,7 +16,7 @@ from the_tale.game.bills import prototypes as bills_prototypes
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons.models import Person
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.balance import constants as c
 from the_tale.game.logic import create_test_map
@@ -106,13 +102,13 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.worker.places_power, {2: (100, -1, 7, 11),
                                                     1: (10, 0, 30, -10)})
 
-        self.assertEqual(places_storage[1].power, 0)
-        self.assertEqual(places_storage[1].power_positive, 0)
-        self.assertEqual(places_storage[1].power_negative, 0)
+        self.assertEqual(places_storage.places[1].power, 0)
+        self.assertEqual(places_storage.places[1].power_positive, 0)
+        self.assertEqual(places_storage.places[1].power_negative, 0)
 
-        self.assertEqual(places_storage[2].power, 0)
-        self.assertEqual(places_storage[2].power_positive, 0)
-        self.assertEqual(places_storage[2].power_negative, 0)
+        self.assertEqual(places_storage.places[2].power, 0)
+        self.assertEqual(places_storage.places[2].power_positive, 0)
+        self.assertEqual(places_storage.places[2].power_negative, 0)
 
 
     @mock.patch('the_tale.game.workers.highlevel.Worker.sync_data', fake_sync_data)
@@ -194,18 +190,18 @@ class HighlevelTest(testcase.TestCase):
         update_heroes_number = mock.Mock()
         mark_as_updated = mock.Mock()
 
-        with contextlib.nested(mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.set_expected_size', set_expected_size),
-                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_size', sync_size),
-                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_persons', sync_persons),
-                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_stability', sync_stability),
-                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_habits', sync_habits),
-                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_modifier', sync_modifier),
-                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', sync_parameters),
-                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.update_heroes_number', update_heroes_number),
-                               mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.mark_as_updated', mark_as_updated)):
+        with contextlib.nested(mock.patch('the_tale.game.places.prototypes.PlacePrototype.set_expected_size', set_expected_size),
+                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_size', sync_size),
+                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_persons', sync_persons),
+                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_stability', sync_stability),
+                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_habits', sync_habits),
+                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_modifier', sync_modifier),
+                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', sync_parameters),
+                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.update_heroes_number', update_heroes_number),
+                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.mark_as_updated', mark_as_updated)):
             self.worker.sync_data()
 
-        places_number = len(places_storage.all())
+        places_number = len(places_storage.places.all())
 
         self.assertEqual(set_expected_size.call_count, places_number)
         self.assertEqual(sync_size.call_count, places_number)
@@ -223,15 +219,15 @@ class HighlevelTest(testcase.TestCase):
             self.worker.sync_data()
 
     @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1)
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.freedom', 1)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data(self):
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(self.p2.power, 0)
         self.assertEqual(self.p3.power, 0)
 
-        persons_version_0 = persons_storage.persons_storage._version
-        places_version_0 = places_storage._version
+        persons_version_0 = persons_storage.persons._version
+        places_version_0 = places_storage.places._version
 
         self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 2)
         self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 3)
@@ -256,8 +252,8 @@ class HighlevelTest(testcase.TestCase):
 
         self.assertEqual(self.p1.modifier, None)
 
-        persons_version_1 = persons_storage.persons_storage._version
-        places_version_1 = places_storage._version
+        persons_version_1 = persons_storage.persons._version
+        places_version_1 = places_storage.places._version
 
         self.assertEqual(person_1_1.power, 1)
         self.assertEqual(person_1_1.power_positive, 1)
@@ -300,12 +296,12 @@ class HighlevelTest(testcase.TestCase):
         self.worker.sync_data()
         self.assertEqual(self.worker.persons_power, {})
 
-        persons_version_2 = persons_storage.persons_storage._version
-        places_version_2 = places_storage._version
+        persons_version_2 = persons_storage.persons._version
+        places_version_2 = places_storage.places._version
 
-        self.p1 = places_storage[self.p1.id]
-        self.p2 = places_storage[self.p2.id]
-        self.p3 = places_storage[self.p3.id]
+        self.p1 = places_storage.places[self.p1.id]
+        self.p2 = places_storage.places[self.p2.id]
+        self.p3 = places_storage.places[self.p3.id]
 
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(self.p1.power_positive, 1)
@@ -323,14 +319,14 @@ class HighlevelTest(testcase.TestCase):
         self.assertTrue(len(set((places_version_0, places_version_1, places_version_2))), 3)
 
         self.assertEqual(settings[persons_storage.persons_storage.SETTINGS_KEY], persons_version_2)
-        self.assertEqual(settings[places_storage.SETTINGS_KEY], places_version_2)
+        self.assertEqual(settings[places_storage.places.SETTINGS_KEY], places_version_2)
 
 
     @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1)
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.freedom', 1)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data__power_from_building(self):
-        from the_tale.game.map.places.prototypes import BuildingPrototype
+        from the_tale.game.places.prototypes import BuildingPrototype
 
         person_1 = self.p1.persons[0]
 
@@ -357,8 +353,8 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(person_1.power, person_power)
 
     @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.freedom', 1.25)
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.freedom', 1.25)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data__power_from_freedom(self):
         person_1 = self.p1.persons[0]
 
@@ -381,11 +377,11 @@ class HighlevelTest(testcase.TestCase):
 
 
     @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.power_positive', 0.25)
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.power_negative', 0.5)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.power_positive', 0.25)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.power_negative', 0.5)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_positive', 0.75)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_negative', 1.0)
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data__power_from_bonuses__1(self):
         person_1 = self.p1.persons[0]
 
@@ -407,11 +403,11 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(person_1.power, 1000 * 1.75)
 
     @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.power_positive', 0.25)
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.power_negative', 0.5)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.power_positive', 0.25)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.power_negative', 0.5)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_positive', 0.75)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_negative', 1.0)
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
     def test_sync_data__power_from_bonuses_2(self):
         person_1 = self.p1.persons[0]
 
@@ -454,7 +450,7 @@ class HighlevelTest(testcase.TestCase):
     #         self.assertEqual(object.raw_power, 1000)
 
     # def test_correct_objects_power__places(self):
-    #     self.check_correct_objects_power(places_storage.all())
+    #     self.check_correct_objects_power(places_storage.places.all())
 
     # def test_correct_objects_power__persons(self):
     #     self.check_correct_objects_power(persons_storage.persons_storage.all())

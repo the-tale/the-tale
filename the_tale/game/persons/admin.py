@@ -2,7 +2,8 @@
 
 from django.contrib import admin
 
-from the_tale.game.persons import models
+from . import models
+from . import logic
 
 
 class PersonAdmin(admin.ModelAdmin):
@@ -11,8 +12,7 @@ class PersonAdmin(admin.ModelAdmin):
     list_filter = ('state', 'type', 'place')
 
     def name(self, obj):
-        from the_tale.game.persons import logic
-        return logic.load_person(model=obj).name
+        return logic.load_person(person_model=obj).name
 
 
 class SocialConnectionAdmin(admin.ModelAdmin):

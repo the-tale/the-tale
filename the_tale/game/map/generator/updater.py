@@ -15,8 +15,8 @@ from the_tale.game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
 from the_tale.game.map.generator.biomes import Biom
 from the_tale.game.map.generator.power_points import get_power_points
 from the_tale.game.map.generator.drawer import get_draw_info
-from the_tale.game.map.places.storage import places_storage, buildings_storage
-from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.places import storage as places_storage
+from the_tale.game.roads.storage import roads_storage
 from the_tale.game.map.relations import TERRAIN
 
 
@@ -30,8 +30,8 @@ def update_map(index):
 
     if generator.w != map_settings.WIDTH or generator.h != map_settings.HEIGHT:
         dx, dy = generator.resize(map_settings.WIDTH, map_settings.HEIGHT)
-        places_storage.shift_all(dx, dy)
-        buildings_storage.shift_all(dx, dy)
+        places_storage.places.shift_all(dx, dy)
+        places_storage.buildings.shift_all(dx, dy)
 
     for point in get_power_points():
         generator.add_power_point(point)
@@ -73,7 +73,7 @@ def update_map(index):
             'map_version': map_info_storage.version,
             'format_version': '0.1',
             'draw_info': raw_draw_info,
-            'places': dict( (place.id, place.map_info() ) for place in places_storage.all() ),
+            'places': dict( (place.id, place.map_info() ) for place in places_storage.places.all() ),
             # 'buildings': dict( (building.id, building.map_info() ) for building in buildings_storage.all() ),
             'roads': dict( (road.id, road.map_info() ) for road in roads_storage.all()) }
 

@@ -35,7 +35,7 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
 
-from the_tale.game.map.places.modifiers import HolyCity
+from the_tale.game.places.modifiers import HolyCity
 
 from the_tale.game.quests.writers import Writer
 from the_tale.game.quests.prototypes import QuestPrototype

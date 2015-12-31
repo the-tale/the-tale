@@ -6,7 +6,7 @@ from the_tale.game.map import views
 
 
 urlpatterns = patterns('',
-                       (r'^places/', include('the_tale.game.map.places.urls', namespace='places') ),
+                       (r'^places/', include('the_tale.game.places.urls', namespace='places') ),
                       )
 
 

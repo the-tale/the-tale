@@ -16,7 +16,7 @@ from dext.common.utils import s11n
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import bbcode
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils.logic import verbose_timedelta
 
 from the_tale.common.utils.password import generate_password

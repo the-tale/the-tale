@@ -16,7 +16,7 @@ from the_tale.game import conf
 
 from the_tale.game.prototypes import TimePrototype
 
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game.mobs.prototypes import MobRecordPrototype
 from the_tale.game.mobs.storage import mobs_storage
@@ -30,13 +30,13 @@ from the_tale.game.cards import container as cards_container
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map import logic as map_logic
 
-from the_tale.game.map.places.storage import places_storage, buildings_storage
-from the_tale.game.map.places.prototypes import PlacePrototype
-from the_tale.game.map.places.logic import update_nearest_cells
+from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
+from the_tale.game.places import nearest_cells
 
-from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
-from the_tale.game.map.roads.prototypes import RoadPrototype
-from the_tale.game.map.roads.logic import update_waymarks
+from the_tale.game.roads.storage import roads_storage, waymarks_storage
+from the_tale.game.roads.prototypes import RoadPrototype
+from the_tale.game.roads.logic import update_waymarks
 
 from the_tale.game.companions import logic as companions_logic
 from the_tale.game.companions import relations as companions_relations
@@ -45,10 +45,12 @@ from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.heroes import objects as heroes_objects
 
+from . import relations
 
-@places_storage.postpone_version_update
-@buildings_storage.postpone_version_update
-@persons_storage.postpone_version_update
+
+@places_storage.places.postpone_version_update
+@places_storage.buildings.postpone_version_update
+@persons_storage.persons.postpone_version_update
 @waymarks_storage.postpone_version_update
 @roads_storage.postpone_version_update
 @mobs_storage.postpone_version_update
@@ -58,19 +60,20 @@ def create_test_map():
 
     map_logic.create_test_my_info()
 
-    p1 = PlacePrototype.create( x=1, y=1, size=1, utg_name=names.generator.get_test_name(name='1x1'))
-    p2 = PlacePrototype.create( x=3, y=3, size=3, utg_name=names.generator.get_test_name(name='10x10'))
-    p3 = PlacePrototype.create( x=1, y=3, size=3, utg_name=names.generator.get_test_name(name='1x10'))
+    p1 = places_logic.create_place( x=1, y=1, size=1, utg_name=names.generator.get_test_name(name='1x1'), race=relations.RACE.HUMAN)
+    p2 = places_logic.create_place( x=3, y=3, size=3, utg_name=names.generator.get_test_name(name='10x10'), race=relations.RACE.HUMAN)
+    p3 = places_logic.create_place( x=1, y=3, size=3, utg_name=names.generator.get_test_name(name='1x10'), race=relations.RACE.HUMAN)
 
-    for place in places_storage.all():
-        place.sync_persons(force_add=True)
+    for place in places_storage.places.all():
+        for i in xrange(3):
+            places_logic.add_person_to_place(place)
 
     RoadPrototype.create(point_1=p1, point_2=p2).update()
     RoadPrototype.create(point_1=p2, point_2=p3).update()
 
     update_waymarks()
 
-    update_nearest_cells()
+    nearest_cells.update_nearest_cells()
 
     mob_1 = MobRecordPrototype.create_random('mob_1')
     mob_2 = MobRecordPrototype.create_random('mob_2')

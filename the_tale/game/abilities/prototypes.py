@@ -2,7 +2,7 @@
 
 from the_tale.amqp_environment import environment
 
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 
 class AbilityPrototype(object):

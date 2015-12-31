@@ -3,7 +3,7 @@
 import rels
 from rels.django import DjangoEnum
 
-from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts import prototypes as accounts_prototypes
 from the_tale.accounts import logic as accounts_logic

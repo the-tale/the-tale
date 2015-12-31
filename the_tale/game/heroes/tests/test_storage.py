@@ -28,8 +28,8 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
 
-from the_tale.game.map.places import storage as places_storage
-from the_tale.game.map.places.relations import CITY_MODIFIERS
+from the_tale.game.places import storage as places_storage
+from the_tale.game.places.relations import CITY_MODIFIERS
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.relations import HABIT_PEACEFULNESS_INTERVAL, HABIT_HONOR_INTERVAL

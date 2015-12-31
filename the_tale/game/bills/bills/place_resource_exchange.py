@@ -12,11 +12,11 @@ from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
-from the_tale.game.map.places.storage import places_storage, resource_exchange_storage
-from the_tale.game.map.places.prototypes import ResourceExchangePrototype
-from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
+from the_tale.game.places import storage as places_storage
+from the_tale.game.places.prototypes import ResourceExchangePrototype
+from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
 
-from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.roads.storage import roads_storage
 
 
 ALLOWED_EXCHANGE_TYPES = [
@@ -48,20 +48,20 @@ class UserForm(BaseUserForm):
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['place_1'].choices = places_storage.get_choices()
-        self.fields['place_2'].choices = places_storage.get_choices()
+        self.fields['place_1'].choices = places_storage.places.get_choices()
+        self.fields['place_2'].choices = places_storage.places.get_choices()
 
     def clean(self):
         cleaned_data = super(UserForm, self).clean()
 
-        place_1 = places_storage.get(int(cleaned_data['place_1']))
-        place_2 = places_storage.get(int(cleaned_data['place_2']))
+        place_1 = places_storage.places.get(int(cleaned_data['place_1']))
+        place_2 = places_storage.places.get(int(cleaned_data['place_2']))
 
         if roads_storage.get_by_places(place_1, place_2) is None:
             raise ValidationError(u'Обмениваться ресурсами могут только города связаные дорогой')
 
-        if (c.PLACE_MAX_BILLS_NUMBER <= len(resource_exchange_storage.get_exchanges_for_place(place_1)) or
-            c.PLACE_MAX_BILLS_NUMBER <= len(resource_exchange_storage.get_exchanges_for_place(place_2)) ):
+        if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_1)) or
+            c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_2)) ):
             raise ValidationError(u'Один город может поддерживать не более чем %(max_exchanges)d активных законов' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
 
         resource_1 = cleaned_data.get('resource_1')
@@ -119,10 +119,10 @@ class PlaceResourceExchange(BaseBill):
             self.old_place_2_name_forms = self.place_2.utg_name
 
     @property
-    def place_1(self): return places_storage[self.place_1_id]
+    def place_1(self): return places_storage.places[self.place_1_id]
 
     @property
-    def place_2(self): return places_storage[self.place_2_id]
+    def place_2(self): return places_storage.places[self.place_2_id]
 
     @property
     def actors(self): return [self.place_1, self.place_2]
@@ -168,12 +168,12 @@ class PlaceResourceExchange(BaseBill):
                                              bill=bill)
 
     def decline(self, bill):
-        exchange = resource_exchange_storage.get_exchange_for_bill_id(bill.id)
+        exchange = places_storage.resource_exchanges.get_exchange_for_bill_id(bill.id)
         if exchange:
             exchange.remove()
 
     def end(self, bill):
-        exchange = resource_exchange_storage.get_exchange_for_bill_id(bill.id)
+        exchange = places_storage.resource_exchanges.get_exchange_for_bill_id(bill.id)
         if exchange:
             exchange.remove()
 

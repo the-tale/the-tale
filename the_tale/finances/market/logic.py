@@ -78,7 +78,7 @@ def save_goods(goods):
 
 
 def send_good_to_market(seller_id, good, price):
-    from the_tale.common.postponed_tasks import PostponedTaskPrototype
+    from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
     from the_tale.finances.market import postponed_tasks
 
     logic_task = postponed_tasks.CreateLotTask(account_id=seller_id,
@@ -94,7 +94,7 @@ def send_good_to_market(seller_id, good, price):
 
 
 def purchase_lot(buyer_id, lot):
-    from the_tale.common.postponed_tasks import PostponedTaskPrototype
+    from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
     from the_tale.finances.market import postponed_tasks
 
     invoice = bank_prototypes.InvoicePrototype.create(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
@@ -122,7 +122,7 @@ def purchase_lot(buyer_id, lot):
 
 
 def close_lots_by_timeout():
-    from the_tale.common.postponed_tasks import PostponedTaskPrototype
+    from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
     from the_tale.finances.market import postponed_tasks
 
     expired_lots_query = models.Lot.objects.filter(state=relations.LOT_STATE.ACTIVE,

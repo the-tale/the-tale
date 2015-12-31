@@ -16,7 +16,7 @@ from the_tale.common.utils.decorators import login_required, lazy_property
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.views import validate_fast_account, validate_ban_game
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.heroes import logic as heroes_logic
 
@@ -35,7 +35,7 @@ BASE_INDEX_FILTERS = [list_filter.reset_element(),
                                                                                             (BILL_STATE.ACCEPTED.value, u'принятые'),
                                                                                             (BILL_STATE.REJECTED.value, u'отклонённые') ]),
                       list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE.select('value', 'text'))),
-                      list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.get_choices()) ]
+                      list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.places.get_choices()) ]
 
 LOGINED_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'голосование:', attribute='voted', choices=[(None, u'все')] + list(VOTED_TYPE.select('value', 'text'))),]
 
@@ -99,7 +99,7 @@ class BillResource(Resource):
     @validate_argument('state', argument_to_bill_state, 'bills', u'неверное состояние закона')
     @validate_argument('bill_type', argument_to_bill_type, 'bills', u'неверный тип закона')
     @validate_argument('voted', VOTED_TYPE, 'bills', u'неверный тип фильтра голосования')
-    @validate_argument('place', lambda value: places_storage[int(value)], 'bills', u'не существует такого города')
+    @validate_argument('place', lambda value: places_storage.places[int(value)], 'bills', u'не существует такого города')
     @handler('', method='get')
     def index(self, page=1, owner=None, state=None, bill_type=None, voted=None, place=None):#pylint: disable=R0914
 

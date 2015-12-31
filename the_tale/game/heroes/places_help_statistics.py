@@ -2,7 +2,7 @@
 
 import collections
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.heroes.conf import heroes_settings
 
@@ -38,7 +38,7 @@ class PlacesHelpStatistics(object):
         return self._get_places_statisitcs().most_common()
 
     def get_most_common_places(self):
-        return [ (places_storage[place_id], number) for place_id, number in  self._get_most_common_places()]
+        return [ (places_storage.places[place_id], number) for place_id, number in  self._get_most_common_places()]
 
     def get_allowed_places_ids(self, number):
 

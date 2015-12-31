@@ -13,7 +13,7 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.clans.prototypes import ClanPrototype
@@ -24,10 +24,9 @@ from the_tale.game import relations as game_relations
 
 from the_tale.game.mobs.storage import mobs_storage
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
-from the_tale.game.persons.relations import PERSON_STATE
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game import names
 from the_tale.game.relations import HABIT_TYPE
@@ -227,7 +226,7 @@ class HeroResource(Resource):
         equipment_slots = None
         favorite_items = None
 
-        all_places = places_storage.all()
+        all_places = places_storage.places.all()
         all_places.sort(key=lambda x: x.name)
 
         if type.is_ENERGY_REGENERATION_TYPE:
@@ -242,11 +241,11 @@ class HeroResource(Resource):
             places = split_list(all_places)
 
         elif type.is_FRIEND:
-            friends = sorted([person for person in persons_storage.filter(state=PERSON_STATE.IN_GAME)],
+            friends = sorted([person for person in persons_storage.persons.all()],
                              key=lambda person: person.name)
 
         elif type.is_ENEMY:
-            enemies = sorted([person for person in persons_storage.filter(state=PERSON_STATE.IN_GAME)],
+            enemies = sorted([person for person in persons_storage.persons.all()],
                              key=lambda person: person.name)
 
         elif type.is_EQUIPMENT_SLOT:
@@ -273,7 +272,7 @@ class HeroResource(Resource):
                              {'type': type,
                               'mobs': mobs,
                               'places': places,
-                              'all_places': places_storage.get_choices(),
+                              'all_places': places_storage.places.get_choices(),
                               'places_powers': {place.id: place.total_persons_power for place in all_places},
                               'friends': friends,
                               'enemies': enemies,

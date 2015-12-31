@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate as django_authenticate
 from django.core.urlresolvers import reverse
 
 from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.game.logic import create_test_map
 

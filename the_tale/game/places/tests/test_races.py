@@ -6,9 +6,9 @@ from the_tale.common.utils import testcase
 from the_tale.game.relations import RACE
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import storage as persons_storage
 
-from the_tale.game.map.places.races import Races
+from the_tale.game.places.races import Races
 
 
 E = 0.001
@@ -19,7 +19,7 @@ class RacesTests(testcase.TestCase):
         super(RacesTests, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
-        for person in persons_storage.all():
+        for person in persons_storage.persons.all():
             person.push_power(0, 1000)
 
     def test_initialize(self):

@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.core.management.base import BaseCommand
 
-from the_tale.game.map.roads.logic import update_waymarks
+from the_tale.game.roads.logic import update_waymarks
 
 
 class Command(BaseCommand):

@@ -5,11 +5,11 @@ from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
-from the_tale.game.map.roads.models import Road, Waymark
-from the_tale.game.map.roads import exceptions
-from the_tale.game.map.roads.relations import PATH_DIRECTION
+from the_tale.game.roads.models import Road, Waymark
+from the_tale.game.roads import exceptions
+from the_tale.game.roads.relations import PATH_DIRECTION
 
 
 class RoadPrototype(BasePrototype):
@@ -19,10 +19,10 @@ class RoadPrototype(BasePrototype):
     _get_by = ('id',)
 
     @property
-    def point_1(self): return places_storage[self._model.point_1_id]
+    def point_1(self): return places_storage.places[self._model.point_1_id]
 
     @property
-    def point_2(self): return places_storage[self._model.point_2_id]
+    def point_2(self): return places_storage.places[self._model.point_2_id]
 
     ###########################################
     # Object operations
@@ -37,7 +37,7 @@ class RoadPrototype(BasePrototype):
 
     @classmethod
     def create(cls, point_1, point_2):
-        from the_tale.game.map.roads.storage import roads_storage
+        from the_tale.game.roads.storage import roads_storage
 
         if point_1.id > point_2.id:
             point_1, point_2 = point_2, point_1
@@ -51,8 +51,8 @@ class RoadPrototype(BasePrototype):
 
         distance = cls._distance_in_cells(point_1, point_2)
 
-        model = Road.objects.create(point_1=point_1._model,
-                                    point_2=point_2._model,
+        model = Road.objects.create(point_1_id=point_1.id,
+                                    point_2_id=point_2.id,
                                     length=distance * c.MAP_CELL_LENGTH)
 
         prototype = cls(model)
@@ -127,15 +127,15 @@ class WaymarkPrototype(BasePrototype):
     _get_by = ('id',)
 
     @property
-    def point_from(self): return places_storage[self._model.point_from_id]
+    def point_from(self): return places_storage.places[self._model.point_from_id]
 
     @property
-    def point_to(self): return places_storage[self._model.point_to_id]
+    def point_to(self): return places_storage.places[self._model.point_to_id]
 
     def get_road(self):
         if self._model.road_id is None:
             return None
-        from the_tale.game.map.roads.storage import roads_storage
+        from the_tale.game.roads.storage import roads_storage
         return roads_storage[self._model.road_id]
 
     def set_road(self, value):
@@ -154,7 +154,7 @@ class WaymarkPrototype(BasePrototype):
 
     @classmethod
     def create(cls, point_from, point_to, road, length):
-        from the_tale.game.map.roads.storage import waymarks_storage
+        from the_tale.game.roads.storage import waymarks_storage
 
         try:
             Waymark.objects.get(point_from=point_from.id,
@@ -163,8 +163,8 @@ class WaymarkPrototype(BasePrototype):
         except Waymark.DoesNotExist:
             pass
 
-        model = Waymark.objects.create(point_from=point_from._model,
-                                       point_to=point_to._model,
+        model = Waymark.objects.create(point_from_id=point_from.id,
+                                       point_to_id=point_to.id,
                                        road=road._model if road else None,
                                        length=length)
 

@@ -26,7 +26,7 @@ from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.prototypes import TimePrototype
 
-from the_tale.game.map.places.modifiers.prototypes import HolyCity, Resort
+from the_tale.game.places.modifiers.prototypes import HolyCity, Resort
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
@@ -176,7 +176,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.tax', 0.2)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.tax', 0.2)
     def test_tax(self):
         self.hero.money = 100
         self.hero.position.previous_place_id = None
@@ -191,7 +191,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.tax', 0.2)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.tax', 0.2)
     def test_tax__no_money(self):
         self.hero.money = 0
         self.hero.position.previous_place_id = None
@@ -207,7 +207,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.tax', 0.0)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.tax', 0.0)
     def test_tax__no_tax(self):
         self.hero.money = 100
         self.hero.position.previous_place_id = None
@@ -222,7 +222,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.tax', 0.2)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.tax', 0.2)
     def test_tax__place_not_changed(self):
         self.hero.money = 100
 
@@ -250,8 +250,8 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
                 self.hero.position.previous_place_id = None
                 self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-                with mock.patch('the_tale.game.map.places.habits.Honor.interval', honor):
-                    with mock.patch('the_tale.game.map.places.habits.Peacefulness.interval', peacefulness):
+                with mock.patch('the_tale.game.places.habits.Honor.interval', honor):
+                    with mock.patch('the_tale.game.places.habits.Peacefulness.interval', peacefulness):
                         with self.check_delta(self.hero.diary.messages_number, 1):
                             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 

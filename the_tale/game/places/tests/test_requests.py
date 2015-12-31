@@ -51,11 +51,11 @@ class TestShowRequests(testcase.TestCase):
         self.place_1.save()
         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=[('pgf-new-place-message', 0)])
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', True)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_frontier', True)
     def test_place_frontier_message(self):
         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=['pgf-frontier-message'])
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_frontier', False)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_frontier', False)
     def test_place_frontier_message__not_new(self):
         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=[('pgf-frontier-message', 0)])
 

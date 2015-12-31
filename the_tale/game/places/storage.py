@@ -1,17 +1,31 @@
 # coding: utf-8
 import random
 
+from dext.common.utils import storage as dext_storage
+
 from the_tale.common.utils import storage
 
-from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototype, ResourceExchangePrototype
-from the_tale.game.map.places import exceptions
-from the_tale.game.map.places.relations import BUILDING_STATE
+from .prototypes import BuildingPrototype, ResourceExchangePrototype
+from . import exceptions
+from .relations import BUILDING_STATE
+
+from . import models
 
 
-class PlacesStorage(storage.Storage):
+class PlacesStorage(dext_storage.Storage):
     SETTINGS_KEY = 'places change time'
     EXCEPTION = exceptions.PlacesStorageError
-    PROTOTYPE = PlacePrototype
+
+    def _construct_object(self, model):
+        from . import logic
+        return logic.load_place(place_model=model)
+
+    def _save_object(self, place):
+        from . import logic
+        return logic.save_place(place)
+
+    def _get_all_query(self):
+        return models.Place.objects.all()
 
     def random_place(self):
         self.sync()

@@ -3,10 +3,10 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.map.roads.models import Road, Waymark
-from the_tale.game.map.roads.prototypes import RoadPrototype
-from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
-from the_tale.game.map.roads.logic import update_waymarks
+from the_tale.game.roads.models import Road, Waymark
+from the_tale.game.roads.prototypes import RoadPrototype
+from the_tale.game.roads.storage import roads_storage, waymarks_storage
+from the_tale.game.roads.logic import update_waymarks
 
 
 class GeneralTest(testcase.TestCase):

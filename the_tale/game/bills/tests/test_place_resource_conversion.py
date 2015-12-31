@@ -9,8 +9,8 @@ from the_tale.game.bills.bills import PlaceResourceConversion
 
 from the_tale.game.bills.tests.helpers import choose_conversions, BaseTestPrototypes
 
-from the_tale.game.map.places.storage import resource_exchange_storage
-from the_tale.game.map.places.prototypes import ResourceExchangePrototype
+from the_tale.game.places.storage import resource_exchange_storage
+from the_tale.game.places.prototypes import ResourceExchangePrototype
 
 
 class PlaceResourceConversionTests(BaseTestPrototypes):

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.finances.shop import postponed_tasks
 from the_tale.finances.shop import exceptions

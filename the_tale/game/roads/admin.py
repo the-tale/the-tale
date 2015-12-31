@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from the_tale.game.map.roads.models import Road, Waymark
+from the_tale.game.roads.models import Road, Waymark
 
 class RoadAdmin(admin.ModelAdmin):
     list_display = ('id', 'exists', 'point_1', 'point_2', 'length')

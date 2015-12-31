@@ -4,7 +4,7 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.finances.bank.prototypes import InvoicePrototype
 from the_tale.finances.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
@@ -13,7 +13,6 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user
-from the_tale.accounts.conf import accounts_settings
 
 from the_tale.accounts.clans.conf import clans_settings
 

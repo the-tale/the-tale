@@ -2,8 +2,8 @@
 
 from dext.forms import fields
 
-from the_tale.game.persons.prototypes import PersonPrototype
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.persons import objects as persons_objects
+from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
@@ -17,7 +17,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = PersonPrototype.form_choices(only_weak=False, choosen_person=persons_storage.get(choosen_person_id))
+        self.fields['person'].choices = persons_objects.Person.form_choices(only_weak=False, choosen_person=persons_storage.persons.get(choosen_person_id))
 
 
 class ModeratorForm(BaseModeratorForm):

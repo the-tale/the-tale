@@ -139,13 +139,9 @@ class PoliticalCenter(PlaceModifierBase):
     TYPE = CITY_MODIFIERS.POLITICAL_CENTER
     FREEDOM_MODIFIER = 0.25
 
-    def modify_terrain_owning_radius(self, radius): return radius * 1.25
-    def modify_stability_renewing_speed(self, stability): return stability * 2
-
-    STABILITY_EFFECT =
-
-    def effects(self):
-        yield effects.Effect(actor_name=TYPE.text, attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
+    def effects(self, place):
+        yield effects.Effect(actor_name=self.TYPE.text, attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
+        yield effects.Effect(actor_name=self.TYPE.text, attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=place.attrs.size*0.25)
 
 
 class Polic(PlaceModifierBase):

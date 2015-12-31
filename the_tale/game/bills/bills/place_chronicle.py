@@ -8,7 +8,7 @@ from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
 
 class UserForm(BaseUserForm):
@@ -18,7 +18,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['place'].choices = places_storage.get_choices()
+        self.fields['place'].choices = places_storage.places.get_choices()
 
 
 class ModeratorForm(BaseModeratorForm):
@@ -52,7 +52,7 @@ class PlaceChronicle(BaseBill):
     def old_name(self): return self.old_name_forms.normal_form()
 
     @property
-    def place(self): return places_storage[self.place_id]
+    def place(self): return places_storage.places[self.place_id]
 
     @property
     def actors(self): return [self.place]

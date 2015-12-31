@@ -17,7 +17,7 @@ from the_tale.game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACT
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
-from the_tale.game.map.places.conf import places_settings
+from the_tale.game.places import conf as places_conf
 from the_tale.game.persons import conf as persons_conf
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp import abilities as pvp_abilities
@@ -68,7 +68,7 @@ def get_api_methods():
     from the_tale.game.quests.views import QuestsResource
     from the_tale.accounts.third_party.views import TokensResource
     from the_tale.game.cards import views as cards_views
-    from the_tale.game.map.places import views as places_views
+    from the_tale.game.places import views as places_views
 
     return [APIReference('portal_info', u'Базовая информация', PortalResource.api_info),
             APIReference('authorization', u'Авторизация в игре', getattr(TokensResource, 'api_request_authorisation')),
@@ -95,7 +95,7 @@ def get_api_types():
     from the_tale.game.actions.relations import ACTION_TYPE
     from the_tale.game.quests.relations import ACTOR_TYPE
     from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
-    from the_tale.game.map.places import relations as places_relations
+    from the_tale.game.places import relations as places_relations
     from the_tale.accounts.third_party.relations import AUTHORISATION_STATE
 
 
@@ -189,10 +189,10 @@ class GuideResource(Resource):
 
     @handler('cities', method='get')
     def cities(self):
-        from the_tale.game.map.places.modifiers import MODIFIERS
-        from the_tale.game.map.places.prototypes import PlaceParametersDescription
+        from the_tale.game.places.modifiers import MODIFIERS
+        from the_tale.game.places.prototypes import PlaceParametersDescription
         return self.template('guide/cities.html', {'section': 'cities',
-                                                   'places_settings': places_settings,
+                                                   'places_settings': places_conf.settings,
                                                    'PlaceParametersDescription': PlaceParametersDescription,
                                                    'MODIFIERS': sorted(MODIFIERS.values(), key=lambda modifier: modifier.NAME) })
 

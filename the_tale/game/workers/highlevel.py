@@ -11,12 +11,10 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.bills import prototypes as bill_prototypes
 
-from the_tale.game.persons.relations import PERSON_STATE
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import logic as persons_logic
 
-from the_tale.game.map.places.storage import places_storage, buildings_storage
-from the_tale.game.map.places.conf import places_settings
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.bills.conf import bills_settings
 
@@ -157,14 +155,14 @@ class Worker(BaseWorker):
             place.sync_persons(force_add=False)
 
 
-    @places_storage.postpone_version_update
-    @buildings_storage.postpone_version_update
-    @persons_storage.persons_storage.postpone_version_update
+    @places_storage.places.postpone_version_update
+    @places_storage.buildings.postpone_version_update
+    @persons_storage.persons.postpone_version_update
     def sync_data(self, sheduled=True):
 
         self.logger.info('sync data')
 
-        all_persons = persons_storage.persons_storage.filter(state=PERSON_STATE.IN_GAME)
+        all_persons = persons_storage.persons_storage.all()
 
         self.sync_persons_powers(persons=[person for person in all_persons if person.place.is_frontier])
         self.sync_persons_powers(persons=[person for person in all_persons if not person.place.is_frontier])
@@ -175,23 +173,23 @@ class Worker(BaseWorker):
 
         self.persons_power = {}
 
-        self.sync_places_powers(places=[place for place in places_storage.all() if place.is_frontier])
-        self.sync_places_powers(places=[place for place in places_storage.all() if not place.is_frontier])
+        self.sync_places_powers(places=[place for place in places_storage.places.all() if place.is_frontier])
+        self.sync_places_powers(places=[place for place in places_storage.places.all() if not place.is_frontier])
 
         self.places_power = {}
 
         # update size
         if sheduled:
-            self.sync_sizes([place for place in places_storage.all() if place.is_frontier],
+            self.sync_sizes([place for place in places_storage.places.all() if place.is_frontier],
                             hours=c.MAP_SYNC_TIME_HOURS,
-                            max_size=places_settings.MAX_FRONTIER_SIZE)
+                            max_size=c.PLACE_MAX_FRONTIER_SIZE)
 
-            self.sync_sizes([place for place in places_storage.all() if not place.is_frontier],
+            self.sync_sizes([place for place in places_storage.places.all() if not place.is_frontier],
                             hours=c.MAP_SYNC_TIME_HOURS,
-                            max_size=places_settings.MAX_SIZE)
+                            max_size=c.PLACE_MAX_SIZE)
 
 
-        for place in places_storage.all():
+        for place in places_storage.places.all():
             place.sync_stability()
             place.sync_modifier()
             place.sync_habits()
@@ -203,7 +201,7 @@ class Worker(BaseWorker):
 
             place.mark_as_updated()
 
-        places_storage.save_all()
+        places_storage.places.save_all()
 
         persons_storage.persons_storage.remove_out_game_persons()
         persons_storage.persons_storage.save_all()
@@ -211,10 +209,10 @@ class Worker(BaseWorker):
         persons_logic.sync_social_connections()
 
         if sheduled:
-            for building in buildings_storage.all():
+            for building in places_storage.buildings.all():
                 building.amortize(c.MAP_SYNC_TIME)
 
-        buildings_storage.save_all()
+        places_storage.buildings.save_all()
 
         self.logger.info('sync data completed')
 

@@ -8,7 +8,7 @@ from rels.django import DjangoEnum
 
 from the_tale.amqp_environment import environment
 
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -17,8 +17,8 @@ from the_tale.game.balance.power import Power
 
 from the_tale.game.cards import relations
 
-from the_tale.game.map.places.storage import places_storage, buildings_storage
-from the_tale.game.persons.storage import persons_storage
+from the_tale.game.places import storage as places_storage
+from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game.balance import constants as c
 from the_tale.game.prototypes import TimePrototype
@@ -618,21 +618,21 @@ class KeepersGoodsBase(BaseEffect):
 
         place_id = task.data.get('place_id')
 
-        if place_id not in places_storage:
+        if place_id not in places_storage.places:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Город не найден.')
 
         if task.step.is_LOGIC:
             return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
 
         elif task.step.is_HIGHLEVEL:
-            place = places_storage[place_id]
+            place = places_storage.places[place_id]
 
             place.keepers_goods += self.GOODS
             place.sync_parameters()
 
             place.save()
 
-            places_storage.update_version()
+            places_storage.places.update_version()
 
             return task.logic_result()
 
@@ -668,21 +668,21 @@ class RepairBuilding(BaseEffect):
 
         building_id = task.data.get('building_id')
 
-        if building_id not in buildings_storage:
+        if building_id not in places_storage.buildings:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Строение не найдено.')
 
         if task.step.is_LOGIC:
             return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
 
         elif task.step.is_HIGHLEVEL:
-            building = buildings_storage[building_id]
+            building = places_storage.buildings[building_id]
 
             while building.need_repair:
                 building.repair()
 
             building.save()
 
-            buildings_storage.update_version()
+            places_storage.buildings.update_version()
 
             return task.logic_result()
 
@@ -700,10 +700,10 @@ class PersonPowerBonusBase(BaseEffect):
 
         person_id = task.data.get('person_id')
 
-        if person_id not in persons_storage:
+        if person_id not in persons_storage.persons:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Советник не найден.')
 
-        person = persons_storage[person_id]
+        person = persons_storage.persons[person_id]
 
         if task.step.is_LOGIC:
             return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
@@ -714,7 +714,7 @@ class PersonPowerBonusBase(BaseEffect):
 
             person.save()
 
-            persons_storage.update_version()
+            persons_storage.persons.update_version()
 
             return task.logic_result()
 
@@ -763,14 +763,14 @@ class PlacePowerBonusBase(BaseEffect):
 
         place_id = task.data.get('place_id')
 
-        if place_id not in places_storage:
+        if place_id not in places_storage.places:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Город не найден.')
 
         if task.step.is_LOGIC:
             return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
 
         elif task.step.is_HIGHLEVEL:
-            place = places_storage[place_id]
+            place = places_storage.places[place_id]
 
             if self.BONUS > 0:
                 place.push_power_positive(TimePrototype.get_current_turn_number(), self.BONUS)
@@ -779,7 +779,7 @@ class PlacePowerBonusBase(BaseEffect):
 
             place.save()
 
-            places_storage.update_version()
+            places_storage.places.update_version()
 
             return task.logic_result()
 
@@ -845,7 +845,7 @@ class HelpPlaceBase(BaseEffect):
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         place_id = task.data.get('place_id')
 
-        if place_id not in places_storage:
+        if place_id not in places_storage.places:
             return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Город не найден.')
 
         for i in xrange(self.HELPS):

@@ -4,7 +4,7 @@ import rels
 from rels.django import DjangoEnum
 
 from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.finances.bank.transaction import Transaction

@@ -7,9 +7,9 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
-from the_tale.game.map.places.models import Building
-from the_tale.game.map.places.prototypes import BuildingPrototype
-from the_tale.game.map.places.relations import BUILDING_STATE
+from the_tale.game.places.models import Building
+from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places.relations import BUILDING_STATE
 
 from .. import relations
 from ..prototypes import BillPrototype, VotePrototype

@@ -5,10 +5,10 @@ import datetime
 
 from the_tale.game import names
 
-from the_tale.game.map.places.models import Building
-from the_tale.game.map.places.prototypes import BuildingPrototype
-from the_tale.game.map.places.storage import buildings_storage
-from the_tale.game.map.places.relations import BUILDING_STATE
+from the_tale.game.places.models import Building
+from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import storage as places_storage
+from the_tale.game.places.relations import BUILDING_STATE
 
 from the_tale.game.bills.relations import BILL_STATE
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
@@ -81,9 +81,9 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.assertTrue(bill.state.is_ACCEPTED)
 
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
-        self.assertEqual(len(buildings_storage.all()), 1)
+        self.assertEqual(len(places_storage.buildings.all()), 1)
 
-        building = buildings_storage.all()[0]
+        building = places_storage.buildings.all()[0]
 
         self.assertNotEqual(building.id, self.building_1.id)
 

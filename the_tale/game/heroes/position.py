@@ -3,8 +3,8 @@ import math
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.map.places.storage import places_storage
-from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.places import storage as places_storage
+from the_tale.game.roads.storage import roads_storage
 
 from the_tale.game.map.storage import map_info_storage
 
@@ -91,10 +91,10 @@ class Position(object):
 
 
     @property
-    def place(self): return places_storage.get(self.place_id)
+    def place(self): return places_storage.places.get(self.place_id)
 
     @property
-    def previous_place(self): return places_storage.get(self.previous_place_id)
+    def previous_place(self): return places_storage.places.get(self.previous_place_id)
 
     def update_previous_place(self):
         self.previous_place_id = self.place_id
@@ -202,7 +202,7 @@ class Position(object):
         x, y = self.cell_coordinates
         best_distance = 999999999999999
         best_place = None
-        for place in places_storage.all():
+        for place in places_storage.places.all():
             distance = math.hypot(place.x-x, place.y-y)
             if distance < best_distance:
                 best_distance = distance
@@ -218,11 +218,11 @@ class Position(object):
 
     @classmethod
     def raw_transport(cls):
-        from the_tale.game.map.places import conf
+        from the_tale.game.places import conf
         return 1.0 - c.WHILD_TRANSPORT_PENALTY - c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * conf.places_settings.MAX_SIZE
 
     def get_minumum_distance_to(self, destination):
-        from the_tale.game.map.roads.storage import waymarks_storage
+        from the_tale.game.roads.storage import waymarks_storage
 
         if self.place:
             return waymarks_storage.look_for_road(self.place, destination).length

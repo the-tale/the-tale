@@ -15,7 +15,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.abilities.relations import HELP_CHOICES
 
-from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.roads.storage import roads_storage
 from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.actions import prototypes

@@ -2,10 +2,11 @@
 import re
 import sys
 import collections
+import logging
 
 from django.db import models as django_models
 from django.db import transaction
-from django.utils.log import getLogger
+
 from django.conf import settings as project_settings
 
 from dext.common.utils import decorators as dext_decorators
@@ -31,8 +32,8 @@ from . import models
 from . import conf
 from .lexicon.keys import LEXICON_KEY
 
-logger = getLogger('the-tale.linguistics')
 
+logger = logging.getLogger('the-tale.linguistics')
 
 
 def get_templates_count():

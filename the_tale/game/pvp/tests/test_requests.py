@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import register_user, login_page_url

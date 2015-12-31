@@ -208,7 +208,7 @@ def get_transfer_commission(money):
     return commission
 
 def initiate_transfer_money(sender_id, recipient_id, amount, comment):
-    from the_tale.common.postponed_tasks import PostponedTaskPrototype
+    from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
     from the_tale.accounts import postponed_tasks
 
     commission = get_transfer_commission(amount)

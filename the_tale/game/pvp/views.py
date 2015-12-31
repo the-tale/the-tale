@@ -8,7 +8,7 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.decorators import login_required, lazy_property
 from the_tale.common.utils.resources import Resource
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.views import validate_fast_account

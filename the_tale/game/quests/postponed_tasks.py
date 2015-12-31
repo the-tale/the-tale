@@ -3,19 +3,18 @@
 import rels
 from rels.django import DjangoEnum
 
-from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 
 class MAKE_CHOICE_TASK_STATE(DjangoEnum):
     records = ( ('UNPROCESSED', 0, u'в очереди'),
-                 ('PROCESSED', 1, u'обработана'),
-                 ('UNKNOWN_CHOICE', 2, u'не существует такого выбора'),
-                 ('WRONG_POINT', 3, u'в данный момент вы не можете влиять на эту точку выбора'),
-                 ('LINE_NOT_AVAILABLE', 4, u'характер не позволяет герою сделать такой выбор'),
-                 ('ALREADY_CHOSEN', 5, u'вы уже сделали выбор'),
-                 ('QUEST_NOT_FOUND', 6, u'задание не найдено'),
-                 ('NO_CHOICES_IN_QUEST', 7, u'в текущем задании не осталось точек выбора'))
-
+                ('PROCESSED', 1, u'обработана'),
+                ('UNKNOWN_CHOICE', 2, u'не существует такого выбора'),
+                ('WRONG_POINT', 3, u'в данный момент вы не можете влиять на эту точку выбора'),
+                ('LINE_NOT_AVAILABLE', 4, u'характер не позволяет герою сделать такой выбор'),
+                ('ALREADY_CHOSEN', 5, u'вы уже сделали выбор'),
+                ('QUEST_NOT_FOUND', 6, u'задание не найдено'),
+                ('NO_CHOICES_IN_QUEST', 7, u'в текущем задании не осталось точек выбора'))
 
 
 class MakeChoiceTask(PostponedLogic):

@@ -13,7 +13,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game import names
 
-from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.places.prototypes import BuildingPrototype
 
 from the_tale.game.abilities.deck.building_repair import BuildingRepair
 
@@ -102,7 +102,7 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.assertEqual(self.building.integrity, 0.5)
 
-        with mock.patch('the_tale.game.map.places.prototypes.BuildingPrototype.repair') as repair:
+        with mock.patch('the_tale.game.places.prototypes.BuildingPrototype.repair') as repair:
             result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1,
                                                                                       step=step,
                                                                                       highlevel=self.highlevel,

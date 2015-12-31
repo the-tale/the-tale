@@ -11,8 +11,8 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.map.places.storage import places_storage
-from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.places.storage import places_storage
+from the_tale.game.roads.storage import roads_storage
 
 
 
@@ -31,32 +31,32 @@ class HeroPositionTest(testcase.TestCase):
         self.road_1_2 = roads_storage.get_by_places(self.place_1, self.place_2)
         self.road_2_3 = roads_storage.get_by_places(self.place_2, self.place_3)
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 1.0)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.safety', 1.0)
     def test_is_battle_start_needed__safety(self):
         self.assertTrue(all(not self.hero.is_battle_start_needed() for i in xrange(100)))
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 0.0)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.safety', 0.0)
     @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__no_safety(self):
         self.assertTrue(all(self.hero.is_battle_start_needed() for i in xrange(100)))
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 0.5)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.safety', 0.5)
     @mock.patch('the_tale.game.heroes.objects.Hero.battles_per_turn_summand', 0.5)
     @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__hero_modifier(self):
         self.assertTrue(all(self.hero.is_battle_start_needed() for i in xrange(100)))
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.safety', 0.5)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.safety', 0.5)
     @mock.patch('the_tale.game.heroes.objects.Hero.battles_per_turn_summand', -0.5)
     @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__hero_modifier_2(self):
         self.assertTrue(all(not self.hero.is_battle_start_needed() for i in xrange(100)))
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.transport', 0.5)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.transport', 0.5)
     def test_modify_move_speed__less(self):
         self.assertEqual(self.hero.modify_move_speed(10), 5)
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.transport', 2.0)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.transport', 2.0)
     def test_modify_move_speed_greater(self):
         self.assertEqual(self.hero.modify_move_speed(10), 20.0)
 

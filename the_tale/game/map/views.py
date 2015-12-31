@@ -18,10 +18,10 @@ from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.conf import map_settings
 
-from the_tale.game.map.places import storage as places_storage
-from the_tale.game.map.places import prototypes as places_prototypes
-from the_tale.game.map.places import logic as places_logic
-from the_tale.game.map.places import relations as places_relations
+from the_tale.game.places import storage as places_storage
+from the_tale.game.places import prototypes as places_prototypes
+from the_tale.game.places import logic as places_logic
+from the_tale.game.places import relations as places_relations
 
 from the_tale.game.abilities.relations import ABILITY_TYPE
 

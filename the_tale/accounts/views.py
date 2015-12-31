@@ -1,8 +1,9 @@
 # coding: utf-8
+import logging
 import uuid
 
 from django.core.urlresolvers import reverse
-from django.utils.log import getLogger
+
 
 from dext.common.utils import views as dext_views
 from dext.common.utils import exceptions as dext_exceptions
@@ -13,7 +14,7 @@ from the_tale.common.utils import views as utils_views
 
 from the_tale.amqp_environment import environment
 
-from the_tale.common.postponed_tasks import PostponedTaskPrototype
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.decorators import login_required
@@ -384,7 +385,7 @@ def transfer_money(context):
 # end of new views
 ###############################
 
-logger = getLogger('django.request')
+logger = logging.getLogger('django.request')
 
 @validator(code='common.fast_account', message=u'Вы не закончили регистрацию и данная функция вам не доступна')
 def validate_fast_account(self, *args, **kwargs): return not self.account.is_fast

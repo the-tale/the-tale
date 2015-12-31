@@ -10,24 +10,24 @@ from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.map.places.models import Place
-from the_tale.game.map.places.storage import PlacesStorage, resource_exchange_storage
-from the_tale.game.map.places.prototypes import ResourceExchangePrototype
-from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
-from the_tale.game.map.places import exceptions
+from the_tale.game.places.models import Place
+from the_tale.game.places import storage
+from the_tale.game.places.prototypes import ResourceExchangePrototype
+from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
+from the_tale.game.places import exceptions
 
 class PlacesStorageTest(testcase.TestCase):
 
     def setUp(self):
         super(PlacesStorageTest, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
-        self.storage = PlacesStorage()
+        self.storage = storage.PlacesStorage()
         self.storage.sync()
 
     def test_initialization(self):
-        storage = PlacesStorage()
-        self.assertEqual(storage._data, {})
-        self.assertEqual(storage._version, None)
+        _storage = storage.PlacesStorage()
+        self.assertEqual(_storage._data, {})
+        self.assertEqual(_storage._version, None)
 
     def test_sync(self):
         self.assertEqual(len(self.storage._data), 3)
@@ -101,9 +101,9 @@ class ResourceExchangeStorageTests(testcase.TestCase):
         self.resource_2 = random.choice(RESOURCE_EXCHANGE_TYPE.records)
 
     def test_create(self):
-        self.assertEqual(len(resource_exchange_storage.all()), 0)
+        self.assertEqual(len(storage.resource_exchanges.all()), 0)
 
-        old_version = resource_exchange_storage._version
+        old_version = storage.resource_exchanges._version
 
         exchange = ResourceExchangePrototype.create(place_1=self.place_1,
                                                     place_2=self.place_2,
@@ -111,13 +111,13 @@ class ResourceExchangeStorageTests(testcase.TestCase):
                                                     resource_2=self.resource_2,
                                                     bill=None)
 
-        self.assertEqual(len(resource_exchange_storage.all()), 1)
+        self.assertEqual(len(storage.resource_exchanges.all()), 1)
 
-        self.assertEqual(exchange.id, resource_exchange_storage.all()[0].id)
-        self.assertNotEqual(old_version, resource_exchange_storage._version)
+        self.assertEqual(exchange.id, storage.resource_exchanges.all()[0].id)
+        self.assertNotEqual(old_version, storage.resource_exchanges._version)
 
     def test_get_exchanges_for_place__no(self):
-        self.assertEqual(resource_exchange_storage.get_exchanges_for_place(self.place_2), [])
+        self.assertEqual(storage.resource_exchanges.get_exchanges_for_place(self.place_2), [])
 
     def test_get_exchanges_for_place__multiple(self):
         exchange_1 = ResourceExchangePrototype.create(place_1=self.place_1,
@@ -138,12 +138,12 @@ class ResourceExchangeStorageTests(testcase.TestCase):
                                                       resource_2=self.resource_2,
                                                       bill=None)
 
-        self.assertEqual(set(exchange.id for exchange in resource_exchange_storage.get_exchanges_for_place(self.place_2)),
+        self.assertEqual(set(exchange.id for exchange in storage.resource_exchanges.get_exchanges_for_place(self.place_2)),
                          set((exchange_1.id, exchange_3.id)))
 
 
     def test_get_exchanges_for_bill_id_no(self):
-        self.assertEqual(resource_exchange_storage.get_exchange_for_bill_id(666), None)
+        self.assertEqual(storage.resource_exchanges.get_exchange_for_bill_id(666), None)
 
     def test_get_exchanges_for_bill_id__exists(self):
         from the_tale.accounts.prototypes import AccountPrototype
@@ -183,4 +183,4 @@ class ResourceExchangeStorageTests(testcase.TestCase):
                                          resource_2=self.resource_2,
                                          bill=None)
 
-        self.assertEqual(exchange_2.id, resource_exchange_storage.get_exchange_for_bill_id(bill.id).id)
+        self.assertEqual(exchange_2.id, storage.resource_exchanges.get_exchange_for_bill_id(bill.id).id)

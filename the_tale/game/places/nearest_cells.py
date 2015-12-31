@@ -3,6 +3,8 @@ import math
 
 from the_tale.game.map import conf as map_conf
 
+from the_tale.game.balance import constants as c
+
 from . import storage
 
 E = 0.01
@@ -56,11 +58,11 @@ def update_nearest_cells():
 
             for cur_dst, place in get_availabled_places(x, y):
 
-                if cur_dst > place.terrain_owning_radius:
+                if cur_dst > place.attrs.politic_radius:
                     continue
 
                 if cur_dst < GUARANTIED_RADIUS:
-                    place_power = conf.places_settings.MAX_SIZE**2 + place.size
+                    place_power = c.PLACE_MAX_SIZE**2 + place.attrs.size
                 else:
                     place_power = float(place.size) / (cur_dst**2)
 

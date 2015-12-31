@@ -14,7 +14,7 @@ from the_tale.accounts.personal_messages import prototypes as message_prototypes
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game import names
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
@@ -330,7 +330,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         if self.preferences.enemy is not None and (self.position.place is None or self.preferences.enemy.place.id != self.position.place.id):
             quests.append(QUESTS.INTERFERE_ENEMY)
 
-        if any(place.modifier and place.modifier.TYPE.is_HOLY_CITY for place in places_storage.all()):
+        if any(place.modifier and place.modifier.TYPE.is_HOLY_CITY for place in places_storage.places.all()):
             if self.position.place is None or self.position.place.modifier is None or not self.position.place.modifier.TYPE.is_HOLY_CITY:
                 quests.append(QUESTS.PILGRIMAGE)
 

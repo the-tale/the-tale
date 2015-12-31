@@ -12,11 +12,6 @@ from the_tale.game.relations import RACE
 from the_tale.game.places.relations import CITY_PARAMETERS, BUILDING_TYPE, CITY_MODIFIERS
 
 
-class PERSON_STATE(DjangoEnum):
-    records = ( ('IN_GAME', 0,  u'в игре'),
-                ('OUT_GAME', 1, u'вне игры'),
-                ('REMOVED', 2, u'удален') )
-
 class PERSON_TYPE(DjangoEnum):
     building_type = Column(related_name='person_type')
     quest_profession = Column(unique=False)

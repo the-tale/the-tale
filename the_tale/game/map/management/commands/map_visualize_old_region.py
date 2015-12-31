@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 
 from the_tale.game.relations import RACE
 
-from the_tale.game.map.places.relations import BUILDING_TYPE
+from the_tale.game.places.relations import BUILDING_TYPE
 
 from the_tale.game.map.relations import TERRAIN, SPRITES
 from the_tale.game.map.storage import map_info_storage

@@ -19,7 +19,7 @@ from the_tale.game.balance import formulas as f
 
 from the_tale.game.mobs.storage import mobs_storage
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons.relations import PERSON_TYPE
@@ -93,7 +93,7 @@ class QuestInfo(object):
         actor_id, actor_name = self.actors[role]
         if actor_type.is_PLACE:
             return (actor_name, actor_type.value, {'id': actor_id,
-                                                   'name': places_storage[actor_id].name})
+                                                   'name': places_storage.places[actor_id].name})
         if actor_type.is_PERSON:
             return (actor_name, actor_type.value, persons_storage.persons_storage[actor_id].ui_info())
         if actor_type.is_MONEY_SPENDING:
@@ -154,7 +154,7 @@ class QuestInfo(object):
                 data[participant.role] = person
                 data[participant.role + '_position'] = person.place
             elif isinstance(actor, facts.Place):
-                data[participant.role] = places_storage[actor.externals['id']]
+                data[participant.role] = places_storage.places[actor.externals['id']]
 
         return data
 
@@ -627,7 +627,7 @@ class QuestPrototype(object):
             if isinstance(fact, facts.Person):
                 place = persons_storage.persons_storage.get(fact.externals['id']).place
             elif isinstance(fact, facts.Place):
-                place = places_storage.get(fact.externals['id'])
+                place = places_storage.places.get(fact.externals['id'])
 
             experience_modifiers[place.id] = place.get_experience_modifier()
 
@@ -696,7 +696,7 @@ class QuestPrototype(object):
         if isinstance(recipient, facts.Person):
             self._give_person_power(self.hero, persons_storage.persons_storage[recipient.externals['id']], power)
         elif isinstance(recipient, facts.Place):
-            self._give_place_power(self.hero, places_storage[recipient.externals['id']], power)
+            self._give_place_power(self.hero, places_storage.places[recipient.externals['id']], power)
         else:
             raise exceptions.UnknownPowerRecipientError(recipient=recipient)
 
@@ -714,7 +714,7 @@ class QuestPrototype(object):
 
     def do_move_near(self, action):
         if action.place:
-            self._move_hero_near(destination=places_storage.get(self.knowledge_base[action.place].externals['id']), terrains=action.terrains)
+            self._move_hero_near(destination=places_storage.places.get(self.knowledge_base[action.place].externals['id']), terrains=action.terrains)
         else:
             self._move_hero_near(destination=None, terrains=action.terrains)
 
@@ -726,7 +726,7 @@ class QuestPrototype(object):
         object_fact = self.knowledge_base[requirement.object]
         place_fact = self.knowledge_base[requirement.place]
 
-        place = places_storage[place_fact.externals['id']]
+        place = places_storage.places[place_fact.externals['id']]
 
         if isinstance(object_fact, facts.Person):
             person = persons_storage.persons_storage[object_fact.externals['id']]
@@ -742,7 +742,7 @@ class QuestPrototype(object):
         object_fact = self.knowledge_base[requirement.object]
         place_fact = self.knowledge_base[requirement.place]
 
-        place = places_storage[place_fact.externals['id']]
+        place = places_storage.places[place_fact.externals['id']]
 
         if isinstance(object_fact, facts.Person):
             return False
@@ -771,8 +771,8 @@ class QuestPrototype(object):
         if self.hero.id != object_fact.externals['id']:
             return False
 
-        place_from = places_storage[self.knowledge_base[requirement.place_from].externals['id']]
-        place_to = places_storage[self.knowledge_base[requirement.place_to].externals['id']]
+        place_from = places_storage.places[self.knowledge_base[requirement.place_from].externals['id']]
+        place_to = places_storage.places[self.knowledge_base[requirement.place_to].externals['id']]
         percents = requirement.percents
 
         path_to_position_length = self.hero.position.get_minumum_distance_to(place_from)
@@ -827,7 +827,7 @@ class QuestPrototype(object):
         if not isinstance(object_fact, facts.Hero) or self.hero.id != object_fact.externals['id']:
             raise exceptions.UnknownRequirementError(requirement=requirement)
 
-        self._move_hero_to(destination=places_storage[self.knowledge_base[requirement.place].externals['id']])
+        self._move_hero_to(destination=places_storage.places[self.knowledge_base[requirement.place].externals['id']])
 
     def satisfy_located_near(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
@@ -838,7 +838,7 @@ class QuestPrototype(object):
         if requirement.place is None:
             self._move_hero_near(destination=None, terrains=requirement.terrains)
         else:
-            self._move_hero_near(destination=places_storage.get(self.knowledge_base[requirement.place].externals['id']), terrains=requirement.terrains)
+            self._move_hero_near(destination=places_storage.places.get(self.knowledge_base[requirement.place].externals['id']), terrains=requirement.terrains)
 
     def satisfy_located_on_road(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
@@ -846,8 +846,8 @@ class QuestPrototype(object):
         if not isinstance(object_fact, facts.Hero) or self.hero.id != object_fact.externals['id']:
             raise exceptions.UnknownRequirementError(requirement=requirement)
 
-        self._move_hero_on_road(place_from=places_storage[self.knowledge_base[requirement.place_from].externals['id']],
-                                place_to=places_storage[self.knowledge_base[requirement.place_to].externals['id']],
+        self._move_hero_on_road(place_from=places_storage.places[self.knowledge_base[requirement.place_from].externals['id']],
+                                place_to=places_storage.places[self.knowledge_base[requirement.place_to].externals['id']],
                                 percents=requirement.percents)
 
     def satisfy_has_money(self, requirement):

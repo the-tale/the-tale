@@ -3,8 +3,8 @@
 from the_tale.game.map.relations import SPRITES
 from the_tale.game.map.storage import map_info_storage
 
-from the_tale.game.map.places.storage import places_storage, buildings_storage
-from the_tale.game.map.roads.storage import roads_storage
+from the_tale.game.places import storage as places_storage
+from the_tale.game.roads.storage import roads_storage
 
 
 class CellDrawer(object):
@@ -137,7 +137,7 @@ def get_draw_info(biomes_map):
                 cell_drawer.road = SPRITES.index_name[road_sprite['name']]
                 cell_drawer.road_rotate = road_sprite['rotate']
 
-    for place in places_storage.all():
+    for place in places_storage.places.all():
         if place.size < 3: verbose_size = 'small'
         elif place.size < 6: verbose_size = 'medium'
         elif place.size < 9: verbose_size = 'large'
@@ -148,7 +148,7 @@ def get_draw_info(biomes_map):
         cell_drawer = map_images[place.y][place.x]
         cell_drawer.object = SPRITES.index_name[sprite_name]
 
-    for building in buildings_storage.all():
+    for building in places_storage.buildings.all():
         sprite_name = 'BUILDING_%s' % building.type.name
 
         cell_drawer = map_images[building.y][building.x]

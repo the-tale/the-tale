@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import sys
+import logging
 
 from django.core import mail
 from django.conf import settings as project_settings
@@ -36,9 +37,8 @@ def send_mail(accounts, subject, text_content, html_content):
         try:
             email.send()
         except Exception:
-            from django.utils.log import getLogger
             if not project_settings.TESTS_RUNNING:
-                logger = getLogger('the-tale.workers.post_service_message_sender')
+                logger = logging.getLogger('the-tale.workers.post_service_message_sender')
                 logger.error('Exception while send email',
                              exc_info=sys.exc_info(),
                              extra={} )

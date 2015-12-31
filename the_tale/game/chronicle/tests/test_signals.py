@@ -17,8 +17,8 @@ from the_tale.game.bills.tests.test_prototype import BaseTestPrototypes
 
 from the_tale.game.chronicle.models import Record, RECORD_TYPE
 
-from the_tale.game.map.places.prototypes import BuildingPrototype
-from the_tale.game.map.places.modifiers import TradeCenter, CraftCenter
+from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places.modifiers import TradeCenter, CraftCenter
 
 from the_tale.game.chronicle import prototypes
 
@@ -247,7 +247,7 @@ class PlaceLosedModifierTests(BaseTestPrototypes):
         self.place1.modifier = CraftCenter.get_id()
         self.place1.save()
 
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.CraftCenter.is_enough_power', False)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.CraftCenter.is_enough_power', False)
     def test_reset_modifier(self):
         with check_record_created(self, RECORD_TYPE.PLACE_LOSED_MODIFIER):
             self.place1.sync_modifier()
@@ -259,16 +259,16 @@ class PersonMovementsTests(BaseTestPrototypes):
         super(PersonMovementsTests, self).setUp()
 
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.is_stable', False)
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.max_persons_number', 0)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.max_persons_number', 0)
     def test_person_left(self):
-        with mock.patch('the_tale.game.map.places.races.Races.dominant_race', self.place1.race):
+        with mock.patch('the_tale.game.places.races.Races.dominant_race', self.place1.race):
             with check_record_created(self, RECORD_TYPE.PERSON_LEFT_PLACE, records_number=len(self.place1.persons)):
                 self.place1.sync_persons(force_add=True)
 
     @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
     def test_person_arrived(self):
         with check_record_created(self, RECORD_TYPE.PERSON_ARRIVED_TO_PLACE):
-            with mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.max_persons_number', len(self.place1.persons) + 1):
+            with mock.patch('the_tale.game.places.prototypes.PlacePrototype.max_persons_number', len(self.place1.persons) + 1):
                 self.place1.sync_persons(force_add=True)
 
 

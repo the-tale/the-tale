@@ -4,7 +4,7 @@ from the_tale.game.abilities.relations import ABILITY_TYPE
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
-from the_tale.game.map.places import storage as places_storage
+from the_tale.game.places import storage as places_storage
 
 
 

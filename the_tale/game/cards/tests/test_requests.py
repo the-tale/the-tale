@@ -20,7 +20,7 @@ from the_tale.game.cards.effects import EFFECTS
 from the_tale.game.cards import objects
 from the_tale.game.cards import logic
 
-from the_tale.game.map.places.prototypes import BuildingPrototype
+from the_tale.game.places.prototypes import BuildingPrototype
 
 
 class CardsRequestsTestsBase(testcase.TestCase):

@@ -1,8 +1,8 @@
 # coding: utf-8
 
-from the_tale.game.map.places.storage import places_storage
-from the_tale.game.map.roads.storage import roads_storage, waymarks_storage
-from the_tale.game.map.roads.prototypes import WaymarkPrototype
+from the_tale.game.places import storage as places_storage
+from the_tale.game.roads.storage import roads_storage, waymarks_storage
+from the_tale.game.roads.prototypes import WaymarkPrototype
 
 
 class Path(object):
@@ -19,7 +19,7 @@ class Path(object):
 @waymarks_storage.postpone_version_update
 def update_waymarks(): # pylint: disable=R0912
 
-    places = places_storage.all()
+    places = places_storage.places.all()
 
     roads = roads_storage.all_exists_roads()
 

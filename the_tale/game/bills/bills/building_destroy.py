@@ -6,9 +6,9 @@ from utg import words as utg_words
 
 from the_tale.game import names
 
-from the_tale.game.persons.prototypes import PersonPrototype
+from the_tale.game.persons import objects as persons_objects
 
-from the_tale.game.map.places.storage import buildings_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.bills.relations import BILL_TYPE
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
@@ -20,11 +20,11 @@ class UserForm(BaseUserForm):
 
     def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = PersonPrototype.form_choices(predicate=self._person_has_building)
+        self.fields['person'].choices = persons_objects.Person.form_choices(predicate=self._person_has_building)
 
     @classmethod
     def _person_has_building(cls, place, person): # pylint: disable=W0613
-        return buildings_storage.get_by_person_id(person.id) is not None
+        return places_storage.buildings.get_by_person_id(person.id) is not None
 
 
 class ModeratorForm(BaseModeratorForm):

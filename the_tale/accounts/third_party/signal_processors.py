@@ -4,12 +4,12 @@ from django.dispatch import receiver
 
 from the_tale.accounts import signals as accounts_signals
 
-from the_tale.accounts.third_party.conf import third_party_settings
-from the_tale.accounts.third_party.prototypes import AccessTokenPrototype
-
 
 @receiver(accounts_signals.on_before_logout, dispatch_uid='third_party__on_before_logout')
 def on_before_logout(sender, **kwargs):
+    from the_tale.accounts.third_party.conf import third_party_settings
+    from the_tale.accounts.third_party.prototypes import AccessTokenPrototype
+
     request = kwargs['request']
 
     # remove third party access token on logout IF IT HAS BEEN ACCEPTED

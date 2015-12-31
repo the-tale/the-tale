@@ -7,9 +7,9 @@ from dext.settings import settings
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.map.roads.models import Road
-from the_tale.game.map.roads.storage import RoadsStorage
-from the_tale.game.map.roads import exceptions
+from the_tale.game.roads.models import Road
+from the_tale.game.roads.storage import RoadsStorage
+from the_tale.game.roads import exceptions
 
 class RoadsStorageTest(testcase.TestCase):
 

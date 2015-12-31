@@ -25,7 +25,7 @@ from the_tale.game.bills.conf import bills_settings
 from the_tale.game.bills import exceptions
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places.storage import places_storage
 
 
 class BillPrototypeTests(BaseTestPrototypes):
@@ -65,25 +65,25 @@ class BillPrototypeTests(BaseTestPrototypes):
 
         self.assertTrue(BillPrototype.is_active_bills_limit_reached(self.account1))
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_new', False)
     def test_can_vote__places_restrictions__no_places(self):
         bill = self.create_bill()
         with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', []):
             self.assertTrue(bill.can_vote(self.hero))
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_new', False)
     def test_can_vote__places_restrictions__no_allowed_places(self):
         bill = self.create_bill()
         with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
             self.assertFalse(bill.can_vote(self.hero))
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', True)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_new', True)
     def test_can_vote__places_restrictions__no_allowed_places__with_timeout(self):
         bill = self.create_bill()
         with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
             self.assertTrue(bill.can_vote(self.hero))
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.is_new', False)
+    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_new', False)
     def test_can_vote__places_restrictions__allowed_place(self):
         bill = self.create_bill()
 

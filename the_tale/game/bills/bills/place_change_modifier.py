@@ -10,9 +10,9 @@ from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
-from the_tale.game.map.places.storage import places_storage
-from the_tale.game.map.places.modifiers import MODIFIERS
-from the_tale.game.map.places.relations import CITY_MODIFIERS
+from the_tale.game.places import storage as places_storage
+from the_tale.game.places.modifiers import MODIFIERS
+from the_tale.game.places.relations import CITY_MODIFIERS
 
 
 class UserForm(BaseUserForm):
@@ -22,7 +22,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['place'].choices = places_storage.get_choices()
+        self.fields['place'].choices = places_storage.places.get_choices()
         self.fields['new_modifier'].choices = sorted(CITY_MODIFIERS.choices(), key=lambda m: m[1])
 
     def clean_new_modifier(self):
@@ -32,7 +32,7 @@ class UserForm(BaseUserForm):
     def clean(self):
         cleaned_data = super(UserForm, self).clean()
 
-        place = places_storage.get(int(cleaned_data['place']))
+        place = places_storage.places.get(int(cleaned_data['place']))
         modifier = MODIFIERS[cleaned_data['new_modifier']](place)
 
         if not modifier.can_be_choosen:
@@ -71,7 +71,7 @@ class PlaceModifier(BaseBill):
             self.old_name_forms = self.place.utg_name
 
     @property
-    def place(self): return places_storage[self.place_id]
+    def place(self): return places_storage.places[self.place_id]
 
     @property
     def actors(self): return [self.place]

@@ -5,7 +5,7 @@ from rels.django import DjangoEnum
 
 from the_tale.amqp_environment import environment
 
-from the_tale.common.postponed_tasks import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.game import exceptions
 

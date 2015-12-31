@@ -13,12 +13,12 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.map.conf import map_settings
 
-from the_tale.game.map.places.models import Building
-from the_tale.game.map.places.prototypes import PlacePrototype, BuildingPrototype, ResourceExchangePrototype
-from the_tale.game.map.places.storage import places_storage, buildings_storage
-from the_tale.game.map.places.relations import RESOURCE_EXCHANGE_TYPE
-from the_tale.game.map.places import modifiers
-from the_tale.game.map.places.conf import places_settings
+from ..models import Building
+from ..prototypes import BuildingPrototype, ResourceExchangePrototype
+from .. import storage
+from ..relations import RESOURCE_EXCHANGE_TYPE
+from .. import modifiers
+from .. import objects
 
 
 class PlacePrototypeTests(testcase.TestCase):
@@ -30,17 +30,17 @@ class PlacePrototypeTests(testcase.TestCase):
     def test_initialize(self):
         self.assertEqual(self.p1.heroes_number, 0)
 
-    @mock.patch('the_tale.game.map.places.conf.places_settings.NEW_PLACE_LIVETIME', 0)
+    @mock.patch('the_tale.game.balance.constants.PLACE_NEW_PLACE_LIVETIME', 0)
     def test_is_new__false(self):
         self.assertFalse(self.p1.is_new)
 
-    @mock.patch('the_tale.game.map.places.conf.places_settings.NEW_PLACE_LIVETIME', 60)
+    @mock.patch('the_tale.game.balance.constants.PLACE_NEW_PLACE_LIVETIME', 60)
     def test_is_new__true(self):
         self.assertTrue(self.p1.is_new)
 
     def test_sync_race_no_signal_when_race_not_changed(self):
-        with mock.patch('the_tale.game.map.places.races.Races.dominant_race', self.p1.race):
-            with mock.patch('the_tale.game.map.places.signals.place_race_changed.send') as signal_counter:
+        with mock.patch('the_tale.game.places.races.Races.dominant_race', self.p1.race):
+            with mock.patch('the_tale.game.places.signals.place_race_changed.send') as signal_counter:
                 self.p1.sync_race()
 
         self.assertEqual(signal_counter.call_count, 0)
@@ -52,8 +52,8 @@ class PlacePrototypeTests(testcase.TestCase):
                 new_race = race
                 break
 
-        with mock.patch('the_tale.game.map.places.races.Races.dominant_race', new_race):
-            with mock.patch('the_tale.game.map.places.signals.place_race_changed.send') as signal_counter:
+        with mock.patch('the_tale.game.places.races.Races.dominant_race', new_race):
+            with mock.patch('the_tale.game.places.signals.place_race_changed.send') as signal_counter:
                 self.p1.sync_race()
 
 
@@ -151,9 +151,9 @@ class PlacePrototypeTests(testcase.TestCase):
 
 
     @mock.patch('the_tale.game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.CraftCenter.PRODUCTION_MODIFIER', 10000)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.CraftCenter.PRODUCTION_MODIFIER', 10000)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.production', 1)
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype.keepers_goods', c.PLACE_GOODS_BONUS)
+    @mock.patch('the_tale.game.places.objects.Place.attrs.keepers_goods', c.PLACE_GOODS_BONUS)
     def test_sync_sync_parameters__production(self):
         self.p1.modifier = modifiers.CraftCenter.get_id()
         self.p1.size = 1
@@ -167,7 +167,7 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.production - expected_production < 0.001)
 
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.Fort.SAFETY_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.Fort.SAFETY_MODIFIER', 0.01)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.safety', -0.001)
     def test_sync_sync_parameters__safety(self):
         self.p1.modifier = modifiers.Fort.get_id()
@@ -181,7 +181,7 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.safety - expected_safety < 0.001)
 
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.Fort.SAFETY_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.Fort.SAFETY_MODIFIER', 0.01)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.safety', -1)
     def test_sync_sync_parameters__safety__min_value(self):
         self.p1.modifier = modifiers.Fort.get_id()
@@ -192,7 +192,7 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.safety - places_settings.MIN_SAFETY < 0.001)
 
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.transport', 0.001)
     def test_sync_sync_parameters__transport(self):
         self.p1.modifier = modifiers.TransportNode.get_id()
@@ -207,7 +207,7 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.transport - expected_transport < 0.001)
 
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.TransportNode.TRANSPORT_MODIFIER', 0.01)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.transport', -1)
     def test_sync_sync_parameters__transport__min_value(self):
         self.p1.modifier = modifiers.TransportNode.get_id()
@@ -229,7 +229,7 @@ class PlacePrototypeTests(testcase.TestCase):
         self.assertEqual(self.p1.tax, 0.05)
 
 
-    @mock.patch('the_tale.game.map.places.modifiers.prototypes.Polic.FREEDOM_MODIFIER', 0.01)
+    @mock.patch('the_tale.game.places.modifiers.prototypes.Polic.FREEDOM_MODIFIER', 0.01)
     @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.freedom', 0.001)
     def test_sync_sync_parameters__freedom(self):
         self.p1.modifier = modifiers.Polic.get_id()
@@ -281,7 +281,7 @@ class PlacePrototypeTests(testcase.TestCase):
 
         self.assertEqual(self.p1.stability_modifiers, [('x', -0.5 + c.PLACE_STABILITY_RECOVER_SPEED / 2), ('y', 0.25 - c.PLACE_STABILITY_RECOVER_SPEED / 2)])
 
-    @mock.patch('the_tale.game.map.places.prototypes.PlacePrototype._stability_renewing_speed', lambda self: 0.25)
+    @mock.patch('the_tale.game.places.objects.Place.attrs.stability_renewing_speed', lambda self: 0.25)
     def test_sync_stability__parameters_removed(self):
         self.p1.stability_modifiers.append(('x', -0.5))
         self.p1.stability_modifiers.append(('y', 0.25))
@@ -319,24 +319,24 @@ class PlacePrototypeTests(testcase.TestCase):
 
 
     def test_habit_change_speed(self):
-        self.assertEqual(PlacePrototype._habit_change_speed(0, 100, 100), 0)
-        self.assertEqual(PlacePrototype._habit_change_speed(0, 100, -100), 0)
-        self.assertEqual(PlacePrototype._habit_change_speed(0, -100, 100), 0)
+        self.assertEqual(objects.Place._habit_change_speed(0, 100, 100), 0)
+        self.assertEqual(objects.Place._habit_change_speed(0, 100, -100), 0)
+        self.assertEqual(objects.Place._habit_change_speed(0, -100, 100), 0)
 
-        self.assertEqual(PlacePrototype._habit_change_speed(0, 100, 0), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
-        self.assertEqual(PlacePrototype._habit_change_speed(0, 0, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
-        self.assertEqual(PlacePrototype._habit_change_speed(0, -100, 0), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
-        self.assertEqual(PlacePrototype._habit_change_speed(0, 0, -100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
-        self.assertEqual(PlacePrototype._habit_change_speed(0, 100, 1), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
-        self.assertEqual(PlacePrototype._habit_change_speed(0, -100, 1), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
-        self.assertEqual(PlacePrototype._habit_change_speed(0, 1, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
-        self.assertEqual(PlacePrototype._habit_change_speed(0, -1, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(objects.Place._habit_change_speed(0, 100, 0), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(objects.Place._habit_change_speed(0, 0, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(objects.Place._habit_change_speed(0, -100, 0), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(objects.Place._habit_change_speed(0, 0, -100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(objects.Place._habit_change_speed(0, 100, 1), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(objects.Place._habit_change_speed(0, -100, 1), c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(objects.Place._habit_change_speed(0, 1, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
+        self.assertEqual(objects.Place._habit_change_speed(0, -1, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
 
 
     def test_habit_change_speed__penaltuy(self):
-        self.assertEqual(PlacePrototype._habit_change_speed(0, 0, 0), 0)
-        self.assertEqual(PlacePrototype._habit_change_speed(500, 0, 0), -5)
-        self.assertEqual(PlacePrototype._habit_change_speed(-500, 0, 0), 5)
+        self.assertEqual(objects.Place._habit_change_speed(0, 0, 0), 0)
+        self.assertEqual(objects.Place._habit_change_speed(500, 0, 0), -5)
+        self.assertEqual(objects.Place._habit_change_speed(-500, 0, 0), 5)
 
 
     def test_get_next_keepers_goods_spend_amount__0(self):
@@ -373,10 +373,10 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         self.assertTrue(positions)
 
-        for place in places_storage.all():
+        for place in storage.places.all():
             self.assertFalse((place.x, place.y) in positions)
 
-        for building in buildings_storage.all():
+        for building in storage.buildings.all():
             self.assertFalse((building.x, building.y) in positions)
 
         for x, y in positions:
@@ -385,33 +385,33 @@ class BuildingPrototypeTests(testcase.TestCase):
 
 
     def test_dynamic_position_radius(self):
-        with mock.patch('the_tale.game.map.places.conf.places_settings.BUILDING_POSITION_RADIUS', 2):
+        with mock.patch('the_tale.game.balance.constants.PLACE_BUILDING_POSITION_RADIUS', 2):
             positions = BuildingPrototype.get_available_positions(-3, -1)
             self.assertEqual(positions, set([(0, 0), (0, 1), (0, 2)]))
 
-        with mock.patch('the_tale.game.map.places.conf.places_settings.BUILDING_POSITION_RADIUS', 2):
+        with mock.patch('the_tale.game.balance.constants.PLACE_BUILDING_POSITION_RADIUS', 2):
             positions = BuildingPrototype.get_available_positions(-4, -1)
             self.assertEqual(positions, set([(0, 0), (0, 1), (0, 2), (0, 3)]))
 
     def test_create(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
-        old_version = buildings_storage.version
+        old_version = storage.buildings.version
 
         name = names.generator.get_test_name(name='building-name')
 
         building = BuildingPrototype.create(self.place_1.persons[0], utg_name=name)
 
-        self.assertNotEqual(old_version, buildings_storage.version)
+        self.assertNotEqual(old_version, storage.buildings.version)
 
         self.assertEqual(Building.objects.all().count(), 1)
 
-        old_version = buildings_storage.version
+        old_version = storage.buildings.version
 
         name_2 = names.generator.get_test_name(name='building-name-2')
         building_2 = BuildingPrototype.create(self.place_1.persons[0], utg_name=name_2)
 
-        self.assertEqual(old_version, buildings_storage.version)
+        self.assertEqual(old_version, storage.buildings.version)
         self.assertEqual(Building.objects.all().count(), 1)
         self.assertEqual(hash(building), hash(building_2))
         self.assertEqual(building.utg_name, name)
@@ -419,7 +419,7 @@ class BuildingPrototypeTests(testcase.TestCase):
     def test_create_after_destroy(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
-        old_version = buildings_storage.version
+        old_version = storage.buildings.version
 
         person = self.place_1.persons[0]
 
@@ -430,7 +430,7 @@ class BuildingPrototypeTests(testcase.TestCase):
         name_2 = names.generator.get_test_name(name='building-name-2')
         building = BuildingPrototype.create(person, utg_name=name_2)
 
-        self.assertNotEqual(old_version, buildings_storage.version)
+        self.assertNotEqual(old_version, storage.buildings.version)
 
         self.assertEqual(Building.objects.all().count(), 1)
         self.assertEqual(building.utg_name, name_2)
@@ -470,18 +470,18 @@ class BuildingPrototypeTests(testcase.TestCase):
     def test_save__update_storage(self):
         building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
 
-        old_version = buildings_storage.version
+        old_version = storage.buildings.version
         building.save()
-        self.assertNotEqual(old_version, buildings_storage.version)
+        self.assertNotEqual(old_version, storage.buildings.version)
 
 
     def test_destroy__update_storage(self):
         building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
 
-        old_version = buildings_storage.version
+        old_version = storage.buildings.version
         building.destroy()
-        self.assertNotEqual(old_version, buildings_storage.version)
-        self.assertFalse(building.id in buildings_storage)
+        self.assertNotEqual(old_version, storage.buildings.version)
+        self.assertFalse(building.id in storage.buildings)
 
 
 

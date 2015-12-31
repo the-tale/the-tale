@@ -9,7 +9,7 @@ from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
 
-from the_tale.game.map.places.storage import places_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.chronicle.models import Record
 from the_tale.game.chronicle.conf import chronicle_settings
@@ -18,7 +18,7 @@ from the_tale.game.chronicle.prototypes import RecordPrototype
 
 class IndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
-                list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.get_choices()) ]
+                list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.places.get_choices()) ]
 
 
 class ChronicleResource(Resource):
@@ -27,7 +27,7 @@ class ChronicleResource(Resource):
         super(ChronicleResource, self).initialize(*args, **kwargs)
 
     @validate_argument('page', int, 'chronicle', u'неверная страница')
-    @validate_argument('place', lambda value: places_storage[int(value)], 'chronicle', u'неверный идентификатор города')
+    @validate_argument('place', lambda value: places_storage.places[int(value)], 'chronicle', u'неверный идентификатор города')
     @handler('', method='get')
     def index(self, page=None, place=None):
 

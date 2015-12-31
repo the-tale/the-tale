@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-from the_tale.game.map.places.storage import buildings_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE
@@ -21,10 +21,10 @@ class BuildingRepair(AbilityPrototype):
 
         if task.step.is_LOGIC:
 
-            if building_id not in buildings_storage:
+            if building_id not in places_storage.buildings:
                 return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
 
-            if not buildings_storage[building_id].need_repair:
+            if not places_storage.buildings[building_id].need_repair:
                 return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
 
             if not task.hero.can_repair_building:
@@ -45,10 +45,10 @@ class BuildingRepair(AbilityPrototype):
 
         elif task.step.is_HIGHLEVEL:
 
-            if building_id not in buildings_storage:
+            if building_id not in places_storage.buildings:
                 return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
 
-            building = buildings_storage[building_id]
+            building = places_storage.buildings[building_id]
             building.repair()
 
             if task.data.get('critical'): # repair second time
@@ -56,6 +56,6 @@ class BuildingRepair(AbilityPrototype):
 
             building.save()
 
-            buildings_storage.update_version()
+            places_storage.buildings.update_version()
 
             return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)

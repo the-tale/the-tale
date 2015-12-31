@@ -1,3 +1,3 @@
 # coding: utf-8
 
-from the_tale.portal import signal_processors
+default_app_config = 'the_tale.portal.apps.Config'

@@ -20,7 +20,7 @@ from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.prototypes import TimePrototype
 
-from the_tale.game.map.places.prototypes import PlacePrototype
+from the_tale.game.places import objects as places_objects
 
 from the_tale.forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype
 from the_tale.forum.models import MARKUP_METHOD
@@ -135,7 +135,7 @@ class BillPrototype(BasePrototype):
         place_allowed = False
 
         for actor in self.data.actors:
-            if isinstance(actor, PlacePrototype):
+            if isinstance(actor, places_objects.Place):
 
                 if actor.is_new:
                     return True
@@ -225,7 +225,7 @@ class BillPrototype(BasePrototype):
 
 
             for actor in self.data.actors:
-                if isinstance(actor, PlacePrototype):
+                if isinstance(actor, places_objects.Place):
                     actor.stability_modifiers.append((u'закон №%d' % self.id, -self.type.stability))
 
         logic.initiate_actual_bills_update(self._model.owner_id)
@@ -422,13 +422,11 @@ class ActorPrototype(BasePrototype):
     @classmethod
     @transaction.atomic
     def update_actors(cls, bill, actors):
-        from the_tale.game.map.places.prototypes import PlacePrototype
-
         Actor.objects.filter(bill_id=bill.id).delete()
 
         for actor in actors:
             cls.create(bill,
-                       place=actor if isinstance(actor, PlacePrototype) else None)
+                       place=actor if isinstance(actor, places_objects.Place) else None)
 
 
     def save(self):

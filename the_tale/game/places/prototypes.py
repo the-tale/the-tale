@@ -17,11 +17,8 @@ from the_tale.game.map.conf import map_settings
 
 from . import models
 from . import conf
-from . import modifiers
 from . import relations
 from . import signals
-from . import races
-from . import habits
 
 
 class BuildingPrototype(BasePrototype, names.ManageNameMixin):
@@ -108,7 +105,7 @@ class BuildingPrototype(BasePrototype, names.ManageNameMixin):
 
 
     @classmethod
-    def get_available_positions(cls, center_x, center_y, building_position_radius=conf.settings.BUILDING_POSITION_RADIUS): # pylint: disable=R0914
+    def get_available_positions(cls, center_x, center_y, building_position_radius=c.BUILDING_POSITION_RADIUS): # pylint: disable=R0914
         from the_tale.game.places import storage
         from the_tale.game.roads.storage import roads_storage
         from the_tale.game.roads.relations import PATH_DIRECTION
@@ -165,7 +162,7 @@ class BuildingPrototype(BasePrototype, names.ManageNameMixin):
         model = models.Building.objects.create(x=x,
                                         y=y,
                                         data=s11n.to_json({'name': utg_name.serialize()}),
-                                        place=person.place._model,
+                                        place_id=person.place_id,
                                         person_id=person.id,
                                         state=relations.BUILDING_STATE.WORKING,
                                         created_at_turn=TimePrototype.get_current_turn_number(),
