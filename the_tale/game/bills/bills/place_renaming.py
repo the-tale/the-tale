@@ -14,6 +14,7 @@ from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
 
 
 class UserForm(BaseUserForm):
@@ -91,7 +92,7 @@ class PlaceRenaming(BaseBill):
     def apply(self, bill=None):
         if self.has_meaning():
             self.place.set_utg_name(self.name_forms)
-            self.place.save()
+            places_logic.save_place(self.place)
 
     def serialize(self):
         return {'type': self.type.name.lower(),

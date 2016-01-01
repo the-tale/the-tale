@@ -45,12 +45,10 @@ def save_person(person, new=False):
         person.place.persons_changed_at_turn = game_protypes.TimePrototype.get_current_turn_number()
 
         storage.persons.add_item(person.id, person)
-        storage.persons.update_version()
-
     else:
         models.Person.filter(id=person.id).update(**arguments)
 
-        storage.persons.update_version()
+    storage.persons.update_version()
 
 
 def create_person(place, race, type, utg_name, gender):

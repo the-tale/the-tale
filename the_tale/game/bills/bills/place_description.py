@@ -14,6 +14,7 @@ from the_tale.game.bills.bills.base_bill import BaseBill
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import conf as places_conf
+from the_tale.game.places import logic as places_logic
 
 class UserForm(BaseUserForm):
 
@@ -89,7 +90,7 @@ class PlaceDescripton(BaseBill):
     def apply(self, bill=None):
         if self.has_meaning():
             self.place.description = self.description
-            self.place.save()
+            places_logic.save_place(self.place)
 
     def serialize(self):
         return {'type': self.type.name.lower(),

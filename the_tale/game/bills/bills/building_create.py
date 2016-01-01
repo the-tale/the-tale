@@ -27,7 +27,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = persons_objects.form_choices(predicate=lambda place, person: not person.has_building)
+        self.fields['person'].choices = persons_objects.Person.form_choices(predicate=lambda place, person: not person.has_building)
 
 
 class ModeratorForm(BaseModeratorForm):
@@ -58,7 +58,7 @@ class BuildingCreate(BasePersonBill):
     def base_name(self): return self.building_name_forms.normal_form()
 
     def has_meaning(self):
-        return self.person and self.person.in_game and places_storage.buildings.get_by_person_id(self.person.id) is None
+        return self.person and places_storage.buildings.get_by_person_id(self.person.id) is None
 
     def apply(self, bill=None):
         if self.has_meaning():

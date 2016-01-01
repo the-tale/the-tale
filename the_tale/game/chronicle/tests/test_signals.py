@@ -18,7 +18,8 @@ from the_tale.game.bills.tests.test_prototype import BaseTestPrototypes
 from the_tale.game.chronicle.models import Record, RECORD_TYPE
 
 from the_tale.game.places.prototypes import BuildingPrototype
-from the_tale.game.places.modifiers import TradeCenter, CraftCenter
+from the_tale.game.places.modifiers import CITY_MODIFIERS
+from the_tale.game.places import logic as places_logic
 
 from the_tale.game.chronicle import prototypes
 
@@ -79,7 +80,7 @@ class BillPlaceChangeModifierTests(BaseTestPrototypes):
     def setUp(self):
         super(BillPlaceChangeModifierTests, self).setUp()
 
-        bill_data = bills.PlaceModifier(place_id=self.place1.id, modifier_id=TradeCenter.get_id(), modifier_name=TradeCenter.TYPE.text, old_modifier_name=None)
+        bill_data = bills.PlaceModifier(place_id=self.place1.id, modifier_id=CITY_MODIFIERS.TRADE_CENTER, modifier_name=CITY_MODIFIERS.TRADE_CENTER.text, old_modifier_name=None)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.form = bills.PlaceModifier.ModeratorForm({'approved': True})
@@ -144,26 +145,6 @@ class BillPlaceConversionResourcesTests(BaseTestPrototypes):
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED):
-            process_bill(self.bill, True)
-        self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
-
-
-class BillPersonRemoveTests(BaseTestPrototypes):
-
-    def setUp(self):
-        super(BillPersonRemoveTests, self).setUp()
-
-        bill_data = bills.PersonRemove(person_id=self.place1.persons[0].id, old_place_name_forms=self.place1.utg_name)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
-
-        self.form = bills.PersonRemove.ModeratorForm({'approved': True})
-        self.assertTrue(self.form.is_valid())
-
-    @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
-    @mock.patch('the_tale.game.chronicle.records.PersonArrivedToPlace.create_record', lambda x: None)
-    def test_bill_successed(self):
-        self.bill.update_by_moderator(self.form)
-        with check_record_created(self, RECORD_TYPE.PERSON_REMOVE_BILL_SUCCESSED):
             process_bill(self.bill, True)
         self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
@@ -239,37 +220,16 @@ class BillBuildingRenamingTests(BaseTestPrototypes):
         self.assertEqual(prototypes.RecordPrototype._db_latest().text, 'chronicle-on-accepted')
 
 
-class PlaceLosedModifierTests(BaseTestPrototypes):
-
-    def setUp(self):
-        super(PlaceLosedModifierTests, self).setUp()
-
-        self.place1.modifier = CraftCenter.get_id()
-        self.place1.save()
-
-    @mock.patch('the_tale.game.places.modifiers.prototypes.CraftCenter.is_enough_power', False)
-    def test_reset_modifier(self):
-        with check_record_created(self, RECORD_TYPE.PLACE_LOSED_MODIFIER):
-            self.place1.sync_modifier()
-
 
 class PersonMovementsTests(BaseTestPrototypes):
 
     def setUp(self):
         super(PersonMovementsTests, self).setUp()
 
-    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.is_stable', False)
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.max_persons_number', 0)
-    def test_person_left(self):
-        with mock.patch('the_tale.game.places.races.Races.dominant_race', self.place1.race):
-            with check_record_created(self, RECORD_TYPE.PERSON_LEFT_PLACE, records_number=len(self.place1.persons)):
-                self.place1.sync_persons(force_add=True)
-
     @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
     def test_person_arrived(self):
         with check_record_created(self, RECORD_TYPE.PERSON_ARRIVED_TO_PLACE):
-            with mock.patch('the_tale.game.places.prototypes.PlacePrototype.max_persons_number', len(self.place1.persons) + 1):
-                self.place1.sync_persons(force_add=True)
+            places_logic.add_person_to_place(self.place1)
 
 
 class PlaceChangeRace(BaseTestPrototypes):

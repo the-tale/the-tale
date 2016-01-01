@@ -20,6 +20,7 @@ from . import habits
 from . import attributes
 from . import effects
 from . import modifiers
+from . import signals
 
 
 def load_place(place_id=None, place_model=None):
@@ -95,13 +96,13 @@ def save_place(place, new=False):
                   'power': place.power}
 
     if new:
-        place_model = models.Place.objects.create(**arguments)
+        place_model = models.Place.objects.create(created_at_turn=TimePrototype.get_current_turn_number(), **arguments)
         place.id = place_model.id
-
         storage.places.add_item(place.id, place)
-        storage.places.update_version()
     else:
-        models.Place.objects.filter(id=place.id, created_at_turn=TimePrototype.get_current_turn_number()).update(**arguments)
+        models.Place.objects.filter(id=place.id).update(**arguments)
+
+    storage.places.update_version()
 
     place.updated_at = datetime.datetime.now()
 
@@ -151,6 +152,8 @@ def add_person_to_place(place):
                                              gender=gender,
                                              type=persons_relations.PERSON_TYPE.random(),
                                              utg_name=names.generator.get_name(race, gender))
+
+    signals.place_person_arrived.send(place.__class__, place=place, person=new_person)
 
     return new_person
 

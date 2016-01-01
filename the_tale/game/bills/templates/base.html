@@ -17,7 +17,9 @@
           <a class="dropdown-toggle pgf-create-new-bill-buttons" data-toggle="dropdown" href="#">Предложить закон <b class="caret"></b></a>
           <ul class="dropdown-menu">
             {% for bill_id, bill_type in bills_menu_types() %}
-            <li><a href="{{ url('game:bills:new', bill_type=bill_id) }}">{{bill_type.CAPTION}}</a></li>
+              {% if bill_type.type.enabled %}
+                <li><a href="{{ url('game:bills:new', bill_type=bill_id) }}">{{bill_type.CAPTION}}</a></li>
+              {% endif %}
             {% endfor %}
           </ul>
         </li>

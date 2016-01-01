@@ -121,12 +121,12 @@ class ExternalPerson(ExternalActorBase):
 
 def create_external_actor(actor):
     from the_tale.game.bills.prototypes import BillPrototype
-    from the_tale.game.places.prototypes import PlacePrototype
-    from the_tale.game.persons.prototypes import PersonPrototype
+    from the_tale.game.places.objects import Place
+    from the_tale.game.persons.objects import Person
 
     if isinstance(actor, BillPrototype): return ExternalBill(actor)
-    if isinstance(actor, PersonPrototype): return ExternalPerson(actor)
-    if isinstance(actor, PlacePrototype): return ExternalPlace(actor)
+    if isinstance(actor, Person): return ExternalPerson(actor)
+    if isinstance(actor, Place): return ExternalPlace(actor)
 
     raise exceptions.ChronicleException('can not create external actor: unknown actor type: %r' % actor)
 
@@ -141,8 +141,8 @@ class ActorPrototype(BasePrototype):
 
         model = Actor.objects.create(uid=external_object.uid,
                                      bill=external_object.bill._model if external_object.bill else None,
-                                     place=external_object.place._model if external_object.place else None,
-                                     person=external_object.person._model if external_object.person else None)
+                                     place_id=external_object.place.id if external_object.place else None,
+                                     person_id=external_object.person.id if external_object.person else None)
 
         return cls(model)
 
@@ -158,12 +158,12 @@ class ActorPrototype(BasePrototype):
     @property
     def name(self):
         from the_tale.game.bills.prototypes import BillPrototype
-        from the_tale.game.persons.storage import persons_storage
-        from the_tale.game.places.storage import places_storage
+        from the_tale.game.persons import storage as persons_storage
+        from the_tale.game.places import storage as places_storage
 
         if self.bill_id is not None:
             return BillPrototype.get_by_id(self.bill_id).caption
         if self.place_id is not None:
-            return places_storage[self.place_id].name
+            return places_storage.places[self.place_id].name
         if self.person_id is not None:
-            return persons_storage[self.person_id].name
+            return persons_storage.persons[self.person_id].name

@@ -128,7 +128,7 @@ class Place(names.ManageNameMixin2):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value).id]
 
-        restrictions.extend(self._modifier.TYPE.linguistics_restrictions())
+        restrictions.extend(self._modifier.linguistics_restrictions())
 
         return tuple(restrictions)
 

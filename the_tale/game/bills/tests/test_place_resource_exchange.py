@@ -9,7 +9,7 @@ from the_tale.game.bills.bills.place_resource_exchange import ALLOWED_EXCHANGE_T
 
 from the_tale.game.bills.tests.helpers import choose_exchange_resources, BaseTestPrototypes
 
-from the_tale.game.places.storage import resource_exchange_storage
+from the_tale.game.places import storage as places_storage
 from the_tale.game.places.prototypes import ResourceExchangePrototype
 from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
 
@@ -154,24 +154,24 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
-        self.assertEqual(len(resource_exchange_storage.all()), 0)
+        self.assertEqual(len(places_storage.resource_exchanges.all()), 0)
 
         self.assertTrue(self.bill.apply())
 
 
     def test_apply(self):
 
-        old_storage_version = resource_exchange_storage._version
+        old_storage_version = places_storage.resource_exchanges._version
 
         self.apply_bill()
 
-        self.assertNotEqual(old_storage_version, resource_exchange_storage._version)
-        self.assertEqual(len(resource_exchange_storage.all()), 1)
+        self.assertNotEqual(old_storage_version, places_storage.resource_exchanges._version)
+        self.assertEqual(len(places_storage.resource_exchanges.all()), 1)
 
         bill = BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)
 
-        exchange = resource_exchange_storage.all()[0]
+        exchange = places_storage.resource_exchanges.all()[0]
 
         self.assertEqual(set([exchange.place_1.id, exchange.place_2.id]), set([self.place1.id, self.place2.id]))
         self.assertEqual(set([exchange.resource_1, exchange.resource_2]), set([self.resource_1, self.resource_2]))
@@ -181,15 +181,15 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     def test_decline__success(self):
         self.apply_bill()
 
-        old_storage_version = resource_exchange_storage._version
+        old_storage_version = places_storage.resource_exchanges._version
 
         decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
 
         self.bill.decline(decliner)
 
-        self.assertNotEqual(old_storage_version, resource_exchange_storage._version)
+        self.assertNotEqual(old_storage_version, places_storage.resource_exchanges._version)
 
-        self.assertEqual(len(resource_exchange_storage.all()), 0)
+        self.assertEqual(len(places_storage.resource_exchanges.all()), 0)
 
 
     def test_decline__no_excange(self):
@@ -197,41 +197,41 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
         ResourceExchangePrototype._db_all().delete()
 
-        resource_exchange_storage.refresh()
+        places_storage.resource_exchanges.refresh()
 
-        self.assertEqual(len(resource_exchange_storage.all()), 0)
+        self.assertEqual(len(places_storage.resource_exchanges.all()), 0)
 
-        old_storage_version = resource_exchange_storage._version
+        old_storage_version = places_storage.resource_exchanges._version
 
         decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
 
         self.bill.decline(decliner)
 
-        self.assertEqual(old_storage_version, resource_exchange_storage._version)
+        self.assertEqual(old_storage_version, places_storage.resource_exchanges._version)
 
 
     def test_end__success(self):
         self.apply_bill()
 
-        old_storage_version = resource_exchange_storage._version
+        old_storage_version = places_storage.resource_exchanges._version
 
         self.bill.end()
 
-        self.assertNotEqual(old_storage_version, resource_exchange_storage._version)
+        self.assertNotEqual(old_storage_version, places_storage.resource_exchanges._version)
 
-        self.assertEqual(len(resource_exchange_storage.all()), 0)
+        self.assertEqual(len(places_storage.resource_exchanges.all()), 0)
 
     def test_end__no_excange(self):
         self.apply_bill()
 
         ResourceExchangePrototype._db_all().delete()
 
-        resource_exchange_storage.refresh()
+        places_storage.resource_exchanges.refresh()
 
-        self.assertEqual(len(resource_exchange_storage.all()), 0)
+        self.assertEqual(len(places_storage.resource_exchanges.all()), 0)
 
-        old_storage_version = resource_exchange_storage._version
+        old_storage_version = places_storage.resource_exchanges._version
 
         self.bill.end()
 
-        self.assertEqual(old_storage_version, resource_exchange_storage._version)
+        self.assertEqual(old_storage_version, places_storage.resource_exchanges._version)

@@ -67,23 +67,23 @@ class PlaceChangeModifierBillSuccessed(_PlaceChangeModifier):
     TYPE = RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_SUCCESSED
 
 
-class PlaceLosedModifier(RecordBase):
-    TYPE = RECORD_TYPE.PLACE_LOSED_MODIFIER
-    ACTORS = [ACTOR_ROLE.PLACE]
-    SUBSTITUTIONS = ['place', 'old_modifier']
+# class PlaceLosedModifier(RecordBase):
+#     TYPE = RECORD_TYPE.PLACE_LOSED_MODIFIER
+#     ACTORS = [ACTOR_ROLE.PLACE]
+#     SUBSTITUTIONS = ['place', 'old_modifier']
 
 # person moved out city
-class _PersonRemove(RecordBase):
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
+# class _PersonRemove(RecordBase):
+#     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
 
-class PersonRemoveBillSuccessed(_PersonRemove):
-    TYPE = RECORD_TYPE.PERSON_REMOVE_BILL_SUCCESSED
+# class PersonRemoveBillSuccessed(_PersonRemove):
+#     TYPE = RECORD_TYPE.PERSON_REMOVE_BILL_SUCCESSED
 
 
-class PersonLeftPlace(RecordBase):
-    TYPE = RECORD_TYPE.PERSON_LEFT_PLACE
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
-    SUBSTITUTIONS  = ['place', 'person']
+# class PersonLeftPlace(RecordBase):
+#     TYPE = RECORD_TYPE.PERSON_LEFT_PLACE
+#     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
+#     SUBSTITUTIONS  = ['place', 'person']
 
 class PersonArrivedToPlace(RecordBase):
     TYPE = RECORD_TYPE.PERSON_ARRIVED_TO_PLACE

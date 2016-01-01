@@ -51,7 +51,7 @@ class BuildingDestroy(BasePersonBill):
         self.building_name_forms = building_name_forms
 
         if self.building_name_forms is None:
-            building = buildings_storage.get_by_person_id(self.person_id)
+            building = places_storage.buildings.get_by_person_id(self.person_id)
             if building is not None:
                 self.building_name_forms = building.utg_name
 
@@ -59,7 +59,7 @@ class BuildingDestroy(BasePersonBill):
     def base_name(self): return self.building_name_forms.normal_form()
 
     @property
-    def building(self): return buildings_storage.get_by_person_id(self.person.id)
+    def building(self): return places_storage.buildings.get_by_person_id(self.person.id)
 
     def has_meaning(self):
         return self.building and not self.building.state.is_DESTROYED
@@ -71,7 +71,7 @@ class BuildingDestroy(BasePersonBill):
     def initialize_with_user_data(self, user_form):
         super(BuildingDestroy, self).initialize_with_user_data(user_form)
 
-        building = buildings_storage.get_by_person_id(self.person_id)
+        building = places_storage.buildings.get_by_person_id(self.person_id)
         if building is not None:
             self.building_name_forms = building.utg_name
 

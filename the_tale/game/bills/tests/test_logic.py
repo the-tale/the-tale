@@ -19,15 +19,13 @@ class LogicTests(BaseTestPrototypes):
     def test_actual_bills_accepted_timestamps(self):
         from the_tale.game.bills import prototypes as bills_prototypes
         from the_tale.game.bills import bills
-        from the_tale.game.bills import conf as bills_conf
         from the_tale.game.places import modifiers as places_modifiers
-        from the_tale.forum import models as forum_models
 
         self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [])
 
         bill_data = bills.PlaceModifier(place_id=self.place1.id,
-                                        modifier_id=places_modifiers.TradeCenter.get_id(),
-                                        modifier_name=places_modifiers.TradeCenter.TYPE.text,
+                                        modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
+                                        modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                         old_modifier_name=None)
         bill = bills_prototypes.BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
@@ -44,8 +42,8 @@ class LogicTests(BaseTestPrototypes):
         # second bill
 
         bill_data = bills.PlaceModifier(place_id=self.place1.id,
-                                        modifier_id=places_modifiers.TradeCenter.get_id(),
-                                        modifier_name=places_modifiers.TradeCenter.TYPE.text,
+                                        modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
+                                        modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                         old_modifier_name=None)
         bill_2 = bills_prototypes.BillPrototype.create(self.account2, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
@@ -62,8 +60,8 @@ class LogicTests(BaseTestPrototypes):
         # third bill
 
         bill_data = bills.PlaceModifier(place_id=self.place1.id,
-                                        modifier_id=places_modifiers.TradeCenter.get_id(),
-                                        modifier_name=places_modifiers.TradeCenter.TYPE.text,
+                                        modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
+                                        modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                         old_modifier_name=None)
         bill_3 = bills_prototypes.BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 

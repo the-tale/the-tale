@@ -53,7 +53,7 @@ class PlaceChronicleTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
-        with mock.patch('the_tale.game.places.prototypes.PlacePrototype.cmd_change_power') as cmd_change_power:
+        with mock.patch('the_tale.game.places.objects.Place.cmd_change_power') as cmd_change_power:
             self.assertTrue(self.bill.apply())
 
         self.assertEqual(cmd_change_power.call_args_list, change_power_mock)

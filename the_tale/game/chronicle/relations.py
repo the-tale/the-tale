@@ -7,7 +7,7 @@ from rels.django import DjangoEnum
 class RECORD_TYPE(DjangoEnum):
     deprecated = Column(unique=False)
 
-    records = (('PLACE_CHANGE_NAME_BILL_STARTED', 0, u'название города: предложен закон об изменении', True),
+    records = ( ('PLACE_CHANGE_NAME_BILL_STARTED', 0, u'название города: предложен закон об изменении', True),
                 ('PLACE_CHANGE_NAME_BILL_SUCCESSED', 1, u'название города: принят закон об изменении', False),
                 ('PLACE_CHANGE_NAME_BILL_FAILED', 2, u'название города: отклонён закон об изменении', True),
 
@@ -18,12 +18,14 @@ class RECORD_TYPE(DjangoEnum):
                 ('PLACE_CHANGE_MODIFIER_BILL_STARTED', 6, u'специализация города: предложен закон об изменении', True),
                 ('PLACE_CHANGE_MODIFIER_BILL_SUCCESSED', 7, u'специализация города: принят закон об изменении', False),
                 ('PLACE_CHANGE_MODIFIER_BILL_FAILED', 8, u'специализация города: отклонён закон об изменении', True),
-                ('PLACE_LOSED_MODIFIER', 9, u'специализация города: утеряна из-за недостатка развития', False),
+
+                ('PLACE_LOSED_MODIFIER', 9, u'специализация города: утеряна из-за недостатка развития', True),
 
                 ('PERSON_REMOVE_BILL_STARTED', 10, u'житель: предложен закон об изгнании', True),
-                ('PERSON_REMOVE_BILL_SUCCESSED', 11, u'житель: принят закон об изгнании', False),
+                ('PERSON_REMOVE_BILL_SUCCESSED', 11, u'житель: принят закон об изгнании', True),
                 ('PERSON_REMOVE_BILL_FAILED', 12, u'житель: отклонён закон об изгнании', True),
-                ('PERSON_LEFT_PLACE', 13, u'житель: покину место из-за потери влияния', False),
+                ('PERSON_LEFT_PLACE', 13, u'житель: покину место из-за потери влияния', True),
+
                 ('PERSON_ARRIVED_TO_PLACE', 14, u'житель: приехал в город', False),
 
                 ('PLACE_CHANGE_RACE', 15, u'раса города: изменение основной расы', False),
@@ -59,14 +61,14 @@ class RECORD_TYPE(DjangoEnum):
 
                 ('PERSON_CHRONICLE_BILL_SUCCESSED', 37, u'житель: принят закон о занесении записи в летопись', False),
                 ('PLACE_CHRONICLE_BILL_SUCCESSED', 38, u'город: принят закон о занесении записи в летопись', False),
-                )
+              )
 
 
 class ACTOR_ROLE(DjangoEnum):
 
     records = ( ('BILL', 0, u'закон'),
-                 ('PLACE', 1, u'город'),
-                 ('PERSON', 2, u'житель') )
+                ('PLACE', 1, u'город'),
+                ('PERSON', 2, u'житель') )
 
 
 class ACTOR_TYPE(DjangoEnum):

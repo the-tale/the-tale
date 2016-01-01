@@ -8,8 +8,9 @@ from the_tale.game.bills.bills import PlaceDescripton
 
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
 
-from the_tale.game.places.storage import places_storage
-from the_tale.game.places.conf import places_settings
+from the_tale.game.places import storage as places_storage
+from the_tale.game.places import conf as places_conf
+from the_tale.game.places import logic as places_logic
 
 
 class PlaceDescriptionTests(BaseTestPrototypes):
@@ -17,11 +18,11 @@ class PlaceDescriptionTests(BaseTestPrototypes):
     def setUp(self):
         super(PlaceDescriptionTests, self).setUp()
 
-        self.place = places_storage.all()[0]
+        self.place = places_storage.places.all()[0]
         self.place.description = 'old description'
-        self.place.save()
+        places_logic.save_place(self.place)
 
-        self.place_2 = places_storage.all()[1]
+        self.place_2 = places_storage.places.all()[1]
 
         self.bill_data = PlaceDescripton(place_id=self.place.id, description='new description')
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
@@ -52,7 +53,7 @@ class PlaceDescriptionTests(BaseTestPrototypes):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
                                                          'place': self.place_2.id,
-                                                         'new_description': '!' * (places_settings.MAX_DESCRIPTION_LENGTH+1)})
+                                                         'new_description': '!' * (places_conf.settings.MAX_DESCRIPTION_LENGTH+1)})
         self.assertFalse(form.is_valid())
 
 
@@ -86,6 +87,6 @@ class PlaceDescriptionTests(BaseTestPrototypes):
         self.bill.update_by_moderator(form)
 
         self.place.description = 'new description'
-        self.place.save()
+        places_logic.save_place(self.place)
 
         self.assertFalse(self.bill.has_meaning())

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.forms import ValidationError
+# from django.forms import ValidationError
 
 from utg import words as utg_words
 
@@ -11,6 +11,7 @@ from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
 from the_tale.game.places.modifiers import CITY_MODIFIERS
 
 
@@ -22,22 +23,22 @@ class UserForm(BaseUserForm):
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.places.get_choices()
-        self.fields['new_modifier'].choices = sorted(CITY_MODIFIERS.choices(), key=lambda m: m[1])
+        self.fields['new_modifier'].choices = sorted(CITY_MODIFIERS.select('value', 'text'), key=lambda m: m[1])
 
     def clean_new_modifier(self):
         data = self.cleaned_data['new_modifier']
-        return CITY_MODIFIERS.get_from_name(data)
+        return CITY_MODIFIERS(int(data))
 
-    def clean(self):
-        cleaned_data = super(UserForm, self).clean()
+    # def clean(self):
+    #     cleaned_data = super(UserForm, self).clean()
 
-        place = places_storage.places.get(int(cleaned_data['place']))
-        modifier = CITY_MODIFIERS(cleaned_data['new_modifier'])
+    #     place = places_storage.places.get(int(cleaned_data['place']))
+    #     modifier = cleaned_data['new_modifier']
 
-        if not modifier.can_be_choosen:
-            raise ValidationError(u'В данный момент город "%s" нельзя преобразовать в "%s".' % (place.name, modifier.NAME))
+    #     if not modifier.can_be_choosen:
+    #         raise ValidationError(u'В данный момент город "%s" нельзя преобразовать в "%s".' % (place.name, modifier.NAME))
 
-        return cleaned_data
+    #     return cleaned_data
 
 
 class ModeratorForm(BaseModeratorForm):
@@ -92,15 +93,15 @@ class PlaceModifier(BaseBill):
         self.modifier_id = user_form.c.new_modifier
         self.modifier_name = self.modifier_id.text
         self.old_name_forms = self.place.utg_name
-        self.old_modifier_name = self.place.modifier.NAME if self.place.modifier else None
+        self.old_modifier_name = self.place._modifier.text if not self.place._modifier.is_NONE else None
 
     def has_meaning(self):
-        return self.place.modifier is None or (self.place.modifier.TYPE != self.modifier_id)
+        return self.place._modifier.is_NONE is None or (self.place._modifier != self.modifier_id)
 
     def apply(self, bill=None):
         if self.has_meaning():
-            self.place.modifier = self.modifier_id
-            self.place.save()
+            self.place.set_modifier(self.modifier_id)
+            places_logic.save_place(self.place)
 
     def serialize(self):
         return {'type': self.type.name.lower(),

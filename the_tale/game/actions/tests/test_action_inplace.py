@@ -26,7 +26,7 @@ from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.prototypes import TimePrototype
 
-from the_tale.game.places.modifiers.prototypes import HolyCity, Resort
+from the_tale.game.places import modifiers as places_modifiers
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
@@ -64,7 +64,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_instant_heal_in_resort(self):
         self.hero.health = 1
-        self.hero.position.place.modifier = Resort(self.hero.position.place)
+        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.RESORT)
         old_messages_len = len (self.hero.journal.messages)
         prototypes.ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
@@ -72,7 +72,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_no_instant_heal_in_resort(self):
         self.hero.health = self.hero.max_health
-        self.hero.position.place.modifier = Resort(self.hero.position.place)
+        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.RESORT)
         old_messages_len = len (self.hero.journal.messages)
         prototypes.ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
@@ -82,7 +82,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
     def test_companion_heal_in_resort__no_companion(self):
         self.assertEqual(self.hero.companion, None)
 
-        self.hero.position.place.modifier = Resort(self.hero.position.place)
+        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.RESORT)
 
         prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
@@ -94,7 +94,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.assertEqual(self.hero.companion.health, self.hero.companion.max_health)
 
-        self.hero.position.place.modifier = Resort(self.hero.position.place)
+        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.RESORT)
 
         prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
@@ -109,7 +109,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.hero.companion.health = 1
 
-        self.hero.position.place.modifier = Resort(self.hero.position.place)
+        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.RESORT)
 
         with self.check_increased(lambda: self.hero.companion.health):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
@@ -123,8 +123,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.energy = 0
         self.hero.position.previous_place_id = None
 
-        self.hero.position.place.modifier = HolyCity(self.hero.position.place)
-
+        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
@@ -138,7 +137,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.energy = self.hero.energy_maximum
         self.hero.position.previous_place_id = None
 
-        self.hero.position.place.modifier = HolyCity(self.hero.position.place)
+        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
@@ -164,7 +163,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_instant_energy_regen_in_holy_city__place_not_changed(self):
         self.hero.energy = 0
-        self.hero.position.place.modifier = HolyCity(self.hero.position.place)
+        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
         self.hero.position.update_previous_place()
 
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)

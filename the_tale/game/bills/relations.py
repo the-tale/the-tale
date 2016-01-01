@@ -16,20 +16,21 @@ class BILL_STATE(DjangoEnum):
 
 
 class BILL_TYPE(DjangoEnum):
-    stability = rels.Column(unique=False)
+    stability = rels.Column(unique=False, single_type=False)
+    enabled = rels.Column(unique=False)
 
-    records = ( ('PLACE_RENAMING', 0, u'переименование города',                  0.15),
-                ('PERSON_REMOVE', 1, u'исключить горожанина из Совета',          0.10),
-                ('PLACE_DESCRIPTION', 2, u'изменить описание города',            0.04),
-                ('PLACE_MODIFIER', 3, u'изменить специализацию города',          0.04),
-                ('BUILDING_CREATE', 4, u'возвести постройку',                    0.04),
-                ('BUILDING_DESTROY', 5, u'разрушить постройку',                  0.10),
-                ('BUILDING_RENAMING', 6, u'переименовать постройку',             0.02),
-                ('PLACE_RESOURCE_EXCHANGE', 7, u'обмен ресурсами',               0.08),
-                ('BILL_DECLINE', 8, u'отмена закона',                            0.04),
-                ('PLACE_RESOURCE_CONVERSION', 9, u'изменение параметров города', 0.08),
-                ('PERSON_CHRONICLE', 10, u'запись в летописи о советнике',       0.02),
-                ('PLACE_CHRONICLE', 11, u'запись в летописи о городе',           0.02),
+    records = ( ('PLACE_RENAMING', 0, u'переименование города',                  0.15, True),
+                ('PERSON_REMOVE', 1, u'исключить горожанина из Совета',          None, False),
+                ('PLACE_DESCRIPTION', 2, u'изменить описание города',            0.04, True),
+                ('PLACE_MODIFIER', 3, u'изменить специализацию города',          0.04, True),
+                ('BUILDING_CREATE', 4, u'возвести постройку',                    0.04, True),
+                ('BUILDING_DESTROY', 5, u'разрушить постройку',                  0.10, True),
+                ('BUILDING_RENAMING', 6, u'переименовать постройку',             0.02, True),
+                ('PLACE_RESOURCE_EXCHANGE', 7, u'обмен ресурсами',               0.08, True),
+                ('BILL_DECLINE', 8, u'отмена закона',                            0.04, True),
+                ('PLACE_RESOURCE_CONVERSION', 9, u'изменение параметров города', 0.08, True),
+                ('PERSON_CHRONICLE', 10, u'запись в летописи о советнике',       0.02, True),
+                ('PLACE_CHRONICLE', 11, u'запись в летописи о городе',           0.02, True),
               )
 
 

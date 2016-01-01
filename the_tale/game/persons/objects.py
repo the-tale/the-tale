@@ -54,7 +54,7 @@ class Person(names.ManageNameMixin2):
         return u'%s — %s из %s' % (self.name, self.race_verbose, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 
     @property
-    def has_building(self): return places_storage.buildings_storage.get_by_person_id(self.id) is not None
+    def has_building(self): return places_storage.buildings.get_by_person_id(self.id) is not None
 
     def cmd_change_power(self, power):
         if amqp_environment.environment.workers.highlevel is None:
@@ -84,9 +84,9 @@ class Person(names.ManageNameMixin2):
     def form_choices(cls, only_weak=False, choosen_person=None, predicate=lambda place, person: True):
         choices = []
 
-        for place in places_storage.all():
+        for place in places_storage.places.all():
             persons_choices = filter(lambda person: predicate(place, person), place.persons) # pylint: disable=W0110
-            accepted_persons = persons_choices[place.max_persons_number/2:] if only_weak else persons_choices
+            accepted_persons = persons_choices[min(1, len(place.persons)/2):] if only_weak else persons_choices
 
             if choosen_person is not None and choosen_person.place.id == place.id:
                 if choosen_person.id not in [p.id for p in accepted_persons]:

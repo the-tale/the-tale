@@ -30,7 +30,7 @@ class PersonRemove(BasePersonBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    USER_FORM_TEMPLATE = 'bills/bills/person_remove_user_form.html'
+    USER_FORM_TEMPLATE = None
     MODERATOR_FORM_TEMPLATE = 'bills/bills/person_remove_moderator_form.html'
     SHOW_TEMPLATE = 'bills/bills/person_remove_show.html'
 
@@ -38,11 +38,7 @@ class PersonRemove(BasePersonBill):
     DESCRIPTION = u'В случае, если горожанин утратил доверие духов-хранителей, его можно исключить из Совета города. Исключать можно только наименее влиятельных советников (но советник будет исключён, даже если за время голосования существенно увеличит своё влияние и станет самым влиятельным горожанином).'
 
     def has_meaning(self):
-        return self.person and self.person.in_game
+        return False
 
     def apply(self, bill=None):
-        if self.has_meaning():
-            self.person.move_out_game()
-            self.person.place.sync_persons(force_add=False)
-            self.person.place.save()
-            self.person.save()
+        raise NotImplementedError()

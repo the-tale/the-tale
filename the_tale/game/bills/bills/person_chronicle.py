@@ -42,7 +42,7 @@ class PersonChronicle(BasePersonBill):
         self.power_bonus = power_bonus
 
     def has_meaning(self):
-        return self.person and self.person.in_game
+        return self.person
 
     def apply(self, bill=None):
         if not self.has_meaning():
@@ -51,9 +51,7 @@ class PersonChronicle(BasePersonBill):
         if self.power_bonus.bonus_delta == 0:
             return
 
-        self.person.cmd_change_power(power=0,
-                                     positive_bonus=self.power_bonus.bonus_delta if self.power_bonus.bonus_delta > 0 else 0,
-                                     negative_bonus=-self.power_bonus.bonus_delta if self.power_bonus.bonus_delta < 0 else 0)
+        self.person.cmd_change_power(power=0)
 
 
     @property

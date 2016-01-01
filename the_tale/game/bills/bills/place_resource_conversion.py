@@ -62,7 +62,7 @@ class UserForm(BaseUserForm):
     def clean(self):
         cleaned_data = super(UserForm, self).clean()
 
-        place = places_storage.get(int(cleaned_data['place']))
+        place = places_storage.places.get(int(cleaned_data['place']))
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place)) ):
             raise ValidationError(u'Один город может поддерживать не более чем %(max_exchanges)d активных закона' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})

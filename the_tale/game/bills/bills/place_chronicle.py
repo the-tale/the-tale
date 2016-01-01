@@ -81,9 +81,7 @@ class PlaceChronicle(BaseBill):
         if self.power_bonus.bonus_delta == 0:
             return
 
-        self.place.cmd_change_power(power=0,
-                                     positive_bonus=self.power_bonus.bonus_delta if self.power_bonus.bonus_delta > 0 else 0,
-                                     negative_bonus=-self.power_bonus.bonus_delta if self.power_bonus.bonus_delta < 0 else 0)
+        self.place.cmd_change_power(power=0)
 
     def serialize(self):
         return {'type': self.type.name.lower(),

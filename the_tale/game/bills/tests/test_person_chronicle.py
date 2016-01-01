@@ -56,7 +56,7 @@ class PersonChronicleTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
-        with mock.patch('the_tale.game.persons.prototypes.PersonPrototype.cmd_change_power') as cmd_change_power:
+        with mock.patch('the_tale.game.persons.objects.Person.cmd_change_power') as cmd_change_power:
             self.assertTrue(self.bill.apply())
 
         self.assertEqual(cmd_change_power.call_args_list, change_power_mock)
@@ -79,18 +79,3 @@ class PersonChronicleTests(BaseTestPrototypes):
     def test_apply_not_change(self):
         self.bill.data.power_bonus = relations.POWER_BONUS_CHANGES.NOT_CHANGE
         self.check_apply([])
-
-
-    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
-    def test_is_make_sense__person_out_game(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
-
-        form = PersonChronicle.ModeratorForm({'approved': True})
-        self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
-
-        self.bill.data.person.move_out_game()
-
-        self.assertFalse(self.bill.has_meaning())
