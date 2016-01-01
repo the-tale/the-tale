@@ -18,7 +18,10 @@ from the_tale.game.balance.power import Power
 from the_tale.game.cards import relations
 
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
+
 from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.balance import constants as c
 from the_tale.game.prototypes import TimePrototype
@@ -627,10 +630,10 @@ class KeepersGoodsBase(BaseEffect):
         elif task.step.is_HIGHLEVEL:
             place = places_storage.places[place_id]
 
-            place.keepers_goods += self.GOODS
-            place.sync_parameters()
+            place.attrs.keepers_goods += self.GOODS
+            place.refresh_attributes()
 
-            place.save()
+            places_logic.save_place(place)
 
             places_storage.places.update_version()
 
@@ -712,7 +715,7 @@ class PersonPowerBonusBase(BaseEffect):
 
             person.push_power_positive(TimePrototype.get_current_turn_number(), self.BONUS)
 
-            person.save()
+            persons_logic.save_person(person)
 
             persons_storage.persons.update_version()
 
@@ -721,7 +724,7 @@ class PersonPowerBonusBase(BaseEffect):
 
 class PersonPowerBonusCommon(PersonPowerBonusBase):
     TYPE = relations.CARD_TYPE.PERSON_POWER_BONUS_POSITIVE_COMMON
-    BONUS = c.HERO_POWER_BONUS
+    BONUS = 0.01
 
 class PersonPowerBonusUncommon(PersonPowerBonusBase):
     TYPE = relations.CARD_TYPE.PERSON_POWER_BONUS_POSITIVE_UNCOMMON
@@ -777,7 +780,7 @@ class PlacePowerBonusBase(BaseEffect):
             else:
                 place.push_power_negative(TimePrototype.get_current_turn_number(), -self.BONUS)
 
-            place.save()
+            places_logic.save_place(place)
 
             places_storage.places.update_version()
 
@@ -786,7 +789,7 @@ class PlacePowerBonusBase(BaseEffect):
 
 class PlacePowerBonusPositiveCommon(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_POSITIVE_COMMON
-    BONUS = c.HERO_POWER_BONUS
+    BONUS = 0.01
 
 class PlacePowerBonusPositiveUncommon(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_POSITIVE_UNCOMMON
@@ -807,7 +810,7 @@ class PlacePowerBonusPositiveLegendary(PlacePowerBonusBase):
 
 class PlacePowerBonusNegativeCommon(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_COMMON
-    BONUS = -c.HERO_POWER_BONUS
+    BONUS = -0.01
 
 class PlacePowerBonusNegativeUncommon(PlacePowerBonusBase):
     TYPE = relations.CARD_TYPE.PLACE_POWER_BONUS_NEGATIVE_UNCOMMON

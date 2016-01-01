@@ -129,7 +129,7 @@ class PrototypeTests(PrototypeTestsBase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
     def test_give_person_power__profession(self):
 
-        person = persons_storage.persons_storage.all()[0]
+        person = persons_storage.persons.all()[0]
 
         power_without_profession = self.quest._give_person_power(self.hero, person, 1.0)
 
@@ -186,7 +186,7 @@ class PrototypeTests(PrototypeTestsBase):
     def test_power_on_end_quest_for_normal_account_hero__in_frontier(self):
 
         for place in places_storage.places.all():
-            place._model.is_frontier = True
+            place.is_frontier = True
 
         self.hero.is_fast = False
 
@@ -222,11 +222,11 @@ class PrototypeTests(PrototypeTestsBase):
     def test_modify_experience(self):
         self.assertEqual(self.quest.modify_experience(100), 100)
 
-        with mock.patch('the_tale.game.places.prototypes.PlacePrototype.get_experience_modifier',
-                        mock.Mock(return_value=0.1)) as get_experience_modifier:
-            self.assertTrue(self.quest.modify_experience(100) > 100)
+        for place in places_storage.places.all():
+            place.attrs.experience = 1.0
 
-        self.assertTrue(get_experience_modifier.call_count > 0)
+        self.assertTrue(self.quest.modify_experience(100) > 100)
+
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda *argv: False)
@@ -374,7 +374,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power = 10
         self.quest.current_info.power_bonus = 1
 
-        for person in persons_storage.persons_storage.all():
+        for person in persons_storage.persons.all():
             person_uid = uids.person(person.id)
             if person_uid not in self.quest.knowledge_base:
                 self.quest.knowledge_base += logic.fact_person(person)
@@ -437,7 +437,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power = 10
         self.quest.current_info.power_bonus = 1
 
-        for person in persons_storage.persons_storage.all():
+        for person in persons_storage.persons.all():
             person_uid = uids.person(person.id)
             if person_uid not in self.quest.knowledge_base:
                 self.quest.knowledge_base += logic.fact_person(person)
@@ -467,7 +467,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power = 10
         self.quest.current_info.power_bonus = 1
 
-        for person in persons_storage.persons_storage.all():
+        for person in persons_storage.persons.all():
             person_uid = uids.person(person.id)
             if person_uid not in self.quest.knowledge_base:
                 self.quest.knowledge_base += logic.fact_person(person)
@@ -492,7 +492,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power = 10
         self.quest.current_info.power_bonus = 1
 
-        for person in persons_storage.persons_storage.all():
+        for person in persons_storage.persons.all():
             person_uid = uids.person(person.id)
             if person_uid not in self.quest.knowledge_base:
                 self.quest.knowledge_base += logic.fact_person(person)
@@ -681,7 +681,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.hero_fact = self.quest.knowledge_base.filter(facts.Hero).next()
         self.person_fact = self.quest.knowledge_base.filter(facts.Person).next()
 
-        self.person = persons_storage.persons_storage[self.person_fact.externals['id']]
+        self.person = persons_storage.persons[self.person_fact.externals['id']]
 
         self.place_1_fact = facts.Place(uid='place_1', externals={'id': self.place_1.id})
         self.place_2_fact = facts.Place(uid='place_2', externals={'id': self.place_2.id})
@@ -904,7 +904,7 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
         self.hero_fact = self.quest.knowledge_base.filter(facts.Hero).next()
         self.person_fact = self.quest.knowledge_base.filter(facts.Person).next()
 
-        self.person = persons_storage.persons_storage[self.person_fact.externals['id']]
+        self.person = persons_storage.persons[self.person_fact.externals['id']]
 
         self.place_1_fact = facts.Place(uid='place_1', externals={'id': self.place_1.id})
         self.place_2_fact = facts.Place(uid='place_2', externals={'id': self.place_2.id})

@@ -66,15 +66,11 @@ class PersonChronicleTests(BaseTestPrototypes):
 
     def test_apply_up(self):
         self.bill.data.power_bonus = relations.POWER_BONUS_CHANGES.UP
-        self.check_apply([mock.call(power=0,
-                                   positive_bonus=relations.POWER_BONUS_CHANGES.UP.bonus_delta,
-                                   negative_bonus=0)])
+        self.check_apply([mock.call(power=0)])
 
     def test_apply_down(self):
         self.bill.data.power_bonus = relations.POWER_BONUS_CHANGES.DOWN
-        self.check_apply([mock.call(power=0,
-                                   positive_bonus=0,
-                                   negative_bonus=relations.POWER_BONUS_CHANGES.UP.bonus_delta)])
+        self.check_apply([mock.call(power=0)])
 
     def test_apply_not_change(self):
         self.bill.data.power_bonus = relations.POWER_BONUS_CHANGES.NOT_CHANGE

@@ -602,16 +602,6 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND)
 
-    def test_set_outgame_friend(self):
-        friend = persons_storage.persons[self.friend_id]
-        friend.move_out_game()
-        friend.save()
-
-        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.FRIEND, self.friend_id)
-        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON)
-        self.assertEqual(self.hero.preferences.friend, None)
-
 
     def test_set_friend(self):
         self.assertEqual(HeroPreferences.get_friends_of(persons_storage.persons[self.friend_id], all=False), [])
@@ -712,18 +702,18 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         self.assertEqual(set([h.id for h in HeroPreferences.get_friends_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
         self.assertEqual(set([h.id for h in HeroPreferences.get_friends_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
 
-    def test_reset_friend_on_highlevel_update(self):
-        friend = self.place_1.persons[0]
+    # def test_reset_friend_on_highlevel_update(self):
+    #     friend = self.place_1.persons[0]
 
-        self.hero.preferences.set_friend(friend)
-        logic.save_hero(self.hero)
+    #     self.hero.preferences.set_friend(friend)
+    #     logic.save_hero(self.hero)
 
-        friend.move_out_game()
-        friend.save()
+    #     friend.move_out_game()
+    #     friend.save()
 
-        self.storage.on_highlevel_data_updated()
+    #     self.storage.on_highlevel_data_updated()
 
-        self.assertEqual(self.hero.preferences.friend, None)
+    #     self.assertEqual(self.hero.preferences.friend, None)
 
 
     def test_count_habit_values(self):
@@ -845,16 +835,6 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON)
 
-    def test_set_outgame_enemy(self):
-        enemy = persons_storage.persons[self.enemy_id]
-        enemy.move_out_game()
-        enemy.save()
-
-        task = ChoosePreferencesTask(self.hero.id, relations.PREFERENCE_TYPE.ENEMY, self.enemy_id)
-        self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertEqual(task.state, CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON)
-        self.assertEqual(self.hero.preferences.enemy, None)
-
     def test_set_enemy(self):
         self.assertEqual(HeroPreferences.get_enemies_of(persons_storage.persons[self.enemy_id], all=False), [])
         self.assertEqual(HeroPreferences.get_enemies_of(persons_storage.persons[self.enemy_id], all=True), [])
@@ -961,18 +941,18 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         self.assertEqual(set([h.id for h in HeroPreferences.get_enemies_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
         self.assertEqual(set([h.id for h in HeroPreferences.get_enemies_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
 
-    def test_reset_enemy_on_highlevel_update(self):
-        enemy = self.place_1.persons[0]
+    # def test_reset_enemy_on_highlevel_update(self):
+    #     enemy = self.place_1.persons[0]
 
-        self.hero.preferences.set_enemy(enemy)
-        logic.save_hero(self.hero)
+    #     self.hero.preferences.set_enemy(enemy)
+    #     logic.save_hero(self.hero)
 
-        enemy.move_out_game()
-        enemy.save()
+    #     enemy.move_out_game()
+    #     enemy.save()
 
-        self.storage.on_highlevel_data_updated()
+    #     self.storage.on_highlevel_data_updated()
 
-        self.assertEqual(self.hero.preferences.enemy, None)
+    #     self.assertEqual(self.hero.preferences.enemy, None)
 
 
     def test_count_habit_values(self):

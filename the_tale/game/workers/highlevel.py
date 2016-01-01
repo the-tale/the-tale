@@ -115,9 +115,9 @@ class Worker(BaseWorker):
             negative_power *= power_multiplier
 
             # this power, only to person
-            power = (positive_power + negative_power) * person.place.freedom
+            power = (positive_power + negative_power) * person.place.attrs.freedom
 
-            person.power = person.power * conf.game_settings.POWER_REDUCE_FRACTION + power
+            person.power = person.power * c.PLACE_POWER_REDUCE_FRACTION + power
 
             self.change_place_power(person.place_id, positive_power)
             self.change_place_power(person.place_id, negative_power)
@@ -132,22 +132,21 @@ class Worker(BaseWorker):
 
             positive_power, negative_power = self.places_power.get(place.id, (0, 0))
 
-            power = (positive_power + negative_power) * place.freedom
+            power = (positive_power + negative_power) * place.attrs.freedom
 
-            place.power = place.power * conf.game_settings.POWER_REDUCE_FRACTION + power
+            place.power = place.power * c.PLACE_POWER_REDUCE_FRACTION + power
 
 
     def sync_sizes(self, places, hours, max_size):
         if not places:
             return
 
-        places = sorted(places, key=lambda x: x.raw_power)
+        places = sorted(places, key=lambda x: x.power)
         places_number = len(places)
 
         for i, place in enumerate(places):
-            place.attr.power_economic = int(max_size * float(i) / places_number) + 1
-            place.sync_size(hours)
-            place.sync_persons(force_add=False)
+            place.attrs.set_power_economic(int(max_size * float(i) / places_number) + 1)
+            place.attrs.sync_size(hours)
 
 
     @places_storage.places.postpone_version_update
@@ -157,7 +156,7 @@ class Worker(BaseWorker):
 
         self.logger.info('sync data')
 
-        all_persons = persons_storage.persons_storage.all()
+        all_persons = persons_storage.persons.all()
 
         self.sync_persons_powers(persons=[person for person in all_persons if person.place.is_frontier])
         self.sync_persons_powers(persons=[person for person in all_persons if not person.place.is_frontier])
@@ -185,11 +184,10 @@ class Worker(BaseWorker):
 
 
         for place in places_storage.places.all():
-            place.sync_stability()
-            place.sync_modifier()
+            place.effects.update_step(place)
             place.sync_habits()
 
-            place.sync_parameters() # must be last operation to display and use real data
+            place.refresh_attributes() # must be last operation to display and use real data
 
             place.update_heroes_number()
             place.update_heroes_habits()
@@ -198,8 +196,7 @@ class Worker(BaseWorker):
 
         places_storage.places.save_all()
 
-        persons_storage.persons_storage.remove_out_game_persons()
-        persons_storage.persons_storage.save_all()
+        persons_storage.persons.save_all()
 
         persons_logic.sync_social_connections()
 

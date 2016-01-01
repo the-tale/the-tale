@@ -9,7 +9,7 @@
 {{ guide_macros.page_caption("Города", "Что из себе представляют города Пандоры.") }}
 
 <p>
-  <strong>Город</strong> — центр культурной, общественной, политической и любой другой жизни Пандоры. Города являются ключевыми точками в путешествиях героев, в них приключенцы отдыхают, продают добычу, экипируются и, конечно, получают задания. Каждый город имеет размер (от 1 до {{places_settings.MAX_SIZE}}), который отражает влиятельность города в мире.
+  <strong>Город</strong> — центр культурной, общественной, политической и любой другой жизни Пандоры. Города являются ключевыми точками в путешествиях героев, в них приключенцы отдыхают, продают добычу, экипируются и, конечно, получают задания. Каждый город имеет размер (от 1 до {{c.PLACE_MAX_SIZE}}), который отражает влиятельность города в мире.
 </p>
 
 <h4>Фронтир</h4>
@@ -43,7 +43,7 @@
   </thead>
   <tbody>
     {% for modifier in MODIFIERS%}
-    <tr><td width="150px;">{{modifier.TYPE.text}}</td><td>{{modifier.TYPE.description}}</td></tr>
+    <tr><td width="150px;">{{modifier.text}}</td><td>{{modifier.description}}</td></tr>
     {% endfor %}
   </tbody>
 </table>
@@ -60,18 +60,9 @@
     <tr><th width="150px;">название</th><th>описание</th></tr>
   </thead>
   <tbody>
-    <tr><td>{{PlaceParametersDescription.PLACE_SIZE[0]}}</td><td>{{PlaceParametersDescription.PLACE_SIZE[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.ECONOMIC_SIZE[0]}}</td><td>{{PlaceParametersDescription.ECONOMIC_SIZE[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.POLITIC_RADIUS[0]}}</td><td>{{PlaceParametersDescription.POLITIC_RADIUS[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.TERRAIN_RADIUS[0]}}</td><td>{{PlaceParametersDescription.TERRAIN_RADIUS[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.STABILITY[0]}}</td><td>{{PlaceParametersDescription.STABILITY[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.PRODUCTION[0]}}</td><td>{{PlaceParametersDescription.PRODUCTION[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.GOODS[0]}}</td><td>{{PlaceParametersDescription.GOODS[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.KEEPERS_GOODS[0]}}</td><td>{{PlaceParametersDescription.KEEPERS_GOODS[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.SAFETY[0]}}</td><td>{{PlaceParametersDescription.SAFETY[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.TRANSPORT[0]}}</td><td>{{PlaceParametersDescription.TRANSPORT[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.FREEDOM[0]}}</td><td>{{PlaceParametersDescription.FREEDOM[1]|safe}}</td></tr>
-    <tr><td>{{PlaceParametersDescription.TAX[0]}}</td><td>{{PlaceParametersDescription.TAX[1]|safe}}</td></tr>
+    {% for attribute in ATTRIBUTES %}
+    <tr><td>{{attribute.text}}</td><td>{{attribute.description|safe}}</td></tr>
+    {% endfor %}
   </tbody>
 </table>
 

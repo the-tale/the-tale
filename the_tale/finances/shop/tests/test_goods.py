@@ -72,7 +72,7 @@ class PremiumDaysTests(testcase.TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         self.assertEqual(InvoicePrototype._model_class.objects.all().count(), 0)
 
-        with mock.patch('the_tale.common.postponed_tasks.PostponedTaskPrototype.cmd_wait') as cmd_wait:
+        with mock.patch('the_tale.common.postponed_tasks.prototypes.PostponedTaskPrototype.cmd_wait') as cmd_wait:
             self.purchase.buy(account=self.account)
 
         self.assertEqual(cmd_wait.call_count, 1)
@@ -158,7 +158,7 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         self.assertEqual(InvoicePrototype._model_class.objects.all().count(), 0)
 
-        with mock.patch('the_tale.common.postponed_tasks.PostponedTaskPrototype.cmd_wait') as cmd_wait:
+        with mock.patch('the_tale.common.postponed_tasks.prototypes.PostponedTaskPrototype.cmd_wait') as cmd_wait:
             self.purchase.buy(account=self.account)
 
         self.assertEqual(cmd_wait.call_count, 1)

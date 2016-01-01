@@ -45,7 +45,7 @@ class ATTRIBUTE(DjangoEnum):
     default = Column(unique=False, primary=False, single_type=False)
     type = Column(unique=False, primary=False)
     order = Column(unique=False, primary=False)
-    destription = Column(primary=False)
+    description = Column(primary=False)
 
     records = ( ('SIZE', 0, u'размер города', lambda: 1, ATTRIBUTE_TYPE.CALCULATED, 1,
                  u'Влияет на количество советников в городе, развитие специализаций и на потребление товаров его жителями. Зависит от производства товаров.'),

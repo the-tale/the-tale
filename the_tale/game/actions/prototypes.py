@@ -1211,28 +1211,27 @@ class ActionInPlacePrototype(ActionBase):
                          bundle_id=bundle_id,
                          state=cls.STATE.SPEND_MONEY)
 
-        if hero.position.place.modifier:
-            if hero.health < hero.max_health and hero.position.place.modifier.full_regen_allowed():
-                hero.health = hero.max_health
-                hero.add_message('action_inplace_instant_heal', hero=hero, place=hero.position.place)
+        if hero.health < hero.max_health and random.random() < hero.position.place.attrs.hero_regen_chance:
+            hero.health = hero.max_health
+            hero.add_message('action_inplace_instant_heal', hero=hero, place=hero.position.place)
 
-            if hero.companion and hero.companion.health < hero.companion.max_health and hero.position.place.modifier.companion_regen_allowed():
-                healed_health = hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
-                hero.add_message('action_inplace_companion_heal', hero=hero, place=hero.position.place, companion=hero.companion, health=healed_health)
+        if hero.companion and hero.companion.health < hero.companion.max_health and random.random() < hero.position.place.attrs.companion_regen_chance:
+            healed_health = hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+            hero.add_message('action_inplace_companion_heal', hero=hero, place=hero.position.place, companion=hero.companion, health=healed_health)
 
         # process variouse effects only if it is not repeated town visit
         if hero.position.place == hero.position.previous_place:
             return prototype
 
         if (hero.energy < hero.energy_maximum and
-            hero.position.place.modifier and hero.position.place.modifier.energy_regen_allowed()):
+            random.random() < hero.position.place.attrs.energy_regen_chance):
             energy = hero.change_energy(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
             hero.add_message('action_inplace_instant_energy_regen', hero=hero, place=hero.position.place, energy=energy)
 
-        if hero.position.place.tax > 0:
+        if hero.position.place.attrs.tax > 0:
 
             if hero.money > 0:
-                tax = int(hero.money * hero.position.place.tax)
+                tax = int(hero.money * hero.position.place.attrs.tax)
                 hero.change_money(heroes_relations.MONEY_SOURCE.SPEND_FOR_TAX, -tax)
                 hero.add_message('action_inplace_tax', hero=hero, place=hero.position.place, coins=tax, diary=True)
             else:
@@ -1286,6 +1285,7 @@ class ActionInPlacePrototype(ActionBase):
 
     def try_to_spend_money(self):
         gold_amount = self.spend_amount()
+
         if gold_amount <= self.hero.money:
             self.hero.change_money(self.hero.next_spending.money_source, -gold_amount)
             self.hero.switch_spending()
@@ -1375,8 +1375,8 @@ class ActionInPlacePrototype(ActionBase):
             if not self.hero.can_change_person_power(person):
                 return
 
-            power, positive_bonus, negative_bonus = self.hero.modify_politics_power(power_direction*f.person_power_for_quest(c.QUEST_AREA_RADIUS), person=person)
-            person.cmd_change_power(power, positive_bonus, negative_bonus)
+            power = self.hero.modify_politics_power(power_direction*f.person_power_for_quest(c.QUEST_AREA_RADIUS), person=person)
+            person.cmd_change_power(power)
 
     def spend_money__experience(self):
         coins = self.try_to_spend_money()

@@ -8,9 +8,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.relations import RACE
 
-from the_tale.game.places.relations import CITY_MODIFIERS
 
 class GameTest(testcase.TestCase):
 

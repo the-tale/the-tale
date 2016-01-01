@@ -13,8 +13,6 @@ from the_tale.game.balance import formulas as f
 
 from the_tale.game.prototypes import TimePrototype, GameTime
 
-from . import conf
-from . import modifiers
 from . import signals
 from . import effects
 from . import relations
@@ -110,7 +108,7 @@ class Place(names.ManageNameMixin2):
 
     @property
     def new_for(self):
-        return self.created_at + datetime.timedelta(seconds=conf.settings.NEW_PLACE_LIVETIME)
+        return self.created_at + datetime.timedelta(seconds=c.PLACE_NEW_PLACE_LIVETIME)
 
     def shift(self, dx, dy):
         self.x += dx
@@ -194,9 +192,9 @@ class Place(names.ManageNameMixin2):
     @property
     def total_persons_power(self): return sum([person.power for person in self.persons])
 
-    @property
-    def modifiers(self):
-        return sorted([modifier(self) for modifier in modifiers.MODIFIERS.values()], key=lambda m: -m.power)
+    # @property
+    # def modifiers(self):
+    #     return sorted([modifier(self) for modifier in modifiers.MODIFIERS.values()], key=lambda m: -m.power)
 
     def mark_as_updated(self): self.updated_at_turn = TimePrototype.get_current_turn_number()
 
@@ -240,9 +238,6 @@ class Place(names.ManageNameMixin2):
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size*1.25)
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size)
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.EXPERIENCE, value=1.0)
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.BUY_PRICE, value=1.0)
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.SELL_PRICE, value=1.0)
 
         for effect in self.effects.effects:
             yield effect
@@ -320,14 +315,17 @@ class Place(names.ManageNameMixin2):
             if stability > 1:
                 yield effects.Effect(name=u'демоны', attribute=relations.ATTRIBUTE.STABILITY, value=1 - stability)
 
+    def all_effects(self):
+        for order in relations.ATTRIBUTE.EFFECTS_ORDER:
+            for effect in self.effects_generator(order):
+                yield effect
 
     def refresh_attributes(self):
         # self.effects.update_step(self) # TODO: move in highlevel
         self.attrs.reset()
 
-        for order in relations.ATTRIBUTE.EFFECTS_ORDER:
-            for effect in self.effects_generator(order):
-                effect.apply_to(self)
+        for effect in self.all_effects():
+            effect.apply_to(self)
 
 
     def set_modifier(self, modifier):

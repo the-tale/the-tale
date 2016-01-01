@@ -35,7 +35,8 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
 
-from the_tale.game.places.modifiers import HolyCity
+from the_tale.game.places import modifiers as places_modifiers
+from the_tale.game.places import logic as places_logic
 
 from the_tale.game.quests.writers import Writer
 from the_tale.game.quests.prototypes import QuestPrototype
@@ -50,12 +51,12 @@ class QuestsTestBase(testcase.TestCase):
         self.p1, self.p2, self.p3 = create_test_map()
 
         # add more persons, to lower conflicts
-        self.p1.add_person()
-        self.p1.add_person()
-        self.p2.add_person()
-        self.p2.add_person()
-        self.p3.add_person()
-        self.p3.add_person()
+        places_logic.add_person_to_place(self.p1)
+        places_logic.add_person_to_place(self.p1)
+        places_logic.add_person_to_place(self.p2)
+        places_logic.add_person_to_place(self.p2)
+        places_logic.add_person_to_place(self.p3)
+        places_logic.add_person_to_place(self.p3)
 
         persons_logic.sync_social_connections()
 
@@ -75,11 +76,11 @@ class QuestsTestBase(testcase.TestCase):
         self.hero.position.set_place(self.p3)
         heroes_logic.save_hero(self.hero)
 
-        self.p2.modifier = HolyCity(self.p2)
-        self.p2.save()
+        self.p2.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
+        places_logic.save_place(self.p2)
 
-        self.p1.persons[0]._model.type = PERSON_TYPE.BLACKSMITH
-        self.p1.persons[0].save()
+        self.p1.persons[0].type = PERSON_TYPE.BLACKSMITH
+        persons_logic.save_person(self.p1.persons[0])
 
 
 class QuestsTest(QuestsTestBase):

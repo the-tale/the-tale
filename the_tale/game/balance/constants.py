@@ -294,7 +294,6 @@ QUESTS_SOCIAL_CONNECTIONS_FRACTION = float(0.05) # вероятность, чт�
 HERO_POWER_PER_DAY = int(100) # базовое количество влияния, которое герой 1-ого уровня производит в день на одного жителя задействованного в заданиях
 PERSON_POWER_PER_QUEST_FRACTION = float(0.33) # разброс влияния за задание
 PERSON_POWER_FOR_RANDOM_SPEND = int(200) # доля от стандартной величины..
-HERO_POWER_BONUS = float(0.01) # множитель для начисления влияния связанного с предпочтениями
 
 ##########################
 # споособности
@@ -433,6 +432,9 @@ PLACE_NEW_PLACE_LIVETIME = int(2*7*24*60*60)
 
 PLACE_POWER_HISTORY_WEEKS = int(6) # количество недель, которое хранится влияние города
 PLACE_POWER_HISTORY_LENGTH = int(PLACE_POWER_HISTORY_WEEKS*7*24*TURNS_IN_HOUR) # в ходах
+
+PLACE_POWER_RECALCULATE_STEPS = float(PLACE_POWER_HISTORY_LENGTH) / MAP_SYNC_TIME
+PLACE_POWER_REDUCE_FRACTION = float(math.pow(0.01, 1.0 / PLACE_POWER_RECALCULATE_STEPS))
 
 PLACE_TYPE_NECESSARY_BORDER = int(75)
 PLACE_TYPE_ENOUGH_BORDER = int(50)

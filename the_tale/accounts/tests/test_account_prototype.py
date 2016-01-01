@@ -259,8 +259,8 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertEqual(self.account.actual_bills, [])
 
         bill_data = bills.PlaceModifier(place_id=self.place_1.id,
-                                        modifier_id=places_modifiers.TradeCenter.get_id(),
-                                        modifier_name=places_modifiers.TradeCenter.TYPE.text,
+                                        modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
+                                        modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                        old_modifier_name=None)
         bill = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 

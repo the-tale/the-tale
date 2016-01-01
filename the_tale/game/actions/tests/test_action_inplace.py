@@ -27,6 +27,7 @@ from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.places import modifiers as places_modifiers
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
@@ -151,7 +152,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.energy = 0
         self.hero.position.previous_place_id = None
 
-        self.hero.position.place.modifier = None
+        self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.NONE)
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
@@ -175,8 +176,10 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.tax', 0.2)
     def test_tax(self):
+        for place in places_storage.places.all():
+            place.attrs.tax = 0.2
+
         self.hero.money = 100
         self.hero.position.previous_place_id = None
 
@@ -190,8 +193,10 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.tax', 0.2)
     def test_tax__no_money(self):
+        for place in places_storage.places.all():
+            place.attrs.tax = 0.2
+
         self.hero.money = 0
         self.hero.position.previous_place_id = None
 
@@ -206,8 +211,10 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.tax', 0.0)
     def test_tax__no_tax(self):
+        for place in places_storage.places.all():
+            place.attrs.tax = 0.0
+
         self.hero.money = 100
         self.hero.position.previous_place_id = None
 
@@ -221,8 +228,10 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.tax', 0.2)
     def test_tax__place_not_changed(self):
+        for place in places_storage.places.all():
+            place.attrs.tax = 0.2
+
         self.hero.money = 100
 
         self.hero.position.update_previous_place()
@@ -659,7 +668,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         money = self.hero.spend_amount
         self.hero.money = money
 
-        with mock.patch('the_tale.game.persons.prototypes.PersonPrototype.cmd_change_power') as cmd_change_power:
+        with mock.patch('the_tale.game.persons.objects.Person.cmd_change_power') as cmd_change_power:
             self.storage.process_turn()
 
         self.assertEqual(cmd_change_power.call_count, 0)
@@ -678,7 +687,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.hero.money = money
 
         with mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True):
-            with mock.patch('the_tale.game.persons.prototypes.PersonPrototype.cmd_change_power') as cmd_change_power:
+            with mock.patch('the_tale.game.persons.objects.Person.cmd_change_power') as cmd_change_power:
                 self.storage.process_turn()
 
         self.assertEqual(cmd_change_power.call_count, 1)

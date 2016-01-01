@@ -14,6 +14,8 @@ from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.persons import storage as persons_storage
 
 from . import storage
+from . import relations
+from . import conf
 
 
 def place_info_persons_data(place):
@@ -31,12 +33,7 @@ def place_info_persons_data(place):
                        'gender': person.gender.value,
                        'race': person.race.value,
                        'type': person.type.value,
-                       'unfreeze_in': person.time_before_unfreeze.total_seconds(),
-                       'mastery': {'value': person.mastery,
-                                   'name': person.mastery_verbose},
-                       'power': { 'percents': person.power / place.total_persons_power if place.total_persons_power > 0 else 0,
-                                  'positive_bonus': person.power_positive,
-                                  'negative_bonus': person.power_negative },
+                       'power': { 'percents': person.power / place.total_persons_power if place.total_persons_power > 0 else 0},
                        'building': building.id if building else None,
                        'connections': connections,
                        'keepers': {'friends': [hero.account_id for hero in HeroPreferences.get_friends_of(person, all=place.depends_from_all_heroes)],
@@ -45,20 +42,54 @@ def place_info_persons_data(place):
 
     return data
 
+# def place_info_persons_data(place):
+#     data = []
+
+#     for person in place.persons:
+#         building = storage.buildings.get_by_person_id(person.id)
+
+#         connections = [(connection_type.value, person_id)
+#                        for connection_type, person_id in persons_storage.social_connections.get_person_connections(person)]
+#         connections.sort()
+
+#         person_data = {'id': person.id,
+#                        'name': person.name,
+#                        'gender': person.gender.value,
+#                        'race': person.race.value,
+#                        'type': person.type.value,
+#                        'unfreeze_in': person.time_before_unfreeze.total_seconds(),
+#                        'mastery': {'value': person.mastery,
+#                                    'name': person.mastery_verbose},
+#                        'power': { 'percents': person.power / place.total_persons_power if place.total_persons_power > 0 else 0,
+#                                   'positive_bonus': person.power_positive,
+#                                   'negative_bonus': person.power_negative },
+#                        'building': building.id if building else None,
+#                        'connections': connections,
+#                        'keepers': {'friends': [hero.account_id for hero in HeroPreferences.get_friends_of(person, all=place.depends_from_all_heroes)],
+#                                    'enemies': [hero.account_id for hero in HeroPreferences.get_enemies_of(person, all=place.depends_from_all_heroes)]} }
+#         data.append(person_data)
+
+#     return data
+
 
 def place_info_parameters(place):
-    return {'size': {'value': place.size, 'modifiers': None},
-            'economic': {'value': place.expected_size, 'modifiers': None},
-            'politic_radius': {'value': place.terrain_owning_radius, 'modifiers': None},
-            'terrain_radius': {'value': place.terrain_radius, 'modifiers': None},
-            'stability': {'value': place.stability, 'modifiers': place.get_stability_powers()},
-            'production': {'value': place.production, 'modifiers': place.get_production_powers()},
-            'goods': {'value': place.goods, 'modifiers': None},
-            'keepers_goods': {'value': place.keepers_goods, 'modifiers': None},
-            'safety': {'value': place.safety, 'modifiers': place.get_safety_powers()},
-            'transport': {'value': place.transport, 'modifiers': place.get_transport_powers()},
-            'freedom': {'value': place.freedom, 'modifiers': place.get_freedom_powers()},
-            'tax': {'value': place.tax, 'modifiers': place.get_tax_powers()} }
+    return {'effects': [effect.info() for effect in place.all_effects()],
+            'attributes': {record.name.lower(): getattr(place.attrs, record.name.lower())
+                           for record in relations.ATTRIBUTE.records}}
+
+# def place_info_parameters(place):
+#     return {'size': {'value': place.size, 'modifiers': None},
+#             'economic': {'value': place.expected_size, 'modifiers': None},
+#             'politic_radius': {'value': place.terrain_owning_radius, 'modifiers': None},
+#             'terrain_radius': {'value': place.terrain_radius, 'modifiers': None},
+#             'stability': {'value': place.stability, 'modifiers': place.get_stability_powers()},
+#             'production': {'value': place.production, 'modifiers': place.get_production_powers()},
+#             'goods': {'value': place.goods, 'modifiers': None},
+#             'keepers_goods': {'value': place.keepers_goods, 'modifiers': None},
+#             'safety': {'value': place.safety, 'modifiers': place.get_safety_powers()},
+#             'transport': {'value': place.transport, 'modifiers': place.get_transport_powers()},
+#             'freedom': {'value': place.freedom, 'modifiers': place.get_freedom_powers()},
+#             'tax': {'value': place.tax, 'modifiers': place.get_tax_powers()} }
 
 
 def place_info_demographics(place):
@@ -96,14 +127,14 @@ def place_info_bills(place):
 
 
 def place_info_specializations(place):
-    data = {'current': place.modifier.TYPE.value if place.modifier else None,
+    data = {'current': place._modifier.value if not place._modifier.is_NONE else None,
             'all': []}
 
-    for modifier in place.modifiers:
-        data['all'].append({'value': modifier.TYPE.value,
-                            'power': modifier.power,
-                            'modifiers': modifier.power_effects_for_template,
-                            'size_modifier': modifier.size_modifier})
+    # for modifier in place.modifiers:
+    #     data['all'].append({'value': modifier.TYPE.value,
+    #                         'power': modifier.power,
+    #                         'modifiers': modifier.power_effects_for_template,
+    #                         'size_modifier': modifier.size_modifier})
 
     return data
 
@@ -122,7 +153,7 @@ def place_info_habits(place):
 
 def place_info_cronicle(place):
     return [(record.game_time.verbose_date_short, record.game_time.verbose_date, record.text)
-            for record in chronicle_prototypes.RecordPrototype.get_last_actor_records(place, conf.places_settings.CHRONICLE_RECORDS_NUMBER)]
+            for record in chronicle_prototypes.RecordPrototype.get_last_actor_records(place, conf.settings.CHRONICLE_RECORDS_NUMBER)]
 
 
 def place_info_accounts(data):
@@ -176,8 +207,7 @@ def place_info(place):
 
             'updated_at': time.mktime(place.updated_at.timetuple()),
 
-            'power': { 'positive_bonus': place.power_positive,
-                       'negative_bonus': place.power_negative },
+            'power': {'value': place.power},
 
             'description': place.description_html,
 
@@ -198,3 +228,36 @@ def place_info(place):
     data['clans'] = place_info_clans(data)
 
     return data
+
+
+# def place_info(place):
+#     data = {'id': place.id,
+#             'name': place.name,
+#             'frontier': place.is_frontier,
+#             'new_for': time.mktime(place.new_for.timetuple()),
+#             'position': {'x': place.x, 'y': place.y},
+
+#             'updated_at': time.mktime(place.updated_at.timetuple()),
+
+#             'power': { 'positive_bonus': place.power_positive,
+#                        'negative_bonus': place.power_negative },
+
+#             'description': place.description_html,
+
+#             'persons': place_info_persons_data(place),
+#             'keepers': {'friends': [hero.account_id for hero in HeroPreferences.get_citizens_of(place, all=place.depends_from_all_heroes)] ,
+#                         'enemies': []},
+#             'parameters': place_info_parameters(place),
+#             'demographics': place_info_demographics(place),
+#             'bills': place_info_bills(place),
+#             'specializations': place_info_specializations(place),
+#             'habits': place_info_habits(place),
+#             'chronicle': place_info_cronicle(place),
+#             'accounts': None,
+#             'clans': None
+#            }
+
+#     data['accounts'] = place_info_accounts(data)
+#     data['clans'] = place_info_clans(data)
+
+#     return data

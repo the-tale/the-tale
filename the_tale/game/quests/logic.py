@@ -16,7 +16,6 @@ from questgen import analysers
 from questgen.knowledge_base import KnowledgeBase
 from questgen.selectors import Selector
 from questgen.quests.quests_base import QuestsBase
-from questgen.relations import PLACE_TYPE as QUEST_PLACE_TYPE
 
 from the_tale import amqp_environment
 
@@ -152,7 +151,7 @@ def fact_place(place):
     return facts.Place(uid=uids.place(place.id),
                        terrains=[terrain.value for terrain in place.terrains],
                        externals={'id': place.id},
-                       type=place.modifier.TYPE.quest_type if place.modifier else QUEST_PLACE_TYPE.NONE)
+                       type=place._modifier.quest_type)
 
 def fact_mob(mob):
     return facts.Mob(uid=uids.mob(mob.id),
@@ -243,7 +242,7 @@ def setup_places(kb, hero_info):
 
 
 def setup_persons(kb, hero_info):
-    for person in persons_storage.persons_storage.all():
+    for person in persons_storage.persons.all():
         place_uid = uids.place(person.place.id)
 
         if place_uid not in kb:
@@ -258,7 +257,7 @@ def setup_social_connections(kb):
     persons_in_kb = {f_person.externals['id']: f_person.uid for f_person in kb.filter(facts.Person)}
 
     for person_id, person_uid in persons_in_kb.iteritems():
-        person = persons_storage.persons_storage[person_id]
+        person = persons_storage.persons[person_id]
 
         for connection_type, connected_person_id in persons_storage.social_connections.get_person_connections(person):
             if connected_person_id not in persons_in_kb:
@@ -282,7 +281,7 @@ def setup_preferences(kb, hero_info):
         kb += facts.PreferenceHometown(object=hero_uid, place=f_place.uid)
 
     if hero_info.preferences_friend_id is not None:
-        friend = persons_storage.persons_storage[hero_info.preferences_friend_id]
+        friend = persons_storage.persons[hero_info.preferences_friend_id]
 
         f_place = fact_place(friend.place)
         f_person = fact_person(friend)
@@ -297,7 +296,7 @@ def setup_preferences(kb, hero_info):
         kb += facts.ExceptBadBranches(object=f_person.uid)
 
     if hero_info.preferences_enemy_id:
-        enemy = persons_storage.persons_storage[hero_info.preferences_enemy_id]
+        enemy = persons_storage.persons[hero_info.preferences_enemy_id]
 
         f_place = fact_place(enemy.place)
         f_person = fact_person(enemy)
@@ -331,7 +330,7 @@ def get_knowledge_base(hero_info, without_restrictions=False): # pylint: disable
 
     if not without_restrictions:
 
-        for person in persons_storage.persons_storage.all():
+        for person in persons_storage.persons.all():
             if person.place.id == hero_info.position_place_id and person.id in hero_info.interfered_persons:
                 kb += facts.NotFirstInitiator(person=uids.person(person.id))
 

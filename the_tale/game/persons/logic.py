@@ -46,7 +46,7 @@ def save_person(person, new=False):
 
         storage.persons.add_item(person.id, person)
     else:
-        models.Person.filter(id=person.id).update(**arguments)
+        models.Person.objects.filter(id=person.id).update(**arguments)
 
     storage.persons.update_version()
 

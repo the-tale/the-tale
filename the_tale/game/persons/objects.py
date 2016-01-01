@@ -133,4 +133,4 @@ class SocialConnection(object):
     @property
     def persons(self):
         from the_tale.game.persons import storage
-        return (storage.persons_storage[self.person_1_id], storage.persons_storage[self.person_2_id])
+        return (storage.persons[self.person_1_id], storage.persons[self.person_2_id])

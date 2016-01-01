@@ -330,8 +330,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         if self.preferences.enemy is not None and (self.position.place is None or self.preferences.enemy.place.id != self.position.place.id):
             quests.append(QUESTS.INTERFERE_ENEMY)
 
-        if any(place.modifier and place.modifier.TYPE.is_HOLY_CITY for place in places_storage.places.all()):
-            if self.position.place is None or self.position.place.modifier is None or not self.position.place.modifier.TYPE.is_HOLY_CITY:
+        if any(place._modifier.is_HOLY_CITY for place in places_storage.places.all()):
+            if self.position.place is None or not self.position.place._modifier.is_HOLY_CITY:
                 quests.append(QUESTS.PILGRIMAGE)
 
         return [(quest, self.modify_quest_priority(quest)) for quest in quests]

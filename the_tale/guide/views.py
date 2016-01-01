@@ -180,21 +180,20 @@ class GuideResource(Resource):
 
     @handler('persons', method='get')
     def persons(self):
-        from the_tale.game.persons.prototypes import MASTERY_VERBOSE
         from the_tale.game.persons.relations import PERSON_TYPE
         return self.template('guide/persons.html', {'section': 'persons',
                                                     'persons_settings': persons_conf.settings,
-                                                    'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
+                                                    # 'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
                                                     'PERSON_TYPES': sorted(PERSON_TYPE.records, key=lambda r: r.text) })
 
     @handler('cities', method='get')
     def cities(self):
-        from the_tale.game.places.modifiers import MODIFIERS
-        from the_tale.game.places.prototypes import PlaceParametersDescription
+        from the_tale.game.places.modifiers import CITY_MODIFIERS
+        from the_tale.game.places.relations import ATTRIBUTE
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_conf.settings,
-                                                   'PlaceParametersDescription': PlaceParametersDescription,
-                                                   'MODIFIERS': sorted(MODIFIERS.values(), key=lambda modifier: modifier.NAME) })
+                                                   'ATTRIBUTES': sorted(ATTRIBUTE.records, key=lambda modifier: modifier.text),
+                                                   'MODIFIERS': sorted(CITY_MODIFIERS.records, key=lambda modifier: modifier.text) })
 
     @handler('politics', method='get')
     def politics(self):

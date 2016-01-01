@@ -53,6 +53,8 @@ class Attributes(object):
         self.politic_radius = self.size * self.politic_radius_modifier
         self.terrain_radius = self.size * self.terrain_radius_modifier
 
+    def set_power_economic(self, value):
+        self.power_economic = value
 
     def get_next_keepers_goods_spend_amount(self):
         return min(self.keepers_goods, max(int(self.keepers_goods * c.PLACE_KEEPERS_GOODS_SPENDING), c.PLACE_GOODS_BONUS))

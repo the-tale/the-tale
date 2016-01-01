@@ -55,7 +55,7 @@ class BuildingPrototype(BasePrototype, names.ManageNameMixin):
     @property
     def terrain_change_power(self):
         # +1 to prevent power == 0
-        power = self.place.terrain_change_power * self.integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
+        power = self.place.attrs.terrain_radius * self.integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
         return int(round(power))
 
     def amortization_delta(self, turns_number):

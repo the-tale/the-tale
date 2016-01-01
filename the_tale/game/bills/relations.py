@@ -59,6 +59,6 @@ class POWER_BONUS_CHANGES(DjangoEnum):
 
     BONUS_MULTIPLIER = 20
 
-    records = ( ('DOWN', 0, u'уменьшить на %.2f%%' % (c.HERO_POWER_BONUS*100*BONUS_MULTIPLIER), -c.HERO_POWER_BONUS*BONUS_MULTIPLIER),
+    records = ( ('DOWN', 0, u'уменьшить на %.2f%%' % (0.01*100*BONUS_MULTIPLIER), -0.01*BONUS_MULTIPLIER),
                 ('NOT_CHANGE', 1, u'не изменять', 0.0),
-                ('UP', 2, u'увеличить на %.2f%%' % (c.HERO_POWER_BONUS*100*BONUS_MULTIPLIER), c.HERO_POWER_BONUS*BONUS_MULTIPLIER) )
+                ('UP', 2, u'увеличить на %.2f%%' % (0.01*100*BONUS_MULTIPLIER), 0.01*BONUS_MULTIPLIER) )

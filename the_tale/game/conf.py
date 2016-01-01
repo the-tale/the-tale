@@ -1,6 +1,5 @@
 # coding: utf-8
 import os
-import math
 
 from dext.common.utils.app_settings import app_settings
 
@@ -8,10 +7,6 @@ from the_tale.game.balance import constants as c
 
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
-
-POWER_HISTORY_WEEKS = 8
-POWER_RECALCULATE_STEPS = float(POWER_HISTORY_WEEKS*7*24*c.TURNS_IN_HOUR) / c.MAP_SYNC_TIME
-POWER_REDUCE_FRACTION = float(math.pow(0.01, 1.0 / POWER_RECALCULATE_STEPS))
 
 game_settings = app_settings('GAME',
 
@@ -21,9 +16,6 @@ game_settings = app_settings('GAME',
                              ENABLE_WORKER_TURNS_LOOP=True,
                              ENABLE_WORKER_LONG_COMMANDS=True,
                              ENABLE_PVP=True,
-
-                             POWER_HISTORY_WEEKS=POWER_HISTORY_WEEKS,
-                             POWER_REDUCE_FRACTION=POWER_REDUCE_FRACTION,
 
                              ENABLE_DATA_REFRESH=True,
 

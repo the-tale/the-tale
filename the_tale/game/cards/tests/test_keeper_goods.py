@@ -58,7 +58,7 @@ class KeepersGoodsMixin(CardsTestMixin):
 
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
-        with self.check_delta(lambda: self.place_1.keepers_goods, self.CARD.GOODS):
+        with self.check_delta(lambda: self.place_1.attrs.keepers_goods, self.CARD.GOODS):
             result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero,
                                                                                  step=step,
                                                                                  highlevel=self.highlevel,
@@ -68,7 +68,7 @@ class KeepersGoodsMixin(CardsTestMixin):
 
 
     def test_use_for_wrong_place_id(self):
-        with self.check_not_changed(lambda: self.place_1.keepers_goods):
+        with self.check_not_changed(lambda: self.place_1.attrs.keepers_goods):
             self.assertEqual(self.card.use(**self.use_attributes(hero=self.hero, place_id=666, storage=self.storage)),
                              (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 

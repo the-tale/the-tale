@@ -253,5 +253,5 @@ def show(context):
                                     'PERSON_TYPE': persons_relations.PERSON_TYPE,
                                     'CONNECTION_TYPE': persons_relations.SOCIAL_CONNECTION_TYPE,
                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
-                                    'persons_storage': persons_storage.persons_storage,
+                                    'persons_storage': persons_storage.persons,
                                     'resource': context.resource} )

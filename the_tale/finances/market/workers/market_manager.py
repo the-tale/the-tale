@@ -1,7 +1,7 @@
 # coding: utf-8
 
 from the_tale.common.utils.workers import BaseWorker
-from the_tale.common import postponed_tasks
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.finances.market import logic
 from the_tale.finances.market import objects
@@ -26,7 +26,7 @@ class Worker(BaseWorker):
                                             'account_id': account_id})
 
     def process_logic_task(self, account_id, task_id): # pylint: disable=W0613
-        task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+        task = PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger)
         task.do_postsave_actions()
 

@@ -164,7 +164,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HERO_POWER_PER_DAY, 100)
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
-        self.assertEqual(c.HERO_POWER_BONUS, 0.01)
 
         self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 2*7*24*60*60)
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
@@ -239,7 +238,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_NEW_PLACE_LIVETIME, 2*7*24*60*60)
 
         self.assertEqual(c.PLACE_POWER_HISTORY_WEEKS, 6)
-        self.assertEqual(c.PLACE_POWER_HISTORY_LENGTH, 0)
+        self.assertEqual(c.PLACE_POWER_HISTORY_LENGTH, 362880)
+
+        self.assertEqual(c.PLACE_POWER_RECALCULATE_STEPS, 1008)
+        self.assertEqual(c.PLACE_POWER_REDUCE_FRACTION, 0.9954417990588478)
 
         self.assertEqual(c.PLACE_TYPE_NECESSARY_BORDER, 75)
         self.assertEqual(c.PLACE_TYPE_ENOUGH_BORDER, 50)

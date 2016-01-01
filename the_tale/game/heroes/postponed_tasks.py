@@ -307,11 +307,6 @@ class ChoosePreferencesTask(PostponedLogic):
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-            if persons_storage.persons[friend_id].out_game:
-                main_task.comment = u'person was moved out game: %s' % (friend_id, )
-                self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
         hero.preferences.set_friend(persons_storage.persons.get(friend_id))
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
@@ -334,11 +329,6 @@ class ChoosePreferencesTask(PostponedLogic):
             if enemy_id not in persons_storage.persons:
                 main_task.comment = u'unknown person id: %s' % (enemy_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
-            if persons_storage.persons[enemy_id].out_game:
-                main_task.comment = u'person was moved out game: %s' % (enemy_id, )
-                self.state = CHOOSE_PREFERENCES_TASK_STATE.OUTGAME_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         hero.preferences.set_enemy(persons_storage.persons.get(enemy_id))

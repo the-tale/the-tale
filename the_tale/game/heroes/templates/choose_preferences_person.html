@@ -10,7 +10,7 @@
     {% if item.id not in (resource.hero.preferences.friend.id if resource.hero.preferences.friend else -1,
                           resource.hero.preferences.enemy.id if resource.hero.preferences.enemy else -1) %}
     <a href="#" class="pgf-hero-preference-record" data-preference-id="{{ item.id }}">{{ item.name }}</a>
-    <small>{{item.race_verbose}}-{{item.type.text}} {{power_percent|percents(2)}}</small>
+    <small>{{item.race.text}}-{{item.type.text}} {{power_percent|percents(2)}}</small>
     {% else %}
     <a href="#" class="current-choice pgf-close-dialog">{{ item.name }}</a>
     <small>{{item.race_verbose}}-{{item.type.text}} {{power_percent|percents(2)}}</small>

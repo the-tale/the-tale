@@ -103,7 +103,7 @@ class LogicAccessorsMixin(object):
         dominant_place = self.position.get_dominant_place()
 
         if dominant_place is not None:
-            return speed * dominant_place.transport
+            return speed * dominant_place.attrs.transport
         else:
             return speed * self.position.raw_transport()
 
@@ -115,7 +115,7 @@ class LogicAccessorsMixin(object):
         dominant_place = self.position.get_dominant_place()
 
         if dominant_place is not None:
-            battles_per_turn = 1.0 - dominant_place.safety
+            battles_per_turn = 1.0 - dominant_place.attrs.safety
         else:
             battles_per_turn = c.BATTLES_PER_TURN + c.WHILD_BATTLES_PER_TURN_BONUS
 
@@ -328,23 +328,23 @@ class LogicAccessorsMixin(object):
     def sell_price(self):
         price = 1 + self.attribute_modifier(relations.MODIFIERS.SELL_PRICE)
 
-        if self.position.place and self.position.place.modifier:
-            price += self.position.place.modifier.sell_price()
+        if self.position.place:
+            price += self.position.place.attrs.sell_price
 
         return price
 
     def buy_price(self):
         price = 1 + self.attribute_modifier(relations.MODIFIERS.BUY_PRICE)
 
-        if self.position.place and self.position.place.modifier:
-            price += self.position.place.modifier.buy_price()
+        if self.position.place:
+            price += self.position.place.attrs.buy_price
 
         return price
 
 
     def buy_artifact_power_bonus(self):
-        if self.position.place and self.position.place.modifier:
-            return self.position.place.modifier.buy_artifact_power_bonus()
+        if self.position.place:
+            return self.position.place.attrs.buy_artifact_power
 
         return 0
 
@@ -665,16 +665,7 @@ class LogicAccessorsMixin(object):
 
         multiplier = self.politics_power_multiplier(friend=is_friend, enemy=is_enemy, hometown=is_hometown)
 
-        positive_bonus = 0.0
-        negative_bonus = 0.0
-
-        if is_friend or is_enemy or is_hometown:
-            if power > 0:
-                positive_bonus = c.HERO_POWER_BONUS
-            elif power < 0:
-                negative_bonus = c.HERO_POWER_BONUS
-
-        return (int(power * multiplier), positive_bonus * multiplier, negative_bonus * multiplier)
+        return int(power * multiplier)
 
     mob_type = game_relations.BEING_TYPE.CIVILIZED
     intellect_level = game_relations.INTELLECT_LEVEL.NORMAL

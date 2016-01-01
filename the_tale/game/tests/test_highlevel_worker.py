@@ -65,50 +65,40 @@ class HighlevelTest(testcase.TestCase):
     def test_process_change_power__persons(self):
         self.assertEqual(self.worker.persons_power, {})
 
-        person_1 = persons_storage.persons_storage.all()[0]
-        person_2 = persons_storage.persons_storage.all()[1]
+        person_1 = persons_storage.persons.all()[0]
+        person_2 = persons_storage.persons.all()[1]
 
-        self.worker.process_change_power(person_id=person_1.id, power_delta=1, positive_bonus=2, negative_bonus=-3, place_id=None)
-        self.assertEqual(self.worker.persons_power, {person_1.id: (1, 0, 2, -3)})
+        self.worker.process_change_power(person_id=person_1.id, power_delta=1, place_id=None)
+        self.assertEqual(self.worker.persons_power, {person_1.id: (1, 0)})
 
-        self.worker.process_change_power(person_id=person_2.id, power_delta=10, positive_bonus=-20, negative_bonus=30, place_id=None)
-        self.assertEqual(self.worker.persons_power, {person_1.id: (1, 0, 2, -3),
-                                                     person_2.id: (10, 0, -20, 30)})
+        self.worker.process_change_power(person_id=person_2.id, power_delta=10, place_id=None)
+        self.assertEqual(self.worker.persons_power, {person_1.id: (1, 0),
+                                                     person_2.id: (10, 0)})
 
-        self.worker.process_change_power(person_id=person_1.id, power_delta=-100, positive_bonus=1, negative_bonus=1, place_id=None)
-        self.assertEqual(self.worker.persons_power, {person_1.id: (1, -100, 3, -2),
-                                                     person_2.id: (10, 0, -20, 30)})
+        self.worker.process_change_power(person_id=person_1.id, power_delta=-100, place_id=None)
+        self.assertEqual(self.worker.persons_power, {person_1.id: (1, -100),
+                                                     person_2.id: (10, 0)})
 
         self.assertEqual(person_1.power, 0)
-        self.assertEqual(person_1.power_positive, 0)
-        self.assertEqual(person_1.power_negative, 0)
-
         self.assertEqual(person_2.power, 0)
-        self.assertEqual(person_2.power_positive, 0)
-        self.assertEqual(person_2.power_negative, 0)
 
 
     def test_process_change_power__places(self):
         self.assertEqual(self.worker.places_power, {})
 
-        self.worker.process_change_power(person_id=None, power_delta=-1, place_id=2, positive_bonus=-3, negative_bonus=1)
-        self.assertEqual(self.worker.places_power, {2: (0, -1, -3, 1)})
+        self.worker.process_change_power(person_id=None, power_delta=-1, place_id=2)
+        self.assertEqual(self.worker.places_power, {2: (0, -1)})
 
-        self.worker.process_change_power(person_id=None, power_delta=10, place_id=1, positive_bonus=30, negative_bonus=-10)
-        self.assertEqual(self.worker.places_power, {2: (0, -1, -3, 1),
-                                                    1: (10, 0, 30, -10)})
+        self.worker.process_change_power(person_id=None, power_delta=10, place_id=1)
+        self.assertEqual(self.worker.places_power, {2: (0, -1),
+                                                    1: (10, 0)})
 
-        self.worker.process_change_power(person_id=None, power_delta=100, place_id=2, positive_bonus=10, negative_bonus=10)
-        self.assertEqual(self.worker.places_power, {2: (100, -1, 7, 11),
-                                                    1: (10, 0, 30, -10)})
+        self.worker.process_change_power(person_id=None, power_delta=100, place_id=2)
+        self.assertEqual(self.worker.places_power, {2: (100, -1),
+                                                    1: (10, 0)})
 
         self.assertEqual(places_storage.places[1].power, 0)
-        self.assertEqual(places_storage.places[1].power_positive, 0)
-        self.assertEqual(places_storage.places[1].power_negative, 0)
-
         self.assertEqual(places_storage.places[2].power, 0)
-        self.assertEqual(places_storage.places[2].power_positive, 0)
-        self.assertEqual(places_storage.places[2].power_negative, 0)
 
 
     @mock.patch('the_tale.game.workers.highlevel.Worker.sync_data', fake_sync_data)
@@ -180,36 +170,29 @@ class HighlevelTest(testcase.TestCase):
 
     def test_sync_data__places_methods_called(self):
         # all that methods tested in places package
-        set_expected_size = mock.Mock()
+        set_power_economic = mock.Mock()
         sync_size = mock.Mock()
-        sync_persons = mock.Mock()
-        sync_stability = mock.Mock()
+        update_step = mock.Mock()
         sync_habits = mock.Mock()
-        sync_modifier = mock.Mock()
-        sync_parameters = mock.Mock()
+        refresh_attributes = mock.Mock()
         update_heroes_number = mock.Mock()
         mark_as_updated = mock.Mock()
 
-        with contextlib.nested(mock.patch('the_tale.game.places.prototypes.PlacePrototype.set_expected_size', set_expected_size),
-                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_size', sync_size),
-                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_persons', sync_persons),
-                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_stability', sync_stability),
-                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_habits', sync_habits),
-                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_modifier', sync_modifier),
-                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', sync_parameters),
-                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.update_heroes_number', update_heroes_number),
-                               mock.patch('the_tale.game.places.prototypes.PlacePrototype.mark_as_updated', mark_as_updated)):
+        with contextlib.nested(mock.patch('the_tale.game.places.attributes.Attributes.set_power_economic', set_power_economic),
+                               mock.patch('the_tale.game.places.attributes.Attributes.sync_size', sync_size),
+                               mock.patch('the_tale.game.places.effects.Container.update_step', update_step),
+                               mock.patch('the_tale.game.places.objects.Place.sync_habits', sync_habits),
+                               mock.patch('the_tale.game.places.objects.Place.refresh_attributes', refresh_attributes),
+                               mock.patch('the_tale.game.places.objects.Place.update_heroes_number', update_heroes_number),
+                               mock.patch('the_tale.game.places.objects.Place.mark_as_updated', mark_as_updated)):
             self.worker.sync_data()
 
         places_number = len(places_storage.places.all())
 
-        self.assertEqual(set_expected_size.call_count, places_number)
+        self.assertEqual(set_power_economic.call_count, places_number)
         self.assertEqual(sync_size.call_count, places_number)
-        self.assertEqual(sync_persons.call_count, places_number)
-        self.assertEqual(sync_stability.call_count, places_number)
         self.assertEqual(sync_habits.call_count, places_number)
-        self.assertEqual(sync_modifier.call_count, places_number)
-        self.assertEqual(sync_parameters.call_count, places_number)
+        self.assertEqual(refresh_attributes.call_count, places_number)
         self.assertEqual(update_heroes_number.call_count, places_number)
         self.assertEqual(mark_as_updated.call_count, places_number)
 
@@ -218,9 +201,9 @@ class HighlevelTest(testcase.TestCase):
         with self.check_increased(lambda: len(persons_storage.social_connections.all())):
             self.worker.sync_data()
 
-    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.freedom', 1)
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 0.9)
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 1)
+    @mock.patch('the_tale.game.places.objects.Place.refresh_attributes', mock.Mock())
     def test_sync_data(self):
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(self.p2.power, 0)
@@ -229,10 +212,10 @@ class HighlevelTest(testcase.TestCase):
         persons_version_0 = persons_storage.persons._version
         places_version_0 = places_storage.places._version
 
-        self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 2)
+        self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 3)
         self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 3)
         self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 3)
-        self.assertEqual(len(persons_storage.persons_storage.all()), 8)
+        self.assertEqual(len(persons_storage.persons.all()), 9)
 
         person_1_1 = self.p1.persons[0]
         person_2_1 = self.p2.persons[0]
@@ -240,58 +223,42 @@ class HighlevelTest(testcase.TestCase):
         person_3_1 = self.p3.persons[0]
         person_3_2 = self.p3.persons[1]
 
-        self.worker.process_change_power(person_id=person_1_1.id, power_delta=1, place_id=None, positive_bonus=1, negative_bonus=2)
-        self.worker.process_change_power(person_id=person_2_1.id, power_delta=100, place_id=None, positive_bonus=3, negative_bonus=4)
-        self.worker.process_change_power(person_id=person_2_2.id, power_delta=1000, place_id=None, positive_bonus=5, negative_bonus=6)
-        self.worker.process_change_power(person_id=person_3_1.id, power_delta=10000, place_id=None, positive_bonus=7, negative_bonus=8)
-        self.worker.process_change_power(person_id=person_3_2.id, power_delta=100000, place_id=None, positive_bonus=9, negative_bonus=10)
+        self.worker.process_change_power(person_id=person_1_1.id, power_delta=1, place_id=None)
+        self.worker.process_change_power(person_id=person_2_1.id, power_delta=100, place_id=None)
+        self.worker.process_change_power(person_id=person_2_2.id, power_delta=1000, place_id=None)
+        self.worker.process_change_power(person_id=person_3_1.id, power_delta=10000, place_id=None)
+        self.worker.process_change_power(person_id=person_3_2.id, power_delta=100000, place_id=None)
 
         self.worker.sync_data()
 
         self.assertEqual(self.worker.persons_power, {})
 
-        self.assertEqual(self.p1.modifier, None)
+        self.assertTrue(self.p1._modifier.is_NONE)
 
         persons_version_1 = persons_storage.persons._version
         places_version_1 = places_storage.places._version
 
         self.assertEqual(person_1_1.power, 1)
-        self.assertEqual(person_1_1.power_positive, 1)
-        self.assertEqual(person_1_1.power_negative, 2)
 
         self.assertEqual(person_2_1.power, 100)
-        self.assertEqual(person_2_1.power_positive, 3)
-        self.assertEqual(person_2_1.power_negative, 4)
 
         self.assertEqual(person_2_2.power, 1000)
-        self.assertEqual(person_2_2.power_positive, 5)
-        self.assertEqual(person_2_2.power_negative, 6)
 
         self.assertEqual(person_3_1.power, 10000)
-        self.assertEqual(person_3_1.power_positive, 7)
-        self.assertEqual(person_3_1.power_negative, 8)
 
         self.assertEqual(person_3_2.power, 100000)
-        self.assertEqual(person_3_2.power_positive, 9)
-        self.assertEqual(person_3_2.power_negative, 10)
 
         self.assertEqual(self.p1.power, 1)
-        self.assertEqual(self.p1.power_positive, 0)
-        self.assertEqual(self.p1.power_negative, 0)
 
         self.assertEqual(self.p2.power, 1100)
-        self.assertEqual(self.p2.power_positive, 0)
-        self.assertEqual(self.p2.power_negative, 0)
 
         self.assertEqual(self.p3.power, 110000)
-        self.assertEqual(self.p3.power_positive, 0)
-        self.assertEqual(self.p3.power_negative, 0)
 
-        self.worker.process_change_power(place_id=self.p1.id, power_delta=-10, person_id=None, positive_bonus=1, negative_bonus=2)
-        self.worker.process_change_power(place_id=self.p2.id, power_delta=-1, person_id=None, positive_bonus=3, negative_bonus=4)
-        self.worker.process_change_power(place_id=self.p2.id, power_delta=+10000000, person_id=None, positive_bonus=5, negative_bonus=6)
-        self.worker.process_change_power(place_id=self.p3.id, power_delta=-2, person_id=None, positive_bonus=7, negative_bonus=8)
-        self.worker.process_change_power(place_id=self.p3.id, power_delta=+20, person_id=None, positive_bonus=9, negative_bonus=10)
+        self.worker.process_change_power(place_id=self.p1.id, power_delta=-10, person_id=None)
+        self.worker.process_change_power(place_id=self.p2.id, power_delta=-1, person_id=None)
+        self.worker.process_change_power(place_id=self.p2.id, power_delta=+10000000, person_id=None)
+        self.worker.process_change_power(place_id=self.p3.id, power_delta=-2, person_id=None)
+        self.worker.process_change_power(place_id=self.p3.id, power_delta=+20, person_id=None)
 
         self.worker.sync_data()
         self.assertEqual(self.worker.persons_power, {})
@@ -303,28 +270,22 @@ class HighlevelTest(testcase.TestCase):
         self.p2 = places_storage.places[self.p2.id]
         self.p3 = places_storage.places[self.p3.id]
 
-        self.assertEqual(self.p1.power, 0)
-        self.assertEqual(self.p1.power_positive, 1)
-        self.assertEqual(self.p1.power_negative, 2)
+        self.assertEqual(self.p1.power, -9.1)
 
-        self.assertEqual(self.p2.power, 10001099)
-        self.assertEqual(self.p2.power_positive, 8)
-        self.assertEqual(self.p2.power_negative, 10)
+        self.assertEqual(self.p2.power, 10000989)
 
-        self.assertEqual(self.p3.power, 110018)
-        self.assertEqual(self.p3.power_positive, 16)
-        self.assertEqual(self.p3.power_negative, 18)
+        self.assertEqual(self.p3.power, 99018)
 
         self.assertTrue(len(set((persons_version_0, persons_version_1, persons_version_2))), 3)
         self.assertTrue(len(set((places_version_0, places_version_1, places_version_2))), 3)
 
-        self.assertEqual(settings[persons_storage.persons_storage.SETTINGS_KEY], persons_version_2)
+        self.assertEqual(settings[persons_storage.persons.SETTINGS_KEY], persons_version_2)
         self.assertEqual(settings[places_storage.places.SETTINGS_KEY], places_version_2)
 
 
-    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.freedom', 1)
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 1.0)
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 1)
+    @mock.patch('the_tale.game.places.objects.Place.refresh_attributes', mock.Mock())
     def test_sync_data__power_from_building(self):
         from the_tale.game.places.prototypes import BuildingPrototype
 
@@ -335,7 +296,7 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(person_1.power, 0)
 
-        self.worker.process_change_power(person_id=person_1.id, power_delta=1000, place_id=None, positive_bonus=0, negative_bonus=0)
+        self.worker.process_change_power(person_id=person_1.id, power_delta=1000, place_id=None)
 
         self.worker.sync_data()
 
@@ -345,112 +306,32 @@ class HighlevelTest(testcase.TestCase):
         self.assertTrue(place_power > 1000)
         self.assertTrue(person_power > 1000)
 
-        self.worker.process_change_power(place_id=self.p1.id, power_delta=-10, person_id=None, positive_bonus=0, negative_bonus=0)
+        self.worker.process_change_power(place_id=self.p1.id, power_delta=-10, person_id=None)
 
         self.worker.sync_data()
 
         self.assertEqual(self.p1.power, place_power - 10)
         self.assertEqual(person_1.power, person_power)
 
-    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.freedom', 1.25)
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
+    @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 1.0)
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 1.25)
+    @mock.patch('the_tale.game.places.objects.Place.refresh_attributes', mock.Mock())
     def test_sync_data__power_from_freedom(self):
         person_1 = self.p1.persons[0]
 
         self.assertEqual(self.p1.power, 0)
         self.assertEqual(person_1.power, 0)
 
-        self.worker.process_change_power(person_id=person_1.id, power_delta=1000, place_id=None, positive_bonus=0, negative_bonus=0)
+        self.worker.process_change_power(person_id=person_1.id, power_delta=1000, place_id=None)
 
         self.worker.sync_data()
 
         self.assertEqual(self.p1.power, 1250)
         self.assertEqual(person_1.power, 1250)
 
-        self.worker.process_change_power(place_id=self.p1.id, power_delta=-100, person_id=None, positive_bonus=0, negative_bonus=0)
+        self.worker.process_change_power(place_id=self.p1.id, power_delta=-100, person_id=None)
 
         self.worker.sync_data()
 
         self.assertEqual(self.p1.power, 1125)
         self.assertEqual(person_1.power, 1250)
-
-
-    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.power_positive', 0.25)
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.power_negative', 0.5)
-    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_positive', 0.75)
-    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_negative', 1.0)
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
-    def test_sync_data__power_from_bonuses__1(self):
-        person_1 = self.p1.persons[0]
-
-        self.assertEqual(self.p1.power, 0)
-        self.assertEqual(person_1.power, 0)
-
-        self.worker.process_change_power(person_id=person_1.id, power_delta=1000, place_id=None, positive_bonus=0, negative_bonus=0)
-
-        self.worker.sync_data()
-
-        self.assertEqual(self.p1.power, 1000 * 1.75 * 1.25)
-        self.assertEqual(person_1.power, 1000 * 1.75)
-
-        self.worker.process_change_power(place_id=self.p1.id, power_delta=-100, person_id=None, positive_bonus=0, negative_bonus=0)
-
-        self.worker.sync_data()
-
-        self.assertEqual(self.p1.power, 1000 * 1.75 * 1.25 - 100 * 1.5)
-        self.assertEqual(person_1.power, 1000 * 1.75)
-
-    @mock.patch('the_tale.game.workers.highlevel.Worker.correct_objects_power', mock.Mock())
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.power_positive', 0.25)
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.power_negative', 0.5)
-    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_positive', 0.75)
-    @mock.patch('the_tale.game.persons.prototypes.PersonPrototype.power_negative', 1.0)
-    @mock.patch('the_tale.game.places.prototypes.PlacePrototype.sync_parameters', mock.Mock())
-    def test_sync_data__power_from_bonuses_2(self):
-        person_1 = self.p1.persons[0]
-
-        self.assertEqual(self.p1.power, 0)
-        self.assertEqual(person_1.power, 0)
-
-        person_1.push_power(TimePrototype.get_current_turn_number(), 10000)
-        self.p1.push_power(TimePrototype.get_current_turn_number(), 10000)
-
-        self.worker.process_change_power(person_id=person_1.id, power_delta=-1000, place_id=None, positive_bonus=0, negative_bonus=0)
-
-        self.worker.sync_data()
-
-        self.assertEqual(self.p1.power, 10000 - 1000 * 2 * 1.5)
-        self.assertEqual(person_1.power, 10000 - 1000 * 2)
-
-        self.worker.process_change_power(place_id=self.p1.id, power_delta=100, person_id=None, positive_bonus=0, negative_bonus=0)
-
-        self.worker.sync_data()
-
-        self.assertEqual(self.p1.power, 10000 - 1000 * 2 * 1.5 + 100 * 1.25)
-        self.assertEqual(person_1.power, 10000 - 1000 * 2)
-
-
-    # def check_correct_objects_power(self, objects):
-    #     objects[0].push_power(TimePrototype.get_current_turn_number(), -1000)
-
-    #     # power below zero will increased to zero
-    #     self.worker.correct_objects_power('object', objects)
-
-    #     self.assertEqual(objects[0].raw_power, 0)
-    #     for object in objects[1:]:
-    #         self.assertEqual(object.raw_power, 1000)
-
-    #     # if there are no power below zero, nothing will changed
-    #     self.worker.correct_objects_power('object', objects)
-
-    #     self.assertEqual(objects[0].raw_power, 0)
-    #     for object in objects[1:]:
-    #         self.assertEqual(object.raw_power, 1000)
-
-    # def test_correct_objects_power__places(self):
-    #     self.check_correct_objects_power(places_storage.places.all())
-
-    # def test_correct_objects_power__persons(self):
-    #     self.check_correct_objects_power(persons_storage.persons_storage.all())

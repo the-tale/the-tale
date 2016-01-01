@@ -95,7 +95,7 @@ class QuestInfo(object):
             return (actor_name, actor_type.value, {'id': actor_id,
                                                    'name': places_storage.places[actor_id].name})
         if actor_type.is_PERSON:
-            return (actor_name, actor_type.value, persons_storage.persons_storage[actor_id].ui_info())
+            return (actor_name, actor_type.value, persons_storage.persons[actor_id].ui_info())
         if actor_type.is_MONEY_SPENDING:
             return (actor_name, actor_type.value, {'goal': actor_id.text,
                                                    'description': actor_id.description})
@@ -150,7 +150,7 @@ class QuestInfo(object):
             actor = knowledge_base[participant.participant]
 
             if isinstance(actor, facts.Person):
-                person = persons_storage.persons_storage[actor.externals['id']]
+                person = persons_storage.persons[actor.externals['id']]
                 data[participant.role] = person
                 data[participant.role + '_position'] = person.place
             elif isinstance(actor, facts.Place):
@@ -386,19 +386,18 @@ class QuestPrototype(object):
 
         power = self._give_power(hero, person.place, power)
 
-        power, positive_bonus, negative_bonus = hero.modify_politics_power(power, person=person)
+        power = hero.modify_politics_power(power, person=person)
 
         person_uid = uids.person(person.id)
         has_profession_marker = [marker for marker in self.knowledge_base.filter(facts.ProfessionMarker) if marker.person == person_uid]
+
         if has_profession_marker:
             power /= len(PERSON_TYPE.records)
-            positive_bonus /= len(PERSON_TYPE.records)
-            negative_bonus /= len(PERSON_TYPE.records)
 
         if not hero.can_change_person_power(person):
             return 0
 
-        person.cmd_change_power(power, positive_bonus, negative_bonus)
+        person.cmd_change_power(power)
 
         return power
 
@@ -407,12 +406,12 @@ class QuestPrototype(object):
 
         power = self._give_power(hero, place, power)
 
-        power, positive_bonus, negative_bonus = hero.modify_politics_power(power, place=place)
+        power = hero.modify_politics_power(power, place=place)
 
         if not hero.can_change_place_power(place):
             return 0
 
-        place.cmd_change_power(power, positive_bonus, negative_bonus)
+        place.cmd_change_power(power)
 
         return power
 
@@ -435,9 +434,9 @@ class QuestPrototype(object):
 
         for person_uid, result in quest_results.iteritems():
             person_id = self.knowledge_base[person_uid].externals['id']
-            if person_id not in persons_storage.persons_storage:
+            if person_id not in persons_storage.persons:
                 continue
-            results[persons_storage.persons_storage[person_id]] = result
+            results[persons_storage.persons[person_id]] = result
 
         VALUABLE_RESULTS = (QUEST_RESULTS.SUCCESSED, QUEST_RESULTS.FAILED)
 
@@ -625,11 +624,11 @@ class QuestPrototype(object):
                 continue
             fact = self.knowledge_base[participant.participant]
             if isinstance(fact, facts.Person):
-                place = persons_storage.persons_storage.get(fact.externals['id']).place
+                place = persons_storage.persons.get(fact.externals['id']).place
             elif isinstance(fact, facts.Place):
                 place = places_storage.places.get(fact.externals['id'])
 
-            experience_modifiers[place.id] = place.attr.experience()
+            experience_modifiers[place.id] = place.attrs.experience
 
         experience += experience * sum(experience_modifiers.values())
         return experience
@@ -694,7 +693,7 @@ class QuestPrototype(object):
 
         recipient = self.knowledge_base[action.object]
         if isinstance(recipient, facts.Person):
-            self._give_person_power(self.hero, persons_storage.persons_storage[recipient.externals['id']], power)
+            self._give_person_power(self.hero, persons_storage.persons[recipient.externals['id']], power)
         elif isinstance(recipient, facts.Place):
             self._give_place_power(self.hero, places_storage.places[recipient.externals['id']], power)
         else:
@@ -729,7 +728,7 @@ class QuestPrototype(object):
         place = places_storage.places[place_fact.externals['id']]
 
         if isinstance(object_fact, facts.Person):
-            person = persons_storage.persons_storage[object_fact.externals['id']]
+            person = persons_storage.persons[object_fact.externals['id']]
             return person.place.id == place.id
 
         if isinstance(object_fact, facts.Hero):

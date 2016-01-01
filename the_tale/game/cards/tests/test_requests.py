@@ -3,7 +3,7 @@
 from dext.common.utils.urls import url
 
 from the_tale.common.utils import testcase
-from the_tale.common import postponed_tasks as common_postponed_tasks
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
@@ -91,7 +91,7 @@ class UseRequestTests(CardsRequestsTestsBase):
         heroes_logic.save_hero(self.hero)
 
         response = self.post_ajax_json(logic.use_card_url(self.card.uid), self.post_data(self.card.uid))
-        task = common_postponed_tasks.PostponedTaskPrototype._db_get_object(0)
+        task = PostponedTaskPrototype._db_get_object(0)
 
         self.check_ajax_processing(response, task.status_url)
 
@@ -129,10 +129,10 @@ class GetCardRequestsTests(CardsRequestsTestsBase):
     def test_created(self):
         self.request_login(self.account.email)
 
-        with self.check_delta(common_postponed_tasks.PostponedTaskPrototype._db_count, 1):
+        with self.check_delta(PostponedTaskPrototype._db_count, 1):
             response = self.post_ajax_json(logic.get_card_url())
 
-        task = common_postponed_tasks.PostponedTaskPrototype._db_get_object(0)
+        task = PostponedTaskPrototype._db_get_object(0)
 
         self.check_ajax_processing(response, task.status_url)
 
@@ -158,10 +158,10 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
         heroes_logic.save_hero(self.hero)
 
-        with self.check_delta(common_postponed_tasks.PostponedTaskPrototype._db_count, 1):
+        with self.check_delta(PostponedTaskPrototype._db_count, 1):
             response = self.post_ajax_json(logic.combine_cards_url((card_1.uid, card_2.uid) ))
 
-        task = common_postponed_tasks.PostponedTaskPrototype._db_get_object(0)
+        task = PostponedTaskPrototype._db_get_object(0)
 
         self.check_ajax_processing(response, task.status_url)
 
@@ -173,6 +173,6 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
             if combine_status.is_ALLOWED:
                 continue
 
-            with self.check_not_changed(common_postponed_tasks.PostponedTaskPrototype._db_count):
+            with self.check_not_changed(PostponedTaskPrototype._db_count):
                 self.check_ajax_error(self.post_ajax_json(logic.combine_cards_url((666,))),
                                       'cards.wrong_value')

@@ -218,8 +218,7 @@ class Position(object):
 
     @classmethod
     def raw_transport(cls):
-        from the_tale.game.places import conf
-        return 1.0 - c.WHILD_TRANSPORT_PENALTY - c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * conf.places_settings.MAX_SIZE
+        return 1.0 - c.WHILD_TRANSPORT_PENALTY - c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * c.PLACE_MAX_SIZE
 
     def get_minumum_distance_to(self, destination):
         from the_tale.game.roads.storage import waymarks_storage

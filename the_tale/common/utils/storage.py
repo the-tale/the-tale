@@ -11,6 +11,9 @@ class Storage(storage.Storage):
     def _construct_object(self, model):
         return self.PROTOTYPE(model=model)
 
+    def _save_object(self, obj):
+        obj.save()
+
     def _get_all_query(self): return self.PROTOTYPE._db_all()
 
 
@@ -21,6 +24,9 @@ class CachedStorage(storage.CachedStorage):
 
     def _construct_object(self, model):
         return self.PROTOTYPE(model=model)
+
+    def _save_object(self, obj):
+        obj.save()
 
     def _get_all_query(self): return self.PROTOTYPE._db_all()
 

@@ -11,8 +11,10 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import objects as places_objects
 
 from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import objects as persons_objects
 
 from the_tale.game import relations as game_relations
 
@@ -119,6 +121,10 @@ class HeroPreferences(object):
 
     def value_to_set(self, value):
         if isinstance(value, BasePrototype):
+            return value.id if value is not None else None
+        if isinstance(value, places_objects.Place):
+            return value.id if value is not None else None
+        if isinstance(value, persons_objects.Person):
             return value.id if value is not None else None
         if isinstance(value, rels.Record):
             return value.value if value is not None else None

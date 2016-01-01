@@ -247,8 +247,9 @@ AMQP_BROKER_VHOST = '/the-tale'
 if TESTS_RUNNING:
     INSTALLED_APPS.append('test_without_migrations')
 
-    TEST_RUNNER = 'django_slowtests.DiscoverSlowestTestsRunner'
-    NUM_SLOW_TESTS = 10
+    # commented, to allow parallel testing
+    # TEST_RUNNER = 'django_slowtests.DiscoverSlowestTestsRunner'
+    # NUM_SLOW_TESTS = 10
 
 ################
 # CACHING

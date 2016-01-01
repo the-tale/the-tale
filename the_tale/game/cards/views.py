@@ -7,7 +7,7 @@ from dext.common.utils.urls import UrlBuilder, url
 
 from the_tale import amqp_environment
 
-from the_tale.common import postponed_tasks as common_postponed_tasks
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.common.utils import api
 from the_tale.common.utils import list_filter
@@ -175,7 +175,7 @@ def api_get(context):
     '''
     choose_task = heroes_postponed_tasks.GetCardTask(hero_id=context.account_hero.id)
 
-    task = common_postponed_tasks.PostponedTaskPrototype.create(choose_task)
+    task = PostponedTaskPrototype.create(choose_task)
 
     amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
 
@@ -214,7 +214,7 @@ def api_combine(context):
 
     choose_task = heroes_postponed_tasks.CombineCardsTask(hero_id=context.account_hero.id, cards=[card.uid for card in context.account_cards])
 
-    task = common_postponed_tasks.PostponedTaskPrototype.create(choose_task)
+    task = PostponedTaskPrototype.create(choose_task)
 
     amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
 

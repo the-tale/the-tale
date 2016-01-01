@@ -54,7 +54,7 @@ class TestCMSRequests(testcase.TestCase):
     def test_redirect_to_first_page(self):
         response = self.request_html(reverse('cms:test:'))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], 'http://testserver%s' % reverse('cms:test:page', args=['slug2']))
+        self.assertEqual(response['location'], reverse('cms:test:page', args=['slug2']))
 
     def test_index_page(self):
         Page.objects.create(section='test', slug='', caption='caption4', content='content4', order=4, active=True, author=self.staff_account._model)

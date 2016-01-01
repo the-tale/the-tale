@@ -15,6 +15,10 @@ class PersonsStorage(dext_storage.Storage):
         from . import logic
         return logic.load_person(person_model=model)
 
+    def _save_object(self, person):
+        from . import logic
+        return logic.save_person(person)
+
     def _get_all_query(self):
         return models.Person.objects.all()
 

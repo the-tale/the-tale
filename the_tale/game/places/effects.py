@@ -27,6 +27,11 @@ class Effect(object):
                    value=data.pop('value'),
                    delta=data.pop('delta'))
 
+    def info(self):
+        return {'name': self.name,
+                'attribute': self.attribute.name.lower(),
+                'value': self.value}
+
     def apply_to(self, place):
         name = self.attribute.name.lower()
         setattr(place.attrs, name, getattr(place.attrs, name) + self.value)

@@ -9,7 +9,6 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
@@ -22,6 +21,8 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.map.storage import map_info_storage
+
+from the_tale.game.places import logic as places_logic
 
 
 class MoveNearActionTest(testcase.TestCase):
@@ -168,9 +169,9 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
 
         prototypes.ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.p1, back=True)
-        self.p1._model.x = self.p1.x + 1
-        self.p1._model.y = self.p1.y + 1
-        self.p1.save()
+        self.p1.x = self.p1.x + 1
+        self.p1.y = self.p1.y + 1
+        places_logic.save_place(self.p1)
 
         while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:
             self.storage.process_turn(continue_steps_if_needed=False)

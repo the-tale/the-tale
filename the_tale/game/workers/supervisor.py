@@ -6,7 +6,7 @@ from dext.common.amqp_queues import exceptions as amqp_exceptions
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.workers import BaseWorker
-from the_tale.common import postponed_tasks
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.accounts.models import Account
 
@@ -48,7 +48,7 @@ class Worker(BaseWorker):
     def process_initialize(self):
         self.time = prototypes.TimePrototype.get_current_time()
 
-        postponed_tasks.PostponedTaskPrototype.reset_all()
+        PostponedTaskPrototype.reset_all()
 
         self.logic_workers = {worker.name: worker for worker in (environment.workers.logic_1, environment.workers.logic_2)}
 

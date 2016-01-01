@@ -82,12 +82,14 @@
 
 <dl>
   {% for bill_id, bill in BILLS_BY_ID.items() %}
+  {% if bill.type.enabled %}
   <div class="dl-record">
     <dt>{{bill.CAPTION}} <small>стабильность -{{bill.type.stability|percents}}</small></dt>
     <dd>
       <p>{{bill.DESCRIPTION|safe}}</p>
     </dd>
   </div>
+  {% endif %}
   {% endfor %}
 </dl>
 

@@ -345,8 +345,8 @@ class SetupPersonsTest(LogicTestsBase):
         logic.setup_social_connections(self.knowledge_base)
 
         self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)],
-                         persons=[logic.fact_person(person) for person in persons_storage.persons_storage.all() if person.place_id != self.place_3.id],
-                         locations=[logic.fact_located_in(person) for person in persons_storage.persons_storage.all() if person.place_id != self.place_3.id],
+                         persons=[logic.fact_person(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
+                         locations=[logic.fact_located_in(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
                          social_connections=[])
 
 
@@ -361,16 +361,16 @@ class SetupPersonsTest(LogicTestsBase):
 
         expected_connections = []
 
-        for person in persons_storage.persons_storage.all():
+        for person in persons_storage.persons.all():
             if person.place_id == self.place_3.id:
                 continue
             for connection_type, connected_person_id in persons_storage.social_connections.get_person_connections(person):
-                connected_person = persons_storage.persons_storage[connected_person_id]
+                connected_person = persons_storage.persons[connected_person_id]
                 if connected_person.place_id == self.place_3.id:
                     continue
                 expected_connections.append(logic.fact_social_connection(connection_type, uids.person(person.id), uids.person(connected_person.id)))
 
         self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)],
-                         persons=[logic.fact_person(person) for person in persons_storage.persons_storage.all() if person.place_id != self.place_3.id],
-                         locations=[logic.fact_located_in(person) for person in persons_storage.persons_storage.all() if person.place_id != self.place_3.id],
+                         persons=[logic.fact_person(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
+                         locations=[logic.fact_located_in(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
                          social_connections=expected_connections)
