@@ -19,6 +19,7 @@ from . import objects
 from . import habits
 from . import attributes
 from . import effects
+from . import modifiers
 
 
 def load_place(place_id=None, place_model=None):
@@ -80,7 +81,7 @@ def save_place(place, new=False):
                   'updated_at': datetime.datetime.now(),
                   'is_frontier': place.is_frontier,
                   'description': place.description,
-                  'data': data,
+                  'data': s11n.to_json(data),
                   'heroes_number': place.heroes_number,
                   'habit_honor_positive': place.habit_honor_positive,
                   'habit_honor_negative': place.habit_honor_negative,
@@ -88,7 +89,7 @@ def save_place(place, new=False):
                   'habit_peacefulness_negative': place.habit_peacefulness_negative,
                   'habit_honor': place.habit_honor.raw_value,
                   'habit_peacefulness': place.habit_peacefulness.raw_value,
-                  'modifier': place.modifier,
+                  'modifier': place._modifier,
                   'race': place.race,
                   'persons_changed_at_turn': place.persons_changed_at_turn,
                   'power': place.power}
@@ -131,7 +132,8 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           races=races.Races(),
                           nearest_cells=[],
                           effects=effects.Container(),
-                          modifier=None)
+                          modifier=modifiers.CITY_MODIFIERS.NONE)
+    place.refresh_attributes()
     save_place(place, new=True)
     return place
 
@@ -155,7 +157,7 @@ def add_person_to_place(place):
 
 
 def api_list_url():
-    arguments = {'api_version': conf.places_settings.API_LIST_VERSION,
+    arguments = {'api_version': conf.settings.API_LIST_VERSION,
                  'api_client': project_settings.API_CLIENT}
 
     return url('game:map:places:api-list', **arguments)

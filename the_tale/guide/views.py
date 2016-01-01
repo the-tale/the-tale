@@ -95,7 +95,7 @@ def get_api_types():
     from the_tale.game.actions.relations import ACTION_TYPE
     from the_tale.game.quests.relations import ACTOR_TYPE
     from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
-    from the_tale.game.places import relations as places_relations
+    from the_tale.game.places import modifiers as places_modifiers
     from the_tale.accounts.third_party.relations import AUTHORISATION_STATE
 
 
@@ -109,7 +109,7 @@ def get_api_types():
 
             TypeReference('action_type', u'Герои: тип действия', ACTION_TYPE),
 
-            TypeReference('places_modifiers', u'Города: специализация', places_relations.CITY_MODIFIERS),
+            TypeReference('places_modifiers', u'Города: специализация', places_modifiers.CITY_MODIFIERS),
 
             TypeReference('actor_types', u'Задания: Типы актёров', ACTOR_TYPE),
 

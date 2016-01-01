@@ -6,13 +6,13 @@ from the_tale.game.balance import constants as c
 
 
 class Attributes(object):
-    __slots__ = tuple([record.name.lower() for record in relations.ATTRIBUTES.records])
+    __slots__ = tuple([record.name.lower() for record in relations.ATTRIBUTE.records])
 
     def __init__(self, **kwargs):
         for name, value in kwargs.iteritems():
             setattr(self, name, value)
 
-        for attribute in relations.ATTRIBUTES.records:
+        for attribute in relations.ATTRIBUTE.records:
             if not hasattr(self, attribute.name.lower()):
                 setattr(self, attribute.name.lower(), attribute.default())
 
@@ -24,7 +24,9 @@ class Attributes(object):
         return cls(**data)
 
     def reset(self):
-        for attribute in relations.ATTRIBUTES.records:
+        for attribute in relations.ATTRIBUTE.records:
+            if attribute.type.is_CALCULATED:
+                continue
             setattr(self, attribute.name.lower(), attribute.default())
 
     def sync_size(self, hours):
@@ -46,6 +48,11 @@ class Attributes(object):
             else:
                 self.size = 1
                 self.goods = 0
+
+    def sync(self):
+        self.politic_radius = self.size * self.politic_radius_modifier
+        self.terrain_radius = self.size * self.terrain_radius_modifier
+
 
     def get_next_keepers_goods_spend_amount(self):
         return min(self.keepers_goods, max(int(self.keepers_goods * c.PLACE_KEEPERS_GOODS_SPENDING), c.PLACE_GOODS_BONUS))

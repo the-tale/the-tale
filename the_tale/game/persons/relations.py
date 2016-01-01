@@ -9,7 +9,8 @@ from questgen import relations as questgen_relations
 from the_tale.common.utils import xls
 
 from the_tale.game.relations import RACE
-from the_tale.game.places.relations import CITY_PARAMETERS, BUILDING_TYPE, CITY_MODIFIERS
+from the_tale.game.places.relations import BUILDING_TYPE
+from the_tale.game.places.modifiers import CITY_MODIFIERS
 
 
 class PERSON_TYPE(DjangoEnum):
@@ -49,10 +50,6 @@ PROFESSION_TO_RACE_MASTERY = xls.load_table_for_enums(_professions_xls_file, she
 PROFESSION_TO_CITY_MODIFIERS = xls.load_table_for_enums(_professions_xls_file, sheet_index=1,
                                                         rows_enum=PERSON_TYPE, columns_enum=CITY_MODIFIERS,
                                                         data_type=float)
-
-PROFESSION_TO_CITY_PARAMETERS = xls.load_table_for_enums(_professions_xls_file, sheet_index=2,
-                                                         rows_enum=PERSON_TYPE, columns_enum=CITY_PARAMETERS,
-                                                         data_type=float)
 
 class SOCIAL_CONNECTION_TYPE(DjangoEnum):
     questgen_type = Column()

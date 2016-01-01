@@ -31,7 +31,7 @@ class PlaceProcessor(dext_views.ArgumentProcessor):
         except ValueError:
             self.raise_wrong_format()
 
-        place = storage.places_storage.get(place_id)
+        place = storage.places.get(place_id)
 
         if not place:
             self.raise_wrong_value()
@@ -80,14 +80,14 @@ def api_list(context):
     '''
     data = {'places': {}}
 
-    for place in storage.places_storage.all():
+    for place in storage.places.all():
         place_data = { 'name': place.name,
                        'id': place.id,
                        'frontier': place.is_frontier,
                        'position': {'x': place.x,
                                     'y': place.y},
-                       'size': place.size,
-                       'specialization': place.modifier.TYPE.value if place.modifier else None}
+                       'size': place.attrs.size,
+                       'specialization': place._modifier.value if not place._modifier.is_NONE else None}
         data['places'][place.id] = place_data
 
     return dext_views.AjaxOk(content=data)

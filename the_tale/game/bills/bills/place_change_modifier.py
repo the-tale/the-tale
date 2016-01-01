@@ -11,8 +11,7 @@ from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
 from the_tale.game.bills.bills.base_bill import BaseBill
 
 from the_tale.game.places import storage as places_storage
-from the_tale.game.places.modifiers import MODIFIERS
-from the_tale.game.places.relations import CITY_MODIFIERS
+from the_tale.game.places.modifiers import CITY_MODIFIERS
 
 
 class UserForm(BaseUserForm):
@@ -33,7 +32,7 @@ class UserForm(BaseUserForm):
         cleaned_data = super(UserForm, self).clean()
 
         place = places_storage.places.get(int(cleaned_data['place']))
-        modifier = MODIFIERS[cleaned_data['new_modifier']](place)
+        modifier = CITY_MODIFIERS(cleaned_data['new_modifier'])
 
         if not modifier.can_be_choosen:
             raise ValidationError(u'В данный момент город "%s" нельзя преобразовать в "%s".' % (place.name, modifier.NAME))

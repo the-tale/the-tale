@@ -5,6 +5,7 @@ import random
 from the_tale.common.utils import testcase
 
 from dext.settings import settings
+from dext.common.utils import s11n
 
 from the_tale.game import names
 
@@ -33,35 +34,39 @@ class PlacesStorageTest(testcase.TestCase):
         self.assertEqual(len(self.storage._data), 3)
         self.assertTrue(self.storage._version > 0)
 
-        self.assertNotEqual(self.p1.size, 7)
+        self.assertNotEqual(self.p1.attrs.size, 7)
 
         place = Place.objects.get(id=self.p1.id)
-        place.size = 7
+        data = s11n.from_json(place.data)
+        data['attributes']['size'] = 7
+        place.data = s11n.to_json(data)
         place.save()
 
         self.storage.sync()
-        self.assertNotEqual(self.storage[self.p1.id].size, 7)
+        self.assertNotEqual(self.storage[self.p1.id].attrs.size, 7)
 
         self.storage.sync(force=True)
-        self.assertEqual(self.storage[self.p1.id].size, 7)
+        self.assertEqual(self.storage[self.p1.id].attrs.size, 7)
 
     def test_sync_after_settings_update(self):
         self.assertEqual(len(self.storage._data), 3)
         self.assertTrue(self.storage._version > 0)
 
-        self.assertNotEqual(self.p1.size, 7)
+        self.assertNotEqual(self.p1.attrs.size, 7)
 
         place = Place.objects.get(id=self.p1.id)
-        place.size = 7
+        data = s11n.from_json(place.data)
+        data['attributes']['size'] = 7
+        place.data = s11n.to_json(data)
         place.save()
 
         self.storage.sync()
-        self.assertNotEqual(self.storage[self.p1.id].size, 7)
+        self.assertNotEqual(self.storage[self.p1.id].attrs.size, 7)
 
         settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
 
         self.storage.sync()
-        self.assertEqual(self.storage[self.p1.id].size, 7)
+        self.assertEqual(self.storage[self.p1.id].attrs.size, 7)
 
 
     def test_getitem_wrong_id(self):

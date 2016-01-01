@@ -3,12 +3,7 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.balance import constants as c
-
-from the_tale.game.persons.relations import PERSON_TYPE
-
-from the_tale.game.places.modifiers import MODIFIERS
-from the_tale.game.places.modifiers.prototypes import TradeCenter, CraftCenter, Fort, PoliticalCenter, Polic, Resort, TransportNode, Outlaws
+from .. import modifiers
 
 
 class ModifiersTests(testcase.TestCase):
@@ -17,55 +12,54 @@ class ModifiersTests(testcase.TestCase):
         super(ModifiersTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-    def test_all_professions_covered(self):
-        for modifier_class in MODIFIERS.values():
-            modifier = modifier_class(place=self.place_1)
-            for person_type in PERSON_TYPE.records:
-                self.assertTrue(person_type.value in modifier.PERSON_EFFECTS)
-
     def test_trade_center(self):
-        self.assertEqual(CraftCenter(self.place_1).sell_price(), 0)
-        self.assertEqual(CraftCenter(self.place_1).buy_price(), 0)
-        self.assertTrue(TradeCenter(self.place_1).sell_price() > 0)
-        self.assertTrue(TradeCenter(self.place_1).buy_price() < 0)
+        with self.check_increased(lambda: self.place_1.attrs.sell_price):
+            with self.check_increased(lambda: self.place_1.attrs.production):
+                 with self.check_increased(lambda: self.place_1.attrs.freedom):
+                    with self.check_decreased(lambda: self.place_1.attrs.buy_price):
+                        self.place_1.set_modifier(modifiers.CITY_MODIFIERS.TRADE_CENTER)
 
     def test_craft_center(self):
-        self.assertEqual(TradeCenter(self.place_1).buy_artifact_power_bonus(), 0)
-        self.assertTrue(CraftCenter(self.place_1), 0.1)
+        with self.check_increased(lambda: self.place_1.attrs.buy_artifact_power):
+            with self.check_increased(lambda: self.place_1.attrs.production):
+                self.place_1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
 
     def test_fort(self):
-        self.assertEqual(Fort.SAFETY_MODIFIER, 0.05)
+        with self.check_increased(lambda: self.place_1.attrs.safety):
+            self.place_1.set_modifier(modifiers.CITY_MODIFIERS.FORT)
 
     def test_political_center(self):
-        self.assertEqual(PoliticalCenter.FREEDOM_MODIFIER, 0.25)
-        self.assertEqual(PoliticalCenter(self.place_1).modify_terrain_owning_radius(100), 125)
-
-        self.place_1.stability_modifiers.append(('x', -0.5))
-
-        old_radius = self.place_1.terrain_owning_radius
-        old_stability_renewing_speed = self.place_1._stability_renewing_speed()
-
-        self.place_1.modifier = PoliticalCenter(self.place_1)
-
-        self.assertTrue(old_radius < self.place_1.terrain_owning_radius)
-        self.assertTrue(old_stability_renewing_speed < self.place_1._stability_renewing_speed())
+        with self.check_increased(lambda: self.place_1.attrs.freedom):
+            with self.check_increased(lambda: self.place_1.attrs.politic_radius_modifier):
+                with self.check_increased(lambda: self.place_1.attrs.stability_renewing_speed):
+                    self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLITICAL_CENTER)
 
     def test_polic(self):
-        self.assertEqual(CraftCenter(self.place_1).modify_economic_size(100), 100)
-        self.assertEqual(CraftCenter(self.place_1).modify_terrain_change_power(100), 100)
-
-        self.assertEqual(Polic(self.place_1).modify_economic_size(c.PLACE_MAX_SIZE+2), c.PLACE_MAX_SIZE+3)
-        self.assertEqual(Polic(self.place_1).modify_economic_size(1), 2)
-        self.assertEqual(Polic(self.place_1).modify_terrain_change_power(100), 120)
+        with self.check_increased(lambda: self.place_1.attrs.economic):
+            with self.check_increased(lambda: self.place_1.attrs.terrain_radius_modifier):
+                with self.check_increased(lambda: self.place_1.attrs.freedom):
+                    self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLIC)
 
     def test_resort(self):
-        self.assertFalse(CraftCenter(self.place_1).full_regen_allowed())
-        self.assertTrue(Resort(self.place_1).full_regen_allowed())
+        with self.check_increased(lambda: self.place_1.attrs.hero_regen_chance):
+            with self.check_increased(lambda: self.place_1.attrs.companion_regen_chance):
+                with self.check_increased(lambda: self.place_1.attrs.safety):
+                    with self.check_increased(lambda: self.place_1.attrs.freedom):
+                        self.place_1.set_modifier(modifiers.CITY_MODIFIERS.RESORT)
 
     def test_transport_node(self):
-        self.assertEqual(TransportNode.TRANSPORT_MODIFIER, 0.2)
+        with self.check_increased(lambda: self.place_1.attrs.transport):
+            self.place_1.set_modifier(modifiers.CITY_MODIFIERS.TRANSPORT_NODE)
 
     def test_outlaws(self):
-        self.assertEqual(Outlaws.FREEDOM_MODIFIER, 0.35)
-        self.assertEqual(Outlaws.SAFETY_MODIFIER, -0.1)
-        self.assertEqual(Outlaws.EXPERIENCE_MODIFIER, 0.25)
+        with self.check_increased(lambda: self.place_1.attrs.freedom):
+            with self.check_decreased(lambda: self.place_1.attrs.safety):
+                with self.check_increased(lambda: self.place_1.attrs.experience):
+                    self.place_1.set_modifier(modifiers.CITY_MODIFIERS.OUTLAWS)
+
+    def test_holy_city(self):
+        with self.check_increased(lambda: self.place_1.attrs.energy_regen_chance):
+            with self.check_decreased(lambda: self.place_1.attrs.production):
+                with self.check_increased(lambda: self.place_1.attrs.transport):
+                    with self.check_decreased(lambda: self.place_1.attrs.freedom):
+                        self.place_1.set_modifier(modifiers.CITY_MODIFIERS.HOLY_CITY)

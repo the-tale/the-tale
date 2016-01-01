@@ -229,6 +229,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PVP_EFFECTIVENESS_STEP, 10)
         self.assertEqual(c.PVP_EFFECTIVENESS_INITIAL, 300)
 
+        self.assertEqual(c.PLACE_MIN_SAFETY, 0.05)
+        self.assertEqual(c.PLACE_MIN_TRANSPORT, 0.1)
+        self.assertEqual(c.PLACE_MIN_STABILITY, 0)
+
         self.assertEqual(c.PLACE_MAX_SIZE, 10)
         self.assertEqual(c.PLACE_MAX_FRONTIER_SIZE, 7)
 

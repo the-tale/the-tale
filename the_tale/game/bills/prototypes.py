@@ -416,7 +416,7 @@ class ActorPrototype(BasePrototype):
     def create(cls, bill, place=None):
 
         model = Actor.objects.create(bill=bill._model,
-                                     place=place._model if place else None)
+                                     place_id=place.id if place else None)
         return cls(model)
 
     @classmethod

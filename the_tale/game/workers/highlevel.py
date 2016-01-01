@@ -145,12 +145,7 @@ class Worker(BaseWorker):
         places_number = len(places)
 
         for i, place in enumerate(places):
-            expected_size = int(max_size * float(i) / places_number) + 1
-
-            if place.modifier:
-                expected_size = place.modifier.modify_economic_size(expected_size)
-
-            place.set_expected_size(expected_size)
+            place.attr.power_economic = int(max_size * float(i) / places_number) + 1
             place.sync_size(hours)
             place.sync_persons(force_add=False)
 

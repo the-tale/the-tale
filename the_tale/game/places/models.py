@@ -9,6 +9,7 @@ from dext.common.utils import s11n
 from the_tale.game.relations import RACE
 
 from the_tale.game.places import relations
+from the_tale.game.places import modifiers
 
 
 class Place(models.Model):
@@ -38,7 +39,7 @@ class Place(models.Model):
     habit_honor = models.FloatField(default=0)
     habit_peacefulness = models.FloatField(default=0)
 
-    modifier = RelationIntegerField(relation=relations.CITY_MODIFIERS, null=True, default=None, blank=True)
+    modifier = RelationIntegerField(relation=modifiers.CITY_MODIFIERS, null=True, default=None, blank=True)
     race = RelationIntegerField(relation=RACE)
 
     persons_changed_at_turn = models.BigIntegerField(default=0)

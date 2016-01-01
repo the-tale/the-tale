@@ -629,7 +629,7 @@ class QuestPrototype(object):
             elif isinstance(fact, facts.Place):
                 place = places_storage.places.get(fact.externals['id'])
 
-            experience_modifiers[place.id] = place.get_experience_modifier()
+            experience_modifiers[place.id] = place.attr.experience()
 
         experience += experience * sum(experience_modifiers.values())
         return experience

@@ -14,6 +14,7 @@ E = 0.001
 class RaceInfo(collections.namedtuple('RaceInfo', ['race', 'percents', 'persons_percents', 'delta'])):
     pass
 
+
 class Races(object):
 
     def __init__(self, races=None):
@@ -86,3 +87,10 @@ class Races(object):
             races.append(RaceInfo(race=race, percents=self._races[race], delta=next_delta[race], persons_percents=persons_percents[race.value]))
 
         return sorted(races, key=lambda r: -r.percents)
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                self._races == other.races)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

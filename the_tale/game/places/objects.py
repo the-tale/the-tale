@@ -44,7 +44,7 @@ class Place(names.ManageNameMixin2):
                  'races',
                  'nearest_cells',
                  'effects',
-                 'modifier',
+                 '_modifier',
 
                  # mames mixin
                  '_utg_name_form__lazy',
@@ -99,14 +99,14 @@ class Place(names.ManageNameMixin2):
         self.races = races
         self.nearest_cells = nearest_cells
         self.effects = effects
-        self.modifier = modifier
+        self._modifier = modifier
 
     @property
     def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self.updated_at_turn))
 
     @property
     def is_new(self):
-        return (datetime.datetime.now() - self.created_at).total_seconds() < conf.settings.NEW_PLACE_LIVETIME
+        return (datetime.datetime.now() - self.created_at).total_seconds() < c.PLACE_NEW_PLACE_LIVETIME
 
     @property
     def new_for(self):
@@ -115,12 +115,6 @@ class Place(names.ManageNameMixin2):
     def shift(self, dx, dy):
         self.x += dx
         self.y += dy
-
-    def sync_modifier(self):
-        if self.modifier and not self.modifier.is_enough_power:
-            old_modifier = self.modifier
-            self.modifier = None
-            signals.place_modifier_reseted.send(self.__class__, place=self, old_modifier=old_modifier)
 
     @property
     def description_html(self): return bbcode.render(self.description)
@@ -134,8 +128,7 @@ class Place(names.ManageNameMixin2):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value).id]
 
-        if self.modifier:
-            restrictions.extend(self.modifier.TYPE.linguistics_restrictions())
+        restrictions.extend(self._modifier.TYPE.linguistics_restrictions())
 
         return tuple(restrictions)
 
@@ -195,7 +188,8 @@ class Place(names.ManageNameMixin2):
     @property
     def persons(self):
         from the_tale.game.persons import storage as persons_storage
-        return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id), key=lambda p: -p.power)
+        return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id),
+                      key=lambda p: p.created_at_turn) # fix persons order
 
     @property
     def total_persons_power(self): return sum([person.power for person in self.persons])
@@ -206,36 +200,6 @@ class Place(names.ManageNameMixin2):
 
     def mark_as_updated(self): self.updated_at_turn = TimePrototype.get_current_turn_number()
 
-    # def add_person(self):
-    #     from the_tale.game.persons.relations import PERSON_TYPE
-    #     from the_tale.game.persons.prototypes import PersonPrototype
-
-    #     race = random.choice(RACE.records)
-    #     gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
-
-    #     new_person = PersonPrototype.create(place=self,
-    #                                         race=race,
-    #                                         gender=gender,
-    #                                         tp=random.choice(PERSON_TYPE.records),
-    #                                         utg_name=names.generator.get_name(race, gender))
-
-    #     signals.place_person_arrived.send(self.__class__, place=self, person=new_person)
-
-    #     return new_person
-
-    # @lazy_property
-    # def stability_modifiers(self):
-    #     if 'stability_modifiers' not in self.data:
-    #         self.data['stability_modifiers'] = []
-    #     return self.data['stability_modifiers']
-
-
-    @property
-    def terrain_change_power(self):
-        power = self.size
-        if self.modifier:
-            power = self.modifier.modify_terrain_change_power(power)
-        return int(round(power))
 
     @property
     def terrains(self):
@@ -246,11 +210,13 @@ class Place(names.ManageNameMixin2):
             terrains.add(map_info.terrain[cell[1]][cell[0]])
         return terrains
 
+
     @property
     def terrain(self):
         from the_tale.game.map.storage import map_info_storage
         map_info = map_info_storage.item
         return map_info.terrain[self.y][self.x]
+
 
     def sync_race(self):
         self.races.update(persons=self.persons)
@@ -263,155 +229,111 @@ class Place(names.ManageNameMixin2):
             signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
 
     def _effects_generator(self):
-        yield effects.Effect(actor_name=u'город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
-        yield effects.Effect(actor_name=u'город', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size*1.25)
+        from . import storage
 
-        for effect in self.effect.effects:
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.TAX, value=0.0)
+
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
+
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.ECONOMIC, value=self.attrs.power_economic)
+
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size*1.25)
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size)
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.EXPERIENCE, value=1.0)
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.BUY_PRICE, value=1.0)
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.SELL_PRICE, value=1.0)
+
+        for effect in self.effects.effects:
             yield effect
 
-        if self.modifier:
-            for effect in self.modifier.effects:
-                yield effect
+        for effect in self._modifier.effects:
+            yield effect
+
+        for exchange in storage.resource_exchanges.get_exchanges_for_place(self):
+            resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
+            if resource_1.parameter is not None:
+                yield effects.Effect(name=place_2.name if place_2 is not None else resource_2.text,
+                                     attribute=resource_1.parameter,
+                                     value=-resource_1.amount * resource_1.direction)
+            if resource_2.parameter is not None:
+                yield effects.Effect(name=place_2.name if place_2 is not None else resource_1.text,
+                                     attribute=resource_2.parameter,
+                                     value=resource_2.amount * resource_2.direction)
+
+        # economic
+        yield effects.Effect(name=u'экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=f.place_goods_production(self.attrs.economic))
+        yield effects.Effect(name=u'потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-f.place_goods_consumption(self.attrs.size))
+        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
+
+        if self.attrs.get_next_keepers_goods_spend_amount():
+            yield effects.Effect(name=u'дары Хранителей', attribute=relations.ATTRIBUTE.PRODUCTION, value=self.attrs.get_next_keepers_goods_spend_amount())
+
+        # safety
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.SAFETY, value=1.0)
+        yield effects.Effect(name=u'монстры', attribute=relations.ATTRIBUTE.SAFETY, value=-c.BATTLES_PER_TURN)
+        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.SAFETY, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)
+
+        if self.is_frontier:
+            yield effects.Effect(name=u'дикие земли', attribute=relations.ATTRIBUTE.SAFETY, value=-c.WHILD_BATTLES_PER_TURN_BONUS)
+
+        # transport
+        yield effects.Effect(name=u'дороги', attribute=relations.ATTRIBUTE.TRANSPORT, value=1.0)
+        yield effects.Effect(name=u'трафик', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.attrs.size)
+
+        if self.is_frontier:
+            yield effects.Effect(name=u'бездорожье', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.WHILD_TRANSPORT_PENALTY)
+
+        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.TRANSPORT, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)
+
+        # freedom
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
+        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.FREEDOM, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
+
 
     def effects_generator(self, order):
+        # TODO: do something with postchecks
+        safety = 0
+        transport = 0
+        stability = 0
+
         for effect in self._effects_generator():
             if effect.attribute.order != order:
                 continue
+            if effect.attribute.is_SAFETY:
+                safety += effect.value
+            if effect.attribute.is_TRANSPORT:
+                transport += effect.value
+            if effect.attribute.is_STABILITY:
+                stability += effect.value
             yield effect
 
+        if relations.ATTRIBUTE.SAFETY.order == order:
+            if safety < c.PLACE_MIN_SAFETY:
+                yield effects.Effect(name=u'Серый Орден', attribute=relations.ATTRIBUTE.SAFETY, value=c.PLACE_MIN_SAFETY - safety)
+        if relations.ATTRIBUTE.TRANSPORT.order == order:
+            if transport < c.PLACE_MIN_TRANSPORT:
+                yield effects.Effect(name=u'Серый Орден', attribute=relations.ATTRIBUTE.TRANSPORT, value=c.PLACE_MIN_TRANSPORT - transport)
+        if relations.ATTRIBUTE.STABILITY.order == order:
+            if stability < c.PLACE_MIN_STABILITY:
+                yield effects.Effect(name=u'Серый Орден', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_MIN_STABILITY - stability)
+            if stability > 1:
+                yield effects.Effect(name=u'демоны', attribute=relations.ATTRIBUTE.STABILITY, value=1 - stability)
+
+
     def refresh_attributes(self):
-        self.effects.update_step(self)
+        # self.effects.update_step(self) # TODO: move in highlevel
         self.attrs.reset()
 
-        orders = sorted(set(record.order for record in relations.ATTRIBUTES))
-
-        for order in orders:
+        for order in relations.ATTRIBUTE.EFFECTS_ORDER:
             for effect in self.effects_generator(order):
                 effect.apply_to(self)
 
-    # def sync_parameters(self):
-    #     self.stability = min(1.0, sum(power[1] for power in self.get_stability_powers()))
 
-    #     self.production = sum(power[1] for power in self.get_production_powers())
-    #     self.safety = sum(power[1] for power in self.get_safety_powers())
-    #     self.freedom = sum(power[1] for power in self.get_freedom_powers())
-    #     self.transport = sum(power[1] for power in self.get_transport_powers())
+    def set_modifier(self, modifier):
+        self._modifier = modifier
+        self.refresh_attributes()
 
-    #     self.tax = sum(power[1] for power in self.get_tax_powers())
-
-    # def set_expected_size(self, expected_size):
-    #     self.expected_size = expected_size
-
-    def get_experience_modifier(self):
-        return self.modifier.EXPERIENCE_MODIFIER if self.modifier else 0
-
-    # def _update_powers(self, powers, parameter):
-    #     from the_tale.game.places.storage import resource_exchange_storage
-
-    #     for exchange in resource_exchange_storage.get_exchanges_for_place(self):
-    #         resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
-    #         if resource_1.parameter == parameter:
-    #             powers.append((place_2.name if place_2 is not None else resource_2.text, -resource_1.amount * resource_1.direction))
-    #         if resource_2.parameter == parameter:
-    #             powers.append((place_2.name if place_2 is not None else resource_1.text, resource_2.amount * resource_2.direction))
-
-
-    # def get_stability_powers(self):
-
-    #     powers = [ (u'город', 1.0) ]
-    #     powers += self.stability_modifiers
-
-    #     stability = sum(power[1] for power in powers)
-
-    #     if stability < places_settings.MIN_STABILITY:
-    #         powers.append((u'Серый Орден', places_settings.MIN_STABILITY - stability))
-
-
-    #     return powers
-
-    # def get_production_powers(self):
-
-    #     powers = [ (u'экономика', f.place_goods_production(self.expected_size)),
-    #                (u'потребление', -f.place_goods_consumption(self.size)),
-    #                (u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)]
-
-    #     if self.get_next_keepers_goods_spend_amount():
-    #         powers.append((u'дары Хранителей', self.get_next_keepers_goods_spend_amount()))
-
-    #     self._update_powers(powers, CITY_PARAMETERS.PRODUCTION)
-
-    #     if self.modifier and self.modifier.PRODUCTION_MODIFIER:
-    #         powers.append((self.modifier.NAME, self.modifier.PRODUCTION_MODIFIER))
-
-    #     persons_powers = [(person.full_name, person.production) for person in self.persons]
-    #     powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
-    #     return powers
-
-    # def get_safety_powers(self):
-    #     powers = [(u'город', 1.0),
-    #               (u'монстры', -c.BATTLES_PER_TURN)]
-
-    #     if self.is_frontier:
-    #         powers.append((u'дикие земли', -c.WHILD_BATTLES_PER_TURN_BONUS))
-
-    #     powers.append((u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY))
-
-    #     self._update_powers(powers, CITY_PARAMETERS.SAFETY)
-
-    #     if self.modifier and self.modifier.SAFETY_MODIFIER:
-    #         powers.append((self.modifier.NAME, self.modifier.SAFETY_MODIFIER))
-
-    #     persons_powers = [(person.full_name, person.safety) for person in self.persons]
-    #     powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
-
-    #     safety = sum(power[1] for power in powers)
-
-    #     if safety < places_settings.MIN_SAFETY:
-    #         powers.append((u'Серый Орден', places_settings.MIN_SAFETY - safety))
-
-    #     return powers
-
-    # def get_transport_powers(self):
-    #     powers = [(u'дороги', 1.0),
-    #               (u'трафик', -c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.size)]
-
-    #     if self.is_frontier:
-    #         powers.append((u'бездорожье', -c.WHILD_TRANSPORT_PENALTY))
-
-    #     powers.append((u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY))
-
-    #     self._update_powers(powers, CITY_PARAMETERS.TRANSPORT)
-
-    #     if self.modifier and self.modifier.TRANSPORT_MODIFIER:
-    #         powers.append((self.modifier.NAME, self.modifier.TRANSPORT_MODIFIER))
-
-    #     persons_powers = [(person.full_name, person.transport) for person in self.persons]
-    #     powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
-
-    #     transport = sum(power[1] for power in powers)
-
-    #     if transport < places_settings.MIN_TRANSPORT:
-    #         powers.append((u'Серый Орден', places_settings.MIN_TRANSPORT - transport))
-
-    #     return powers
-
-    # def get_freedom_powers(self):
-    #     powers = [(u'город', 1.0),
-    #               (u'стабильность', (1.0-self.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)]
-
-    #     if self.modifier and self.modifier.FREEDOM_MODIFIER:
-    #         powers.append((self.modifier.NAME, self.modifier.FREEDOM_MODIFIER))
-
-    #     persons_powers = [(person.full_name, person.freedom) for person in self.persons]
-    #     powers.extend(sorted(persons_powers, key=lambda p: -p[1]))
-    #     return powers
-
-    # def get_tax_powers(self):
-    #     powers = [(u'город', 0.0)]
-
-    #     self._update_powers(powers, CITY_PARAMETERS.TAX)
-
-    #     return powers
 
     def cmd_change_power(self, power):
         if amqp_environment.environment.workers.highlevel is None:

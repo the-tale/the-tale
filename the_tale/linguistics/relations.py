@@ -10,6 +10,7 @@ from the_tale.game.actions import relations as actions_relations
 from the_tale.game.artifacts import relations as artifacts_relations
 from the_tale.game.persons import relations as persons_relations
 from the_tale.game.places import relations as places_relations
+from the_tale.game.places import modifiers as places_modifiers
 from the_tale.game.map import relations as map_relations
 from the_tale.game.companions import relations as companions_relations
 
@@ -98,7 +99,7 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
 
     records = ( ('GENDER', 0, u'пол', game_relations.GENDER),
                 ('RACE', 1, u'раса', game_relations.RACE),
-                ('CITY_MODIFIER', 2, u'специализация города', places_relations.CITY_MODIFIERS),
+                ('CITY_MODIFIER', 2, u'специализация города', places_modifiers.CITY_MODIFIERS),
                 ('HABIT_HONOR', 3, u'честь', game_relations.HABIT_HONOR_INTERVAL),
                 ('HABIT_PEACEFULNESS', 4, u'миролюбие', game_relations.HABIT_PEACEFULNESS_INTERVAL),
                 ('PERSON_TYPE', 5, u'профессия', persons_relations.PERSON_TYPE),

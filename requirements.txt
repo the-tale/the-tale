@@ -1,4 +1,4 @@
-Django==1.8.2
+Django==1.9
 Jinja2==2.6
 psycopg2==2.4.5
 kombu==2.3.2

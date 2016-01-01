@@ -229,8 +229,8 @@ class ResourceExchangePrototype(BasePrototype):
         from the_tale.game.places import storage
 
         model = cls._model_class.objects.create(bill=bill._model if bill is not None else None,
-                                                place_1=place_1._model if place_1 is not None else None,
-                                                place_2=place_2._model if place_2 is not None else None,
+                                                place_1_id=place_1.id if place_1 is not None else None,
+                                                place_2_id=place_2.id if place_2 is not None else None,
                                                 resource_1=resource_1,
                                                 resource_2=resource_2)
         prototype = cls(model=model)

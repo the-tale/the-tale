@@ -8,7 +8,7 @@ from the_tale.game.relations import RACE
 from the_tale.game.logic import create_test_map
 from the_tale.game.persons import storage as persons_storage
 
-from the_tale.game.places.races import Races
+from .. import races
 
 
 E = 0.001
@@ -20,27 +20,18 @@ class RacesTests(testcase.TestCase):
         self.p1, self.p2, self.p3 = create_test_map()
 
         for person in persons_storage.persons.all():
-            person.push_power(0, 1000)
+            person.power = 1000
 
     def test_initialize(self):
-        for race, percents in self.p1.races._races.iteritems():
-            self.assertEqual(percents, self.p1.data['races'][race.value])
-
-    def test_initialize_on_new_place(self):
-        data = {}
-        Races(data=data)
-        self.assertEqual(len(data), len(RACE.records))
+        for race in RACE.records:
+            self.assertEqual(self.p1.races.get_race_percents(race), 1.0 / len(RACE.records))
 
     def test_serialize(self):
-        races = []
         for i, race in enumerate(RACE.records):
-            races.append((i, race))
             self.p1.races._races[race] = i
 
-        self.p1.races.serialize()
+        self.assertEqual(self.p1.races.serialize(), races.Races.deserialize(self.p1.races.serialize()).serialize())
 
-        for i, race in races:
-            self.assertEqual(i, self.p1.data['races'][race.value])
 
     def test_get_next_races__no_trends(self):
         self.assertEqual(self.p1.races.get_next_races([]), self.p1.races._races)
@@ -66,24 +57,21 @@ class RacesTests(testcase.TestCase):
 
 
     def test_get_next_races__cup(self):
+        self.assertEqual(len(self.p1.persons), 3)
 
-        self.assertEqual(len(self.p1.persons), 2)
-
-        old_races = {race: 1.0 / len(RACE.records) for race in RACE.records}
-
-        self.p1.races._races = copy.copy(old_races)
-
-        self.p1.persons[0]._model.race = RACE.ORC
-        self.p1.persons[0].push_power(0, 1000)
-        self.p1.persons[1]._model.race = RACE.ELF
-
-        self.assertEqual(self.p1.persons[0].power, self.p1.persons[1].power * 2)
+        self.p1.persons[0].race = RACE.ORC
+        self.p1.persons[0].power = 1000
+        self.p1.persons[1].race = RACE.ELF
+        self.p1.persons[1].power = 500
+        self.p1.persons[2].race = RACE.GOBLIN
+        self.p1.persons[2].power = 0
 
         for i in xrange(10000):
             self.p1.races.update(self.p1.persons)
 
-        self.assertTrue(0.66 < self.p1.races._races[RACE.ORC] < 0.67)
-        self.assertTrue(0.33 < self.p1.races._races[RACE.ELF] < 0.34)
+        self.assertTrue(0.66 < self.p1.races.get_race_percents(RACE.ORC) < 0.67)
+        self.assertTrue(0.33 < self.p1.races.get_race_percents(RACE.ELF) < 0.34)
+        self.assertTrue(0.0 < self.p1.races.get_race_percents(RACE.GOBLIN) < 0.01)
 
     def test_get_next_races__no_less_then_zero(self):
         self.assertTrue(1 - E < sum(self.p1.races._races.values()) < 1 + E )

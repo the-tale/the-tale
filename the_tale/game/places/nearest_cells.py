@@ -64,7 +64,7 @@ def update_nearest_cells():
                 if cur_dst < GUARANTIED_RADIUS:
                     place_power = c.PLACE_MAX_SIZE**2 + place.attrs.size
                 else:
-                    place_power = float(place.size) / (cur_dst**2)
+                    place_power = float(place.attrs.size) / (cur_dst**2)
 
                 if nearest_power < place_power:
                     nearest_place = place
