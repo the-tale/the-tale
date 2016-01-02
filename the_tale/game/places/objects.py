@@ -110,10 +110,6 @@ class Place(names.ManageNameMixin2):
     def new_for(self):
         return self.created_at + datetime.timedelta(seconds=c.PLACE_NEW_PLACE_LIVETIME)
 
-    def shift(self, dx, dy):
-        self.x += dx
-        self.y += dy
-
     @property
     def description_html(self): return bbcode.render(self.description)
 
@@ -192,12 +188,7 @@ class Place(names.ManageNameMixin2):
     @property
     def total_persons_power(self): return sum([person.power for person in self.persons])
 
-    # @property
-    # def modifiers(self):
-    #     return sorted([modifier(self) for modifier in modifiers.MODIFIERS.values()], key=lambda m: -m.power)
-
     def mark_as_updated(self): self.updated_at_turn = TimePrototype.get_current_turn_number()
-
 
     @property
     def terrains(self):
@@ -208,13 +199,11 @@ class Place(names.ManageNameMixin2):
             terrains.add(map_info.terrain[cell[1]][cell[0]])
         return terrains
 
-
     @property
     def terrain(self):
         from the_tale.game.map.storage import map_info_storage
         map_info = map_info_storage.item
         return map_info.terrain[self.y][self.x]
-
 
     def sync_race(self):
         self.races.update(persons=self.persons)
@@ -225,6 +214,7 @@ class Place(names.ManageNameMixin2):
             old_race = self.race
             self.race = dominant_race
             signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
+
 
     def _effects_generator(self):
         from . import storage
@@ -339,7 +329,6 @@ class Place(names.ManageNameMixin2):
         amqp_environment.environment.workers.highlevel.cmd_change_power(power_delta=power,
                                                                         person_id=None,
                                                                         place_id=self.id)
-
 
     def map_info(self):
         return {'id': self.id,

@@ -56,5 +56,9 @@ class Attributes(object):
     def set_power_economic(self, value):
         self.power_economic = value
 
+    def shift(self, dx, dy):
+        self.x += dx
+        self.y += dy
+
     def get_next_keepers_goods_spend_amount(self):
         return min(self.keepers_goods, max(int(self.keepers_goods * c.PLACE_KEEPERS_GOODS_SPENDING), c.PLACE_GOODS_BONUS))

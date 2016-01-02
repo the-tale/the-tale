@@ -185,19 +185,6 @@ def chronicle_bill_processed(sender, bill, **kwargs): # pylint: disable=R0912,W0
         record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()
 
 
-@receiver(places_signals.place_modifier_reseted, dispatch_uid='chronicle_place_modifier_reseted')
-def chronicle_place_modifier_reseted(sender, place, old_modifier, **kwargs): # pylint: disable=W0613
-    records.PlaceLosedModifier(actors=[(ACTOR_ROLE.PLACE, place)],
-                               substitutions={'place': place,
-                                              'old_modifier': old_modifier.TYPE}).create_record()
-
-@receiver(places_signals.place_person_left, dispatch_uid='chronicle_place_person_left')
-def chronicle_place_person_left(sender, place, person, **kwargs): # pylint: disable=W0613
-    records.PersonLeftPlace(actors=[(ACTOR_ROLE.PLACE, place),
-                                    (ACTOR_ROLE.PERSON, person)],
-                            substitutions={'place': place,
-                                           'person': person}).create_record()
-
 @receiver(places_signals.place_person_arrived, dispatch_uid='chronicle_place_person_arrived')
 def chronicle_place_person_arrived(sender, place, person, **kwargs): # pylint: disable=W0613
     records.PersonArrivedToPlace(actors=[(ACTOR_ROLE.PLACE, place),

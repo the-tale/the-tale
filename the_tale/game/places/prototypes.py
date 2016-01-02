@@ -16,9 +16,7 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.map.conf import map_settings
 
 from . import models
-from . import conf
 from . import relations
-from . import signals
 
 
 class BuildingPrototype(BasePrototype, names.ManageNameMixin):
