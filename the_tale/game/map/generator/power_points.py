@@ -260,10 +260,10 @@ def get_building_power_points(building): # pylint: disable=R0912,R0915
 
 def get_place_race_power_points(place, race):
 
-    place_power = place.total_persons_power
+    # place_power = place.total_persons_power
 
-    if place_power < 0.1:
-        return []
+    # if place_power < 0.1:
+    #     return []
 
     power_percent = place.races.get_race_percents(race) * 0.5
 

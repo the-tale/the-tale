@@ -14,6 +14,9 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.roads.storage import waymarks_storage
 
+from the_tale.game.jobs import job
+from the_tale.game import politic_power
+
 from . import models
 from . import objects
 from . import storage
@@ -22,9 +25,40 @@ from . import relations
 from . import exceptions
 
 
+class PersonPoliticPower(politic_power.PoliticPower):
+    INNER_CIRCLE_SIZE = 3
+
+    def change_power(self, person, hero_id, has_in_preferences, power):
+        power_multiplier = 1
+
+        if person.has_building:
+            power_multiplier *= c.BUILDING_PERSON_POWER_MULTIPLIER
+
+        # this power will go to person and to place
+        place_power = power * power_multiplier
+
+        # this power, only to person
+        person_power = power * power_multiplier * person.place.attrs.freedom
+
+        super(PersonPoliticPower, self).change_power(person, hero_id, has_in_preferences, person_power)
+
+        return place_power
+
+    def job_effect_kwargs(self, person):
+        return {'actor_type': 'person',
+                'actor_name': person.name,
+                'person': person,
+                'place': person.place,
+                'positive_heroes': self._inner_positive_heroes,
+                'negative_heroes': self._inner_negative_heroes,
+                'job_power': person.get_job_power() }
+
+
 def save_person(person, new=False):
 
-    data = {'name': person.utg_name.serialize()}
+    data = {'name': person.utg_name.serialize(),
+            'job': person.job.serialize(),
+            'politic_power': person.politic_power.serialize()}
 
     arguments = {'place_id': person.place_id,
                  'gender': person.gender,
@@ -33,8 +67,7 @@ def save_person(person, new=False):
                  'friends_number': person.friends_number,
                  'enemies_number': person.enemies_number,
                  'data': s11n.to_json(data),
-                 'created_at_turn': person.created_at_turn,
-                 'power': person.power }
+                 'created_at_turn': person.created_at_turn }
 
     if new:
         person_model = models.Person.objects.create(**arguments)
@@ -60,8 +93,9 @@ def create_person(place, race, type, utg_name, gender):
                             type=type,
                             friends_number=0,
                             enemies_number=0,
-                            power=0,
-                            utg_name=utg_name)
+                            politic_power=PersonPoliticPower.create(),
+                            utg_name=utg_name,
+                            job=job.Job.create())
     save_person(person, new=True)
     return person
 
@@ -87,8 +121,9 @@ def load_person(person_id=None, person_model=None):
                           type=person_model.type,
                           friends_number=person_model.friends_number,
                           enemies_number=person_model.enemies_number,
-                          power=person_model.power,
-                          utg_name=utg_words.Word.deserialize(data['name']))
+                          politic_power=PersonPoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PersonPoliticPower.create(),
+                          utg_name=utg_words.Word.deserialize(data['name']),
+                          job=job.Job.deserialize(data['job'] if 'job' in data else job.Job.create()))
 
 
 def social_connection_from_model(model):

@@ -108,6 +108,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  180)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_LENGTH, 3)
+        self.assertEqual(c.ANGEL_ENERGY_IN_DAY, 0)
 
         self.assertEqual(c.ANGEL_HELP_COST, 4)
         self.assertEqual(c.ANGEL_ARENA_COST, 1)
@@ -367,7 +368,7 @@ class ConstantsTest(testcase.TestCase):
 
 
     def test_energy_regeneration_vs_companion_heal(self):
-        energy_in_day = c._ANGEL_ENERGY_IN_DAY
+        energy_in_day = c.ANGEL_ENERGY_IN_DAY
 
         health_in_day = c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS * c.COMPANIONS_DAMAGE_PER_WOUND * 24
 

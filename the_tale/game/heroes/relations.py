@@ -74,6 +74,7 @@ class MONEY_SOURCE(DjangoEnum):
                 ('EARNED_FROM_HELP', 3, u'получено от хранителя'),
                 ('EARNED_FROM_HABITS', 4, u'получено от черт'),
                 ('EARNED_FROM_COMPANIONS', 5, u'получено от спутников'),
+                ('EARNED_FROM_MASTERS', 6, u'получено от мастеров'),
 
                 ('SPEND_FOR_HEAL', 1000, u'потрачено на лечение'),
                 ('SPEND_FOR_ARTIFACTS', 1001, u'потрачено на покупку артефактов'),

@@ -35,7 +35,7 @@ class ModifiersTests(testcase.TestCase):
                     self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLITICAL_CENTER)
 
     def test_polic(self):
-        with self.check_increased(lambda: self.place_1.attrs.economic):
+        with self.check_increased(lambda: self.place_1.attrs.production):
             with self.check_increased(lambda: self.place_1.attrs.terrain_radius_modifier):
                 with self.check_increased(lambda: self.place_1.attrs.freedom):
                     self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLIC)

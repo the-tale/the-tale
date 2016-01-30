@@ -206,6 +206,13 @@ class HeroPreferences(object):
 
     # helpers
 
+    def has_place_in_preferences(self, place):
+        return self.place is not None and self.place.id == place.id
+
+    def has_person_in_preferences(self, person):
+        return ( (self.friend is not None and self.friend.id == person.id) or
+                 (self.enemy is not None and self.enemy.id == person.id) )
+
     @classmethod
     def _preferences_query(cls, all):
         current_time = datetime.datetime.now()

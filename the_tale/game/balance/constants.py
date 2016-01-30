@@ -202,7 +202,7 @@ ANGEL_FREE_ENERGY_CHARGE_CRIT = int(20)# количество бонусной �
 ANGEL_ENERGY_REGENERATION_TIME = float(0.5) # раз в сколько часов регенерируем
 ANGEL_ENERGY_REGENERATION_AMAUNT = int(1) # сколько восстанавливаем
 ANGEL_ENERGY_REGENERATION_PERIOD = int(ANGEL_ENERGY_REGENERATION_TIME * TURNS_IN_HOUR) # раз в сколько ходов
-_ANGEL_ENERGY_IN_DAY = int(24.0 / ANGEL_ENERGY_REGENERATION_TIME * ANGEL_ENERGY_REGENERATION_AMAUNT)
+ANGEL_ENERGY_IN_DAY = int(24.0 / ANGEL_ENERGY_REGENERATION_TIME * ANGEL_ENERGY_REGENERATION_AMAUNT)
 
 ANGEL_ENERGY_REGENERATION_LENGTH = int(3) # сколько ходов будет идти ренерация единицы энергии
 
@@ -223,7 +223,7 @@ ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5)) # (min, max) проце
 
 # считаем, что при эпической удачливости все использования будут давать опыт
 # и предполагаем, что можем разрешить (при такой удачливости), в день получать опыт как за такой же день
-ANGEL_HELP_EXPERIENCE = int(24.0 * EXP_PER_HOUR / (_ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST))
+ANGEL_HELP_EXPERIENCE = int(24.0 * EXP_PER_HOUR / (ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST))
 
 ANGEL_HELP_EXPERIENCE_DELTA = float(0.5)
 
@@ -317,8 +317,8 @@ HABITS_BORDER = int(1000) # модуль максимального значен
 HABITS_RIGHT_BORDERS = [-700, -300, -100, 100, 300, 700, 1001] # правые границы черт
 HABITS_QUEST_ACTIVE_DELTA = float(20) # за выбор в задании игроком
 HABITS_QUEST_PASSIVE_DELTA = float(0.05 * HABITS_QUEST_ACTIVE_DELTA) # за неверный выбор героем
-HABITS_HELP_ABILITY_DELTA = float(float(HABITS_BORDER) / (60 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)) # за использование способности
-HABITS_ARENA_ABILITY_DELTA = float(float(HABITS_BORDER) / (60 * _ANGEL_ENERGY_IN_DAY / ANGEL_ARENA_COST)) # за использование способности
+HABITS_HELP_ABILITY_DELTA = float(float(HABITS_BORDER) / (60 * ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)) # за использование способности
+HABITS_ARENA_ABILITY_DELTA = float(float(HABITS_BORDER) / (60 * ANGEL_ENERGY_IN_DAY / ANGEL_ARENA_COST)) # за использование способности
 
 HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER = float(1.5) # бонус к начисляемому влиянию за выбор игрока для подписчиков
 
@@ -348,7 +348,7 @@ PEACEFULL_BATTLE_PROBABILITY = float(0.01) # вероятность мирно �
 # процент сохранённых ходов от первого удара
 _FIRST_STRIKE_TURNS_BONUS = (0.5 * BATTLES_BEFORE_HEAL) / ACTIONS_CYCLE_LENGTH # выигрываем полхода в каждой битве
 
-_HELPS_IN_TURN = (float(_ANGEL_ENERGY_IN_DAY) / ANGEL_HELP_COST) / 24 / TURNS_IN_HOUR
+_HELPS_IN_TURN = (float(ANGEL_ENERGY_IN_DAY) / ANGEL_HELP_COST) / 24 / TURNS_IN_HOUR
 
 # процент сохранённых ходов сражения, если только бьём молнией
 _BATTLE_TURNS_BONUS_FROM_ON_USE = (float(BATTLE_LENGTH) * (sum(ANGEL_HELP_LIGHTING_FRACTION)/2) + HEAL_LENGTH * (sum(ANGEL_HELP_HEAL_FRACTION)/2)) / 2
@@ -502,7 +502,7 @@ BUILDING_TERRAIN_POWER_MULTIPLIER = float(0.5) # building terrain power is perce
 # Карты
 ###########################
 
-CARDS_HELP_COUNT_TO_NEW_CARD = int(1.5 * _ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)
+CARDS_HELP_COUNT_TO_NEW_CARD = int(1.5 * ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)
 CARDS_COMBINE_TO_UP_RARITY = 3
 
 

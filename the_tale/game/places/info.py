@@ -33,7 +33,7 @@ def place_info_persons_data(place):
                        'gender': person.gender.value,
                        'race': person.race.value,
                        'type': person.type.value,
-                       'power': { 'percents': person.power / place.total_persons_power if place.total_persons_power > 0 else 0},
+                       'power': { 'percents': person.total_politic_power_fraction},
                        'building': building.id if building else None,
                        'connections': connections,
                        'keepers': {'friends': [hero.account_id for hero in HeroPreferences.get_friends_of(person, all=place.depends_from_all_heroes)],

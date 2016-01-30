@@ -72,6 +72,7 @@ def hero_statistics_from_model(hero_model):
                                  money_earned_from_help=hero_model.stat_money_earned_from_help,
                                  money_earned_from_habits=hero_model.stat_money_earned_from_habits,
                                  money_earned_from_companions=hero_model.stat_money_earned_from_companions,
+                                 money_earned_from_masters=hero_model.stat_money_earned_from_masters,
 
                                  money_spend_for_heal=hero_model.stat_money_spend_for_heal,
                                  money_spend_for_artifacts=hero_model.stat_money_spend_for_artifacts,
@@ -213,6 +214,7 @@ def save_hero(hero, new=False):
                      stat_money_earned_from_help=hero.statistics.money_earned_from_help,
                      stat_money_earned_from_habits=hero.statistics.money_earned_from_habits,
                      stat_money_earned_from_companions=hero.statistics.money_earned_from_companions,
+                     stat_money_earned_from_masters=hero.statistics.money_earned_from_masters,
 
                      stat_money_spend_for_heal=hero.statistics.money_spend_for_heal,
                      stat_money_spend_for_artifacts=hero.statistics.money_spend_for_artifacts,
@@ -388,3 +390,7 @@ def remove_hero(hero_id=None, account_id=None):
         models.Hero.objects.filter(id=hero_id).delete()
     else:
         models.Hero.objects.filter(account_id=account_id).delete()
+
+
+def get_heroes_to_accounts_map(heroes_ids):
+    return dict(models.Hero.objects.filter(id__in=heroes_ids).values_list('id', 'account_id'))

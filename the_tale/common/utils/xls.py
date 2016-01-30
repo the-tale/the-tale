@@ -131,3 +131,24 @@ def load_table_for_enums(filename, rows_enum, columns_enum, sheet_index=0, encod
                     for row_id, row_str in rows_items)
 
     return result
+
+
+def load_table_for_enums_subsets(filename, rows, columns, sheet_index=0, encoding='utf-8', data_type=lambda x: x):
+
+    rows_values = [el.name for el in rows]
+    rows_items = [(el.value, el.name) for el in rows]
+
+    columns_values = [el.name for el in columns]
+    columns_dict = {el.name: el.value for el in columns}
+
+    data = load_table(filename=filename, sheet_index=sheet_index, encoding=encoding,
+                      rows=rows_values,
+                      columns=columns_values,
+                      data_type=data_type)
+
+    result = dict( (row_id,
+                    dict( (columns_dict[column_str], column_value)
+                          for column_str, column_value in data[row_str].items()) )
+                    for row_id, row_str in rows_items)
+
+    return result

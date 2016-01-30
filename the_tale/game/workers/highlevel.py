@@ -18,8 +18,6 @@ from the_tale.game.places import storage as places_storage
 
 from the_tale.game.bills.conf import bills_settings
 
-from the_tale.game import conf
-
 from the_tale.game import exceptions
 
 
@@ -44,8 +42,9 @@ class Worker(BaseWorker):
         self.initialized = True
         self.worker_id = worker_id
         self.turn_number = turn_number
-        self.persons_power = {}
-        self.places_power = {}
+
+        self.persons_politic_power = []
+        self.places_politic_power = []
 
         self.logger.info('HIGHLEVEL INITIALIZED')
 
@@ -97,45 +96,6 @@ class Worker(BaseWorker):
         self.stop_required = True
         self.logger.info('HIGHLEVEL STOPPED')
 
-    def sync_persons_powers(self, persons):
-        if not persons:
-            return
-
-        for person in persons:
-
-            positive_power, negative_power = self.persons_power.get(person.id, (0, 0))
-
-            power_multiplier = 1
-
-            if person.has_building:
-                power_multiplier *= c.BUILDING_PERSON_POWER_MULTIPLIER
-
-            # this power will go to person and to place
-            positive_power *= power_multiplier
-            negative_power *= power_multiplier
-
-            # this power, only to person
-            power = (positive_power + negative_power) * person.place.attrs.freedom
-
-            person.power = person.power * c.PLACE_POWER_REDUCE_FRACTION + power
-
-            self.change_place_power(person.place_id, positive_power)
-            self.change_place_power(person.place_id, negative_power)
-
-
-    def sync_places_powers(self, places):
-
-        if not places:
-            return
-
-        for place in places:
-
-            positive_power, negative_power = self.places_power.get(place.id, (0, 0))
-
-            power = (positive_power + negative_power) * place.attrs.freedom
-
-            place.power = place.power * c.PLACE_POWER_REDUCE_FRACTION + power
-
 
     def sync_sizes(self, places, hours, max_size):
         if not places:
@@ -156,21 +116,35 @@ class Worker(BaseWorker):
 
         self.logger.info('sync data')
 
-        all_persons = persons_storage.persons.all()
+        for person_id, hero_id, has_place_in_preferences, has_person_in_preferences, power_delta in self.persons_politic_power:
+            person = persons_storage[person_id]
+            place_power = person.politic_power.change_power(person=person,
+                                                            hero_id=hero_id,
+                                                            has_in_preferences=has_person_in_preferences,
+                                                            power=power_delta)
+            self.places_politic_power.append(person.place.id, hero_id, has_place_in_preferences, has_person_in_preferences, place_power)
 
-        self.sync_persons_powers(persons=[person for person in all_persons if person.place.is_frontier])
-        self.sync_persons_powers(persons=[person for person in all_persons if not person.place.is_frontier])
+        for place_id, hero_id, has_place_in_preferences, has_person_in_preferences, power_delta in self.places_politic_power:
+            place = places_storage[place_id]
+            place.politic_power.change_power(place=place,
+                                             hero_id=hero_id,
+                                             has_in_preferences=has_place_in_preferences,
+                                             power=power_delta)
 
-        for person in all_persons:
+        self.persons_politic_power[:] = []
+        self.places_politic_power[:] = []
+
+        for person in persons_storage.persons.all():
+            if sheduled:
+                person.politic_power.sync_power()
+
             person.update_friends_number()
             person.update_enemies_number()
+            person.refresh_job()
 
-        self.persons_power = {}
-
-        self.sync_places_powers(places=[place for place in places_storage.places.all() if place.is_frontier])
-        self.sync_places_powers(places=[place for place in places_storage.places.all() if not place.is_frontier])
-
-        self.places_power = {}
+        for place in places_storage.places.all():
+            if sheduled:
+                place.politic_power.sync_power()
 
         # update size
         if sheduled:
@@ -184,8 +158,11 @@ class Worker(BaseWorker):
 
 
         for place in places_storage.places.all():
-            place.effects.update_step(place)
+            if sheduled:
+                place.effects.update_step(place)
+
             place.sync_habits()
+            place.refresh_job()
 
             place.refresh_attributes() # must be last operation to display and use real data
 
@@ -233,23 +210,20 @@ class Worker(BaseWorker):
         storage[id_] = (power_good + (power_delta if power_delta > 0 else 0),
                         power_bad + (power_delta if power_delta < 0 else 0))
 
-    def change_person_power(self, id_, power_delta):
-        self._change_power(self.persons_power, id_, power_delta)
 
-    def change_place_power(self, id_, power_delta):
-        self._change_power(self.places_power, id_, power_delta)
-
-
-    def cmd_change_power(self, person_id, place_id, power_delta):
-        self.send_cmd('change_power', {'person_id': person_id,
+    def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, person_id, place_id, power_delta):
+        self.send_cmd('change_power', {'hero_id': hero_id,
+                                       'has_place_in_preferences': has_place_in_preferences,
+                                       'has_person_in_preferences': has_person_in_preferences,
+                                       'person_id': person_id,
                                        'place_id': place_id,
                                        'power_delta': power_delta})
 
-    def process_change_power(self, person_id, place_id, power_delta):
+    def process_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, person_id, place_id, power_delta):
         if person_id is not None and place_id is None:
-            self.change_person_power(person_id, power_delta)
+            self.persons_politic_power.append((person_id, hero_id, has_place_in_preferences, has_person_in_preferences, power_delta))
         elif place_id is not None and person_id is None:
-            self.change_place_power(place_id, power_delta)
+            self.places_politic_power.append((place_id, hero_id, has_place_in_preferences, has_person_in_preferences, power_delta))
         else:
             raise exceptions.ChangePowerError(place_id=place_id, person_id=person_id)
 

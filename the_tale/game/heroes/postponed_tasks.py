@@ -678,3 +678,44 @@ class CombineCardsTask(PostponedLogic):
         self.state = COMBINE_CARDS_STATE.PROCESSED
 
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
+
+
+class InvokeHeroMethodTask(PostponedLogic):
+
+    TYPE = 'invoke-hero-method'
+
+    class STATE(DjangoEnum):
+        records = ( ('UNPROCESSED', 0, u'в очереди'),
+                    ('PROCESSED', 1, u'обработана'),
+                    ('METHOD_NOT_FOUND', 2, u'метод не обнаружен'))
+
+    def __init__(self, hero_id, method_name, method_kwargs, state=STATE.UNPROCESSED):
+        super(InvokeHeroMethodTask, self).__init__()
+        self.hero_id = hero_id
+        self.state = state if isinstance(state, rels.Record) else self.STATE(state)
+        self.method_name = method_name
+        self.method_kwargs = method_kwargs
+
+    def serialize(self):
+        return { 'hero_id': self.hero_id,
+                 'state': self.state.value,
+                 'method_name': self.method_name,
+                 'method_kwargs': self.method_kwargs}
+
+    @property
+    def error_message(self): return self.state.text
+
+    def process(self, main_task, storage):
+
+        hero = storage.heroes[self.hero_id]
+
+        method = getattr(hero, self.method_name, None)
+
+        if method is None:
+            main_task.comment = u'can not found method: %s' % self.method_name
+            self.state = self.STATE.METHOD_NOT_FOUND
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
+
+        method(**self.method_kwargs)
+
+        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS

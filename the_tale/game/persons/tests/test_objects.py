@@ -51,13 +51,23 @@ class PersonTests(testcase.TestCase):
     def test_power_from_building(self):
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
-            self.person.cmd_change_power(100)
+            self.person.cmd_change_power(hero_id=666, has_place_in_preferences=False, has_person_in_preferences=False, power=100)
 
-        self.assertEqual(change_person_power_call.call_args, mock.call(person_id=self.person.id, power_delta=100, place_id=None))
+        self.assertEqual(change_person_power_call.call_args, mock.call(hero_id=666,
+                                                                       has_place_in_preferences=False,
+                                                                       has_person_in_preferences=False,
+                                                                       person_id=self.person.id,
+                                                                       power_delta=100,
+                                                                       place_id=None))
 
         BuildingPrototype.create(self.person, utg_name=names.generator.get_test_name('building-name'))
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
-            self.person.cmd_change_power(-100)
+            self.person.cmd_change_power(hero_id=666, has_place_in_preferences=False, has_person_in_preferences=False, power=-100)
 
-        self.assertEqual(change_person_power_call.call_args, mock.call(person_id=self.person.id, power_delta=-100, place_id=None))
+        self.assertEqual(change_person_power_call.call_args, mock.call(hero_id=666,
+                                                                       has_place_in_preferences=False,
+                                                                       has_person_in_preferences=False,
+                                                                       person_id=self.person.id,
+                                                                       power_delta=-100,
+                                                                       place_id=None))

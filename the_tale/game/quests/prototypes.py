@@ -397,7 +397,10 @@ class QuestPrototype(object):
         if not hero.can_change_person_power(person):
             return 0
 
-        person.cmd_change_power(power)
+        person.cmd_change_power(hero_id=hero.id,
+                                has_place_in_preferences=hero.preferences.has_place_in_preferences(person.place),
+                                has_person_in_preferences=hero.preferences.has_place_in_preferences(person),
+                                power=power)
 
         return power
 
@@ -411,7 +414,10 @@ class QuestPrototype(object):
         if not hero.can_change_place_power(place):
             return 0
 
-        place.cmd_change_power(power)
+        place.cmd_change_power(hero_id=hero.id,
+                               has_place_in_preferences=hero.preferences.has_place_in_preferences(place),
+                               has_person_in_preferences=False,
+                               power=power)
 
         return power
 

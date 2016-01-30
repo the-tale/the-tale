@@ -1,6 +1,8 @@
 # coding: utf-8
 import copy
 
+import mock
+
 from the_tale.common.utils import testcase
 
 from the_tale.game.relations import RACE
@@ -15,12 +17,14 @@ E = 0.001
 
 class RacesTests(testcase.TestCase):
 
+    @mock.patch('the_tale.game.jobs.job.Job.give_power', lambda obj, power: None)
     def setUp(self):
         super(RacesTests, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
         for person in persons_storage.persons.all():
-            person.power = 1000
+            person.politic_power.change_power(person, hero_id=666, has_in_preferences=False, power=1000)
+            person.politic_power.change_power(person, hero_id=777, has_in_preferences=True, power=2000)
 
     def test_initialize(self):
         for race in RACE.records:
@@ -55,16 +59,19 @@ class RacesTests(testcase.TestCase):
 
         self.assertTrue(1 - E < sum(self.p1.races._races.values()) < 1 + E )
 
-
+    @mock.patch('the_tale.game.jobs.job.Job.give_power', lambda obj, power: None)
     def test_get_next_races__cup(self):
         self.assertEqual(len(self.p1.persons), 3)
 
         self.p1.persons[0].race = RACE.ORC
-        self.p1.persons[0].power = 1000
+        self.p1.persons[0].politic_power.outer_power = 1000
+        self.p1.persons[0].politic_power.inner_power = 3000
         self.p1.persons[1].race = RACE.ELF
-        self.p1.persons[1].power = 500
+        self.p1.persons[1].politic_power.outer_power = 500
+        self.p1.persons[1].politic_power.inner_power = 1500
         self.p1.persons[2].race = RACE.GOBLIN
-        self.p1.persons[2].power = 0
+        self.p1.persons[2].politic_power.outer_power = 0
+        self.p1.persons[2].politic_power.inner_power = 0
 
         for i in xrange(10000):
             self.p1.races.update(self.p1.persons)

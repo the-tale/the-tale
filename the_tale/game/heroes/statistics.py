@@ -19,6 +19,7 @@ class Statistics(object):
                  'money_earned_from_help',
                  'money_earned_from_habits',
                  'money_earned_from_companions',
+                 'money_earned_from_masters',
 
                  'money_spend_for_heal',
                  'money_spend_for_artifacts',
@@ -58,6 +59,7 @@ class Statistics(object):
                  money_earned_from_help,
                  money_earned_from_habits,
                  money_earned_from_companions,
+                 money_earned_from_masters,
 
                  money_spend_for_heal,
                  money_spend_for_artifacts,
@@ -98,6 +100,7 @@ class Statistics(object):
         self.money_earned_from_help = money_earned_from_help
         self.money_earned_from_habits = money_earned_from_habits
         self.money_earned_from_companions = money_earned_from_companions
+        self.money_earned_from_masters = money_earned_from_masters
 
         self.money_spend_for_heal = money_spend_for_heal
         self.money_spend_for_artifacts = money_spend_for_artifacts
@@ -139,6 +142,7 @@ class Statistics(object):
                    money_earned_from_help=0,
                    money_earned_from_habits=0,
                    money_earned_from_companions=0,
+                   money_earned_from_masters=0,
 
                    money_spend_for_heal=0,
                    money_spend_for_artifacts=0,
@@ -201,6 +205,8 @@ class Statistics(object):
                 self.money_earned_from_habits += value
             elif source.is_EARNED_FROM_COMPANIONS:
                 self.money_earned_from_companions += value
+            elif source.is_EARNED_FROM_MASTERS:
+                self.money_earned_from_masters += value
 
             elif source.is_SPEND_FOR_HEAL:
                 self.money_spend_for_heal += value
@@ -231,7 +237,8 @@ class Statistics(object):
                                     self.money_earned_from_quests +
                                     self.money_earned_from_help +
                                     self.money_earned_from_habits +
-                                    self.money_earned_from_companions)
+                                    self.money_earned_from_companions +
+                                    self.money_earned_from_masters)
 
     @property
     def money_spend(self): return (self.money_spend_for_heal +

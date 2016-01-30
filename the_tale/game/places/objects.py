@@ -11,7 +11,11 @@ from the_tale.game import names
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
+from the_tale.game.jobs import logic as jobs_logic
+
 from the_tale.game.prototypes import TimePrototype, GameTime
+
+from the_tale.game.persons import economic
 
 from . import signals
 from . import effects
@@ -36,12 +40,13 @@ class Place(names.ManageNameMixin2):
                  'description',
                  'race',
                  'persons_changed_at_turn',
-                 'power',
+                 'politic_power',
                  'attrs',
                  'utg_name',
                  'races',
                  'nearest_cells',
                  'effects',
+                 'job',
                  '_modifier',
 
                  # mames mixin
@@ -66,12 +71,13 @@ class Place(names.ManageNameMixin2):
                  description,
                  race,
                  persons_changed_at_turn,
-                 power,
+                 politic_power,
                  attrs,
                  utg_name,
                  races,
                  nearest_cells,
                  effects,
+                 job,
                  modifier):
         self.id = id
         self.x = x
@@ -91,12 +97,13 @@ class Place(names.ManageNameMixin2):
         self.description = description
         self.race = race
         self.persons_changed_at_turn = persons_changed_at_turn
-        self.power = power
+        self.politic_power = politic_power
         self.attrs = attrs
         self.utg_name = utg_name
         self.races = races
         self.nearest_cells = nearest_cells
         self.effects = effects
+        self.job = job
         self._modifier = modifier
 
     @property
@@ -185,8 +192,8 @@ class Place(names.ManageNameMixin2):
         return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id),
                       key=lambda p: p.created_at_turn) # fix persons order
 
-    @property
-    def total_persons_power(self): return sum([person.power for person in self.persons])
+    # @property
+    # def total_persons_power(self): return sum([person.power for person in self.persons])
 
     def mark_as_updated(self): self.updated_at_turn = TimePrototype.get_current_turn_number()
 
@@ -223,8 +230,6 @@ class Place(names.ManageNameMixin2):
 
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
 
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.ECONOMIC, value=self.attrs.power_economic)
-
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size*1.25)
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size)
@@ -247,7 +252,7 @@ class Place(names.ManageNameMixin2):
                                      value=resource_2.amount * resource_2.direction)
 
         # economic
-        yield effects.Effect(name=u'экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=f.place_goods_production(self.attrs.economic))
+        yield effects.Effect(name=u'экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=f.place_goods_production(self.attrs.power_economic))
         yield effects.Effect(name=u'потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-f.place_goods_consumption(self.attrs.size))
         yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
 
@@ -274,6 +279,10 @@ class Place(names.ManageNameMixin2):
         # freedom
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
         yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.FREEDOM, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
+
+        for person in self.persons:
+            for attribute, modifier in person.get_economic_modifiers():
+                yield effects.Effect(name=person.name, attribute=attribute, value=modifier)
 
 
     def effects_generator(self, order):
@@ -322,11 +331,44 @@ class Place(names.ManageNameMixin2):
         self._modifier = modifier
         self.refresh_attributes()
 
+    def get_same_places(self):
+        from . import storage
+        return [place for place in storage.places.all() if self.is_frontier == place.is_frontier]
 
-    def cmd_change_power(self, power):
+    @property
+    def total_politic_power_fraction(self):
+        places = self.get_same_places()
+
+        # находим минимальное отрицательное влияние и компенсируем его при расчёте долей
+        minimum_outer_power = 0.0
+        minimum_inner_power = 0.0
+
+        for place in places:
+            minimum_outer_power = min(minimum_outer_power, place.politic_power.outer_power)
+            minimum_inner_power = min(minimum_inner_power, place.politic_power.inner_power)
+
+        total_outer_power = 0.0
+        total_inner_power = 0.0
+
+        for place in places:
+            total_outer_power += (place.politic_power.outer_power - minimum_outer_power)
+            total_inner_power += (place.politic_power.inner_power - minimum_inner_power)
+
+        outer_power = (self.politic_power.outer_power / total_outer_power) if total_outer_power else 0
+        inner_power = (self.politic_power.inner_power / total_inner_power) if total_inner_power else 0
+
+        return (outer_power + inner_power) / 2
+
+    def get_job_power(self):
+        return jobs_logic.job_power(objects_number=len(self.get_same_places()), power=self.total_politic_power_fraction)
+
+    def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, power):
         if amqp_environment.environment.workers.highlevel is None:
             return
-        amqp_environment.environment.workers.highlevel.cmd_change_power(power_delta=power,
+        amqp_environment.environment.workers.highlevel.cmd_change_power(hero_id=hero_id,
+                                                                        has_place_in_preferences=has_place_in_preferences,
+                                                                        has_person_in_preferences=has_person_in_preferences,
+                                                                        power_delta=power,
                                                                         person_id=None,
                                                                         place_id=self.id)
 

@@ -42,4 +42,4 @@ class PlacePowerTest(testcase.TestCase):
         persons_storage.persons.sync(force=True)
 
     def test_initialization(self):
-        self.assertEqual(self.place.power, 0)
+        self.assertEqual(self.place.total_politic_power_fraction, 0)

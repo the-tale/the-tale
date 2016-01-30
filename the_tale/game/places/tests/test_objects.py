@@ -144,6 +144,7 @@ class PlaceTests(testcase.TestCase):
                                          bill=None)
 
 
+    @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
     @mock.patch('the_tale.game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
     def test_refresh_attributes__production(self):
         self.p1.attrs.keepers_goods = 10000
@@ -158,13 +159,14 @@ class PlaceTests(testcase.TestCase):
         expected_production = (c.PLACE_GOODS_BONUS +
                                1000 -
                                100 +
+                               10 * len(self.p1.persons) +
                                self.p1.attrs.get_next_keepers_goods_spend_amount() -
                                relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount +
                                relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount )
 
         self.assertTrue(-0.001 < self.p1.attrs.production - expected_production < 0.001)
 
-
+    @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__safety(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.FORT)
 
@@ -173,6 +175,7 @@ class PlaceTests(testcase.TestCase):
         self.p1.refresh_attributes()
 
         expected_safety = (1.0 - c.BATTLES_PER_TURN +
+                           100 * len(self.p1.persons) +
                            0.05 -
                            relations.RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL.amount +
                            relations.RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE.amount)
@@ -188,7 +191,7 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.safety - c.PLACE_MIN_SAFETY < 0.001)
 
-
+    @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__transport(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.TRANSPORT_NODE)
         self.p1.effects.add(effects.Effect(name=u'test', attribute=relations.ATTRIBUTE.TRANSPORT, value=1000))
@@ -199,6 +202,7 @@ class PlaceTests(testcase.TestCase):
 
         expected_transport = (1.0 +
                               1000 +
+                              100 * len(self.p1.persons) +
                               0.2 -
                               relations.RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL.amount +
                               relations.RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE.amount -
@@ -227,7 +231,7 @@ class PlaceTests(testcase.TestCase):
 
         self.assertEqual(self.p1.attrs.tax, 0.05)
 
-
+    @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__freedom(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.POLIC)
         self.p1.effects.add(effects.Effect(name=u'test', attribute=relations.ATTRIBUTE.FREEDOM, value=1000))
@@ -236,7 +240,7 @@ class PlaceTests(testcase.TestCase):
 
         self.p1.refresh_attributes()
 
-        self.assertTrue(-0.001 < self.p1.attrs.freedom - (1000 + 1.0 + 0.1) < 0.001)
+        self.assertTrue(-0.001 < self.p1.attrs.freedom - (1000 + 100 * len(self.p1.persons) + 1.0 + 0.1) < 0.001)
 
 
     def test_refresh_attributes__stability(self):

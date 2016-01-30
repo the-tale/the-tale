@@ -29,12 +29,14 @@ from . import conf
 from . import logic_accessors
 from . import shop_accessors
 from . import equipment_methods
+from . import jobs_methods
 
 
 # TODO: merge classes instead subclassing
 class Hero(logic_accessors.LogicAccessorsMixin,
            shop_accessors.ShopAccessorsMixin,
            equipment_methods.EquipmentMethodsMixin,
+           jobs_methods.JobsMethodsMixin,
            names.ManageNameMixin2):
 
     __slots__ = ('id',

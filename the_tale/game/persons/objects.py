@@ -7,7 +7,21 @@ from the_tale import amqp_environment
 
 from the_tale.game import names
 
+from the_tale.game.balance import constants as c
+
+from the_tale.game.jobs import logic as jobs_logic
+
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import relations as places_relations
+
+from . import economic
+
+
+BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_BONUS,
+                       places_relations.ATTRIBUTE.FREEDOM: c.PLACE_FREEDOM_FROM_BEST_PERSON,
+                       places_relations.ATTRIBUTE.SAFETY: c.PLACE_SAFETY_FROM_BEST_PERSON,
+                       places_relations.ATTRIBUTE.TRANSPORT: c.PLACE_TRANSPORT_FROM_BEST_PERSON}
+
 
 
 class Person(names.ManageNameMixin2):
@@ -17,10 +31,12 @@ class Person(names.ManageNameMixin2):
                  'gender',
                  'race',
                  'type',
-                 'power',
+                 'politic_power',
 
                  'friends_number',
                  'enemies_number',
+
+                 'job',
 
                  'utg_name',
 
@@ -29,7 +45,7 @@ class Person(names.ManageNameMixin2):
                  '_name__lazy')
 
 
-    def __init__(self, id, created_at_turn, place_id, gender, race, type, friends_number, enemies_number, power, utg_name):
+    def __init__(self, id, created_at_turn, place_id, gender, race, type, friends_number, enemies_number, politic_power, utg_name, job):
         self.id = id
         self.created_at_turn = created_at_turn
         self.place_id = place_id
@@ -38,8 +54,9 @@ class Person(names.ManageNameMixin2):
         self.type = type
         self.friends_number = friends_number
         self.enemies_number = enemies_number
-        self.power = power
+        self.politic_power = politic_power
         self.utg_name = utg_name
+        self.job = job
 
 
     @property
@@ -56,10 +73,14 @@ class Person(names.ManageNameMixin2):
     @property
     def has_building(self): return places_storage.buildings.get_by_person_id(self.id) is not None
 
-    def cmd_change_power(self, power):
+    def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, power):
         if amqp_environment.environment.workers.highlevel is None:
             return
-        amqp_environment.environment.workers.highlevel.cmd_change_power(power_delta=power,
+
+        amqp_environment.environment.workers.highlevel.cmd_change_power(hero_id=hero_id,
+                                                                        has_place_in_preferences=has_place_in_preferences,
+                                                                        has_person_in_preferences=has_person_in_preferences,
+                                                                        power_delta=power,
                                                                         person_id=self.id,
                                                                         place_id=None)
 
@@ -79,6 +100,30 @@ class Person(names.ManageNameMixin2):
         from the_tale.game.heroes.preferences import HeroPreferences
         self.enemies_number = HeroPreferences.count_enemies_of(self, all=self.place.is_frontier)
 
+    @property
+    def total_politic_power_fraction(self):
+        # находим минимальное отрицательное влияние и компенсируем его при расчёте долей
+        minimum_outer_power = 0.0
+        minimum_inner_power = 0.0
+
+        for person in self.place.persons:
+            minimum_outer_power = min(minimum_outer_power, person.politic_power.outer_power)
+            minimum_inner_power = min(minimum_inner_power, person.politic_power.inner_power)
+
+        total_outer_power = 0.0
+        total_inner_power = 0.0
+
+        for person in self.place.persons:
+            total_outer_power += (person.politic_power.outer_power - minimum_outer_power)
+            total_inner_power += (person.politic_power.inner_power - minimum_inner_power)
+
+        outer_power = (self.politic_power.outer_power / total_outer_power) if total_outer_power else 0
+        inner_power = (self.politic_power.inner_power / total_inner_power) if total_inner_power else 0
+
+        return (outer_power + inner_power) / 2
+
+    def get_job_power(self):
+        return jobs_logic.job_power(objects_number=len(self.place.persons), power=self.total_politic_power_fraction)
 
     @classmethod
     def form_choices(cls, only_weak=False, choosen_person=None, predicate=lambda place, person: True):
@@ -92,11 +137,9 @@ class Person(names.ManageNameMixin2):
                 if choosen_person.id not in [p.id for p in accepted_persons]:
                     accepted_persons.append(choosen_person)
 
-            place_power = place.total_persons_power
-
             persons = tuple( (person.id, u'%s [%s %.2f%%]' % (person.name,
                                                               person.type.text,
-                                                              person.power / place_power * 100 if place_power > 0.001 else 0))
+                                                              person.total_politic_power_fraction * 100 if person.total_politic_power_fraction > 0.001 else 0))
                              for person in accepted_persons )
 
             persons = sorted(persons, key=lambda choice: choice[1])
@@ -105,6 +148,12 @@ class Person(names.ManageNameMixin2):
 
         return sorted(choices, key=lambda choice: choice[0])
 
+    def get_economic_modifier(self, attribute):
+        return economic.PROFESSION_TO_ECONOMIC[self.type][attribute] * BEST_PERSON_BONUSES[attribute]
+
+    def get_economic_modifiers(self):
+        for attribute in economic.PROFESSION_TO_ECONOMIC[self.type].iterkeys():
+            yield attribute, self.get_economic_modifier(attribute)
 
     def ui_info(self):
         return {'id': self.id,

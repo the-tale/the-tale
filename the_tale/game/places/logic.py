@@ -12,6 +12,9 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game import relations as game_relations
 from the_tale.game import names
 
+from the_tale.game.jobs import job
+from the_tale.game import politic_power
+
 from . import races
 from . import conf
 from . import models
@@ -21,6 +24,23 @@ from . import attributes
 from . import effects
 from . import modifiers
 from . import signals
+
+
+class PlacePoliticPower(politic_power.PoliticPower):
+    INNER_CIRCLE_SIZE = 7
+
+    def change_power(self, place, hero_id, has_in_preferences, power):
+        power *= place.attrs.freedom
+        super(PlacePoliticPower, self).change_power(place, hero_id, has_in_preferences, power)
+
+    def job_effect_kwargs(self, place):
+        return {'actor_type': 'place',
+                'actor_name': place.name,
+                'person': None,
+                'place': place,
+                'positive_heroes': self._inner_positive_heroes,
+                'negative_heroes': self._inner_negative_heroes,
+                'job_power': place.get_job_power() }
 
 
 def load_place(place_id=None, place_model=None):
@@ -58,12 +78,13 @@ def load_place(place_id=None, place_model=None):
                          description=place_model.description,
                          race=place_model.race,
                          persons_changed_at_turn=place_model.persons_changed_at_turn,
-                         power=place_model.power,
+                         politic_power=PlacePoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PlacePoliticPower.create(),
                          utg_name=utg_words.Word.deserialize(data['name']),
                          attrs=attributes.Attributes.deserialize(data['attributes']),
                          races=races.Races.deserialize(data['races']),
                          nearest_cells=data.get('nearest_cells', []),
                          effects=effects.Container.deserialize(data.get('effects')),
+                         job=job.Job.deserialize(data['job'] if 'job' in data else job.Job.create()),
                          modifier=place_model.modifier)
 
 
@@ -74,7 +95,9 @@ def save_place(place, new=False):
             'attributes': place.attrs.serialize(),
             'races': place.races.serialize(),
             'nearest_cells': place.nearest_cells,
-            'effects': place.effects.serialize()}
+            'effects': place.effects.serialize(),
+            'job': place.job.serialize(),
+            'politic_power': place.politic_power.serialize()}
 
     arguments = { 'x': place.x,
                   'y': place.y,
@@ -92,8 +115,7 @@ def save_place(place, new=False):
                   'habit_peacefulness': place.habit_peacefulness.raw_value,
                   'modifier': place._modifier,
                   'race': place.race,
-                  'persons_changed_at_turn': place.persons_changed_at_turn,
-                  'power': place.power}
+                  'persons_changed_at_turn': place.persons_changed_at_turn}
 
     if new:
         place_model = models.Place.objects.create(created_at_turn=TimePrototype.get_current_turn_number(), **arguments)
@@ -127,12 +149,13 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           description=u'',
                           race=race,
                           persons_changed_at_turn=TimePrototype.get_current_turn_number(),
-                          power=0,
+                          politic_power=PlacePoliticPower.create(),
                           attrs=attributes.Attributes(size=size),
                           utg_name=utg_name,
                           races=races.Races(),
                           nearest_cells=[],
                           effects=effects.Container(),
+                          job=job.Job.create(),
                           modifier=modifiers.CITY_MODIFIERS.NONE)
     place.refresh_attributes()
     save_place(place, new=True)
