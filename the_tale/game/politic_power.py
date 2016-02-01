@@ -39,13 +39,14 @@ class PoliticPower(object):
 
     def change_power(self, owner, hero_id, has_in_preferences, power):
 
-        if has_in_preferences:
-            self.inner_circle[hero_id] = self.inner_circle.get(hero_id, 0) + power
-            self.reset_cache()
+        if hero_id is not None:
+            if has_in_preferences:
+                self.inner_circle[hero_id] = self.inner_circle.get(hero_id, 0) + power
+                self.reset_cache()
 
-        if not self.is_in_inner_circle(hero_id):
-            self.outer_power += power
-            return
+            if not self.is_in_inner_circle(hero_id):
+                self.outer_power += power
+                return
 
         self.inner_power += power
 

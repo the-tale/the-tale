@@ -14,7 +14,7 @@ from the_tale.game.places import storage as places_storage
 class UserForm(BaseUserForm):
 
     place = fields.ChoiceField(label=u'Город')
-    power_bonus = fields.RelationField(label=u'Изменение бонуса влияния', relation=relations.POWER_BONUS_CHANGES)
+    power_bonus = fields.RelationField(label=u'Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -78,10 +78,13 @@ class PlaceChronicle(BaseBill):
         if not self.has_meaning():
             return
 
-        if self.power_bonus.bonus_delta == 0:
+        if self.power_bonus.bonus == 0:
             return
 
-        self.place.cmd_change_power(power=0)
+        self.place.cmd_change_power(hero_id=None,
+                                    has_place_in_preferences=False,
+                                    has_person_in_preferences=False,
+                                    power=self.power_bonus.bonus)
 
     def serialize(self):
         return {'type': self.type.name.lower(),

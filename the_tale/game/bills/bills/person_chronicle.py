@@ -13,7 +13,7 @@ from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 class UserForm(BaseUserForm):
 
     person = fields.ChoiceField(label=u'Член Совета')
-    power_bonus = fields.RelationField(label=u'Изменение бонуса влияния', relation=relations.POWER_BONUS_CHANGES)
+    power_bonus = fields.RelationField(label=u'Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
@@ -48,10 +48,13 @@ class PersonChronicle(BasePersonBill):
         if not self.has_meaning():
             return
 
-        if self.power_bonus.bonus_delta == 0:
+        if self.power_bonus.bonus == 0:
             return
 
-        self.person.cmd_change_power(power=0)
+        self.person.cmd_change_power(hero_id=None,
+                                     has_place_in_preferences=False,
+                                     has_person_in_preferences=False,
+                                     power=self.power_bonus.bonus)
 
 
     @property
