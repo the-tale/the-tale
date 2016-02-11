@@ -140,7 +140,7 @@ class Worker(BaseWorker):
 
             person.update_friends_number()
             person.update_enemies_number()
-            person.refresh_job()
+
 
         for place in places_storage.places.all():
             if sheduled:
@@ -162,7 +162,6 @@ class Worker(BaseWorker):
                 place.effects.update_step(place)
 
             place.sync_habits()
-            place.refresh_job()
 
             place.refresh_attributes() # must be last operation to display and use real data
 

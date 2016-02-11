@@ -1,16 +1,11 @@
 # coding: utf-8
-import os
 
 from rels import Column
 from rels.django import DjangoEnum
 
 from questgen import relations as questgen_relations
 
-from the_tale.common.utils import xls
-
-from the_tale.game.relations import RACE
 from the_tale.game.places.relations import BUILDING_TYPE
-from the_tale.game.places.modifiers import CITY_MODIFIERS
 
 
 class PERSON_TYPE(DjangoEnum):

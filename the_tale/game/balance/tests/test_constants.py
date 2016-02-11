@@ -108,7 +108,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  180)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_LENGTH, 3)
-        self.assertEqual(c.ANGEL_ENERGY_IN_DAY, 0)
+        self.assertEqual(c.ANGEL_ENERGY_IN_DAY, 48)
 
         self.assertEqual(c.ANGEL_HELP_COST, 4)
         self.assertEqual(c.ANGEL_ARENA_COST, 1)

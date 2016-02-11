@@ -1,9 +1,12 @@
 # coding: utf-8
+import random
 
 from utg import words as utg_words
 from utg import relations as utg_relations
 
 from the_tale import amqp_environment
+
+from the_tale.common.utils import logic as utils_logic
 
 from the_tale.game import names
 
@@ -13,6 +16,8 @@ from the_tale.game.jobs import logic as jobs_logic
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import relations as places_relations
+
+from the_tale.game.jobs import effects as jobs_effects
 
 from . import economic
 
@@ -124,6 +129,40 @@ class Person(names.ManageNameMixin2):
 
     def get_job_power(self):
         return jobs_logic.job_power(objects_number=len(self.place.persons), power=self.total_politic_power_fraction)
+
+    def give_job_power(self, power):
+        from . import logic
+
+        job_effect = self.job.give_power(power)
+
+        if job_effect:
+            job_effect(**self.job_effect_kwargs(self))
+            self.job.new_job(self.choose_job_effect(), normal_power=logic.NORMAL_PERSON_JOB_POWER)
+
+
+    def choose_job_effect(self):
+        effects_priorities = {}
+
+        for effect in jobs_effects.EFFECT.records:
+            if effect.group.is_ON_PLACE:
+                effects_priorities[effect] = 0
+            else:
+                effects_priorities[effect] = 1.0
+
+        for attribute in places_relations.ATTRIBUTE.records:
+            effect_name = 'PLACE_{}'.format(attribute.name)
+            effect = jobs_effects.EFFECT.index_NAME.get(effect_name)
+            if effect:
+                effects_priorities[effect] += economic.PROFESSION_TO_ECONOMIC[self.type][attribute]
+
+        effect_group = random.choice(jobs_effects.EFFECT_GROUP.records)
+
+        effects_choices = [(effect, effects_priorities[effect])
+                           for effect in jobs_effects.EFFECT.records
+                           if effect.group == effect_group and effects_priorities.get(effect, 0) > 0]
+
+        return utils_logic.random_value_by_priority(effects_choices)
+
 
     @classmethod
     def form_choices(cls, only_weak=False, choosen_person=None, predicate=lambda place, person: True):

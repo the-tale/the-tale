@@ -125,18 +125,30 @@ def place_attribute(id, attribute_name, base_value):
     return ('PLACE_{}'.format(attribute_name),
             id,
             attribute.text,
-            ChangePlaceAttribute(attribute=attribute, base_value=base_value))
+            ChangePlaceAttribute(attribute=attribute, base_value=base_value),
+            EFFECT_GROUP.ON_PLACE,
+            1.0)
 
 
-def hero_profit(id, profit_name, text):
+def hero_profit(id, profit_name, text, power_modifier):
     effect_name = 'HERO_{}'.format(profit_name)
     return (effect_name,
             id,
             text,
-            HeroMethod(effect_name=effect_name, method_name='job_{}'.format(profit_name).lower()))
+            HeroMethod(effect_name=effect_name, method_name='job_{}'.format(profit_name).lower()),
+            EFFECT_GROUP.ON_HEROES,
+            power_modifier)
+
+
+class EFFECT_GROUP(DjangoEnum):
+    records = ( ('ON_PLACE', 0, u'на город'),
+                ('ON_HEROES', 1, u'на героев') )
+
 
 class EFFECT(DjangoEnum):
     logic = Column(single_type=False)
+    group = Column(unique=False)
+    power_modifier = Column(single_type=False, unique=False)
 
     records = ( place_attribute(1, 'PRODUCTION', base_value=1.0),
                 place_attribute(2, 'SAFETY', base_value=1.0),
@@ -144,7 +156,7 @@ class EFFECT(DjangoEnum):
                 place_attribute(4, 'FREEDOM', base_value=1.0),
                 place_attribute(5, 'STABILITY', base_value=1.0),
 
-                hero_profit(6, 'MONEY', u'золото ближнему кругу'),
-                hero_profit(7, 'ARTIFACT', u'артефакт ближнему кругу'),
-                hero_profit(8, 'EXPERIENCE', u'опыт ближнему кругу'),
-                hero_profit(9, 'ENERGY', u'энергию ближнему кругу') )
+                hero_profit(6, 'MONEY', u'золото ближнему кругу', 0.5),
+                hero_profit(7, 'ARTIFACT', u'артефакт ближнему кругу', 1.5),
+                hero_profit(8, 'EXPERIENCE', u'опыт ближнему кругу', 2.0),
+                hero_profit(9, 'ENERGY', u'энергию ближнему кругу', 1.0) )

@@ -614,7 +614,7 @@ class LogicAccessorsMixin(object):
 
     @property
     def politics_power_level(self):
-        return math.log(self.level, 4)
+        return f.politics_power_for_level(self.level)
 
     @property
     def politics_power_bills(self):

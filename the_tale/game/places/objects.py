@@ -12,10 +12,9 @@ from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
 from the_tale.game.jobs import logic as jobs_logic
+from the_tale.game.jobs import effects as jobs_effects
 
 from the_tale.game.prototypes import TimePrototype, GameTime
-
-from the_tale.game.persons import economic
 
 from . import signals
 from . import effects
@@ -361,6 +360,20 @@ class Place(names.ManageNameMixin2):
 
     def get_job_power(self):
         return jobs_logic.job_power(objects_number=len(self.get_same_places()), power=self.total_politic_power_fraction)
+
+    def give_job_power(self, power):
+        from . import logic
+
+        job_effect = self.job.give_power(power)
+
+        if job_effect:
+            job_effect(**self.job_effect_kwargs(self))
+
+            self.job.new_job(self.choose_job_effect(), normal_power=logic.NORMAL_PLACE_JOB_POWER)
+
+    def choose_job_effect(self):
+        effect_group = random.choice(jobs_effects.EFFECT_GROUP.records)
+        return random.choice([effect for effect in jobs_effects.EFFECT.records if effect.group == effect_group])
 
     def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, power):
         if amqp_environment.environment.workers.highlevel is None:

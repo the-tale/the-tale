@@ -8,6 +8,8 @@ from dext.common.utils import s11n
 
 from utg import words as utg_words
 
+from the_tale.game.balance import formulas as f
+
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game import relations as game_relations
 from the_tale.game import names
@@ -26,6 +28,10 @@ from . import modifiers
 from . import signals
 
 
+class PlaceJob(job.Job):
+    ACTOR = 'place'
+
+
 class PlacePoliticPower(politic_power.PoliticPower):
     INNER_CIRCLE_SIZE = 7
 
@@ -41,6 +47,9 @@ class PlacePoliticPower(politic_power.PoliticPower):
                 'positive_heroes': self._inner_positive_heroes,
                 'negative_heroes': self._inner_negative_heroes,
                 'job_power': place.get_job_power() }
+
+
+NORMAL_PLACE_JOB_POWER = f.normal_job_power() * PlacePoliticPower.INNER_CIRCLE_SIZE
 
 
 def load_place(place_id=None, place_model=None):
@@ -84,7 +93,7 @@ def load_place(place_id=None, place_model=None):
                          races=races.Races.deserialize(data['races']),
                          nearest_cells=data.get('nearest_cells', []),
                          effects=effects.Container.deserialize(data.get('effects')),
-                         job=job.Job.deserialize(data['job'] if 'job' in data else job.Job.create()),
+                         job=PlaceJob.deserialize(data['job'] if 'job' in data else PlaceJob.create(normal_power=NORMAL_PLACE_JOB_POWER)),
                          modifier=place_model.modifier)
 
 
@@ -155,7 +164,7 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           races=races.Races(),
                           nearest_cells=[],
                           effects=effects.Container(),
-                          job=job.Job.create(),
+                          job=PlaceJob.create(normal_power=NORMAL_PLACE_JOB_POWER),
                           modifier=modifiers.CITY_MODIFIERS.NONE)
     place.refresh_attributes()
     save_place(place, new=True)
@@ -177,6 +186,8 @@ def add_person_to_place(place):
                                              utg_name=names.generator.get_name(race, gender))
 
     signals.place_person_arrived.send(place.__class__, place=place, person=new_person)
+
+    place.refresh_attributes()
 
     return new_person
 

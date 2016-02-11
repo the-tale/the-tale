@@ -9,6 +9,7 @@ from dext.common.utils import s11n
 from the_tale.game import prototypes as game_protypes
 
 from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -23,6 +24,10 @@ from . import storage
 from . import conf
 from . import relations
 from . import exceptions
+
+
+class PersonJob(job.Job):
+    ACTOR = 'person'
 
 
 class PersonPoliticPower(politic_power.PoliticPower):
@@ -52,6 +57,9 @@ class PersonPoliticPower(politic_power.PoliticPower):
                 'positive_heroes': self._inner_positive_heroes,
                 'negative_heroes': self._inner_negative_heroes,
                 'job_power': person.get_job_power() }
+
+
+NORMAL_PERSON_JOB_POWER = f.normal_job_power() * PersonPoliticPower.INNER_CIRCLE_SIZE
 
 
 def save_person(person, new=False):
@@ -95,7 +103,7 @@ def create_person(place, race, type, utg_name, gender):
                             enemies_number=0,
                             politic_power=PersonPoliticPower.create(),
                             utg_name=utg_name,
-                            job=job.Job.create())
+                            job=PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER))
     save_person(person, new=True)
     return person
 
@@ -123,7 +131,7 @@ def load_person(person_id=None, person_model=None):
                           enemies_number=person_model.enemies_number,
                           politic_power=PersonPoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PersonPoliticPower.create(),
                           utg_name=utg_words.Word.deserialize(data['name']),
-                          job=job.Job.deserialize(data['job'] if 'job' in data else job.Job.create()))
+                          job=PersonJob.deserialize(data['job'] if 'job' in data else PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER)))
 
 
 def social_connection_from_model(model):

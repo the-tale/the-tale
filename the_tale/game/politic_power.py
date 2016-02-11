@@ -8,6 +8,7 @@ from the_tale.game.balance import constants as c
 class PoliticPower(object):
     __slots__ = ('outer_power', 'inner_power', 'inner_circle', '_inner_positive_heroes', '_inner_negative_heroes')
     INNER_CIRCLE_SIZE = None
+    POWER_REMOVE_BARRIER = 1
 
     def __init__(self, outer_power, inner_power, inner_circle):
         self.outer_power = outer_power
@@ -39,22 +40,21 @@ class PoliticPower(object):
 
     def change_power(self, owner, hero_id, has_in_preferences, power):
 
-        if hero_id is not None:
-            if has_in_preferences:
-                self.inner_circle[hero_id] = self.inner_circle.get(hero_id, 0) + power
-                self.reset_cache()
+        if hero_id is None:
+            self.outer_power += power
+            return
 
-            if not self.is_in_inner_circle(hero_id):
-                self.outer_power += power
-                return
+        if has_in_preferences:
+            self.inner_circle[hero_id] = self.inner_circle.get(hero_id, 0) + power
+            self.reset_cache()
+
+        if not self.is_in_inner_circle(hero_id):
+            self.outer_power += power
+            return
 
         self.inner_power += power
 
-        job_effect = owner.job.give_power(power)
-
-        if job_effect:
-            job_effect(**self.job_effect_kwargs(owner))
-            owner.job.new_job(owner)
+        owner.give_job_power(power)
 
 
     def job_effect_kwargs(self, owner):
@@ -68,7 +68,7 @@ class PoliticPower(object):
             new_power = power * c.PLACE_POWER_REDUCE_FRACTION
             self.inner_circle[hero_id] = new_power
 
-            if abs(new_power) < 0.001:
+            if abs(new_power) <= self.POWER_REMOVE_BARRIER:
                 remove_candidates.add(hero_id)
 
         for hero_id in remove_candidates:
@@ -99,5 +99,5 @@ class PoliticPower(object):
         positive_heroes.sort()
         negative_heroes.sort()
 
-        self._inner_positive_heroes = frozenset((hero_id for power, hero_id in positive_heroes))
-        self._inner_negative_heroes = frozenset((hero_id for power, hero_id in negative_heroes))
+        self._inner_positive_heroes = frozenset((hero_id for power, hero_id in positive_heroes[-self.INNER_CIRCLE_SIZE:]))
+        self._inner_negative_heroes = frozenset((hero_id for power, hero_id in negative_heroes[-self.INNER_CIRCLE_SIZE:]))

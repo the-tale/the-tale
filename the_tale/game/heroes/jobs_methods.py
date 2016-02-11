@@ -17,7 +17,7 @@ from . import relations
 class JobsMethodsMixin(object):
     __slots__ = ()
 
-    def get_variables(self, place_id, person_id):
+    def get_job_variables(self, place_id, person_id):
         variables = {'place': places_storage.places[place_id]}
         if person_id is not None:
             variables['person'] = persons_storage.persons[person_id]
@@ -25,14 +25,14 @@ class JobsMethodsMixin(object):
 
 
     def job_message(self, place_id, person_id, message_type, job_power):
-        self.hero.add_message(message_type, diary=True, hero=self.hero, **self.get_variables(place_id, person_id))
+        self.add_message(message_type, diary=True, hero=self, **self.get_job_variables(place_id, person_id))
 
 
     def job_money(self, place_id, person_id, message_type, job_power):
         coins = max(1, int(math.ceil(f.normal_action_price(self.level) * job_power)))
-        self.hero.change_money(relations.MONEY_SOURCE.EARNED_FROM_MASTERS, coins)
+        self.change_money(relations.MONEY_SOURCE.EARNED_FROM_MASTERS, coins)
 
-        self.hero.add_message(message_type, diary=True, hero=self.hero, coins=coins, **self.get_variables(place_id, person_id))
+        self.add_message(message_type, diary=True, hero=self, coins=coins, **self.get_job_variables(place_id, person_id))
 
 
     def job_artifact(self, place_id, person_id, message_type, job_power):
@@ -41,26 +41,26 @@ class JobsMethodsMixin(object):
                                                        (artifacts_relations.RARITY.RARE, c.RARE_ARTIFACT_PROBABILITY * job_power),
                                                        (artifacts_relations.RARITY.EPIC, c.EPIC_ARTIFACT_PROBABILITY * job_power)))
 
-        artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False,
-                                                                      better=False,
-                                                                      prefered_slot=False,
-                                                                      prefered_item=False,
-                                                                      archetype=True,
-                                                                      rarity_type=rarity,
-                                                                      power_bonus=max(0, int(math.ceil(2*job_power))))
+        artifact, unequipped, sell_price = self.receive_artifact(equip=False,
+                                                                 better=True,
+                                                                 prefered_slot=False,
+                                                                 prefered_item=False,
+                                                                 archetype=True,
+                                                                 rarity_type=rarity,
+                                                                 power_bonus=max(0, int(math.ceil(2*job_power))))
 
-        self.hero.add_message(message_type, diary=True, hero=self.hero, artifact=artifact, **self.get_variables(place_id, person_id))
+        self.add_message(message_type, diary=True, hero=self, artifact=artifact, **self.get_job_variables(place_id, person_id))
 
 
     def job_experience(self, place_id, person_id, message_type, job_power):
         experience = max(1, int(math.ceil(f.experience_for_quest(c.QUEST_AREA_RADIUS) * job_power)))
         self.add_experience(experience, without_modifications=True)
 
-        self.hero.add_message(message_type, diary=True, hero=self.hero, experience=experience, **self.get_variables(place_id, person_id))
+        self.add_message(message_type, diary=True, hero=self, experience=experience, **self.get_job_variables(place_id, person_id))
 
 
     def job_energy(self, place_id, person_id, message_type, job_power):
         energy = max(1, int(math.ceil(c.ANGEL_ENERGY_IN_DAY * job_power)))
         self.add_energy_bonus(energy)
 
-        self.hero.add_message(message_type, diary=True, hero=self.hero, energy=energy, **self.get_variables(place_id, person_id))
+        self.add_message(message_type, diary=True, hero=self, energy=energy, **self.get_job_variables(place_id, person_id))

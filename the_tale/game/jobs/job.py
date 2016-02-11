@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 
 from the_tale.game.prototypes import TimePrototype
 
@@ -7,6 +8,7 @@ from . import effects
 
 class Job(object):
     __slots__ = ('name', 'created_at_turn', 'effect', 'positive_power', 'negative_power', 'power_required')
+    ACTOR = None
 
     def __init__(self, name, created_at_turn, effect, positive_power, negative_power, power_required):
         self.name = name
@@ -17,21 +19,30 @@ class Job(object):
         self.power_required = power_required
 
     @classmethod
-    def create(cls):
-        return cls(name='x',
+    def create(cls, normal_power):
+        effect =  random.choice([effect for effect in effects.EFFECT.records if effect.group.is_ON_HEROES])
+
+        return cls(name=cls.create_name(effect),
                    created_at_turn=TimePrototype.get_current_turn_number(),
-                   effect=effects.EFFECT.random(),
+                   effect=effect,
                    positive_power=0,
                    negative_power=0,
-                   power_required=100)
+                   power_required=normal_power * effect.power_modifier)
 
-    def new_job(self, owner):
-        self.name = 'x'
+    def new_job(self, effect, normal_power):
+        self.name = self.create_name(effect)
         self.created_at_turn = TimePrototype.get_current_turn_number()
-        self.effect = effects.EFFECT.random()
+        self.effect = effect
         self.positive_power = 0
         self.negative_power = 0
-        self.power_required = 100
+        self.power_required = normal_power * effect.power_modifier
+
+
+    @classmethod
+    def create_name(cls, effect):
+        from the_tale.linguistics.logic import get_text
+
+        return get_text(u'job_name_{actor}_{effect}'.format(actor=cls.ACTOR, effect=effect.name).upper(), {})
 
 
     def serialize(self):
@@ -57,10 +68,10 @@ class Job(object):
         else:
             self.negative_power -= power
 
-        if self.positive_power > self.power_required:
+        if self.positive_power >= self.power_required:
             return self.effect.logic.apply_positive
 
-        if -self.negative_power > self.power_required:
+        if -self.negative_power >= self.power_required:
             return self.effect.logic.apply_negative
 
-        return False
+        return None
