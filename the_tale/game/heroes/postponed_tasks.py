@@ -718,4 +718,6 @@ class InvokeHeroMethodTask(PostponedLogic):
 
         method(**self.method_kwargs)
 
+        self.state = COMBINE_CARDS_STATE.PROCESSED
+
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
