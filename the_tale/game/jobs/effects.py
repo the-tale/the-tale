@@ -27,21 +27,21 @@ class BaseEffect(object):
 
         heroes_to_accounts = heroes_logic.get_heroes_to_accounts_map(positive_heroes|negative_heroes)
 
-        method_kwargs['message_type'] = self.message_type(actor_type, effect, direction, 'friends')
+        positive_kwargs = dict(message_type=self.message_type(actor_type, effect, direction, 'friends'), **method_kwargs)
 
         for hero_id in positive_heroes:
             self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
                                     hero_id=hero_id,
                                     method_name=method_names[0],
-                                    method_kwargs=method_kwargs)
+                                    method_kwargs=positive_kwargs)
 
-        method_kwargs['message_type'] = self.message_type(actor_type, effect, direction, 'enemies')
+        negative_kwargs = dict(message_type=self.message_type(actor_type, effect, direction, 'enemies'), **method_kwargs)
 
         for hero_id in negative_heroes:
             self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
                                     hero_id=hero_id,
                                     method_name=method_names[1],
-                                    method_kwargs=method_kwargs)
+                                    method_kwargs=negative_kwargs)
 
     def invoke_hero_method(self, account_id, hero_id, method_name, method_kwargs):
         from the_tale.game.heroes import postponed_tasks as heroes_postponed_tasks
@@ -51,7 +51,7 @@ class BaseEffect(object):
                                                                  method_kwargs=method_kwargs)
 
         task = PostponedTaskPrototype.create(logic_task)
-        environment.workers.supervisor.cmd_logic_task(account_id, task.id)
+        environment.workers.supervisor.cmd_logic_task(account_id=account_id, task_id=task.id)
 
     def message_type(self, actor, effect, direction, group):
         return 'job_diary_{actor}_{effect}_{direction}_{group}'.format(actor=actor,
@@ -78,6 +78,7 @@ class ChangePlaceAttribute(BaseEffect):
                              positive_heroes=positive_heroes,
                              negative_heroes=negative_heroes,
                              direction='positive')
+
 
     def apply_negative(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         place.effects.add(places_effects.Effect(name=actor_name, attribute=self.attribute, value=-self.base_value*job_power))

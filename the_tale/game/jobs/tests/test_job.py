@@ -19,9 +19,7 @@ class JobTest(testcase.TestCase):
     @mock.patch('the_tale.game.prototypes.TimePrototype.get_current_turn_number', classmethod(lambda cls: 666))
     def setUp(self):
         super(JobTest, self).setUp()
-
         self.job = FakeJob.create(normal_power=1000)
-
 
 
     def test_create(self):
@@ -30,6 +28,7 @@ class JobTest(testcase.TestCase):
         self.assertEqual(self.job.negative_power, 0)
         self.assertEqual(self.job.power_required, 1000 * self.job.effect.power_modifier)
         self.assertTrue(self.job.effect.group.is_ON_HEROES)
+
 
     @mock.patch('the_tale.game.prototypes.TimePrototype.get_current_turn_number', classmethod(lambda cls: 777))
     def test_new_job(self):
