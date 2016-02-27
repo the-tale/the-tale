@@ -104,13 +104,17 @@ class CardsContainer(object):
             self._premium_help_count = min(self._help_count, self._premium_help_count)
 
 
+    def is_next_card_premium(self):
+        return self._help_count != 0 and self._help_count == self._premium_help_count
+
+
     def get_new_card(self, rarity=None, exclude=(), available_for_auction=None):
         cards_types = relations.CARD_TYPE.records
 
         if available_for_auction is None:
-            available_for_auction=self._hero.is_premium
+            available_for_auction = self.is_next_card_premium()
 
-        if not self._hero.is_premium:
+        if not self.is_next_card_premium():
             cards_types = [card for card in cards_types if not card.availability.is_FOR_PREMIUMS]
 
         # choose only from ingame cards
