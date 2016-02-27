@@ -25,7 +25,8 @@ from . import economic
 BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_BONUS,
                        places_relations.ATTRIBUTE.FREEDOM: c.PLACE_FREEDOM_FROM_BEST_PERSON,
                        places_relations.ATTRIBUTE.SAFETY: c.PLACE_SAFETY_FROM_BEST_PERSON,
-                       places_relations.ATTRIBUTE.TRANSPORT: c.PLACE_TRANSPORT_FROM_BEST_PERSON}
+                       places_relations.ATTRIBUTE.TRANSPORT: c.PLACE_TRANSPORT_FROM_BEST_PERSON,
+                       places_relations.ATTRIBUTE.STABILITY: c.PLACE_STABILITY_UNIT}
 
 
 
@@ -107,25 +108,7 @@ class Person(names.ManageNameMixin2):
 
     @property
     def total_politic_power_fraction(self):
-        # находим минимальное отрицательное влияние и компенсируем его при расчёте долей
-        minimum_outer_power = 0.0
-        minimum_inner_power = 0.0
-
-        for person in self.place.persons:
-            minimum_outer_power = min(minimum_outer_power, person.politic_power.outer_power)
-            minimum_inner_power = min(minimum_inner_power, person.politic_power.inner_power)
-
-        total_outer_power = 0.0
-        total_inner_power = 0.0
-
-        for person in self.place.persons:
-            total_outer_power += (person.politic_power.outer_power - minimum_outer_power)
-            total_inner_power += (person.politic_power.inner_power - minimum_inner_power)
-
-        outer_power = (self.politic_power.outer_power / total_outer_power) if total_outer_power else 0
-        inner_power = (self.politic_power.inner_power / total_inner_power) if total_inner_power else 0
-
-        return (outer_power + inner_power) / 2
+        return self.politic_power.total_politic_power_fraction([person.politic_power for person in self.place.persons])
 
     def get_job_power(self):
         return jobs_logic.job_power(objects_number=len(self.place.persons), power=self.total_politic_power_fraction)
@@ -136,11 +119,24 @@ class Person(names.ManageNameMixin2):
         job_effect = self.job.give_power(power)
 
         if job_effect:
-            job_effect(**self.job_effect_kwargs(self))
-            self.job.new_job(self.choose_job_effect(), normal_power=logic.NORMAL_PERSON_JOB_POWER)
+            job_effect(**self.politic_power.job_effect_kwargs(self))
+
+            job_effects_priorities = self.job_effects_priorities()
+            if self.job.effect in job_effects_priorities:
+                del job_effects_priorities[self.job.effect]
+
+            new_effect = utils_logic.random_value_by_priority(job_effects_priorities.items())
+            self.job.new_job(new_effect, normal_power=logic.NORMAL_PERSON_JOB_POWER)
 
 
-    def choose_job_effect(self):
+    def get_random_job_group(self):
+        return random.choice(jobs_effects.EFFECT_GROUP.records)
+
+    @property
+    def economic_attributes(self):
+        return economic.PROFESSION_TO_ECONOMIC[self.type]
+
+    def job_effects_priorities(self):
         effects_priorities = {}
 
         for effect in jobs_effects.EFFECT.records:
@@ -151,17 +147,15 @@ class Person(names.ManageNameMixin2):
 
         for attribute in places_relations.ATTRIBUTE.records:
             effect_name = 'PLACE_{}'.format(attribute.name)
-            effect = jobs_effects.EFFECT.index_NAME.get(effect_name)
+            effect = jobs_effects.EFFECT.index_name.get(effect_name)
             if effect:
-                effects_priorities[effect] += economic.PROFESSION_TO_ECONOMIC[self.type][attribute]
+                effects_priorities[effect] += self.economic_attributes[attribute]
 
-        effect_group = random.choice(jobs_effects.EFFECT_GROUP.records)
+        effect_group = self.get_random_job_group()
 
-        effects_choices = [(effect, effects_priorities[effect])
-                           for effect in jobs_effects.EFFECT.records
-                           if effect.group == effect_group and effects_priorities.get(effect, 0) > 0]
-
-        return utils_logic.random_value_by_priority(effects_choices)
+        return {effect: effects_priorities[effect]
+                for effect in jobs_effects.EFFECT.records
+                if effect.group == effect_group and effects_priorities.get(effect, 0) > 0 }
 
 
     @classmethod
@@ -188,10 +182,10 @@ class Person(names.ManageNameMixin2):
         return sorted(choices, key=lambda choice: choice[0])
 
     def get_economic_modifier(self, attribute):
-        return economic.PROFESSION_TO_ECONOMIC[self.type][attribute] * BEST_PERSON_BONUSES[attribute]
+        return self.economic_attributes[attribute] * BEST_PERSON_BONUSES[attribute]
 
     def get_economic_modifiers(self):
-        for attribute in economic.PROFESSION_TO_ECONOMIC[self.type].iterkeys():
+        for attribute in self.economic_attributes.iterkeys():
             yield attribute, self.get_economic_modifier(attribute)
 
     def ui_info(self):

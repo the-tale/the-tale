@@ -5,12 +5,15 @@ from the_tale.common.utils import testcase
 
 from the_tale.game import names
 
+from the_tale.game.jobs import effects as jobs_effects
+
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import relations as places_relations
 
 from the_tale.game.persons.tests.helpers import create_person
 
@@ -71,3 +74,57 @@ class PersonTests(testcase.TestCase):
                                                                        person_id=self.person.id,
                                                                        power_delta=-100,
                                                                        place_id=None))
+
+FAKE_ECONOMIC = {places_relations.ATTRIBUTE.PRODUCTION: 1.0,
+                 places_relations.ATTRIBUTE.FREEDOM: 0,
+                 places_relations.ATTRIBUTE.SAFETY: 0.6,
+                 places_relations.ATTRIBUTE.TRANSPORT: -0.4,
+                 places_relations.ATTRIBUTE.STABILITY: 0.2}
+
+
+class PersonJobsTests(testcase.TestCase):
+
+    def setUp(self):
+        super(PersonJobsTests, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        self.person = create_person(self.place_1)
+
+
+    @mock.patch('the_tale.game.persons.objects.Person.get_random_job_group', lambda person: jobs_effects.EFFECT_GROUP.ON_PLACE)
+    @mock.patch('the_tale.game.persons.objects.Person.economic_attributes', FAKE_ECONOMIC)
+    def test_job_effects_priorities__on_place(self):
+        self.assertEqual(self.person.job_effects_priorities(),
+                         {jobs_effects.EFFECT.PLACE_PRODUCTION: 1.0,
+                          jobs_effects.EFFECT.PLACE_SAFETY: 0.6,
+                          jobs_effects.EFFECT.PLACE_STABILITY: 0.2})
+
+
+    @mock.patch('the_tale.game.persons.objects.Person.get_random_job_group', lambda person: jobs_effects.EFFECT_GROUP.ON_HEROES)
+    @mock.patch('the_tale.game.persons.objects.Person.economic_attributes', FAKE_ECONOMIC)
+    def test_job_effects_priorities__on_hero(self):
+        self.assertEqual(self.person.job_effects_priorities(),
+                         {jobs_effects.EFFECT.HERO_MONEY: 1.0,
+                          jobs_effects.EFFECT.HERO_ARTIFACT: 1.0,
+                          jobs_effects.EFFECT.HERO_EXPERIENCE: 1.0,
+                          jobs_effects.EFFECT.HERO_ENERGY: 1.0})
+
+
+    @mock.patch('the_tale.game.persons.objects.Person.total_politic_power_fraction', 0.5)
+    def test_get_job_power(self):
+        self.assertEqual(self.person.get_job_power(), 2.0)
+
+
+    def test_give_job_power(self):
+
+        with self.check_not_changed(lambda: self.person.job.effect):
+            with mock.patch('the_tale.game.jobs.effects.BaseEffect.apply_to_heroes') as apply_to_heroes:
+                self.person.give_job_power(1)
+
+        self.assertEqual(apply_to_heroes.call_count, 0)
+
+        with self.check_changed(lambda: self.person.job.effect):
+            with mock.patch('the_tale.game.jobs.effects.BaseEffect.apply_to_heroes') as apply_to_heroes:
+                self.person.give_job_power(1000000000)
+
+        self.assertEqual(apply_to_heroes.call_count, 1)

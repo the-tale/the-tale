@@ -10,6 +10,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.roads.storage import waymarks_storage
+from the_tale.game.places import storage as places_storage
 
 from the_tale.game.persons import models
 from the_tale.game.persons import storage
@@ -146,3 +147,72 @@ class LogicTests(testcase.TestCase):
             minimum_distance -= path_length
 
         self.assertEqual(minimum_distance, logic.get_next_connection_minimum_distance(person))
+
+
+
+from the_tale.linguistics import logic as linguistics_logic
+
+from the_tale.game import names
+
+from the_tale.game.relations import RACE
+
+from the_tale.game.map import logic as map_logic
+
+from .. import logic
+from .. import exceptions
+from .. import storage
+
+
+
+class PersonPowerTest(testcase.TestCase):
+
+    def setUp(self):
+        super(PersonPowerTest, self).setUp()
+        linguistics_logic.sync_static_restrictions()
+
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        self.person = self.place_1.persons[0]
+
+
+    def test_inner_circle_size(self):
+        self.assertEqual(self.person.politic_power.INNER_CIRCLE_SIZE, 3)
+
+
+    def test_initialization(self):
+        self.assertEqual(self.person.total_politic_power_fraction, 0)
+
+
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 0.5)
+    def test_change_power(self):
+        with mock.patch('the_tale.game.politic_power.PoliticPower.change_power') as change_power:
+            self.assertEqual(self.person.politic_power.change_power(person=self.person,
+                                                                    hero_id=None,
+                                                                    has_in_preferences=False,
+                                                                    power=1000),
+                             1000)
+
+        self.assertEqual(change_power.call_args,
+                         mock.call(owner=self.person,
+                                   hero_id=None,
+                                   has_in_preferences=False,
+                                   power=500))
+
+
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 0.5)
+    @mock.patch('the_tale.game.persons.objects.Person.has_building', True)
+    def test_change_power__has_building(self):
+        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.25)
+
+        with mock.patch('the_tale.game.politic_power.PoliticPower.change_power') as change_power:
+            self.assertEqual(self.person.politic_power.change_power(person=self.person,
+                                                                    hero_id=None,
+                                                                    has_in_preferences=False,
+                                                                    power=1000),
+                             1250)
+
+        self.assertEqual(change_power.call_args,
+                         mock.call(owner=self.person,
+                                   hero_id=None,
+                                   has_in_preferences=False,
+                                   power=625))

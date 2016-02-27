@@ -462,8 +462,10 @@ PLACE_RACE_CHANGE_DELTA = (PLACE_RACE_CHANGE_DELTA_IN_DAY * MAP_SYNC_TIME) / (24
 
 PLACE_ADD_PERSON_DELAY = int(24 * TURNS_IN_HOUR) # раз в сколько ходов можно добавлять советника
 
+PLACE_STABILITY_UNIT = float(0.1) # базовая единица изменения стабильности
+
 # считаем что штраф от одного закона должен восстанавливаться за неделю
-PLACE_STABILITY_RECOVER_SPEED = float(0.1 / (7*24)) # стабильности в час
+PLACE_STABILITY_RECOVER_SPEED = float(PLACE_STABILITY_UNIT / (7*24)) # стабильности в час
 
 PLACE_STABILITY_MAX_PRODUCTION_PENALTY = float(-PLACE_GOODS_BONUS * 2)
 PLACE_STABILITY_MAX_SAFETY_PENALTY = float(-0.25)
@@ -497,7 +499,7 @@ BUILDING_FULL_REPAIR_ENERGY_COST = int(BUILDING_FULL_DESTRUCTION_TIME * ANGEL_EN
 BUILDING_AMORTIZATION_MODIFIER = float(1.5) # цена ремонта здания зависит от количества зданий в городе и равно <цена>*BULDING_AMORTIZATION_MODIFIER^<количество зданий - 1>
 BUILDING_WORKERS_ENERGY_COST = int(3) # цена вызова одного рабочего
 
-BUILDING_PERSON_POWER_MULTIPLIER = float(1.1)
+BUILDING_PERSON_POWER_BONUS = float(0.25)
 BUILDING_TERRAIN_POWER_MULTIPLIER = float(0.5) # building terrain power is percent from city power
 
 ###########################

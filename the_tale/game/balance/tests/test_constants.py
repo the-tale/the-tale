@@ -263,6 +263,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA, 0.1 / 24)
         self.assertEqual(c.PLACE_ADD_PERSON_DELAY, 8640)
 
+        self.assertEqual(c.PLACE_STABILITY_UNIT, 0.1)
+
         self.assertEqual(round(c.PLACE_STABILITY_RECOVER_SPEED, 4), 0.0006)
 
         self.assertEqual(c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY, -200)
@@ -284,7 +286,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.BUILDING_FULL_REPAIR_ENERGY_COST, 168.0)
         self.assertEqual(c.BUILDING_AMORTIZATION_MODIFIER, 1.5)
         self.assertEqual(c.BUILDING_WORKERS_ENERGY_COST, 3)
-        self.assertEqual(c.BUILDING_PERSON_POWER_MULTIPLIER, 1.1)
+        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.25)
         self.assertEqual(c.BUILDING_TERRAIN_POWER_MULTIPLIER, 0.5)
 
         self.assertEqual(c.CARDS_HELP_COUNT_TO_NEW_CARD, 18)

@@ -37,15 +37,15 @@ class PlacePoliticPower(politic_power.PoliticPower):
 
     def change_power(self, place, hero_id, has_in_preferences, power):
         power *= place.attrs.freedom
-        super(PlacePoliticPower, self).change_power(place, hero_id, has_in_preferences, power)
+        super(PlacePoliticPower, self).change_power(owner=place, hero_id=hero_id, has_in_preferences=has_in_preferences, power=power)
 
     def job_effect_kwargs(self, place):
         return {'actor_type': 'place',
                 'actor_name': place.name,
                 'person': None,
                 'place': place,
-                'positive_heroes': self._inner_positive_heroes,
-                'negative_heroes': self._inner_negative_heroes,
+                'positive_heroes': self.inner_positive_heroes,
+                'negative_heroes': self.inner_negative_heroes,
                 'job_power': place.get_job_power() }
 
 

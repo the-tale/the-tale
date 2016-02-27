@@ -25,7 +25,8 @@ PROFESSION_TO_ECONOMIC = xls.load_table_for_enums_subsets(_professions_xls_file,
                                                           columns=[place_relations.ATTRIBUTE.PRODUCTION,
                                                                    place_relations.ATTRIBUTE.SAFETY,
                                                                    place_relations.ATTRIBUTE.TRANSPORT,
-                                                                   place_relations.ATTRIBUTE.FREEDOM],
+                                                                   place_relations.ATTRIBUTE.FREEDOM,
+                                                                   place_relations.ATTRIBUTE.STABILITY],
                                                           data_type=float)
 
 PROFESSION_TO_ECONOMIC = {relations.PERSON_TYPE(person_type_id): {place_relations.ATTRIBUTE(attribute_id): value

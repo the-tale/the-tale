@@ -5,6 +5,7 @@ import datetime
 from the_tale import amqp_environment
 
 from the_tale.common.utils import bbcode
+from the_tale.common.utils import logic as utils_logic
 
 from the_tale.game import names
 
@@ -336,30 +337,11 @@ class Place(names.ManageNameMixin2):
 
     @property
     def total_politic_power_fraction(self):
-        places = self.get_same_places()
-
-        # находим минимальное отрицательное влияние и компенсируем его при расчёте долей
-        minimum_outer_power = 0.0
-        minimum_inner_power = 0.0
-
-        for place in places:
-            minimum_outer_power = min(minimum_outer_power, place.politic_power.outer_power)
-            minimum_inner_power = min(minimum_inner_power, place.politic_power.inner_power)
-
-        total_outer_power = 0.0
-        total_inner_power = 0.0
-
-        for place in places:
-            total_outer_power += (place.politic_power.outer_power - minimum_outer_power)
-            total_inner_power += (place.politic_power.inner_power - minimum_inner_power)
-
-        outer_power = (self.politic_power.outer_power / total_outer_power) if total_outer_power else 0
-        inner_power = (self.politic_power.inner_power / total_inner_power) if total_inner_power else 0
-
-        return (outer_power + inner_power) / 2
+        return self.politic_power.total_politic_power_fraction([place.politic_power for place in self.get_same_places()])
 
     def get_job_power(self):
         return jobs_logic.job_power(objects_number=len(self.get_same_places()), power=self.total_politic_power_fraction)
+
 
     def give_job_power(self, power):
         from . import logic
@@ -367,13 +349,19 @@ class Place(names.ManageNameMixin2):
         job_effect = self.job.give_power(power)
 
         if job_effect:
-            job_effect(**self.job_effect_kwargs(self))
+            job_effect(**self.politic_power.job_effect_kwargs(self))
 
-            self.job.new_job(self.choose_job_effect(), normal_power=logic.NORMAL_PLACE_JOB_POWER)
+            job_effects_priorities = self.job_effects_priorities()
+            if self.job.effect in job_effects_priorities:
+                del job_effects_priorities[self.job.effect]
 
-    def choose_job_effect(self):
-        effect_group = random.choice(jobs_effects.EFFECT_GROUP.records)
-        return random.choice([effect for effect in jobs_effects.EFFECT.records if effect.group == effect_group])
+            new_effect = utils_logic.random_value_by_priority(job_effects_priorities.items())
+            self.job.new_job(new_effect, normal_power=logic.NORMAL_PLACE_JOB_POWER)
+
+
+    def job_effects_priorities(self):
+        return {effect: 1 for effect in jobs_effects.EFFECT.records}
+
 
     def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, power):
         if amqp_environment.environment.workers.highlevel is None:

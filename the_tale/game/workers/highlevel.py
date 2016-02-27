@@ -24,6 +24,45 @@ from the_tale.game import exceptions
 E = 0.001
 
 
+class PowerInfo(object):
+    __slots__ = ('place_id', 'person_id', 'hero_id', 'has_place_in_preferences', 'has_person_in_preferences', 'power_delta')
+
+    def __init__(self, place_id, person_id, hero_id, has_place_in_preferences, has_person_in_preferences, power_delta):
+        self.place_id = place_id
+        self.person_id = person_id
+        self.hero_id = hero_id
+        self.has_place_in_preferences = has_place_in_preferences
+        self.has_person_in_preferences = has_person_in_preferences
+        self.power_delta = power_delta
+
+    def clone(self, **kwargs):
+        arguments = self.kwargs
+        arguments.update(kwargs)
+        return PowerInfo(**arguments)
+
+    @property
+    def kwargs(self):
+        return {'place_id': self.place_id,
+                'person_id': self.person_id,
+                'hero_id': self.hero_id,
+                'has_place_in_preferences': self.has_place_in_preferences,
+                'has_person_in_preferences': self.has_person_in_preferences,
+                'power_delta': self.power_delta }
+
+    def __eq__(self, other):
+        return ( self.place_id == other.place_id and
+                 self.person_id == other.person_id and
+                 self.hero_id == other.hero_id and
+                 self.has_place_in_preferences == other.has_place_in_preferences and
+                 self.has_person_in_preferences == other.has_person_in_preferences and
+                 self.power_delta == other.power_delta )
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+
+
 class Worker(BaseWorker):
     STOP_SIGNAL_REQUIRED = False
 
@@ -101,7 +140,7 @@ class Worker(BaseWorker):
         if not places:
             return
 
-        places = sorted(places, key=lambda x: x.power)
+        places = sorted(places, key=lambda x: x.total_politic_power_fraction)
         places_number = len(places)
 
         for i, place in enumerate(places):
@@ -116,35 +155,35 @@ class Worker(BaseWorker):
 
         self.logger.info('sync data')
 
-        for person_id, hero_id, has_place_in_preferences, has_person_in_preferences, power_delta in self.persons_politic_power:
-            person = persons_storage[person_id]
-            place_power = person.politic_power.change_power(person=person,
-                                                            hero_id=hero_id,
-                                                            has_in_preferences=has_person_in_preferences,
-                                                            power=power_delta)
-            self.places_politic_power.append(person.place.id, hero_id, has_place_in_preferences, has_person_in_preferences, place_power)
+        if sheduled:
+            for person in persons_storage.persons.all():
+                person.politic_power.sync_power()
 
-        for place_id, hero_id, has_place_in_preferences, has_person_in_preferences, power_delta in self.places_politic_power:
-            place = places_storage[place_id]
+            for place in places_storage.places.all():
+                place.politic_power.sync_power()
+
+
+        for power_info in self.persons_politic_power:
+            person = persons_storage.persons[power_info.person_id]
+            place_power = person.politic_power.change_power(person=person,
+                                                            hero_id=power_info.hero_id,
+                                                            has_in_preferences=power_info.has_person_in_preferences,
+                                                            power=power_info.power_delta)
+            self.places_politic_power.append(power_info.clone(place_id=person.place.id, power_delta=place_power))
+
+        for power_info in self.places_politic_power:
+            place = places_storage.places[power_info.place_id]
             place.politic_power.change_power(place=place,
-                                             hero_id=hero_id,
-                                             has_in_preferences=has_place_in_preferences,
-                                             power=power_delta)
+                                             hero_id=power_info.hero_id,
+                                             has_in_preferences=power_info.has_place_in_preferences,
+                                             power=power_info.power_delta)
 
         self.persons_politic_power[:] = []
         self.places_politic_power[:] = []
 
         for person in persons_storage.persons.all():
-            if sheduled:
-                person.politic_power.sync_power()
-
             person.update_friends_number()
             person.update_enemies_number()
-
-
-        for place in places_storage.places.all():
-            if sheduled:
-                place.politic_power.sync_power()
 
         # update size
         if sheduled:
@@ -219,10 +258,16 @@ class Worker(BaseWorker):
                                        'power_delta': power_delta})
 
     def process_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, person_id, place_id, power_delta):
+        power_info = PowerInfo(hero_id=hero_id,
+                               has_place_in_preferences=has_place_in_preferences,
+                               has_person_in_preferences=has_person_in_preferences,
+                               person_id=person_id,
+                               place_id=place_id,
+                               power_delta=power_delta)
         if person_id is not None and place_id is None:
-            self.persons_politic_power.append((person_id, hero_id, has_place_in_preferences, has_person_in_preferences, power_delta))
+            self.persons_politic_power.append(power_info)
         elif place_id is not None and person_id is None:
-            self.places_politic_power.append((place_id, hero_id, has_place_in_preferences, has_person_in_preferences, power_delta))
+            self.places_politic_power.append(power_info)
         else:
             raise exceptions.ChangePowerError(place_id=place_id, person_id=person_id)
 

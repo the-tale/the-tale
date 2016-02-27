@@ -24,6 +24,9 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.logic_storage import LogicStorage
 
+from the_tale.game.workers import highlevel
+
+
 def fake_sync_data(self, sheduled=True):
     self._data_synced = True
 
@@ -60,45 +63,91 @@ class HighlevelTest(testcase.TestCase):
         self.assertTrue(self.worker.initialized)
         self.assertEqual(self.worker.worker_id, 'highlevel')
         self.assertEqual(self.worker.turn_number, 0)
-        self.assertEqual(self.worker.persons_power, {})
+        self.assertEqual(self.worker.places_politic_power, [])
+        self.assertEqual(self.worker.persons_politic_power, [])
 
     def test_process_change_power__persons(self):
-        self.assertEqual(self.worker.persons_power, {})
+        self.assertEqual(self.worker.persons_politic_power, [])
 
-        person_1 = persons_storage.persons.all()[0]
-        person_2 = persons_storage.persons.all()[1]
+        person_1, person_2 = persons_storage.persons.all()[0:2]
 
-        self.worker.process_change_power(person_id=person_1.id, power_delta=1, place_id=None)
-        self.assertEqual(self.worker.persons_power, {person_1.id: (1, 0)})
+        power_info_1 = highlevel.PowerInfo(hero_id=666,
+                                           has_place_in_preferences=True,
+                                           has_person_in_preferences=False,
+                                           person_id=person_1.id,
+                                           place_id=None,
+                                           power_delta=1)
 
-        self.worker.process_change_power(person_id=person_2.id, power_delta=10, place_id=None)
-        self.assertEqual(self.worker.persons_power, {person_1.id: (1, 0),
-                                                     person_2.id: (10, 0)})
+        self.worker.process_change_power(**power_info_1.kwargs)
 
-        self.worker.process_change_power(person_id=person_1.id, power_delta=-100, place_id=None)
-        self.assertEqual(self.worker.persons_power, {person_1.id: (1, -100),
-                                                     person_2.id: (10, 0)})
+        self.assertEqual(self.worker.persons_politic_power, [power_info_1])
 
-        self.assertEqual(person_1.power, 0)
-        self.assertEqual(person_2.power, 0)
+        power_info_2 = highlevel.PowerInfo(hero_id=777,
+                                           has_place_in_preferences=False,
+                                           has_person_in_preferences=True,
+                                           person_id=person_2.id,
+                                           place_id=None,
+                                           power_delta=10)
+
+        self.worker.process_change_power(**power_info_2.kwargs)
+        self.assertEqual(self.worker.persons_politic_power, [power_info_1, power_info_2])
+
+        power_info_3 = highlevel.PowerInfo(hero_id=None,
+                                           has_place_in_preferences=False,
+                                           has_person_in_preferences=False,
+                                           person_id=person_1.id,
+                                           place_id=None,
+                                           power_delta=-100)
+
+        self.worker.process_change_power(**power_info_3.kwargs)
+        self.assertEqual(self.worker.persons_politic_power, [power_info_1, power_info_2, power_info_3])
+
+        self.assertEqual(person_1.politic_power.inner_power, 0)
+        self.assertEqual(person_1.politic_power.outer_power, 0)
+        self.assertEqual(person_2.politic_power.inner_power, 0)
+        self.assertEqual(person_2.politic_power.outer_power, 0)
 
 
     def test_process_change_power__places(self):
-        self.assertEqual(self.worker.places_power, {})
+        self.assertEqual(self.worker.places_politic_power, [])
 
-        self.worker.process_change_power(person_id=None, power_delta=-1, place_id=2)
-        self.assertEqual(self.worker.places_power, {2: (0, -1)})
+        place_1, place_2 = places_storage.places.all()[0:2]
 
-        self.worker.process_change_power(person_id=None, power_delta=10, place_id=1)
-        self.assertEqual(self.worker.places_power, {2: (0, -1),
-                                                    1: (10, 0)})
+        power_info_1 = highlevel.PowerInfo(hero_id=666,
+                                           has_place_in_preferences=True,
+                                           has_person_in_preferences=False,
+                                           person_id=None,
+                                           place_id=place_1.id,
+                                           power_delta=1)
 
-        self.worker.process_change_power(person_id=None, power_delta=100, place_id=2)
-        self.assertEqual(self.worker.places_power, {2: (100, -1),
-                                                    1: (10, 0)})
+        self.worker.process_change_power(**power_info_1.kwargs)
 
-        self.assertEqual(places_storage.places[1].power, 0)
-        self.assertEqual(places_storage.places[2].power, 0)
+        self.assertEqual(self.worker.places_politic_power, [power_info_1])
+
+        power_info_2 = highlevel.PowerInfo(hero_id=777,
+                                           has_place_in_preferences=False,
+                                           has_person_in_preferences=True,
+                                           person_id=None,
+                                           place_id=place_2.id,
+                                           power_delta=10)
+
+        self.worker.process_change_power(**power_info_2.kwargs)
+        self.assertEqual(self.worker.places_politic_power, [power_info_1, power_info_2])
+
+        power_info_3 = highlevel.PowerInfo(hero_id=None,
+                                           has_place_in_preferences=False,
+                                           has_person_in_preferences=False,
+                                           person_id=None,
+                                           place_id=place_1.id,
+                                           power_delta=-100)
+
+        self.worker.process_change_power(**power_info_3.kwargs)
+        self.assertEqual(self.worker.places_politic_power, [power_info_1, power_info_2, power_info_3])
+
+        self.assertEqual(place_1.politic_power.inner_power, 0)
+        self.assertEqual(place_1.politic_power.outer_power, 0)
+        self.assertEqual(place_2.politic_power.inner_power, 0)
+        self.assertEqual(place_2.politic_power.outer_power, 0)
 
 
     @mock.patch('the_tale.game.workers.highlevel.Worker.sync_data', fake_sync_data)
@@ -202,15 +251,14 @@ class HighlevelTest(testcase.TestCase):
             self.worker.sync_data()
 
     @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 0.9)
-    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 1)
     @mock.patch('the_tale.game.places.objects.Place.refresh_attributes', mock.Mock())
     def test_sync_data(self):
-        self.assertEqual(self.p1.power, 0)
-        self.assertEqual(self.p2.power, 0)
-        self.assertEqual(self.p3.power, 0)
-
-        persons_version_0 = persons_storage.persons._version
-        places_version_0 = places_storage.places._version
+        self.assertEqual(self.p1.politic_power.outer_power, 0)
+        self.assertEqual(self.p1.politic_power.inner_power, 0)
+        self.assertEqual(self.p2.politic_power.outer_power, 0)
+        self.assertEqual(self.p2.politic_power.inner_power, 0)
+        self.assertEqual(self.p3.politic_power.outer_power, 0)
+        self.assertEqual(self.p3.politic_power.inner_power, 0)
 
         self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 3)
         self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 3)
@@ -223,61 +271,58 @@ class HighlevelTest(testcase.TestCase):
         person_3_1 = self.p3.persons[0]
         person_3_2 = self.p3.persons[1]
 
-        self.worker.process_change_power(person_id=person_1_1.id, power_delta=1, place_id=None)
-        self.worker.process_change_power(person_id=person_2_1.id, power_delta=100, place_id=None)
-        self.worker.process_change_power(person_id=person_2_2.id, power_delta=1000, place_id=None)
-        self.worker.process_change_power(person_id=person_3_1.id, power_delta=10000, place_id=None)
-        self.worker.process_change_power(person_id=person_3_2.id, power_delta=100000, place_id=None)
+        power_info = highlevel.PowerInfo(hero_id=666,
+                                         has_place_in_preferences=False,
+                                         has_person_in_preferences=False,
+                                         person_id=None,
+                                         place_id=None,
+                                         power_delta=0)
 
-        self.worker.sync_data()
 
-        self.assertEqual(self.worker.persons_power, {})
+        self.worker.process_change_power(**power_info.clone(person_id=person_1_1.id, power_delta=1).kwargs)
+        self.worker.process_change_power(**power_info.clone(person_id=person_2_1.id, power_delta=100).kwargs)
+        self.worker.process_change_power(**power_info.clone(person_id=person_2_2.id, power_delta=1000).kwargs)
+        self.worker.process_change_power(**power_info.clone(person_id=person_3_1.id, power_delta=10000).kwargs)
+        self.worker.process_change_power(**power_info.clone(person_id=person_3_2.id, power_delta=100000).kwargs)
+
+        with self.check_changed(lambda: persons_storage.persons._version):
+            with self.check_changed(lambda: places_storage.places._version):
+                with mock.patch('the_tale.game.places.attributes.Attributes.freedom', 1):
+                    self.worker.sync_data()
+
+        self.assertEqual(self.worker.persons_politic_power, [])
+        self.assertEqual(self.worker.places_politic_power, [])
 
         self.assertTrue(self.p1._modifier.is_NONE)
 
-        persons_version_1 = persons_storage.persons._version
-        places_version_1 = places_storage.places._version
+        self.assertEqual(person_1_1.politic_power.outer_power, 1)
+        self.assertEqual(person_2_1.politic_power.outer_power, 100)
+        self.assertEqual(person_2_2.politic_power.outer_power, 1000)
+        self.assertEqual(person_3_1.politic_power.outer_power, 10000)
+        self.assertEqual(person_3_2.politic_power.outer_power, 100000)
 
-        self.assertEqual(person_1_1.power, 1)
+        self.assertEqual(self.p1.politic_power.outer_power, 1)
+        self.assertEqual(self.p2.politic_power.outer_power, 1100)
+        self.assertEqual(self.p3.politic_power.outer_power, 110000)
 
-        self.assertEqual(person_2_1.power, 100)
+        self.worker.process_change_power(**power_info.clone(place_id=self.p1.id, power_delta=-10).kwargs)
+        self.worker.process_change_power(**power_info.clone(place_id=self.p2.id, power_delta=-1).kwargs)
+        self.worker.process_change_power(**power_info.clone(place_id=self.p2.id, power_delta=+10000000).kwargs)
+        self.worker.process_change_power(**power_info.clone(place_id=self.p3.id, power_delta=-2).kwargs)
+        self.worker.process_change_power(**power_info.clone(place_id=self.p3.id, power_delta=+20).kwargs)
 
-        self.assertEqual(person_2_2.power, 1000)
+        with self.check_changed(lambda: persons_storage.persons._version):
+            with self.check_changed(lambda: places_storage.places._version):
+                with mock.patch('the_tale.game.places.attributes.Attributes.freedom', 1):
+                    self.worker.sync_data()
 
-        self.assertEqual(person_3_1.power, 10000)
-
-        self.assertEqual(person_3_2.power, 100000)
-
-        self.assertEqual(self.p1.power, 1)
-
-        self.assertEqual(self.p2.power, 1100)
-
-        self.assertEqual(self.p3.power, 110000)
-
-        self.worker.process_change_power(place_id=self.p1.id, power_delta=-10, person_id=None)
-        self.worker.process_change_power(place_id=self.p2.id, power_delta=-1, person_id=None)
-        self.worker.process_change_power(place_id=self.p2.id, power_delta=+10000000, person_id=None)
-        self.worker.process_change_power(place_id=self.p3.id, power_delta=-2, person_id=None)
-        self.worker.process_change_power(place_id=self.p3.id, power_delta=+20, person_id=None)
-
-        self.worker.sync_data()
-        self.assertEqual(self.worker.persons_power, {})
-
-        persons_version_2 = persons_storage.persons._version
-        places_version_2 = places_storage.places._version
+        self.assertEqual(self.worker.persons_politic_power, [])
+        self.assertEqual(self.worker.places_politic_power, [])
 
         self.p1 = places_storage.places[self.p1.id]
         self.p2 = places_storage.places[self.p2.id]
         self.p3 = places_storage.places[self.p3.id]
 
-        self.assertEqual(self.p1.power, -9.1)
-
-        self.assertEqual(self.p2.power, 10000989)
-
-        self.assertEqual(self.p3.power, 99018)
-
-        self.assertTrue(len(set((persons_version_0, persons_version_1, persons_version_2))), 3)
-        self.assertTrue(len(set((places_version_0, places_version_1, places_version_2))), 3)
-
-        self.assertEqual(settings[persons_storage.persons.SETTINGS_KEY], persons_version_2)
-        self.assertEqual(settings[places_storage.places.SETTINGS_KEY], places_version_2)
+        self.assertEqual(self.p1.politic_power.outer_power, -9.1)
+        self.assertEqual(self.p2.politic_power.outer_power, 10000989)
+        self.assertEqual(self.p3.politic_power.outer_power, 99018)

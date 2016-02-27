@@ -37,7 +37,7 @@ class PersonPoliticPower(politic_power.PoliticPower):
         power_multiplier = 1
 
         if person.has_building:
-            power_multiplier *= c.BUILDING_PERSON_POWER_MULTIPLIER
+            power_multiplier += c.BUILDING_PERSON_POWER_BONUS
 
         # this power will go to person and to place
         place_power = power * power_multiplier
@@ -45,7 +45,7 @@ class PersonPoliticPower(politic_power.PoliticPower):
         # this power, only to person
         person_power = power * power_multiplier * person.place.attrs.freedom
 
-        super(PersonPoliticPower, self).change_power(person, hero_id, has_in_preferences, person_power)
+        super(PersonPoliticPower, self).change_power(owner=person, hero_id=hero_id, has_in_preferences=has_in_preferences, power=person_power)
 
         return place_power
 
@@ -54,8 +54,8 @@ class PersonPoliticPower(politic_power.PoliticPower):
                 'actor_name': person.name,
                 'person': person,
                 'place': person.place,
-                'positive_heroes': self._inner_positive_heroes,
-                'negative_heroes': self._inner_negative_heroes,
+                'positive_heroes': self.inner_positive_heroes,
+                'negative_heroes': self.inner_negative_heroes,
                 'job_power': person.get_job_power() }
 
 

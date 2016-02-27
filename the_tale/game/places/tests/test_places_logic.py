@@ -1,4 +1,5 @@
 # coding: utf-8
+import mock
 
 from the_tale.common.utils import testcase
 
@@ -41,5 +42,25 @@ class PlacePowerTest(testcase.TestCase):
 
         persons_storage.persons.sync(force=True)
 
+    def test_inner_circle_size(self):
+        self.assertEqual(self.place.politic_power.INNER_CIRCLE_SIZE, 7)
+
+
     def test_initialization(self):
         self.assertEqual(self.place.total_politic_power_fraction, 0)
+
+
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 0.5)
+    def test_change_power(self):
+        with mock.patch('the_tale.game.politic_power.PoliticPower.change_power') as change_power:
+            self.assertEqual(self.place.politic_power.change_power(place=self.place,
+                                                                   hero_id=None,
+                                                                   has_in_preferences=False,
+                                                                   power=1000),
+                             None)
+
+        self.assertEqual(change_power.call_args,
+                         mock.call(owner=self.place,
+                                   hero_id=None,
+                                   has_in_preferences=False,
+                                   power=500))

@@ -153,3 +153,37 @@ class PoliticPowerTest(testcase.TestCase):
 
         self.assertEqual(self.power._inner_positive_heroes, frozenset((2, 3)))
         self.assertEqual(self.power._inner_negative_heroes, frozenset((4, 5)))
+
+
+    def test_total_politic_power_fraction(self):
+        self.power.inner_power = 100
+        self.power.outer_power = 200
+
+        power_2 = FakePoliticPower.create()
+        power_2.inner_power = 400
+        power_2.outer_power = 200
+
+        power_3 = FakePoliticPower.create()
+        power_3.inner_power = 450
+        power_3.outer_power = 450
+
+        self.assertEqual(round(self.power.total_politic_power_fraction([self.power, power_2, power_3]), 2), 0.17)
+        self.assertEqual(round(power_2.total_politic_power_fraction([self.power, power_2, power_3]), 2), 0.33)
+        self.assertEqual(round(power_3.total_politic_power_fraction([self.power, power_2, power_3]), 2), 0.50)
+
+
+    def test_total_politic_power_fraction__below_zero(self):
+        self.power.inner_power = 100  # -> 500
+        self.power.outer_power = -200 # -> 0
+
+        power_2 = FakePoliticPower.create()
+        power_2.inner_power = -400 # -> 0
+        power_2.outer_power = 200  # -> 400
+
+        power_3 = FakePoliticPower.create()
+        power_3.inner_power = 450  # -> 850
+        power_3.outer_power = 450  # -> 650
+
+        self.assertEqual(round(self.power.total_politic_power_fraction([self.power, power_2, power_3]), 2), 0.19)
+        self.assertEqual(round(power_2.total_politic_power_fraction([self.power, power_2, power_3]), 2), 0.19)
+        self.assertEqual(round(power_3.total_politic_power_fraction([self.power, power_2, power_3]), 2), 0.62)

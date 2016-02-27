@@ -383,8 +383,10 @@ class QuestPrototype(object):
 
 
     def _give_person_power(self, hero, person, power):
-
         power = self._give_power(hero, person.place, power)
+
+        if not hero.can_change_person_power(person):
+            return 0
 
         power = hero.modify_politics_power(power, person=person)
 
@@ -393,9 +395,6 @@ class QuestPrototype(object):
 
         if has_profession_marker:
             power /= len(PERSON_TYPE.records)
-
-        if not hero.can_change_person_power(person):
-            return 0
 
         person.cmd_change_power(hero_id=hero.id,
                                 has_place_in_preferences=hero.preferences.has_place_in_preferences(person.place),
@@ -409,10 +408,10 @@ class QuestPrototype(object):
 
         power = self._give_power(hero, place, power)
 
-        power = hero.modify_politics_power(power, place=place)
-
         if not hero.can_change_place_power(place):
             return 0
+
+        power = hero.modify_politics_power(power, place=place)
 
         place.cmd_change_power(hero_id=hero.id,
                                has_place_in_preferences=hero.preferences.has_place_in_preferences(place),
