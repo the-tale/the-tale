@@ -81,10 +81,6 @@ class PlaceResourceConversion(BaseBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    USER_FORM_TEMPLATE = 'bills/bills/place_resource_conversion_user_form.html'
-    MODERATOR_FORM_TEMPLATE = 'bills/bills/place_resource_conversion_moderator_form.html'
-    SHOW_TEMPLATE = 'bills/bills/place_resource_conversion_show.html'
-
     CAPTION = u'Изменение параметров города'
     DESCRIPTION = u'Устанавливает изменение параметров города, обычно, бонус к одним за счёт штрафа к другим. Один город может иметь не более %(max_exchanges)d активных договоров.' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
 

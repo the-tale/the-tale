@@ -52,10 +52,6 @@ class PlaceModifier(BaseBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    USER_FORM_TEMPLATE = 'bills/bills/place_change_modifier_user_form.html'
-    MODERATOR_FORM_TEMPLATE = 'bills/bills/place_change_modifier_moderator_form.html'
-    SHOW_TEMPLATE = 'bills/bills/place_change_modifier_show.html'
-
     CAPTION = u'Изменение специализации города'
     DESCRIPTION = u'Изменяет специализацию города. Изменить специализацию можно только на одну из доступных для этого города. Посмотреть доступные варианты можно в диалоге информации о городе на странице игры.'
 

@@ -423,6 +423,9 @@ PVP_EFFECTIVENESS_INITIAL = float(300)
 # города
 ###########################
 
+PLACE_MIN_PERSONS = 2
+PLACE_MAX_PERSONS = 6
+
 PLACE_MIN_SAFETY = 0.05
 PLACE_MIN_TRANSPORT = 0.1
 PLACE_MIN_STABILITY = 0
@@ -478,6 +481,13 @@ TRANSPORT_FROM_PLACE_SIZE_PENALTY = float(0.05) # штраф к скорости
 PLACE_HABITS_CHANGE_SPEED_MAXIMUM = float(10)
 PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY = float(10)
 PLACE_HABITS_EVENT_PROBABILITY = float(0.025)
+
+###########################
+# мастера
+###########################
+
+PERSON_MOVE_DELAY_IN_WEEKS = 2
+PERSON_MOVE_DELAY = int(TURNS_IN_HOUR * 24 * 7 * PERSON_MOVE_DELAY_IN_WEEKS) # минимальная задержка между переездами Мастера
 
 ###########################
 # здания

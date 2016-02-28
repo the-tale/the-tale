@@ -31,6 +31,7 @@ class BILL_TYPE(DjangoEnum):
                 ('PLACE_RESOURCE_CONVERSION', 9, u'изменение параметров города', 0.8 * c.PLACE_STABILITY_UNIT, True),
                 ('PERSON_CHRONICLE', 10, u'запись в летописи о советнике',       0.2 * c.PLACE_STABILITY_UNIT, True),
                 ('PLACE_CHRONICLE', 11, u'запись в летописи о городе',           0.2 * c.PLACE_STABILITY_UNIT, True),
+                ('PERSON_MOVE', 12, u'переезд Мастера',                          2.0 * c.PLACE_STABILITY_UNIT, True),
               )
 
 

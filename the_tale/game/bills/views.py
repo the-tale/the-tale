@@ -179,7 +179,7 @@ class BillResource(Resource):
         bill_class = BILLS_BY_ID[bill_type.value]
         return self.template('bills/new.html', {'bill_class': bill_class,
                                                 'page_type': 'new',
-                                                'form': bill_class.get_user_form_create()})
+                                                'form': bill_class.get_user_form_create(owner_id=self.account.id)})
 
     @login_required
     @validate_fast_account()
@@ -198,7 +198,7 @@ class BillResource(Resource):
 
         bill_data = BILLS_BY_ID[bill_type.value]()
 
-        user_form = bill_data.get_user_form_create(self.request.POST)
+        user_form = bill_data.get_user_form_create(self.request.POST, owner_id=self.account.id)
 
         if user_form.is_valid():
             bill_data.initialize_with_user_data(user_form)
@@ -238,7 +238,7 @@ class BillResource(Resource):
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'edit', name='edit', method='get')
     def edit(self):
-        user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials)
+        user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials, owner_id=self.account.id)
         return self.template('bills/edit.html', {'bill': self.bill,
                                                  'bill_class': self.bill.data,
                                                  'page_type': 'edit',
@@ -252,7 +252,7 @@ class BillResource(Resource):
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'update', name='update', method='post')
     def update(self):
-        user_form = self.bill.data.get_user_form_update(post=self.request.POST)
+        user_form = self.bill.data.get_user_form_update(post=self.request.POST, owner_id=self.account.id)
 
         if user_form.is_valid():
             self.bill.update(user_form)

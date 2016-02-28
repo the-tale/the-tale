@@ -66,7 +66,8 @@ def save_person(person, new=False):
 
     data = {'name': person.utg_name.serialize(),
             'job': person.job.serialize(),
-            'politic_power': person.politic_power.serialize()}
+            'politic_power': person.politic_power.serialize(),
+            'moved_at_turn': person.moved_at_turn}
 
     arguments = {'place_id': person.place_id,
                  'gender': person.gender,
@@ -75,7 +76,7 @@ def save_person(person, new=False):
                  'friends_number': person.friends_number,
                  'enemies_number': person.enemies_number,
                  'data': s11n.to_json(data),
-                 'created_at_turn': person.created_at_turn }
+                 'created_at_turn': person.created_at_turn}
 
     if new:
         person_model = models.Person.objects.create(**arguments)
@@ -103,7 +104,8 @@ def create_person(place, race, type, utg_name, gender):
                             enemies_number=0,
                             politic_power=PersonPoliticPower.create(),
                             utg_name=utg_name,
-                            job=PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER))
+                            job=PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER),
+                            moved_at_turn=TimePrototype.get_current_turn_number())
     save_person(person, new=True)
     return person
 
@@ -131,7 +133,8 @@ def load_person(person_id=None, person_model=None):
                           enemies_number=person_model.enemies_number,
                           politic_power=PersonPoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PersonPoliticPower.create(),
                           utg_name=utg_words.Word.deserialize(data['name']),
-                          job=PersonJob.deserialize(data['job'] if 'job' in data else PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER)))
+                          job=PersonJob.deserialize(data['job'] if 'job' in data else PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER)),
+                          moved_at_turn=data.get('moved_at_turn', 0))
 
 
 def social_connection_from_model(model):
@@ -256,3 +259,10 @@ def create_missing_connections():
 
 def sync_social_connections():
     create_missing_connections()
+
+
+def move_person_to_place(person, new_place):
+    person.place_id = new_place.id
+    person.moved_at_turn = TimePrototype.get_current_turn_number()
+
+    save_person(person)

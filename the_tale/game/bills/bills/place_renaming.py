@@ -26,6 +26,7 @@ class UserForm(BaseUserForm):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.places.get_choices()
 
+
 class ModeratorForm(BaseModeratorForm):
     name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
 
@@ -36,10 +37,6 @@ class PlaceRenaming(BaseBill):
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
-
-    USER_FORM_TEMPLATE = 'bills/bills/place_renaming_user_form.html'
-    MODERATOR_FORM_TEMPLATE = 'bills/bills/place_renaming_moderator_form.html'
-    SHOW_TEMPLATE = 'bills/bills/place_renaming_show.html'
 
     CAPTION = u'Переименование города'
     DESCRIPTION = u'Изменяет название города. При выборе нового названия постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается.'

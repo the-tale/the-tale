@@ -12,6 +12,7 @@ from the_tale.game.bills.bills.place_resource_conversion import PlaceResourceCon
 from the_tale.game.bills.bills.bill_decline import BillDecline
 from the_tale.game.bills.bills.person_chronicle import PersonChronicle
 from the_tale.game.bills.bills.place_chronicle import PlaceChronicle
+from the_tale.game.bills.bills.person_move import PersonMove
 
 
 BILLS = [PlaceRenaming,
@@ -25,7 +26,8 @@ BILLS = [PlaceRenaming,
          PlaceResourceConversion,
          BillDecline,
          PersonChronicle,
-         PlaceChronicle]
+         PlaceChronicle,
+         PersonMove]
 
 def deserialize_bill(data):
     return BILLS_BY_STR[data['type']].deserialize(data)

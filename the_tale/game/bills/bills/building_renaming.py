@@ -41,10 +41,6 @@ class BuildingRenaming(BasePersonBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    USER_FORM_TEMPLATE = 'bills/bills/building_renaming_user_form.html'
-    MODERATOR_FORM_TEMPLATE = 'bills/bills/building_renaming_moderator_form.html'
-    SHOW_TEMPLATE = 'bills/bills/building_renaming_show.html'
-
     CAPTION = u'Переименование постройки'
     DESCRIPTION = u'Изменяет название постройки, принадлежащей выбранному горожанину.'
 

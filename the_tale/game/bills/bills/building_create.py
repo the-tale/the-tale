@@ -42,10 +42,6 @@ class BuildingCreate(BasePersonBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    USER_FORM_TEMPLATE = 'bills/bills/building_create_user_form.html'
-    MODERATOR_FORM_TEMPLATE = 'bills/bills/building_create_moderator_form.html'
-    SHOW_TEMPLATE = 'bills/bills/building_create_show.html'
-
     CAPTION = u'Возведение постройки'
     # TODO: remove hardcoded url
     DESCRIPTION = u'Возводит здание, принадлежащее выбранному горожанину (и соответствующее его профессии). Один житель города может иметь только одну постройку. Помните, что для поддержания работы здания потребуется участие игроков, иначе оно обветшает и разрушится. О типах зданий можно узнать в <a href="/guide/persons">Путеводителе</a>.'

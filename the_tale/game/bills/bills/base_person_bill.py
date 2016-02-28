@@ -21,10 +21,6 @@ class BasePersonBill(BaseBill):
     UserForm = None
     ModeratorForm = None
 
-    USER_FORM_TEMPLATE = None
-    MODERATOR_FORM_TEMPLATE = None
-    SHOW_TEMPLATE = None
-
     CAPTION = None
     DESCRIPTION = None
 
@@ -40,6 +36,9 @@ class BasePersonBill(BaseBill):
             self.person_type = self.person.type
             self.person_gender = self.person.gender
             self.place_id = self.person.place.id
+
+        if self.old_place_name_forms is None and self.place_id is not None:
+            self.old_place_name_forms = self.place.utg_name
 
     @property
     def person(self):
@@ -83,10 +82,10 @@ class BasePersonBill(BaseBill):
         self.place_id = self.person.place.id
 
     @classmethod
-    def get_user_form_create(cls, post=None):
+    def get_user_form_create(cls, post=None, **kwargs):
         return cls.UserForm(None, post) #pylint: disable=E1102
 
-    def get_user_form_update(self, post=None, initial=None):
+    def get_user_form_update(self, post=None, initial=None, **kwargs):
         if initial:
             return self.UserForm(self.person_id, initial=initial) #pylint: disable=E1102
         return  self.UserForm(self.person_id, post) #pylint: disable=E1102

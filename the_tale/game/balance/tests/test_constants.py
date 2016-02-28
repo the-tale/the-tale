@@ -229,6 +229,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PVP_EFFECTIVENESS_STEP, 10)
         self.assertEqual(c.PVP_EFFECTIVENESS_INITIAL, 300)
 
+        self.assertEqual(c.PLACE_MIN_PERSONS, 2)
+        self.assertEqual(c.PLACE_MAX_PERSONS, 6)
+
         self.assertEqual(c.PLACE_MIN_SAFETY, 0.05)
         self.assertEqual(c.PLACE_MIN_TRANSPORT, 0.1)
         self.assertEqual(c.PLACE_MIN_STABILITY, 0)
@@ -278,6 +281,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM, 10)
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY, 10)
         self.assertEqual(c.PLACE_HABITS_EVENT_PROBABILITY, 0.025)
+
+        self.assertEqual(c.PERSON_MOVE_DELAY, 0)
 
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_POSITION_RADIUS, 2)

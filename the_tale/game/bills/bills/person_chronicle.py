@@ -17,7 +17,7 @@ class UserForm(BaseUserForm):
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = persons_objects.Person.form_choices(only_weak=False, choosen_person=persons_storage.persons.get(choosen_person_id))
+        self.fields['person'].choices = persons_objects.Person.form_choices(choosen_person=persons_storage.persons.get(choosen_person_id))
 
 
 class ModeratorForm(BaseModeratorForm):
@@ -29,10 +29,6 @@ class PersonChronicle(BasePersonBill):
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
-
-    USER_FORM_TEMPLATE = 'bills/bills/person_chronicle_user_form.html'
-    MODERATOR_FORM_TEMPLATE = 'bills/bills/person_chronicle_moderator_form.html'
-    SHOW_TEMPLATE = 'bills/bills/person_chronicle_show.html'
 
     CAPTION = u'Запись в летописи о советнике'
     DESCRIPTION = u'В жизни происходит множество интересных событий. Часть из них оказывается достойна занесения в летопись и может немного повлиять на влиятельность участвующего в них советника.'

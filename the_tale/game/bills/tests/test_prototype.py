@@ -151,21 +151,21 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         self.assertEqual(Post.objects.all().count(), 1)
 
-        with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
-            self.assertFalse(self.bill.apply())
+        with self.check_not_changed(lambda: self.place1.attrs.stability):
+            with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+                self.assertFalse(self.bill.apply())
 
-        self.assertEqual(cmd_run_account_method.call_count, 0)
-        self.assertTrue(self.bill.state.is_REJECTED)
+            self.assertEqual(cmd_run_account_method.call_count, 0)
+            self.assertTrue(self.bill.state.is_REJECTED)
 
-        self.assertEqual(Post.objects.all().count(), 2)
+            self.assertEqual(Post.objects.all().count(), 2)
 
-        bill = BillPrototype.get_by_id(self.bill.id)
-        self.assertTrue(bill.state.is_REJECTED)
+            bill = BillPrototype.get_by_id(self.bill.id)
+            self.assertTrue(bill.state.is_REJECTED)
 
-        places_storage.places.sync(force=True)
+            places_storage.places.sync(force=True)
 
-        self.place1.refresh_attributes()
-        self.assertEqual(self.place1.attrs.stability, 1.0)
+            self.place1.refresh_attributes()
 
         self.assertEqual(bill.applyed_at_turn, current_time.turn_number)
 

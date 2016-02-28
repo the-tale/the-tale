@@ -1,5 +1,4 @@
 # coding: utf-8
-import random
 
 import mock
 
@@ -8,9 +7,9 @@ from the_tale.common.utils import testcase
 from the_tale.game.balance import constants as c
 
 from the_tale.game.logic import create_test_map
+from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.roads.storage import waymarks_storage
-from the_tale.game.places import storage as places_storage
 
 from the_tale.game.persons import models
 from the_tale.game.persons import storage
@@ -19,6 +18,11 @@ from the_tale.game.persons import relations
 from the_tale.game.persons import logic
 from the_tale.game.persons import exceptions
 
+from the_tale.linguistics import logic as linguistics_logic
+
+from .. import logic
+from .. import exceptions
+from .. import storage
 
 
 class LogicTests(testcase.TestCase):
@@ -149,18 +153,22 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(minimum_distance, logic.get_next_connection_minimum_distance(person))
 
 
+    def test_move_person_to_place(self):
+        person = self.place_1.persons[0]
 
-from the_tale.linguistics import logic as linguistics_logic
+        self.assertEqual(person.moved_at_turn, 0)
 
-from the_tale.game import names
+        game_time = TimePrototype.get_current_time()
+        game_time.increment_turn()
+        game_time.increment_turn()
+        game_time.increment_turn()
 
-from the_tale.game.relations import RACE
+        with self.check_changed(lambda: storage.persons.version):
+            logic.move_person_to_place(person, self.place_3)
 
-from the_tale.game.map import logic as map_logic
+        self.assertEqual(person.moved_at_turn, 3)
+        self.assertEqual(person.place.id, self.place_3.id)
 
-from .. import logic
-from .. import exceptions
-from .. import storage
 
 
 

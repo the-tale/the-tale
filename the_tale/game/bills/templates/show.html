@@ -85,7 +85,7 @@
 <h3 style="margin-bottom: 0.5em;">{{ bill.data.CAPTION }}</h3>
 
 <ul style="font-size: 14px;" class="unstyled">
-  {% include bill.data.SHOW_TEMPLATE with context %}
+  {% include bill.data.show_template() with context %}
 </ul>
 
 {% if bill.chronicle_on_accepted %}

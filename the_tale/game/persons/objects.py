@@ -10,6 +10,8 @@ from the_tale.common.utils import logic as utils_logic
 
 from the_tale.game import names
 
+from the_tale.game.prototypes import TimePrototype
+
 from the_tale.game.balance import constants as c
 
 from the_tale.game.jobs import logic as jobs_logic
@@ -44,6 +46,8 @@ class Person(names.ManageNameMixin2):
 
                  'job',
 
+                 'moved_at_turn',
+
                  'utg_name',
 
                  # mames mixin
@@ -51,7 +55,7 @@ class Person(names.ManageNameMixin2):
                  '_name__lazy')
 
 
-    def __init__(self, id, created_at_turn, place_id, gender, race, type, friends_number, enemies_number, politic_power, utg_name, job):
+    def __init__(self, id, created_at_turn, place_id, gender, race, type, friends_number, enemies_number, politic_power, utg_name, job, moved_at_turn):
         self.id = id
         self.created_at_turn = created_at_turn
         self.place_id = place_id
@@ -63,6 +67,7 @@ class Person(names.ManageNameMixin2):
         self.politic_power = politic_power
         self.utg_name = utg_name
         self.job = job
+        self.moved_at_turn = moved_at_turn
 
 
     @property
@@ -78,6 +83,10 @@ class Person(names.ManageNameMixin2):
 
     @property
     def has_building(self): return places_storage.buildings.get_by_person_id(self.id) is not None
+
+    @property
+    def on_move_timeout(self):
+        return self.moved_at_turn + c.PERSON_MOVE_DELAY > TimePrototype.get_current_turn_number()
 
     def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, power):
         if amqp_environment.environment.workers.highlevel is None:
@@ -159,12 +168,11 @@ class Person(names.ManageNameMixin2):
 
 
     @classmethod
-    def form_choices(cls, only_weak=False, choosen_person=None, predicate=lambda place, person: True):
+    def form_choices(cls, choosen_person=None, predicate=lambda place, person: True):
         choices = []
 
         for place in places_storage.places.all():
-            persons_choices = filter(lambda person: predicate(place, person), place.persons) # pylint: disable=W0110
-            accepted_persons = persons_choices[min(1, len(place.persons)/2):] if only_weak else persons_choices
+            accepted_persons = filter(lambda person: predicate(place, person), place.persons) # pylint: disable=W0110
 
             if choosen_person is not None and choosen_person.place.id == place.id:
                 if choosen_person.id not in [p.id for p in accepted_persons]:

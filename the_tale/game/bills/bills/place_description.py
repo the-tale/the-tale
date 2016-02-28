@@ -37,10 +37,6 @@ class PlaceDescripton(BaseBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    USER_FORM_TEMPLATE = 'bills/bills/place_description_user_form.html'
-    MODERATOR_FORM_TEMPLATE = 'bills/bills/place_description_moderator_form.html'
-    SHOW_TEMPLATE = 'bills/bills/place_description_show.html'
-
     CAPTION = u'Изменение описания города'
     DESCRIPTION = u'Изменяет описание города. При создании нового описания постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается. Также не забывайте, что описание должно соответствовать названию города. Описание должно быть небольшим по размеру.'
 

@@ -96,10 +96,6 @@ class PlaceResourceExchange(BaseBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    USER_FORM_TEMPLATE = 'bills/bills/place_resource_exchange_user_form.html'
-    MODERATOR_FORM_TEMPLATE = 'bills/bills/place_resource_exchange_moderator_form.html'
-    SHOW_TEMPLATE = 'bills/bills/place_resource_exchange_show.html'
-
     CAPTION = u'Обмен ресурсами между городами'
     DESCRIPTION = u'Устанавливает обмен ресурсами между городами. Обмен разрешён только между соседними городами (связанными прямой дорогой), один город может иметь не более %(max_exchanges)d активных законов. Обмен не обязан быть равноценным.' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
 
