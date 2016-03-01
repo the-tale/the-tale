@@ -165,7 +165,7 @@ class LogicAccessorsMixin(object):
         if self.is_banned:
             return False
 
-        if place.depends_from_all_heroes:
+        if place.depends_from_all_heroes and self.is_active:
             return True
 
         return self.is_premium
