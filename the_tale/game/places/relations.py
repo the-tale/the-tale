@@ -5,6 +5,8 @@ from rels.django import DjangoEnum
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game import attributes
+
 
 class BUILDING_STATE(DjangoEnum):
     records = ( ('WORKING', 0, u'работает'),
@@ -36,85 +38,77 @@ class BUILDING_TYPE(DjangoEnum):
                 ('RANCH', 21, u'ранчо') )
 
 
-class ATTRIBUTE_TYPE(DjangoEnum):
-    records = ( ('AGGREGATED', 0, u'аггрегируемый'),
-                ('CALCULATED', 1, u'вычисляемый'))
+class ATTRIBUTE(attributes.ATTRIBUTE):
+    records = ( attributes.attr('SIZE', 0, u'размер города', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                 description=u'Влияет на количество советников в городе, развитие специализаций и на потребление товаров его жителями. Зависит от производства товаров.'),
+
+                attributes.attr('TERRAIN_RADIUS', 2, u'радиус изменений', type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                 description=u'Радиус в котором город изменяет мир (в клетках).'),
+                attributes.attr('POLITIC_RADIUS', 3, u'радиус владений', type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                 description=u'Максимальное расстояние, на которое могут распространяться границы владений города (в клетках).'),
+                attributes.attr('PRODUCTION', 4, u'производство',
+                 description=u'Скорость производства товаров. Зависит от размера экономики города и состава его совета.'),
+                attributes.attr('GOODS', 5, u'товары', type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                 description=u'Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увеличивается. Если товары кончаются, то уменьшается.'),
+                attributes.attr('KEEPERS_GOODS', 6, u'дары Хранителей', type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                 description=u'Хранители могут подарить городу дополнительные товары, которые будут постепенно переводиться в производство (%2.f%% в час, но не менее %d). Чтобы сделать городу подарок, Вы можете использовать соответствующую Карту Судьбы.' % (c.PLACE_KEEPERS_GOODS_SPENDING*100, c.PLACE_GOODS_BONUS)),
+                attributes.attr('SAFETY', 7, u'безопасность',
+                 description=u'Насколько безопасно в окрестностях города (вероятность пройти по миру, не подвергнувшись нападению).'),
+                attributes.attr('TRANSPORT', 8, u'транспорт',
+                 description=u'Уровень развития транспортной инфраструктуры (с какой скоростью герои путешествуют в окрестностях города).'),
+                attributes.attr('FREEDOM', 9, u'свобода',
+                 description=u'Насколько активна политическая жизнь в городе (как сильно изменяется влияние советников от действий героев).'),
+                attributes.attr('TAX', 10, u'пошлина',
+                 description=u'Размер пошлины, которую платят герои при посещении города (процент от наличности в кошельке героя).'),
+                attributes.attr('STABILITY', 11, u'стабильность', order=0,
+                 description=u'Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при принятии законов), и постепенно восстанавливается до 100%.'),
+                attributes.attr('STABILITY_RENEWING_SPEED', 12, u'восстанволение стабильности', order=-1,
+                 description=u'Скорость восстановления стабильности в городе.'),
+                attributes.attr('EXPERIENCE_BONUS', 13, u'бонус к опыту',
+                 description=u'Бонус к количеству опыта за задания, связанные с этим городом.'),
+                attributes.attr('BUY_PRICE', 14, u'цена попупки предметов',
+                 description=u'Цена покупки артефактов.'),
+                attributes.attr('SELL_PRICE', 15, u'цена продажи предметов',
+                 description=u'Цена продажи предметов.'),
+                attributes.attr('BUY_ARTIFACT_POWER', 16, u'сила покупаемых артефактов', order=0,
+                 description=u'Сила артефактов, которые герой приобретает в городе.'),
+                attributes.attr('TERRAIN_RADIUS_MODIFIER', 17, u'относительный радиус изменений', order=0,
+                 description=u'Относительный радиус в котором город изменяет мир.'),
+                attributes.attr('POLITIC_RADIUS_MODIFIER', 18, u'относительный радиус владений', order=0,
+                 description=u'Относительное максимальное расстояние, на которое могут распространяться границы владений города.'),
+                attributes.attr('ENERGY_REGEN_CHANCE', 19, u'восстановление энергии',
+                 description=u'Шанс восстановить энергию при входе в город.'),
+                attributes.attr('HERO_REGEN_CHANCE', 20, u'лечение героя',
+                 description=u'Шанс героя полностью вылечиться при входе в город.'),
+                attributes.attr('COMPANION_REGEN_CHANCE', 21, u'лечение спутника',
+                 description=u'Шанс спутника подлечиться при входе в город.'),
+                attributes.attr('POWER_ECONOMIC', 22, u'экономика влияния', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                 description=u'Определяет скорость производства товаров городом. Зависит от общей суммы влияния, поступившего в город, в результате выполнения героями заданий за определённый период времени (примерное количество недель: %d). Влияние от задания может быть отрицательным. Чем больше суммарное влияние по сравнению с другими городами, тем больше размер экономики.' % c.PLACE_POWER_HISTORY_WEEKS),
+
+                attributes.attr('MODIFIER_TRADE_CENTER', 23, u'Специализация «Торговый центр»',
+                 description=u'Соответствие города специализации «Торговый центр».'),
+                attributes.attr('MODIFIER_CRAFT_CENTER', 24, u'Специализация «Город мастеров»',
+                 description=u'Соответствие города специализации «Город мастеров».'),
+                attributes.attr('MODIFIER_FORT', 25, u'Специализация «Форт»',
+                 description=u'Соответствие города специализации «Форт».'),
+                attributes.attr('MODIFIER_POLITICAL_CENTER', 26, u'Специализация «Политический центр»',
+                 description=u'Соответствие города специализации «Политический центр».'),
+                attributes.attr('MODIFIER_POLIC', 27, u'Специализация «Полис»',
+                 description=u'Соответствие города специализации «Полис».'),
+                attributes.attr('MODIFIER_RESORT', 28, u'Специализация «Курорт»',
+                 description=u'Соответствие города специализации «Курорт».'),
+                attributes.attr('MODIFIER_TRANSPORT_NODE', 29, u'Специализация «Транспортный узел»',
+                 description=u'Соответствие города специализации «Транспортный узел».'),
+                attributes.attr('MODIFIER_OUTLAWS', 30, u'Специализация «Вольница»',
+                 description=u'Соответствие города специализации «Вольница».'),
+                attributes.attr('MODIFIER_HOLY_CITY', 31, u'Специализация «Святой город»',
+                 description=u'Соответствие города специализации «Святой город».'),
+
+                attributes.attr('MODIFIER_MULTIPLIER', 32, u'сила специализации', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                 description=u'Влияние города на соответствие специализациям.')  )
 
 
-class ATTRIBUTE(DjangoEnum):
-    default = Column(unique=False, primary=False, single_type=False)
-    type = Column(unique=False, primary=False)
-    order = Column(unique=False, primary=False)
-    description = Column(primary=False)
-
-    records = ( ('SIZE', 0, u'размер города', lambda: 1, ATTRIBUTE_TYPE.CALCULATED, 1,
-                 u'Влияет на количество советников в городе, развитие специализаций и на потребление товаров его жителями. Зависит от производства товаров.'),
-                # ('ECONOMIC', 1, u'размер экономики', lambda: 1, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                #  u'Определяет скорость производства товаров городом.'),
-                ('TERRAIN_RADIUS', 2, u'радиус изменений', lambda: 0, ATTRIBUTE_TYPE.CALCULATED, 1,
-                 u'Радиус в котором город изменяет мир (в клетках).'),
-                ('POLITIC_RADIUS', 3, u'радиус владений', lambda: 0, ATTRIBUTE_TYPE.CALCULATED, 1,
-                 u'Максимальное расстояние, на которое могут распространяться границы владений города (в клетках).'),
-                ('PRODUCTION', 4, u'производство', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Скорость производства товаров. Зависит от размера экономики города и состава его совета.'),
-                ('GOODS', 5, u'товары', lambda: 0, ATTRIBUTE_TYPE.CALCULATED, 1,
-                 u'Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увеличивается. Если товары кончаются, то уменьшается.'),
-                ('KEEPERS_GOODS', 6, u'дары Хранителей', lambda: 0, ATTRIBUTE_TYPE.CALCULATED, 1,
-                 u'Хранители могут подарить городу дополнительные товары, которые будут постепенно переводиться в производство (%2.f%% в час, но не менее %d). Чтобы сделать городу подарок, Вы можете использовать соответствующую Карту Судьбы.' % (c.PLACE_KEEPERS_GOODS_SPENDING*100, c.PLACE_GOODS_BONUS)),
-                ('SAFETY', 7, u'безопасность', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Насколько безопасно в окрестностях города (вероятность пройти по миру, не подвергнувшись нападению).'),
-                ('TRANSPORT', 8, u'транспорт', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Уровень развития транспортной инфраструктуры (с какой скоростью герои путешествуют в окрестностях города).'),
-                ('FREEDOM', 9, u'свобода', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Насколько активна политическая жизнь в городе (как сильно изменяется влияние советников от действий героев).'),
-                ('TAX', 10, u'пошлина', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Размер пошлины, которую платят герои при посещении города (процент от наличности в кошельке героя).'),
-                ('STABILITY', 11, u'стабильность', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 0,
-                 u'Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при принятии законов), и постепенно восстанавливается до 100%.'),
-                ('STABILITY_RENEWING_SPEED', 12, u'восстанволение стабильности', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, -1,
-                 u'Скорость восстановления стабильности в городе.'),
-                ('EXPERIENCE', 13, u'количество опыта', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Количество опыта за задания, связанные с этим городом.'),
-                ('BUY_PRICE', 14, u'цена попупки предметов', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Цена покупки артефактов.'),
-                ('SELL_PRICE', 15, u'цена продажи предметов', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Цена продажи предметов.'),
-                ('BUY_ARTIFACT_POWER', 16, u'сила покупаемых артефактов', lambda: 0.0, ATTRIBUTE_TYPE.AGGREGATED, 0,
-                 u'Сила артефактов, которые герой приобретает в городе.'),
-                ('TERRAIN_RADIUS_MODIFIER', 17, u'относительный радиус изменений', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 0,
-                 u'Относительный радиус в котором город изменяет мир.'),
-                ('POLITIC_RADIUS_MODIFIER', 18, u'относительный радиус владений', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 0,
-                 u'Относительное максимальное расстояние, на которое могут распространяться границы владений города.'),
-                ('ENERGY_REGEN_CHANCE', 19, u'восстановление энергии', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Шанс восстановить энергию при входе в город.'),
-                ('HERO_REGEN_CHANCE', 20, u'лечение героя', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Шанс героя полностью вылечиться при входе в город.'),
-                ('COMPANION_REGEN_CHANCE', 21, u'лечение спутника', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Шанс спутника подлечиться при входе в город.'),
-                ('POWER_ECONOMIC', 22, u'экономика влияния', lambda: 1, ATTRIBUTE_TYPE.CALCULATED, 1,
-                 u'Определяет скорость производства товаров городом. Зависит от общей суммы влияния, поступившего в город, в результате выполнения героями заданий за определённый период времени (примерное количество недель: %d). Влияние от задания может быть отрицательным. Чем больше суммарное влияние по сравнению с другими городами, тем больше размер экономики.' % c.PLACE_POWER_HISTORY_WEEKS),
-
-                ('MODIFIER_TRADE_CENTER', 23, u'Специализация «Торговый центр»', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Соответствие города специализации «Торговый центр».'),
-                ('MODIFIER_CRAFT_CENTER', 24, u'Специализация «Город мастеров»', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Соответствие города специализации «Город мастеров».'),
-                ('MODIFIER_FORT', 25, u'Специализация «Форт»', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Соответствие города специализации «Форт».'),
-                ('MODIFIER_POLITICAL_CENTER', 26, u'Специализация «Политический центр»', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Соответствие города специализации «Политический центр».'),
-                ('MODIFIER_POLIC', 27, u'Специализация «Полис»', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Соответствие города специализации «Полис».'),
-                ('MODIFIER_RESORT', 28, u'Специализация «Курорт»', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Соответствие города специализации «Курорт».'),
-                ('MODIFIER_TRANSPORT_NODE', 29, u'Специализация «Транспортный узел»', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Соответствие города специализации «Транспортный узел».'),
-                ('MODIFIER_OUTLAWS', 30, u'Специализация «Вольница»', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Соответствие города специализации «Вольница».'),
-                ('MODIFIER_HOLY_CITY', 31, u'Специализация «Святой город»', lambda: 0, ATTRIBUTE_TYPE.AGGREGATED, 1,
-                 u'Соответствие города специализации «Святой город».')  )
-
-
-    EFFECTS_ORDER = sorted(set(record[-2] for record in records))
+    EFFECTS_ORDER = sorted(set(record[-3] for record in records))
 
 
 class RESOURCE_EXCHANGE_TYPE(DjangoEnum):

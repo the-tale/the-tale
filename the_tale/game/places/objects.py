@@ -15,10 +15,11 @@ from the_tale.game.balance import formulas as f
 from the_tale.game.jobs import logic as jobs_logic
 from the_tale.game.jobs import effects as jobs_effects
 
+from the_tale.game import effects
+
 from the_tale.game.prototypes import TimePrototype, GameTime
 
 from . import signals
-from . import effects
 from . import relations
 
 
@@ -212,6 +213,10 @@ class Place(names.ManageNameMixin2):
         map_info = map_info_storage.item
         return map_info.terrain[self.y][self.x]
 
+    def shift(self, dx, dy):
+        self.x += dx
+        self.y += dy
+
     def sync_race(self):
         self.races.update(persons=self.persons)
 
@@ -281,8 +286,8 @@ class Place(names.ManageNameMixin2):
         yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.FREEDOM, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
 
         for person in self.persons:
-            for attribute, modifier in person.get_economic_modifiers():
-                yield effects.Effect(name=person.name, attribute=attribute, value=modifier)
+            for effect in person.place_effects():
+                yield effect
 
 
     def effects_generator(self, order):
@@ -320,11 +325,18 @@ class Place(names.ManageNameMixin2):
                 yield effect
 
     def refresh_attributes(self):
-        # self.effects.update_step(self) # TODO: move in highlevel
         self.attrs.reset()
 
         for effect in self.all_effects():
-            effect.apply_to(self)
+            effect.apply_to(self.attrs)
+
+    def effects_update_step(self):
+        stability_delta = 0
+        stability_effects = [effect for effect in self.effects.effects if effect.attribute.is_STABILITY]
+        if stability_effects:
+            stability_delta = self.attrs.stability_renewing_speed / len(stability_effects)
+
+        self.effects.update_step(deltas={relations.ATTRIBUTE.STABILITY: stability_delta})
 
 
     def set_modifier(self, modifier):

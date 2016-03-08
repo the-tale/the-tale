@@ -264,6 +264,11 @@ class HABIT_CHANGE_SOURCE(DjangoEnum):
                 ('COMPANION_PEACEFULL_NEUTRAL_1', 17, u'спутник склоняет к нейтральной агрессивности 1', None, None, False, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
                 ('COMPANION_PEACEFULL_NEUTRAL_2', 18, u'спутник склоняет к нейтральной агрессивности 2', None, None, False, 0.0, c.HABITS_HELP_ABILITY_DELTA),
                 ('COMPANION_PEACEFULL', 19, u'спутник склоняет к миролюбию',                             None, None, None,  0.0, c.HABITS_HELP_ABILITY_DELTA),
+
+                ('MASTER_QUEST_HONORABLE', 20, u'бонус от мастера к чести', QUEST_OPTION_MARKERS.HONORABLE,            None, None, c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+                ('MASTER_QUEST_DISHONORABLE', 21, u'бонус от мастера к бесчестью', QUEST_OPTION_MARKERS.DISHONORABLE,  None, None, -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+                ('MASTER_QUEST_AGGRESSIVE', 22, u'бонус от мастера к аггресивности', QUEST_OPTION_MARKERS.AGGRESSIVE,  None, None, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
+                ('MASTER_QUEST_UNAGGRESSIVE', 23, u'бонус от мастера к миролюбию', QUEST_OPTION_MARKERS.UNAGGRESSIVE,  None, None, 0.0, c.HABITS_QUEST_PASSIVE_DELTA),
               )
 
 

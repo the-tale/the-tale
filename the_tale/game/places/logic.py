@@ -16,6 +16,7 @@ from the_tale.game import names
 
 from the_tale.game.jobs import job
 from the_tale.game import politic_power
+from the_tale.game import effects
 
 from . import races
 from . import conf
@@ -23,9 +24,12 @@ from . import models
 from . import objects
 from . import habits
 from . import attributes
-from . import effects
 from . import modifiers
 from . import signals
+from . import relations
+
+
+EffectsContainer = effects.create_container(relations.ATTRIBUTE)
 
 
 class PlaceJob(job.Job):
@@ -92,7 +96,7 @@ def load_place(place_id=None, place_model=None):
                          attrs=attributes.Attributes.deserialize(data['attributes']),
                          races=races.Races.deserialize(data['races']),
                          nearest_cells=data.get('nearest_cells', []),
-                         effects=effects.Container.deserialize(data.get('effects')),
+                         effects=EffectsContainer.deserialize(data.get('effects')),
                          job=PlaceJob.deserialize(data['job'] if 'job' in data else PlaceJob.create(normal_power=NORMAL_PLACE_JOB_POWER)),
                          modifier=place_model.modifier)
 
@@ -163,7 +167,7 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           utg_name=utg_name,
                           races=races.Races(),
                           nearest_cells=[],
-                          effects=effects.Container(),
+                          effects=EffectsContainer(),
                           job=PlaceJob.create(normal_power=NORMAL_PLACE_JOB_POWER),
                           modifier=modifiers.CITY_MODIFIERS.NONE)
     place.refresh_attributes()

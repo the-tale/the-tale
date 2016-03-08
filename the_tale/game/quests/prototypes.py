@@ -119,7 +119,7 @@ class QuestInfo(object):
         return cls(**data)
 
     @classmethod
-    def construct(cls, type, uid, knowledge_base, hero):
+    def construct(cls, type, uid, knowledge_base, hero, experience, power):
 
         writer = writers.get_writer(hero=hero, type=type, message=None, substitution=cls.substitution(uid, knowledge_base, hero))
 
@@ -133,8 +133,8 @@ class QuestInfo(object):
                    action=u'',
                    choice=None,
                    choice_alternatives=[],
-                   experience=cls.get_expirience_for_quest(hero),
-                   power=cls.get_person_power_for_quest(hero),
+                   experience=experience,
+                   power=power,
                    experience_bonus=0,
                    power_bonus=0,
                    actors=actors,
@@ -198,20 +198,6 @@ class QuestInfo(object):
                                         if option.uid != choosen_option.uid]
         else:
             self.choice_alternatives = ()
-
-    @classmethod
-    def get_expirience_for_quest(cls, hero):
-        experience = f.experience_for_quest(c.QUEST_AREA_RADIUS)
-        if hero.statistics.quests_done == 0:
-            # since we get shortest path for first quest
-            # and want to give exp as fast as can
-            # and do not want to give more exp than level up required
-            experience = int(experience/2)
-        return experience
-
-    @classmethod
-    def get_person_power_for_quest(cls, hero):# pylint: disable=W0613
-        return f.person_power_for_quest(c.QUEST_AREA_RADIUS)
 
     def get_real_reward_scale(self, hero, scale):
 
@@ -437,10 +423,17 @@ class QuestPrototype(object):
     def give_social_power(self, quest_results):
         results = {}
 
-        for person_uid, result in quest_results.iteritems():
-            person_id = self.knowledge_base[person_uid].externals['id']
+        for object_uid, result in quest_results.iteritems():
+            object_fact = self.knowledge_base[object_uid]
+
+            if not isinstance(object_fact, facts.Person):
+                continue
+
+            person_id = object_fact.externals['id']
+
             if person_id not in persons_storage.persons:
                 continue
+
             results[persons_storage.persons[person_id]] = result
 
         VALUABLE_RESULTS = (QUEST_RESULTS.SUCCESSED, QUEST_RESULTS.FAILED)
@@ -471,8 +464,8 @@ class QuestPrototype(object):
 
     def _finish_quest(self, finish, hero):
 
-        experience = self.modify_experience(self.current_info.experience)
-        experience_bonus = self.modify_experience(self.current_info.experience_bonus)
+        experience = self.current_info.experience
+        experience_bonus = self.current_info.experience_bonus
 
         hero.add_experience(experience)
         hero.add_experience(experience_bonus, without_modifications=True)
@@ -482,9 +475,34 @@ class QuestPrototype(object):
         if hero.companion:
             hero.companion.add_experience(c.COMPANIONS_COHERENCE_EXP_PER_QUEST)
 
-        for person_uid, result in finish.results.iteritems():
-            if result == QUEST_RESULTS.FAILED:
-                hero.quests.add_interfered_person(self.knowledge_base[person_uid].externals['id'])
+        for object_uid, result in finish.results.iteritems():
+            if result == QUEST_RESULTS.SUCCESSED:
+                object_politic_power = 1
+            elif result == QUEST_RESULTS.FAILED:
+                object_politic_power = -1
+            else:
+                object_politic_power = 0
+
+            object_fact = self.knowledge_base[object_uid]
+
+            if isinstance(object_fact, facts.Person):
+                person_id = object_fact.externals['id']
+
+                if result == QUEST_RESULTS.FAILED:
+                    hero.quests.add_interfered_person(person_id)
+
+                person_habits_change_source = persons_storage.persons[person_id].attrs.on_quest_habits.get(result)
+
+                if person_habits_change_source:
+                    self.hero.update_habits(person_habits_change_source)
+
+                self._give_person_power(self.hero, persons_storage.persons[person_id], object_politic_power)
+
+            elif isinstance(object_fact, facts.Place):
+                self._give_place_power(self.hero, places_storage.places[object_fact.externals['id']], object_politic_power)
+
+            else:
+                raise exceptions.UnknownPowerRecipientError(recipient=object_fact)
 
         for marker, default in self.current_info.used_markers.iteritems():
             for change_source in HABIT_CHANGE_SOURCE.records:
@@ -616,27 +634,59 @@ class QuestPrototype(object):
         self.quests_stack.append(QuestInfo.construct(type=start.type,
                                                      uid=start.uid,
                                                      knowledge_base=self.machine.knowledge_base,
+                                                     experience=self.get_expirience_for_quest(start.uid, hero),
+                                                     power=self.get_person_power_for_quest(start.uid, hero),
                                                      hero=hero))
 
+    def get_expirience_for_quest(self, quest_uid, hero):
+        experience = f.experience_for_quest(c.QUEST_AREA_RADIUS)
 
-    def modify_experience(self, experience):
-        quest_uid = self.current_info.uid
+        if hero.statistics.quests_done == 0:
+            # since we get shortest path for first quest
+            # and want to give exp as fast as can
+            # and do not want to give more exp than level up required
+            experience = int(experience/2)
 
-        experience_modifiers = {}
+        place_experience_bonuses = {}
+        person_experience_bonuses = {}
 
         for participant in self.knowledge_base.filter(facts.QuestParticipant):
+
             if quest_uid != participant.start:
                 continue
+
             fact = self.knowledge_base[participant.participant]
+
             if isinstance(fact, facts.Person):
-                place = persons_storage.persons.get(fact.externals['id']).place
+                person = persons_storage.persons.get(fact.externals['id'])
+                person_experience_bonuses[person.id] = person.attrs.experience_bonus
+                place = person.place
             elif isinstance(fact, facts.Place):
                 place = places_storage.places.get(fact.externals['id'])
 
-            experience_modifiers[place.id] = place.attrs.experience
+            place_experience_bonuses[place.id] = place.attrs.experience_bonus
 
-        experience += experience * sum(experience_modifiers.values())
+        experience += experience * (sum(place_experience_bonuses.values()) + sum(person_experience_bonuses.values()))
+
         return experience
+
+
+    def get_person_power_for_quest(self, quest_uid, hero):
+        base_politic_power = f.person_power_for_quest(c.QUEST_AREA_RADIUS)
+
+        for participant in self.knowledge_base.filter(facts.QuestParticipant):
+
+            if quest_uid != participant.start:
+                continue
+
+            fact = self.knowledge_base[participant.participant]
+
+            if isinstance(fact, facts.Person):
+                person = persons_storage.persons.get(fact.externals['id'])
+                base_politic_power += person.attrs.politic_power_bonus
+
+        return base_politic_power
+
 
     ################################
     # general callbacks
@@ -685,24 +735,6 @@ class QuestPrototype(object):
 
     def do_message(self, action):
         self.current_info.process_message(self.knowledge_base, self.hero, action.type)
-
-    def do_give_power(self, action):
-        # every quest branch give equal power to its participants
-        power = 0
-
-        if action.power > 0:
-            power = 1
-
-        if action.power < 0:
-            power = -1
-
-        recipient = self.knowledge_base[action.object]
-        if isinstance(recipient, facts.Person):
-            self._give_person_power(self.hero, persons_storage.persons[recipient.externals['id']], power)
-        elif isinstance(recipient, facts.Place):
-            self._give_place_power(self.hero, places_storage.places[recipient.externals['id']], power)
-        else:
-            raise exceptions.UnknownPowerRecipientError(recipient=recipient)
 
     def do_give_reward(self, action):
         self._give_reward(self.hero, action.type, action.scale)

@@ -24,6 +24,7 @@ from . import storage
 from . import conf
 from . import relations
 from . import exceptions
+from . import attributes
 
 
 class PersonJob(job.Job):
@@ -67,7 +68,10 @@ def save_person(person, new=False):
     data = {'name': person.utg_name.serialize(),
             'job': person.job.serialize(),
             'politic_power': person.politic_power.serialize(),
-            'moved_at_turn': person.moved_at_turn}
+            'moved_at_turn': person.moved_at_turn,
+            'attributes': person.attrs.serialize(),
+            'personality': {'cosmetic': person.personality_cosmetic.value,
+                            'practical': person.personality_practical.value}}
 
     arguments = {'place_id': person.place_id,
                  'gender': person.gender,
@@ -102,10 +106,15 @@ def create_person(place, race, type, utg_name, gender):
                             type=type,
                             friends_number=0,
                             enemies_number=0,
+                            attrs=attributes.Attributes(),
+                            personality_cosmetic=relations.PERSONALITY_COSMETIC.random(),
+                            personality_practical=relations.PERSONALITY_PRACTICAL.random(),
                             politic_power=PersonPoliticPower.create(),
                             utg_name=utg_name,
                             job=PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER),
                             moved_at_turn=TimePrototype.get_current_turn_number())
+    person.refresh_attributes()
+    place.refresh_attributes()
     save_person(person, new=True)
     return person
 
@@ -131,9 +140,12 @@ def load_person(person_id=None, person_model=None):
                           type=person_model.type,
                           friends_number=person_model.friends_number,
                           enemies_number=person_model.enemies_number,
+                          attrs=attributes.Attributes.deserialize(data['attributes']),
                           politic_power=PersonPoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PersonPoliticPower.create(),
                           utg_name=utg_words.Word.deserialize(data['name']),
                           job=PersonJob.deserialize(data['job'] if 'job' in data else PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER)),
+                          personality_cosmetic=relations.PERSONALITY_COSMETIC(data['personality']['cosmetic']),
+                          personality_practical=relations.PERSONALITY_PRACTICAL(data['personality']['practical']),
                           moved_at_turn=data.get('moved_at_turn', 0))
 
 

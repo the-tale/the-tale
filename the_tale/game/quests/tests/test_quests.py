@@ -198,12 +198,12 @@ class RawQuestsTest(QuestsTestBase):
                 self._check_messages(quest_type, '%s_artifact' % action.type)
 
 
-    def _get_powers(self, start, actions):
+    def _get_powers(self, start, current_state):
         powers = set()
 
-        for action in actions:
-            if isinstance(action, questgen_actions.GivePower):
-                powers.add((start, action.object))
+        if isinstance(current_state, facts.Finish):
+            for object_uid in current_state.results.iterkeys():
+                powers.add((start, object_uid))
 
         return powers
 
@@ -228,7 +228,7 @@ class RawQuestsTest(QuestsTestBase):
 
         self._check_action_messages(starts[-1][1], current_state.actions)
 
-        powers |= self._get_powers(starts[-1][0], current_state.actions)
+        powers |= self._get_powers(starts[-1][0], current_state)
 
         if isinstance(current_state, facts.Finish):
             starts.pop()
@@ -240,9 +240,6 @@ class RawQuestsTest(QuestsTestBase):
 
             self._check_action_messages(starts[-1][1], next_jump.start_actions)
             self._check_action_messages(starts[-1][1], next_jump.end_actions)
-
-            powers |= self._get_powers(starts[-1][0], next_jump.start_actions)
-            powers |= self._get_powers(starts[-1][0], next_jump.end_actions)
 
             if isinstance(next_jump, facts.Option):
                 writer = Writer(type=starts[-1][1], message='choice', substitution={}, hero=self.hero)

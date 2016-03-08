@@ -36,3 +36,7 @@ PROFESSION_TO_ECONOMIC = {relations.PERSON_TYPE(person_type_id): {place_relation
 PROFESSION_TO_SPECIALIZATIONS = xls.load_table_for_enums(_professions_xls_file, sheet_index=2,
                                                          rows_enum=relations.PERSON_TYPE, columns_enum=place_modifiers.CITY_MODIFIERS,
                                                          data_type=float)
+
+PROFESSION_TO_SPECIALIZATIONS = {relations.PERSON_TYPE(person_type_id): {place_modifiers.CITY_MODIFIERS(attribute_id): value
+                                                                         for attribute_id, value in person_type_data.iteritems()}
+                                 for person_type_id, person_type_data in PROFESSION_TO_SPECIALIZATIONS.iteritems()}

@@ -17,6 +17,8 @@ from the_tale.game.places import relations as places_relations
 
 from the_tale.game.persons.tests.helpers import create_person
 
+from the_tale.game.persons import relations
+
 
 class PersonTests(testcase.TestCase):
 
@@ -74,6 +76,61 @@ class PersonTests(testcase.TestCase):
                                                                        person_id=self.person.id,
                                                                        power_delta=-100,
                                                                        place_id=None))
+
+    def test_place_effects__economic_and_specialization(self):
+        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.P_1
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.P_1
+        self.person.refresh_attributes()
+
+        place_attributes = set(effect.attribute for effect in self.person.place_effects())
+
+        self.assertEqual(place_attributes,
+                         set((places_relations.ATTRIBUTE.PRODUCTION,
+                              places_relations.ATTRIBUTE.SAFETY,
+                              places_relations.ATTRIBUTE.TRANSPORT,
+                              places_relations.ATTRIBUTE.FREEDOM,
+                              places_relations.ATTRIBUTE.STABILITY,
+
+                              places_relations.ATTRIBUTE.MODIFIER_TRANSPORT_NODE,
+                              places_relations.ATTRIBUTE.MODIFIER_OUTLAWS,
+                              places_relations.ATTRIBUTE.MODIFIER_HOLY_CITY,
+                              places_relations.ATTRIBUTE.MODIFIER_CRAFT_CENTER,
+                              places_relations.ATTRIBUTE.MODIFIER_FORT,
+                              places_relations.ATTRIBUTE.MODIFIER_POLITICAL_CENTER,
+                              places_relations.ATTRIBUTE.MODIFIER_TRADE_CENTER,
+                              places_relations.ATTRIBUTE.MODIFIER_POLIC,
+                              places_relations.ATTRIBUTE.MODIFIER_RESORT)))
+
+
+    def test_place_effects__terrain_radius_bonus(self):
+        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.P_6
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.P_1
+        self.person.refresh_attributes()
+
+        place_attributes = set(effect.attribute for effect in self.person.place_effects())
+
+        self.assertIn(places_relations.ATTRIBUTE.TERRAIN_RADIUS, place_attributes)
+
+
+    def test_place_effects__politic_radius_bonus(self):
+        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.P_1
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.P_9
+        self.person.refresh_attributes()
+
+        place_attributes = set(effect.attribute for effect in self.person.place_effects())
+
+        self.assertIn(places_relations.ATTRIBUTE.POLITIC_RADIUS, place_attributes)
+
+
+    def test_place_effects__stability_renewing_bonus(self):
+        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.P_1
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.P_10
+        self.person.refresh_attributes()
+
+        place_attributes = set(effect.attribute for effect in self.person.place_effects())
+
+        self.assertIn(places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, place_attributes)
+
 
 FAKE_ECONOMIC = {places_relations.ATTRIBUTE.PRODUCTION: 1.0,
                  places_relations.ATTRIBUTE.FREEDOM: 0,

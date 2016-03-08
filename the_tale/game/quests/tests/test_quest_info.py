@@ -41,6 +41,8 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
             self.quest_info = QuestInfo.construct(type=self.start.type,
                                                   uid=self.start.uid,
                                                   knowledge_base=self.quest.knowledge_base,
+                                                  experience=100,
+                                                  power=1000,
                                                   hero=self.hero)
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])

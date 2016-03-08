@@ -5,8 +5,8 @@ from rels.django import DjangoEnum
 from questgen.relations import PLACE_TYPE as QUEST_PLACE_TYPE
 
 from the_tale.game.balance import constants as c
+from the_tale.game import effects
 
-from . import effects
 from . import relations
 from . import technical_words
 
@@ -27,7 +27,8 @@ def record(name, value, text, quest, modifier_effects, description):
             getattr(technical_words, 'MODIFIER_{}'.format(name)),
             _modifier_linguistics_restrictions(name),
             tuple([effects.Effect(name=text, attribute=getattr(relations.ATTRIBUTE, attribute), value=value) for attribute, value in modifier_effects]),
-            description)
+            description,
+            relations.ATTRIBUTE.index_name['MODIFIER_{}'.format(name)] if name != 'NONE' else None)
 
 
 class CITY_MODIFIERS(DjangoEnum):
@@ -36,6 +37,7 @@ class CITY_MODIFIERS(DjangoEnum):
     linguistics_restrictions = Column()
     effects = Column()
     description = Column()
+    points_attribute = Column(unique=False, single_type=False)
 
     records = ( record('TRADE_CENTER', 0, u'Торговый центр', QUEST_PLACE_TYPE.NONE,
                        (('SELL_PRICE', 0.25), ('BUY_PRICE', -0.25), ('PRODUCTION', c.PLACE_GOODS_BONUS / 2), ('FREEDOM', 0.1)),
@@ -66,7 +68,7 @@ class CITY_MODIFIERS(DjangoEnum):
                        u'Хорошие дороги и обилие гостиниц делают путешествие по дорогам в окрестностях города быстрым и комфортным. Увеличивается уровень транспорта в городе.'),
 
                 record('OUTLAWS', 7, u'Вольница', QUEST_PLACE_TYPE.NONE,
-                       (('EXPERIENCE', 0.25), ('FREEDOM', 0.35), ('SAFETY', -0.1)),
+                       (('EXPERIENCE_BONUS', 0.25), ('FREEDOM', 0.35), ('SAFETY', -0.1)),
                        u'Город облюбован всевозможными авантюристами, бунтарями, беглыми преступниками, бастардами и просто свободолюбивыми людьми, которые готовы любыми средствами защищать свою свободу и свой уклад. Любое задание, связанное с этим городом, принесёт дополнительные опыт герою. Также в городе увеличен уровень свободы и уменьшен уровень безопасности.'),
 
                 record('HOLY_CITY', 8, u'Святой город', QUEST_PLACE_TYPE.HOLY_CITY,

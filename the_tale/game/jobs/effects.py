@@ -6,8 +6,10 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
+from the_tale.game import effects
+
 from the_tale.game.places import relations as places_relations
-from the_tale.game.places import effects as places_effects
+
 
 
 class BaseEffect(object):
@@ -69,7 +71,7 @@ class ChangePlaceAttribute(BaseEffect):
 
 
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
-        place.effects.add(places_effects.Effect(name=actor_name, attribute=self.attribute, value=self.base_value*job_power))
+        place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=self.base_value*job_power))
 
         self.apply_to_heroes(actor_type=actor_type,
                              effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
@@ -81,7 +83,7 @@ class ChangePlaceAttribute(BaseEffect):
 
 
     def apply_negative(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
-        place.effects.add(places_effects.Effect(name=actor_name, attribute=self.attribute, value=-self.base_value*job_power))
+        place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=-self.base_value*job_power))
 
         self.apply_to_heroes(actor_type=actor_type,
                              effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),

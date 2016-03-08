@@ -20,8 +20,9 @@ from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game import effects
+
 from the_tale.game.places import objects as places_objects
-from the_tale.game.places import effects as places_effects
 from the_tale.game.places import relations as places_relations
 
 from the_tale.forum.prototypes import ThreadPrototype, PostPrototype, SubCategoryPrototype
@@ -228,9 +229,9 @@ class BillPrototype(BasePrototype):
 
             for actor in self.data.actors:
                 if isinstance(actor, places_objects.Place):
-                    actor.effects.add(places_effects.Effect(name=u'закон №{}'.format(self.id),
-                                                            attribute=places_relations.ATTRIBUTE.STABILITY,
-                                                            value=-self.type.stability))
+                    actor.effects.add(effects.Effect(name=u'закон №{}'.format(self.id),
+                                                     attribute=places_relations.ATTRIBUTE.STABILITY,
+                                                     value=-self.type.stability))
 
         logic.initiate_actual_bills_update(self._model.owner_id)
 

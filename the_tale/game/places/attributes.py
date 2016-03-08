@@ -1,33 +1,14 @@
 # coding: utf-8
+import math
 
 from . import relations
 
 from the_tale.game.balance import constants as c
+from the_tale.game import attributes
 
 
-class Attributes(object):
-    __slots__ = tuple([record.name.lower() for record in relations.ATTRIBUTE.records])
-
-    def __init__(self, **kwargs):
-        for name, value in kwargs.iteritems():
-            setattr(self, name, value)
-
-        for attribute in relations.ATTRIBUTE.records:
-            if not hasattr(self, attribute.name.lower()):
-                setattr(self, attribute.name.lower(), attribute.default())
-
-    def serialize(self):
-        return {name: getattr(self, name) for name in self.__slots__}
-
-    @classmethod
-    def deserialize(cls, data):
-        return cls(**data)
-
-    def reset(self):
-        for attribute in relations.ATTRIBUTE.records:
-            if attribute.type.is_CALCULATED:
-                continue
-            setattr(self, attribute.name.lower(), attribute.default())
+class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
+    __slots__ = ()
 
     def sync_size(self, hours):
 
@@ -49,16 +30,17 @@ class Attributes(object):
                 self.size = 1
                 self.goods = 0
 
+        # методика расчёта:
+        # в городе 7-ого уровня 2 жителя со способностями 0.7 и влиянием 0.35 каждый в сумме должны накапливать 75 очков
+        # 2*7*0.35*0.7 ~ 3.43 с модификатором силы жителя - 34.3 -> на 7-ом уровне можификатор от размера должен быть примерно 2.2
+        self.modifier_multiplier = (math.log(self.size, 2) + 1) / 1.7
+
     def sync(self):
         self.politic_radius = self.size * self.politic_radius_modifier
         self.terrain_radius = self.size * self.terrain_radius_modifier
 
     def set_power_economic(self, value):
         self.power_economic = value
-
-    def shift(self, dx, dy):
-        self.x += dx
-        self.y += dy
 
     def get_next_keepers_goods_spend_amount(self):
         return min(self.keepers_goods, max(int(self.keepers_goods * c.PLACE_KEEPERS_GOODS_SPENDING), c.PLACE_GOODS_BONUS))

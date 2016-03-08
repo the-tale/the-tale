@@ -10,11 +10,12 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.jobs import effects as jobs_effects
 
+from the_tale.game import effects
+
 from ..prototypes import ResourceExchangePrototype
 from .. import relations
 from .. import modifiers
 from .. import objects
-from .. import effects
 
 
 class PlaceTests(testcase.TestCase):
@@ -283,7 +284,7 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.stability - (0.75 - 0.05 * len(self.p1.persons)) < 0.001)
 
-        self.p1.effects.update_step(self.p1)
+        self.p1.effects_update_step()
 
         self.assertEqual(len(self.p1.effects.effects), 2)
 
@@ -300,16 +301,16 @@ class PlaceTests(testcase.TestCase):
         self.p1.effects.add(effects.Effect(name=u'x', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
         self.p1.effects.add(effects.Effect(name=u'y', attribute=relations.ATTRIBUTE.STABILITY, value=0.25))
 
-        self.p1.effects.update_step(self.p1)
+        self.p1.effects_update_step()
         self.assertEqual(len(self.p1.effects.effects), 2)
 
-        self.p1.effects.update_step(self.p1)
+        self.p1.effects_update_step()
         self.assertEqual(len(self.p1.effects.effects), 1)
 
         self.assertEqual(self.p1.effects.effects[0].name, 'x')
         self.assertEqual(self.p1.effects.effects[0].value, -0.25)
 
-        self.p1.effects.update_step(self.p1)
+        self.p1.effects_update_step()
         self.assertEqual(len(self.p1.effects.effects), 0)
 
 

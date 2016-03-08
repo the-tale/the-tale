@@ -54,7 +54,7 @@ class ModifiersTests(testcase.TestCase):
     def test_outlaws(self):
         with self.check_increased(lambda: self.place_1.attrs.freedom):
             with self.check_decreased(lambda: self.place_1.attrs.safety):
-                with self.check_increased(lambda: self.place_1.attrs.experience):
+                with self.check_increased(lambda: self.place_1.attrs.experience_bonus):
                     self.place_1.set_modifier(modifiers.CITY_MODIFIERS.OUTLAWS)
 
     def test_holy_city(self):

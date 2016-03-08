@@ -198,7 +198,7 @@ class Worker(BaseWorker):
 
         for place in places_storage.places.all():
             if sheduled:
-                place.effects.update_step(place)
+                place.effects_update_step()
 
             place.sync_habits()
 

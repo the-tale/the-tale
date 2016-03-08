@@ -9,19 +9,21 @@ from the_tale import amqp_environment
 from the_tale.common.utils import logic as utils_logic
 
 from the_tale.game import names
+from the_tale.game import effects
 
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.balance import constants as c
 
 from the_tale.game.jobs import logic as jobs_logic
+from the_tale.game.jobs import effects as jobs_effects
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import relations as places_relations
 
-from the_tale.game.jobs import effects as jobs_effects
 
 from . import economic
+from . import relations
 
 
 BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_BONUS,
@@ -39,6 +41,7 @@ class Person(names.ManageNameMixin2):
                  'gender',
                  'race',
                  'type',
+                 'attrs',
                  'politic_power',
 
                  'friends_number',
@@ -50,12 +53,30 @@ class Person(names.ManageNameMixin2):
 
                  'utg_name',
 
+                 'personality_cosmetic',
+                 'personality_practical',
+
                  # mames mixin
                  '_utg_name_form__lazy',
                  '_name__lazy')
 
 
-    def __init__(self, id, created_at_turn, place_id, gender, race, type, friends_number, enemies_number, politic_power, utg_name, job, moved_at_turn):
+    def __init__(self,
+                 id,
+                 created_at_turn,
+                 place_id,
+                 gender,
+                 race,
+                 type,
+                 friends_number,
+                 enemies_number,
+                 politic_power,
+                 utg_name,
+                 job,
+                 moved_at_turn,
+                 attrs,
+                 personality_cosmetic,
+                 personality_practical):
         self.id = id
         self.created_at_turn = created_at_turn
         self.place_id = place_id
@@ -68,6 +89,9 @@ class Person(names.ManageNameMixin2):
         self.utg_name = utg_name
         self.job = job
         self.moved_at_turn = moved_at_turn
+        self.attrs = attrs
+        self.personality_cosmetic = personality_cosmetic
+        self.personality_practical = personality_practical
 
 
     @property
@@ -145,6 +169,10 @@ class Person(names.ManageNameMixin2):
     def economic_attributes(self):
         return economic.PROFESSION_TO_ECONOMIC[self.type]
 
+    @property
+    def specialization_attributes(self):
+        return economic.PROFESSION_TO_SPECIALIZATIONS[self.type]
+
     def job_effects_priorities(self):
         effects_priorities = {}
 
@@ -203,6 +231,49 @@ class Person(names.ManageNameMixin2):
                 'gender': self.gender.value,
                 'profession': self.type.value,
                 'place': self.place.id}
+
+
+    def _effects_generator(self):
+        yield self.personality_cosmetic.effect
+        yield self.personality_practical.effect
+
+    def effects_generator(self, order):
+        for effect in self._effects_generator():
+            if effect.attribute.order != order:
+                continue
+            yield effect
+
+    def all_effects(self):
+        for order in relations.ATTRIBUTE.EFFECTS_ORDER:
+            for effect in self.effects_generator(order):
+                yield effect
+
+
+    def place_effects(self):
+        for attribute, modifier in self.get_economic_modifiers():
+            yield effects.Effect(name=self.name, attribute=attribute, value=modifier)
+
+        for specialization, points in self.specialization_attributes.iteritems():
+            if specialization.points_attribute is None:
+                continue
+            yield effects.Effect(name=self.name, attribute=specialization.points_attribute, value=points * self.total_politic_power_fraction * self.place.attrs.modifier_multiplier)
+
+        if self.attrs.terrain_radius_bonus != 0:
+            yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.terrain_radius_bonus)
+
+        if self.attrs.politic_radius_bonus != 0:
+            yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.politic_radius_bonus)
+
+        if self.attrs.stability_renewing_bonus != 0:
+            yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=self.attrs.stability_renewing_bonus)
+
+
+    def refresh_attributes(self):
+        self.attrs.reset()
+
+        for effect in self.all_effects():
+            effect.apply_to(self.attrs)
+
 
 
 
