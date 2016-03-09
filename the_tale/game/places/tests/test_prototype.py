@@ -126,6 +126,16 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         self.assertTrue(amortization_delta < amortization_delta_2)
 
+    def test_amortization_delta_depends_from_person_building_amortization_speed(self):
+        person = self.place_1.persons[0]
+        building = BuildingPrototype.create(person, utg_name=names.generator.get_test_name(name='building-name'))
+
+        person.attrs.building_amortization_speed = 1
+
+        with self.check_decreased(lambda: building.amortization_delta(1000)):
+            person.attrs.building_amortization_speed = 0.5
+
+
     def test_save__update_storage(self):
         building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
 

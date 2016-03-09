@@ -118,10 +118,10 @@ class Peacefulness(Habit):
     def modify_attribute(self, modifier, value):
 
         if modifier.is_FRIEND_QUEST_PRIORITY and self._real_interval.is_RIGHT_3:
-            return value * c.HABIT_QUEST_PRIORITY_MODIFIER
+            return value + c.HABIT_QUEST_PRIORITY_MODIFIER
 
         if modifier.is_ENEMY_QUEST_PRIORITY and self._real_interval.is_LEFT_3:
-            return value * c.HABIT_QUEST_PRIORITY_MODIFIER
+            return value + c.HABIT_QUEST_PRIORITY_MODIFIER
 
         if modifier.is_LOOT_PROBABILITY and (self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
             return value * c.HABIT_LOOT_PROBABILITY_MODIFIER

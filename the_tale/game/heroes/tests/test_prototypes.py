@@ -941,7 +941,7 @@ class HeroQuestsTest(testcase.TestCase):
 
     def setUp(self):
         super(HeroQuestsTest, self).setUp()
-        create_test_map()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
 
         result, account_id, bundle_id = register_user('test_user')
 
@@ -1025,21 +1025,43 @@ class HeroQuestsTest(testcase.TestCase):
         # not there are no another quests an get_minimum_created_time_of_active_quests return now()
         self.assertEqual(test_time, logic.get_minimum_created_time_of_active_quests())
 
+    def prepair_quest_priority_preferences(self, friend_priorities=(0, 0), enemy_priorities=(0, 0)):
+        friend = self.place_1.persons[0]
+        friend.attrs.friends_quests_priority_bonus = friend_priorities[0]
+        friend.attrs.enemies_quests_priority_bonus = friend_priorities[1]
+
+        enemy = self.place_2.persons[0]
+        enemy.attrs.friends_quests_priority_bonus = enemy_priorities[0]
+        enemy.attrs.enemies_quests_priority_bonus = enemy_priorities[1]
+
+        self.hero.preferences.set_friend(friend)
+        self.hero.preferences.set_enemy(enemy)
 
     def test_modify_quest_priority(self):
+        self.prepair_quest_priority_preferences()
+
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
 
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
     def test_modify_quest_priority__friend(self):
+        self.prepair_quest_priority_preferences()
+
         self.assertTrue(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND) > QUESTS.HELP_FRIEND.priority)
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
 
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
     def test_modify_quest_priority__enemy(self):
+        self.prepair_quest_priority_preferences()
+
         self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
         self.assertTrue(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY)> QUESTS.INTERFERE_ENEMY.priority)
 
+    def test_modify_quest_priority__from_person(self):
+        self.prepair_quest_priority_preferences((1, 2), (3, 4))
+
+        self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority + 1)
+        self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority + 4)
 
 
 class HeroUiInfoTest(testcase.TestCase):

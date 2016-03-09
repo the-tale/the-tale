@@ -25,6 +25,7 @@ class RacesTests(testcase.TestCase):
         for person in persons_storage.persons.all():
             person.politic_power.change_power(person, hero_id=666, has_in_preferences=False, power=1000)
             person.politic_power.change_power(person, hero_id=777, has_in_preferences=True, power=2000)
+            person.attrs.demographics_pressure = 1
 
     def test_initialize(self):
         for race in RACE.records:
@@ -91,6 +92,28 @@ class RacesTests(testcase.TestCase):
 
         for percents in next_races.values():
             self.assertTrue(percents >= 0)
+
+
+    def test_get_next_races__demographics_pressure(self):
+        person_1 = self.p1.persons[0]
+        person_2 = self.p2.persons[0]
+
+        person_2.race = RACE.random(exclude=(person_1.race,))
+
+        old_races = races.Races()
+
+        old_next_races = old_races.get_next_races((person_1, person_2))
+
+        self.assertTrue(1 - E < sum(old_next_races.values()) < 1 + E )
+
+        person_1.attrs.demographics_pressure = 2
+
+        new_next_races = old_races.get_next_races((person_1, person_2))
+
+        self.assertTrue(old_next_races[person_1.race] < new_next_races[person_1.race])
+        self.assertTrue(old_next_races[person_2.race] > new_next_races[person_2.race])
+
+        self.assertTrue(1 - E < sum(new_next_races.values()) < 1 + E )
 
 
     def test_update(self):

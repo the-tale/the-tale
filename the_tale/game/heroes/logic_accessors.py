@@ -88,10 +88,10 @@ class LogicAccessorsMixin(object):
         priority = quest.priority
 
         if quest.is_HELP_FRIEND:
-            priority *= self.attribute_modifier(relations.MODIFIERS.FRIEND_QUEST_PRIORITY)
+            priority *= self.attribute_modifier(relations.MODIFIERS.FRIEND_QUEST_PRIORITY) + self.preferences.friend.attrs.friends_quests_priority_bonus
 
         if quest.is_INTERFERE_ENEMY:
-            priority *= self.attribute_modifier(relations.MODIFIERS.ENEMY_QUEST_PRIORITY)
+            priority *= self.attribute_modifier(relations.MODIFIERS.ENEMY_QUEST_PRIORITY) + self.preferences.enemy.attrs.enemies_quests_priority_bonus
 
         if quest.quest_type.is_CHARACTER:
             priority *= self.attribute_modifier(relations.MODIFIERS.CHARACTER_QUEST_PRIORITY)

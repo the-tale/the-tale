@@ -208,7 +208,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertTrue(give_power.call_count > 0)
 
-    def test_get_experience_for_quest(self):
+    def test_get_expirience_for_quest(self):
         self.assertEqual(self.hero.experience, 0)
         self.complete_quest()
         self.assertTrue(self.hero.experience > 0)
@@ -216,7 +216,7 @@ class PrototypeTests(PrototypeTestsBase):
 
     @mock.patch('the_tale.game.balance.formulas.experience_for_quest', lambda x: 100)
     @mock.patch('the_tale.game.heroes.statistics.Statistics.quests_done', 1)
-    def test_modify_experience__from_place(self):
+    def test_get_expirience_for_quest__from_place(self):
         for place in places_storage.places.all():
             place.attrs.experience_bonus = 0.0
         for person in persons_storage.persons.all():
@@ -232,7 +232,7 @@ class PrototypeTests(PrototypeTestsBase):
 
     @mock.patch('the_tale.game.balance.formulas.experience_for_quest', lambda x: 100)
     @mock.patch('the_tale.game.heroes.statistics.Statistics.quests_done', 1)
-    def test_modify_experience__from_person(self):
+    def test_get_expirience_for_quest__from_person(self):
         for place in places_storage.places.all():
             place.attrs.experience_bonus = 0.0
         for person in persons_storage.persons.all():
@@ -244,6 +244,19 @@ class PrototypeTests(PrototypeTestsBase):
             person.attrs.experience_bonus = 1.0
 
         self.assertTrue(self.quest.get_expirience_for_quest(self.quest.current_info.uid, self.hero) > 100)
+
+
+    @mock.patch('the_tale.game.balance.formulas.person_power_for_quest', lambda x: 100)
+    def test_get_politic_power_for_quest__from_person(self):
+        for person in persons_storage.persons.all():
+            person.attrs.politic_power_bonus = 0.0
+
+        self.assertEqual(self.quest.get_politic_power_for_quest(self.quest.current_info.uid, self.hero), 100)
+
+        for person in persons_storage.persons.all():
+            person.attrs.politic_power_bonus = 1.0
+
+        self.assertTrue(self.quest.get_politic_power_for_quest(self.quest.current_info.uid, self.hero) > 100)
 
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 0)
@@ -345,8 +358,23 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertTrue(self.hero.money > 0)
 
 
+    def test_modify_reward_scale(self):
+        self.complete_quest(positive_results=True)
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype.get_state_by_jump_pointer', lambda qp: self.quest.knowledge_base[self.quest.machine.pointer.state]):
+            for person in persons_storage.persons.all():
+                person.attrs.on_profite_reward_bonus = 0
+
+            self.assertEqual(self.quest.modify_reward_scale(1), 1)
+
+            for person in persons_storage.persons.all():
+                person.attrs.on_profite_reward_bonus = 1
+
+            self.assertTrue(self.quest.modify_reward_scale(1) > 1)
+
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.ARTIFACT_POWER_DELTA', 0.0)
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_reward_scale', lambda self, scale: scale)
     def test_give_reward__artifact_scale(self):
 
         self.assertEqual(self.hero.bag.occupation, 0)
@@ -369,6 +397,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(artifact_1.level + 1, artifact_2.level)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_reward_scale', lambda self, scale: scale)
     def test_give_reward__money_scale(self):
 
         self.assertEqual(self.hero.money, 0)
@@ -383,6 +412,7 @@ class PrototypeTests(PrototypeTestsBase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.quest_money_reward_multiplier', lambda hero: -100)
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_reward_scale', lambda self, scale: scale)
     def test_give_reward__money_scale_less_then_zero(self):
 
         with self.check_delta(lambda: self.hero.money, 1):

@@ -514,19 +514,51 @@ class QuestPrototype(object):
         self.quests_stack.pop()
 
 
+    def get_state_by_jump_pointer(self):
+        return self.knowledge_base[self.knowledge_base[self.machine.pointer.jump].state_to]
+
+    def modify_reward_scale(self, scale):
+
+        finish_state = self.get_state_by_jump_pointer()
+
+        for object_uid, result in finish_state.results.iteritems():
+
+            if result != QUEST_RESULTS.SUCCESSED:
+                continue
+
+            object_fact = self.knowledge_base[object_uid]
+
+            if not isinstance(object_fact, facts.Person):
+                continue
+
+            person_id = object_fact.externals['id']
+
+            scale += persons_storage.persons[person_id].attrs.on_profite_reward_bonus
+
+        return scale
+
+
     def _give_reward(self, hero, reward_type, scale):
 
         quest_info = self.current_info
 
         scale = quest_info.get_real_reward_scale(hero, scale)
+        scale = self.modify_reward_scale(scale)
 
+        # hero receive artifact
         if hero.can_get_artifact_for_quest():
 
             level_delta = int(math.ceil(abs(scale)))
+
             if scale < 0:
                 level_delta = -level_delta
 
-            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False, better=False, prefered_slot=False, prefered_item=False, archetype=False, level_delta=level_delta)
+            artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False,
+                                                                          better=False,
+                                                                          prefered_slot=False,
+                                                                          prefered_item=False,
+                                                                          archetype=False,
+                                                                          level_delta=level_delta)
 
             if artifact is not None:
                 quest_info.process_message(knowledge_base=self.knowledge_base,
@@ -534,6 +566,8 @@ class QuestPrototype(object):
                                            message='%s_artifact' % reward_type,
                                            ext_substitution={'artifact': artifact})
                 return
+
+        # here does not receive artifac (receive money instead)
 
         money = int(max(1, f.sell_artifact_price(hero.level) * scale))
 
@@ -635,8 +669,16 @@ class QuestPrototype(object):
                                                      uid=start.uid,
                                                      knowledge_base=self.machine.knowledge_base,
                                                      experience=self.get_expirience_for_quest(start.uid, hero),
-                                                     power=self.get_person_power_for_quest(start.uid, hero),
+                                                     power=self.get_politic_power_for_quest(start.uid, hero),
                                                      hero=hero))
+
+    def quest_participants(self, quest_uid):
+        for participant in self.knowledge_base.filter(facts.QuestParticipant):
+
+            if quest_uid != participant.start:
+                continue
+
+            yield participant
 
     def get_expirience_for_quest(self, quest_uid, hero):
         experience = f.experience_for_quest(c.QUEST_AREA_RADIUS)
@@ -650,10 +692,7 @@ class QuestPrototype(object):
         place_experience_bonuses = {}
         person_experience_bonuses = {}
 
-        for participant in self.knowledge_base.filter(facts.QuestParticipant):
-
-            if quest_uid != participant.start:
-                continue
+        for participant in self.quest_participants(quest_uid):
 
             fact = self.knowledge_base[participant.participant]
 
@@ -671,13 +710,10 @@ class QuestPrototype(object):
         return experience
 
 
-    def get_person_power_for_quest(self, quest_uid, hero):
+    def get_politic_power_for_quest(self, quest_uid, hero):
         base_politic_power = f.person_power_for_quest(c.QUEST_AREA_RADIUS)
 
-        for participant in self.knowledge_base.filter(facts.QuestParticipant):
-
-            if quest_uid != participant.start:
-                continue
+        for participant in self.quest_participants(quest_uid):
 
             fact = self.knowledge_base[participant.participant]
 

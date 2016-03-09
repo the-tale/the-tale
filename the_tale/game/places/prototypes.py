@@ -62,7 +62,7 @@ class BuildingPrototype(BasePrototype, names.ManageNameMixin):
         buildings_number = sum(storage.buildings.get_by_person_id(person.id) is not None
                                for person in self.place.persons)
 
-        per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED
+        per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED * self.person.attrs.building_amortization_speed
         return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number-1)
 
     @property

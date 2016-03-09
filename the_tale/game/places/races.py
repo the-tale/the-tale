@@ -39,7 +39,7 @@ class Races(object):
         trends = {race: 0.0 for race in RACE.records}
 
         for person in persons:
-            trends[person.race] += person.total_politic_power_fraction
+            trends[person.race] += person.total_politic_power_fraction * person.attrs.demographics_pressure
 
         # normalize trends
         normalizer = sum(trends.values())

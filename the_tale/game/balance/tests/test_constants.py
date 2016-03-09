@@ -192,7 +192,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.PICKED_UP_IN_ROAD_SPEED_BONUS, 5), 0.07018)
         self.assertEqual(round(c.PICKED_UP_IN_ROAD_PROBABILITY, 5), 0.02339)
 
-        self.assertEqual(c.HABIT_QUEST_PRIORITY_MODIFIER, 2.0)
+        self.assertEqual(c.HABIT_QUEST_PRIORITY_MODIFIER, 1)
 
         self.assertEqual(c.HONOR_POWER_BONUS_FRACTION, 1.5)
         self.assertEqual(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE, 0.02)

@@ -331,7 +331,7 @@ PICKED_UP_IN_ROAD_TELEPORT_LENGTH = ANGEL_HELP_TELEPORT_DISTANCE
 PICKED_UP_IN_ROAD_SPEED_BONUS = h.speed_from_safety(BATTLES_PER_TURN*KILL_BEFORE_BATTLE_PROBABILITY, BATTLES_PER_TURN)
 PICKED_UP_IN_ROAD_PROBABILITY = PICKED_UP_IN_ROAD_SPEED_BONUS / PICKED_UP_IN_ROAD_TELEPORT_LENGTH
 
-HABIT_QUEST_PRIORITY_MODIFIER = float(2) # модификатор приоритета выбора заданий от предпочтений
+HABIT_QUEST_PRIORITY_MODIFIER = float(1) # модификатор приоритета выбора заданий от предпочтений
 
 HONOR_POWER_BONUS_FRACTION = float(1.5) # бонус к влиянию для чести
 MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE = float(0.02) # вероятность крита по типу монстра, если все монстры этого типа
