@@ -358,18 +358,14 @@ class QuestPrototype(object):
 
         self._move_hero_to(destination=place_to, break_at=path_to_pass / path_from_position_length)
 
-
-    def _give_power(self, hero, place, power):
-        power = power * self.current_info.total_power
-
-        if power > 0:
-            hero.places_history.add_place(place.id)
-
-        return power
-
+    def get_current_power(self, power):
+        return power * self.current_info.total_power
 
     def _give_person_power(self, hero, person, power):
-        power = self._give_power(hero, person.place, power)
+        power = self.get_current_power(power)
+
+        if power > 0:
+            hero.places_history.add_place(person.place_id, value=person.attrs.places_help_amount)
 
         if not hero.can_change_person_power(person):
             return 0
@@ -391,8 +387,10 @@ class QuestPrototype(object):
 
 
     def _give_place_power(self, hero, place, power):
+        power = self.get_current_power(power)
 
-        power = self._give_power(hero, place, power)
+        if power > 0:
+            hero.places_history.add_place(place.id, value=1)
 
         if not hero.can_change_place_power(place):
             return 0
@@ -517,7 +515,8 @@ class QuestPrototype(object):
     def get_state_by_jump_pointer(self):
         return self.knowledge_base[self.knowledge_base[self.machine.pointer.jump].state_to]
 
-    def modify_reward_scale(self, scale):
+
+    def positive_results_persons(self):
 
         finish_state = self.get_state_by_jump_pointer()
 
@@ -533,10 +532,20 @@ class QuestPrototype(object):
 
             person_id = object_fact.externals['id']
 
-            scale += persons_storage.persons[person_id].attrs.on_profite_reward_bonus
+            yield persons_storage.persons[person_id]
+
+
+
+    def modify_reward_scale(self, scale):
+        for person in self.positive_results_persons():
+            scale += person.attrs.on_profite_reward_bonus
 
         return scale
 
+
+    def give_energy_on_reward(self):
+        for person in self.positive_results_persons():
+            self.hero.add_energy_bonus(person.attrs.on_profite_energy)
 
     def _give_reward(self, hero, reward_type, scale):
 
@@ -544,6 +553,8 @@ class QuestPrototype(object):
 
         scale = quest_info.get_real_reward_scale(hero, scale)
         scale = self.modify_reward_scale(scale)
+
+        self.give_energy_on_reward()
 
         # hero receive artifact
         if hero.can_get_artifact_for_quest():

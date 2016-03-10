@@ -2,6 +2,7 @@
 import mock
 import datetime
 import random
+import collections
 
 from questgen import facts, requirements
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
@@ -136,11 +137,43 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertTrue(power_with_profession < power_without_profession)
 
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
+    def test_give_person_power__places_help_history(self):
+
+        person = persons_storage.persons.all()[0]
+
+        person.attrs.places_help_amount = 1
+
+        with self.check_delta(lambda: self.hero.places_history._get_places_statisitcs()[person.place_id], 1):
+            self.quest._give_person_power(self.hero, person, 1)
+
+        person.attrs.places_help_amount = 2
+
+        with self.check_delta(lambda: self.hero.places_history._get_places_statisitcs()[person.place_id], 2):
+            self.quest._give_person_power(self.hero, person, 1)
+
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
+    def test_give_place_power__places_help_history(self):
+
+        for person in self.place_1.persons:
+            person.attrs.places_help_amount = 1
+
+        with self.check_delta(lambda: self.hero.places_history._get_places_statisitcs()[person.place_id], 1):
+            self.quest._give_place_power(self.hero, self.place_1, 1)
+
+        for person in self.place_1.persons:
+            person.attrs.places_help_amount = 2
+
+        with self.check_delta(lambda: self.hero.places_history._get_places_statisitcs()[person.place_id], 1):
+            self.quest._give_place_power(self.hero, self.place_1, 2)
+
+
 
     def test_power_on_end_quest_for_fast_account_hero(self):
         fake_cmd = FakeWorkerCommand()
 
-        self.assertEqual(self.hero.places_history.history, [])
+        self.assertEqual(self.hero.places_history.history, collections.deque())
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power', fake_cmd):
             self.complete_quest()
@@ -154,7 +187,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.hero.is_fast = False
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
-        self.assertEqual(self.hero.places_history.history, [])
+        self.assertEqual(self.hero.places_history.history, collections.deque())
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
             self.complete_quest()
@@ -167,7 +200,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.hero.is_fast = False
 
-        self.assertEqual(self.hero.places_history.history, [])
+        self.assertEqual(self.hero.places_history.history, collections.deque())
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
             self.complete_quest()
@@ -184,7 +217,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.hero.is_fast = False
 
-        self.assertEqual(self.hero.places_history.history, [])
+        self.assertEqual(self.hero.places_history.history, collections.deque())
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
             self.complete_quest()
@@ -193,20 +226,6 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertTrue(fake_cmd.call_count > 0)
 
-    def test_power_on_end_quest__give_power_called(self):
-
-        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_power') as give_power:
-            self.hero.is_fast = False
-            self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-
-            self.assertEqual(self.hero.places_history.history, [])
-
-            with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
-                self.complete_quest()
-
-            self.assertTrue(fake_cmd.call_count > 0)
-
-        self.assertTrue(give_power.call_count > 0)
 
     def test_get_expirience_for_quest(self):
         self.assertEqual(self.hero.experience, 0)
@@ -372,9 +391,26 @@ class PrototypeTests(PrototypeTestsBase):
 
             self.assertTrue(self.quest.modify_reward_scale(1) > 1)
 
+
+    def test_give_energy_on_reward(self):
+        self.complete_quest(positive_results=True)
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype.get_state_by_jump_pointer', lambda qp: self.quest.knowledge_base[self.quest.machine.pointer.state]):
+            for person in persons_storage.persons.all():
+                person.attrs.on_profite_energy = 0
+
+            with self.check_not_changed(lambda: self.hero.energy_bonus):
+                self.quest.give_energy_on_reward()
+
+            for person in persons_storage.persons.all():
+                person.attrs.on_profite_energy = 1
+
+            with self.check_increased(lambda: self.hero.energy_bonus):
+                self.quest.give_energy_on_reward()
+
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.ARTIFACT_POWER_DELTA', 0.0)
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_reward_scale', lambda self, scale: scale)
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_persons', lambda self: [])
     def test_give_reward__artifact_scale(self):
 
         self.assertEqual(self.hero.bag.occupation, 0)
@@ -397,7 +433,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(artifact_1.level + 1, artifact_2.level)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_reward_scale', lambda self, scale: scale)
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_persons', lambda self: [])
     def test_give_reward__money_scale(self):
 
         self.assertEqual(self.hero.money, 0)
@@ -412,7 +448,7 @@ class PrototypeTests(PrototypeTestsBase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.quest_money_reward_multiplier', lambda hero: -100)
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.modify_reward_scale', lambda self, scale: scale)
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_persons', lambda self: [])
     def test_give_reward__money_scale_less_then_zero(self):
 
         with self.check_delta(lambda: self.hero.money, 1):
@@ -612,7 +648,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power_bonus = 1
 
         # we modify power bonus like main power
-        self.assertEqual(self.quest._give_power(self.hero, self.place_1, 2), 22)
+        self.assertEqual(self.quest.get_current_power(2), 22)
 
 
 class InterpreterCallbacksTests(PrototypeTestsBase):

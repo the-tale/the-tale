@@ -1,4 +1,5 @@
 # coding: utf-8
+import collections
 
 from the_tale.common.utils import testcase
 
@@ -24,7 +25,7 @@ class PlacesHelpStatisticsTests(testcase.TestCase):
 
     def test_initialization(self):
         self.assertFalse(self.statistics.updated)
-        self.assertEqual(self.statistics.history, [])
+        self.assertEqual(self.statistics.history, collections.deque())
 
     def test_serialization(self):
         self.statistics.add_place(1)
@@ -46,7 +47,7 @@ class PlacesHelpStatisticsTests(testcase.TestCase):
         for i in xrange(0, heroes_settings.PLACE_HELP_HISTORY_SIZE):
             self.statistics.add_place(i)
         self.statistics.add_place(666)
-        self.assertEqual(self.statistics.history, range(1, heroes_settings.PLACE_HELP_HISTORY_SIZE) + [666])
+        self.assertEqual(self.statistics.history, collections.deque((i, 1) for i in range(1, heroes_settings.PLACE_HELP_HISTORY_SIZE) + [666]))
 
     def test_get_most_common_places(self):
         self.fill_statistics()

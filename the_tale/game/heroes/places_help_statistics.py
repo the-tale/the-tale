@@ -12,27 +12,27 @@ class PlacesHelpStatistics(object):
     __slots__ = ('history', 'updated')
 
     def __init__(self):
-        self.history = []
+        self.history = collections.deque(maxlen=heroes_settings.PLACE_HELP_HISTORY_SIZE)
         self.updated = False
 
     def serialize(self):
-        return {'history': self.history}
+        return {'history': list(self.history)}
 
     @classmethod
     def deserialize(cls, data):
         obj = cls()
-        obj.history = data.get('history', [])
+        obj.history = collections.deque(data.get('history', []), maxlen=heroes_settings.PLACE_HELP_HISTORY_SIZE)
         return obj
 
-    def add_place(self, place_id):
+    def add_place(self, place_id, value=1):
         self.updated = True
-        self.history.append(place_id)
-
-        if len(self.history) > heroes_settings.PLACE_HELP_HISTORY_SIZE:
-            self.history.pop(0)
+        self.history.append((place_id, value))
 
     def _get_places_statisitcs(self):
-        return collections.Counter(self.history)
+        counter = collections.Counter()
+        for place_id, value in self.history:
+            counter.update({place_id: value})
+        return counter
 
     def _get_most_common_places(self):
         return self._get_places_statisitcs().most_common()
@@ -57,4 +57,4 @@ class PlacesHelpStatistics(object):
 
     def _reset(self):
         self.updated = True
-        self.history = []
+        self.history = collections.deque(maxlen=heroes_settings.PLACE_HELP_HISTORY_SIZE)

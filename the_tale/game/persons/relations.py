@@ -58,7 +58,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
     records = ( attributes.attr('ON_QUEST_HABITS', 0, u'изменения черт, если Мастер получает выгоду от задания', default=dict, apply=lambda a, b: (a.update(b) or a)),
                 attributes.attr('TERRAIN_POWER', 1, u'сила влияния на ланшафт', default=lambda: 1),
                 attributes.attr('TERRAIN_RADIUS_BONUS', 2, u'бонус к радиусу влияния города на ландшафт'),
-                attributes.attr('PLACES_HELP_BONUS', 3, u'бонус к начисляемым «влияниям» за задания'),
+                attributes.attr('PLACES_HELP_AMOUNT', 3, u'бонус к начисляемым «влияниям» за задания', default=lambda: 1),
                 attributes.attr('START_QUESTS_PRIORITY', 4, u'приоритет типов заданий, инициируемых Мастером', default=dict, apply=lambda a, b: (a.update(b) or a)),
                 attributes.attr('POLITIC_POWER_BONUS', 5, u'бонус к влиянию за задания с участием Мастера'),
                 attributes.attr('EXPERIENCE_BONUS', 6, u'бонус к опыту за задания с участием Мастера'),
@@ -112,10 +112,10 @@ class PERSONALITY_COSMETIC(PERSONALITY):
                 personality('P_6', 5, u'6', 'TERRAIN_RADIUS_BONUS', 1,
                  u'увеличивает радиус изменений ландшафта городом'),
 
-                personality('P_7', 6, u'7', 'PLACES_HELP_BONUS', 0.0,
+                personality('P_7', 6, u'7', 'PLACES_HELP_AMOUNT', 1,
                  u'за выполнение задания, связанного с мастером, герой получает дополнительную помощь помощи в каждом связанном с заданием городе'),
 
-                personality('P_8', 7, u'8', 'PLACES_HELP_BONUS', 0.0,
+                personality('P_8', 7, u'8', 'PLACES_HELP_AMOUNT', -0.5,
                  u'за выполнение задания, связанного с мастером, герой получает меньше помощи в каждом связанном с заданием городе'),
 
                 personality('P_9', 8, u'9', 'START_QUESTS_PRIORITY', {},
@@ -165,7 +165,7 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                 personality('P_11', 8, u'11', 'BUILDING_AMORTIZATION_SPEED', -0.5,
                  u'замедляет амортизацию своего здания'),
 
-                personality('P_12', 9, u'12', 'ON_PROFITE_ENERGY', 0.0,
+                personality('P_12', 9, u'12', 'ON_PROFITE_ENERGY', 4,
                  u'за каждое задание, в котором Мастер получил выгоду, дают игроку немного энергии'),
 
                 personality('P_13', 10, u'13', 'JOB_POWER_BONUS', 0.0,
