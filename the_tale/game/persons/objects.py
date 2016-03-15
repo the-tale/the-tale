@@ -144,7 +144,7 @@ class Person(names.ManageNameMixin2):
         return self.politic_power.total_politic_power_fraction([person.politic_power for person in self.place.persons])
 
     def get_job_power(self):
-        return jobs_logic.job_power(objects_number=len(self.place.persons), power=self.total_politic_power_fraction)
+        return jobs_logic.job_power(objects_number=len(self.place.persons), power=self.total_politic_power_fraction) + self.attrs.job_power_bonus
 
     def give_job_power(self, power):
         from . import logic
@@ -159,11 +159,9 @@ class Person(names.ManageNameMixin2):
                 del job_effects_priorities[self.job.effect]
 
             new_effect = utils_logic.random_value_by_priority(job_effects_priorities.items())
+
             self.job.new_job(new_effect, normal_power=logic.NORMAL_PERSON_JOB_POWER)
 
-
-    def get_random_job_group(self):
-        return random.choice(jobs_effects.EFFECT_GROUP.records)
 
     @property
     def economic_attributes(self):
@@ -177,10 +175,10 @@ class Person(names.ManageNameMixin2):
         effects_priorities = {}
 
         for effect in jobs_effects.EFFECT.records:
-            if effect.group.is_ON_PLACE:
-                effects_priorities[effect] = 0
-            else:
-                effects_priorities[effect] = 1.0
+            effects_priorities[effect] = self.attrs.job_group_priority.get(effect.group, 0)
+
+            if not effect.group.is_ON_PLACE:
+                effects_priorities[effect] += 1.0
 
         for attribute in places_relations.ATTRIBUTE.records:
             effect_name = 'PLACE_{}'.format(attribute.name)
@@ -188,11 +186,9 @@ class Person(names.ManageNameMixin2):
             if effect:
                 effects_priorities[effect] += self.economic_attributes[attribute]
 
-        effect_group = self.get_random_job_group()
-
         return {effect: effects_priorities[effect]
                 for effect in jobs_effects.EFFECT.records
-                if effect.group == effect_group and effects_priorities.get(effect, 0) > 0 }
+                if effects_priorities.get(effect, 0) > 0 }
 
 
     @classmethod

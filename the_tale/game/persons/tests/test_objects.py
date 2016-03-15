@@ -148,28 +148,43 @@ class PersonJobsTests(testcase.TestCase):
         self.person = create_person(self.place_1)
 
 
-    @mock.patch('the_tale.game.persons.objects.Person.get_random_job_group', lambda person: jobs_effects.EFFECT_GROUP.ON_PLACE)
     @mock.patch('the_tale.game.persons.objects.Person.economic_attributes', FAKE_ECONOMIC)
-    def test_job_effects_priorities__on_place(self):
+    def test_job_effects_priorities(self):
+        self.person.attrs.job_group_priority = {}
         self.assertEqual(self.person.job_effects_priorities(),
                          {jobs_effects.EFFECT.PLACE_PRODUCTION: 1.0,
                           jobs_effects.EFFECT.PLACE_SAFETY: 0.6,
-                          jobs_effects.EFFECT.PLACE_STABILITY: 0.2})
-
-
-    @mock.patch('the_tale.game.persons.objects.Person.get_random_job_group', lambda person: jobs_effects.EFFECT_GROUP.ON_HEROES)
-    @mock.patch('the_tale.game.persons.objects.Person.economic_attributes', FAKE_ECONOMIC)
-    def test_job_effects_priorities__on_hero(self):
-        self.assertEqual(self.person.job_effects_priorities(),
-                         {jobs_effects.EFFECT.HERO_MONEY: 1.0,
+                          jobs_effects.EFFECT.PLACE_STABILITY: 0.2,
+                          jobs_effects.EFFECT.HERO_MONEY: 1.0,
                           jobs_effects.EFFECT.HERO_ARTIFACT: 1.0,
                           jobs_effects.EFFECT.HERO_EXPERIENCE: 1.0,
                           jobs_effects.EFFECT.HERO_ENERGY: 1.0})
 
+    @mock.patch('the_tale.game.persons.objects.Person.economic_attributes', FAKE_ECONOMIC)
+    def test_job_effects_priorities__job_group_priorities(self):
+        self.person.attrs.job_group_priority = {jobs_effects.EFFECT_GROUP.ON_PLACE: 0.5,
+                                                jobs_effects.EFFECT_GROUP.ON_HEROES: 1.5}
+        self.assertEqual(self.person.job_effects_priorities(),
+                         {jobs_effects.EFFECT.PLACE_PRODUCTION: 1.5,
+                          jobs_effects.EFFECT.PLACE_SAFETY: 1.1,
+                          jobs_effects.EFFECT.PLACE_STABILITY: 0.7,
+                          jobs_effects.EFFECT.PLACE_TRANSPORT: 0.09999999999999998,
+                          jobs_effects.EFFECT.PLACE_FREEDOM: 0.5,
+                          jobs_effects.EFFECT.HERO_MONEY: 2.5,
+                          jobs_effects.EFFECT.HERO_ARTIFACT: 2.5,
+                          jobs_effects.EFFECT.HERO_EXPERIENCE: 2.5,
+                          jobs_effects.EFFECT.HERO_ENERGY: 2.5})
+
 
     @mock.patch('the_tale.game.persons.objects.Person.total_politic_power_fraction', 0.5)
     def test_get_job_power(self):
+        self.person.attrs.job_power_bonus = 0
         self.assertEqual(self.person.get_job_power(), 2.0)
+
+    @mock.patch('the_tale.game.persons.objects.Person.total_politic_power_fraction', 0.5)
+    def test_get_job_power__power_bonus(self):
+        self.person.attrs.job_power_bonus = 10
+        self.assertEqual(self.person.get_job_power(), 12.0)
 
 
     def test_give_job_power(self):

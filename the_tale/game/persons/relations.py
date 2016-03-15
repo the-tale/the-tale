@@ -11,6 +11,8 @@ from the_tale.game.balance import constants as c
 from the_tale.game import attributes
 from the_tale.game import effects
 
+from the_tale.game.jobs import effects as jobs_effects
+
 from the_tale.game.places import relations as places_relations
 from the_tale.game.heroes import relations as heroes_relations
 
@@ -59,21 +61,20 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('TERRAIN_POWER', 1, u'сила влияния на ланшафт', default=lambda: 1),
                 attributes.attr('TERRAIN_RADIUS_BONUS', 2, u'бонус к радиусу влияния города на ландшафт'),
                 attributes.attr('PLACES_HELP_AMOUNT', 3, u'бонус к начисляемым «влияниям» за задания', default=lambda: 1),
-                attributes.attr('START_QUESTS_PRIORITY', 4, u'приоритет типов заданий, инициируемых Мастером', default=dict, apply=lambda a, b: (a.update(b) or a)),
-                attributes.attr('POLITIC_POWER_BONUS', 5, u'бонус к влиянию за задания с участием Мастера'),
-                attributes.attr('EXPERIENCE_BONUS', 6, u'бонус к опыту за задания с участием Мастера'),
-                attributes.attr('ON_PROFITE_REWARD_BONUS', 7, u'бонус к наградами за задания, если Мастер получает выгоду'),
-                attributes.attr('FRIENDS_QUESTS_PRIORITY_BONUS', 8, u'бонус к вероятности соратникам получить задание, связанное с Мастером'),
-                attributes.attr('ENEMIES_QUESTS_PRIORITY_BONUS', 9, u'бонус к вероятности противников получить задание, связанное с Мастером'),
-                attributes.attr('POLITIC_RADIUS_BONUS', 10, u'бонус к радиусу влияния города'),
-                attributes.attr('STABILITY_RENEWING_BONUS', 11, u'бонус к скорости восстановления стабильности в городе'),
-                attributes.attr('BUILDING_AMORTIZATION_SPEED', 12, u'скорость амортизации здания Мастера', default=lambda: 1),
-                attributes.attr('ON_PROFITE_ENERGY', 13, u'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
-                attributes.attr('JOB_POWER_BONUS', 14, u'бонус к эффекту занятий Мастера'),
-                attributes.attr('JOB_EFFECT_PRIORITY', 15, u'бонус к приоритету типов занятий Мастера'),
-                attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER', 16, u'сила социальных связей с партнёрами'),
-                attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER', 17, u'сила социальных связей с конкурентами'),
-                attributes.attr('DEMOGRAPHICS_PRESSURE', 18, u'демографическое давление', default=lambda: 1) )
+                attributes.attr('POLITIC_POWER_BONUS', 4, u'бонус к влиянию за задания с участием Мастера'),
+                attributes.attr('EXPERIENCE_BONUS', 5, u'бонус к опыту за задания с участием Мастера'),
+                attributes.attr('ON_PROFITE_REWARD_BONUS', 6, u'бонус к наградами за задания, если Мастер получает выгоду'),
+                attributes.attr('FRIENDS_QUESTS_PRIORITY_BONUS', 7, u'бонус к вероятности соратникам получить задание, связанное с Мастером'),
+                attributes.attr('ENEMIES_QUESTS_PRIORITY_BONUS', 8, u'бонус к вероятности противников получить задание, связанное с Мастером'),
+                attributes.attr('POLITIC_RADIUS_BONUS', 9, u'бонус к радиусу влияния города'),
+                attributes.attr('STABILITY_RENEWING_BONUS', 10, u'бонус к скорости восстановления стабильности в городе'),
+                attributes.attr('BUILDING_AMORTIZATION_SPEED', 11, u'скорость амортизации здания Мастера', default=lambda: 1),
+                attributes.attr('ON_PROFITE_ENERGY', 12, u'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
+                attributes.attr('JOB_POWER_BONUS', 13, u'бонус к эффекту занятий Мастера'),
+                attributes.attr('JOB_GROUP_PRIORITY', 14, u'бонус к приоритету типов занятий Мастера', default=dict, apply=lambda a, b: (a.update(b) or a)),
+                attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER', 15, u'сила социальных связей с партнёрами'),
+                attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER', 16, u'сила социальных связей с конкурентами'),
+                attributes.attr('DEMOGRAPHICS_PRESSURE', 17, u'демографическое давление', default=lambda: 1) )
 
     EFFECTS_ORDER = sorted(set(record[-3] for record in records))
 
@@ -118,25 +119,10 @@ class PERSONALITY_COSMETIC(PERSONALITY):
                 personality('P_8', 7, u'8', 'PLACES_HELP_AMOUNT', -0.5,
                  u'за выполнение задания, связанного с мастером, герой получает меньше помощи в каждом связанном с заданием городе'),
 
-                personality('P_9', 8, u'9', 'START_QUESTS_PRIORITY', {},
-                 u'чаще даёт задание на шпионаж'),
-
-                personality('P_10', 10, u'10', 'START_QUESTS_PRIORITY', {},
-                 u'чаще даёт задание на доставку'),
-
-                personality('P_11', 11, u'11', 'START_QUESTS_PRIORITY', {},
-                 u'чаще даёт задание на караван'),
-
-                personality('P_12', 12, u'12', 'START_QUESTS_PRIORITY', {},
-                 u'чаще даёт задание на выбивание долга'),
-
-                personality('P_13', 13, u'13', 'START_QUESTS_PRIORITY', {},
-                 u'чаще даёт задание на помощь'),
-
-                personality('P_14', 14, u'14', 'START_QUESTS_PRIORITY', {},
+                personality('P_14', 8, u'14', 'PLACES_HELP_AMOUNT', 0,
                  u'не даёт косметических бонусов personality(типо заурядность)'),
 
-                personality('P_15', 15, u'15', 'DEMOGRAPHICS_PRESSURE', 1,
+                personality('P_15', 9, u'15', 'DEMOGRAPHICS_PRESSURE', 1,
                  u'Увеличивает демографическое давление своей расы в городе') )
 
 
@@ -168,13 +154,13 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                 personality('P_12', 9, u'12', 'ON_PROFITE_ENERGY', 4,
                  u'за каждое задание, в котором Мастер получил выгоду, дают игроку немного энергии'),
 
-                personality('P_13', 10, u'13', 'JOB_POWER_BONUS', 0.0,
+                personality('P_13', 10, u'13', 'JOB_POWER_BONUS', 1.0,
                  u'у занятий Мастера более сильный эффек'),
 
-                personality('P_14', 11, u'14', 'JOB_EFFECT_PRIORITY', 0.0,
+                personality('P_14', 11, u'14', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_PLACE: 0.5},
                  u'Мастер чаще выполняет занятия, связанные с экономикой города'),
 
-                personality('P_15', 12, u'15', 'JOB_EFFECT_PRIORITY', 0.0,
+                personality('P_15', 12, u'15', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_HEROES: 0.5},
                  u'Мастер чаще выполняет занятия, связанные с помощью героям'),
 
                 personality('P_16', 13, u'16', 'SOCIAL_RELATIONS_PARTNERS_POWER', 0.0,
