@@ -7,10 +7,6 @@ KEYS = [(u'CHRONICLE_PERSON_ARRIVED_TO_PLACE', 260013, u'Член Совета: 
         u'Новый житель вошёл в совет города.',
         [V.PERSON, V.PLACE], None),
 
-        (u'CHRONICLE_PERSON_LEFT_PLACE', 260014, u'Член Совета: автоматически покинул Совет', LEXICON_GROUP.CHRONICLE,
-        u'Член Совета потерял влияние и оставил свою должность.',
-        [V.PERSON, V.PLACE], None),
-
         (u'CHRONICLE_PLACE_CHANGE_RACE', 260030, u'Раса города: изменение', LEXICON_GROUP.CHRONICLE,
         u'Изменилась доминирующая раса города.',
         [V.OLD_RACE, V.NEW_RACE, V.PLACE], None),

@@ -6,13 +6,18 @@ from django.db import migrations
 
 
 def remove_removed_persons(apps, schema_editor):
-    apps.get_model("persons", "Person").objects.exclude(state=0).delete()
+    HeroPreferences = apps.get_model("heroes", "HeroPreferences")
+    for person in apps.get_model("persons", "Person").objects.exclude(state=0):
+        HeroPreferences.objects.filter(friend_id=person.id).update(friend_id=None)
+        HeroPreferences.objects.filter(enemy_id=person.id).update(enemy_id=None)
+        person.delete()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
         ('persons', '0004_scale_power'),
+        ('heroes', '0010_remove_hero_places_history')
     ]
 
     operations = [

@@ -39,7 +39,7 @@ class Place(models.Model):
     habit_honor = models.FloatField(default=0)
     habit_peacefulness = models.FloatField(default=0)
 
-    modifier = RelationIntegerField(relation=modifiers.CITY_MODIFIERS, null=True, default=None, blank=True)
+    modifier = RelationIntegerField(relation=modifiers.CITY_MODIFIERS, null=False, default=modifiers.CITY_MODIFIERS.NONE.value)
     race = RelationIntegerField(relation=RACE)
 
     persons_changed_at_turn = models.BigIntegerField(default=0)

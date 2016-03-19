@@ -144,8 +144,8 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         companion=companion,
                         journal=messages.JournalContainer.deserialize(s11n.from_json(hero_model.messages)),
                         diary=messages.DiaryContainer.deserialize(s11n.from_json(hero_model.diary)),
-                        quests=quests_container.QuestsContainer.deserialize(s11n.from_json(hero_model.quests)),
-                        places_history=places_help_statistics.PlacesHelpStatistics.deserialize(s11n.from_json(hero_model.places_history)),
+                        quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
+                        places_history=places_help_statistics.PlacesHelpStatistics.deserialize(data['places_history']),
                         cards=cards_container.CardsContainer.deserialize(s11n.from_json(hero_model.cards)),
                         pvp=pvp.PvPData.deserialize(s11n.from_json(hero_model.pvp)),
                         abilities=habilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
@@ -173,7 +173,9 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
 
 def save_hero(hero, new=False):
     data = {'companion': hero.companion.serialize() if hero.companion else None,
-            'name': hero.utg_name.serialize()}
+            'name': hero.utg_name.serialize(),
+            'quests': hero.quests.serialize(),
+            'places_history': hero.places_history.serialize()}
 
     arguments = dict(saved_at_turn=TimePrototype.get_current_turn_number(),
                      saved_at=datetime.datetime.now(),
@@ -181,14 +183,12 @@ def save_hero(hero, new=False):
                      bag=s11n.to_json(hero.bag.serialize()),
                      equipment=s11n.to_json(hero.equipment.serialize()),
                      abilities=s11n.to_json(hero.abilities.serialize()),
-                     places_history=s11n.to_json(hero.places_history.serialize()),
                      cards=s11n.to_json(hero.cards.serialize()),
                      messages=s11n.to_json(hero.journal.serialize()),
                      diary=s11n.to_json(hero.diary.serialize()),
                      actions=s11n.to_json(hero.actions.serialize()),
                      raw_power_physic=hero.power.physic,
                      raw_power_magic=hero.power.magic,
-                     quests=s11n.to_json(hero.quests.serialize()),
                      quest_created_time = hero.quests.min_quest_created_time,
                      pvp=s11n.to_json(hero.pvp.serialize()),
                      preferences=s11n.to_json(hero.preferences.serialize()),

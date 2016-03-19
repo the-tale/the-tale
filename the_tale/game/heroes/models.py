@@ -59,7 +59,6 @@ class Hero(models.Model):
 
     abilities = models.TextField(null=False, default='', blank=True)
 
-    places_history = models.TextField(null=False, default='{}')
     cards = models.TextField(null=False, default='{}')
 
     messages = models.TextField(null=False, default='[]')
@@ -67,7 +66,6 @@ class Hero(models.Model):
 
     actions = models.TextField(null=False, default='{}')
 
-    quests = models.TextField(null=False, default='{}')
     quest_created_time = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
     settings_approved = models.BooleanField(null=False, default=True, blank=True)
