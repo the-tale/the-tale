@@ -229,7 +229,7 @@ class HighlevelTest(testcase.TestCase):
 
         with contextlib.nested(mock.patch('the_tale.game.places.attributes.Attributes.set_power_economic', set_power_economic),
                                mock.patch('the_tale.game.places.attributes.Attributes.sync_size', sync_size),
-                               mock.patch('the_tale.game.places.effects.Container.update_step', update_step),
+                               mock.patch('the_tale.game.places.objects.Place.effects', mock.Mock(update_step=update_step, effects=[], serialize=lambda: {})),
                                mock.patch('the_tale.game.places.objects.Place.sync_habits', sync_habits),
                                mock.patch('the_tale.game.places.objects.Place.refresh_attributes', refresh_attributes),
                                mock.patch('the_tale.game.places.objects.Place.update_heroes_number', update_heroes_number),

@@ -282,7 +282,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY, 10)
         self.assertEqual(c.PLACE_HABITS_EVENT_PROBABILITY, 0.025)
 
-        self.assertEqual(c.PERSON_MOVE_DELAY, 0)
+        self.assertEqual(c.PERSON_MOVE_DELAY, 120960)
 
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_POSITION_RADIUS, 2)

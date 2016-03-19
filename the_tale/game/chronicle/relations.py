@@ -61,6 +61,8 @@ class RECORD_TYPE(DjangoEnum):
 
                 ('PERSON_CHRONICLE_BILL_SUCCESSED', 37, u'житель: принят закон о занесении записи в летопись', False),
                 ('PLACE_CHRONICLE_BILL_SUCCESSED', 38, u'город: принят закон о занесении записи в летопись', False),
+
+                ('PERSON_MOVE_TO_PLACE', 39, u'житель: переехал в другой город', False),
               )
 
 

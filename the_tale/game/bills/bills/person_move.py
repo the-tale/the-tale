@@ -35,7 +35,7 @@ class UserForm(BaseUserForm):
                                                                             predicate=lambda place, person: person.politic_power.is_in_inner_circle(hero_id))
 
 
-    def clean_new_modifier(self):
+    def clean_new_place(self):
         place_id = int(self.cleaned_data['new_place'])
 
         if len(places_storage.places[place_id].persons) >= c.PLACE_MAX_PERSONS:

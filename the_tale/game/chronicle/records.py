@@ -91,6 +91,11 @@ class PersonArrivedToPlace(RecordBase):
     SUBSTITUTIONS  = ['place', 'person']
 
 
+# person move to another place
+class PersonMoveBillSuccessed(RecordBase):
+    TYPE = RECORD_TYPE.PERSON_MOVE_TO_PLACE
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
+
 # building create
 class _BuildingBase(RecordBase):
     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]

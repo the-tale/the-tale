@@ -1,4 +1,5 @@
 # coding: utf-8
+import collections
 import datetime
 
 import mock
@@ -7,7 +8,6 @@ from django.test import client
 from django.core.urlresolvers import reverse
 
 from dext.common.utils.urls import url
-from dext.common.meta_relations import logic as meta_relations_logic
 
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
@@ -27,12 +27,11 @@ from the_tale.game.heroes import logic as heroes_logic
 
 
 from the_tale.game.places import storage as places_storage
-from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
 
 from ..models import Bill, Vote
 from ..relations import VOTE_TYPE, BILL_STATE
 from ..prototypes import BillPrototype, VotePrototype
-from ..bills import PlaceRenaming, PersonRemove, PlaceResourceExchange
+from ..bills import PlaceRenaming, PersonRemove
 from ..conf import bills_settings
 from .. import meta_relations
 
@@ -377,7 +376,7 @@ class TestShowRequests(BaseTestRequests):
 
     @mock.patch('the_tale.game.places.objects.Place.is_new', False)
     def test_can_not_voted(self):
-        self.assertEqual(heroes_logic.load_hero(account_id=self.account1.id).places_history.history, [])
+        self.assertEqual(heroes_logic.load_hero(account_id=self.account1.id).places_history.history, collections.deque([], maxlen=200))
 
         # one vote automaticaly created for bill author
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
