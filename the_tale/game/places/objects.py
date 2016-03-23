@@ -330,6 +330,8 @@ class Place(names.ManageNameMixin2):
         for effect in self.all_effects():
             effect.apply_to(self.attrs)
 
+        self.attrs.sync()
+
     def effects_update_step(self):
         stability_delta = 0
         stability_effects = [effect for effect in self.effects.effects if effect.attribute.is_STABILITY]
@@ -390,4 +392,4 @@ class Place(names.ManageNameMixin2):
                 'pos': {'x': self.x, 'y': self.y},
                 'race': self.race.value,
                 'name': self.name,
-                'size': self.size}
+                'size': self.attrs.size}

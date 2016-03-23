@@ -95,7 +95,8 @@ class Person(names.ManageNameMixin2):
 
 
     @property
-    def place(self): return places_storage.places[self.place_id]
+    def place(self):
+        return places_storage.places[self.place_id]
 
     @property
     def full_name(self):

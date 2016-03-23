@@ -73,33 +73,36 @@ def load_place(place_id=None, place_model=None):
     if 'nearest_cells' in data:
         data['nearest_cells'] = map(tuple, data['nearest_cells'])
 
-    return objects.Place(id=place_model.id,
-                         x=place_model.x,
-                         y=place_model.y,
-                         created_at_turn=place_model.created_at_turn,
-                         updated_at_turn=place_model.updated_at_turn,
-                         heroes_number=place_model.heroes_number,
-                         updated_at=place_model.updated_at,
-                         created_at=place_model.created_at,
-                         habit_honor=habits.Honor(raw_value=place_model.habit_honor),
-                         habit_honor_positive=place_model.habit_honor_positive,
-                         habit_honor_negative=place_model.habit_honor_negative,
-                         habit_peacefulness=habits.Peacefulness(raw_value=place_model.habit_peacefulness),
-                         habit_peacefulness_positive=place_model.habit_peacefulness_positive,
-                         habit_peacefulness_negative=place_model.habit_peacefulness_negative,
-                         is_frontier=place_model.is_frontier,
-                         description=place_model.description,
-                         race=place_model.race,
-                         persons_changed_at_turn=place_model.persons_changed_at_turn,
-                         politic_power=PlacePoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PlacePoliticPower.create(),
-                         utg_name=utg_words.Word.deserialize(data['name']),
-                         attrs=attributes.Attributes.deserialize(data['attributes']),
-                         races=races.Races.deserialize(data['races']),
-                         nearest_cells=data.get('nearest_cells', []),
-                         effects=EffectsContainer.deserialize(data.get('effects')),
-                         job=PlaceJob.deserialize(data['job'] if 'job' in data else PlaceJob.create(normal_power=NORMAL_PLACE_JOB_POWER)),
-                         modifier=place_model.modifier)
+    place = objects.Place(id=place_model.id,
+                          x=place_model.x,
+                          y=place_model.y,
+                          created_at_turn=place_model.created_at_turn,
+                          updated_at_turn=place_model.updated_at_turn,
+                          heroes_number=place_model.heroes_number,
+                          updated_at=place_model.updated_at,
+                          created_at=place_model.created_at,
+                          habit_honor=habits.Honor(raw_value=place_model.habit_honor),
+                          habit_honor_positive=place_model.habit_honor_positive,
+                          habit_honor_negative=place_model.habit_honor_negative,
+                          habit_peacefulness=habits.Peacefulness(raw_value=place_model.habit_peacefulness),
+                          habit_peacefulness_positive=place_model.habit_peacefulness_positive,
+                          habit_peacefulness_negative=place_model.habit_peacefulness_negative,
+                          is_frontier=place_model.is_frontier,
+                          description=place_model.description,
+                          race=place_model.race,
+                          persons_changed_at_turn=place_model.persons_changed_at_turn,
+                          politic_power=PlacePoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PlacePoliticPower.create(),
+                          utg_name=utg_words.Word.deserialize(data['name']),
+                          attrs=attributes.Attributes.deserialize(data.get('attributes', {})),
+                          races=races.Races.deserialize(data['races']),
+                          nearest_cells=data.get('nearest_cells', []),
+                          effects=EffectsContainer.deserialize(data.get('effects')),
+                          job=PlaceJob.deserialize(data['job']) if 'job' in data else PlaceJob.create(normal_power=NORMAL_PLACE_JOB_POWER),
+                          modifier=place_model.modifier)
 
+    place.attrs.sync()
+
+    return place
 
 def save_place(place, new=False):
     from the_tale.game.places import storage

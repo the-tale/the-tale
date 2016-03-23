@@ -141,3 +141,5 @@ class PoliticPower(object):
         inner_power = ((self.inner_power - minimum_inner_power) / total_inner_power) if total_inner_power else 0
 
         return (outer_power + inner_power) / 2
+
+    def __unicode__(self): return u'{}, {}'.format(self.outer_power, self.inner_power)

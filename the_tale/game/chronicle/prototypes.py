@@ -82,7 +82,7 @@ class RecordToActorPrototype(BasePrototype):
 
         actors = {actor.id: actor for actor in ActorPrototype.from_query(ActorPrototype._db_filter(id__in=actors_ids))}
 
-        records_to_actors = {record_id: [actors[actor_id] for actor_id in record_actors_ids]
+        records_to_actors = {record_id: [actors[actor_id] for actor_id in record_actors_ids if actors[actor_id].type is not None]
                              for record_id, record_actors_ids in records_to_actors.iteritems()}
 
         return records_to_actors

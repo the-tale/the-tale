@@ -140,10 +140,10 @@ def load_person(person_id=None, person_model=None):
                           type=person_model.type,
                           friends_number=person_model.friends_number,
                           enemies_number=person_model.enemies_number,
-                          attrs=attributes.Attributes.deserialize(data['attributes']),
+                          attrs=attributes.Attributes.deserialize(data.get('attributes', {})),
                           politic_power=PersonPoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PersonPoliticPower.create(),
                           utg_name=utg_words.Word.deserialize(data['name']),
-                          job=PersonJob.deserialize(data['job'] if 'job' in data else PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER)),
+                          job=PersonJob.deserialize(data['job']) if 'job' in data else PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER),
                           personality_cosmetic=relations.PERSONALITY_COSMETIC(data['personality']['cosmetic']),
                           personality_practical=relations.PERSONALITY_PRACTICAL(data['personality']['practical']),
                           moved_at_turn=data.get('moved_at_turn', 0))

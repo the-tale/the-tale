@@ -138,9 +138,9 @@ def get_draw_info(biomes_map):
                 cell_drawer.road_rotate = road_sprite['rotate']
 
     for place in places_storage.places.all():
-        if place.size < 3: verbose_size = 'small'
-        elif place.size < 6: verbose_size = 'medium'
-        elif place.size < 9: verbose_size = 'large'
+        if place.attrs.size < 3: verbose_size = 'small'
+        elif place.attrs.size < 6: verbose_size = 'medium'
+        elif place.attrs.size < 9: verbose_size = 'large'
         else: verbose_size = 'capital'
 
         sprite_name = ('city_%s_%s' % (place.race.name.lower(), verbose_size)).upper()
