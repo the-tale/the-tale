@@ -176,6 +176,9 @@ class BillResource(Resource):
     @validate_argument('bill_type', argument_to_bill_type, 'bills.new', u'неверный тип закона')
     @handler('new', method='get')
     def new(self, bill_type):
+        if not bill_type.enabled:
+            return self.auto_error('bills.new.bill_type.not_enabled', u'Этот тип закона создать нельзя', response_type='html')
+
         bill_class = BILLS_BY_ID[bill_type.value]
         return self.template('bills/new.html', {'bill_class': bill_class,
                                                 'page_type': 'new',
@@ -188,6 +191,9 @@ class BillResource(Resource):
     @validate_argument('bill_type', argument_to_bill_type, 'bills.create', u'неверный тип закона')
     @handler('create', method='post')
     def create(self, bill_type):
+
+        if not bill_type.enabled:
+            return self.json_error('bills.create.bill_type.not_enabled', u'Этот тип закона создать нельзя')
 
         if datetime.datetime.now() - self.account.created_at < datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE):
             return self.json_error('bills.create.too_young_owner',

@@ -82,7 +82,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                  description=u'Шанс героя полностью вылечиться при входе в город.'),
                 attributes.attr('COMPANION_REGEN_CHANCE', 21, u'лечение спутника',
                  description=u'Шанс спутника подлечиться при входе в город.'),
-                attributes.attr('POWER_ECONOMIC', 22, u'экономика влияния', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                attributes.attr('POWER_ECONOMIC', 22, u'экономика', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
                  description=u'Определяет скорость производства товаров городом. Зависит от общей суммы влияния, поступившего в город, в результате выполнения героями заданий за определённый период времени (примерное количество недель: %d). Влияние от задания может быть отрицательным. Чем больше суммарное влияние по сравнению с другими городами, тем больше размер экономики.' % c.PLACE_POWER_HISTORY_WEEKS),
 
                 attributes.attr('MODIFIER_TRADE_CENTER', 23, u'Специализация «Торговый центр»',

@@ -193,8 +193,12 @@ class Place(names.ManageNameMixin2):
         return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id),
                       key=lambda p: p.created_at_turn) # fix persons order
 
-    # @property
-    # def total_persons_power(self): return sum([person.power for person in self.persons])
+    @property
+    def persons_by_power(self):
+        from the_tale.game.persons import storage as persons_storage
+        return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id),
+                      key=lambda p: p.total_politic_power_fraction,
+                      reverse=True) # fix persons order
 
     def mark_as_updated(self): self.updated_at_turn = TimePrototype.get_current_turn_number()
 
@@ -319,6 +323,20 @@ class Place(names.ManageNameMixin2):
             if stability > 1:
                 yield effects.Effect(name=u'демоны', attribute=relations.ATTRIBUTE.STABILITY, value=1 - stability)
 
+    def effects_for_attribute(self, attribute):
+        for effect in self._effects_generator():
+            if effect.attribute == attribute:
+                yield effect
+
+    def tooltip_effects_for_attribute(self, attribute):
+        effects = [(effect.name, effect.value) for effect in self.effects_for_attribute(attribute)]
+        effects.sort(key=lambda x: x[1], reverse=True)
+        return effects
+
+    def attribute_ui_info(self, attribute_name):
+        attribute = relations.ATTRIBUTE.index_name[attribute_name.upper()]
+        return (attribute, getattr(self.attrs, attribute_name.lower()))
+
     def all_effects(self):
         for order in relations.ATTRIBUTE.EFFECTS_ORDER:
             for effect in self.effects_generator(order):
@@ -345,6 +363,10 @@ class Place(names.ManageNameMixin2):
         self._modifier = modifier
         self.refresh_attributes()
 
+    @property
+    def modifier(self):
+        return self._modifier
+
     def get_same_places(self):
         from . import storage
         return [place for place in storage.places.all() if self.is_frontier == place.is_frontier]
@@ -352,6 +374,14 @@ class Place(names.ManageNameMixin2):
     @property
     def total_politic_power_fraction(self):
         return self.politic_power.total_politic_power_fraction([place.politic_power for place in self.get_same_places()])
+
+    @property
+    def inner_politic_power_fraction(self):
+        return self.politic_power.inner_power_fraction([place.politic_power for place in self.get_same_places()])
+
+    @property
+    def outer_politic_power_fraction(self):
+        return self.politic_power.outer_power_fraction([place.politic_power for place in self.get_same_places()])
 
     def get_job_power(self):
         return jobs_logic.job_power(objects_number=len(self.get_same_places()), power=self.total_politic_power_fraction)

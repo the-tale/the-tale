@@ -6,6 +6,9 @@ from . import relations
 from the_tale.game.balance import constants as c
 from the_tale.game import attributes
 
+from . import modifiers
+from . import relations
+
 
 class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
     __slots__ = ()
@@ -44,3 +47,12 @@ class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
 
     def get_next_keepers_goods_spend_amount(self):
         return min(self.keepers_goods, max(int(self.keepers_goods * c.PLACE_KEEPERS_GOODS_SPENDING), c.PLACE_GOODS_BONUS))
+
+    def specializations(self):
+        specializations = [record
+                           for record in modifiers.CITY_MODIFIERS.records
+                           if not record.is_NONE]
+        specializations.sort(key=lambda x: x.text)
+
+        for specialization in specializations:
+            yield specialization, getattr(self, specialization.points_attribute.name.lower())

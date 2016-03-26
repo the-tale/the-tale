@@ -12,6 +12,8 @@ from the_tale.game import relations as game_relations
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import relations as persons_relations
 
+from the_tale.game import short_info as game_short_info
+
 from the_tale.game.heroes import logic as heroes_logic
 
 
@@ -19,6 +21,7 @@ from . import storage
 from . import conf
 from . import logic
 from . import meta_relations
+from . import info
 
 ########################################
 # processors definition
@@ -244,14 +247,12 @@ def api_show(context):
 @PlaceProcessor(error_message=u'Город не найден', url_name='place', context_name='place')
 @resource('#place', name='show')
 def show(context):
-    place_info = logic.place_info(context.place)
+    accounts_short_infos = game_short_info.get_accounts_accounts_info(list(context.place.politic_power.inner_accounts_ids()))
+
     return dext_views.Page('places/show.html',
-                           content={'place_info': place_info,
+                           content={'place': context.place,
+                                    'accounts_short_infos': accounts_short_infos,
+                                    'HABIT_TYPE': game_relations.HABIT_TYPE,
                                     'place_meta_object': meta_relations.Place.create_from_object(context.place),
-                                    'RACE': game_relations.RACE,
-                                    'GENDER': game_relations.GENDER,
-                                    'PERSON_TYPE': persons_relations.PERSON_TYPE,
-                                    'CONNECTION_TYPE': persons_relations.SOCIAL_CONNECTION_TYPE,
                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
-                                    'persons_storage': persons_storage.persons,
                                     'resource': context.resource} )

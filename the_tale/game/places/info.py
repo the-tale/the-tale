@@ -207,7 +207,7 @@ def place_info(place):
 
             'updated_at': time.mktime(place.updated_at.timetuple()),
 
-            'power': {'value': place.power},
+            'power': {'value': place.total_politic_power_fraction},
 
             'description': place.description_html,
 

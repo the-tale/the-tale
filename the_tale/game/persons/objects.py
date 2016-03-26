@@ -102,12 +102,20 @@ class Person(names.ManageNameMixin2):
     def full_name(self):
         return u'%s %s-%s' % (self.name, self.race_verbose, self.type.text)
 
-    @property
-    def name_from(self):
-        return u'%s — %s из %s' % (self.name, self.race_verbose, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
+    def name_from(self, with_url=True):
+        from dext.common.utils.urls import url
+
+        if with_url:
+            return u'<a href="%s" target="blank_">%s</a> — %s из %s' % (url('game:persons:show', self.id),
+                                                                       self.name, self.race.text, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
+
+        return u'%s — %s из %s' % (self.name, self.race.text, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 
     @property
-    def has_building(self): return places_storage.buildings.get_by_person_id(self.id) is not None
+    def has_building(self): return self.building is not None
+
+    @property
+    def building(self): return places_storage.buildings.get_by_person_id(self.id)
 
     @property
     def on_move_timeout(self):
@@ -143,6 +151,14 @@ class Person(names.ManageNameMixin2):
     @property
     def total_politic_power_fraction(self):
         return self.politic_power.total_politic_power_fraction([person.politic_power for person in self.place.persons])
+
+    @property
+    def inner_politic_power_fraction(self):
+        return self.politic_power.inner_power_fraction([person.politic_power for person in self.place.persons])
+
+    @property
+    def outer_politic_power_fraction(self):
+        return self.politic_power.outer_power_fraction([person.politic_power for person in self.place.persons])
 
     def get_job_power(self):
         return jobs_logic.job_power(objects_number=len(self.place.persons), power=self.total_politic_power_fraction) + self.attrs.job_power_bonus

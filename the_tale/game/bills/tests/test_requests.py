@@ -29,7 +29,7 @@ from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.places import storage as places_storage
 
 from ..models import Bill, Vote
-from ..relations import VOTE_TYPE, BILL_STATE
+from ..relations import VOTE_TYPE, BILL_STATE, BILL_TYPE
 from ..prototypes import BillPrototype, VotePrototype
 from ..bills import PlaceRenaming, PersonRemove
 from ..conf import bills_settings
@@ -305,6 +305,10 @@ class TestNewRequests(BaseTestRequests):
     def test_wrong_type(self):
         self.check_html_ok(self.request_html(reverse('game:bills:new') + '?bill_type=xxx'), texts=(('bills.new.bill_type.wrong_format', 1),))
 
+    def test_bill_not_enabled(self):
+        self.assertFalse(BILL_TYPE.PERSON_REMOVE.enabled)
+        self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % BILL_TYPE.PERSON_REMOVE.value)), texts=['bills.new.bill_type.not_enabled'])
+
     def test_success(self):
         self.check_html_ok(self.request_html(reverse('game:bills:new') + ('?bill_type=%s' % PlaceRenaming.type.value)), texts=[])
 
@@ -531,6 +535,11 @@ class TestCreateRequests(BaseTestRequests):
 
     def test_type_not_exist(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:create') + '?bill_type=xxx', self.get_post_data()), 'bills.create.bill_type.wrong_format')
+
+    def test_type_not_enabled(self):
+        self.assertFalse(BILL_TYPE.PERSON_REMOVE.enabled)
+        self.check_ajax_error(self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % BILL_TYPE.PERSON_REMOVE.value), self.get_post_data()),
+                              'bills.create.bill_type.not_enabled')
 
     def test_success(self):
         response = self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data())

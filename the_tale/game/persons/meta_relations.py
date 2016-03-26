@@ -7,31 +7,31 @@ from the_tale.common.utils import meta_relations
 from . import storage
 
 
-class Place(meta_relations.MetaType):
+class Person(meta_relations.MetaType):
     __slots__ = ('caption', )
-    TYPE = 3
-    TYPE_CAPTION = u'Город'
+    TYPE = 10
+    TYPE_CAPTION = u'Мастер'
 
     def __init__(self, caption, **kwargs):
-        super(Place, self).__init__(**kwargs)
+        super(Person, self).__init__(**kwargs)
         self.caption = caption
 
     @property
     def url(self):
-        return urls.url('game:map:places:show', self.id)
+        return urls.url('game:persons:show', self.id)
 
     @classmethod
-    def create_from_object(cls, place):
-        return cls(id=place.id, caption=place.name)
+    def create_from_object(cls, person):
+        return cls(id=person.id, caption=person.name)
 
     @classmethod
     def create_from_id(cls, id):
-        place = storage.places.get(id)
-        if place is None:
+        person = storage.persons.get(id)
+
+        if person is None:
             return None
 
-        return cls.create_from_object(place)
-
+        return cls.create_from_object(person)
 
     @classmethod
     def create_from_ids(cls, ids):
