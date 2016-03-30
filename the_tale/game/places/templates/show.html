@@ -3,6 +3,7 @@
 {% import 'blogs/macros.html' as blogs_macros with context %}
 {% import 'game/macros.html' as game_macros with context %}
 {% import 'map/macros.html' as map_macros with context %}
+{% import 'chronicle/macros.html' as chronicle_macros with context %}
 
 {% block title %} {{ place.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о городе «{{place.name}}»{% endblock %}
@@ -37,12 +38,13 @@
   {% set attribute, value = place.attribute_ui_info(attribute_name) %}
   <tr>
     <th>{{attribute.text}}</th>
+    <td>{{value}}{{extra_text}}{{attribute.verbose_units}}</td>
     <td>
       <a href="javascript: return;"
          class="info-link"
          rel="tooltip"
-         title="{{map_macros.power_incoming_tooltip(attribute.description, place.tooltip_effects_for_attribute(attribute), percents=true)}}">
-         {{value}}{{extra_text}}
+         title="{{map_macros.power_incoming_tooltip(attribute.description, place.tooltip_effects_for_attribute(attribute), percents=true if attribute.verbose_units == '%' else false)}}">
+        подробнее
       </a>
     </td>
   </tr>
@@ -50,7 +52,7 @@
 
 
 
-<div style="width: 300px; display: inline-block; margin-right: 2em;">
+<div style="width: 350px; display: inline-block; margin-right: 2em;">
   <h3>Экономика</h3>
   <table class="table table-condensed">
     <tbody>
@@ -303,10 +305,95 @@
         </table>
 
       </div>
-
-
     </div>
   </div>
+
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-accordion" href="#pgf-place-all-attributes">
+        Все параметры города
+      </a>
+    </div>
+    <div id="pgf-place-all-attributes" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        <table class="table table-condensed" style="width: 450px;">
+          <tbody>
+            {% for attribute in place.attrs.attributes_by_name() %}
+            {{attribute_record(place, attribute.name)}}
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-accordion" href="#pgf-place-bills">
+        Законы
+      </a>
+    </div>
+    <div id="pgf-place-bills" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        <p>
+          Список <strong>активных</strong> законов (действующих в текущий момент), связанных с городом.
+        </p>
+
+        {% if place_bills %}
+
+          {% for bill in place_bills %}
+            <table class="table table-striped table-condensed table-no-highlighting">
+              <tbody>
+                <tr>
+                  <td><a target="_blank" href="{{url('game:bills:show', bill.id)}}">{{bill.caption}}</a></td>
+                </tr>
+                {% for property in bill.properties %}
+                  <tr><td>{{property}}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endfor %}
+
+        {% else %}
+          <p class="alert alert-info">Нет активных законов.</p>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-accordion" href="#pgf-place-chronicle">
+        Летопись
+      </a>
+    </div>
+    <div id="pgf-place-chronicle" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        <p>
+          Последние события, связаные с городом.
+        </p>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>дата</th>
+              <th>событие</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for date_short, date_long, text in place_chronicle %}
+            {{ chronicle_macros.chronicle_record_3(date_short, date_long, text) }}
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <h3>Герои</h3>

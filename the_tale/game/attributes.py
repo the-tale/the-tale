@@ -15,10 +15,11 @@ class ATTRIBUTE(DjangoEnum):
     order = Column(unique=False, primary=False)
     description = Column(primary=False)
     apply = Column(primary=False, unique=False, single_type=False)
+    verbose_units = Column(unique=False, primary=False)
 
 
-def attr(name, value, text, default=lambda: 0, type=ATTRIBUTE_TYPE.AGGREGATED, order=1, description=None, apply=operator.add):
-    return (name, value, text, default, type, order, (description if description is not None else text), apply)
+def attr(name, value, text, default=lambda: 0, type=ATTRIBUTE_TYPE.AGGREGATED, order=1, description=None, apply=operator.add, verbose_units=u''):
+    return (name, value, text, default, type, order, (description if description is not None else text), apply, verbose_units)
 
 
 def create_attributes_class(ATTRIBUTES):
@@ -46,5 +47,8 @@ def create_attributes_class(ATTRIBUTES):
                 if attribute.type.is_CALCULATED:
                     continue
                 setattr(self, attribute.name.lower(), attribute.default())
+
+        def attributes_by_name(self):
+            return sorted(ATTRIBUTES.records, key=lambda x: x.text)
 
     return Attributes

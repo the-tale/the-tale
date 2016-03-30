@@ -251,6 +251,8 @@ def show(context):
 
     return dext_views.Page('places/show.html',
                            content={'place': context.place,
+                                    'place_bills': info.place_info_bills(context.place),
+                                    'place_chronicle': info.place_info_cronicle(context.place),
                                     'accounts_short_infos': accounts_short_infos,
                                     'HABIT_TYPE': game_relations.HABIT_TYPE,
                                     'place_meta_object': meta_relations.Place.create_from_object(context.place),
