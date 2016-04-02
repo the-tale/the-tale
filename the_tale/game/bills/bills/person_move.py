@@ -75,16 +75,20 @@ class PersonMove(BasePersonBill):
     DESCRIPTION = u'Мастера можно сподвигнуть на переезд в другой город. Но сделать это может только Хранитель героя из ближнего круга Мастера. Герой должен быть в ближнем круге на момент создания закона и/или его редактирования.'
 
 
-    def __init__(self, new_place_id=None, new_place_name=None, **kwargs):
+    def __init__(self, new_place_id=None, new_place_name_forms=None, **kwargs):
         super(PersonMove, self).__init__(**kwargs)
         self.new_place_id = new_place_id
-        self.new_place_name = new_place_name
+        self.new_place_name_forms = new_place_name_forms
 
-        if self.new_place_name is None and self.new_place_id is not None:
-            self.new_place_name = self.new_place.utg_name
+        if self.new_place_name_forms is None and self.new_place_id is not None:
+            self.new_place_name_forms = self.new_place.utg_name
 
     @property
     def new_place(self): return places_storage.places[self.new_place_id]
+
+    @property
+    def new_place_name(self):
+        return self.new_place_name_forms.normal_form()
 
     @property
     def new_place_name_changed(self):
@@ -108,7 +112,7 @@ class PersonMove(BasePersonBill):
 
     @classmethod
     def get_user_form_create(cls, post=None, owner_id=None):
-        return cls.UserForm(None, post, owner_id) #pylint: disable=E1102
+        return cls.UserForm(None, owner_id, post) #pylint: disable=E1102
 
 
     def get_user_form_update(self, post=None, initial=None, owner_id=None):
@@ -127,18 +131,18 @@ class PersonMove(BasePersonBill):
     def initialize_with_user_data(self, user_form):
         super(PersonMove, self).initialize_with_user_data(user_form)
         self.new_place_id = int(user_form.c.new_place)
-        self.new_place_name = self.new_place.utg_name
+        self.new_place_name_forms = self.new_place.utg_name
 
 
     def serialize(self):
         data = super(PersonMove, self).serialize()
         data['new_place_id'] = self.new_place_id
-        data['new_place_name'] = self.new_place_name.serialize()
+        data['new_place_name_forms'] = self.new_place_name_forms.serialize()
         return data
 
     @classmethod
     def deserialize(cls, data):
         obj = super(PersonMove, cls).deserialize(data)
         obj.new_place_id = data['new_place_id']
-        obj.new_place_name = utg_words.Word.deserialize(data['new_place_name'])
+        obj.new_place_name_forms = utg_words.Word.deserialize(data['new_place_name_forms'])
         return obj

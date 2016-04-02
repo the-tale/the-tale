@@ -7,9 +7,12 @@ from . import logic
 
 
 class PlaceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'is_frontier', 'size', 'x', 'y', 'power')
+    list_display = ('id', 'name', 'is_frontier', 'size', 'politic_power', 'x', 'y')
 
     list_filter = ('is_frontier',)
+
+    def politic_power(self, obj):
+        return logic.load_place(place_model=obj).politic_power
 
     def size(self, obj):
         return logic.load_place(place_model=obj).attrs.size

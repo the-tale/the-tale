@@ -4,6 +4,8 @@
 {% import 'game/macros.html' as game_macros with context %}
 {% import 'map/macros.html' as map_macros with context %}
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'places/macros.html' as places_macros with context %}
+{% import 'persons/macros.html' as persons_macros with context %}
 
 {% block title %} {{ place.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о городе «{{place.name}}»{% endblock %}
@@ -24,6 +26,11 @@
     {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}
       <span class="badge badge-success">родной город</span>
     {% endif %}
+
+    <small class="pull-right" style="font-size: 10pt; padding-top: 0.4em;">
+      обновлено в
+      <span class="pgf-format-time" data-timestamp="{{ place.updated_at|timestamp }}"></span>
+    </small>
   </h2>
 
 {% if place.new_for > now() %}
@@ -34,38 +41,21 @@
   {{place.description_html|safe}}
 </blockquote>
 
-{% macro attribute_record(place, attribute_name, extra_text='') %}
-  {% set attribute, value = place.attribute_ui_info(attribute_name) %}
-  <tr>
-    <th>{{attribute.text}}</th>
-    <td>{{value}}{{extra_text}}{{attribute.verbose_units}}</td>
-    <td>
-      <a href="javascript: return;"
-         class="info-link"
-         rel="tooltip"
-         title="{{map_macros.power_incoming_tooltip(attribute.description, place.tooltip_effects_for_attribute(attribute), percents=true if attribute.verbose_units == '%' else false)}}">
-        подробнее
-      </a>
-    </td>
-  </tr>
-{% endmacro %}
-
-
 
 <div style="width: 350px; display: inline-block; margin-right: 2em;">
   <h3>Экономика</h3>
   <table class="table table-condensed">
     <tbody>
-      {{attribute_record(place, 'size')}}
-      {{attribute_record(place, 'power_economic')}}
-      {{attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
-      {{attribute_record(place, 'keepers_goods')}}
-      {{attribute_record(place, 'stability')}}
-      {{attribute_record(place, 'production')}}
-      {{attribute_record(place, 'transport')}}
-      {{attribute_record(place, 'freedom')}}
-      {{attribute_record(place, 'safety')}}
-      {{attribute_record(place, 'tax')}}
+      {{places_macros.attribute_record(place, 'size')}}
+      {{places_macros.attribute_record(place, 'power_economic')}}
+      {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
+      {{places_macros.attribute_record(place, 'keepers_goods')}}
+      {{places_macros.attribute_record(place, 'stability')}}
+      {{places_macros.attribute_record(place, 'production')}}
+      {{places_macros.attribute_record(place, 'transport')}}
+      {{places_macros.attribute_record(place, 'freedom')}}
+      {{places_macros.attribute_record(place, 'safety')}}
+      {{places_macros.attribute_record(place, 'tax')}}
     </tbody>
   </table>
  </div>
@@ -131,18 +121,7 @@
       <tr>
         <td>{{person.total_politic_power_fraction|percents}}</td>
         <td>
-          <a href="{{url('game:persons:show', person.id)}}">{{person.name}}</a> —
-          <div class="underline-on-hover"
-               style="cursor: help; display: inline-block;"
-               rel="tooltip"
-               title="{{person.personality_practical.description}}">{{person.personality_practical.text}}</div>
-          {{person.race.text}},
-          {{person.type.text}}
-          и
-          <div class="underline-on-hover"
-               style="cursor: help; display: inline-block;"
-               rel="tooltip"
-               title="{{person.personality_cosmetic.description}}">{{person.personality_cosmetic.text}}</div>
+          {{persons_macros.person_verbose(person, hero)}}
         </td>
         <td>
           {{person.politic_power.positive_heroes_number}} / {{person.politic_power.negative_heroes_number}}
@@ -320,7 +299,7 @@
         <table class="table table-condensed" style="width: 450px;">
           <tbody>
             {% for attribute in place.attrs.attributes_by_name() %}
-            {{attribute_record(place, attribute.name)}}
+            {{places_macros.attribute_record(place, attribute.name)}}
             {% endfor %}
           </tbody>
         </table>

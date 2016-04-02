@@ -1,0 +1,15 @@
+{% macro attribute_record(place, attribute_name, extra_text='') %}
+  {% set attribute, value = place.attribute_ui_info(attribute_name) %}
+  <tr>
+    <th>{{attribute.text}}</th>
+    <td>{{value}}{{extra_text}}{{attribute.verbose_units}}</td>
+    <td>
+      <a href="javascript: return;"
+         class="info-link"
+         rel="tooltip"
+         title="{{map_macros.power_incoming_tooltip(attribute.description, place.tooltip_effects_for_attribute(attribute), percents=true if attribute.verbose_units == '%' else false)}}">
+        подробнее
+      </a>
+    </td>
+  </tr>
+{% endmacro %}

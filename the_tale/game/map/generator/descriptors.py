@@ -200,7 +200,7 @@ class UICell(object):
         dominant_place = map_info_storage.item.get_dominant_place(x, y)
 
         if dominant_place:
-            safety = dominant_place.safety
+            safety = dominant_place.attrs.safety
         else:
             safety = 1.0 - c.BATTLES_PER_TURN - c.WHILD_BATTLES_PER_TURN_BONUS
 
@@ -217,7 +217,7 @@ class UICell(object):
         has_road = map_info_storage.item.roads_map[y][x].get('road')
 
         if dominant_place:
-            transport = dominant_place.transport
+            transport = dominant_place.attrs.transport
         else:
             transport = Position.raw_transport()
 

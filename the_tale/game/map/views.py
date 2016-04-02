@@ -75,41 +75,22 @@ def cell_info(context):
 
     place = places_storage.places.get_by_coordinates(x, y)
 
-    place_modifiers = None
-
     chronicle_records = []
     exchanges = []
-
-    place_info = places_info.place_info(place) if place is not None else None
-        # place_modifiers = place.modifiers
-
-        # chronicle_records = RecordPrototype.get_last_actor_records(place, places_conf.places_settings.CHRONICLE_RECORDS_NUMBER)
-
-        # for exchange in places_storage.resource_exchange_storage.get_exchanges_for_place(place):
-        #     resource_1, resource_2, place_2 = exchange.get_resources_for_place(place)
-        #     exchanges.append((resource_1, resource_2, place_2, exchange.bill))
 
     terrain_points = []
 
     building = places_storage.buildings.get_by_coordinates(x, y)
 
-
-
     return dext_views.Page('map/cell_info.html',
-                           content={'place_info': place_info,
-                                    'CITY_MODIFIERS': places_modifiers.CITY_MODIFIERS,
-                                    'PERSON_TYPE': persons_relations.PERSON_TYPE,
-                                    'RACE': game_relations.RACE,
-                                    'GENDER': game_relations.GENDER,
-                                    'HABIT_TYPE': game_relations.HABIT_TYPE,
-
+                           content={'place': place,
                                     'building': building,
-                                    'place_modifiers': place_modifiers,
+                                    'place_bills': places_info.place_info_bills(place) if place else None,
+                                    'place_chronicle': places_info.place_info_cronicle(place) if place else None,
                                     'exchanges': exchanges,
                                     'cell': cell,
                                     'terrain': terrain,
                                     'nearest_place_name': nearest_place_name,
-                                    # 'PlaceParametersDescription': places_prototypes.PlaceParametersDescription,
                                     'x': x,
                                     'y': y,
                                     'terrain_points': terrain_points,

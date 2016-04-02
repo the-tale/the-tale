@@ -44,8 +44,6 @@ class Place(models.Model):
 
     persons_changed_at_turn = models.BigIntegerField(default=0)
 
-    power = models.FloatField(default=0.0)
-
     def __unicode__(self): return s11n.from_json(self.data)['name']['forms'][0]
 
 
