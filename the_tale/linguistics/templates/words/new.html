@@ -38,11 +38,11 @@ jQuery(document).ready( function(e) {
 
   <div class="widget">
     {% if parent is none %}
-    <input type="submit" class="btn" value="Создать"/>
+    <input type="submit" accesskey="s" class="btn" value="Создать"/>
     {% elif parent.state.is_ON_REVIEW %}
-    <input type="submit" class="btn" value="Обновить"/>
+    <input type="submit" accesskey="r" class="btn" value="Обновить"/>
     {% else %}
-    <input type="submit" class="btn" value="Создать копию"/>
+    <input type="submit" accesskey="c" class="btn" value="Создать копию"/>
     {% endif %}
   </div>
 
