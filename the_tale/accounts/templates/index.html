@@ -18,8 +18,8 @@
 <div class="{% if accounts %}pull-left{% endif %} form-inline">
   <form method="GET" action="{{url('accounts:')}}">
     <input name="prefix" type="text" value="{% if prefix %}{{prefix}}{% endif %}" placeholder="первые символы ника">
-    <input type="submit" class="btn" value="Искать"/>
-    <a href="{{url('accounts:')}}" class="btn">сбросить</a>
+    <input type="submit" accesskey="f" class="btn" value="Искать"/>
+    <a href="{{url('accounts:')}}" accesskey="x" class="btn">сбросить</a>
   </form>
 </div>
 
