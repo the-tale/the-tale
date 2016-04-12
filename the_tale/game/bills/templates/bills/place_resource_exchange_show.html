@@ -1,11 +1,11 @@
 
-<li><strong>первый город:</strong> <a href="{{url('game:map:places:show', bill.data.place_1.id)}}">{{bill.data.place_1.name}}</a></li>
+<li><strong>первый город:</strong> <a href="{{url('game:places:show', bill.data.place_1.id)}}">{{bill.data.place_1.name}}</a></li>
 {% if bill.data.place_1_name_changed %}
 <li><strong>название первого города во время создания закона:</strong> {{bill.data.old_place_1_name}}</li>
 {% endif %}
 <li><strong>ресурсы от первого города:</strong> {{bill.data.resource_1.text}}</li>
 
-<li><strong>второй город:</strong> <a href="{{url('game:map:places:show', bill.data.place_2.id)}}">{{bill.data.place_2.name}}</a></li>
+<li><strong>второй город:</strong> <a href="{{url('game:places:show', bill.data.place_2.id)}}">{{bill.data.place_2.name}}</a></li>
 {% if bill.data.place_2_name_changed %}
 <li><strong>название второго города во время создания закона:</strong> {{bill.data.old_place_2_name}}</li>
 {% endif %}

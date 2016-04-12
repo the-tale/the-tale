@@ -11,7 +11,7 @@
   <h2>
     {{person.name}}
     из
-    <a href="{{url('game:map:places:show', person.place_id)}}">{{person.place.utg_name.forms[1]}}</a>
+    <a href="{{url('game:places:show', person.place_id)}}">{{person.place.utg_name.forms[1]}}</a>
     {{ base_macros.magnet(person_meta_object) }}
     <small>
       <div class="underline-on-hover"
@@ -33,7 +33,12 @@
 
     {% if hero and hero.preferences.enemy and hero.preferences.enemy.id == context.person.id %}
       <span class="label label-important">противник</span>
-    {% endif %}
+      {% endif %}
+
+    <small class="pull-right" style="font-size: 10pt; padding-top: 0.4em;">
+      обновлено в
+      <span class="pgf-format-time" data-timestamp="{{ person.updated_at|timestamp }}"></span>
+    </small>
 
   </h2>
 
@@ -86,7 +91,12 @@
 
   <h3>Герои</h3>
 
-  {{game_macros.inner_circle_heroes(person.politic_power)}}
+  <ul>
+    <li>Всего героев помогает: {{person.politic_power.positive_heroes_number}}</li>
+    <li>Всего героев мешает: {{person.politic_power.negative_heroes_number}}</li>
+  </ul>
+
+  {{game_macros.inner_circle_heroes(person.politic_power, hero.account_id if hero else none)}}
 
   {% set folclor_objects = posts_about(person_meta_object) %}
 

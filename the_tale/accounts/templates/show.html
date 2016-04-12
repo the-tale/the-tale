@@ -183,7 +183,7 @@ jQuery(document).ready(function(){
                     {% for record in account_info.places_history %}
                       <tr>
                         <td>{{loop.index}}</td>
-                        <td><a href="{{url('game:map:places:show', record.place.id)}}">{{record.place.name}}</a></td>
+                        <td><a href="{{url('game:places:show', record.place.id)}}">{{record.place.name}}</a></td>
                         <td>{{record.count}}</td>
                       </tr>
                     {% endfor %}

@@ -19,6 +19,7 @@ urlpatterns = patterns('',
                        (r'^companions/', include('the_tale.game.companions.urls', namespace='companions') ),
                        (r'^cards/', include('the_tale.game.cards.urls', namespace='cards') ),
                        (r'^chronicle/', include('the_tale.game.chronicle.urls', namespace='chronicle') ),
+                       (r'^places/', include('the_tale.game.places.urls', namespace='places') ),
 )
 
 urlpatterns += views.resource.get_urls()

@@ -18,7 +18,7 @@ class Place(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('game:map:places:show', self.id)
+        return urls.url('game:places:show', self.id)
 
     @classmethod
     def create_from_object(cls, place):

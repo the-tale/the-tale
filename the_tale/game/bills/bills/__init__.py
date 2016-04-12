@@ -35,3 +35,5 @@ def deserialize_bill(data):
 
 BILLS_BY_ID = dict( (bill.type.value, bill) for bill in BILLS)
 BILLS_BY_STR = dict( (bill.type.name.lower(), bill) for bill in BILLS)
+
+BILLS_BY_STR['place_modifier'] = BILLS_BY_STR['place_change_modifier'] # TODO: remove after migrate all saved bills to new name

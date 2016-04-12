@@ -33,7 +33,7 @@ class PersonMoveTests(BaseTestPrototypes):
         self.assertEqual(self.bill.data.person_id, self.person_1.id)
         self.assertEqual(self.bill.data.place_id, self.place1.id)
         self.assertEqual(self.bill.data.new_place_id, self.place2.id)
-        self.assertEqual(self.bill.data.new_place_name, self.place2.utg_name)
+        self.assertEqual(self.bill.data.new_place_name_forms, self.place2.utg_name)
 
 
     def test_actors(self):
@@ -59,7 +59,7 @@ class PersonMoveTests(BaseTestPrototypes):
 
         self.assertEqual(self.bill.data.person_id, self.person_2.id)
         self.assertEqual(self.bill.data.new_place_id, self.place3.id)
-        self.assertEqual(self.bill.data.new_place_name, self.place3.utg_name)
+        self.assertEqual(self.bill.data.new_place_name_forms, self.place3.utg_name)
 
 
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 1)

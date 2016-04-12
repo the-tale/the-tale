@@ -145,7 +145,7 @@ jQuery(document).ready(function(e){
                       {% for actor in chronicle_actors[record.id] %}
                         {%- if loop.index > 1 -%},{% endif %}
                         {% if actor.type.is_BILL %}<a href="{{url('game:bills:show', actor.bill_id)}}">{{actor.name}}</a>{% endif -%}
-                        {% if actor.type.is_PLACE %}<a href="{{url('game:map:places:show', actor.place_id)}}">{{actor.name}}</a>{% endif -%}
+                        {% if actor.type.is_PLACE %}<a href="{{url('game:places:show', actor.place_id)}}">{{actor.name}}</a>{% endif -%}
                         {% if actor.type.is_PERSON %}{{actor.name}}{% endif -%}
                       {% endfor %}
                     </span>

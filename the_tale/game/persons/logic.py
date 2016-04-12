@@ -80,7 +80,8 @@ def save_person(person, new=False):
                  'friends_number': person.friends_number,
                  'enemies_number': person.enemies_number,
                  'data': s11n.to_json(data),
-                 'created_at_turn': person.created_at_turn}
+                 'created_at_turn': person.created_at_turn,
+                 'updated_at_turn': person.updated_at_turn}
 
     if new:
         person_model = models.Person.objects.create(**arguments)
@@ -100,6 +101,8 @@ def save_person(person, new=False):
 def create_person(place, race, type, utg_name, gender):
     person = objects.Person(id=None,
                             created_at_turn=TimePrototype.get_current_turn_number(),
+                            updated_at_turn=TimePrototype.get_current_turn_number(),
+                            updated_at=datetime.datetime.now(),
                             place_id=place.id,
                             gender=gender,
                             race=race,
@@ -134,6 +137,7 @@ def load_person(person_id=None, person_model=None):
 
     return objects.Person(id=person_model.id,
                           created_at_turn=person_model.created_at_turn,
+                          updated_at_turn=person_model.updated_at_turn,
                           place_id=person_model.place_id,
                           gender=person_model.gender,
                           race=person_model.race,
@@ -146,7 +150,8 @@ def load_person(person_id=None, person_model=None):
                           job=PersonJob.deserialize(data['job']) if 'job' in data else PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER),
                           personality_cosmetic=relations.PERSONALITY_COSMETIC(data['personality']['cosmetic']),
                           personality_practical=relations.PERSONALITY_PRACTICAL(data['personality']['practical']),
-                          moved_at_turn=data.get('moved_at_turn', 0))
+                          moved_at_turn=data.get('moved_at_turn', 0),
+                          updated_at=person_model.updated_at)
 
 
 def social_connection_from_model(model):

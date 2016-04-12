@@ -108,7 +108,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                  description=u'Влияние города на соответствие специализациям.')  )
 
 
-    EFFECTS_ORDER = sorted(set(record[-3] for record in records))
+    EFFECTS_ORDER = sorted(set(record[-4] for record in records))
 
 
 class RESOURCE_EXCHANGE_TYPE(DjangoEnum):

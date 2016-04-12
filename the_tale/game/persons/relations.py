@@ -76,7 +76,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER', 16, u'сила социальных связей с конкурентами'),
                 attributes.attr('DEMOGRAPHICS_PRESSURE', 17, u'демографическое давление', default=lambda: 1) )
 
-    EFFECTS_ORDER = sorted(set(record[-3] for record in records))
+    EFFECTS_ORDER = sorted(set(record[-4] for record in records))
 
 
 class PERSONALITY(DjangoEnum):
@@ -91,80 +91,80 @@ def personality(name, value, text, attribute, attribute_value, description):
 
 
 class PERSONALITY_COSMETIC(PERSONALITY):
-    records = ( personality('P_1', 0, u'правдолюб', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_HONORABLE,
-                                                                QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_DISHONORABLE},
-                 u'Увеличивает честь героя, если Мастер получает выгоду от задания и уменьшает, если вред'),
+    records = ( personality('TRUTH_SEEKER', 0, u'правдолюб', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_HONORABLE,
+                                                                                 QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_DISHONORABLE},
+                 u'Увеличивает честь героя, если Мастер получает выгоду от задания и уменьшает, если вред.'),
 
-                personality('P_2', 1, u'плут', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_DISHONORABLE,
-                                                                QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_HONORABLE},
-                 u'Уменьшает честь героя, если Мастер получает выгоду от задания и увеличивает, если вред'),
+                personality('KNAVE', 1, u'плут', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_DISHONORABLE,
+                                                                     QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_HONORABLE},
+                 u'Уменьшает честь героя, если Мастер получает выгоду от задания и увеличивает, если вред.'),
 
-                personality('P_3', 2, u'добряк', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_UNAGGRESSIVE,
-                                                                QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_AGGRESSIVE},
-                 u'Увеличивает миролюбие героя, если Мастер получает выгоду от задания и уменьшает, если вред'),
+                personality('GOOD_SOUL', 2, u'добряк', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_UNAGGRESSIVE,
+                                                                           QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_AGGRESSIVE},
+                 u'Увеличивает миролюбие героя, если Мастер получает выгоду от задания и уменьшает, если вред.'),
 
-                personality('P_4', 3, u'забияка', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_AGGRESSIVE,
-                                                                QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_UNAGGRESSIVE},
-                 u'Уменьшает миролюбие героя, если Мастер получает выгоду от задания и увеличивает, если вред'),
+                personality('BULLY', 3, u'забияка', 'ON_QUEST_HABITS', {QUEST_RESULTS.SUCCESSED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_AGGRESSIVE,
+                                                                        QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_UNAGGRESSIVE},
+                 u'Уменьшает миролюбие героя, если Мастер получает выгоду от задания и увеличивает, если вред.'),
 
-                personality('P_5', 4, u'лидер', 'TERRAIN_POWER', 0.15,
-                 u'Оказывает большее влияние на ландшафт вокруг города'),
+                personality('LEADER', 4, u'лидер', 'TERRAIN_POWER', 0.15,
+                 u'Оказывает большее влияние на ландшафт вокруг города.'),
 
-                personality('P_6', 5, u'непоседа', 'TERRAIN_RADIUS_BONUS', 1,
-                 u'увеличивает радиус изменений ландшафта городом'),
+                personality('FIDGET', 5, u'непоседа', 'TERRAIN_RADIUS_BONUS', 1,
+                 u'Увеличивает радиус изменений ландшафта городом.'),
 
-                personality('P_7', 6, u'поручитель', 'PLACES_HELP_AMOUNT', 1,
-                 u'за выполнение задания, связанного с мастером, герой получает дополнительную помощь помощи в каждом связанном с заданием городе'),
+                personality('GUARANTOR', 6, u'поручитель', 'PLACES_HELP_AMOUNT', 1,
+                 u'За выполнение задания, связанного с мастером, герой получает больше очков помощи в каждом городе, связанном с заданием.'),
 
-                personality('P_8', 7, u'нигилист', 'PLACES_HELP_AMOUNT', -0.5,
-                 u'за выполнение задания, связанного с мастером, герой получает меньше помощи в каждом связанном с заданием городе'),
+                personality('NIHILIST', 7, u'нигилист', 'PLACES_HELP_AMOUNT', -0.5,
+                 u'За выполнение задания, связанного с мастером, герой получает меньше очков помощи в каждом городе, связанном с заданием.'),
 
-                personality('P_14', 8, u'затворник', 'PLACES_HELP_AMOUNT', 0,
-                 u'не даёт косметических бонусов personality(типо заурядность)'),
+                personality('RECLUSE', 8, u'затворник', 'PLACES_HELP_AMOUNT', 0,
+                 u'Мастер не оказывает никакого специфического влияния.'),
 
-                personality('P_15', 9, u'организатор', 'DEMOGRAPHICS_PRESSURE', 1,
-                 u'Увеличивает демографическое давление своей расы в городе') )
+                personality('ORGANIZER', 9, u'организатор', 'DEMOGRAPHICS_PRESSURE', 1,
+                 u'Увеличивает демографическое давление своей расы в городе.') )
 
 
 class PERSONALITY_PRACTICAL(PERSONALITY):
-    records = ( personality('P_1', 1, u'многомудрый', 'EXPERIENCE_BONUS', 0.25,
-                 u'увеличивает опыт в связанных с собой заданиях'),
+    records = ( personality('MULTIWISE', 1, u'многомудрый', 'EXPERIENCE_BONUS', 0.25,
+                 u'Выполняя задания, связанные с Мастером, герои получают больше опыта.'),
 
-                personality('P_2', 2, u'влиятельный', 'POLITIC_POWER_BONUS', 0.25,
-                 u'увеличивает влияние в связанных с собой заданиях'),
+                personality('INFLUENTIAL', 2, u'влиятельный', 'POLITIC_POWER_BONUS', 0.25,
+                 u'Выполняя задания, связанные с Мастером, герои приносят больше влияния.'),
 
-                personality('P_3', 3, u'щедрый', 'ON_PROFITE_REWARD_BONUS', 2.0,
-                 u'увеличивает денежную награду за задания, если получит выгоду от задания'),
+                personality('GENEROUS', 3, u'щедрый', 'ON_PROFITE_REWARD_BONUS', 2.0,
+                 u'Герои получают больше денег за задания, если Мастер получает от него выгоду.'),
 
-                personality('P_7', 4, u'харизматичный', 'FRIENDS_QUESTS_PRIORITY_BONUS', c.HABIT_QUEST_PRIORITY_MODIFIER,
-                 u'герои чаще берут задания, связанные с Мастером, если это их соратник'),
+                personality('CHARISMATIC', 4, u'харизматичный', 'FRIENDS_QUESTS_PRIORITY_BONUS', c.HABIT_QUEST_PRIORITY_MODIFIER,
+                 u'Герои чаще берут задания, связанные с Мастером, если это их соратник.'),
 
-                personality('P_8', 5, u'мстительный', 'ENEMIES_QUESTS_PRIORITY_BONUS', -c.HABIT_QUEST_PRIORITY_MODIFIER / 2.0,
-                 u'герои реже берут задания, связанные с Мастером, если это их противник'),
+                personality('REVENGEFUL', 5, u'мстительный', 'ENEMIES_QUESTS_PRIORITY_BONUS', -c.HABIT_QUEST_PRIORITY_MODIFIER / 2.0,
+                 u'Герои реже берут задания, связанные с Мастером, если это их противник.'),
 
-                personality('P_9', 6, u'деятельный', 'POLITIC_RADIUS_BONUS', 1,
-                 u'увеличивает радиус влияния города'),
+                personality('ACTIVE', 6, u'деятельный', 'POLITIC_RADIUS_BONUS', 1,
+                 u'Увеличивает радиус влияния города.'),
 
-                personality('P_10', 7, u'надёжный', 'STABILITY_RENEWING_BONUS', 0.25,
-                 u'увеличивает скорость восстановления стабильности'),
+                personality('RELIABLE', 7, u'надёжный', 'STABILITY_RENEWING_BONUS', 0.25,
+                 u'Увеличивает скорость восстановления стабильности.'),
 
-                personality('P_11', 8, u'аккуратный', 'BUILDING_AMORTIZATION_SPEED', -0.5,
-                 u'замедляет амортизацию своего здания'),
+                personality('ORDERLY', 8, u'аккуратный', 'BUILDING_AMORTIZATION_SPEED', -0.5,
+                 u'Замедляет амортизацию своего здания.'),
 
-                personality('P_12', 9, u'набожный', 'ON_PROFITE_ENERGY', 4,
-                 u'за каждое задание, в котором Мастер получил выгоду, дают игроку немного энергии'),
+                personality('DEVOUT', 9, u'набожный', 'ON_PROFITE_ENERGY', 4,
+                 u'За каждое задание, в котором Мастер получил выгоду, возносит хвалу Хранителям героев, и те получают немного энергии.'),
 
-                personality('P_13', 10, u'трудолюбивый', 'JOB_POWER_BONUS', 1.0,
-                 u'у занятий Мастера более сильный эффек'),
+                personality('HARDWORKING', 10, u'трудолюбивый', 'JOB_POWER_BONUS', 1.0,
+                 u'У занятий Мастера более сильный эффект.'),
 
-                personality('P_14', 11, u'предприимчивый', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_PLACE: 0.5},
-                 u'Мастер чаще выполняет занятия, связанные с экономикой города'),
+                personality('ENTERPRISING', 11, u'предприимчивый', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_PLACE: 0.5},
+                 u'Мастер чаще выполняет занятия, связанные с экономикой города.'),
 
-                personality('P_15', 12, u'романтичный', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_HEROES: 0.5},
-                 u'Мастер чаще выполняет занятия, связанные с помощью героям'),
+                personality('ROMANTIC', 12, u'романтичный', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_HEROES: 0.5},
+                 u'Мастер чаще выполняет занятия, связанные с помощью героям.'),
 
-                personality('P_16', 13, u'ответственный', 'SOCIAL_RELATIONS_PARTNERS_POWER', 0.0,
-                 u'социальные связи с партнёрами действуют сильнее'),
+                personality('RESPONSIBLE', 13, u'ответственный', 'SOCIAL_RELATIONS_PARTNERS_POWER', 0.0,
+                 u'Социальные связи с партнёрами действуют сильнее.'),
 
-                personality('P_17', 14, u'коварный', 'SOCIAL_RELATIONS_CONCURRENTS_POWER', 0.0,
-                 u'социальные связи с конкурентами действуют сильнее') )
+                personality('INSIDIOUS', 14, u'коварный', 'SOCIAL_RELATIONS_CONCURRENTS_POWER', 0.0,
+                 u'Социальные связи с конкурентами действуют сильнее.') )

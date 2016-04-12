@@ -22,7 +22,7 @@ class BILL_TYPE(DjangoEnum):
     records = ( ('PLACE_RENAMING', 0, u'переименование города',                  1.5 * c.PLACE_STABILITY_UNIT, True),
                 ('PERSON_REMOVE', 1, u'исключить горожанина из Совета',          None, False),
                 ('PLACE_DESCRIPTION', 2, u'изменить описание города',            0.4 * c.PLACE_STABILITY_UNIT, True),
-                ('PLACE_MODIFIER', 3, u'изменить специализацию города',          0.4 * c.PLACE_STABILITY_UNIT, True),
+                ('PLACE_CHANGE_MODIFIER', 3, u'изменить специализацию города',   0.4 * c.PLACE_STABILITY_UNIT, True),
                 ('BUILDING_CREATE', 4, u'возвести постройку',                    0.4 * c.PLACE_STABILITY_UNIT, True),
                 ('BUILDING_DESTROY', 5, u'разрушить постройку',                  1.0 * c.PLACE_STABILITY_UNIT, True),
                 ('BUILDING_RENAMING', 6, u'переименовать постройку',             0.2 * c.PLACE_STABILITY_UNIT, True),

@@ -38,11 +38,12 @@ class PlaceModifierTests(BaseTestPrototypes):
 
     # @mock.patch('the_tale.game.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
     def test_update(self):
+        self.place_2.attrs.modifier_craft_center = 100
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
                                                          'place': self.place_2.id,
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
-                                                         'new_modifier': places_modifiers.CITY_MODIFIERS.CRAFT_CENTER.value})
+                                                         'new_modifier': places_modifiers.CITY_MODIFIERS.CRAFT_CENTER})
         self.assertTrue(form.is_valid())
 
         self.bill.update(form)
@@ -54,23 +55,24 @@ class PlaceModifierTests(BaseTestPrototypes):
         self.assertEqual(self.bill.data.modifier_name, places_modifiers.CITY_MODIFIERS.CRAFT_CENTER.text)
         self.assertEqual(self.bill.data.old_modifier_name, None)
 
-    # @mock.patch('the_tale.game.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', True)
     def test_success_form_validation(self):
+        self.place_2.attrs.modifier_craft_center = 100
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-2',
                                                          'place': self.place_2.id,
-                                                         'new_modifier': places_modifiers.CITY_MODIFIERS.CRAFT_CENTER.value})
+                                                         'new_modifier': places_modifiers.CITY_MODIFIERS.CRAFT_CENTER})
         self.assertTrue(form.is_valid())
 
-    # @mock.patch('the_tale.game.places.modifiers.prototypes.PlaceModifierBase.can_be_choosen', False)
-    # def test_not_allowed_modifier(self):
-    #     form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-    #                                                      'rationale': 'new-rationale',
-    #                                                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
-    #                                                      'place': self.place_2.id,
-    #                                                      'new_modifier': places_modifiers.CITY_MODIFIERS.CRAFT_CENTER.value})
-    #     self.assertFalse(form.is_valid())
+
+    def test_not_allowed_modifier(self):
+        self.place_2.attrs.modifier_craft_center = 0
+        form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
+                                                         'rationale': 'new-rationale',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted-2',
+                                                         'place': self.place_2.id,
+                                                         'new_modifier': places_modifiers.CITY_MODIFIERS.CRAFT_CENTER})
+        self.assertFalse(form.is_valid())
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)

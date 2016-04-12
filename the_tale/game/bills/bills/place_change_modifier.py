@@ -1,10 +1,12 @@
 # coding: utf-8
 
-# from django.forms import ValidationError
+from django.forms import ValidationError
 
 from utg import words as utg_words
 
 from dext.forms import fields
+
+from the_tale.game.balance import constants as c
 
 from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
@@ -15,30 +17,37 @@ from the_tale.game.places import logic as places_logic
 from the_tale.game.places.modifiers import CITY_MODIFIERS
 
 
+def can_be_choosen(place, modifier):
+    if modifier.is_NONE:
+        return True
+
+    if getattr(place.attrs, 'MODIFIER_{}'.format(modifier.name).lower()) < c.PLACE_TYPE_NECESSARY_BORDER:
+        return False
+
+    return True
+
+
 class UserForm(BaseUserForm):
 
     place = fields.ChoiceField(label=u'Город')
-    new_modifier = fields.ChoiceField(label=u'Новая специализация')
+    new_modifier = fields.TypedChoiceField(label=u'Новая специализация', choices=sorted(CITY_MODIFIERS.choices(), key=lambda g: g[1]), coerce=CITY_MODIFIERS.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.places.get_choices()
-        self.fields['new_modifier'].choices = sorted(CITY_MODIFIERS.select('value', 'text'), key=lambda m: m[1])
 
-    def clean_new_modifier(self):
-        data = self.cleaned_data['new_modifier']
-        return CITY_MODIFIERS(int(data))
 
-    # def clean(self):
-    #     cleaned_data = super(UserForm, self).clean()
+    def clean(self):
+        cleaned_data = super(UserForm, self).clean()
 
-    #     place = places_storage.places.get(int(cleaned_data['place']))
-    #     modifier = cleaned_data['new_modifier']
+        place = places_storage.places.get(int(cleaned_data['place']))
+        modifier = cleaned_data.get('new_modifier')
 
-    #     if not modifier.can_be_choosen:
-    #         raise ValidationError(u'В данный момент город "%s" нельзя преобразовать в "%s".' % (place.name, modifier.NAME))
+        if modifier:
+            if not can_be_choosen(place, modifier):
+                raise ValidationError(u'В данный момент город «%s» нельзя преобразовать в «%s».' % (place.name, modifier.text))
 
-    #     return cleaned_data
+        return cleaned_data
 
 
 class ModeratorForm(BaseModeratorForm):
@@ -47,7 +56,7 @@ class ModeratorForm(BaseModeratorForm):
 
 class PlaceModifier(BaseBill):
 
-    type = relations.BILL_TYPE.PLACE_MODIFIER
+    type = relations.BILL_TYPE.PLACE_CHANGE_MODIFIER
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm

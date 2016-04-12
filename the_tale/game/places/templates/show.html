@@ -377,7 +377,12 @@
 
 <h3>Герои</h3>
 
-{{game_macros.inner_circle_heroes(place.politic_power)}}
+<ul>
+  <li>Всего героев помогает: {{place.politic_power.positive_heroes_number}}</li>
+  <li>Всего героев мешает: {{place.politic_power.negative_heroes_number}}</li>
+</ul>
+
+{{game_macros.inner_circle_heroes(place.politic_power, hero.account_id if hero else none)}}
 
 
 {% set folclor_objects = posts_about(place_meta_object) %}

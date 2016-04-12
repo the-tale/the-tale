@@ -78,8 +78,8 @@ class PersonTests(testcase.TestCase):
                                                                        place_id=None))
 
     def test_place_effects__economic_and_specialization(self):
-        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.P_1
-        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.P_1
+        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.TRUTH_SEEKER
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.MULTIWISE
         self.person.refresh_attributes()
 
         place_attributes = set(effect.attribute for effect in self.person.place_effects())
@@ -103,8 +103,8 @@ class PersonTests(testcase.TestCase):
 
 
     def test_place_effects__terrain_radius_bonus(self):
-        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.P_6
-        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.P_1
+        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.FIDGET
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.MULTIWISE
         self.person.refresh_attributes()
 
         place_attributes = set(effect.attribute for effect in self.person.place_effects())
@@ -113,8 +113,8 @@ class PersonTests(testcase.TestCase):
 
 
     def test_place_effects__politic_radius_bonus(self):
-        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.P_1
-        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.P_9
+        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.TRUTH_SEEKER
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.ACTIVE
         self.person.refresh_attributes()
 
         place_attributes = set(effect.attribute for effect in self.person.place_effects())
@@ -123,8 +123,8 @@ class PersonTests(testcase.TestCase):
 
 
     def test_place_effects__stability_renewing_bonus(self):
-        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.P_1
-        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.P_10
+        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.TRUTH_SEEKER
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.RELIABLE
         self.person.refresh_attributes()
 
         place_attributes = set(effect.attribute for effect in self.person.place_effects())

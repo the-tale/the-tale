@@ -45,30 +45,30 @@ class APIListRequestTests(testcase.TestCase):
 
 #     def test_place_new_place_message(self):
 #         self.assertTrue(self.place_1.is_new)
-#         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=['pgf-new-place-message'])
+#         self.check_html_ok(self.request_html(url('game:places:show', self.place_1.id)), texts=['pgf-new-place-message'])
 
 #     def test_place_new_place_message__not_new(self):
 #         self.place_1._model.created_at -= datetime.timedelta(seconds=conf.places_settings.NEW_PLACE_LIVETIME)
 #         self.place_1.save()
-#         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=[('pgf-new-place-message', 0)])
+#         self.check_html_ok(self.request_html(url('game:places:show', self.place_1.id)), texts=[('pgf-new-place-message', 0)])
 
 #     @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_frontier', True)
 #     def test_place_frontier_message(self):
-#         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=['pgf-frontier-message'])
+#         self.check_html_ok(self.request_html(url('game:places:show', self.place_1.id)), texts=['pgf-frontier-message'])
 
 #     @mock.patch('the_tale.game.places.prototypes.PlacePrototype.is_frontier', False)
 #     def test_place_frontier_message__not_new(self):
-#         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=[('pgf-frontier-message', 0)])
+#         self.check_html_ok(self.request_html(url('game:places:show', self.place_1.id)), texts=[('pgf-frontier-message', 0)])
 
 #     def test_wrong_place_id(self):
-#         self.check_html_ok(self.request_html(url('game:map:places:show', 'wrong_id')), texts=['pgf-error-place.wrong_format'])
+#         self.check_html_ok(self.request_html(url('game:places:show', 'wrong_id')), texts=['pgf-error-place.wrong_format'])
 
 #     def test_place_does_not_exist(self):
-#         self.check_html_ok(self.request_html(url('game:map:places:show', 666)), texts=['pgf-error-place.wrong_value'])
+#         self.check_html_ok(self.request_html(url('game:places:show', 666)), texts=['pgf-error-place.wrong_value'])
 
 #     def check_no_heroes(self):
 #         texts = [('pgf-no-heroes-message', 1 + len(self.place_1.persons))]
-#         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=texts)
+#         self.check_html_ok(self.request_html(url('game:places:show', self.place_1.id)), texts=texts)
 
 #     def check_heroes(self):
 #         result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -101,7 +101,7 @@ class APIListRequestTests(testcase.TestCase):
 #                  (jinja2.escape(hero_2.name), 3),
 #                  (jinja2.escape(hero_3.name), 0)]
 
-#         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=texts)
+#         self.check_html_ok(self.request_html(url('game:places:show', self.place_1.id)), texts=texts)
 
 
 #     def test_no_heroes__unlogined(self):
@@ -126,9 +126,9 @@ class APIListRequestTests(testcase.TestCase):
 #         blogs_helpers.create_post_for_meta_object(self.account, 'folclor-1-caption', 'folclor-1-text', meta_relations.Place.create_from_object(self.place_1))
 #         blogs_helpers.create_post_for_meta_object(self.account, 'folclor-2-caption', 'folclor-2-text', meta_relations.Place.create_from_object(self.place_1))
 
-#         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=[('pgf-no-folclor', 0),
+#         self.check_html_ok(self.request_html(url('game:places:show', self.place_1.id)), texts=[('pgf-no-folclor', 0),
 #                                                                                                    'folclor-1-caption',
 #                                                                                                    'folclor-2-caption'])
 
 #     def test__no_folclor(self):
-#         self.check_html_ok(self.request_html(url('game:map:places:show', self.place_1.id)), texts=['pgf-no-folclor'])
+#         self.check_html_ok(self.request_html(url('game:places:show', self.place_1.id)), texts=['pgf-no-folclor'])

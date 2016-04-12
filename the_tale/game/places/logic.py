@@ -204,11 +204,11 @@ def api_list_url():
     arguments = {'api_version': conf.settings.API_LIST_VERSION,
                  'api_client': project_settings.API_CLIENT}
 
-    return url('game:map:places:api-list', **arguments)
+    return url('game:places:api-list', **arguments)
 
 
 def api_show_url(place):
     arguments = {'api_version': conf.places_settings.API_SHOW_VERSION,
                  'api_client': project_settings.API_CLIENT}
 
-    return url('game:map:places:api-show', place.id, **arguments)
+    return url('game:places:api-show', place.id, **arguments)

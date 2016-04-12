@@ -11,7 +11,7 @@
       {% if place %}
         <span style="vertical-align: middle;">
         {% if not place.modifier.is_NONE %} {{place.modifier.text}} {% endif %}
-        <a href="{{url('game:map:places:show', place.id)}}" target="_blank">{{ place.name }}</a>
+        <a href="{{url('game:places:show', place.id)}}" target="_blank">{{ place.name }}</a>
 
         {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}<span class="badge badge-success">родной город</span>{% endif %}
 
@@ -81,7 +81,7 @@
             <tr>
               <th>Мастер</th>
               <th>влияние</th>
-              <th>герои</th>
+              <th>герои <i class="icon icon-info-sign" rel="tooltip" title="помогающие / мешающие" style="vertical-align: middle;"></i></th>
             </tr>
           </thead>
           <tbody>
@@ -114,6 +114,11 @@
             {{places_macros.attribute_record(place, 'freedom')}}
             {{places_macros.attribute_record(place, 'safety')}}
             {{places_macros.attribute_record(place, 'tax')}}
+            <tr>
+              <th>герои</th>
+              <td>{{place.politic_power.positive_heroes_number}} / {{place.politic_power.negative_heroes_number}}</td>
+              <td><a href="javascript: return;" class="info-link" rel="tooltip" title="помогающие / мешающие">подробнее</a></td>
+            </tr>
           </tbody>
         </table>
 
@@ -180,7 +185,7 @@
             <tr>
               <th>город</th>
               <td>
-                <a href="{{url('game:map:places:show', building.place.id)}}" target="_blank">{{building.place.name}}</a>
+                <a href="{{url('game:places:show', building.place.id)}}" target="_blank">{{building.place.name}}</a>
               </td>
             </tr>
             <tr>

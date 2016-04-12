@@ -187,6 +187,15 @@ class Place(names.ManageNameMixin2):
     def can_habit_event(self):
         return random.uniform(0, 1) < c.PLACE_HABITS_EVENT_PROBABILITY
 
+    def name_from(self, with_url=True):
+        from dext.common.utils.urls import url
+
+        if with_url:
+            return u'<a href="%s" target="_blank">%s</a>' % (url('game:places:show', self.id), self.name)
+
+        return self.name
+
+
     @property
     def persons(self):
         from the_tale.game.persons import storage as persons_storage

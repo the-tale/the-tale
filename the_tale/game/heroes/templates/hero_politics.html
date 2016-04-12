@@ -63,7 +63,7 @@
           {% for place, count in places_history %}
             <tr>
               <td>{{loop.index}}</td>
-              <td><a href="{{url('game:map:places:show', place.id)}}">{{place.name}}</a></td>
+              <td><a href="{{url('game:places:show', place.id)}}">{{place.name}}</a></td>
               <td>{{count}}</td>
             </tr>
           {% endfor %}

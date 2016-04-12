@@ -16,6 +16,9 @@ class Person(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     created_at_turn = models.IntegerField(null=False, default=0)
 
+    updated_at_turn = models.BigIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True, null=False)
+
     place = models.ForeignKey('places.Place', related_name='persons', on_delete=models.PROTECT)
 
     gender = RelationIntegerField(relation=GENDER, relation_column='value')

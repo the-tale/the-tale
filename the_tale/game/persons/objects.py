@@ -1,5 +1,5 @@
 # coding: utf-8
-import random
+import datetime
 
 from utg import words as utg_words
 from utg import relations as utg_relations
@@ -37,6 +37,7 @@ BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_BONU
 class Person(names.ManageNameMixin2):
     __slots__ = ('id',
                  'created_at_turn',
+                 'updated_at_turn',
                  'place_id',
                  'gender',
                  'race',
@@ -56,6 +57,8 @@ class Person(names.ManageNameMixin2):
                  'personality_cosmetic',
                  'personality_practical',
 
+                 'updated_at',
+
                  # mames mixin
                  '_utg_name_form__lazy',
                  '_name__lazy')
@@ -64,6 +67,7 @@ class Person(names.ManageNameMixin2):
     def __init__(self,
                  id,
                  created_at_turn,
+                 updated_at_turn,
                  place_id,
                  gender,
                  race,
@@ -76,9 +80,11 @@ class Person(names.ManageNameMixin2):
                  moved_at_turn,
                  attrs,
                  personality_cosmetic,
-                 personality_practical):
+                 personality_practical,
+                 updated_at):
         self.id = id
         self.created_at_turn = created_at_turn
+        self.updated_at_turn = updated_at_turn
         self.place_id = place_id
         self.gender = gender
         self.race = race
@@ -92,6 +98,7 @@ class Person(names.ManageNameMixin2):
         self.attrs = attrs
         self.personality_cosmetic = personality_cosmetic
         self.personality_practical = personality_practical
+        self.updated_at = updated_at
 
 
     @property
@@ -106,7 +113,7 @@ class Person(names.ManageNameMixin2):
         from dext.common.utils.urls import url
 
         if with_url:
-            return u'<a href="%s" target="blank_">%s</a> — %s из %s' % (url('game:persons:show', self.id),
+            return u'<a href="%s" target="_blank">%s</a> — %s из %s' % (url('game:persons:show', self.id),
                                                                        self.name, self.race.text, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 
         return u'%s — %s из %s' % (self.name, self.race.text, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
@@ -119,7 +126,12 @@ class Person(names.ManageNameMixin2):
 
     @property
     def on_move_timeout(self):
-        return self.moved_at_turn + c.PERSON_MOVE_DELAY > TimePrototype.get_current_turn_number()
+        return self.seconds_before_next_move > 0
+
+    @property
+    def seconds_before_next_move(self):
+        return (self.moved_at_turn + c.PERSON_MOVE_DELAY - TimePrototype.get_current_turn_number()) * c.TURN_DELTA
+
 
     def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, power):
         if amqp_environment.environment.workers.highlevel is None:

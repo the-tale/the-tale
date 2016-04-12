@@ -55,8 +55,8 @@ def _get_bill_person_remove_arguments(bill):
 
 def _get_bill_person_move_arguments(bill):
     return { 'actors': [(ACTOR_ROLE.BILL, bill),
-                        (ACTOR_ROLE.PLACE, bill.data.person.place),
-                        (ACTOR_ROLE.PLACE, bill.data.person.new_place),
+                        (ACTOR_ROLE.PLACE, bill.data.place),
+                        (ACTOR_ROLE.PLACE, bill.data.new_place),
                         (ACTOR_ROLE.PERSON, bill.data.person)],
              'substitutions': {},
              'text': bill.chronicle_on_accepted }
@@ -126,7 +126,7 @@ def _get_bill_decline_bill_arguments(bill):
 BILL_ARGUMENT_GETTERS = {
     bill_relations.BILL_TYPE.PLACE_RENAMING: _get_bill_place_renaming_arguments,
     bill_relations.BILL_TYPE.PLACE_DESCRIPTION: _get_bill_place_description_arguments,
-    bill_relations.BILL_TYPE.PLACE_MODIFIER: _get_bill_place_modifier_arguments,
+    bill_relations.BILL_TYPE.PLACE_CHANGE_MODIFIER: _get_bill_place_modifier_arguments,
     bill_relations.BILL_TYPE.PERSON_REMOVE: _get_bill_person_remove_arguments,
     bill_relations.BILL_TYPE.PERSON_MOVE: _get_bill_person_move_arguments,
     bill_relations.BILL_TYPE.BUILDING_CREATE: _get_bill_building_arguments,
@@ -151,7 +151,7 @@ def chronicle_bill_processed(sender, bill, **kwargs): # pylint: disable=R0912,W0
     elif bill.data.type == bill_relations.BILL_TYPE.PLACE_DESCRIPTION:
         record_type = records.PlaceChangeDescriptionBillSuccessed
 
-    elif bill.data.type == bill_relations.BILL_TYPE.PLACE_MODIFIER:
+    elif bill.data.type == bill_relations.BILL_TYPE.PLACE_CHANGE_MODIFIER:
         record_type = records.PlaceChangeModifierBillSuccessed
 
     elif bill.data.type == bill_relations.BILL_TYPE.PERSON_REMOVE:
