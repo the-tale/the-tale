@@ -715,7 +715,7 @@ class AddPersonPowerBase(BaseEffect):
         person_id = task.data.get('person_id')
 
         if person_id not in persons_storage.persons:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Советник не найден.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Мастер не найден.')
 
         person = persons_storage.persons[person_id]
 

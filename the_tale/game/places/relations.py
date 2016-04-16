@@ -40,14 +40,14 @@ class BUILDING_TYPE(DjangoEnum):
 
 class ATTRIBUTE(attributes.ATTRIBUTE):
     records = ( attributes.attr('SIZE', 0, u'размер города', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
-                 description=u'Влияет на количество советников в городе, развитие специализаций и на потребление товаров его жителями. Зависит от производства товаров.'),
+                 description=u'Влияет на развитие специализаций, радиус влияния и на потребление товаров его жителями. Зависит от производства товаров.'),
 
                 attributes.attr('TERRAIN_RADIUS', 2, u'радиус изменений', type=attributes.ATTRIBUTE_TYPE.CALCULATED, verbose_units=u'кл',
                  description=u'Радиус в котором город изменяет мир (в клетках).'),
                 attributes.attr('POLITIC_RADIUS', 3, u'радиус владений', type=attributes.ATTRIBUTE_TYPE.CALCULATED, verbose_units=u'кл',
                  description=u'Максимальное расстояние, на которое могут распространяться границы владений города (в клетках).'),
                 attributes.attr('PRODUCTION', 4, u'производство',
-                 description=u'Скорость производства товаров. Зависит от размера экономики города и состава его совета.'),
+                 description=u'Скорость производства товаров. Зависит от размера экономики города и его Мастеров.'),
                 attributes.attr('GOODS', 5, u'товары', type=attributes.ATTRIBUTE_TYPE.CALCULATED,
                  description=u'Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увеличивается. Если товары кончаются, то уменьшается.'),
                 attributes.attr('KEEPERS_GOODS', 6, u'дары Хранителей', type=attributes.ATTRIBUTE_TYPE.CALCULATED,
@@ -57,7 +57,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('TRANSPORT', 8, u'транспорт', verbose_units=u'%',
                  description=u'Уровень развития транспортной инфраструктуры (с какой скоростью герои путешествуют в окрестностях города).'),
                 attributes.attr('FREEDOM', 9, u'свобода', verbose_units=u'%',
-                 description=u'Насколько активна политическая жизнь в городе (как сильно изменяется влияние советников от действий героев).'),
+                 description=u'Насколько активна политическая жизнь в городе (как сильно изменяется влияние Мастеров от действий героев).'),
                 attributes.attr('TAX', 10, u'пошлина', verbose_units=u'%',
                  description=u'Размер пошлины, которую платят герои при посещении города (процент от наличности в кошельке героя).'),
                 attributes.attr('STABILITY', 11, u'стабильность', order=0, verbose_units=u'%',

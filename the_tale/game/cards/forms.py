@@ -15,11 +15,11 @@ class EmptyForm(forms.Form):
 
 class PersonForm(forms.Form):
     TEMPLATE = 'cards/person_form.html'
-    person = fields.ChoiceField(label=u'Советник')
+    person = fields.ChoiceField(label=u'Мастер')
 
     def __init__(self, *args, **kwargs):
         super(PersonForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = persons_objects.Person.form_choices(only_weak=False)
+        self.fields['person'].choices = persons_objects.Person.form_choices()
 
     def get_card_data(self):
         return {'person_id': int(self.c.person)}

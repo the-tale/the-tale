@@ -150,7 +150,7 @@ class VARIABLE(DjangoEnum):
                 ('ENERGY', 'energy', u'энергия', VARIABLE_TYPE.NUMBER),
                 ('SELL_PRICE', 'sell_price', u'цена продажи', VARIABLE_TYPE.NUMBER),
                 ('OLD_ARTIFACT', 'old_artifact', u'старый артефакт', VARIABLE_TYPE.ARTIFACT),
-                ('PERSON', 'person', u'советник', VARIABLE_TYPE.PERSON),
+                ('PERSON', 'person', u'мастер', VARIABLE_TYPE.PERSON),
                 ('DECLINED_BILL', 'declined_bill', u'название не прошедшего закона', VARIABLE_TYPE.TEXT),
                 ('BILL', 'bill', u'название закона', VARIABLE_TYPE.TEXT),
                 ('NEW_NAME', 'new_name', u'новое название города', VARIABLE_TYPE.PLACE),

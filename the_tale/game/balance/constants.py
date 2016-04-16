@@ -463,8 +463,6 @@ PLACE_MAX_BILLS_NUMBER = int(3)
 PLACE_RACE_CHANGE_DELTA_IN_DAY = float(0.1)
 PLACE_RACE_CHANGE_DELTA = (PLACE_RACE_CHANGE_DELTA_IN_DAY * MAP_SYNC_TIME) / (24 * TURNS_IN_HOUR)
 
-PLACE_ADD_PERSON_DELAY = int(24 * TURNS_IN_HOUR) # раз в сколько ходов можно добавлять советника
-
 PLACE_STABILITY_UNIT = float(0.1) # базовая единица изменения стабильности
 
 # считаем что штраф от одного закона должен восстанавливаться за неделю

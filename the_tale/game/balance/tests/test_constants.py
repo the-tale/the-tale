@@ -264,7 +264,6 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA_IN_DAY, 0.1)
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA, 0.1 / 24)
-        self.assertEqual(c.PLACE_ADD_PERSON_DELAY, 8640)
 
         self.assertEqual(c.PLACE_STABILITY_UNIT, 0.1)
 

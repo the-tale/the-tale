@@ -141,7 +141,7 @@ class INTELLECT_LEVEL(DjangoEnum):
 class ACTOR(DjangoEnum):
     records = ( ('HERO', 0, u'герой'),
                 ('MOB', 1, u'монстр'),
-                ('PERSON', 2, u'советник'),
+                ('PERSON', 2, u'Мастер'),
                 ('COMPANION', 3, u'спутник')  )
 
 
