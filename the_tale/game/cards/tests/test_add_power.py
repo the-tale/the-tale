@@ -18,11 +18,11 @@ from the_tale.game.actions.prototypes import ActionQuestPrototype
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
-class AddPowerTestMixin(CardsTestMixin):
+class AddPoliticPowerTestMixin(CardsTestMixin):
     CARD = None
 
     def setUp(self):
-        super(AddPowerTestMixin, self).setUp()
+        super(AddPoliticPowerTestMixin, self).setUp()
         create_test_map()
 
         result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
@@ -59,20 +59,20 @@ class AddPowerTestMixin(CardsTestMixin):
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
-class AddPowercommonTests(AddPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPowerCommon
+class AddPoliticPowercommonTests(AddPoliticPowerTestMixin, testcase.TestCase):
+    CARD = effects.AddPoliticPowerCommon
 
 
-class AddPowerUncommonTests(AddPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPowerUncommon
+class AddPoliticPowerUncommonTests(AddPoliticPowerTestMixin, testcase.TestCase):
+    CARD = effects.AddPoliticPowerUncommon
 
 
-class AddPowerRareTests(AddPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPowerRare
+class AddPoliticPowerRareTests(AddPoliticPowerTestMixin, testcase.TestCase):
+    CARD = effects.AddPoliticPowerRare
 
 
-class AddPowerEpicTests(AddPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPowerEpic
+class AddPoliticPowerEpicTests(AddPoliticPowerTestMixin, testcase.TestCase):
+    CARD = effects.AddPoliticPowerEpic
 
-class AddPowerLegendaryTests(AddPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPowerLegendary
+class AddPoliticPowerLegendaryTests(AddPoliticPowerTestMixin, testcase.TestCase):
+    CARD = effects.AddPoliticPowerLegendary

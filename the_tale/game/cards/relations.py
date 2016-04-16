@@ -108,20 +108,20 @@ class CARD_TYPE(DjangoEnum):
 
                 ('REPAIR_BUILDING', 57, u'волшебный инструмент', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.BuildingForm, True),
 
-                ('PERSON_POWER_BONUS_POSITIVE_UNCOMMON', 58, u'удачный день', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PersonForm, True),
-                ('PERSON_POWER_BONUS_POSITIVE_RARE', 59, u'нежданная выгода', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PersonForm, True),
-                ('PERSON_POWER_BONUS_POSITIVE_EPIC', 60, u'удачная афёра', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PersonForm, True),
-                ('PERSON_POWER_BONUS_POSITIVE_LEGENDARY', 61, u'преступление века', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_POSITIVE_UNCOMMON', 58, u'удачный день', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_POSITIVE_RARE', 59, u'нежданная выгода', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_POSITIVE_EPIC', 60, u'удачная афёра', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_POSITIVE_LEGENDARY', 61, u'преступление века', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PersonForm, True),
 
-                ('PLACE_POWER_BONUS_POSITIVE_UNCOMMON', 62, u'погожие деньки', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PlaceForm, True),
-                ('PLACE_POWER_BONUS_POSITIVE_RARE', 63, u'торговый день', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PlaceForm, True),
-                ('PLACE_POWER_BONUS_POSITIVE_EPIC', 64, u'городской праздник', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PlaceForm, True),
-                ('PLACE_POWER_BONUS_POSITIVE_LEGENDARY', 65, u'экономический рост', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_POSITIVE_UNCOMMON', 62, u'погожие деньки', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_POSITIVE_RARE', 63, u'торговый день', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_POSITIVE_EPIC', 64, u'городской праздник', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_POSITIVE_LEGENDARY', 65, u'экономический рост', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PlaceForm, True),
 
-                ('PLACE_POWER_BONUS_NEGATIVE_UNCOMMON', 66, u'ужасная погода', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PlaceForm, True),
-                ('PLACE_POWER_BONUS_NEGATIVE_RARE', 67, u'запустение', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PlaceForm, True),
-                ('PLACE_POWER_BONUS_NEGATIVE_EPIC', 68, u'нашествие крыс', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PlaceForm, True),
-                ('PLACE_POWER_BONUS_NEGATIVE_LEGENDARY', 69, u'экономический спад', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_NEGATIVE_UNCOMMON', 66, u'ужасная погода', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_NEGATIVE_RARE', 67, u'запустение', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_NEGATIVE_EPIC', 68, u'нашествие крыс', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_NEGATIVE_LEGENDARY', 69, u'экономический спад', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PlaceForm, True),
 
                 ('MOST_COMMON_PLACES_UNCOMMON', 70, u'ошибка в архивах', AVAILABILITY.FOR_ALL, RARITY.UNCOMMON, forms.PlaceForm, True),
                 ('MOST_COMMON_PLACES_RARE', 71, u'фальшивые рекомендации', AVAILABILITY.FOR_ALL, RARITY.RARE, forms.PlaceForm, True),
@@ -175,8 +175,14 @@ class CARD_TYPE(DjangoEnum):
                 ('INCREMENT_ARTIFACT_RARITY', 106, u'скрытый потенциал', AVAILABILITY.FOR_ALL, RARITY.LEGENDARY, forms.EmptyForm, True,),
 
                 ('ADD_POWER_LEGENDARY', 107, u'туз в рукаве', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.EmptyForm, True,),
-                ('PERSON_POWER_BONUS_POSITIVE_COMMON', 108, u'улыбка фортуны', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_POSITIVE_COMMON', 108, u'улыбка фортуны', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PersonForm, True),
 
-                ('PLACE_POWER_BONUS_POSITIVE_COMMON', 109, u'выгодный контракт', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PlaceForm, True),
-                ('PLACE_POWER_BONUS_NEGATIVE_COMMON', 110, u'сорванный контракт', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_POSITIVE_COMMON', 109, u'выгодный контракт', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PlaceForm, True),
+                ('ADD_PLACE_POWER_NEGATIVE_COMMON', 110, u'сорванный контракт', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PlaceForm, True),
+
+                ('ADD_PERSON_POWER_NEGATIVE_COMMON', 111, u'гримасса фортуны', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_NEGATIVE_UNCOMMON', 112, u'гадкий день', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_NEGATIVE_RARE', 113, u'нежданная беда', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_NEGATIVE_EPIC', 114, u'провальное мероприятие', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_NEGATIVE_LEGENDARY', 115, u'чёрная полоса', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PersonForm, True),
                 )
