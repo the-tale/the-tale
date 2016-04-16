@@ -9,9 +9,5 @@ KEYS = [(u'CHRONICLE_PERSON_ARRIVED_TO_PLACE', 260013, u'Член Совета: 
 
         (u'CHRONICLE_PLACE_CHANGE_RACE', 260030, u'Раса города: изменение', LEXICON_GROUP.CHRONICLE,
         u'Изменилась доминирующая раса города.',
-        [V.OLD_RACE, V.NEW_RACE, V.PLACE], None),
-
-        (u'CHRONICLE_PLACE_LOSED_MODIFIER', 260031, u'Специализация города: автоматически сброшена', LEXICON_GROUP.CHRONICLE,
-        u'Специализация сброшена из-за того, что её развитие стало меньше необходимого барьера',
-        [V.PLACE, V.OLD_MODIFIER], None),
+        [V.OLD_RACE, V.NEW_RACE, V.PLACE], None)
         ]
