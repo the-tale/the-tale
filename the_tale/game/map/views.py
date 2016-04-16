@@ -9,24 +9,18 @@ from the_tale.common.utils import views as utils_views
 
 from the_tale.accounts import views as accounts_views
 
-from the_tale.game import relations as game_relations
-
-from the_tale.game.persons import relations as persons_relations
-
+from the_tale.game.chronicle import prototypes as chronicle_prototypes
 from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.conf import map_settings
 
 from the_tale.game.places import storage as places_storage
-from the_tale.game.places import prototypes as places_prototypes
-from the_tale.game.places import logic as places_logic
-from the_tale.game.places import relations as places_relations
 from the_tale.game.places import info as places_info
-from the_tale.game.places import modifiers as places_modifiers
 
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
+from . import conf
 
 
 ########################################
@@ -75,7 +69,6 @@ def cell_info(context):
 
     place = places_storage.places.get_by_coordinates(x, y)
 
-    chronicle_records = []
     exchanges = []
 
     terrain_points = []
@@ -86,7 +79,7 @@ def cell_info(context):
                            content={'place': place,
                                     'building': building,
                                     'place_bills': places_info.place_info_bills(place) if place else None,
-                                    'place_chronicle': places_info.place_info_cronicle(place) if place else None,
+                                    'place_chronicle': chronicle_prototypes.chronicle_info(place, conf.map_settings.CHRONICLE_RECORDS_NUMBER) if place else None,
                                     'exchanges': exchanges,
                                     'cell': cell,
                                     'terrain': terrain,
@@ -94,7 +87,6 @@ def cell_info(context):
                                     'x': x,
                                     'y': y,
                                     'terrain_points': terrain_points,
-                                    'chronicle_records': chronicle_records,
                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account.is_authenticated() else None,
                                     'resource': context.resource,
                                     'ABILITY_TYPE': ABILITY_TYPE})

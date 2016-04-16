@@ -21,7 +21,7 @@ def can_be_choosen(place, modifier):
     if modifier.is_NONE:
         return True
 
-    if getattr(place.attrs, 'MODIFIER_{}'.format(modifier.name).lower()) < c.PLACE_TYPE_NECESSARY_BORDER:
+    if getattr(place.attrs, 'MODIFIER_{}'.format(modifier.name).lower(), c.PLACE_TYPE_NECESSARY_BORDER) < c.PLACE_TYPE_NECESSARY_BORDER:
         return False
 
     return True

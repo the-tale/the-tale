@@ -10,7 +10,11 @@
     <h3 class="pgf-dialog-title dialog-title">
       {% if place %}
         <span style="vertical-align: middle;">
-        {% if not place.modifier.is_NONE %} {{place.modifier.text}} {% endif %}
+          {% if not place.modifier.is_NONE %}
+            <span {%if not place.is_modifier_active()%}style="color: orange; cursor: pointer;" rel="tooltip" title="Город не соответствует требованиям специализации"{% endif %}>
+              {{place.modifier.text}}
+            </span>
+          {% endif %}
         <a href="{{url('game:places:show', place.id)}}" target="_blank">{{ place.name }}</a>
 
         {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}<span class="badge badge-success">родной город</span>{% endif %}

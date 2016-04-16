@@ -147,6 +147,7 @@ class PlaceTests(testcase.TestCase):
                                          bill=None)
 
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
     @mock.patch('the_tale.game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
     def test_refresh_attributes__production(self):
@@ -169,6 +170,7 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.production - expected_production < 0.001)
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__safety(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.FORT)
@@ -194,6 +196,7 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.safety - c.PLACE_MIN_SAFETY < 0.001)
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__transport(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.TRANSPORT_NODE)
@@ -234,6 +237,7 @@ class PlaceTests(testcase.TestCase):
 
         self.assertEqual(self.p1.attrs.tax, 0.05)
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__freedom(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.POLIC)

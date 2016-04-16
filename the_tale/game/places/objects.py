@@ -240,6 +240,8 @@ class Place(names.ManageNameMixin2):
             self.race = dominant_race
             signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
 
+    def is_modifier_active(self):
+        return getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0) >= c.PLACE_TYPE_ENOUGH_BORDER
 
     def _effects_generator(self):
         from . import storage
@@ -255,8 +257,11 @@ class Place(names.ManageNameMixin2):
         for effect in self.effects.effects:
             yield effect
 
-        for effect in self._modifier.effects:
-            yield effect
+        if self.is_modifier_active():
+            for effect in self._modifier.effects:
+                yield effect
+        elif not self.modifier.is_NONE:
+            yield effects.Effect(name=u'Несоответствие специализации', attribute=relations.ATTRIBUTE.STABILITY, value=-c.PLACE_STABILITY_UNIT)
 
         for exchange in storage.resource_exchanges.get_exchanges_for_place(self):
             resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)

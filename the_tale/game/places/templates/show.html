@@ -13,7 +13,11 @@
 {% block places_content %}
 
   <h2>
-    {% if not place.modifier.is_NONE %} {{place.modifier.text}} {% endif %}
+    {% if not place.modifier.is_NONE %}
+      <span {%if not place.is_modifier_active()%}style="color: orange; cursor: pointer;" rel="tooltip" title="Город не соответствует требованиям специализации"{% endif %}>
+        {{place.modifier.text}}
+      </span>
+    {% endif %}
     {{place.name}}
     {{ base_macros.magnet(place_meta_object) }}
     <small>
