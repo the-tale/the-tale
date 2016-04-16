@@ -7,18 +7,13 @@ from the_tale.common.utils import views as utils_views
 
 from the_tale.accounts import views as accounts_views
 
-from the_tale.game import relations as game_relations
-
 from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.places import storage as places_storage
 
 from the_tale.game import short_info as game_short_info
 
 from . import conf
-from . import logic
+from . import info
 from . import storage
-from . import relations
 from . import meta_relations
 
 
@@ -66,66 +61,30 @@ def api_show(context):
 
     {
       "id": <целое число>,        // идентификатор Мастера
-      "name": "строка",           // имя Мастера
-      "place_id": <целое число>,  // идентификатор города в котором живёт
+      "name": "строка",           // имя
       "updated_at": <timestamp>,  // время последнего обновления информации
 
-      "politic_power": <politic_power>,     // информация о политическом влиянии Мастера
-
-      "race": <целое число>,                // раса
-      "gender": <целое число>,              // пол
-      "professioon": <целое число>,         // профессия
-
-      "personality": {
-        "cosmetic": <целое число>,          // идентификатор косметической особенности характера
-        "practical":  <целое число>         // идентификатор практической особенности характера
+      "place": {                           // краткая информация о городе
+          "id": <целое число>,             // идентификатор
+          "name": "<строка>",              // название
+          "size": <целое число>,           // размер
+          "specialization": <целое число>, // специализация
+          "position": {                    // координаты
+              "x": <целое число>,
+              "y": <целое число> }
       },
 
-      "building": <целое число>|null,       // идентификатор здания, если оно есть
+      // формат следующих параметров такой же, как в методе получения информации о городе
 
-      "connections": [(<целое число>, <целое число>),…], // список социальных связей советника в виде <тип связи, идентификатор второго советника>
-
-      "keepers": <keepers_info>,                   // игроки, связанные с Мастером
-
-      "chronicle": <chronicle_info>,               // последние записи в летописи
-      "accounts": <accounts_info>,                 // краткая дополнительная информация об игроках, связанных с Мастером
-      "clans": <clans_info>                        // краткая дополнительная информация о кланах, связанных с Мастером
+      "politic_power": <politic_power>,    // политическое влияние
+      "attributes": <attributes_info>,     // все параметры Мастера
+      "chronicle": <chronicle_info>,       // последние записи в летописи
+      "accounts": <accounts_info>,         // краткая дополнительная информация об игроках, связанных с Мастером
+      "clans": <clans_info>                // краткая дополнительная информация о кланах, связанных с Мастером
     }
-
-    <keepers_info> = {
-      "friends": [<целое число>, …], // список идентификаторов игроков, чьи герои помогают Мастеру
-      "enemies": [<целое число>, …]  // список идентификаторов игроков, чьи герои вредят Мастеру
-    }
-
-
-    <chronicle_info> = [("строка", "строка", "строка"), …] // последние записи из летописи о городе в формате ("короткая дата", "длинная дата", "текст")
-
-    <accounts_info> = {
-      "<целое число>": {            // идентификатор игрока
-        'id': <целое число>,        // идентификатор игрока
-        'name': "строка",           // ник
-        'hero': {                   // краткая информация о герое
-          'id': <целое число>,      // идентификатор
-          'name': "строка",         // имя
-          'race': <целое число>,    // раса
-          'gender': <целое число>,  // пол
-          'level': <целое число> }, // уровень
-        'clan': <целое число>|null  // идентификатор клана
-      },
-      …
-    }
-
-    <clans_info> = {
-     "<целое число>": {     // идентификатор клана
-       'id': <целое число>, // идентификатор клана
-       'abbr': "строка",    // аббревиатура
-       'name': "строка"},   // полное название
-     …
-    }
-
     '''
 
-    return dext_views.AjaxOk(content=logic.place_info(context.place))
+    return dext_views.AjaxOk(content=info.person_info(context.person))
 
 
 @PersonProcessor(error_message=u'Мастер не найден', url_name='person', context_name='person')

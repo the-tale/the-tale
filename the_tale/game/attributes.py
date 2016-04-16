@@ -1,4 +1,5 @@
 # coding: utf-8
+import numbers
 import operator
 
 from rels import Column
@@ -52,3 +53,16 @@ def create_attributes_class(ATTRIBUTES):
             return sorted(ATTRIBUTES.records, key=lambda x: x.text)
 
     return Attributes
+
+
+def attributes_info(effects, attrs, relation):
+    attributes = []
+
+    for record in relation.records:
+        value = getattr(attrs, record.name.lower())
+        if not isinstance(value, (numbers.Number, basestring)):
+            value = None
+        attributes.append({"id": record.value, "value": value})
+
+    return {'effects': [effect.ui_info() for effect in effects],
+            'attributes': attributes}

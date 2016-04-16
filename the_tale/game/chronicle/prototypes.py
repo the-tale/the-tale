@@ -167,3 +167,8 @@ class ActorPrototype(BasePrototype):
             return places_storage.places[self.place_id].name
         if self.person_id is not None:
             return persons_storage.persons[self.person_id].name
+
+
+def chronicle_info(obj, records_number):
+    return [(record.game_time.verbose_date_short, record.game_time.verbose_date, record.text)
+            for record in RecordPrototype.get_last_actor_records(obj, records_number)]

@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import numbers
 
 class Effect(object):
     __slots__ = ('name', 'attribute', 'value', 'delta', 'remove_required')
@@ -25,10 +25,10 @@ class Effect(object):
                    value=data.pop('value'),
                    delta=data.pop('delta'))
 
-    def info(self):
+    def ui_info(self):
         return {'name': self.name,
-                'attribute': self.attribute.name.lower(),
-                'value': self.value}
+                'attribute': self.attribute.value,
+                'value': self.value if isinstance(self.value, (numbers.Number, basestring)) else None}
 
     def apply_to(self, attrs):
         name = self.attribute.name.lower()

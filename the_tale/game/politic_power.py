@@ -59,12 +59,14 @@ class PoliticPower(object):
                    inner_power=data['inner_power'],
                    inner_circle={int(account_id): power for account_id, power in data['inner_circle'].iteritems()})
 
-    def ui_info(self, power_fraction):
-        return {'power': {'inner': self.inner_power,
-                          'outer': self.outer_power,
-                          'fraction': power_fraction},
-                'inner_circle': {'positive': {hero_id: self.inner_circle[hero_id] for hero_id in self.inner_positive_heroes},
-                                 'negative': {hero_id: self.inner_circle[hero_id] for hero_id in self.inner_negative_heroes}}}
+    def ui_info(self, all_powers):
+        return {'power': {'inner': {'value': self.inner_power,
+                                    'fraction': self.inner_power_fraction(all_powers)},
+                          'outer': {'value': self.outer_power,
+                                    'fraction': self.outer_power_fraction(all_powers)},
+                          'fraction': self.total_politic_power_fraction(all_powers)},
+                'heroes': {'positive': {hero_id: self.inner_circle[hero_id] for hero_id in self.inner_positive_heroes},
+                           'negative': {hero_id: self.inner_circle[hero_id] for hero_id in self.inner_negative_heroes}}}
 
     def inner_accounts_ids(self):
         return self.inner_circle.iterkeys()

@@ -1,10 +1,12 @@
 # coding: utf-8
 import random
 import datetime
+from django.conf import settings as project_settings
 
 from utg import words as utg_words
 
 from dext.common.utils import s11n
+from dext.common.utils.urls import url
 
 from the_tale.game import prototypes as game_protypes
 
@@ -283,3 +285,10 @@ def move_person_to_place(person, new_place):
     person.moved_at_turn = TimePrototype.get_current_turn_number()
 
     save_person(person)
+
+
+def api_show_url(person):
+    arguments = {'api_version': conf.settings.API_SHOW_VERSION,
+                 'api_client': project_settings.API_CLIENT}
+
+    return url('game:persons:api-show', person.id, **arguments)

@@ -258,3 +258,40 @@ def game_info_from_1_4_to_1_3(data):
         _game_info_from_1_4_to_1_3__heroes(data['enemy']['hero'])
 
     return data
+
+
+def accounts_info(accounts_ids):
+    from the_tale.accounts import prototypes as accounts_prototypes
+
+    accounts = {account.id: account for account in accounts_prototypes.AccountPrototype.get_list_by_id(list(accounts_ids))}
+    heroes = {hero.account_id: hero for hero in heroes_logic.load_heroes_by_account_ids(list(accounts_ids))}
+
+    accounts_data = {}
+
+    for account in accounts.itervalues():
+        hero = heroes[account.id]
+
+        hero_data = {'id': hero.id,
+                     'name': hero.name,
+                     'race': hero.race.value,
+                     'gender': hero.gender.value,
+                     'level': hero.level}
+
+        account_data = {'id': account.id,
+                        'name': account.nick_verbose,
+                        'hero': hero_data,
+                        'clan': account.clan_id}
+
+        accounts_data[account.id] = account_data
+
+    return accounts_data
+
+
+def clans_info(accounts_data):
+    from the_tale.accounts.clans import prototypes as clans_prototypes
+
+    clans_ids = set(account['clan'] for account in accounts_data.itervalues() if account['clan'] is not None)
+    return {clan.id: {'id': clan.id,
+                      'abbr': clan.abbr,
+                      'name': clan.name}
+            for clan in clans_prototypes.ClanPrototype.get_list_by_id(list(clans_ids))}

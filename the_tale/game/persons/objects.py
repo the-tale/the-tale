@@ -1,6 +1,4 @@
 # coding: utf-8
-import datetime
-
 from utg import words as utg_words
 from utg import relations as utg_relations
 

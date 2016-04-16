@@ -597,10 +597,10 @@ class PrototypeTests(PrototypeTestsBase):
 
     def test_finish_quest__person_personality(self):
         result = random.choice([QUEST_RESULTS.SUCCESSED, QUEST_RESULTS.FAILED])
-        cosmetic = random.choice([persons_relations.PERSONALITY_COSMETIC.P_1,
-                                  persons_relations.PERSONALITY_COSMETIC.P_2,
-                                  persons_relations.PERSONALITY_COSMETIC.P_3,
-                                  persons_relations.PERSONALITY_COSMETIC.P_4])
+        cosmetic = random.choice([persons_relations.PERSONALITY_COSMETIC.TRUTH_SEEKER,
+                                  persons_relations.PERSONALITY_COSMETIC.KNAVE,
+                                  persons_relations.PERSONALITY_COSMETIC.GOOD_SOUL,
+                                  persons_relations.PERSONALITY_COSMETIC.BULLY])
 
         for person in persons_storage.persons.all():
             person.personality_cosmetic = cosmetic
