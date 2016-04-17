@@ -7,7 +7,7 @@ import datetime
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import workers
-from the_tale.common import postponed_tasks
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic_storage import LogicStorage
@@ -138,7 +138,7 @@ class Worker(workers.BaseWorker):
                                        message='LogicWorker.process_logic_task catch exception, while processing hero %d, try to save all bundles except %d',
                                        data=(hero.id, bundle_id),
                                        excluded_bundle_id=bundle_id):
-            task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+            task = PostponedTaskPrototype.get_by_id(task_id)
             task.process(self.logger, storage=self.storage)
             task.do_postsave_actions()
 

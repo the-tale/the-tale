@@ -212,3 +212,11 @@ def api_show_url(place):
                  'api_client': project_settings.API_CLIENT}
 
     return url('game:places:api-show', place.id, **arguments)
+
+
+def refresh_all_places_attributes():
+    from the_tale.game.places import storage
+
+    for place in storage.places.all():
+        place.refresh_attributes()
+        save_place(place)

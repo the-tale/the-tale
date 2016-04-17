@@ -56,7 +56,7 @@ class Worker(BaseWorker):
         return self.send_cmd('task', {'task_id': task_id})
 
     def process_task(self, task_id):
-        task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+        task = PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger)
         task.do_postsave_actions()
 

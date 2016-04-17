@@ -17,10 +17,12 @@ class ATTRIBUTE(DjangoEnum):
     description = Column(primary=False)
     apply = Column(primary=False, unique=False, single_type=False)
     verbose_units = Column(unique=False, primary=False)
+    serializer = Column(unique=False)
+    deserializer = Column(unique=False)
 
 
-def attr(name, value, text, default=lambda: 0, type=ATTRIBUTE_TYPE.AGGREGATED, order=1, description=None, apply=operator.add, verbose_units=u''):
-    return (name, value, text, default, type, order, (description if description is not None else text), apply, verbose_units)
+def attr(name, value, text, default=lambda: 0, type=ATTRIBUTE_TYPE.AGGREGATED, order=1, description=None, apply=operator.add, verbose_units=u'', serializer=lambda x: x, deserializer=lambda x: x):
+    return (name, value, text, default, type, order, (description if description is not None else text), apply, verbose_units, serializer, deserializer)
 
 
 def create_attributes_class(ATTRIBUTES):
@@ -37,11 +39,11 @@ def create_attributes_class(ATTRIBUTES):
                     setattr(self, attribute.name.lower(), attribute.default())
 
         def serialize(self):
-            return {name: getattr(self, name) for name in self.__slots__}
+            return {record.name.lower(): record.serializer(getattr(self, record.name.lower())) for record in ATTRIBUTES.records}
 
         @classmethod
         def deserialize(cls, data):
-            return cls(**data)
+            return cls(**{k: ATTRIBUTES.index_name[k.upper()].deserializer(v) for k,v in data.iteritems()})
 
         def reset(self):
             for attribute in ATTRIBUTES.records:

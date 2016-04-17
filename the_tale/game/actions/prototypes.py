@@ -1376,7 +1376,10 @@ class ActionInPlacePrototype(ActionBase):
                 return
 
             power = self.hero.modify_politics_power(power_direction*f.person_power_for_quest(c.QUEST_AREA_RADIUS), person=person)
-            person.cmd_change_power(power)
+            person.cmd_change_power(hero_id=self.hero.id,
+                                    has_place_in_preferences=self.hero.preferences.has_place_in_preferences(person.place),
+                                    has_person_in_preferences=self.hero.preferences.has_place_in_preferences(person),
+                                    power=power)
 
     def spend_money__experience(self):
         coins = self.try_to_spend_money()
@@ -1932,7 +1935,7 @@ class ActionMetaProxyPrototype(ActionBase):
             hero_2 = self.meta_action.hero_2 if self.hero.id == self.meta_action.hero_1_id else self.meta_action.hero_1
         else:
             hero_2_id = self.meta_action.hero_2_id if self.hero.id == self.meta_action.hero_1_id else self.meta_action.hero_1_id
-            hero_2 = heroes_logic.load_hero(hero_2_id)
+            hero_2 = heroes_logic.load_hero(hero_id=hero_2_id)
 
         return {'duelist_1': self.hero,
                 'duelist_2': hero_2}

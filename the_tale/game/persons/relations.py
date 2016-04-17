@@ -55,9 +55,23 @@ class SOCIAL_CONNECTION_STATE(DjangoEnum):
                 ('OUT_GAME', 1, u'вне игры'), )
 
 
+def quest_result_serialize(data):
+    return {k: v.value for k,v in data.iteritems()}
+
+def quest_result_deserialize(data):
+    return {k: heroes_relations.HABIT_CHANGE_SOURCE(v) for k,v in data.iteritems()}
+
+
+def job_group_priority_serialize(data):
+    return {k.value: v for k,v in data.iteritems()}
+
+def job_group_priority_deserialize(data):
+    return {jobs_effects.EFFECT_GROUP(int(k)): v for k, v in data.iteritems()}
+
+
 class ATTRIBUTE(attributes.ATTRIBUTE):
 
-    records = ( attributes.attr('ON_QUEST_HABITS', 0, u'изменения черт, если Мастер получает выгоду от задания', default=dict, apply=lambda a, b: (a.update(b) or a)),
+    records = ( attributes.attr('ON_QUEST_HABITS', 0, u'изменения черт, если Мастер получает выгоду от задания', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=quest_result_serialize, deserializer=quest_result_deserialize),
                 attributes.attr('TERRAIN_POWER', 1, u'сила влияния на ланшафт', default=lambda: 1),
                 attributes.attr('TERRAIN_RADIUS_BONUS', 2, u'бонус к радиусу влияния города на ландшафт'),
                 attributes.attr('PLACES_HELP_AMOUNT', 3, u'бонус к начисляемым «влияниям» за задания', default=lambda: 1),
@@ -71,12 +85,12 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('BUILDING_AMORTIZATION_SPEED', 11, u'скорость амортизации здания Мастера', default=lambda: 1),
                 attributes.attr('ON_PROFITE_ENERGY', 12, u'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
                 attributes.attr('JOB_POWER_BONUS', 13, u'бонус к эффекту занятий Мастера'),
-                attributes.attr('JOB_GROUP_PRIORITY', 14, u'бонус к приоритету типов занятий Мастера', default=dict, apply=lambda a, b: (a.update(b) or a)),
+                attributes.attr('JOB_GROUP_PRIORITY', 14, u'бонус к приоритету типов занятий Мастера', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
                 attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER', 15, u'сила социальных связей с партнёрами'),
                 attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER', 16, u'сила социальных связей с конкурентами'),
                 attributes.attr('DEMOGRAPHICS_PRESSURE', 17, u'демографическое давление', default=lambda: 1) )
 
-    EFFECTS_ORDER = sorted(set(record[-4] for record in records))
+    EFFECTS_ORDER = sorted(set(record[5] for record in records))
 
 
 class PERSONALITY(DjangoEnum):

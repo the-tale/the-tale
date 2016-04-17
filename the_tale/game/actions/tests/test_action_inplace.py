@@ -63,6 +63,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_instant_heal_in_resort(self):
         self.hero.health = 1
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.RESORT)
@@ -71,6 +72,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_no_instant_heal_in_resort(self):
         self.hero.health = self.hero.max_health
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.RESORT)
@@ -79,7 +81,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.storage._test_save()
 
-
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_companion_heal_in_resort__no_companion(self):
         self.assertEqual(self.hero.companion, None)
 
@@ -89,6 +91,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_companion_heal_in_resort__healed_companion(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -104,6 +107,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_companion_heal_in_resort__damaged_companion(self):
         companion_record = companions_storage.companions.enabled_companions().next()
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -120,6 +124,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_instant_energy_regen_in_holy_city(self):
         self.hero.energy = 0
         self.hero.position.previous_place_id = None
@@ -134,6 +139,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_instant_energy_regen_in_holy_city__maximum_energy(self):
         self.hero.energy = self.hero.energy_maximum
         self.hero.position.previous_place_id = None
@@ -148,6 +154,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_instant_energy_regen_in_holy_city__no_regen(self):
         self.hero.energy = 0
         self.hero.position.previous_place_id = None
@@ -162,6 +169,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
+    @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_instant_energy_regen_in_holy_city__place_not_changed(self):
         self.hero.energy = 0
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
@@ -175,6 +183,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.assertEqual(self.hero.energy, 0)
 
         self.storage._test_save()
+
 
     def test_tax(self):
         for place in places_storage.places.all():

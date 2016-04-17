@@ -6,11 +6,11 @@ import collections
 
 from django.db import transaction
 
-from dext.common.amqp_queues import BaseWorker
+from the_tale.common.utils.workers import BaseWorker
 
 from the_tale.amqp_environment import environment
 
-from the_tale.common import postponed_tasks
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.accounts.prototypes import AccountPrototype
 
@@ -54,8 +54,7 @@ class Worker(BaseWorker):
             self._do_balancing()
 
     def initialize(self):
-        # worker initialized by supervisor
-        pass
+        self.logger.info('PVP_BALANCER INITIALIZED')
 
     def cmd_initialize(self, worker_id):
         self.send_cmd('initialize', {'worker_id': worker_id})
@@ -90,7 +89,7 @@ class Worker(BaseWorker):
                                             'account_id': account_id})
 
     def process_logic_task(self, account_id, task_id):#pylint: disable=W0613
-        task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+        task = PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger, pvp_balancer=self)
         task.do_postsave_actions()
 

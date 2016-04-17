@@ -292,3 +292,9 @@ def api_show_url(person):
                  'api_client': project_settings.API_CLIENT}
 
     return url('game:persons:api-show', person.id, **arguments)
+
+
+def refresh_all_persons_attributes():
+    for person in storage.persons.all():
+        person.refresh_attributes()
+        save_person(person)

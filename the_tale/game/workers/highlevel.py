@@ -5,7 +5,7 @@ from django.db import transaction
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.workers import BaseWorker
-from the_tale.common import postponed_tasks
+from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.game.balance import constants as c
 
@@ -276,6 +276,6 @@ class Worker(BaseWorker):
                                             'account_id': account_id})
 
     def process_logic_task(self, account_id, task_id): # pylint: disable=W0613
-        task = postponed_tasks.PostponedTaskPrototype.get_by_id(task_id)
+        task = PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger, highlevel=self)
         task.do_postsave_actions()

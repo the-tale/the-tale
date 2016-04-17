@@ -494,13 +494,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.might = might
         self.actual_bills = actual_bills
 
-    def on_highlevel_data_updated(self):
-        if self.preferences.friend is not None and self.preferences.friend.out_game:
-            self.preferences.reset_friend()
-
-        if self.preferences.enemy is not None and self.preferences.enemy.out_game:
-            self.preferences.reset_enemy()
-
     def get_achievement_account_id(self):
         return self.account_id
 

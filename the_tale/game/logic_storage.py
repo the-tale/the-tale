@@ -156,8 +156,7 @@ class LogicStorage(object):
         return (action.hero.id, number - 1 if action is action.hero.actions.current_action else number)
 
     def on_highlevel_data_updated(self):
-        for hero in self.heroes.values():
-            hero.on_highlevel_data_updated()
+        pass
 
 
     @contextlib.contextmanager

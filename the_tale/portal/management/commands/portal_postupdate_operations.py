@@ -13,6 +13,7 @@ from the_tale.linguistics.conf import linguistics_settings
 from the_tale.linguistics import logic as linguistics_logic
 
 from the_tale.game.persons import logic as persons_logic
+from the_tale.game.places import logic as places_logic
 
 from the_tale.game.bills import logic as bills_logic
 
@@ -53,6 +54,12 @@ class Command(BaseCommand):
         print 'SYNC ACTUAL BILLS'
 
         bills_logic.update_actual_bills_for_all_accounts()
+
+        print
+        print 'REFRESH ATTRIBUTES'
+
+        places_logic.refresh_all_places_attributes()
+        persons_logic.refresh_all_persons_attributes()
 
         print
         print 'REMOVE OLD SDN INFO'

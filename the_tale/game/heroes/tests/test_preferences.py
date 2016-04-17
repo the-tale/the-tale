@@ -702,19 +702,6 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         self.assertEqual(set([h.id for h in HeroPreferences.get_friends_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
         self.assertEqual(set([h.id for h in HeroPreferences.get_friends_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
 
-    # def test_reset_friend_on_highlevel_update(self):
-    #     friend = self.place_1.persons[0]
-
-    #     self.hero.preferences.set_friend(friend)
-    #     logic.save_hero(self.hero)
-
-    #     friend.move_out_game()
-    #     friend.save()
-
-    #     self.storage.on_highlevel_data_updated()
-
-    #     self.assertEqual(self.hero.preferences.friend, None)
-
 
     def test_count_habit_values(self):
         hero_1 = self.hero
@@ -940,19 +927,6 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
 
         self.assertEqual(set([h.id for h in HeroPreferences.get_enemies_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
         self.assertEqual(set([h.id for h in HeroPreferences.get_enemies_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
-
-    # def test_reset_enemy_on_highlevel_update(self):
-    #     enemy = self.place_1.persons[0]
-
-    #     self.hero.preferences.set_enemy(enemy)
-    #     logic.save_hero(self.hero)
-
-    #     enemy.move_out_game()
-    #     enemy.save()
-
-    #     self.storage.on_highlevel_data_updated()
-
-    #     self.assertEqual(self.hero.preferences.enemy, None)
 
 
     def test_count_habit_values(self):
