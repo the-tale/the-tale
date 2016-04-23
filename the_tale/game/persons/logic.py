@@ -62,7 +62,7 @@ class PersonPoliticPower(politic_power.PoliticPower):
                 'job_power': person.get_job_power() }
 
 
-NORMAL_PERSON_JOB_POWER = f.normal_job_power() * PersonPoliticPower.INNER_CIRCLE_SIZE
+NORMAL_PERSON_JOB_POWER = f.normal_job_power(PersonPoliticPower.INNER_CIRCLE_SIZE)
 
 
 def save_person(person, new=False):

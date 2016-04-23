@@ -24,7 +24,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.ARTIFACTS_LOOT_PER_DAY, 2.0)
         self.assertEqual(c.ARTIFACT_FOR_QUEST_PROBABILITY, 0.2)
-        self.assertEqual(round(c.ARTIFACTS_BREAKING_SPEED, 2), 0.37)
+        self.assertEqual(round(c.ARTIFACTS_BREAKING_SPEED, 2), 0.52)
 
         self.assertEqual(c.INCOME_LOOT_FRACTION, 0.6)
         self.assertEqual(c.INCOME_ARTIFACTS_FRACTION, 0.4)
@@ -85,7 +85,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.BATTLES_PER_HOUR, 15.319148936170212)
 
         self.assertEqual(c.ARTIFACTS_PER_BATTLE, 0.005439814814814815)
-        self.assertEqual(c.ARTIFACTS_BREAKS_PER_BATTLE, 0.0009972993827160493)
+        self.assertEqual(c.ARTIFACTS_BREAKS_PER_BATTLE, 0.0014247134038800706)
         self.assertEqual(c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY, 0.25)
 
         self.assertEqual(c.DAMAGE_TO_HERO_PER_HIT_FRACTION, 0.019230769230769232)
@@ -166,6 +166,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
 
+        self.assertEqual(c.NORMAL_JOB_LENGTH, 7)
+
         self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 2*7*24*60*60)
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
 
@@ -237,7 +239,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_MIN_STABILITY, 0)
 
         self.assertEqual(c.PLACE_MAX_SIZE, 10)
-        self.assertEqual(c.PLACE_MAX_FRONTIER_SIZE, 7)
+        self.assertEqual(c.PLACE_MAX_ECONOMIC, 10)
+        self.assertEqual(c.PLACE_MAX_FRONTIER_ECONOMIC, 5)
 
         self.assertEqual(c.PLACE_NEW_PLACE_LIVETIME, 2*7*24*60*60)
 
@@ -280,6 +283,12 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM, 10)
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY, 10)
         self.assertEqual(c.PLACE_HABITS_EVENT_PROBABILITY, 0.025)
+
+        self.assertEqual(c.JOB_PRODUCTION_BONUS, 14)
+        self.assertEqual(round(c.JOB_SAFETY_BONUS, 5), 0.00714)
+        self.assertEqual(round(c.JOB_TRANSPORT_BONUS, 5), 0.04762)
+        self.assertEqual(round(c.JOB_FREEDOM_BONUS, 5), 0.04762)
+        self.assertEqual(round(c.JOB_STABILITY_BONUS, 5), 0.01429)
 
         self.assertEqual(c.PERSON_MOVE_DELAY, 120960)
 

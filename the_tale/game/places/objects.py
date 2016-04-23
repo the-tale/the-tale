@@ -260,6 +260,7 @@ class Place(names.ManageNameMixin2):
         if self.is_modifier_active():
             for effect in self._modifier.effects:
                 yield effect
+
         elif not self.modifier.is_NONE:
             yield effects.Effect(name=u'Несоответствие специализации', attribute=relations.ATTRIBUTE.STABILITY, value=-c.PLACE_STABILITY_UNIT)
 

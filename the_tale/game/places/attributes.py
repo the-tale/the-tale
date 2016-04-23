@@ -33,14 +33,14 @@ class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
                 self.size = 1
                 self.goods = 0
 
-        # методика расчёта:
-        # в городе 7-ого уровня 2 жителя со способностями 0.7 и влиянием 0.35 каждый в сумме должны накапливать 75 очков
-        # 2*7*0.35*0.7 ~ 3.43 с модификатором силы жителя - 34.3 -> на 7-ом уровне можификатор от размера должен быть примерно 2.2
-        self.modifier_multiplier = (math.log(self.size, 2) + 1) / 1.7
+        self.goods = int(self.goods)
 
     def sync(self):
         self.politic_radius = self.size * self.politic_radius_modifier
         self.terrain_radius = self.size * self.terrain_radius_modifier
+
+        self.modifier_multiplier = (math.log(self.size, 2) + 1) / 1.7
+
 
     def set_power_economic(self, value):
         self.power_economic = value
@@ -48,11 +48,14 @@ class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
     def get_next_keepers_goods_spend_amount(self):
         return min(self.keepers_goods, max(int(self.keepers_goods * c.PLACE_KEEPERS_GOODS_SPENDING), c.PLACE_GOODS_BONUS))
 
-    def specializations(self):
+    def ui_specializations(self):
         specializations = [record
                            for record in modifiers.CITY_MODIFIERS.records
                            if not record.is_NONE]
-        specializations.sort(key=lambda x: x.text)
 
-        for specialization in specializations:
-            yield specialization, getattr(self, specialization.points_attribute.name.lower())
+        sorted_specializations = [(specialization, getattr(self, specialization.points_attribute.name.lower()))
+                                  for specialization in specializations]
+
+        sorted_specializations.sort(key=lambda x: -x[1])
+
+        return sorted_specializations

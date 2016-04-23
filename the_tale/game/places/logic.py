@@ -53,7 +53,7 @@ class PlacePoliticPower(politic_power.PoliticPower):
                 'job_power': place.get_job_power() }
 
 
-NORMAL_PLACE_JOB_POWER = f.normal_job_power() * PlacePoliticPower.INNER_CIRCLE_SIZE
+NORMAL_PLACE_JOB_POWER = f.normal_job_power(PlacePoliticPower.INNER_CIRCLE_SIZE)
 
 
 def load_place(place_id=None, place_model=None):

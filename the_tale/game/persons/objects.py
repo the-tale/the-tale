@@ -205,7 +205,10 @@ class Person(names.ManageNameMixin2):
             effects_priorities[effect] = self.attrs.job_group_priority.get(effect.group, 0)
 
             if not effect.group.is_ON_PLACE:
-                effects_priorities[effect] += 1.0
+                # 0.3 - примерное значение чуть выше средних показателей влияния мастера на базовые аттрибуты города
+                # чтобы занятия для героев и для города имели примерно одинаковый приоритет
+                # но даже 0.3 сдвигает приоритет в сторону геройских занятий
+                effects_priorities[effect] += 0.3
 
         for attribute in places_relations.ATTRIBUTE.records:
             effect_name = 'PLACE_{}'.format(attribute.name)
@@ -279,7 +282,10 @@ class Person(names.ManageNameMixin2):
         for specialization, points in self.specialization_attributes.iteritems():
             if specialization.points_attribute is None:
                 continue
-            yield effects.Effect(name=self.name, attribute=specialization.points_attribute, value=points * self.total_politic_power_fraction * self.place.attrs.modifier_multiplier)
+            MAX_PERSON_POINTS = 100
+            yield effects.Effect(name=self.name,
+                                 attribute=specialization.points_attribute,
+                                 value=MAX_PERSON_POINTS * points * self.total_politic_power_fraction * self.place.attrs.modifier_multiplier)
 
         if self.attrs.terrain_radius_bonus != 0:
             yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.terrain_radius_bonus)

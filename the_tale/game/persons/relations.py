@@ -159,7 +159,7 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                 personality('ACTIVE', 6, u'деятельный', 'POLITIC_RADIUS_BONUS', 1,
                  u'Увеличивает радиус влияния города.'),
 
-                personality('RELIABLE', 7, u'надёжный', 'STABILITY_RENEWING_BONUS', 0.25,
+                personality('RELIABLE', 7, u'надёжный', 'STABILITY_RENEWING_BONUS', c.PLACE_STABILITY_RECOVER_SPEED * 0.25,
                  u'Увеличивает скорость восстановления стабильности.'),
 
                 personality('ORDERLY', 8, u'аккуратный', 'BUILDING_AMORTIZATION_SPEED', -0.5,
@@ -168,7 +168,7 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                 personality('DEVOUT', 9, u'набожный', 'ON_PROFITE_ENERGY', 4,
                  u'За каждое задание, в котором Мастер получил выгоду, возносит хвалу Хранителям героев, и те получают немного энергии.'),
 
-                personality('HARDWORKING', 10, u'трудолюбивый', 'JOB_POWER_BONUS', 1.0,
+                personality('HARDWORKING', 10, u'трудолюбивый', 'JOB_POWER_BONUS', 0.5,
                  u'У занятий Мастера более сильный эффект.'),
 
                 personality('ENTERPRISING', 11, u'предприимчивый', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_PLACE: 0.5},

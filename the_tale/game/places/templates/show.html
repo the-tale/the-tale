@@ -70,15 +70,15 @@
     <tbody>
       <tr>
         <th>влияние среди городов</th>
-        <td>{{place.total_politic_power_fraction|percents}}</td>
+        <td>{{place.total_politic_power_fraction|percents(2)}}</td>
       </tr>
       <tr>
         <th>влияние от ближенего круга</th>
-        <td>{{place.inner_politic_power_fraction|percents}} ({{place.politic_power.inner_power|round(2)}})</td>
+        <td>{{place.inner_politic_power_fraction|percents(2)}} — {{place.politic_power.inner_power|int}}</td>
       </tr>
       <tr>
         <th>влияние от народа</th>
-        <td>{{place.outer_politic_power_fraction|percents}} ({{place.politic_power.outer_power|round(2)}})</td>
+        <td>{{place.outer_politic_power_fraction|percents(2)}} — {{place.politic_power.outer_power|int}}</td>
       </tr>
       <tr>
         <th>проект</th>
@@ -96,14 +96,14 @@
         <th>помощь в проекте от соратников</th>
         <td>
           <span style="color:green;">{{(place.job.positive_power/place.job.power_required)|percents(2)}}</span>
-          осталось влияния: {{(place.job.power_required - place.job.positive_power)|round(2)}}
+          осталось влияния: {{(place.job.power_required - place.job.positive_power)|round(0)|int}}
         </td>
       </tr>
       <tr>
         <th>вред в проекте от противников</th>
         <td>
           <span style="color:red;">{{(place.job.negative_power/place.job.power_required)|percents(2)}}</span>
-          осталось влияния: {{(place.job.power_required - place.job.negative_power)|round(2)}}
+          осталось влияния: {{(place.job.power_required - place.job.negative_power)|round(0)|int}}
         </td>
       </tr>
     </tbody>
@@ -195,13 +195,17 @@
           Если город уже имеет специализацию и её развитие опустится ниже {{c.PLACE_TYPE_ENOUGH_BORDER}}, то город перестанет быть специализированным.
         </p>
 
+        <p>
+          Модификатор развития от размера города: {{place.attrs.modifier_multiplier|round(2)}}
+        </p>
+
         <table class="table table-striped table-condensed">
           <tr>
             <th>специализация</th>
             <th>развитие</th>
             <th>информация</th>
           </tr>
-          {% for specialization, value in place.attrs.specializations() %}
+          {% for specialization, value in place.attrs.ui_specializations() %}
           <tr>
             <td>
               {% if specialization == place.modifier %}
@@ -214,9 +218,7 @@
               <a href="javascript: return;"
                  class="info-link"
                  rel="tooltip"
-                 title="{{map_macros.power_incoming_tooltip(specialization.description,
-                                                            place.tooltip_effects_for_attribute(specialization.points_attribute),
-                                                            [('размер города', place.attrs.modifier_multiplier|round(2))])}}">
+                 title="{{map_macros.power_incoming_tooltip(specialization.description, place.tooltip_effects_for_attribute(specialization.points_attribute))}}">
                 подробнее
               </a>
             </td>

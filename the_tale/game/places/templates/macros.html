@@ -2,7 +2,7 @@
   {% set attribute, value = place.attribute_ui_info(attribute_name) %}
   <tr>
     <th>{{attribute.text}}</th>
-    <td>{{value}}{{extra_text}}{{attribute.verbose_units}}</td>
+    <td>{{attribute.formatter(value)}}{{extra_text}}{{attribute.verbose_units}}</td>
     <td>
       <a href="javascript: return;"
          class="info-link"

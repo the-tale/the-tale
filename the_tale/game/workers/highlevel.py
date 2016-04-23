@@ -136,7 +136,7 @@ class Worker(BaseWorker):
         self.logger.info('HIGHLEVEL STOPPED')
 
 
-    def sync_sizes(self, places, hours, max_size):
+    def sync_sizes(self, places, hours, max_economic):
         if not places:
             return
 
@@ -144,7 +144,7 @@ class Worker(BaseWorker):
         places_number = len(places)
 
         for i, place in enumerate(places):
-            place.attrs.set_power_economic(int(max_size * float(i) / places_number) + 1)
+            place.attrs.set_power_economic(int(max_economic * float(i) / places_number) + 1)
             place.attrs.sync_size(hours)
 
 
@@ -189,11 +189,11 @@ class Worker(BaseWorker):
         if sheduled:
             self.sync_sizes([place for place in places_storage.places.all() if place.is_frontier],
                             hours=c.MAP_SYNC_TIME_HOURS,
-                            max_size=c.PLACE_MAX_FRONTIER_SIZE)
+                            max_economic=c.PLACE_MAX_FRONTIER_ECONOMIC)
 
             self.sync_sizes([place for place in places_storage.places.all() if not place.is_frontier],
                             hours=c.MAP_SYNC_TIME_HOURS,
-                            max_size=c.PLACE_MAX_SIZE)
+                            max_economic=c.PLACE_MAX_ECONOMIC)
 
 
         for place in places_storage.places.all():

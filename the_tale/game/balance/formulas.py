@@ -148,8 +148,8 @@ def politics_power_might(might):
 def politics_power_for_level(level):
     return math.log(level, 4)
 
-def normal_job_power():
-    return c.HERO_POWER_PER_DAY * c.NORMAL_JOB_LENGHT * (politics_power_for_level(30) * c.HONOR_POWER_BONUS_FRACTION)
+def normal_job_power(heroes_number):
+    return c.HERO_POWER_PER_DAY * c.NORMAL_JOB_LENGTH * (politics_power_for_level(30) * c.HONOR_POWER_BONUS_FRACTION) * heroes_number
 
 def might_pvp_effectiveness_bonus(might):
     if might < 1:

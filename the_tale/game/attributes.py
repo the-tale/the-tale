@@ -19,10 +19,11 @@ class ATTRIBUTE(DjangoEnum):
     verbose_units = Column(unique=False, primary=False)
     serializer = Column(unique=False)
     deserializer = Column(unique=False)
+    formatter = Column(unique=False, single_type=False)
 
 
-def attr(name, value, text, default=lambda: 0, type=ATTRIBUTE_TYPE.AGGREGATED, order=1, description=None, apply=operator.add, verbose_units=u'', serializer=lambda x: x, deserializer=lambda x: x):
-    return (name, value, text, default, type, order, (description if description is not None else text), apply, verbose_units, serializer, deserializer)
+def attr(name, value, text, default=lambda: 0, type=ATTRIBUTE_TYPE.AGGREGATED, order=1, description=None, apply=operator.add, verbose_units=u'', serializer=lambda x: x, deserializer=lambda x: x, formatter=lambda x: x):
+    return (name, value, text, default, type, order, (description if description is not None else text), apply, verbose_units, serializer, deserializer, formatter)
 
 
 def create_attributes_class(ATTRIBUTES):
@@ -68,3 +69,11 @@ def attributes_info(effects, attrs, relation):
 
     return {'effects': [effect.ui_info() for effect in effects],
             'attributes': attributes}
+
+
+
+def percents_formatter(value):
+    return '%.2f' % round(value*100, 2)
+
+def float_formatter(value):
+    return '%.2f' % round(value, 2)

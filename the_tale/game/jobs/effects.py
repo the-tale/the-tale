@@ -7,6 +7,7 @@ from the_tale.amqp_environment import environment
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.game import effects
+from the_tale.game.balance import constants as c
 
 from the_tale.game.places import relations as places_relations
 
@@ -156,11 +157,11 @@ class EFFECT(DjangoEnum):
     power_modifier = Column(single_type=False, unique=False)
     description = Column()
 
-    records = ( place_attribute(1, 'PRODUCTION', base_value=1.0),
-                place_attribute(2, 'SAFETY', base_value=1.0),
-                place_attribute(3, 'TRANSPORT', base_value=1.0),
-                place_attribute(4, 'FREEDOM', base_value=1.0),
-                place_attribute(5, 'STABILITY', base_value=1.0),
+    records = ( place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS),
+                place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS),
+                place_attribute(3, 'TRANSPORT', base_value=c.JOB_TRANSPORT_BONUS),
+                place_attribute(4, 'FREEDOM', base_value=c.JOB_FREEDOM_BONUS),
+                place_attribute(5, 'STABILITY', base_value=c.JOB_STABILITY_BONUS),
 
                 hero_profit(6, 'MONEY', u'золото ближнему кругу', 0.5, u'В случае удачного завершения проекта, выслыает деньги помогающим героям из ближнего круга. В случае неудачи деньги достаются мешаюшим героям.'),
                 hero_profit(7, 'ARTIFACT', u'артефакт ближнему кругу', 1.5, u'В случае удачного завершения проекта, выслыает по артефакту помогающим героям из ближнего круга. В случае неудачи артефакты достаются мешаюшим героям.'),

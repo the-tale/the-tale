@@ -50,11 +50,11 @@
       </tr>
       <tr>
         <th>влияние от ближенего круга</th>
-        <td>{{person.inner_politic_power_fraction|percents}} ({{person.politic_power.inner_power|round(2)}})</td>
+        <td>{{person.inner_politic_power_fraction|percents}} — {{person.politic_power.inner_power|int}}</td>
       </tr>
       <tr>
         <th>влияние от народа</th>
-        <td>{{person.outer_politic_power_fraction|percents}} ({{person.politic_power.outer_power|round(2)}})</td>
+        <td>{{person.outer_politic_power_fraction|percents}} — {{person.politic_power.outer_power|int}}</td>
       </tr>
       <tr>
         <th>здание</th>
@@ -76,14 +76,14 @@
         <th>помощь в проекте от соратников</th>
         <td>
           <span style="color:green;">{{(person.job.positive_power/person.job.power_required)|percents(2)}}</span>
-          осталось влияния: {{(person.job.power_required - person.job.positive_power)|round(2)}}
+          осталось влияния: {{(person.job.power_required - person.job.positive_power)|int}}
         </td>
       </tr>
       <tr>
         <th>вред в проекте от противников</th>
         <td>
           <span style="color:red;">{{(person.job.negative_power/person.job.power_required)|percents(2)}}</span>
-          осталось влияния: {{(person.job.power_required - person.job.negative_power)|round(2)}}
+          осталось влияния: {{(person.job.power_required - person.job.negative_power)|int}}
         </td>
       </tr>
     </tbody>

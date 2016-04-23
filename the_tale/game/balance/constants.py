@@ -33,8 +33,8 @@ INCOME_ARTIFACTS_FRACTION = float(1.0 - INCOME_LOOT_FRACTION)
 # магическое число — ожидаемое количество выполненных героем квестов в день
 EXPECTED_QUESTS_IN_DAY = float(2.0)
 
-# количество поломок артефактов в день, расчитывается так, чтобы за месяц в идеальном случае была обновлена вся экипировка
-ARTIFACTS_BREAKING_SPEED = float(EQUIP_SLOTS_NUMBER / 30.0)
+# количество поломок артефактов в день, расчитывается так, чтобы за 3 недели в идеальном случае была обновлена вся экипировка
+ARTIFACTS_BREAKING_SPEED = float(EQUIP_SLOTS_NUMBER / (3*7.0))
 
 EQUIPMENT_BREAK_FRACTION = float(0.5) # доля артифактов в экипировке, которые могут сломаться
 NORMAL_SLOT_REPAIR_PRIORITY = float(1.0)  # приоритет починки обычного слота
@@ -295,7 +295,7 @@ HERO_POWER_PER_DAY = int(100) # базовое количество влияни
 PERSON_POWER_PER_QUEST_FRACTION = float(0.33) # разброс влияния за задание
 PERSON_POWER_FOR_RANDOM_SPEND = int(200)
 
-NORMAL_JOB_LENGHT = int(7) # средняя длительность занятия мастера в днях
+NORMAL_JOB_LENGTH = int(7) # средняя длительность занятия мастера в днях
 
 ##########################
 # споособности
@@ -431,7 +431,8 @@ PLACE_MIN_TRANSPORT = 0.1
 PLACE_MIN_STABILITY = 0
 
 PLACE_MAX_SIZE = int(10)
-PLACE_MAX_FRONTIER_SIZE = int(7)
+PLACE_MAX_ECONOMIC = int(10)
+PLACE_MAX_FRONTIER_ECONOMIC = int(5)
 
 PLACE_NEW_PLACE_LIVETIME = int(2*7*24*60*60)
 
@@ -479,6 +480,12 @@ TRANSPORT_FROM_PLACE_SIZE_PENALTY = float(0.05) # штраф к скорости
 PLACE_HABITS_CHANGE_SPEED_MAXIMUM = float(10)
 PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY = float(10)
 PLACE_HABITS_EVENT_PROBABILITY = float(0.025)
+
+JOB_PRODUCTION_BONUS = int(PLACE_GOODS_BONUS / float(NORMAL_JOB_LENGTH))
+JOB_SAFETY_BONUS = float(PLACE_SAFETY_FROM_BEST_PERSON / float(NORMAL_JOB_LENGTH))
+JOB_TRANSPORT_BONUS = float(PLACE_TRANSPORT_FROM_BEST_PERSON / float(NORMAL_JOB_LENGTH))
+JOB_FREEDOM_BONUS = float(PLACE_FREEDOM_FROM_BEST_PERSON / float(NORMAL_JOB_LENGTH))
+JOB_STABILITY_BONUS = float(PLACE_STABILITY_UNIT / float(NORMAL_JOB_LENGTH))
 
 ###########################
 # мастера
