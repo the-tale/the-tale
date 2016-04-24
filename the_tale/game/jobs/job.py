@@ -30,11 +30,18 @@ class Job(object):
                    power_required=normal_power * effect.power_modifier)
 
     def new_job(self, effect, normal_power):
+        self.positive_power -= self.power_required
+        self.negative_power -= self.power_required
+
+        if self.positive_power < 0:
+            self.positive_power = 0
+
+        if self.negative_power < 0:
+            self.negative_power = 0
+
         self.name = self.create_name(effect)
         self.created_at_turn = TimePrototype.get_current_turn_number()
         self.effect = effect
-        self.positive_power = 0
-        self.negative_power = 0
         self.power_required = normal_power * effect.power_modifier
 
 
@@ -68,10 +75,18 @@ class Job(object):
         else:
             self.negative_power -= power
 
-        if self.positive_power >= self.power_required:
+
+    def is_completed(self):
+        return (self.positive_power >= self.power_required or
+                self.negative_power >= self.power_required)
+
+
+    def get_apply_effect_method(self):
+
+        if self.positive_power > self.negative_power and self.positive_power >= self.power_required:
             return self.effect.logic.apply_positive
 
-        if -self.negative_power >= self.power_required:
+        if self.negative_power > self.positive_power and self.negative_power >= self.power_required:
             return self.effect.logic.apply_negative
 
         return None

@@ -26,7 +26,6 @@ from . import relations
 class Place(names.ManageNameMixin2):
     __slots__ = ('id',
                  'x', 'y',
-                 'heroes_number',
                  'updated_at',
                  'updated_at_turn',
                  'created_at',
@@ -57,7 +56,6 @@ class Place(names.ManageNameMixin2):
     def __init__(self,
                  id,
                  x, y,
-                 heroes_number,
                  updated_at,
                  updated_at_turn,
                  created_at,
@@ -83,7 +81,6 @@ class Place(names.ManageNameMixin2):
         self.id = id
         self.x = x
         self.y = y
-        self.heroes_number = heroes_number
         self.updated_at = updated_at
         self.updated_at_turn = updated_at_turn
         self.created_at = created_at
@@ -137,10 +134,6 @@ class Place(names.ManageNameMixin2):
     @property
     def depends_from_all_heroes(self):
         return self.is_frontier
-
-    def update_heroes_number(self):
-        from the_tale.game.heroes.preferences import HeroPreferences
-        self.heroes_number = HeroPreferences.count_citizens_of(self, all=self.depends_from_all_heroes)
 
     def update_heroes_habits(self):
         from the_tale.game.heroes.preferences import HeroPreferences
@@ -402,20 +395,25 @@ class Place(names.ManageNameMixin2):
         return jobs_logic.job_power(objects_number=len(self.get_same_places()), power=self.total_politic_power_fraction)
 
 
-    def give_job_power(self, power):
+    def update_job(self):
         from . import logic
 
-        job_effect = self.job.give_power(power)
+        if not self.job.is_completed():
+            return ()
 
-        if job_effect:
-            job_effect(**self.politic_power.job_effect_kwargs(self))
+        job_effect = self.job.get_apply_effect_method()
 
-            job_effects_priorities = self.job_effects_priorities()
-            if self.job.effect in job_effects_priorities:
-                del job_effects_priorities[self.job.effect]
+        after_update_operations = job_effect(**self.politic_power.job_effect_kwargs(self))
 
-            new_effect = utils_logic.random_value_by_priority(job_effects_priorities.items())
-            self.job.new_job(new_effect, normal_power=logic.NORMAL_PLACE_JOB_POWER)
+        job_effects_priorities = self.job_effects_priorities()
+        if self.job.effect in job_effects_priorities:
+            del job_effects_priorities[self.job.effect]
+
+        new_effect = utils_logic.random_value_by_priority(job_effects_priorities.items())
+
+        self.job.new_job(new_effect, normal_power=logic.NORMAL_PLACE_JOB_POWER)
+
+        return after_update_operations
 
 
     def job_effects_priorities(self):

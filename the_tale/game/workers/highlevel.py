@@ -113,8 +113,7 @@ class Worker(BaseWorker):
                 sync_data_sheduled = False
 
         if sync_data_required:
-            with transaction.atomic():
-                self.sync_data(sheduled=sync_data_sheduled)
+            self.sync_data(sheduled=sync_data_sheduled)
             self.update_map()
 
     def update_map(self):
@@ -125,8 +124,7 @@ class Worker(BaseWorker):
         return self.send_cmd('stop')
 
     def process_stop(self):
-        with transaction.atomic():
-            self.sync_data()
+        self.sync_data()
 
         self.initialized = False
 
@@ -155,71 +153,83 @@ class Worker(BaseWorker):
 
         self.logger.info('sync data')
 
-        if sheduled:
-            for person in persons_storage.persons.all():
-                person.politic_power.sync_power()
+        call_after_transaction = []
+
+        with transaction.atomic():
+            self.logger.info('sync data transaction started')
+
+            if sheduled:
+                for person in persons_storage.persons.all():
+                    person.politic_power.sync_power()
+
+                for place in places_storage.places.all():
+                    place.politic_power.sync_power()
+
+
+            for power_info in self.persons_politic_power:
+                person = persons_storage.persons[power_info.person_id]
+                place_power = person.politic_power.change_power(person=person,
+                                                                hero_id=power_info.hero_id,
+                                                                has_in_preferences=power_info.has_person_in_preferences,
+                                                                power=power_info.power_delta)
+                self.places_politic_power.append(power_info.clone(place_id=person.place.id, power_delta=place_power))
+                person.update_job()
+
+            for power_info in self.places_politic_power:
+                place = places_storage.places[power_info.place_id]
+                place.politic_power.change_power(place=place,
+                                                 hero_id=power_info.hero_id,
+                                                 has_in_preferences=power_info.has_place_in_preferences,
+                                                 power=power_info.power_delta)
+
+            self.persons_politic_power[:] = []
+            self.places_politic_power[:] = []
+
+            # обрабатывает работы только во время запланированного обновления
+            # поскольку при остановке игры нельзя будет обработать команды для героев
+            # (те уже будут сохраняться в базу, рабочие логики будут недоступны)
+            if sheduled:
+                for person in persons_storage.persons.all():
+                    call_after_transaction.extend(person.update_job())
+
+                for place in places_storage.places.all():
+                    call_after_transaction.extend(place.update_job())
+
+
+            # update size
+            if sheduled:
+                self.sync_sizes([place for place in places_storage.places.all() if place.is_frontier],
+                                hours=c.MAP_SYNC_TIME_HOURS,
+                                max_economic=c.PLACE_MAX_FRONTIER_ECONOMIC)
+
+                self.sync_sizes([place for place in places_storage.places.all() if not place.is_frontier],
+                                hours=c.MAP_SYNC_TIME_HOURS,
+                                max_economic=c.PLACE_MAX_ECONOMIC)
+
 
             for place in places_storage.places.all():
-                place.politic_power.sync_power()
+                if sheduled:
+                    place.effects_update_step()
 
+                place.sync_habits()
+                place.refresh_attributes() # must be last operation to display and use real data
+                place.update_heroes_habits()
+                place.mark_as_updated()
 
-        for power_info in self.persons_politic_power:
-            person = persons_storage.persons[power_info.person_id]
-            place_power = person.politic_power.change_power(person=person,
-                                                            hero_id=power_info.hero_id,
-                                                            has_in_preferences=power_info.has_person_in_preferences,
-                                                            power=power_info.power_delta)
-            self.places_politic_power.append(power_info.clone(place_id=person.place.id, power_delta=place_power))
+            places_storage.places.save_all()
+            persons_storage.persons.save_all()
+            persons_logic.sync_social_connections()
 
-        for power_info in self.places_politic_power:
-            place = places_storage.places[power_info.place_id]
-            place.politic_power.change_power(place=place,
-                                             hero_id=power_info.hero_id,
-                                             has_in_preferences=power_info.has_place_in_preferences,
-                                             power=power_info.power_delta)
-
-        self.persons_politic_power[:] = []
-        self.places_politic_power[:] = []
-
-        for person in persons_storage.persons.all():
-            person.update_friends_number()
-            person.update_enemies_number()
-
-        # update size
-        if sheduled:
-            self.sync_sizes([place for place in places_storage.places.all() if place.is_frontier],
-                            hours=c.MAP_SYNC_TIME_HOURS,
-                            max_economic=c.PLACE_MAX_FRONTIER_ECONOMIC)
-
-            self.sync_sizes([place for place in places_storage.places.all() if not place.is_frontier],
-                            hours=c.MAP_SYNC_TIME_HOURS,
-                            max_economic=c.PLACE_MAX_ECONOMIC)
-
-
-        for place in places_storage.places.all():
             if sheduled:
-                place.effects_update_step()
+                for building in places_storage.buildings.all():
+                    building.amortize(c.MAP_SYNC_TIME)
 
-            place.sync_habits()
+            places_storage.buildings.save_all()
 
-            place.refresh_attributes() # must be last operation to display and use real data
+        self.logger.info('sync data transaction completed')
 
-            place.update_heroes_number()
-            place.update_heroes_habits()
-
-            place.mark_as_updated()
-
-        places_storage.places.save_all()
-
-        persons_storage.persons.save_all()
-
-        persons_logic.sync_social_connections()
-
-        if sheduled:
-            for building in places_storage.buildings.all():
-                building.amortize(c.MAP_SYNC_TIME)
-
-        places_storage.buildings.save_all()
+        for operation in call_after_transaction:
+            operation()
 
         self.logger.info('sync data completed')
 

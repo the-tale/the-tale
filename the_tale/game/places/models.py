@@ -29,8 +29,6 @@ class Place(models.Model):
 
     data = models.TextField(null=False, default=u'{}')
 
-    heroes_number = models.IntegerField(default=0)
-
     habit_honor_positive = models.FloatField(default=0)
     habit_honor_negative = models.FloatField(default=0)
     habit_peacefulness_positive = models.FloatField(default=0)

@@ -4,6 +4,7 @@ import mock
 from the_tale.common.utils import testcase
 
 from the_tale.game import politic_power
+from the_tale.game.jobs import job
 
 
 class FakePoliticPower(politic_power.PoliticPower):
@@ -22,11 +23,7 @@ class FakePoliticPower(politic_power.PoliticPower):
 class FakeOwner(object):
 
     def __init__(self):
-        self.job_power = 0
-
-    def give_job_power(self, power):
-        self.job_power += power
-
+        self.job = job.Job(name='x', created_at_turn=0, effect=None, positive_power=0, negative_power=0, power_required=100000000)
 
 
 class PoliticPowerTest(testcase.TestCase):
@@ -121,7 +118,8 @@ class PoliticPowerTest(testcase.TestCase):
         self.assertEqual(self.power._inner_positive_heroes, frozenset((4, 5)))
         self.assertEqual(self.power._inner_negative_heroes, frozenset((3, )))
 
-        self.assertEqual(self.owner.job_power, 8000)
+        self.assertEqual(self.owner.job.positive_power, 11000)
+        self.assertEqual(self.owner.job.negative_power, 3000)
 
 
     @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 0.5)

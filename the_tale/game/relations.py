@@ -34,19 +34,21 @@ def _race_linguistics_restrictions(race):
 
 class RACE(DjangoEnum):
     multiple_text = Column()
+    male_text = Column()
+    female_text = Column()
     utg_name_form = Column()
     linguistics_restrictions = Column()
     energy_regeneration = Column(related_name='base_race')
 
-    records = ( ('HUMAN', 0, u'человек', u'люди',
+    records = ( ('HUMAN', 0, u'человек', u'люди', u'мужчина', u'женщина',
                  technical_words.RACE_HUMANS, _race_linguistics_restrictions('HUMAN'), heroes_relations.ENERGY_REGENERATION.PRAY),
-                ('ELF', 1, u'эльф', u'эльфы',
+                ('ELF', 1, u'эльф', u'эльфы', u'эльф', u'эльфийка',
                  technical_words.RACE_ELFS, _race_linguistics_restrictions('ELF'), heroes_relations.ENERGY_REGENERATION.INCENSE),
-                ('ORC', 2, u'орк',  u'орки',
+                ('ORC', 2, u'орк',  u'орки', u'орк', u'оркесса',
                  technical_words.RACE_ORCS, _race_linguistics_restrictions('ORC'), heroes_relations.ENERGY_REGENERATION.SACRIFICE),
-                ('GOBLIN', 3, u'гоблин', u'гоблины',
+                ('GOBLIN', 3, u'гоблин', u'гоблины', u'гоблин', u'гоблинша',
                  technical_words.RACE_GOBLINS, _race_linguistics_restrictions('GOBLIN'), heroes_relations.ENERGY_REGENERATION.MEDITATION),
-                ('DWARF', 4, u'дварф', u'дварфы',
+                ('DWARF', 4, u'дварф', u'дварфы', u'дварф', u'дварфийка',
                  technical_words.RACE_DWARFS, _race_linguistics_restrictions('DWARF'), heroes_relations.ENERGY_REGENERATION.SYMBOLS) )
 
 

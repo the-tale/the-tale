@@ -19,11 +19,14 @@ class BaseEffect(object):
     def __init__(self):
         pass
 
+
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         raise NotImplementedError()
 
+
     def apply_negative(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         raise NotImplementedError()
+
 
     def apply_to_heroes(self, actor_type, effect, method_names, method_kwargs, positive_heroes, negative_heroes, direction):
         from the_tale.game.heroes import logic as heroes_logic
@@ -40,11 +43,17 @@ class BaseEffect(object):
 
         negative_kwargs = dict(message_type=self.message_type(actor_type, effect, direction, 'enemies'), **method_kwargs)
 
+        after_update_operations = []
+
         for hero_id in negative_heroes:
-            self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
-                                    hero_id=hero_id,
-                                    method_name=method_names[1],
-                                    method_kwargs=negative_kwargs)
+            operation = self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
+                                                hero_id=hero_id,
+                                                method_name=method_names[1],
+                                                method_kwargs=negative_kwargs)
+            after_update_operations.append(operation)
+
+        return after_update_operations
+
 
     def invoke_hero_method(self, account_id, hero_id, method_name, method_kwargs):
         from the_tale.game.heroes import postponed_tasks as heroes_postponed_tasks
@@ -54,7 +63,9 @@ class BaseEffect(object):
                                                                  method_kwargs=method_kwargs)
 
         task = PostponedTaskPrototype.create(logic_task)
-        environment.workers.supervisor.cmd_logic_task(account_id=account_id, task_id=task.id)
+
+        return lambda: environment.workers.supervisor.cmd_logic_task(account_id=account_id, task_id=task.id)
+
 
     def message_type(self, actor, effect, direction, group):
         return 'job_diary_{actor}_{effect}_{direction}_{group}'.format(actor=actor,
@@ -74,25 +85,25 @@ class ChangePlaceAttribute(BaseEffect):
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=self.base_value*job_power))
 
-        self.apply_to_heroes(actor_type=actor_type,
-                             effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
-                             method_names=('job_message', 'job_message'),
-                             method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
-                             positive_heroes=positive_heroes,
-                             negative_heroes=negative_heroes,
-                             direction='positive')
+        return self.apply_to_heroes(actor_type=actor_type,
+                                    effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
+                                    method_names=('job_message', 'job_message'),
+                                    method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
+                                    positive_heroes=positive_heroes,
+                                    negative_heroes=negative_heroes,
+                                    direction='positive')
 
 
     def apply_negative(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=-self.base_value*job_power))
 
-        self.apply_to_heroes(actor_type=actor_type,
-                             effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
-                             method_names=('job_message', 'job_message'),
-                             method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
-                             positive_heroes=positive_heroes,
-                             negative_heroes=negative_heroes,
-                             direction='negative')
+        return self.apply_to_heroes(actor_type=actor_type,
+                                    effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
+                                    method_names=('job_message', 'job_message'),
+                                    method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
+                                    positive_heroes=positive_heroes,
+                                    negative_heroes=negative_heroes,
+                                    direction='negative')
 
 
 class HeroMethod(BaseEffect):
@@ -105,26 +116,26 @@ class HeroMethod(BaseEffect):
 
 
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
-        self.apply_to_heroes(actor_type=actor_type,
-                             effect=getattr(EFFECT, self.effect_name),
-                             method_names=(self.method_name, 'job_message'),
-                             method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
-                             positive_heroes=positive_heroes,
-                             negative_heroes=negative_heroes,
-                             direction='positive')
+        return self.apply_to_heroes(actor_type=actor_type,
+                                    effect=getattr(EFFECT, self.effect_name),
+                                    method_names=(self.method_name, 'job_message'),
+                                    method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
+                                    positive_heroes=positive_heroes,
+                                    negative_heroes=negative_heroes,
+                                    direction='positive')
 
     def apply_negative(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
-        self.apply_to_heroes(actor_type=actor_type,
-                             effect=getattr(EFFECT, self.effect_name),
-                             method_names=('job_message', self.method_name),
-                             method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
-                             positive_heroes=positive_heroes,
-                             negative_heroes=negative_heroes,
-                             direction='negative')
+        return self.apply_to_heroes(actor_type=actor_type,
+                                    effect=getattr(EFFECT, self.effect_name),
+                                    method_names=('job_message', self.method_name),
+                                    method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
+                                    positive_heroes=positive_heroes,
+                                    negative_heroes=negative_heroes,
+                                    direction='negative')
 
 
 
-def place_attribute(id, attribute_name, base_value):
+def place_attribute(id, attribute_name, base_value, attribute_text):
     attribute = places_relations.ATTRIBUTE.index_name[attribute_name]
     return ('PLACE_{}'.format(attribute_name),
             id,
@@ -132,7 +143,7 @@ def place_attribute(id, attribute_name, base_value):
             ChangePlaceAttribute(attribute=attribute, base_value=base_value),
             EFFECT_GROUP.ON_PLACE,
             1.0,
-            u'При удачном завершении проекта, временно улучшает {} города, в случае неудачи — ухудшает.'.format(attribute.text))
+            u'При удачном завершении проекта, временно улучшает {} города, в случае неудачи — ухудшает.'.format(attribute_text))
 
 
 def hero_profit(id, profit_name, text, power_modifier, description):
@@ -157,11 +168,11 @@ class EFFECT(DjangoEnum):
     power_modifier = Column(single_type=False, unique=False)
     description = Column()
 
-    records = ( place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS),
-                place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS),
-                place_attribute(3, 'TRANSPORT', base_value=c.JOB_TRANSPORT_BONUS),
-                place_attribute(4, 'FREEDOM', base_value=c.JOB_FREEDOM_BONUS),
-                place_attribute(5, 'STABILITY', base_value=c.JOB_STABILITY_BONUS),
+    records = ( place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS, attribute_text=u'производство'),
+                place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS, attribute_text=u'безопасность'),
+                place_attribute(3, 'TRANSPORT', base_value=c.JOB_TRANSPORT_BONUS, attribute_text=u'транспорт'),
+                place_attribute(4, 'FREEDOM', base_value=c.JOB_FREEDOM_BONUS, attribute_text=u'свободу'),
+                place_attribute(5, 'STABILITY', base_value=c.JOB_STABILITY_BONUS, attribute_text=u'стабильность'),
 
                 hero_profit(6, 'MONEY', u'золото ближнему кругу', 0.5, u'В случае удачного завершения проекта, выслыает деньги помогающим героям из ближнего круга. В случае неудачи деньги достаются мешаюшим героям.'),
                 hero_profit(7, 'ARTIFACT', u'артефакт ближнему кругу', 1.5, u'В случае удачного завершения проекта, выслыает по артефакту помогающим героям из ближнего круга. В случае неудачи артефакты достаются мешаюшим героям.'),

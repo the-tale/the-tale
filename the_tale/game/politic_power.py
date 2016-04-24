@@ -90,7 +90,7 @@ class PoliticPower(object):
 
         self.inner_power += power
 
-        owner.give_job_power(power)
+        owner.job.give_power(power)
 
 
     def job_effect_kwargs(self, owner):

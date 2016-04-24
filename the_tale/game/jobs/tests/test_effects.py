@@ -75,8 +75,10 @@ class BaseEffectsTests(testcase.TestCase):
     def test_invoke_hero_method(self):
 
         with self.check_delta(PostponedTaskPrototype._db_count, 1):
-            with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:
-                self.effect.logic.invoke_hero_method(self.account_1.id, self.hero_1.id, 'method_x', {'x': 'y'})
+            operation = self.effect.logic.invoke_hero_method(self.account_1.id, self.hero_1.id, 'method_x', {'x': 'y'})
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_logic_task') as cmd_logic_task:
+            operation()
 
         task = PostponedTaskPrototype._db_latest()
 

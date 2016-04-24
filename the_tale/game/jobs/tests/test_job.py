@@ -52,10 +52,21 @@ class JobTest(testcase.TestCase):
     def test_give_power(self):
         self.job.power_required = 1000
 
-        self.assertFalse(self.job.give_power(100))
-        self.assertFalse(self.job.give_power(899))
-        self.assertFalse(self.job.give_power(-999))
-        self.assertTrue(self.job.give_power(1))
+        self.job.give_power(100)
+        self.assertFalse(self.job.is_completed())
+        self.assertEqual(self.job.get_apply_effect_method(), None)
+
+        self.job.give_power(899)
+        self.assertFalse(self.job.is_completed())
+        self.assertEqual(self.job.get_apply_effect_method(), None)
+
+        self.job.give_power(-999)
+        self.assertFalse(self.job.is_completed())
+        self.assertEqual(self.job.get_apply_effect_method(), None)
+
+        self.job.give_power(1)
+        self.assertTrue(self.job.is_completed())
+        self.assertNotEqual(self.job.get_apply_effect_method(), None)
 
         self.assertEqual(self.job.positive_power, 1000)
         self.assertEqual(self.job.negative_power, 999)

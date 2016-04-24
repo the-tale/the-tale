@@ -26,10 +26,6 @@ class Person(models.Model):
 
     type = RelationIntegerField(relation=relations.PERSON_TYPE, relation_column='value')
 
-    friends_number = models.IntegerField(default=0)
-
-    enemies_number = models.IntegerField(default=0)
-
     data = models.TextField(null=False, default=u'{}')
 
     def __unicode__(self): return u'%s from %s' % (s11n.from_json(self.data)['name']['forms'][0], self.place)

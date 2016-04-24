@@ -246,18 +246,6 @@ class HeroPreferences(object):
         return cls._preferences_query(all=all).filter(db_filter)
 
     @classmethod
-    def count_friends_of(cls, person, all):
-        return cls._preferences_query(all=all).filter(friend_id=person.id).count()
-
-    @classmethod
-    def count_enemies_of(cls, person, all):
-        return cls._preferences_query(all=all).filter(enemy_id=person.id).count()
-
-    @classmethod
-    def count_citizens_of(cls, place, all):
-        return cls._preferences_query(all=all).filter(place_id=place.id).count()
-
-    @classmethod
     def get_friends_of(cls, person, all):
         from . import logic
         return [logic.load_hero(hero_model=record) for record in cls._heroes_query(all=all).filter(heropreferences__friend_id=person.id)]

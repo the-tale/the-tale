@@ -24,9 +24,6 @@ class PlaceTests(testcase.TestCase):
         super(PlaceTests, self).setUp()
         self.p1, self.p2, self.p3 = create_test_map()
 
-    def test_initialize(self):
-        self.assertEqual(self.p1.heroes_number, 0)
-
     @mock.patch('the_tale.game.balance.constants.PLACE_NEW_PLACE_LIVETIME', 0)
     def test_is_new__false(self):
         self.assertFalse(self.p1.is_new)
@@ -387,16 +384,18 @@ class PlaceJobsTests(testcase.TestCase):
         self.assertEqual(self.place_1.get_job_power(), 1.5)
 
 
-    def test_give_job_power(self):
+    def test_update_job(self):
 
         with self.check_not_changed(lambda: self.place_1.job.effect):
             with mock.patch('the_tale.game.jobs.effects.BaseEffect.apply_to_heroes') as apply_to_heroes:
-                self.place_1.give_job_power(1)
+                self.place_1.job.give_power(1)
+                self.assertEqual(self.place_1.update_job(), ())
 
         self.assertEqual(apply_to_heroes.call_count, 0)
 
         with self.check_changed(lambda: self.place_1.job.effect):
-            with mock.patch('the_tale.game.jobs.effects.BaseEffect.apply_to_heroes') as apply_to_heroes:
-                self.place_1.give_job_power(1000000000)
+            with mock.patch('the_tale.game.jobs.effects.BaseEffect.apply_to_heroes', mock.Mock(return_value=(1, 2))) as apply_to_heroes:
+                self.place_1.job.give_power(1000000000)
+                self.assertEqual(self.place_1.update_job(), (1, 2))
 
         self.assertEqual(apply_to_heroes.call_count, 1)

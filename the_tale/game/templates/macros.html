@@ -154,9 +154,9 @@ jQuery(document).ready(function(e){
           <td>{{account_record(accounts_short_infos[account_id])}}</td>
           <td>
             {% if power < 0 %}
-              <span style="color:red;">{{power|round(2)}}</span>
+              <span style="color:red;">{{power|int}}</span>
             {% else %}
-              <span style="color:green;">{{power|round(2)}}</span>
+              <span style="color:green;">{{power|int}}</span>
             {% endif %}
           </td>
         </tr>

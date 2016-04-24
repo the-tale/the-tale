@@ -43,9 +43,6 @@ class Person(names.ManageNameMixin2):
                  'attrs',
                  'politic_power',
 
-                 'friends_number',
-                 'enemies_number',
-
                  'job',
 
                  'moved_at_turn',
@@ -70,8 +67,6 @@ class Person(names.ManageNameMixin2):
                  gender,
                  race,
                  type,
-                 friends_number,
-                 enemies_number,
                  politic_power,
                  utg_name,
                  job,
@@ -87,8 +82,6 @@ class Person(names.ManageNameMixin2):
         self.gender = gender
         self.race = race
         self.type = type
-        self.friends_number = friends_number
-        self.enemies_number = enemies_number
         self.politic_power = politic_power
         self.utg_name = utg_name
         self.job = job
@@ -150,14 +143,6 @@ class Person(names.ManageNameMixin2):
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.PERSON_TYPE, self.type.value).id)
 
-    def update_friends_number(self):
-        from the_tale.game.heroes.preferences import HeroPreferences
-        self.friends_number = HeroPreferences.count_friends_of(self, all=self.place.is_frontier)
-
-    def update_enemies_number(self):
-        from the_tale.game.heroes.preferences import HeroPreferences
-        self.enemies_number = HeroPreferences.count_enemies_of(self, all=self.place.is_frontier)
-
     @property
     def total_politic_power_fraction(self):
         return self.politic_power.total_politic_power_fraction([person.politic_power for person in self.place.persons])
@@ -173,21 +158,25 @@ class Person(names.ManageNameMixin2):
     def get_job_power(self):
         return jobs_logic.job_power(objects_number=len(self.place.persons), power=self.total_politic_power_fraction) + self.attrs.job_power_bonus
 
-    def give_job_power(self, power):
+    def update_job(self):
         from . import logic
 
-        job_effect = self.job.give_power(power)
+        if not self.job.is_completed():
+            return ()
 
-        if job_effect:
-            job_effect(**self.politic_power.job_effect_kwargs(self))
+        job_effect = self.job.get_apply_effect_method()
 
-            job_effects_priorities = self.job_effects_priorities()
-            if self.job.effect in job_effects_priorities:
-                del job_effects_priorities[self.job.effect]
+        after_update_operations = job_effect(**self.politic_power.job_effect_kwargs(self))
 
-            new_effect = utils_logic.random_value_by_priority(job_effects_priorities.items())
+        job_effects_priorities = self.job_effects_priorities()
+        if self.job.effect in job_effects_priorities:
+            del job_effects_priorities[self.job.effect]
 
-            self.job.new_job(new_effect, normal_power=logic.NORMAL_PERSON_JOB_POWER)
+        new_effect = utils_logic.random_value_by_priority(job_effects_priorities.items())
+
+        self.job.new_job(new_effect, normal_power=logic.NORMAL_PERSON_JOB_POWER)
+
+        return after_update_operations
 
 
     @property

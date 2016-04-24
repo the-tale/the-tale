@@ -1,18 +1,51 @@
 
+{% macro person_description(person) %}
+  <div class="underline-on-hover"
+       style="cursor: help; display: inline-block;"
+       rel="tooltip"
+       title="{{person.personality_practical.description}}">
+
+       {% if person.gender.is_MASCULINE %}
+         {{person.personality_practical.male_text}}
+       {% endif %}
+
+       {% if person.gender.is_FEMININE %}
+         {{person.personality_practical.female_text}}
+       {% endif %}
+
+  </div>
+
+  {% if person.gender.is_MASCULINE %}
+    {{person.race.male_text}},
+  {% endif %}
+
+  {% if person.gender.is_FEMININE %}
+    {{person.race.female_text}},
+  {% endif %}
+
+  {{person.type.text}}
+  и
+  <div class="underline-on-hover"
+       style="cursor: help; display: inline-block;"
+       rel="tooltip"
+       title="{{person.personality_cosmetic.description}}">
+
+       {% if person.gender.is_MASCULINE %}
+         {{person.personality_cosmetic.male_text}}
+       {% endif %}
+
+       {% if person.gender.is_FEMININE %}
+         {{person.personality_cosmetic.female_text}}
+       {% endif %}
+
+  </div>
+{% endmacro %}
+
 {% macro person_verbose(person, hero=none) %}
 
   <a href="{{url('game:persons:show', person.id)}}" target="_blank">{{person.name}}</a> —
-  <div class="underline-on-hover"
-       style="cursor: help; display: inline-block;"
-       rel="tooltip"
-       title="{{person.personality_practical.description}}">{{person.personality_practical.text}}</div>
-       {{person.race.text}},
-       {{person.type.text}}
-       и
-  <div class="underline-on-hover"
-       style="cursor: help; display: inline-block;"
-       rel="tooltip"
-            title="{{person.personality_cosmetic.description}}">{{person.personality_cosmetic.text}}</div>
+
+  {{ person_description(person) }}
 
   {% if hero and hero.preferences.friend and hero.preferences.friend.id == person.id %}
     <span class="badge badge-success">соратник</span>

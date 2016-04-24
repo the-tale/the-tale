@@ -2,6 +2,7 @@
 {% import 'macros.html' as base_macros with context %}
 {% import 'blogs/macros.html' as blogs_macros with context %}
 {% import 'game/macros.html' as game_macros with context %}
+{% import 'persons/macros.html' as persons_macros with context %}
 
 {% block title %} {{ person.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о Мастере «{{person.name}}»{% endblock %}
@@ -14,17 +15,7 @@
     <a href="{{url('game:places:show', person.place_id)}}">{{person.place.utg_name.forms[1]}}</a>
     {{ base_macros.magnet(person_meta_object) }}
     <small>
-      <div class="underline-on-hover"
-           style="cursor: help; display: inline-block;"
-           rel="tooltip"
-           title="{{person.personality_practical.description}}">{{person.personality_practical.text}}</div>
-      {{person.race.text}},
-      {{person.type.text}}
-      и
-      <div class="underline-on-hover"
-           style="cursor: help; display: inline-block;"
-           rel="tooltip"
-           title="{{person.personality_cosmetic.description}}">{{person.personality_cosmetic.text}}</div>
+      {{ persons_macros.person_description(person) }}
     </small>
 
     {% if hero and hero.preferences.friend and hero.preferences.friend.id == context.person.id %}
@@ -72,20 +63,27 @@
         <th>размер проекта</th>
         <td>{{person.get_job_power()|percents(2)}}</td>
       </tr>
-      <tr>
-        <th>помощь в проекте от соратников</th>
-        <td>
-          <span style="color:green;">{{(person.job.positive_power/person.job.power_required)|percents(2)}}</span>
-          осталось влияния: {{(person.job.power_required - person.job.positive_power)|int}}
-        </td>
-      </tr>
-      <tr>
-        <th>вред в проекте от противников</th>
-        <td>
-          <span style="color:red;">{{(person.job.negative_power/person.job.power_required)|percents(2)}}</span>
-          осталось влияния: {{(person.job.power_required - person.job.negative_power)|int}}
-        </td>
-      </tr>
+      {% if person.job.is_completed() %}
+        <tr>
+          <th>проект завершён</th>
+          <td>Эффект проекта будет применён в ближайшее время. Влияние, начисленное сверх необходимого, будет засчитано в следующем проекте.</td>
+        </tr>
+      {% else %}
+        <tr>
+          <th>помощь в проекте от соратников</th>
+          <td>
+            <span style="color:green;">{{(person.job.positive_power/person.job.power_required)|percents(2)}}</span>
+            осталось влияния: {{(person.job.power_required - person.job.positive_power)|int}}
+          </td>
+        </tr>
+        <tr>
+          <th>вред в проекте от противников</th>
+          <td>
+            <span style="color:red;">{{(person.job.negative_power/person.job.power_required)|percents(2)}}</span>
+            осталось влияния: {{(person.job.power_required - person.job.negative_power)|int}}
+          </td>
+        </tr>
+      {% endif %}
     </tbody>
   </table>
 

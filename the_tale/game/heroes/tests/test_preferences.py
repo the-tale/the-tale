@@ -467,12 +467,6 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         hero_7.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         logic.save_hero(hero_7)
 
-        self.assertEqual(HeroPreferences.count_citizens_of(self.place, all=False), 2)
-        self.assertEqual(HeroPreferences.count_citizens_of(self.place_2, all=False), 1)
-        self.assertEqual(HeroPreferences.count_citizens_of(self.place_3, all=False), 0)
-
-        self.assertEqual(HeroPreferences.count_citizens_of(self.place, all=True), 3)
-
         self.assertEqual(set([h.id for h in HeroPreferences.get_citizens_of(self.place, all=False)]), set([hero_1.id, hero_3.id]))
         self.assertEqual(set([h.id for h in HeroPreferences.get_citizens_of(self.place, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
 
@@ -694,11 +688,6 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         hero_6.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         logic.save_hero(hero_6)
 
-        self.assertEqual(HeroPreferences.count_friends_of(person_1, all=False), 2)
-        self.assertEqual(HeroPreferences.count_friends_of(person_2, all=False), 0)
-
-        self.assertEqual(HeroPreferences.count_friends_of(person_1, all=True), 3)
-
         self.assertEqual(set([h.id for h in HeroPreferences.get_friends_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
         self.assertEqual(set([h.id for h in HeroPreferences.get_friends_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
 
@@ -919,11 +908,6 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         hero_6.preferences.set_enemy(person_1)
         hero_6.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         logic.save_hero(hero_6)
-
-        self.assertEqual(HeroPreferences.count_enemies_of(person_1, all=False), 2)
-        self.assertEqual(HeroPreferences.count_enemies_of(person_2, all=False), 0)
-
-        self.assertEqual(HeroPreferences.count_enemies_of(person_1, all=True), 3)
 
         self.assertEqual(set([h.id for h in HeroPreferences.get_enemies_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
         self.assertEqual(set([h.id for h in HeroPreferences.get_enemies_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))

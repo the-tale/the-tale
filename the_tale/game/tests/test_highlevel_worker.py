@@ -224,7 +224,6 @@ class HighlevelTest(testcase.TestCase):
         update_step = mock.Mock()
         sync_habits = mock.Mock()
         refresh_attributes = mock.Mock()
-        update_heroes_number = mock.Mock()
         mark_as_updated = mock.Mock()
 
         with contextlib.nested(mock.patch('the_tale.game.places.attributes.Attributes.set_power_economic', set_power_economic),
@@ -232,7 +231,6 @@ class HighlevelTest(testcase.TestCase):
                                mock.patch('the_tale.game.places.objects.Place.effects', mock.Mock(update_step=update_step, effects=[], serialize=lambda: {})),
                                mock.patch('the_tale.game.places.objects.Place.sync_habits', sync_habits),
                                mock.patch('the_tale.game.places.objects.Place.refresh_attributes', refresh_attributes),
-                               mock.patch('the_tale.game.places.objects.Place.update_heroes_number', update_heroes_number),
                                mock.patch('the_tale.game.places.objects.Place.mark_as_updated', mark_as_updated)):
             self.worker.sync_data()
 
@@ -242,7 +240,6 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(sync_size.call_count, places_number)
         self.assertEqual(sync_habits.call_count, places_number)
         self.assertEqual(refresh_attributes.call_count, places_number)
-        self.assertEqual(update_heroes_number.call_count, places_number)
         self.assertEqual(mark_as_updated.call_count, places_number)
 
 
