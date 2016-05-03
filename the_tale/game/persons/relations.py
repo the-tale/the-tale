@@ -18,31 +18,33 @@ from the_tale.game.heroes import relations as heroes_relations
 
 
 class PERSON_TYPE(DjangoEnum):
+    male_text = Column()
+    female_text = Column()
     building_type = Column(related_name='person_type')
     quest_profession = Column(unique=False)
 
-    records = ( ('BLACKSMITH',   0, u'кузнец', places_relations.BUILDING_TYPE.SMITHY, questgen_relations.PROFESSION.BLACKSMITH),
-                ('FISHERMAN',    1, u'рыбак', places_relations.BUILDING_TYPE.FISHING_LODGE, questgen_relations.PROFESSION.NONE),
-                ('TAILOR',       2, u'портной', places_relations.BUILDING_TYPE.TAILOR_SHOP, questgen_relations.PROFESSION.NONE),
-                ('CARPENTER',    3, u'плотник', places_relations.BUILDING_TYPE.SAWMILL, questgen_relations.PROFESSION.NONE),
-                ('HUNTER',       4, u'охотник', places_relations.BUILDING_TYPE.HUNTER_HOUSE, questgen_relations.PROFESSION.NONE),
-                ('WARDEN',       5, u'стражник', places_relations.BUILDING_TYPE.WATCHTOWER, questgen_relations.PROFESSION.NONE),
-                ('MERCHANT',     6, u'торговец', places_relations.BUILDING_TYPE.TRADING_POST, questgen_relations.PROFESSION.NONE),
-                ('INNKEEPER',    7, u'трактирщик', places_relations.BUILDING_TYPE.INN, questgen_relations.PROFESSION.NONE),
-                ('ROGUE',        8, u'вор', places_relations.BUILDING_TYPE.DEN_OF_THIEVE, questgen_relations.PROFESSION.ROGUE),
-                ('FARMER',       9, u'фермер', places_relations.BUILDING_TYPE.FARM, questgen_relations.PROFESSION.NONE),
-                ('MINER',        10, u'шахтёр', places_relations.BUILDING_TYPE.MINE, questgen_relations.PROFESSION.NONE),
-                ('PRIEST',       11, u'священник', places_relations.BUILDING_TYPE.TEMPLE, questgen_relations.PROFESSION.NONE),
-                ('PHYSICIAN',    12, u'лекарь', places_relations.BUILDING_TYPE.HOSPITAL, questgen_relations.PROFESSION.NONE),
-                ('ALCHEMIST',    13, u'алхимик', places_relations.BUILDING_TYPE.LABORATORY, questgen_relations.PROFESSION.NONE),
-                ('EXECUTIONER',  14, u'палач', places_relations.BUILDING_TYPE.SCAFFOLD, questgen_relations.PROFESSION.NONE),
-                ('MAGICIAN',     15, u'волшебник', places_relations.BUILDING_TYPE.MAGE_TOWER, questgen_relations.PROFESSION.NONE),
-                ('USURER',       16, u'ростовщик', places_relations.BUILDING_TYPE.GUILDHALL, questgen_relations.PROFESSION.NONE),
-                ('CLERK',        17, u'писарь', places_relations.BUILDING_TYPE.BUREAU, questgen_relations.PROFESSION.NONE),
-                ('MAGOMECHANIC', 18, u'магомеханик', places_relations.BUILDING_TYPE.MANOR, questgen_relations.PROFESSION.NONE),
-                ('BARD',         19, u'бард', places_relations.BUILDING_TYPE.SCENE, questgen_relations.PROFESSION.NONE),
-                ('TAMER',        20, u'дрессировщик', places_relations.BUILDING_TYPE.MEWS, questgen_relations.PROFESSION.NONE),
-                ('HERDSMAN',     21, u'скотовод', places_relations.BUILDING_TYPE.RANCH, questgen_relations.PROFESSION.NONE) )
+    records = ( ('BLACKSMITH',   0, u'кузнец', u'кузнец', u'кузнец', places_relations.BUILDING_TYPE.SMITHY, questgen_relations.PROFESSION.BLACKSMITH),
+                ('FISHERMAN',    1, u'рыбак', u'рыбак', u'рыбачка', places_relations.BUILDING_TYPE.FISHING_LODGE, questgen_relations.PROFESSION.NONE),
+                ('TAILOR',       2, u'портной', u'портной', u'портная', places_relations.BUILDING_TYPE.TAILOR_SHOP, questgen_relations.PROFESSION.NONE),
+                ('CARPENTER',    3, u'плотник', u'плотник', u'плотник', places_relations.BUILDING_TYPE.SAWMILL, questgen_relations.PROFESSION.NONE),
+                ('HUNTER',       4, u'охотник', u'охотник', u'охотница', places_relations.BUILDING_TYPE.HUNTER_HOUSE, questgen_relations.PROFESSION.NONE),
+                ('WARDEN',       5, u'стражник', u'стражник', u'стражница', places_relations.BUILDING_TYPE.WATCHTOWER, questgen_relations.PROFESSION.NONE),
+                ('MERCHANT',     6, u'торговец', u'торговец', u'торговка', places_relations.BUILDING_TYPE.TRADING_POST, questgen_relations.PROFESSION.NONE),
+                ('INNKEEPER',    7, u'трактирщик', u'трактирщик', u'трактирщица', places_relations.BUILDING_TYPE.INN, questgen_relations.PROFESSION.NONE),
+                ('ROGUE',        8, u'вор', u'вор', u'воровка', places_relations.BUILDING_TYPE.DEN_OF_THIEVE, questgen_relations.PROFESSION.ROGUE),
+                ('FARMER',       9, u'фермер', u'фермер', u'фермерша', places_relations.BUILDING_TYPE.FARM, questgen_relations.PROFESSION.NONE),
+                ('MINER',        10, u'шахтёр', u'шахтёр', u'шахтёрка', places_relations.BUILDING_TYPE.MINE, questgen_relations.PROFESSION.NONE),
+                ('PRIEST',       11, u'священник', u'священник', u'священница', places_relations.BUILDING_TYPE.TEMPLE, questgen_relations.PROFESSION.NONE),
+                ('PHYSICIAN',    12, u'лекарь', u'лекарь', u'лекарь', places_relations.BUILDING_TYPE.HOSPITAL, questgen_relations.PROFESSION.NONE),
+                ('ALCHEMIST',    13, u'алхимик', u'алхимик', u'алхимик', places_relations.BUILDING_TYPE.LABORATORY, questgen_relations.PROFESSION.NONE),
+                ('EXECUTIONER',  14, u'палач', u'палач', u'палач', places_relations.BUILDING_TYPE.SCAFFOLD, questgen_relations.PROFESSION.NONE),
+                ('MAGICIAN',     15, u'волшебник', u'волшебник', u'волшебница', places_relations.BUILDING_TYPE.MAGE_TOWER, questgen_relations.PROFESSION.NONE),
+                ('USURER',       16, u'ростовщик', u'ростовщик', u'ростовщица', places_relations.BUILDING_TYPE.GUILDHALL, questgen_relations.PROFESSION.NONE),
+                ('CLERK',        17, u'писарь', u'писарь', u'писарь', places_relations.BUILDING_TYPE.BUREAU, questgen_relations.PROFESSION.NONE),
+                ('MAGOMECHANIC', 18, u'магомеханик', u'магомеханик', u'магомеханик', places_relations.BUILDING_TYPE.MANOR, questgen_relations.PROFESSION.NONE),
+                ('BARD',         19, u'бард', u'бард', u'бардесса', places_relations.BUILDING_TYPE.SCENE, questgen_relations.PROFESSION.NONE),
+                ('TAMER',        20, u'дрессировщик', u'дрессировщик', u'дрессировщица', places_relations.BUILDING_TYPE.MEWS, questgen_relations.PROFESSION.NONE),
+                ('HERDSMAN',     21, u'скотовод', u'скотовод', u'скотовод', places_relations.BUILDING_TYPE.RANCH, questgen_relations.PROFESSION.NONE) )
 
 
 class SOCIAL_CONNECTION_TYPE(DjangoEnum):

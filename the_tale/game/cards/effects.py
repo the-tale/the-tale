@@ -150,7 +150,7 @@ class AddPoliticPowerBase(BaseEffect):
 
 class AddPoliticPowerCommon(AddPoliticPowerBase):
     TYPE = relations.CARD_TYPE.ADD_POWER_COMMON
-    POWER = c.HERO_POWER_PER_DAY
+    POWER = c.MINIMUM_CARD_POWER
 
 class AddPoliticPowerUncommon(AddPoliticPowerBase):
     TYPE = relations.CARD_TYPE.ADD_POWER_UNCOMMON
@@ -736,7 +736,7 @@ class AddPersonPowerBase(BaseEffect):
 
 class AddPersonPowerPositiveCommon(AddPersonPowerBase):
     TYPE = relations.CARD_TYPE.ADD_PERSON_POWER_POSITIVE_COMMON
-    BONUS = c.HERO_POWER_PER_DAY / 2
+    BONUS = c.MINIMUM_CARD_POWER / 2
 
 class AddPersonPowerPositiveUncommon(AddPersonPowerBase):
     TYPE = relations.CARD_TYPE.ADD_PERSON_POWER_POSITIVE_UNCOMMON
@@ -757,7 +757,7 @@ class AddPersonPowerPositiveLegendary(AddPersonPowerBase):
 
 class AddPersonPowerNegativeCommon(AddPersonPowerBase):
     TYPE = relations.CARD_TYPE.ADD_PERSON_POWER_NEGATIVE_COMMON
-    BONUS = -c.HERO_POWER_PER_DAY / 2
+    BONUS = -c.MINIMUM_CARD_POWER / 2
 
 class AddPersonPowerNegativeUncommon(AddPersonPowerBase):
     TYPE = relations.CARD_TYPE.ADD_PERSON_POWER_NEGATIVE_UNCOMMON
@@ -821,7 +821,7 @@ class AddPlacePowerBase(BaseEffect):
 
 class AddPlacePowerPositiveCommon(AddPlacePowerBase):
     TYPE = relations.CARD_TYPE.ADD_PLACE_POWER_POSITIVE_COMMON
-    BONUS = c.HERO_POWER_PER_DAY / 2
+    BONUS = c.MINIMUM_CARD_POWER / 2
 
 class AddPlacePowerPositiveUncommon(AddPlacePowerBase):
     TYPE = relations.CARD_TYPE.ADD_PLACE_POWER_POSITIVE_UNCOMMON
@@ -842,7 +842,7 @@ class AddPlacePowerPositiveLegendary(AddPlacePowerBase):
 
 class AddPlacePowerNegativeCommon(AddPlacePowerBase):
     TYPE = relations.CARD_TYPE.ADD_PLACE_POWER_NEGATIVE_COMMON
-    BONUS = -c.HERO_POWER_PER_DAY / 2
+    BONUS = -c.MINIMUM_CARD_POWER / 2
 
 class AddPlacePowerNegativeUncommon(AddPlacePowerBase):
     TYPE = relations.CARD_TYPE.ADD_PLACE_POWER_NEGATIVE_UNCOMMON

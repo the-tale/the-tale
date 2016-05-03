@@ -295,7 +295,9 @@ HERO_POWER_PER_DAY = int(100) # базовое количество влияни
 PERSON_POWER_PER_QUEST_FRACTION = float(0.33) # разброс влияния за задание
 PERSON_POWER_FOR_RANDOM_SPEND = int(200)
 
-NORMAL_JOB_LENGTH = int(7) # средняя длительность занятия мастера в днях
+MINIMUM_CARD_POWER = int(HERO_POWER_PER_DAY / 5)
+
+NORMAL_JOB_LENGTH = int(10) # средняя длительность занятия мастера в днях
 
 ##########################
 # споособности

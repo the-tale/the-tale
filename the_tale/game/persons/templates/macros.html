@@ -1,7 +1,7 @@
 
 {% macro person_description(person) %}
   <div class="underline-on-hover"
-       style="cursor: help; display: inline-block;"
+       style="cursor: default; display: inline-block;"
        rel="tooltip"
        title="{{person.personality_practical.description}}">
 
@@ -23,10 +23,17 @@
     {{person.race.female_text}},
   {% endif %}
 
-  {{person.type.text}}
+  {% if person.gender.is_MASCULINE %}
+    {{person.type.male_text}}
+  {% endif %}
+
+  {% if person.gender.is_FEMININE %}
+    {{person.type.female_text}}
+  {% endif %}
+
   и
   <div class="underline-on-hover"
-       style="cursor: help; display: inline-block;"
+       style="cursor: default; display: inline-block;"
        rel="tooltip"
        title="{{person.personality_cosmetic.description}}">
 

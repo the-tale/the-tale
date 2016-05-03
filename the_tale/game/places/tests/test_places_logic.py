@@ -26,7 +26,7 @@ class PlacePowerTest(testcase.TestCase):
         super(PlacePowerTest, self).setUp()
         linguistics_logic.sync_static_restrictions()
 
-        map_logic.create_test_my_info()
+        map_logic.create_test_map_info()
 
         storage.places.clear()
         persons_storage.persons.clear()

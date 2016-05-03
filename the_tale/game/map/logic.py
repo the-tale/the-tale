@@ -9,7 +9,7 @@ from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
 from the_tale.linguistics.storage import restrictions_storage
 
 
-def create_test_my_info():
+def create_test_map_info():
     map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
                                                       width=map_settings.WIDTH,
                                                       height=map_settings.HEIGHT,

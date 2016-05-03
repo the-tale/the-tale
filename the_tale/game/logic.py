@@ -58,7 +58,7 @@ from . import relations
 def create_test_map():
     linguistics_logic.sync_static_restrictions()
 
-    map_logic.create_test_my_info()
+    map_logic.create_test_map_info()
 
     p1 = places_logic.create_place( x=1, y=1, size=1, utg_name=names.generator.get_test_name(name='1x1'), race=relations.RACE.HUMAN)
     p2 = places_logic.create_place( x=3, y=3, size=3, utg_name=names.generator.get_test_name(name='10x10'), race=relations.RACE.HUMAN)

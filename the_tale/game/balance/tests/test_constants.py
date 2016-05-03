@@ -166,7 +166,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
 
-        self.assertEqual(c.NORMAL_JOB_LENGTH, 7)
+        self.assertEqual(c.MINIMUM_CARD_POWER, 20)
+
+        self.assertEqual(c.NORMAL_JOB_LENGTH, 10)
 
         self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 2*7*24*60*60)
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)

@@ -12,13 +12,17 @@ from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import lazy_property
 
 from the_tale.game import relations as game_relations
+from the_tale.game.jobs import effects as jobs_effects
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_TYPE, ABILITY_ACTIVATION_TYPE, ABILITY_AVAILABILITY
 from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 from the_tale.game.places import conf as places_conf
+from the_tale.game.places import logic as places_logic
 from the_tale.game.persons import conf as persons_conf
+from the_tale.game.persons import logic as persons_logic
+from the_tale.game.persons import relations as persons_relations
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp import abilities as pvp_abilities
 
@@ -186,11 +190,13 @@ class GuideResource(Resource):
 
     @handler('persons', method='get')
     def persons(self):
-        from the_tale.game.persons.relations import PERSON_TYPE
         return self.template('guide/persons.html', {'section': 'persons',
                                                     'persons_settings': persons_conf.settings,
-                                                    # 'MASTERY_LEVELS': [mastery[1] for mastery in MASTERY_VERBOSE],
-                                                    'PERSON_TYPES': sorted(PERSON_TYPE.records, key=lambda r: r.text) })
+                                                    'INNER_CIRCLE_SIZE': persons_logic.PersonPoliticPower.INNER_CIRCLE_SIZE,
+                                                    'JOBS_EFFECTS': jobs_effects.EFFECT,
+                                                    'PERSON_TYPES': sorted(persons_relations.PERSON_TYPE.records, key=lambda r: r.text),
+                                                    'PERSONALITY_COSMETIC': sorted(persons_relations.PERSONALITY_COSMETIC.records, key=lambda r: r.text),
+                                                    'PERSONALITY_PRACTICAL': sorted(persons_relations.PERSONALITY_PRACTICAL.records, key=lambda r: r.text)})
 
     @handler('cities', method='get')
     def cities(self):
@@ -198,6 +204,7 @@ class GuideResource(Resource):
         from the_tale.game.places.relations import ATTRIBUTE
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_conf.settings,
+                                                   'INNER_CIRCLE_SIZE': places_logic.PlacePoliticPower.INNER_CIRCLE_SIZE,
                                                    'ATTRIBUTES': sorted(ATTRIBUTE.records, key=lambda modifier: modifier.text),
                                                    'MODIFIERS': sorted(CITY_MODIFIERS.records, key=lambda modifier: modifier.text) })
 

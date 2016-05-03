@@ -1,14 +1,22 @@
 # coding: utf-8
+import random
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from dext.common.utils.logic import run_django_command
 
+from the_tale.linguistics import logic as linguistics_logic
+
+from the_tale.game import names
+from the_tale.game import relations as game_relations
+
 from the_tale.game.persons import storage as persons_storage
 
-from the_tale.game.roads.models import Road
-from the_tale.game.places.models import Place
+from the_tale.game.roads import models as roads_models
+from the_tale.game.roads import prototypes as roads_prototypes
+from the_tale.game.places import logic as places_logic
+from the_tale.game.places import models as places_models
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.places import storage as places_storage
 from the_tale.game.roads.storage import roads_storage
@@ -22,6 +30,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        linguistics_logic.sync_static_restrictions()
+
         self.create_map()
 
         run_django_command(['map_update_map'])
@@ -29,20 +39,23 @@ class Command(BaseCommand):
 
 
     def create_place(self, x, y, size):
-        return Place.objects.create( x=x,
-                                     y=y,
-                                     name='%dx%d' % (x, y),
-                                     size=size)
+        return places_logic.create_place(x=x, y=y, size=size, utg_name=names.generator.get_test_name(name='1x1'), race=game_relations.RACE.HUMAN)
 
     def create_road(self, p1, p2):
-        return Road.objects.create(point_1=p1, point_2=p2)
+        return roads_prototypes.RoadPrototype.create(point_1=p1, point_2=p2).update()
 
 
     @transaction.atomic
     def create_map(self): # pylint: disable=R0914, R0915
 
-        Place.objects.all().delete()
-        Road.objects.all().delete()
+        places_models.Place.objects.all().delete()
+        roads_models.Road.objects.all().delete()
+
+        map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
+                                                          width=map_settings.WIDTH,
+                                                          height=map_settings.HEIGHT,
+                                                          terrain=[ [TERRAIN.PLANE_GREENWOOD for j in xrange(map_settings.WIDTH)] for i in xrange(map_settings.HEIGHT)],
+                                                          world=WorldInfoPrototype.create(w=map_settings.WIDTH, h=map_settings.HEIGHT)))
 
         p1x1   = self.create_place(1,  1,  size=1)
         p14x1  = self.create_place(14, 1,  size=1)
@@ -90,8 +103,9 @@ class Command(BaseCommand):
         places_storage.places.update_version()
         roads_storage.update_version()
 
-        for place in places_storage.all():
-            place.sync_persons(force_add=True)
+        for place in places_storage.places.all():
+            for i in xrange(random.randint(2, 6)):
+                places_logic.add_person_to_place(place)
 
         persons_storage.persons.update_version()
 

@@ -11,7 +11,7 @@
       {% if place %}
         <span style="vertical-align: middle;">
           {% if not place.modifier.is_NONE %}
-            <span {%if not place.is_modifier_active()%}style="color: orange; cursor: pointer;" rel="tooltip" title="Город не соответствует требованиям специализации"{% endif %}>
+            <span {%if not place.is_modifier_active()%}style="color: orange; cursor: default;" rel="tooltip" title="Город не соответствует требованиям специализации"{% endif %}>
               {{place.modifier.text}}
             </span>
           {% endif %}

@@ -61,7 +61,10 @@
       </tr>
       <tr>
         <th>размер проекта</th>
-        <td>{{person.get_job_power()|percents(2)}}</td>
+        <td>
+          {{person.get_job_power()|percents(2)}}
+          <i class="icon-info-sign" rel="tooltip" title="Размер проекта зависит от относительного влияния Мастера в городе."></i>
+        </td>
       </tr>
       {% if person.job.is_completed() %}
         <tr>

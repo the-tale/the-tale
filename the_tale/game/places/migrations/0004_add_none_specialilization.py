@@ -6,7 +6,7 @@ from django.db import migrations
 
 
 def add_none_specialization(apps, schema_editor):
-    apps.get_model("places", "Place").objects.exclude(modifier=None).update(modifier=9)
+    apps.get_model("places", "Place").objects.filter(modifier=None).update(modifier=9)
 
 
 class Migration(migrations.Migration):
