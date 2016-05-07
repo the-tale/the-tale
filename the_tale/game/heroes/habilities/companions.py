@@ -46,7 +46,7 @@ class COMRADE(_CompanionAbilityModifier):
 class ECONOMIC(_CompanionAbilityModifier):
     NAME = u'Бухгалтер'
     normalized_name = NAME
-    DESCRIPTION = u'Герои с бухгалтерской жилкой ответственно подходят не только к своему имуществу, но и к имуществу спутника. Способность улучшают денежные особенности спутника.'
+    DESCRIPTION = u'Герои с бухгалтерской жилкой ответственно подходят не только к своему имуществу, но и к имуществу спутника. Способность улучшает денежные особенности спутника.'
     EFFECT_TYPE = companions_abilities_relations.METATYPE.MONEY
 
 

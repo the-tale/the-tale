@@ -21,7 +21,7 @@ KEYS = [(u'ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, u'Дневник: Артеф
 
         (u'ACTION_BATTLEPVE1X1_EXP_FOR_KILL', 4, u'Дневник: Получить опыт за убийство монстра', LEXICON_GROUP.ACTION_BATTLEPVE1X1,
          u'Герой получил немного опыта за убийство монстра (испытал новый приём или монстр «особенный» попался)',
-         [V.MOB, V.HERO, V.EXPERIENCE], u'hero#N -experience#EXP'),
+         [V.MOB, V.HERO, V.EXPERIENCE], u'hero#N +experience#EXP'),
 
         (u'ACTION_BATTLEPVE1X1_JOURNAL_HERO_KILLED', 5, u'Журнал: Герой убит', LEXICON_GROUP.ACTION_BATTLEPVE1X1,
          u'Герой умирает.',
@@ -43,8 +43,8 @@ KEYS = [(u'ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, u'Дневник: Артеф
          u'Герой не получил добычу.',
          [V.MOB, V.HERO], None),
 
-        (u'ACTION_BATTLEPVE1X1_PEACEFULL_BATTLE', 10, u'Журнал: Мирно разойтись с цивилизованным противником', LEXICON_GROUP.ACTION_BATTLEPVE1X1,
-         u'Герой договорился с цивилизованным противником о том, чтобы драки не было',
+        (u'ACTION_BATTLEPVE1X1_PEACEFULL_BATTLE', 10, u'Журнал: Мирно разойтись с разумным двуногим противником', LEXICON_GROUP.ACTION_BATTLEPVE1X1,
+         u'Герой договорился с разумным двуногим противником о том, чтобы драки не было',
          [V.MOB, V.HERO], None),
 
         (u'ACTION_BATTLEPVE1X1_PERIODICAL_FIRE_DAMAGE', 11, u'Журнал: Периодический урон огнём', LEXICON_GROUP.ACTION_BATTLEPVE1X1,

@@ -48,7 +48,7 @@ KEYS = [(u'ACTION_INPLACE_DESCRIPTION', 80000, u'Описание', LEXICON_GROU
         [V.COINS, V.HERO], u'hero#N -coins#G'),
 
         (u'ACTION_INPLACE_HABIT_EVENT_HONOR_LEFT_1', 80011, u'Дневник: запись о характере города (Честь: уровень -1)', LEXICON_GROUP.ACTION_INPLACE,
-        u'запись о характере города (Честь: уровень -3)',
+        u'запись о характере города (Честь: уровень -1)',
         [V.HERO, V.PLACE], None),
 
         (u'ACTION_INPLACE_HABIT_EVENT_HONOR_LEFT_2', 80012, u'Дневник: запись о характере города (Честь: уровень -2)', LEXICON_GROUP.ACTION_INPLACE,

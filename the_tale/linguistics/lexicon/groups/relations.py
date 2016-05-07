@@ -91,7 +91,7 @@ class LEXICON_GROUP(DjangoEnum):
                u'Тексты, относящиеся к заданию.',
                {V.INITIATOR: u'житель, начинающий задание', V.HERO: u'герой', V.COINS: u'количество монет', V.ARTIFACT: u'артефакт', V.INITIATOR_POSITION: u'место начала задания', V.RECEIVER: u'житель, заканчивающий задание', V.RECEIVER_POSITION: u'место окончания задания'}),
 
-               ('QUEST_DELIVERY', 20, u'Задание доставить письмо', 200000,
+               ('QUEST_DELIVERY', 20, u'Задание: доставить письмо', 200000,
                u'Тексты, относящиеся к заданию',
                {V.INITIATOR: u'житель, начинающий задание', V.HERO: u'герой', V.ANTAGONIST_POSITION: u'место скупки краденого', V.COINS: u'количество монет', V.ARTIFACT: u'артефакт', V.INITIATOR_POSITION: u'место начала задания', V.RECEIVER: u'житель, заканчивающий задание', V.RECEIVER_POSITION: u'место окончания задания', V.ANTAGONIST: u'житель, скупающий краденое'}),
 

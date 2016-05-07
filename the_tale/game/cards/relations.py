@@ -110,7 +110,7 @@ class CARD_TYPE(DjangoEnum):
 
                 ('ADD_PERSON_POWER_POSITIVE_UNCOMMON', 58, u'удачный день', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PersonForm, True),
                 ('ADD_PERSON_POWER_POSITIVE_RARE', 59, u'нежданная выгода', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PersonForm, True),
-                ('ADD_PERSON_POWER_POSITIVE_EPIC', 60, u'удачная афёра', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_POSITIVE_EPIC', 60, u'удачная афера', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PersonForm, True),
                 ('ADD_PERSON_POWER_POSITIVE_LEGENDARY', 61, u'преступление века', AVAILABILITY.FOR_PREMIUMS, RARITY.LEGENDARY, forms.PersonForm, True),
 
                 ('ADD_PLACE_POWER_POSITIVE_UNCOMMON', 62, u'погожие деньки', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PlaceForm, True),
@@ -180,7 +180,7 @@ class CARD_TYPE(DjangoEnum):
                 ('ADD_PLACE_POWER_POSITIVE_COMMON', 109, u'выгодный контракт', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PlaceForm, True),
                 ('ADD_PLACE_POWER_NEGATIVE_COMMON', 110, u'сорванный контракт', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PlaceForm, True),
 
-                ('ADD_PERSON_POWER_NEGATIVE_COMMON', 111, u'гримасса фортуны', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PersonForm, True),
+                ('ADD_PERSON_POWER_NEGATIVE_COMMON', 111, u'гримаса фортуны', AVAILABILITY.FOR_PREMIUMS, RARITY.COMMON, forms.PersonForm, True),
                 ('ADD_PERSON_POWER_NEGATIVE_UNCOMMON', 112, u'гадкий день', AVAILABILITY.FOR_PREMIUMS, RARITY.UNCOMMON, forms.PersonForm, True),
                 ('ADD_PERSON_POWER_NEGATIVE_RARE', 113, u'нежданная беда', AVAILABILITY.FOR_PREMIUMS, RARITY.RARE, forms.PersonForm, True),
                 ('ADD_PERSON_POWER_NEGATIVE_EPIC', 114, u'провальное мероприятие', AVAILABILITY.FOR_PREMIUMS, RARITY.EPIC, forms.PersonForm, True),

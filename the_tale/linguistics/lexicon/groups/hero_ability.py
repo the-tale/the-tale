@@ -45,7 +45,7 @@ KEYS = [(u'HERO_ABILITY_FIREBALL', 280000, u'Журнал: Пиромания', 
 
         (u'HERO_ABILITY_RUNUPPUSH_MISS', 280010, u'Журнал: Ошеломление (промах)', LEXICON_GROUP.HERO_ABILITY,
         u'Промах при использовании способности «Ошеломление».',
-        [V.ATTACKER, V.DAMAGE, V.DEFENDER], u'defender#N -damage#HP'),
+        [V.ATTACKER, V.DEFENDER], None),
 
         (u'HERO_ABILITY_SIDESTEP', 280011, u'Журнал: Дезориентация', LEXICON_GROUP.HERO_ABILITY,
         u'Использование способности «Дезориентация»',
@@ -73,7 +73,7 @@ KEYS = [(u'HERO_ABILITY_FIREBALL', 280000, u'Журнал: Пиромания', 
 
         (u'HERO_ABILITY_COMPANION_HEALING', 280017, u'Журнал: Герой лечит спутника', LEXICON_GROUP.HERO_ABILITY,
         u'Герой восстановил спутнику немного здоровья',
-        [V.ACTOR, V.COMPANION, V.HEALTH], u'companion#N +damage#HP'),
+        [V.ACTOR, V.COMPANION, V.HEALTH], u'companion#N +health#HP'),
 
         (u'HERO_ABILITY_INSANE_STRIKE', 280018, u'Журнал: Безрассудная атака', LEXICON_GROUP.HERO_ABILITY,
         u'Герой проводит беззрассудную атаку, наносит противнику большой урон, но и сам получает ранения',

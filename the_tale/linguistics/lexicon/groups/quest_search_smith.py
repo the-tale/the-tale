@@ -29,23 +29,23 @@ KEYS = [(u'QUEST_SEARCH_SMITH_ACTION_INTRO', 540000, u'Активность: и�
 
         (u'QUEST_SEARCH_SMITH_DIARY_UPGRADE__BUY', 540006, u'Дневник: артефакт создан и экипирован в пустой слот', LEXICON_GROUP.QUEST_SEARCH_SMITH,
         u'Мастер создал артефакт и взял деньги. Артефакт экипирован в пустой слот экипировки.',
-        [V.HERO, V.RECEIVER, V.RECEIVER_POSITION, V.COINS, V.ARTIFACT], u'hero#N +coins#G'),
+        [V.HERO, V.RECEIVER, V.RECEIVER_POSITION, V.COINS, V.ARTIFACT], u'hero#N -coins#G'),
 
         (u'QUEST_SEARCH_SMITH_DIARY_UPGRADE__BUY_AND_CHANGE', 540007, u'Дневник: артефакт создан и на него заменён старый артефакт', LEXICON_GROUP.QUEST_SEARCH_SMITH,
         u'Мастер создал артефакт и взял деньги. Герой продал старую экипировку и одел новый артефакт.',
-        [V.UNEQUIPPED, V.HERO, V.COINS, V.ARTIFACT, V.SELL_PRICE, V.RECEIVER, V.RECEIVER_POSITION], u'hero#N +coins#G'),
+        [V.UNEQUIPPED, V.HERO, V.COINS, V.ARTIFACT, V.SELL_PRICE, V.RECEIVER, V.RECEIVER_POSITION], u'hero#N -coins#G +sell_price#G'),
 
         (u'QUEST_SEARCH_SMITH_DIARY_UPGRADE__FAIL', 540008, u'Дневник: артефакт не удалось создать', LEXICON_GROUP.QUEST_SEARCH_SMITH,
         u'По каким-то причинам мастер не смог создать артефакт, хоть и взял деньги.',
-        [V.RECEIVER_POSITION, V.COINS, V.HERO, V.RECEIVER], u'hero#N +coins#G'),
+        [V.RECEIVER_POSITION, V.COINS, V.HERO, V.RECEIVER], u'hero#N -coins#G'),
 
         (u'QUEST_SEARCH_SMITH_DIARY_UPGRADE__REPAIR', 540009, u'Дневник: артефакт починен', LEXICON_GROUP.QUEST_SEARCH_SMITH,
         u'Мастер починил артефакт и взял деньги.',
-        [V.HERO, V.RECEIVER, V.RECEIVER_POSITION, V.COINS, V.ARTIFACT], u'hero#N +coins#G'),
+        [V.HERO, V.RECEIVER, V.RECEIVER_POSITION, V.COINS, V.ARTIFACT], u'hero#N -coins#G'),
 
         (u'QUEST_SEARCH_SMITH_DIARY_UPGRADE__SHARP', 540010, u'Дневник: артефакт заточен', LEXICON_GROUP.QUEST_SEARCH_SMITH,
         u'Мастер заточил артефакт и взял деньги.',
-        [V.HERO, V.RECEIVER, V.RECEIVER_POSITION, V.COINS, V.ARTIFACT], u'hero#N +coins#G'),
+        [V.HERO, V.RECEIVER, V.RECEIVER_POSITION, V.COINS, V.ARTIFACT], u'hero#N -coins#G'),
 
         (u'QUEST_SEARCH_SMITH_DIARY_UPGRADE_FREE__BUY', 540011, u'Дневник: артефакт создан и экипирован в пустой слот (бесплатно)', LEXICON_GROUP.QUEST_SEARCH_SMITH,
         u'Мастер создал артефакт и не взял деньги. Артефакт экипирован в пустой слот экипировки (бесплатно).',
