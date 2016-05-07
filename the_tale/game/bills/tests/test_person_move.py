@@ -38,7 +38,7 @@ class PersonMoveTests(BaseTestPrototypes):
 
     def test_actors(self):
         self.assertEqual(set([id(a) for a in self.bill_data.actors]),
-                         set([id(self.place1), id(self.place2)]))
+                         set([id(self.place1), id(self.place2), id(self.person_1)]))
 
 
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 0)

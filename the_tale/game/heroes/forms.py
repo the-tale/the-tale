@@ -39,7 +39,7 @@ class EditNameForm(forms.Form):
         if name is not None:
             for name_form in cleaned_data['name'].forms:
                 if len(name_form) > models.Hero.MAX_NAME_LENGTH:
-                    raise ValidationError(u'Слишком длинное имя, максимальное число символов: %d' % modelsHero.MAX_NAME_LENGTH)
+                    raise ValidationError(u'Слишком длинное имя, максимальное число символов: %d' % models.Hero.MAX_NAME_LENGTH)
 
                 if len(name_form) < conf.heroes_settings.NAME_MIN_LENGHT:
                     raise ValidationError(u'Слишком короткое имя, минимальное число символов: %d' % conf.heroes_settings.NAME_MIN_LENGHT)
