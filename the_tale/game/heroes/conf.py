@@ -24,7 +24,7 @@ heroes_settings = app_settings('HEROES',
                                START_ENERGY_BONUS=10,
                                MAX_HELPS_IN_TURN=10,
 
-                               NAME_REGEX=ur'^[\-\ а-яА-Я«»\']+$' if not projects_settings.TESTS_RUNNING else ur'^[\-\ а-яА-Я«»\'\,]+$',
+                               NAME_REGEX=ur'^[\-\ а-яА-Я«»\'ёЁ]+$' if not projects_settings.TESTS_RUNNING else ur'^[\-\ а-яА-Я«»\'\,ёЁ]+$',
                                NAME_SYMBOLS_DESCRITION=u'пробел, -, а-я, А-Я, «», \' ',
 
                                NAME_MIN_LENGHT=3,
