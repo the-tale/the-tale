@@ -286,11 +286,13 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY, 10)
         self.assertEqual(c.PLACE_HABITS_EVENT_PROBABILITY, 0.025)
 
-        self.assertEqual(c.JOB_PRODUCTION_BONUS, 14)
-        self.assertEqual(round(c.JOB_SAFETY_BONUS, 5), 0.00714)
-        self.assertEqual(round(c.JOB_TRANSPORT_BONUS, 5), 0.04762)
-        self.assertEqual(round(c.JOB_FREEDOM_BONUS, 5), 0.04762)
-        self.assertEqual(round(c.JOB_STABILITY_BONUS, 5), 0.01429)
+        self.assertEqual(c.PLACE_JOB_EFFECT_FRACTION, 0.2)
+
+        self.assertEqual(c.JOB_PRODUCTION_BONUS, 20)
+        self.assertEqual(round(c.JOB_SAFETY_BONUS, 5), 0.01)
+        self.assertEqual(round(c.JOB_TRANSPORT_BONUS, 5), 0.06667)
+        self.assertEqual(round(c.JOB_FREEDOM_BONUS, 5), 0.06667)
+        self.assertEqual(round(c.JOB_STABILITY_BONUS, 5), 0.02)
 
         self.assertEqual(c.PERSON_MOVE_DELAY, 120960)
 

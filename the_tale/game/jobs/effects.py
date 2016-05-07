@@ -83,7 +83,9 @@ class ChangePlaceAttribute(BaseEffect):
 
 
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
-        place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=self.base_value*job_power))
+        effect_value = self.base_value*job_power
+        effect_delta = effect_value * (1.0 / c.NORMAL_JOB_LENGTH)
+        place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=effect_value, delta=effect_delta))
 
         return self.apply_to_heroes(actor_type=actor_type,
                                     effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
@@ -95,7 +97,9 @@ class ChangePlaceAttribute(BaseEffect):
 
 
     def apply_negative(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
-        place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=-self.base_value*job_power))
+        effect_value = self.base_value*job_power
+        effect_delta = effect_value * (1.0 / c.NORMAL_JOB_LENGTH)
+        place.effects.add(effects.Effect(name=actor_name, attribute=self.attribute, value=-effect_value, delta=effect_delta))
 
         return self.apply_to_heroes(actor_type=actor_type,
                                     effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
