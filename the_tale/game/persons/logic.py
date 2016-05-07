@@ -98,7 +98,14 @@ def save_person(person, new=False):
     storage.persons.update_version()
 
 
-def create_person(place, race, type, utg_name, gender):
+def create_person(place, race, type, utg_name, gender, personality_cosmetic=None, personality_practical=None):
+
+    if personality_cosmetic is None:
+        personality_cosmetic = relations.PERSONALITY_COSMETIC.random()
+
+    if personality_practical is None:
+        personality_practical = relations.PERSONALITY_PRACTICAL.random()
+
     person = objects.Person(id=None,
                             created_at_turn=TimePrototype.get_current_turn_number(),
                             updated_at_turn=TimePrototype.get_current_turn_number(),
@@ -108,8 +115,8 @@ def create_person(place, race, type, utg_name, gender):
                             race=race,
                             type=type,
                             attrs=attributes.Attributes(),
-                            personality_cosmetic=relations.PERSONALITY_COSMETIC.random(),
-                            personality_practical=relations.PERSONALITY_PRACTICAL.random(),
+                            personality_cosmetic=personality_cosmetic,
+                            personality_practical=personality_practical,
                             politic_power=PersonPoliticPower.create(),
                             utg_name=utg_name,
                             job=PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER),
