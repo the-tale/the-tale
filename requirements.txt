@@ -1,4 +1,4 @@
-Django==1.9.5
+Django==1.9.6
 Jinja2==2.6
 psycopg2==2.4.5
 kombu==2.3.2
@@ -15,6 +15,6 @@ pynames==0.2.0
 utg==0.2.0
 rels==0.2.2.2
 
--e git+https://github.com/Tiendil/dext.git@v0.2.0#egg=Dext
+-e git+https://github.com/Tiendil/dext.git@v0.3.0#egg=Dext
 -e git+https://github.com/Tiendil/deworld.git@v0.2.0#egg=DeWorld
--e git+https://github.com/Tiendil/questgen.git@v0.2.0#egg=Questgen
+-e git+https://github.com/Tiendil/questgen.git@v0.3.0#egg=Questgen
