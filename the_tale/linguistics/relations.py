@@ -139,4 +139,6 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
 
                 ('PLURAL_FORM', 29, u'есть множественное число', WORD_HAS_PLURAL_FORM),
 
+                ('PERSON_PERSONALITY_COSMETIC', 30, u'косметическая особенность характера', persons_relations.PERSONALITY_COSMETIC),
+                ('PERSON_PERSONALITY_PRACTICAL', 31, u'практическая особенность характера', persons_relations.PERSONALITY_PRACTICAL)
               )
