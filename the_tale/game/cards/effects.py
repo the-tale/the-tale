@@ -725,7 +725,7 @@ class AddPersonPowerBase(BaseEffect):
         elif task.step.is_HIGHLEVEL:
 
             person.politic_power.change_power(person=person,
-                                              hero_id=task.hero.id,
+                                              hero_id=task.hero_id,
                                               has_in_preferences=True,
                                               power=self.BONUS)
             persons_logic.save_person(person)
