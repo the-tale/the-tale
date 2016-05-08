@@ -53,7 +53,9 @@ class PlacePoliticPower(politic_power.PoliticPower):
                 'job_power': place.get_job_power() }
 
 
-NORMAL_PLACE_JOB_POWER = f.normal_job_power(PlacePoliticPower.INNER_CIRCLE_SIZE)
+# умножаем на 2, так как кажая остановка в городе, по сути, даёт влияние в 2-кратном размере
+# Город получит влияние и от задания, которое герой выполнил и от того, которое возьмёт
+NORMAL_PLACE_JOB_POWER = f.normal_job_power(PlacePoliticPower.INNER_CIRCLE_SIZE) * 2
 
 
 def load_place(place_id=None, place_model=None):

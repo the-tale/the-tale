@@ -380,7 +380,7 @@ class QuestPrototype(object):
 
         person.cmd_change_power(hero_id=hero.id,
                                 has_place_in_preferences=hero.preferences.has_place_in_preferences(person.place),
-                                has_person_in_preferences=hero.preferences.has_place_in_preferences(person),
+                                has_person_in_preferences=hero.preferences.has_person_in_preferences(person),
                                 power=power)
 
         return power

@@ -354,3 +354,6 @@ a.btn.disabled {
 textarea {
   resize: vertical;
 }
+.underline-on-hover:hover {
+  text-decoration: underline;
+}
