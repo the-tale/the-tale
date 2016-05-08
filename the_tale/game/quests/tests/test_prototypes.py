@@ -137,6 +137,18 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertTrue(power_with_profession < power_without_profession)
 
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
+    def test_give_person_power__politic_power_bonus(self):
+
+        person = persons_storage.persons.all()[0]
+
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        self.assertEqual(self.quest._give_person_power(self.hero, person, 3.0), 31)
+
+
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
     def test_give_person_power__places_help_history(self):
 
@@ -647,8 +659,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power = 10
         self.quest.current_info.power_bonus = 1
 
-        # we modify power bonus like main power
-        self.assertEqual(self.quest.get_current_power(2), 22)
+        self.assertEqual(self.quest.get_current_power(2), 20)
 
 
 class InterpreterCallbacksTests(PrototypeTestsBase):

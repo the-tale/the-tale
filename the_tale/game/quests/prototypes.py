@@ -51,10 +51,6 @@ class QuestInfo(object):
         self.used_markers = used_markers
 
     @property
-    def total_power(self):
-        return self.power + self.power_bonus
-
-    @property
     def total_experience(self):
         return self.experience + self.experience_bonus
 
@@ -359,7 +355,7 @@ class QuestPrototype(object):
         self._move_hero_to(destination=place_to, break_at=path_to_pass / path_from_position_length)
 
     def get_current_power(self, power):
-        return power * self.current_info.total_power
+        return power * self.current_info.power
 
     def _give_person_power(self, hero, person, power):
         power = self.get_current_power(power)
@@ -371,6 +367,8 @@ class QuestPrototype(object):
             return 0
 
         power = hero.modify_politics_power(power, person=person)
+
+        power += ( 1 if power > 0 else -1) * self.current_info.power_bonus
 
         person_uid = uids.person(person.id)
         has_profession_marker = [marker for marker in self.knowledge_base.filter(facts.ProfessionMarker) if marker.person == person_uid]
