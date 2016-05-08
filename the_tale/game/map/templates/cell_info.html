@@ -15,7 +15,7 @@
               {{place.modifier.text}}
             </span>
           {% endif %}
-        <a href="{{url('game:places:show', place.id)}}" target="_blank">{{ place.name }}</a>
+        <a href="{{url('game:places:show', place.id)}}" target="_blank" style="vertical-align: middle;">{{ place.name }}</a>
 
         {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}<span class="badge badge-success">родной город</span>{% endif %}
 
