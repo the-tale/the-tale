@@ -316,7 +316,7 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PERSON) {
         nameElement.text(data.name);
 
-        popoverTitle = 'Горожанин';
+        popoverTitle = 'Мастер';
 
         var place = widgets.mapManager.GetPlaceData(data.place);
         var race = pgf.game.constants.RACE_TO_TEXT[data.race];
@@ -328,10 +328,6 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         jQuery('.pgf-race', content).text(race);
         jQuery('.pgf-gender', content).text(gender);
         jQuery('.pgf-type', content).text(profession);
-
-        if (data.mastery_verbose) {
-            jQuery('.pgf-mastery', content).text(data.mastery_verbose);
-        }
 
         nameElement.click(function(e){
             e.preventDefault();
