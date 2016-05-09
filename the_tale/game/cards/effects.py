@@ -809,7 +809,7 @@ class AddPlacePowerBase(BaseEffect):
             place = places_storage.places[place_id]
 
             place.politic_power.change_power(place=place,
-                                             hero_id=task.hero.id,
+                                             hero_id=task.hero_id,
                                              has_in_preferences=True,
                                              power=self.BONUS)
 
