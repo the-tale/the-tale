@@ -221,6 +221,12 @@ def _game_info_from_1_4_to_1_3__heroes(data):
 
 
 def _game_info_from_1_5_to_1_4__heroes(data):
+    if 'quests' not in data:
+        return
+
+    if 'quests' not in data['quests']:
+        return
+
     for quest in data['quests']['quests']:
         for quest_info in quest['line']:
             for name, type, actor_data in quest_info['actors']:
