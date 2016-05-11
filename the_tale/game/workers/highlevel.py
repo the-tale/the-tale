@@ -173,7 +173,6 @@ class Worker(BaseWorker):
                                                                 has_in_preferences=power_info.has_person_in_preferences,
                                                                 power=power_info.power_delta)
                 self.places_politic_power.append(power_info.clone(place_id=person.place.id, power_delta=place_power))
-                person.update_job()
 
             for power_info in self.places_politic_power:
                 place = places_storage.places[power_info.place_id]
@@ -228,7 +227,7 @@ class Worker(BaseWorker):
 
         self.logger.info('sync data transaction completed')
 
-        self.logger.info(u'after transaction operations: {operations}'.format(operations=call_after_transaction))
+        self.logger.info(u'after transaction operations number: {number}'.format(number=len(call_after_transaction)))
 
         for operation in call_after_transaction:
             operation()
