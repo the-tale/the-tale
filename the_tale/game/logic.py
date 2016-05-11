@@ -220,6 +220,16 @@ def _game_info_from_1_4_to_1_3__heroes(data):
         data['messages'] = [_remove_variables_from_message(message) for message in data['messages']]
 
 
+def _game_info_from_1_5_to_1_4__heroes(data):
+    for quest in data['quests']['quests']:
+        for quest_info in quest['line']:
+            for name, type, actor_data in quest_info['actors']:
+                if type == 0:
+                    actor_data['mastery'] = 1
+                    actor_data['mastery_verbose'] = u'гений'
+
+
+
 def game_info_from_1_1_to_1_0(data):
     if data['account'] is not None:
         _game_info_from_1_1_to_1_0__heroes(data['account']['hero'])
@@ -256,6 +266,16 @@ def game_info_from_1_4_to_1_3(data):
 
     if data['enemy'] is not None:
         _game_info_from_1_4_to_1_3__heroes(data['enemy']['hero'])
+
+    return data
+
+
+def game_info_from_1_5_to_1_4(data):
+    if data['account'] is not None:
+        _game_info_from_1_5_to_1_4__heroes(data['account']['hero'])
+
+    if data['enemy'] is not None:
+        _game_info_from_1_5_to_1_4__heroes(data['enemy']['hero'])
 
     return data
 
