@@ -228,6 +228,8 @@ class Worker(BaseWorker):
 
         self.logger.info('sync data transaction completed')
 
+        self.logger.info(u'after transaction operations: {operations}'.format(operations=call_after_transaction))
+
         for operation in call_after_transaction:
             operation()
 
