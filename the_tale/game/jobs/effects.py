@@ -35,15 +35,16 @@ class BaseEffect(object):
 
         positive_kwargs = dict(message_type=self.message_type(actor_type, effect, direction, 'friends'), **method_kwargs)
 
+        after_update_operations = []
+
         for hero_id in positive_heroes:
-            self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
-                                    hero_id=hero_id,
-                                    method_name=method_names[0],
-                                    method_kwargs=positive_kwargs)
+            operation = self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
+                                                hero_id=hero_id,
+                                                method_name=method_names[0],
+                                                method_kwargs=positive_kwargs)
+            after_update_operations.append(operation)
 
         negative_kwargs = dict(message_type=self.message_type(actor_type, effect, direction, 'enemies'), **method_kwargs)
-
-        after_update_operations = []
 
         for hero_id in negative_heroes:
             operation = self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
