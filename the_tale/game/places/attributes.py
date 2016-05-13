@@ -36,9 +36,6 @@ class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
         self.goods = int(self.goods)
 
     def sync(self):
-        self.politic_radius = self.size * self.politic_radius_modifier
-        self.terrain_radius = self.size * self.terrain_radius_modifier
-
         self.modifier_multiplier = (math.log(self.size, 2) + 1) / 1.7
 
 

@@ -43,14 +43,14 @@ class ModifiersTests(testcase.TestCase):
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_political_center(self):
         with self.check_increased(lambda: self.place_1.attrs.freedom):
-            with self.check_increased(lambda: self.place_1.attrs.politic_radius_modifier):
+            with self.check_increased(lambda: self.place_1.attrs.politic_radius):
                 with self.check_increased(lambda: self.place_1.attrs.stability_renewing_speed):
                     self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLITICAL_CENTER)
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_polic(self):
         with self.check_increased(lambda: self.place_1.attrs.production):
-            with self.check_increased(lambda: self.place_1.attrs.terrain_radius_modifier):
+            with self.check_increased(lambda: self.place_1.attrs.terrain_radius):
                 with self.check_increased(lambda: self.place_1.attrs.freedom):
                     self.place_1.set_modifier(modifiers.CITY_MODIFIERS.POLIC)
 

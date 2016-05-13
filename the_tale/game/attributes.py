@@ -44,7 +44,7 @@ def create_attributes_class(ATTRIBUTES):
 
         @classmethod
         def deserialize(cls, data):
-            return cls(**{k: ATTRIBUTES.index_name[k.upper()].deserializer(v) for k,v in data.iteritems()})
+            return cls(**{k: ATTRIBUTES.index_name[k.upper()].deserializer(v) for k,v in data.iteritems() if k.upper() in ATTRIBUTES.index_name})
 
         def reset(self):
             for attribute in ATTRIBUTES.records:
