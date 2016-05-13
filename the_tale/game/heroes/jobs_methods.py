@@ -45,8 +45,7 @@ class JobsMethodsMixin(object):
                                                                  prefered_slot=False,
                                                                  prefered_item=False,
                                                                  archetype=True,
-                                                                 rarity_type=rarity,
-                                                                 power_bonus=max(0, int(math.ceil(2*job_power))))
+                                                                 rarity_type=rarity)
 
         self.add_message(message_type, diary=True, hero=self, artifact=artifact, **self.get_job_variables(place_id, person_id))
 
