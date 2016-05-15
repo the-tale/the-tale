@@ -74,7 +74,7 @@ def job_group_priority_deserialize(data):
 class ATTRIBUTE(attributes.ATTRIBUTE):
 
     records = ( attributes.attr('ON_QUEST_HABITS', 0, u'изменения черт, если Мастер получает выгоду от задания', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=quest_result_serialize, deserializer=quest_result_deserialize),
-                attributes.attr('TERRAIN_POWER', 1, u'сила влияния на ланшафт', default=lambda: 1),
+                attributes.attr('TERRAIN_POWER', 1, u'сила влияния на ланшафт', default=lambda: 0.1),
                 attributes.attr('TERRAIN_RADIUS_BONUS', 2, u'бонус к радиусу влияния города на ландшафт'),
                 attributes.attr('PLACES_HELP_AMOUNT', 3, u'бонус к начисляемым «влияниям» за задания', default=lambda: 1),
                 attributes.attr('POLITIC_POWER_BONUS', 4, u'бонус к влиянию за задания с участием Мастера'),
@@ -123,7 +123,7 @@ class PERSONALITY_COSMETIC(PERSONALITY):
                                                                         QUEST_RESULTS.FAILED: heroes_relations.HABIT_CHANGE_SOURCE.MASTER_QUEST_UNAGGRESSIVE},
                 u'забияка', u'забияка', u'Уменьшает миролюбие героя, если Мастер получает выгоду от задания и увеличивает, если вред.'),
 
-                personality('LEADER', 4, u'лидер', 'TERRAIN_POWER', 0.15,
+                personality('LEADER', 4, u'лидер', 'TERRAIN_POWER', 0.1,
                 u'лидер', u'лидер', u'Оказывает большее влияние на ландшафт вокруг города.'),
 
                 personality('FIDGET', 5, u'непоседа', 'TERRAIN_RADIUS_BONUS', 1,
