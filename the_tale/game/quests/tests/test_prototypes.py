@@ -1,8 +1,10 @@
 # coding: utf-8
-import mock
+import copy
 import datetime
 import random
 import collections
+
+import mock
 
 from questgen import facts, requirements
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
@@ -798,11 +800,13 @@ class CheckRequirementsTests(PrototypeTestsBase):
 
         self.person = persons_storage.persons[self.person_fact.externals['id']]
 
-        self.place_1_fact = facts.Place(uid='place_1', externals={'id': self.place_1.id})
-        self.place_2_fact = facts.Place(uid='place_2', externals={'id': self.place_2.id})
-        self.place_3_fact = facts.Place(uid='place_3', externals={'id': self.place_3.id})
+        self.place_1_fact = logic.fact_place(self.place_1)
+        self.place_2_fact = logic.fact_place(self.place_2)
+        self.place_3_fact = logic.fact_place(self.place_3)
 
-        self.quest.knowledge_base += [self.place_1_fact, self.place_2_fact, self.place_3_fact]
+        for fact in [self.place_1_fact, self.place_2_fact, self.place_3_fact]:
+            if fact.uid not in self.quest.knowledge_base:
+                self.quest.knowledge_base += fact
 
 
     def get_check_places(self, place_id):
@@ -1021,11 +1025,13 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
 
         self.person = persons_storage.persons[self.person_fact.externals['id']]
 
-        self.place_1_fact = facts.Place(uid='place_1', externals={'id': self.place_1.id})
-        self.place_2_fact = facts.Place(uid='place_2', externals={'id': self.place_2.id})
-        self.place_3_fact = facts.Place(uid='place_3', externals={'id': self.place_3.id})
+        self.place_1_fact = logic.fact_place(self.place_1)
+        self.place_2_fact = logic.fact_place(self.place_2)
+        self.place_3_fact = logic.fact_place(self.place_3)
 
-        self.quest.knowledge_base += [self.place_1_fact, self.place_2_fact, self.place_3_fact]
+        for fact in [self.place_1_fact, self.place_2_fact, self.place_3_fact]:
+            if fact.uid not in self.quest.knowledge_base:
+                self.quest.knowledge_base += fact
 
 
     def get_check_places(self, place_id):
@@ -1043,8 +1049,29 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
 
     # located in
 
+    def test_satisfy_located_in__moved_person(self):
+        wrong_place_fact_uid = self.place_1_fact.uid if self.person.place_id != self.place_1.id else self.place_2_fact.uid
+        right_place_fact_uid = uids.place(self.person.place_id)
+
+        requirement = requirements.LocatedIn(object=self.person_fact.uid, place=wrong_place_fact_uid)
+
+        for state in self.quest.knowledge_base.filter(facts.State):
+            state.require = tuple(list(state.require) + [requirements.LocatedIn(object=self.person_fact.uid, place=wrong_place_fact_uid)])
+
+        self.quest.satisfy_located_in(requirement)
+
+        self.assertEqual(requirement.object, self.person_fact.uid)
+        self.assertEqual(requirement.place, wrong_place_fact_uid)
+
+        for state in self.quest.knowledge_base.filter(facts.State):
+            in_base_requirement = state.require[-1]
+
+            self.assertEqual(in_base_requirement.object, self.person_fact.uid)
+            self.assertEqual(in_base_requirement.place, right_place_fact_uid)
+
+
     def test_satisfy_located_in__non_hero(self):
-        requirement = requirements.LocatedIn(object=self.person_fact.uid, place=self.place_1_fact.uid)
+        requirement = requirements.LocatedIn(object=self.place_2_fact.uid, place=self.place_1_fact.uid)
         self.assertRaises(exceptions.UnknownRequirementError, self.quest.satisfy_located_in, requirement)
 
     def test_satisfy_located_in__wrong_hero(self):

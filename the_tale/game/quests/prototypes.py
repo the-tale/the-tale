@@ -1,4 +1,5 @@
 # coding: utf-8
+import copy
 import math
 import time
 import random
@@ -7,6 +8,7 @@ import itertools
 
 from questgen.machine import Machine
 from questgen import facts
+from questgen import requirements
 from questgen.knowledge_base import KnowledgeBase
 from questgen import transformators
 from questgen.quests.base_quest import ROLES, RESULTS as QUEST_RESULTS
@@ -903,7 +905,26 @@ class QuestPrototype(object):
     ################################
 
     def satisfy_located_in(self, requirement):
+        from . import logic
+
         object_fact = self.knowledge_base[requirement.object]
+
+        if isinstance(object_fact, facts.Person):
+            person_uid = object_fact.uid
+            person = persons_storage.persons[object_fact.externals['id']]
+
+            new_place_uid= uids.place(person.place.id)
+
+            if new_place_uid not in self.knowledge_base:
+                self.knowledge_base += logic.fact_place(person.place)
+
+            # переписываем все ограничения в базе
+            for fact in self.knowledge_base.filter(facts.State):
+                for state_requirement in fact.require:
+                    if isinstance(state_requirement, requirements.LocatedIn) and state_requirement.object == person_uid:
+                        state_requirement.place = new_place_uid
+
+            return
 
         if not isinstance(object_fact, facts.Hero) or self.hero.id != object_fact.externals['id']:
             raise exceptions.UnknownRequirementError(requirement=requirement)
