@@ -10,7 +10,7 @@ from django.db import transaction
 from dext.common.utils.logic import normalize_email
 from dext.common.utils.urls import url
 
-from the_tale import amqp_environment
+from the_tale.amqp_environment import environment
 
 from the_tale.common.utils.password import generate_password
 
@@ -220,6 +220,6 @@ def initiate_transfer_money(sender_id, recipient_id, amount, comment):
                                              comment=comment)
     task = PostponedTaskPrototype.create(task)
 
-    amqp_environment.environment.workers.refrigerator.cmd_wait_task(task.id)
+    environment.workers.refrigerator.cmd_wait_task(task.id)
 
     return task
