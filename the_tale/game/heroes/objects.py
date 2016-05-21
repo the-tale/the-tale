@@ -5,7 +5,7 @@ import random
 
 from dext.common.utils import cache
 
-from the_tale import amqp_environment
+from the_tale.amqp_environment import environment
 
 from the_tale.accounts import prototypes as accounts_prototypes
 from the_tale.accounts import logic as accounts_logic
@@ -680,7 +680,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         cls.modify_ui_info_with_turn(data, for_last_turn=for_last_turn)
 
         if recache_if_required and cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and GameState.is_working():
-            amqp_environment.environment.workers.supervisor.cmd_start_hero_caching(account_id)
+            environment.workers.supervisor.cmd_start_hero_caching(account_id)
 
         if patch_turns is not None and data['patch_turn'] in patch_turns:
             patch_fields = set(data['changed_fields'])

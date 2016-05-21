@@ -3,7 +3,7 @@
 from dext.common.utils import discovering
 from dext.common.utils import jinja2
 
-from the_tale import amqp_environment
+from the_tale.amqp_environment import environment
 
 from the_tale.finances.market import exceptions
 
@@ -67,11 +67,11 @@ class BaseGoodType(object):
 
     def sync_added_item(self, account_id, item):
         if self.is_item_tradable(item):
-            amqp_environment.environment.workers.market_manager.cmd_add_item(account_id, self.create_good(item))
+            environment.workers.market_manager.cmd_add_item(account_id, self.create_good(item))
 
     def sync_removed_item(self, account_id, item):
         if self.is_item_tradable(item):
-            amqp_environment.environment.workers.market_manager.cmd_remove_item(account_id, self.create_good(item))
+            environment.workers.market_manager.cmd_remove_item(account_id, self.create_good(item))
 
     def all_goods(self, container):
         raise NotImplementedError()

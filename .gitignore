@@ -2,7 +2,9 @@
 *.pyc
 *.egg-info
 *.iml
-.idea
+venv/
+.idea/
+.cache/
 dist
 dcont
 checkers/pylint.html
