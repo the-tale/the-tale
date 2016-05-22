@@ -184,19 +184,17 @@ class Worker(BaseWorker):
             self.persons_politic_power[:] = []
             self.places_politic_power[:] = []
 
-            # обрабатывает работы только во время запланированного обновления
-            # поскольку при остановке игры нельзя будет обработать команды для героев
-            # (те уже будут сохраняться в базу, рабочие логики будут недоступны)
             if sheduled:
+                # обрабатывает работы только во время запланированного обновления
+                # поскольку при остановке игры нельзя будет обработать команды для героев
+                # (те уже будут сохраняться в базу, рабочие логики будут недоступны)
                 for person in persons_storage.persons.all():
                     call_after_transaction.extend(person.update_job())
 
                 for place in places_storage.places.all():
                     call_after_transaction.extend(place.update_job())
 
-
-            # update size
-            if sheduled:
+                # update size
                 self.sync_sizes([place for place in places_storage.places.all() if place.is_frontier],
                                 hours=c.MAP_SYNC_TIME_HOURS,
                                 max_economic=c.PLACE_MAX_FRONTIER_ECONOMIC)
@@ -205,15 +203,15 @@ class Worker(BaseWorker):
                                 hours=c.MAP_SYNC_TIME_HOURS,
                                 max_economic=c.PLACE_MAX_ECONOMIC)
 
-
-            for place in places_storage.places.all():
-                if sheduled:
+                for place in places_storage.places.all():
                     place.effects_update_step()
+                    place.sync_race()
+                    place.sync_habits()
+                    place.update_heroes_habits()
 
-                place.sync_habits()
-                place.refresh_attributes() # must be last operation to display and use real data
-                place.update_heroes_habits()
-                place.mark_as_updated()
+                    place.refresh_attributes() # must be last operation to display and use real data
+
+                    place.mark_as_updated()
 
             places_storage.places.save_all()
             persons_storage.persons.save_all()
