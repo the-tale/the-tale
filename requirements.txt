@@ -1,7 +1,7 @@
 Django==1.9.6
 Jinja2==2.6
 psycopg2==2.4.5
-kombu==2.3.2
+kombu==3.0.35
 postmarkup==1.2.2
 markdown==2.2.0
 xlrd==0.8.0

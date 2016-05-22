@@ -100,12 +100,16 @@ class Person(names.ManageNameMixin2):
     def full_name(self):
         return u'%s %s-%s' % (self.name, self.race_verbose, self.type.text)
 
-    def name_from(self, with_url=True):
+    @property
+    def url(self):
         from dext.common.utils.urls import url
+        return url('game:persons:show', self.id)
 
+
+    def name_from(self, with_url=True):
         if with_url:
-            return u'<a href="%s" target="_blank">%s</a> — %s из %s' % (url('game:persons:show', self.id),
-                                                                       self.name, self.race.text, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
+            return u'<a href="%s" target="_blank">%s</a> — %s из %s' % (self.url, self.name, self.race.text,
+                                                                        self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 
         return u'%s — %s из %s' % (self.name, self.race.text, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 

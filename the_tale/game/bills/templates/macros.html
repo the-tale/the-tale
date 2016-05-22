@@ -111,8 +111,7 @@
     {{bill.type.text}}:
     {% for actor in bill.data.actors %}
       {%- if loop.index > 1 -%},{% endif %}
-      {# TODO: here must be some check of actors types #}
-      <a href="{{url('game:places:show', actor.id)}}" target="_blank">{{ actor.name }}</a>
+      <a href="{{actor.url}}" target="_blank">{{ actor.name }}</a>
     {% endfor %}
   </small>
 </h4>
