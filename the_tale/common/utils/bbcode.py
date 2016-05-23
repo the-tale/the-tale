@@ -102,6 +102,20 @@ class LinkTag(postmarkup.LinkTag):
     _safe_chars = postmarkup.LinkTag._safe_chars | frozenset(u'+')
 
 
+class RedLineTag(postmarkup.TagBase):
+
+    def __init__(self, name, **kwargs):
+        super(RedLineTag, self).__init__(name, inline=True, auto_close=True)
+        self.tag_key = u'RedLineTag.nest_level'
+
+    def render_open(self, parser, node_index):
+        return u'&nbsp;&nbsp;&nbsp;&nbsp;'
+
+    def render_close(self, parser, node_index):
+        return u''
+
+
+
 _renderer = postmarkup.create(use_pygments=False, annotate_links=False)
 _renderer.tag_factory.add_tag(LinkTag, 'url', annotate_links=False)
 _renderer.tag_factory.add_tag(LinkTag, 'link', annotate_links=False)
@@ -109,6 +123,7 @@ _renderer.tag_factory.add_tag(SpoilerTag, 'spoiler')
 _renderer.tag_factory.add_tag(HRTag, 'hr')
 _renderer.tag_factory.add_tag(LeftSquareBracketTag, 'lsb')
 _renderer.tag_factory.add_tag(RightSquareBracketTag, 'rsb')
+_renderer.tag_factory.add_tag(RedLineTag, 'rl')
 
 
 def render(*argv, **kwargs):
@@ -153,6 +168,7 @@ class BBField(fields.TextField):
 <a class="pgf-bb-command" href="#" data-tag="hr" data-single="true" rel="tooltip" title="[hr] — горизонтальная линия">[hr]</a>
 <a class="pgf-bb-command" href="#" data-tag="lsb" data-single="true" rel="tooltip" title="[lsb] — «[» левая квадратная скобка">[lsb]</a>
 <a class="pgf-bb-command" href="#" data-tag="rsb" data-single="true" rel="tooltip" title="[rsb] — «]» правая квадратная скобка">[rsb]</a>
+<a class="pgf-bb-command" href="#" data-tag="rl" data-single="true" rel="tooltip" title="[rl] — красная строка (отступ)">[rl]</a>
 </div>
 '''
 
