@@ -98,6 +98,8 @@
         e.preventDefault();
         pgf.ui.dialog.Create({ fromUrl: url,
                                method: 'post',
+                               closeOnEscape: false,
+                               preventCloseOnOverlayClick: true,
                                data: {'recipients': recipient},
                                OnOpen: function(dialog) {
                                    var newMessageForm = new pgf.forms.Form(jQuery('#pgf-new-message-form', dialog),

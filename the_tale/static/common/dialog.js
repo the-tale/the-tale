@@ -130,7 +130,9 @@ pgf.ui.dialog.Create = function(params) {
         };
 
         dialog = jQuery(content)
-            .modal({keyboard: closeOnEscape, show: false})
+            .modal({keyboard: closeOnEscape,
+                    show: false,
+                    backdrop: params.preventCloseOnOverlayClick ? 'static' : true })
             .bind('show', OnShow)
             .bind('shown', OnShown)
             .bind('hide', OnHide)
