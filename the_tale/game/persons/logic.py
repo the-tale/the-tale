@@ -4,6 +4,7 @@ import datetime
 from django.conf import settings as project_settings
 
 from utg import words as utg_words
+from utg import relations as utg_relations
 
 from dext.common.utils import s11n
 from dext.common.utils.urls import url
@@ -54,7 +55,7 @@ class PersonPoliticPower(politic_power.PoliticPower):
 
     def job_effect_kwargs(self, person):
         return {'actor_type': 'person',
-                'actor_name': person.name,
+                'actor_name': u'Проект Мастера {name}'.format(name=person.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))),
                 'person': person,
                 'place': person.place,
                 'positive_heroes': self.inner_positive_heroes,

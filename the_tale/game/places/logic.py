@@ -7,6 +7,7 @@ from dext.common.utils.urls import url
 from dext.common.utils import s11n
 
 from utg import words as utg_words
+from utg import relations as utg_relations
 
 from the_tale.game.balance import formulas as f
 
@@ -45,7 +46,7 @@ class PlacePoliticPower(politic_power.PoliticPower):
 
     def job_effect_kwargs(self, place):
         return {'actor_type': 'place',
-                'actor_name': place.name,
+                'actor_name': u'Проект города {name}'.format(name=place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))),
                 'person': None,
                 'place': place,
                 'positive_heroes': self.inner_positive_heroes,
