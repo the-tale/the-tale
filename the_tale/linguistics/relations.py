@@ -13,6 +13,7 @@ from the_tale.game.places import relations as places_relations
 from the_tale.game.places import modifiers as places_modifiers
 from the_tale.game.map import relations as map_relations
 from the_tale.game.companions import relations as companions_relations
+from the_tale.game.companions.abilities import effects as companion_effects
 
 
 def word_type_record(name):
@@ -140,5 +141,7 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                 ('PLURAL_FORM', 29, u'есть множественное число', WORD_HAS_PLURAL_FORM),
 
                 ('PERSON_PERSONALITY_COSMETIC', 30, u'косметическая особенность характера', persons_relations.PERSONALITY_COSMETIC),
-                ('PERSON_PERSONALITY_PRACTICAL', 31, u'практическая особенность характера', persons_relations.PERSONALITY_PRACTICAL)
+                ('PERSON_PERSONALITY_PRACTICAL', 31, u'практическая особенность характера', persons_relations.PERSONALITY_PRACTICAL),
+
+                ('COMPANION_ABILITY', 32, u'особенность', companion_effects.ABILITIES),
               )
