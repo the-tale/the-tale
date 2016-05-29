@@ -13,7 +13,13 @@
 <h3 style="display: inline-block;">{{ post.caption }} {{base_macros.magnet(post_meta_object)}}</h3>
 
 <div class="blog-post-info">
-  <span class="text"><span class="pgf-format-datetime" data-timestamp="{{ post.created_at|timestamp }}"></span>,</span>
+  <span class="text">
+    <span class="pgf-format-datetime"
+          data-timestamp="{{ post.created_at|timestamp }}"
+          style="cursor: default;"
+          rel="tooltip"
+          title="{{post.created_at_turn|verbose_game_date}}"></span>,
+  </span>
   <span class="text">автор:</span>
   <a href="{{url('accounts:show', post.author.id)}}">
     {{post.author.nick_verbose}}

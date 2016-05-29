@@ -111,7 +111,13 @@
   <tbody>
   {% for post in posts %}
       <tr>
-        <td width="75px"><span class="pgf-format-date" data-timestamp="{{ post.created_at|timestamp }}"></span></td>
+        <td width="75px">
+          <span class="pgf-format-date"
+                data-timestamp="{{ post.created_at|timestamp }}"
+                style="cursor: default;"
+                rel="tooltip"
+                title="{{post.created_at_turn|verbose_game_date}}"></span>
+        </td>
         <td width="20px" rel="tooltip" title="рейтинг" style="cursor: default;">
           <span class="label {% if post.votes > 0 %}label-success{% endif %} {% if post.votes < 0 %}label-important{% endif %}">
             {{ post.votes }}
