@@ -171,7 +171,11 @@ class Companion(object):
         while self.experience_to_next_level <= self.experience:
 
             if self.coherence >= self.max_coherence:
-                self.experience = min(self.experience, self.experience_to_next_level - 1)
+                if self.coherence == c.COMPANIONS_MAX_COHERENCE:
+                    # полностью заплняем шкалу опыта, когда он на максимуме
+                    self.experience = self.experience_to_next_level
+                else:
+                    self.experience = min(self.experience, self.experience_to_next_level - 1)
                 return
 
             self.experience -= self.experience_to_next_level

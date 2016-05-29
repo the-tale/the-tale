@@ -117,13 +117,33 @@ class CompanionTests(testcase.TestCase):
 
         self.assertEqual(self.companion.experience, 2)
 
+    @mock.patch('the_tale.game.companions.objects.Companion.max_coherence', c.COMPANIONS_MAX_COHERENCE)
     def test_add_experience__max_level(self):
+        self.companion.coherence = 1
+
+        self.companion.add_experience(66666666666)
+
+        self.assertEqual(self.companion.coherence, c.COMPANIONS_MAX_COHERENCE)
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+
+
+    def test_add_experience__max_level__not_changed(self):
         self.companion.coherence = c.COMPANIONS_MAX_COHERENCE
 
         with self.check_not_changed(lambda: self.companion.coherence):
             self.companion.add_experience(66666666666)
 
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+
+    @mock.patch('the_tale.game.companions.objects.Companion.max_coherence', c.COMPANIONS_MAX_COHERENCE / 2)
+    def test_add_experience__max_level_restricted(self):
+        self.companion.coherence = 1
+
+        self.companion.add_experience(66666666666)
+
+        self.assertEqual(self.companion.coherence, c.COMPANIONS_MAX_COHERENCE / 2)
         self.assertEqual(self.companion.experience, self.companion.experience_to_next_level - 1)
+
 
     def test_max_health(self):
 
