@@ -323,9 +323,9 @@ class BattleAbilityTests(BaseEffectsTests):
         ability = self.get_ability(effects.BattleAbilityHit,
                                    effects.BattleAbilityStrongHit,
                                    effects.BattleAbilityRunUpPush,
+                                   effects.BattleAbilityFireball,
                                    effects.BattleAbilityPoisonCloud,
-                                   effects.BattleAbilityFreezing,
-                                   effects.BattleAbilityRecklessness)
+                                   effects.BattleAbilityFreezing)
 
         with self.check_changed(lambda: self.hero.initiative):
             with self.check_changed(lambda: len(self.hero.companion.modify_attribute(heroes_relations.MODIFIERS.ADDITIONAL_ABILITIES,

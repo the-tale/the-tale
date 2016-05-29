@@ -58,11 +58,7 @@ class EFFECT(DjangoEnum):
 
                 (u'RARITY', 37, u'редкость', METATYPE.UNCHANGEBLE),
 
-                (u'LEAVE_HERO', 38, u'покидает героя', METATYPE.UNCHANGEBLE),
-
-                (u'BATTLE_ABILITY_RECKLESSNESS', 39, u'небольшое увеличение инициативы и способность безрассудная атака', METATYPE.BATTLE),
-
-                )
+                (u'LEAVE_HERO', 38, u'покидает героя', METATYPE.UNCHANGEBLE) )
 
 
 class FIELDS(DjangoEnum):
