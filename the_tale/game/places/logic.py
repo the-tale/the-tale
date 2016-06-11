@@ -26,7 +26,6 @@ from . import objects
 from . import habits
 from . import attributes
 from . import modifiers
-from . import signals
 from . import relations
 
 
@@ -191,8 +190,6 @@ def add_person_to_place(place):
                                              gender=gender,
                                              type=persons_relations.PERSON_TYPE.random(),
                                              utg_name=names.generator.get_name(race, gender))
-
-    signals.place_person_arrived.send(place.__class__, place=place, person=new_person)
 
     place.refresh_attributes()
 

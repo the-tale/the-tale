@@ -40,7 +40,7 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.worker.logger = mock.Mock()
 
-    def test_initialization(self):
+    def test_1_initialization(self):
         from the_tale.common.postponed_tasks.models import PostponedTask
         from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_STATE
         from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
@@ -62,8 +62,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertFalse(self.worker.wait_next_turn_answer)
         self.assertTrue(GameState.is_working())
 
-    # change tests order to fix sqlite segmentation fault
-    def test_1_register_task(self):
+    def test_register_task(self):
         self.worker.process_initialize()
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
@@ -174,7 +173,8 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_supervisor', self.account_2.id: None})
 
-    def test_register_account_last_in_task(self):
+    # change test order to prevent segmentation fault
+    def test_1_register_account_last_in_task(self):
         self.worker.process_initialize()
 
         Battle1x1Prototype.create(self.account_1).set_enemy(self.account_2)

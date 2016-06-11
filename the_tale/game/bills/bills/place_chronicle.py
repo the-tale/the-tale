@@ -2,13 +2,12 @@
 
 from dext.forms import fields
 
-from utg import words as utg_words
-
 from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
-from the_tale.game.bills.bills.base_bill import BaseBill
 
 from the_tale.game.places import storage as places_storage
+
+from . import base_place_bill
 
 
 class UserForm(BaseUserForm):
@@ -25,8 +24,7 @@ class ModeratorForm(BaseModeratorForm):
     pass
 
 
-class PlaceChronicle(BaseBill):
-
+class PlaceChronicle(base_place_bill.BasePlaceBill):
     type = relations.BILL_TYPE.PLACE_CHRONICLE
 
     UserForm = UserForm
@@ -35,37 +33,18 @@ class PlaceChronicle(BaseBill):
     CAPTION = u'Запись в летописи о городе'
     DESCRIPTION = u'В жизни происходит множество интересных событий. Часть из них оказывается достойна занесения в летопись и может немного повлиять на участвующий в них город.'
 
-    def __init__(self, place_id=None, old_name_forms=None, power_bonus=None):
-        super(PlaceChronicle, self).__init__()
-        self.place_id = place_id
-        self.old_name_forms = old_name_forms
+    def __init__(self, power_bonus=None, **kwargs):
+        super(PlaceChronicle, self).__init__(**kwargs)
         self.power_bonus = power_bonus
 
-        if self.old_name_forms is None and self.place_id is not None:
-            self.old_name_forms = self.place.utg_name
-
-    @property
-    def old_name(self): return self.old_name_forms.normal_form()
-
-    @property
-    def place(self): return places_storage.places[self.place_id]
-
-    @property
-    def actors(self): return [self.place]
-
-    @property
     def user_form_initials(self):
-        return {'place': self.place_id,
-                'power_bonus': self.power_bonus.value}
-
-    @property
-    def place_name_changed(self):
-        return self.old_name != self.place.name
+        data = super(PlaceChronicle, self).user_form_initials()
+        data['power_bonus'] = self.power_bonus.value
+        return data
 
     def initialize_with_user_data(self, user_form):
-        self.place_id = int(user_form.c.place)
+        super(PlaceChronicle, self).initialize_with_user_data(user_form)
         self.power_bonus = user_form.c.power_bonus
-        self.old_name_forms = self.place.utg_name
 
     def has_meaning(self):
         return True
@@ -83,16 +62,12 @@ class PlaceChronicle(BaseBill):
                                     power=self.power_bonus.bonus)
 
     def serialize(self):
-        return {'type': self.type.name.lower(),
-                'place_id': self.place_id,
-                'old_name_forms': self.old_name_forms.serialize(),
-                'power_bonus': self.power_bonus.value}
+        data = super(PlaceChronicle, self).serialize()
+        data['power_bonus'] = self.power_bonus.value
+        return data
 
     @classmethod
     def deserialize(cls, data):
-        obj = cls()
-        obj.place_id = data['place_id']
+        obj = super(PlaceChronicle, cls).deserialize(data)
         obj.power_bonus = relations.POWER_BONUS_CHANGES(data['power_bonus'])
-        obj.old_name_forms = utg_words.Word.deserialize(data['old_name_forms'])
-
         return obj

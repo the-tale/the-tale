@@ -60,15 +60,13 @@ class BuildingCreate(BasePersonBill):
         if self.has_meaning():
             BuildingPrototype.create(self.person, utg_name=self.building_name_forms)
 
-    @property
     def user_form_initials(self):
-        initials = super(BuildingCreate, self).user_form_initials
+        initials = super(BuildingCreate, self).user_form_initials()
         initials['name'] = self.building_name_forms
         return initials
 
-    @property
     def moderator_form_initials(self):
-        initials = super(BuildingCreate, self).moderator_form_initials
+        initials = super(BuildingCreate, self).moderator_form_initials()
         initials['name'] = self.building_name_forms
         return initials
 

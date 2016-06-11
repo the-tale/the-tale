@@ -30,16 +30,16 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
     def test_create(self):
         self.assertEqual(self.bill.data.place_id, self.place1.id)
         self.assertEqual(self.bill.data.conversion, self.conversion_1)
-        self.assertEqual(self.bill.data.old_place_name_forms, self.place1.utg_name)
+        self.assertEqual(self.bill.data.old_name_forms, self.place1.utg_name)
 
         self.assertEqual(self.bill.data.place.id, self.place1.id)
 
-        self.assertEqual(self.bill.data.old_place_name, self.place1.utg_name.normal_form())
+        self.assertEqual(self.bill.data.old_name_forms, self.place1.utg_name)
 
         self.assertFalse(self.bill.data.place_name_changed)
 
     def test_user_form_initials(self):
-        self.assertEqual(self.bill.data.user_form_initials,
+        self.assertEqual(self.bill.data.user_form_initials(),
                          {'place': self.bill.data.place_id,
                           'conversion': self.bill.data.conversion})
 
@@ -60,11 +60,11 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
 
         self.assertEqual(self.bill.data.place_id, self.place2.id)
         self.assertEqual(self.bill.data.conversion, self.conversion_2)
-        self.assertEqual(self.bill.data.old_place_name_forms, self.place2.utg_name)
+        self.assertEqual(self.bill.data.old_name_forms, self.place2.utg_name)
 
         self.assertEqual(self.bill.data.place.id, self.place2.id)
 
-        self.assertEqual(self.bill.data.old_place_name, self.place2.utg_name.normal_form())
+        self.assertEqual(self.bill.data.old_name_forms, self.place2.utg_name)
 
         self.assertFalse(self.bill.data.place_name_changed)
 

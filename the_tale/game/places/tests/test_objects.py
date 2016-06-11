@@ -13,6 +13,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.jobs import effects as jobs_effects
 
 from the_tale.game import effects
+from the_tale.game import relations as game_relations
 
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import logic as persons_logic
@@ -36,27 +37,6 @@ class PlaceTests(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.PLACE_NEW_PLACE_LIVETIME', 60)
     def test_is_new__true(self):
         self.assertTrue(self.p1.is_new)
-
-    def test_sync_race_no_signal_when_race_not_changed(self):
-        with mock.patch('the_tale.game.places.races.Races.dominant_race', self.p1.race):
-            with mock.patch('the_tale.game.places.signals.place_race_changed.send') as signal_counter:
-                self.p1.sync_race()
-
-        self.assertEqual(signal_counter.call_count, 0)
-
-    def test_sync_race_signal_when_race_changed(self):
-        new_race = None
-        for race in RACE.records:
-            if self.p1.race != race:
-                new_race = race
-                break
-
-        with mock.patch('the_tale.game.places.races.Races.dominant_race', new_race):
-            with mock.patch('the_tale.game.places.signals.place_race_changed.send') as signal_counter:
-                self.p1.sync_race()
-
-
-        self.assertEqual(signal_counter.call_count, 1)
 
     def test_sync_size__keepers_goods(self):
         self.p1.attrs.keepers_goods = c.PLACE_GOODS_BONUS + 50
@@ -297,6 +277,18 @@ class PlaceTests(testcase.TestCase):
                 person = random.choice(list(persons_storage.persons.all()))
                 persons_logic.move_person_to_place(person, self.p1)
 
+            self.p1.refresh_attributes()
+
+
+    @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
+    def test_refresh_attributes__stability_penalty_for_race_discrimination(self):
+        self.p1.refresh_attributes()
+
+        with self.check_not_changed(lambda: self.p1.attrs.stability):
+            self.p1.refresh_attributes()
+
+        with self.check_delta(lambda: self.p1.attrs.stability, -0.19999999999999996):
+            self.p1.race = game_relations.RACE.random(exclude=(self.p1.race,))
             self.p1.refresh_attributes()
 
 

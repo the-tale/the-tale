@@ -26,7 +26,7 @@ class RECORD_TYPE(DjangoEnum):
                 ('PERSON_REMOVE_BILL_FAILED', 12, u'житель: отклонён закон об изгнании', True),
                 ('PERSON_LEFT_PLACE', 13, u'житель: покину место из-за потери влияния', True),
 
-                ('PERSON_ARRIVED_TO_PLACE', 14, u'житель: приехал в город', False),
+                ('PERSON_ARRIVED_TO_PLACE', 14, u'житель: приехал в город', True),
 
                 ('PLACE_CHANGE_RACE', 15, u'раса города: изменение основной расы', False),
 
@@ -62,19 +62,17 @@ class RECORD_TYPE(DjangoEnum):
                 ('PERSON_CHRONICLE_BILL_SUCCESSED', 37, u'житель: принят закон о занесении записи в летопись', False),
                 ('PLACE_CHRONICLE_BILL_SUCCESSED', 38, u'город: принят закон о занесении записи в летопись', False),
 
-                ('PERSON_MOVE_TO_PLACE', 39, u'житель: переехал в другой город', False),
+                ('PERSON_MOVE_TO_PLACE', 39, u'житель: принят закон о переезде в другой город', False)
               )
 
 
 class ACTOR_ROLE(DjangoEnum):
-
     records = ( ('BILL', 0, u'закон'),
                 ('PLACE', 1, u'город'),
                 ('PERSON', 2, u'житель') )
 
 
 class ACTOR_TYPE(DjangoEnum):
-
     records = ( ('BILL', 0, u'закон'),
                 ('PLACE', 1, u'город'),
                 ('PERSON', 2, u'житель') )

@@ -48,7 +48,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
 
     def test_user_form_initials(self):
-        self.assertEqual(self.bill.data.user_form_initials,
+        self.assertEqual(self.bill.data.user_form_initials(),
                          {'place_1': self.bill.data.place_1_id,
                           'place_2': self.bill.data.place_2_id,
                           'resource_1': self.bill.data.resource_1,

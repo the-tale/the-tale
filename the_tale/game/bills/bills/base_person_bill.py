@@ -15,12 +15,9 @@ from the_tale.game.bills.bills.base_bill import BaseBill
 
 
 class BasePersonBill(BaseBill):
-
     type = None
-
     UserForm = None
     ModeratorForm = None
-
     CAPTION = None
     DESCRIPTION = None
 
@@ -67,7 +64,6 @@ class BasePersonBill(BaseBill):
     def person_gender_verbose(self):
         return self.person_gender.text
 
-    @property
     def user_form_initials(self):
         return {'person': self.person_id}
 

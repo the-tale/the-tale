@@ -121,9 +121,8 @@ class PersonMove(BasePersonBill):
         return  self.UserForm(self.person_id, owner_id, post) #pylint: disable=E1102
 
 
-    @property
     def user_form_initials(self):
-        initials = super(PersonMove, self).user_form_initials
+        initials = super(PersonMove, self).user_form_initials()
         initials['new_place'] = self.new_place_id
         return initials
 

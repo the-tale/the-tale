@@ -5,19 +5,18 @@ from django.forms import ValidationError
 import rels
 from rels.django import DjangoEnum
 
-from utg import words as utg_words
-
 from dext.forms import fields
 
 from the_tale.game.balance import constants as c
 
 from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
-from the_tale.game.bills.bills.base_bill import BaseBill
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places.prototypes import ResourceExchangePrototype
 from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
+
+from . import base_place_bill
 
 
 def _conversion_record(name, id_, resource_from, resource_from_delta, resource_to, resource_to_delta):
@@ -74,8 +73,7 @@ class ModeratorForm(BaseModeratorForm):
     pass
 
 
-class PlaceResourceConversion(BaseBill):
-
+class PlaceResourceConversion(base_place_bill.BasePlaceBill):
     type = relations.BILL_TYPE.PLACE_RESOURCE_CONVERSION
 
     UserForm = UserForm
@@ -84,37 +82,18 @@ class PlaceResourceConversion(BaseBill):
     CAPTION = u'Изменение параметров города'
     DESCRIPTION = u'Устанавливает изменение параметров города, обычно, бонус к одним за счёт штрафа к другим. Один город может иметь не более %(max_exchanges)d активных договоров.' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
 
-    def __init__(self, place_id=None, conversion=None, old_place_name_forms=None):
-        super(PlaceResourceConversion, self).__init__()
-        self.place_id = place_id
+    def __init__(self, conversion=None, **kwargs):
+        super(PlaceResourceConversion, self).__init__(**kwargs)
         self.conversion = conversion
-        self.old_place_name_forms = old_place_name_forms
 
-        if self.old_place_name_forms is None and self.place_id is not None:
-            self.old_place_name_forms = self.place.utg_name
-
-    @property
-    def place(self): return places_storage.places[self.place_id]
-
-    @property
-    def actors(self): return [self.place]
-
-    @property
     def user_form_initials(self):
-        return {'place': self.place_id,
-                'conversion': self.conversion}
-
-    @property
-    def place_name_changed(self):
-        return self.old_place_name != self.place.name
-
-    @property
-    def old_place_name(self): return self.old_place_name_forms.normal_form()
+        data = super(PlaceResourceConversion, self).user_form_initials()
+        data['conversion'] = self.conversion
+        return data
 
     def initialize_with_user_data(self, user_form):
-        self.place_id = int(user_form.c.place)
+        super(PlaceResourceConversion, self).initialize_with_user_data(user_form)
         self.conversion = user_form.c.conversion
-        self.old_place_name_forms = self.place.utg_name
 
     def has_meaning(self):
         return True
@@ -138,15 +117,12 @@ class PlaceResourceConversion(BaseBill):
             exchange.remove()
 
     def serialize(self):
-        return {'type': self.type.name.lower(),
-                'place_id': self.place_id,
-                'old_place_name_forms': self.old_place_name_forms.serialize(),
-                'conversion': self.conversion.value}
+        data = super(PlaceResourceConversion, self).serialize()
+        data['conversion'] = self.conversion.value
+        return data
 
     @classmethod
     def deserialize(cls, data):
-        obj = cls()
-        obj.place_id = data['place_id']
-        obj.old_place_name_forms = utg_words.Word.deserialize(data['old_place_name_forms'])
+        obj = super(PlaceResourceConversion, cls).deserialize(data)
         obj.conversion = CONVERSION.index_value[data['conversion']]
         return obj

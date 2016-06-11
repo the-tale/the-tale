@@ -123,7 +123,6 @@ class PlaceResourceExchange(BaseBill):
     @property
     def actors(self): return [self.place_1, self.place_2]
 
-    @property
     def user_form_initials(self):
         return {'place_1': self.place_1_id,
                 'place_2': self.place_2_id,

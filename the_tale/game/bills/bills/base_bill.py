@@ -15,7 +15,6 @@ class BaseBill(object):
     def show_template(cls):
         return 'bills/bills/{type}_show.html'.format(type=cls.type.name.lower())
 
-    @property
     def moderator_form_initials(self):
         return {}
 

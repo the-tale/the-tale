@@ -8,8 +8,6 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
-from the_tale.game.relations import RACE
-
 from the_tale.game.bills.prototypes import BillPrototype
 from the_tale.game.bills import bills
 from the_tale.game.bills import relations as bills_relations
@@ -19,7 +17,6 @@ from the_tale.game.chronicle.models import Record, RECORD_TYPE
 
 from the_tale.game.places.prototypes import BuildingPrototype
 from the_tale.game.places.modifiers import CITY_MODIFIERS
-from the_tale.game.places import logic as places_logic
 
 from the_tale.game.chronicle import prototypes
 
@@ -221,34 +218,6 @@ class BillBuildingRenamingTests(BaseTestPrototypes):
 
 
 
-class PersonMovementsTests(BaseTestPrototypes):
-
-    def setUp(self):
-        super(PersonMovementsTests, self).setUp()
-
-    @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
-    def test_person_arrived(self):
-        with check_record_created(self, RECORD_TYPE.PERSON_ARRIVED_TO_PLACE):
-            places_logic.add_person_to_place(self.place1)
-
-
-class PlaceChangeRace(BaseTestPrototypes):
-
-    def setUp(self):
-        super(PlaceChangeRace, self).setUp()
-
-        for race_id in RACE.records:
-            if self.place1.race != race_id:
-                self.next_race_id = race_id
-
-    def test_place_race_changed(self):
-        self.place1.races._races[self.next_race_id] = 99999
-
-        with check_record_created(self, RECORD_TYPE.PLACE_CHANGE_RACE):
-            self.place1.sync_race()
-
-
-
 class BillPersonChronicleTests(BaseTestPrototypes):
 
     def setUp(self):
@@ -260,8 +229,6 @@ class BillPersonChronicleTests(BaseTestPrototypes):
         self.form = bills.PersonChronicle.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
 
-    @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
-    @mock.patch('the_tale.game.chronicle.records.PersonArrivedToPlace.create_record', lambda x: None)
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PERSON_CHRONICLE_BILL_SUCCESSED):
@@ -280,8 +247,6 @@ class BillPlaceChronicleTests(BaseTestPrototypes):
         self.form = bills.PersonChronicle.ModeratorForm({'approved': True})
         self.assertTrue(self.form.is_valid())
 
-    @mock.patch('the_tale.game.chronicle.records.PlaceChangeRace.create_record', lambda x: None)
-    @mock.patch('the_tale.game.chronicle.records.PersonArrivedToPlace.create_record', lambda x: None)
     def test_bill_successed(self):
         self.bill.update_by_moderator(self.form)
         with check_record_created(self, RECORD_TYPE.PLACE_CHRONICLE_BILL_SUCCESSED):

@@ -10,34 +10,20 @@ class RecordBase(object):
     TYPE = None
     IGNORE_ACTORS_CHECK = False
     ACTORS = frozenset()
-    SUBSTITUTIONS = frozenset()
-    TEXGEN_ID_BASE = 'chronicle_%s'
 
-    def __init__(self, actors, substitutions, text=None):
+    def __init__(self, actors, text=None):
 
         self.text = text
 
         self.actors = [ (role, create_external_actor(actor)) for role, actor in actors ]
-        self.substitutions = substitutions
 
         if not self.IGNORE_ACTORS_CHECK and sorted(zip(*self.actors)[0]) != sorted(self.ACTORS):
             raise ChronicleException('wrong actors for chronicle record %r versus %r' % (zip(*self.actors)[0], self.ACTORS))
-        if set(self.substitutions.keys()) != set(self.SUBSTITUTIONS):
-            raise ChronicleException('wrong substitutions for chronicle record %r' % set(self.substitutions.keys()).symmetric_difference(self.SUBSTITUTIONS))
 
         self.created_at_turn = TimePrototype.get_current_turn_number()
 
-    @property
-    def textgen_id(self): return self.TEXGEN_ID_BASE  % self.TYPE.name.lower()
-
     def get_text(self):
-        if self.text is not None:
-            return self.text
-
-        from the_tale.linguistics.logic import get_text
-        text = get_text(self.textgen_id, self.substitutions)
-
-        return text if text is not None else u''
+        return self.text if self.text is not None else u''
 
     def create_record(self):
         return RecordPrototype.create(self)
@@ -66,30 +52,12 @@ class _PlaceChangeModifier(RecordBase):
 class PlaceChangeModifierBillSuccessed(_PlaceChangeModifier):
     TYPE = RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_SUCCESSED
 
+# change place race
+class _PlaceChangeRace(RecordBase):
+    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
 
-# class PlaceLosedModifier(RecordBase):
-#     TYPE = RECORD_TYPE.PLACE_LOSED_MODIFIER
-#     ACTORS = [ACTOR_ROLE.PLACE]
-#     SUBSTITUTIONS = ['place', 'old_modifier']
-
-# person moved out city
-# class _PersonRemove(RecordBase):
-#     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
-
-# class PersonRemoveBillSuccessed(_PersonRemove):
-#     TYPE = RECORD_TYPE.PERSON_REMOVE_BILL_SUCCESSED
-
-
-# class PersonLeftPlace(RecordBase):
-#     TYPE = RECORD_TYPE.PERSON_LEFT_PLACE
-#     ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
-#     SUBSTITUTIONS  = ['place', 'person']
-
-class PersonArrivedToPlace(RecordBase):
-    TYPE = RECORD_TYPE.PERSON_ARRIVED_TO_PLACE
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PERSON]
-    SUBSTITUTIONS  = ['place', 'person']
-
+class PlaceChangeRaceBillSuccessed(_PlaceChangeRace):
+    TYPE = RECORD_TYPE.PLACE_CHANGE_RACE
 
 # person move to another place
 class PersonMoveBillSuccessed(RecordBase):
@@ -131,14 +99,6 @@ class _BillDeclineBillBase(RecordBase):
 
 class BillDeclineSuccessed(_BillDeclineBillBase):
     TYPE = RECORD_TYPE.BILL_DECLINE_BILL_SUCCESSED
-
-
-# race
-class PlaceChangeRace(RecordBase):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_RACE
-    ACTORS = [ACTOR_ROLE.PLACE]
-    SUBSTITUTIONS  = ['place', 'old_race', 'new_race']
-
 
 # place resource conversion
 class _PlaceResourceConversionBillBase(RecordBase):

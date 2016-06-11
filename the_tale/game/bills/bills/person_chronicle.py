@@ -53,9 +53,8 @@ class PersonChronicle(BasePersonBill):
                                      power=self.power_bonus.bonus)
 
 
-    @property
     def user_form_initials(self):
-        initials = super(PersonChronicle, self).user_form_initials
+        initials = super(PersonChronicle, self).user_form_initials()
         initials['power_bonus'] = self.power_bonus.value
         return initials
 

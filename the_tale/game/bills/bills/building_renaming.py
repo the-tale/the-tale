@@ -73,15 +73,13 @@ class BuildingRenaming(BasePersonBill):
             self.building.save()
 
 
-    @property
     def user_form_initials(self):
-        initials = super(BuildingRenaming, self).user_form_initials
+        initials = super(BuildingRenaming, self).user_form_initials()
         initials['name'] = self.new_building_name_forms
         return initials
 
-    @property
     def moderator_form_initials(self):
-        initials = super(BuildingRenaming, self).moderator_form_initials
+        initials = super(BuildingRenaming, self).moderator_form_initials()
         initials['name'] = self.new_building_name_forms
         return initials
 

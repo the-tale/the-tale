@@ -8,6 +8,5 @@ class FakeRecord(RecordBase):
         self.index = index
         self.created_at_turn = turn_number
         self.actors = actors
-        self.substitutions = {}
 
     def get_text(self): return 'record_text_%d_%d' % (self.created_at_turn, self.index)

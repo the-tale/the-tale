@@ -81,7 +81,7 @@ class BillPrototype(BasePrototype):
 
     @property
     def user_form_initials(self):
-        special_initials = self.data.user_form_initials
+        special_initials = self.data.user_form_initials()
         special_initials.update({'caption': self.caption,
                                  'rationale': self.rationale,
                                  'chronicle_on_accepted': self.chronicle_on_accepted})
@@ -89,7 +89,7 @@ class BillPrototype(BasePrototype):
 
     @property
     def moderator_form_initials(self):
-        special_initials = self.data.moderator_form_initials
+        special_initials = self.data.moderator_form_initials()
         special_initials.update({'approved': self.approved_by_moderator})
         return special_initials
 

@@ -57,7 +57,6 @@ class BillDecline(BaseBill):
     @property
     def actors(self): return self.declined_bill.data.actors
 
-    @property
     def user_form_initials(self):
         return {'declined_bill': self.declined_bill_id}
 

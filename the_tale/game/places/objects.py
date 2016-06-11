@@ -19,7 +19,6 @@ from the_tale.game import effects
 
 from the_tale.game.prototypes import TimePrototype, GameTime
 
-from . import signals
 from . import relations
 
 
@@ -229,13 +228,6 @@ class Place(names.ManageNameMixin2):
     def sync_race(self):
         self.races.update(persons=self.persons)
 
-        dominant_race = self.races.dominant_race
-
-        if dominant_race and self.race != dominant_race:
-            old_race = self.race
-            self.race = dominant_race
-            signals.place_race_changed.send(self.__class__, place=self, old_race=old_race, new_race=self.race)
-
     def is_modifier_active(self):
         return getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0) >= c.PLACE_TYPE_ENOUGH_BORDER
 
@@ -248,6 +240,10 @@ class Place(names.ManageNameMixin2):
 
         if len(self.persons) > c.PLACE_MAX_PERSONS:
             yield effects.Effect(name=u'избыток Мастеров', attribute=relations.ATTRIBUTE.STABILITY, value=-0.25)
+
+        if self.races.dominant_race and self.race != self.races.dominant_race:
+            yield effects.Effect(name=u'расовая дискриминация', attribute=relations.ATTRIBUTE.STABILITY, value=-0.20)
+
 
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size*1.25)

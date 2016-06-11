@@ -32,6 +32,7 @@ class BILL_TYPE(DjangoEnum):
                 ('PERSON_CHRONICLE', 10, u'запись в летописи о Мастере'  ,       0.2 * c.PLACE_STABILITY_UNIT, True),
                 ('PLACE_CHRONICLE', 11, u'запись в летописи о городе',           0.2 * c.PLACE_STABILITY_UNIT, True),
                 ('PERSON_MOVE', 12, u'переезд Мастера',                          2.0 * c.PLACE_STABILITY_UNIT, True),
+                ('PLACE_CHANGE_RACE', 13, u'изменить расу города',               0.5 * c.PLACE_STABILITY_UNIT, True),
               )
 
 
