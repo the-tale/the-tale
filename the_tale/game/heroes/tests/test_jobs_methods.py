@@ -136,3 +136,27 @@ class JobsMethodsTests(testcase.TestCase):
     def test_job_energy(self):
         self.check_job_energy(place_id=self.place.id, person_id=self.person.id)
         self.check_job_energy(place_id=self.place.id, person_id=None)
+
+
+    def test_job_artifact__better_then_equipped(self):
+        self.hero.level = 100
+
+        self.hero.randomize_equip()
+
+        place = places_storage.places.all()[0]
+
+        for i in xrange(100):
+            self.hero.job_artifact(place_id=place.id,
+                                   person_id=place.persons[0].id,
+                                   message_type='job_diary_person_hero_artifact_positive_enemies',
+                                   job_power=1)
+
+            artifact = self.hero.bag.values()[0]
+
+            power_distribution = self.hero.preferences.archetype.power_distribution
+
+            self.assertTrue(artifact.preference_rating(power_distribution) > self.hero.equipment.get(artifact.type.equipment_slot).preference_rating(power_distribution))
+
+            self.hero.equip_from_bag()
+
+            self.hero.bag.drop_cheapest_item(self.hero.preferences.archetype.power_distribution)

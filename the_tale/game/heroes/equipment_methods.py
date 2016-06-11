@@ -113,9 +113,6 @@ class EquipmentMethodsMixin(object):
         self.bag.put_artifact(artifact)
         self.statistics.change_artifacts_had(1)
 
-        if not equip:
-            return artifact, None, None
-
         slot = artifact.type.equipment_slot
         unequipped = self.equipment.get(slot)
 
@@ -124,6 +121,9 @@ class EquipmentMethodsMixin(object):
         if (better and unequipped is not None and
             artifact.preference_rating(distribution) <= unequipped.preference_rating(distribution)):
             artifact.make_better_than(unequipped, distribution)
+
+        if not equip:
+            return artifact, None, None
 
         self.change_equipment(slot, unequipped, artifact)
 
