@@ -1,6 +1,16 @@
+{% import 'persons/macros.html' as persons_macros with context %}
 
 <li><strong>название:</strong> {{bill.data.base_name}}</li>
-<li><strong>владелец строения</strong>: {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }}</li>
+
+<li>
+  <strong>владелец строения</strong>:
+  {% if bill.data.person %}
+    <a href="{{url('game:persons:show', bill.data.person.id)}}">{{bill.data.person.name}}</a> — {{ persons_macros.person_description(bill.data.person) }}
+  {% else %}
+    {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }} <small>Мастер покинул игру</small>
+  {% endif %}
+</li>
+
 <li><strong>город:</strong> <a href="{{url('game:places:show', bill.data.place.id)}}">{{bill.data.place.name}}</a></li>
 {% if bill.data.place_name_changed %}
 <li><strong>название города во время создания закона:</strong> {{bill.data.old_place_name}}</li>

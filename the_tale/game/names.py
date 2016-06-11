@@ -43,19 +43,13 @@ class NamesGenerators(object):
         return name
 
     def get_fast_name(self, name, gender=relations.GENDER.MASCULINE):
-        from utg import words as utg_words
-        from utg import relations as utg_relations
-
-        name = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN,
+        word = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN,
                                                properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE, gender.utg_id))
-        name.forms = [name] * len(name.forms)
+        word.forms = [name] * len(word.forms)
 
-        return name
+        return word
 
     def get_test_name(self, name=u'', gender=relations.GENDER.MASCULINE):
-        from utg import words as utg_words
-        from utg import relations as utg_relations
-
         name = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN,
                                                prefix=(u'%s-' % name) if name else u't-',
                                                properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE, gender.utg_id))
