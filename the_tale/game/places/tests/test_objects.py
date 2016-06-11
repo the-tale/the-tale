@@ -1,4 +1,6 @@
 # coding: utf-8
+import random
+
 import mock
 
 from the_tale.common.utils import testcase
@@ -11,6 +13,9 @@ from the_tale.game.balance import constants as c
 from the_tale.game.jobs import effects as jobs_effects
 
 from the_tale.game import effects
+
+from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import logic as persons_logic
 
 from ..prototypes import ResourceExchangePrototype
 from .. import relations
@@ -274,6 +279,25 @@ class PlaceTests(testcase.TestCase):
         self.p1.refresh_attributes()
 
         self.assertEqual(self.p1.attrs.stability, 1.0)
+
+
+    @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
+    def test_refresh_attributes__stability_penalty_for_masters_number(self):
+        self.p1.refresh_attributes()
+
+        with self.check_not_changed(lambda: self.p1.attrs.stability):
+            while len(self.p1.persons) < c.PLACE_MAX_PERSONS:
+                person = random.choice(list(persons_storage.persons.all()))
+                persons_logic.move_person_to_place(person, self.p1)
+
+            self.p1.refresh_attributes()
+
+        with self.check_delta(lambda: self.p1.attrs.stability, -0.25):
+            while len(self.p1.persons) <= c.PLACE_MAX_PERSONS:
+                person = random.choice(list(persons_storage.persons.all()))
+                persons_logic.move_person_to_place(person, self.p1)
+
+            self.p1.refresh_attributes()
 
 
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)

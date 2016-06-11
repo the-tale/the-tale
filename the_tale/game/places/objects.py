@@ -246,6 +246,9 @@ class Place(names.ManageNameMixin2):
 
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
 
+        if len(self.persons) > c.PLACE_MAX_PERSONS:
+            yield effects.Effect(name=u'избыток Мастеров', attribute=relations.ATTRIBUTE.STABILITY, value=-0.25)
+
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size*1.25)
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size)
