@@ -43,7 +43,7 @@ class JobsMethodsMixin(object):
         artifact, unequipped, sell_price = self.receive_artifact(equip=False,
                                                                  better=True,
                                                                  prefered_slot=False,
-                                                                 prefered_item=False,
+                                                                 prefered_item=True,
                                                                  archetype=True,
                                                                  rarity_type=rarity)
 
