@@ -7,7 +7,7 @@
       <a href="javascript: return;"
          class="info-link"
          rel="tooltip"
-         title="{{map_macros.power_incoming_tooltip(attribute.description, place.tooltip_effects_for_attribute(attribute), percents=true if attribute.verbose_units == '%' else false)}}">
+         title="{{map_macros.power_incoming_tooltip(attribute.description, place.tooltip_effects_for_attribute(attribute), percents=true if attribute.verbose_units and attribute.verbose_units[0] == '%' else false)}}">
         подробнее
       </a>
     </td>
