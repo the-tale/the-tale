@@ -335,10 +335,11 @@ class Place(names.ManageNameMixin2):
             if stability < c.PLACE_MIN_STABILITY:
                 yield effects.Effect(name=u'Серый Орден', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_MIN_STABILITY - stability)
             if stability > 1:
+                print 1
                 yield effects.Effect(name=u'демоны', attribute=relations.ATTRIBUTE.STABILITY, value=1 - stability)
 
     def effects_for_attribute(self, attribute):
-        for effect in self._effects_generator():
+        for effect in self.effects_generator(attribute.order):
             if effect.attribute == attribute:
                 yield effect
 
