@@ -93,7 +93,7 @@ def api_list(context):
     return dext_views.AjaxOk(content=data)
 
 
-@api.Processor(versions=(conf.settings.API_SHOW_VERSION,))
+@api.Processor(versions=(conf.settings.API_SHOW_VERSION, '2.0'))
 @PlaceProcessor(error_message=u'Город не найден', url_name='place', context_name='place')
 @resource('#place', 'api', 'show', name='api-show')
 def api_show(context):
@@ -159,7 +159,15 @@ def api_show(context):
          "type": <целое число>,                     // профессия
          "next_move_available_in": <дробное число>, // количество секунда до момента, когда Мастер может переехать в другой город
          "politic_power_fraction": <дробное число>, // доля влияния в городе
-         "building": <целое число>|null,            // идентификатор здания Мастера, если оно есть
+         "building": {                              // информация о здании, если оно есть
+             "id": <целое число>,                   // идентификатор
+             "position": {"x": <целое число>,       // позиция
+                          "y": <целое число>},      //
+             "type": <целое число>,                 // тип, значения перечислены на странице API
+             "integrity": <дробное число>,          // целостность здания от 0.0 до 1.0
+             "created_at_turn": <целое число>,      // номер хода на котором создано
+             "repair_number": <целое число>         // сколько починок необходимо до полность целостности
+         } | null,
          "personality": {                           // характер
              "cosmetic": <целое число>,             // идентификатор косметической особенности характера
              "practical": <целое число>             // идентификатор практической особенности характера
@@ -234,7 +242,7 @@ def api_show(context):
 
     '''
 
-    return dext_views.AjaxOk(content=info.place_info(context.place))
+    return dext_views.AjaxOk(content=info.place_info(context.place, full_building_info=context.api_version!='2.0'))
 
 
 @PlaceProcessor(error_message=u'Город не найден', url_name='place', context_name='place')

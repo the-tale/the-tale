@@ -76,6 +76,7 @@ def api_show(context):
 
       // формат следующих параметров такой же, как в методе получения информации о городе
 
+      "building": <словарь>|null,          // информация о зданиии, если оно есть
       "politic_power": <politic_power>,    // политическое влияние
       "attributes": <attributes_info>,     // все параметры Мастера
       "chronicle": <chronicle_info>,       // последние записи в летописи

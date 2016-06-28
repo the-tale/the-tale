@@ -232,6 +232,8 @@ class PlaceTests(testcase.TestCase):
         self.assertTrue(-0.001 < self.p1.attrs.freedom - (1000 + 100 * len(self.p1.persons) + 1.0 + 0.1) < 0.001)
 
 
+    @mock.patch('the_tale.game.places.races.Races.dominant_race', RACE.ELF)
+    @mock.patch('the_tale.game.places.objects.Place.race', RACE.ELF)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)
     def test_refresh_attributes__stability(self):
         self.p1.effects.add(effects.Effect(name=u'test', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
@@ -282,6 +284,8 @@ class PlaceTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
     def test_refresh_attributes__stability_penalty_for_race_discrimination(self):
+        self.p1.race = self.p1.races.dominant_race
+
         self.p1.refresh_attributes()
 
         with self.check_not_changed(lambda: self.p1.attrs.stability):
@@ -292,14 +296,16 @@ class PlaceTests(testcase.TestCase):
             self.p1.refresh_attributes()
 
 
-    @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)
+    @mock.patch('the_tale.game.places.races.Races.dominant_race', RACE.ELF)
+    @mock.patch('the_tale.game.places.objects.Place.race', RACE.ELF)
+    @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
     def test_stability__reduce_effects(self):
         self.p1.effects.add(effects.Effect(name=u'x', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
         self.p1.effects.add(effects.Effect(name=u'y', attribute=relations.ATTRIBUTE.STABILITY, value=0.25))
 
         self.p1.refresh_attributes()
 
-        self.assertTrue(-0.001 < self.p1.attrs.stability - (0.75 - 0.05 * len(self.p1.persons)) < 0.001)
+        self.assertTrue(-0.001 < self.p1.attrs.stability - 0.75 < 0.001)
 
         self.p1.effects_update_step()
 

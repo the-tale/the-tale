@@ -119,7 +119,8 @@ def get_api_types():
             TypeReference('places_modifiers', u'Города: специализация', places_modifiers.CITY_MODIFIERS),
             TypeReference('places_attributes', u'Города: аттрибуты', places_relations.ATTRIBUTE),
 
-            TypeReference('actor_types', u'Задания: Типы актёров', ACTOR_TYPE),
+            TypeReference('actor_types', u'Задания: типы актёров', ACTOR_TYPE),
+            TypeReference('buildings_types', u'Здания: типы', places_relations.BUILDING_TYPE),
 
             TypeReference('ability_type', u'Игрок: тип способности', ANGEL_ABILITY_TYPE,
                           fields=((u'значение', 'value'), (u'описание', 'text'), (u'атрибуты запроса', 'request_attributes'))),

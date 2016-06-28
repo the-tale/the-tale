@@ -8,4 +8,4 @@ settings = app_settings('PLACES',
                         CHRONICLE_RECORDS_NUMBER=10,
 
                         API_LIST_VERSION='1.1',
-                        API_SHOW_VERSION='2.0')
+                        API_SHOW_VERSION='2.1')

@@ -7,11 +7,15 @@ from the_tale.game.chronicle import prototypes as chronicle_prototypes
 from the_tale.game import attributes
 from the_tale.game import logic as game_logic
 
+from the_tale.game.places import info as places_info
+from the_tale.game.places import storage as places_storage
+
 from . import conf
 from . import relations
 
 
 def person_info(person):
+    building = places_storage.buildings.get_by_person_id(person.id)
 
     data = {'id': person.id,
             'name': person.name,
@@ -25,6 +29,7 @@ def person_info(person):
                 'position': {'x': person.place.x, 'y': person.place.y}
             },
 
+            'building': places_info.building_info(building) if building else None,
             'politic_power': person.politic_power.ui_info([p.politic_power for p in person.place.persons]),
             'attributes': attributes.attributes_info(effects=person.all_effects(),
                                                      attrs=person.attrs,

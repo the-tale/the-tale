@@ -14,7 +14,7 @@ from . import relations
 from . import conf
 
 
-def place_info_persons_data(place):
+def place_info_persons_data(place, full_building_info):
     data = []
 
     for person in place.persons:
@@ -25,11 +25,15 @@ def place_info_persons_data(place):
                        'gender': person.gender.value,
                        'race': person.race.value,
                        'type': person.type.value,
+                       'building': None,
                        'next_move_available_in': person.seconds_before_next_move,
                        'politic_power_fraction': person.total_politic_power_fraction,
-                       'building': building.id if building else None,
                        'personality': { 'cosmetic': person.personality_cosmetic.value,
                                         'practical': person.personality_practical.value } }
+
+        if building:
+            person_data['building'] = building_info(building) if full_building_info else building.id
+
         data.append(person_data)
 
     return data
@@ -83,7 +87,7 @@ def place_info_habits(place):
 
 
 
-def place_info(place):
+def place_info(place, full_building_info):
     data = {'id': place.id,
             'name': place.name,
             'frontier': place.is_frontier,
@@ -92,7 +96,7 @@ def place_info(place):
             'updated_at': time.mktime(place.updated_at.timetuple()),
             'position': {'x': place.x, 'y': place.y},
             'politic_power': place.politic_power.ui_info([p.politic_power for p in place.get_same_places()]),
-            'persons': place_info_persons_data(place),
+            'persons': place_info_persons_data(place, full_building_info=full_building_info),
             'attributes': attributes.attributes_info(effects=place.all_effects(),
                                                      attrs=place.attrs,
                                                      relation=relations.ATTRIBUTE),
@@ -112,3 +116,12 @@ def place_info(place):
     data['clans'] = game_logic.clans_info(data['accounts'])
 
     return data
+
+
+def building_info(building):
+    return { 'id': building.id,
+             'position': {'x': building.x, 'y': building.y},
+             'type': building.type.value,
+             'integrity': building.integrity,
+             'created_at_turn': building.created_at_turn,
+             'repair_number': building.workers_to_full_repairing }
