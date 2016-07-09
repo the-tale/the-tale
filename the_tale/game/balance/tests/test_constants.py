@@ -294,7 +294,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.JOB_FREEDOM_BONUS, 5), 0.06667)
         self.assertEqual(round(c.JOB_STABILITY_BONUS, 5), 0.02)
 
+        self.assertEqual(c.PERSON_MOVE_DELAY_IN_WEEKS, 2)
         self.assertEqual(c.PERSON_MOVE_DELAY, 120960)
+
+        self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_LIMIT, 3)
 
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_POSITION_RADIUS, 2)

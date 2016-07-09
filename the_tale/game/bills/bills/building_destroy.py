@@ -11,15 +11,15 @@ from the_tale.game.persons import objects as persons_objects
 from the_tale.game.places import storage as places_storage
 
 from the_tale.game.bills.relations import BILL_TYPE
-from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
-class UserForm(BaseUserForm):
 
+class BaseForm(BaseUserForm):
     person = fields.ChoiceField(label=u'Житель')
 
     def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
-        super(UserForm, self).__init__(*args, **kwargs)
+        super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['person'].choices = persons_objects.Person.form_choices(predicate=self._person_has_building)
 
     @classmethod
@@ -27,12 +27,15 @@ class UserForm(BaseUserForm):
         return places_storage.buildings.get_by_person_id(person.id) is not None
 
 
-class ModeratorForm(BaseModeratorForm):
+class UserForm(BaseForm):
+    pass
+
+
+class ModeratorForm(BaseForm, ModeratorFormMixin):
     pass
 
 
 class BuildingDestroy(BasePersonBill):
-
     type = BILL_TYPE.BUILDING_DESTROY
 
     UserForm = UserForm

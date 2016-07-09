@@ -49,9 +49,9 @@ jQuery(document).ready( function(e) {
 
   {{ form.errors_container }}
 
-  {{ form.approved.widget }}
+  {% include bill.data.user_form_template() with context %}
 
-  {% include bill.data.moderator_form_template() with context %}
+  {{ form.approved.widget }}
 
   <input type="submit" accesskey="s" value="Сохранить"/>
 

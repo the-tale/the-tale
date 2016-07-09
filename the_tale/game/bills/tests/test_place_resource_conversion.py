@@ -93,7 +93,12 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        form = PlaceResourceConversion.ModeratorForm({'approved': True})
+        form = PlaceResourceConversion.ModeratorForm({'caption': 'long caption',
+                                                      'rationale': 'long rationale',
+                                                      'chronicle_on_accepted': 'chronicle-on-accepted',
+                                                      'place': self.place1.id,
+                                                      'conversion': self.conversion_1,
+                                                      'approved': True})
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 

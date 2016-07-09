@@ -15,28 +15,28 @@ from the_tale.game.places.prototypes import BuildingPrototype
 from the_tale.game.places import storage as places_storage
 
 from the_tale.game.bills.relations import BILL_TYPE
-from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
-class UserForm(BaseUserForm):
-
+class BaseForm(BaseUserForm):
     person = fields.ChoiceField(label=u'Житель')
-
     name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
 
     def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
-        super(UserForm, self).__init__(*args, **kwargs)
+        super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['person'].choices = persons_objects.Person.form_choices(predicate=lambda place, person: not person.has_building)
 
 
-class ModeratorForm(BaseModeratorForm):
+class UserForm(BaseForm):
+    pass
 
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
+
+class ModeratorForm(BaseForm, ModeratorFormMixin):
+    pass
 
 
 class BuildingCreate(BasePersonBill):
-
     type = BILL_TYPE.BUILDING_CREATE
 
     UserForm = UserForm
@@ -62,11 +62,6 @@ class BuildingCreate(BasePersonBill):
 
     def user_form_initials(self):
         initials = super(BuildingCreate, self).user_form_initials()
-        initials['name'] = self.building_name_forms
-        return initials
-
-    def moderator_form_initials(self):
-        initials = super(BuildingCreate, self).moderator_form_initials()
         initials['name'] = self.building_name_forms
         return initials
 

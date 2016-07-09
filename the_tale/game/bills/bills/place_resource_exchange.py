@@ -9,7 +9,7 @@ from dext.forms import fields
 from the_tale.game.balance import constants as c
 
 from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 from the_tale.game.bills.bills.base_bill import BaseBill
 
 from the_tale.game.places import storage as places_storage
@@ -38,8 +38,7 @@ ALLOWED_EXCHANGE_TYPES = [
 ALLOWED_EXCHANGE_TYPES_CHOICES = [(record, record.text) for record in ALLOWED_EXCHANGE_TYPES]
 
 
-class UserForm(BaseUserForm):
-
+class BaseForm(BaseUserForm):
     place_1 = fields.ChoiceField(label=u'Первый город')
     place_2 = fields.ChoiceField(label=u'Второй город')
 
@@ -47,12 +46,12 @@ class UserForm(BaseUserForm):
     resource_2 = fields.TypedChoiceField(label=u'Ресурс от второго города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=RESOURCE_EXCHANGE_TYPE.get_from_name)
 
     def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['place_1'].choices = places_storage.places.get_choices()
         self.fields['place_2'].choices = places_storage.places.get_choices()
 
     def clean(self):
-        cleaned_data = super(UserForm, self).clean()
+        cleaned_data = super(BaseForm, self).clean()
 
         place_1 = places_storage.places.get(int(cleaned_data['place_1']))
         place_2 = places_storage.places.get(int(cleaned_data['place_2']))
@@ -85,12 +84,15 @@ class UserForm(BaseUserForm):
         return cleaned_data
 
 
-class ModeratorForm(BaseModeratorForm):
+class UserForm(BaseForm):
+    pass
+
+
+class ModeratorForm(BaseForm, ModeratorFormMixin):
     pass
 
 
 class PlaceResourceExchange(BaseBill):
-
     type = relations.BILL_TYPE.PLACE_RESOURCE_EXCHANGE
 
     UserForm = UserForm

@@ -97,12 +97,12 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
         self.assertEqual(self.bill.approved_by_moderator, False)
 
-
         noun = names.generator.get_test_name('new-name')
-        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
-        data.update({'approved': True})
 
-        form = PlaceRenaming.ModeratorForm(data)
+        data = self.bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
 
@@ -138,9 +138,11 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
         new_name = names.generator.get_test_name('new-new-name')
 
-        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
-        data.update({'approved': True})
-        form = PlaceRenaming.ModeratorForm(data)
+        data = self.bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(new_name, prefix='name'))
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
@@ -161,9 +163,11 @@ class PlaceRenamingTests(BaseTestPrototypes):
         new_name = names.generator.get_test_name('new-new-name')
         self.bill.data.place.set_utg_name(new_name)
 
-        data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
-        data.update({'approved': True})
-        form = PlaceRenaming.ModeratorForm(data)
+        data = self.bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(new_name, prefix='name'))
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 

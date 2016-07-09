@@ -88,10 +88,10 @@ class BuildingCreateTests(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('r-building-name')
 
-        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
-        data.update({'approved': True})
-
-        form = BuildingCreate.ModeratorForm(data)
+        data = self.bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
@@ -119,31 +119,37 @@ class BuildingCreateTests(BaseTestPrototypes):
         VotePrototype.create(self.account3, self.bill, True)
 
         noun = names.generator.get_test_name('building-name')
-        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
-        data.update({'approved': True})
 
-        form = BuildingCreate.ModeratorForm(data)
+        data = self.bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
-        self.assertTrue(self.bill.apply())
 
         dup_noun = names.generator.get_test_name('dup-building-name')
-        data = linguistics_helpers.get_word_post_data(dup_noun, prefix='name')
-        data.update({'approved': True})
-
-        form = BuildingCreate.ModeratorForm(data)
 
         bill = BillPrototype.get_by_id(self.bill.id)
         bill.state = BILL_STATE.VOTING
         bill.save()
 
+        data = bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(dup_noun, prefix='name'))
+        data['approved'] = True
+        form = bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         bill.update_by_moderator(form)
 
+        # apply first bill
+        self.assertTrue(self.bill.apply())
+
+        # apply second bill
         self.assertTrue(bill.apply())
 
         self.assertEqual(Building.objects.all().count(), 1)
+
         self.assertEqual(BuildingPrototype._db_get_object(0).utg_name, noun)
         self.assertNotEqual(BuildingPrototype._db_get_object(0).utg_name, dup_noun)
 
@@ -157,26 +163,20 @@ class BuildingCreateTests(BaseTestPrototypes):
         VotePrototype.create(self.account3, self.bill, True)
 
         noun = names.generator.get_test_name('building-name')
-        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
-        data.update({'approved': True})
 
-        form = BuildingCreate.ModeratorForm(data)
+        data = self.bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
         self.assertTrue(self.bill.apply())
-
-        dup_noun = names.generator.get_test_name('dup-building-name')
-        data = linguistics_helpers.get_word_post_data(dup_noun, prefix='name')
-        data.update({'approved': True})
 
         form = BuildingCreate.ModeratorForm(data)
 
         bill = BillPrototype.get_by_id(self.bill.id)
         bill.state = BILL_STATE.VOTING
         bill.save()
-
-        self.assertTrue(form.is_valid())
-        bill.update_by_moderator(form)
 
         self.assertFalse(bill.has_meaning())

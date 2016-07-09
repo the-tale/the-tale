@@ -31,7 +31,10 @@ class LogicTests(BaseTestPrototypes):
 
         self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [])
 
-        form = bills.PlaceModifier.ModeratorForm({'approved': True})
+        data = bill.user_form_initials
+        data['approved'] = True
+        form = bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         bill.update_by_moderator(form)
 
@@ -49,7 +52,10 @@ class LogicTests(BaseTestPrototypes):
 
         self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [time.mktime(bill.voting_end_at.timetuple())])
 
-        form = bills.PlaceModifier.ModeratorForm({'approved': True})
+        data = bill_2.user_form_initials
+        data['approved'] = True
+        form = bill_2.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         bill_2.update_by_moderator(form)
 
@@ -67,7 +73,10 @@ class LogicTests(BaseTestPrototypes):
 
         self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [time.mktime(bill.voting_end_at.timetuple())])
 
-        form = bills.PlaceModifier.ModeratorForm({'approved': True})
+        data = bill_3.user_form_initials
+        data['approved'] = True
+        form = bill_3.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         bill_3.update_by_moderator(form)
 

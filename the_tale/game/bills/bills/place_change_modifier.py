@@ -7,14 +7,13 @@ from dext.forms import fields
 from the_tale.game.balance import constants as c
 
 from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import logic as places_logic
 from the_tale.game.places.modifiers import CITY_MODIFIERS
 
 from . import base_place_bill
-
 
 def can_be_choosen(place, modifier):
     if modifier.is_NONE:
@@ -26,15 +25,17 @@ def can_be_choosen(place, modifier):
     return True
 
 
-class UserForm(BaseUserForm):
-
+class BaseForm(BaseUserForm):
     place = fields.ChoiceField(label=u'Город')
     new_modifier = fields.TypedChoiceField(label=u'Новая специализация', choices=sorted(CITY_MODIFIERS.choices(), key=lambda g: g[1]), coerce=CITY_MODIFIERS.get_from_name)
 
     def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.places.get_choices()
 
+
+
+class UserForm(BaseForm):
 
     def clean(self):
         cleaned_data = super(UserForm, self).clean()
@@ -49,7 +50,7 @@ class UserForm(BaseUserForm):
         return cleaned_data
 
 
-class ModeratorForm(BaseModeratorForm):
+class ModeratorForm(BaseForm, ModeratorFormMixin):
     pass
 
 
@@ -71,6 +72,7 @@ class PlaceModifier(base_place_bill.BasePlaceBill):
     def user_form_initials(self):
         data = super(PlaceModifier, self).user_form_initials()
         data['new_modifier'] = self.modifier_id
+        return data
 
     def initialize_with_user_data(self, user_form):
         super(PlaceModifier, self).initialize_with_user_data(user_form)

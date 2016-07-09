@@ -21,6 +21,6 @@ class BaseUserForm(forms.Form):
                                              min_length=bills_settings.CHRONICLE_MIN_LENGTH, max_length=bills_settings.CHRONICLE_MAX_LENGTH)
 
 
-class BaseModeratorForm(forms.Form):
 
+class ModeratorFormMixin(forms.Form):
     approved = fields.BooleanField(label=u'Одобрено', required=False)

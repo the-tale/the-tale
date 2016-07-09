@@ -5,7 +5,7 @@ from dext.forms import fields
 from the_tale.common.utils import bbcode
 
 from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import conf as places_conf
@@ -14,17 +14,20 @@ from the_tale.game.places import logic as places_logic
 from . import base_place_bill
 
 
-class UserForm(BaseUserForm):
-
+class BaseForm(BaseUserForm):
     place = fields.ChoiceField(label=u'Город')
     new_description = bbcode.BBField(label=u'Новое описание', max_length=places_conf.settings.MAX_DESCRIPTION_LENGTH)
 
     def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.places.get_choices()
 
 
-class ModeratorForm(BaseModeratorForm):
+class UserForm(BaseForm):
+    pass
+
+
+class ModeratorForm(BaseForm, ModeratorFormMixin):
     pass
 
 

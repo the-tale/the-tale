@@ -78,7 +78,10 @@ class PlaceRaceTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        form = PlaceRace.ModeratorForm({'approved': True})
+        data = self.bill.user_form_initials
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
@@ -96,7 +99,10 @@ class PlaceRaceTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        form = PlaceRace.ModeratorForm({'approved': True})
+        data = self.bill.user_form_initials
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 

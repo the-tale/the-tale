@@ -3,20 +3,19 @@
 
 class BaseBill(object):
 
+    UserForm = NotImplemented
+    ModeratorForm = NotImplemented
+
     @classmethod
     def user_form_template(cls):
         return 'bills/bills/{type}_user_form.html'.format(type=cls.type.name.lower())
-
-    @classmethod
-    def moderator_form_template(cls):
-        return 'bills/bills/{type}_moderator_form.html'.format(type=cls.type.name.lower())
 
     @classmethod
     def show_template(cls):
         return 'bills/bills/{type}_show.html'.format(type=cls.type.name.lower())
 
     def moderator_form_initials(self):
-        return {}
+        return self.user_form_initials()
 
     def initialize_with_moderator_data(self, moderator_form):
         pass
@@ -29,6 +28,11 @@ class BaseBill(object):
         if initial:
             return self.UserForm(initial=initial)
         return  self.UserForm(post)
+
+    def get_moderator_form_update(self, post=None, initial=None, **kwargs):
+        if initial:
+            return self.ModeratorForm(initial=initial)
+        return self.ModeratorForm(post)
 
     def apply(self, bill=None):
         raise NotImplementedError

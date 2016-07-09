@@ -80,10 +80,14 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('r-building-name')
 
-        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
-        data.update({'approved': True})
+        data = {'rationale': 'bill-rationale',
+                'person': 1,
+                'chronicle_on_accepted': 'chronicle-accepted-1',
+                'caption': 'bill-caption'}
+        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data['approved'] = True
 
-        form = BuildingRenaming.ModeratorForm(data)
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
@@ -108,10 +112,14 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('r-building-name')
 
-        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
-        data.update({'approved': True})
+        data = {'rationale': 'bill-rationale',
+                'person': 1,
+                'chronicle_on_accepted': 'chronicle-accepted-1',
+                'caption': 'bill-caption'}
+        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data['approved'] = True
 
-        form = BuildingRenaming.ModeratorForm(data)
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
@@ -133,9 +141,14 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('r-building-name')
 
-        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
-        data.update({'approved': True})
-        form = BuildingRenaming.ModeratorForm(data)
+        data = {'rationale': 'bill-rationale',
+                'person': 1,
+                'chronicle_on_accepted': 'chronicle-accepted-1',
+                'caption': 'bill-caption'}
+        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data['approved'] = True
+
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
@@ -160,9 +173,14 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator.get_test_name('r-building-name')
 
-        data = linguistics_helpers.get_word_post_data(noun, prefix='name')
-        data.update({'approved': True})
-        form = BuildingRenaming.ModeratorForm(data)
+        data = {'rationale': 'bill-rationale',
+                'person': 1,
+                'chronicle_on_accepted': 'chronicle-accepted-1',
+                'caption': 'bill-caption'}
+        data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
+        data['approved'] = True
+
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)

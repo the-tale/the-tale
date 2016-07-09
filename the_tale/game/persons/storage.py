@@ -2,6 +2,8 @@
 
 from dext.common.utils import storage as dext_storage
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.persons import models
 from the_tale.game.persons import exceptions
 from the_tale.game.persons import relations
@@ -64,6 +66,9 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
             result.append((item.connection, connected_person.id))
 
         return result
+
+    def connections_limit_reached(self, person):
+        return len(self.get_person_connections(person)) >= c.PERSON_SOCIAL_CONNECTIONS_LIMIT
 
     def get_connected_persons_ids(self, person):
         self.sync()

@@ -890,8 +890,9 @@ class TestModerateRequests(BaseTestRequests):
 
 
     def get_post_data(self):
-        data = linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name')
-        data.update({'approved': True})
+        data = self.bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name'))
+        data['approved'] = True
         return data
 
 

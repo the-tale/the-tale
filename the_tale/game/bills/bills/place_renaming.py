@@ -8,7 +8,7 @@ from utg import relations as utg_relations
 from the_tale.linguistics.forms import WordField
 
 from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import logic as places_logic
@@ -16,18 +16,21 @@ from the_tale.game.places import logic as places_logic
 from . import base_place_bill
 
 
-class UserForm(BaseUserForm):
-
+class BaseForm(BaseUserForm):
     place = fields.ChoiceField(label=u'Город')
     name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
 
     def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.places.get_choices()
 
 
-class ModeratorForm(BaseModeratorForm):
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
+class UserForm(BaseForm):
+    pass
+
+
+class ModeratorForm(BaseForm, ModeratorFormMixin):
+    pass
 
 
 class PlaceRenaming(base_place_bill.BasePlaceBill):
@@ -55,11 +58,6 @@ class PlaceRenaming(base_place_bill.BasePlaceBill):
 
     def user_form_initials(self):
         data = super(PlaceRenaming, self).user_form_initials()
-        data['name'] = self.name_forms
-        return data
-
-    def moderator_form_initials(self):
-        data = super(PlaceRenaming, self).moderator_form_initials()
         data['name'] = self.name_forms
         return data
 

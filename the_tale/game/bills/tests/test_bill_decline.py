@@ -31,7 +31,10 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
                                                   chronicle_on_accepted='chronicle-on-accepted',
                                                   bill=self.declined_bill_data)
 
-        declined_form = PlaceResourceExchange.ModeratorForm({'approved': True})
+        data = self.declined_bill.user_form_initials
+        data['approved'] = True
+        declined_form = self.declined_bill.data.get_moderator_form_update(data)
+
         self.assertTrue(declined_form.is_valid())
         self.declined_bill.update_by_moderator(declined_form)
         self.declined_bill.apply()
@@ -55,7 +58,11 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
     def test_update(self):
         declined_bill_2 = BillPrototype.create(self.account1, 'declined-bill-caption', 'declined-bill-rationale',
                                                self.declined_bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
-        declined_form = PlaceResourceExchange.ModeratorForm({'approved': True})
+
+        data = declined_bill_2.user_form_initials
+        data['approved'] = True
+        declined_form = declined_bill_2.data.get_moderator_form_update(data)
+
         self.assertTrue(declined_form.is_valid())
         declined_bill_2.update_by_moderator(declined_form)
         declined_bill_2.apply()
@@ -86,7 +93,10 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         bill_data = PlaceDescripton(place_id=self.place1.id, description='new description')
         bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted',)
 
-        form = PlaceDescripton.ModeratorForm({'approved': True})
+        data = bill.user_form_initials
+        data['approved'] = True
+        form = bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         bill.update_by_moderator(form)
         self.assertTrue(bill.apply())
@@ -108,7 +118,10 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
         self.assertEqual(len(places_storage.resource_exchanges.all()), 1)
 
-        form = BillDecline.ModeratorForm({'approved': True})
+        data = self.bill.user_form_initials
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
@@ -129,7 +142,10 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        form = BillDecline.ModeratorForm({'approved': True})
+        data = self.bill.user_form_initials
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
@@ -151,7 +167,10 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
         self.assertEqual(len(places_storage.resource_exchanges.all()), 1)
 
-        form = BillDecline.ModeratorForm({'approved': True})
+        data = self.bill.user_form_initials
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
+
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 

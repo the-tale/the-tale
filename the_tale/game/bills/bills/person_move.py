@@ -8,32 +8,24 @@ from dext.forms import fields
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.heroes import logic as heroes_logic
-
 from the_tale.game.places import storage as places_storage
 from the_tale.game.persons import objects as persons_objects
 from the_tale.game.persons import logic as persons_logic
 from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game.bills.relations import BILL_TYPE
-from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
-class UserForm(BaseUserForm):
-
+class BaseForm(BaseUserForm):
     new_place = fields.ChoiceField(label=u'Новый город')
     person = fields.ChoiceField(label=u'Мастер')
 
-    def __init__(self, choosen_person_id, owner_id, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
-
-        hero_id = heroes_logic.load_hero(account_id=owner_id).id
-
+    def __init__(self, choosen_person_id, *args, **kwargs):
+        super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['new_place'].choices = places_storage.places.get_choices()
-        self.fields['person'].choices = persons_objects.Person.form_choices(choosen_person=persons_storage.persons.get(choosen_person_id),
-                                                                            predicate=lambda place, person: person.politic_power.is_in_inner_circle(hero_id))
-
+        self.fields['person'].choices = persons_objects.Person.form_choices(choosen_person=persons_storage.persons.get(choosen_person_id))
 
     def clean_new_place(self):
         place_id = int(self.cleaned_data['new_place'])
@@ -60,12 +52,18 @@ class UserForm(BaseUserForm):
         return person_id
 
 
-class ModeratorForm(BaseModeratorForm):
+class UserForm(BaseForm):
+    def __init__(self, choosen_person_id, owner_id, *args, **kwargs):
+        super(UserForm, self).__init__(choosen_person_id, *args, **kwargs)
+        self.fields['person'].choices = persons_objects.Person.form_choices(choosen_person=persons_storage.persons.get(choosen_person_id),
+                                                                            predicate=lambda place, person: person.politic_power.is_in_inner_circle(owner_id))
+
+
+class ModeratorForm(BaseForm, ModeratorFormMixin):
     pass
 
 
 class PersonMove(BasePersonBill):
-
     type = BILL_TYPE.PERSON_MOVE
 
     UserForm = UserForm
@@ -73,7 +71,6 @@ class PersonMove(BasePersonBill):
 
     CAPTION = u'Переезд Мастера'
     DESCRIPTION = u'Мастера можно сподвигнуть на переезд в другой город. Но сделать это может только Хранитель героя из ближнего круга Мастера. Герой должен быть в ближнем круге на момент создания закона и/или его редактирования.'
-
 
     def __init__(self, new_place_id=None, new_place_name_forms=None, **kwargs):
         super(PersonMove, self).__init__(**kwargs)
@@ -119,6 +116,11 @@ class PersonMove(BasePersonBill):
         if initial:
             return self.UserForm(self.person_id, owner_id, initial=initial) #pylint: disable=E1102
         return  self.UserForm(self.person_id, owner_id, post) #pylint: disable=E1102
+
+    def get_moderator_form_update(self, post=None, initial=None):
+        if initial:
+            return self.ModeratorForm(self.person_id, initial=initial) #pylint: disable=E1102
+        return  self.ModeratorForm(self.person_id, post) #pylint: disable=E1102
 
 
     def user_form_initials(self):

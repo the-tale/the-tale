@@ -185,9 +185,11 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         ##################################
         # set name forms
-        data = linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name')
-        data.update({'approved': True})
-        form = PlaceRenaming.ModeratorForm(data)
+
+        data = self.bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name'))
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
@@ -228,9 +230,10 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         ##################################
         # set name forms
-        data = linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name')
-        data.update({'approved': True})
-        form = PlaceRenaming.ModeratorForm(data)
+        data = self.bill.user_form_initials
+        data.update(linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name'))
+        data['approved'] = True
+        form = self.bill.data.get_moderator_form_update(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)

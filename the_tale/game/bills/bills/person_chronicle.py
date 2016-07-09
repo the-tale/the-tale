@@ -6,21 +6,24 @@ from the_tale.game.persons import objects as persons_objects
 from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
-class UserForm(BaseUserForm):
-
+class BaseForm(BaseUserForm):
     person = fields.ChoiceField(label=u'Мастер')
     power_bonus = fields.RelationField(label=u'Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
 
     def __init__(self, choosen_person_id, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['person'].choices = persons_objects.Person.form_choices(choosen_person=persons_storage.persons.get(choosen_person_id))
 
 
-class ModeratorForm(BaseModeratorForm):
+class UserForm(BaseForm):
+    pass
+
+
+class ModeratorForm(BaseForm, ModeratorFormMixin):
     pass
 
 
@@ -55,7 +58,7 @@ class PersonChronicle(BasePersonBill):
 
     def user_form_initials(self):
         initials = super(PersonChronicle, self).user_form_initials()
-        initials['power_bonus'] = self.power_bonus.value
+        initials['power_bonus'] = self.power_bonus
         return initials
 
     def initialize_with_user_data(self, user_form):

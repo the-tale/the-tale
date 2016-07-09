@@ -11,7 +11,6 @@ from the_tale.game.places import storage as places_storage
 class BasePlaceBill(base_bill.BaseBill):
     type = None
     UserForm = None
-    ModeratorForm = None
     CAPTION = None
     DESCRIPTION = None
 

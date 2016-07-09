@@ -10,7 +10,7 @@ from dext.forms import fields
 from the_tale.game.balance import constants as c
 
 from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, BaseModeratorForm
+from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places.prototypes import ResourceExchangePrototype
@@ -49,17 +49,16 @@ class CONVERSION(DjangoEnum):
         )
 
 
-class UserForm(BaseUserForm):
-
+class BaseForm(BaseUserForm):
     place = fields.ChoiceField(label=u'Город')
     conversion = fields.TypedChoiceField(label=u'Тип конверсии', choices=CONVERSION.choices(), coerce=CONVERSION.get_from_name)
 
     def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.places.get_choices()
 
     def clean(self):
-        cleaned_data = super(UserForm, self).clean()
+        cleaned_data = super(BaseForm, self).clean()
 
         place = places_storage.places.get(int(cleaned_data['place']))
 
@@ -69,7 +68,11 @@ class UserForm(BaseUserForm):
         return cleaned_data
 
 
-class ModeratorForm(BaseModeratorForm):
+class UserForm(BaseForm):
+    pass
+
+
+class ModeratorForm(BaseForm, ModeratorFormMixin):
     pass
 
 

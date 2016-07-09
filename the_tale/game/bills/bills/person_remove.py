@@ -5,7 +5,6 @@ from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
 class PersonRemove(BasePersonBill):
-
     type = BILL_TYPE.PERSON_REMOVE
 
     UserForm = None

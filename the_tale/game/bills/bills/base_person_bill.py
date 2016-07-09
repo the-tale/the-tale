@@ -17,7 +17,6 @@ from the_tale.game.bills.bills.base_bill import BaseBill
 class BasePersonBill(BaseBill):
     type = None
     UserForm = None
-    ModeratorForm = None
     CAPTION = None
     DESCRIPTION = None
 
@@ -85,6 +84,11 @@ class BasePersonBill(BaseBill):
         if initial:
             return self.UserForm(self.person_id, initial=initial) #pylint: disable=E1102
         return  self.UserForm(self.person_id, post) #pylint: disable=E1102
+
+    def get_moderator_form_update(self, post=None, initial=None, **kwargs):
+        if initial:
+            return self.ModeratorForm(self.person_id, initial=initial) #pylint: disable=E1102
+        return self.ModeratorForm(self.person_id, post) #pylint: disable=E1102
 
     def apply(self, bill=None):
         raise NotImplementedError
