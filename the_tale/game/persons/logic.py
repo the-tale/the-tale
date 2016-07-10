@@ -192,12 +192,9 @@ def create_social_connection(connection_type, person_1, person_2):
 
 # TODO: this method may cause large db usage on removing multiple connections
 def remove_connection(connection):
-    models.SocialConnection.objects.filter(id=connection.id).update(state=relations.SOCIAL_CONNECTION_STATE.OUT_GAME,
-                                                                    out_game_at=datetime.datetime.now(),
-                                                                    out_game_at_turn=game_protypes.TimePrototype.get_current_turn_number())
+    models.SocialConnection.objects.filter(id=connection.id).delete()
     storage.social_connections.update_version()
     storage.social_connections.refresh()
-
 
 
 def move_person_to_place(person, new_place):

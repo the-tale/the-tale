@@ -37,9 +37,6 @@ class SocialConnection(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_at_turn = models.BigIntegerField()
 
-    out_game_at = models.DateTimeField(null=True, default=None)
-    out_game_at_turn = models.BigIntegerField(null=True, default=None)
-
     person_1 = models.ForeignKey(Person, related_name='+', on_delete=models.CASCADE)
     person_2 = models.ForeignKey(Person, related_name='+', on_delete=models.CASCADE)
 

@@ -76,6 +76,23 @@ def _get_bill_place_resource_conversion_arguments(bill):
                         (ACTOR_ROLE.PLACE, bill.data.place)],
              'text': bill.chronicle_on_accepted }
 
+def _get_bill_persons_add_social_connection_arguments(bill):
+    return { 'actors': [(ACTOR_ROLE.BILL, bill),
+                        (ACTOR_ROLE.PLACE, bill.data.place_1),
+                        (ACTOR_ROLE.PLACE, bill.data.place_2),
+                        (ACTOR_ROLE.PERSON, bill.data.person_1),
+                        (ACTOR_ROLE.PERSON, bill.data.person_2)],
+             'text': bill.chronicle_on_accepted }
+
+
+def _get_bill_persons_remove_social_connection_arguments(bill):
+    return { 'actors': [(ACTOR_ROLE.BILL, bill),
+                        (ACTOR_ROLE.PLACE, bill.data.place_1),
+                        (ACTOR_ROLE.PLACE, bill.data.place_2),
+                        (ACTOR_ROLE.PERSON, bill.data.person_1),
+                        (ACTOR_ROLE.PERSON, bill.data.person_2)],
+             'text': bill.chronicle_on_accepted }
+
 def _get_bill_decline_bill_arguments(bill):
     if bill.data.declined_bill.data.type.is_PLACE_RESOURCE_EXCHANGE:
         actors = [(ACTOR_ROLE.BILL, bill),
@@ -111,7 +128,9 @@ BILL_ARGUMENT_GETTERS = {
     bill_relations.BILL_TYPE.BILL_DECLINE: _get_bill_decline_bill_arguments,
     bill_relations.BILL_TYPE.PLACE_RESOURCE_CONVERSION: _get_bill_place_resource_conversion_arguments,
     bill_relations.BILL_TYPE.PERSON_CHRONICLE: _get_bill_person_chronicle_arguments,
-    bill_relations.BILL_TYPE.PLACE_CHRONICLE: _get_bill_place_chronicle_arguments  }
+    bill_relations.BILL_TYPE.PLACE_CHRONICLE: _get_bill_place_chronicle_arguments,
+    bill_relations.BILL_TYPE.PERSON_ADD_SOCIAL_CONNECTION: _get_bill_persons_add_social_connection_arguments,
+    bill_relations.BILL_TYPE.PERSON_REMOVE_SOCIAL_CONNECTION: _get_bill_persons_remove_social_connection_arguments   }
 
 
 @receiver(bills_signals.bill_processed, dispatch_uid='chronicle_bill_processed')
@@ -132,7 +151,9 @@ def chronicle_bill_processed(sender, bill, **kwargs): # pylint: disable=R0912,W0
                     bill_relations.BILL_TYPE.BILL_DECLINE: records.BillDeclineSuccessed,
                     bill_relations.BILL_TYPE.PLACE_RESOURCE_CONVERSION: records.PlaceResourceConversionBillSuccessed,
                     bill_relations.BILL_TYPE.PERSON_CHRONICLE: records.PersonChronicleBillSuccessed,
-                    bill_relations.BILL_TYPE.PLACE_CHRONICLE: records.PlaceChronicleBillSuccessed
+                    bill_relations.BILL_TYPE.PLACE_CHRONICLE: records.PlaceChronicleBillSuccessed,
+                    bill_relations.BILL_TYPE.PERSON_ADD_SOCIAL_CONNECTION: records.PersonAddSocialConnection,
+                    bill_relations.BILL_TYPE.PERSON_REMOVE_SOCIAL_CONNECTION: records.PersonRemoveSocialConnection,
                   }[bill.data.type]
 
     record_type(**BILL_ARGUMENT_GETTERS[bill.data.type](bill)).create_record()

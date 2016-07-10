@@ -14,6 +14,8 @@ from the_tale.game.bills.bills.person_chronicle import PersonChronicle
 from the_tale.game.bills.bills.place_chronicle import PlaceChronicle
 from the_tale.game.bills.bills.person_move import PersonMove
 from the_tale.game.bills.bills.place_change_race import PlaceRace
+from the_tale.game.bills.bills.person_add_social_connection import PersonAddSocialConnection
+from the_tale.game.bills.bills.person_remove_social_connection import PersonRemoveSocialConnection
 
 
 BILLS = [PlaceRenaming,
@@ -29,7 +31,9 @@ BILLS = [PlaceRenaming,
          PersonChronicle,
          PlaceChronicle,
          PersonMove,
-         PlaceRace]
+         PlaceRace,
+         PersonAddSocialConnection,
+         PersonRemoveSocialConnection]
 
 
 def deserialize_bill(data):

@@ -67,8 +67,19 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
 
         return result
 
+    def get_connection(self, person_1, person_2):
+        self.sync()
+        for connected_person_id, connection in self._person_connections.get(person_1.id).iteritems():
+            if person_2.id == connected_person_id:
+                return connection
+
     def connections_limit_reached(self, person):
+        self.sync()
         return len(self.get_person_connections(person)) >= c.PERSON_SOCIAL_CONNECTIONS_LIMIT
+
+    def has_connections(self, person):
+        self.sync()
+        return len(self.get_person_connections(person)) > 0
 
     def get_connected_persons_ids(self, person):
         self.sync()
@@ -78,6 +89,7 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
         return person_2.id in self.get_connected_persons_ids(person_1)
 
     def get_connection_type(self, person_1, person_2):
+        self.sync()
         if not self.is_connected(person_1, person_2):
             return None
         return self._person_connections[person_1.id][person_2.id].connection
