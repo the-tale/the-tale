@@ -160,7 +160,6 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
-        self.assertEqual(c.QUESTS_SOCIAL_CONNECTIONS_FRACTION, 0.05)
 
         self.assertEqual(c.HERO_POWER_PER_DAY, 100)
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
@@ -298,6 +297,11 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PERSON_MOVE_DELAY, 120960)
 
         self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_LIMIT, 3)
+
+        self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME_IN_WEEKS, 2)
+        self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME, 120960)
+
+        self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_POWER_BONUS, 0.1)
 
         self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_POSITION_RADIUS, 2)

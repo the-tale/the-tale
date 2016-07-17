@@ -1,10 +1,8 @@
 # coding: utf-8
-import copy
 import math
 import time
 import random
 import datetime
-import itertools
 
 from questgen.machine import Machine
 from questgen import facts
@@ -378,10 +376,25 @@ class QuestPrototype(object):
         if has_profession_marker:
             power /= len(PERSON_TYPE.records)
 
+        has_person_in_preferences=hero.preferences.has_person_in_preferences(person)
+
         person.cmd_change_power(hero_id=hero.id,
                                 has_place_in_preferences=hero.preferences.has_place_in_preferences(person.place),
-                                has_person_in_preferences=hero.preferences.has_person_in_preferences(person),
+                                has_person_in_preferences=has_person_in_preferences,
                                 power=power)
+
+        for social_connection_type, connected_person_id in persons_storage.social_connections.get_person_connections(person):
+            connected_person = persons_storage.persons[connected_person_id]
+
+            if social_connection_type.is_PARTNER:
+                connected_power = power * person.attrs.social_relations_partners_power_modifier
+            else:
+                connected_power = -power * person.attrs.social_relations_concurrents_power_modifier
+
+            connected_person.cmd_change_power(hero_id=hero.id,
+                                              has_place_in_preferences=hero.preferences.has_place_in_preferences(connected_person.place),
+                                              has_person_in_preferences=has_person_in_preferences,
+                                              power=connected_power)
 
         return power
 
@@ -417,47 +430,6 @@ class QuestPrototype(object):
 
 
         ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
-
-    def give_social_power(self, quest_results):
-        results = {}
-
-        for object_uid, result in quest_results.iteritems():
-            object_fact = self.knowledge_base[object_uid]
-
-            if not isinstance(object_fact, facts.Person):
-                continue
-
-            person_id = object_fact.externals['id']
-
-            if person_id not in persons_storage.persons:
-                continue
-
-            results[persons_storage.persons[person_id]] = result
-
-        VALUABLE_RESULTS = (QUEST_RESULTS.SUCCESSED, QUEST_RESULTS.FAILED)
-
-        for (person_1, quest_1_result), (person_2, quest_2_result) in itertools.combinations(results.iteritems(), 2):
-
-            if quest_1_result not in VALUABLE_RESULTS or quest_2_result not in VALUABLE_RESULTS:
-                continue
-
-            connection_type = persons_storage.social_connections.get_connection_type(person_1, person_2)
-
-            if connection_type is None:
-                continue
-
-            if ( not ( (connection_type.is_PARTNER and quest_1_result == quest_2_result) or
-                       (connection_type.is_CONCURRENT and quest_1_result != quest_2_result) ) ):
-                continue
-
-            self._give_person_power(hero=self.hero,
-                                    person=person_1,
-                                    power=1 if quest_1_result == QUEST_RESULTS.SUCCESSED else -1)
-
-            self._give_person_power(hero=self.hero,
-                                    person=person_2,
-                                    power=1 if quest_2_result == QUEST_RESULTS.SUCCESSED else -1)
-
 
 
     def _finish_quest(self, finish, hero):
@@ -506,8 +478,6 @@ class QuestPrototype(object):
             for change_source in HABIT_CHANGE_SOURCE.records:
                 if change_source.quest_marker == marker and change_source.quest_default == default:
                     self.hero.update_habits(change_source)
-
-        self.give_social_power(finish.results)
 
         self.quests_stack.pop()
 

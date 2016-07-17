@@ -41,5 +41,3 @@ class SocialConnection(models.Model):
     person_2 = models.ForeignKey(Person, related_name='+', on_delete=models.CASCADE)
 
     connection = RelationIntegerField(relation=relations.SOCIAL_CONNECTION_TYPE)
-
-    state = RelationIntegerField(relation=relations.SOCIAL_CONNECTION_STATE)

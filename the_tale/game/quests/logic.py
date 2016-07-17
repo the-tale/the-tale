@@ -392,7 +392,7 @@ def try_to_create_random_quest_for_hero(hero_info, quests, excluded_quests, with
 def _create_random_quest_for_hero(hero_info, start_quests, without_restrictions=False):
     knowledge_base = get_knowledge_base(hero_info, without_restrictions=without_restrictions)
 
-    selector = Selector(knowledge_base, QUESTS_BASE, social_connection_probability=c.QUESTS_SOCIAL_CONNECTIONS_FRACTION)
+    selector = Selector(knowledge_base, QUESTS_BASE, social_connection_probability=0)
 
     hero_uid = uids.hero(hero_info.id)
 

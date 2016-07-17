@@ -164,8 +164,7 @@ def social_connection_from_model(model):
                                     person_1_id=model.person_1_id,
                                     person_2_id=model.person_2_id,
                                     created_at=model.created_at,
-                                    created_at_turn=model.created_at_turn,
-                                    state=model.state)
+                                    created_at_turn=model.created_at_turn)
 
 
 def create_social_connection(connection_type, person_1, person_2):
@@ -179,8 +178,7 @@ def create_social_connection(connection_type, person_1, person_2):
     model = models.SocialConnection.objects.create(created_at_turn=game_protypes.TimePrototype.get_current_turn_number(),
                                                    person_1_id=person_1.id,
                                                    person_2_id=person_2.id,
-                                                   connection=connection_type,
-                                                   state=relations.SOCIAL_CONNECTION_STATE.IN_GAME)
+                                                   connection=connection_type)
 
     connection = social_connection_from_model(model)
 
@@ -190,7 +188,6 @@ def create_social_connection(connection_type, person_1, person_2):
     return connection
 
 
-# TODO: this method may cause large db usage on removing multiple connections
 def remove_connection(connection):
     models.SocialConnection.objects.filter(id=connection.id).delete()
     storage.social_connections.update_version()

@@ -38,7 +38,7 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
         return logic.social_connection_from_model(model)
 
     def _get_all_query(self):
-        return models.SocialConnection.objects.filter(state=relations.SOCIAL_CONNECTION_STATE.IN_GAME)
+        return models.SocialConnection.objects.all()
 
     def _reset_cache(self):
         self._person_connections = {}
@@ -66,6 +66,10 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
             result.append((item.connection, connected_person.id))
 
         return result
+
+    def get_connected_persons(self, person):
+        return [(connection, persons[person_id]) for connection, person_id in self.get_person_connections(person)]
+
 
     def get_connection(self, person_1, person_2):
         self.sync()

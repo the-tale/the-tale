@@ -52,11 +52,6 @@ class SOCIAL_CONNECTION_TYPE(DjangoEnum):
     records = ( ('PARTNER', 0, u'партнёр', questgen_relations.SOCIAL_RELATIONS.PARTNER),
                 ('CONCURRENT', 1, u'конкурент', questgen_relations.SOCIAL_RELATIONS.CONCURRENT), )
 
-class SOCIAL_CONNECTION_STATE(DjangoEnum):
-    records = ( ('IN_GAME', 0, u'в игре'),
-                ('OUT_GAME', 1, u'вне игры'), )
-
-
 def quest_result_serialize(data):
     return {k: v.value for k,v in data.iteritems()}
 
@@ -88,8 +83,8 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('ON_PROFITE_ENERGY', 12, u'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
                 attributes.attr('JOB_POWER_BONUS', 13, u'бонус к эффекту занятий Мастера'),
                 attributes.attr('JOB_GROUP_PRIORITY', 14, u'бонус к приоритету типов занятий Мастера', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
-                attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER', 15, u'сила социальных связей с партнёрами'),
-                attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER', 16, u'сила социальных связей с конкурентами'),
+                attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 15, u'бонус к влияния для партнёров', default=lambda: 0.1),
+                attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 16, u'бонус к влияюнию для конкурентов', default=lambda: 0.1),
                 attributes.attr('DEMOGRAPHICS_PRESSURE', 17, u'демографическое давление', default=lambda: 1) )
 
     EFFECTS_ORDER = sorted(set(record[5] for record in records))
@@ -179,8 +174,8 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                 personality('ROMANTIC', 12, u'романтичный', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_HEROES: 0.5},
                 u'романтичный', u'романтичная', u'Мастер чаще выполняет занятия, связанные с помощью героям.'),
 
-                personality('RESPONSIBLE', 13, u'ответственный', 'SOCIAL_RELATIONS_PARTNERS_POWER', 0.0,
-                u'ответственный', u'ответственная', u'Социальные связи с партнёрами действуют сильнее.'),
+                personality('RESPONSIBLE', 13, u'ответственный', 'SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 0.1,
+                u'ответственный', u'ответственная', u'Мастер оказывает более сильное влияние на своих парнёров.'),
 
-                personality('INSIDIOUS', 14, u'коварный', 'SOCIAL_RELATIONS_CONCURRENTS_POWER', 0.0,
-                u'коварный', u'коварная', u'Социальные связи с конкурентами действуют сильнее.') )
+                personality('INSIDIOUS', 14, u'коварный', 'SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 0.1,
+                u'коварный', u'коварная', u'Мастер оказывает более сильное влияние на своих конкурентов.') )

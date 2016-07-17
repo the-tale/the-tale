@@ -62,7 +62,7 @@ class BillDecline(BaseBill):
     def user_form_initials(self):
         return {'declined_bill': self.declined_bill_id}
 
-    def initialize_with_user_data(self, user_form):
+    def initialize_with_form(self, user_form):
         self.declined_bill_id = int(user_form.c.declined_bill)
 
     def has_meaning(self):

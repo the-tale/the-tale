@@ -94,8 +94,8 @@ class PlaceResourceConversion(base_place_bill.BasePlaceBill):
         data['conversion'] = self.conversion
         return data
 
-    def initialize_with_user_data(self, user_form):
-        super(PlaceResourceConversion, self).initialize_with_user_data(user_form)
+    def initialize_with_form(self, user_form):
+        super(PlaceResourceConversion, self).initialize_with_form(user_form)
         self.conversion = user_form.c.conversion
 
     def has_meaning(self):

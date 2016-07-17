@@ -145,7 +145,7 @@ class PlaceResourceExchange(BaseBill):
     @property
     def old_place_2_name(self): return self.old_place_2_name_forms.normal_form()
 
-    def initialize_with_user_data(self, user_form):
+    def initialize_with_form(self, user_form):
         self.place_1_id = int(user_form.c.place_1)
         self.place_2_id = int(user_form.c.place_2)
         self.resource_1 = user_form.c.resource_1

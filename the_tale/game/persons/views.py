@@ -99,4 +99,5 @@ def show(context):
                                     'person_meta_object': meta_relations.Person.create_from_object(context.person),
                                     'accounts_short_infos': accounts_short_infos,
                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
+                                    'social_connections': storage.social_connections.get_connected_persons(context.person),
                                     'resource': context.resource})

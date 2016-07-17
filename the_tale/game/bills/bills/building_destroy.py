@@ -67,8 +67,8 @@ class BuildingDestroy(BasePersonBill):
         if self.has_meaning():
             self.building.destroy()
 
-    def initialize_with_user_data(self, user_form):
-        super(BuildingDestroy, self).initialize_with_user_data(user_form)
+    def initialize_with_form(self, user_form):
+        super(BuildingDestroy, self).initialize_with_form(user_form)
 
         building = places_storage.buildings.get_by_person_id(self.person_id)
         if building is not None:

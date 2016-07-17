@@ -61,8 +61,14 @@ class UserForm(BaseForm):
 
     def __init__(self, person_1_id, person_2_id, owner_id, *args, **kwargs):
         super(UserForm, self).__init__(person_1_id, person_2_id, *args, **kwargs)
-        predicate = lambda place, person: person.politic_power.is_in_inner_circle(owner_id) and self.person_filter(place, person)
+        def predicate(place, person):
+            if person.id == 993:
+                print owner_id, owner_id.__class__
+                print person.politic_power.is_in_inner_circle(owner_id)
+                print person.politic_power.inner_circle
+            return (person.politic_power.is_in_inner_circle(owner_id) and self.person_filter(place, person))
         self.fields['person_1'].choices = persons_objects.Person.form_choices(choosen_person=persons_storage.persons.get(person_1_id), predicate=predicate)
+
 
 class ModeratorForm(BaseForm, ModeratorFormMixin):
     pass
@@ -83,8 +89,8 @@ class PersonAddSocialConnection(BaseBill):
                  connection_type=None,
                  place_1_id=None,
                  place_2_id=None,
-                 old_place_1_name_forms=None,
-                 old_place_2_name_forms=None):
+                 old_place_1_name=None,
+                 old_place_2_name=None):
         super(PersonAddSocialConnection, self).__init__()
 
         self.person_1_id = person_1_id
@@ -94,8 +100,8 @@ class PersonAddSocialConnection(BaseBill):
         self.place_1_id = place_1_id
         self.place_2_id = place_2_id
 
-        self.old_place_1_name_forms = old_place_1_name_forms
-        self.old_place_2_name_forms = old_place_2_name_forms
+        self.old_place_1_name = old_place_1_name
+        self.old_place_2_name = old_place_2_name
 
         if self.place_1_id is None and self.person_1_id is not None:
             self.place_1_id = self.person_1.place.id
@@ -103,11 +109,11 @@ class PersonAddSocialConnection(BaseBill):
         if self.place_2_id is None and self.person_2_id is not None:
             self.place_2_id = self.person_2.place.id
 
-        if self.old_place_1_name_forms is None and self.place_1_id is not None:
-            self.old_place_1_name_forms = self.place_1.utg_name
+        if self.old_place_1_name is None and self.place_1_id is not None:
+            self.old_place_1_name = self.place_1.utg_name
 
-        if self.old_place_2_name_forms is None and self.place_2_id is not None:
-            self.old_place_2_name_forms = self.place_2.utg_name
+        if self.old_place_2_name is None and self.place_2_id is not None:
+            self.old_place_2_name = self.place_2.utg_name
 
     @property
     def person_1(self): return persons_storage.persons[self.person_1_id]
@@ -131,7 +137,7 @@ class PersonAddSocialConnection(BaseBill):
 
     @classmethod
     def get_user_form_create(cls, post=None, owner_id=None):
-        return cls.UserForm(None, owner_id, post) #pylint: disable=E1102
+        return cls.UserForm(None, None, owner_id, post) #pylint: disable=E1102
 
 
     def get_user_form_update(self, post=None, initial=None, owner_id=None):
@@ -140,27 +146,28 @@ class PersonAddSocialConnection(BaseBill):
         return  self.UserForm(self.person_1_id, self.person_2_id, owner_id, post) #pylint: disable=E1102
 
 
-    def get_moderator_form_update(self, post=None, initial=None):
+    def get_moderator_form_update(self, post=None, initial=None, owner_id=None):
         if initial:
             return self.ModeratorForm(self.person_1_id, self.person_2_id, initial=initial) #pylint: disable=E1102
         return  self.ModeratorForm(self.person_1_id, self.person_2_id, post) #pylint: disable=E1102
 
 
     @property
-    def old_place_1_name_changed(self):
-        return self.old_place_1_name != self.place_1.name
+    def place_1_name_changed(self):
+        return self.place_1_name != self.place_1.name
 
     @property
-    def old_place_2_name_changed(self):
-        return self.old_place_2_name != self.place_2.name
+    def place_2_name_changed(self):
+        return self.place_2_name != self.place_2.name
 
     @property
-    def place_1_name(self): return self.place_1_name_forms.normal_form()
+    def place_1_name(self): return self.place_1.name
 
     @property
-    def place_2_name(self): return self.place_2_name_forms.normal_form()
+    def place_2_name(self): return self.place_2.name
 
-    def initialize_with_user_data(self, user_form):
+
+    def initialize_with_form(self, user_form):
         self.person_1_id = int(user_form.c.person_1)
         self.person_2_id = int(user_form.c.person_2)
         self.connection_type = user_form.c.connection_type
@@ -168,8 +175,8 @@ class PersonAddSocialConnection(BaseBill):
         self.place_1_id = self.person_1.place.id
         self.place_2_id = self.person_2.place.id
 
-        self.old_place_1_name_forms = self.place_1.utg_name
-        self.old_place_2_name_forms = self.place_2.utg_name
+        self.old_place_1_name = self.place_1.utg_name
+        self.old_place_2_name = self.place_2.utg_name
 
     def has_meaning(self):
         if persons_storage.social_connections.is_connected(self.person_1, self.person_2):
@@ -196,8 +203,8 @@ class PersonAddSocialConnection(BaseBill):
                 'connection_type': self.connection_type.value,
                 'place_1_id': self.place_1_id,
                 'place_2_id': self.place_2_id,
-                'old_place_1_name_forms': self.old_place_1_name_forms.serialize(),
-                'old_place_2_name_forms': self.old_place_2_name_forms.serialize()}
+                'old_place_1_name': self.old_place_1_name.serialize(),
+                'old_place_2_name': self.old_place_2_name.serialize()}
 
     @classmethod
     def deserialize(cls, data):
@@ -210,7 +217,7 @@ class PersonAddSocialConnection(BaseBill):
         obj.place_1_id = data['place_1_id']
         obj.place_2_id = data['place_2_id']
 
-        obj.old_place_1_name_forms = utg_words.Word.deserialize(data['old_place_1_name_forms'])
-        obj.old_place_2_name_forms = utg_words.Word.deserialize(data['old_place_2_name_forms'])
+        obj.old_place_1_name = utg_words.Word.deserialize(data['old_place_1_name'])
+        obj.old_place_2_name = utg_words.Word.deserialize(data['old_place_2_name'])
 
         return obj

@@ -129,8 +129,8 @@ class PersonMove(BasePersonBill):
         return initials
 
 
-    def initialize_with_user_data(self, user_form):
-        super(PersonMove, self).initialize_with_user_data(user_form)
+    def initialize_with_form(self, user_form):
+        super(PersonMove, self).initialize_with_form(user_form)
         self.new_place_id = int(user_form.c.new_place)
         self.new_place_name_forms = self.new_place.utg_name
 

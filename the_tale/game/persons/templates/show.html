@@ -90,6 +90,39 @@
     </tbody>
   </table>
 
+  <h3>Социальные связи</h3>
+
+  {% if social_connections %}
+
+    <table class="table table-condensed">
+      <tbody>
+        {% for connection_type, connected_person in social_connections %}
+          <tr>
+            <td width="100px">
+              {% if connection_type.is_PARTNER %}
+                <span class="label label-success">{{connection_type.text}}</span>
+              {% endif %}
+
+              {% if connection_type.is_CONCURRENT %}
+                <span class="label label-important">{{connection_type.text}}</span>
+              {% endif %}
+            </td>
+            <td>
+              {{connected_person.name}}
+              из
+              <a href="{{url('game:places:show', person.place_id)}}">{{connected_person.place.utg_name.forms[1]}}</a> —
+              {{ persons_macros.person_description(connected_person) }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="alert alert-info">
+      У Мастера нет связей.
+    </p>
+  {% endif %}
+
   <h3>Герои</h3>
 
   <ul>

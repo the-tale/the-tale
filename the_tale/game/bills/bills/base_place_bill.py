@@ -38,7 +38,7 @@ class BasePlaceBill(base_bill.BaseBill):
     def place_name_changed(self):
         return self.old_name != self.place.name
 
-    def initialize_with_user_data(self, user_form):
+    def initialize_with_form(self, user_form):
         self.place_id = int(user_form.c.place)
         self.old_name_forms = self.place.utg_name
 

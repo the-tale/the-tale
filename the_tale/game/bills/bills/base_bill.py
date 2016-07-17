@@ -14,10 +14,7 @@ class BaseBill(object):
     def show_template(cls):
         return 'bills/bills/{type}_show.html'.format(type=cls.type.name.lower())
 
-    def moderator_form_initials(self):
-        return self.user_form_initials()
-
-    def initialize_with_moderator_data(self, moderator_form):
+    def initialize_with_form(self, form):
         pass
 
     @classmethod
@@ -27,7 +24,7 @@ class BaseBill(object):
     def get_user_form_update(self, post=None, initial=None, **kwargs):
         if initial:
             return self.UserForm(initial=initial)
-        return  self.UserForm(post)
+        return self.UserForm(post)
 
     def get_moderator_form_update(self, post=None, initial=None, **kwargs):
         if initial:

@@ -61,8 +61,8 @@ class PersonChronicle(BasePersonBill):
         initials['power_bonus'] = self.power_bonus
         return initials
 
-    def initialize_with_user_data(self, user_form):
-        super(PersonChronicle, self).initialize_with_user_data(user_form)
+    def initialize_with_form(self, user_form):
+        super(PersonChronicle, self).initialize_with_form(user_form)
         self.power_bonus = user_form.c.power_bonus
 
     def serialize(self):

@@ -61,13 +61,9 @@ class PlaceRenaming(base_place_bill.BasePlaceBill):
         data['name'] = self.name_forms
         return data
 
-    def initialize_with_user_data(self, user_form):
-        super(PlaceRenaming, self).initialize_with_user_data(user_form)
+    def initialize_with_form(self, user_form):
+        super(PlaceRenaming, self).initialize_with_form(user_form)
         self.name_forms = user_form.c.name
-
-    def initialize_with_moderator_data(self, moderator_form):
-        super(PlaceRenaming, self).initialize_with_moderator_data(moderator_form)
-        self.name_forms = moderator_form.c.name
 
     def has_meaning(self):
         return self.place.utg_name != self.name_forms

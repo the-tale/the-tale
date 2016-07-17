@@ -40,8 +40,8 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
         self.assertTrue(self.bill.data.connection_type.is_PARTNER)
         self.assertEqual(self.bill.data.place_1_id, self.place1.id)
         self.assertEqual(self.bill.data.place_2_id, self.place2.id)
-        self.assertEqual(self.bill.data.old_place_1_name_forms, self.place1.utg_name)
-        self.assertEqual(self.bill.data.old_place_2_name_forms, self.place2.utg_name)
+        self.assertEqual(self.bill.data.old_place_1_name, self.place1.utg_name)
+        self.assertEqual(self.bill.data.old_place_2_name, self.place2.utg_name)
 
 
     def test_actors(self):
@@ -73,8 +73,8 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
         self.assertTrue(self.bill.data.connection_type.is_CONCURRENT)
         self.assertEqual(self.bill.data.place_1_id, self.place2.id)
         self.assertEqual(self.bill.data.place_2_id, self.place3.id)
-        self.assertEqual(self.bill.data.old_place_1_name_forms, self.place2.utg_name)
-        self.assertEqual(self.bill.data.old_place_2_name_forms, self.place3.utg_name)
+        self.assertEqual(self.bill.data.old_place_1_name, self.place2.utg_name)
+        self.assertEqual(self.bill.data.old_place_2_name, self.place3.utg_name)
 
 
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 1)

@@ -80,17 +80,13 @@ class BuildingRenaming(BasePersonBill):
         initials['name'] = self.new_building_name_forms
         return initials
 
-    def initialize_with_user_data(self, user_form):
-        super(BuildingRenaming, self).initialize_with_user_data(user_form)
+    def initialize_with_form(self, user_form):
+        super(BuildingRenaming, self).initialize_with_form(user_form)
         self.new_building_name_forms = user_form.c.name
 
         building = places_storage.buildings.get_by_person_id(self.person_id)
         if building is not None:
             self.old_building_name_forms = building.utg_name
-
-    def initialize_with_moderator_data(self, moderator_form):
-        super(BuildingRenaming, self).initialize_with_moderator_data(moderator_form)
-        self.new_building_name_forms = moderator_form.c.name
 
     def serialize(self):
         data = super(BuildingRenaming, self).serialize()

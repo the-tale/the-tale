@@ -65,7 +65,10 @@ class RecordTests(TestCase):
 
         declined_bill = BillPrototype.create(self.account, 'declined-bill-caption', 'declined-bill-rationale', declined_bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
-        declined_form = bills.PlaceResourceExchange.ModeratorForm({'approved': True})
+        declined_data = declined_bill.user_form_initials
+        declined_data['approved'] = True
+
+        declined_form = bills.PlaceResourceExchange.ModeratorForm(declined_data)
         self.assertTrue(declined_form.is_valid())
         declined_bill.update_by_moderator(declined_form)
         declined_bill.apply()
@@ -84,7 +87,10 @@ class RecordTests(TestCase):
 
         declined_bill = BillPrototype.create(self.account, 'declined-bill-caption', 'declined-bill-rationale', declined_bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
-        declined_form = bills.PlaceResourceConversion.ModeratorForm({'approved': True})
+        declined_data = declined_bill.user_form_initials
+        declined_data['approved'] = True
+
+        declined_form = bills.PlaceResourceConversion.ModeratorForm(declined_data)
         self.assertTrue(declined_form.is_valid())
         declined_bill.update_by_moderator(declined_form)
         declined_bill.apply()
@@ -110,7 +116,11 @@ class RecordTests(TestCase):
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_bill_decline__actors_on_creation_record__exchange(self):
         bill, declined_bill = self.create_bill_decline__exchange()
-        form = bills.BillDecline.ModeratorForm({'approved': True})
+
+        data = bill.user_form_initials
+        data['approved'] = True
+
+        form = bills.BillDecline.ModeratorForm(data)
         self.assertTrue(form.is_valid())
 
         bill.update_by_moderator(form)
@@ -133,7 +143,11 @@ class RecordTests(TestCase):
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_bill_decline__actors_on_creation_record__conversion(self):
         bill, declined_bill = self.create_bill_decline__conversion()
-        form = bills.BillDecline.ModeratorForm({'approved': True})
+
+        data = bill.user_form_initials
+        data['approved'] = True
+
+        form = bills.BillDecline.ModeratorForm(data)
         self.assertTrue(form.is_valid())
 
         bill.update_by_moderator(form)

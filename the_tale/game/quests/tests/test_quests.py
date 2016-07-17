@@ -58,8 +58,6 @@ class QuestsTestBase(testcase.TestCase):
         places_logic.add_person_to_place(self.p3)
         places_logic.add_person_to_place(self.p3)
 
-        persons_logic.sync_social_connections()
-
         result, account_id, bundle_id = register_user('test_user')
 
         self.storage = LogicStorage()

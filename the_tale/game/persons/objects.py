@@ -300,9 +300,9 @@ class Person(names.ManageNameMixin2):
 
 
 class SocialConnection(object):
-    __slots__ = ('id', 'connection', 'person_1_id', 'person_2_id', 'created_at', 'created_at_turn', 'state')
+    __slots__ = ('id', 'connection', 'person_1_id', 'person_2_id', 'created_at', 'created_at_turn')
 
-    def __init__(self, id, connection, person_1_id, person_2_id, created_at, created_at_turn, state):
+    def __init__(self, id, connection, person_1_id, person_2_id, created_at, created_at_turn):
         self.id = id
         self.created_at = created_at
         self.created_at_turn = created_at_turn
@@ -311,9 +311,11 @@ class SocialConnection(object):
         self.person_2_id = person_2_id
 
         self.connection = connection
-        self.state = state
 
     @property
     def persons(self):
         from the_tale.game.persons import storage
         return (storage.persons[self.person_1_id], storage.persons[self.person_2_id])
+
+    def can_be_removed(self):
+        return TimePrototype.get_current_turn_number() >= self.created_at_turn + c.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME

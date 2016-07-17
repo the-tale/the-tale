@@ -65,8 +65,8 @@ class PlaceRace(base_place_bill.BasePlaceBill):
         data['new_race'] = self.new_race
         return data
 
-    def initialize_with_user_data(self, user_form):
-        super(PlaceRace, self).initialize_with_user_data(user_form)
+    def initialize_with_form(self, user_form):
+        super(PlaceRace, self).initialize_with_form(user_form)
         self.new_race = user_form.c.new_race
         self.old_race = self.place.race
 

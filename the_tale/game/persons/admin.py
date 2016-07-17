@@ -19,8 +19,8 @@ class PersonAdmin(admin.ModelAdmin):
 
 
 class SocialConnectionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'state', 'connection', 'person_1', 'person_2', 'created_at')
-    list_filter = ('state', 'connection')
+    list_display = ('id', 'connection', 'person_1', 'person_2', 'created_at')
+    list_filter = ('connection',)
 
 
 admin.site.register(models.Person, PersonAdmin)

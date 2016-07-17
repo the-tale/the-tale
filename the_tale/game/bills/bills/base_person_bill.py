@@ -66,7 +66,7 @@ class BasePersonBill(BaseBill):
     def user_form_initials(self):
         return {'person': self.person_id}
 
-    def initialize_with_user_data(self, user_form):
+    def initialize_with_form(self, user_form):
         self.person_id = int(user_form.c.person)
         self.old_place_name_forms = self.person.place.utg_name
 

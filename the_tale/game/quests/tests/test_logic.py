@@ -17,6 +17,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import relations as persons_relations
 from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.mobs.storage import mobs_storage
@@ -351,7 +352,14 @@ class SetupPersonsTest(LogicTestsBase):
 
 
     def test_social_connections(self):
-        persons_logic.sync_social_connections()
+        persons_1 = self.place_1.persons
+        persons_2 = self.place_2.persons
+        persons_3 = self.place_3.persons
+
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_1[0], persons_2[0])
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_1[1], persons_3[0])
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_2[0], persons_3[0])
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_2[1], persons_3[1])
 
         self.hero.position.set_place(self.place_1)
 

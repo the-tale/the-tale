@@ -207,7 +207,7 @@ class BillResource(Resource):
         user_form = bill_data.get_user_form_create(self.request.POST, owner_id=self.account.id)
 
         if user_form.is_valid():
-            bill_data.initialize_with_user_data(user_form)
+            bill_data.initialize_with_form(user_form)
             bill = BillPrototype.create(owner=self.account,
                                         caption=user_form.c.caption,
                                         rationale=user_form.c.rationale,
@@ -280,7 +280,7 @@ class BillResource(Resource):
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'moderate', name='moderate', method='get')
     def moderation_page(self):
-        moderation_form = self.bill.data.get_moderator_form_update(initial=self.bill.moderator_form_initials, owner_id=self.account.id)
+        moderation_form = self.bill.data.get_moderator_form_update(initial=self.bill.moderator_form_initials)
         return self.template('bills/moderate.html', {'bill': self.bill,
                                                      'page_type': 'moderate',
                                                      'form': moderation_form} )
@@ -291,7 +291,7 @@ class BillResource(Resource):
     @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'moderate', name='moderate', method='post')
     def moderate(self):
-        moderator_form = self.bill.data.get_moderator_form_update(post=self.request.POST, owner_id=self.account.id)
+        moderator_form = self.bill.data.get_moderator_form_update(post=self.request.POST)
 
         if moderator_form.is_valid():
             self.bill.update_by_moderator(moderator_form)

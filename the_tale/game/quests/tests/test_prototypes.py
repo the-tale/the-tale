@@ -152,6 +152,52 @@ class PrototypeTests(PrototypeTestsBase):
 
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
+    def test_give_person_power__social_power__inside_circle(self):
+        person, concurrent, partner = persons_storage.persons.all()[0:3]
+
+        person.attrs.social_relations_partners_power_modifier = 0.1
+        person.attrs.social_relations_concurrents_power_modifier = 0.1
+
+        self.hero.preferences.set_friend(person)
+
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person, concurrent)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person, partner)
+
+        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as cmd_change_power:
+            self.quest._give_person_power(self.hero, person, 3.0)
+
+        self.assertEqual(sorted(cmd_change_power.call_args_list, key=lambda x: x[1]['power_delta']),
+                         [mock.call(power_delta=-3.1, place_id=None, has_person_in_preferences=True, person_id=concurrent.id, has_place_in_preferences=False, hero_id=1),
+                          mock.call(power_delta=3.1, place_id=None, has_person_in_preferences=True, person_id=partner.id, has_place_in_preferences=False, hero_id=1),
+                          mock.call(power_delta=31, place_id=None, has_person_in_preferences=True, person_id=person.id, has_place_in_preferences=False, hero_id=1)])
+
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
+    def test_give_person_power__social_power__outside_circle(self):
+        person, concurrent, partner = persons_storage.persons.all()[0:3]
+
+        person.attrs.social_relations_partners_power_modifier = 0.1
+        person.attrs.social_relations_concurrents_power_modifier = 0.1
+
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person, concurrent)
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person, partner)
+
+        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as cmd_change_power:
+            self.quest._give_person_power(self.hero, person, 3.0)
+
+        self.assertEqual(sorted(cmd_change_power.call_args_list, key=lambda x: x[1]['power_delta']),
+                         [mock.call(power_delta=-3.1, place_id=None, has_person_in_preferences=False, person_id=concurrent.id, has_place_in_preferences=False, hero_id=1),
+                          mock.call(power_delta=3.1, place_id=None, has_person_in_preferences=False, person_id=partner.id, has_place_in_preferences=False, hero_id=1),
+                          mock.call(power_delta=31, place_id=None, has_person_in_preferences=False, person_id=person.id, has_place_in_preferences=False, hero_id=1)])
+
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
     def test_give_person_power__places_help_history(self):
 
         person = persons_storage.persons.all()[0]
@@ -467,146 +513,6 @@ class PrototypeTests(PrototypeTestsBase):
 
         with self.check_delta(lambda: self.hero.money, 1):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
-
-    def test_give_social_power(self):
-        self.quest.current_info.power = 10
-        self.quest.current_info.power_bonus = 1
-
-        for person in persons_storage.persons.all():
-            person_uid = uids.person(person.id)
-            if person_uid not in self.quest.knowledge_base:
-                self.quest.knowledge_base += logic.fact_person(person)
-
-        person_1_1 =  self.place_3.persons[0]
-        person_1_2 =  self.place_3.persons[1]
-        person_1_3 =  self.place_3.persons[2]
-        person_2_1 =  self.place_2.persons[0]
-        person_2_2 =  self.place_2.persons[1]
-        person_2_3 =  self.place_2.persons[2]
-
-        results = {uids.person(person_1_1.id): QUEST_RESULTS.SUCCESSED,
-                   uids.person(person_1_2.id): QUEST_RESULTS.FAILED,
-                   uids.person(person_1_3.id): QUEST_RESULTS.NEUTRAL,
-                   uids.person(person_2_1.id): QUEST_RESULTS.SUCCESSED,
-                   uids.person(person_2_2.id): QUEST_RESULTS.FAILED,
-                   uids.person(person_2_3.id): QUEST_RESULTS.NEUTRAL}
-
-        persons_models.SocialConnection.objects.all().delete()
-        persons_storage.social_connections.refresh()
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_1, person_2_1)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_1, person_2_2)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_1, person_2_3)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_2, person_2_2)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_2, person_2_3)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_3, person_2_3)
-
-        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
-            self.quest.give_social_power(results)
-
-        calls = set((call[1]['person'].id, call[1]['power'])
-                    for call in give_person_power.call_args_list)
-
-        self.assertEqual(calls,
-                         set(((person_1_1.id, 1),
-                              (person_2_1.id, 1),
-                              (person_1_2.id, -1),
-                              (person_2_2.id, -1))))
-
-        persons_models.SocialConnection.objects.all().delete()
-        persons_storage.social_connections.refresh()
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_1, person_2_1)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_1, person_2_2)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_1, person_2_3)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_2, person_2_2)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_2, person_2_3)
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person_1_3, person_2_3)
-
-        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
-            self.quest.give_social_power(results)
-
-        calls = set((call[1]['person'].id, call[1]['power'])
-                    for call in give_person_power.call_args_list)
-
-        self.assertEqual(calls,
-                         set(((person_1_1.id, 1),
-                              (person_2_2.id, -1))))
-
-    def test_give_social_power__two_results(self):
-        self.quest.current_info.power = 10
-        self.quest.current_info.power_bonus = 1
-
-        for person in persons_storage.persons.all():
-            person_uid = uids.person(person.id)
-            if person_uid not in self.quest.knowledge_base:
-                self.quest.knowledge_base += logic.fact_person(person)
-
-        person_1_1 =  self.place_3.persons[0]
-        person_2_1 =  self.place_2.persons[0]
-
-        results = {uids.person(person_1_1.id): QUEST_RESULTS.SUCCESSED,
-                   uids.person(person_2_1.id): QUEST_RESULTS.SUCCESSED}
-
-        persons_models.SocialConnection.objects.all().delete()
-        persons_storage.social_connections.refresh()
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person_1_1, person_2_1)
-
-        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
-            self.quest.give_social_power(results)
-
-        calls = set((call[1]['person'].id, call[1]['power'])
-                    for call in give_person_power.call_args_list)
-
-        self.assertEqual(calls,
-                         set(((person_1_1.id, 1),
-                              (person_2_1.id, 1))))
-
-
-    def test_give_social_power__one_result(self):
-        self.quest.current_info.power = 10
-        self.quest.current_info.power_bonus = 1
-
-        for person in persons_storage.persons.all():
-            person_uid = uids.person(person.id)
-            if person_uid not in self.quest.knowledge_base:
-                self.quest.knowledge_base += logic.fact_person(person)
-
-        person_1_1 =  self.place_3.persons[0]
-
-        results = {uids.person(person_1_1.id): QUEST_RESULTS.SUCCESSED}
-
-        persons_models.SocialConnection.objects.all().delete()
-        persons_storage.social_connections.refresh()
-
-        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
-            self.quest.give_social_power(results)
-
-        calls = set((call[1]['person'].id, call[1]['power'])
-                    for call in give_person_power.call_args_list)
-
-        self.assertEqual(calls, set())
-
-
-    def test_give_social_power__no_results(self):
-        self.quest.current_info.power = 10
-        self.quest.current_info.power_bonus = 1
-
-        for person in persons_storage.persons.all():
-            person_uid = uids.person(person.id)
-            if person_uid not in self.quest.knowledge_base:
-                self.quest.knowledge_base += logic.fact_person(person)
-
-        results = {}
-
-        persons_models.SocialConnection.objects.all().delete()
-        persons_storage.social_connections.refresh()
-
-        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype._give_person_power') as give_person_power:
-            self.quest.give_social_power(results)
-
-        calls = set((call[1]['person'].id, call[1]['power'])
-                    for call in give_person_power.call_args_list)
-
-        self.assertEqual(calls, set())
 
 
     def test_finish_quest__person_personality(self):

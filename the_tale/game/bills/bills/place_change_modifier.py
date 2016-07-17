@@ -74,8 +74,8 @@ class PlaceModifier(base_place_bill.BasePlaceBill):
         data['new_modifier'] = self.modifier_id
         return data
 
-    def initialize_with_user_data(self, user_form):
-        super(PlaceModifier, self).initialize_with_user_data(user_form)
+    def initialize_with_form(self, user_form):
+        super(PlaceModifier, self).initialize_with_form(user_form)
         self.modifier_id = user_form.c.new_modifier
         self.modifier_name = self.modifier_id.text
         self.old_modifier_name = self.place._modifier.text if not self.place._modifier.is_NONE else None

@@ -65,13 +65,9 @@ class BuildingCreate(BasePersonBill):
         initials['name'] = self.building_name_forms
         return initials
 
-    def initialize_with_user_data(self, user_form):
-        super(BuildingCreate, self).initialize_with_user_data(user_form)
+    def initialize_with_form(self, user_form):
+        super(BuildingCreate, self).initialize_with_form(user_form)
         self.building_name_forms = user_form.c.name
-
-    def initialize_with_moderator_data(self, moderator_form):
-        super(BuildingCreate, self).initialize_with_moderator_data(moderator_form)
-        self.building_name_forms = moderator_form.c.name
 
     def serialize(self):
         data = super(BuildingCreate, self).serialize()

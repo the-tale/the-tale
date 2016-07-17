@@ -89,7 +89,7 @@ class BillPrototype(BasePrototype):
 
     @property
     def moderator_form_initials(self):
-        special_initials = self.data.moderator_form_initials()
+        special_initials = self.user_form_initials
         special_initials.update({'approved': self.approved_by_moderator})
         return special_initials
 
@@ -291,6 +291,17 @@ class BillPrototype(BasePrototype):
 
         return rendered_text
 
+
+    def _initialize_with_form(self, form):
+        self.data.initialize_with_form(form)
+
+        self._model.updated_at = datetime.datetime.now()
+        self._model.caption = form.c.caption
+        self._model.rationale = form.c.rationale
+        self._model.approved_by_moderator = False
+        self._model.chronicle_on_accepted = form.c.chronicle_on_accepted
+
+
     @transaction.atomic
     def update(self, form):
 
@@ -298,13 +309,7 @@ class BillPrototype(BasePrototype):
 
         VotePrototype.create(self.owner, self, VOTE_TYPE.FOR)
 
-        self.data.initialize_with_user_data(form)
-
-        self._model.updated_at = datetime.datetime.now()
-        self._model.caption = form.c.caption
-        self._model.rationale = form.c.rationale
-        self._model.approved_by_moderator = False
-        self._model.chronicle_on_accepted = form.c.chronicle_on_accepted
+        self._initialize_with_form(form)
 
         self.recalculate_votes()
 
@@ -328,7 +333,7 @@ class BillPrototype(BasePrototype):
 
     @transaction.atomic
     def update_by_moderator(self, form):
-        self.data.initialize_with_moderator_data(form)
+        self._initialize_with_form(form)
         self._model.approved_by_moderator = form.c.approved
         self.save()
 

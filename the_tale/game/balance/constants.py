@@ -285,8 +285,6 @@ QUESTS_SHORT_PATH_LEVEL_CAP = int(4) # на уровнях до этого ге�
 
 QUESTS_PILGRIMAGE_FRACTION = float(0.025) # вероятность отправить героя в паломничество
 
-QUESTS_SOCIAL_CONNECTIONS_FRACTION = float(0.07) # вероятность, что новое задание будет создано на основе социальной связи
-
 ##########################
 # Влияние
 ##########################
@@ -499,6 +497,11 @@ PERSON_MOVE_DELAY_IN_WEEKS = int(2)
 PERSON_MOVE_DELAY = int(TURNS_IN_HOUR * 24 * 7 * PERSON_MOVE_DELAY_IN_WEEKS) # минимальная задержка между переездами Мастера
 
 PERSON_SOCIAL_CONNECTIONS_LIMIT = int(3)
+
+PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME_IN_WEEKS = int(2)
+PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME = int(TURNS_IN_HOUR * 24 * 7 * PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME_IN_WEEKS)
+
+PERSON_SOCIAL_CONNECTIONS_POWER_BONUS = float(0.1)
 
 ###########################
 # здания
