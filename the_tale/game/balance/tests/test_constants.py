@@ -99,9 +99,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.DESTINY_POINT_IN_LEVELS, 5)
         self.assertEqual(c.SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION, 0.75)
 
-        self.assertEqual(c.ANGEL_ENERGY_MAX, 12)
-        self.assertEqual(c.ANGEL_ENERGY_PREMIUM_BONUS, 6)
-        self.assertEqual(c.ANGEL_FREE_ENERGY_MAXIMUM, 50)
+        self.assertEqual(c.ANGEL_ENERGY_FREE_MAX, 16)
+        self.assertEqual(c.ANGEL_ENERGY_PREMIUM_MAX, 72)
+        self.assertEqual(c.ANGEL_FREE_ENERGY_MAXIMUM, 96)
         self.assertEqual(c.ANGEL_FREE_ENERGY_CHARGE, 10)
         self.assertEqual(c.ANGEL_FREE_ENERGY_CHARGE_CRIT, 20)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_TIME,  0.5)

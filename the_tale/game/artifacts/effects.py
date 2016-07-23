@@ -85,7 +85,7 @@ class PersonPower(BaseEffect):
 class Energy(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.ENERGY
     DESCRIPTION = u'Немного увеличивает максимум энергии Хранителя'
-    MODIFIER = 1
+    MODIFIER = 3
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -176,7 +176,7 @@ class GreatPersonPower(BaseEffect):
 class GreatEnergy(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_ENERGY
     DESCRIPTION = u'Сильно увеличивает максимум энергии Хранителя'
-    MODIFIER = 2
+    MODIFIER = 6
 
     @classmethod
     def modify_attribute(cls, type_, value):

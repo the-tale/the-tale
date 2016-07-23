@@ -409,9 +409,11 @@ class LogicAccessorsMixin(object):
 
     @property
     def energy_maximum(self):
-        maximum = c.ANGEL_ENERGY_MAX
         if self.is_premium:
-            maximum = c.ANGEL_ENERGY_MAX + c.ANGEL_ENERGY_PREMIUM_BONUS
+            maximum = c.ANGEL_ENERGY_PREMIUM_MAX
+        else:
+            maximum = c.ANGEL_ENERGY_FREE_MAX
+
         return maximum + self.attribute_modifier(relations.MODIFIERS.MAX_ENERGY)
 
     @property

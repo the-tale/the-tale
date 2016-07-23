@@ -330,7 +330,7 @@ def create_hero(account):
                         health=f.hp_on_lvl(1),
                         level=1,
                         experience=0,
-                        energy=c.ANGEL_ENERGY_MAX,
+                        energy=c.ANGEL_ENERGY_FREE_MAX,
                         energy_bonus=conf.heroes_settings.START_ENERGY_BONUS,
                         money=0,
                         next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
