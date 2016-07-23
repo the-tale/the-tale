@@ -63,7 +63,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ARTIFACT_POWER_DELTA, 0.2)
         self.assertEqual(c.ARTIFACT_BETTER_MIN_POWER_DELTA, 5)
         self.assertEqual(c.ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE, 1)
-        self.assertEqual(c.ARTIFACT_INTEGRITY_SAFE_PROBABILITY_FOR_FAVORITE_ITEM, 0.5)
+        self.assertEqual(c.ARTIFACT_INTEGRITY_DAMAGE_FOR_FAVORITE_ITEM, 0.5)
 
         self.assertEqual(c.ARTIFACT_RARE_MAX_INTEGRITY_MULTIPLIER, 1.5)
         self.assertEqual(c.ARTIFACT_EPIC_MAX_INTEGRITY_MULTIPLIER, 2)

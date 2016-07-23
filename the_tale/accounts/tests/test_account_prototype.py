@@ -267,7 +267,9 @@ class AccountPrototypeTests(testcase.TestCase):
         self.account.update_actual_bills()
         self.assertEqual(self.account.actual_bills, [])
 
-        form = bills.PlaceModifier.ModeratorForm({'approved': True})
+        data = bill.user_form_initials
+        data['approved'] = True
+        form = bills.PlaceModifier.ModeratorForm(data)
         self.assertTrue(form.is_valid())
         bill.update_by_moderator(form)
 

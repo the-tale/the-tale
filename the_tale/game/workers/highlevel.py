@@ -215,7 +215,6 @@ class Worker(BaseWorker):
 
             places_storage.places.save_all()
             persons_storage.persons.save_all()
-            persons_logic.sync_social_connections()
 
             if sheduled:
                 for building in places_storage.buildings.all():

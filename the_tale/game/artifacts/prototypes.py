@@ -192,8 +192,8 @@ class ArtifactPrototype(object):
             return 0
         return float(self.integrity) / self.max_integrity
 
-    def damage_integrity(self):
-        self.integrity = max(0, self.integrity - c.ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE)
+    def damage_integrity(self, delta):
+        self.integrity = max(0, self.integrity - delta)
 
     def can_be_broken(self):
         return self.integrity < self.max_integrity * (1.0 - c.ARTIFACT_INTEGRITY_SAFE_BARRIER)
@@ -216,7 +216,7 @@ class ArtifactPrototype(object):
                 'id': self.record.id,
                 'equipped': self.can_be_equipped,
                 'name': self.name,
-                'integrity': (self.integrity if not self.type.is_USELESS else None,
+                'integrity': (int(self.integrity) if not self.type.is_USELESS else None,
                               self.max_integrity if not self.type.is_USELESS else None),
                 'rarity': self.rarity.value if not self.type.is_USELESS else None,
                 'effect': effect.value,

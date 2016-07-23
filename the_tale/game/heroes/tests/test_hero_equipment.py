@@ -454,7 +454,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
                 self.assertTrue(candidate.integrity <= int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1)
 
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_safe_artifact_integrity', lambda self: False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.safe_artifact_integrity_probability', 1.1)
     def test_damage_integrity(self):
         self.hero.equipment._remove_all()
         for slot in relations.EQUIPMENT_SLOT.records:
@@ -466,7 +466,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         for artifact in self.hero.equipment.values():
             self.assertTrue(artifact.integrity < artifact.max_integrity)
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_safe_artifact_integrity', lambda self: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.safe_artifact_integrity_probability', 0.0)
     def test_damage_integrity__safe(self):
         self.hero.equipment._remove_all()
         for slot in relations.EQUIPMENT_SLOT.records:
@@ -477,6 +477,54 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         for artifact in self.hero.equipment.values():
             self.assertEqual(artifact.integrity, artifact.max_integrity)
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.safe_artifact_integrity_probability', 0.0)
+    def test_damage_integrity__favorite_item(self):
+
+        new_artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
+        self.hero.equipment.unequip(new_artifact.type.equipment_slot)
+        self.hero.equipment.equip(new_artifact.type.equipment_slot, new_artifact)
+
+        old_integrity = new_artifact.integrity
+
+        self.hero.damage_integrity()
+
+        not_favorite_integrity = new_artifact.integrity
+
+        self.hero.preferences.set_favorite_item(new_artifact.type.equipment_slot)
+
+        self.hero.damage_integrity()
+
+        favorite_integrity = new_artifact.integrity
+
+        self.assertTrue(old_integrity - not_favorite_integrity > not_favorite_integrity - favorite_integrity)
+
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.safe_artifact_integrity_probability', 0.0)
+    def test_damage_integrity__damage_from_artifact_power(self):
+        expected_artifact_power = Power.normal_power_to_level(self.hero.level)
+
+        new_artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
+        new_artifact.power = Power(expected_artifact_power / 2, expected_artifact_power / 2)
+
+        self.hero.equipment.unequip(new_artifact.type.equipment_slot)
+        self.hero.equipment.equip(new_artifact.type.equipment_slot, new_artifact)
+
+        old_integrity = new_artifact.integrity
+
+        self.hero.damage_integrity()
+
+        not_modified_integrity = new_artifact.integrity
+
+        new_artifact.power = Power(expected_artifact_power, expected_artifact_power)
+
+        self.hero.damage_integrity()
+
+        modified_integrity = new_artifact.integrity
+
+        self.assertTrue(old_integrity - not_modified_integrity < not_modified_integrity - modified_integrity)
+
+
 
 
 class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):

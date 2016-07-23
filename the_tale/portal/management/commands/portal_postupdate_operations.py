@@ -46,11 +46,6 @@ class Command(BaseCommand):
         run_django_command(['market_sync_goods'])
 
         print
-        print 'SYNC SOCIAL CONNECTIONS'
-
-        persons_logic.sync_social_connections()
-
-        print
         print 'SYNC ACTUAL BILLS'
 
         bills_logic.update_actual_bills_for_all_accounts()

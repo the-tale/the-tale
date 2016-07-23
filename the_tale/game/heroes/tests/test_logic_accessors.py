@@ -115,28 +115,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
                                        OPTION_MARKERS.AGGRESSIVE,
                                        OPTION_MARKERS.UNAGGRESSIVE]))
 
-    def test_can_safe_artifact_integrity(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
-        self.hero.preferences.set_favorite_item(None)
-        self.assertFalse(any(self.hero.can_safe_artifact_integrity(artifact) for i in xrange(100)))
-
-    def test_can_safe_artifact_integrity__favorite_item(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
-        self.hero.preferences.set_favorite_item(artifact.type.equipment_slot)
-        self.assertTrue(any(self.hero.can_safe_artifact_integrity(artifact) for i in xrange(100)))
-
-    def test_can_safe_artifact_integrity__favorite_item__wrong_slot(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL)
-
-        wrong_slot = None
-        for slot in relations.EQUIPMENT_SLOT.records:
-            if artifact.type.equipment_slot != slot:
-                wrong_slot = slot
-                break
-
-        self.hero.preferences.set_favorite_item(wrong_slot)
-        self.assertFalse(any(self.hero.can_safe_artifact_integrity(artifact) for i in xrange(100)))
-
     def test_update_context(self):
         additional_ability = mock.Mock()
         with mock.patch('the_tale.game.heroes.objects.Hero.abilities') as abilities:

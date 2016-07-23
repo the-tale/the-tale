@@ -208,12 +208,6 @@ class LogicAccessorsMixin(object):
     def can_get_artifact_for_quest(self):
         return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.GET_ARTIFACT_FOR_QUEST)
 
-    def can_safe_artifact_integrity(self, artifact):
-        probability = self.safe_artifact_integrity_probability
-        if self.preferences.favorite_item is not None and self.preferences.favorite_item == artifact.type.equipment_slot:
-            probability += c.ARTIFACT_INTEGRITY_SAFE_PROBABILITY_FOR_FAVORITE_ITEM
-        return random.uniform(0, 1) < probability
-
     def can_companion_steal_money(self):
         return self.check_attribute(relations.MODIFIERS.COMPANION_STEAL_MONEY)
 

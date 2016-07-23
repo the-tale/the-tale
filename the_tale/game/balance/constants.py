@@ -132,7 +132,7 @@ ARTIFACTS_BREAKS_PER_BATTLE = float(ARTIFACTS_BREAKING_SPEED / (BATTLES_PER_HOUR
 ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY = float(0.25) # вероятность выбрать для покупки/обновления артефакт из предпочитаемого слота
 
 ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE = int(1) # уменьшение целостности артефактов за бой
-ARTIFACT_INTEGRITY_SAFE_PROBABILITY_FOR_FAVORITE_ITEM = float(0.5) # вероятность неуменьшения целостности любимого предмета
+ARTIFACT_INTEGRITY_DAMAGE_FOR_FAVORITE_ITEM = float(0.5) # модификатор повреждений целостности любимого предмета
 
 _INTEGRITY_LOST_IN_DAY = BATTLES_PER_HOUR * 24 * ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE
 
@@ -142,7 +142,7 @@ ARTIFACT_MAX_INTEGRITY_DELTA = float(0.25) # разброс допустимой
 
 ARTIFACT_MAX_INTEGRITY = int(round(_INTEGRITY_LOST_IN_DAY * 30, -3)) # максимальная целостность обычного артефакта
 ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION = float(0.02) # доля максимальной целостности, теряемая при заточке
-ARTIFACT_INTEGRITY_SAFE_BARRIER = float(0.2) # доля от максимальной целостности, артефакт не может сломаться, если цего целостность отличается от максимальной меньше чем на эту долю
+ARTIFACT_INTEGRITY_SAFE_BARRIER = float(0.2) # доля от максимальной целостности, артефакт не может сломаться, если его целостность отличается от максимальной меньше чем на эту долю
 ARTIFACT_BREAK_POWER_FRACTIONS = (float(0.2), float(0.3)) # на сколько артефакт может сломаться за раз
 ARTIFACT_BREAK_INTEGRITY_FRACTIONS = (float(0.1), float(0.2)) # на сколько артефакт может сломаться за раз
 

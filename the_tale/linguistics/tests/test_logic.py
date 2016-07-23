@@ -403,6 +403,9 @@ class LogicTests(testcase.TestCase):
 
 
     def test_sync_restriction__not_exists(self):
+        storage.restrictions_storage._get_all_query().delete()
+        storage.restrictions_storage.clear()
+
         group = random.choice(relations.TEMPLATE_RESTRICTION_GROUP.records)
 
         with self.check_delta(models.Restriction.objects.count, 1):

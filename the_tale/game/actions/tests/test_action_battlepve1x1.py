@@ -412,4 +412,4 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.action_battle.process_artifact_breaking()
 
         for artifact in self.hero.equipment.values():
-            self.assertEqual(artifact.integrity, artifact.max_integrity - 1)
+            self.assertTrue(artifact.integrity < artifact.max_integrity)

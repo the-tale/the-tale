@@ -243,10 +243,6 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(mark_as_updated.call_count, places_number)
 
 
-    def test_sync_data__social_connections_synced(self):
-        with self.check_increased(lambda: len(persons_storage.social_connections.all())):
-            self.worker.sync_data()
-
     @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 0.9)
     @mock.patch('the_tale.game.places.objects.Place.refresh_attributes', mock.Mock())
     def test_sync_data(self):

@@ -173,9 +173,18 @@ class EquipmentMethodsMixin(object):
                 return artifact
 
     def damage_integrity(self):
+        if random.random() < self.safe_artifact_integrity_probability:
+            return
+
+        expected_artifact_power = Power.normal_power_to_level(self.level)
+
         for artifact in self.equipment.values():
-            if not self.can_safe_artifact_integrity(artifact):
-                artifact.damage_integrity()
+            delta = c.ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE * (float(artifact.power.total()) / expected_artifact_power)
+
+            if self.preferences.favorite_item is not None and self.preferences.favorite_item == artifact.type.equipment_slot:
+                delta *= c.ARTIFACT_INTEGRITY_DAMAGE_FOR_FAVORITE_ITEM
+
+            artifact.damage_integrity(delta)
 
 
     def artifacts_to_break(self, from_all=False):
