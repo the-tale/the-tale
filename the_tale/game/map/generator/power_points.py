@@ -51,17 +51,17 @@ class MapObject(object):
             self.uid = 'place_%d_%s' % (game_object.id, suffix)
             self.x = game_object.x
             self.y = game_object.y
-            self.r = game_object.attrs.terrain_radius
+            self.r = int(round(game_object.attrs.terrain_radius))
         elif isinstance(game_object, persons_objects.Person):
             self.uid = 'person_%d_%s' % (game_object.id, suffix)
             self.x = game_object.place.x
             self.y = game_object.place.y
-            self.r = game_object.place.attrs.terrain_radius
+            self.r = int(round(game_object.place.attrs.terrain_radius))
         elif isinstance(game_object, BuildingPrototype):
             self.uid = 'building_%d_%s' % (game_object.id, suffix)
             self.x = game_object.x
             self.y = game_object.y
-            self.r = game_object.terrain_change_power
+            self.r = int(round(game_object.terrain_change_power))
         else:
             raise exceptions.UnknownPowerPointError(game_object=game_object)
 

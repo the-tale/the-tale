@@ -246,8 +246,14 @@ class Place(names.ManageNameMixin2):
 
 
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size*1.25)
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size)
+
+        # politic radius
+        yield effects.Effect(name=u'размер города', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * 0.625)
+        yield effects.Effect(name=u'культура', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * self.attrs.culture * 0.625)
+
+        # terrain radius
+        yield effects.Effect(name=u'размер города', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * 0.5)
+        yield effects.Effect(name=u'культура', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * self.attrs.culture * 0.5)
 
         for effect in self.effects.effects:
             yield effect
@@ -298,6 +304,10 @@ class Place(names.ManageNameMixin2):
         # freedom
         yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
         yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.FREEDOM, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
+
+        # culture
+        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.CULTURE, value=1.0)
+        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.CULTURE, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_CULTURE_PENALTY)
 
         for person in self.persons:
             for effect in person.place_effects():

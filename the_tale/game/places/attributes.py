@@ -1,9 +1,8 @@
 # coding: utf-8
-import math
-
 from . import relations
 
 from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
 from the_tale.game import attributes
 
 from . import modifiers
@@ -36,7 +35,7 @@ class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
         self.goods = int(self.goods)
 
     def sync(self):
-        self.modifier_multiplier = (math.log(self.size, 2) + 1) / 1.7
+        self.modifier_multiplier = f.place_specialization_modifier(self.size)
 
 
     def set_power_economic(self, value):

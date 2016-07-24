@@ -25,9 +25,3 @@ class RelationsTests(testcase.TestCase):
         self.assertEqual(RACE.ORC.value, 2)
         self.assertEqual(RACE.GOBLIN.value, 3)
         self.assertEqual(RACE.DWARF.value, 4)
-
-    def test_profession_to_city_specialization(self):
-        for profession, specializations in economic.PROFESSION_TO_SPECIALIZATIONS.items():
-            self.assertEqual(len(specializations), len(CITY_MODIFIERS.records))
-
-            self.assertTrue(all([-10 <= effect <= 10 for effect in specializations.values()]))

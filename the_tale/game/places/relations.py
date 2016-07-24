@@ -42,9 +42,9 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
     records = ( attributes.attr('SIZE', 0, u'размер города', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
                  description=u'Влияет на развитие специализаций, радиус влияния и на потребление товаров его жителями. Зависит от производства товаров.'),
 
-                attributes.attr('TERRAIN_RADIUS', 2, u'радиус изменений', verbose_units=u'кл',
+                attributes.attr('TERRAIN_RADIUS', 2, u'радиус изменений', verbose_units=u'кл', order=2, formatter=attributes.float_formatter,
                  description=u'Радиус в котором город изменяет мир (в клетках).'),
-                attributes.attr('POLITIC_RADIUS', 3, u'радиус владений', verbose_units=u'кл',
+                attributes.attr('POLITIC_RADIUS', 3, u'радиус владений', verbose_units=u'кл', order=2, formatter=attributes.float_formatter,
                  description=u'Максимальное расстояние, на которое могут распространяться границы владений города (в клетках).'),
                 attributes.attr('PRODUCTION', 4, u'производство', formatter=int,
                  description=u'Скорость производства товаров. Зависит от размера экономики города и его Мастеров.'),
@@ -102,7 +102,10 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                  description=u'Соответствие города специализации «Святой город».'),
 
                 attributes.attr('MODIFIER_MULTIPLIER', 32, u'сила специализаций', order=-1, default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
-                 description=u'Влияние города на соответствие специализациям.', formatter=attributes.float_formatter)  )
+                 description=u'Влияние города на соответствие специализациям.', formatter=attributes.float_formatter),
+
+                attributes.attr('CULTURE', 33, u'культура', verbose_units=u'%', formatter=attributes.percents_formatter,
+                 description=u'На сколько развита культура города, влияет на радиусы влияния и изменения ландшафта.')       )
 
 
     EFFECTS_ORDER = sorted(set(record[5] for record in records))

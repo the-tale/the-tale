@@ -12,6 +12,7 @@ from the_tale.game import effects
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
 
 from the_tale.game.jobs import logic as jobs_logic
 from the_tale.game.jobs import effects as jobs_effects
@@ -28,7 +29,11 @@ BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_BONU
                        places_relations.ATTRIBUTE.FREEDOM: c.PLACE_FREEDOM_FROM_BEST_PERSON,
                        places_relations.ATTRIBUTE.SAFETY: c.PLACE_SAFETY_FROM_BEST_PERSON,
                        places_relations.ATTRIBUTE.TRANSPORT: c.PLACE_TRANSPORT_FROM_BEST_PERSON,
-                       places_relations.ATTRIBUTE.STABILITY: c.PLACE_STABILITY_UNIT}
+                       places_relations.ATTRIBUTE.CULTURE: c.PLACE_CULTURE_FROM_BEST_PERSON,
+
+                       # делим на 3, поскольку стабильность отрицательно влияет на 4 параметра и на 1 положительно (свободу)
+                       # соответственно, единица изменения стабильности меняет 3 единицы изменения других параметров
+                       places_relations.ATTRIBUTE.STABILITY: c.PLACE_STABILITY_UNIT / 3.0}
 
 
 
@@ -238,7 +243,7 @@ class Person(names.ManageNameMixin2):
         return sorted(choices, key=lambda choice: choice[0])
 
     def get_economic_modifier(self, attribute):
-        return self.economic_attributes[attribute] * BEST_PERSON_BONUSES[attribute]
+        return self.economic_attributes[attribute] / 3.0 * BEST_PERSON_BONUSES[attribute]
 
     def get_economic_modifiers(self):
         for attribute in self.economic_attributes.iterkeys():
@@ -276,10 +281,12 @@ class Person(names.ManageNameMixin2):
         for specialization, points in self.specialization_attributes.iteritems():
             if specialization.points_attribute is None:
                 continue
-            MAX_PERSON_POINTS = 100
+
             yield effects.Effect(name=self.name,
                                  attribute=specialization.points_attribute,
-                                 value=MAX_PERSON_POINTS * points * self.total_politic_power_fraction * self.place.attrs.modifier_multiplier)
+                                 value = f.place_specialization_from_person(person_points=points,
+                                                                            politic_power_fraction=self.total_politic_power_fraction,
+                                                                            place_size_multiplier=self.place.attrs.modifier_multiplier))
 
         if self.attrs.terrain_radius_bonus != 0:
             yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.terrain_radius_bonus)

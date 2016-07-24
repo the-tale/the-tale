@@ -266,6 +266,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.05)
         self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.33333)
         self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.33333)
+        self.assertEqual(round(c.PLACE_CULTURE_FROM_BEST_PERSON, 5), 0.15)
 
         self.assertEqual(c.PLACE_MAX_BILLS_NUMBER, 3)
 
@@ -280,6 +281,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_STABILITY_MAX_SAFETY_PENALTY, -0.25)
         self.assertEqual(round(c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY, 2), -0.67)
         self.assertEqual(round(c.PLACE_STABILITY_MAX_FREEDOM_PENALTY, 2), 0.67)
+        self.assertEqual(round(c.PLACE_STABILITY_MAX_CULTURE_PENALTY, 2), -1.0)
 
         self.assertEqual(c.WHILD_TRANSPORT_PENALTY, 0.1)
         self.assertEqual(c.TRANSPORT_FROM_PLACE_SIZE_PENALTY, 0.05)

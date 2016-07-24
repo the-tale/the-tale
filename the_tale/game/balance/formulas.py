@@ -189,6 +189,19 @@ def place_goods_production(level):
 def place_goods_consumption(level):
     return level * c.PLACE_GOODS_BONUS
 
+def place_specialization_modifier(size):
+    return (math.log(size, 2) + 1) / 1.7
+
+def person_max_specialization_points():
+    # два идеальных мастера с влиянием по 30% должны давать PLACE_TYPE_NECESSARY_BORDER влияния в городе 10-ого уровня
+    # points * 2 * max_spec * 0.3 * place_specialization_modifier(10) = PLACE_TYPE_NECESSARY_BORDER
+    # points = PLACE_TYPE_NECESSARY_BORDER / (2 * max_spec * 0.3 * place_specialization_modifier(10))
+    MAX_SPEC = 3
+    return c.PLACE_TYPE_NECESSARY_BORDER / (2 * MAX_SPEC * 0.3 * place_specialization_modifier(10))
+
+def place_specialization_from_person(person_points, politic_power_fraction, place_size_multiplier):
+    return person_max_specialization_points() * person_points * politic_power_fraction * place_size_multiplier
+
 def companions_coherence_for_level(level):
     # если меняется, необходимо пересчитать количество опыта за квест для спутника
     return level

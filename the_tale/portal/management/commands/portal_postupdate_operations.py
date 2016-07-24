@@ -57,7 +57,7 @@ class Command(BaseCommand):
         persons_logic.refresh_all_persons_attributes()
 
         print
-        print 'REMOVE OLD SDN INFO'
+        print 'REMOVE OLD CDN INFO'
 
         if portal_settings.SETTINGS_CDN_INFO_KEY in settings:
             del settings[portal_settings.SETTINGS_CDN_INFO_KEY]
