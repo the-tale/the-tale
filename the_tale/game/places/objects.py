@@ -394,7 +394,8 @@ class Place(names.ManageNameMixin2):
         return self.politic_power.outer_power_fraction([place.politic_power for place in self.get_same_places()])
 
     def get_job_power(self):
-        return jobs_logic.job_power(objects_number=len(self.get_same_places()), power=self.total_politic_power_fraction)
+        return jobs_logic.job_power(power=self.total_politic_power_fraction,
+                                    powers=[place.total_politic_power_fraction for place in self.get_same_places()])
 
 
     def update_job(self):

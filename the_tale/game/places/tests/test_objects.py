@@ -403,7 +403,7 @@ class PlaceJobsTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.places.objects.Place.total_politic_power_fraction', 0.5)
     def test_get_job_power(self):
-        self.assertEqual(self.place_1.get_job_power(), 1.5)
+        self.assertEqual(self.place_1.get_job_power(), 0.875)
 
 
     def test_update_job(self):

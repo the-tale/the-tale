@@ -177,12 +177,12 @@ class PersonJobsTests(testcase.TestCase):
     @mock.patch('the_tale.game.persons.objects.Person.total_politic_power_fraction', 0.5)
     def test_get_job_power(self):
         self.person.attrs.job_power_bonus = 0
-        self.assertEqual(self.person.get_job_power(), 2.0)
+        self.assertEqual(self.person.get_job_power(), 0.8)
 
     @mock.patch('the_tale.game.persons.objects.Person.total_politic_power_fraction', 0.5)
     def test_get_job_power__power_bonus(self):
         self.person.attrs.job_power_bonus = 10
-        self.assertEqual(self.person.get_job_power(), 12.0)
+        self.assertEqual(self.person.get_job_power(), 10.8)
 
 
     def test_give_job_power(self):

@@ -296,6 +296,9 @@ MINIMUM_CARD_POWER = int(HERO_POWER_PER_DAY / 5)
 
 NORMAL_JOB_LENGTH = int(10) # средняя длительность занятия мастера в днях
 
+JOB_MIN_POWER = float(0.5)
+JOB_MAX_POWER = float(2.0)
+
 ##########################
 # споособности
 ##########################

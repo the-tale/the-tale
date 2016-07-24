@@ -169,6 +169,9 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.NORMAL_JOB_LENGTH, 10)
 
+        self.assertEqual(c.JOB_MIN_POWER, 0.5)
+        self.assertEqual(c.JOB_MAX_POWER, 2.0)
+
         self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 2*7*24*60*60)
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
 

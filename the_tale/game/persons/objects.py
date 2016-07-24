@@ -160,7 +160,8 @@ class Person(names.ManageNameMixin2):
         return self.politic_power.outer_power_fraction([person.politic_power for person in self.place.persons])
 
     def get_job_power(self):
-        return jobs_logic.job_power(objects_number=len(self.place.persons), power=self.total_politic_power_fraction) + self.attrs.job_power_bonus
+        return jobs_logic.job_power(power=self.total_politic_power_fraction,
+                                    powers=[person.total_politic_power_fraction for person in self.place.persons]) + self.attrs.job_power_bonus
 
     def update_job(self):
         from . import logic
