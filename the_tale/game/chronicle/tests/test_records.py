@@ -4,9 +4,6 @@ import datetime
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.forum.models import Category, SubCategory
 
 from the_tale.game import names
@@ -30,8 +27,7 @@ class RecordTests(TestCase):
         super(RecordTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',

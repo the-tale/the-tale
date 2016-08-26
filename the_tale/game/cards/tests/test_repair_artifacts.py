@@ -3,9 +3,6 @@ import random
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
@@ -27,11 +24,10 @@ class RepairRandomArtifactTests(RepairArtifacsTestMixin, testcase.TestCase):
 
     def setUp(self):
         super(RepairRandomArtifactTests, self).setUp()
+
         create_test_map()
 
-        result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        self.account_1 = AccountPrototype.get_by_id(account_1_id)
+        self.account_1 = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account_1)
@@ -77,11 +73,10 @@ class RepairAllArtifactsTests(RepairArtifacsTestMixin, testcase.TestCase):
 
     def setUp(self):
         super(RepairAllArtifactsTests, self).setUp()
+
         create_test_map()
 
-        result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        self.account_1 = AccountPrototype.get_by_id(account_1_id)
+        self.account_1 = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account_1)

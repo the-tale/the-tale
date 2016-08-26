@@ -8,8 +8,6 @@ from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.actions.fake import FakeActor
@@ -37,11 +35,11 @@ class BaseHabitTest(testcase.TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
+        account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
 
 
     def check_crit_chance_equal(self, mob, expected_crit_chance):

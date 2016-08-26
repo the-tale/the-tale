@@ -3,9 +3,6 @@ from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.linguistics.lexicon.groups import relations as lexicon_groups_relations
@@ -19,8 +16,7 @@ class BaseRequestsTests(TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
 
 
 

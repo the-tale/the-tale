@@ -4,8 +4,7 @@ from django.core import mail
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype, ResetPasswordTaskPrototype
+from the_tale.accounts.prototypes import ResetPasswordTaskPrototype
 
 from the_tale.game.logic import create_test_map
 
@@ -17,10 +16,10 @@ class ResetPasswordTests(testcase.TestCase):
 
     def setUp(self):
         super(ResetPasswordTests, self).setUp()
+
         create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_nick('user_1')
+        self.account_1 = self.accounts_factory.create_account()
 
         self.reset_task = ResetPasswordTaskPrototype.create(self.account_1)
         self.message = MessagePrototype.get_priority_message()

@@ -10,8 +10,7 @@ from the_tale.common.postponed_tasks.models import PostponedTask
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
 
-from the_tale.accounts.logic import register_user, login_page_url
-from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -59,10 +58,10 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
 
     def setUp(self):
         super(HeroPreferencesEnergyRegenerationTypeTest, self).setUp()
-        place_1, place_2, place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        create_test_map()
+
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -154,11 +153,10 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
 
     def setUp(self):
         super(HeroPreferencesMobTest, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -307,20 +305,16 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
 
     def setUp(self):
         super(HeroPreferencesPlaceTest, self).setUp()
-        place_1, place_2, place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.place, self.place_2, self.place_3 = create_test_map()
+
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.hero.level = relations.PREFERENCE_TYPE.PLACE.level_required
         logic.save_hero(self.hero)
-
-        self.place = place_1
-        self.place_2 = place_2
-        self.place_3 = place_3
 
     def test_preferences_serialization(self):
         self.hero.preferences.set_place(self.place)
@@ -433,36 +427,36 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         hero_1.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         logic.save_hero(hero_1)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = logic.load_hero(account_id=account_id)
+        account_2 = self.accounts_factory.create_account()
+        hero_2 = logic.load_hero(account_id=account_2.id)
         hero_2.preferences.set_place(self.place)
         logic.save_hero(hero_2)
 
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = logic.load_hero(account_id=account_id)
+        account_3 = self.accounts_factory.create_account()
+        hero_3 = logic.load_hero(account_id=account_3.id)
         hero_3.preferences.set_place(self.place)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         logic.save_hero(hero_3)
 
-        result, account_id, bundle_id = register_user('test_user_4') # fast_account
-        hero_4 = logic.load_hero(account_id=account_id)
+        account_4 = self.accounts_factory.create_account(is_fast=True)
+        hero_4 = logic.load_hero(account_id=account_4.id)
         hero_4.preferences.set_place(self.place)
         logic.save_hero(hero_4)
 
-        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        hero_5 = logic.load_hero(account_id=account_id)
+        account_5 = self.accounts_factory.create_account()
+        hero_5 = logic.load_hero(account_id=account_5.id)
         hero_5.preferences.set_place(self.place)
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         logic.save_hero(hero_5)
 
-        result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        hero_6 = logic.load_hero(account_id=account_id)
+        account_6 = self.accounts_factory.create_account()
+        hero_6 = logic.load_hero(account_id=account_6.id)
         hero_6.preferences.set_place(self.place_2)
         hero_6.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         logic.save_hero(hero_6)
 
-        result, account_id, bundle_id = register_user('test_user_7', 'test_user_7@test.com', '111111')
-        hero_7 = logic.load_hero(account_id=account_id)
+        account_7 = self.accounts_factory.create_account()
+        hero_7 = logic.load_hero(account_id=account_7.id)
         hero_7.preferences.set_place(self.place)
         hero_7.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         logic.save_hero(hero_7)
@@ -479,24 +473,24 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         hero_1.habit_peacefulness.change(1)
         logic.save_hero(hero_1)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = logic.load_hero(account_id=account_id)
+        account_2 = self.accounts_factory.create_account()
+        hero_2 = logic.load_hero(account_id=account_2.id)
         hero_2.preferences.set_place(self.place)
         hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_2.habit_honor.change(2)
         hero_2.habit_peacefulness.change(-2)
         logic.save_hero(hero_2)
 
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = logic.load_hero(account_id=account_id)
+        account_3 = self.accounts_factory.create_account()
+        hero_3 = logic.load_hero(account_id=account_3.id)
         hero_3.preferences.set_place(self.place_2)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_3.habit_honor.change(-4)
         hero_3.habit_peacefulness.change(4)
         logic.save_hero(hero_3)
 
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        hero_4 = logic.load_hero(account_id=account_id)
+        account_4 = self.accounts_factory.create_account()
+        hero_4 = logic.load_hero(account_id=account_4.id)
         hero_4.preferences.set_place(self.place)
         hero_4.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_4.habit_honor.change(8)
@@ -516,10 +510,10 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
 
     def setUp(self):
         super(HeroPreferencesFriendTest, self).setUp()
+
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -651,11 +645,11 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
     def test_get_friends_number(self):
         hero_1 = self.hero
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = logic.load_hero(account_id=account_id)
+        account_2 = self.accounts_factory.create_account()
+        hero_2 = logic.load_hero(account_id=account_2.id)
 
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = logic.load_hero(account_id=account_id)
+        account_3 = self.accounts_factory.create_account()
+        hero_3 = logic.load_hero(account_id=account_3.id)
 
         person_1 = self.place_1.persons[0]
         person_2 = self.place_1.persons[-1]
@@ -671,19 +665,19 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         logic.save_hero(hero_3)
 
-        result, account_id, bundle_id = register_user('test_user_4') # fast_account
-        hero_4 = logic.load_hero(account_id=account_id)
+        account_4 = self.accounts_factory.create_account(is_fast=True)
+        hero_4 = logic.load_hero(account_id=account_4.id)
         hero_4.preferences.set_friend(person_1)
         logic.save_hero(hero_4)
 
-        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        hero_5 = logic.load_hero(account_id=account_id)
+        account_5 = self.accounts_factory.create_account()
+        hero_5 = logic.load_hero(account_id=account_5.id)
         hero_5.preferences.set_friend(person_1)
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         logic.save_hero(hero_5)
 
-        result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        hero_6 = logic.load_hero(account_id=account_id)
+        account_6 = self.accounts_factory.create_account()
+        hero_6 = logic.load_hero(account_id=account_6.id)
         hero_6.preferences.set_friend(person_1)
         hero_6.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         logic.save_hero(hero_6)
@@ -700,24 +694,24 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
         hero_1.habit_peacefulness.change(1)
         logic.save_hero(hero_1)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = logic.load_hero(account_id=account_id)
+        account_2 = self.accounts_factory.create_account()
+        hero_2 = logic.load_hero(account_id=account_2.id)
         hero_2.preferences.set_friend(self.friend)
         hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_2.habit_honor.change(2)
         hero_2.habit_peacefulness.change(-2)
         logic.save_hero(hero_2)
 
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = logic.load_hero(account_id=account_id)
+        account_3 = self.accounts_factory.create_account()
+        hero_3 = logic.load_hero(account_id=account_3.id)
         hero_3.preferences.set_friend(self.friend_2)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_3.habit_honor.change(-4)
         hero_3.habit_peacefulness.change(4)
         logic.save_hero(hero_3)
 
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        hero_4 = logic.load_hero(account_id=account_id)
+        account_4 = self.accounts_factory.create_account()
+        hero_4 = logic.load_hero(account_id=account_4.id)
         hero_4.preferences.set_friend(self.friend)
         hero_4.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_4.habit_honor.change(8)
@@ -738,10 +732,10 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
 
     def setUp(self):
         super(HeroPreferencesEnemyTest, self).setUp()
+
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -872,11 +866,11 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
     def test_get_enemies_number(self):
         hero_1 = self.hero
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = logic.load_hero(account_id=account_id)
+        account_2 = self.accounts_factory.create_account()
+        hero_2 = logic.load_hero(account_id=account_2.id)
 
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = logic.load_hero(account_id=account_id)
+        account_3 = self.accounts_factory.create_account()
+        hero_3 = logic.load_hero(account_id=account_3.id)
 
         person_1 = self.place_1.persons[0]
         person_2 = self.place_1.persons[-1]
@@ -892,19 +886,19 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         logic.save_hero(hero_3)
 
-        result, account_id, bundle_id = register_user('test_user_4') # fast_account
-        hero_4 = logic.load_hero(account_id=account_id)
+        account_4 = self.accounts_factory.create_account(is_fast=True)
+        hero_4 = logic.load_hero(account_id=account_4.id)
         hero_4.preferences.set_enemy(person_1)
         logic.save_hero(hero_4)
 
-        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        hero_5 = logic.load_hero(account_id=account_id)
+        account_5 = self.accounts_factory.create_account()
+        hero_5 = logic.load_hero(account_id=account_5.id)
         hero_5.preferences.set_enemy(person_1)
         hero_5.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         logic.save_hero(hero_5)
 
-        result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        hero_6 = logic.load_hero(account_id=account_id)
+        account_6 = self.accounts_factory.create_account()
+        hero_6 = logic.load_hero(account_id=account_6.id)
         hero_6.preferences.set_enemy(person_1)
         hero_6.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         logic.save_hero(hero_6)
@@ -921,24 +915,24 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
         hero_1.habit_peacefulness.change(1)
         logic.save_hero(hero_1)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        hero_2 = logic.load_hero(account_id=account_id)
+        account_2 = self.accounts_factory.create_account()
+        hero_2 = logic.load_hero(account_id=account_2.id)
         hero_2.preferences.set_enemy(self.enemy)
         hero_2.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
         hero_2.habit_honor.change(2)
         hero_2.habit_peacefulness.change(-2)
         logic.save_hero(hero_2)
 
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        hero_3 = logic.load_hero(account_id=account_id)
+        account_3 = self.accounts_factory.create_account()
+        hero_3 = logic.load_hero(account_id=account_3.id)
         hero_3.preferences.set_enemy(self.enemy_2)
         hero_3.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_3.habit_honor.change(-4)
         hero_3.habit_peacefulness.change(4)
         logic.save_hero(hero_3)
 
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        hero_4 = logic.load_hero(account_id=account_id)
+        account_4 = self.accounts_factory.create_account()
+        hero_4 = logic.load_hero(account_id=account_4.id)
         hero_4.preferences.set_enemy(self.enemy)
         hero_4.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=30)
         hero_4.habit_honor.change(8)
@@ -958,10 +952,10 @@ class HeroPreferencesEquipmentSlotTest(PreferencesTestMixin, TestCase):
 
     def setUp(self):
         super(HeroPreferencesEquipmentSlotTest, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -1067,10 +1061,10 @@ class HeroPreferencesFavoriteItemTest(PreferencesTestMixin, TestCase):
 
     def setUp(self):
         super(HeroPreferencesFavoriteItemTest, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -1183,10 +1177,10 @@ class HeroPreferencesRiskLevelTest(PreferencesTestMixin, TestCase):
 
     def setUp(self):
         super(HeroPreferencesRiskLevelTest, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -1286,10 +1280,10 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
 
     def setUp(self):
         super(HeroPreferencesArchetypeTest, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
@@ -1599,39 +1593,34 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def setUp(self):
         super(HeroPreferencesRequestsTest, self).setUp()
-        place_1, place_2, place_3 = create_test_map()
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        self.place, self.place_2, _ = create_test_map()
 
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
         self.storage = LogicStorage()
-        self.storage.load_account_data(self.account)
-        self.hero = self.storage.accounts_to_heroes[self.account.id]
+        self.storage.load_account_data(self.account_1)
+        self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
         self.hero.level = max(r.level_required for r in relations.PREFERENCE_TYPE.records) # maximum blocking level
         logic.save_hero(self.hero)
-
-        register_user('test_user_2', 'test_user_2@test.com', '111111')
 
         self.client = client.Client()
 
         self.mob_uuid = mobs_storage.all()[0].uuid
         self.mob_2_uuid = mobs_storage.all()[1].uuid
 
-        self.place = place_1
-        self.place_2 = place_2
-
 
     def tearDown(self):
-        pass
+        self.request_logout()
 
     def test_preferences_dialog_energy_regeneration(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.value))
         self.check_html_ok(response, texts=[record.text.capitalize() for record in relations.ENERGY_REGENERATION.records])
 
 
     def test_preferences_dialog_mob(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.MOB.value))
 
         texts = []
@@ -1646,7 +1635,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
 
     def test_preferences_dialog_place(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.PLACE.value))
 
         texts = []
@@ -1657,7 +1646,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_html_ok(response, texts=texts)
 
     def test_preferences_dialog_friend(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.FRIEND.value))
 
         texts = []
@@ -1668,7 +1657,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_html_ok(response, texts=texts)
 
     def test_preferences_dialog_enemy(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.ENEMY.value))
 
         texts = []
@@ -1679,28 +1668,28 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_html_ok(response, texts=texts)
 
     def test_preferences_dialog_risk_level(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.RISK_LEVEL.value))
         self.check_html_ok(response, texts=[r.text for r in relations.RISK_LEVEL.records])
 
     def test_preferences_dialog_archetype(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.ARCHETYPE.value))
         self.check_html_ok(response, texts=[r.text for r in game_relations.ARCHETYPE.records])
 
     def test_preferences_dialog_companion_dedication(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.COMPANION_DEDICATION.value))
         self.check_html_ok(response, texts=[r.text for r in relations.COMPANION_DEDICATION.records])
 
     def test_preferences_dialog_companion_empathy(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.COMPANION_EMPATHY.value))
         self.check_html_ok(response, texts=[r.text for r in relations.COMPANION_EMPATHY.records])
 
 
     def test_preferences_dialog_favorite_item(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.FAVORITE_ITEM.value))
         self.check_html_ok(response, texts=[self.hero.equipment.get(slot).name
                                             for slot in relations.EQUIPMENT_SLOT.records
@@ -1711,7 +1700,7 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_redirect(request_url, login_page_url(request_url))
 
     def test_preferences_dialog_wrong_user(self):
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         response = self.request_html(reverse('game:heroes:choose-preferences-dialog', args=[self.hero.id]) + ('?type=%d' % relations.PREFERENCE_TYPE.ENEMY.value))
         self.check_html_ok(response, texts=(('heroes.not_owner', 1),))
 
@@ -1720,13 +1709,13 @@ class HeroPreferencesRequestsTest(TestCase):
         self.check_ajax_error(response, 'common.login_required')
 
     def test_choose_preferences_wrong_user(self):
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': relations.PREFERENCE_TYPE.MOB, 'preference_id': self.mob_uuid})
         self.check_ajax_error(response, 'heroes.not_owner')
 
     def test_choose_preferences_success(self):
         self.assertEqual(PostponedTask.objects.all().count(), 0)
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': relations.PREFERENCE_TYPE.MOB, 'preference_id': self.mob_uuid})
 
         task = PostponedTaskPrototype._db_get_object(0)
@@ -1737,7 +1726,7 @@ class HeroPreferencesRequestsTest(TestCase):
 
     def test_choose_preferences_remove_success(self):
         self.assertEqual(PostponedTask.objects.all().count(), 0)
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         response = self.client.post(reverse('game:heroes:choose-preferences', args=[self.hero.id]), {'preference_type': relations.PREFERENCE_TYPE.MOB})
 
         task = PostponedTaskPrototype._db_get_object(0)

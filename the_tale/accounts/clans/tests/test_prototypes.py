@@ -6,9 +6,6 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
-
 from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype, MembershipRequestPrototype
 from the_tale.accounts.clans.relations import MEMBERSHIP_REQUEST_TYPE, MEMBER_ROLE
 from the_tale.accounts.clans import exceptions
@@ -26,9 +23,7 @@ class ClanPrototypeTests(testcase.TestCase):
 
         self.forum_category = CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.clan = ClanPrototype.create(self.account, abbr=u'abbr', name=u'clan-name', motto='clan-motto', description=u'clan-description')
 
     def test_create(self):
@@ -61,10 +56,7 @@ class ClanPrototypeTests(testcase.TestCase):
         self.assertEqual(ForumPermissionPrototype.get_for(self.account.id, self.clan.forum_subcategory_id), None)
 
     def test_create_remove_multiple_clans(self):
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
         clan_2 = ClanPrototype.create(account_2, abbr=u'abbr2', name=u'clan-name-2', motto='clan-2-motto', description=u'clan-2-description')
 
         self.assertEqual(SubCategoryPrototype._db_count(), 2)
@@ -89,16 +81,13 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
 
         self.forum_category = CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.clan = ClanPrototype.create(self.account, abbr=u'abbr', name=u'clan-name', motto='clan-motto', description=u'clan-description')
 
     def test_unique_name(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         self.assertRaises(IntegrityError,
                           ClanPrototype.create,
-                          AccountPrototype.get_by_id(account_id),
+                          self.accounts_factory.create_account(),
                           abbr=u'abr2',
                           name=self.clan.name,
                           motto='bla-motto',
@@ -109,10 +98,9 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
         self.assertEqual(ForumPermissionPrototype._db_count(), 1)
 
     def test_unique_abbr(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
         self.assertRaises(IntegrityError,
                           ClanPrototype.create,
-                          AccountPrototype.get_by_id(account_id),
+                          self.accounts_factory.create_account(),
                           abbr=self.clan.abbr,
                           name='bla-name',
                           motto='bla-motto',
@@ -134,8 +122,7 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
         self.assertEqual(ForumPermissionPrototype._db_count(), 1)
 
     def test_add_member__already_member(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
         self.create_clan(account_2, 0)
 
         self.assertRaises(exceptions.AddMemberFromClanError, self.clan.add_member, account_2)
@@ -144,8 +131,7 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
         self.assertEqual(ForumPermissionPrototype.get_for(account_2.id, self.clan.forum_subcategory_id), None)
 
     def test_add_member__success(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
         self.clan.add_member(account_2)
         self.assertEqual(self.clan.members_number, 2)
         self.assertEqual(MembershipPrototype._db_count(), 2)
@@ -155,17 +141,10 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
         self.assertNotEqual(ForumPermissionPrototype.get_for(account_2.id, self.clan.forum_subcategory_id), None)
 
     def test_add_member__remove_membership_requests_when_created(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        account_5 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
 
         clan_2 = self.create_clan(account_2, 2)
         clan_3 = self.create_clan(account_3, 3)
@@ -204,8 +183,7 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
 
 
     def test_remove_member_member__not_member(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
 
         self.assertRaises(exceptions.RemoveNotMemberFromClanError, self.clan.remove_member, account_2)
         self.assertEqual(self.clan.members_number, 1)
@@ -213,8 +191,7 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
         self.assertEqual(ForumPermissionPrototype._db_count(), 1)
 
     def test_remove_member_member__wrong_clan(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
         self.create_clan(account_2, 0)
 
         self.assertRaises(exceptions.RemoveMemberFromWrongClanError, self.clan.remove_member, account_2)
@@ -229,8 +206,7 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
         self.assertEqual(ForumPermissionPrototype._db_count(), 1)
 
     def test_remove_member_member__success(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
 
         self.clan.add_member(account_2)
         account_2.reload()
@@ -269,11 +245,8 @@ class MembershipPrototypeTests(testcase.TestCase, ClansTestsMixin):
         self.forum_category = CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
         create_test_map()
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
         self.clan = self.create_clan(self.account, 0)
 
@@ -300,12 +273,11 @@ class MembershipRequestPrototypeTests(testcase.TestCase, ClansTestsMixin):
         self.forum_category = CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
         create_test_map()
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+
+        self.account = self.accounts_factory.create_account()
 
     def test_invite_message(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
 
         clan_1 = self.create_clan(self.account, 0)
 
@@ -317,8 +289,7 @@ class MembershipRequestPrototypeTests(testcase.TestCase, ClansTestsMixin):
 
 
     def test_request_message(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
 
         clan_1 = self.create_clan(self.account, 0)
 
@@ -329,20 +300,11 @@ class MembershipRequestPrototypeTests(testcase.TestCase, ClansTestsMixin):
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
     def test_get_for_clan(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        account_5 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        account_6 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+        account_6 = self.accounts_factory.create_account()
 
         clan_1 = self.create_clan(self.account, 0)
         clan_2 = self.create_clan(account_4, 1)
@@ -376,20 +338,11 @@ class MembershipRequestPrototypeTests(testcase.TestCase, ClansTestsMixin):
 
 
     def test_get_for_account(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        account_5 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        account_6 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+        account_6 = self.accounts_factory.create_account()
 
         clan_1 = self.create_clan(account_2, 0)
         clan_2 = self.create_clan(account_4, 1)

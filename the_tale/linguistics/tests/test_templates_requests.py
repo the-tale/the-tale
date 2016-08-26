@@ -11,8 +11,7 @@ from utg import relations as utg_relations
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map
 from the_tale.game import relations as game_relations
@@ -233,8 +232,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                              verificators=[],
                                                              author=self.account_1)
 
-        result, account_id, bundle_id = register_user('moderator', 'moderator@test.com', '111111')
-        self.moderator = AccountPrototype.get_by_id(account_id)
+        self.moderator = self.accounts_factory.create_account()
 
         group = sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_template'])
         group.user_set.add(self.moderator._model)
@@ -429,8 +427,7 @@ class EditRequestsTests(BaseRequestsTests):
 
         self.requested_url = url('linguistics:templates:edit', self.template.id)
 
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_2 = self.accounts_factory.create_account()
 
 
     def test_template_errors(self):
@@ -760,8 +757,7 @@ class UpdateRequestsTests(BaseRequestsTests):
     def test_update__on_review_by_other(self):
         self.request_logout()
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account = AccountPrototype.get_by_id(account_id)
+        account = self.accounts_factory.create_account()
 
         self.request_login(account.email)
 
@@ -1426,8 +1422,7 @@ class RemoveRequestsTests(BaseRequestsTests):
                                                             verificators=self.verificators[:2],
                                                             author=self.account_1)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_2 = self.accounts_factory.create_account()
 
         self.request_login(self.account_1.email)
 

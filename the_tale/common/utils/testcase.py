@@ -59,16 +59,17 @@ class TestAccountsFactory(object):
         self._next_account_uid += 1
         return self._next_account_uid
 
-    def create_account(self, is_fast=False, password='111111', is_bot=False, is_superuser=False):
+    def create_account(self, is_fast=False, nick=None, email=None, password='111111', is_bot=False, is_superuser=False, referral_of_id=None):
         from the_tale.accounts.logic import register_user
         from the_tale.accounts.prototypes import AccountPrototype
 
-        account_uid = self.get_next_uid()
-
         if is_fast:
-            result, account_id, bundle_id = register_user('fast-user-%d' % account_uid, is_bot=is_bot)
+            nick = nick or 'fast-user-{}'.format(self.get_next_uid())
+            result, account_id, bundle_id = register_user(nick, is_bot=is_bot, referral_of_id=referral_of_id)
         else:
-            result, account_id, bundle_id = register_user('test-user-%d' % account_uid, 'test-user-%d@test.com' % account_uid, password, is_bot=is_bot)
+            nick = nick or 'test-user-%d' % self.get_next_uid()
+            email = email or '{}@test.com'.format(nick)
+            result, account_id, bundle_id = register_user(nick, email, password, is_bot=is_bot, referral_of_id=referral_of_id)
 
         account = AccountPrototype.get_by_id(account_id)
 

@@ -12,8 +12,7 @@ from dext.common.meta_relations import logic as meta_relations_logic
 from the_tale.common.utils.permissions import sync_group
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
 from the_tale.accounts.clans.conf import clans_settings
@@ -36,12 +35,8 @@ class BaseTestRequests(TestCase):
     def setUp(self):
         super(BaseTestRequests, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()
-
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
         self.client = client.Client()
 
@@ -83,8 +78,8 @@ class TestIndexRequests(BaseTestRequests):
                  ('caption-a2-0', 1), ('text-a2-0', 0),
                  ('caption-a2-1', 1), ('text-a2-1', 0),
                  ('caption-a2-2', 1), ('text-a2-2', 0),
-                 ('test_user_1', 1),
-                 ('test_user_2', 3),
+                 (self.account_1.nick, 1),
+                 (self.account_2.nick, 3),
                  self.clan_2.abbr]
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:')), texts=texts)
@@ -103,7 +98,7 @@ class TestIndexRequests(BaseTestRequests):
                  ('caption-a1-3', 0), ('text-a1-3', 0),
                  ('caption-a2-0', 0), ('text-a2-0', 0),
                  ('caption-a2-2', 0), ('text-a2-2', 0),
-                 ('test_user_1', 3), ('test_user_2', 0),
+                 (self.account_1.nick, 3), (self.account_2.nick, 0),
                  (self.clan_2.abbr, 0)]
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?page=2'), texts=texts)
@@ -115,8 +110,7 @@ class TestIndexRequests(BaseTestRequests):
     def test_filter_by_user_no_posts_message(self):
         self.create_two_pages()
 
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
+        account_4 = self.accounts_factory.create_account()
         self.check_html_ok(self.request_html(reverse('blogs:posts:')+('?author_id=%d' % account_4.id)),
                            texts=[('pgf-no-posts-message', 1)])
 
@@ -131,8 +125,8 @@ class TestIndexRequests(BaseTestRequests):
                            'caption-a1-3',
                            ('caption-a2-0', 0),
                            ('caption-a2-2', 0),
-                           ('test_user_1', conf.settings.POSTS_ON_PAGE + 1), #1 for filter text
-                           ('test_user_2', 0)]
+                           (self.account_1.nick, conf.settings.POSTS_ON_PAGE + 1), #1 for filter text
+                           (self.account_2.nick, 0)]
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:')+('?author_id=%d' % self.account_1.id)),
                            texts=account_1_texts)
@@ -144,8 +138,8 @@ class TestIndexRequests(BaseTestRequests):
                            ('caption-a1-3', 0),
                            ('caption-a2-0', 1),
                            ('caption-a2-2', 1),
-                           ('test_user_1', 0),
-                           ('test_user_2', 3+1)] # 1 for filter text
+                           (self.account_1.nick, 0),
+                           (self.account_2.nick, 3+1)] # 1 for filter text
 
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:')+('?author_id=%d' % self.account_2.id)),
@@ -189,7 +183,7 @@ class TestNewRequests(BaseTestRequests):
 
     def setUp(self):
         super(TestNewRequests, self).setUp()
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
 
     def test_unlogined(self):
         self.request_logout()
@@ -241,13 +235,13 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[post.id])), texts=texts)
 
     def test_show_without_vote(self):
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])),
                            texts=[ ('pgf-add-vote-button', 1),
                                    ('pgf-remove-vote-button', 0)])
 
     def test_show_with_vote(self):
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(reverse('blogs:posts:show', args=[self.post.id])),
                            texts=[ ('pgf-add-vote-button', 0),
                                    ('pgf-remove-vote-button', 1)])
@@ -256,7 +250,7 @@ class TestShowRequests(BaseTestRequests):
     def test_show_moderator__not_moderated(self):
 
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
         group.user_set.add(self.account_2._model)
 
@@ -271,7 +265,7 @@ class TestShowRequests(BaseTestRequests):
     def test_show_moderator__accepted(self):
 
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
         group.user_set.add(self.account_2._model)
 
@@ -294,7 +288,7 @@ class TestCreateRequests(BaseTestRequests):
 
     def setUp(self):
         super(TestCreateRequests, self).setUp()
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
 
     def get_post_data(self, uids=None):
         data = {'caption': 'post-caption',
@@ -369,13 +363,13 @@ class TestVoteRequests(BaseTestRequests):
     def setUp(self):
         super(TestVoteRequests, self).setUp()
 
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
                                                          'text': 'post-text-'+'1'*1000})
         self.post = prototypes.PostPrototype(models.Post.objects.all()[0])
 
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
     def test_unlogined(self):
         self.request_logout()
@@ -407,13 +401,13 @@ class TestUnvoteRequests(BaseTestRequests):
     def setUp(self):
         super(TestUnvoteRequests, self).setUp()
 
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
                                                          'text': 'post-text-'+'1'*1000})
         self.post = prototypes.PostPrototype(models.Post.objects.all()[0])
 
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
     def test_unlogined(self):
         self.request_logout()
@@ -448,7 +442,7 @@ class TestEditRequests(BaseTestRequests):
     def setUp(self):
         super(TestEditRequests, self).setUp()
 
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
 
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-X-caption',
                                                          'text': 'post-X-text'+'1'*1000})
@@ -473,12 +467,12 @@ class TestEditRequests(BaseTestRequests):
 
     def test_no_permissions(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(('blogs.posts.no_edit_rights', 1),))
 
     def test_moderator(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
         group.user_set.add(self.account_2._model)
         self.check_html_ok(self.request_html(reverse('blogs:posts:edit', args=[self.post.id])), texts=(self.post.caption,
@@ -498,7 +492,7 @@ class TestUpdateRequests(BaseTestRequests):
 
     def setUp(self):
         super(TestUpdateRequests, self).setUp()
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-X-caption',
                                                          'text': 'post-X-text-'+'1'*1000})
         self.post = prototypes.PostPrototype(models.Post.objects.all()[0])
@@ -527,12 +521,12 @@ class TestUpdateRequests(BaseTestRequests):
 
     def test_no_permissions(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         self.check_ajax_error(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()), 'blogs.posts.no_edit_rights')
 
     def test_moderator(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
         group.user_set.add(self.account_2._model)
         self.check_ajax_ok(self.client.post(reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data()))
@@ -601,14 +595,14 @@ class TestModerateRequests(BaseTestRequests):
     def setUp(self):
         super(TestModerateRequests, self).setUp()
 
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
 
         self.client.post(reverse('blogs:posts:create'), {'caption': 'post-caption',
                                                          'text': 'post-text-'+'1'*1000})
         self.post = prototypes.PostPrototype(models.Post.objects.all()[0])
 
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
         group = sync_group('folclor moderation group', ['blogs.moderate_post'])
         group.user_set.add(self.account_2._model)
@@ -630,7 +624,7 @@ class TestModerateRequests(BaseTestRequests):
 
     def test_no_permissions(self):
         self.request_logout()
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
         self.check_ajax_error(self.client.post(reverse('blogs:posts:accept', args=[self.post.id]), {}), 'blogs.posts.moderator_rights_required')
         self.check_ajax_error(self.client.post(reverse('blogs:posts:decline', args=[self.post.id]), {}), 'blogs.posts.moderator_rights_required')
 

@@ -5,9 +5,6 @@ import mock
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
@@ -29,14 +26,15 @@ class _HeroEquipmentTestsBase(TestCase):
 
     def setUp(self):
         super(_HeroEquipmentTestsBase, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        account = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.storage.load_account_data(account)
 
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.hero = self.storage.accounts_to_heroes[account.id]
         self.hero.level = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
         logic.save_hero(self.hero)
 

@@ -5,9 +5,6 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.models import SupervisorTask
@@ -138,26 +135,27 @@ class SupervisorWorkerTests(testcase.TestCase):
 
     def test_register_account_not_in_task(self):
         self.worker.process_initialize()
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+
+        account_3 = self.accounts_factory.create_account()
 
         task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
         self.worker.register_task(task)
 
         # for test pending account cmd queue
-        self.worker.accounts_queues[account_id] = [('logic_task', {'account_id': self.account_1.id, 'task_id': 1}),
+        self.worker.accounts_queues[account_3.id] = [('logic_task', {'account_id': self.account_1.id, 'task_id': 1}),
                                                    ('logic_task', {'account_id': self.account_1.id, 'task_id': 2}),
                                                    ('logic_task', {'account_id': self.account_1.id, 'task_id': 4}) ]
 
         with mock.patch('the_tale.game.workers.logic.Worker.cmd_register_account') as register_account_counter:
             with mock.patch('the_tale.game.workers.logic.Worker.cmd_logic_task') as cmd_logic_task:
-                self.worker.register_account(account_id)
+                self.worker.register_account(account_3.id)
 
         self.assertEqual(cmd_logic_task.call_count, 3)
         self.assertEqual(register_account_counter.call_count, 1)
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set([self.account_1.id, self.account_2.id]))
         self.assertEqual(self.worker.tasks.values()[0].captured_members, set())
 
-        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None, account_id: 'game_logic_1'})
+        self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None, account_3.id: 'game_logic_1'})
 
     def test_register_account_in_task(self):
         self.worker.process_initialize()
@@ -269,14 +267,12 @@ class SupervisorWorkerTests(testcase.TestCase):
     def test_dispatch_command_for_unregistered_account(self):
         self.worker.process_initialize()
 
-        result, account_3_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-
-        account_3 = AccountPrototype.get_by_id(account_3_id)
-        hero_3 = heroes_logic.load_hero(account_id=account_3_id)
+        account_3 = self.accounts_factory.create_account()
+        hero_3 = heroes_logic.load_hero(account_id=account_3.id)
 
         with mock.patch('the_tale.game.workers.logic.Worker.cmd_logic_task') as logic_task_counter:
             with mock.patch.object(self.worker.logger, 'warn') as logger_warn_counter:
-                self.worker.process_update_hero_with_account_data(account_3_id,
+                self.worker.process_update_hero_with_account_data(account_3.id,
                                                                   is_fast=account_3.is_fast,
                                                                   premium_end_at=account_3.premium_end_at,
                                                                   active_end_at=account_3.active_end_at,
@@ -286,8 +282,8 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.assertEqual(logic_task_counter.call_count, 0)
         self.assertEqual(logger_warn_counter.call_count, 1)
-        self.assertFalse(account_3_id in self.worker.accounts_owners)
-        self.assertTrue(account_3_id in self.worker.accounts_queues)
+        self.assertFalse(account_3.id in self.worker.accounts_owners)
+        self.assertTrue(account_3.id in self.worker.accounts_queues)
 
     @mock.patch('the_tale.game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
     def test_process_next_turn(self):

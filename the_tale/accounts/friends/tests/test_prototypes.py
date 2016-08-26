@@ -6,9 +6,6 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.personal_messages.models import Message
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.accounts.friends.models import Friendship
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
 
@@ -20,14 +17,9 @@ class FriendshipPrototypeTests(testcase.TestCase):
         super(FriendshipPrototypeTests, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        self.account_3 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
 
     def test_request_friendship__own_request_exists(self):
         own_request_1 = FriendshipPrototype.request_friendship(self.account_1, self.account_2, u'text 1')

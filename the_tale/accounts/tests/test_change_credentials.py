@@ -13,7 +13,6 @@ from the_tale.post_service.models import Message
 
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from the_tale.accounts import relations
-from the_tale.accounts.logic import register_user
 from the_tale.accounts import exceptions
 
 from the_tale.game.logic import create_test_map
@@ -26,11 +25,8 @@ class TestChangeCredentialsTask(testcase.TestCase):
         super(TestChangeCredentialsTask, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.test_account = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('fast_user')
-        self.fast_account = AccountPrototype.get_by_id(account_id)
+        self.test_account = self.accounts_factory.create_account()
+        self.fast_account = self.accounts_factory.create_account(is_fast=True)
 
     def test_create(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru', new_password='222222', new_nick='test_nick')
@@ -128,8 +124,8 @@ class TestChangeCredentialsTask(testcase.TestCase):
         self.assertEqual(task._model.state, relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR)
 
     def test_process_duplicated_email(self):
-        register_user('duplicated_user', 'duplicated@test.com', '111111')
-        task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='duplicated@test.com')
+        duplicated_user = self.accounts_factory.create_account()
+        task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email=duplicated_user.email)
         task._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
         task.process(FakeLogger())
         self.assertEqual(task._model.state, relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR)
@@ -141,28 +137,28 @@ class TestChangeCredentialsTask(testcase.TestCase):
         task.process(FakeLogger())
         self.assertEqual(task.state, relations.CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT)
         self.assertEqual(task._model.comment, 'timeout')
-        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
+        self.assertEqual(django_authenticate(nick=self.test_account.nick, password='111111').id, task.account.id)
 
     def test_process_waiting_and_email_confirmation(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru')
         task.process(FakeLogger())
         self.assertEqual(task.state, relations.CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
         self.assertEqual(Message.objects.all().count(), 1)
-        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
+        self.assertEqual(django_authenticate(nick=self.test_account.nick, password='111111').id, task.account.id)
 
     def test_process_waiting_and_password_change(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_password='222222')
         postponed_task = task.process(FakeLogger())
         self.assertEqual(task.state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
         self.assertNotEqual(postponed_task, None)
-        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
+        self.assertEqual(django_authenticate(nick=self.test_account.nick, password='111111').id, task.account.id)
 
     def test_process_waiting_and_nick_change(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_nick='test_nick')
         postponed_task = task.process(FakeLogger())
         self.assertEqual(task.state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
         self.assertNotEqual(postponed_task, None)
-        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
+        self.assertEqual(django_authenticate(nick=self.test_account.nick, password='111111').id, task.account.id)
 
     def test_process_email_sent(self):
         task = ChangeCredentialsTaskPrototype.create(self.test_account, new_email='test_user@test.ru', new_password='222222')
@@ -170,8 +166,8 @@ class TestChangeCredentialsTask(testcase.TestCase):
         self.assertEqual(postponed_task, None)
         self.assertEqual(task.state, relations.CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT)
         self.assertEqual(Message.objects.all().count(), 1)
-        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, task.account.id)
-        self.assertEqual(django_authenticate(nick='test_user', password='222222'), None)
+        self.assertEqual(django_authenticate(nick=self.test_account.nick, password='111111').id, task.account.id)
+        self.assertEqual(django_authenticate(nick=self.test_account.nick, password='222222'), None)
 
         postponed_task = task.process(FakeLogger())
         self.assertEqual(task.state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)

@@ -8,8 +8,7 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url, get_system_user
+from the_tale.accounts.logic import login_page_url, get_system_user
 
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 from the_tale.accounts.personal_messages.models import Message
@@ -21,17 +20,10 @@ class BaseRequestsTests(TestCase):
         super(BaseRequestsTests, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
-        self.account2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user3', 'test_user3@test.com', '111111')
-        self.account3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user4', 'test_user4@test.com', '111111')
-        self.account4 = AccountPrototype.get_by_id(account_id)
+        self.account1 = self.accounts_factory.create_account()
+        self.account2 = self.accounts_factory.create_account()
+        self.account3 = self.accounts_factory.create_account()
+        self.account4 = self.accounts_factory.create_account()
 
 
 class IndexRequestsTests(BaseRequestsTests):
@@ -75,7 +67,7 @@ class IndexRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(url('accounts:messages:')), texts=texts)
 
     def test_index_no_messages(self):
-        self.request_login('test_user4@test.com')
+        self.request_login(self.account4.email)
         self.check_html_ok(self.request_html(url('accounts:messages:')), texts=[('pgf-no-messages', 1)])
 
     def test_sent(self):
@@ -87,7 +79,7 @@ class IndexRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(url('accounts:messages:sent')), texts=texts)
 
     def test_sent_no_messages(self):
-        self.request_login('test_user4@test.com')
+        self.request_login(self.account4.email)
         self.check_html_ok(self.request_html(url('accounts:messages:sent')), texts=[('pgf-no-messages', 1)])
 
     def test_index_second_page(self):
@@ -274,7 +266,7 @@ class DeleteRequestsTests(BaseRequestsTests):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message.id)), 'common.fast_account')
 
     def test_delete_no_permissions(self):
-        self.request_login('test_user3@test.com')
+        self.request_login(self.account3.email)
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message.id)), 'no_permissions')
 
     def test_delete_from_sender(self):

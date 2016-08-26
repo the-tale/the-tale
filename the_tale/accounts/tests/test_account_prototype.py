@@ -15,7 +15,6 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
 
-from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
@@ -26,12 +25,8 @@ class AccountPrototypeTests(testcase.TestCase):
     def setUp(self):
         super(AccountPrototypeTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
-
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('fast_user')
-        self.fast_account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
+        self.fast_account = self.accounts_factory.create_account(is_fast=True)
 
     def test_create(self):
         self.assertTrue(self.account.active_end_at > datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - 60))
@@ -90,12 +85,15 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertFalse(fake_cmd.call_args[1]['is_fast'])
 
     def test_change_credentials_password(self):
+        nick = self.account.nick
+        email = self.account.email
+
         self.account.change_credentials(new_password=make_password('222222'))
 
         self.assertEqual(Message.objects.all().count(), 0)
 
-        self.assertEqual(self.account.email, 'test_user@test.com')
-        user = django_authenticate(nick='test_user', password='222222')
+        self.assertEqual(self.account.email, email)
+        user = django_authenticate(nick=nick, password='222222')
         self.assertEqual(user.id, self.account.id)
 
     def test_change_credentials_nick(self):
@@ -108,13 +106,15 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertEqual(django_authenticate(nick='test_nick', password='111111').id, self.account.id)
 
     def test_change_credentials_email(self):
+        nick = self.account.nick
+
         self.account.change_credentials(new_email='test_user@test.ru')
 
         self.assertEqual(Message.objects.all().count(), 0)
 
         self.assertEqual(self.account.email, 'test_user@test.ru')
-        self.assertEqual(django_authenticate(nick='test_user', password='111111').id, self.account.id)
-        self.assertEqual(django_authenticate(nick='test_user', password='111111').nick, 'test_user')
+        self.assertEqual(django_authenticate(nick=nick, password='111111').id, self.account.id)
+        self.assertEqual(django_authenticate(nick=nick, password='111111').nick, nick)
 
     def test_prolong_premium__for_new_premium(self):
         self.account._model.premium_end_at = datetime.datetime.now() - datetime.timedelta(days=100)
@@ -145,14 +145,10 @@ class AccountPrototypeTests(testcase.TestCase):
     def test_send_premium_expired_notifications(self):
         self.assertEqual(PersonalMessagePrototype._db_count(), 0)
 
-        register_user('test_user_2', 'test_user_2@test.com', '111111')
-        register_user('test_user_3', 'test_user_3@test.com', '111111')
-        register_user('test_user_4', 'test_user_4@test.com', '111111')
-
         account_1 = self.account
-        account_2 = AccountPrototype.get_by_nick('test_user_2')
-        account_3 = AccountPrototype.get_by_nick('test_user_3')
-        account_4 = AccountPrototype.get_by_nick('test_user_4')
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
 
         account_1.prolong_premium(accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN.days-1)
         account_1.save()
@@ -213,8 +209,8 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertEqual(bank_account.amount, 0)
 
     def test_update_referrals(self):
-        register_user('user_2', 'user_2@test.com', '111111', referral_of_id=self.account.id)
-        register_user('fast_user_3', referral_of_id=self.account.id)
+        account_2 = self.accounts_factory.create_account(referral_of_id=self.account.id)
+        account_3 = self.accounts_factory.create_account(referral_of_id=self.account.id, is_fast=True)
 
         self.account.update_referrals_number()
         self.fast_account.update_referrals_number()
@@ -223,12 +219,12 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertEqual(self.fast_account.referrals_number, 0)
 
     def test_referral_removing(self):
-        result, account_id, bundle_id = register_user('fast_user_2', referral_of_id=self.account.id)
+        account_2 = self.accounts_factory.create_account(referral_of_id=self.account.id, is_fast=True)
 
         self.account.remove()
 
         # child account must not be removed
-        self.assertEqual(AccountPrototype.get_by_id(account_id).referral_of_id, None)
+        self.assertEqual(AccountPrototype.get_by_id(account_2.id).referral_of_id, None)
 
 
     def test_set_might(self):

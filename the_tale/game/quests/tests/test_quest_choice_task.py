@@ -7,9 +7,6 @@ from the_tale.common.utils import testcase
 from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
 from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
-
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.prototypes import TimePrototype
@@ -27,12 +24,12 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
         super(MakeChoiceTaskTest, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        account = self.accounts_factory.create_account()
 
-        self.account_id = account_id
+        self.account_id = account.id
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero =self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(account)
+        self.hero =self.storage.accounts_to_heroes[account.id]
 
         self.choice_1_uid = '[ns-0]choice_1'
         self.choice_2_uid = '[ns-0]choice_2'
@@ -79,10 +76,11 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
     def test_no_quests(self):
         self.turn_to_quest(self.storage, self.hero.id)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        account = self.accounts_factory.create_account()
 
-        task = self.create_task(option_uid=self.option_1_1_uid, account_id=account_id)
+        self.storage.load_account_data(account)
+
+        task = self.create_task(option_uid=self.option_1_1_uid, account_id=account.id)
 
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
         self.assertTrue(task.state.is_QUEST_NOT_FOUND)

@@ -3,9 +3,6 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
-
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.balance import constants as c
@@ -32,11 +29,11 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.p1, self.p2, self.p3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
+        account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
 
         self.hero.position.set_place(self.p1)
@@ -53,7 +50,6 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_get_destination_coordinates(self):
-
         self.assertTrue(len(self.p1.nearest_cells) > 3) # two coordinates will be in coordinates set, other will not
 
         x_1, y_1 = self.p1.nearest_cells[0]

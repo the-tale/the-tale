@@ -8,8 +8,7 @@ from dext.common.utils.urls import url
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 from the_tale.game.logic import create_test_map
 
 from the_tale.forum.models import Category, SubCategory, Thread, Post
@@ -21,14 +20,12 @@ class TestModeration(TestCase):
 
     def setUp(self):
         super(TestModeration, self).setUp()
-        create_test_map()
-        register_user('main_user', 'main_user@test.com', '111111')
-        register_user('moderator', 'moderator@test.com', '111111')
-        register_user('second_user', 'second_user@test.com', '111111')
 
-        self.main_account = AccountPrototype.get_by_nick('main_user')
-        self.moderator = AccountPrototype.get_by_nick('moderator')
-        self.second_account = AccountPrototype.get_by_nick('second_user')
+        create_test_map()
+
+        self.main_account = self.accounts_factory.create_account()
+        self.moderator = self.accounts_factory.create_account()
+        self.second_account = self.accounts_factory.create_account()
 
         group = sync_group(forum_settings.MODERATOR_GROUP_NAME, ['forum.moderate_post', 'forum.moderate_thread'])
 
@@ -68,18 +65,18 @@ class TestModerationSubcategoryRequests(TestModeration):
 
     #button
     def test_loggined_has_add_thread_button(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcategory.id)), texts=[('pgf-new-thread-button', 1)])
 
     def test_unlogined_has_add_thread_button(self):
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcategory.id)), texts=[('pgf-new-thread-button', 0)])
 
     def test_loggined_has_no_add_thread_button_in_closed_theme(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcategory2.id)), texts=[('pgf-new-thread-button', 0)])
 
     def test_moderator_has_add_thread_button_in_closed_theme(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_html_ok(self.request_html(url('forum:subcategories:show', self.subcategory2.id)), texts=[('pgf-new-thread-button', 1)])
 
 
@@ -87,13 +84,13 @@ class TestModerationNewThreadRequests(TestModeration):
     #new page
 
     def test_loggined_new_thread_page(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcategory.id)),
                            texts=[('pgf-new-thread-form', 2)])
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_loggined_new_thread_page__banned(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcategory.id)),
                            texts=[('pgf-new-thread-form', 0),
                                   ('common.ban_forum', 1)])
@@ -103,12 +100,12 @@ class TestModerationNewThreadRequests(TestModeration):
         self.check_redirect(request_url, login_page_url(request_url))
 
     def test_loggined_new_thread_page_in_closed_theme(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcategory2.id)),
                            texts=[('pgf-new-thread-form', 0), ('forum.new_thread.no_permissions', 1)])
 
     def test_moderator_new_thread_page_in_closed_theme(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_html_ok(self.request_html(url('forum:subcategories:new-thread', self.subcategory2.id)),
                                            texts=[('pgf-new-thread-form', 2)])
 
@@ -117,7 +114,7 @@ class TestModerationCreateThreadRequests(TestModeration):
 
     @mock.patch('the_tale.forum.conf.forum_settings.THREAD_DELAY', 0)
     def test_loggined_create_thread_page(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         response = self.client.post(url('forum:subcategories:create-thread',  self.subcategory.id),
                                     {'caption': 'thread5-caption', 'text': 'thread5-text'})
 
@@ -129,7 +126,7 @@ class TestModerationCreateThreadRequests(TestModeration):
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_loggined_create_thread_page__banned(self):
         old_threads_number = ThreadPrototype._db_count()
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         response = self.client.post(url('forum:subcategories:create-thread', self.subcategory.id),
                                     {'caption': 'thread5-caption', 'text': 'thread5-text'})
         self.check_ajax_error(response, 'common.ban_forum')
@@ -142,14 +139,14 @@ class TestModerationCreateThreadRequests(TestModeration):
                               'common.login_required')
 
     def test_loggined_create_thread_page_in_closed_theme(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:subcategories:create-thread',  self.subcategory2.id),
                                                {'caption': 'thread5-caption', 'text': 'thread5-text'}),
                               'forum.create_thread.no_permissions')
 
     @mock.patch('the_tale.forum.conf.forum_settings.THREAD_DELAY', 0)
     def test_moderator_create_thread_page_in_closed_theme(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         response = self.client.post(url('forum:subcategories:create-thread',  self.subcategory2.id),
                                     {'caption': 'thread5-caption', 'text': 'thread5-text'})
 
@@ -170,15 +167,15 @@ class TestModerationShowThreadRequests(TestModeration):
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-change-thread-button', 0)])
 
     def test_main_user_has_edit_theme_button(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-change-thread-button', 1)])
 
     def test_second_user_has_edit_theme_button(self):
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-change-thread-button', 0)])
 
     def test_moderator_user_has_edit_theme_button(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-change-thread-button', 1)])
 
     ###############################
@@ -186,15 +183,15 @@ class TestModerationShowThreadRequests(TestModeration):
     ###############################
 
     def test_main_user_has_remove_thread_button(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-remove-thread-button', 0)])
 
     def test_moderator_has_remove_thread_button(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-remove-thread-button', 2)])
 
     def test_second_user_has_remove_thread_button(self):
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-remove-thread-button', 0)])
 
     ###############################
@@ -202,17 +199,17 @@ class TestModerationShowThreadRequests(TestModeration):
     ###############################
 
     def test_main_user_has_remove_post_button(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-remove-post-button', 3)])
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread2.id)), texts=[('pgf-remove-post-button', 3)])
 
     def test_moderator_has_remove_post_button(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-remove-post-button', 3)])
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread2.id)), texts=[('pgf-remove-post-button', 3)])
 
     def test_second_user_has_remove_post_button(self):
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-remove-post-button', 0)])
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread2.id)), texts=[('pgf-remove-post-button', 2)])
 
@@ -222,17 +219,17 @@ class TestModerationShowThreadRequests(TestModeration):
 
     # button
     def test_main_user_has_edit_post_button(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-change-post-button', 3)])
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread2.id)), texts=[('pgf-change-post-button', 2)])
 
     def test_moderator_has_edit_post_button(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-change-post-button', 3)])
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread2.id)), texts=[('pgf-change-post-button', 3)])
 
     def test_second_user_has_edit_post_button(self):
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread.id)), texts=[('pgf-change-post-button', 0)])
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread2.id)), texts=[('pgf-change-post-button', 1)])
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread3.id)), texts=[('pgf-change-post-button', 1)])
@@ -248,18 +245,18 @@ class TestModerationEditThreadRequests(TestModeration):
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_edit_theme_page__banned(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:edit', self.thread.id)), texts=['common.ban_forum'])
 
     def test_main_user_edit_theme_page(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:edit', self.thread.id)), texts=[('pgf-edit-thread-form', 2),
                                                                                                 ('pgf-thread-subcategory', 0),
                                                                                                 ('thread-caption', 3),
                                                                                                 ('id_important', 0)])
 
     def test_second_user_edit_theme_button(self):
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         self.check_html_ok(self.request_html(url('forum:threads:edit', self.thread.id)), texts=[('pgf-edit-thread-form', 0),
                                                                                                         ('forum.edit_thread.no_permissions', 1),
                                                                                                         ('pgf-thread-subcategory', 0),
@@ -267,7 +264,7 @@ class TestModerationEditThreadRequests(TestModeration):
                                                                                                         ('id_important', 0)])
 
     def test_moderator_user_edit_theme_button(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_html_ok(self.request_html(url('forum:threads:edit', self.thread.id)), texts=[('pgf-edit-thread-form', 2),
                                                                                                 ('pgf-thread-subcategory', 1),
                                                                                                 ('thread-caption', 3),
@@ -283,13 +280,13 @@ class TestModerationUpdateThreadRequests(TestModeration):
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_update_theme__banned(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption'}),
                               'common.ban_forum')
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
 
     def test_main_user_update_theme(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_ok(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption'}))
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
 
@@ -299,7 +296,7 @@ class TestModerationUpdateThreadRequests(TestModeration):
         self.assertEqual(self.subcategory2.posts_count, 0)
         self.assertEqual(self.subcategory2.threads_count, 0)
 
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption', 'subcategory': self.subcategory2.id}),
                               'forum.update_thread.no_permissions_to_change_subcategory')
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
@@ -312,7 +309,7 @@ class TestModerationUpdateThreadRequests(TestModeration):
     def test_main_user_update_theme_with_important(self):
         self.assertFalse(self.thread.important)
 
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_ok(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption', 'important': True}))
 
         self.thread.reload()
@@ -320,7 +317,7 @@ class TestModerationUpdateThreadRequests(TestModeration):
 
 
     def test_main_user_update_theme_with_form_errors(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:threads:update', self.thread.id), {'caption': ''}),
                               'forum.update_thread.form_errors')
         thread = Thread.objects.get(id=self.thread.id)
@@ -328,20 +325,20 @@ class TestModerationUpdateThreadRequests(TestModeration):
         self.assertEqual(thread.subcategory_id, self.subcategory.id)
 
     def test_second_user_update_theme(self):
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         self.check_ajax_error(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption'}),
                               'forum.update_thread.no_permissions')
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, self.thread.caption)
 
     def test_moderator_user_update_theme(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_ajax_ok(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption'}))
         self.assertEqual(Thread.objects.get(id=self.thread.id).caption, 'edited caption')
 
     def test_moderator_user_update_theme_with_important(self):
         self.assertFalse(self.thread.important)
 
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_ajax_ok(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption', 'important': True}))
 
         self.thread.reload()
@@ -353,7 +350,7 @@ class TestModerationUpdateThreadRequests(TestModeration):
         self.assertEqual(self.subcategory2.posts_count, 0)
         self.assertEqual(self.subcategory2.threads_count, 0)
 
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_ajax_ok(self.client.post(url('forum:threads:update', self.thread.id), {'caption': 'edited caption', 'subcategory': self.subcategory2.id}))
         thread = Thread.objects.get(id=self.thread.id)
         self.assertEqual(thread.caption, 'edited caption')
@@ -371,7 +368,7 @@ class TestModerationUpdateThreadRequests(TestModeration):
 class TestModerationDeleteThreadRequests(TestModeration):
 
     def test_main_user_remove_thread(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:threads:delete', self.thread.id)), 'forum.delete_thread.no_permissions')
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
@@ -380,19 +377,19 @@ class TestModerationDeleteThreadRequests(TestModeration):
         self.subcategory._model.closed = True
         self.subcategory.save()
 
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:threads:delete', self.thread.id)), 'forum.delete_thread.no_permissions')
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_moderator_remove_thread(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_ajax_ok(self.client.post(url('forum:threads:delete', self.thread.id)))
         self.assertEqual(Thread.objects.all().count(), 2)
         self.assertEqual(Post.objects.all().count(), 4)
 
     def test_second_user_remove_thread(self):
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         self.check_ajax_error(self.client.post(url('forum:threads:delete', self.thread.id)), 'forum.delete_thread.no_permissions')
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
@@ -403,7 +400,7 @@ class TestModerationDeleteThreadRequests(TestModeration):
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_fast_account(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
 
         self.main_account.is_fast = True
         self.main_account.save()
@@ -414,7 +411,7 @@ class TestModerationDeleteThreadRequests(TestModeration):
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_second_user_remove_banned(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:threads:delete', self.thread.id)), 'common.ban_forum')
         self.assertEqual(Thread.objects.all().count(), 3)
         self.assertEqual(Post.objects.all().count(), 8)
@@ -424,7 +421,7 @@ class TestModerationDeletePostRequests(TestModeration):
 
     # main user
     def test_main_user_remove_post(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.assertEqual(Thread.objects.get(id=self.thread.id).posts_count, 3)
         self.assertEqual(SubCategory.objects.get(id=self.subcategory.id).posts_count, 5)
 
@@ -438,7 +435,7 @@ class TestModerationDeletePostRequests(TestModeration):
 
     def test_main_user_remove_post_of_second_user(self):
         self.assertEqual(self.second_account, self.post4.author)
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_ok(self.client.post(url('forum:posts:delete', self.post4.id)))
         self.assertEqual(Post.objects.all().count(), 8)
 
@@ -446,25 +443,25 @@ class TestModerationDeletePostRequests(TestModeration):
     def test_banned_main_user_remove_post_of_second_user(self):
         old_posts_count = PostPrototype._db_count()
         self.assertEqual(self.second_account, self.post4.author)
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:posts:delete', self.post4.id)), 'common.ban_forum')
         self.assertEqual(old_posts_count, PostPrototype._db_count())
 
     def test_main_user_remove_first_post(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         post = Post.objects.filter(thread=self.thread.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(url('forum:posts:delete', post.id)), 'forum.delete_post.remove_first_post')
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_main_user_remove_moderators_post(self):
         post = PostPrototype.create(self.thread, self.moderator, 'moderator-post-text')
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:posts:delete', post.id)), 'forum.delete_post.remove_moderator_post')
         self.assertEqual(Post.objects.all().count(), 9)
 
     # moderator
     def test_moderator_remove_post(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_ajax_ok(self.client.post(url('forum:posts:delete', self.post.id)))
         self.assertEqual(Post.objects.all().count(), 8)
 
@@ -474,30 +471,30 @@ class TestModerationDeletePostRequests(TestModeration):
 
     def test_moderator_remove_post_of_second_user(self):
         self.assertEqual(self.second_account, self.post4.author)
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_ajax_ok(self.client.post(url('forum:posts:delete', self.post4.id)))
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_moderator_remove_first_post(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         post = Post.objects.filter(thread=self.thread.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(url('forum:posts:delete', post.id)), 'forum.delete_post.remove_first_post')
         self.assertEqual(Post.objects.all().count(), 8)
 
     # second user
     def test_second_user_remove_post(self):
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         self.check_ajax_error(self.client.post(url('forum:posts:delete', self.post.id)), 'forum.delete_post.no_permissions')
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_post_of_second_user(self):
         self.assertEqual(self.second_account, self.post4.author)
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         self.check_ajax_ok(self.client.post(url('forum:posts:delete', self.post4.id)))
         self.assertEqual(Post.objects.all().count(), 8)
 
     def test_second_user_remove_first_post(self):
-        self.request_login('second_user@test.com')
+        self.request_login(self.second_account.email)
         post = Post.objects.filter(thread=self.thread3.id).order_by('created_at')[0]
         self.check_ajax_error(self.client.post(url('forum:posts:delete', post.id)), 'forum.delete_post.remove_first_post')
         self.assertEqual(Post.objects.all().count(), 8)
@@ -511,7 +508,7 @@ class TestModerationEditPostRequests(TestModeration):
         self.check_redirect(request_url, login_page_url(request_url))
 
     def test_edit_page_fast_account(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
 
         self.main_account.is_fast = True
         self.main_account.save()
@@ -520,19 +517,19 @@ class TestModerationEditPostRequests(TestModeration):
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_edit_page_banned(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:posts:edit', self.post.id)), texts=['common.ban_forum'])
 
     def test_edit_page_no_permissions(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:posts:edit', self.post4.id)), texts=['forum.edit_thread.no_permissions'])
 
     def test_edit_page_moderator_access(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_html_ok(self.request_html(url('forum:posts:edit', self.post.id)), texts=[('pgf-change-post-form', 2), ('post-text', 1)])
 
     def test_edit_page_author_access(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_html_ok(self.request_html(url('forum:posts:edit', self.post.id)), texts=[('pgf-change-post-form', 2), ('post-text', 1)])
 
 
@@ -545,7 +542,7 @@ class TestModerationUpdatePostRequests(TestModeration):
         self.assertEqual(self.post.text, Post.objects.get(id=self.post.id).text)
 
     def test_update_post_fast_account(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
 
         self.main_account.is_fast = True
         self.main_account.save()
@@ -555,25 +552,25 @@ class TestModerationUpdatePostRequests(TestModeration):
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_forum', True)
     def test_update_post_banned(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:posts:update', self.post.id)), 'common.ban_forum')
         self.assertEqual(self.post.text, Post.objects.get(id=self.post.id).text)
 
     def test_update_post_no_permissions(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_error(self.client.post(url('forum:posts:update', self.post4.id)), 'forum.update_post.no_permissions')
         self.assertEqual(self.post4.text, Post.objects.get(id=self.post4.id).text)
 
     def test_update_post_form_errors(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_ajax_error(self.client.post(url('forum:posts:update', self.post.id)), 'forum.update_post.form_errors')
 
     def test_update_post_moderator_access(self):
-        self.request_login('moderator@test.com')
+        self.request_login(self.moderator.email)
         self.check_ajax_ok(self.client.post(url('forum:posts:update', self.post.id), {'text': 'new text'}))
         self.assertEqual(Post.objects.get(id=self.post.id).text, 'new text')
 
     def test_update_post_author_access(self):
-        self.request_login('main_user@test.com')
+        self.request_login(self.main_account.email)
         self.check_ajax_ok(self.client.post(url('forum:posts:update', self.post.id), {'text': 'new text'}))
         self.assertEqual(Post.objects.get(id=self.post.id).text, 'new text')

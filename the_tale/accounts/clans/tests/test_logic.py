@@ -4,9 +4,6 @@ import mock
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.finances.shop.relations import PERMANENT_PURCHASE_TYPE
@@ -18,7 +15,6 @@ from the_tale.accounts.clans.conf import clans_settings
 
 from the_tale.forum.prototypes import CategoryPrototype
 
-
 class ClanInfoTests(TestCase, ClansTestsMixin):
 
     def setUp(self):
@@ -27,8 +23,7 @@ class ClanInfoTests(TestCase, ClansTestsMixin):
 
         CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.clan_info = ClanInfo(account=self.account)
 
 
@@ -72,8 +67,7 @@ class ClanInfoTests(TestCase, ClansTestsMixin):
         self.assertFalse(self.clan_info.is_member_of(None))
 
     def test_is_member_of__no_membership(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        clan_2 = self.create_clan(AccountPrototype.get_by_id(account_id), 0)
+        clan_2 = self.create_clan(self.accounts_factory.create_account(), 0)
         self.assertFalse(self.clan_info.is_member_of(clan_2))
 
     def test_is_member_of__is_member(self):
@@ -84,8 +78,7 @@ class ClanInfoTests(TestCase, ClansTestsMixin):
         self.assertFalse(self.clan_info.is_owner_of(self.create_clan(self.account, 0)))
 
     def test_is_owner_of__is_member_true__wrong_clan(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
 
         self.create_clan(self.account, 0)
 

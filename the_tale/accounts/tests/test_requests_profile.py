@@ -11,7 +11,7 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.post_service.models import Message
 
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -121,9 +121,9 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
         self.assertEqual(django_authenticate(nick=self.account_nick, password='111111').email, self.account_email)
 
     def test_profile_update_duplicate_email(self):
-        register_user('duplicated_user', 'duplicated@test.com', '111111')
+        account = self.accounts_factory.create_account()
         self.request_login(self.account.email)
-        response = self.client.post(reverse('accounts:profile:update'), {'nick': 'duplicated_user_2', 'email': 'duplicated@test.com'})
+        response = self.client.post(reverse('accounts:profile:update'), {'nick': 'duplicated_user_2', 'email': account.email})
         self.check_ajax_error(response, 'accounts.profile.update.used_email')
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 0)
         self.assertEqual(Message.objects.all().count(), 0)
@@ -131,9 +131,9 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
         self.assertEqual(django_authenticate(nick=self.account_nick, password='111111').email, self.account_email)
 
     def test_profile_update_duplicate_nick(self):
-        register_user('duplicated_user', 'duplicated@test.com', '111111')
+        account = self.accounts_factory.create_account()
         self.request_login(self.account.email)
-        response = self.client.post(reverse('accounts:profile:update'), {'nick': 'duplicated_user', 'email': 'duplicated_@test.com'})
+        response = self.client.post(reverse('accounts:profile:update'), {'nick': account.nick, 'email': 'duplicated_@test.com'})
         self.check_ajax_error(response, 'accounts.profile.update.used_nick')
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 0)
         self.assertEqual(Message.objects.all().count(), 0)

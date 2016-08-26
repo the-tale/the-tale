@@ -6,9 +6,6 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
@@ -26,11 +23,10 @@ class ComplexChangeTasksTests(TestCase):
 
     def setUp(self):
         super(ComplexChangeTasksTests, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]

@@ -4,8 +4,7 @@ from dext.common.utils.urls import url
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, get_system_user
+from the_tale.accounts.logic import get_system_user
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
 from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype, GiveItemTaskPrototype
@@ -53,8 +52,7 @@ class AccountAchievementsPrototypeTests(testcase.TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
 
         self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1', approved=True)
         self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1', approved=True)

@@ -7,8 +7,6 @@ from the_tale.common.utils import testcase
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.middleware import RegistrationMiddleware, FirstTimeVisitMiddleware
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts.postponed_tasks import RegistrationTask
@@ -20,12 +18,11 @@ class RegistrationMiddlewareTests(testcase.TestCase):
 
     def setUp(self):
         super(RegistrationMiddlewareTests, self).setUp()
+
         create_test_map()
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
 
+        self.account = self.accounts_factory.create_account()
         self.middleware = RegistrationMiddleware()
-
         self.referral_link = '/?%s=%d' % (accounts_settings.REFERRAL_URL_ARGUMENT, self.account.id)
         self.action_link = '/?%s=action' % accounts_settings.ACTION_URL_ARGUMENT
 

@@ -12,8 +12,7 @@ from dext.common.utils.urls import url
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -28,21 +27,18 @@ class TestRequestsBase(TestCase, PvPTestsMixin):
 
     def setUp(self):
         super(TestRequestsBase, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account_1_id = account_id
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-        self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2_id = account_id
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
         self.hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
 
         self.client = client.Client()
 
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
 
 
 class TestRequests(TestRequestsBase):

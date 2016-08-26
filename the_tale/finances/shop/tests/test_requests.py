@@ -13,8 +13,7 @@ from the_tale.finances.bank.tests.helpers import BankTestsMixin
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.finances.shop.price_list import PURCHASES_BY_UID
 from the_tale.finances.shop.conf import payments_settings
@@ -68,10 +67,10 @@ class RequestesTestsBase(testcase.TestCase, third_party_helpers.ThirdPartyTestsM
 
     def setUp(self):
         super(RequestesTestsBase, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
         settings[payments_settings.SETTINGS_ALLOWED_KEY] = 'allowed'
 
@@ -213,12 +212,9 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
     def setUp(self):
         super(GiveMoneyRequestesTests, self).setUp()
 
-        result, account_id, bundle_id = register_user('superuser', 'superuser@test.com', '111111')
-        self.superuser = AccountPrototype.get_by_id(account_id)
-        self.superuser._model.is_superuser = True
-        self.superuser.save()
+        self.superuser = self.accounts_factory.create_account(is_superuser=True)
 
-        self.request_login('superuser@test.com')
+        self.request_login(self.superuser.email)
 
     def post_data(self, amount=105):
         return {'amount': amount, 'description': u'bla-bla'}

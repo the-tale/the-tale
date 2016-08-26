@@ -7,9 +7,6 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.models import SupervisorTask
@@ -31,14 +28,11 @@ class BalancerTestsBase(testcase.TestCase):
 
         self.p1, self.p2, self.p3 = create_test_map()
 
-        result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        result, account_2_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
-        self.account_1 = AccountPrototype.get_by_id(account_1_id)
-        self.account_2 = AccountPrototype.get_by_id(account_2_id)
-
-        self.hero_1 = heroes_logic.load_hero(account_id=account_1_id)
-        self.hero_2 = heroes_logic.load_hero(account_id=account_2_id)
+        self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
+        self.hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
 
         environment.deinitialize()
         environment.initialize()
@@ -68,8 +62,8 @@ class BalancerTests(BalancerTestsBase):
 
 
     def test_process_add_to_arena_queue_two_requests_from_one_account(self):
-        battle_1 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
-        battle_2 = Battle1x1Prototype.create(AccountPrototype.get_by_id(self.account_1.id))
+        battle_1 = Battle1x1Prototype.create(self.account_1)
+        battle_2 = Battle1x1Prototype.create(self.account_1)
         self.assertEqual(Battle1x1.objects.all().count(), 1)
         self.assertEqual(battle_1.id, battle_2.id)
 
@@ -339,13 +333,13 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.hero_1.level = 50
         heroes_logic.save_hero(self.hero_1)
 
-        result, bot_account_id, bundle_id = register_user('bot_user', 'bot_user@test.com', '111111', is_bot=True)
+        bot_account = self.accounts_factory.create_account(is_bot=True)
 
         records_to_remove, records_to_exclude = self.worker._initiate_battle_with_bot(self.battle_1_record())
 
         bot_battle = Battle1x1Prototype.get_by_id(records_to_exclude[1].battle_id)
 
-        bot_record = QueueRecord(account_id=bot_account_id,
+        bot_record = QueueRecord(account_id=bot_account.id,
                                  battle_id=bot_battle.id,
                                  created_at=bot_battle.created_at + datetime.timedelta(seconds=0),
                                  hero_level=1)
@@ -355,9 +349,9 @@ class BalancerBalancingTests(BalancerTestsBase):
         self.assertEqual(SupervisorTask.objects.all().count(), 1)
 
         battle_player = Battle1x1Prototype.get_by_account_id(self.account_1.id)
-        battle_bot = Battle1x1Prototype.get_by_account_id(bot_account_id)
+        battle_bot = Battle1x1Prototype.get_by_account_id(bot_account.id)
 
-        self.assertEqual(battle_player.enemy_id, bot_account_id)
+        self.assertEqual(battle_player.enemy_id, bot_account.id)
         self.assertFalse(battle_player.calculate_rating)
         self.assertEqual(battle_bot.enemy_id, self.account_1.id)
         self.assertFalse(battle_bot.calculate_rating)

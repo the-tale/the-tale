@@ -13,7 +13,6 @@ from the_tale.finances.bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE
 from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
 
 
 class _BaseBuyPosponedTaskTests(testcase.TestCase):
@@ -27,8 +26,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self.initial_amount = 500
         self.amount = 130
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
         self.bank_account = BankAccountPrototype.create(entity_type=ENTITY_TYPE.GAME_ACCOUNT,
                                                         entity_id=self.account.id,
@@ -164,8 +162,9 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self.invoice.state = INVOICE_STATE.CONFIRMED
         self.invoice.save()
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account._model.referral_of_id = account_id
+        account_2 = self.accounts_factory.create_account()
+
+        self.account._model.referral_of_id = account_2.id
         self.account.save()
 
         self.task.state = self.task.RELATION.WAIT_TRANSACTION_CONFIRMATION
@@ -178,7 +177,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.assertTrue(referral_invoice.amount > 0)
         self.assertTrue(referral_invoice.amount < self.amount)
-        self.assertEqual(referral_invoice.recipient_id, account_id)
+        self.assertEqual(referral_invoice.recipient_id, account_2.id)
         self.assertTrue(referral_invoice.state.is_FORCED)
 
         self.assertTrue(self.task.state.is_SUCCESSED)

@@ -4,9 +4,6 @@ import datetime
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.actions import prototypes as actions_prototypes
 from the_tale.game.actions import meta_actions
 
@@ -76,8 +73,8 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(action_regenerate.storage, self.storage)
 
         storage = LogicStorage()
-        storage.load_account_data(AccountPrototype.get_by_id(self.account_1.id))
-        storage.load_account_data(AccountPrototype.get_by_id(self.account_2.id))
+        storage.load_account_data(self.account_1)
+        storage.load_account_data(self.account_2)
         self.assertEqual(len(storage.heroes), 2)
         self.assertEqual(len(storage.accounts_to_heroes), 2)
         self.assertEqual(storage.bundles_to_accounts, {self.hero_1.actions.current_action.bundle_id: set([self.account_1.id]),
@@ -103,8 +100,8 @@ class LogicStorageTests(testcase.TestCase):
         self.assertIs(self.hero_1.actions.current_action.saved_meta_action, self.hero_2.actions.current_action.saved_meta_action)
 
         storage = LogicStorage()
-        storage.load_account_data(AccountPrototype.get_by_id(self.account_1.id))
-        storage.load_account_data(AccountPrototype.get_by_id(self.account_2.id))
+        storage.load_account_data(self.account_1)
+        storage.load_account_data(self.account_2)
 
         self.assertEqual(len(storage.meta_actions), 1)
         self.assertEqual(len(storage.meta_actions_to_actions), 1)
@@ -414,13 +411,14 @@ class LogicStorageTests(testcase.TestCase):
         # hero 3 not saved
         # hero 4 saved
 
-        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
-        hero_3 = self.storage.accounts_to_heroes[account_3_id]
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
 
-        result, account_4_id, bundle_4_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_4_id))
-        hero_4 = self.storage.accounts_to_heroes[account_4_id]
+        self.storage.load_account_data(account_3)
+        hero_3 = self.storage.accounts_to_heroes[account_3.id]
+
+        self.storage.load_account_data(account_4)
+        hero_4 = self.storage.accounts_to_heroes[account_4.id]
 
         self.hero_1.actions.current_action.bundle_id = hero_3.actions.current_action.bundle_id
 
@@ -442,13 +440,14 @@ class LogicStorageTests(testcase.TestCase):
         # hero 3 not saved
         # hero 4 saved
 
-        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
-        hero_3 = self.storage.accounts_to_heroes[account_3_id]
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
 
-        result, account_4_id, bundle_4_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_4_id))
-        hero_4 = self.storage.accounts_to_heroes[account_4_id]
+        self.storage.load_account_data(account_3)
+        hero_3 = self.storage.accounts_to_heroes[account_3.id]
+
+        self.storage.load_account_data(account_4)
+        hero_4 = self.storage.accounts_to_heroes[account_4.id]
 
         self.hero_1.actions.current_action.bundle_id = hero_3.actions.current_action.bundle_id
 
@@ -582,16 +581,21 @@ class LogicStorageTests(testcase.TestCase):
         # hero 3 saved by caching
         # hero 4 not saved
 
-        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        result, account_4_id, bundle_4_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        result, account_5_id, bundle_5_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_4_id))
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_5_id))
+        self.storage.load_account_data(account_3)
+        self.storage.load_account_data(account_4)
+        self.storage.load_account_data(account_5)
 
-        hero_3 = self.storage.accounts_to_heroes[account_3_id]
-        hero_4 = self.storage.accounts_to_heroes[account_4_id]
+        hero_3 = self.storage.accounts_to_heroes[account_3.id]
+        hero_4 = self.storage.accounts_to_heroes[account_4.id]
+        hero_5 = self.storage.accounts_to_heroes[account_5.id]
+
+        bundle_3_id = hero_3.actions.current_action.bundle_id
+        bundle_4_id = hero_4.actions.current_action.bundle_id
+        bundle_5_id = hero_5.actions.current_action.bundle_id
 
         self.hero_1.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
@@ -616,16 +620,22 @@ class LogicStorageTests(testcase.TestCase):
         # hero 3 saved by caching
         # hero 4 saved by force
 
-        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        result, account_4_id, bundle_4_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        result, account_5_id, bundle_5_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_4_id))
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_5_id))
+        self.storage.load_account_data(account_3)
+        self.storage.load_account_data(account_4)
+        self.storage.load_account_data(account_5)
 
-        hero_3 = self.storage.accounts_to_heroes[account_3_id]
-        hero_4 = self.storage.accounts_to_heroes[account_4_id]
+        hero_3 = self.storage.accounts_to_heroes[account_3.id]
+        hero_4 = self.storage.accounts_to_heroes[account_4.id]
+        hero_5 = self.storage.accounts_to_heroes[account_5.id]
+
+        bundle_3_id = hero_3.actions.current_action.bundle_id
+        bundle_4_id = hero_4.actions.current_action.bundle_id
+        bundle_5_id = hero_5.actions.current_action.bundle_id
+
 
         hero_4.force_save_required = True
 
@@ -654,14 +664,14 @@ class LogicStorageTests(testcase.TestCase):
         # hero 3 does not saved by caching
         # hero 4 not saved
 
-        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        result, account_4_id, bundle_4_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_4_id))
+        self.storage.load_account_data(account_3)
+        self.storage.load_account_data(account_4)
 
-        hero_3 = self.storage.accounts_to_heroes[account_3_id]
-        hero_4 = self.storage.accounts_to_heroes[account_4_id]
+        hero_3 = self.storage.accounts_to_heroes[account_3.id]
+        hero_4 = self.storage.accounts_to_heroes[account_4.id]
 
         self.hero_1.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
@@ -684,11 +694,12 @@ class LogicStorageTests(testcase.TestCase):
         # hero 2 saved by quota
         # hero 3 saved by caching
 
-        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        account_3 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
+        self.storage.load_account_data(account_3)
 
-        hero_3 = self.storage.accounts_to_heroes[account_3_id]
+        hero_3 = self.storage.accounts_to_heroes[account_3.id]
+        bundle_3_id = hero_3.actions.current_action.bundle_id
 
         self.hero_1.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)
@@ -722,11 +733,11 @@ class LogicStorageTests(testcase.TestCase):
         # hero 2 saved by quota
         # hero 3 does not saved by caching
 
-        result, account_3_id, bundle_3_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
+        account_3 = self.accounts_factory.create_account()
 
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_3_id))
+        self.storage.load_account_data(account_3)
 
-        hero_3 = self.storage.accounts_to_heroes[account_3_id]
+        hero_3 = self.storage.accounts_to_heroes[account_3.id]
 
         self.hero_1.saved_at = datetime.datetime.now()
         self.hero_1.ui_caching_started_at = datetime.datetime.fromtimestamp(0)

@@ -2,8 +2,6 @@
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.heroes import logic as heroes_logic
@@ -18,11 +16,11 @@ class AbilitiesTests(testcase.TestCase):
 
         create_test_map()
 
-        result, account_1_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        result, account_1_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        account_1 = self.accounts_factory.create_account()
+        account_2 = self.accounts_factory.create_account()
 
-        self.hero = heroes_logic.load_hero(account_id=account_1_id)
-        self.enemy = heroes_logic.load_hero(account_id=account_1_id)
+        self.hero = heroes_logic.load_hero(account_id=account_1.id)
+        self.enemy = heroes_logic.load_hero(account_id=account_2.id)
 
     def test_ice_apply(self):
         self.assertEqual(self.hero.pvp.energy_speed, 1)

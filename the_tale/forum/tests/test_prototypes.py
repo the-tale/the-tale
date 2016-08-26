@@ -5,9 +5,6 @@ import datetime
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype
 
@@ -27,16 +24,13 @@ class SubcategoryPrototypeTests(testcase.TestCase):
 
     def setUp(self):
         super(SubcategoryPrototypeTests, self).setUp()
+
         create_test_map()
 
 
     def test_subcategories_visible_to_account_with_permissions(self):
-        register_user('test_user', 'test_user@test.com', '111111')
-        register_user('granted_user', 'granted_user@test.com', '111111')
-        register_user('wrong_user', 'wrong_user@test.com', '111111')
-
-        granted_account = AccountPrototype.get_by_nick('granted_user')
-        wrong_account = AccountPrototype.get_by_nick('wrong_user')
+        granted_account = self.accounts_factory.create_account()
+        wrong_account = self.accounts_factory.create_account()
 
         category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         subcategory_1 = SubCategoryPrototype.create(category=category, caption='subcat-1-caption', order=2)
@@ -64,11 +58,8 @@ class SubcategoryPrototypeUpdateTests(testcase.TestCase):
 
         create_test_map()
 
-        register_user('test_user', 'test_user@test.com', '111111')
-        register_user('checked_user', 'granted_user@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_nick('test_user')
-        self.checked_account = AccountPrototype.get_by_nick('checked_user')
+        self.account = self.accounts_factory.create_account()
+        self.checked_account = self.accounts_factory.create_account()
 
         self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=2)
@@ -147,10 +138,10 @@ class ThreadPrototypeTests(testcase.TestCase):
 
     def setUp(self):
         super(ThreadPrototypeTests, self).setUp()
+
         create_test_map()
 
-        register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_nick('test_user')
+        self.account = self.accounts_factory.create_account()
 
         self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=0)
@@ -158,13 +149,11 @@ class ThreadPrototypeTests(testcase.TestCase):
         self.thread = ThreadPrototype.create(self.subcategory, 'thread-caption', self.account, 'thread-text')
 
     def test_get_new_thread_delay__no_threads__new_account(self):
-        register_user('new_test_user', 'new_test_user@test.com', '111111')
-        new_account = AccountPrototype.get_by_nick('new_test_user')
+        new_account = self.accounts_factory.create_account()
         self.assertTrue(ThreadPrototype.get_new_thread_delay(new_account) > 0)
 
     def test_get_new_thread_delay__no_threads__old_account(self):
-        register_user('new_test_user', 'new_test_user@test.com', '111111')
-        new_account = AccountPrototype.get_by_nick('new_test_user')
+        new_account = self.accounts_factory.create_account()
         new_account._model.created_at = datetime.datetime.now() - datetime.timedelta(days=30)
         self.assertFalse(ThreadPrototype.get_new_thread_delay(new_account), 0)
 
@@ -177,13 +166,8 @@ class ThreadPrototypeTests(testcase.TestCase):
 
 
     def test_last_forum_posts_with_permissions(self):
-
-        register_user('granted_user', 'granted_user@test.com', '111111')
-        register_user('wrong_user', 'wrong_user@test.com', '111111')
-
-
-        granted_account = AccountPrototype.get_by_nick('granted_user')
-        wrong_account = AccountPrototype.get_by_nick('wrong_user')
+        granted_account = self.accounts_factory.create_account()
+        wrong_account = self.accounts_factory.create_account()
 
         restricted_subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat2-caption', order=1, restricted=True)
 
@@ -232,11 +216,8 @@ class ThreadPrototypeUpdateTests(testcase.TestCase):
 
         create_test_map()
 
-        register_user('test_user', 'test_user@test.com', '111111')
-        register_user('checked_user', 'granted_user@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_nick('test_user')
-        self.checked_account = AccountPrototype.get_by_nick('checked_user')
+        self.account = self.accounts_factory.create_account()
+        self.checked_account = self.accounts_factory.create_account()
 
         self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=2)
@@ -318,11 +299,8 @@ class PostPrototypeTests(testcase.TestCase):
 
         create_test_map()
 
-        register_user('test_user', 'test_user@test.com', '111111')
-        register_user('checked_user', 'granted_user@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_nick('test_user')
-        self.checked_account = AccountPrototype.get_by_nick('checked_user')
+        self.account = self.accounts_factory.create_account()
+        self.checked_account = self.accounts_factory.create_account()
 
         self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=2)
@@ -330,13 +308,11 @@ class PostPrototypeTests(testcase.TestCase):
         self.thread = ThreadPrototype.create(self.subcategory, 'thread-caption', self.account, 'thread-text')
 
     def test_get_new_post_delay__no_posts__new_account(self):
-        register_user('new_test_user', 'new_test_user@test.com', '111111')
-        new_account = AccountPrototype.get_by_nick('new_test_user')
+        new_account = self.accounts_factory.create_account()
         self.assertTrue(PostPrototype.get_new_post_delay(new_account) > 0)
 
     def test_get_new_post_delay__no_posts__old_account(self):
-        register_user('new_test_user', 'new_test_user@test.com', '111111')
-        new_account = AccountPrototype.get_by_nick('new_test_user')
+        new_account = self.accounts_factory.create_account()
         new_account._model.created_at = datetime.datetime.now() - datetime.timedelta(days=30)
         self.assertFalse(PostPrototype.get_new_post_delay(new_account), 0)
 
@@ -393,13 +369,11 @@ class ThreadReadInfoPrototypeTests(testcase.TestCase):
 
     def setUp(self):
         super(ThreadReadInfoPrototypeTests, self).setUp()
+
         create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-        register_user('user_2', 'user_2@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_nick('user_1')
-        self.account_2 = AccountPrototype.get_by_nick('user_2')
+        self.account = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
         category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         subcategory = SubCategoryPrototype.create(category=category, caption='subcat-caption', order=0)
@@ -442,13 +416,11 @@ class SubCategoryReadInfoPrototypeTests(testcase.TestCase):
 
     def setUp(self):
         super(SubCategoryReadInfoPrototypeTests, self).setUp()
+
         create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-        register_user('user_2', 'user_2@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_nick('user_1')
-        self.account_2 = AccountPrototype.get_by_nick('user_2')
+        self.account = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
         category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory = SubCategoryPrototype.create(category=category, caption='subcat-caption', order=0)
@@ -542,11 +514,8 @@ class SubscriptionPrototypeTests(testcase.TestCase):
         super(SubscriptionPrototypeTests, self).setUp()
         create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-        register_user('user_2', 'user_2@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_nick('user_1')
-        self.account_2 = AccountPrototype.get_by_nick('user_2')
+        self.account = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
         self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory_1 = SubCategoryPrototype.create(category=self.category, caption='subcat-1-caption', order=0)
@@ -584,11 +553,10 @@ class PermissionPrototypeTests(testcase.TestCase):
 
     def setUp(self):
         super(PermissionPrototypeTests, self).setUp()
+
         create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_nick('user_1')
+        self.account = self.accounts_factory.create_account()
 
         self.category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory = SubCategoryPrototype.create(category=self.category, caption='subcat-caption', order=0)

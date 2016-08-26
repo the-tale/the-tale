@@ -5,8 +5,6 @@ from django.conf import settings as project_settings
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
 
 from the_tale.game.logic import create_test_map
@@ -19,13 +17,11 @@ class PersonalMessagesTests(testcase.TestCase):
 
     def setUp(self):
         super(PersonalMessagesTests, self).setUp()
+
         create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_nick('user_1')
-
-        register_user('user_2', 'user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_nick('user_2')
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
         self.personal_message = PersonalMessagePrototype.create(self.account_1, self.account_2, 'test text')
 

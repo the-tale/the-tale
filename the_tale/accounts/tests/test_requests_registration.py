@@ -6,8 +6,6 @@ from django.core.urlresolvers import reverse
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks.prototypes import PostponedTask, PostponedTaskPrototype, POSTPONED_TASK_STATE
 
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 class RequestsRegistrationTests(TestCase):
@@ -15,7 +13,7 @@ class RequestsRegistrationTests(TestCase):
     def setUp(self):
         super(RequestsRegistrationTests, self).setUp()
         create_test_map()
-        register_user('test_user', 'test_user@test.com', '111111')
+        self.account = self.accounts_factory.create_account()
         self.client = client.Client()
 
     def test_fast_registration_processing(self):
@@ -36,7 +34,7 @@ class RequestsRegistrationTests(TestCase):
         self.assertEqual(task.internal_logic.referer, referer)
 
     def test_fast_registration_for_logged_in_user(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account.email)
         response = self.client.post(reverse('accounts:registration:fast'))
         self.check_ajax_error(response, 'accounts.registration.fast.already_registered')
 
