@@ -40,20 +40,11 @@ class AccountRequestsTests(TestCase):
         super(AccountRequestsTests, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()
 
-        result, account_id, bundle_id = logic.register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = logic.register_user('test_user2', 'test_user2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = logic.register_user('test_user3', 'test_user3@test.com', '111111')
-        self.account_3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = logic.register_user('test_user_bot', 'test_user_bot@test.com', '111111', is_bot=True)
-        self.account_bot = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = logic.register_user('test_user4')
-        self.account_4 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
+        self.account_4 = self.accounts_factory.create_account(is_fast=True)
+        self.account_bot = self.accounts_factory.create_account(is_bot=True)
 
         CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
@@ -65,16 +56,16 @@ class IndexRequestsTests(AccountRequestsTests):
 
     def test_index(self):
         self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', 3),
-                                                                           ('test_user1', 1),
-                                                                           ('test_user2', 1),
-                                                                           ('test_user_bot', 0),
-                                                                           ('test_user3', 1),
+                                                                           (self.account_1.nick, 1),
+                                                                           (self.account_2.nick, 1),
+                                                                           (self.account_bot.nick, 0),
+                                                                           (self.account_3.nick, 1),
                                                                            ('abbr2', 1),
                                                                            ('abbr3', 1)))
 
     def test_index_pagination(self):
         for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
-            logic.register_user('test_user_%d' % i, 'test_user_%d@test.com' % i, '111111')
+            self.accounts_factory.create_account()
         self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', conf.accounts_settings.ACCOUNTS_ON_PAGE),))
         self.check_html_ok(self.request_html(reverse('accounts:')+'?page=2'), texts=(('pgf-account-record', 3),))
 
@@ -84,36 +75,40 @@ class IndexRequestsTests(AccountRequestsTests):
     def test_accounts_not_found_message(self):
         self.check_html_ok(self.request_html(url('accounts:', prefix='ac')), texts=(('pgf-account-record', 0),
                                                                                     ('pgf-no-accounts-message', 1),
-                                                                                    ('test_user_bot', 0),
-                                                                                    ('test_user1', 0),
-                                                                                    ('test_user2', 0),
-                                                                                    ('test_user3', 0),))
+                                                                                    (self.account_bot.nick, 0),
+                                                                                    (self.account_1.nick, 0),
+                                                                                    (self.account_2.nick, 0),
+                                                                                    (self.account_3.nick, 0),))
 
     def test_accounts_search_by_prefix(self):
         texts = [('pgf-account-record', 6),
                  ('pgf-no-accounts-message', 0),]
+
         for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
-            logic.register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
-            texts.append(('test_user_a_%d' % i, 0))
+            account = self.accounts_factory.create_account(nick='test_user_a_%d' % i)
+            texts.append((account.nick, 0))
+
         for i in xrange(6):
-            logic.register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
-            texts.append(('test_user_b_%d' % i, 1))
+            account = self.accounts_factory.create_account(nick='test_user_b_%d' % i)
+            texts.append((account.nick, 1))
 
         self.check_html_ok(self.request_html(url('accounts:', prefix='test_user_b')), texts=texts)
 
     def test_accounts_search_by_prefix_second_page(self):
         texts = [('pgf-account-record', 6),
                  ('pgf-no-accounts-message', 0),]
-        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
-            logic.register_user('test_user_a_%d' % i, 'test_user_a_%d@test.com' % i, '111111')
-            texts.append(('test_user_a_%d' % i, 0))
-        for i in xrange(6):
-            logic.register_user('test_user_b_%d' % i, 'test_user_b_%d@test.com' % i, '111111')
-            texts.append(('test_user_b_%d' % i, 1))
 
         for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
-            logic.register_user('test_user_b2_%d' % i, 'test_user_b2_%d@test.com' % i, '111111')
-            texts.append(('test_user_b2_%d' % i, 0))
+            account = self.accounts_factory.create_account(nick='test_user_a_%d' % i)
+            texts.append((account.nick, 0))
+
+        for i in xrange(6):
+            account = self.accounts_factory.create_account(nick='test_user_b_%d' % i)
+            texts.append((account.nick, 1))
+
+        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
+            account = self.accounts_factory.create_account(nick='test_user_b2_%d' % i)
+            texts.append((account.nick, 0))
 
         self.check_html_ok(self.request_html(url('accounts:', prefix='test_user_b', page=2)), texts=texts)
 
@@ -158,7 +153,7 @@ class ShowRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     def test_show_friends_no_friendship(self):
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
         texts = [('pgf-friends-request-friendship', 2), # +1 from javascript
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 0),
@@ -166,7 +161,7 @@ class ShowRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     def test_show_friends_in_list_button(self):
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
         texts = [('pgf-friends-request-friendship', 0),
                  ('pgf-friends-in-list', 1),
                  ('pgf-friends-request-from', 0),
@@ -175,7 +170,7 @@ class ShowRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     def test_show_friends_request_from_button(self):
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
         texts = [('pgf-friends-request-friendship', 0),
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 1),
@@ -184,7 +179,7 @@ class ShowRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     def test_show_friends_request_to_button(self):
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
         texts = [('pgf-friends-request-friendship', 0),
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 0),
@@ -203,7 +198,7 @@ class ShowRequestsTests(AccountRequestsTests):
                                                   meta_relations.Account.create_from_object(self.account_1), vote_by=self.account_1)
         blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-3-caption', 'folclor-3-text', meta_relations.Account.create_from_object(self.account_1))
 
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
 
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])),
                            texts=[('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', ('folclor-3-caption', 0)])
@@ -219,7 +214,7 @@ class ShowRequestsTests(AccountRequestsTests):
                                                   meta_relations.Account.create_from_object(self.account_1), vote_by=self.account_1)
         blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-3-caption', 'folclor-3-text', meta_relations.Account.create_from_object(self.account_1))
 
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
 
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_2.id])),
                            texts=['pgf-no-folclor', ('folclor-1-caption', 0), ('folclor-2-caption', 0), ('folclor-3-caption', 0)])
@@ -228,7 +223,7 @@ class ShowRequestsTests(AccountRequestsTests):
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_4.id])))
 
     def test_show_for_moderator(self):
-        self.request_login('test_user3@test.com')
+        self.request_login(self.account_3.email)
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_3._model)
@@ -258,7 +253,7 @@ class AdminRequestsTests(AccountRequestsTests):
     def setUp(self):
         super(AdminRequestsTests, self).setUp()
 
-        self.request_login('test_user3@test.com')
+        self.request_login(self.account_3.email)
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_3._model)
 
@@ -281,7 +276,7 @@ class AdminRequestsTests(AccountRequestsTests):
         self.check_redirect(requested_url, logic.login_page_url(requested_url))
 
     def test_no_rights(self):
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('accounts:admin', args=[self.account_1.id])), texts=[('accounts.no_moderation_rights', 1)])
 
     def test_moderator(self):
@@ -300,12 +295,12 @@ class GiveAwardRequestsTests(AccountRequestsTests):
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_3._model)
 
-        self.request_login('test_user3@test.com')
+        self.request_login(self.account_3.email)
 
 
     def test_no_rights(self):
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
 
         self.check_ajax_error(self.client.post(reverse('accounts:give-award', args=[self.account_1.id]), {'type': AWARD_TYPE.BUG_MINOR}),
                               'accounts.no_moderation_rights')
@@ -336,12 +331,12 @@ class ResetNickRequestsTests(AccountRequestsTests):
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_3._model)
 
-        self.request_login('test_user3@test.com')
+        self.request_login(self.account_3.email)
 
 
     def test_no_rights(self):
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
 
         old_nick = self.account_1.nick
 
@@ -376,7 +371,7 @@ class BanRequestsTests(AccountRequestsTests):
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_3._model)
 
-        self.request_login('test_user3@test.com')
+        self.request_login(self.account_3.email)
 
     def form_data(self, ban_type, description=u'ban-description'):
         return {'ban_type': ban_type,
@@ -385,7 +380,7 @@ class BanRequestsTests(AccountRequestsTests):
 
     def test_no_rights(self):
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
 
         self.check_ajax_error(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.FORUM)),
                               'accounts.no_moderation_rights')
@@ -437,14 +432,14 @@ class ResetBansRequestsTests(AccountRequestsTests):
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_3._model)
 
-        self.request_login('test_user3@test.com')
+        self.request_login(self.account_3.email)
 
         self.account_1.ban_game(1)
         self.account_1.ban_forum(1)
 
     def test_no_rights(self):
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account_2.email)
 
         self.check_ajax_error(self.client.post(reverse('accounts:reset-bans', args=[self.account_1.id])),
                               'accounts.no_moderation_rights')

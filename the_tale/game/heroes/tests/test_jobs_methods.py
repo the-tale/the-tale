@@ -5,9 +5,6 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype

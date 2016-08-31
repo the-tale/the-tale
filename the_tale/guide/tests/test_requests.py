@@ -5,8 +5,6 @@ from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.relations import HABIT_TYPE
@@ -89,8 +87,8 @@ class TestRequests(TestCase):
         self.check_html_ok(self.client.get(url('guide:referrals')))
 
     def test_referrals__logined(self):
-        register_user('test_user', 'test_user@test.com', '111111')
-        self.request_login('test_user@test.com')
+        account = self.accounts_factory.create_account()
+        self.request_login(account.email)
         self.check_html_ok(self.client.get(url('guide:referrals')))
 
     def test_zpg(self):

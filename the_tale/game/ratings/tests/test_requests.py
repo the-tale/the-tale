@@ -4,9 +4,6 @@ from django.core.urlresolvers import reverse
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.ratings.models import RatingValues, RatingPlaces
@@ -19,17 +16,10 @@ class RequestsTests(TestCase):
         super(RequestsTests, self).setUp()
         self.place1, self.place2, self.place3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
-        self.account2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user3', 'test_user3@test.com', '111111')
-        self.account3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user4')
-        self.account4 = AccountPrototype.get_by_id(account_id)
+        self.account1 = self.accounts_factory.create_account()
+        self.account2 = self.accounts_factory.create_account()
+        self.account3 = self.accounts_factory.create_account()
+        self.account4 = self.accounts_factory.create_account(is_fast=True)
 
         RatingValues.objects.create(account=self.account1._model, might=9, bills_count=8, magic_power=0, physic_power=0, level=9, phrases_count=0, pvp_battles_1x1_number=10, pvp_battles_1x1_victories=1, referrals_number=0, help_count=3, achievements_points=0, politics_power=1)
         RatingValues.objects.create(account=self.account2._model, might=8, bills_count=0, magic_power=9, physic_power=9, level=1, phrases_count=1, pvp_battles_1x1_number=12, pvp_battles_1x1_victories=2, referrals_number=2, help_count=0, achievements_points=3, politics_power=2)
@@ -44,10 +34,10 @@ class RequestsTests(TestCase):
         self.check_redirect(reverse('game:ratings:'), reverse('game:ratings:show', args=[RATING_TYPE.MIGHT.value]))
 
     def get_show_texts(self, test_user_1, test_user_2, test_user_3, test_user_4):
-        return [ ('test_user1', test_user_1),
-                 ('test_user2', test_user_2),
-                 ('test_user3', test_user_3),
-                 ('test_user4', test_user_4)]
+        return [ (self.account1.nick, test_user_1),
+                 (self.account2.nick, test_user_2),
+                 (self.account3.nick, test_user_3),
+                 (self.account4.nick, test_user_4)]
 
     def test_show(self):
         self.check_html_ok(self.client.get(reverse('game:ratings:show', args=[RATING_TYPE.MIGHT.value])), texts=self.get_show_texts(1, 1, 0, 0))

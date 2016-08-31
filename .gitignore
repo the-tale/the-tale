@@ -5,6 +5,7 @@
 .idea
 dist
 dcont
+env/
 checkers/pylint.html
 settings_local.py
 profile.info

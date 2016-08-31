@@ -17,9 +17,6 @@ from the_tale.common.utils import testcase
 
 from the_tale.common.utils.fake import FakeWorkerCommand
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
-
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
@@ -62,11 +59,11 @@ class PrototypeTestsBase(testcase.TestCase):
 
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
+        account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
 
         self.action_idl = self.hero.actions.current_action
 

@@ -6,8 +6,7 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, get_system_user
+from the_tale.accounts.logic import get_system_user
 
 from the_tale.accounts.friends.models import Friendship
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
@@ -26,21 +25,16 @@ class FriendshipRequestsTests(testcase.TestCase):
         super(FriendshipRequestsTests, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        self.account_3 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
 
         CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
         self.clan_2 = ClanPrototype.create(self.account_2, abbr=u'abbr2', name=u'name2', motto=u'motto', description=u'description')
         self.clan_3 = ClanPrototype.create(self.account_3, abbr=u'abbr3', name=u'name3', motto=u'motto', description=u'description')
 
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
 
     def test_index__no_friends(self):
         self.check_html_ok(self.request_html(url('accounts:friends:')), texts=['pgf-no-friends-message'])

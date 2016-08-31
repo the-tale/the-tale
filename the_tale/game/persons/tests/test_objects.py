@@ -88,6 +88,7 @@ class PersonTests(testcase.TestCase):
                               places_relations.ATTRIBUTE.TRANSPORT,
                               places_relations.ATTRIBUTE.FREEDOM,
                               places_relations.ATTRIBUTE.STABILITY,
+                              places_relations.ATTRIBUTE.CULTURE,
 
                               places_relations.ATTRIBUTE.MODIFIER_TRANSPORT_NODE,
                               places_relations.ATTRIBUTE.MODIFIER_OUTLAWS,

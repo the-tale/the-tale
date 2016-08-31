@@ -4,8 +4,7 @@ from django.core import mail
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
+from the_tale.accounts.prototypes import ChangeCredentialsTaskPrototype
 
 from the_tale.game.logic import create_test_map
 
@@ -17,10 +16,10 @@ class ChangeEmailNotificationTests(testcase.TestCase):
 
     def setUp(self):
         super(ChangeEmailNotificationTests, self).setUp()
+
         create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-        self.account = AccountPrototype.get_by_nick('user_1')
+        self.account = self.accounts_factory.create_account()
 
 
     def create_task_and_message(self, account, new_nick):
@@ -56,10 +55,9 @@ class ChangeEmailNotificationTests(testcase.TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_mail_send_for_fast_account(self):
-        register_user('user_2')
-        account = AccountPrototype.get_by_nick('user_2')
+        account_2 = self.accounts_factory.create_account()
 
-        task, message = self.create_task_and_message(account, 'user_2_new')
+        task, message = self.create_task_and_message(account_2, 'user_2_new')
 
         self.assertEqual(len(mail.outbox), 0)
 

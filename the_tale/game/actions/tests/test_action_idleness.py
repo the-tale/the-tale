@@ -4,9 +4,6 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.balance import constants as c, formulas as f
 from the_tale.game.prototypes import TimePrototype
 
@@ -28,9 +25,7 @@ class IdlenessActionTest(testcase.TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
-
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account(is_fast=True)
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
 

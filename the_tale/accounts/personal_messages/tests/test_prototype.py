@@ -9,7 +9,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.post_service.models import Message as PostServiceMessage
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, get_system_user
+from the_tale.accounts.logic import get_system_user
 
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 from the_tale.accounts.personal_messages.models import Message
@@ -22,14 +22,9 @@ class PrototypeTests(testcase.TestCase):
         super(PrototypeTests, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
-        self.account2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user3', 'test_user3@test.com', '111111')
-        self.account3 = AccountPrototype.get_by_id(account_id)
+        self.account1 = self.accounts_factory.create_account()
+        self.account2 = self.accounts_factory.create_account()
+        self.account3 = self.accounts_factory.create_account()
 
         self.message = MessagePrototype.create(self.account1, self.account2, 'message 1')
         self.message_2 = MessagePrototype.create(self.account1, self.account2, 'message 2')

@@ -4,8 +4,6 @@ import mock
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.logic import create_test_map
@@ -20,13 +18,14 @@ class HeroStatisticsTest(TestCase):
 
     def setUp(self):
         super(HeroStatisticsTest, self).setUp()
+
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        account = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
 
         self.hero.statistics.change_money(MONEY_SOURCE.EARNED_FROM_LOOT, 10)
         self.hero.statistics.change_artifacts_had(11)

@@ -85,7 +85,7 @@ class TestRegistration(testcase.TestCase):
     def test_successfull_result__referer(self):
         referer = 'http://example.com/forum/post/1/'
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111', referer=referer)
+        _, account_id, _ = register_user('test_user', 'test_user@test.com', '111111', referer=referer)
 
         account = AccountPrototype.get_by_id(account_id)
 
@@ -95,24 +95,23 @@ class TestRegistration(testcase.TestCase):
         self.assertEqual(account.referer_domain, 'example.com')
 
     def test_successfull_result__referral(self):
-        result, owner_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=owner_id)
+        _, owner_id, _ = register_user('test_user', 'test_user@test.com', '111111')
+        _, account_id, _ = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=owner_id)
 
         account = AccountPrototype.get_by_id(account_id)
 
         self.assertEqual(account.referral_of_id, owner_id)
 
     def test_successfull_result__unexisted_referral(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=666)
+        _, account_id, _ = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=666)
 
         account = AccountPrototype.get_by_id(account_id)
 
         self.assertEqual(account.referral_of_id, None)
 
     def test_successfull_result__wrong_referral(self):
-        result, owner_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id='%dxxx' % owner_id)
+        _, owner_id, _ = register_user('test_user', 'test_user@test.com', '111111')
+        _, account_id, _ = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id='%dxxx' % owner_id)
 
         account = AccountPrototype.get_by_id(account_id)
 
@@ -120,16 +119,14 @@ class TestRegistration(testcase.TestCase):
 
 
     def test_successfull_result__action(self):
-        result, owner_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', action_id='action')
+        _, account_id, _ = register_user('test_user_2', 'test_user_2@test.com', '111111', action_id='action')
 
         account = AccountPrototype.get_by_id(account_id)
 
         self.assertEqual(account.action_id, 'action')
 
     def test_successfull_result__unexisted_action(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', action_id=None)
+        _, account_id, _ = register_user('test_user_2', 'test_user_2@test.com', '111111', action_id=None)
 
         account = AccountPrototype.get_by_id(account_id)
 
@@ -152,7 +149,7 @@ class TestRegistration(testcase.TestCase):
         self.assertTrue(bundle_id is None)
 
     def test_successfull_result__is_bot(self):
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111', is_bot=True)
+        _, account_id, _ = register_user('test_user', 'test_user@test.com', '111111', is_bot=True)
         account = AccountPrototype.get_by_id(account_id)
         self.assertEqual(account.is_bot, True)
 
@@ -190,7 +187,7 @@ class TestRegistrationTask(testcase.TestCase):
         self.assertEqual(task.account.referer_domain, 'example.com')
 
     def test_process_success__with_referral(self):
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        _, account_id, _ = register_user('test_user', 'test_user@test.com', '111111')
         task = RegistrationTask(account_id=None, referer=None, referral_of_id=account_id, action_id=None)
         self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, REGISTRATION_TASK_STATE.PROCESSED)
@@ -198,7 +195,7 @@ class TestRegistrationTask(testcase.TestCase):
         self.assertEqual(task.account.referral_of_id, account_id)
 
     def test_process_success__with_action(self):
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+        _, account_id, _ = register_user('test_user', 'test_user@test.com', '111111')
         task = RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id='action')
         self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, REGISTRATION_TASK_STATE.PROCESSED)

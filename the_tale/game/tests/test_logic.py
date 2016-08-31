@@ -3,9 +3,6 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import remove_game_data, create_test_map, form_game_info
 from the_tale.game.prototypes import TimePrototype
 
@@ -20,17 +17,16 @@ class LogicTests(testcase.TestCase):
 
     def setUp(self):
         super(LogicTests, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
-
-        self.account_id = account_id
+        self.account = self.accounts_factory.create_account(is_fast=True)
 
     def test_remove_game_data(self):
 
         self.assertEqual(heroes_models.Hero.objects.count(), 1)
 
-        remove_game_data(AccountPrototype.get_by_id(self.account_id))
+        remove_game_data(self.account)
 
         self.assertEqual(heroes_models.Hero.objects.count(), 0)
 
@@ -40,13 +36,11 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
 
     def setUp(self):
         super(FormGameInfoTests, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account(is_fast=True)
+        self.account_2 = self.accounts_factory.create_account(is_fast=True)
 
     def test_no_account(self):
         data = form_game_info()

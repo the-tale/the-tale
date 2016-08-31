@@ -11,8 +11,8 @@ from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
+# from the_tale.accounts.prototypes import AccountPrototype
+# from the_tale.accounts.logic import register_user
 
 from the_tale.game import names
 

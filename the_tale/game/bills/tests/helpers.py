@@ -7,7 +7,6 @@ from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.bills.conf import bills_settings
@@ -20,19 +19,13 @@ class BaseTestPrototypes(TestCase):
 
     def setUp(self):
         super(BaseTestPrototypes, self).setUp()
+
         self.place1, self.place2, self.place3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
-        self.account2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user3', 'test_user3@test.com', '111111')
-        self.account3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user4', 'test_user4@test.com', '111111')
-        self.account4 = AccountPrototype.get_by_id(account_id)
+        self.account1 = self.accounts_factory.create_account()
+        self.account2 = self.accounts_factory.create_account()
+        self.account3 = self.accounts_factory.create_account()
+        self.account4 = self.accounts_factory.create_account()
 
         from the_tale.forum.models import Category, SubCategory
 

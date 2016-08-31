@@ -14,8 +14,7 @@ from utg import data as utg_data
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -111,8 +110,7 @@ class NewRequestsTests(BaseRequestsTests):
         super(NewRequestsTests, self).setUp()
         self.request_login(self.account_1.email)
 
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_2 = self.accounts_factory.create_account()
 
     def test_logic_required(self):
         self.request_logout()
@@ -203,8 +201,7 @@ class CreateRequestsTests(BaseRequestsTests):
         super(CreateRequestsTests, self).setUp()
         self.request_login(self.account_1.email)
 
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_2 = self.accounts_factory.create_account()
 
     def test_login_required(self):
         self.request_logout()
@@ -757,11 +754,8 @@ class InGameRequestsTests(BaseRequestsTests):
 
 
     def test_in_game__has_parent__with_contributors(self):
-        result, account_id, bundle_id = register_user('account_2', 'account_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('account_3', 'account_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
 
         self.request_login(self.moderator.email)
 
@@ -797,11 +791,8 @@ class InGameRequestsTests(BaseRequestsTests):
 
 
     def test_in_game__has_parent__with_intersected_contributors(self):
-        result, account_id, bundle_id = register_user('account_2', 'account_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('account_3', 'account_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
 
         self.request_login(self.moderator.email)
 

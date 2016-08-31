@@ -8,9 +8,6 @@ from dext.common.utils.urls import url
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.forum.prototypes import ThreadPrototype, SubCategoryPrototype, ThreadReadInfoPrototype, CategoryPrototype, SubCategoryReadInfoPrototype, PostPrototype
@@ -21,13 +18,11 @@ class ReadStateTests(testcase.TestCase):
 
     def setUp(self):
         super(ReadStateTests, self).setUp()
+
         create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-        register_user('user_2', 'user_2@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_nick('user_1')
-        self.account_2 = AccountPrototype.get_by_nick('user_2')
+        self.account = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
         category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
         self.subcategory = SubCategoryPrototype.create(category=category, caption='subcat-caption', order=0)

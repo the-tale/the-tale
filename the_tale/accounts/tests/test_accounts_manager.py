@@ -8,7 +8,6 @@ from the_tale.common.utils import testcase
 
 from the_tale.amqp_environment import environment
 
-from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 from the_tale.accounts.conf import accounts_settings
 
@@ -23,8 +22,7 @@ class AccountsManagerTest(testcase.TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
         environment.deinitialize()
         environment.initialize()
@@ -65,9 +63,7 @@ class AccountsManagerTest(testcase.TestCase):
         self.assertTrue(request.state.is_WAITING)
 
     def test_run_random_premium_requests_processing__has_requests_can_process(self):
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
         AccountPrototype._db_all().update(active_end_at=datetime.datetime.now() + datetime.timedelta(days=1),
                                           created_at=datetime.datetime.now() - accounts_settings.RANDOM_PREMIUM_CREATED_AT_BARRIER)
 

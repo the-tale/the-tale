@@ -10,9 +10,6 @@ from utg import templates as utg_templates
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.linguistics import prototypes
@@ -169,8 +166,7 @@ class TemplatePrototypeTests(testcase.TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
 
         storage.game_dictionary.refresh()
 
@@ -509,8 +505,7 @@ class ContributionTests(testcase.TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
 
 
     def test_create(self):

@@ -1,7 +1,5 @@
 # coding: utf-8
-
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
+from the_tale.common.utils.testcase import TestAccountsFactory
 
 from the_tale.accounts.clans.prototypes import ClanPrototype
 from the_tale.accounts.clans.conf import clans_settings
@@ -14,12 +12,9 @@ from the_tale.forum.prototypes import (ThreadPrototype,
 
 class ForumFixture(object):
 
-    def __init__(self):
-        register_user('forum_user', 'forum_user@test.com', '111111')
-        register_user('forum_user_2', 'forum_user_2@test.com', '111111')
-
-        self.account_1 = AccountPrototype.get_by_nick('forum_user')
-        self.account_2 = AccountPrototype.get_by_nick('forum_user_2')
+    def __init__(self, accounts_factory):
+        self.account_1 = accounts_factory.create_account()
+        self.account_2 = accounts_factory.create_account()
 
         # cat1
         # |-subcat1

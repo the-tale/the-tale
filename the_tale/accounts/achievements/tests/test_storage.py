@@ -2,9 +2,6 @@
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
 from the_tale.accounts.achievements.prototypes import AchievementPrototype, GiveAchievementTaskPrototype
 from the_tale.accounts.achievements.storage import achievements_storage
@@ -19,8 +16,7 @@ class StorageTests(testcase.TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
 
         self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
                                                          caption=u'achievement_1', description=u'description_1', approved=True)

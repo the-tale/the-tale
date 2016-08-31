@@ -8,8 +8,7 @@ from dext.common.utils.urls import url
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game import names
 
@@ -84,18 +83,13 @@ class BaseTestRequests(TestCase):
 
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        self.account_3 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
 
         self.client = client.Client()
 
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
 
         group_create = sync_group('create mob', ['mobs.create_mobrecord'])
         group_add = sync_group('add mob', ['mobs.moderate_mobrecord'])
@@ -120,16 +114,16 @@ class TestIndexRequests(BaseTestRequests):
 
     def test_create_mob_button(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-create-mob-button', 1)])
 
     def test_mob_state_filter(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-filter-state', 1)])
 
         self.request_logout()
-        self.request_login('test_user_3@test.com')
+        self.request_login(self.account_3.email)
         self.check_html_ok(self.request_html(reverse('guide:mobs:')), texts=[('pgf-filter-state', 1)])
 
     def test_disabled_mobs(self):
@@ -185,7 +179,7 @@ class TestNewRequests(BaseTestRequests):
 
     def test_simple(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('game:mobs:new')), texts=[('pgf-new-mob-form', 2)])
 
 
@@ -195,7 +189,7 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
         super(TestCreateRequests, self).setUp()
 
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
     def test_unlogined(self):
         self.request_logout()
@@ -203,7 +197,7 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
 
     def test_create_rights(self):
         self.request_logout()
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
         self.check_ajax_error(self.client.post(reverse('game:mobs:create'), self.get_create_data()), 'mobs.create_mob_rights_required')
 
     def test_form_errors(self):
@@ -258,13 +252,13 @@ class TestShowRequests(BaseTestRequests):
 
     def test_disabled_mob_accepted_for_create_rights(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[mob.name.capitalize()])
 
     def test_disabled_mob_accepted_for_add_rights(self):
         self.request_logout()
-        self.request_login('test_user_3@test.com')
+        self.request_login(self.account_3.email)
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[mob.name.capitalize()])
 
@@ -299,14 +293,14 @@ class TestShowRequests(BaseTestRequests):
 
     def test_edit_button(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
         self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-moderate-button', 0),
                                                                                               ('pgf-edit-button', 1)])
 
     def test_moderate_button(self):
         self.request_logout()
-        self.request_login('test_user_3@test.com')
+        self.request_login(self.account_3.email)
         mob = MobRecordPrototype(MobRecord.objects.all()[0])
         self.check_html_ok(self.request_html(reverse('guide:mobs:show', args=[mob.id])), texts=[('pgf-moderate-button', 1),
                                                                                               ('pgf-edit-button', 0)])
@@ -328,13 +322,13 @@ class TestInfoRequests(BaseTestRequests):
 
     def test_disabled_mob_accepted_for_create_rights(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
 
     def test_disabled_mob_accepted_for_add_rights(self):
         self.request_logout()
-        self.request_login('test_user_3@test.com')
+        self.request_login(self.account_3.email)
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(url('guide:mobs:info', mob.id)), texts=[mob.name.capitalize()])
 
@@ -394,7 +388,7 @@ class TestEditRequests(BaseTestRequests):
 
     def test_simple(self):
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('game:mobs:edit', args=[self.mob.id])), texts=[('pgf-edit-mob-form', 2),
                                                                                                   self.mob.name,
                                                                                                   (self.mob.description, 1) ])
@@ -407,7 +401,7 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
         super(TestUpdateRequests, self).setUp()
 
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
         self.check_ajax_ok(self.client.post(reverse('game:mobs:create'), self.get_create_data()))
         self.mob = MobRecordPrototype(MobRecord.objects.all().order_by('-created_at')[0])
@@ -435,7 +429,7 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
 
     def test_create_rights(self):
         self.request_logout()
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
         self.check_ajax_error(self.client.post(reverse('game:mobs:update', args=[self.mob.id]), self.get_update_data()), 'mobs.create_mob_rights_required')
         self.check_mob(MobRecordPrototype.get_by_id(self.mob.id), self.get_create_data())
 
@@ -485,7 +479,7 @@ class TestModerationPageRequests(BaseTestRequests):
 
     def test_simple(self):
         self.request_logout()
-        self.request_login('test_user_3@test.com')
+        self.request_login(self.account_3.email)
         self.check_html_ok(self.request_html(reverse('game:mobs:moderate', args=[self.mob.id])), texts=[('pgf-moderate-mob-form', 2),
                                                                                                        self.mob.name,
                                                                                                       (self.mob.description, 1) ])
@@ -497,7 +491,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
         super(TestModerateRequests, self).setUp()
 
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
         self.check_ajax_ok(self.client.post(reverse('game:mobs:create'), self.get_create_data()))
         self.mob = MobRecordPrototype(MobRecord.objects.all().order_by('-created_at')[0])
@@ -505,7 +499,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
         self.name = names.generator.get_test_name(name='new name')
 
         self.request_logout()
-        self.request_login('test_user_3@test.com')
+        self.request_login(self.account_3.email)
 
     def test_unlogined(self):
         self.request_logout()
@@ -513,7 +507,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
 
     def test_moderate_rights(self):
         self.request_logout()
-        self.request_login('test_user_1@test.com')
+        self.request_login(self.account_1.email)
         self.check_ajax_error(self.client.post(reverse('game:mobs:moderate', args=[self.mob.id]), self.get_moderate_data()), 'mobs.moderate_mob_rights_required')
         self.assertEqual(MobRecordPrototype.get_by_id(self.mob.id).uuid, self.mob.uuid)
 

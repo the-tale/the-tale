@@ -6,8 +6,7 @@ from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
 from the_tale.game.logic import create_test_map
@@ -30,8 +29,7 @@ class BaseTestRequests(TestCase, ClansTestsMixin):
 
         CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
 
 class TestAccountClanRequests(BaseTestRequests):
@@ -76,8 +74,7 @@ class TestIndexRequests(BaseTestRequests):
     @mock.patch('the_tale.accounts.clans.conf.clans_settings.CLANS_ON_PAGE', 4)
     def test_clans_2_pages(self):
         for i in xrange(6):
-            result, account_id, bundle_id = register_user('leader_%d' % i, 'leader_%d@test.com' % i, '111111')
-            self.create_clan(AccountPrototype.get_by_id(account_id), i)
+            self.create_clan(self.accounts_factory.create_account(), i)
 
         self.check_html_ok(self.request_html(url('accounts:clans:')),
                            texts=[(u'a-%d' % i, 1) for i in xrange(4)] + [('pgf-no-clans-message', 0)])
@@ -156,8 +153,7 @@ class TestCreateRequests(BaseTestRequests):
 
     @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
     def test_name_exists(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account = AccountPrototype.get_by_id(account_id)
+        account = self.accounts_factory.create_account()
 
         clan = self.create_clan(account, 0)
         self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data(name=clan.name)), 'clans.create.name_exists')
@@ -165,8 +161,7 @@ class TestCreateRequests(BaseTestRequests):
 
     @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
     def test_abbr_exists(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account = AccountPrototype.get_by_id(account_id)
+        account = self.accounts_factory.create_account()
 
         clan = self.create_clan(account, 0)
         self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data(abbr=clan.abbr)), 'clans.create.abbr_exists')
@@ -229,8 +224,7 @@ class TestEditRequests(BaseTestRequests):
         self.check_redirect(self.edit_url, login_page_url(self.edit_url))
 
     def test_ownership(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account = AccountPrototype.get_by_id(account_id)
+        account = self.accounts_factory.create_account()
         clan = self.create_clan(account, 1)
 
         self.check_html_ok(self.request_html(url('accounts:clans:edit', clan.id)), texts=['clans.not_owner'])
@@ -280,8 +274,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_clan_old_data()
 
     def test_ownership(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account = AccountPrototype.get_by_id(account_id)
+        account = self.accounts_factory.create_account()
         clan = self.create_clan(account, 1)
 
         self.check_ajax_error(self.post_ajax_json(url('accounts:clans:update', clan.id)), 'clans.not_owner')
@@ -293,8 +286,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_clan_old_data()
 
     def test_name_exists(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account = AccountPrototype.get_by_id(account_id)
+        account = self.accounts_factory.create_account()
 
         clan = self.create_clan(account, 1)
         self.check_ajax_error(self.post_ajax_json(self.update_url, self.update_data(name=clan.name)), 'clans.update.name_exists')
@@ -302,8 +294,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_clan_old_data()
 
     def test_abbr_exists(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account = AccountPrototype.get_by_id(account_id)
+        account = self.accounts_factory.create_account()
 
         clan = self.create_clan(account, 1)
         self.check_ajax_error(self.post_ajax_json(self.update_url, self.update_data(abbr=clan.abbr)), 'clans.update.abbr_exists')
@@ -337,16 +328,14 @@ class TestRemoveRequests(BaseTestRequests):
         self.assertEqual(ClanPrototype._db_count(), 1)
 
     def test_ownership(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account = AccountPrototype.get_by_id(account_id)
+        account = self.accounts_factory.create_account()
         clan = self.create_clan(account, 1)
 
         self.check_ajax_error(self.post_ajax_json(url('accounts:clans:remove', clan.id)), 'clans.not_owner')
         self.assertEqual(ClanPrototype._db_count(), 2)
 
     def test_not_empty(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.clan.add_member(AccountPrototype.get_by_id(account_id))
+        self.clan.add_member(self.accounts_factory.create_account())
 
         self.check_ajax_error(self.post_ajax_json(url('accounts:clans:remove', self.clan.id)), 'clans.remove.not_empty_clan')
         self.assertEqual(ClanPrototype._db_count(), 1)
@@ -388,21 +377,11 @@ class MembershipForClanRequestsTests(BaseMembershipRequestsTests):
                                                                         ('pgf-no-requests-message', 1)])
 
     def test_success(self):
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        account_5 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        account_6 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+        account_6 = self.accounts_factory.create_account()
 
         clan_2 = self.create_clan(account_4, 1)
 
@@ -455,20 +434,11 @@ class MembershipForAccountRequestsTests(BaseMembershipRequestsTests):
 
     # change tests order to fix sqlite segmentation fault
     def test_1_success(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_5', 'test_user_5@test.com', '111111')
-        account_5 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_6', 'test_user_6@test.com', '111111')
-        account_6 = AccountPrototype.get_by_id(account_id)
+        account_2 = self.accounts_factory.create_account()
+        account_3 = self.accounts_factory.create_account()
+        account_4 = self.accounts_factory.create_account()
+        account_5 = self.accounts_factory.create_account()
+        account_6 = self.accounts_factory.create_account()
 
         clan_1 = self.create_clan(account_2, 0)
         clan_2 = self.create_clan(account_4, 1)
@@ -512,10 +482,7 @@ class MembershipInviteDialogRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipInviteDialogRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.invite_url = url('accounts:clans:membership:invite', account=self.account_2.id)
         self.request_login(self.account.email)
 
@@ -553,12 +520,9 @@ class MembershipInviteDialogRequestsTests(BaseMembershipRequestsTests):
         self.check_html_ok(self.request_ajax_html(self.invite_url), texts=['clans.membership.account_has_invite'])
 
     def test_success(self):
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
+        account_3 = self.accounts_factory.create_account()
         clan_3 = self.create_clan(account_3, 1)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
+        account_4 = self.accounts_factory.create_account()
         clan_4 = self.create_clan(account_4, 2)
 
         MembershipRequestPrototype.create(initiator=account_3,
@@ -580,10 +544,7 @@ class MembershipRequestDialogRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipRequestDialogRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.request_url = url('accounts:clans:membership:request', clan=self.clan.id)
         self.request_login(self.account_2.email)
 
@@ -616,12 +577,9 @@ class MembershipRequestDialogRequestsTests(BaseMembershipRequestsTests):
         self.check_html_ok(self.request_ajax_html(self.request_url), texts=['clans.membership.clan_has_request'])
 
     def test_success(self):
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
+        account_3 = self.accounts_factory.create_account()
         clan_3 = self.create_clan(account_3, 1)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
+        account_4 = self.accounts_factory.create_account()
         clan_4 = self.create_clan(account_4, 2)
 
         MembershipRequestPrototype.create(initiator=account_3,
@@ -645,10 +603,7 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipInviteRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.invite_url = url('accounts:clans:membership:invite', account=self.account_2.id)
         self.request_login(self.account.email)
 
@@ -698,12 +653,9 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
 
 
     def test_success(self):
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
+        account_3 = self.accounts_factory.create_account()
         clan_3 = self.create_clan(account_3, 1)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
+        account_4 = self.accounts_factory.create_account()
         clan_4 = self.create_clan(account_4, 2)
 
         MembershipRequestPrototype.create(initiator=account_3,
@@ -738,10 +690,7 @@ class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipRequestRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.request_url = url('accounts:clans:membership:request', clan=self.clan.id)
         self.request_login(self.account_2.email)
 
@@ -785,12 +734,9 @@ class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
         self.assertEqual(MembershipRequestPrototype._db_count(), 0)
 
     def test_success(self):
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        account_3 = AccountPrototype.get_by_id(account_id)
+        account_3 = self.accounts_factory.create_account()
         clan_3 = self.create_clan(account_3, 1)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        account_4 = AccountPrototype.get_by_id(account_id)
+        account_4 = self.accounts_factory.create_account()
         clan_4 = self.create_clan(account_4, 2)
 
         MembershipRequestPrototype.create(initiator=account_3,
@@ -825,10 +771,7 @@ class MembershipAcceptRequestRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipAcceptRequestRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.request = MembershipRequestPrototype.create(initiator=self.account_2,
                                                          account=self.account_2,
                                                          clan=self.clan,
@@ -882,10 +825,7 @@ class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipAcceptInviteRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.request = MembershipRequestPrototype.create(initiator=self.account,
                                                          account=self.account_2,
                                                          clan=self.clan,
@@ -931,10 +871,7 @@ class MembershipRejectRequestRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipRejectRequestRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.request = MembershipRequestPrototype.create(initiator=self.account_2,
                                                          account=self.account_2,
                                                          clan=self.clan,
@@ -987,10 +924,7 @@ class MembershipRejectInviteRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipRejectInviteRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.request = MembershipRequestPrototype.create(initiator=self.account,
                                                          account=self.account_2,
                                                          clan=self.clan,
@@ -1035,10 +969,7 @@ class MembershipRemoveFromClanRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipRemoveFromClanRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.clan.add_member(self.account_2)
 
         self.remove_url = url('accounts:clans:membership:remove-from-clan', account=self.account_2.id)
@@ -1098,10 +1029,7 @@ class MembershipLeaveClanRequestsTests(BaseMembershipRequestsTests):
     def setUp(self):
         super(MembershipLeaveClanRequestsTests, self).setUp()
         self.clan = self.create_clan(self.account, 0)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
+        self.account_2 = self.accounts_factory.create_account()
         self.clan.add_member(self.account_2)
 
         self.leave_url = url('accounts:clans:membership:leave-clan')

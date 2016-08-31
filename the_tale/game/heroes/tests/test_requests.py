@@ -13,8 +13,7 @@ from the_tale.common.postponed_tasks.models import PostponedTask
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.accounts.logic import register_user, login_page_url
-from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.linguistics.tests import helpers as linguistics_helpers
 
@@ -123,9 +122,8 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         self.request_logout()
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=texts)
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-
-        self.request_login('test_user_2@test.com')
+        account_2 = self.accounts_factory.create_account()
+        self.request_login(account_2.email)
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=texts)
 
     def test_folclor(self):
@@ -143,9 +141,8 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=(('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', ('folclor-3-caption', 0)))
 
     def test_moderation_tab(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        account_2 = AccountPrototype.get_by_id(account_id)
-        self.request_login('test_user_2@test.com')
+        account_2 = self.accounts_factory.create_account()
+        self.request_login(account_2.email)
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(account_2._model)
@@ -187,9 +184,9 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         return data
 
     def test_chane_hero_ownership(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        account_2 = self.accounts_factory.create_account()
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(account_2.email)
         self.check_ajax_error(self.client.post(url('game:heroes:change-hero', self.hero.id), self.get_post_data()),
                               'heroes.not_owner')
 
@@ -222,9 +219,9 @@ class ResetAbilitiesRequestsTests(HeroRequestsTestBase):
         logic.save_hero(self.hero)
 
     def test_wrong_ownership(self):
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
+        account_2 = self.accounts_factory.create_account()
         self.request_logout()
-        self.request_login('test_user_2@test.com')
+        self.request_login(account_2.email)
         self.check_ajax_error(self.post_ajax_json(url('game:heroes:reset-abilities', self.hero.id)),
                               'heroes.not_owner')
 
@@ -251,13 +248,12 @@ class ResetNameRequestsTests(HeroRequestsTestBase):
     def setUp(self):
         super(ResetNameRequestsTests, self).setUp()
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_2 = self.accounts_factory.create_account()
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_2._model)
 
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
     def test_chane_hero_moderation(self):
         self.request_logout()
@@ -287,13 +283,12 @@ class ForceSaveRequestsTests(HeroRequestsTestBase):
     def setUp(self):
         super(ForceSaveRequestsTests, self).setUp()
 
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_2 = self.accounts_factory.create_account()
 
         group = sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_2._model)
 
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
     def test_no_moderation_rights(self):
         self.request_logout()

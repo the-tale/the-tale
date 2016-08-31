@@ -2,9 +2,6 @@
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 from the_tale.game import names
 
@@ -23,17 +20,13 @@ class PrototypeTestsBase(TestCase):
 
     def setUp(self):
         super(PrototypeTestsBase, self).setUp()
+
         self.place1, self.place2, self.place3 = create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-        register_user('user_2', 'user_2@test.com', '111111')
-        register_user('user_3', 'user_3@test.com', '111111')
-        register_user('user_4', 'user_4@test.com', '111111')
-
-        self.account_1 = AccountPrototype.get_by_nick('user_1')
-        self.account_2 = AccountPrototype.get_by_nick('user_2')
-        self.account_3 = AccountPrototype.get_by_nick('user_3')
-        self.account_4 = AccountPrototype.get_by_nick('user_4')
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
+        self.account_4 = self.accounts_factory.create_account()
 
 class RatingPrototypeTests(PrototypeTestsBase):
 
@@ -47,14 +40,13 @@ class RatingPrototypeTests(PrototypeTestsBase):
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
     def test_fast_accounts_filtration(self):
-        register_user('user_5')
+        self.accounts_factory.create_account(is_fast=True)
         RatingValuesPrototype.recalculate()
         self.assertEqual([rv.account_id for rv in RatingValues.objects.all().order_by('account__id')],
                          [self.account_1.id, self.account_2.id, self.account_3.id, self.account_4.id, ])
 
     def test_banned_accounts_filtration(self):
-        register_user('user_5', 'user_5@test.com', '111111')
-        account_5 = AccountPrototype.get_by_nick('user_5')
+        account_5 = self.accounts_factory.create_account(is_fast=True)
 
         account_5.ban_game(1)
 
