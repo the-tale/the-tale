@@ -151,16 +151,12 @@ class ResourceExchangeStorageTests(testcase.TestCase):
         self.assertEqual(storage.resource_exchanges.get_exchange_for_bill_id(666), None)
 
     def test_get_exchanges_for_bill_id__exists(self):
-        from the_tale.accounts.prototypes import AccountPrototype
-        from the_tale.accounts.logic import register_user
-
         from the_tale.forum.models import Category, SubCategory
         from the_tale.game.bills.conf import bills_settings
         from the_tale.game.bills import bills
         from the_tale.game.bills.prototypes import BillPrototype
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        account = AccountPrototype.get_by_id(account_id)
+        account = self.accounts_factory.create_account()
 
         forum_category = Category.objects.create(caption='category-1', slug='category-1')
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',

@@ -8,7 +8,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
-from the_tale.accounts.logic import register_user, get_system_user
+from the_tale.accounts.logic import get_system_user
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 from the_tale.accounts import relations
 from the_tale.accounts.conf import accounts_settings
@@ -19,13 +19,11 @@ class RandomPremiumRequestPrototypeTests(testcase.TestCase):
 
     def setUp(self):
         super(RandomPremiumRequestPrototypeTests, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
         AccountPrototype._db_all().update(created_at=datetime.datetime.now() - accounts_settings.RANDOM_PREMIUM_CREATED_AT_BARRIER)
 

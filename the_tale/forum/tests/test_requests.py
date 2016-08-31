@@ -27,7 +27,7 @@ class BaseTestRequests(testcase.TestCase):
         super(BaseTestRequests, self).setUp()
         create_test_map()
 
-        self.fixture = ForumFixture()
+        self.fixture = ForumFixture(self.accounts_factory)
 
         self.account = self.fixture.account_1
         self.account_2 = self.fixture.account_2

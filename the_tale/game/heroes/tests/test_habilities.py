@@ -13,8 +13,7 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
 
-from the_tale.accounts.logic import register_user, login_page_url
-from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
@@ -42,12 +41,12 @@ class HabilitiesContainerTest(TestCase):
         super(HabilitiesContainerTest, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
+        account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
+        self.storage.load_account_data(account)
 
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.hero = self.storage.accounts_to_heroes[account.id]
 
         self.abilities = self.hero.abilities
 
@@ -342,12 +341,14 @@ class ChooseAbilityTaskTest(TestCase):
 
     def setUp(self):
         super(ChooseAbilityTaskTest, self).setUp()
+
         create_test_map()
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+
+        account = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
 
 
     def get_new_ability_id(self, hero=None):
@@ -429,14 +430,15 @@ class HabilitiesViewsTest(TestCase):
 
     def setUp(self):
         super(HabilitiesViewsTest, self).setUp()
+
         create_test_map()
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
+
+        self.account1 = self.accounts_factory.create_account()
+        self.account2 = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
-
-        register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.storage.load_account_data(self.account1)
+        self.hero = self.storage.accounts_to_heroes[self.account1.id]
 
         self.client = client.Client()
 
@@ -449,7 +451,7 @@ class HabilitiesViewsTest(TestCase):
         pass
 
     def test_choose_ability_dialog(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account1.email)
         response = self.request_html(reverse('game:heroes:choose-ability-dialog', args=[self.hero.id]))
         self.assertEqual(response.status_code, 200) #here is real page
 
@@ -458,7 +460,7 @@ class HabilitiesViewsTest(TestCase):
         self.check_redirect(request_url, login_page_url(request_url))
 
     def test_choose_ability_dialog_wrong_user(self):
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account2.email)
         self.check_html_ok(self.request_html(reverse('game:heroes:choose-ability-dialog', args=[self.hero.id])), texts=(('heroes.not_owner', 1),))
 
     def test_choose_ability_request_anonymous(self):
@@ -467,23 +469,23 @@ class HabilitiesViewsTest(TestCase):
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
     def test_choose_ability_request_hero_not_exist(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account1.email)
         response = self.client.post(reverse('game:heroes:choose-ability', args=[666]) + '?ability_id=' + self.get_new_ability_id())
         self.check_ajax_error(response, 'heroes.hero.not_found')
 
     def test_choose_ability_request_wrong_user(self):
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account2.email)
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
         self.check_ajax_error(response, 'heroes.not_owner')
 
     def test_choose_ability_request_wrong_ability(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account1.email)
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id+1]) + '?ability_id=xxxyyy')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(s11n.from_json(response.content)['status'], 'error')
 
     def test_choose_ability_request_ok(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account1.email)
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
         task = PostponedTaskPrototype._db_get_object(0)
         self.check_ajax_processing(response, task.status_url)

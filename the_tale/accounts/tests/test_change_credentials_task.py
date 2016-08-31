@@ -8,9 +8,8 @@ from django.contrib.auth import authenticate as django_authenticate
 from the_tale.common.utils import testcase
 from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
 
-from the_tale.accounts.prototypes import ChangeCredentialsTaskPrototype, AccountPrototype
+from the_tale.accounts.prototypes import ChangeCredentialsTaskPrototype
 from the_tale.accounts.postponed_tasks import ChangeCredentials, CHANGE_CREDENTIALS_STATE
-from the_tale.accounts.logic import register_user
 
 from the_tale.game.logic import create_test_map
 
@@ -21,8 +20,7 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
         super(PostponedChangeCredentialsTaskTests, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
         self.task = ChangeCredentialsTaskPrototype.create(self.account,
                                                           new_email='test_user@test.ru',

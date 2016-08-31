@@ -10,9 +10,6 @@ from the_tale.common.utils import testcase
 from the_tale.common.postponed_tasks.models import PostponedTask
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
-
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
@@ -24,14 +21,14 @@ class ChooseRequestsTests(testcase.TestCase, QuestTestsMixin):
 
     def setUp(self):
         super(ChooseRequestsTests, self).setUp()
-        create_test_map()
-        register_user('test_user', 'test_user@test.com', '111111')
 
-        account = AccountPrototype.get_by_email('test_user@test.com')
+        create_test_map()
+
+        self.account = self.accounts_factory.create_account()
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account.id))
-        self.hero =self.storage.accounts_to_heroes[account.id]
+        self.storage.load_account_data(self.account)
+        self.hero =self.storage.accounts_to_heroes[self.account.id]
 
         self.choice_uid = '[ns-0]choice_1'
         self.option_uid = '#option<[ns-0]choice_1, [ns-0]choice_2>'
@@ -47,7 +44,7 @@ class ChooseRequestsTests(testcase.TestCase, QuestTestsMixin):
     def test_choose_processing(self):
         self.turn_to_quest(self.storage, self.hero.id)
 
-        self.request_login('test_user@test.com')
+        self.request_login(self.account.email)
         response = self.client.post(url('game:quests:api-choose', option_uid=self.option_uid, api_version='1.0', api_client=project_settings.API_CLIENT))
 
         task = PostponedTaskPrototype._db_get_object(0)

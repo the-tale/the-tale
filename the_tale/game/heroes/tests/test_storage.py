@@ -4,8 +4,6 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.places import storage as places_storage
@@ -17,9 +15,7 @@ class PositionDescriptionsStorageTests(testcase.TestCase):
 
     def setUp(self):
         super(PositionDescriptionsStorageTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
-
-        result, account_id, bundle_id = register_user('test_user')
+        self.place_1, self.place_2, _ = create_test_map()
 
         storage.position_descriptions.clear()
 

@@ -6,7 +6,7 @@ from dext.settings import settings
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, get_system_user
+from the_tale.accounts.logic import get_system_user
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
 
 from the_tale.game.logic import create_test_map
@@ -19,10 +19,10 @@ class DayStartedSignalTests(TestCase):
 
     def setUp(self):
         super(DayStartedSignalTests, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
 
     def test_day_started_signal(self):

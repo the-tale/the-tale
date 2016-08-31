@@ -12,8 +12,7 @@ from dext.common.utils.urls import url
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game import names
 
@@ -43,21 +42,19 @@ class BaseTestRequests(TestCase):
 
         self.place1, self.place2, self.place3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user1', 'test_user1@test.com', '111111')
-        self.account1 = AccountPrototype.get_by_id(account_id)
+        self.account1 = self.accounts_factory.create_account()
         self.account1.prolong_premium(30)
         self.account1._model.created_at -= datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE)
         self.account1.save()
 
-        result, account_id, bundle_id = register_user('test_user2', 'test_user2@test.com', '111111')
-        self.account2 = AccountPrototype.get_by_id(account_id)
+        self.account2 = self.accounts_factory.create_account()
         self.account2.prolong_premium(30)
         self.account2._model.created_at -= datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE)
         self.account2.save()
 
         self.client = client.Client()
 
-        self.request_login('test_user1@test.com')
+        self.request_login(self.account1.email)
 
         from the_tale.forum.models import Category, SubCategory
 
@@ -126,8 +123,8 @@ class TestIndexRequests(BaseTestRequests):
                  ('Caption-a2-0', 1), ('rationale-a2-0', 0),
                  ('Caption-a2-1', 1), ('rationale-a2-1', 0),
                  ('Caption-a2-2', 1), ('rationale-a2-2', 0),
-                 ('test_user1', 3),
-                 ('test_user2', 3)]
+                 (self.account1.nick, 3),
+                 (self.account2.nick, 3)]
 
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=texts)
 
@@ -154,7 +151,7 @@ class TestIndexRequests(BaseTestRequests):
                  ('Caption-a1-3', 0), ('rationale-a1-3', 0),
                  ('Caption-a2-0', 0), ('rationale-a2-0', 0),
                  ('Caption-a2-2', 0), ('rationale-a2-2', 0),
-                 ('test_user1', 4), ('test_user2', 0)]
+                 (self.account1.nick, 4), (self.account2.email, 0)]
 
         self.check_html_ok(self.request_html(reverse('game:bills:')+'?page=2'), texts=texts)
 
@@ -165,8 +162,7 @@ class TestIndexRequests(BaseTestRequests):
     def test_filter_by_user_no_bills_message(self):
         self.create_two_pages()
 
-        result, account_id, bundle_id = register_user('test_user4', 'test_user4@test.com', '111111')
-        account4 = AccountPrototype.get_by_id(account_id)
+        account4 = self.accounts_factory.create_account()
         self.check_html_ok(self.request_html(reverse('game:bills:')+('?owner=%d' % account4.id)),
                            texts=[('pgf-no-bills-message', 1)])
 
@@ -181,8 +177,8 @@ class TestIndexRequests(BaseTestRequests):
                            ('Caption-a1-3', 1),
                            ('Caption-a2-0', 0),
                            ('Caption-a2-2', 0),
-                           ('test_user1', bills_settings.BILLS_ON_PAGE + 2), #1 for main menu, 1 for filter text
-                           ('test_user2', 0)]
+                           (self.account1.nick, bills_settings.BILLS_ON_PAGE + 2), #1 for main menu, 1 for filter text
+                           (self.account2.nick, 0)]
 
         self.check_html_ok(self.request_html(reverse('game:bills:')+('?owner=%d' % self.account1.id)),
                            texts=account_1_texts)
@@ -194,8 +190,8 @@ class TestIndexRequests(BaseTestRequests):
                            ('Caption-a1-3', 0),
                            ('Caption-a2-0', 1),
                            ('Caption-a2-2', 1),
-                           ('test_user1', 1), # 1 for main menu
-                           ('test_user2', 3+1)] # 1 for filter text
+                           (self.account1.nick, 1), # 1 for main menu
+                           (self.account2.nick, 3+1)] # 1 for filter text
 
 
         self.check_html_ok(self.request_html(reverse('game:bills:')+('?owner=%d' % self.account2.id)),
@@ -499,7 +495,7 @@ class TestShowRequests(BaseTestRequests):
                  (self.place2.name, 2)]
 
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account2.email)
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
 
@@ -599,7 +595,7 @@ class TestVoteRequests(BaseTestRequests):
         self.bill = BillPrototype(Bill.objects.all()[0])
 
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account2.email)
 
     def test_unlogined(self):
         self.request_logout()
@@ -713,7 +709,7 @@ class TestEditRequests(BaseTestRequests):
 
     def test_no_permissions(self):
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account2.email)
         self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=(('bills.not_owner', 1),))
 
     def test_wrong_state(self):
@@ -784,7 +780,7 @@ class TestUpdateRequests(BaseTestRequests):
 
     def test_no_permissions(self):
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account2.email)
         self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data()), 'bills.not_owner')
 
     def test_wrong_state(self):
@@ -829,7 +825,7 @@ class TestModerationPageRequests(BaseTestRequests):
         self.bill = BillPrototype(Bill.objects.all()[0])
 
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account2.email)
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
         group.user_set.add(self.account2._model)
@@ -854,7 +850,7 @@ class TestModerationPageRequests(BaseTestRequests):
 
     def test_no_permissions(self):
         self.request_logout()
-        self.request_login('test_user1@test.com')
+        self.request_login(self.account1.email)
         self.check_html_ok(self.request_html(reverse('game:bills:moderate', args=[self.bill.id])), texts=(('bills.moderator_rights_required', 1),))
 
     def test_wrong_state(self):
@@ -883,7 +879,7 @@ class TestModerateRequests(BaseTestRequests):
         self.bill = BillPrototype(Bill.objects.all()[0])
 
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account2.email)
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
         group.user_set.add(self.account2._model)
@@ -914,7 +910,7 @@ class TestModerateRequests(BaseTestRequests):
 
     def test_no_permissions(self):
         self.request_logout()
-        self.request_login('test_user1@test.com')
+        self.request_login(self.account1.email)
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.moderator_rights_required')
 
     def test_wrong_state(self):
@@ -946,7 +942,7 @@ class TestDeleteRequests(BaseTestRequests):
         self.bill = BillPrototype(Bill.objects.all()[0])
 
         self.request_logout()
-        self.request_login('test_user2@test.com')
+        self.request_login(self.account2.email)
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
         group.user_set.add(self.account2._model)
@@ -969,7 +965,7 @@ class TestDeleteRequests(BaseTestRequests):
 
     def test_no_permissions(self):
         self.request_logout()
-        self.request_login('test_user1@test.com')
+        self.request_login(self.account1.email)
         self.check_ajax_error(self.client.post(reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.moderator_rights_required')
 
     def test_delete_success(self):

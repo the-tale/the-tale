@@ -7,9 +7,6 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.game.logic import create_test_map
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.logic_storage import LogicStorage
@@ -23,14 +20,14 @@ class ChangeHeroTest(TestCase):
 
     def setUp(self):
         super(ChangeHeroTest, self).setUp()
-        place_1, place_2, place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        create_test_map()
+
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
 
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.hero.utg_name.properties = self.hero.utg_name.properties.clone(self.hero.gender.utg_id)
 
         self.noun = names.generator.get_test_name(name='test_name', gender=GENDER.NEUTER)

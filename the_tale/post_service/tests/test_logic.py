@@ -4,8 +4,7 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.logic import register_user, get_system_user
-from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.logic import get_system_user
 
 from the_tale.post_service import logic
 
@@ -23,11 +22,8 @@ class SendMailTests(testcase.TestCase):
 
         create_test_map()
 
-        register_user('user_1', 'user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_nick('user_1')
-
-        register_user('user_2', 'user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_nick('user_2')
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
     def check_send_mail(self, accounts, result, call_count, send=None):
         if send is None:

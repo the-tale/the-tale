@@ -5,9 +5,6 @@ from dext.common.utils.urls import url
 from the_tale.common.utils import testcase
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
-
 from the_tale.game.logic import create_test_map
 from the_tale.game import names
 
@@ -27,11 +24,10 @@ class CardsRequestsTestsBase(testcase.TestCase):
 
     def setUp(self):
         super(CardsRequestsTestsBase, self).setUp()
+
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]

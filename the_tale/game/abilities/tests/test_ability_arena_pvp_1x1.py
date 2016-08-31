@@ -5,8 +5,6 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
@@ -23,13 +21,11 @@ class ArenaPvP1x1AbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     def setUp(self):
         super(ArenaPvP1x1AbilityTest, self).setUp()
+
         self.p1, self.p2, self.p3 = create_test_map()
 
-        result, account_1_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        result, account_2_id, bundle_id = register_user('test_user_2')
-
-        self.account_1 = AccountPrototype.get_by_id(account_1_id)
-        self.account_2 = AccountPrototype.get_by_id(account_2_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = LogicStorage()
         self.storage.load_account_data(self.account_1)
@@ -48,7 +44,6 @@ class ArenaPvP1x1AbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.pvp_balancer.process_initialize('pvp_balancer')
 
     def test_use(self):
-
         result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage))
 
         self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER))
@@ -74,7 +69,6 @@ class ArenaPvP1x1AbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertEqual(battle.enemy, None)
 
     def test_use__for_existed_battle(self):
-
         result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage))
 
         self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.PVP_BALANCER))

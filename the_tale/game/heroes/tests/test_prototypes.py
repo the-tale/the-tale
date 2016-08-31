@@ -8,8 +8,6 @@ import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.accounts.personal_messages.prototypes import MessagePrototype
@@ -60,13 +58,14 @@ class HeroTest(testcase.TestCase):
 
     def setUp(self):
         super(HeroTest, self).setUp()
+
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
+        account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
 
 
     def test_create(self):
@@ -133,9 +132,9 @@ class HeroTest(testcase.TestCase):
         game_time.increment_turn()
         game_time.save()
 
-        result, account_id, bundle_id = register_user('test_user_2')
+        account = self.accounts_factory.create_account(is_fast=True)
 
-        hero = logic.load_hero(account_id=account_id)
+        hero = logic.load_hero(account_id=account.id)
 
         self.assertEqual(hero.created_at_turn, TimePrototype.get_current_time().turn_number)
 
@@ -668,13 +667,14 @@ class HeroLevelUpTests(testcase.TestCase):
 
     def setUp(self):
         super(HeroLevelUpTests, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
+        account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
 
     def test_is_initial_state(self):
         self.assertTrue(self.hero.abilities.is_initial_state())
@@ -941,11 +941,12 @@ class HeroQuestsTest(testcase.TestCase):
 
     def setUp(self):
         super(HeroQuestsTest, self).setUp()
+
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
+        account = self.accounts_factory.create_account(is_fast=True)
 
-        self.hero = logic.load_hero(account_id=account_id)
+        self.hero = logic.load_hero(account_id=account.id)
 
         self.place = places_storage.places.all()[0]
         self.person = self.place.persons[0]
@@ -1068,13 +1069,14 @@ class HeroUiInfoTest(testcase.TestCase):
 
     def setUp(self):
         super(HeroUiInfoTest, self).setUp()
+
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user')
+        account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(AccountPrototype.get_by_id(account_id))
-        self.hero = self.storage.accounts_to_heroes[account_id]
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
 
     def test_is_ui_caching_required(self):
         self.assertTrue(self.hero.is_ui_caching_required) # new hero must be cached, since player, who created him, is in game

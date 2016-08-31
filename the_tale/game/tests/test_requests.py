@@ -10,8 +10,7 @@ from dext.common.utils import s11n
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map, game_info_url
 
@@ -27,13 +26,8 @@ class RequestTestsBase(TestCase, PvPTestsMixin):
         super(RequestTestsBase, self).setUp()
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account_1_id = account_id
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2_id = account_id
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
         self.client = client.Client()
 
@@ -41,7 +35,7 @@ class RequestTestsBase(TestCase, PvPTestsMixin):
         self.game_info_url_2 = game_info_url(account_id=self.account_2.id)
         self.game_info_url_no_id = game_info_url()
 
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
 
 class GamePageRequestTests(RequestTestsBase):
 
@@ -129,10 +123,9 @@ class NewsAlertsTests(TestCase):
 
         self.news = news_logic.create_news(caption='news-caption', description='news-description', content='news-content')
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
-        self.request_login('test_user@test.com')
+        self.request_login(self.account.email)
 
     def check_reminder(self, url, caption, description, block):
         self.check_html_ok(self.client.get(url), texts=[('news-caption', caption),

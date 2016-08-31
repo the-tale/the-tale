@@ -5,8 +5,7 @@ from dext.common.utils.urls import url
 from the_tale.common.utils import testcase
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 
 from the_tale.game.logic import create_test_map
@@ -23,17 +22,10 @@ class BaseRequestTests(testcase.TestCase):
 
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user_1', 'test_user_1@test.com', '111111')
-        self.account_1 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111')
-        self.account_2 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_3', 'test_user_3@test.com', '111111')
-        self.account_3 = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_4', 'test_user_4@test.com', '111111')
-        self.account_4 = AccountPrototype.get_by_id(account_id)
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
+        self.account_4 = self.accounts_factory.create_account()
 
         self.account_1_items = AccountItemsPrototype.get_by_account_id(self.account_1.id)
         self.account_2_items = AccountItemsPrototype.get_by_account_id(self.account_2.id)

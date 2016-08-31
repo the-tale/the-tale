@@ -8,7 +8,6 @@ from django.test import client
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.game.logic import create_test_map
@@ -18,11 +17,10 @@ class ResourceTest(TestCase):
 
     def setUp(self):
         super(ResourceTest, self).setUp()
+
         create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
         self.client = client.Client()
 
@@ -41,7 +39,7 @@ class ResourceTest(TestCase):
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.active_end_at', datetime.datetime.now() - datetime.timedelta(seconds=1))
     def test_account_activate_loginned(self):
         with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as fake_cmd:
-            self.request_login('test_user@test.com')
+            self.request_login(self.account.email)
             self.client.get('/')
 
         self.assertEqual(fake_cmd.call_count, 1)

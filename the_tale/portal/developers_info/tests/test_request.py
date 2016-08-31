@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate as django_authenticate
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.logic import register_user, login_page_url
+from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map
 
@@ -17,12 +17,12 @@ class TestRequestsBase(TestCase):
         create_test_map()
         self.client = client.Client()
 
-        register_user('test_user', 'test_user@test.com', '111111')
-        register_user('test_user_2', 'test_user_2@test.com', '111111')
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
 
-        account = django_authenticate(nick='test_user_2', password='111111')
-        account.is_staff = True
-        account.save()
+        staff_account = django_authenticate(nick=self.account_2.nick, password='111111')
+        staff_account.is_staff = True
+        staff_account.save()
 
 
 class TestIndexRequests(TestRequestsBase):
@@ -32,11 +32,11 @@ class TestIndexRequests(TestRequestsBase):
         self.check_redirect(request_url, login_page_url(request_url))
 
     def test_staff_required(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(reverse('portal:developers-info:')), texts=['common.staff_required'])
 
     def test_success(self):
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('portal:developers-info:')))
 
 class TestMobsAndArtifactsRequests(TestRequestsBase):
@@ -46,15 +46,15 @@ class TestMobsAndArtifactsRequests(TestRequestsBase):
         self.check_redirect(request_url, login_page_url(request_url))
 
     def test_staff_required(self):
-        self.request_login('test_user@test.com')
+        self.request_login(self.account_1.email)
         self.check_html_ok(self.request_html(reverse('portal:developers-info:mobs-and-artifacts')), texts=['common.staff_required'])
 
     def test_success(self):
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('portal:developers-info:mobs-and-artifacts')))
 
     def test_mobs_without_artifacts(self):
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
         from the_tale.game.mobs.prototypes import MobRecordPrototype
         from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
@@ -74,7 +74,7 @@ class TestMobsAndArtifactsRequests(TestRequestsBase):
 
 
     def test_artifacts_without_mobs(self):
-        self.request_login('test_user_2@test.com')
+        self.request_login(self.account_2.email)
 
         from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 

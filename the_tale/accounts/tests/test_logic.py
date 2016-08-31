@@ -44,9 +44,9 @@ class TestLogic(testcase.TestCase):
         self.assertEqual(logic.get_account_id_by_email('bla@bla.bla'), None)
         self.assertEqual(logic.get_account_id_by_email('test_user@test.com'), None)
 
-        result, account_id, bundle_id = logic.register_user('test_user', 'test_user@test.com', '111111')
+        account = self.accounts_factory.create_account()
 
-        self.assertEqual(logic.get_account_id_by_email('test_user@test.com'), account_id)
+        self.assertEqual(logic.get_account_id_by_email(account.email), account.id)
 
     def test_initiate_transfer_money(self):
         sender = self.accounts_factory.create_account()

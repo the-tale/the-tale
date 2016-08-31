@@ -6,8 +6,6 @@ from the_tale.forum.prototypes import CategoryPrototype, SubCategoryPrototype, T
 from the_tale.forum.models import Thread, Post
 
 from the_tale.accounts.models import Award
-from the_tale.accounts.logic import register_user
-from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts import relations
 
 from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype
@@ -36,11 +34,8 @@ class CalculateMightTests(testcase.TestCase):
         super(CalculateMightTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
-
-        result, account_id, bundle_id = register_user('test_user_2', 'test_user_2@test.com', '111111', referral_of_id=self.account.id)
-        self.account_2 = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account(referral_of_id=self.account.id)
 
         self.forum_category = CategoryPrototype.create('category', 'category-slug', 0)
         self.bills_subcategory = SubCategoryPrototype.create(self.forum_category, 'subcategory', order=0, uid=bills_settings.FORUM_CATEGORY_UID)

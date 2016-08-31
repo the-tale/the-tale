@@ -11,9 +11,6 @@ from the_tale.finances.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import register_user
-
 from the_tale.accounts.clans.conf import clans_settings
 
 from the_tale.game.heroes import logic as heroes_logic
@@ -35,10 +32,9 @@ class PremiumDaysTests(testcase.TestCase):
         self.days = 30
         self.cost = 130
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-        self.account = AccountPrototype.get_by_id(account_id)
+        self.account = self.accounts_factory.create_account()
 
-        self.hero = heroes_logic.load_hero(account_id=account_id)
+        self.hero = heroes_logic.load_hero(account_id=self.account.id)
 
         self.purchase = PremiumDays(uid='premium-days-uid',
                                     name=u'premium-days-name',
@@ -120,10 +116,8 @@ class PermanentPurchaseTests(testcase.TestCase):
 
         self.cost = 130
 
-        result, account_id, bundle_id = register_user('test_user', 'test_user@test.com', '111111')
-
-        self.account = AccountPrototype.get_by_id(account_id)
-        self.hero = heroes_logic.load_hero(account_id=account_id)
+        self.account = self.accounts_factory.create_account()
+        self.hero = heroes_logic.load_hero(account_id=self.account.id)
 
         self.purchase = PermanentPurchase(uid=u'clan-creation-rights',
                                           name=self.PURCHASE_TYPE.text,
