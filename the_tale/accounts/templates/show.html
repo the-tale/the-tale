@@ -184,7 +184,7 @@ jQuery(document).ready(function(){
                       <tr>
                         <td>{{loop.index}}</td>
                         <td><a href="{{url('game:places:show', record.place.id)}}">{{record.place.name}}</a></td>
-                        <td>{{record.count}}</td>
+                        <td>{{record.count|round(1)}}</td>
                       </tr>
                     {% endfor %}
                   </tbody>

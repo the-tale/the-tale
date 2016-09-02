@@ -64,7 +64,7 @@
             <tr>
               <td>{{loop.index}}</td>
               <td><a href="{{url('game:places:show', place.id)}}">{{place.name}}</a></td>
-              <td>{{count}}</td>
+              <td>{{count|round(1)}}</td>
             </tr>
           {% endfor %}
         </tbody>
