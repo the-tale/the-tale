@@ -41,6 +41,8 @@ class CalculateMightTests(testcase.TestCase):
         self.bills_subcategory = SubCategoryPrototype.create(self.forum_category, 'subcategory', order=0, uid=bills_settings.FORUM_CATEGORY_UID)
         self.blogs_subcategory = SubCategoryPrototype.create(self.forum_category, blogs_conf.settings.FORUM_CATEGORY_UID + '-caption', order=1, uid=blogs_conf.settings.FORUM_CATEGORY_UID)
 
+        self.restricted_subcategory = SubCategoryPrototype.create(self.forum_category, 'restricted-caption', order=2, restricted=True, uid='restricted-subcategory')
+
 
     def test_initialize(self):
         self.assertEqual(self.account.might, 0)
@@ -54,12 +56,25 @@ class CalculateMightTests(testcase.TestCase):
         self.assertTrue(calculate_might(self.account) > 0)
         self.assertEqual(calculate_might(self.account_2), 0)
 
+
+    def test_forum_thread_might__restricted(self):
+        ThreadPrototype.create(self.restricted_subcategory, 'caption', self.account, 'text')
+        self.assertEqual(calculate_might(self.account),  0)
+
     def test_forum_post_might(self):
         thread = ThreadPrototype.create(self.bills_subcategory, 'caption', self.account_2, 'text')
         PostPrototype.create(thread, self.account, 'text')
 
         self.assertTrue(calculate_might(self.account) > 0)
         self.assertTrue(calculate_might(self.account_2) > 0)
+
+
+    def test_forum_post_might__restricted(self):
+        thread = ThreadPrototype.create(self.restricted_subcategory, 'caption', self.account_2, 'text')
+        PostPrototype.create(thread, self.account, 'text')
+
+        self.assertEqual(calculate_might(self.account), 0)
+        self.assertEqual(calculate_might(self.account_2), 0)
 
     def test_accepted_bill_might(self):
         old_might = calculate_might(self.account)
