@@ -62,10 +62,6 @@ class UserForm(BaseForm):
     def __init__(self, person_1_id, person_2_id, owner_id, *args, **kwargs):
         super(UserForm, self).__init__(person_1_id, person_2_id, *args, **kwargs)
         def predicate(place, person):
-            if person.id == 993:
-                print owner_id, owner_id.__class__
-                print person.politic_power.is_in_inner_circle(owner_id)
-                print person.politic_power.inner_circle
             return (person.politic_power.is_in_inner_circle(owner_id) and self.person_filter(place, person))
         self.fields['person_1'].choices = persons_objects.Person.form_choices(choosen_person=persons_storage.persons.get(person_1_id), predicate=predicate)
 

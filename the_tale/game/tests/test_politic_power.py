@@ -69,6 +69,7 @@ class PoliticPowerTest(testcase.TestCase):
 
     def test_change_power__with_hero(self):
         self.power.change_power(owner=self.owner, hero_id=1, has_in_preferences=False, power=1000)
+        self.power.update_inner_heroes()
 
         self.assertEqual(self.power.outer_power, 1000)
         self.assertEqual(self.power.inner_power, 0)
@@ -77,6 +78,7 @@ class PoliticPowerTest(testcase.TestCase):
         self.assertEqual(self.power._inner_negative_heroes, frozenset())
 
         self.power.change_power(owner=self.owner, hero_id=2, has_in_preferences=True, power=2000)
+        self.power.update_inner_heroes()
 
         self.assertEqual(self.power.outer_power, 1000)
         self.assertEqual(self.power.inner_power, 2000)
@@ -84,8 +86,8 @@ class PoliticPowerTest(testcase.TestCase):
         self.assertEqual(self.power._inner_positive_heroes, frozenset((2, )))
         self.assertEqual(self.power._inner_negative_heroes, frozenset())
 
-
         self.power.change_power(owner=self.owner, hero_id=3, has_in_preferences=True, power=-3000)
+        self.power.update_inner_heroes()
 
         self.assertEqual(self.power.outer_power, 1000)
         self.assertEqual(self.power.inner_power, -1000)
@@ -94,6 +96,7 @@ class PoliticPowerTest(testcase.TestCase):
         self.assertEqual(self.power._inner_negative_heroes, frozenset((3, )))
 
         self.power.change_power(owner=self.owner, hero_id=4, has_in_preferences=True, power=4000)
+        self.power.update_inner_heroes()
 
         self.assertEqual(self.power.outer_power, 1000)
         self.assertEqual(self.power.inner_power, 3000)
@@ -102,6 +105,7 @@ class PoliticPowerTest(testcase.TestCase):
         self.assertEqual(self.power._inner_negative_heroes, frozenset((3, )))
 
         self.power.change_power(owner=self.owner, hero_id=5, has_in_preferences=True, power=5000)
+        self.power.update_inner_heroes()
 
         self.assertEqual(self.power.outer_power, 1000)
         self.assertEqual(self.power.inner_power, 8000)
@@ -109,16 +113,16 @@ class PoliticPowerTest(testcase.TestCase):
         self.assertEqual(self.power._inner_positive_heroes, frozenset((4, 5)))
         self.assertEqual(self.power._inner_negative_heroes, frozenset((3, )))
 
-
         self.power.change_power(owner=self.owner, hero_id=2, has_in_preferences=True, power=500)
+        self.power.update_inner_heroes()
 
-        self.assertEqual(self.power.outer_power, 1500)
-        self.assertEqual(self.power.inner_power, 8000)
+        self.assertEqual(self.power.outer_power, 1000)
+        self.assertEqual(self.power.inner_power, 8500)
         self.assertEqual(self.power.inner_circle, {2: 2500, 4: 4000, 5: 5000, 3: -3000})
         self.assertEqual(self.power._inner_positive_heroes, frozenset((4, 5)))
         self.assertEqual(self.power._inner_negative_heroes, frozenset((3, )))
 
-        self.assertEqual(self.owner.job.positive_power, 11000)
+        self.assertEqual(self.owner.job.positive_power, 11500)
         self.assertEqual(self.owner.job.negative_power, 3000)
 
 

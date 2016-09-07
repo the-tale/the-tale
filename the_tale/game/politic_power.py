@@ -76,19 +76,15 @@ class PoliticPower(object):
 
     def change_power(self, owner, hero_id, has_in_preferences, power):
 
-        if hero_id is None:
+        if (hero_id is None or
+            not has_in_preferences):
             self.outer_power += power
             return
 
-        if has_in_preferences:
-            self.inner_circle[hero_id] = self.inner_circle.get(hero_id, 0) + power
-            self.reset_cache()
-
-        if not self.is_in_inner_circle(hero_id):
-            self.outer_power += power
-            return
+        self.reset_cache()
 
         self.inner_power += power
+        self.inner_circle[hero_id] = self.inner_circle.get(hero_id, 0) + power
 
         owner.job.give_power(power)
 
