@@ -25,15 +25,12 @@ from . import economic
 from . import relations
 
 
-BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_BONUS,
+BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_FROM_BEST_PERSON,
                        places_relations.ATTRIBUTE.FREEDOM: c.PLACE_FREEDOM_FROM_BEST_PERSON,
                        places_relations.ATTRIBUTE.SAFETY: c.PLACE_SAFETY_FROM_BEST_PERSON,
                        places_relations.ATTRIBUTE.TRANSPORT: c.PLACE_TRANSPORT_FROM_BEST_PERSON,
                        places_relations.ATTRIBUTE.CULTURE: c.PLACE_CULTURE_FROM_BEST_PERSON,
-
-                       # делим на 3, поскольку стабильность отрицательно влияет на 4 параметра и на 1 положительно (свободу)
-                       # соответственно, единица изменения стабильности меняет 3 единицы изменения других параметров
-                       places_relations.ATTRIBUTE.STABILITY: c.PLACE_STABILITY_UNIT / 3.0}
+                       places_relations.ATTRIBUTE.STABILITY: c.PLACE_STABILITY_FROM_BEST_PERSON}
 
 
 

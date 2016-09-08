@@ -454,8 +454,10 @@ PLACE_GOODS_AFTER_LEVEL_DOWN = float(0.75) # процент товаров, во
 
 PLACE_KEEPERS_GOODS_SPENDING = float(0.05) # доля трат даров хранителей за один час
 
+PLACE_GOODS_FROM_BEST_PERSON = int(PLACE_GOODS_BONUS / 2)
+
 # исходим из того, что в первую очередь надо балансировать вероятность нападения монстров как самый важный параметр
-PLACE_SAFETY_FROM_BEST_PERSON = float(0.05)
+PLACE_SAFETY_FROM_BEST_PERSON = float(0.025)
 PLACE_TRANSPORT_FROM_BEST_PERSON = h.speed_from_safety(PLACE_SAFETY_FROM_BEST_PERSON, BATTLES_PER_TURN)
 
 # хотя на опыт свобода и не влияет, но на город оказывает такое-же влияние как и транспорт
@@ -478,6 +480,17 @@ PLACE_STABILITY_MAX_SAFETY_PENALTY = float(-0.25)
 PLACE_STABILITY_MAX_TRANSPORT_PENALTY = h.speed_from_safety(PLACE_STABILITY_MAX_SAFETY_PENALTY, BATTLES_PER_TURN)
 PLACE_STABILITY_MAX_FREEDOM_PENALTY = -PLACE_STABILITY_MAX_TRANSPORT_PENALTY
 PLACE_STABILITY_MAX_CULTURE_PENALTY = -1.0
+
+
+# считаем на сколько условных единиц бонусов от Мастеров влияет нулевая стабильность
+_STABILITY_PERSONS_POINTS = (abs(PLACE_STABILITY_MAX_PRODUCTION_PENALTY) / PLACE_GOODS_FROM_BEST_PERSON +
+                             abs(PLACE_STABILITY_MAX_SAFETY_PENALTY) / PLACE_SAFETY_FROM_BEST_PERSON +
+                             abs(PLACE_STABILITY_MAX_TRANSPORT_PENALTY) / PLACE_TRANSPORT_FROM_BEST_PERSON +
+                             -abs(PLACE_STABILITY_MAX_FREEDOM_PENALTY) / PLACE_FREEDOM_FROM_BEST_PERSON + # на свободу отсутствие стабильности влияет положительно
+                             abs(PLACE_STABILITY_MAX_CULTURE_PENALTY) / PLACE_CULTURE_FROM_BEST_PERSON)
+
+# считаем максимальную стабильность от Мастера
+PLACE_STABILITY_FROM_BEST_PERSON = float(1.0 / _STABILITY_PERSONS_POINTS)
 
 WHILD_TRANSPORT_PENALTY = float(0.1) # штраф к скорости в диких землях и на фронтире
 TRANSPORT_FROM_PLACE_SIZE_PENALTY = float(0.05) # штраф к скорости от размера города
