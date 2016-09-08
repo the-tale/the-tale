@@ -263,9 +263,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_DOWN, 0.75)
         self.assertEqual(c.PLACE_KEEPERS_GOODS_SPENDING, 0.05)
 
-        self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.05)
-        self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.33333)
-        self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.33333)
+        self.assertEqual(c.PLACE_GOODS_FROM_BEST_PERSON, 50)
+        self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.025)
+        self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.14815)
+        self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.14815)
         self.assertEqual(round(c.PLACE_CULTURE_FROM_BEST_PERSON, 5), 0.15)
 
         self.assertEqual(c.PLACE_MAX_BILLS_NUMBER, 3)
@@ -274,6 +275,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA, 0.1 / 24)
 
         self.assertEqual(c.PLACE_STABILITY_UNIT, 0.1)
+
+        self.assertEqual(round(c.PLACE_STABILITY_FROM_BEST_PERSON, 5), 0.04839)
 
         self.assertEqual(round(c.PLACE_STABILITY_RECOVER_SPEED, 4), 0.0006)
 
@@ -293,9 +296,9 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_JOB_EFFECT_FRACTION, 0.2)
 
         self.assertEqual(c.JOB_PRODUCTION_BONUS, 20)
-        self.assertEqual(round(c.JOB_SAFETY_BONUS, 5), 0.01)
-        self.assertEqual(round(c.JOB_TRANSPORT_BONUS, 5), 0.06667)
-        self.assertEqual(round(c.JOB_FREEDOM_BONUS, 5), 0.06667)
+        self.assertEqual(round(c.JOB_SAFETY_BONUS, 5), 0.005)
+        self.assertEqual(round(c.JOB_TRANSPORT_BONUS, 5), 0.02963)
+        self.assertEqual(round(c.JOB_FREEDOM_BONUS, 5), 0.02963)
         self.assertEqual(round(c.JOB_STABILITY_BONUS, 5), 0.02)
 
         self.assertEqual(c.PERSON_MOVE_DELAY_IN_WEEKS, 2)
