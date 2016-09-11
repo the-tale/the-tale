@@ -124,7 +124,7 @@ class CreateLotTask(PostponedLogic):
                 main_task.comment = 'hero has no good %s' % self.good_uid
                 self.state = self.STATE.NO_GOOD
                 self.step = self.STEP.ROLLBACK
-                main_task.extend_postsave_actions((lambda: environment.workers.market_manager.cmd_task(self.account_id, main_task.id),))
+                main_task.extend_postsave_actions((lambda: environment.workers.market_manager.cmd_logic_task(self.account_id, main_task.id),))
                 return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
 
             good_type.extract_good(hero, self.good_uid)
