@@ -238,3 +238,20 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
         self.bill.end()
 
         self.assertEqual(old_storage_version, places_storage.resource_exchanges._version)
+
+
+    def test_has_meaning__not_connected(self):
+        bill_data = PlaceResourceExchange(place_1_id=self.place1.id,
+                                          place_2_id=self.place3.id,
+                                          resource_1=self.resource_1,
+                                          resource_2=self.resource_2)
+
+        bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data,
+                                    chronicle_on_accepted='chronicle-on-accepted')
+
+        self.assertFalse(bill.has_meaning())
+
+
+    @mock.patch('the_tale.game.balance.constants.PLACE_MAX_BILLS_NUMBER', 0)
+    def test_has_meaning__maximum_exchanges_reached(self):
+        self.assertFalse(self.bill.has_meaning())

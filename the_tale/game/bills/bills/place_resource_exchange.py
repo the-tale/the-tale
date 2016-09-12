@@ -154,7 +154,15 @@ class PlaceResourceExchange(BaseBill):
         self.old_place_2_name_forms = self.place_2.utg_name
 
     def has_meaning(self):
+        if roads_storage.get_by_places(self.place_1, self.place_2) is None:
+            return False
+
+        if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(self.place_1)) or
+            c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(self.place_2)) ):
+            return False
+
         return True
+
 
     def apply(self, bill=None):
         if self.has_meaning():
