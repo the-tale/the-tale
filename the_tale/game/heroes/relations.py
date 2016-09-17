@@ -102,7 +102,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
                 ('SHARPENING_ARTIFACT', 2, u'заточка артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
                  u'Собирает на улучшение экипировки.'),
                 ('USELESS',             3, u'на себя', 'useless',    7,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
-                 u'Копит золото для не очень полезных но безусловно необходимых трат.'),
+                 u'Копит золото для не очень полезных, но безусловно необходимых, трат.'),
                 ('IMPACT',              4, u'изменение влияния', 'impact',     4,  1.0, MONEY_SOURCE.SPEND_FOR_IMPACT,
                  u'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
                 ('EXPERIENCE',          5, u'обучение',          'experience', 2,  4.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,

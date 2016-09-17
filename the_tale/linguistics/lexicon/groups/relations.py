@@ -133,5 +133,5 @@ class LEXICON_GROUP(DjangoEnum):
 
                ('JOBS', 31, u'Занятия Мастеров', 310000,
                u'Названия занятий и записи в дневник героев',
-               {V.HERO: u'герой', V.PERSON: u'мастер', V.PLACE: u'город', V.COINS: u'моенты', V.ARTIFACT: u'артефакт', V.EXPERIENCE: u'опыт', V.ENERGY: u'энергия'}),
+               {V.HERO: u'герой', V.PERSON: u'мастер', V.PLACE: u'город', V.COINS: u'монеты', V.ARTIFACT: u'артефакт', V.EXPERIENCE: u'опыт', V.ENERGY: u'энергия'}),
                )

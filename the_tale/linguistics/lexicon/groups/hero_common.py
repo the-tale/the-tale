@@ -28,6 +28,6 @@ KEYS = [(u'HERO_COMMON_DIARY_CREATE', 300000, u'Дневник: Создание
         [V.HERO, V.LEVEL], None),
 
         (u'HERO_COMMON_JOURNAL_RETURN_CHILD_GIFT', 300006, u'Журнал: Детский подарок вернулся к ребёнку', LEXICON_GROUP.HERO_COMMON,
-        u'Найденный деткий подарок пропадает из рюкзака и возвращается к ребёнку.',
+        u'Найденный детский подарок пропадает из рюкзака и возвращается к ребёнку.',
         [V.HERO, V.ARTIFACT], None),
         ]
