@@ -142,12 +142,12 @@ class Command(BaseCommand):
 
         current_premiums_ids = set(accounts_models.Account.objects.filter(is_fast=False, premium_end_at__gt=datetime.datetime.now()).values_list('id', flat=True))
 
-        accounts_sets = [(u'все аккаунты\t\t\t', all_accounts_ids),
-                         (u'хоть раз платили\t\t', donaters_ids),
-                         (u'ни разу не платили\t\t', not_donaters_ids),
-                         (u'хоть раз купили подписку\t', premiums_ids),
-                         (u'платили, но без подписки\t', not_premiums_ids),
-                         (u'текущие подписчики\t\t', current_premiums_ids)]
+        accounts_sets = [(u'все аккаунты', all_accounts_ids),
+                         (u'хоть раз платили', donaters_ids),
+                         (u'ни разу не платили', not_donaters_ids),
+                         (u'хоть раз купили подписку', premiums_ids),
+                         (u'платили, но без подписки', not_premiums_ids),
+                         (u'текущие подписчики', current_premiums_ids)]
 
         processors = [(u'количество', accounts_count, None, None),
                       (u'форум: сообщения', posts_on_forum, None, None),
@@ -193,7 +193,9 @@ class Command(BaseCommand):
                     total = value
 
                 if comparator is None:
-                    print set_name, value, '\t', str(round(100 * float(value) / total, 2)).zfill(5), '%'
+                    message = u'{:<30} {:>8} {:>8}%'
+                    print message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5))
                 else:
+                    message = u'{:<30} {:>8} {:>8}% {:>10} {}%'
                     compare_to_value = comparator(set_ids)
-                    print set_name, value, '\t', str(round(100 * float(value) / total, 2)).zfill(5), '%', '\t', compare_name, round(100 * float(value) / compare_to_value, 2), '%'
+                    print message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5), compare_name, round(100 * float(value) / compare_to_value, 2),)

@@ -142,6 +142,7 @@ jQuery(document).ready(function(e){
     </thead>
     <tbody>
       {% for account_id, power in politic_power.inner_circle_rating() %}
+        {% if account_id not in	accounts_short_infos %}{% continue %}{%	endif %}
         <tr {% if player_account_id == account_id %}style="font-weight: bold;"{% endif %}>
           <td>
             {% if account_id in politic_power.inner_positive_heroes %}
