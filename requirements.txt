@@ -11,7 +11,7 @@ MarkupSafe==0.15
 boto==2.15.0
 unicodecsv==0.9.4
 
-pynames==0.2.0
+pynames==0.2.1
 utg==0.2.0
 rels==0.2.2.2
 
