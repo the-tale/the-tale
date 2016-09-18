@@ -529,8 +529,9 @@ class InvoicePrototypeTests(testcase.TestCase, BankTestsMixin):
         invoice.cancel()
         self.assertTrue(invoice.state.is_CANCELED)
 
-    def test_cancel__not_in_frozen_state(self):
+    def test_cancel__not_in_frozen_or_requested_state(self):
         invoice = self.create_invoice()
+        invoice.state = INVOICE_STATE.random(exclude=(INVOICE_STATE.REQUESTED, INVOICE_STATE.FROZEN))
         self.assertRaises(BankError, invoice.cancel)
 
     def test_reset_all(self):
