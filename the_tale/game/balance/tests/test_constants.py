@@ -243,6 +243,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_MIN_SAFETY, 0.05)
         self.assertEqual(c.PLACE_MIN_TRANSPORT, 0.1)
         self.assertEqual(c.PLACE_MIN_STABILITY, 0)
+        self.assertEqual(c.PLACE_MIN_CULTURE, 0.2)
 
         self.assertEqual(c.PLACE_MAX_SIZE, 10)
         self.assertEqual(c.PLACE_MAX_ECONOMIC, 10)

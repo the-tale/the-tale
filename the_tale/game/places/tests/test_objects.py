@@ -209,6 +209,16 @@ class PlaceTests(testcase.TestCase):
         self.assertTrue(-0.001 < self.p1.attrs.transport - c.PLACE_MIN_TRANSPORT < 0.001)
 
 
+    def test_refresh_attributes__culture__min_value(self):
+        self.p1.effects.add(effects.Effect(name=u'test', attribute=relations.ATTRIBUTE.CULTURE, value=-1000))
+
+        self._create_test_exchanges()
+
+        self.p1.refresh_attributes()
+
+        self.assertTrue(-0.001 < self.p1.attrs.culture - c.PLACE_MIN_CULTURE < 0.001)
+
+
     def test_refresh_attributes__tax(self):
 
         self._create_test_exchanges()
