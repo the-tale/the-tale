@@ -117,8 +117,8 @@ class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
     direction = Column(unique=False, primary=False)
 
     PRODUCTION_BASE = int(c.PLACE_GOODS_BONUS / 2)
-    SAFETY_BASE = c.PLACE_SAFETY_FROM_BEST_PERSON / 10.0
-    TRANSPORT_BASE = c.PLACE_TRANSPORT_FROM_BEST_PERSON / 10.0
+    SAFETY_BASE = c.PLACE_SAFETY_FROM_BEST_PERSON / 4
+    TRANSPORT_BASE = c.PLACE_TRANSPORT_FROM_BEST_PERSON / 4
     TAX_BASE = 0.025
 
     records = ( ('NONE',  0, u'ничего', None, 0, 0),
