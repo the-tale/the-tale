@@ -14,7 +14,7 @@ setuptools.setup(
     name='TheTale',
     version=VERSION,
     description='Zero Player Game with indirect character controll',
-    long_description = open('README.rst').read(),
+    long_description = 'Zero Player Game with indirect character controll',
     url='https://github.com/Tiendil/the-tale',
     author='Aleksey Yeletsky <Tiendil>',
     author_email='a.eletsky@gmail.com',
@@ -29,15 +29,24 @@ setuptools.setup(
 
         'License :: OSI Approved :: BSD License',
 
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
 
         'Natural Language :: English',
         'Natural Language :: Russian'],
     keywords=['gamedev', 'the-tale', 'game development', 'zpg', 'zero player game'],
     packages=setuptools.find_packages(),
-    install_requires=[],
+    install_requires=['Django==1.9.6',
+                      'Jinja2==2.6',
+                      'psycopg2==2.6.2',
+                      'kombu==3.0.35',
+                      'postmarkup==1.2.2',
+                      'markdown==2.2.0',
+                      'xlrd==0.8.0',
+                      'mock==1.0b1',
+                      'MarkupSafe==0.15',
+                      'boto3==1.4.0',
+                      'unicodecsv==0.14.1'],
 
     include_package_data=True,
-    test_suite = 'tests',
-    )
+    test_suite = 'tests' )

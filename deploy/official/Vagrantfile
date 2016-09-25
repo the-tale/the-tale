@@ -1,0 +1,54 @@
+# -*- mode: ruby -*-
+
+Vagrant.configure("2") do |config|
+    config.vm.box = "ubuntu/xenial64"
+
+    ENV['LC_ALL']="en_US.UTF-8"
+
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.ignore_private_ip = false
+    config.hostmanager.include_offline = true
+
+    # look for details https://github.com/smdahlen/vagrant-hostmanager/issues/86#issuecomment-72571273
+    # there are can be more then one interface, try using eth0, eth1 etc.
+    cached_addresses = {}
+    network_interface = 'enp0s8'# 'eth1'
+
+    config.hostmanager.ip_resolver = proc do |vm, resolving_vm|
+    if cached_addresses[vm.name].nil?
+        if hostname = (vm.ssh_info && vm.ssh_info[:host])
+            vm.communicate.execute("/sbin/ifconfig %s | grep 'inet addr' | tail -n 1 | egrep -o '[0-9\.]+' | head -n 1 2>&1" % network_interface) do |type, contents|
+                    cached_addresses[vm.name] = contents.split("\n").first[/(\d+\.\d+\.\d+\.\d+)/, 1]
+                end
+            end
+        end
+        cached_addresses[vm.name]
+    end
+
+    config.vm.define :the_tale do |mgs_vm|
+        mgs_vm.vm.provider "virtualbox" do |vb|
+            vb.name = "the_tale"
+            vb.customize ["modifyvm", :id, "--memory", "2048"]
+            vb.customize ["modifyvm", :id, "--cpus", "2"]
+            vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+            vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
+            vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
+            vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+            vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        end
+
+        mgs_vm.vm.host_name = "local.the-tale"
+        mgs_vm.vm.network "private_network", type: "dhcp"
+
+        mgs_vm.vm.synced_folder "../../../", "/mnt/repos", owner: 'root', group: 'root', mount_options: ['dmode=777,fmode=777']
+    end
+
+    config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "provisioning/game_server.yml"
+      ansible.verbose = 'vvv'
+      ansible.sudo_user = "root"
+      ansible.sudo = true
+    end
+
+end

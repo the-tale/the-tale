@@ -1,0 +1,100 @@
+---
+- name: bootstrap ansible
+  hosts: all
+  remote_user: root
+  gather_facts: no
+  tasks:
+    - name: setup absolutly needed system packages
+      raw: sudo apt-get install -qq python-all aptitude python-apt
+    - name: upgrade pip to latest version
+      raw: sudo pip install --upgrade pip
+
+- name: configure host
+  hosts: all
+  vars:
+    ansible_python_interpreter: /usr/bin/python2.7
+
+  tasks:
+
+    - name: setup basic packages
+      apt: name={{item}} state=installed
+      with_items:
+        - python-dev
+        - python3-dev
+        - virtualenv
+        - python-pip
+
+- name: configure database
+  hosts: all
+  roles:
+    - role: ANXS.postgresql # https://github.com/ANXS/postgresql/blob/master/defaults/main.yml
+      postgresql_version: 9.5
+      postgresql_encoding: 'UTF-8'
+      postgresql_locale: 'en_GB.UTF-8'
+      postgresql_ctype: 'en_GB.UTF-8'
+      postgresql_ext_install_dev_headers: yes
+      postgresql_databases:
+        - name: the-tale
+          hstore: yes         # flag to install the hstore extension on this database (yes/no)
+          uuid_ossp: yes      # flag to install the uuid-ossp extension on this database (yes/no)
+          citext: no          # flag to install the citext extension on this database (yes/no)
+      postgresql_users:
+        - name: the-tale
+          pass: the-tale
+          encrypted: no
+
+
+- name: configure nginx
+  hosts: all
+  roles:
+    - role: geerlingguy.nginx
+      nginx_remove_default_vhost: true
+      nginx_vhosts:
+        - listen: "80 default_server"
+          server_name: "local.the-tale"
+          root: "/var/www/the-tale"
+
+
+- name: configure redis
+  hosts: all
+  roles:
+    - role: geerlingguy.redis
+
+
+- name: configure rabbitmq
+  hosts: all
+  roles:
+    - role: Stouts.rabbitmq
+      rabbitmq_plugins: []
+      rabbitmq_users:
+        - user: the-tale
+          password: the-tale
+          vhost: /the-tale
+          configure_priv: .*
+          read_priv: .*
+          write_priv: .*
+
+      rabbitmq_vhosts:
+        - /the-tale
+
+      rabbitmq_users_remove:
+        - guest
+
+
+- name: install The Tale
+  hosts: all
+  tasks:
+    - user: name=the-tale
+    - pip:
+        name: "{{item.name}}"
+        virtualenv: /home/the-tale/current/venv
+        virtualenv_command: virtualenv
+        virtualenv_python: python3.5
+      with_items:
+        - {name: "/mnt/repos/dext/"}
+        - {name: "/mnt/repos/deworld/"}
+        - {name: "/mnt/repos/rels/"}
+        - {name: "/mnt/repos/pynames/"}
+        - {name: "/mnt/repos/utg/"}
+        - {name: "/mnt/repos/questgen/"}
+        - {name: "/mnt/repos/the-tale/src/the_tale/"}
