@@ -57,7 +57,7 @@ class TestLogic(testcase.TestCase):
                 task = logic.initiate_transfer_money(sender_id=sender.id,
                                                      recipient_id=recipient.id,
                                                      amount=1000,
-                                                     comment=u'some comment')
+                                                     comment='some comment')
 
         self.assertTrue(task.internal_logic.state.is_UNPROCESSED)
         self.assertTrue(task.internal_logic.step.is_INITIALIZE)
@@ -65,6 +65,6 @@ class TestLogic(testcase.TestCase):
         self.assertEqual(task.internal_logic.recipient_id, recipient.id)
         self.assertEqual(task.internal_logic.transfer_transaction, None)
         self.assertEqual(task.internal_logic.commission_transaction, None)
-        self.assertEqual(task.internal_logic.comment, u'some comment')
+        self.assertEqual(task.internal_logic.comment, 'some comment')
         self.assertEqual(task.internal_logic.amount, int(1000 * (1 - conf.accounts_settings.MONEY_SEND_COMMISSION)))
         self.assertEqual(task.internal_logic.commission, 1000 * conf.accounts_settings.MONEY_SEND_COMMISSION)

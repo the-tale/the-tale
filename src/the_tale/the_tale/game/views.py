@@ -52,7 +52,7 @@ def game_page(context):
     if context.account.clan_id is not None:
         clan = ClanPrototype.get_by_id(context.account.clan_id)
 
-    cards = sorted(EFFECTS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
+    cards = sorted(list(EFFECTS.values()), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
 
     return dext_views.Page('game/game_page.html',
                            content={'map_settings': map_settings,
@@ -66,11 +66,11 @@ def game_page(context):
                                     'ABILITY_TYPE': ABILITY_TYPE})
 
 @api.Processor(versions=(game_settings.INFO_API_VERSION, '1.4', '1.3', '1.2', '1.1', '1.0'))
-@dext_views.IntsArgumentProcessor(error_message=u'Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
-@accounts_views.AccountProcessor(error_message=u'Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
+@dext_views.IntsArgumentProcessor(error_message='Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
+@accounts_views.AccountProcessor(error_message='Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
 @resource('api', 'info', name='api-info')
 def api_info(context):
-    u'''
+    '''
 Информация о текущем ходе и герое
 
 - **адрес:** /game/api/info

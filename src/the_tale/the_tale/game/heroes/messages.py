@@ -15,7 +15,7 @@ from the_tale.linguistics.lexicon import keys as linguistics_keys
 class MessageSurrogate(object):
     __slots__ = ('turn_number', 'timestamp', 'key', 'externals', '_ui_info', '_message', 'restrictions', 'position', '_variables')
 
-    def __init__(self, turn_number, timestamp, key, externals, message, restrictions=frozenset(), position=u'', variables=None):
+    def __init__(self, turn_number, timestamp, key, externals, message, restrictions=frozenset(), position='', variables=None):
         self.turn_number = turn_number
         self.timestamp = timestamp
         self.key = key
@@ -29,7 +29,7 @@ class MessageSurrogate(object):
 
 
     @classmethod
-    def create(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=u''):
+    def create(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=''):
         return cls(turn_number=TimePrototype.get_current_turn_number()+turn_delta,
                    timestamp=time.time()+turn_delta*c.TURN_DELTA,
                    key=key,
@@ -39,7 +39,7 @@ class MessageSurrogate(object):
                    position=position)
 
     @classmethod
-    def create_fake(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=u''):
+    def create_fake(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=''):
         from the_tale.linguistics.logic import fake_text
         return cls(turn_number=TimePrototype.get_current_turn_number()+turn_delta,
                    timestamp=time.time()+turn_delta*c.TURN_DELTA,
@@ -75,7 +75,7 @@ class MessageSurrogate(object):
 
     def get_variables(self):
         if not self._variables and self.externals:
-            self._variables = {name: unicode(external.form) for name, external in self.externals.iteritems()}
+            self._variables = {name: str(external.form) for name, external in self.externals.items()}
         return self._variables
 
     def ui_info(self, with_info=False):

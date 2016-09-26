@@ -35,7 +35,7 @@ class PositionDescriptionsStorage(object):
         self.sync()
 
         if place_id not in self._position_near_place_cache:
-            self._position_near_place_cache[place_id] = u'окрестности %s' % places_storage.places[place_id].utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
+            self._position_near_place_cache[place_id] = 'окрестности %s' % places_storage.places[place_id].utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
 
         return self._position_near_place_cache[place_id]
 
@@ -44,13 +44,13 @@ class PositionDescriptionsStorage(object):
 
         key = (place_from_id, place_to_id)
         if key not in self._position_on_road_cache:
-            self._position_on_road_cache[key] = u'дорога из %s в %s' % (places_storage.places[place_from_id].utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)),
+            self._position_on_road_cache[key] = 'дорога из %s в %s' % (places_storage.places[place_from_id].utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)),
                                                                         places_storage.places[place_to_id].utg_name.form(utg_words.Properties(utg_relations.CASE.ACCUSATIVE)))
 
         return self._position_on_road_cache[key]
 
     def text_in_wild_lands(self):
-        return u'дикие земли'
+        return 'дикие земли'
 
 
 position_descriptions = PositionDescriptionsStorage()

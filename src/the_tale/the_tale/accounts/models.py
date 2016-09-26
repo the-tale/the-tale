@@ -58,7 +58,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     MAX_EMAIL_LENGTH = 254
     MAX_ACTION_LENGTH = 128
 
-    nick = models.CharField(null=False, default=u'', max_length=MAX_NICK_LENGTH, unique=True, db_index=True)
+    nick = models.CharField(null=False, default='', max_length=MAX_NICK_LENGTH, unique=True, db_index=True)
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
@@ -87,7 +87,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     personal_messages_subscription = models.BooleanField(blank=True, default=True)
     news_subscription = models.BooleanField(blank=True, default=True)
 
-    description = models.TextField(blank=True, default=u'')
+    description = models.TextField(blank=True, default='')
 
     ban_game_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
     ban_forum_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
@@ -110,7 +110,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         ordering = ['nick']
-        permissions = (("moderate_account", u"Может редактировать аккаунты и т.п."), )
+        permissions = (("moderate_account", "Может редактировать аккаунты и т.п."), )
 
     def __unicode__(self): return self.nick
 

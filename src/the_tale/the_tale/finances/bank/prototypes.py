@@ -185,7 +185,7 @@ class InvoicePrototype(BasePrototype):
     def freeze(self):
 
         if not self.state.is_REQUESTED:
-            raise BankError(u'try to freeze not requested invoice "%d"' % self.id)
+            raise BankError('try to freeze not requested invoice "%d"' % self.id)
 
         recipient = AccountPrototype.get_for_or_create(entity_type=self.recipient_type, entity_id=self.recipient_id, currency=self.currency)
 
@@ -207,7 +207,7 @@ class InvoicePrototype(BasePrototype):
     @transaction.atomic
     def confirm(self):
         if not (self.state.is_FROZEN or self.state.is_FORCED):
-            raise BankError(u'try to confirm not frozen or forced invoice "%d"' % self.id)
+            raise BankError('try to confirm not frozen or forced invoice "%d"' % self.id)
 
         recipient = AccountPrototype.get_for_or_create(entity_type=self.recipient_type, entity_id=self.recipient_id, currency=self.currency)
         recipient.amount += self.amount
@@ -226,7 +226,7 @@ class InvoicePrototype(BasePrototype):
 
     def cancel(self):
         if not self.state.is_FROZEN and not self.state.is_REQUESTED:
-            raise BankError(u'try to cancel not frozen invoice "%d"' % self.id)
+            raise BankError('try to cancel not frozen invoice "%d"' % self.id)
 
         self.state = INVOICE_STATE.CANCELED
         self.save()

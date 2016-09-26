@@ -9,28 +9,28 @@ from the_tale.game.cards import relations as cards_relations
 
 
 class STATE(DjangoEnum):
-    records = ( (u'ENABLED', 0, u'в игре'),
-                (u'DISABLED', 1, u'вне игры'),)
+    records = ( ('ENABLED', 0, 'в игре'),
+                ('DISABLED', 1, 'вне игры'),)
 
 class MODE(DjangoEnum):
-    records = ( (u'AUTOMATIC', 0, u'автоматический'),
-                (u'MANUAL', 1, u'ручной'),)
+    records = ( ('AUTOMATIC', 0, 'автоматический'),
+                ('MANUAL', 1, 'ручной'),)
 
 class DEDICATION(DjangoEnum):
     block_multiplier = Column()
 
-    records = ( (u'INDECISIVE', 0, u'нерешительный', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA),
-                (u'BOLD', 1, u'смелый', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA / 2),
-                (u'BRAVE', 2, u'храбрый', 1.0),
-                (u'VALIANT', 3, u'доблестный', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA / 2),
-                (u'HEROIC', 4, u'героический', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA) )
+    records = ( ('INDECISIVE', 0, 'нерешительный', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA),
+                ('BOLD', 1, 'смелый', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA / 2),
+                ('BRAVE', 2, 'храбрый', 1.0),
+                ('VALIANT', 3, 'доблестный', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA / 2),
+                ('HEROIC', 4, 'героический', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA) )
 
 
 class RARITY(DjangoEnum):
     card_rarity = Column()
 
-    records = ( (u'COMMON', 0, u'обычный спутник', cards_relations.RARITY.COMMON),
-                (u'UNCOMMON', 1, u'необычный спутник', cards_relations.RARITY.UNCOMMON),
-                (u'RARE', 2, u'редкий спутник', cards_relations.RARITY.RARE),
-                (u'EPIC', 3, u'эпический спутник', cards_relations.RARITY.EPIC),
-                (u'LEGENDARY', 4, u'легендарный спутник', cards_relations.RARITY.LEGENDARY) )
+    records = ( ('COMMON', 0, 'обычный спутник', cards_relations.RARITY.COMMON),
+                ('UNCOMMON', 1, 'необычный спутник', cards_relations.RARITY.UNCOMMON),
+                ('RARE', 2, 'редкий спутник', cards_relations.RARITY.RARE),
+                ('EPIC', 3, 'эпический спутник', cards_relations.RARITY.EPIC),
+                ('LEGENDARY', 4, 'легендарный спутник', cards_relations.RARITY.LEGENDARY) )

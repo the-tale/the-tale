@@ -474,7 +474,7 @@ class LogicAccessorsMixin(object):
 
     def prefered_quest_markers(self):
         markers = self.attribute_modifier(relations.MODIFIERS.QUEST_MARKERS)
-        return set(marker for marker, probability in markers.iteritems() if random.uniform(0, 1) < probability)
+        return set(marker for marker, probability in markers.items() if random.uniform(0, 1) < probability)
 
     def quest_money_reward_multiplier(self):
         return 1 + self.attribute_modifier(relations.MODIFIERS.QUEST_MONEY_REWARD) + self.preferences.risk_level.reward_modifier

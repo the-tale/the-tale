@@ -148,7 +148,7 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
         task = self.create_task(option_uid=self.option_1_1_uid)
 
         knowledge_base = self.hero.quests.current_quest.knowledge_base
-        finish_state = knowledge_base.filter(facts.Finish).next()
+        finish_state = next(knowledge_base.filter(facts.Finish))
         self.hero.quests.current_quest.machine.pointer.change_in_knowlege_base(knowledge_base, state=finish_state.uid, jump=None)
 
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)

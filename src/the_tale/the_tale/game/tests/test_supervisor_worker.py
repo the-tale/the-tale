@@ -80,7 +80,7 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.assertEqual(len(self.worker.tasks), 1)
         self.assertEqual(len(self.worker.accounts_for_tasks), 2)
-        self.assertFalse(self.worker.tasks.values()[0].all_members_captured)
+        self.assertFalse(list(self.worker.tasks.values())[0].all_members_captured)
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None})
         self.assertEqual(self.worker.accounts_queues, {})
 
@@ -153,7 +153,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(cmd_logic_task.call_count, 3)
         self.assertEqual(register_account_counter.call_count, 1)
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set([self.account_1.id, self.account_2.id]))
-        self.assertEqual(self.worker.tasks.values()[0].captured_members, set())
+        self.assertEqual(list(self.worker.tasks.values())[0].captured_members, set())
 
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: None, self.account_2.id: None, account_3.id: 'game_logic_1'})
 
@@ -167,7 +167,7 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.assertEqual(register_account_counter.call_count, 0)
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set([self.account_1.id, self.account_2.id]))
-        self.assertEqual(self.worker.tasks.values()[0].captured_members, set([self.account_1.id]))
+        self.assertEqual(list(self.worker.tasks.values())[0].captured_members, set([self.account_1.id]))
 
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_supervisor', self.account_2.id: None})
 
@@ -187,7 +187,7 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.assertEqual(register_account_counter.call_count, 2)
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set())
-        self.assertEqual(self.worker.tasks.values(), [])
+        self.assertEqual(list(self.worker.tasks.values()), [])
         self.assertEqual(SupervisorTask.objects.all().count(), 0)
 
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'game_logic_1', self.account_2.id: 'game_logic_1'})

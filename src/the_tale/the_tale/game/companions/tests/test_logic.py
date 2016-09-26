@@ -26,7 +26,7 @@ class LogicTests(testcase.TestCase):
 
     def test_create_companion_record(self):
         name = names.generator.get_test_name()
-        description = u'test description'
+        description = 'test description'
 
         type = game_relations.BEING_TYPE.random()
         dedication = relations.DEDICATION.random()

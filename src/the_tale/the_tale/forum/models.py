@@ -43,7 +43,7 @@ class SubCategory(models.Model):
     closed = models.BooleanField(default=False) # if True, only staff can create themes in this subcategory
     restricted = models.BooleanField(default=False, db_index=True) # if True, permissions required to work with this subcategory
 
-    description = models.TextField(default=u'', null=False)
+    description = models.TextField(default='', null=False)
 
     def __unicode__(self): return self.caption
 
@@ -69,12 +69,12 @@ class Thread(models.Model):
     important = models.BooleanField(default=False, db_index=True)
 
     class Meta:
-        permissions = (("moderate_thread", u"Может редактировать темы на форуме"), )
+        permissions = (("moderate_thread", "Может редактировать темы на форуме"), )
 
     def get_absolute_url(self):
         return reverse('forum:threads:show', args=[self.id])
 
-    def __unicode__(self): return u'%d - %s' % (self.id, self.caption)
+    def __unicode__(self): return '%d - %s' % (self.id, self.caption)
 
 
 class Subscription(models.Model):
@@ -112,9 +112,9 @@ class Post(models.Model):
     technical = models.BooleanField(default=False)
 
     class Meta:
-        permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )
+        permissions = (("moderate_post", "Может редактировать сообщения пользователей"), )
 
-    def __unicode__(self): return u'thread %d, post %d' % (self.thread_id, self.id)
+    def __unicode__(self): return 'thread %d, post %d' % (self.thread_id, self.id)
 
 
 

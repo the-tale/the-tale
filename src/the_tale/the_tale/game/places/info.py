@@ -59,12 +59,12 @@ def place_info_bills(place):
         properties = []
 
         if place_2 is None:
-            properties.append(u'%s за %s' % (resource_1.text, resource_2.text))
+            properties.append('%s за %s' % (resource_1.text, resource_2.text))
         else:
             if not resource_1.is_NONE:
-                properties.append(u'%s получает %s' % (place_2.name, resource_1.text))
+                properties.append('%s получает %s' % (place_2.name, resource_1.text))
             if not resource_2.is_NONE:
-                properties.append(u'%s отправляет %s' % (place_2.name, resource_2.text))
+                properties.append('%s отправляет %s' % (place_2.name, resource_2.text))
 
         data.append({'id': exchange.bill.id,
                      'caption': exchange.bill.caption,

@@ -23,7 +23,7 @@ class PurchaseGroup(object):
     def items_table(self, columns):
         table = []
 
-        for i in xrange(0, len(self.items), columns):
+        for i in range(0, len(self.items), columns):
             table.append(self.items[i:i+columns])
 
         while len(table[-1]) != columns:

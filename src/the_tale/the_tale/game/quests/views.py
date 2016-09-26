@@ -21,7 +21,7 @@ class QuestsResource(Resource):
     @api.handler(versions=('1.0',))
     @handler('api', 'choose', name='api-choose', method='post')
     def api_choose(self, option_uid, api_version):
-        u'''
+        '''
 Изменение пути выполнения задания героем
 
 - **адрес:** /game/quests/api/choose/

@@ -28,36 +28,36 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        print
-        print 'UPDATE MAP'
-        print
+        print()
+        print('UPDATE MAP')
+        print()
 
         run_django_command(['map_update_map'])
 
-        print
-        print 'UPDATE LINGUISTICS'
+        print()
+        print('UPDATE LINGUISTICS')
 
         linguistics_logic.sync_static_restrictions()
         linguistics_logic.update_templates_errors()
         linguistics_logic.update_words_usage_info()
 
-        print
-        print 'SYNC MARKET'
+        print()
+        print('SYNC MARKET')
         run_django_command(['market_sync_goods'])
 
-        print
-        print 'SYNC ACTUAL BILLS'
+        print()
+        print('SYNC ACTUAL BILLS')
 
         bills_logic.update_actual_bills_for_all_accounts()
 
-        print
-        print 'REFRESH ATTRIBUTES'
+        print()
+        print('REFRESH ATTRIBUTES')
 
         places_logic.refresh_all_places_attributes()
         persons_logic.refresh_all_persons_attributes()
 
-        print
-        print 'REMOVE OLD CDN INFO'
+        print()
+        print('REMOVE OLD CDN INFO')
 
         if portal_settings.SETTINGS_CDN_INFO_KEY in settings:
             del settings[portal_settings.SETTINGS_CDN_INFO_KEY]
@@ -65,9 +65,9 @@ class Command(BaseCommand):
         if portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY in settings:
             del settings[portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY]
 
-        print
-        print 'SYNC GROUPS AND PERMISSIONS'
-        print
+        print()
+        print('SYNC GROUPS AND PERMISSIONS')
+        print()
 
         sync_group('content group', ['cms.add_page', 'cms.change_page', 'cms.delete_page',
                                     'news.add_news', 'news.change_news', 'news.delete_news'])

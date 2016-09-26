@@ -40,7 +40,7 @@ class BuyRandomPremiumChestTask__NormalArtifact_Tests(base_buy_task._BaseBuyHero
 
     def _check_used(self):
         self.assertEqual(self.hero.bag.occupation, 1)
-        self.assertTrue(self.hero.bag.values()[0].rarity.is_NORMAL)
+        self.assertTrue(list(self.hero.bag.values())[0].rarity.is_NORMAL)
         self.assertEqual(RandomPremiumRequestPrototype._db_count(), 1)
 
 
@@ -74,7 +74,7 @@ class BuyRandomPremiumChestTask__RareArtifact_Tests(base_buy_task._BaseBuyHeroMe
 
     def _check_used(self):
         self.assertEqual(self.hero.bag.occupation, 1)
-        self.assertTrue(self.hero.bag.values()[0].rarity.is_RARE)
+        self.assertTrue(list(self.hero.bag.values())[0].rarity.is_RARE)
         self.assertEqual(RandomPremiumRequestPrototype._db_count(), 1)
 
 
@@ -108,7 +108,7 @@ class BuyRandomPremiumChestTask__EpicArtifact_Tests(base_buy_task._BaseBuyHeroMe
 
     def _check_used(self):
         self.assertEqual(self.hero.bag.occupation, 1)
-        self.assertTrue(self.hero.bag.values()[0].rarity.is_EPIC)
+        self.assertTrue(list(self.hero.bag.values())[0].rarity.is_EPIC)
         self.assertEqual(RandomPremiumRequestPrototype._db_count(), 1)
 
 

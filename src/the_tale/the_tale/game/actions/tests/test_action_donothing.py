@@ -49,7 +49,7 @@ class DoNothingActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        for i in xrange(7):
+        for i in range(7):
             self.assertEqual(len(self.hero.actions.actions_list), 2)
             self.assertTrue(self.action_donothing.leader)
             self.storage.process_turn(continue_steps_if_needed=False)

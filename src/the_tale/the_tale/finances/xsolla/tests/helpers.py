@@ -16,7 +16,7 @@ class TestInvoiceFabric(object):
         self.v2 = 'bla-bla'
         self.v3 = 'alb-alb'
         self.date = None
-        self.request_url = u'bla-bla.test.com'
+        self.request_url = 'bla-bla.test.com'
 
 
     def create_invoice(self, **kwargs):

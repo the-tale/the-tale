@@ -336,7 +336,7 @@ class PostPrototypeTests(testcase.TestCase):
         self.assertTrue(delay_1 - delay_2 > 1)
 
     def test_get_new_post_delay__a_lot_of_posts(self):
-        for i in xrange(100):
+        for i in range(100):
             PostPrototype.create(thread=self.thread, author=self.account, text='post-1-text')
 
         self.assertTrue(PostPrototype.get_new_post_delay(self.account) < forum_settings.POST_DELAY)

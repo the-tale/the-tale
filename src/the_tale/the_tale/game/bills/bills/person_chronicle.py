@@ -11,8 +11,8 @@ from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
 class BaseForm(BaseUserForm):
-    person = fields.ChoiceField(label=u'Мастер')
-    power_bonus = fields.RelationField(label=u'Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
+    person = fields.ChoiceField(label='Мастер')
+    power_bonus = fields.RelationField(label='Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -33,8 +33,8 @@ class PersonChronicle(BasePersonBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Запись в летописи о Мастере'
-    DESCRIPTION = u'В жизни происходит множество интересных событий. Часть из них оказывается достойна занесения в летопись и может немного повлиять на влиятельность участвующего в них Мастера.'
+    CAPTION = 'Запись в летописи о Мастере'
+    DESCRIPTION = 'В жизни происходит множество интересных событий. Часть из них оказывается достойна занесения в летопись и может немного повлиять на влиятельность участвующего в них Мастера.'
 
     def __init__(self, power_bonus=None, **kwargs):
         super(PersonChronicle, self).__init__(**kwargs)

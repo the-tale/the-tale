@@ -29,7 +29,7 @@ class RegistrationsCompletedInMonth(RegistrationsCompleted):
     FULL_CLEAR_RECUIRED = True
 
     def get_value(self, date):
-        return sum(self.registrations_count.get(date - datetime.timedelta(days=i), 0) for i in xrange(30) )
+        return sum(self.registrations_count.get(date - datetime.timedelta(days=i), 0) for i in range(30) )
 
 
 class AccountsTotal(BaseMetric):
@@ -79,7 +79,7 @@ class RegistrationsTriesInMonth(RegistrationsTries):
     FULL_CLEAR_RECUIRED = True
 
     def get_value(self, date):
-        return sum(self.registrations_count.get(date - datetime.timedelta(days=i), 0) for i in xrange(30) )
+        return sum(self.registrations_count.get(date - datetime.timedelta(days=i), 0) for i in range(30) )
 
 
 class RegistrationsCompletedPercents(BasePercentsCombination):
@@ -114,7 +114,7 @@ class ReferralsInMonth(Referrals):
     FULL_CLEAR_RECUIRED = True
 
     def get_value(self, date):
-        return sum(self.referrals_count.get(date - datetime.timedelta(days=i), 0) for i in xrange(30) )
+        return sum(self.referrals_count.get(date - datetime.timedelta(days=i), 0) for i in range(30) )
 
 
 class ReferralsTotal(BaseMetric):

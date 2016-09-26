@@ -5,13 +5,13 @@ def convert_textgen_noun_json_to_utg(textgen_data, aninality):
 
     properties = {1: 0 if aninality else 1}
 
-    if u'мр' in textgen_data['properties']:
+    if 'мр' in textgen_data['properties']:
         properties[3] = 0
-    if u'ср' in textgen_data['properties']:
+    if 'ср' in textgen_data['properties']:
         properties[3] = 1
-    if u'жр' in textgen_data['properties']:
+    if 'жр' in textgen_data['properties']:
         properties[3] = 2
-    if u'мн' in textgen_data['properties']:
+    if 'мн' in textgen_data['properties']:
         properties[2] = 1
 
 

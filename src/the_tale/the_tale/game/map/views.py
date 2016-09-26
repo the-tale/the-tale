@@ -46,15 +46,15 @@ def index(context):
                                     'resource': context.resource})
 
 
-@dext_views.IntArgumentProcessor(error_message=u'Неверная X координата', get_name='x', context_name='x')
-@dext_views.IntArgumentProcessor(error_message=u'Неверная Y координата', get_name='y', context_name='y')
+@dext_views.IntArgumentProcessor(error_message='Неверная X координата', get_name='x', context_name='x')
+@dext_views.IntArgumentProcessor(error_message='Неверная Y координата', get_name='y', context_name='y')
 @resource('cell-info')
 def cell_info(context):
 
     x, y = context.x, context.y
 
     if x < 0 or y < 0 or x >= map_settings.WIDTH or y >= map_settings.HEIGHT:
-        raise dext_views.ViewError(code='outside_map', message=u'Запрашиваемая зона не принадлежит карте')
+        raise dext_views.ViewError(code='outside_map', message='Запрашиваемая зона не принадлежит карте')
 
     map_info = map_info_storage.item
 

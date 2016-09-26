@@ -28,7 +28,7 @@ class Effect(object):
     def ui_info(self):
         return {'name': self.name,
                 'attribute': self.attribute.value,
-                'value': self.value if isinstance(self.value, (numbers.Number, basestring)) else None}
+                'value': self.value if isinstance(self.value, (numbers.Number, str)) else None}
 
     def apply_to(self, attrs):
         name = self.attribute.name.lower()

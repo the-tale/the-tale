@@ -175,7 +175,7 @@ class GetNewCardTest(testcase.TestCase):
         companions_models.CompanionRecord.objects.all().delete()
         companions_storage.companions.refresh()
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,
@@ -188,7 +188,7 @@ class GetNewCardTest(testcase.TestCase):
 
         with mock.patch('the_tale.game.cards.effects.BaseEffect.available', effect_availability):
             with mock.patch('the_tale.game.cards.effects.GetCompanionBase.available', effect_availability):
-                for i in xrange(10000):
+                for i in range(10000):
                     effects.add(self.hero.cards.get_new_card().effect.TYPE)
 
         for effect_type in relations.CARD_TYPE.records:
@@ -204,14 +204,14 @@ class GetNewCardTest(testcase.TestCase):
         companions_models.CompanionRecord.objects.all().delete()
         companions_storage.companions.refresh()
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,
                                                             state=companions_relations.STATE.ENABLED)
 
 
-        for i in xrange(len(relations.CARD_TYPE.records)*10):
+        for i in range(len(relations.CARD_TYPE.records)*10):
             card = self.hero.cards.get_new_card()
             rarities.add(card.type.rarity)
 
@@ -221,7 +221,7 @@ class GetNewCardTest(testcase.TestCase):
     @mock.patch('the_tale.game.cards.container.CardsContainer.is_next_card_premium', lambda self: False)
     def test_not_premium(self):
 
-        for i in xrange(len(relations.CARD_TYPE.records)*10):
+        for i in range(len(relations.CARD_TYPE.records)*10):
             self.hero.cards.get_new_card()
 
         for card in self.hero.cards.all_cards():
@@ -266,7 +266,7 @@ class GetNewCardTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.cards.container.CardsContainer.is_next_card_premium', lambda self: True)
     def test_priority(self):
-        for i in xrange(len(relations.CARD_TYPE.records)*100):
+        for i in range(len(relations.CARD_TYPE.records)*100):
             self.hero.cards.get_new_card()
 
         rarities = collections.Counter(card.type.rarity for card in self.hero.cards.all_cards())
@@ -280,7 +280,7 @@ class GetNewCardTest(testcase.TestCase):
     @mock.patch('the_tale.game.cards.container.CardsContainer.is_next_card_premium', lambda self: True)
     def test_rarity(self):
         for rarity in relations.RARITY.records:
-            for i in xrange(100):
+            for i in range(100):
                 card = self.hero.cards.get_new_card(rarity=rarity)
                 self.assertEqual(card.type.rarity, rarity)
 
@@ -292,13 +292,13 @@ class GetNewCardTest(testcase.TestCase):
         companions_models.CompanionRecord.objects.all().delete()
         companions_storage.companions.refresh()
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,
                                                             state=companions_relations.STATE.ENABLED)
 
-        for i in xrange(len([card_type for card_type in relations.CARD_TYPE.records if card_type.in_game])):
+        for i in range(len([card_type for card_type in relations.CARD_TYPE.records if card_type.in_game])):
             card = self.hero.cards.get_new_card(exclude=cards)
             cards.append(card)
             self.assertTrue(card.type.in_game)
@@ -315,14 +315,14 @@ class GetNewCardTest(testcase.TestCase):
         companions_models.CompanionRecord.objects.all().delete()
         companions_storage.companions.refresh()
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,
                                                             state=companions_relations.STATE.ENABLED)
 
 
-        for i in xrange(len([card_type for card_type in relations.CARD_TYPE.records if card_type.in_game])):
+        for i in range(len([card_type for card_type in relations.CARD_TYPE.records if card_type.in_game])):
             card = self.hero.cards.get_new_card(exclude=cards)
             cards.append(card)
             self.assertTrue(card.type.in_game)

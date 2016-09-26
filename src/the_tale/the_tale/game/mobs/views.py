@@ -23,15 +23,15 @@ from . import meta_relations
 
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
-                      list_filter.choice_element(u'тип:', attribute='type', choices=[(None, u'все')] + sorted(list(game_relations.BEING_TYPE.select('value', 'text')), key=lambda x: x[1])),
-                      list_filter.choice_element(u'архетип:', attribute='archetype', choices=[(None, u'все')] + sorted(list(game_relations.ARCHETYPE.select('value', 'text')), key=lambda x: x[1])),
-                      list_filter.choice_element(u'территория:', attribute='terrain', choices=[(None, u'все')] + sorted(list(TERRAIN.select('value', 'text')), key=lambda x: x[1])),
-                      list_filter.choice_element(u'сортировка:',
+                      list_filter.choice_element('тип:', attribute='type', choices=[(None, 'все')] + sorted(list(game_relations.BEING_TYPE.select('value', 'text')), key=lambda x: x[1])),
+                      list_filter.choice_element('архетип:', attribute='archetype', choices=[(None, 'все')] + sorted(list(game_relations.ARCHETYPE.select('value', 'text')), key=lambda x: x[1])),
+                      list_filter.choice_element('территория:', attribute='terrain', choices=[(None, 'все')] + sorted(list(TERRAIN.select('value', 'text')), key=lambda x: x[1])),
+                      list_filter.choice_element('сортировка:',
                                                  attribute='order_by',
                                                  choices=INDEX_ORDER_TYPE.select('value', 'text'),
                                                  default_value=INDEX_ORDER_TYPE.BY_NAME.value) ]
 
-MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'состояние:',
+MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element('состояние:',
                                                                            attribute='state',
                                                                            default_value=MOB_RECORD_STATE.ENABLED.value,
                                                                            choices=MOB_RECORD_STATE.select('value', 'text'))]
@@ -49,7 +49,7 @@ def argument_to_mob(value): return mobs_storage.get(int(value), None)
 
 class MobResourceBase(Resource):
 
-    @validate_argument('mob', argument_to_mob, 'mobs', u'Запись о монстре не найдена')
+    @validate_argument('mob', argument_to_mob, 'mobs', 'Запись о монстре не найдена')
     def initialize(self, mob=None, *args, **kwargs):
         super(MobResourceBase, self).initialize(*args, **kwargs)
         self.mob = mob
@@ -67,32 +67,32 @@ def argument_to_archetype(value): return game_relations.ARCHETYPE(int(value))
 
 class GuideMobResource(MobResourceBase):
 
-    @validator(code='mobs.mob_disabled', message=u'монстр находится вне игры', status_code=404)
+    @validator(code='mobs.mob_disabled', message='монстр находится вне игры', status_code=404)
     def validate_mob_disabled(self, *args, **kwargs):
         return not self.mob.state.is_DISABLED or self.can_create_mob or self.can_moderate_mob
 
-    @validate_argument('state', argument_to_mob_state, 'mobs', u'неверное состояние записи о монстре')
-    @validate_argument('terrain', lambda value: TERRAIN(int(value)), 'mobs', u'неверный тип территории')
-    @validate_argument('order_by', INDEX_ORDER_TYPE, 'mobs', u'неверный тип сортировки')
-    @validate_argument('archetype', argument_to_archetype, 'mobs', u'неверный архетип монстра')
-    @validate_argument('type', argument_to_mob_type, 'mobs', u'неверный тип монстра')
+    @validate_argument('state', argument_to_mob_state, 'mobs', 'неверное состояние записи о монстре')
+    @validate_argument('terrain', lambda value: TERRAIN(int(value)), 'mobs', 'неверный тип территории')
+    @validate_argument('order_by', INDEX_ORDER_TYPE, 'mobs', 'неверный тип сортировки')
+    @validate_argument('archetype', argument_to_archetype, 'mobs', 'неверный архетип монстра')
+    @validate_argument('type', argument_to_mob_type, 'mobs', 'неверный тип монстра')
     @handler('', method='get')
     def index(self, state=MOB_RECORD_STATE.ENABLED, terrain=None, order_by=INDEX_ORDER_TYPE.BY_NAME, type=None, archetype=None):
 
         mobs = mobs_storage.all()
 
         if not self.can_create_mob and not self.can_moderate_mob:
-            mobs = filter(lambda mob: mob.state.is_ENABLED, mobs) # pylint: disable=W0110
+            mobs = [mob for mob in mobs if mob.state.is_ENABLED] # pylint: disable=W0110
 
         is_filtering = False
 
         if not state.is_ENABLED: # if not default
             is_filtering = True
-        mobs = filter(lambda mob: mob.state == state, mobs) # pylint: disable=W0110
+        mobs = [mob for mob in mobs if mob.state == state] # pylint: disable=W0110
 
         if terrain is not None:
             is_filtering = True
-            mobs = filter(lambda mob: terrain in mob.terrains, mobs) # pylint: disable=W0110
+            mobs = [mob for mob in mobs if terrain in mob.terrains] # pylint: disable=W0110
 
         if order_by.is_BY_NAME:
             mobs = sorted(mobs, key=lambda mob: mob.name)
@@ -100,10 +100,10 @@ class GuideMobResource(MobResourceBase):
             mobs = sorted(mobs, key=lambda mob: mob.level)
 
         if type is not None:
-            mobs = filter(lambda mob: mob.type == type, mobs) # pylint: disable=W0110
+            mobs = [mob for mob in mobs if mob.type == type] # pylint: disable=W0110
 
         if archetype is not None:
-            mobs = filter(lambda mob: mob.archetype == archetype, mobs) # pylint: disable=W0110
+            mobs = [mob for mob in mobs if mob.archetype == archetype] # pylint: disable=W0110
 
         url_builder = UrlBuilder(reverse('guide:mobs:'), arguments={ 'state': state.value if state is not None else None,
                                                                      'terrain': terrain.value if terrain is not None else None,
@@ -149,13 +149,13 @@ class GuideMobResource(MobResourceBase):
 
 class GameMobResource(MobResourceBase):
 
-    @validator(code='mobs.create_mob_rights_required', message=u'Вы не можете создавать мобов')
+    @validator(code='mobs.create_mob_rights_required', message='Вы не можете создавать мобов')
     def validate_create_rights(self, *args, **kwargs): return self.can_create_mob
 
-    @validator(code='mobs.moderate_mob_rights_required', message=u'Вы не можете принимать мобов в игру')
+    @validator(code='mobs.moderate_mob_rights_required', message='Вы не можете принимать мобов в игру')
     def validate_moderate_rights(self, *args, **kwargs): return self.can_moderate_mob
 
-    @validator(code='mobs.disabled_state_required', message=u'Для проведения этой операции монстр должен быть убран из игры')
+    @validator(code='mobs.disabled_state_required', message='Для проведения этой операции монстр должен быть убран из игры')
     def validate_disabled_state(self, *args, **kwargs): return self.mob.state.is_DISABLED
 
     @login_required
@@ -176,7 +176,7 @@ class GameMobResource(MobResourceBase):
             return self.json_error('mobs.create.form_errors', form.errors)
 
         if [mob for mob in mobs_storage.all() if mob.name == form.c.name.normal_form()]:
-            return self.json_error('mobs.create.duplicate_name', u'Монстр с таким названием уже создан')
+            return self.json_error('mobs.create.duplicate_name', 'Монстр с таким названием уже создан')
 
         mob = MobRecordPrototype.create(uuid=uuid.uuid4().hex,
                                         level=form.c.level,
@@ -220,7 +220,7 @@ class GameMobResource(MobResourceBase):
             return self.json_error('mobs.update.form_errors', form.errors)
 
         if [mob for mob in mobs_storage.all() if mob.name == form.c.name.normal_form() and mob.id != self.mob.id]:
-            return self.json_error('mobs.update.duplicate_name', u'Монстр с таким названием уже создан')
+            return self.json_error('mobs.update.duplicate_name', 'Монстр с таким названием уже создан')
 
         self.mob.update_by_creator(form, editor=self.account)
 

@@ -25,11 +25,11 @@ class Races(object):
 
 
     def serialize(self):
-        return {race.value: percents for race, percents in self._races.iteritems()}
+        return {race.value: percents for race, percents in self._races.items()}
 
     @classmethod
     def deserialize(cls, data):
-        return cls(races={ RACE(int(race_id)): percents for race_id, percents in data.iteritems() })
+        return cls(races={ RACE(int(race_id)): percents for race_id, percents in data.items() })
 
     def get_race_percents(self, race):
         return self._races.get(race, 0)
@@ -47,14 +47,14 @@ class Races(object):
         if not trends or normalizer < E:
             return copy.copy(self._races)
 
-        trends = {race: float(power) / normalizer for race, power in trends.iteritems()}
+        trends = {race: float(power) / normalizer for race, power in trends.items()}
 
-        new_races = {race: max(0.0, percents + c.PLACE_RACE_CHANGE_DELTA * trends[race]) for race, percents in self._races.iteritems()}
+        new_races = {race: max(0.0, percents + c.PLACE_RACE_CHANGE_DELTA * trends[race]) for race, percents in self._races.items()}
 
         # normalize
-        normalizer = sum(new_races.itervalues())
+        normalizer = sum(new_races.values())
 
-        new_races = {race: percents/normalizer for race, percents in new_races.iteritems()}
+        new_races = {race: percents/normalizer for race, percents in new_races.items()}
 
         return new_races
 

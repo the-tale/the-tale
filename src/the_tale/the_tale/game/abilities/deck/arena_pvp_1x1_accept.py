@@ -14,11 +14,11 @@ from the_tale.game.postponed_tasks import ComplexChangeTask
 
 
 class ACCEPT_BATTLE_RESULT(DjangoEnum):
-    records = ( ('BATTLE_NOT_FOUND', 1, u'битва не найдена'),
-                 ('WRONG_ACCEPTED_BATTLE_STATE', 2, u'герой не успел принять вызов'),
-                 ('WRONG_INITIATOR_BATTLE_STATE', 3, u'герой уже находится в сражении'),
-                 ('NOT_IN_QUEUE', 4, u'битва не находится в очереди балансировщика'),
-                 ('PROCESSED', 5, u'обработана') )
+    records = ( ('BATTLE_NOT_FOUND', 1, 'битва не найдена'),
+                 ('WRONG_ACCEPTED_BATTLE_STATE', 2, 'герой не успел принять вызов'),
+                 ('WRONG_INITIATOR_BATTLE_STATE', 3, 'герой уже находится в сражении'),
+                 ('NOT_IN_QUEUE', 4, 'битва не находится в очереди балансировщика'),
+                 ('PROCESSED', 5, 'обработана') )
 
 
 class ArenaPvP1x1Accept(AbilityPrototype):

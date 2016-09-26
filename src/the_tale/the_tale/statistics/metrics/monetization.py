@@ -20,6 +20,7 @@ from the_tale.forum import models as forum_models
 from the_tale.statistics.metrics.base import BaseMetric, BasePercentsCombination, BaseFractionCombination, BasePercentsFromSumCombination
 from the_tale.statistics import relations
 from the_tale.statistics.conf import statistics_settings
+from functools import reduce
 
 
 ACCEPTED_INVOICE_FILTER = models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED)
@@ -55,7 +56,7 @@ class PayersInMonth(Payers):
     PREFETCH_DELTA = datetime.timedelta(days=30)
 
     def get_value(self, date):
-        return sum(len(self.invoices.get(date - datetime.timedelta(days=i), frozenset())) for i in xrange(30) )
+        return sum(len(self.invoices.get(date - datetime.timedelta(days=i), frozenset())) for i in range(30) )
 
 
 class Income(BaseMetric):
@@ -82,7 +83,7 @@ class IncomeInMonth(Income):
     PREFETCH_DELTA = datetime.timedelta(days=30)
 
     def get_value(self, date):
-        return sum(self.invoices_values.get(date - datetime.timedelta(days=i), 0) for i in xrange(30) )
+        return sum(self.invoices_values.get(date - datetime.timedelta(days=i), 0) for i in range(30) )
 
 
 class IncomeTotal(BaseMetric):
@@ -157,7 +158,7 @@ class DaysBeforePayment(BaseMetric):
         invoices = list(InvoicePrototype._db_filter(ACCEPTED_INVOICE_FILTER,
                                                     sender_type=ENTITY_TYPE.XSOLLA,
                                                     currency=CURRENCY_TYPE.PREMIUM,
-                                                    recipient_id__in=accounts.keys()).values_list('created_at', 'recipient_id'))
+                                                    recipient_id__in=list(accounts.keys())).values_list('created_at', 'recipient_id'))
 
         account_ids = [id_ for created_at, id_ in invoices]
 
@@ -169,7 +170,7 @@ class DaysBeforePayment(BaseMetric):
                                    if id_==account_id])
                   for account_id in account_ids}
 
-        total_time = reduce(lambda s, v: s+v, delays.values(), datetime.timedelta(seconds=0))
+        total_time = reduce(lambda s, v: s+v, list(delays.values()), datetime.timedelta(seconds=0))
 
         days = float(total_time.total_seconds()) / len(account_ids) / (24*60*60)
 
@@ -410,7 +411,7 @@ class IncomeGroupBase(BaseMetric):
             accounts_incomes[recipient_id] = accounts_incomes.get(recipient_id, 0) + amount
 
         return len([True
-                    for amount in accounts_incomes.itervalues()
+                    for amount in accounts_incomes.values()
                     if self.BORDERS[0] < amount <= self.BORDERS[1]])
 
 
@@ -476,7 +477,7 @@ class IncomeGroupIncomeBase(BaseMetric):
             accounts_incomes[recipient_id] = accounts_incomes.get(recipient_id, 0) + amount
 
         return sum([amount
-                    for amount in accounts_incomes.itervalues()
+                    for amount in accounts_incomes.values()
                     if self.BORDERS[0] < amount <= self.BORDERS[1]], 0)
 
 

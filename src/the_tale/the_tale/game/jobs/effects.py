@@ -148,7 +148,7 @@ def place_attribute(id, attribute_name, base_value, attribute_text):
             ChangePlaceAttribute(attribute=attribute, base_value=base_value),
             EFFECT_GROUP.ON_PLACE,
             1.0,
-            u'При удачном завершении проекта, временно улучшает {} города, в случае неудачи — ухудшает.'.format(attribute_text))
+            'При удачном завершении проекта, временно улучшает {} города, в случае неудачи — ухудшает.'.format(attribute_text))
 
 
 def hero_profit(id, profit_name, text, power_modifier, description):
@@ -163,8 +163,8 @@ def hero_profit(id, profit_name, text, power_modifier, description):
 
 
 class EFFECT_GROUP(DjangoEnum):
-    records = ( ('ON_PLACE', 0, u'на город'),
-                ('ON_HEROES', 1, u'на героев') )
+    records = ( ('ON_PLACE', 0, 'на город'),
+                ('ON_HEROES', 1, 'на героев') )
 
 
 class EFFECT(DjangoEnum):
@@ -173,13 +173,13 @@ class EFFECT(DjangoEnum):
     power_modifier = Column(single_type=False, unique=False)
     description = Column()
 
-    records = ( place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS, attribute_text=u'производство'),
-                place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS, attribute_text=u'безопасность'),
-                place_attribute(3, 'TRANSPORT', base_value=c.JOB_TRANSPORT_BONUS, attribute_text=u'транспорт'),
-                place_attribute(4, 'FREEDOM', base_value=c.JOB_FREEDOM_BONUS, attribute_text=u'свободу'),
-                place_attribute(5, 'STABILITY', base_value=c.JOB_STABILITY_BONUS, attribute_text=u'стабильность'),
+    records = ( place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS, attribute_text='производство'),
+                place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS, attribute_text='безопасность'),
+                place_attribute(3, 'TRANSPORT', base_value=c.JOB_TRANSPORT_BONUS, attribute_text='транспорт'),
+                place_attribute(4, 'FREEDOM', base_value=c.JOB_FREEDOM_BONUS, attribute_text='свободу'),
+                place_attribute(5, 'STABILITY', base_value=c.JOB_STABILITY_BONUS, attribute_text='стабильность'),
 
-                hero_profit(6, 'MONEY', u'золото ближнему кругу', 0.5, u'В случае удачного завершения проекта, высылает деньги помогающим героям из ближнего круга. В случае неудачи деньги достаются мешающим героям.'),
-                hero_profit(7, 'ARTIFACT', u'артефакт ближнему кругу', 1.5, u'В случае удачного завершения проекта, высылает по артефакту помогающим героям из ближнего круга. В случае неудачи артефакты достаются мешающим героям.'),
-                hero_profit(8, 'EXPERIENCE', u'опыт ближнему кругу', 2.0, u'В случае удачного завершения проекта, помогающие герои из ближнего круга получают немного опыта. В случае неудачи опыт достаётся мешающим героям.'),
-                hero_profit(9, 'ENERGY', u'энергию ближнему кругу', 1.0, u'В случае удачного завершения проекта, Хранители помогающих героев из ближнего круга получают немного энергии. В случае неудачи энергия достаётся Хранителям мешающих героев.') )
+                hero_profit(6, 'MONEY', 'золото ближнему кругу', 0.5, 'В случае удачного завершения проекта, высылает деньги помогающим героям из ближнего круга. В случае неудачи деньги достаются мешающим героям.'),
+                hero_profit(7, 'ARTIFACT', 'артефакт ближнему кругу', 1.5, 'В случае удачного завершения проекта, высылает по артефакту помогающим героям из ближнего круга. В случае неудачи артефакты достаются мешающим героям.'),
+                hero_profit(8, 'EXPERIENCE', 'опыт ближнему кругу', 2.0, 'В случае удачного завершения проекта, помогающие герои из ближнего круга получают немного опыта. В случае неудачи опыт достаётся мешающим героям.'),
+                hero_profit(9, 'ENERGY', 'энергию ближнему кругу', 1.0, 'В случае удачного завершения проекта, Хранители помогающих героев из ближнего круга получают немного энергии. В случае неудачи энергия достаётся Хранителям мешающих героев.') )

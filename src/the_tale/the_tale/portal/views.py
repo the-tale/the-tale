@@ -117,27 +117,27 @@ class PortalResource(Resource):
                               'mob': random.choice(mobs)})
 
     @handler('csrf')
-    def handlerCSRF(self, reason=u''):
+    def handlerCSRF(self, reason=''):
         return self.auto_error('common.csrf',
-                               u'Неверный csrf токен. Если Вы обычный игрок, возможно, Вы случайно разлогинились — обновите страницу и снова войдите в игру. Если Вы разработчик, проверьте формирование своего запроса. [%s]' % reason,
+                               'Неверный csrf токен. Если Вы обычный игрок, возможно, Вы случайно разлогинились — обновите страницу и снова войдите в игру. Если Вы разработчик, проверьте формирование своего запроса. [%s]' % reason,
                                status_code=403)
 
     @handler('403')
     def handler403(self):
         return self.auto_error('common.403',
-                               u'Вы не имеете прав для проведение этой операции.',
+                               'Вы не имеете прав для проведение этой операции.',
                                status_code=403)
 
     @handler('404')
     def handler404(self):
         return self.auto_error('common.404',
-                               u'Извините, запрашиваемая Вами страница не найдена.',
+                               'Извините, запрашиваемая Вами страница не найдена.',
                                status_code=404)
 
     @handler('500')
     def handler500(self):
         return self.auto_error('common.500',
-                               u'Извините, произошла ошибка, мы работаем над её устранением. Пожалуйста, повторите попытку позже.')
+                               'Извините, произошла ошибка, мы работаем над её устранением. Пожалуйста, повторите попытку позже.')
 
     @handler('preview', name='preview', method='post')
     def preview(self):
@@ -146,7 +146,7 @@ class PortalResource(Resource):
     @api.handler(versions=('1.0',))
     @handler('api', 'info', name='api-info', method='get')
     def api_info(self, api_version):
-        u'''
+        '''
 Получение базовой информации о текущих параметрах игры и некоторых других данных.
 
 - **адрес:** /api/info/

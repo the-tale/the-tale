@@ -26,8 +26,8 @@ def can_be_choosen(place, modifier):
 
 
 class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label=u'Город')
-    new_modifier = fields.TypedChoiceField(label=u'Новая специализация', choices=sorted(CITY_MODIFIERS.choices(), key=lambda g: g[1]), coerce=CITY_MODIFIERS.get_from_name)
+    place = fields.ChoiceField(label='Город')
+    new_modifier = fields.TypedChoiceField(label='Новая специализация', choices=sorted(CITY_MODIFIERS.choices(), key=lambda g: g[1]), coerce=CITY_MODIFIERS.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -45,7 +45,7 @@ class UserForm(BaseForm):
 
         if modifier:
             if not can_be_choosen(place, modifier):
-                raise ValidationError(u'В данный момент город «%s» нельзя преобразовать в «%s».' % (place.name, modifier.text))
+                raise ValidationError('В данный момент город «%s» нельзя преобразовать в «%s».' % (place.name, modifier.text))
 
         return cleaned_data
 
@@ -60,8 +60,8 @@ class PlaceModifier(base_place_bill.BasePlaceBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Изменение специализации города'
-    DESCRIPTION = u'Изменяет специализацию города. Изменить специализацию можно только на одну из доступных для этого города. Посмотреть доступные варианты можно в диалоге информации о городе на странице игры.'
+    CAPTION = 'Изменение специализации города'
+    DESCRIPTION = 'Изменяет специализацию города. Изменить специализацию можно только на одну из доступных для этого города. Посмотреть доступные варианты можно в диалоге информации о городе на странице игры.'
 
     def __init__(self, modifier_id=None, modifier_name=None, old_modifier_name=None, **kwargs):
         super(PlaceModifier, self).__init__(**kwargs)

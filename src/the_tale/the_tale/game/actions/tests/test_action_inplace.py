@@ -90,7 +90,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_companion_heal_in_resort__healed_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.assertEqual(self.hero.companion.health, self.hero.companion.max_health)
@@ -106,7 +106,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_companion_heal_in_resort__damaged_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.hero.companion.health = 1
@@ -325,7 +325,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     @mock.patch('the_tale.game.companions.objects.Companion.need_heal', True)
     def test_heal_companion_action_create(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -350,7 +350,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_trade_action_create(self):
 
-        for i in xrange(int(c.MAX_BAG_SIZE * c.BAG_SIZE_TO_SELL_LOOT_FRACTION) + 1):
+        for i in range(int(c.MAX_BAG_SIZE * c.BAG_SIZE_TO_SELL_LOOT_FRACTION) + 1):
             artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
             self.hero.bag.put_artifact(artifact)
 
@@ -506,7 +506,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.hero.money = money
         self.storage.process_turn()
         self.assertTrue(self.hero.money < 1)
-        self.assertEqual(len(self.hero.bag.items()), 0)
+        self.assertEqual(len(list(self.hero.bag.items())), 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
@@ -536,7 +536,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.storage.process_turn()
         self.assertEqual(self.hero.money, 0)
-        self.assertEqual(len(self.hero.bag.items()), 0)
+        self.assertEqual(len(list(self.hero.bag.items())), 0)
 
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
@@ -561,7 +561,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.storage.process_turn()
         self.assertTrue(self.hero.money > 0)
-        self.assertEqual(len(self.hero.bag.items()), 0)
+        self.assertEqual(len(list(self.hero.bag.items())), 0)
 
         self.assertTrue(self.hero.statistics.money_spend > money - self.hero.money)
         self.assertTrue(self.hero.statistics.money_spend_for_artifacts > money - self.hero.money)
@@ -632,7 +632,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
 
     def test_repair_artifact(self):
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.integrity = artifact.max_integrity
 
         test_artifact = artifact

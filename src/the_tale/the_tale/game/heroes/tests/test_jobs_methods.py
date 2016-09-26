@@ -69,7 +69,7 @@ class JobsMethodsTests(testcase.TestCase):
                 with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
                     self.hero.job_artifact(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_artifact_positive_enemies', job_power=1)
 
-        rating = self.hero.bag.values()[0].preference_rating(self.hero.preferences.archetype.power_distribution)
+        rating = list(self.hero.bag.values())[0].preference_rating(self.hero.preferences.archetype.power_distribution)
         self.hero.bag.drop_cheapest_item(self.hero.preferences.archetype.power_distribution)
 
         with self.check_delta(lambda: len(self.hero.diary), 1):
@@ -77,7 +77,7 @@ class JobsMethodsTests(testcase.TestCase):
                 with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
                     self.hero.job_artifact(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_artifact_positive_enemies', job_power=2)
 
-        self.assertTrue(rating, self.hero.bag.values()[0].preference_rating(self.hero.preferences.archetype.power_distribution))
+        self.assertTrue(rating, list(self.hero.bag.values())[0].preference_rating(self.hero.preferences.archetype.power_distribution))
 
 
     def check_job_experience(self, place_id, person_id):
@@ -142,13 +142,13 @@ class JobsMethodsTests(testcase.TestCase):
 
         place = places_storage.places.all()[0]
 
-        for i in xrange(100):
+        for i in range(100):
             self.hero.job_artifact(place_id=place.id,
                                    person_id=place.persons[0].id,
                                    message_type='job_diary_person_hero_artifact_positive_enemies',
                                    job_power=1)
 
-            artifact = self.hero.bag.values()[0]
+            artifact = list(self.hero.bag.values())[0]
 
             power_distribution = self.hero.preferences.archetype.power_distribution
 

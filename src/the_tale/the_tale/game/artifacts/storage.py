@@ -80,14 +80,14 @@ class ArtifactsStorage(storage.CachedStorage):
         self.sync()
 
         if mob_id not in self._mob_artifacts:
-            self._mob_artifacts[mob_id] = filter(lambda artifact: artifact.mob_id == mob_id, self.artifacts) # pylint: disable=W0110
+            self._mob_artifacts[mob_id] = [artifact for artifact in self.artifacts if artifact.mob_id == mob_id] # pylint: disable=W0110
         return self._mob_artifacts[mob_id]
 
     def get_mob_loot(self, mob_id):
         self.sync()
 
         if mob_id not in self._mob_loot:
-            self._mob_loot[mob_id] = filter(lambda artifact: artifact.mob_id == mob_id, self.loot) # pylint: disable=W0110
+            self._mob_loot[mob_id] = [artifact for artifact in self.loot if artifact.mob_id == mob_id] # pylint: disable=W0110
         return self._mob_loot[mob_id]
 
     def get_rarity_type(self, hero):

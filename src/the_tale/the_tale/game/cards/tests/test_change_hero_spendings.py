@@ -28,7 +28,7 @@ class ChangeHeroSpendingsCommonTests(testcase.TestCase):
     def test_no_new_spendigns(self):
         items = []
 
-        for card in effects.EFFECTS.values():
+        for card in list(effects.EFFECTS.values()):
             if hasattr(card, 'ITEM'):
                 items.append(card.ITEM)
 

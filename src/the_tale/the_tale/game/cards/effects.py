@@ -85,7 +85,7 @@ class BaseEffect(object):
 
 class LevelUp(BaseEffect):
     TYPE = relations.CARD_TYPE.LEVEL_UP
-    DESCRIPTION = u'Герой получает новый уровень. Накопленный опыт не сбрасывается.'
+    DESCRIPTION = 'Герой получает новый уровень. Накопленный опыт не сбрасывается.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         task.hero.increment_level(send_message=False)
@@ -99,11 +99,11 @@ class AddExperienceBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Увеличивает опыт, который герой получит за выполнение текущего задания, на %(experience)d единиц.' % {'experience': self.EXPERIENCE}
+        return 'Увеличивает опыт, который герой получит за выполнение текущего задания, на %(experience)d единиц.' % {'experience': self.EXPERIENCE}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         if not task.hero.quests.has_quests:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='У героя нет задания.')
 
         task.hero.quests.current_quest.current_info.experience_bonus += self.EXPERIENCE
         task.hero.quests.mark_updated()
@@ -137,11 +137,11 @@ class AddPoliticPowerBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Увеличивает влияние, которое окажет герой после выполнения текущего задания, на %(power)d единиц.' % {'power': self.POWER}
+        return 'Увеличивает влияние, которое окажет герой после выполнения текущего задания, на %(power)d единиц.' % {'power': self.POWER}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         if not task.hero.quests.has_quests:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='У героя нет задания')
 
         task.hero.quests.current_quest.current_info.power_bonus += self.POWER
         task.hero.quests.mark_updated()
@@ -175,7 +175,7 @@ class AddBonusEnergyBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Вы получаете %(energy)d единиц дополнительной энергии.' % {'energy': self.ENERGY}
+        return 'Вы получаете %(energy)d единиц дополнительной энергии.' % {'energy': self.ENERGY}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         task.hero.add_energy_bonus(self.ENERGY)
@@ -208,7 +208,7 @@ class AddGoldBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Герой получает %(gold)d монет.' % {'gold': self.GOLD}
+        return 'Герой получает %(gold)d монет.' % {'gold': self.GOLD}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         from the_tale.game.heroes.relations import MONEY_SOURCE
@@ -237,17 +237,17 @@ class ChangeHabitBase(BaseEffect):
     @property
     def DESCRIPTION(self):
         if self.POINTS > 0:
-            return u'Увеличивает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
+            return 'Увеличивает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
                                                                            'points': self.POINTS}
-        return u'Уменьшает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
+        return 'Уменьшает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
                                                                      'points': -self.POINTS}
 
     @property
     def success_message(self):
         if self.POINTS > 0:
-            return u'Увеличивает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
+            return 'Увеличивает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
                                                                            'points': self.POINTS}
-        return u'Уменьшает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
+        return 'Уменьшает %(habit)s героя на %(points)d единиц.' % {'habit': self.HABIT.text,
                                                                      'points': -self.POINTS}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
@@ -256,7 +256,7 @@ class ChangeHabitBase(BaseEffect):
         task.hero.change_habits(self.HABIT, self.POINTS)
 
         if old_habits == (task.hero.habit_honor.raw_value, task.hero.habit_peacefulness.raw_value):
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Применение карты никак не изменит черты героя.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Применение карты никак не изменит черты героя.')
 
         return task.logic_result()
 
@@ -351,12 +351,12 @@ class PreferencesCooldownsResetBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Сбрасывает задержку на изменение предпочтения «%(preference)s».' % {'preference': self.PREFERENCE.text}
+        return 'Сбрасывает задержку на изменение предпочтения «%(preference)s».' % {'preference': self.PREFERENCE.text}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         if not task.hero.preferences.is_available(self.PREFERENCE, account=AccountPrototype.get_by_id(task.hero.account_id)):
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Нельзя сбросить задержку на изменение предпочтения (предпочтение ещё не доступно герою).')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Нельзя сбросить задержку на изменение предпочтения (предпочтение ещё не доступно герою).')
 
         task.hero.preferences.reset_change_time(self.PREFERENCE)
         storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
@@ -411,7 +411,7 @@ class PreferencesCooldownsResetCompanionEmpathy(PreferencesCooldownsResetBase):
 class PreferencesCooldownsResetAll(BaseEffect):
     TYPE = relations.CARD_TYPE.PREFERENCES_COOLDOWNS_RESET_ALL
 
-    DESCRIPTION = u'Сбрасывает задержку на изменение всех предпочтений.'
+    DESCRIPTION = 'Сбрасывает задержку на изменение всех предпочтений.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         for preference in PREFERENCE_TYPE.records:
@@ -422,11 +422,11 @@ class PreferencesCooldownsResetAll(BaseEffect):
 
 class ChangeAbilitiesChoices(BaseEffect):
     TYPE = relations.CARD_TYPE.CHANGE_ABILITIES_CHOICES
-    DESCRIPTION = u'Изменяет список предлагаемых герою способностей (при выборе новой способности).'
+    DESCRIPTION = 'Изменяет список предлагаемых герою способностей (при выборе новой способности).'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         if not task.hero.abilities.rechooce_choices():
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не может изменить выбор способностей (возможно, больше не из чего выбирать).')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Герой не может изменить выбор способностей (возможно, больше не из чего выбирать).')
 
         storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
 
@@ -435,11 +435,11 @@ class ChangeAbilitiesChoices(BaseEffect):
 
 class ResetAbilities(BaseEffect):
     TYPE = relations.CARD_TYPE.RESET_ABILITIES
-    DESCRIPTION = u'Сбрасывает все способности героя.'
+    DESCRIPTION = 'Сбрасывает все способности героя.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         if task.hero.abilities.is_initial_state():
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Способности героя уже сброшены.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Способности героя уже сброшены.')
 
         task.hero.abilities.reset()
 
@@ -454,15 +454,15 @@ class ChangeItemOfExpenditureBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Текущей целью трат героя становится %(item)s.' % {'item': self.ITEM.text}
+        return 'Текущей целью трат героя становится %(item)s.' % {'item': self.ITEM.text}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         if task.hero.next_spending == self.ITEM:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой уже копит деньги на эту цель.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Герой уже копит деньги на эту цель.')
 
         if self.ITEM.is_HEAL_COMPANION and task.hero.companion is None:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет спутника, лечить некого.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='У героя нет спутника, лечить некого.')
 
         task.hero.next_spending = self.ITEM
         task.hero.quests.mark_updated()
@@ -495,30 +495,30 @@ class ChangeHeroSpendingsToHealCompanion(ChangeItemOfExpenditureBase):
 
 class RepairRandomArtifact(BaseEffect):
     TYPE = relations.CARD_TYPE.REPAIR_RANDOM_ARTIFACT
-    DESCRIPTION = u'Чинит случайный артефакт из экипировки героя.'
+    DESCRIPTION = 'Чинит случайный артефакт из экипировки героя.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
-        choices = [item for item in task.hero.equipment.values() if item.integrity < item.max_integrity]
+        choices = [item for item in list(task.hero.equipment.values()) if item.integrity < item.max_integrity]
 
         if not choices:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Экипировка не нуждается в ремонте.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Экипировка не нуждается в ремонте.')
 
         artifact = random.choice(choices)
 
         artifact.repair_it()
 
-        return task.logic_result(message=u'Целостность артефакта %(artifact)s полностью восстановлена.' % {'artifact': artifact.html_label()})
+        return task.logic_result(message='Целостность артефакта %(artifact)s полностью восстановлена.' % {'artifact': artifact.html_label()})
 
 
 class RepairAllArtifacts(BaseEffect):
     TYPE = relations.CARD_TYPE.REPAIR_ALL_ARTIFACTS
-    DESCRIPTION = u'Чинит все артефакты из экипировки героя.'
+    DESCRIPTION = 'Чинит все артефакты из экипировки героя.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
-        if not [item for item in task.hero.equipment.values() if item.integrity < item.max_integrity]:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Экипировка не нуждается в ремонте.')
+        if not [item for item in list(task.hero.equipment.values()) if item.integrity < item.max_integrity]:
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Экипировка не нуждается в ремонте.')
 
-        for item in task.hero.equipment.values():
+        for item in list(task.hero.equipment.values()):
             item.repair_it()
 
         return task.logic_result()
@@ -526,11 +526,11 @@ class RepairAllArtifacts(BaseEffect):
 
 class CancelQuest(BaseEffect):
     TYPE = relations.CARD_TYPE.CANCEL_QUEST
-    DESCRIPTION = u'Отменяет текущее задание героя.'
+    DESCRIPTION = 'Отменяет текущее задание героя.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         if not task.hero.quests.has_quests:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет задания.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='У героя нет задания.')
 
         task.hero.quests.pop_quest()
         task.hero.quests.mark_updated()
@@ -546,10 +546,10 @@ class GetArtifactBase(BaseEffect):
         priority = Column()
         rarity = Column(unique=False, single_type=False)
 
-        records = ( ('LOOT', 0, u'лут', 1000, artifacts_relations.RARITY.NORMAL),
-                    ('COMMON', 1, u'обычные', 100, artifacts_relations.RARITY.NORMAL),
-                    ('RARE', 2, u'редкие', 10, artifacts_relations.RARITY.RARE),
-                    ('EPIC', 3, u'эпические', 1, artifacts_relations.RARITY.EPIC), )
+        records = ( ('LOOT', 0, 'лут', 1000, artifacts_relations.RARITY.NORMAL),
+                    ('COMMON', 1, 'обычные', 100, artifacts_relations.RARITY.NORMAL),
+                    ('RARE', 2, 'редкие', 10, artifacts_relations.RARITY.RARE),
+                    ('EPIC', 3, 'эпические', 1, artifacts_relations.RARITY.EPIC), )
 
     INTERVAL = None
 
@@ -570,38 +570,38 @@ class GetArtifactBase(BaseEffect):
 
         task.hero.actions.request_replane()
 
-        return task.logic_result(message=u'В рюкзаке героя появился новый артефакт: %(artifact)s' % {'artifact': artifact.html_label()})
+        return task.logic_result(message='В рюкзаке героя появился новый артефакт: %(artifact)s' % {'artifact': artifact.html_label()})
 
 
 class GetArtifactCommon(GetArtifactBase):
     TYPE = relations.CARD_TYPE.GET_ARTIFACT_COMMON
-    DESCRIPTION = u'Герой получает случайный бесполезный предмет или артефакт.'
+    DESCRIPTION = 'Герой получает случайный бесполезный предмет или артефакт.'
     INTERVAL = 4
 
 class GetArtifactUncommon(GetArtifactBase):
     TYPE = relations.CARD_TYPE.GET_ARTIFACT_UNCOMMON
-    DESCRIPTION = u'Герой получает случайный артефакт.'
+    DESCRIPTION = 'Герой получает случайный артефакт.'
     INTERVAL = 3
 
 class GetArtifactRare(GetArtifactBase):
     TYPE = relations.CARD_TYPE.GET_ARTIFACT_RARE
-    DESCRIPTION = u'Герой получает случайный редкий или эпический артефакт.'
+    DESCRIPTION = 'Герой получает случайный редкий или эпический артефакт.'
     INTERVAL = 2
 
 class GetArtifactEpic(GetArtifactBase):
     TYPE = relations.CARD_TYPE.GET_ARTIFACT_EPIC
-    DESCRIPTION = u'Герой получает случайный эпический артефакт.'
+    DESCRIPTION = 'Герой получает случайный эпический артефакт.'
     INTERVAL = 1
 
 
 class InstantMonsterKill(BaseEffect):
     TYPE = relations.CARD_TYPE.INSTANT_MONSTER_KILL
-    DESCRIPTION = u'Мгновенно убивает монстра, с которым сражается герой.'
+    DESCRIPTION = 'Мгновенно убивает монстра, с которым сражается герой.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         if not task.hero.actions.current_action.TYPE.is_BATTLE_PVE_1X1:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой ни с кем не сражается.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Герой ни с кем не сражается.')
 
         task.hero.actions.current_action.bit_mob(task.hero.actions.current_action.mob.max_health)
 
@@ -615,14 +615,14 @@ class KeepersGoodsBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Создаёт в указанном городе %(goods)d «даров Хранителей». Город будет постепенно переводить их в продукцию, пока дары не кончатся.' % {'goods': self.GOODS}
+        return 'Создаёт в указанном городе %(goods)d «даров Хранителей». Город будет постепенно переводить их в продукцию, пока дары не кончатся.' % {'goods': self.GOODS}
 
     def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
         place_id = task.data.get('place_id')
 
         if place_id not in places_storage.places:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Город не найден.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Город не найден.')
 
         if task.step.is_LOGIC:
             return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
@@ -665,14 +665,14 @@ class KeepersGoodsLegendary(KeepersGoodsBase):
 class RepairBuilding(BaseEffect):
     TYPE = relations.CARD_TYPE.REPAIR_BUILDING
 
-    DESCRIPTION = u'Полностью ремонтирует указанное строение.'
+    DESCRIPTION = 'Полностью ремонтирует указанное строение.'
 
     def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
         building_id = task.data.get('building_id')
 
         if building_id not in places_storage.buildings:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Строение не найдено.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Строение не найдено.')
 
         if task.step.is_LOGIC:
             return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
@@ -698,16 +698,16 @@ class AddPersonPowerBase(BaseEffect):
     @property
     def DESCRIPTION(self):
         if self.BONUS > 0:
-            return u'Моментально увеличивает влияние Мастера на %(bonus)d единиц. Влияние засчитывается так, как если бы герой имел Мастера в предпочтении.' % {'bonus': self.BONUS}
+            return 'Моментально увеличивает влияние Мастера на %(bonus)d единиц. Влияние засчитывается так, как если бы герой имел Мастера в предпочтении.' % {'bonus': self.BONUS}
 
-        return u'Моментально уменьшает влияние Мастера на %(bonus)d единиц. Влияние засчитывается так, как если бы герой имел Мастера в предпочтении.' % {'bonus': -self.BONUS}
+        return 'Моментально уменьшает влияние Мастера на %(bonus)d единиц. Влияние засчитывается так, как если бы герой имел Мастера в предпочтении.' % {'bonus': -self.BONUS}
 
     @property
     def success_message(self):
         if self.BONUS > 0:
-            return u'Влияние Мастера увеличено на %(bonus)d..' % {'bonus': self.BONUS}
+            return 'Влияние Мастера увеличено на %(bonus)d..' % {'bonus': self.BONUS}
 
-        return u'Влияние Мастера уменьшено на %(bonus)d.' % {'bonus': -self.BONUS}
+        return 'Влияние Мастера уменьшено на %(bonus)d.' % {'bonus': -self.BONUS}
 
 
     def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
@@ -715,7 +715,7 @@ class AddPersonPowerBase(BaseEffect):
         person_id = task.data.get('person_id')
 
         if person_id not in persons_storage.persons:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Мастер не найден.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Мастер не найден.')
 
         person = persons_storage.persons[person_id]
 
@@ -784,23 +784,23 @@ class AddPlacePowerBase(BaseEffect):
     @property
     def DESCRIPTION(self):
         if self.BONUS > 0:
-            return u'Моментально увеличивает влияние города на %(bonus)d единиц. Влияние засчитывается так, как если бы герой имел город в предпочтении.' % {'bonus': self.BONUS}
+            return 'Моментально увеличивает влияние города на %(bonus)d единиц. Влияние засчитывается так, как если бы герой имел город в предпочтении.' % {'bonus': self.BONUS}
 
-        return u'Моментально уменьшает влияние города на %(bonus)d единиц. Влияние засчитывается так, как если бы герой имел город в предпочтении.' % {'bonus': -self.BONUS}
+        return 'Моментально уменьшает влияние города на %(bonus)d единиц. Влияние засчитывается так, как если бы герой имел город в предпочтении.' % {'bonus': -self.BONUS}
 
     @property
     def success_message(self):
         if self.BONUS > 0:
-            return u'Влияние города увеличено на %(bonus)d..' % {'bonus': self.BONUS}
+            return 'Влияние города увеличено на %(bonus)d..' % {'bonus': self.BONUS}
 
-        return u'Влияние города уменьшено на %(bonus)d.' % {'bonus': -self.BONUS}
+        return 'Влияние города уменьшено на %(bonus)d.' % {'bonus': -self.BONUS}
 
     def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
         place_id = task.data.get('place_id')
 
         if place_id not in places_storage.places:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Город не найден.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Город не найден.')
 
         if task.step.is_LOGIC:
             return task.logic_result(next_step=UseCardTask.STEP.HIGHLEVEL)
@@ -868,22 +868,22 @@ class HelpPlaceBase(BaseEffect):
     @property
     def DESCRIPTION(self):
         if self.HELPS != 1:
-            return u'В документах города появляются дополнительные записи о помощи, полученной от героя в количестве %(helps)d шт.' % {'helps': self.HELPS}
-        return u'В документах города появляется дополнительная запись о помощи, полученной от героя.'
+            return 'В документах города появляются дополнительные записи о помощи, полученной от героя в количестве %(helps)d шт.' % {'helps': self.HELPS}
+        return 'В документах города появляется дополнительная запись о помощи, полученной от героя.'
 
     @property
     def success_message(self):
         if self.HELPS != 1:
-            return u'Герою записано %(helps)d дополнительных фактов помощи городу.' % {'helps': self.HELPS}
-        return u'Герою записан один дополнительный факт помощи городу.'
+            return 'Герою записано %(helps)d дополнительных фактов помощи городу.' % {'helps': self.HELPS}
+        return 'Герою записан один дополнительный факт помощи городу.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         place_id = task.data.get('place_id')
 
         if place_id not in places_storage.places:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Город не найден.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Город не найден.')
 
-        for i in xrange(self.HELPS):
+        for i in range(self.HELPS):
             task.hero.places_history.add_place(place_id)
 
         storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
@@ -911,14 +911,14 @@ class HelpPlaceLegendary(HelpPlaceBase):
 class ShortTeleport(BaseEffect):
     TYPE = relations.CARD_TYPE.SHORT_TELEPORT
 
-    DESCRIPTION = u'Телепортирует героя до ближайшего города либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
+    DESCRIPTION = 'Телепортирует героя до ближайшего города либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         if not task.hero.actions.current_action.TYPE.is_MOVE_TO:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не находится в движении.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Герой не находится в движении.')
 
         if not task.hero.actions.current_action.teleport_to_place(create_inplace_action=True):
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Телепортировать героя не получилось.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Телепортировать героя не получилось.')
 
         return task.logic_result()
 
@@ -926,15 +926,15 @@ class ShortTeleport(BaseEffect):
 class LongTeleport(BaseEffect):
     TYPE = relations.CARD_TYPE.LONG_TELEPORT
 
-    DESCRIPTION = u'Телепортирует героя в конечную точку назначения либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
+    DESCRIPTION = 'Телепортирует героя в конечную точку назначения либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         if not task.hero.actions.current_action.TYPE.is_MOVE_TO:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Герой не находится в движении.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Герой не находится в движении.')
 
         if not task.hero.actions.current_action.teleport_to_end():
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Телепортировать героя не получилось.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Телепортировать героя не получилось.')
 
         return task.logic_result()
 
@@ -945,16 +945,16 @@ class ExperienceToEnergyBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Преобразует опыт героя на текущем уровне в дополнительную энергию по курсу %(experience)s опыта за 1 энергии.' % {'experience': self.EXPERIENCE}
+        return 'Преобразует опыт героя на текущем уровне в дополнительную энергию по курсу %(experience)s опыта за 1 энергии.' % {'experience': self.EXPERIENCE}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         if task.hero.experience == 0:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет свободного опыта.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='У героя нет свободного опыта.')
 
         energy = task.hero.convert_experience_to_energy(self.EXPERIENCE)
 
-        return task.logic_result(message=u'Герой потерял весь накопленный опыт. Вы получили %(energy)d энергии.' % {'energy': energy})
+        return task.logic_result(message='Герой потерял весь накопленный опыт. Вы получили %(energy)d энергии.' % {'energy': energy})
 
 
 class ExperienceToEnergyUncommon(ExperienceToEnergyBase):
@@ -976,10 +976,10 @@ class ExperienceToEnergyLegendary(ExperienceToEnergyBase):
 
 class SharpRandomArtifact(BaseEffect):
     TYPE = relations.CARD_TYPE.SHARP_RANDOM_ARTIFACT
-    DESCRIPTION = u'Улучшает случайный артефакт из экипировки героя.'
+    DESCRIPTION = 'Улучшает случайный артефакт из экипировки героя.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
-        artifact = random.choice(task.hero.equipment.values())
+        artifact = random.choice(list(task.hero.equipment.values()))
 
         distribution=task.hero.preferences.archetype.power_distribution
         min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
@@ -988,17 +988,17 @@ class SharpRandomArtifact(BaseEffect):
                        max_power=max_power,
                        force=True)
 
-        return task.logic_result(message=u'Улучшена экипировка героя: %(artifact)s' % {'artifact': artifact.html_label()})
+        return task.logic_result(message='Улучшена экипировка героя: %(artifact)s' % {'artifact': artifact.html_label()})
 
 
 
 class SharpAllArtifacts(BaseEffect):
     TYPE = relations.CARD_TYPE.SHARP_ALL_ARTIFACTS
-    DESCRIPTION = u'Улучшает все артефакты из экипировки героя.'
+    DESCRIPTION = 'Улучшает все артефакты из экипировки героя.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
-        for artifact in task.hero.equipment.values():
+        for artifact in list(task.hero.equipment.values()):
             distribution=task.hero.preferences.archetype.power_distribution
             min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
 
@@ -1006,7 +1006,7 @@ class SharpAllArtifacts(BaseEffect):
                            max_power=max_power,
                            force=True)
 
-        return task.logic_result(message=u'Вся экипировка героя улучшена')
+        return task.logic_result(message='Вся экипировка героя улучшена')
 
 
 class GetCompanionBase(BaseEffect):
@@ -1015,7 +1015,7 @@ class GetCompanionBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Герой получает спутника, указанного в названии карты. Если у героя уже есть спутник, он покинет героя.'
+        return 'Герой получает спутника, указанного в названии карты. Если у героя уже есть спутник, он покинет героя.'
 
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
@@ -1025,7 +1025,7 @@ class GetCompanionBase(BaseEffect):
 
         task.hero.set_companion(companion)
 
-        return task.logic_result(message=u'Поздравляем! Ваш герой получил нового спутника.')
+        return task.logic_result(message='Поздравляем! Ваш герой получил нового спутника.')
 
     @classmethod
     def get_available_companions(cls):
@@ -1047,7 +1047,7 @@ class GetCompanionBase(BaseEffect):
 
 
     def name_for_card(self, card):
-        return self.TYPE.text + u': ' + companions_storage.companions[card.data['companion_id']].name
+        return self.TYPE.text + ': ' + companions_storage.companions[card.data['companion_id']].name
 
 
 class GetCompanionCommon(GetCompanionBase):
@@ -1074,17 +1074,17 @@ class GetCompanionLegendary(GetCompanionBase):
 
 class ReleaseCompanion(BaseEffect):
     TYPE = relations.CARD_TYPE.RELEASE_COMPANION
-    DESCRIPTION = u'Спутник героя навсегда покидает его.'
+    DESCRIPTION = 'Спутник героя навсегда покидает его.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         if task.hero.companion is None:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя сейчас нет спутника.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='У героя сейчас нет спутника.')
 
         task.hero.add_message('companions_left', diary=True, companion_owner=task.hero, companion=task.hero.companion)
         task.hero.remove_companion()
 
-        return task.logic_result(message=u'Поздравляем! Ваш герой получил нового спутника.')
+        return task.logic_result(message='Поздравляем! Ваш герой получил нового спутника.')
 
 
 
@@ -1094,19 +1094,19 @@ class HealCompanionBase(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return u'Восстанавливает спутнику %(health)d здоровья.' % {'health': self.HEALTH}
+        return 'Восстанавливает спутнику %(health)d здоровья.' % {'health': self.HEALTH}
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         if task.hero.companion is None:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет спутника.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='У героя нет спутника.')
 
         if task.hero.companion.health == task.hero.companion.max_health:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'Спутник героя полностью здоров.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='Спутник героя полностью здоров.')
 
         health = task.hero.companion.heal(self.HEALTH)
 
-        return task.logic_result(message=u'Спутник вылечен на %(health)s HP.' % {'health': health})
+        return task.logic_result(message='Спутник вылечен на %(health)s HP.' % {'health': health})
 
 
 class HealCompanionCommon(HealCompanionBase):
@@ -1132,20 +1132,20 @@ class HealCompanionLegendary(HealCompanionBase):
 
 class UpgradeArtifact(BaseEffect):
     TYPE = relations.CARD_TYPE.INCREMENT_ARTIFACT_RARITY
-    DESCRIPTION = u'Заменяет случайный экипированный не эпический артефакт, на более редкий того же вида.'
+    DESCRIPTION = 'Заменяет случайный экипированный не эпический артефакт, на более редкий того же вида.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
-        artifacts = [artifact for artifact in task.hero.equipment.values() if not artifact.rarity.is_EPIC]
+        artifacts = [artifact for artifact in list(task.hero.equipment.values()) if not artifact.rarity.is_EPIC]
 
         if not artifacts:
-            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message=u'У героя нет экипированных не эпических артефактов.')
+            return task.logic_result(next_step=UseCardTask.STEP.ERROR, message='У героя нет экипированных не эпических артефактов.')
 
         artifact = random.choice(artifacts)
 
         task.hero.increment_equipment_rarity(artifact)
 
-        return task.logic_result(message=u'Качество артефакта %(artifact)s улучшено.' % {'artifact': artifact.html_label()})
+        return task.logic_result(message='Качество артефакта %(artifact)s улучшено.' % {'artifact': artifact.html_label()})
 
 
 

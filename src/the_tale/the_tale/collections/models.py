@@ -19,8 +19,8 @@ class Collection(models.Model):
     description = models.TextField(max_length=DESCRIPTION_MAX_LENGTH)
 
     class Meta:
-        permissions = (('edit_collection', u'Может создавать и редактировать коллекции'),
-                       ('moderate_collection', u'Может утверждать коллекции'),)
+        permissions = (('edit_collection', 'Может создавать и редактировать коллекции'),
+                       ('moderate_collection', 'Может утверждать коллекции'),)
 
     def __unicode__(self): return self.caption
 
@@ -41,8 +41,8 @@ class Kit(models.Model):
     description = models.TextField(max_length=DESCRIPTION_MAX_LENGTH)
 
     class Meta:
-        permissions = (('edit_kit', u'Может создавать и редактировать наборы'),
-                       ('moderate_kit', u'Может утверждать наборы'),)
+        permissions = (('edit_kit', 'Может создавать и редактировать наборы'),
+                       ('moderate_kit', 'Может утверждать наборы'),)
 
     def __unicode__(self): return self.caption
 
@@ -62,8 +62,8 @@ class Item(models.Model):
     text = models.TextField()
 
     class Meta:
-        permissions = (('edit_item', u'Может создавать и редактировать предметы'),
-                       ('moderate_item', u'Может утверждать предметы'),)
+        permissions = (('edit_item', 'Может создавать и редактировать предметы'),
+                       ('moderate_item', 'Может утверждать предметы'),)
 
     def __unicode__(self): return self.caption
 

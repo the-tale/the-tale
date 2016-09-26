@@ -4,8 +4,8 @@ from dext.forms import forms
 
 from the_tale.common.utils import bbcode
 
-DEFAULT_TEXT = u'''Здравствуйте!
+DEFAULT_TEXT = '''Здравствуйте!
 Давайте дружить.'''
 
 class RequestForm(forms.Form):
-    text = bbcode.BBField(label=u'Сообщение', initial=DEFAULT_TEXT)
+    text = bbcode.BBField(label='Сообщение', initial=DEFAULT_TEXT)

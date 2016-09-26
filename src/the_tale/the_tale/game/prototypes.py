@@ -24,10 +24,10 @@ from the_tale.game import exceptions
 class MONTHS(DjangoEnum):
     date_text = rels.Column()
 
-    records = ( ('COLD',  1, u'холодный месяц', u'холодного месяца'),
-                ('CRUDE', 2, u'сырой месяц',    u'сырого месяца'),
-                ('HOT',   3, u'жаркий месяц',   u'жаркого месяца'),
-                ('DRY',   4, u'сухой месяц',    u'сухого месяца') )
+    records = ( ('COLD',  1, 'холодный месяц', 'холодного месяца'),
+                ('CRUDE', 2, 'сырой месяц',    'сырого месяца'),
+                ('HOT',   3, 'жаркий месяц',   'жаркого месяца'),
+                ('DRY',   4, 'сухой месяц',    'сухого месяца') )
 
 
 class GameTime(collections.namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'minute', 'second'))):
@@ -38,7 +38,7 @@ class GameTime(collections.namedtuple('GameTimeTuple', ('year', 'month', 'day', 
 
     @property
     def verbose_date(self):
-        return u'%(day)d %(month)s %(year)d года' % {'day': self.day,
+        return '%(day)d %(month)s %(year)d года' % {'day': self.day,
                                                      'month': MONTHS(self.month).date_text,
                                                      'year': self.year}
     @property
@@ -47,7 +47,7 @@ class GameTime(collections.namedtuple('GameTimeTuple', ('year', 'month', 'day', 
 
     @property
     def verbose_time(self):
-        return u'%(hour).2d:%(minute).2d' % {'hour': self.hour,
+        return '%(hour).2d:%(minute).2d' % {'hour': self.hour,
                                              'minute': self.minute}
     def month_record(self): return MONTHS(self.month)
 

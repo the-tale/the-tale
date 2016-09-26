@@ -13,18 +13,18 @@ from the_tale.collections.storage import collections_storage, kits_storage
 
 class EditCollectionForm(forms.Form):
 
-    caption = fields.CharField(label=u'Название', max_length=CollectionPrototype.CAPTION_MAX_LENGTH, min_length=1)
+    caption = fields.CharField(label='Название', max_length=CollectionPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
-    description = bbcode.BBField(label=u'Описание', min_length=1, max_length=CollectionPrototype.DESCRIPTION_MAX_LENGTH)
+    description = bbcode.BBField(label='Описание', min_length=1, max_length=CollectionPrototype.DESCRIPTION_MAX_LENGTH)
 
 
 class EditKitForm(forms.Form):
 
-    collection = fields.ChoiceField(label=u'Коллекция')
+    collection = fields.ChoiceField(label='Коллекция')
 
-    caption = fields.CharField(label=u'Название', max_length=KitPrototype.CAPTION_MAX_LENGTH, min_length=1)
+    caption = fields.CharField(label='Название', max_length=KitPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
-    description = bbcode.BBField(label=u'Описание', min_length=1, max_length=KitPrototype.DESCRIPTION_MAX_LENGTH)
+    description = bbcode.BBField(label='Описание', min_length=1, max_length=KitPrototype.DESCRIPTION_MAX_LENGTH)
 
     def __init__(self, *args, **kwargs):
         super(EditKitForm, self).__init__(*args, **kwargs)
@@ -35,18 +35,18 @@ class EditKitForm(forms.Form):
         collection =  collections_storage[int(collection_id)]
 
         if collection is None:
-            raise django_forms.ValidationError(u'Коллекция не найдена')
+            raise django_forms.ValidationError('Коллекция не найдена')
 
         return collection
 
 
 class EditItemForm(forms.Form):
 
-    kit = fields.ChoiceField(label=u'Набор')
+    kit = fields.ChoiceField(label='Набор')
 
-    caption = fields.CharField(label=u'Название', max_length=ItemPrototype.CAPTION_MAX_LENGTH, min_length=1)
+    caption = fields.CharField(label='Название', max_length=ItemPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
-    text = bbcode.BBField(label=u'Текст', min_length=1)
+    text = bbcode.BBField(label='Текст', min_length=1)
 
     def __init__(self, *args, **kwargs):
         super(EditItemForm, self).__init__(*args, **kwargs)
@@ -58,6 +58,6 @@ class EditItemForm(forms.Form):
         kit =  kits_storage[int(kit_id)]
 
         if kit is None:
-            raise django_forms.ValidationError(u'Колекция не найдена')
+            raise django_forms.ValidationError('Колекция не найдена')
 
         return kit

@@ -5,7 +5,7 @@ from the_tale.finances.shop import exceptions
 from the_tale.finances.shop import relations
 from the_tale.finances.shop.conf import payments_settings
 
-PREMIUM_DAYS_DESCRIPTION = u'''
+PREMIUM_DAYS_DESCRIPTION = '''
 <p>
 Подписка даёт следующие преимущества:
 </p>
@@ -22,7 +22,7 @@ PREMIUM_DAYS_DESCRIPTION = u'''
 </ul>
 '''
 
-PREFERENCES_DESCRIPTION = u'''
+PREFERENCES_DESCRIPTION = '''
 <p>
 У каждого героя есть предпочтения, в соответствии с которыми он строит своё поведение.<br/>
 Они доступны не сразу, а открываются с ростом уровня.<br/>
@@ -30,7 +30,7 @@ PREFERENCES_DESCRIPTION = u'''
 </p>
 '''
 
-GUILDS_DESCRIPTION = u'''
+GUILDS_DESCRIPTION = '''
 <p>
 Гильдии — это объединения игроков, преследующих одну и ту же цель и желающих согласовывать свои действия в Пандоре.<br/>
 Создать гильдию может любой игрок, если у него достаточно могущества.<br/>
@@ -38,7 +38,7 @@ GUILDS_DESCRIPTION = u'''
 </p>
 '''
 
-RANDOM_PREMIUM_CHEST_DESCRIPTION = u'''
+RANDOM_PREMIUM_CHEST_DESCRIPTION = '''
 <p>
 Подарите подписку на %(days)s дней случайному активному игроку (не подписчику) и получите один из подарков:
 </p>
@@ -52,7 +52,7 @@ RANDOM_PREMIUM_CHEST_DESCRIPTION = u'''
 <p>
 Чем больше подписчиков, тем увлекательнее жизнь Пандоры!
 </p>
-''' % {'gifts': '\n'.join(u'<li>%s</li>' % reward.description
+''' % {'gifts': '\n'.join('<li>%s</li>' % reward.description
                           for reward in sorted(relations.RANDOM_PREMIUM_CHEST_REWARD.records, key=lambda r: -r.priority)),
        'days': payments_settings.RANDOM_PREMIUM_DAYS }
 
@@ -69,106 +69,106 @@ def permanent_permission_purchase(uid, purchase_type, cost):
     return permanent_purchase(uid=uid,
                               purchase_type=purchase_type,
                               cost=cost,
-                              transaction_description=u'Снятие ограничения уровня на предпочтение героя «%s»' % purchase_type.preference_type.text)
+                              transaction_description='Снятие ограничения уровня на предпочтение героя «%s»' % purchase_type.preference_type.text)
 
 
 RANDOM_PREMIUM_CHEST = goods.PurchaseGroup(type=relations.GOODS_GROUP.CHEST,
-                                           name=u'Делай добро и дари подписку!',
-                                           short_name=u'Сделать добро',
+                                           name='Делай добро и дари подписку!',
+                                           short_name='Сделать добро',
                                            description=RANDOM_PREMIUM_CHEST_DESCRIPTION,
                                            items=[ goods.RandomPremiumChest(uid='random-premium-chest',
                                                                             cost=200,
                                                                             description=RANDOM_PREMIUM_CHEST_DESCRIPTION,
-                                                                            name=u'Сделать добро',
-                                                                            full_name=u'Делай добро и дари подписку!',
-                                                                            transaction_description=u'Подписка в подарок случайному игроку') ])
+                                                                            name='Сделать добро',
+                                                                            full_name='Делай добро и дари подписку!',
+                                                                            transaction_description='Подписка в подарок случайному игроку') ])
 
 
 PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.PREMIUM,
-                                    name=u'Подписка',
+                                    name='Подписка',
                                     description=PREMIUM_DAYS_DESCRIPTION,
-                                    items=[ goods.PremiumDays(uid=u'subscription-15',
-                                                              name=u'15 дней',
-                                                              full_name=u'15 дней подписки',
+                                    items=[ goods.PremiumDays(uid='subscription-15',
+                                                              name='15 дней',
+                                                              full_name='15 дней подписки',
                                                               description=PREMIUM_DAYS_DESCRIPTION,
                                                               cost=180,
                                                               days=15,
-                                                              transaction_description=u'Продление подписки на 15 дней.'),
+                                                              transaction_description='Продление подписки на 15 дней.'),
 
-                                            goods.PremiumDays(uid=u'subscription-30',
-                                                              name=u'30 дней',
-                                                              full_name=u'30 дней подписки',
+                                            goods.PremiumDays(uid='subscription-30',
+                                                              name='30 дней',
+                                                              full_name='30 дней подписки',
                                                               description=PREMIUM_DAYS_DESCRIPTION,
                                                               cost=300,
                                                               days=30,
-                                                              transaction_description=u'Продление подписки на 30 дней.'),
+                                                              transaction_description='Продление подписки на 30 дней.'),
 
-                                            goods.PremiumDays(uid=u'subscription-90',
-                                                              name=u'90 дней',
-                                                              full_name=u'90 дней подписки',
+                                            goods.PremiumDays(uid='subscription-90',
+                                                              name='90 дней',
+                                                              full_name='90 дней подписки',
                                                               description=PREMIUM_DAYS_DESCRIPTION,
                                                               cost=750,
                                                               days=90,
-                                                              transaction_description=u'Продление подписки на 90 дней.'),
+                                                              transaction_description='Продление подписки на 90 дней.'),
 
-                                            permanent_purchase(uid=u'subscription-infinit',
+                                            permanent_purchase(uid='subscription-infinit',
                                                                purchase_type=relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION,
                                                                cost=6000,
-                                                               transaction_description=u'Приобретение вечной подписки.')  ]),
+                                                               transaction_description='Приобретение вечной подписки.')  ]),
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.PREFERENCES,
-                                    name=u'Предпочтения',
+                                    name='Предпочтения',
                                     description=PREFERENCES_DESCRIPTION,
-                                    items=[ permanent_permission_purchase(uid=u'preference-companion-dedication',
+                                    items=[ permanent_permission_purchase(uid='preference-companion-dedication',
                                                                           cost=10,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_DEDICATION),
 
-                                            permanent_permission_purchase(uid=u'preference-place',
+                                            permanent_permission_purchase(uid='preference-place',
                                                                           cost=20,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_PLACE),
 
-                                            permanent_permission_purchase(uid=u'preference-mob',
+                                            permanent_permission_purchase(uid='preference-mob',
                                                                           cost=30,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB),
 
-                                            permanent_permission_purchase(uid=u'preference-friend',
+                                            permanent_permission_purchase(uid='preference-friend',
                                                                           cost=40,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_FRIEND),
 
-                                            permanent_permission_purchase(uid=u'preference-archetype',
+                                            permanent_permission_purchase(uid='preference-archetype',
                                                                           cost=50,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ARCHETYPE),
 
-                                            permanent_permission_purchase(uid=u'preference-enemy',
+                                            permanent_permission_purchase(uid='preference-enemy',
                                                                           cost=60,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ENEMY),
 
-                                            permanent_permission_purchase(uid=u'preference-companion-empathy',
+                                            permanent_permission_purchase(uid='preference-companion-empathy',
                                                                           cost=70,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_EMPATHY),
 
-                                            permanent_permission_purchase(uid=u'preference-favorite-item',
+                                            permanent_permission_purchase(uid='preference-favorite-item',
                                                                           cost=80,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_FAVORITE_ITEM),
 
-                                            permanent_permission_purchase(uid=u'preference-risk-level',
+                                            permanent_permission_purchase(uid='preference-risk-level',
                                                                           cost=90,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_RISK_LEVEL),
 
-                                            permanent_permission_purchase(uid=u'preference-equipment-slot',
+                                            permanent_permission_purchase(uid='preference-equipment-slot',
                                                                           cost=100,
                                                                           purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_EQUIPMENT_SLOT)
                                                                            ]),
 
                 goods.PurchaseGroup(type=relations.GOODS_GROUP.CLANS,
-                                    name=u'Гильдии',
+                                    name='Гильдии',
                                     description=GUILDS_DESCRIPTION,
-                                    items=[ permanent_purchase(uid=u'clan-ownership-right',
+                                    items=[ permanent_purchase(uid='clan-ownership-right',
                                                                cost=150,
                                                                purchase_type=relations.PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT,
-                                                               transaction_description=u'Приобретение разрешения на владение гильдией.') ]),
+                                                               transaction_description='Приобретение разрешения на владение гильдией.') ]),
                 ]
 
 

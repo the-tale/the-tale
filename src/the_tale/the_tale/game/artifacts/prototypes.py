@@ -232,9 +232,9 @@ class ArtifactPrototype(object):
                 self.max_integrity == other.max_integrity and
                 self.bag_uuid == other.bag_uuid)
 
-    NORMAL_ARTIFACT_LABEL = u'<span class="normal-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
-    RARE_ARTIFACT_LABEL = u'<span class="rare-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
-    EPIC_ARTIFACT_LABEL = u'<span class="epic-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
+    NORMAL_ARTIFACT_LABEL = '<span class="normal-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
+    RARE_ARTIFACT_LABEL = '<span class="rare-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
+    EPIC_ARTIFACT_LABEL = '<span class="epic-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>'
 
     def html_label(self):
         if self.is_useless:
@@ -321,7 +321,7 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
                       type_=relations.ARTIFACT_TYPE.USELESS,
                       power_type=relations.ARTIFACT_POWER_TYPE.NEUTRAL,
                       state=relations.ARTIFACT_RECORD_STATE.ENABLED):
-        name = u'artifact_'+uuid.lower()
+        name = 'artifact_'+uuid.lower()
         utg_name = names.generator.get_test_name(name=name)
         return cls.create(uuid, level=level, utg_name=utg_name, description='description of %s' % name, mob=mob, type_=type_, power_type=power_type, state=state)
 

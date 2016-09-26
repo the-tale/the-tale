@@ -10,7 +10,7 @@ from . import prototypes
 class Account(meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 7
-    TYPE_CAPTION = u'Хранитель'
+    TYPE_CAPTION = 'Хранитель'
 
     def __init__(self, caption, **kwargs):
         super(Account, self).__init__(**kwargs)

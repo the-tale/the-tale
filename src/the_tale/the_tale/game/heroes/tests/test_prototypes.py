@@ -88,7 +88,7 @@ class HeroTest(testcase.TestCase):
 
         self.assertTrue(self.hero.can_be_helped())
 
-        for i in xrange(heroes_settings.MAX_HELPS_IN_TURN-1):
+        for i in range(heroes_settings.MAX_HELPS_IN_TURN-1):
             self.hero.on_help()
 
         self.assertEqual(self.hero.helps_in_turn, heroes_settings.MAX_HELPS_IN_TURN-1)
@@ -402,7 +402,7 @@ class HeroTest(testcase.TestCase):
         for risk_level in relations.RISK_LEVEL.records:
             values = []
             self.hero.preferences.set_risk_level(risk_level)
-            for health_percents in xrange(1, 100, 1):
+            for health_percents in range(1, 100, 1):
                 self.hero.health = self.hero.max_health * float(health_percents) / 100
                 values.append(method(self.hero))
             results.append(values)
@@ -472,7 +472,7 @@ class HeroTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 0)
     def test_process_rare_operations__companion_not_added(self):
 
-        for i in xrange(1000):
+        for i in range(1000):
             self.hero.process_rare_operations()
             self.assertEqual(self.hero.companion, None)
 
@@ -543,7 +543,7 @@ class HeroTest(testcase.TestCase):
 
 
     def test_set_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
 
         self.assertEqual(self.hero.companion, None)
@@ -558,7 +558,7 @@ class HeroTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_max_health_multiplier', 2)
     def test_set_companion__health_maximum(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
 
         self.hero.set_companion(companion)
@@ -584,7 +584,7 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.companion.record.id, companion_record_2.id)
 
     def test_remove_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
 
         self.hero.set_companion(companion)
@@ -598,7 +598,7 @@ class HeroTest(testcase.TestCase):
 
 
     def test_remove_companion__switch_next_spending(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
 
         self.hero.set_companion(companion)
@@ -612,28 +612,28 @@ class HeroTest(testcase.TestCase):
 
 
     def test_switch_next_spending__with_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
 
         self.hero.set_companion(companion)
 
         spendings = set()
 
-        for i in xrange(1000):
+        for i in range(1000):
             self.hero.switch_spending()
             spendings.add(self.hero.next_spending)
 
         self.assertIn(relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION, spendings)
 
     def test_switch_next_spending__with_companion_dedication_is_EVERY_MAN_FOR_HIMSELF(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
 
         self.hero.set_companion(companion)
 
         self.hero.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.EVERY_MAN_FOR_HIMSELF)
 
-        for i in xrange(1000):
+        for i in range(1000):
             self.hero.switch_spending()
             self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
 
@@ -650,7 +650,7 @@ class HeroTest(testcase.TestCase):
     def test_switch_next_spending__without_companion(self):
         self.assertEqual(self.hero.companion, None)
 
-        for i in xrange(1000):
+        for i in range(1000):
             self.hero.switch_spending()
             self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
 
@@ -729,7 +729,7 @@ class HeroLevelUpTests(testcase.TestCase):
                                    4: 6,
                                    5: 7}
 
-        for level, points_number in level_to_points_number.items():
+        for level, points_number in list(level_to_points_number.items()):
             self.hero.level = level
             self.assertEqual(self.hero.abilities.max_ability_points_number, points_number)
 
@@ -756,10 +756,10 @@ class HeroLevelUpTests(testcase.TestCase):
                                 14: 17,
                                 15: 17}
 
-        for level, next_level in level_to_next_level.items():
+        for level, next_level in list(level_to_next_level.items()):
             self.hero.reset_level()
 
-            for i in xrange(level-1):
+            for i in range(level-1):
                 self.hero.randomized_level_up(increment_level=True)
 
             self.assertEqual(self.hero.abilities.next_battle_ability_point_lvl, next_level)
@@ -782,10 +782,10 @@ class HeroLevelUpTests(testcase.TestCase):
                                 15: 18,
                                 16: 18}
 
-        for level, next_level in level_to_next_level.items():
+        for level, next_level in list(level_to_next_level.items()):
             self.hero.reset_level()
 
-            for i in xrange(level-1):
+            for i in range(level-1):
                 self.hero.randomized_level_up(increment_level=True)
 
             self.assertEqual(self.hero.abilities.next_nonbattle_ability_point_lvl, next_level)
@@ -807,10 +807,10 @@ class HeroLevelUpTests(testcase.TestCase):
                                 13: 16,
                                 14: 16}
 
-        for level, next_level in level_to_next_level.items():
+        for level, next_level in list(level_to_next_level.items()):
             self.hero.reset_level()
 
-            for i in xrange(level-1):
+            for i in range(level-1):
                 self.hero.randomized_level_up(increment_level=True)
 
             self.assertEqual(self.hero.abilities.next_companion_ability_point_lvl, next_level)
@@ -849,9 +849,9 @@ class HeroLevelUpTests(testcase.TestCase):
                                   72: None,
                                   73: None}
 
-        for ability_points, next_type in ability_points_to_type.iteritems():
+        for ability_points, next_type in ability_points_to_type.items():
             self.hero.reset_level()
-            for i in xrange(ability_points-1):
+            for i in range(ability_points-1):
                 self.hero.randomized_level_up(increment_level=True)
 
             self.assertEqual(self.hero.abilities.next_ability_type, next_type)
@@ -862,77 +862,75 @@ class HeroLevelUpTests(testcase.TestCase):
         self.assertEqual(len(abilities), c.ABILITIES_FOR_CHOOSE_MAXIMUM)
 
     def test_get_abilities_for_choose_has_free_slots(self):
-        for ability in self.hero.abilities.abilities.values():
+        for ability in list(self.hero.abilities.abilities.values()):
             ability.level = ability.MAX_LEVEL
         abilities = self.hero.abilities.get_for_choose()
         self.assertEqual(len(abilities), 4)
-        self.assertEqual(len(filter(lambda a: a.level==2 and a.get_id()=='hit', abilities)), 0)
+        self.assertEqual(len([a for a in abilities if a.level==2 and a.get_id()=='hit']), 0)
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_passive_slots_busy(self):
 
-        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE and a.type.is_BATTLE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(ABILITIES.values())] if a.activation_type.is_PASSIVE and a.type.is_BATTLE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        for i in xrange(100):
+        for i in range(100):
             abilities = self.hero.abilities.get_for_choose()
-            self.assertEqual(len(filter(lambda a: a.activation_type.is_PASSIVE, abilities)), 0)
+            self.assertEqual(len([a for a in abilities if a.activation_type.is_PASSIVE]), 0)
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_active_slots_busy(self):
-        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(ABILITIES.values())] if a.activation_type.is_ACTIVE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        for i in xrange(100):
+        for i in range(100):
             abilities = self.hero.abilities.get_for_choose()
-            self.assertEqual(len(filter(lambda a: a.activation_type.is_ACTIVE, abilities)), 0)
+            self.assertEqual(len([a for a in abilities if a.activation_type.is_ACTIVE]), 0)
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy(self):
-        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(ABILITIES.values())] if a.activation_type.is_PASSIVE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE, [a(level=a.MAX_LEVEL) for a in ABILITIES.values()])
+        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(ABILITIES.values())] if a.activation_type.is_ACTIVE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        for i in xrange(100):
+        for i in range(100):
             abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(len(abilities), 0)
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy_but_one_not_max_level(self):
-        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value,
-                                   [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
+        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(battle.ABILITIES.values())] if a.activation_type.is_PASSIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value,
-                                  [a(level=a.MAX_LEVEL) for a in battle.ABILITIES.values()])
+        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(battle.ABILITIES.values())] if a.activation_type.is_ACTIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        ability = random.choice([ability for ability in self.hero.abilities.abilities.values() if ability.TYPE.is_BATTLE])
+        ability = random.choice([ability for ability in list(self.hero.abilities.abilities.values()) if ability.TYPE.is_BATTLE])
         ability.level -= 1
 
-        for i in xrange(100):
+        for i in range(100):
             abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(abilities, [ability.__class__(level=ability.level+1)])
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy_and_all_not_max_level(self):
-        passive_abilities = filter(lambda a: a.activation_type.is_PASSIVE, [a(level=1) for a in ABILITIES.values()])
+        passive_abilities = [a for a in [a(level=1) for a in list(ABILITIES.values())] if a.activation_type.is_PASSIVE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = filter(lambda a: a.activation_type.is_ACTIVE, [a(level=1) for a in ABILITIES.values()])
+        active_abilities = [a for a in [a(level=1) for a in list(ABILITIES.values())] if a.activation_type.is_ACTIVE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        for i in xrange(100):
+        for i in range(100):
             abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(len(abilities), c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
 
@@ -1266,7 +1264,7 @@ class HeroUiInfoTest(testcase.TestCase):
     def test_cached_ui_info_for_hero__turn_in_patch_turns(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
         old_info['patch_turn'] = 666
-        old_info['changed_fields'].extend(field for field in old_info.iterkeys()
+        old_info['changed_fields'].extend(field for field in old_info.keys()
                                           if random.random() < 0.5 and field not in ('pvp__last_turn', 'pvp__actual'))
 
         with mock.patch('dext.common.utils.cache.get', lambda x: copy.deepcopy(old_info)):
@@ -1279,7 +1277,7 @@ class HeroUiInfoTest(testcase.TestCase):
     def test_cached_ui_info_for_hero__turn_not_in_patch_turns(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
         old_info['patch_turn'] = 664
-        old_info['changed_fields'].extend(field for field in old_info.iterkeys()
+        old_info['changed_fields'].extend(field for field in old_info.keys()
                                           if random.random() < 0.5 and field not in ('pvp__last_turn', 'pvp__actual'))
 
         with mock.patch('dext.common.utils.cache.get', lambda x: copy.deepcopy(old_info)):
@@ -1309,7 +1307,7 @@ class HeroUiInfoTest(testcase.TestCase):
     def test_ui_info_patch(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
 
-        patched_fields = set(field for field in old_info.iterkeys() if random.random() < 0.5)
+        patched_fields = set(field for field in old_info.keys() if random.random() < 0.5)
         patched_fields |= set(('changed_fields', 'actual_on_turn', 'patch_turn'))
 
         for field in patched_fields:

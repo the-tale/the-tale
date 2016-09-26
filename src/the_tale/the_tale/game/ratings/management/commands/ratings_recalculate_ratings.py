@@ -11,10 +11,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        print 'recalculate values'
+        print('recalculate values')
 
         RatingValuesPrototype.recalculate()
 
-        print 'recalculate places'
+        print('recalculate places')
 
         RatingPlacesPrototype.recalculate()

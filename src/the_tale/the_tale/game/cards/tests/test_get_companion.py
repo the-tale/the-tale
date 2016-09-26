@@ -42,7 +42,7 @@ class GetCompanionCreateTests(testcase.TestCase):
 
     def test__no_disabled_companions(self):
 
-        for i in xrange(100):
+        for i in range(100):
             card = self.effect.create_card(available_for_auction=True)
             self.assertNotEqual(card.data['companion_id'], self.disabled_companion.id)
             self.assertTrue(companions_storage.companions[card.data['companion_id']].state.is_ENABLED)
@@ -50,7 +50,7 @@ class GetCompanionCreateTests(testcase.TestCase):
 
     def test__no_manual_companions(self):
 
-        for i in xrange(100):
+        for i in range(100):
             card = self.effect.create_card(available_for_auction=True)
             self.assertNotEqual(card.data['companion_id'], self.manual_companion.id)
             self.assertTrue(companions_storage.companions[card.data['companion_id']].mode.is_AUTOMATIC)
@@ -70,7 +70,7 @@ class GetCompanionMixin(CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.iteritems():
+        for rarity, rarity_abilities in companions_helpers.RARITIES_ABILITIES.items():
             companions_logic.create_random_companion_record('%s companion' % rarity,
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,

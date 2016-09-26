@@ -32,7 +32,7 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
 
         self.quest = self.create_quest()
 
-        self.start = self.quest.knowledge_base.filter(facts.Start).next()
+        self.start = next(self.quest.knowledge_base.filter(facts.Start))
 
         with mock.patch('the_tale.game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs)):
             self.quest_info = QuestInfo.construct(type=self.start.type,
@@ -91,7 +91,7 @@ class QuestInfoTests(testcase.TestCase, QuestTestsMixin):
 
         self.assertEqual(self.quest_info.choice, 'q_quest_quest_with_2_choice_points_choice_current_opt_1_1')
         self.assertEqual(self.quest_info.choice_alternatives,  [('#option([ns-0]choice_1, [ns-0]choice_2, opt_2)',
-                                                                 u'q_quest_quest_with_2_choice_points_choice_variant_opt_2_2')])
+                                                                 'q_quest_quest_with_2_choice_points_choice_variant_opt_2_2')])
 
     @mock.patch('the_tale.game.quests.writers.get_writer', lambda **kwargs: FakeWriter(fake_uid='q', **kwargs))
     def test_sync_choices__no_choice(self):

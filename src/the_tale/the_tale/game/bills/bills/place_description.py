@@ -15,8 +15,8 @@ from . import base_place_bill
 
 
 class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label=u'Город')
-    new_description = bbcode.BBField(label=u'Новое описание', max_length=places_conf.settings.MAX_DESCRIPTION_LENGTH)
+    place = fields.ChoiceField(label='Город')
+    new_description = bbcode.BBField(label='Новое описание', max_length=places_conf.settings.MAX_DESCRIPTION_LENGTH)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -37,8 +37,8 @@ class PlaceDescripton(base_place_bill.BasePlaceBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Изменение описания города'
-    DESCRIPTION = u'Изменяет описание города. При создании нового описания постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается. Также не забывайте, что описание должно соответствовать названию города. Описание должно быть небольшим по размеру.'
+    CAPTION = 'Изменение описания города'
+    DESCRIPTION = 'Изменяет описание города. При создании нового описания постарайтесь учесть, какой расе принадлежит город, кто является его жителями и в какую сторону он развивается. Также не забывайте, что описание должно соответствовать названию города. Описание должно быть небольшим по размеру.'
 
     def __init__(self, description=None, old_description=None, **kwargs):
         super(PlaceDescripton, self).__init__(**kwargs)
@@ -82,5 +82,5 @@ class PlaceDescripton(base_place_bill.BasePlaceBill):
     def deserialize(cls, data):
         obj = super(PlaceDescripton, cls).deserialize(data)
         obj.description = data['description']
-        obj.old_description = data.get('old_description', u'неизвестно')
+        obj.old_description = data.get('old_description', 'неизвестно')
         return obj

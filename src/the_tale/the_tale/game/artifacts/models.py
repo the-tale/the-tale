@@ -32,12 +32,12 @@ class ArtifactRecord(models.Model):
 
     name = models.CharField(max_length=MAX_NAME_LENGTH, unique=True, null=False, db_index=True)
 
-    description = models.TextField(null=False, default=u'', blank=True)
+    description = models.TextField(null=False, default='', blank=True)
 
     mob = models.ForeignKey('mobs.MobRecord', null=True, related_name='+', blank=True, on_delete=models.SET_NULL)
 
     data = models.TextField(null=False, default='{}')
 
     class Meta:
-        permissions = (("create_artifactrecord", u"Может предлагать артефакты"),
-                       ("moderate_artifactrecord", u"Может утверждать артефакты"),)
+        permissions = (("create_artifactrecord", "Может предлагать артефакты"),
+                       ("moderate_artifactrecord", "Может утверждать артефакты"),)

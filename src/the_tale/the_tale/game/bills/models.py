@@ -36,7 +36,7 @@ class Bill(models.Model):
     rationale = models.TextField(null=False, blank=True)
     technical_data = models.TextField(null=False, blank=True, default={})
 
-    chronicle_on_accepted = models.TextField(null=False, blank=True, default=u'')
+    chronicle_on_accepted = models.TextField(null=False, blank=True, default='')
 
     # we should not remove bill when ocasionally remove forum thread
     forum_thread = models.ForeignKey(Thread, null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
@@ -52,7 +52,7 @@ class Bill(models.Model):
     declined_by = models.ForeignKey('bills.Bill', null=True, default=None, related_name='+', blank=True, on_delete=models.SET_NULL)
 
     class Meta:
-        permissions = (("moderate_bill", u"Может администрировать законопроекты"), )
+        permissions = (("moderate_bill", "Может администрировать законопроекты"), )
 
 
 class Actor(models.Model):

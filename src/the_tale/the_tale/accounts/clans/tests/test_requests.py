@@ -73,14 +73,14 @@ class TestIndexRequests(BaseTestRequests):
 
     @mock.patch('the_tale.accounts.clans.conf.clans_settings.CLANS_ON_PAGE', 4)
     def test_clans_2_pages(self):
-        for i in xrange(6):
+        for i in range(6):
             self.create_clan(self.accounts_factory.create_account(), i)
 
         self.check_html_ok(self.request_html(url('accounts:clans:')),
-                           texts=[(u'a-%d' % i, 1) for i in xrange(4)] + [('pgf-no-clans-message', 0)])
+                           texts=[('a-%d' % i, 1) for i in range(4)] + [('pgf-no-clans-message', 0)])
 
         self.check_html_ok(self.request_html(url('accounts:clans:', page=2)),
-                           texts=[(u'a-%d' % i, 1) for i in xrange(4, 6)] + [('pgf-no-clans-message', 0)])
+                           texts=[('a-%d' % i, 1) for i in range(4, 6)] + [('pgf-no-clans-message', 0)])
 
         self.check_redirect(url('accounts:clans:', page=3), url('accounts:clans:', page=2, order_by=ORDER_BY.NAME.value))
 
@@ -125,10 +125,10 @@ class TestCreateRequests(BaseTestRequests):
         self.request_login(self.account.email)
 
     def create_data(self, name=None, abbr=None):
-        return {'name': u'clan-1' if name is None else name,
-                'abbr': u'CLN-1' if abbr is None else abbr,
-                'motto': u'Clan!',
-                'description': u'ARGH!'}
+        return {'name': 'clan-1' if name is None else name,
+                'abbr': 'CLN-1' if abbr is None else abbr,
+                'motto': 'Clan!',
+                'description': 'ARGH!'}
 
     def test_login_required(self):
         self.request_logout()
@@ -247,26 +247,26 @@ class TestUpdateRequests(BaseTestRequests):
         self.request_login(self.account.email)
 
     def update_data(self, name=None, abbr=None):
-        return {'name': u'clan-1' if name is None else name,
-                'abbr': u'CLN-1' if abbr is None else abbr,
-                'motto': u'Clan!',
-                'description': u'ARGH!'}
+        return {'name': 'clan-1' if name is None else name,
+                'abbr': 'CLN-1' if abbr is None else abbr,
+                'motto': 'Clan!',
+                'description': 'ARGH!'}
 
     def check_clan_old_data(self):
         self.clan.reload()
 
-        self.assertEqual(u'a-0', self.clan.abbr)
-        self.assertEqual(u'name-0', self.clan.name)
-        self.assertEqual(u'motto-0', self.clan.motto)
-        self.assertEqual(u'[b]description-0[/b]', self.clan.description)
+        self.assertEqual('a-0', self.clan.abbr)
+        self.assertEqual('name-0', self.clan.name)
+        self.assertEqual('motto-0', self.clan.motto)
+        self.assertEqual('[b]description-0[/b]', self.clan.description)
 
     def check_clan_new_data(self):
         self.clan.reload()
 
-        self.assertEqual(u'CLN-1', self.clan.abbr)
-        self.assertEqual(u'clan-1', self.clan.name)
-        self.assertEqual(u'Clan!', self.clan.motto)
-        self.assertEqual(u'ARGH!', self.clan.description)
+        self.assertEqual('CLN-1', self.clan.abbr)
+        self.assertEqual('clan-1', self.clan.name)
+        self.assertEqual('Clan!', self.clan.motto)
+        self.assertEqual('ARGH!', self.clan.description)
 
     def test_login_required(self):
         self.request_logout()
@@ -388,25 +388,25 @@ class MembershipForClanRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=self.account,
                                           account=account_2,
                                           clan=self.clan,
-                                          text=u'invite-1',
+                                          text='invite-1',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
         MembershipRequestPrototype.create(initiator=account_3,
                                           account=account_3,
                                           clan=self.clan,
-                                          text=u'invite-2',
+                                          text='invite-2',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         MembershipRequestPrototype.create(initiator=account_5,
                                           account=account_5,
                                           clan=clan_2,
-                                          text=u'invite-3',
+                                          text='invite-3',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         MembershipRequestPrototype.create(initiator=account_4,
                                           account=account_6,
                                           clan=clan_2,
-                                          text=u'invite-4',
+                                          text='invite-4',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
 
@@ -447,25 +447,25 @@ class MembershipForAccountRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=account_2,
                                           account=self.account,
                                           clan=clan_1,
-                                          text=u'invite-1',
+                                          text='invite-1',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
         MembershipRequestPrototype.create(initiator=self.account,
                                           account=self.account,
                                           clan=clan_3,
-                                          text=u'invite-2',
+                                          text='invite-2',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         MembershipRequestPrototype.create(initiator=account_3,
                                           account=account_3,
                                           clan=clan_2,
-                                          text=u'invite-3',
+                                          text='invite-3',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         MembershipRequestPrototype.create(initiator=account_4,
                                           account=account_5,
                                           clan=clan_2,
-                                          text=u'invite-4',
+                                          text='invite-4',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
 
@@ -507,7 +507,7 @@ class MembershipInviteDialogRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=self.account,
                                           account=self.account_2,
                                           clan=self.clan,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
         self.check_html_ok(self.request_ajax_html(self.invite_url), texts=['clans.membership.account_has_invite'])
 
@@ -515,7 +515,7 @@ class MembershipInviteDialogRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=self.account_2,
                                           account=self.account_2,
                                           clan=self.clan,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
         self.check_html_ok(self.request_ajax_html(self.invite_url), texts=['clans.membership.account_has_invite'])
 
@@ -528,12 +528,12 @@ class MembershipInviteDialogRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=account_3,
                                           account=self.account_2,
                                           clan=clan_3,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
         MembershipRequestPrototype.create(initiator=self.account_2,
                                           account=self.account_2,
                                           clan=clan_4,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         self.check_html_ok(self.request_ajax_html(self.invite_url), texts=['pgf-invite-dialog'])
@@ -564,7 +564,7 @@ class MembershipRequestDialogRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=self.account,
                                           account=self.account_2,
                                           clan=self.clan,
-                                          text=u'request',
+                                          text='request',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
         self.check_html_ok(self.request_ajax_html(self.request_url), texts=['clans.membership.clan_has_request'])
 
@@ -572,7 +572,7 @@ class MembershipRequestDialogRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=self.account_2,
                                           account=self.account_2,
                                           clan=self.clan,
-                                          text=u'request',
+                                          text='request',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
         self.check_html_ok(self.request_ajax_html(self.request_url), texts=['clans.membership.clan_has_request'])
 
@@ -585,13 +585,13 @@ class MembershipRequestDialogRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=account_3,
                                           account=self.account,
                                           clan=clan_3,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
         MembershipRequestPrototype.create(initiator=self.account,
                                           account=self.account,
                                           clan=clan_4,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         self.check_html_ok(self.request_ajax_html(self.request_url), texts=['pgf-request-dialog'])
@@ -633,7 +633,7 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=self.account,
                                           account=self.account_2,
                                           clan=self.clan,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
         self.check_ajax_error(self.post_ajax_json(self.invite_url, self.post_data()), 'clans.membership.account_has_invite')
         self.assertEqual(MembershipRequestPrototype._db_count(), 1)
@@ -642,7 +642,7 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=self.account_2,
                                           account=self.account_2,
                                           clan=self.clan,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
         self.check_ajax_error(self.post_ajax_json(self.invite_url, self.post_data()), 'clans.membership.account_has_invite')
         self.assertEqual(MembershipRequestPrototype._db_count(), 1)
@@ -661,12 +661,12 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=account_3,
                                           account=self.account_2,
                                           clan=clan_3,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
         MembershipRequestPrototype.create(initiator=self.account_2,
                                           account=self.account_2,
                                           clan=clan_4,
-                                          text=u'invite',
+                                          text='invite',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         self.assertEqual(MessagePrototype._db_count(), 0)
@@ -715,7 +715,7 @@ class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=self.account,
                                           account=self.account_2,
                                           clan=self.clan,
-                                          text=u'request',
+                                          text='request',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
         self.check_ajax_error(self.post_ajax_json(self.request_url, self.post_data()), 'clans.membership.clan_has_request')
         self.assertEqual(MembershipRequestPrototype._db_count(), 1)
@@ -724,7 +724,7 @@ class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=self.account_2,
                                           account=self.account_2,
                                           clan=self.clan,
-                                          text=u'request',
+                                          text='request',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
         self.check_ajax_error(self.post_ajax_json(self.request_url, self.post_data()), 'clans.membership.clan_has_request')
         self.assertEqual(MembershipRequestPrototype._db_count(), 1)
@@ -742,13 +742,13 @@ class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
         MembershipRequestPrototype.create(initiator=account_3,
                                           account=self.account,
                                           clan=clan_3,
-                                          text=u'request',
+                                          text='request',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
         MembershipRequestPrototype.create(initiator=self.account,
                                           account=self.account,
                                           clan=clan_4,
-                                          text=u'request',
+                                          text='request',
                                           type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         self.assertEqual(MessagePrototype._db_count(), 0)
@@ -775,7 +775,7 @@ class MembershipAcceptRequestRequestsTests(BaseMembershipRequestsTests):
         self.request = MembershipRequestPrototype.create(initiator=self.account_2,
                                                          account=self.account_2,
                                                          clan=self.clan,
-                                                         text=u'request',
+                                                         text='request',
                                                          type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         self.accept_url = url('accounts:clans:membership:accept-request', request=self.request.id)
@@ -829,7 +829,7 @@ class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
         self.request = MembershipRequestPrototype.create(initiator=self.account,
                                                          account=self.account_2,
                                                          clan=self.clan,
-                                                         text=u'request',
+                                                         text='request',
                                                          type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
         self.accept_url = url('accounts:clans:membership:accept-invite', request=self.request.id)
@@ -875,7 +875,7 @@ class MembershipRejectRequestRequestsTests(BaseMembershipRequestsTests):
         self.request = MembershipRequestPrototype.create(initiator=self.account_2,
                                                          account=self.account_2,
                                                          clan=self.clan,
-                                                         text=u'request',
+                                                         text='request',
                                                          type=MEMBERSHIP_REQUEST_TYPE.FROM_ACCOUNT)
 
         self.reject_url = url('accounts:clans:membership:reject-request', request=self.request.id)
@@ -928,7 +928,7 @@ class MembershipRejectInviteRequestsTests(BaseMembershipRequestsTests):
         self.request = MembershipRequestPrototype.create(initiator=self.account,
                                                          account=self.account_2,
                                                          clan=self.clan,
-                                                         text=u'request',
+                                                         text='request',
                                                          type=MEMBERSHIP_REQUEST_TYPE.FROM_CLAN)
 
         self.reject_url = url('accounts:clans:membership:reject-invite', request=self.request.id)

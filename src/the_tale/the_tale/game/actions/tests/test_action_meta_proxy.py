@@ -46,7 +46,7 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
 
         self.storage.merge_bundles([self.action_idl_1.bundle_id, self.action_idl_2.bundle_id], self.bundle_id)
 
-        self.meta_action_battle = self.storage.meta_actions.values()[0]
+        self.meta_action_battle = list(self.storage.meta_actions.values())[0]
 
 
     def tearDown(self):

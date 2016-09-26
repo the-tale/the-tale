@@ -16,9 +16,9 @@ class CHARISMA(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Харизматичный'
+    NAME = 'Харизматичный'
     normalized_name = NAME
-    DESCRIPTION = u'Герой настолько обаятелен, что умудряется получать лучшие награды за выполнение заданий.'
+    DESCRIPTION = 'Герой настолько обаятелен, что умудряется получать лучшие награды за выполнение заданий.'
 
     QUESTS_FRACTION = c.EXPECTED_QUESTS_IN_DAY / f.artifacts_in_day()
     ARTIFACTS_FRACTION = 1 - QUESTS_FRACTION
@@ -29,7 +29,7 @@ class CHARISMA(AbilityPrototype):
     # MAX_MONEY_ABILITIES_BONUS заменяем на 1 + self.MONEY_BONUS[self.level-1]
     TOTAL_BONUS = ((MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION - ARTIFACTS_FRACTION) / QUESTS_FRACTION
 
-    MONEY_BONUS = [i * (TOTAL_BONUS - 1) / 5.0 for i in xrange(1, 6)]
+    MONEY_BONUS = [i * (TOTAL_BONUS - 1) / 5.0 for i in range(1, 6)]
 
     @property
     def money_bonus(self): return self.MONEY_BONUS[self.level-1]
@@ -44,16 +44,16 @@ class HUCKSTER(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Торгаш'
+    NAME = 'Торгаш'
     normalized_name = NAME
-    DESCRIPTION = u'Увеличивается цена продажи и уменьшаются все траты.'
+    DESCRIPTION = 'Увеличивается цена продажи и уменьшаются все траты.'
 
     BUY_BONUS = [-0.025, -0.050, -0.075, -0.10, -0.125]
     # MAX_MONEY_ABILITIES_BONUS = c.INCOME_LOOT_FRACTION * TOTAL_BONUS + c.INCOME_ARTIFACTS_FRACTION
     # TOTAL_BONUS = (MAX_MONEY_ABILITIES_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION
     # MAX_MONEY_ABILITIES_BONUS пересчиываем с учётом скидки на покупку -> (1+BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
     MAX_BONUS = (1+BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
-    SELL_BONUS = [((MAX_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION - 1) / 5.0 * i for i in xrange(1, 6)]
+    SELL_BONUS = [((MAX_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION - 1) / 5.0 * i for i in range(1, 6)]
 
     @property
     def buy_bonus(self): return self.BUY_BONUS[self.level-1]
@@ -78,9 +78,9 @@ class DANDY(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Щёголь'
+    NAME = 'Щёголь'
     normalized_name = NAME
-    DESCRIPTION = u'Увеличивает вероятность траты денег на заточку, ремонт и покупку артефактов.'
+    DESCRIPTION = 'Увеличивает вероятность траты денег на заточку, ремонт и покупку артефактов.'
 
     PRIORITY_MULTIPLIER = [1.4, 1.8, 2.2, 2.6, 3.0]
 
@@ -101,9 +101,9 @@ class BUSINESSMAN(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Делец'
+    NAME = 'Делец'
     normalized_name = NAME
-    DESCRIPTION = u'Герой имеет больше шансов получить артефакт в награду за выполнение задания.'
+    DESCRIPTION = 'Герой имеет больше шансов получить артефакт в награду за выполнение задания.'
 
     PROBABILITY = [0.04, 0.08, 0.12, 0.16, 0.20]
 
@@ -119,9 +119,9 @@ class PICKY(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Придирчивый'
+    NAME = 'Придирчивый'
     normalized_name = NAME
-    DESCRIPTION = u'Герой с большей вероятностью получает редкие и эпические артефакты.'
+    DESCRIPTION = 'Герой с большей вероятностью получает редкие и эпические артефакты.'
 
     PROBABILITY = [1.4, 1.8, 2.2, 2.6, 3.0]
 
@@ -143,9 +143,9 @@ class ETHEREAL_MAGNET(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Эфирный магнит'
+    NAME = 'Эфирный магнит'
     normalized_name = NAME
-    DESCRIPTION = u'Герой притягивает к себе магию и увеличивает вероятность критического срабатывания помощи хранителя.'
+    DESCRIPTION = 'Герой притягивает к себе магию и увеличивает вероятность критического срабатывания помощи хранителя.'
 
     CRIT_PROBABILITY = [0.04, 0.08, 0.12, 0.16, 0.20]
 
@@ -161,9 +161,9 @@ class WANDERER(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Бродяга'
+    NAME = 'Бродяга'
     normalized_name = NAME
-    DESCRIPTION = u'Бродяги истоптали тысячи тропинок и всегда найдут кратчайшую дорогу, поэтому путешествуют быстрее остальных.'
+    DESCRIPTION = 'Бродяги истоптали тысячи тропинок и всегда найдут кратчайшую дорогу, поэтому путешествуют быстрее остальных.'
 
     # since experience not depends on time, this agruments MUST be equal or less then GIFTER.EXPERIENCE_MULTIPLIER
     # in other case, GIFTED will give less experience, then WANDERER
@@ -181,9 +181,9 @@ class GIFTED(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Одарённый'
+    NAME = 'Одарённый'
     normalized_name = NAME
-    DESCRIPTION = u'Одарённые герои быстрее получают опыт.'
+    DESCRIPTION = 'Одарённые герои быстрее получают опыт.'
 
     EXPERIENCE_MULTIPLIER = [1.04, 1.08, 1.12, 1.16, 1.2]
 
@@ -201,11 +201,11 @@ class DIPLOMATIC(AbilityPrototype):
 
     MAXIMUM_MULTIPLIER = 2.0
 
-    NAME = u'Дипломатичный'
+    NAME = 'Дипломатичный'
     normalized_name = NAME
-    DESCRIPTION = u'Некоторые герои приноровились выполнять задание особенно хитро и тщательно, тем самым увеличивая своё влияние на участников задания. Максимальный бонус к влиянию: %d%%' % (MAXIMUM_MULTIPLIER * 100)
+    DESCRIPTION = 'Некоторые герои приноровились выполнять задание особенно хитро и тщательно, тем самым увеличивая своё влияние на участников задания. Максимальный бонус к влиянию: %d%%' % (MAXIMUM_MULTIPLIER * 100)
 
-    POWER_MULTIPLIER = [MAXIMUM_MULTIPLIER * i / 5 for i in xrange(1, 6)]
+    POWER_MULTIPLIER = [MAXIMUM_MULTIPLIER * i / 5 for i in range(1, 6)]
 
     @property
     def power_multiplier(self): return self.POWER_MULTIPLIER[self.level-1]
@@ -219,9 +219,9 @@ class THRIFTY(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Запасливый'
+    NAME = 'Запасливый'
     normalized_name = NAME
-    DESCRIPTION = u'Запасливый герой не любит расставаться с добычей, поэтому носит с собой рюкзак большего размера.'
+    DESCRIPTION = 'Запасливый герой не любит расставаться с добычей, поэтому носит с собой рюкзак большего размера.'
 
     MAX_BAG_SIZE_MODIFIER = [2, 3, 4, 5, 6]
 
@@ -238,9 +238,9 @@ class OPEN_MINDED(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Открытый'
+    NAME = 'Открытый'
     normalized_name = NAME
-    DESCRIPTION = u'Герой всегда готов посмотреть на вещи с новой стороны, благодаря чему увеличивается скорость изменения его черт.'
+    DESCRIPTION = 'Герой всегда готов посмотреть на вещи с новой стороны, благодаря чему увеличивается скорость изменения его черт.'
 
     HABIT_MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
 
@@ -257,9 +257,9 @@ class SELFISH(AbilityPrototype):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_PLAYERS
 
-    NAME = u'Эгоцентричный'
+    NAME = 'Эгоцентричный'
     normalized_name = NAME
-    DESCRIPTION = u'Герой чаще выбирает задания связанные со своими предпочтениями.'
+    DESCRIPTION = 'Герой чаще выбирает задания связанные со своими предпочтениями.'
 
     MULTIPLIER = [1.2, 1.4, 1.6, 1.8, 2.0]
 

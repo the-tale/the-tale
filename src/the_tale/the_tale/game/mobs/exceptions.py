@@ -4,10 +4,10 @@ from the_tale.common.utils.exceptions import TheTaleError
 
 
 class MobsError(TheTaleError):
-    MSG = u'mobs error'
+    MSG = 'mobs error'
 
 class MobsStorageError(MobsError):
-    MSG = u'mobs storage error: %(message)s'
+    MSG = 'mobs storage error: %(message)s'
 
 class SaveNotRegisteredMobError(MobsError):
-    MSG = u'try to save mob %(mob)r not from storage'
+    MSG = 'try to save mob %(mob)r not from storage'

@@ -40,8 +40,8 @@ class BasePvPAbility(object):
 
 class Ice(BasePvPAbility):
     TYPE = 'ice'
-    NAME = u'Лёд'
-    DESCRIPTION = u'Сконцентрироваться и увеличить прирост энергии. Чем дольше копилась энергия, тем вероятнее успех применения способности.'
+    NAME = 'Лёд'
+    DESCRIPTION = 'Сконцентрироваться и увеличить прирост энергии. Чем дольше копилась энергия, тем вероятнее успех применения способности.'
 
     @staticmethod
     def get_probability(energy, energy_speed): return min(1.0, energy * 10 / 100.0 / energy_speed)
@@ -56,8 +56,8 @@ class Ice(BasePvPAbility):
 
 class Blood(BasePvPAbility):
     TYPE = 'blood'
-    NAME = u'Кровь'
-    DESCRIPTION = u'Усилить связь с героем и увеличить его эффективность. Чем больше энергии накоплено, тем вероятнее неудачное применение способности и тем больше прирост эффективности при удачном применении.'
+    NAME = 'Кровь'
+    DESCRIPTION = 'Усилить связь с героем и увеличить его эффективность. Чем больше энергии накоплено, тем вероятнее неудачное применение способности и тем больше прирост эффективности при удачном применении.'
 
     @staticmethod
     def get_probability(energy, energy_speed): return max(0.01, (100 - energy) / 100.0)
@@ -76,8 +76,8 @@ class Blood(BasePvPAbility):
 
 class Flame(BasePvPAbility):
     TYPE = 'flame'
-    NAME = u'Пламя'
-    DESCRIPTION = u'Нарушить концентрацию противника и уменьшить прирост его энергии. Чем дольше копилась энергия, тем вероятнее успех применения способности. Сбросить прирост энергии меньше 1 нельзя.'
+    NAME = 'Пламя'
+    DESCRIPTION = 'Нарушить концентрацию противника и уменьшить прирост его энергии. Чем дольше копилась энергия, тем вероятнее успех применения способности. Сбросить прирост энергии меньше 1 нельзя.'
 
     @staticmethod
     def get_probability(energy, energy_speed): return min(1.0, energy * 10 / 100.0 / energy_speed)

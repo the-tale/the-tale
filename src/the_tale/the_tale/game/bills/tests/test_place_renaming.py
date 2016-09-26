@@ -58,7 +58,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertEqual(self.bill.caption, 'bill-1-caption')
         self.assertEqual(self.bill.rationale, 'bill-1-rationale')
         self.assertEqual(self.bill.approved_by_moderator, True)
-        self.assertEqual(self.bill.data.base_name, u'new_name_1-нс,ед,им')
+        self.assertEqual(self.bill.data.base_name, 'new_name_1-нс,ед,им')
         self.assertEqual(self.bill.data.place_id, self.place1.id)
         self.assertEqual(Post.objects.all().count(), 1)
 
@@ -88,7 +88,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertEqual(self.bill.rationale, 'new-rationale')
         self.assertEqual(self.bill.chronicle_on_accepted, 'chronicle-on-accepted-2')
         self.assertEqual(self.bill.approved_by_moderator, False)
-        self.assertEqual(self.bill.data.base_name, u'new-new-name-нс,ед,им')
+        self.assertEqual(self.bill.data.base_name, 'new-new-name-нс,ед,им')
         self.assertEqual(self.bill.data.place_id, self.place2.id)
         self.assertEqual(Post.objects.all().count(), 2)
         self.assertEqual(Thread.objects.get(id=self.bill.forum_thread_id).caption, 'new-caption')

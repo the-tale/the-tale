@@ -64,7 +64,7 @@ class BaseTestRequests(TestCase):
                                    category=forum_category)
 
     def create_bills(self, number, owner, caption_template, rationale_template, bill_data):
-        return [BillPrototype.create(owner, caption_template % i, rationale_template % i, bill_data, chronicle_on_accepted='chronicle-on-accepted-%d' % i) for i in xrange(number) ]
+        return [BillPrototype.create(owner, caption_template % i, rationale_template % i, bill_data, chronicle_on_accepted='chronicle-on-accepted-%d' % i) for i in range(number) ]
 
     def check_bill_votes(self, bill_id, votes_for, votes_against):
         bill = Bill.objects.get(id=bill_id)
@@ -544,7 +544,7 @@ class TestCreateRequests(BaseTestRequests):
         self.assertEqual(bill.caption, 'bill-caption')
         self.assertEqual(bill.rationale, 'bill-rationale')
         self.assertEqual(bill.data.place.id, self.place1.id)
-        self.assertEqual(bill.data.base_name, u'new-name-нс,ед,им')
+        self.assertEqual(bill.data.base_name, 'new-name-нс,ед,им')
         self.assertEqual(bill.votes_for, 1)
         self.assertEqual(bill.votes_against, 0)
         self.assertEqual(bill.chronicle_on_accepted, 'chronicle-on-accepted')

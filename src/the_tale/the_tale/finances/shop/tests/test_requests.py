@@ -95,17 +95,17 @@ class ShopRequestesTests(RequestesTestsBase, PageRequestsMixin, BankTestsMixin):
 
 
     def test_goods(self):
-        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-no-goods-message', 0)] + PURCHASES_BY_UID.keys())
+        self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-no-goods-message', 0)] + list(PURCHASES_BY_UID.keys()))
 
     def test_purchasable_items(self):
-        for purchase in PURCHASES_BY_UID.values():
+        for purchase in list(PURCHASES_BY_UID.values()):
             if not isinstance(purchase, PermanentPurchase):
                 continue
 
             self.account.permanent_purchases.insert(purchase.purchase_type)
             self.account.save()
 
-            existed_uids = PURCHASES_BY_UID.keys()
+            existed_uids = list(PURCHASES_BY_UID.keys())
             existed_uids.remove(purchase.uid)
 
             if purchase.purchase_type.is_INFINIT_SUBSCRIPTION:
@@ -182,7 +182,7 @@ class BuyRequestesTests(RequestesTestsBase, BankTestsMixin):
     def setUp(self):
         super(BuyRequestesTests, self).setUp()
 
-        self.purchase = PURCHASES_BY_UID.values()[0]
+        self.purchase = list(PURCHASES_BY_UID.values())[0]
 
     def test_for_fast_account(self):
         self.account.is_fast = True
@@ -217,7 +217,7 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
         self.request_login(self.superuser.email)
 
     def post_data(self, amount=105):
-        return {'amount': amount, 'description': u'bla-bla'}
+        return {'amount': amount, 'description': 'bla-bla'}
 
     def test_for_fast_account(self):
         self.account.is_fast = True
@@ -240,7 +240,7 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
         self.assertEqual(BankInvoicePrototype._db_count(), 0)
 
     def test_from_errors(self):
-        self.check_ajax_error(self.client.post(url('shop:give-money', account=self.account.id), {'amount': 'x', 'description': u'bla-bla'}),
+        self.check_ajax_error(self.client.post(url('shop:give-money', account=self.account.id), {'amount': 'x', 'description': 'bla-bla'}),
                               'form_errors')
         self.assertEqual(BankInvoicePrototype._db_count(), 0)
 
@@ -257,7 +257,7 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
         self.assertEqual(invoice.sender_id, self.superuser.id)
         self.assertTrue(invoice.currency.is_PREMIUM)
         self.assertEqual(invoice.amount, 5)
-        self.assertEqual(invoice.description_for_recipient, u'bla-bla')
+        self.assertEqual(invoice.description_for_recipient, 'bla-bla')
         self.assertTrue(invoice.state.is_FORCED)
 
         self.check_ajax_ok(response)

@@ -163,7 +163,7 @@ class Help(AbilityPrototype):
 
 
     def process_removed_artifacts(self, hero):
-        for artifact in hero.bag.values():
+        for artifact in list(hero.bag.values()):
             if artifact.must_be_removed_on_help():
                 hero.bag.pop_artifact(artifact)
 

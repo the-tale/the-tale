@@ -12,7 +12,7 @@ class AchievementsContainer(object):
         self.achievements = achievements if achievements else {}
 
     def serialize(self):
-        return {'achievements': self.achievements.items()}
+        return {'achievements': list(self.achievements.items())}
 
     @classmethod
     def deserialize(cls, prototype, data):
@@ -44,7 +44,7 @@ class AchievementsContainer(object):
     def timestamp_for(self, achievement):
         return self.achievements.get(achievement.id)
 
-    def achievements_ids(self): return self.achievements.iterkeys()
+    def achievements_ids(self): return self.achievements.keys()
 
     def __len__(self):
          return len(self.achievements)
@@ -55,8 +55,8 @@ class AchievementsContainer(object):
 
     def last_achievements(self, number):
         from the_tale.accounts.achievements.storage import achievements_storage
-        achievements_ids = zip(*sorted((-achievement_time, achievement_id)
-                                       for achievement_id, achievement_time in self.achievements.iteritems()))
+        achievements_ids = list(zip(*sorted((-achievement_time, achievement_id)
+                                       for achievement_id, achievement_time in self.achievements.items())))
         if achievements_ids:
             achievements_ids = achievements_ids[1]
 

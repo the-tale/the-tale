@@ -19,8 +19,8 @@ from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
 class BaseForm(BaseUserForm):
-    new_place = fields.ChoiceField(label=u'Новый город')
-    person = fields.ChoiceField(label=u'Мастер')
+    new_place = fields.ChoiceField(label='Новый город')
+    person = fields.ChoiceField(label='Мастер')
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -31,7 +31,7 @@ class BaseForm(BaseUserForm):
         place_id = int(self.cleaned_data['new_place'])
 
         if len(places_storage.places[place_id].persons) >= c.PLACE_MAX_PERSONS:
-            raise ValidationError(u'В городе достигнут максимум Мастеров. Чтобы переселить Мастера, необходимо кого-нибудь выселить.')
+            raise ValidationError('В городе достигнут максимум Мастеров. Чтобы переселить Мастера, необходимо кого-нибудь выселить.')
 
         return place_id
 
@@ -41,13 +41,13 @@ class BaseForm(BaseUserForm):
         person = persons_storage.persons[person_id]
 
         if person.has_building:
-            raise ValidationError(u'У Мастера в собственности есть постройка. Прежде чем переехать он должен от неё избавиться.')
+            raise ValidationError('У Мастера в собственности есть постройка. Прежде чем переехать он должен от неё избавиться.')
 
         if person.on_move_timeout:
-            raise ValidationError(u'Мастер недавно переезжал. Должно пройти время, прежде чем он снова сможет переехать.')
+            raise ValidationError('Мастер недавно переезжал. Должно пройти время, прежде чем он снова сможет переехать.')
 
         if len(person.place.persons) <= c.PLACE_MIN_PERSONS:
-            raise ValidationError(u'В текущем городе Мастера слишком мало мастеров. Чтобы переселить Мастера, необходимо кого-нибудь вселить вместо него.')
+            raise ValidationError('В текущем городе Мастера слишком мало мастеров. Чтобы переселить Мастера, необходимо кого-нибудь вселить вместо него.')
 
         return person_id
 
@@ -69,8 +69,8 @@ class PersonMove(BasePersonBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Переезд Мастера'
-    DESCRIPTION = u'Мастера можно сподвигнуть на переезд в другой город. Но сделать это может только Хранитель героя из ближнего круга Мастера. Герой должен быть в ближнем круге на момент создания закона и/или его редактирования.'
+    CAPTION = 'Переезд Мастера'
+    DESCRIPTION = 'Мастера можно сподвигнуть на переезд в другой город. Но сделать это может только Хранитель героя из ближнего круга Мастера. Герой должен быть в ближнем круге на момент создания закона и/или его редактирования.'
 
     def __init__(self, new_place_id=None, new_place_name_forms=None, **kwargs):
         super(PersonMove, self).__init__(**kwargs)

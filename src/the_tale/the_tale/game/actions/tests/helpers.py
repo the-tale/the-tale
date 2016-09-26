@@ -66,7 +66,7 @@ class ActionEventsTestsMixin(object):
             self.action_event.do_events()
 
         self.assertEqual(self.hero.bag.occupation, 1)
-        self.assertFalse(self.hero.bag.values()[0].type.is_USELESS)
+        self.assertFalse(list(self.hero.bag.values())[0].type.is_USELESS)
 
 
 

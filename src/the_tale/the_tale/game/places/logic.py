@@ -45,7 +45,7 @@ class PlacePoliticPower(politic_power.PoliticPower):
 
     def job_effect_kwargs(self, place):
         return {'actor_type': 'place',
-                'actor_name': u'Проект города {name}'.format(name=place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))),
+                'actor_name': 'Проект города {name}'.format(name=place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))),
                 'person': None,
                 'place': place,
                 'positive_heroes': self.inner_positive_heroes,
@@ -73,7 +73,7 @@ def load_place(place_id=None, place_model=None):
     data = s11n.from_json(place_model.data)
 
     if 'nearest_cells' in data:
-        data['nearest_cells'] = map(tuple, data['nearest_cells'])
+        data['nearest_cells'] = list(map(tuple, data['nearest_cells']))
 
     place = objects.Place(id=place_model.id,
                           x=place_model.x,
@@ -161,7 +161,7 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           habit_peacefulness_positive=0,
                           habit_peacefulness_negative=0,
                           is_frontier=is_frontier,
-                          description=u'',
+                          description='',
                           race=race,
                           persons_changed_at_turn=TimePrototype.get_current_turn_number(),
                           politic_power=PlacePoliticPower.create(),

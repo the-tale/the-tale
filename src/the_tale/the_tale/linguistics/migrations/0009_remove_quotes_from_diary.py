@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import json
 
@@ -163,14 +163,14 @@ def remove_quotes(apps, schema_editor):
     Template = apps.get_model("linguistics", "Template")
 
     for template in Template.objects.filter(key__in=DIARY_KEYS):
-        if template.raw_template[0] != u'«':
+        if template.raw_template[0] != '«':
             continue
 
-        if template.raw_template[-1] == u'»':
+        if template.raw_template[-1] == '»':
             processor = lambda text: text[1:-1]
 
-        elif template.raw_template[-2:] == u'».':
-            processor = lambda text: text[1:-2] + u'.'
+        elif template.raw_template[-2:] == '».':
+            processor = lambda text: text[1:-2] + '.'
 
         else:
             continue

@@ -22,7 +22,7 @@ from . import base_place_bill
 def _conversion_record(name, id_, resource_from, resource_from_delta, resource_to, resource_to_delta):
     return (name,
             id_,
-            u'%s за %s' % (resource_from.text, resource_to.text),
+            '%s за %s' % (resource_from.text, resource_to.text),
             resource_from,
             resource_from_delta,
             resource_to,
@@ -50,8 +50,8 @@ class CONVERSION(DjangoEnum):
 
 
 class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label=u'Город')
-    conversion = fields.TypedChoiceField(label=u'Тип конверсии', choices=CONVERSION.choices(), coerce=CONVERSION.get_from_name)
+    place = fields.ChoiceField(label='Город')
+    conversion = fields.TypedChoiceField(label='Тип конверсии', choices=CONVERSION.choices(), coerce=CONVERSION.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -63,7 +63,7 @@ class BaseForm(BaseUserForm):
         place = places_storage.places.get(int(cleaned_data['place']))
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place)) ):
-            raise ValidationError(u'Один город может поддерживать не более чем %(max_exchanges)d активных закона' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
+            raise ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных закона' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
 
         return cleaned_data
 
@@ -82,8 +82,8 @@ class PlaceResourceConversion(base_place_bill.BasePlaceBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Изменение параметров города'
-    DESCRIPTION = u'Устанавливает изменение параметров города, обычно, бонус к одним за счёт штрафа к другим. Один город может иметь не более %(max_exchanges)d активных договоров.' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
+    CAPTION = 'Изменение параметров города'
+    DESCRIPTION = 'Устанавливает изменение параметров города, обычно, бонус к одним за счёт штрафа к другим. Один город может иметь не более %(max_exchanges)d активных договоров.' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
 
     def __init__(self, conversion=None, **kwargs):
         super(PlaceResourceConversion, self).__init__(**kwargs)

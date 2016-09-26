@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if models.Account.objects.exists():
-            print 'some users have created already, superuser MUST be created first'
+            print('some users have created already, superuser MUST be created first')
             exit(0)
 
         NICK = 'superuser'
@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
         models.Account.objects.filter(id=account_id).update(is_superuser=True, is_staff=True)
 
-        print 'nick:', NICK
-        print 'email:', EMAIL
-        print 'password:', PASSWORD
-        print 'login to site.url/admin and change password!'
+        print('nick:', NICK)
+        print('email:', EMAIL)
+        print('password:', PASSWORD)
+        print('login to site.url/admin and change password!')

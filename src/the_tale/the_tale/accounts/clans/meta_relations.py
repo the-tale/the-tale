@@ -10,7 +10,7 @@ from . import prototypes
 class Clan(meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 8
-    TYPE_CAPTION = u'Гильдия'
+    TYPE_CAPTION = 'Гильдия'
 
     def __init__(self, caption, **kwargs):
         super(Clan, self).__init__(**kwargs)

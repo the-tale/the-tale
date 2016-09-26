@@ -31,5 +31,5 @@ class CompanionRecord(models.Model):
     data = models.TextField(null=False, default='{}')
 
     class Meta:
-        permissions = (("create_companionrecord", u"Может создавать спутников"),
-                       ("moderate_companionrecord", u"Может утверждать спутников"),)
+        permissions = (("create_companionrecord", "Может создавать спутников"),
+                       ("moderate_companionrecord", "Может утверждать спутников"),)

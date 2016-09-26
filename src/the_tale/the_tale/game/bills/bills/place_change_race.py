@@ -16,8 +16,8 @@ from . import base_place_bill
 
 
 class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label=u'Город')
-    new_race = fields.TypedChoiceField(label=u'Новая раса',
+    place = fields.ChoiceField(label='Город')
+    new_race = fields.TypedChoiceField(label='Новая раса',
                                        choices=sorted([(record, record.multiple_text) for record in game_relations.RACE.records], key=lambda g: g[1]),
                                        coerce=game_relations.RACE.get_from_name)
 
@@ -33,7 +33,7 @@ class BaseForm(BaseUserForm):
 
         if race:
             if race == place.race:
-                raise ValidationError(u'Город уже принадлежит выбранной расе.')
+                raise ValidationError('Город уже принадлежит выбранной расе.')
 
         return cleaned_data
 
@@ -52,8 +52,8 @@ class PlaceRace(base_place_bill.BasePlaceBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Изменение расы города'
-    DESCRIPTION = u'Изменяет расу города.'
+    CAPTION = 'Изменение расы города'
+    DESCRIPTION = 'Изменяет расу города.'
 
     def __init__(self, new_race=None, old_race=None, **kwargs):
         super(PlaceRace, self).__init__(**kwargs)

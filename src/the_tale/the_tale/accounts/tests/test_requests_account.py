@@ -48,8 +48,8 @@ class AccountRequestsTests(TestCase):
 
         CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
-        self.clan_2 = ClanPrototype.create(self.account_2, abbr=u'abbr2', name=u'name2', motto=u'motto', description=u'description')
-        self.clan_3 = ClanPrototype.create(self.account_3, abbr=u'abbr3', name=u'name3', motto=u'motto', description=u'description')
+        self.clan_2 = ClanPrototype.create(self.account_2, abbr='abbr2', name='name2', motto='motto', description='description')
+        self.clan_3 = ClanPrototype.create(self.account_3, abbr='abbr3', name='name3', motto='motto', description='description')
 
 
 class IndexRequestsTests(AccountRequestsTests):
@@ -64,7 +64,7 @@ class IndexRequestsTests(AccountRequestsTests):
                                                                            ('abbr3', 1)))
 
     def test_index_pagination(self):
-        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
+        for i in range(conf.accounts_settings.ACCOUNTS_ON_PAGE):
             self.accounts_factory.create_account()
         self.check_html_ok(self.request_html(reverse('accounts:')), texts=(('pgf-account-record', conf.accounts_settings.ACCOUNTS_ON_PAGE),))
         self.check_html_ok(self.request_html(reverse('accounts:')+'?page=2'), texts=(('pgf-account-record', 3),))
@@ -84,11 +84,11 @@ class IndexRequestsTests(AccountRequestsTests):
         texts = [('pgf-account-record', 6),
                  ('pgf-no-accounts-message', 0),]
 
-        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
+        for i in range(conf.accounts_settings.ACCOUNTS_ON_PAGE):
             account = self.accounts_factory.create_account(nick='test_user_a_%d' % i)
             texts.append((account.nick, 0))
 
-        for i in xrange(6):
+        for i in range(6):
             account = self.accounts_factory.create_account(nick='test_user_b_%d' % i)
             texts.append((account.nick, 1))
 
@@ -98,15 +98,15 @@ class IndexRequestsTests(AccountRequestsTests):
         texts = [('pgf-account-record', 6),
                  ('pgf-no-accounts-message', 0),]
 
-        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
+        for i in range(conf.accounts_settings.ACCOUNTS_ON_PAGE):
             account = self.accounts_factory.create_account(nick='test_user_a_%d' % i)
             texts.append((account.nick, 0))
 
-        for i in xrange(6):
+        for i in range(6):
             account = self.accounts_factory.create_account(nick='test_user_b_%d' % i)
             texts.append((account.nick, 1))
 
-        for i in xrange(conf.accounts_settings.ACCOUNTS_ON_PAGE):
+        for i in range(conf.accounts_settings.ACCOUNTS_ON_PAGE):
             account = self.accounts_factory.create_account(nick='test_user_b2_%d' % i)
             texts.append((account.nick, 0))
 
@@ -166,7 +166,7 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-in-list', 1),
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 0)]
-        FriendshipPrototype.request_friendship(self.account_2, self.account_1, text=u'text')._confirm()
+        FriendshipPrototype.request_friendship(self.account_2, self.account_1, text='text')._confirm()
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     def test_show_friends_request_from_button(self):
@@ -175,7 +175,7 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 1),
                  ('pgf-friends-request-to', 0)]
-        FriendshipPrototype.request_friendship(self.account_1, self.account_2, text=u'text')
+        FriendshipPrototype.request_friendship(self.account_1, self.account_2, text='text')
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     def test_show_friends_request_to_button(self):
@@ -184,7 +184,7 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 1)]
-        FriendshipPrototype.request_friendship(self.account_2, self.account_1, text=u'text')
+        FriendshipPrototype.request_friendship(self.account_2, self.account_1, text='text')
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     def test_show_folclor(self):
@@ -373,7 +373,7 @@ class BanRequestsTests(AccountRequestsTests):
 
         self.request_login(self.account_3.email)
 
-    def form_data(self, ban_type, description=u'ban-description'):
+    def form_data(self, ban_type, description='ban-description'):
         return {'ban_type': ban_type,
                 'ban_time': random.choice(BAN_TIME.records),
                 'description': description}
@@ -391,7 +391,7 @@ class BanRequestsTests(AccountRequestsTests):
         self.assertEqual(MessagePrototype._db_count(), 0)
 
     def test_form_errors(self):
-        self.check_ajax_error(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.FORUM, description=u'')),
+        self.check_ajax_error(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.FORUM, description='')),
                               'form_errors')
 
         self.account_1.reload()
@@ -512,7 +512,7 @@ class TransferMoneyTests(AccountRequestsTests):
 
     def post_data(self, money=600):
         return {'money': money,
-                'comment': u'some comment'}
+                'comment': 'some comment'}
 
     def test_login_required(self):
         self.request_logout()

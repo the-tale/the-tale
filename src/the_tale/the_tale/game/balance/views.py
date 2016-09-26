@@ -18,40 +18,40 @@ class BalanceResource(Resource):
     @staff_required()
     @handler('', method='get')
     def show_balance(self): # pylint: disable=R0914
-        tmp_time = [u'начало', u'8 часов', u'день', u'неделя', u'месяц', u'3 месяца', u'6 месяцев', u'1 год', u'2 года', u'3 года', u'4 года', u'5 лет', u'6 лет']
+        tmp_time = ['начало', '8 часов', 'день', 'неделя', 'месяц', '3 месяца', '6 месяцев', '1 год', '2 года', '3 года', '4 года', '5 лет', '6 лет']
         tmp_times = [0, 8, 24, 24*7, 24*30, 24*30*3, 24*30*6, 24*30*12, 24*30*12*2, 24*30*12*3, 24*30*12*4, 24*30*12*5, 24*30*12*6]
-        tmp_lvls = map(f.lvl_after_time, tmp_times)
+        tmp_lvls = list(map(f.lvl_after_time, tmp_times))
 
         # Всё, что ниже, должно зависеть от уровня, не от времени, т.к. время в данном случае не точный параметр, а анализ всё равно ориентируется на уровень.
 
         exp_for_quest = f.experience_for_quest__real(c.QUEST_AREA_RADIUS)
 
-        tmp_exp_to_level = map(math.floor, map(f.exp_on_lvl, tmp_lvls))
-        tmp_exp_total = map(math.floor, map(f.total_exp_to_lvl, tmp_lvls))
+        tmp_exp_to_level = list(map(math.floor, list(map(f.exp_on_lvl, tmp_lvls))))
+        tmp_exp_total = list(map(math.floor, list(map(f.total_exp_to_lvl, tmp_lvls))))
 
-        tmp_quests_to_level = map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_to_level))
-        tmp_quests_total = map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_total))
+        tmp_quests_to_level = list(map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_to_level)))
+        tmp_quests_total = list(map(math.ceil, (exp/float(exp_for_quest) for exp in tmp_exp_total)))
 
         dstr = PowerDistribution(0.5, 0.5)
 
-        tmp_hp = map(f.hp_on_lvl, tmp_lvls)
-        tmp_turns = map(f.turns_on_lvl, tmp_lvls)
-        tmp_turns_to_time = map(int, map(f.hours_to_turns, tmp_times))
-        tmp_expected_damage_to_hero_per_hit = map(f.expected_damage_to_hero_per_hit, tmp_lvls)
+        tmp_hp = list(map(f.hp_on_lvl, tmp_lvls))
+        tmp_turns = list(map(f.turns_on_lvl, tmp_lvls))
+        tmp_turns_to_time = list(map(int, list(map(f.hours_to_turns, tmp_times))))
+        tmp_expected_damage_to_hero_per_hit = list(map(f.expected_damage_to_hero_per_hit, tmp_lvls))
         tmp_expected_damage_to_hero_per_hit_interval = [ (int(round(dmg*(1-c.DAMAGE_DELTA))), int(round(dmg*(1+c.DAMAGE_DELTA)))) for dmg in tmp_expected_damage_to_hero_per_hit]
-        tmp_mob_hp = map(f.mob_hp_to_lvl, tmp_lvls)
-        tmp_power = map(lambda lvl: Power.power_to_level(dstr, lvl), tmp_lvls)
-        tmp_expected_damage_to_mob_per_hit = map(f.expected_damage_to_mob_per_hit, tmp_lvls)
-        tmp_real_damage_to_mob_per_hit = map(lambda p: p.damage().total, tmp_power)
+        tmp_mob_hp = list(map(f.mob_hp_to_lvl, tmp_lvls))
+        tmp_power = [Power.power_to_level(dstr, lvl) for lvl in tmp_lvls]
+        tmp_expected_damage_to_mob_per_hit = list(map(f.expected_damage_to_mob_per_hit, tmp_lvls))
+        tmp_real_damage_to_mob_per_hit = [p.damage().total for p in tmp_power]
         tmp_real_damage_to_mob_per_hit_interval = [ (int(round(dmg*(1-c.DAMAGE_DELTA))), int(round(dmg*(1+c.DAMAGE_DELTA)))) for dmg in tmp_real_damage_to_mob_per_hit]
         tmp_power_per_slot = [Power.power_to_artifact(dstr, lvl) for lvl in tmp_lvls]
-        tmp_battles_at_lvl = map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.time_on_lvl, tmp_lvls)])
-        tmp_total_battles = map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.total_time_for_lvl, tmp_lvls)])
+        tmp_battles_at_lvl = list(map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.time_on_lvl, tmp_lvls)]))
+        tmp_total_battles = list(map(math.floor, [x * c.BATTLES_PER_HOUR for x in map(f.total_time_for_lvl, tmp_lvls)]))
         tmp_artifacts_per_battle = [c.ARTIFACTS_PER_BATTLE]* len(tmp_lvls)
         tmp_artifacts_total = [c.ARTIFACTS_LOOT_PER_DAY * f.total_time_for_lvl(lvl-1)/24.0 for lvl in tmp_lvls]
 
-        tmp_gold_in_day = map(f.expected_gold_in_day, tmp_lvls)
-        tmp_total_gold_at_lvl = map(f.total_gold_at_lvl, tmp_lvls)
+        tmp_gold_in_day = list(map(f.expected_gold_in_day, tmp_lvls))
+        tmp_total_gold_at_lvl = list(map(f.total_gold_at_lvl, tmp_lvls))
 
         return self.template('balance/balance.html',
                              {'c': c,

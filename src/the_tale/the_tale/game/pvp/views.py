@@ -38,7 +38,7 @@ class PvPResource(Resource):
     @lazy_property
     def own_hero(self): return heroes_logic.load_hero(account_id=self.account.id) if self.account.is_authenticated() else None
 
-    @validator(code='pvp.no_rights', message=u'Вы не можете участвовать в PvP')
+    @validator(code='pvp.no_rights', message='Вы не можете участвовать в PvP')
     def validate_participation_right(self, *args, **kwargs): return self.can_participate
 
     @lazy_property
@@ -98,7 +98,7 @@ class PvPResource(Resource):
         battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
         if battle is None or not battle.state.is_PROCESSING:
-            return self.json_error('pvp.say.no_battle', u'Бой не идёт, вы не можете говорить')
+            return self.json_error('pvp.say.no_battle', 'Бой не идёт, вы не можете говорить')
 
         say_form = SayForm(self.request.POST)
 
@@ -158,14 +158,14 @@ class PvPResource(Resource):
     @login_required
     @validate_fast_account()
     @validate_participation_right()
-    @validate_argument('ability', lambda ability: ABILITIES[ability], 'pvp', u'неверный тип способности')
+    @validate_argument('ability', lambda ability: ABILITIES[ability], 'pvp', 'неверный тип способности')
     @handler('use-ability', name='use-ability', method='post')
     def use_ability(self, ability):
 
         battle = Battle1x1Prototype.get_by_account_id(self.account.id)
 
         if battle is None or not battle.state.is_PROCESSING:
-            return self.json_error('pvp.use_ability.no_battle', u'Бой не идёт, вы не можете использовать способность')
+            return self.json_error('pvp.use_ability.no_battle', 'Бой не идёт, вы не можете использовать способность')
 
         use_ability_task = UsePvPAbilityTask(battle_id=battle.id, account_id=self.account.id, ability_id=ability.TYPE)
 

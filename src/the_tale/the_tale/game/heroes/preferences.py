@@ -80,9 +80,8 @@ class _PreferencesMetaclass(type):
         return super(_PreferencesMetaclass, mcs).__new__(mcs, name, bases, attributes)
 
 
-class HeroPreferences(object):
+class HeroPreferences(object, metaclass=_PreferencesMetaclass):
 
-    __metaclass__ = _PreferencesMetaclass
     __slots__ = ('data', 'updated', 'hero')
 
     def __init__(self):

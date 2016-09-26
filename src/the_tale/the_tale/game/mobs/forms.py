@@ -32,29 +32,29 @@ MOB_TYPE_CHOICES = sorted(game_relations.BEING_TYPE.choices(), key=lambda choice
 
 class MobRecordBaseForm(forms.Form):
 
-    level = fields.IntegerField(label=u'минимальный уровень')
+    level = fields.IntegerField(label='минимальный уровень')
 
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название')
 
-    type = fields.TypedChoiceField(label=u'тип', choices=MOB_TYPE_CHOICES, coerce=game_relations.BEING_TYPE.get_from_name)
-    archetype = fields.TypedChoiceField(label=u'тип', choices=game_relations.ARCHETYPE.choices(), coerce=game_relations.ARCHETYPE.get_from_name)
+    type = fields.TypedChoiceField(label='тип', choices=MOB_TYPE_CHOICES, coerce=game_relations.BEING_TYPE.get_from_name)
+    archetype = fields.TypedChoiceField(label='тип', choices=game_relations.ARCHETYPE.choices(), coerce=game_relations.ARCHETYPE.get_from_name)
 
-    global_action_probability = fields.FloatField(label=u'вероятность встретить монстра, если идёт его набег (от 0 до 1, 0 — нет набега)')
+    global_action_probability = fields.FloatField(label='вероятность встретить монстра, если идёт его набег (от 0 до 1, 0 — нет набега)')
 
-    terrains = fields.TypedMultipleChoiceField(label=u'места обитания', choices=TERRAIN.choices(), coerce=TERRAIN.get_from_name)
+    terrains = fields.TypedMultipleChoiceField(label='места обитания', choices=TERRAIN.choices(), coerce=TERRAIN.get_from_name)
 
-    abilities = fields.MultipleChoiceField(label=u'способности', choices=ABILITY_CHOICES)
+    abilities = fields.MultipleChoiceField(label='способности', choices=ABILITY_CHOICES)
 
-    description = bbcode.BBField(label=u'Описание', required=False)
+    description = bbcode.BBField(label='Описание', required=False)
 
-    is_mercenary = fields.BooleanField(label=u'может быть наёмником', required=False)
-    is_eatable = fields.BooleanField(label=u'съедобный', required=False)
+    is_mercenary = fields.BooleanField(label='может быть наёмником', required=False)
+    is_eatable = fields.BooleanField(label='съедобный', required=False)
 
-    communication_verbal = fields.RelationField(label=u'вербальное общение', relation=game_relations.COMMUNICATION_VERBAL)
-    communication_gestures = fields.RelationField(label=u'невербальное общение', relation=game_relations.COMMUNICATION_GESTURES)
-    communication_telepathic = fields.RelationField(label=u'телепатия', relation=game_relations.COMMUNICATION_TELEPATHIC)
+    communication_verbal = fields.RelationField(label='вербальное общение', relation=game_relations.COMMUNICATION_VERBAL)
+    communication_gestures = fields.RelationField(label='невербальное общение', relation=game_relations.COMMUNICATION_GESTURES)
+    communication_telepathic = fields.RelationField(label='телепатия', relation=game_relations.COMMUNICATION_TELEPATHIC)
 
-    intellect_level = fields.RelationField(label=u'уровень интеллекта', relation=game_relations.INTELLECT_LEVEL)
+    intellect_level = fields.RelationField(label='уровень интеллекта', relation=game_relations.INTELLECT_LEVEL)
 
     def clean_abilities(self):
         abilities_ids = self.cleaned_data['abilities']
@@ -63,11 +63,11 @@ class MobRecordBaseForm(forms.Form):
             abilities_ids.append(HIT.get_id())
 
         if not abilities_ids:
-            raise ValidationError(u'не указаны способности монстра')
+            raise ValidationError('не указаны способности монстра')
 
         for ability_id in abilities_ids:
             if ability_id not in ABILITY_CHOICES_DICT:
-                raise ValidationError(u'неверный идентификатор способности монстра')
+                raise ValidationError('неверный идентификатор способности монстра')
 
         return frozenset(abilities_ids)
 
@@ -75,7 +75,7 @@ class MobRecordBaseForm(forms.Form):
         terrains = self.cleaned_data['terrains']
 
         if not terrains:
-            raise ValidationError(u'не указаны места обитания монстра')
+            raise ValidationError('не указаны места обитания монстра')
 
         return frozenset(terrains)
 
@@ -102,7 +102,7 @@ class MobRecordForm(MobRecordBaseForm):
 
 class ModerateMobRecordForm(MobRecordBaseForm):
 
-    approved = fields.BooleanField(label=u'одобрен', required=False)
+    approved = fields.BooleanField(label='одобрен', required=False)
 
     @classmethod
     def get_initials(cls, mob):

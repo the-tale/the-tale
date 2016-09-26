@@ -21,9 +21,9 @@ class EXTRA_SLOW(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Неповоротливый'
+    NAME = 'Неповоротливый'
     normalized_name = NAME
-    DESCRIPTION = u'У обладателя этой способности наверняка в роду были ленивцы — в бою он движется очень медленно.'
+    DESCRIPTION = 'У обладателя этой способности наверняка в роду были ленивцы — в бою он движется очень медленно.'
 
     MODIFIER = [0.95, 0.90, 0.85, 0.80, 0.75]
 
@@ -36,9 +36,9 @@ class SLOW(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Медленный'
+    NAME = 'Медленный'
     normalized_name = NAME
-    DESCRIPTION = u'Не всем существам посчастливилось быть быстроногими, некоторых природа обделила и их скорость в бою обычно чуть меньше, чем у противников.'
+    DESCRIPTION = 'Не всем существам посчастливилось быть быстроногими, некоторых природа обделила и их скорость в бою обычно чуть меньше, чем у противников.'
 
     MODIFIER = [0.975, 0.95, 0.875, 0.90, 0.875]
 
@@ -51,9 +51,9 @@ class FAST(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_ALL
 
-    NAME = u'Быстрый'
+    NAME = 'Быстрый'
     normalized_name = NAME
-    DESCRIPTION = u'Обладатель этой способности имеет хорошую реакцию и действует в бою быстрее.'
+    DESCRIPTION = 'Обладатель этой способности имеет хорошую реакцию и действует в бою быстрее.'
 
     MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.125]
 
@@ -66,9 +66,9 @@ class EXTRA_FAST(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Быстрее ветра'
+    NAME = 'Быстрее ветра'
     normalized_name = NAME
-    DESCRIPTION = u'В столкновении со столь быстрым существом далеко не каждому удаётся устоять под градом стремительных атак.'
+    DESCRIPTION = 'В столкновении со столь быстрым существом далеко не каждому удаётся устоять под градом стремительных атак.'
 
     MODIFIER = [1.05, 1.10, 1.15, 1.20, 1.25]
 
@@ -85,9 +85,9 @@ class EXTRA_THIN(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Кожа да кости'
+    NAME = 'Кожа да кости'
     normalized_name = NAME
-    DESCRIPTION = u'Обладатель способности не может похвастаться хорошим запасом здоровья.'
+    DESCRIPTION = 'Обладатель способности не может похвастаться хорошим запасом здоровья.'
 
     MODIFIER = [0.95, 0.90, 0.85, 0.80, 0.75]
 
@@ -100,9 +100,9 @@ class THIN(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Худой'
+    NAME = 'Худой'
     normalized_name = NAME
-    DESCRIPTION = u'Мир таков, что не все существа обладают крепкими мышцами и хорошим запасом здоровья. Кому-то приходится мириться с уменьшенным количеством HP.'
+    DESCRIPTION = 'Мир таков, что не все существа обладают крепкими мышцами и хорошим запасом здоровья. Кому-то приходится мириться с уменьшенным количеством HP.'
 
     MODIFIER = [0.975, 0.95, 0.875, 0.90, 0.875]
 
@@ -115,9 +115,9 @@ class THICK(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_ALL
 
-    NAME = u'Здоровяк'
+    NAME = 'Здоровяк'
     normalized_name = NAME
-    DESCRIPTION = u'Герои и монстры, которые много кушали в детстве, становятся немного здоровее остальных.'
+    DESCRIPTION = 'Герои и монстры, которые много кушали в детстве, становятся немного здоровее остальных.'
 
     MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.13]
 
@@ -130,9 +130,9 @@ class EXTRA_THICK(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Толстяк'
+    NAME = 'Толстяк'
     normalized_name = NAME
-    DESCRIPTION = u'Монстр может похвастаться отменным здоровьем и очень большой живучестью.'
+    DESCRIPTION = 'Монстр может похвастаться отменным здоровьем и очень большой живучестью.'
 
     MODIFIER = [1.05, 1.10, 1.15, 1.20, 1.25]
 
@@ -149,9 +149,9 @@ class EXTRA_WEAK(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Тростинка'
+    NAME = 'Тростинка'
     normalized_name = NAME
-    DESCRIPTION = u'Обычные атаки монстра наносят очень мало урона.'
+    DESCRIPTION = 'Обычные атаки монстра наносят очень мало урона.'
 
     MODIFIER = [0.95, 0.90, 0.85, 0.80, 0.75]
 
@@ -164,9 +164,9 @@ class WEAK(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Слабый'
+    NAME = 'Слабый'
     normalized_name = NAME
-    DESCRIPTION = u'Слабые монстры иногда стараются компенсировать небольшой недостаток урона за счёт хитрости, но мало у кого это получается.'
+    DESCRIPTION = 'Слабые монстры иногда стараются компенсировать небольшой недостаток урона за счёт хитрости, но мало у кого это получается.'
 
     MODIFIER = [0.975, 0.95, 0.875, 0.90, 0.875]
 
@@ -179,9 +179,9 @@ class STRONG(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_ALL
 
-    NAME = u'Боец'
+    NAME = 'Боец'
     normalized_name = NAME
-    DESCRIPTION = u'Удары закалённых в постоянных сражениях бойцов наносят больше урона противникам.'
+    DESCRIPTION = 'Удары закалённых в постоянных сражениях бойцов наносят больше урона противникам.'
 
     MODIFIER = [1.025, 1.05, 1.075, 1.100, 1.125]
 
@@ -194,9 +194,9 @@ class EXTRA_STRONG(AbilityAttributeBase):
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Громила'
+    NAME = 'Громила'
     normalized_name = NAME
-    DESCRIPTION = u'Лучше не попадать под удары этого монстра — громила наносит намного больший урон чем другие противники.'
+    DESCRIPTION = 'Лучше не попадать под удары этого монстра — громила наносит намного больший урон чем другие противники.'
 
     MODIFIER = [1.05, 1.10, 1.15, 1.20, 1.25]
 

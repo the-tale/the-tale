@@ -13,5 +13,5 @@ class GeneralTests(BaseTestPrototypes):
 
 
     def test_every_bill_has_argument_getter(self):
-        self.assertItemsEqual(signal_processors.BILL_ARGUMENT_GETTERS.keys(),
+        self.assertItemsEqual(list(signal_processors.BILL_ARGUMENT_GETTERS.keys()),
                               bills_relations.BILL_TYPE.records)

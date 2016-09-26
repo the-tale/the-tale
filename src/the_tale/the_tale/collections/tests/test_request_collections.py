@@ -46,15 +46,15 @@ class BaseRequestTests(testcase.TestCase):
         group_moderate_item.user_set.add(self.account_3._model)
 
 
-        self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1')
-        self.collection_2 = CollectionPrototype.create(caption=u'collection_2', description=u'description_2', approved=True)
+        self.collection_1 = CollectionPrototype.create(caption='collection_1', description='description_1')
+        self.collection_2 = CollectionPrototype.create(caption='collection_2', description='description_2', approved=True)
 
-        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1')
-        self.kit_2 = KitPrototype.create(collection=self.collection_2, caption=u'kit_2', description=u'description_2', approved=True)
+        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption='kit_1', description='description_1')
+        self.kit_2 = KitPrototype.create(collection=self.collection_2, caption='kit_2', description='description_2', approved=True)
 
-        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_1', text=u'item_text_1_1')
-        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_2', text=u'item_text_1_2', approved=True)
-        self.item_2_1 = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_1', text=u'item_text_2_1', approved=True)
+        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption='item_1_1', text='item_text_1_1')
+        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption='item_1_2', text='item_text_1_2', approved=True)
+        self.item_2_1 = ItemPrototype.create(kit=self.kit_2, caption='item_2_1', text='item_text_2_1', approved=True)
 
 
 
@@ -199,7 +199,7 @@ class CollectionsCreateTests(BaseRequestTests):
 
     def get_post_data(self):
         return {'caption': 'caption_3',
-                'description': u'description_3'}
+                'description': 'description_3'}
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.test_url, self.get_post_data()),
@@ -417,7 +417,7 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
 
 
     def test_unapproved_item__anonymous(self):
-        item = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_2', text=u'item_text_2_2', approved=False)
+        item = ItemPrototype.create(kit=self.kit_2, caption='item_2_2', text='item_text_2_2', approved=False)
 
         self.account_1_items.add_item(item)
         self.account_1_items.save()
@@ -426,7 +426,7 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
                                                                     (item.text, 0)])
 
     def test_unapproved_item__loginned(self):
-        item = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_2', text=u'item_text_2_2', approved=False)
+        item = ItemPrototype.create(kit=self.kit_2, caption='item_2_2', text='item_text_2_2', approved=False)
 
         self.account_1_items.add_item(item)
         self.account_1_items.save()
@@ -437,7 +437,7 @@ class CollectionsShowTests(BaseRequestTests, CollectionVisibilityApprovedMixin):
                                                                     (item.text, 0)])
 
     def test_unapproved_item__moderator(self):
-        item = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_2', text=u'item_text_2_2', approved=False)
+        item = ItemPrototype.create(kit=self.kit_2, caption='item_2_2', text='item_text_2_2', approved=False)
 
         self.account_1_items.add_item(item)
         self.account_1_items.save()

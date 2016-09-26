@@ -25,7 +25,7 @@ from the_tale.accounts.third_party import decorators
 class RefuseThirdPartyProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
         if third_party_settings.ACCESS_TOKEN_SESSION_KEY in context.django_request.session:
-            raise dext_views.ViewError(code='third_party.access_restricted', message=u'Доступ к этому функционалу запрещён для сторонних приложений')
+            raise dext_views.ViewError(code='third_party.access_restricted', message='Доступ к этому функционалу запрещён для сторонних приложений')
 
 ###############################
 # old views
@@ -34,13 +34,13 @@ class RefuseThirdPartyProcessor(dext_views.BaseViewProcessor):
 class TokensResource(Resource):
 
     @validate_argument('token', prototypes.AccessTokenPrototype.get_by_uid, 'third_party.tokens',
-                       u'Приложение передало неверный токен либо вы уже отказали в предоставлении прав доступа этому приложению')
+                       'Приложение передало неверный токен либо вы уже отказали в предоставлении прав доступа этому приложению')
     def initialize(self, token=None, *args, **kwargs):
         super(TokensResource, self).initialize(*args, **kwargs)
         self.token = token
 
         if self.account.is_authenticated() and self.token and self.token.account_id is not None and self.token.account_id != self.account.id:
-            return self.auto_error('third_party.tokens.token.wrong_owner', u'Вы не можете дать разрешение на работу с чужим аккаунтом')
+            return self.auto_error('third_party.tokens.token.wrong_owner', 'Вы не можете дать разрешение на работу с чужим аккаунтом')
 
     @login_required
     @decorators.refuse_third_party
@@ -85,7 +85,7 @@ class TokensResource(Resource):
     @api.handler(versions=('1.0',))
     @handler('api', 'request-authorisation', name='request-authorisation', method='post')
     def api_request_authorisation(self, api_version=None):
-        u'''
+        '''
 Авторизация приложения для проведения операций от имени пользователя. Приложению не будут доступны «критические» операции и данные (связанные с профилем пользователя, магазином и так далее).
 
 - **адрес:** /accounts/third-party/tokens/api/request-authorisation
@@ -145,7 +145,7 @@ class TokensResource(Resource):
     @api.handler(versions=('1.0',))
     @handler('api', 'authorisation-state', name='authorisation-state', method='get')
     def api_authorisation_state(self, api_version):
-        u'''
+        '''
 Метод возвращает состояние авторизации для текущей сессии. Обычно вызывается после запроса авторизации.
 
 - **адрес:** /accounts/third-party/tokens/api/authorisation-state

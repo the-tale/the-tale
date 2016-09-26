@@ -20,7 +20,7 @@ class GameTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        for i in xrange(10000):
+        for i in range(10000):
             self.storage.process_turn()
             current_time.increment_turn()
 

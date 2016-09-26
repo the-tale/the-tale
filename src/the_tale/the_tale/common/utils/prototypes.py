@@ -159,9 +159,8 @@ class _PrototypeMetaclass(type):
         return super(_PrototypeMetaclass, mcs).__new__(mcs, name, bases, attributes)
 
 
-class BasePrototype(object):
+class BasePrototype(object, metaclass=_PrototypeMetaclass):
 
-    __metaclass__ = _PrototypeMetaclass
     __slots__ = ('_model',)
 
     _model_class = None

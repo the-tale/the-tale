@@ -18,16 +18,16 @@ class RelationsTests(testcase.TestCase):
         super(RelationsTests, self).setUp()
 
     def test_profession_to_city_specialization(self):
-        for specializations in economic.PROFESSION_TO_SPECIALIZATIONS.itervalues():
+        for specializations in economic.PROFESSION_TO_SPECIALIZATIONS.values():
             self.assertEqual(len(specializations), len(CITY_MODIFIERS.records))
 
-            self.assertTrue(all([-3 <= effect <= 3 for effect in specializations.values()]))
+            self.assertTrue(all([-3 <= effect <= 3 for effect in list(specializations.values())]))
 
 
     def test_no_equal_specializations_bonuses(self):
         bonuses = set()
 
-        for specializations in economic.PROFESSION_TO_SPECIALIZATIONS.itervalues():
+        for specializations in economic.PROFESSION_TO_SPECIALIZATIONS.values():
             specialization_bonuses = tuple([x[1] for x in sorted(specializations.items())])
             self.assertNotIn(specialization_bonuses, bonuses)
             bonuses.add(specialization_bonuses)

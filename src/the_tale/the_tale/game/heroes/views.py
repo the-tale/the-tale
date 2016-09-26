@@ -63,12 +63,12 @@ def split_list(items):
     right = items[half:]
     if len(left) > len(right):
         right.append(None)
-    return zip(left, right)
+    return list(zip(left, right))
 
 
 class HeroResource(Resource):
 
-    @validate_argument('hero', lambda hero_id: logic.load_hero(hero_id=int(hero_id)), 'heroes', u'Неверный идентификатор героя')
+    @validate_argument('hero', lambda hero_id: logic.load_hero(hero_id=int(hero_id)), 'heroes', 'Неверный идентификатор героя')
     def initialize(self, hero=None, *args, **kwargs):
         super(HeroResource, self).initialize(*args, **kwargs)
         self.hero = hero
@@ -77,10 +77,10 @@ class HeroResource(Resource):
     @property
     def is_owner(self): return self.account and self.account.id == self.hero.account_id
 
-    @validator(code='heroes.not_owner', message=u'Вы не являетесь владельцем данного аккаунта')
+    @validator(code='heroes.not_owner', message='Вы не являетесь владельцем данного аккаунта')
     def validate_ownership(self, *args, **kwargs): return self.is_owner
 
-    @validator(code='heroes.moderator_rights_required', message=u'Вы не являетесь модератором')
+    @validator(code='heroes.moderator_rights_required', message='Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_heroes
 
     @handler('', method='get')
@@ -97,10 +97,10 @@ class HeroResource(Resource):
     @handler('#hero', name='show', method='get')
     def hero_page(self):
         abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
-        battle_active_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_ACTIVE, abilities) # pylint: disable=W0110
-        battle_passive_abilities = filter(lambda a: a.type.is_BATTLE and a.activation_type.is_PASSIVE, abilities)# pylint: disable=W0110
-        nonbattle_abilities = filter(lambda a: a.type.is_NONBATTLE, abilities)# pylint: disable=W0110
-        companion_abilities = filter(lambda a: a.type.is_COMPANION, abilities)# pylint: disable=W0110
+        battle_active_abilities = [a for a in abilities if a.type.is_BATTLE and a.activation_type.is_ACTIVE] # pylint: disable=W0110
+        battle_passive_abilities = [a for a in abilities if a.type.is_BATTLE and a.activation_type.is_PASSIVE]# pylint: disable=W0110
+        nonbattle_abilities = [a for a in abilities if a.type.is_NONBATTLE]# pylint: disable=W0110
+        companion_abilities = [a for a in abilities if a.type.is_COMPANION]# pylint: disable=W0110
 
         edit_name_form = forms.EditNameForm(initial=forms.EditNameForm.get_initials(hero=self.hero))
 
@@ -165,7 +165,7 @@ class HeroResource(Resource):
     def reset_abilities(self):
 
         if not self.hero.abilities.can_reset:
-            return self.json_error('heroes.reset_abilities.reset_timeout', u'Сброс способностей пока не доступен')
+            return self.json_error('heroes.reset_abilities.reset_timeout', 'Сброс способностей пока не доступен')
 
         reset_task = postponed_tasks.ResetHeroAbilitiesTask(hero_id=self.hero.id)
 
@@ -215,7 +215,7 @@ class HeroResource(Resource):
 
     @login_required
     @validate_ownership()
-    @validate_argument('type', lambda x: relations.PREFERENCE_TYPE(int(x)), 'heroes.choose_preferences_dialog', u'Неверный тип способности')
+    @validate_argument('type', lambda x: relations.PREFERENCE_TYPE(int(x)), 'heroes.choose_preferences_dialog', 'Неверный тип способности')
     @handler('#hero', 'choose-preferences-dialog', method='get')
     def choose_preferences_dialog(self, type): # pylint: disable=W0622
 

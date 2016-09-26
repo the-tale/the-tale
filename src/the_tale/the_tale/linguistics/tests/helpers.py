@@ -6,7 +6,7 @@ def get_word_post_data(word, prefix='word'):
 
     widgets_data = decompress_word(word.type, word)
 
-    data = {'%s_%d' % (prefix, i): value if value is not None else u''
+    data = {'%s_%d' % (prefix, i): value if value is not None else ''
             for i, value in enumerate(widgets_data)}
 
     return data

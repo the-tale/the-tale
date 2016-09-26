@@ -26,7 +26,7 @@ from the_tale.finances.market import goods_types
 
 class LotProcessor(dext_views.ArgumentProcessor):
     CONTEXT_NAME = 'lot'
-    ERROR_MESSAGE = u'Лот не найден'
+    ERROR_MESSAGE = 'Лот не найден'
     URL_NAME = 'lot'
 
     def parse(self, context, raw_value):
@@ -50,7 +50,7 @@ class GoodsProcessor(dext_views.BaseViewProcessor):
 
 class GoodProcessor(dext_views.ArgumentProcessor):
     CONTEXT_NAME = 'good'
-    ERROR_MESSAGE = u'Неверный идентификатор товара'
+    ERROR_MESSAGE = 'Неверный идентификатор товара'
     GET_NAME = 'good'
 
     def parse(self, context, raw_value):
@@ -76,9 +76,9 @@ resource.add_processor(shop_views.XsollaEnabledProcessor())
 ########################################
 
 def filter_groups_choices(choice_element):
-    choices = [(None, u'все')]
+    choices = [(None, 'все')]
 
-    for group_uid, group in sorted(goods_types.get_groups().iteritems()):
+    for group_uid, group in sorted(goods_types.get_groups().items()):
         if 'test' in group_uid:
             continue
 
@@ -89,12 +89,12 @@ def filter_groups_choices(choice_element):
 
 class LotsIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
-                list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
-                list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
+                list_filter.filter_element('поиск:', attribute='filter', default_value=None),
+                list_filter.choice_element('сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
                                            default_value=relations.INDEX_ORDER_BY.DATE_DOWN.value),
-                list_filter.choice_element(u'группа:', attribute='group', choices=filter_groups_choices,
+                list_filter.choice_element('группа:', attribute='group', choices=filter_groups_choices,
                                            default_value=None),
-                list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
+                list_filter.static_element('количество:', attribute='count', default_value=0) ]
 
 
 ########################################
@@ -106,13 +106,13 @@ index_resource = dext_views.Resource(name='market')
 resource.add_child(index_resource)
 
 index_resource.add_processor(dext_views.RelationArgumentProcessor(relation=relations.INDEX_ORDER_BY, default_value=relations.INDEX_ORDER_BY.DATE_DOWN,
-                                                                  error_message=u'неверный тип сортировки',
+                                                                  error_message='неверный тип сортировки',
                                                                   context_name='order_by', get_name='order_by'))
 index_resource.add_processor(dext_views.RelationArgumentProcessor(relation=relations.INDEX_MODE, default_value=relations.INDEX_MODE.ALL,
-                                                                  error_message=u'неверный режим отображения',
+                                                                  error_message='неверный режим отображения',
                                                                   context_name='page_mode', get_name='page_mode'))
 index_resource.add_processor(dext_views.MapArgumentProcessor(mapping=goods_types.get_groups, default_value=None,
-                                                             error_message=u'неверный тип группы', context_name='goods_group', get_name='group'))
+                                                             error_message='неверный тип группы', context_name='goods_group', get_name='group'))
 index_resource.add_processor(utils_views.TextFilterProcessor())
 index_resource.add_processor(utils_views.PageNumberProcessor())
 
@@ -190,7 +190,7 @@ def new(context):
 @resource('new-dialog')
 def new_dialog(context):
     if logic.has_lot(context.account.id, context.good.uid):
-        raise dext_utils_exceptions.ViewError(code='lot_exists', message=u'Вы уже выставили этот предмет на продажу')
+        raise dext_utils_exceptions.ViewError(code='lot_exists', message='Вы уже выставили этот предмет на продажу')
 
     return dext_views.Page('market/new_dialog.html',
                            content={'context': context,
@@ -204,7 +204,7 @@ def new_dialog(context):
 @resource('create', method='POST')
 def create(context):
     if logic.has_lot(context.account.id, context.good.uid):
-        raise dext_utils_exceptions.ViewError(code='lot_exists', message=u'Вы уже выставили этот предмет на продажу')
+        raise dext_utils_exceptions.ViewError(code='lot_exists', message='Вы уже выставили этот предмет на продажу')
 
     task = logic.send_good_to_market(seller_id=context.account.id, good=context.good, price=context.form.c.price)
     return dext_views.AjaxProcessing(status_url=task.status_url)
@@ -215,13 +215,13 @@ def create(context):
 def purchase(context):
 
     if not context.lot.state.is_ACTIVE:
-        raise dext_utils_exceptions.ViewError(code='wrong_lot_state', message=u'Вы не можете приобрести этот лот')
+        raise dext_utils_exceptions.ViewError(code='wrong_lot_state', message='Вы не можете приобрести этот лот')
 
     if context.lot.seller_id == context.account.id:
-        raise dext_utils_exceptions.ViewError(code='can_not_purchase_own_lot', message=u'Нельзя приобрести свой лот')
+        raise dext_utils_exceptions.ViewError(code='can_not_purchase_own_lot', message='Нельзя приобрести свой лот')
 
     if context.account.bank_account.amount < context.lot.price:
-        raise dext_utils_exceptions.ViewError(code='no_money', message=u'Не хватает средств для приобретения лота')
+        raise dext_utils_exceptions.ViewError(code='no_money', message='Не хватает средств для приобретения лота')
 
     task = logic.purchase_lot(context.account.id, context.lot)
     return dext_views.AjaxProcessing(status_url=task.status_url)

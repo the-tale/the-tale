@@ -25,11 +25,11 @@ def update_waymarks(): # pylint: disable=R0912
 
     places_len = len(places)
 
-    paths = [ [ Path() for place in xrange(places_len) ] for i in xrange(places_len)] # pylint: disable=W0612
+    paths = [ [ Path() for place in range(places_len) ] for i in range(places_len)] # pylint: disable=W0612
 
     p2i = dict( (place.id, i) for i, place in enumerate(places))
 
-    for i in xrange(len(places)):
+    for i in range(len(places)):
         paths[i][i].update_path(0, None)
 
     for road in roads:
@@ -38,9 +38,9 @@ def update_waymarks(): # pylint: disable=R0912
         paths[i][j].update_path(road.length, road.id)
         paths[j][i].update_path(road.length, road.id)
 
-    for k in xrange(places_len):
-        for i in xrange(places_len):
-            for j in xrange(places_len):
+    for k in range(places_len):
+        for i in range(places_len):
+            for j in range(places_len):
                 new_len = min(paths[i][j].length,
                               paths[i][k].length + paths[k][j].length)
                 paths[i][j].update_path(new_len, paths[i][k].road_id)
@@ -51,8 +51,8 @@ def update_waymarks(): # pylint: disable=R0912
             res.append(el.road_id)
 
 
-    for i in xrange(places_len):
-        for j in xrange(places_len):
+    for i in range(places_len):
+        for j in range(places_len):
             if paths[i][j].road_id is not None:
                 road = roads_storage[paths[i][j].road_id]
             else:

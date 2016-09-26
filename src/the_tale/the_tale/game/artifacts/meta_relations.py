@@ -10,7 +10,7 @@ from . import storage
 class Artifact(meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 4
-    TYPE_CAPTION = u'Артефакт'
+    TYPE_CAPTION = 'Артефакт'
 
     def __init__(self, caption, **kwargs):
         super(Artifact, self).__init__(**kwargs)

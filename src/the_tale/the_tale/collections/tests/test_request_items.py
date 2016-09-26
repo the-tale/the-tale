@@ -32,14 +32,14 @@ class BaseRequestTests(testcase.TestCase):
         group_edit.user_set.add(self.account_2._model)
         group_moderate.user_set.add(self.account_3._model)
 
-        self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1')
-        self.collection_2 = CollectionPrototype.create(caption=u'collection_2', description=u'description_2')
+        self.collection_1 = CollectionPrototype.create(caption='collection_1', description='description_1')
+        self.collection_2 = CollectionPrototype.create(caption='collection_2', description='description_2')
 
-        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1')
-        self.kit_2 = KitPrototype.create(collection=self.collection_1, caption=u'kit_2', description=u'description_2')
+        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption='kit_1', description='description_1')
+        self.kit_2 = KitPrototype.create(collection=self.collection_1, caption='kit_2', description='description_2')
 
-        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_1', text=u'text_1_1')
-        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_2', text=u'text_1_2')
+        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption='item_1_1', text='text_1_1')
+        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption='item_1_2', text='text_1_2')
 
 
 class ItemsNewTests(BaseRequestTests):

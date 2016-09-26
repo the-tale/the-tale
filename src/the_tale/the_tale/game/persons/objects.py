@@ -100,7 +100,7 @@ class Person(names.ManageNameMixin2):
 
     @property
     def full_name(self):
-        return u'%s %s-%s' % (self.name, self.race_verbose, self.type.text)
+        return '%s %s-%s' % (self.name, self.race_verbose, self.type.text)
 
     @property
     def url(self):
@@ -110,10 +110,10 @@ class Person(names.ManageNameMixin2):
 
     def name_from(self, with_url=True):
         if with_url:
-            return u'<a href="%s" target="_blank">%s</a> — %s из %s' % (self.url, self.name, self.race.text,
+            return '<a href="%s" target="_blank">%s</a> — %s из %s' % (self.url, self.name, self.race.text,
                                                                         self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 
-        return u'%s — %s из %s' % (self.name, self.race.text, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
+        return '%s — %s из %s' % (self.name, self.race.text, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 
     @property
     def has_building(self): return self.building is not None
@@ -222,13 +222,13 @@ class Person(names.ManageNameMixin2):
         choices = []
 
         for place in places_storage.places.all():
-            accepted_persons = filter(lambda person: predicate(place, person), place.persons) # pylint: disable=W0110
+            accepted_persons = [person for person in place.persons if predicate(place, person)] # pylint: disable=W0110
 
             if choosen_person is not None and choosen_person.place.id == place.id:
                 if choosen_person.id not in [p.id for p in accepted_persons]:
                     accepted_persons.append(choosen_person)
 
-            persons = tuple( (person.id, u'%s [%s %.2f%%]' % (person.name,
+            persons = tuple( (person.id, '%s [%s %.2f%%]' % (person.name,
                                                               person.type.text,
                                                               person.total_politic_power_fraction * 100 if person.total_politic_power_fraction > 0.001 else 0))
                              for person in accepted_persons )
@@ -243,7 +243,7 @@ class Person(names.ManageNameMixin2):
         return self.economic_attributes[attribute] / 3.0 * BEST_PERSON_BONUSES[attribute]
 
     def get_economic_modifiers(self):
-        for attribute in self.economic_attributes.iterkeys():
+        for attribute in self.economic_attributes.keys():
             yield attribute, self.get_economic_modifier(attribute)
 
     def ui_info(self):
@@ -275,7 +275,7 @@ class Person(names.ManageNameMixin2):
         for attribute, modifier in self.get_economic_modifiers():
             yield effects.Effect(name=self.name, attribute=attribute, value=modifier)
 
-        for specialization, points in self.specialization_attributes.iteritems():
+        for specialization, points in self.specialization_attributes.items():
             if specialization.points_attribute is None:
                 continue
 

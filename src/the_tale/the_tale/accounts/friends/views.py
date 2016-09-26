@@ -50,26 +50,26 @@ class FriendsResource(Resource):
                               'heroes': heroes,
                               'clans': clans})
 
-    @validate_argument('friend', AccountPrototype.get_by_id, 'friends', u'Игрок не найден')
+    @validate_argument('friend', AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
     @handler('request', method='get')
     def request_dialog(self, friend):
 
         if friend.id == get_system_user().id:
-            return self.auto_error('friends.request_dialog.system_user', u'Вы не можете пригласить в друзья системного пользователя')
+            return self.auto_error('friends.request_dialog.system_user', 'Вы не можете пригласить в друзья системного пользователя')
 
         return self.template('friends/request_dialog.html',
                              {'friend': friend,
                               'form': RequestForm()})
 
-    @validate_argument('friend', AccountPrototype.get_by_id, 'friends', u'Игрок не найден')
+    @validate_argument('friend', AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
     @handler('request', method='post')
     def request_friendship(self, friend):
 
         if friend.is_fast:
-            return self.json_error('friends.request_friendship.fast_friend', u'Вы не можете пригласить в друзья игрока не завершившего регистрацию')
+            return self.json_error('friends.request_friendship.fast_friend', 'Вы не можете пригласить в друзья игрока не завершившего регистрацию')
 
         if friend.id == get_system_user().id:
-            return self.json_error('friends.request_friendship.system_user', u'Вы не можете пригласить в друзья системного пользователя')
+            return self.json_error('friends.request_friendship.system_user', 'Вы не можете пригласить в друзья системного пользователя')
 
         form = RequestForm(self.request.POST)
 
@@ -79,13 +79,13 @@ class FriendsResource(Resource):
         FriendshipPrototype.request_friendship(self.account, friend, text=form.c.text)
         return self.json_ok()
 
-    @validate_argument('friend', AccountPrototype.get_by_id, 'friends', u'Игрок не найден')
+    @validate_argument('friend', AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
     @handler('accept', method='post')
     def accept_friendship(self, friend):
         FriendshipPrototype.request_friendship(self.account, friend)
         return self.json_ok()
 
-    @validate_argument('friend', AccountPrototype.get_by_id, 'friends', u'Игрок не найден')
+    @validate_argument('friend', AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
     @handler('remove', method='post')
     def remove(self, friend):
         FriendshipPrototype.remove_friendship(self.account, friend)

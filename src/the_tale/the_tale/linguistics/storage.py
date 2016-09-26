@@ -116,7 +116,7 @@ class RestrictionsStorage(dext_storage.Storage):
         return self._restrictions_by_group.get(group, ())
 
     def get_form_choices(self):
-        choices = [(None, u'нет')]
+        choices = [(None, 'нет')]
 
         for restriction_group in relations.TEMPLATE_RESTRICTION_GROUP.records:
             restrictions = [(r.id, r.name) for r in sorted(self.get_restrictions(restriction_group), key=lambda r: r.name)]

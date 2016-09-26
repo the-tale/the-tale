@@ -4,15 +4,15 @@ from the_tale.common.utils.exceptions import TheTaleError
 
 
 class HeroError(TheTaleError):
-    MSG = u'hero error'
+    MSG = 'hero error'
 
 
 class HealHeroForNegativeValueError(HeroError):
-    MSG = u'try to heal hero to negative value'
+    MSG = 'try to heal hero to negative value'
 
 class UnkwnownAchievementTypeError(HeroError):
-    MSG = u'unknown achievement type: %(achievement_type)r'
+    MSG = 'unknown achievement type: %(achievement_type)r'
 
 
 class UnknownMoneySourceError(HeroError):
-    MSG = u'unknown money source %(source)r'
+    MSG = 'unknown money source %(source)r'

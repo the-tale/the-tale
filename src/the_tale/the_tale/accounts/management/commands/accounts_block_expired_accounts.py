@@ -15,7 +15,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         if pid.check('game_supervisor'):
-            print 'game MUST be stopped befor run this command'
+            print('game MUST be stopped befor run this command')
             return
 
         block_expired_accounts()

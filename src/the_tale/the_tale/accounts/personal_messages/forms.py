@@ -17,7 +17,7 @@ class RecipientsForm(forms.Form):
         try:
             recipients = [int(id_.strip()) for id_ in recipients.split(',')]
         except ValueError:
-            raise ValidationError(u'Неверный идентификатор получателя')
+            raise ValidationError('Неверный идентификатор получателя')
 
         return recipients
 
@@ -25,4 +25,4 @@ class RecipientsForm(forms.Form):
 
 class NewMessageForm(RecipientsForm):
 
-    text = bbcode.BBField(label=u'Сообщение')
+    text = bbcode.BBField(label='Сообщение')

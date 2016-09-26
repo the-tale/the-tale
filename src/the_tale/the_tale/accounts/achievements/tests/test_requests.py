@@ -30,16 +30,16 @@ class _BaseRequestTests(testcase.TestCase):
         group_edit.user_set.add(self.account_2._model)
 
         self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
-                                                         caption=u'achievement_1', description=u'description_1', approved=True)
+                                                         caption='achievement_1', description='description_1', approved=True)
         self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=2, points=10,
-                                                         caption=u'achievement_2', description=u'description_2', approved=False)
+                                                         caption='achievement_2', description='description_2', approved=False)
         self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=3, points=10,
-                                                         caption=u'achievement_3', description=u'description_3', approved=True)
+                                                         caption='achievement_3', description='description_3', approved=True)
 
-        self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1', approved=True)
-        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1', approved=True)
-        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_1', text=u'text_1_1', approved=True)
-        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_2', text=u'text_1_2', approved=True)
+        self.collection_1 = CollectionPrototype.create(caption='collection_1', description='description_1', approved=True)
+        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption='kit_1', description='description_1', approved=True)
+        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption='item_1_1', text='text_1_1', approved=True)
+        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption='item_1_2', text='text_1_2', approved=True)
 
         self.account_achievements_1 = AccountAchievementsPrototype.get_by_account_id(self.account_1.id)
         self.account_achievements_1.achievements.add_achievement(self.achievement_1)
@@ -159,7 +159,7 @@ class AchievementsCreateTests(_BaseRequestTests):
 
     def get_post_data(self):
         return {'caption': 'caption_create',
-                'description': u'description_create',
+                'description': 'description_create',
                 'order': 666,
                 'barrier': 777,
                 'type': ACHIEVEMENT_TYPE.DEATHS,
@@ -239,7 +239,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
     def get_post_data(self):
         return {'caption': 'caption_edited',
-                'description': u'description_edited',
+                'description': 'description_edited',
                 'order': 666,
                 'barrier': 777,
                 'type': ACHIEVEMENT_TYPE.DEATHS,
@@ -252,7 +252,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
     def get_post_data__without_update(self):
         return {'caption': 'caption_edited',
-                'description': u'description_edited',
+                'description': 'description_edited',
                 'order': 666,
                 'barrier': self.achievement_2.barrier,
                 'type': self.achievement_2.type,

@@ -103,12 +103,12 @@ class QuestInfo(object):
         if self.type == 'next-spending':
             return [ self.prepair_actor_ui_info('goal', relations.ACTOR_TYPE.MONEY_SPENDING)  ]
 
-        return filter(None, [ self.prepair_actor_ui_info(ROLES.INITIATOR, relations.ACTOR_TYPE.PERSON),
+        return [_f for _f in [ self.prepair_actor_ui_info(ROLES.INITIATOR, relations.ACTOR_TYPE.PERSON),
                               self.prepair_actor_ui_info(ROLES.INITIATOR_POSITION, relations.ACTOR_TYPE.PLACE),
                               self.prepair_actor_ui_info(ROLES.RECEIVER, relations.ACTOR_TYPE.PERSON),
                               self.prepair_actor_ui_info(ROLES.RECEIVER_POSITION, relations.ACTOR_TYPE.PLACE),
                               self.prepair_actor_ui_info(ROLES.ANTAGONIST, relations.ACTOR_TYPE.PERSON),
-                              self.prepair_actor_ui_info(ROLES.ANTAGONIST_POSITION, relations.ACTOR_TYPE.PLACE)])
+                              self.prepair_actor_ui_info(ROLES.ANTAGONIST_POSITION, relations.ACTOR_TYPE.PLACE)] if _f]
 
     @classmethod
     def deserialize(cls, data):
@@ -126,7 +126,7 @@ class QuestInfo(object):
         return cls(type=type,
                    uid=uid,
                    name=writer.name(),
-                   action=u'',
+                   action='',
                    choice=None,
                    choice_alternatives=[],
                    experience=experience,
@@ -209,8 +209,8 @@ class QuestInfo(object):
 
 NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
                                     uid='no-quest',
-                                    name=u'безделье',
-                                    action=u'имитирует бурную деятельность',
+                                    name='безделье',
+                                    action='имитирует бурную деятельность',
                                     choice=None,
                                     choice_alternatives=(),
                                     experience=0,
@@ -222,8 +222,8 @@ NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
 
 NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
                                      uid='no-quest',
-                                     name=u'безделье',
-                                     action=u'идёт в ближайший город',
+                                     name='безделье',
+                                     action='идёт в ближайший город',
                                      choice=None,
                                      choice_alternatives=(),
                                      experience=0,
@@ -445,7 +445,7 @@ class QuestPrototype(object):
         if hero.companion:
             hero.companion.add_experience(c.COMPANIONS_COHERENCE_EXP_PER_QUEST)
 
-        for object_uid, result in finish.results.iteritems():
+        for object_uid, result in finish.results.items():
             if result == QUEST_RESULTS.SUCCESSED:
                 object_politic_power = 1
             elif result == QUEST_RESULTS.FAILED:
@@ -474,7 +474,7 @@ class QuestPrototype(object):
             else:
                 raise exceptions.UnknownPowerRecipientError(recipient=object_fact)
 
-        for marker, default in self.current_info.used_markers.iteritems():
+        for marker, default in self.current_info.used_markers.items():
             for change_source in HABIT_CHANGE_SOURCE.records:
                 if change_source.quest_marker == marker and change_source.quest_default == default:
                     self.hero.update_habits(change_source)
@@ -490,7 +490,7 @@ class QuestPrototype(object):
 
         finish_state = self.get_state_by_jump_pointer()
 
-        for object_uid, result in finish_state.results.iteritems():
+        for object_uid, result in finish_state.results.items():
 
             if result != QUEST_RESULTS.SUCCESSED:
                 continue
@@ -731,7 +731,7 @@ class QuestPrototype(object):
         if not isinstance(jump, facts.Option):
             return
 
-        path = (path for path in self.knowledge_base.filter(facts.ChoicePath) if path.option == jump.uid).next()
+        path = next((path for path in self.knowledge_base.filter(facts.ChoicePath) if path.option == jump.uid))
 
         used_markers = self.current_info.used_markers
         for marker in jump.markers:
@@ -947,14 +947,14 @@ class QuestPrototype(object):
     def next_spending_ui_info(cls, spending):
         NEXT_SPENDING_INFO = QuestInfo(type='next-spending',
                                        uid='next-spending',
-                                       name=u'Накопить золото',
-                                       action=u'копит',
+                                       name='Накопить золото',
+                                       action='копит',
                                        choice=None,
                                        choice_alternatives=(),
                                        experience=0,
                                        power=0,
                                        experience_bonus=0,
                                        power_bonus=0,
-                                       actors={'goal': (spending, u'цель')},
+                                       actors={'goal': (spending, 'цель')},
                                        used_markers=set())
         return {'line': [NEXT_SPENDING_INFO.ui_info(None)]}

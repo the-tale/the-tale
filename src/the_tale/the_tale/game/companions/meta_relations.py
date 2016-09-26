@@ -10,7 +10,7 @@ from . import storage
 class Companion(meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 6
-    TYPE_CAPTION = u'Спутник'
+    TYPE_CAPTION = 'Спутник'
 
     def __init__(self, caption, **kwargs):
         super(Companion, self).__init__(**kwargs)

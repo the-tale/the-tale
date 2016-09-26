@@ -11,7 +11,7 @@ class SpoilerTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
         super(SpoilerTag, self).__init__(name, inline=False)
-        self.tag_key = u'SpoilerTag.nest_level'
+        self.tag_key = 'SpoilerTag.nest_level'
 
     def render_open(self, parser, node_index):
         parser.tag_data[self.tag_key] = parser.tag_data.setdefault(self.tag_key, 0) + 1
@@ -19,9 +19,9 @@ class SpoilerTag(postmarkup.TagBase):
         if self.params:
             caption = self.params.strip()
         else:
-            caption = u'спойлер'
+            caption = 'спойлер'
 
-        return u'''
+        return '''
 <div class="accordion" id="pgf-spoiler-%(accordion_id)s">
   <div class="accordion-group">
     <div class="accordion-heading">
@@ -36,14 +36,14 @@ class SpoilerTag(postmarkup.TagBase):
 
     def render_close(self, parser, node_index):
         parser.tag_data[self.tag_key] -= 1
-        return u'</div></div></div></div>'
+        return '</div></div></div></div>'
 
 
 class SafeSpoilerTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
         super(SafeSpoilerTag, self).__init__(name, inline=False)
-        self.tag_key = u'SafeSpoilerTag.nest_level'
+        self.tag_key = 'SafeSpoilerTag.nest_level'
 
     def render_open(self, parser, node_index):
         parser.tag_data[self.tag_key] = parser.tag_data.setdefault(self.tag_key, 0) + 1
@@ -51,68 +51,68 @@ class SafeSpoilerTag(postmarkup.TagBase):
         if self.params:
             caption = self.params.strip()
         else:
-            caption = u'спойлер'
+            caption = 'спойлер'
 
-        return u'--------------%(caption)s--------------<br/>' % {'caption': caption}
+        return '--------------%(caption)s--------------<br/>' % {'caption': caption}
 
     def render_close(self, parser, node_index):
         parser.tag_data[self.tag_key] -= 1
-        return u'<br/>--------------'
+        return '<br/>--------------'
 
 
 class HRTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
         super(HRTag, self).__init__(name, inline=False, auto_close=True)
-        self.tag_key = u'HRTag.nest_level'
+        self.tag_key = 'HRTag.nest_level'
 
     def render_open(self, parser, node_index):
-        return u'<hr/>'
+        return '<hr/>'
 
     def render_close(self, parser, node_index):
-        return u''
+        return ''
 
 
 class LeftSquareBracketTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
         super(LeftSquareBracketTag, self).__init__(name, inline=True, auto_close=True)
-        self.tag_key = u'LeftSquareBracketTag.nest_level'
+        self.tag_key = 'LeftSquareBracketTag.nest_level'
 
     def render_open(self, parser, node_index):
-        return u'&#91;'
+        return '&#91;'
 
     def render_close(self, parser, node_index):
-        return u''
+        return ''
 
 
 class RightSquareBracketTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
         super(RightSquareBracketTag, self).__init__(name, inline=True, auto_close=True)
-        self.tag_key = u'RightSquareBracketTag.nest_level'
+        self.tag_key = 'RightSquareBracketTag.nest_level'
 
     def render_open(self, parser, node_index):
-        return u'&#93;'
+        return '&#93;'
 
     def render_close(self, parser, node_index):
-        return u''
+        return ''
 
 class LinkTag(postmarkup.LinkTag):
-    _safe_chars = postmarkup.LinkTag._safe_chars | frozenset(u'+')
+    _safe_chars = postmarkup.LinkTag._safe_chars | frozenset('+')
 
 
 class RedLineTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
         super(RedLineTag, self).__init__(name, inline=True, auto_close=True)
-        self.tag_key = u'RedLineTag.nest_level'
+        self.tag_key = 'RedLineTag.nest_level'
 
     def render_open(self, parser, node_index):
-        return u'&nbsp;&nbsp;&nbsp;&nbsp;'
+        return '&nbsp;&nbsp;&nbsp;&nbsp;'
 
     def render_close(self, parser, node_index):
-        return u''
+        return ''
 
 
 
@@ -132,7 +132,7 @@ def render(*argv, **kwargs):
         kwargs['encoding'] = 'utf-8'
         return _renderer.render_to_html(*argv, **kwargs)
     except:
-        return u'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
+        return 'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
 
 
 _safe_renderer = postmarkup.create(use_pygments=False, annotate_links=False)
@@ -145,7 +145,7 @@ def safe_render(*argv, **kwargs):
         kwargs['encoding'] = 'utf-8'
         return _safe_renderer.render_to_html(*argv, **kwargs)
     except:
-        return u'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
+        return 'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
 
 
 
@@ -153,7 +153,7 @@ class BBField(fields.TextField):
 
     @property
     def command_line(self):
-        return u'''
+        return '''
 <div class="pgf-bb-command-line command-line">
 <a class="pgf-bb-command" href="#" data-tag="b" rel="tooltip" title="<strong>жирный</strong>">[b]</a>
 <a class="pgf-bb-command" href="#" data-tag="i" rel="tooltip" title="<i>курсив</i>">[i]</a>
@@ -173,7 +173,7 @@ class BBField(fields.TextField):
 '''
 
     def html(self, bound_field):
-        html = u"""
+        html = """
 <div id="pgf-bbfield-%(field_id)s" class="pgf-bbfield bbfield">
   %(label)s
   <div class="pgf-edit-content">

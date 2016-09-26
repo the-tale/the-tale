@@ -23,30 +23,30 @@ from . import relations
 from . import meta_relations
 
 
-ORDER_BY = create_enum('ORDER_BY', (('ALPHABET', 'alphabet', u'по алфавиту'),
-                                    ('CREATED_AT', 'created_at', u'по дате создания'),
-                                    ('RATING', 'rating', u'по голосам'),
-                                    ('MIGHT', 'might', u'по рейтингу'),))
+ORDER_BY = create_enum('ORDER_BY', (('ALPHABET', 'alphabet', 'по алфавиту'),
+                                    ('CREATED_AT', 'created_at', 'по дате создания'),
+                                    ('RATING', 'rating', 'по голосам'),
+                                    ('MIGHT', 'might', 'по рейтингу'),))
 
 class PostResource(Resource):
 
-    @validate_argument('post', prototypes.PostPrototype.get_by_id, 'blogs.posts', u'Запись не найдена')
+    @validate_argument('post', prototypes.PostPrototype.get_by_id, 'blogs.posts', 'Запись не найдена')
     def initialize(self, post=None, *args, **kwargs):
         super(PostResource, self).initialize(*args, **kwargs)
         self.post = post
         self.can_moderate_post = self.account.has_perm('blogs.moderate_post')
 
-    @validator(code='blogs.posts.fast_account', message=u'Для выполнения этого действия необходимо завершить регистрацию')
+    @validator(code='blogs.posts.fast_account', message='Для выполнения этого действия необходимо завершить регистрацию')
     def validate_fast_account_restrictions(self, *args, **kwargs):
         return self.account.is_authenticated() and not self.account.is_fast
 
-    @validator(code='blogs.posts.no_edit_rights', message=u'Вы не можете редактировать это произведение')
+    @validator(code='blogs.posts.no_edit_rights', message='Вы не можете редактировать это произведение')
     def validate_edit_rights(self, *args, **kwargs): return self.account.id == self.post.author.id or self.can_moderate_post
 
-    @validator(code='blogs.posts.moderator_rights_required', message=u'Вы не являетесь модератором')
+    @validator(code='blogs.posts.moderator_rights_required', message='Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_post
 
-    @validator(code='blogs.posts.post_declined', message=u'Произведение не прошло проверку модератора и отклонено')
+    @validator(code='blogs.posts.post_declined', message='Произведение не прошло проверку модератора и отклонено')
     def validate_declined_state(self, *args, **kwargs): return not self.post.state.is_DECLINED
 
 
@@ -181,7 +181,7 @@ class PostResource(Resource):
 
         form = forms.PostForm(initial={'caption': self.post.caption,
                                        'text': self.post.text,
-                                       'meta_objects': u' '.join(sorted(meta_relations_logic.get_uids_related_from(relation=meta_relations.IsAbout,
+                                       'meta_objects': ' '.join(sorted(meta_relations_logic.get_uids_related_from(relation=meta_relations.IsAbout,
                                                                                                                    meta_object=meta_post)))})
         return self.template('blogs/edit.html', {'post': self.post,
                                                  'page_type': 'edit',

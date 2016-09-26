@@ -10,7 +10,7 @@ from . import models
 class Bill(meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 2
-    TYPE_CAPTION = u'Закон'
+    TYPE_CAPTION = 'Закон'
 
     def __init__(self, caption, **kwargs):
         super(Bill, self).__init__(**kwargs)

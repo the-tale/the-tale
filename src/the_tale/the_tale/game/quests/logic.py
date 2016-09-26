@@ -256,7 +256,7 @@ def setup_persons(kb, hero_info):
 def setup_social_connections(kb):
     persons_in_kb = {f_person.externals['id']: f_person.uid for f_person in kb.filter(facts.Person)}
 
-    for person_id, person_uid in persons_in_kb.iteritems():
+    for person_id, person_uid in persons_in_kb.items():
         person = persons_storage.persons[person_id]
 
         for connection_type, connected_person_id in persons_storage.social_connections.get_person_connections(person):
@@ -359,7 +359,7 @@ def create_random_quest_for_hero(hero_info, logger):
 
     spent_time = time.time() - start_time
 
-    logger.info(u'hero[%(hero_id).6d]: %(spent_time)s %(is_normal)s %(quest_type)20s (allowed: %(allowed)s) (excluded: %(excluded)s)' %
+    logger.info('hero[%(hero_id).6d]: %(spent_time)s %(is_normal)s %(quest_type)20s (allowed: %(allowed)s) (excluded: %(excluded)s)' %
                 {'hero_id': hero_info.id,
                  'spent_time': spent_time,
                  'is_normal': normal_mode,
@@ -378,8 +378,8 @@ def try_to_create_random_quest_for_hero(hero_info, quests, excluded_quests, with
 
         try:
             return quest_type, _create_random_quest_for_hero(hero_info, start_quests=[quest_type.quest_class.TYPE], without_restrictions=without_restrictions)
-        except questgen_exceptions.RollBackError, e:
-            logger.info(u'hero[%(hero_id).6d]: can not create quest <%(quest_type)s>: %(exception)s' %
+        except questgen_exceptions.RollBackError as e:
+            logger.info('hero[%(hero_id).6d]: can not create quest <%(quest_type)s>: %(exception)s' %
                         {'hero_id': hero_info.id,
                          'quest_type': quest_type,
                          'exception': e})

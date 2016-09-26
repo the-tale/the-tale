@@ -121,7 +121,7 @@ class TemplatePrototype(BasePrototype):
 
     @lazy_property
     def lexicon_groups(self):
-        return {key: tuple(value) for key, value in self._data['groups'].iteritems()}
+        return {key: tuple(value) for key, value in self._data['groups'].items()}
 
     @lazy_property
     def verificators(self):
@@ -177,7 +177,7 @@ class TemplatePrototype(BasePrototype):
                                                                      dictionary=utg_dictionary)
 
         for word in unexisted_words:
-            errors.append(u'Неизвестное слово: «%s»' % word)
+            errors.append('Неизвестное слово: «%s»' % word)
 
         if errors:
             return errors
@@ -188,13 +188,13 @@ class TemplatePrototype(BasePrototype):
             try:
                 template_render = self.utg_template.substitute(externals=externals, dictionary=utg_dictionary)
             except utg_exceptions.MoreThenOneWordFoundError as e:
-                errors.append(u'Невозможно однозначно определить слово с формой «%s» — существует несколько слов с такими формами. Укажите более точные свойства.' %
+                errors.append('Невозможно однозначно определить слово с формой «%s» — существует несколько слов с такими формами. Укажите более точные свойства.' %
                               e.arguments['text'])
                 return errors
 
             import jinja2
             if logic.efication(verificator.text) != logic.efication(template_render):
-                errors.append(u'Проверочный текст не совпадает с интерпретацией шаблона<br/>%s<br/>%s' % (jinja2.escape(template_render), jinja2.escape(verificator.text)) )
+                errors.append('Проверочный текст не совпадает с интерпретацией шаблона<br/>%s<br/>%s' % (jinja2.escape(template_render), jinja2.escape(verificator.text)) )
 
         return errors
 
@@ -204,7 +204,7 @@ class TemplatePrototype(BasePrototype):
     def sync_restrictions(self):
         with transaction.atomic():
             models.TemplateRestriction.objects.filter(template_id=self.id).delete()
-            for variable, restrictions in self.restrictions.iteritems():
+            for variable, restrictions in self.restrictions.items():
                 for restriction in restrictions:
                     models.TemplateRestriction.objects.create(template_id=self.id, variable=variable.value, restriction_id=restriction.id)
 
@@ -304,7 +304,7 @@ class Verificator(object):
     @classmethod
     def deserialize(cls, data):
         return cls(text=data['text'],
-                   externals={k: tuple(v) for k,v in data['externals'].iteritems()})
+                   externals={k: tuple(v) for k,v in data['externals'].items()})
 
     def __eq__(self, other):
         return (self.text == other.text and
@@ -312,13 +312,13 @@ class Verificator(object):
 
     def get_label(self):
         externals = self.preprocessed_externals()
-        return u'Проверка для %s' % u', '.join(u'%s=%s' % (variable, value.form) for variable, value in externals.iteritems())
+        return 'Проверка для %s' % ', '.join('%s=%s' % (variable, value.form) for variable, value in externals.items())
 
     def preprocessed_externals(self):
         externals = {}
-        for k, (word_form, additional_properties) in self.externals.iteritems():
+        for k, (word_form, additional_properties) in self.externals.items():
 
-            if isinstance(word_form, (int, long)):
+            if isinstance(word_form, int):
                 word_form = utg_constructors.construct_integer(word_form)
             else:
                 word_form = lexicon_dictionary.DICTIONARY.get_word(word_form)
@@ -336,7 +336,7 @@ class Verificator(object):
 
     @classmethod
     def _fill_externals(cls, externals, start_substitutions, work_substitutions, used_substitutions):
-        for variable_value, substitutions in work_substitutions.iteritems():
+        for variable_value, substitutions in work_substitutions.items():
 
             if variable_value in externals:
                 continue
@@ -362,7 +362,7 @@ class Verificator(object):
         used_substitutions = {}
         work_substitutions = {}
 
-        for variable_value, (verificator_value, substitution_index) in groups.iteritems():
+        for variable_value, (verificator_value, substitution_index) in groups.items():
             verificator = VARIABLE_VERIFICATOR(verificator_value)
             start_substitutions[variable_value] = list(verificator.substitutions[substitution_index])
             work_substitutions[variable_value] = list(start_substitutions[variable_value])
@@ -374,7 +374,7 @@ class Verificator(object):
         for old_verificator in old_verificators:
             correct_verificator = True
 
-            for variable_value, substitution in old_verificator.externals.iteritems():
+            for variable_value, substitution in old_verificator.externals.items():
                 if variable_value not in work_substitutions: # if variable removed from key
                     continue
                 if substitution not in work_substitutions[variable_value]:
@@ -386,7 +386,7 @@ class Verificator(object):
 
             verificators.append(old_verificator)
 
-            for variable_value, substitution in old_verificator.externals.iteritems():
+            for variable_value, substitution in old_verificator.externals.items():
                 if variable_value not in work_substitutions: # if variable removed from key
                     continue
                 used_substitutions[variable_value].add(substitution)
@@ -401,12 +401,12 @@ class Verificator(object):
             cls._fill_externals(old_verificator.externals, start_substitutions, work_substitutions, used_substitutions)
 
         # add lost verificators
-        while not all(used_substitutions[external] == set(start_substitutions[external]) for external in used_substitutions.iterkeys()):
+        while not all(used_substitutions[external] == set(start_substitutions[external]) for external in used_substitutions.keys()):
             externals = {}
 
             cls._fill_externals(externals, start_substitutions, work_substitutions, used_substitutions)
 
-            verificators.append(cls(text=u'', externals=externals))
+            verificators.append(cls(text='', externals=externals))
 
         return verificators
 

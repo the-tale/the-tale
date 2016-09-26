@@ -31,7 +31,7 @@ class Node(object):
 
 
     def process_depth_first(self, processor):
-        for child in self.children.itervalues():
+        for child in self.children.values():
             child.process_depth_first(processor)
         processor(self)
 
@@ -52,7 +52,7 @@ class Node(object):
 
         node = self.__class__(uid=self.uid, data=copy.deepcopy(self.data))
 
-        for child in self.children.itervalues():
+        for child in self.children.values():
             child_node = child.filter(predicate)
             if child_node is None:
                 continue
@@ -63,13 +63,13 @@ class Node(object):
     def serialize(self):
         return {'uid': self.uid,
                 'data': self.data,
-                'children': {uid: child.serialize() for uid, child in self.children.iteritems()}}
+                'children': {uid: child.serialize() for uid, child in self.children.items()}}
 
     @classmethod
     def deserialize(cls, data):
         return cls(uid=data['uid'],
                    data=data['data'],
-                   children={uid: cls.deserialize(child) for uid, child in data['children'].iteritems()})
+                   children={uid: cls.deserialize(child) for uid, child in data['children'].items()})
 
 
 
@@ -93,7 +93,7 @@ class Drawer(object):
 
         self.add_node(node)
 
-        for child in node.children.values():
+        for child in list(node.children.values()):
             self.draw_tree_node(child)
             self.add_edge(node, child)
 
@@ -133,14 +133,14 @@ class Drawer(object):
                      port=tree_node.uid)
 
 
-def b(data): return u'<b>%s</b>' % data
-def i(data): return u'<i>%s</i>' % data
+def b(data): return '<b>%s</b>' % data
+def i(data): return '<i>%s</i>' % data
 
 def table(*trs, **kwargs):
     bgcolor = kwargs.get('bgcolor')
     port = kwargs.get('port')
     border = kwargs.get('border', 1)
-    return u'''<
+    return '''<
     <table cellpadding="1"
            cellspacing="0"
            border="%(border)d"
@@ -153,14 +153,14 @@ def table(*trs, **kwargs):
             'bgcolor': 'BGCOLOR="%s"' % bgcolor if bgcolor is not None else ''}
 
 def tr(*tds):
-    return u'<tr BGCOLOR="#00ff00">%s</tr>' % ''.join(tds)
+    return '<tr BGCOLOR="#00ff00">%s</tr>' % ''.join(tds)
 
 def td(body, port=None, **kwargs):
     bgcolor = kwargs.get('bgcolor')
     colspan = kwargs.get('colspan', 1)
     align = kwargs.get('align', 'left')
     border = kwargs.get('border', 0)
-    return u'''<td
+    return '''<td
                  %(port)s
                  COLSPAN="%(colspan)d"
                  border="%(border)d"

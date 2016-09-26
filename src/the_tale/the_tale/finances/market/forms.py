@@ -9,13 +9,13 @@ from the_tale.finances.market import conf
 
 class PriceForm(forms.Form):
 
-    price = fields.IntegerField(label=u'Цена')
+    price = fields.IntegerField(label='Цена')
 
 
     def clean_price(self):
         price = self.cleaned_data['price']
 
         if price < conf.settings.MINIMUM_PRICE:
-            raise ValidationError(u'Цена должна быть не меньше %(min_price)s печенек' % {'min_price': conf.settings.MINIMUM_PRICE})
+            raise ValidationError('Цена должна быть не меньше %(min_price)s печенек' % {'min_price': conf.settings.MINIMUM_PRICE})
 
         return price

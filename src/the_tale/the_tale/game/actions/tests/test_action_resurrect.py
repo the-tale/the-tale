@@ -42,7 +42,7 @@ class ResurrectActionTest(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        for i in xrange(c.TURNS_TO_RESURRECT-1):
+        for i in range(c.TURNS_TO_RESURRECT-1):
 
             self.storage.process_turn()
             current_time.increment_turn()

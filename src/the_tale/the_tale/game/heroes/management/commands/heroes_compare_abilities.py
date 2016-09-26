@@ -54,7 +54,7 @@ def get_battles_statistics(hero_1, hero_2):
             hero_1._model.level = hero_level
             hero_2._model.level = hero_level
 
-            for i in xrange(TEST_BATTLES_NUMBER): # pylint: disable=W0612
+            for i in range(TEST_BATTLES_NUMBER): # pylint: disable=W0612
                 hero_1.health = hero_1.max_health
                 hero_2.health = hero_2.max_health
 
@@ -71,7 +71,7 @@ def set_heroes_companion(hero_1, hero_2):
     from the_tale.game.companions import models
     from the_tale.game.companions import logic
 
-    COMPANION_NAME = u'test_hero_battle_companion'
+    COMPANION_NAME = 'test_hero_battle_companion'
 
     for companion in storage.companions.all():
         if companion.name.startswith(COMPANION_NAME):
@@ -107,7 +107,7 @@ def compare_abilities(hero_1, hero_2, abilities, level):
 
             ability_matches[(ability_1.get_id(), ability_2.get_id())] = (hero_1_wins, hero_2_wins)
 
-            print 'compared "%s" with "%s": %d/%d' % (ability_1.get_id(), ability_2.get_id(), hero_1_wins, hero_2_wins)
+            print('compared "%s" with "%s": %d/%d' % (ability_1.get_id(), ability_2.get_id(), hero_1_wins, hero_2_wins))
 
     return ability_matches
 
@@ -142,16 +142,16 @@ def save_ability_mathces_statistics(statistics, matches): # pylint: disable=R091
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    keys, wins = zip(*statistics) # pylint: disable=W0612
+    keys, wins = list(zip(*statistics)) # pylint: disable=W0612
 
     index = dict((key, i) for i, key in enumerate(keys))
 
     data = []
-    for (x, y), (w_1, w_2) in matches.items():
+    for (x, y), (w_1, w_2) in list(matches.items()):
         data.append((index[x], index[y], 1000 * w_1 / float(w_1+w_2) ))
         data.append((index[y], index[x], 1000 * w_2 / float(w_1+w_2) ))
 
-    x, y, powers = zip(*data)
+    x, y, powers = list(zip(*data))
 
     ax.scatter(x, y, s=powers, marker='o', c=powers)
 
@@ -181,7 +181,7 @@ def save_ability_wins_distribution(statistics, ability_wins):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    keys, wins = zip(*statistics) # pylint: disable=W0612
+    keys, wins = list(zip(*statistics)) # pylint: disable=W0612
 
     data = [ability_wins[key] for key in keys]
     ax.boxplot(data)#, positions=[i for i in xrange(len(keys))])
@@ -236,7 +236,7 @@ class Command(BaseCommand):
         try:
 
             abilities = [ability_class
-                         for ability_class in ABILITIES.values()
+                         for ability_class in list(ABILITIES.values())
                          if (ability_class.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value and
                              ability_class.get_id() != 'hit' and
                              ability_class.TYPE == ABILITY_TYPE.BATTLE) ]
@@ -246,19 +246,19 @@ class Command(BaseCommand):
             ability_statistics = dict( (ability.get_id(), 0) for ability in abilities)
             ability_wins = dict( (ability.get_id(), []) for ability in abilities)
 
-            for (ability_1_id, ability_2_id), (ability_1_wins, ability_2_wins) in ability_matches.items():
+            for (ability_1_id, ability_2_id), (ability_1_wins, ability_2_wins) in list(ability_matches.items()):
                 ability_statistics[ability_1_id] = ability_statistics.get(ability_1_id, 0) + ability_1_wins
                 ability_statistics[ability_2_id] = ability_statistics.get(ability_2_id, 0) + ability_2_wins
 
                 ability_wins[ability_1_id].append(ability_1_wins)
                 ability_wins[ability_2_id].append(ability_2_wins)
 
-            statistics = sorted(ability_statistics.items(), key=lambda stat: -stat[1])
+            statistics = sorted(list(ability_statistics.items()), key=lambda stat: -stat[1])
 
             battles_per_ability = TEST_BATTLES_NUMBER * (len(abilities)-1)
 
             for ability_id, wins in statistics:
-                print '%d\t%.0f%%\t%s' % (wins, 100*float(wins)/(battles_per_ability*len(HERO_LEVELS)), ability_id)
+                print('%d\t%.0f%%\t%s' % (wins, 100*float(wins)/(battles_per_ability*len(HERO_LEVELS)), ability_id))
 
             save_ability_power_statistics(statistics)
             save_ability_mathces_statistics(statistics, ability_matches)

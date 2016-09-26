@@ -27,14 +27,14 @@ from the_tale.finances.market import conf
 def good_bought_message(lot):
     from the_tale.portal import logic as portal_logic
 
-    template = u'Поздравляем! Кто-то купил «%(good)s», Вы получаете печеньки: %(price)d шт.'
+    template = 'Поздравляем! Кто-то купил «%(good)s», Вы получаете печеньки: %(price)d шт.'
     return template % {'good': lot.name,
                        'price': lot.price - lot.commission,
                        'static_path': (portal_logic.cdn_paths()['STATIC_CONTENT'] + 'images/cookies.png')}
 
 
 def good_timeout_message(lot):
-    template = u'Закончилось время продажи «%(good)s». Так как Ваш товар никто не купил, Вы получаете его обратно.'
+    template = 'Закончилось время продажи «%(good)s». Так как Ваш товар никто не купил, Вы получаете его обратно.'
     return template % {'good': lot.name}
 
 
@@ -43,21 +43,21 @@ class CreateLotTask(PostponedLogic):
     TYPE = 'create-lot-task'
 
     class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, u'в очереди'),
-                    ('PROCESSED', 2, u'обработано'),
-                    ('NO_GOOD', 3, u'нет такого товара'),
-                    ('CAN_NOT_PROCESS', 4, u'не удалось обработать'),
-                    ('BANNED', 5, u'игрок забанен'),
-                    ('ALREADY_RESERVED', 6, u'лот уже зарезервирован') )
+        records = ( ('UNPROCESSED', 1, 'в очереди'),
+                    ('PROCESSED', 2, 'обработано'),
+                    ('NO_GOOD', 3, 'нет такого товара'),
+                    ('CAN_NOT_PROCESS', 4, 'не удалось обработать'),
+                    ('BANNED', 5, 'игрок забанен'),
+                    ('ALREADY_RESERVED', 6, 'лот уже зарезервирован') )
 
 
     class STEP(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, u'начало обработки'),
-                    ('RESERVED', 2, u'лот зарезервирован'),
-                    ('GOTTEN', 3, u'товар получен у героя'),
-                    ('ACTIVATED', 4, u'лот активирован'),
-                    ('ROLLBACK', 5, u'необходимо откатить лот'),
-                    ('ROLLBACKED', 6, u'лот откачен') )
+        records = ( ('UNPROCESSED', 1, 'начало обработки'),
+                    ('RESERVED', 2, 'лот зарезервирован'),
+                    ('GOTTEN', 3, 'товар получен у героя'),
+                    ('ACTIVATED', 4, 'лот активирован'),
+                    ('ROLLBACK', 5, 'необходимо откатить лот'),
+                    ('ROLLBACKED', 6, 'лот откачен') )
 
 
     def __init__(self, account_id, good_type, good_uid, price, step=STEP.UNPROCESSED, state=STATE.UNPROCESSED, lot_id=None):
@@ -103,7 +103,7 @@ class CreateLotTask(PostponedLogic):
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             if logic.has_lot(self.account_id, self.good_uid):
-                main_task.comment = u'account %d has lot for <%s> %s' % (self.account_id, self.good_type, self.good_uid)
+                main_task.comment = 'account %d has lot for <%s> %s' % (self.account_id, self.good_type, self.good_uid)
                 self.state = self.STATE.ALREADY_RESERVED
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -169,22 +169,22 @@ class BuyLotTask(PostponedLogic):
     TYPE = 'buy-lot-task'
 
     class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, u'в очереди'),
-                    ('PROCESSED', 2, u'обработано'),
-                    ('WRONG_LOT_STATE', 3, u'неверное состояние лота'),
-                    ('WRONG_TRANSACTION_STATE', 4, u'неверное состояние транзакции'),
-                    ('TRANSACTION_REJECTED', 5, u'в транзакции отказано'),
-                    ('BUYER_BANNED', 6, u'игрок забанен'),
+        records = ( ('UNPROCESSED', 1, 'в очереди'),
+                    ('PROCESSED', 2, 'обработано'),
+                    ('WRONG_LOT_STATE', 3, 'неверное состояние лота'),
+                    ('WRONG_TRANSACTION_STATE', 4, 'неверное состояние транзакции'),
+                    ('TRANSACTION_REJECTED', 5, 'в транзакции отказано'),
+                    ('BUYER_BANNED', 6, 'игрок забанен'),
                     )
 
 
     class STEP(DjangoEnum):
-        records = ( ('FREEZE_LOT', 0, u'заморозить лот'),
-                    ('FREEZE_MONEY', 1, u'заморозить средства'),
-                    ('RECEIVE_GOOD', 2, u'получить предмет'),
-                    ('REMOVE_LOT', 3, u'удалить лот'),
-                    ('SUCCESS', 4, u'покупка завершена'),
-                    ('ERROR', 5, u'ошибка'))
+        records = ( ('FREEZE_LOT', 0, 'заморозить лот'),
+                    ('FREEZE_MONEY', 1, 'заморозить средства'),
+                    ('RECEIVE_GOOD', 2, 'получить предмет'),
+                    ('REMOVE_LOT', 3, 'удалить лот'),
+                    ('SUCCESS', 4, 'покупка завершена'),
+                    ('ERROR', 5, 'ошибка'))
 
 
     def __init__(self, buyer_id, seller_id, lot_id, transaction, good_type=None, good=None, step=STEP.FREEZE_MONEY, state=STATE.UNPROCESSED):
@@ -298,9 +298,9 @@ class BuyLotTask(PostponedLogic):
                                                     sender_id=0,
                                                     currency=bank_relations.CURRENCY_TYPE.PREMIUM,
                                                     amount=-lot.commission,
-                                                    description_for_sender=u'Комиссия с продажи «%s»' % lot.name,
-                                                    description_for_recipient=u'Комиссия с продажи «%s»' % lot.name,
-                                                    operation_uid=u'%s-%s' % (conf.settings.COMMISSION_OPERATION_UID, lot.type),
+                                                    description_for_sender='Комиссия с продажи «%s»' % lot.name,
+                                                    description_for_recipient='Комиссия с продажи «%s»' % lot.name,
+                                                    operation_uid='%s-%s' % (conf.settings.COMMISSION_OPERATION_UID, lot.type),
                                                     force=True)
 
             self.state = self.STATE.PROCESSED
@@ -314,18 +314,18 @@ class CloseLotByTimoutTask(PostponedLogic):
     TYPE = 'close-lot-by-timeout-task'
 
     class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, u'в очереди'),
-                    ('PROCESSED', 2, u'обработано'),
-                    ('WRONG_LOT_STATE', 3, u'неверное состояние лота'),
+        records = ( ('UNPROCESSED', 1, 'в очереди'),
+                    ('PROCESSED', 2, 'обработано'),
+                    ('WRONG_LOT_STATE', 3, 'неверное состояние лота'),
                     )
 
 
     class STEP(DjangoEnum):
-        records = ( ('FREEZE_LOT', 0, u'заморозить лот'),
-                    ('RETURN_GOOD', 2, u'вернуть предмет'),
-                    ('CLOSE_LOT', 3, u'закрыть лот'),
-                    ('SUCCESS', 4, u'операция завершена'),
-                    ('ERROR', 5, u'ошибка'))
+        records = ( ('FREEZE_LOT', 0, 'заморозить лот'),
+                    ('RETURN_GOOD', 2, 'вернуть предмет'),
+                    ('CLOSE_LOT', 3, 'закрыть лот'),
+                    ('SUCCESS', 4, 'операция завершена'),
+                    ('ERROR', 5, 'ошибка'))
 
 
     def __init__(self, lot_id, account_id=None, good_type=None, good=None, step=STEP.FREEZE_LOT, state=STATE.UNPROCESSED):

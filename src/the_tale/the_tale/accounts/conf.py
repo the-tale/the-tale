@@ -33,7 +33,7 @@ accounts_settings = app_settings('ACCOUNTS',
                                  CHANGE_EMAIL_TIMEOUT=2*24*60*60,
                                  ACTIVE_STATE_TIMEOUT = 3*24*60*60,
                                  ACTIVE_STATE_REFRESH_PERIOD=3*60*60,
-                                 SYSTEM_USER_NICK=u'Смотритель',
+                                 SYSTEM_USER_NICK='Смотритель',
                                  DEVELOPERS_IDS=[1, 1022],
 
                                  ACCOUNTS_ON_PAGE=25,
@@ -47,29 +47,29 @@ accounts_settings = app_settings('ACCOUNTS',
                                  PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME=3, # UTC time
 
                                  INFORMER_SHOW=True,
-                                 INFORMER_LINK=u'http://informer.the-tale.org/?id=%(account_id)d&type=4',
+                                 INFORMER_LINK='http://informer.the-tale.org/?id=%(account_id)d&type=4',
                                  INFORMER_CREATOR_ID=2557,
-                                 INFORMER_CREATOR_NAME=u'Yashko',
+                                 INFORMER_CREATOR_NAME='Yashko',
                                  INFORMER_WIDTH=400,
                                  INFORMER_HEIGHT=50,
                                  INFORMER_FORUM_THREAD=515,
 
                                  INFORMER_2_CREATOR_ID=6901,
-                                 INFORMER_2_CREATOR_NAME=u'Нико д`Лас',
+                                 INFORMER_2_CREATOR_NAME='Нико д`Лас',
                                  INFORMER_2_FORUM_THREAD=4422,
 
-                                 NICK_REGEX=ur'^[a-zA-Z0-9\-\ _а-яА-Я]+$',
+                                 NICK_REGEX=r'^[a-zA-Z0-9\-\ _а-яА-Я]+$',
                                  NICK_MIN_LENGTH=3,
                                  NICK_MAX_LENGTH=30,
 
-                                 RESET_NICK_PREFIX=u'имя игрока сброшено',
+                                 RESET_NICK_PREFIX='имя игрока сброшено',
 
                                  BOT_EMAIL_TEMPLATE='bot_%d@the-tale.org',
                                  BOT_PASSWORD='password-Bots',
-                                 BOT_NICK_TEMPLATE=u'Существо №%d',
-                                 BOT_HERO_NAME_FORMS=[u'Существо', u'Существа', u'Существу', u'Существо', u'Существом', u'Существе',
-                                                      u'Существа', u'Существ', u'Существам', u'Существ', u'Существами', u'Существах'],
-                                 BOT_HERO_NAME_PROPERTIES=(u'ср', ),
+                                 BOT_NICK_TEMPLATE='Существо №%d',
+                                 BOT_HERO_NAME_FORMS=['Существо', 'Существа', 'Существу', 'Существо', 'Существом', 'Существе',
+                                                      'Существа', 'Существ', 'Существам', 'Существ', 'Существами', 'Существах'],
+                                 BOT_HERO_NAME_PROPERTIES=('ср', ),
 
                                  MAX_ACCOUNT_DESCRIPTION_LENGTH=10000,
 

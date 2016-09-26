@@ -4,20 +4,20 @@ from the_tale.common.utils.exceptions import TheTaleError
 
 
 class RoadError(TheTaleError):
-    MSG = u'road error'
+    MSG = 'road error'
 
 
 class RoadsStorageError(RoadError):
-    MSG = u'roads storage error: %(message)s'
+    MSG = 'roads storage error: %(message)s'
 
 
 class WaymarksStorageError(RoadError):
-    MSG = u'waymarks storage error: %(message)s'
+    MSG = 'waymarks storage error: %(message)s'
 
 
 class RoadsAlreadyExistsError(RoadError):
-    MSG = u'road (%(start)d, %(stop)d) has already exist'
+    MSG = 'road (%(start)d, %(stop)d) has already exist'
 
 
 class WaymarkAlreadyExistsError(RoadError):
-    MSG = u'waymark (%(start)d, %(stop)d) has already exist'
+    MSG = 'waymark (%(start)d, %(stop)d) has already exist'

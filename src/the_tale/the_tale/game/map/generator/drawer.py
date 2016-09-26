@@ -37,9 +37,9 @@ def get_roads_map(w, h, roads):
 
     m = []
 
-    for i in xrange(h):
+    for i in range(h):
         m.append([])
-        for j in xrange(w):
+        for j in range(w):
             m[-1].append({})
 
     for road in roads:
@@ -116,16 +116,16 @@ def get_draw_info(biomes_map):
     height = map_info_storage.item.height
 
     map_images = []
-    for y in xrange(height):
+    for y in range(height):
         map_images.append([])
-        for x in xrange(width):
+        for x in range(width):
             map_images[-1].append(CellDrawer())
 
 
     roads_map = get_roads_map(width, height, roads_storage.all())
 
-    for y in xrange(height):
-        for x in xrange(width):
+    for y in range(height):
+        for x in range(width):
             biom = biomes_map[y][x]
             cell_drawer = map_images[y][x]
 

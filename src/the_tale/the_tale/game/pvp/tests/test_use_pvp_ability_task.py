@@ -34,7 +34,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.battle.set_enemy(self.account_2)
         self.battle.save()
 
-        self.ability = random.choice(ABILITIES.values())
+        self.ability = random.choice(list(ABILITIES.values()))
 
         self.task = UsePvPAbilityTask(battle_id=self.battle.id, account_id=self.account_1.id, ability_id=self.ability.TYPE)
 
@@ -58,7 +58,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.assertEqual(self.task.state, USE_PVP_ABILITY_TASK_STATE.HERO_NOT_FOUND)
 
     def test_wrong_ability_id(self):
-        task = UsePvPAbilityTask(battle_id=self.battle.id, account_id=self.account_1.id, ability_id=u'wrong_ability_id')
+        task = UsePvPAbilityTask(battle_id=self.battle.id, account_id=self.account_1.id, ability_id='wrong_ability_id')
         task.process(FakePostpondTaskPrototype(), self.storage)
         self.assertEqual(task.state, USE_PVP_ABILITY_TASK_STATE.WRONG_ABILITY_ID)
 

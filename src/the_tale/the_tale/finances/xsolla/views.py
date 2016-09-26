@@ -22,13 +22,13 @@ class XsollaResource(Resource):
         super(XsollaResource, self).initialize(*args, **kwargs)
 
     def log(self, name):
-        message = u'%(name)s\tfrom "%(referer)s" with %(arguments)r' % {'name': name,
+        message = '%(name)s\tfrom "%(referer)s" with %(arguments)r' % {'name': name,
                                                                         'referer': self.user_ip,
                                                                         'arguments': self.request.GET}
         logger.info(message)
 
     def create_answer(self, check_result):
-        answer = u'''<?xml version="1.0" encoding="windows-1251"?>
+        answer = '''<?xml version="1.0" encoding="windows-1251"?>
 <response>
     <result>%(xsolla_result)s</result>
     <comment>%(comment)s</comment>
@@ -41,7 +41,7 @@ class XsollaResource(Resource):
         return self.create_answer(check_result)
 
     def create_pay_answer(self, pay_result, xsolla_id, internal_id, sum):
-        answer = u'''<?xml version="1.0" encoding="windows-1251"?>
+        answer = '''<?xml version="1.0" encoding="windows-1251"?>
 <response>
     <id>%(xsolla_id)s</id>
     <id_shop>%(internal_id)s</id_shop>

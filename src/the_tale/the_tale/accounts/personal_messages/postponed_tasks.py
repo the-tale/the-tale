@@ -15,16 +15,16 @@ class SendMessagesTask(PostponedLogic):
     TYPE = 'send-messages-task'
 
     class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, u'в очереди'),
-                    ('PROCESSED', 2, u'обработано'),
-                    ('BANNED', 3, u'отправитель забанен'),
-                    ('SYSTEM_USER', 4, u'нельзя отправлять сообщения системному пользователю'),
-                    ('FAST_USER', 5, u'нельзя отправлять сообщения пользователю, не завершившему регистрацию') )
+        records = ( ('UNPROCESSED', 1, 'в очереди'),
+                    ('PROCESSED', 2, 'обработано'),
+                    ('BANNED', 3, 'отправитель забанен'),
+                    ('SYSTEM_USER', 4, 'нельзя отправлять сообщения системному пользователю'),
+                    ('FAST_USER', 5, 'нельзя отправлять сообщения пользователю, не завершившему регистрацию') )
 
 
     class STEP(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, u'начало обработки'),
-                    ('PROCESSED', 2, u'сообщения созданы') )
+        records = ( ('UNPROCESSED', 1, 'начало обработки'),
+                    ('PROCESSED', 2, 'сообщения созданы') )
 
 
     def __init__(self, account_id, recipients, message, step=STEP.UNPROCESSED, state=STATE.UNPROCESSED, lot_id=None):

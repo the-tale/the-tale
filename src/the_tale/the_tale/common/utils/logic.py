@@ -67,16 +67,16 @@ def verbose_timedelta(value):
         value = datetime.timedelta(seconds=value)
 
     if value.days > 0:
-        return pluralize_word(value.days, u'день', u'дня', u'дней')
+        return pluralize_word(value.days, 'день', 'дня', 'дней')
 
     elif value.days == 0:
         if value.seconds >= 60*60:
-            return pluralize_word(value.seconds / (60*60) , u'час', u'часа', u'часов')
+            return pluralize_word(value.seconds / (60*60) , 'час', 'часа', 'часов')
 
         if value.seconds >= 60:
-            return pluralize_word(value.seconds / 60 , u'минута', u'минуты', u'минут')
+            return pluralize_word(value.seconds / 60 , 'минута', 'минуты', 'минут')
 
-    return u'меньше минуты'
+    return 'меньше минуты'
 
 
 def choose_from_interval(value, intervals):
@@ -108,17 +108,17 @@ def split_into_table(sequence, columns):
 
     start_index = 0
 
-    for i in xrange(columns):
+    for i in range(columns):
         sublen = int(math.ceil(items_number / float(columns-i)))
         table.append(sequence[start_index:start_index+sublen])
         items_number -= sublen
         start_index += sublen
 
-    for i in xrange(1, columns):
+    for i in range(1, columns):
         while len(table[0]) > len(table[i]):
             table[i].append(None)
 
-    table = zip(*table)
+    table = list(zip(*table))
 
     return table
 
@@ -137,10 +137,10 @@ def get_or_create(get_method, create_method, exception, kwargs):
 
 
 def days_range(date_from, date_to):
-    for days in xrange((date_to-date_from).days):
+    for days in range((date_to-date_from).days):
         current_date = (date_from + datetime.timedelta(days=days))
         yield current_date.date() if isinstance(current_date, datetime.datetime) else current_date
 
 
 def absolutize_urls(text):
-    return text.replace(u'href="/', u'href="http://%s/' % project_settings.SITE_URL).replace(u'href=\'/', u'href=\'http://%s/' % project_settings.SITE_URL)
+    return text.replace('href="/', 'href="http://%s/' % project_settings.SITE_URL).replace('href=\'/', 'href=\'http://%s/' % project_settings.SITE_URL)

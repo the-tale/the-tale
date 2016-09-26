@@ -20,8 +20,8 @@ from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
 class BaseForm(BaseUserForm):
-    person = fields.ChoiceField(label=u'Житель')
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
+    person = fields.ChoiceField(label='Житель')
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
 
     def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -42,9 +42,9 @@ class BuildingCreate(BasePersonBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Возведение постройки'
+    CAPTION = 'Возведение постройки'
     # TODO: remove hardcoded url
-    DESCRIPTION = u'Возводит здание, принадлежащее выбранному горожанину (и соответствующее его профессии). Один житель города может иметь только одну постройку. Помните, что для поддержания работы здания потребуется участие игроков, иначе оно обветшает и перестанет давать бонусы. О типах зданий можно узнать в <a href="/guide/persons">Путеводителе</a>.'
+    DESCRIPTION = 'Возводит здание, принадлежащее выбранному горожанину (и соответствующее его профессии). Один житель города может иметь только одну постройку. Помните, что для поддержания работы здания потребуется участие игроков, иначе оно обветшает и перестанет давать бонусы. О типах зданий можно узнать в <a href="/guide/persons">Путеводителе</a>.'
 
     def __init__(self, utg_name=None, **kwargs):
         super(BuildingCreate, self).__init__(**kwargs)
@@ -81,6 +81,6 @@ class BuildingCreate(BasePersonBill):
         if 'building_name_forms' in data:
             obj.building_name_forms = utg_words.Word.deserialize(data['building_name_forms'])
         else:
-            obj.building_name_forms = names.generator.get_fast_name(u'название неизвестно')
+            obj.building_name_forms = names.generator.get_fast_name('название неизвестно')
 
         return obj

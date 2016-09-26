@@ -32,7 +32,7 @@ class SayInBattleLogTests(testcase.TestCase):
         self.battle.set_enemy(self.account_2)
         self.battle.save()
 
-        self.task = SayInBattleLogTask(battle_id=self.battle.id, text=u'some pvp message')
+        self.task = SayInBattleLogTask(battle_id=self.battle.id, text='some pvp message')
 
     def test_create(self):
         self.assertEqual(self.task.state, SAY_IN_HERO_LOG_TASK_STATE.UNPROCESSED)

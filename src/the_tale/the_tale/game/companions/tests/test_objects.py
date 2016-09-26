@@ -190,7 +190,7 @@ class CompanionTests(testcase.TestCase):
 
     def test_modify_attribute(self):
         checked_abilities = [ability
-                             for ability in heroes_companions_abilities.ABILITIES.itervalues()
+                             for ability in heroes_companions_abilities.ABILITIES.values()
                              if issubclass(ability, heroes_companions_abilities._CompanionAbilityModifier)]
 
         for ability_class in checked_abilities:

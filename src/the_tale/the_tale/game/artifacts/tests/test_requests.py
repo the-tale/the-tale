@@ -40,7 +40,7 @@ class PostMixin(object):
                 'epic_effect': relations.ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE,
                 'special_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                 'description': 'artifact description',
-                'mob':  u'' if mob is None else mob.id})
+                'mob':  '' if mob is None else mob.id})
 
         return data
 
@@ -62,7 +62,7 @@ class PostMixin(object):
                 'epic_effect': relations.ARTIFACT_EFFECT.POISON,
                 'special_effect': relations.ARTIFACT_EFFECT.CHILD_GIFT,
                 'description': 'new artifact description',
-                'mob': u'' if mob is None else mob.id})
+                'mob': '' if mob is None else mob.id})
 
         return data
 
@@ -193,7 +193,7 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
-        self.assertEqual(artifact_record.name, u'artifact-нс,ед,им')
+        self.assertEqual(artifact_record.name, 'artifact-нс,ед,им')
         self.assertEqual(artifact_record.level, 1)
         self.assertTrue(artifact_record.type.is_RING)
         self.assertEqual(artifact_record.description, 'artifact description')
@@ -483,7 +483,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
-        self.assertEqual(artifact_record.name, u'new name-нс,ед,им')
+        self.assertEqual(artifact_record.name, 'new name-нс,ед,им')
         self.assertEqual(artifact_record.utg_name, self.name)
         self.assertEqual(artifact_record.level, 2)
         self.assertEqual(artifact_record.description, 'new artifact description')

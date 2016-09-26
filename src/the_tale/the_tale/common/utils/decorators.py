@@ -15,7 +15,7 @@ def login_required(func):
             response_type = mime_type_to_response_type(resource.request.META.get('HTTP_ACCEPT'))
 
             if resource.request.is_ajax() or response_type == 'json':
-                return resource.auto_error('common.login_required', u'У Вас нет прав для проведения данной операции')
+                return resource.auto_error('common.login_required', 'У Вас нет прав для проведения данной операции')
             return resource.redirect(login_page_url(resource.request.get_full_path()))
 
     return wrapper
@@ -32,7 +32,7 @@ def staff_required(permissions=()):
                 if resource.account.is_authenticated() and resource.account.is_staff:
                     return func(resource, *argv, **kwargs)
                 else:
-                    return resource.auto_error('common.staff_required', u'У Вас нет прав для проведения данной операции')
+                    return resource.auto_error('common.staff_required', 'У Вас нет прав для проведения данной операции')
 
         return login_required(wrapper)
 
@@ -51,7 +51,7 @@ def superuser_required(permissions=()):
                 if resource.account.is_authenticated() and resource.account.is_superuser:
                     return func(resource, *argv, **kwargs)
                 else:
-                    return resource.auto_error('common.superuser_required', u'У Вас нет прав для проведения данной операции')
+                    return resource.auto_error('common.superuser_required', 'У Вас нет прав для проведения данной операции')
 
         return login_required(wrapper)
 

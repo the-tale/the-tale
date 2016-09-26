@@ -22,7 +22,7 @@ def xsolla_paystaion_widget_link(account):
                    conf.payments_settings.XSOLLA_ID_THEME: conf.payments_settings.XSOLLA_THEME,
                    'project': conf.payments_settings.XSOLLA_PROJECT}
 
-    sign_md5 = md5.new(''.join(sorted(u'%s=%s' % (k, v) for k,v in sign_params.iteritems()))).hexdigest()
+    sign_md5 = md5.new(''.join(sorted('%s=%s' % (k, v) for k,v in sign_params.items()))).hexdigest()
 
     attributes = {'v1': account.email,
                   'email': account.email,

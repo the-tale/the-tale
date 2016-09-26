@@ -251,7 +251,7 @@ class LogicStorage(object):
                 logger.info('[next_turn] ignore bundles: %r' % list(self.ignored_bundles))
 
     def _save_on_exception(self):
-        for hero_id, hero in self.heroes.iteritems():
+        for hero_id, hero in self.heroes.items():
             if hero.actions.current_action.bundle_id in self.ignored_bundles:
                 continue
 
@@ -261,7 +261,7 @@ class LogicStorage(object):
                 self._save_hero_data(hero_id)
 
     def save_all(self, logger=None):
-        heroes = self.heroes.items()
+        heroes = list(self.heroes.items())
         heroes.sort(key=lambda x: x[0])
 
         for hero_id, hero in heroes:
@@ -279,13 +279,13 @@ class LogicStorage(object):
         if heroes_settings.DUMP_CACHED_HEROES:
             bundles |= self._get_bundles_to_cache()
 
-        unsaved_heroes = sorted(self.heroes.itervalues(), key=lambda h: h.saved_at)
+        unsaved_heroes = sorted(self.heroes.values(), key=lambda h: h.saved_at)
 
         saved_uncached_heroes_number = int(conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION * len(self.heroes) + 1)
 
         bundles.update(hero.actions.current_action.bundle_id for hero in unsaved_heroes[:saved_uncached_heroes_number])
 
-        for hero in self.heroes.itervalues():
+        for hero in self.heroes.values():
             if hero.force_save_required:
                 hero.force_save_required = False
                 bundles.add(hero.actions.current_action.bundle_id)
@@ -294,7 +294,7 @@ class LogicStorage(object):
 
     def _get_bundles_to_cache(self):
         return set(hero.actions.current_action.bundle_id
-                   for hero in self.heroes.itervalues()
+                   for hero in self.heroes.values()
                    if hero.is_ui_caching_required)
 
     def save_changed_data(self, logger=None):
@@ -304,7 +304,7 @@ class LogicStorage(object):
         if logger:
             logger.info('[save_changed_data] saved bundles number: %d' % len(saved_bundles))
 
-        for hero_id, hero in self.heroes.iteritems():
+        for hero_id, hero in self.heroes.items():
 
             bundle_id = hero.actions.current_action.bundle_id
 

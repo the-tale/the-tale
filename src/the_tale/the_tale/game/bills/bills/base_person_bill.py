@@ -116,6 +116,6 @@ class BasePersonBill(BaseBill):
         if 'old_place_name_forms' in data:
             obj.old_place_name_forms = utg_words.Word.deserialize(data['old_place_name_forms'])
         else:
-            obj.old_place_name_forms = names.generator.get_fast_name(u'название неизвестно')
+            obj.old_place_name_forms = names.generator.get_fast_name('название неизвестно')
 
         return obj

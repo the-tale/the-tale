@@ -42,11 +42,11 @@ class PoliticPower(object):
 
     @property
     def positive_heroes_number(self):
-        return len([power for power in self.inner_circle.itervalues() if power > 0 ])
+        return len([power for power in self.inner_circle.values() if power > 0 ])
 
     @property
     def negative_heroes_number(self):
-        return len([power for power in self.inner_circle.itervalues() if power < 0 ])
+        return len([power for power in self.inner_circle.values() if power < 0 ])
 
     def serialize(self):
         return {'outer_power': self.outer_power,
@@ -57,7 +57,7 @@ class PoliticPower(object):
     def deserialize(cls, data):
         return cls(outer_power=data['outer_power'],
                    inner_power=data['inner_power'],
-                   inner_circle={int(account_id): power for account_id, power in data['inner_circle'].iteritems()})
+                   inner_circle={int(account_id): power for account_id, power in data['inner_circle'].items()})
 
     def ui_info(self, all_powers):
         return {'power': {'inner': {'value': self.inner_power,
@@ -69,10 +69,10 @@ class PoliticPower(object):
                            'negative': {hero_id: self.inner_circle[hero_id] for hero_id in self.inner_negative_heroes}}}
 
     def inner_accounts_ids(self):
-        return self.inner_circle.iterkeys()
+        return self.inner_circle.keys()
 
     def inner_circle_rating(self):
-        return sorted(self.inner_circle.iteritems(), key=lambda x: abs(x[1]), reverse=True)
+        return sorted(self.inner_circle.items(), key=lambda x: abs(x[1]), reverse=True)
 
     def change_power(self, owner, hero_id, has_in_preferences, power):
 
@@ -96,7 +96,7 @@ class PoliticPower(object):
     def sync_power(self):
         remove_candidates = set()
 
-        for hero_id, power in self.inner_circle.iteritems():
+        for hero_id, power in self.inner_circle.items():
             new_power = power * c.PLACE_POWER_REDUCE_FRACTION
             self.inner_circle[hero_id] = new_power
 
@@ -125,7 +125,7 @@ class PoliticPower(object):
         positive_heroes = []
         negative_heroes = []
 
-        for hero_id, power in self.inner_circle.iteritems():
+        for hero_id, power in self.inner_circle.items():
             if power > 0:
                 positive_heroes.append((power, hero_id))
             else:
@@ -170,4 +170,4 @@ class PoliticPower(object):
         return (self.inner_power_fraction(all_powers) + self.outer_power_fraction(all_powers)) / 2
 
 
-    def __unicode__(self): return u'{}, {}'.format(self.outer_power, self.inner_power)
+    def __unicode__(self): return '{}, {}'.format(self.outer_power, self.inner_power)

@@ -23,11 +23,12 @@ from the_tale.accounts.personal_messages import prototypes as personal_messages_
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from the_tale.accounts import logic
 from the_tale.accounts import conf
+import collections
 
 
-REGISTRATION_TASK_STATE = create_enum('REGISTRATION_TASK_STATE', ( ('UNPROCESSED', 0, u'ожидает обработки'),
-                                                                   ('PROCESSED', 1, u'обработкана'),
-                                                                   ('UNKNOWN_ERROR', 2, u'неизвестная ошибка') ))
+REGISTRATION_TASK_STATE = create_enum('REGISTRATION_TASK_STATE', ( ('UNPROCESSED', 0, 'ожидает обработки'),
+                                                                   ('PROCESSED', 1, 'обработкана'),
+                                                                   ('UNKNOWN_ERROR', 2, 'неизвестная ошибка') ))
 
 class RegistrationTask(PostponedLogic):
 
@@ -78,9 +79,9 @@ class RegistrationTask(PostponedLogic):
 
 
 class CHANGE_CREDENTIALS_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 1, u'необработана'),
-                 ('PROCESSED', 2, u'обработана'),
-                 ('WRONG_STATE', 3, u'неверное состояние задачи'))
+    records = ( ('UNPROCESSED', 1, 'необработана'),
+                 ('PROCESSED', 2, 'обработана'),
+                 ('WRONG_STATE', 3, 'неверное состояние задачи'))
 
 
 class ChangeCredentials(PostponedLogic):
@@ -125,9 +126,9 @@ class ChangeCredentials(PostponedLogic):
 
 
 class UPDATE_ACCOUNT_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 1, u'необработана'),
-                 ('PROCESSED', 2, u'обработана'),
-                 ('WRONG_STATE', 3, u'неверное состояние задачи'))
+    records = ( ('UNPROCESSED', 1, 'необработана'),
+                 ('PROCESSED', 2, 'обработана'),
+                 ('WRONG_STATE', 3, 'неверное состояние задачи'))
 
 
 class UpdateAccount(PostponedLogic):
@@ -137,7 +138,7 @@ class UpdateAccount(PostponedLogic):
     def __init__(self, account_id, method, data, state=UPDATE_ACCOUNT_STATE.UNPROCESSED):
         super(UpdateAccount, self).__init__()
         self.account_id = account_id
-        self.method = method.__name__ if callable(method) else method
+        self.method = method.__name__ if isinstance(method, collections.Callable) else method
         self.data = data
         self.state = state if isinstance(state, rels.Record) else UPDATE_ACCOUNT_STATE.index_value[state]
 
@@ -172,23 +173,23 @@ class TransferMoneyTask(PostponedLogic):
     TYPE = 'transfer-money-task'
 
     class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, u'в очереди'),
-                    ('PROCESSED', 2, u'обработано'),
-                    ('TRANSFER_TRANSACTION_REJECTED', 3, u'в переводе отказано'),
-                    ('COMMISSION_TRANSACTION_REJECTED', 4, u'невозможно снять комиссию'),
-                    ('SENDER_BANNED', 5, u'отправитель забанен'),
-                    ('RECIPIENT_BANNED', 6, u'получатель забанен забанен'),
-                    ('SENDER_IS_FAST', 7, u'отправитель не завершил регистрацию'),
-                    ('RECIPIENT_IS_FAST', 8, u'получатель не завершил регистрацию'),
-                    ('TRANSFER_TRANSACTION_WRONG_STATE', 9, u'ошибка при совершении перевода'),
-                    ('COMMISSION_TRANSACTION_WRONG_STATE', 10, u'ошибка при начислении комиссии') )
+        records = ( ('UNPROCESSED', 1, 'в очереди'),
+                    ('PROCESSED', 2, 'обработано'),
+                    ('TRANSFER_TRANSACTION_REJECTED', 3, 'в переводе отказано'),
+                    ('COMMISSION_TRANSACTION_REJECTED', 4, 'невозможно снять комиссию'),
+                    ('SENDER_BANNED', 5, 'отправитель забанен'),
+                    ('RECIPIENT_BANNED', 6, 'получатель забанен забанен'),
+                    ('SENDER_IS_FAST', 7, 'отправитель не завершил регистрацию'),
+                    ('RECIPIENT_IS_FAST', 8, 'получатель не завершил регистрацию'),
+                    ('TRANSFER_TRANSACTION_WRONG_STATE', 9, 'ошибка при совершении перевода'),
+                    ('COMMISSION_TRANSACTION_WRONG_STATE', 10, 'ошибка при начислении комиссии') )
 
 
     class STEP(DjangoEnum):
-        records = ( ('INITIALIZE', 0, u'инициировать перечисление'),
-                    ('WAIT', 1, u'ожидание транзакции'),
-                    ('SUCCESS', 2, u'перечисление завершено'),
-                    ('ERROR', 3, u'ошибка') )
+        records = ( ('INITIALIZE', 0, 'инициировать перечисление'),
+                    ('WAIT', 1, 'ожидание транзакции'),
+                    ('SUCCESS', 2, 'перечисление завершено'),
+                    ('ERROR', 3, 'ошибка') )
 
 
     def __init__(self, sender_id, recipient_id, amount, commission, comment, transfer_transaction=None, commission_transaction=None, step=STEP.INITIALIZE, state=STATE.UNPROCESSED):
@@ -253,9 +254,9 @@ class TransferMoneyTask(PostponedLogic):
                                                                        sender_id=self.sender_id,
                                                                        currency=bank_relations.CURRENCY_TYPE.PREMIUM,
                                                                        amount=self.amount,
-                                                                       description_for_sender=u'Перевод игроку «%s»: «%s».' % (self.recipient.nick_verbose, self.comment),
-                                                                       description_for_recipient=u'Перевод от игрока «%s»: «%s».' % (self.sender.nick_verbose, self.comment),
-                                                                       operation_uid=u'transfer-money-between-accounts-transfer')
+                                                                       description_for_sender='Перевод игроку «%s»: «%s».' % (self.recipient.nick_verbose, self.comment),
+                                                                       description_for_recipient='Перевод от игрока «%s»: «%s».' % (self.sender.nick_verbose, self.comment),
+                                                                       operation_uid='transfer-money-between-accounts-transfer')
 
             self.transfer_transaction = bank_transaction.Transaction(transfer_invoice.id)
 
@@ -265,8 +266,8 @@ class TransferMoneyTask(PostponedLogic):
                                                                          sender_id=0,
                                                                          currency=bank_relations.CURRENCY_TYPE.PREMIUM,
                                                                          amount=-self.commission,
-                                                                         description_for_sender=u'Комиссия с перевода игроку «%s»: «%s».' % (self.recipient.nick_verbose, self.comment),
-                                                                         description_for_recipient=u'Комиссия с перевода игроку «%s»: «%s».' % (self.recipient.nick_verbose, self.comment),
+                                                                         description_for_sender='Комиссия с перевода игроку «%s»: «%s».' % (self.recipient.nick_verbose, self.comment),
+                                                                         description_for_recipient='Комиссия с перевода игроку «%s»: «%s».' % (self.recipient.nick_verbose, self.comment),
                                                                          operation_uid=conf.accounts_settings.COMMISION_TRANSACTION_UID)
 
             self.commission_transaction = bank_transaction.Transaction(commission_invoice.id)
@@ -324,7 +325,7 @@ class TransferMoneyTask(PostponedLogic):
 
             personal_messages_prototypes.MessagePrototype.create(logic.get_system_user(),
                                                                  self.recipient,
-                                                                 text=u'Игрок «%(sender)s» перевёл(-а) вам печеньки: %(amount)d шт. \n\n[quote]%(comment)s[/quote]' %
+                                                                 text='Игрок «%(sender)s» перевёл(-а) вам печеньки: %(amount)d шт. \n\n[quote]%(comment)s[/quote]' %
                                                                       {'sender': self.sender.nick_verbose,
                                                                        'amount': self.amount,
                                                                        'comment': self.comment})

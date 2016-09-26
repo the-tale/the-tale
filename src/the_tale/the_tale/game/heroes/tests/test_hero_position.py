@@ -32,27 +32,27 @@ class HeroPositionTest(testcase.TestCase):
     def test_is_battle_start_needed__safety(self):
         for place in places_storage.places.all():
             place.attrs.safety = 1.0
-        self.assertTrue(all(not self.hero.is_battle_start_needed() for i in xrange(100)))
+        self.assertTrue(all(not self.hero.is_battle_start_needed() for i in range(100)))
 
     @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__no_safety(self):
         for place in places_storage.places.all():
             place.attrs.safety = 0.0
-        self.assertTrue(all(self.hero.is_battle_start_needed() for i in xrange(100)))
+        self.assertTrue(all(self.hero.is_battle_start_needed() for i in range(100)))
 
     @mock.patch('the_tale.game.heroes.objects.Hero.battles_per_turn_summand', 0.5)
     @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__hero_modifier(self):
         for place in places_storage.places.all():
             place.attrs.safety = 0.5
-        self.assertTrue(all(self.hero.is_battle_start_needed() for i in xrange(100)))
+        self.assertTrue(all(self.hero.is_battle_start_needed() for i in range(100)))
 
     @mock.patch('the_tale.game.heroes.objects.Hero.battles_per_turn_summand', -0.5)
     @mock.patch('the_tale.game.balance.constants.MAX_BATTLES_PER_TURN', 1.0)
     def test_is_battle_start_needed__hero_modifier_2(self):
         for place in places_storage.places.all():
             place.attrs.safety = 0.5
-        self.assertTrue(all(not self.hero.is_battle_start_needed() for i in xrange(100)))
+        self.assertTrue(all(not self.hero.is_battle_start_needed() for i in range(100)))
 
     def test_modify_move_speed__less(self):
         for place in places_storage.places.all():

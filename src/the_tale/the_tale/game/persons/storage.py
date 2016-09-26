@@ -59,7 +59,7 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
 
         result = []
 
-        for connected_person_id, item in connections.iteritems():
+        for connected_person_id, item in connections.items():
             connected_person = persons.get(connected_person_id)
             if connected_person is None:
                 continue
@@ -73,7 +73,7 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
 
     def get_connection(self, person_1, person_2):
         self.sync()
-        for connected_person_id, connection in self._person_connections.get(person_1.id).iteritems():
+        for connected_person_id, connection in self._person_connections.get(person_1.id).items():
             if person_2.id == connected_person_id:
                 return connection
 
@@ -87,7 +87,7 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
 
     def get_connected_persons_ids(self, person):
         self.sync()
-        return self._person_connections.get(person.id, {}).keys()
+        return list(self._person_connections.get(person.id, {}).keys())
 
     def is_connected(self, person_1, person_2):
         return person_2.id in self.get_connected_persons_ids(person_1)

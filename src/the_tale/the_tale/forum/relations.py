@@ -9,11 +9,11 @@ class MARKUP_METHOD(DjangoEnum):
 
 
 class POST_REMOVED_BY(DjangoEnum):
-    records = ( ('AUTHOR', 0, u'удалён автором'),
-                 ('THREAD_OWNER', 1, u'удалён владельцем темы'),
-                 ('MODERATOR', 2, u'удалён модератором') )
+    records = ( ('AUTHOR', 0, 'удалён автором'),
+                 ('THREAD_OWNER', 1, 'удалён владельцем темы'),
+                 ('MODERATOR', 2, 'удалён модератором') )
 
 
 class POST_STATE(DjangoEnum):
-    records = ( ('DEFAULT', 0, u'видим'),
-                 ('REMOVED', 1, u'удалён') )
+    records = ( ('DEFAULT', 0, 'видим'),
+                 ('REMOVED', 1, 'удалён') )

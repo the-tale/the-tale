@@ -64,7 +64,7 @@ class BaseHabitTest(testcase.TestCase):
         markers = set()
 
         with mock.patch.object(habit_class, 'raw_value', c.HABITS_BORDER / 2):
-            for i in xrange(100):
+            for i in range(100):
                 current_markers = self.hero.prefered_quest_markers()
                 if current_markers:
                     markers |= current_markers
@@ -79,7 +79,7 @@ class BaseHabitTest(testcase.TestCase):
         markers = set()
 
         with mock.patch.object(habit_class, 'raw_value', -c.HABITS_BORDER / 2):
-            for i in xrange(100):
+            for i in range(100):
                 current_markers = self.hero.prefered_quest_markers()
                 if current_markers:
                     markers |= current_markers
@@ -201,7 +201,7 @@ class HabitTest(BaseHabitTest):
         self.assertTrue(self.hero.habit_honor.interval.is_NEUTRAL)
         intervals = set()
 
-        for i in xrange(100):
+        for i in range(100):
             intervals.add(self.hero.habit_honor._real_interval)
 
         self.assertEqual(intervals, set(game_relations.HABIT_HONOR_INTERVAL.records))

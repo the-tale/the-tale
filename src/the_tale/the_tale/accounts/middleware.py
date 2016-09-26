@@ -9,32 +9,32 @@ from the_tale.accounts.logic import login_user
 
 
 class HANDLE_REGISTRATION_RESULT(DjangoEnum):
-    records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
-                 ('NO_TASK_ID', 1, u'нет идентификатора задач'),
-                 ('TASK_NOT_FOUND', 2, u'задача не найдена'),
-                 ('TASK_NOT_PROCESSED', 4, u'задача не обработана'),
-                 ('USER_LOGINED', 5, u'пользователь залогинен'))
+    records = ( ('NOT_ANONYMOUS', 0, 'пользователь уже зарегистрирован'),
+                 ('NO_TASK_ID', 1, 'нет идентификатора задач'),
+                 ('TASK_NOT_FOUND', 2, 'задача не найдена'),
+                 ('TASK_NOT_PROCESSED', 4, 'задача не обработана'),
+                 ('USER_LOGINED', 5, 'пользователь залогинен'))
 
 
 class HANDLE_REFERER_RESULT(DjangoEnum):
-    records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
-                 ('SAVED', 1, u'реферер сохранён'),
-                 ('ALREADY_SAVED', 2, u'реферер уже сохранён'),
-                 ('NO_REFERER', 4, u'нет реферера'))
+    records = ( ('NOT_ANONYMOUS', 0, 'пользователь уже зарегистрирован'),
+                 ('SAVED', 1, 'реферер сохранён'),
+                 ('ALREADY_SAVED', 2, 'реферер уже сохранён'),
+                 ('NO_REFERER', 4, 'нет реферера'))
 
 
 class HANDLE_REFERRAL_RESULT(DjangoEnum):
-    records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
-                 ('NO_REFERRAL', 1, u'владелец реферала не указан'),
-                 ('ALREADY_SAVED', 2, u'владелец реферала уже сохранён'),
-                 ('SAVED', 4, u'владелец реферала сохранён'))
+    records = ( ('NOT_ANONYMOUS', 0, 'пользователь уже зарегистрирован'),
+                 ('NO_REFERRAL', 1, 'владелец реферала не указан'),
+                 ('ALREADY_SAVED', 2, 'владелец реферала уже сохранён'),
+                 ('SAVED', 4, 'владелец реферала сохранён'))
 
 
 class HANDLE_ACTION_RESULT(DjangoEnum):
-    records = ( ('NOT_ANONYMOUS', 0, u'пользователь уже зарегистрирован'),
-                ('NO_ACTION', 1, u'акция не указана'),
-                ('ALREADY_SAVED', 2, u'акция уже сохранёна'),
-                ('SAVED', 4, u'акция сохранена'))
+    records = ( ('NOT_ANONYMOUS', 0, 'пользователь уже зарегистрирован'),
+                ('NO_ACTION', 1, 'акция не указана'),
+                ('ALREADY_SAVED', 2, 'акция уже сохранёна'),
+                ('SAVED', 4, 'акция сохранена'))
 
 
 class RegistrationMiddleware(object):

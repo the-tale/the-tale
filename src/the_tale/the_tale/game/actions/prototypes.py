@@ -1257,7 +1257,7 @@ class ActionInPlacePrototype(ActionBase):
                     hero.add_message('action_inplace_companion_money_for_food', hero=hero, place=hero.position.place, companion=hero.companion, coins=coins)
 
             if not hero.bag.is_empty and hero.can_companion_drink_artifact() and random.random() < hero.companion_drink_artifact_probability:
-                artifact = random.choice(hero.bag.values())
+                artifact = random.choice(list(hero.bag.values()))
                 hero.pop_loot(artifact)
                 hero.add_message('action_inplace_companion_drink_artifact', hero=hero, place=hero.position.place, artifact=artifact, companion=hero.companion)
 
@@ -1626,7 +1626,7 @@ class ActionTradingPrototype(ActionBase):
         if self.state == self.STATE.TRADING:
 
             if not self.hero.bag.is_empty:
-                artifact = random.choice(self.hero.bag.values())
+                artifact = random.choice(list(self.hero.bag.values()))
                 sell_price = self.hero.sell_artifact(artifact)
                 self.hero.add_message('action_trading_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
 
@@ -2064,4 +2064,4 @@ class ActionHealCompanionPrototype(ActionBase):
 
 
 ACTION_TYPES = { action_class.TYPE:action_class
-                 for action_class in discovering.discover_classes(globals().values(), ActionBase) }
+                 for action_class in discovering.discover_classes(list(globals().values()), ActionBase) }

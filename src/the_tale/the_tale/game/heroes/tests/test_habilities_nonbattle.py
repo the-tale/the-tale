@@ -46,9 +46,9 @@ class HabilitiesNonBattleTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACT_FOR_QUEST_PROBABILITY', 0)
     def test_businessman(self):
-        self.assertFalse(any(self.hero.can_get_artifact_for_quest() for i in xrange(1000)))
+        self.assertFalse(any(self.hero.can_get_artifact_for_quest() for i in range(1000)))
         self.hero.abilities.add(nonbattle.BUSINESSMAN.get_id())
-        self.assertTrue(any(self.hero.can_get_artifact_for_quest() for i in xrange(1000)))
+        self.assertTrue(any(self.hero.can_get_artifact_for_quest() for i in range(1000)))
 
     def test_picky(self):
         with self.check_increased(lambda: self.hero.rare_artifact_probability_multiplier):

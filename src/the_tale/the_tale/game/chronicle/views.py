@@ -18,7 +18,7 @@ from the_tale.game.chronicle.prototypes import RecordPrototype
 
 class IndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
-                list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.places.get_choices()) ]
+                list_filter.choice_element('город:', attribute='place', choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()) ]
 
 
 class ChronicleResource(Resource):
@@ -26,8 +26,8 @@ class ChronicleResource(Resource):
     def initialize(self, *args, **kwargs):
         super(ChronicleResource, self).initialize(*args, **kwargs)
 
-    @validate_argument('page', int, 'chronicle', u'неверная страница')
-    @validate_argument('place', lambda value: places_storage.places[int(value)], 'chronicle', u'неверный идентификатор города')
+    @validate_argument('page', int, 'chronicle', 'неверная страница')
+    @validate_argument('place', lambda value: places_storage.places[int(value)], 'chronicle', 'неверный идентификатор города')
     @handler('', method='get')
     def index(self, page=None, place=None):
 

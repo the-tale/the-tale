@@ -189,7 +189,7 @@ class EquipmentMethodsMixin(object):
 
     def artifacts_to_break(self, from_all=False):
         if from_all:
-            artifacts = self.equipment.values()
+            artifacts = list(self.equipment.values())
         else:
             artifacts = [artifact
                          for artifact in self.equipment.values()

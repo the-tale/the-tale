@@ -55,7 +55,7 @@ class BalancerTests(BalancerTestsBase):
         battle = self.worker.add_to_arena_queue(self.hero_1.id)
         self.assertEqual(self.worker.add_to_arena_queue(self.hero_1.id), None)
         self.assertEqual(len(self.worker.arena_queue), 1)
-        self.assertEqual(self.worker.arena_queue.values()[0], QueueRecord(account_id=self.account_1.id,
+        self.assertEqual(list(self.worker.arena_queue.values())[0], QueueRecord(account_id=self.account_1.id,
                                                                           battle_id=battle.id,
                                                                           created_at=battle.created_at,
                                                                           hero_level=self.hero_1.level))
@@ -74,7 +74,7 @@ class BalancerTests(BalancerTestsBase):
 
         self.assertEqual(self.worker.add_to_arena_queue(self.hero_1.id).id, battle.id)
         self.assertEqual(len(self.worker.arena_queue), 1)
-        self.assertEqual(self.worker.arena_queue.values()[0], QueueRecord(account_id=self.account_1.id,
+        self.assertEqual(list(self.worker.arena_queue.values())[0], QueueRecord(account_id=self.account_1.id,
                                                                           battle_id=battle.id,
                                                                           created_at=battle.created_at,
                                                                           hero_level=self.hero_1.level))

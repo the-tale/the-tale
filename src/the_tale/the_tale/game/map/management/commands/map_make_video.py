@@ -40,7 +40,7 @@ class Command(BaseCommand):
         if not output:
             output = '/home/tie/tmp/m.mp4'
 
-        print 'REGIONS DIR: %s' % regions_dir
+        print('REGIONS DIR: %s' % regions_dir)
 
         regions = sorted([os.path.join(regions_dir, filename)
                           for filename in os.listdir(regions_dir)
@@ -50,12 +50,12 @@ class Command(BaseCommand):
 
         # temp_dir = '/tmp/the-tale-map-viz3yLsjQ'
 
-        print 'TEMP DIR: %s' % temp_dir
+        print('TEMP DIR: %s' % temp_dir)
 
-        print 'FOUND %d regions' % len(regions)
+        print('FOUND %d regions' % len(regions))
 
         for i, region_filename in enumerate(regions):
-            print 'process region %d: %s' % (i, region_filename)
+            print('process region %d: %s' % (i, region_filename))
             output_file = os.path.join(temp_dir, '%.10d.png' % i)
             run_django_command(['map_visualize_region', '-r', region_filename, '-o', output_file])
 

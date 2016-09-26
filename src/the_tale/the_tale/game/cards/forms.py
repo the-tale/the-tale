@@ -15,7 +15,7 @@ class EmptyForm(forms.Form):
 
 class PersonForm(forms.Form):
     TEMPLATE = 'cards/person_form.html'
-    person = fields.ChoiceField(label=u'Мастер')
+    person = fields.ChoiceField(label='Мастер')
 
     def __init__(self, *args, **kwargs):
         super(PersonForm, self).__init__(*args, **kwargs)
@@ -27,7 +27,7 @@ class PersonForm(forms.Form):
 
 class PlaceForm(forms.Form):
     TEMPLATE = 'cards/place_form.html'
-    place = fields.ChoiceField(label=u'Город')
+    place = fields.ChoiceField(label='Город')
 
     def __init__(self, *args, **kwargs):
         super(PlaceForm, self).__init__(*args, **kwargs)
@@ -39,7 +39,7 @@ class PlaceForm(forms.Form):
 
 class BuildingForm(forms.Form):
     TEMPLATE = 'cards/building_form.html'
-    building = fields.ChoiceField(label=u'Строение')
+    building = fields.ChoiceField(label='Строение')
 
     def __init__(self, *args, **kwargs):
         super(BuildingForm, self).__init__(*args, **kwargs)

@@ -135,13 +135,13 @@ class PrototypeTests(testcase.TestCase):
 
         artifacts = [helmet_2, plate_2, boots_2]
         artifacts_ids = [artifact.uuid for artifact in artifacts]
-        for i in xrange(100):
+        for i in range(100):
             artifact = artifacts_storage.generate_artifact_from_list(artifacts, 1, rarity=relations.RARITY.NORMAL)
             self.assertTrue(artifact.id in artifacts_ids + heroes_relations.EQUIPMENT_SLOT.default_uids())
 
         artifacts = [helmet_3, plate_3, boots_3]
         artifacts_ids = [artifact.uuid for artifact in artifacts]
-        for i in xrange(100):
+        for i in range(100):
             artifact = artifacts_storage.generate_artifact_from_list(artifacts, 1, rarity=relations.RARITY.NORMAL)
             self.assertTrue(artifact.id in artifacts_ids + heroes_relations.EQUIPMENT_SLOT.default_uids())
 
@@ -211,7 +211,7 @@ class PrototypeTests(testcase.TestCase):
 
         rarities = set()
 
-        for i in xrange(10000):
+        for i in range(10000):
             artifact = artifacts_storage.generate_loot(self.hero, mob)
             rarities.add(artifact.rarity)
 
@@ -260,7 +260,7 @@ class PrototypeTests(testcase.TestCase):
                 'special_effect': artifact.special_effect,
                 'description': artifact.description,
                 'uuid': artifact.uuid,
-                'mob':  str(artifact.mob.id) if artifact.mob else u''})
+                'mob':  str(artifact.mob.id) if artifact.mob else ''})
 
         return data
 

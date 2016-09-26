@@ -4,12 +4,12 @@ from the_tale.common.utils.exceptions import TheTaleError
 
 
 class AchievementsError(TheTaleError):
-    MSG = u'achievements error'
+    MSG = 'achievements error'
 
 
 class AchievementsManagerError(AchievementsError):
-    MSG = u'achievements manager error'
+    MSG = 'achievements manager error'
 
 
 class SaveNotRegisteredAchievementError(AchievementsError):
-    MSG = u'try to save achievement %(achievement)r not from storage'
+    MSG = 'try to save achievement %(achievement)r not from storage'

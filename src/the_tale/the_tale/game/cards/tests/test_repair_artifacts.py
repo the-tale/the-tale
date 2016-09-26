@@ -16,7 +16,7 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 class RepairArtifacsTestMixin(CardsTestMixin):
 
     def check_all_equipment_repaired(self, result):
-        self.assertEqual(all(item.integrity == item.max_integrity for item in self.hero.equipment.values()), result)
+        self.assertEqual(all(item.integrity == item.max_integrity for item in list(self.hero.equipment.values())), result)
 
 
 class RepairRandomArtifactTests(RepairArtifacsTestMixin, testcase.TestCase):
@@ -48,7 +48,7 @@ class RepairRandomArtifactTests(RepairArtifacsTestMixin, testcase.TestCase):
     def test_use(self):
         self.check_all_equipment_repaired(True)
 
-        items = [item for item in self.hero.equipment.values() if item]
+        items = [item for item in list(self.hero.equipment.values()) if item]
         random.shuffle(items)
 
         items[0].integrity = 0
@@ -96,7 +96,7 @@ class RepairAllArtifactsTests(RepairArtifacsTestMixin, testcase.TestCase):
     def test_use(self):
         self.check_all_equipment_repaired(True)
 
-        items = [item for item in self.hero.equipment.values() if item]
+        items = [item for item in list(self.hero.equipment.values()) if item]
         random.shuffle(items)
 
         items[0].integrity = 0

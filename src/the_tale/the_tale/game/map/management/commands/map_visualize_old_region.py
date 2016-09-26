@@ -26,7 +26,7 @@ REAL_SIZE = ((OUTPUT_RECTANGLE[2]-OUTPUT_RECTANGLE[0]),
 def draw_sprite(image, texture, sprite_name, x, y, rotate=0, base=False):
     sprite_info = SPRITES.index_name[sprite_name]
 
-    if isinstance(sprite_info, basestring):
+    if isinstance(sprite_info, str):
         sprite_info = SPRITES.index_name[sprite_info]
 
     if base:
@@ -47,9 +47,9 @@ def get_roads_map(w, h, roads, places):
 
     m = []
 
-    for i in xrange(h):
+    for i in range(h):
         m.append([])
-        for j in xrange(w):
+        for j in range(w):
             m[-1].append({})
 
     for road in roads:
@@ -150,9 +150,9 @@ class Command(BaseCommand):
             data = json.loads(region_file.read())
 
         terrain = data['terrain']
-        buildings = data['buildings'].values()
-        places = data['places'].values()
-        roads = data['roads'].values()
+        buildings = list(data['buildings'].values())
+        places = list(data['places'].values())
+        roads = list(data['roads'].values())
 
         width = data['width']
         height = data['height']

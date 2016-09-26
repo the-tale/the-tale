@@ -4,16 +4,16 @@ from the_tale.common.utils.exceptions import TheTaleError
 
 
 class PlaceError(TheTaleError):
-    MSG = u'place error'
+    MSG = 'place error'
 
 
 class PlacesStorageError(PlaceError):
-    MSG = u'places storage error: %(message)s'
+    MSG = 'places storage error: %(message)s'
 
 
 class BuildingsStorageError(PlaceError):
-    MSG = u'buildings storage error: %(message)s'
+    MSG = 'buildings storage error: %(message)s'
 
 
 class ResourceExchangeStorageError(PlaceError):
-    MSG = u'resource exchange storage error: %(message)s'
+    MSG = 'resource exchange storage error: %(message)s'

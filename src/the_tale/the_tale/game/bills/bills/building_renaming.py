@@ -17,8 +17,8 @@ from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
 class BaseForm(BaseUserForm):
-    person = fields.ChoiceField(label=u'Житель')
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
+    person = fields.ChoiceField(label='Житель')
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
 
     def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -43,8 +43,8 @@ class BuildingRenaming(BasePersonBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Переименование постройки'
-    DESCRIPTION = u'Изменяет название постройки, принадлежащей выбранному горожанину.'
+    CAPTION = 'Переименование постройки'
+    DESCRIPTION = 'Изменяет название постройки, принадлежащей выбранному горожанину.'
 
     def __init__(self, old_building_name_forms=None, new_building_name_forms=None, **kwargs):
         super(BuildingRenaming, self).__init__(**kwargs)

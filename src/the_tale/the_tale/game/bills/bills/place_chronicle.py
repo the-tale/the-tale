@@ -11,8 +11,8 @@ from . import base_place_bill
 
 
 class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label=u'Город')
-    power_bonus = fields.RelationField(label=u'Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
+    place = fields.ChoiceField(label='Город')
+    power_bonus = fields.RelationField(label='Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -33,8 +33,8 @@ class PlaceChronicle(base_place_bill.BasePlaceBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Запись в летописи о городе'
-    DESCRIPTION = u'В жизни происходит множество интересных событий. Часть из них оказывается достойна занесения в летопись и может немного повлиять на участвующий в них город.'
+    CAPTION = 'Запись в летописи о городе'
+    DESCRIPTION = 'В жизни происходит множество интересных событий. Часть из них оказывается достойна занесения в летопись и может немного повлиять на участвующий в них город.'
 
     def __init__(self, power_bonus=None, **kwargs):
         super(PlaceChronicle, self).__init__(**kwargs)

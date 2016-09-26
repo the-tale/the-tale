@@ -30,7 +30,7 @@ class XsollaEnabledProcessor(dext_views.BaseViewProcessor):
         context.xsolla_enabled = real_payments_enabled and payments_settings.XSOLLA_ENABLED
 
 class PurchaseProcessor(dext_views.ArgumentProcessor):
-    ERROR_MESSAGE = u'Неверный идентификатор покупки'
+    ERROR_MESSAGE = 'Неверный идентификатор покупки'
     GET_NAME = 'purchase'
     CONTEXT_NAME = 'purchase'
 
@@ -115,13 +115,13 @@ def buy(context):
 
 
 @accounts_views.SuperuserProcessor()
-@accounts_views.AccountProcessor(get_name='account', context_name='target_account', error_message=u'Аккаунт не обнаружен')
+@accounts_views.AccountProcessor(get_name='account', context_name='target_account', error_message='Аккаунт не обнаружен')
 @dext_views.FormProcessor(form_class=GMForm)
 @resource('give-money', method='post')
 def give_money(context):
 
     if context.target_account.is_fast:
-        raise dext_views.ViewError(code='fast_account', message=u'Нельзя начислить деньги «быстрому» аккаунту')
+        raise dext_views.ViewError(code='fast_account', message='Нельзя начислить деньги «быстрому» аккаунту')
 
     transaction_gm(account=context.target_account,
                    amount=context.form.c.amount,

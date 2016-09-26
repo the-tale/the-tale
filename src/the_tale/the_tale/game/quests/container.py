@@ -32,7 +32,7 @@ class QuestsContainer(object):
         obj = cls()
         obj.quests_list = [QuestPrototype.deserialize(data=quest_data) for quest_data in data.get('quests', [])]
         obj.history = data.get('history', {})
-        obj.interfered_persons = {int(person_id): person_time for person_id, person_time in data.get('interfered_persons', {}).iteritems()}
+        obj.interfered_persons = {int(person_id): person_time for person_id, person_time in data.get('interfered_persons', {}).items()}
         return obj
 
     def initialize(self, hero):
@@ -94,13 +94,13 @@ class QuestsContainer(object):
         return self.interfered_persons[person_id] + quests_settings.INTERFERED_PERSONS_LIVE_TIME > time.time()
 
     def get_interfered_persons(self):
-        return [person_id for person_id in self.interfered_persons.iterkeys() if self.is_person_interfered(person_id)]
+        return [person_id for person_id in self.interfered_persons.keys() if self.is_person_interfered(person_id)]
 
     def sync_interfered_persons(self):
         to_remove = set()
         current_time = time.time()
 
-        for person_id, person_time in self.interfered_persons.iteritems():
+        for person_id, person_time in self.interfered_persons.items():
             if current_time > person_time + quests_settings.INTERFERED_PERSONS_LIVE_TIME:
                 to_remove.add(person_id)
 
@@ -109,7 +109,7 @@ class QuestsContainer(object):
 
     def excluded_quests(self, max_number):
         excluded_quests = []
-        last_quests = sorted(self.history.iteritems(), key=lambda item: -item[1])
+        last_quests = sorted(self.history.items(), key=lambda item: -item[1])
         for last_quest in last_quests[:max_number]: # exclude half of the quests
             excluded_quests.append(last_quest[0])
 

@@ -109,16 +109,16 @@ class BillPrototype(BasePrototype):
     @property
     def last_bill_event_text(self):
         if self.state.is_ACCEPTED:
-            return u'принят закон'
+            return 'принят закон'
         if self.state.is_REJECTED:
-            return u'отклонён закон'
+            return 'отклонён закон'
         if self.state.is_VOTING:
             if (self.updated_at - self.created_at).total_seconds() > 1:
-                return u'исправлен закон'
+                return 'исправлен закон'
             else:
-                return u'выдвинут закон'
+                return 'выдвинут закон'
         if self.state.is_STOPPED:
-            return u'закон утратил смысл'
+            return 'закон утратил смысл'
         raise exceptions.UnknownLastEventTextError(bill_id=self.id)
 
     @classmethod
@@ -159,7 +159,7 @@ class BillPrototype(BasePrototype):
         if not self.state.is_VOTING:
             raise exceptions.StopBillInWrongStateError(bill_id=self.id)
 
-        results_text = u'Итоги голосования: %d «за», %d «против» (итого %.1f%% «за»), %d «воздержалось».' % (self.votes_for,
+        results_text = 'Итоги голосования: %d «за», %d «против» (итого %.1f%% «за»), %d «воздержалось».' % (self.votes_for,
                                                                                                              self.votes_against,
                                                                                                              round(self.votes_for_percents, 3)*100,
                                                                                                              self.votes_refrained)
@@ -171,7 +171,7 @@ class BillPrototype(BasePrototype):
 
             PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                                  get_system_user(),
-                                 u'Законопроект потерял смысл, голосование остановлено. %s' % results_text,
+                                 'Законопроект потерял смысл, голосование остановлено. %s' % results_text,
                                  technical=True)
 
             signals.bill_stopped.send(self.__class__, bill=self)
@@ -191,7 +191,7 @@ class BillPrototype(BasePrototype):
 
         self._model.min_votes_percents_required = bills_settings.MIN_VOTES_PERCENT
 
-        results_text = u'Итоги голосования: %d «за», %d «против» (итого %.1f%% «за»), %d «воздержалось».' % (self.votes_for,
+        results_text = 'Итоги голосования: %d «за», %d «против» (итого %.1f%% «за»), %d «воздержалось».' % (self.votes_for,
                                                                                                             self.votes_against,
                                                                                                             round(self.votes_for_percents, 3)*100,
                                                                                                             self.votes_refrained)
@@ -208,7 +208,7 @@ class BillPrototype(BasePrototype):
 
                 PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                                      get_system_user(),
-                                     u'Законопроект отклонён.\n\n%s' % results_text,
+                                     'Законопроект отклонён.\n\n%s' % results_text,
                                      technical=True)
 
                 signals.bill_processed.send(self.__class__, bill=self)
@@ -223,13 +223,13 @@ class BillPrototype(BasePrototype):
 
             PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                                  get_system_user(),
-                                 u'Законопроект принят. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
+                                 'Законопроект принят. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
                                  technical=True)
 
 
             for actor in self.data.actors:
                 if isinstance(actor, places_objects.Place):
-                    actor.effects.add(effects.Effect(name=u'закон №{}'.format(self.id),
+                    actor.effects.add(effects.Effect(name='закон №{}'.format(self.id),
                                                      attribute=places_relations.ATTRIBUTE.STABILITY,
                                                      value=-self.type.stability))
 
@@ -246,7 +246,7 @@ class BillPrototype(BasePrototype):
         if self.ended_at is not None:
             raise exceptions.EndBillAlreadyEndedError(bill_id=self.id)
 
-        results_text = u'Срок действия [url="%s%s"]закона[/url] истёк.' % (project_settings.SITE_URL,
+        results_text = 'Срок действия [url="%s%s"]закона[/url] истёк.' % (project_settings.SITE_URL,
                                                                            reverse('game:bills:show', args=[self.id]) )
 
         self._model.ended_at = datetime.datetime.now()
@@ -275,7 +275,7 @@ class BillPrototype(BasePrototype):
         self.save()
 
     def bill_info_text(self, text):
-        rendered_text = u'''%(text)s
+        rendered_text = '''%(text)s
 
 [b]название:[/b] %(caption)s
 
@@ -321,7 +321,7 @@ class BillPrototype(BasePrototype):
         thread.caption = form.c.caption
         thread.save()
 
-        text = u'[url="%s%s"]Законопроект[/url] был отредактирован, все голоса сброшены.' % (project_settings.SITE_URL,
+        text = '[url="%s%s"]Законопроект[/url] был отредактирован, все голоса сброшены.' % (project_settings.SITE_URL,
                                                                                              reverse('game:bills:show', args=[self.id]) )
 
         PostPrototype.create(thread,
@@ -356,7 +356,7 @@ class BillPrototype(BasePrototype):
 
         bill_prototype = cls(model)
 
-        text = u'Обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
+        text = 'Обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
                                                          reverse('game:bills:show', args=[model.id]) )
 
         thread = ThreadPrototype.create(SubCategoryPrototype.get_by_uid(bills_settings.FORUM_CATEGORY_UID),
@@ -392,12 +392,12 @@ class BillPrototype(BasePrototype):
         self.save()
 
         thread = ThreadPrototype(self._model.forum_thread)
-        thread.caption = thread.caption + u' [удалён]'
+        thread.caption = thread.caption + ' [удалён]'
         thread.save()
 
         PostPrototype.create(thread,
                              get_system_user(),
-                             u'Законопроект был удалён',
+                             'Законопроект был удалён',
                              technical=True)
 
         signals.bill_removed.send(self.__class__, bill=self)

@@ -32,7 +32,7 @@ class Word(models.Model):
 
     class Meta:
         unique_together = (('normal_form', 'type', 'state'),)
-        permissions = (("moderate_word", u"Может модерировать слова"), )
+        permissions = (("moderate_word", "Может модерировать слова"), )
 
 
 
@@ -52,8 +52,8 @@ class Template(models.Model):
     errors_status = RelationIntegerField(relation=relations.TEMPLATE_ERRORS_STATUS, default=0, db_index=True)
 
     class Meta:
-        permissions = (("moderate_template", u"Может модерировать шаблоны фраз"),
-                       ("edit_template", u"Может редактировать шаблоны фраз"), )
+        permissions = (("moderate_template", "Может модерировать шаблоны фраз"),
+                       ("edit_template", "Может редактировать шаблоны фраз"), )
 
 
 class Contribution(models.Model):

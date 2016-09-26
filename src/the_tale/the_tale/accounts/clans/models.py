@@ -29,7 +29,7 @@ class Clan(models.Model):
 
     forum_subcategory = models.ForeignKey('forum.SubCategory', on_delete=models.PROTECT)
 
-    def __unicode__(self): return u'[%s] %s' % (self.abbr, self.name)
+    def __unicode__(self): return '[%s] %s' % (self.abbr, self.name)
 
 
 class Membership(models.Model):

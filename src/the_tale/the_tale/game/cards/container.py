@@ -31,7 +31,7 @@ class CardsContainer(object):
     def help_count(self): return self._help_count
 
     def serialize(self):
-        return {'cards': [card.serialize() for card in self._cards.itervalues()],
+        return {'cards': [card.serialize() for card in self._cards.values()],
                 'next_uid': self._next_uid,
                 'help_count': self._help_count,
                 'premium_help_count': self._premium_help_count}
@@ -51,7 +51,7 @@ class CardsContainer(object):
         return obj
 
     def ui_info(self):
-        return {'cards': [card.ui_info() for card in self._cards.itervalues()],
+        return {'cards': [card.ui_info() for card in self._cards.values()],
                 'help_count': self._help_count,
                 'help_barrier': c.CARDS_HELP_COUNT_TO_NEW_CARD }
 
@@ -82,7 +82,7 @@ class CardsContainer(object):
     def cards_count(self):
         return len(self._cards)
 
-    def all_cards(self): return self._cards.itervalues()
+    def all_cards(self): return self._cards.values()
 
     def has_card(self, card_uid): return card_uid in self._cards
 

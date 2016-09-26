@@ -54,7 +54,7 @@ class Command(BaseCommand):
         map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,
                                                           width=map_settings.WIDTH,
                                                           height=map_settings.HEIGHT,
-                                                          terrain=[ [TERRAIN.PLANE_GREENWOOD for j in xrange(map_settings.WIDTH)] for i in xrange(map_settings.HEIGHT)],
+                                                          terrain=[ [TERRAIN.PLANE_GREENWOOD for j in range(map_settings.WIDTH)] for i in range(map_settings.HEIGHT)],
                                                           world=WorldInfoPrototype.create(w=map_settings.WIDTH, h=map_settings.HEIGHT)))
 
         p1x1   = self.create_place(1,  1,  size=1)
@@ -104,16 +104,16 @@ class Command(BaseCommand):
         roads_storage.update_version()
 
         for place in places_storage.places.all():
-            for i in xrange(random.randint(2, 6)):
+            for i in range(random.randint(2, 6)):
                 places_logic.add_person_to_place(place)
 
         persons_storage.persons.update_version()
 
         terrain = []
-        for y in xrange(0, map_settings.HEIGHT): # pylint: disable=W0612
+        for y in range(0, map_settings.HEIGHT): # pylint: disable=W0612
             row = []
             terrain.append(row)
-            for x in xrange(0, map_settings.WIDTH): # pylint: disable=W0612
+            for x in range(0, map_settings.WIDTH): # pylint: disable=W0612
                 row.append(TERRAIN.PLANE_GREENWOOD)
 
         map_info_storage.set_item(MapInfoPrototype.create(turn_number=0,

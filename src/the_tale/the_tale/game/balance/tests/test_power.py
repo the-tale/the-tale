@@ -13,7 +13,7 @@ class PowerTest(testcase.TestCase):
     def check_better_artifact_power(self, distribution):
         median_power = Power.power_to_artifact(distribution, 100)
 
-        for i in xrange(100):
+        for i in range(100):
             power = Power.better_artifact_power_randomized(distribution, 100)
             self.assertTrue(median_power.physic < power.physic)
             self.assertTrue(median_power.magic < power.magic)
@@ -37,7 +37,7 @@ class PowerTest(testcase.TestCase):
 
         powers = set()
 
-        for i in xrange(100):
+        for i in range(100):
             power = Power.better_artifact_power_randomized(PowerDistribution(0.5, 0.5), 1)
             powers.add(power.magic)
             powers.add(power.physic)
@@ -69,15 +69,15 @@ class DamageTest(testcase.TestCase):
 
         damage = Damage(100, 100)
 
-        for i in xrange(100000):
+        for i in range(100000):
             test_damage = damage.clone()
             test_damage.randomize()
             damages.add((int(test_damage.physic), int(test_damage.magic)))
 
         test_damages = set()
         delta = int(100 * c.DAMAGE_DELTA)
-        for physic in xrange(100-delta, 100+delta):
-            for magic in xrange(100-delta, 100+delta):
+        for physic in range(100-delta, 100+delta):
+            for magic in range(100-delta, 100+delta):
                 test_damages.add((physic, magic))
 
         self.assertEqual(damages, test_damages)

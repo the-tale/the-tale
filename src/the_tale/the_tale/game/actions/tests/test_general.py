@@ -43,7 +43,7 @@ class GeneralTest(testcase.TestCase):
         pass
 
     def test_HELP_CHOICES(self):
-        for action_class in ACTION_TYPES.values():
+        for action_class in list(ACTION_TYPES.values()):
             self.assertTrue('HELP_CHOICES' in action_class.__dict__)
             if (not action_class.TYPE.is_IDLENESS and           # TODO: check
                 not action_class.TYPE.is_BATTLE_PVE_1X1 and     # TODO: check
@@ -53,21 +53,21 @@ class GeneralTest(testcase.TestCase):
                 self.assertIn(HELP_CHOICES.MONEY, action_class.HELP_CHOICES) # every action MUST has MONEY choice, or it will be great disbalance in energy & experience receiving
 
     def test_TEXTGEN_TYPE(self):
-        for action_class in ACTION_TYPES.values():
+        for action_class in list(ACTION_TYPES.values()):
             self.assertTrue('TEXTGEN_TYPE' in action_class.__dict__)
 
     def test_get_help_choice_has_heal(self):
         self.hero.health = 1
 
         heal_found = False
-        for i in xrange(100):
+        for i in range(100):
             heal_found = heal_found or (self.action_idl.get_help_choice() == HELP_CHOICES.HEAL)
 
         self.assertTrue(heal_found)
 
     def check_heal_in_choices(self, result):
         heal_found = False
-        for i in xrange(100):
+        for i in range(100):
             heal_found = heal_found or (self.action_idl.get_help_choice() == HELP_CHOICES.HEAL)
 
         self.assertEqual(heal_found, result)
@@ -75,7 +75,7 @@ class GeneralTest(testcase.TestCase):
 
     def check_heal_companion_in_choices(self, result):
         heal_found = False
-        for i in xrange(100):
+        for i in range(100):
             heal_found = heal_found or (self.action_idl.get_help_choice() == HELP_CHOICES.HEAL_COMPANION)
 
         self.assertEqual(heal_found, result)
@@ -119,33 +119,33 @@ class GeneralTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION,)))
     def test_help_choice_has_heal_companion__for_full_health_without_alternative(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
         self.check_heal_companion_in_choices(False)
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION,)))
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_heal_disabled', lambda hero: True)
     def test_help_choice_has_heal_companion__for_companion_heal_disabled(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
         self.check_heal_companion_in_choices(False)
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION, HELP_CHOICES.MONEY)))
     def test_help_choice_has_heal_companion__for_full_health_with_alternative(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
         self.check_heal_companion_in_choices(False)
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION,)))
     def test_help_choice_has_heal_companion__for_low_health_without_alternative(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
         self.hero.companion.health = 1
         self.check_heal_companion_in_choices(True)
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.HEAL_COMPANION, HELP_CHOICES.MONEY)))
     def test_help_choice_has_heal_companion__for_low_health_with_alternative(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
         self.hero.companion.health = 1
         self.check_heal_companion_in_choices(True)
@@ -153,7 +153,7 @@ class GeneralTest(testcase.TestCase):
 
     def check_stock_up_energy_in_choices(self, result):
         stock_found = False
-        for i in xrange(1000):
+        for i in range(1000):
             stock_found = stock_found or (self.action_idl.get_help_choice() == HELP_CHOICES.STOCK_UP_ENERGY)
 
         self.assertEqual(stock_found, result)
@@ -223,7 +223,7 @@ class GeneralTest(testcase.TestCase):
                                      state=TestAction.STATE.UNINITIALIZED,
                                      created_at_turn=666,
                                      context=TestAction.CONTEXT_MANAGER(),
-                                     description=u'description',
+                                     description='description',
                                      place_id=2,
                                      mob=mob,
                                      data={'xxx': 'yyy'},
@@ -253,7 +253,7 @@ class GeneralTest(testcase.TestCase):
                                                       'destination_x': 20,
                                                       'destination_y': 30,
                                                       'percents': 0.0,
-                                                      'description': u'description',
+                                                      'description': 'description',
                                                       'type': TestAction.TYPE.value,
                                                       'created_at_turn': 666,
                                                       'place_id': 2,

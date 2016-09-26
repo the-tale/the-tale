@@ -5,7 +5,7 @@ import datetime
 import traceback
 import random
 
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from django.contrib.auth.hashers import make_password
 from django.db import models, transaction
@@ -102,7 +102,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def nick_verbose(self):
         if self._model.nick.startswith(accounts_settings.RESET_NICK_PREFIX):
             return accounts_settings.RESET_NICK_PREFIX
-        return self._model.nick if not self._model.is_fast else u'Игрок'
+        return self._model.nick if not self._model.is_fast else 'Игрок'
 
     def update_last_news_remind_time(self):
         current_time = datetime.datetime.now()
@@ -194,12 +194,12 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         current_time = datetime.datetime.now()
 
-        message = u'''
+        message = '''
 До окончания подписки осталось: %(verbose_timedelta)s.
 
 Вы можете продлить подписку на странице нашего %(shop_link)s.
 ''' % {'verbose_timedelta': verbose_timedelta(self.premium_end_at - current_time),
-       'shop_link': u'[url="%s"]магазина[/url]' % full_url('http', 'shop:shop')}
+       'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:shop')}
 
         PersonalMessagePrototype.create(get_system_user(), self, message)
 
@@ -449,7 +449,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                 self._model.save()
                 return postponed_task
 
-        except Exception, e: # pylint: disable=W0703
+        except Exception as e: # pylint: disable=W0703
             logger.error('EXCEPTION: %s' % e)
 
             exception_info = sys.exc_info()
@@ -461,7 +461,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                          extra={} )
 
             self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
-            self._model.comment = u'%s' % traceback_strings
+            self._model.comment = '%s' % traceback_strings
             self._model.save()
 
 
@@ -529,7 +529,7 @@ class RandomPremiumRequestPrototype(BasePrototype):
     _bidirectional = ('state', 'initiator_id', 'receiver_id')
     _get_by = ()
 
-    MESSAGE = u'''
+    MESSAGE = '''
 Поздравляем!
 
 Один из игроков подарил вам подписку на %(days)s дней!

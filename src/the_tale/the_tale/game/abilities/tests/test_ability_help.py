@@ -304,7 +304,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.hero.companion.health = 1
@@ -318,7 +318,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion__full_health(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.assertEqual(self.hero.companion.health, self.hero.companion.max_health)
@@ -334,7 +334,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.might_crit_chance', 1)
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion__crit(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.hero.companion.health = 1
@@ -349,7 +349,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion__on_heal_called(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.hero.companion.health = 1
@@ -365,7 +365,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_heal_companion__on_heal_action_habits_changed(self):
         habit_effect = random.choice([ability for ability in companions_effects.ABILITIES.records if isinstance(ability.effect, companions_effects.ChangeHabits)])
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion_record.abilities = companions_container.Container(start=[habit_effect])
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
@@ -383,7 +383,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_heal_companion__on_heal_action_habits_not_changed(self):
         habit_effect = random.choice([ability for ability in companions_effects.ABILITIES.records if not isinstance(ability.effect, companions_effects.ChangeHabits)])
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion_record.abilities = companions_container.Container(start=[habit_effect])
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 

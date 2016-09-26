@@ -57,7 +57,7 @@ class SuperuserProcessor(dext_views.BaseViewProcessor):
         context.django_superuser = context.account.is_superuser
 
         if not context.django_superuser:
-            raise dext_views.ViewError(code='common.superuser_required', message=u'У Вас нет прав для проведения данной операции')
+            raise dext_views.ViewError(code='common.superuser_required', message='У Вас нет прав для проведения данной операции')
 
 
 class AccountProcessor(dext_views.ArgumentProcessor):
@@ -86,14 +86,14 @@ class LoginRequiredProcessor(dext_views.BaseViewProcessor):
             return
 
         if context.django_request.is_ajax():
-            raise dext_exceptions.ViewError(code='common.login_required', message=u'У Вас нет прав для проведения данной операции')
+            raise dext_exceptions.ViewError(code='common.login_required', message='У Вас нет прав для проведения данной операции')
 
         return dext_views.Redirect(target_url=self.login_page_url(context.django_request.get_full_path()))
 
 
 class FullAccountProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_CODE = 'common.fast_account'
-    ERROR_MESSAGE = u'Вы не закончили регистрацию и данная функция вам не доступна'
+    ERROR_MESSAGE = 'Вы не закончили регистрацию и данная функция вам не доступна'
     ARGUMENT = 'account'
 
     def validate(self, argument): return not argument.is_fast
@@ -101,7 +101,7 @@ class FullAccountProcessor(dext_views.FlaggedAccessProcessor):
 
 class BanGameProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_CODE = 'common.ban_game'
-    ERROR_MESSAGE = u'Вам запрещено проводить эту операцию'
+    ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
     ARGUMENT = 'account'
 
     def validate(self, argument): return not argument.is_ban_game
@@ -109,7 +109,7 @@ class BanGameProcessor(dext_views.FlaggedAccessProcessor):
 
 class BanForumProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_CODE = 'common.ban_forum'
-    ERROR_MESSAGE = u'Вам запрещено проводить эту операцию'
+    ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
     ARGUMENT = 'account'
 
     def validate(self, argument): return not argument.is_ban_forum
@@ -117,7 +117,7 @@ class BanForumProcessor(dext_views.FlaggedAccessProcessor):
 
 class BanAnyProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_CODE = 'common.ban_any'
-    ERROR_MESSAGE = u'Вам запрещено проводить эту операцию'
+    ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
     ARGUMENT = 'account'
 
     def validate(self, argument): return not argument.is_ban_any
@@ -128,8 +128,8 @@ class ModerateAccountProcessor(dext_views.PermissionProcessor):
     CONTEXT_NAME = 'can_moderate_accounts'
 
 class ModerateAccessProcessor(dext_views.AccessProcessor):
-    ERROR_CODE = u'accounts.no_moderation_rights'
-    ERROR_MESSAGE = u'Вы не являетесь модератором'
+    ERROR_CODE = 'accounts.no_moderation_rights'
+    ERROR_MESSAGE = 'Вы не являетесь модератором'
 
     def check(self, context):
         return context.can_moderate_accounts
@@ -147,7 +147,7 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 ###############################
 
 accounts_resource = dext_views.Resource(name='accounts')
-accounts_resource.add_processor(AccountProcessor(error_message=u'Аккаунт не найден', url_name='account', context_name='master_account', default_value=None))
+accounts_resource.add_processor(AccountProcessor(error_message='Аккаунт не найден', url_name='account', context_name='master_account', default_value=None))
 accounts_resource.add_processor(ModerateAccountProcessor())
 
 resource.add_child(accounts_resource)
@@ -220,7 +220,7 @@ def show(context):
 @api.Processor(versions=('1.0', ))
 @accounts_resource('#account', 'api', 'show', name='api-show')
 def api_show(context):
-    u'''
+    '''
 Получить информацию об игроке
 
 - **адрес:** /accounts/&lt;account&gt;/api/show
@@ -299,7 +299,7 @@ def give_award(context):
 @accounts_resource('#account', 'reset-nick', name='reset-nick', method='post')
 def reset_nick(context):
     task = ChangeCredentialsTaskPrototype.create(account=context.master_account,
-                                                 new_nick=u'%s (%s)' % (conf.accounts_settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
+                                                 new_nick='%s (%s)' % (conf.accounts_settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
 
     postponed_task = task.process(logger)
 
@@ -314,16 +314,16 @@ def ban(context):
 
     if context.form.c.ban_type.is_FORUM:
         context.master_account.ban_forum(context.form.c.ban_time.days)
-        message = u'Вы лишены права общаться на форуме. Причина: \n\n%(message)s'
+        message = 'Вы лишены права общаться на форуме. Причина: \n\n%(message)s'
     elif context.form.c.ban_type.is_GAME:
         context.master_account.ban_game(context.form.c.ban_time.days)
-        message = u'Ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
+        message = 'Ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
     elif context.form.c.ban_type.is_TOTAL:
         context.master_account.ban_forum(context.form.c.ban_time.days)
         context.master_account.ban_game(context.form.c.ban_time.days)
-        message = u'Вы лишены права общаться на форуме, ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
+        message = 'Вы лишены права общаться на форуме, ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
     else:
-        raise dext_views.ViewError(code='unknown_ban_type', message=u'Неизвестный тип бана')
+        raise dext_views.ViewError(code='unknown_ban_type', message='Неизвестный тип бана')
 
     MessagePrototype.create(logic.get_system_user(),
                             context.master_account,
@@ -341,20 +341,20 @@ def reset_bans(context):
 
     MessagePrototype.create(logic.get_system_user(),
                             context.master_account,
-                            u'С вас сняли все ограничения, наложенные ранее.')
+                            'С вас сняли все ограничения, наложенные ранее.')
 
     return dext_views.AjaxOk()
 
 
 @LoginRequiredProcessor()
 @FullAccountProcessor()
-@FullAccountProcessor(argument='master_account', error_code=u'receiver_is_fast', error_message=u'Нельзя перевести печеньки игроку, не завершившему регистрацию')
+@FullAccountProcessor(argument='master_account', error_code='receiver_is_fast', error_message='Нельзя перевести печеньки игроку, не завершившему регистрацию')
 @BanAnyProcessor()
-@BanAnyProcessor(argument='master_account', error_code=u'receiver_banned', error_message=u'Нельзя перевести печеньки забаненому игроку')
+@BanAnyProcessor(argument='master_account', error_code='receiver_banned', error_message='Нельзя перевести печеньки забаненому игроку')
 @accounts_resource('#account', 'transfer-money-dialog')
 def transfer_money_dialog(context):
     if context.account.id == context.master_account.id:
-        raise dext_views.ViewError(code='own_account', message=u'Нельзя переводить печеньки самому себе')
+        raise dext_views.ViewError(code='own_account', message='Нельзя переводить печеньки самому себе')
 
     return dext_views.Page('accounts/transfer_money.html',
                            content={'commission': conf.accounts_settings.MONEY_SEND_COMMISSION,
@@ -362,17 +362,17 @@ def transfer_money_dialog(context):
 
 @LoginRequiredProcessor()
 @FullAccountProcessor()
-@FullAccountProcessor(argument='master_account', error_code=u'receiver_is_fast', error_message=u'Нельзя перевести печеньки игроку, не завершившему регистрацию')
+@FullAccountProcessor(argument='master_account', error_code='receiver_is_fast', error_message='Нельзя перевести печеньки игроку, не завершившему регистрацию')
 @BanAnyProcessor()
-@BanAnyProcessor(argument='master_account', error_code=u'receiver_banned', error_message=u'Нельзя перевести печеньки забаненому игроку')
+@BanAnyProcessor(argument='master_account', error_code='receiver_banned', error_message='Нельзя перевести печеньки забаненому игроку')
 @dext_views.FormProcessor(form_class=forms.SendMoneyForm)
 @accounts_resource('#account', 'transfer-money', method='POST')
 def transfer_money(context):
     if context.account.id == context.master_account.id:
-        raise dext_views.ViewError(code='own_account', message=u'Нельзя переводить печеньки самому себе')
+        raise dext_views.ViewError(code='own_account', message='Нельзя переводить печеньки самому себе')
 
     if context.form.c.money > context.account.bank_account.amount:
-        raise dext_views.ViewError(code='not_enough_money', message=u'Недостаточно печенек для перевода')
+        raise dext_views.ViewError(code='not_enough_money', message='Недостаточно печенек для перевода')
 
     task = logic.initiate_transfer_money(sender_id=context.account.id,
                                          recipient_id=context.master_account.id,
@@ -387,16 +387,16 @@ def transfer_money(context):
 
 logger = logging.getLogger('django.request')
 
-@validator(code='common.fast_account', message=u'Вы не закончили регистрацию и данная функция вам не доступна')
+@validator(code='common.fast_account', message='Вы не закончили регистрацию и данная функция вам не доступна')
 def validate_fast_account(self, *args, **kwargs): return not self.account.is_fast
 
-@validator(code='common.ban_forum', message=u'Вам запрещено проводить эту операцию')
+@validator(code='common.ban_forum', message='Вам запрещено проводить эту операцию')
 def validate_ban_forum(self, *args, **kwargs): return not self.account.is_ban_forum
 
-@validator(code='common.ban_game', message=u'Вам запрещено проводить эту операцию')
+@validator(code='common.ban_game', message='Вам запрещено проводить эту операцию')
 def validate_ban_game(self, *args, **kwargs): return not self.account.is_ban_game
 
-@validator(code='common.ban_any', message=u'Вам запрещено проводить эту операцию')
+@validator(code='common.ban_any', message='Вам запрещено проводить эту операцию')
 def validate_ban_any(self, *args, **kwargs): return not self.account.is_ban_any
 
 
@@ -412,7 +412,7 @@ class RegistrationResource(BaseAccountsResource):
     def fast(self):
 
         if self.account.is_authenticated():
-            return self.json_error('accounts.registration.fast.already_registered', u'Вы уже зарегистрированы')
+            return self.json_error('accounts.registration.fast.already_registered', 'Вы уже зарегистрированы')
 
         if conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
 
@@ -421,7 +421,7 @@ class RegistrationResource(BaseAccountsResource):
 
             if task is not None:
                 if task.state.is_processed:
-                    return self.json_error('accounts.registration.fast.already_processed', u'Вы уже зарегистрированы, обновите страницу')
+                    return self.json_error('accounts.registration.fast.already_processed', 'Вы уже зарегистрированы, обновите страницу')
                 if task.state.is_waiting:
                     return self.json_processing(task.status_url)
                 # in other case create new task
@@ -465,7 +465,7 @@ class AuthResource(BaseAccountsResource):
     @api.handler(versions=('1.0',))
     @handler('api', 'login', name='api-login', method='post')
     def api_login(self, api_version, next_url='/'):
-        u'''
+        '''
 Вход в игру. Используйте этот метод только если разрабатываете приложение для себя и друзей. В остальных случаях пользуйтесь «авторизацией в игре».
 
 - **адрес:** /accounts/auth/api/login
@@ -500,10 +500,10 @@ class AuthResource(BaseAccountsResource):
 
             account = AccountPrototype.get_by_email(login_form.c.email)
             if account is None:
-                return self.error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
+                return self.error('accounts.auth.login.wrong_credentials', 'Неверный логин или пароль')
 
             if not account.check_password(login_form.c.password):
-                return self.error('accounts.auth.login.wrong_credentials', u'Неверный логин или пароль')
+                return self.error('accounts.auth.login.wrong_credentials', 'Неверный логин или пароль')
 
             logic.login_user(self.request, nick=account.nick, password=login_form.c.password, remember=login_form.c.remember)
 
@@ -517,7 +517,7 @@ class AuthResource(BaseAccountsResource):
     @api.handler(versions=('1.0',))
     @handler('api', 'logout', name='api-logout', method=['post'])
     def api_logout(self, api_version):
-        u'''
+        '''
 Выйти из игры
 
 - **адрес:** /accounts/auth/api/logout
@@ -546,8 +546,8 @@ class ProfileResource(BaseAccountsResource):
     @login_required
     @handler('', name='show', method='get')
     def profile(self):
-        data = {'email': self.account.email if self.account.email else u'укажите email',
-                'nick': self.account.nick if not self.account.is_fast and self.account.nick else u'укажите ваше имя'}
+        data = {'email': self.account.email if self.account.email else 'укажите email',
+                'nick': self.account.nick if not self.account.is_fast and self.account.nick else 'укажите ваше имя'}
         edit_profile_form = forms.EditProfileForm(data)
 
         settings_form = forms.SettingsForm({'personal_messages_subscription': self.account.personal_messages_subscription,
@@ -578,20 +578,20 @@ class ProfileResource(BaseAccountsResource):
             return self.json_error('accounts.profile.update.form_errors', edit_profile_form.errors)
 
         if self.account.is_fast and not (edit_profile_form.c.email and edit_profile_form.c.password and edit_profile_form.c.nick):
-            return self.json_error('accounts.profile.update.empty_fields', u'Необходимо заполнить все поля')
+            return self.json_error('accounts.profile.update.empty_fields', 'Необходимо заполнить все поля')
 
         if edit_profile_form.c.email:
             existed_account = AccountPrototype.get_by_email(edit_profile_form.c.email)
             if existed_account and existed_account.id != self.account.id:
-                return self.json_error('accounts.profile.update.used_email', {'email': [u'На этот адрес уже зарегистрирован аккаунт']})
+                return self.json_error('accounts.profile.update.used_email', {'email': ['На этот адрес уже зарегистрирован аккаунт']})
 
         if edit_profile_form.c.nick:
             existed_account = AccountPrototype.get_by_nick(edit_profile_form.c.nick)
             if existed_account and existed_account.id != self.account.id:
-                return self.json_error('accounts.profile.update.used_nick', {'nick': [u'Это имя уже занято']})
+                return self.json_error('accounts.profile.update.used_nick', {'nick': ['Это имя уже занято']})
 
         if edit_profile_form.c.nick != self.account.nick and self.account.is_ban_any:
-            return self.json_error('accounts.profile.update.banned', {'nick': [u'Вы не можете менять ник пока забанены']})
+            return self.json_error('accounts.profile.update.banned', {'nick': ['Вы не можете менять ник пока забанены']})
 
         task = ChangeCredentialsTaskPrototype.create(account=self.account,
                                                      new_email=edit_profile_form.c.email,
@@ -667,18 +667,18 @@ class ProfileResource(BaseAccountsResource):
         return self.template('accounts/reset_password_done.html', {} )
 
     @validate_argument('task', ResetPasswordTaskPrototype.get_by_uuid,
-                       'accounts.profile.reset_password_done', u'Не получилось сбросить пароль, возможно вы используете неверную ссылку')
+                       'accounts.profile.reset_password_done', 'Не получилось сбросить пароль, возможно вы используете неверную ссылку')
     @handler('reset-password-processed', method='get')
     def reset_password_processed(self, task):
         if self.account.is_authenticated():
             return self.redirect('/')
 
         if task.is_time_expired:
-            return self.auto_error('accounts.profile.reset_password_processed.time_expired', u'Срок действия ссылки закончился, попробуйте восстановить пароль ещё раз')
+            return self.auto_error('accounts.profile.reset_password_processed.time_expired', 'Срок действия ссылки закончился, попробуйте восстановить пароль ещё раз')
 
         if task.is_processed:
             return self.auto_error('accounts.profile.reset_password_processed.already_processed',
-                                   u'Эта ссылка уже была использована для восстановления пароля, одну ссылку можно использовать только один раз')
+                                   'Эта ссылка уже была использована для восстановления пароля, одну ссылку можно использовать только один раз')
 
         password = task.process(logger=logger)
 
@@ -688,7 +688,7 @@ class ProfileResource(BaseAccountsResource):
     def reset_password(self):
 
         if self.account.is_authenticated():
-            return self.json_error('accounts.profile.reset_password.already_logined', u'Вы уже вошли на сайт и можете просто изменить пароль')
+            return self.json_error('accounts.profile.reset_password.already_logined', 'Вы уже вошли на сайт и можете просто изменить пароль')
 
         reset_password_form = forms.ResetPasswordForm(self.request.POST)
 
@@ -698,7 +698,7 @@ class ProfileResource(BaseAccountsResource):
         account = AccountPrototype.get_by_email(reset_password_form.c.email)
 
         if account is None:
-            return self.auto_error('accounts.profile.reset_password.wrong_email', u'На указанный email аккаунт не зарегистрирован')
+            return self.auto_error('accounts.profile.reset_password.wrong_email', 'На указанный email аккаунт не зарегистрирован')
 
         ResetPasswordTaskPrototype.create(account)
 

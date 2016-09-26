@@ -19,24 +19,24 @@ from the_tale.game.companions.abilities import forms as abilities_forms
 
 class CompanionRecordForm(forms.Form):
 
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название')
 
-    max_health = fields.IntegerField(label=u'здоровье', min_value=c.COMPANIONS_MIN_HEALTH, max_value=c.COMPANIONS_MAX_HEALTH)
+    max_health = fields.IntegerField(label='здоровье', min_value=c.COMPANIONS_MIN_HEALTH, max_value=c.COMPANIONS_MAX_HEALTH)
 
-    type = fields.RelationField(label=u'тип', relation=game_relations.BEING_TYPE)
-    dedication = fields.RelationField(label=u'самоотверженность', relation=relations.DEDICATION)
-    archetype = fields.RelationField(label=u'архетип', relation=game_relations.ARCHETYPE)
-    mode = fields.RelationField(label=u'режим появления в игре', relation=relations.MODE)
+    type = fields.RelationField(label='тип', relation=game_relations.BEING_TYPE)
+    dedication = fields.RelationField(label='самоотверженность', relation=relations.DEDICATION)
+    archetype = fields.RelationField(label='архетип', relation=game_relations.ARCHETYPE)
+    mode = fields.RelationField(label='режим появления в игре', relation=relations.MODE)
 
-    communication_verbal = fields.RelationField(label=u'вербальное общение', relation=game_relations.COMMUNICATION_VERBAL)
-    communication_gestures = fields.RelationField(label=u'невербальное общение', relation=game_relations.COMMUNICATION_GESTURES)
-    communication_telepathic = fields.RelationField(label=u'телепатия', relation=game_relations.COMMUNICATION_TELEPATHIC)
+    communication_verbal = fields.RelationField(label='вербальное общение', relation=game_relations.COMMUNICATION_VERBAL)
+    communication_gestures = fields.RelationField(label='невербальное общение', relation=game_relations.COMMUNICATION_GESTURES)
+    communication_telepathic = fields.RelationField(label='телепатия', relation=game_relations.COMMUNICATION_TELEPATHIC)
 
-    intellect_level = fields.RelationField(label=u'уровень интеллекта', relation=game_relations.INTELLECT_LEVEL)
+    intellect_level = fields.RelationField(label='уровень интеллекта', relation=game_relations.INTELLECT_LEVEL)
 
-    abilities = abilities_forms.AbilitiesField(label=u'', required=False)
+    abilities = abilities_forms.AbilitiesField(label='', required=False)
 
-    description = bbcode.BBField(label=u'Описание', required=False)
+    description = bbcode.BBField(label='Описание', required=False)
 
     @classmethod
     def get_initials(cls, companion):

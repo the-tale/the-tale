@@ -49,7 +49,7 @@ class UseCardTaskTests(testcase.TestCase):
 
     def test_create(self):
 
-        for card_effect in effects.EFFECTS.values():
+        for card_effect in list(effects.EFFECTS.values()):
             card = objects.Card(card_effect.TYPE)
             self.hero.cards.add_card(card)
 
@@ -59,7 +59,7 @@ class UseCardTaskTests(testcase.TestCase):
             self.assertTrue(task.internal_logic.state.is_UNPROCESSED)
 
     def test_serialization(self):
-        card_effect = random.choice(effects.EFFECTS.values())
+        card_effect = random.choice(list(effects.EFFECTS.values()))
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 
@@ -68,7 +68,7 @@ class UseCardTaskTests(testcase.TestCase):
         self.assertEqual(task.serialize(), UseCardTask.deserialize(task.serialize()).serialize())
 
     def test_response_data(self):
-        card_effect = random.choice(effects.EFFECTS.values())
+        card_effect = random.choice(list(effects.EFFECTS.values()))
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 
@@ -80,7 +80,7 @@ class UseCardTaskTests(testcase.TestCase):
 
     def test_process_can_not_process(self):
 
-        card_effect = random.choice(effects.EFFECTS.values())
+        card_effect = random.choice(list(effects.EFFECTS.values()))
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 
@@ -91,7 +91,7 @@ class UseCardTaskTests(testcase.TestCase):
             self.assertEqual(task.state, UseCardTask.STATE.CAN_NOT_PROCESS)
 
     def test_process_success(self):
-        card_effect = random.choice(effects.EFFECTS.values())
+        card_effect = random.choice(list(effects.EFFECTS.values()))
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 
@@ -104,7 +104,7 @@ class UseCardTaskTests(testcase.TestCase):
 
     def test_process_second_step_error(self):
 
-        card_effect = random.choice(effects.EFFECTS.values())
+        card_effect = random.choice(list(effects.EFFECTS.values()))
         card = objects.Card(card_effect.TYPE)
         self.hero.cards.add_card(card)
 

@@ -11,7 +11,7 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 class PostponedTaskResource(Resource):
 
-    @validate_argument('task', PostponedTaskPrototype.get_by_id, 'postponed_task', u'Задача не найдена')
+    @validate_argument('task', PostponedTaskPrototype.get_by_id, 'postponed_task', 'Задача не найдена')
     def initialize(self, task, *args, **kwargs):
         super(PostponedTaskResource, self).initialize(*args, **kwargs)
         self.task = task
@@ -26,18 +26,18 @@ class PostponedTaskResource(Resource):
             return self.json_ok(data=self.task.internal_logic.processed_data)
 
         if self.task.state.is_reseted:
-            return self.json_error('postponed_task.task_reseted', u'Обработка задачи отменена')
+            return self.json_error('postponed_task.task_reseted', 'Обработка задачи отменена')
 
         if self.task.state.is_timeout:
-            return self.json_error('postponed_task.timeout', u'Превышено время обработки задачи, попробуйте ещё раз')
+            return self.json_error('postponed_task.timeout', 'Превышено время обработки задачи, попробуйте ещё раз')
 
         if self.task.state.is_error:
             return self.json_error('postponed_task.error', self.task.internal_logic.error_message)
 
         if self.task.state.is_exception:
-            return self.json_error('postponed_task.exception', u'Неизвестная ошибка, повторите попытку позже')
+            return self.json_error('postponed_task.exception', 'Неизвестная ошибка, повторите попытку позже')
 
-        return self.json_error('postponed_task.unknown_error', u'Неизвестная ошибка, повторите попытку позже')
+        return self.json_error('postponed_task.unknown_error', 'Неизвестная ошибка, повторите попытку позже')
 
     @handler('#task', 'wait', method='get')
     def wait(self):

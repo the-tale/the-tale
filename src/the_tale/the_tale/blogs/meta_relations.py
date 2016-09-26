@@ -11,7 +11,7 @@ from . import prototypes
 class Post(meta_relations.MetaType):
     __slots__ = ('caption', '_object__lazy')
     TYPE = 1
-    TYPE_CAPTION = u'Произведение'
+    TYPE_CAPTION = 'Произведение'
 
     def __init__(self, caption, **kwargs):
         super(Post, self).__init__(**kwargs)

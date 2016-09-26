@@ -50,7 +50,7 @@ def get_accounts_accounts_info(accounts_ids):
 
     for clan in clans_prototypes.ClanPrototype.get_list_by_id(list(clans_ids)):
         clan_info = ShortClanInfo(id=clan.id, abbr=clan.abbr, name=clan.name)
-        for account in accounts.itervalues():
+        for account in accounts.values():
             if account.clan == clan.id:
                 account.clan = clan_info
 

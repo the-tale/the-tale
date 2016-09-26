@@ -52,7 +52,7 @@ def _register_postponed_tasks(container, objects):
 
     for obj in discovering.discover_classes(objects, PostponedLogic):
         if obj.TYPE in container:
-            raise PostponedTaskException(u'interanl logic "%s" for postponed task has being registered already' % obj.TYPE)
+            raise PostponedTaskException('interanl logic "%s" for postponed task has being registered already' % obj.TYPE)
         if obj.TYPE is None:
             continue # skip abstract classes
             # raise PostponedTaskException(u'interanl logic "%r" for postponed task does not define TYPE' % obj)
@@ -167,12 +167,12 @@ class PostponedTaskPrototype(BasePrototype):
                 if old_internal_result != POSTPONED_TASK_LOGIC_RESULT.WAIT:
                     self.extend_postsave_actions([self.cmd_wait])
             else:
-                raise PostponedTaskException(u'unknown process result %r' % (self.process_result, ))
+                raise PostponedTaskException('unknown process result %r' % (self.process_result, ))
 
             self.internal_state = self.internal_logic.state
             self.save()
 
-        except Exception, e:# pylint: disable=W0703
+        except Exception as e:# pylint: disable=W0703
 
             logger.error('EXCEPTION: %s' % e)
 
@@ -183,5 +183,5 @@ class PostponedTaskPrototype(BasePrototype):
                          extra={} )
 
             self.state = POSTPONED_TASK_STATE.EXCEPTION
-            self.comment = u'%s\n\n%s\n\n %s' % exception_info
+            self.comment = '%s\n\n%s\n\n %s' % exception_info
             self.save()

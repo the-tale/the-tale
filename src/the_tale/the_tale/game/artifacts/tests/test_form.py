@@ -30,7 +30,7 @@ class ArtifactFormsTests(testcase.TestCase):
                 'special_effect': 'ARTIFACT_EFFECT.NO_EFFECT',
                 'description': 'artifact description',
                 'uuid': 'some-uuid',
-                'mob':  u''})
+                'mob':  ''})
 
         return data
 

@@ -83,11 +83,11 @@ class IndexRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(url('accounts:messages:sent')), texts=[('pgf-no-messages', 1)])
 
     def test_index_second_page(self):
-        for i in xrange(conf.settings.MESSAGES_ON_PAGE):
+        for i in range(conf.settings.MESSAGES_ON_PAGE):
             MessagePrototype.create(self.account2, self.account1, 'test message_2_1 %d' % i)
 
         texts = []
-        for i in xrange(conf.settings.MESSAGES_ON_PAGE):
+        for i in range(conf.settings.MESSAGES_ON_PAGE):
             texts.append(('test message_2_1 %d' % i, 1))
 
         self.request_login(self.account1.email)

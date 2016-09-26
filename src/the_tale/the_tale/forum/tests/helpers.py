@@ -43,4 +43,4 @@ class ForumFixture(object):
 
         # create test clan and clean it's forum artifacts
         self.clan_category = CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
-        self.clan_1 = ClanPrototype.create(self.account_1, abbr=u'abbr1', name=u'name1', motto=u'motto', description=u'description')
+        self.clan_1 = ClanPrototype.create(self.account_1, abbr='abbr1', name='name1', motto='motto', description='description')

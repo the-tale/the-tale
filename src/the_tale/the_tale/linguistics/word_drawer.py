@@ -87,7 +87,7 @@ class BaseDrawer(object):
         self.show_properties = show_properties
 
     def get_header(self, properties):
-        return u', '.join([k.text for k in properties])
+        return ', '.join([k.text for k in properties])
 
     def get_form(self, key):
         raise NotImplementedError()
@@ -116,7 +116,7 @@ class ShowDrawer(BaseDrawer):
         cache = utg_data.WORDS_CACHES[self.type]
 
         if key not in cache:
-            return u''
+            return ''
 
         form = self.word.form(words.Properties(*key))
         other_form = self.other_version.form(words.Properties(*key)) if self.other_version else None
@@ -124,16 +124,16 @@ class ShowDrawer(BaseDrawer):
         if other_form is None or form == other_form:
             html = form
         else:
-            html = u'<span class="changed-word" rel="tooltip" title="в копии: %s">%s</span>' % (other_form, form)
+            html = '<span class="changed-word" rel="tooltip" title="в копии: %s">%s</span>' % (other_form, form)
 
         return jinja2.Markup(html)
 
     def get_property_html(self, header, text, alternative=None):
         if alternative is None or text == alternative:
-            html = u'<div><h4>%(header)s</h4><p>%(text)s</p></div>'
+            html = '<div><h4>%(header)s</h4><p>%(text)s</p></div>'
             html = html % {'header': header, 'text': text}
         else:
-            html = u'<div><h4><span class="changed-word" rel="tooltip" title="в копии: %(alternative)s">%(header)s</span></h4><p>%(text)s</p></div>'
+            html = '<div><h4><span class="changed-word" rel="tooltip" title="в копии: %(alternative)s">%(header)s</span></h4><p>%(text)s</p></div>'
             html = html % {'header': header, 'text': text, 'alternative': alternative}
 
         return jinja2.Markup(html)
@@ -151,10 +151,10 @@ class ShowDrawer(BaseDrawer):
                     alternative = self.other_version.properties.get(property).text
 
                 return self.get_property_html(utg_relations.PROPERTY_TYPE.index_relation[property].text,
-                                              u'может быть указано',
+                                              'может быть указано',
                                               alternative=alternative)
 
-        return u''
+        return ''
 
 
 class FormFieldDrawer(BaseDrawer):
@@ -172,18 +172,18 @@ class FormFieldDrawer(BaseDrawer):
         # that condition exclude synonym forms (inanimate & animate) for adjective and participle forms
         # if there are more conditions appear, it will be better to seprate them in separate mechanism
         if logic.key_is_synomym(key):
-            return u''
+            return ''
 
         cache = utg_data.WORDS_CACHES[self.type]
 
         if key not in cache:
-            return u''
+            return ''
 
         return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d' % (WORD_FIELD_PREFIX, cache[key]))})
 
     def get_property(self, property):
         content = self.widget_html('%s_%s' % (WORD_FIELD_PREFIX, property.__name__))
-        content = u'<label>%s:</label> %s'% (utg_relations.PROPERTY_TYPE.index_relation[property].text, content)
+        content = '<label>%s:</label> %s'% (utg_relations.PROPERTY_TYPE.index_relation[property].text, content)
         return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': content})
 
 

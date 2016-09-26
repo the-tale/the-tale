@@ -42,10 +42,10 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 
 
 @api.Processor(versions=(conf.settings.API_SHOW_VERSION,))
-@PersonProcessor(error_message=u'Мастер не найден', url_name='person', context_name='person')
+@PersonProcessor(error_message='Мастер не найден', url_name='person', context_name='person')
 @resource('#person', 'api', 'show', name='api-show')
 def api_show(context):
-    u'''
+    '''
 Подробная информация о конкретном Мастере
 
 - **адрес:** /game/persons/&lt;person&gt;/api/show
@@ -88,7 +88,7 @@ def api_show(context):
     return dext_views.AjaxOk(content=info.person_info(context.person))
 
 
-@PersonProcessor(error_message=u'Мастер не найден', url_name='person', context_name='person')
+@PersonProcessor(error_message='Мастер не найден', url_name='person', context_name='person')
 @resource('#person', name='show')
 def show(context):
 

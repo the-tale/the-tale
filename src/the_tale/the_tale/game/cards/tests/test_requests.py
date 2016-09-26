@@ -100,17 +100,17 @@ class TestIndexRequests(CardsRequestsTestsBase):
         super(TestIndexRequests, self).setUp()
 
     def test_simple(self):
-        texts = [card.TYPE.text for card in EFFECTS.values()]
+        texts = [card.TYPE.text for card in list(EFFECTS.values())]
         self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
 
     def test_rarity_filter(self):
         for rarity in relations.RARITY.records:
-            texts = [card.TYPE.text for card in EFFECTS.values() if card.TYPE.rarity == rarity]
+            texts = [card.TYPE.text for card in list(EFFECTS.values()) if card.TYPE.rarity == rarity]
             self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
 
     def test_availability_filter(self):
         for availability in relations.AVAILABILITY.records:
-            texts = [card.TYPE.text for card in EFFECTS.values() if card.TYPE.availability == availability]
+            texts = [card.TYPE.text for card in list(EFFECTS.values()) if card.TYPE.availability == availability]
             self.check_html_ok(self.request_html(url('guide:cards:')), texts=texts)
 
 

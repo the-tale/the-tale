@@ -48,10 +48,10 @@ def update_map(index):
     draw_info = get_draw_info(biomes_map)
 
     terrain = []
-    for y in xrange(0, generator.h):
+    for y in range(0, generator.h):
         row = []
         terrain.append(row)
-        for x in xrange(0, generator.w):
+        for x in range(0, generator.w):
             row.append(biomes_map[y][x].id)
 
     map_info_storage.set_item(MapInfoPrototype.create(turn_number=time.turn_number,
@@ -81,7 +81,7 @@ def update_map(index):
 
     output_dir_name = os.path.dirname(region_js_file)
     if not os.path.exists(output_dir_name):
-        os.makedirs(output_dir_name, 0755)
+        os.makedirs(output_dir_name, 0o755)
 
     with open(region_js_file, 'w') as region_json_file:
         region_json_file.write(s11n.to_json(data).encode('utf-8'))

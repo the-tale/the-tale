@@ -35,7 +35,7 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.companion_record = companions_storage.companions.enabled_companions().next()
+        self.companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
         self.action_idl = self.hero.actions.current_action

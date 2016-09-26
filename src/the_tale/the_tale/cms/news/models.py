@@ -24,5 +24,5 @@ class News(models.Model):
     emailed = RelationIntegerField(relation=relations.EMAILED_STATE, db_index=True)
 
     class Meta:
-        permissions = (("edit_news", u"Может создавать новости"), )
+        permissions = (("edit_news", "Может создавать новости"), )
         get_latest_by = 'created_at'

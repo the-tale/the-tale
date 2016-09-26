@@ -218,7 +218,7 @@ class TestPrototypeApply(BaseTestPrototypes):
 
         self.assertEqual(bill.applyed_at_turn, current_time.turn_number)
 
-        self.check_place(self.place1.id, u'new_name_1-нс,ед,им', self.bill.data.name_forms.forms)
+        self.check_place(self.place1.id, 'new_name_1-нс,ед,им', self.bill.data.name_forms.forms)
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)

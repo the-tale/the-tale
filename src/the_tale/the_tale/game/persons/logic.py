@@ -55,7 +55,7 @@ class PersonPoliticPower(politic_power.PoliticPower):
 
     def job_effect_kwargs(self, person):
         return {'actor_type': 'person',
-                'actor_name': u'Проект Мастера {name}'.format(name=person.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))),
+                'actor_name': 'Проект Мастера {name}'.format(name=person.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))),
                 'person': person,
                 'place': person.place,
                 'positive_heroes': self.inner_positive_heroes,

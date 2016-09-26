@@ -15,7 +15,7 @@ class MessagesContainerTest(testcase.TestCase):
         super(MessagesContainerTest, self).setUp()
         self.messages = messages.JournalContainer()
 
-    def create_message(self, message, turn_delta=0, time_delta=0, position=u'some position info'):
+    def create_message(self, message, turn_delta=0, time_delta=0, position='some position info'):
         return messages.MessageSurrogate(turn_number=TimePrototype.get_current_turn_number() + turn_delta,
                                          timestamp=time.time() + time_delta,
                                          key=None,
@@ -82,6 +82,6 @@ class MessagesContainerTest(testcase.TestCase):
         self.assertEqual([msg[2] for msg in self.messages.ui_info()], ['1', '3', '2'])
 
     def test_push_message__sort_by_time(self):
-        self.messages.push_message(self.create_message(u'1'))
-        self.messages.push_message(self.create_message(u'2', time_delta=-10))
+        self.messages.push_message(self.create_message('1'))
+        self.messages.push_message(self.create_message('2', time_delta=-10))
         self.assertEqual([msg.message for msg in self.messages.messages], ['2', '1'])

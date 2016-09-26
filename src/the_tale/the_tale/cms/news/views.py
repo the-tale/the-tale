@@ -33,15 +33,15 @@ class EditNewsProcessor(dext_views.PermissionProcessor):
     CONTEXT_NAME = 'news_can_edit'
 
 class EditorAccessProcessor(dext_views.AccessProcessor):
-    ERROR_CODE = u'news.no_edit_rights'
-    ERROR_MESSAGE = u'Вы не можете редактировать новости'
+    ERROR_CODE = 'news.no_edit_rights'
+    ERROR_MESSAGE = 'Вы не можете редактировать новости'
 
     def check(self, context): return context.news_can_edit
 
 
 class NewsProcessor(dext_views.ArgumentProcessor):
     CONTEXT_NAME = 'news'
-    ERROR_MESSAGE = u'Новость не найдена'
+    ERROR_MESSAGE = 'Новость не найдена'
     URL_NAME = 'news'
 
     def parse(self, context, raw_value):
@@ -160,15 +160,15 @@ def publish_on_forum(context):
 
     if conf.settings.FORUM_CATEGORY_UID is None:
         raise dext_views.exceptions.ViewError(code='forum_category_not_specified',
-                                              message=u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
+                                              message='try to publish news on forum when FORUM_CATEGORY_ID has not specified')
 
     if forum_prototypes.SubCategoryPrototype.get_by_uid(conf.settings.FORUM_CATEGORY_UID) is None:
         raise dext_views.exceptions.ViewError(code='forum_category_not_exists',
-                                              message=u'try to publish news on forum when FORUM_CATEGORY_ID has not exists')
+                                              message='try to publish news on forum when FORUM_CATEGORY_ID has not exists')
 
     if context.news.forum_thread_id is not None:
         raise dext_views.exceptions.ViewError(code='forum_thread_already_exists',
-                                              message=u'try to publish news on forum when FORUM_CATEGORY_ID has not specified')
+                                              message='try to publish news on forum when FORUM_CATEGORY_ID has not specified')
 
     thread = forum_prototypes.ThreadPrototype.create(forum_prototypes.SubCategoryPrototype.get_by_uid(conf.settings.FORUM_CATEGORY_UID ),
                                                      caption=context.news.caption,
@@ -184,10 +184,10 @@ def publish_on_forum(context):
 
 @resource('feed')
 def feed(context):
-    feed = feedgenerator.Atom1Feed(u'Сказка: Новости',
+    feed = feedgenerator.Atom1Feed('Сказка: Новости',
                                    context.django_request.build_absolute_uri('/'),
-                                   u'Новости мморпг «Сказка»',
-                                   language=u'ru',
+                                   'Новости мморпг «Сказка»',
+                                   language='ru',
                                    feed_url=context.django_request.build_absolute_uri(url('news:feed')))
 
     news = logic.load_news_from_query(models.News.objects.order_by('-created_at')[:conf.settings.FEED_ITEMS_NUMBER])
@@ -214,7 +214,7 @@ def feed(context):
 def send_mails(context):
     if not context.news.emailed.is_NOT_EMAILED:
         raise dext_views.exceptions.ViewError(code='wrong_mail_state',
-                                              message=u'Эту новость нельзя отправить в рассылку')
+                                              message='Эту новость нельзя отправить в рассылку')
 
     logic.send_mails(context.news)
 
@@ -228,7 +228,7 @@ def send_mails(context):
 def disable_send_mails(context):
     if not context.news.emailed.is_NOT_EMAILED:
         raise dext_views.exceptions.ViewError(code='wrong_mail_state',
-                                              message=u'Рассылку этой новости нельзя запретить')
+                                              message='Рассылку этой новости нельзя запретить')
 
     context.news.emailed = relations.EMAILED_STATE.DISABLED
     logic.save_news(context.news)

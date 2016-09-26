@@ -85,7 +85,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.COMPANION_LIVING_HEAL, 0), 0.0462962962962963)
         self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_LIVING_HEAL,)), 0), 0)
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', game_relations.BEING_TYPE.ANIMAL):
@@ -97,7 +97,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.COMPANION_CONSTRUCT_HEAL, 0), 0.0462962962962963)
         self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_CONSTRUCT_HEAL,)), 0), 0)
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', game_relations.BEING_TYPE.MECHANICAL):
@@ -109,7 +109,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.COMPANION_UNUSUAL_HEAL, 0), 0.0462962962962963)
         self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_UNUSUAL_HEAL,)), 0), 0)
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', game_relations.BEING_TYPE.SUPERNATURAL):
@@ -121,7 +121,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         self.assertEqual(companions.SOCIABILITY().modify_attribute(MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED, 1), 1.2)
         self.assertEqual(companions.SOCIABILITY().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED,)), 1), 1)
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', game_relations.BEING_TYPE.ANIMAL):
@@ -133,7 +133,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         self.assertEqual(companions.SERVICE().modify_attribute(MODIFIERS.COMPANION_CONSTRUCT_COHERENCE_SPEED, 1), 1.2)
         self.assertEqual(companions.SERVICE().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_CONSTRUCT_COHERENCE_SPEED,)), 1), 1)
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', game_relations.BEING_TYPE.MECHANICAL):
@@ -145,7 +145,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         self.assertEqual(companions.SACREDNESS().modify_attribute(MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED, 1), 1.2)
         self.assertEqual(companions.SACREDNESS().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED,)), 1), 1)
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', game_relations.BEING_TYPE.SUPERNATURAL):

@@ -17,7 +17,7 @@ class Road(models.Model):
         unique_together = (('point_1', 'point_2'), )
 
     def __unicode__(self):
-        return u'%s -> %s' % (self.point_1, self.point_2)
+        return '%s -> %s' % (self.point_1, self.point_2)
 
 
 class Waymark(models.Model):

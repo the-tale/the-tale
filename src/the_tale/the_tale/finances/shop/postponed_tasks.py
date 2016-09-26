@@ -19,14 +19,14 @@ from the_tale.finances.shop import exceptions
 
 
 class BASE_BUY_TASK_STATE(DjangoEnum):
-    records = ( ('TRANSACTION_REQUESTED', 1, u'запрошены средства'),
-                ('TRANSACTION_REJECTED', 2, u'недостаточно средств'),
-                ('TRANSACTION_FROZEN', 3, u'средства выделены'),
-                ('WAIT_TRANSACTION_CONFIRMATION', 4, u'ожидает подтверждение платежа'),
-                ('SUCCESSED', 5, u'операция выполнена'),
-                ('ERROR_IN_FREEZING_TRANSACTION',6, u'неверное состояние транзакции при замарозке средств'),
-                ('ERROR_IN_CONFIRM_TRANSACTION', 7, u'неверное состояние транзакции при подтверждении траты'),
-                ('WRONG_TASK_STATE', 8, u'ошибка при обрабокте задачи — неверное состояние') )
+    records = ( ('TRANSACTION_REQUESTED', 1, 'запрошены средства'),
+                ('TRANSACTION_REJECTED', 2, 'недостаточно средств'),
+                ('TRANSACTION_FROZEN', 3, 'средства выделены'),
+                ('WAIT_TRANSACTION_CONFIRMATION', 4, 'ожидает подтверждение платежа'),
+                ('SUCCESSED', 5, 'операция выполнена'),
+                ('ERROR_IN_FREEZING_TRANSACTION',6, 'неверное состояние транзакции при замарозке средств'),
+                ('ERROR_IN_CONFIRM_TRANSACTION', 7, 'неверное состояние транзакции при подтверждении траты'),
+                ('WRONG_TASK_STATE', 8, 'ошибка при обрабокте задачи — неверное состояние') )
 
 
 
@@ -141,7 +141,7 @@ class BaseBuyTask(PostponedLogic):
 
         transaction_logic(account=owner,
                           amount=-int(invoice.amount*payments_settings.REFERRAL_BONUS),
-                          description=u'Часть от потраченного вашим рефералом',
+                          description='Часть от потраченного вашим рефералом',
                           uid='referral-bonus',
                           force=True)
 
@@ -179,7 +179,7 @@ class BaseBuyHeroMethod(BaseLogicBuyTask):
     METHOD = None
 
     def __init__(self, **kwargs):
-        arguments = {name: value for name, value in kwargs.iteritems() if name in self.ARGUMENTS}
+        arguments = {name: value for name, value in kwargs.items() if name in self.ARGUMENTS}
         for name in arguments:
             del kwargs[name]
 
@@ -200,7 +200,7 @@ class BaseBuyHeroMethod(BaseLogicBuyTask):
 
     def serialize(self):
         data = super(BaseBuyHeroMethod, self).serialize()
-        if set(data.iterkeys()) & set(self.arguments.iterkeys()):
+        if set(data.keys()) & set(self.arguments.keys()):
             raise exceptions.BuyHeroMethodSerializationError()
         data.update(self.serialize_arguments())
         return data
@@ -240,7 +240,7 @@ class BuyRandomPremiumChest(BaseBuyHeroMethod):
     ARGUMENTS = ('message', )
     METHOD = None
 
-    MESSAGE = u'''
+    MESSAGE = '''
 <strong>Поздравляем!</strong><br/>
 
 Благодаря Вам один из активных игроков получит подписку!<br/>

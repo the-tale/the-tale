@@ -34,7 +34,7 @@ class Post(models.Model):
     forum_thread = models.ForeignKey('forum.Thread', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 
     class Meta(object):
-        permissions = (("moderate_post", u"Может редактировать сообщения пользователей"), )
+        permissions = (("moderate_post", "Может редактировать сообщения пользователей"), )
 
     def __unicode__(self): return self.caption
 
@@ -70,4 +70,4 @@ class Tagged(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
-    def __unicode__(self): return u'<%s - %s>' % (self.tag.name, self.post.caption)
+    def __unicode__(self): return '<%s - %s>' % (self.tag.name, self.post.caption)

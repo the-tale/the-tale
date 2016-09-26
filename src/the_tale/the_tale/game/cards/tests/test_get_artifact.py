@@ -39,11 +39,11 @@ class GetArtifactMixin(CardsTestMixin):
 
         has_useless = False
 
-        for i in xrange(10000):
+        for i in range(10000):
             result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
             self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-            artifact = self.hero.bag.values()[0]
+            artifact = list(self.hero.bag.values())[0]
             self.hero.bag.pop_artifact(artifact)
 
             rarities.add(artifact.rarity)
@@ -55,7 +55,7 @@ class GetArtifactMixin(CardsTestMixin):
 
     def test_use__full_bag(self):
         with self.check_delta(lambda: self.hero.bag.occupation, 1000):
-            for i in xrange(1000):
+            for i in range(1000):
                 result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
                 self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 

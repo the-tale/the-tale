@@ -8,5 +8,5 @@ class CardGoodType(goods_types.BaseGoodType):
 
 
 CardGoodType(uid='card',
-             name=u'Карты Судьбы',
+             name='Карты Судьбы',
              description='Карты Судьбы').register()

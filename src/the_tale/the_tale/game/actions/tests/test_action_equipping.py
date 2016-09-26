@@ -61,7 +61,7 @@ class ActionEquippingTest(testcase.TestCase):
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action, self.action_equipping)
-        self.assertEqual(len(self.hero.bag.items()), 0)
+        self.assertEqual(len(list(self.hero.bag.items())), 0)
 
         equip_slot = artifact.type.equipment_slot
         self.assertEqual(self.hero.equipment.get(equip_slot), artifact)
@@ -88,8 +88,8 @@ class ActionEquippingTest(testcase.TestCase):
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action, self.action_equipping)
 
-        self.assertEqual(len(self.hero.bag.items()), 1)
-        self.assertEqual(self.hero.bag.items()[0][1].power, Power(13, 13))
+        self.assertEqual(len(list(self.hero.bag.items())), 1)
+        self.assertEqual(list(self.hero.bag.items())[0][1].power, Power(13, 13))
 
         equip_slot = artifact.type.equipment_slot
 

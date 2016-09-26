@@ -12,13 +12,13 @@ from the_tale.game.map.relations import TERRAIN
 _xls_attributes = {'filename': map_settings.TERRAIN_PRIORITIES_FIXTURE,
                    'rows': [terrain.name for terrain in TERRAIN.records] }
 
-_modify_row_names = lambda d: dict((TERRAIN.index_name[key], value) for key, value in d.items())
+_modify_row_names = lambda d: dict((TERRAIN.index_name[key], value) for key, value in list(d.items()))
 
-_HEIGHT_POINTS = _modify_row_names(xls.load_table(sheet_index=0, columns=[ round(val/10.0, 1) for val in xrange(-10, 11)], **_xls_attributes))
-_TEMPERATURE_POINTS = _modify_row_names(xls.load_table(sheet_index=1, columns=[ round(val/10.0, 1) for val in xrange(0, 11)], **_xls_attributes))
-_WETNESS_POINTS = _modify_row_names(xls.load_table(sheet_index=2, columns=[ round(val/10.0, 1) for val in xrange(0, 11)], **_xls_attributes))
+_HEIGHT_POINTS = _modify_row_names(xls.load_table(sheet_index=0, columns=[ round(val/10.0, 1) for val in range(-10, 11)], **_xls_attributes))
+_TEMPERATURE_POINTS = _modify_row_names(xls.load_table(sheet_index=1, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))
+_WETNESS_POINTS = _modify_row_names(xls.load_table(sheet_index=2, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))
 _VEGETATION_POINTS = _modify_row_names(xls.load_table(sheet_index=3, columns=['DESERT', 'GRASS', 'FOREST'], **_xls_attributes))
-_SOIL_POINTS = _modify_row_names(xls.load_table(sheet_index=4, columns=[ round(val/10.0, 1) for val in xrange(0, 11)], **_xls_attributes))
+_SOIL_POINTS = _modify_row_names(xls.load_table(sheet_index=4, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))
 
 def mid(left, right, x, left_value, right_value):
     if left == right: return left_value

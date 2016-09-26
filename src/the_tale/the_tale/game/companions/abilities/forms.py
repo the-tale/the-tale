@@ -13,11 +13,11 @@ from the_tale.game.companions.abilities import container
 from the_tale.game.companions.abilities import relations
 
 def ChoiceField(filter=lambda ability: True, sort_key=None):
-    choices = [('', u'---')] + sorted([(ability, u'%s [%d]' % (ability.text, ability.rarity_delta))
+    choices = [('', '---')] + sorted([(ability, '%s [%d]' % (ability.text, ability.rarity_delta))
                                        for ability in effects.ABILITIES.records
                                        if filter(ability)],
                                        key=sort_key)
-    return fields.TypedChoiceField(label=u'', choices=choices, required=False, coerce=effects.ABILITIES.get_from_name)
+    return fields.TypedChoiceField(label='', choices=choices, required=False, coerce=effects.ABILITIES.get_from_name)
 
 
 def get_abilities_fields():
@@ -99,10 +99,10 @@ class AbilitiesField(django_forms.MultiValueField):
         cleaned_value = super(AbilitiesField, self).clean(value)
 
         if cleaned_value.has_duplicates():
-            raise ValidationError(u'В описании особенностей спутника есть дубликат')
+            raise ValidationError('В описании особенностей спутника есть дубликат')
 
         if cleaned_value.has_same_effects():
-            raise ValidationError(u'В описании особенностей спутника есть несколько способностей с одним эффектом')
+            raise ValidationError('В описании особенностей спутника есть несколько способностей с одним эффектом')
 
         return cleaned_value
 
@@ -114,7 +114,7 @@ class AbilitiesField(django_forms.MultiValueField):
         peacefulness = None
 
         for field, ability in zip(relations.FIELDS.records, data_list):
-            if ability is u'':
+            if ability is '':
                 continue
 
             if field in (relations.FIELDS.START_1, relations.FIELDS.START_2, relations.FIELDS.START_3, relations.FIELDS.START_4, relations.FIELDS.START_5):

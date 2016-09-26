@@ -4,17 +4,17 @@ from django.db import models
 
 from the_tale.common.utils.enum import create_enum
 
-POSTPONED_TASK_STATE = create_enum('POSTPONED_TASK_STATE', (('WAITING', 0, u'ожидает обработки'),
-                                                            ('PROCESSED', 1, u'обработана'),
-                                                            ('RESETED', 2, u'сброшена'),
-                                                            ('ERROR', 3, u'ошибка при обработке'),
-                                                            ('EXCEPTION', 4, u'исключение при обработке'),
-                                                            ('TIMEOUT', 5, u'превышено время выполнения')) )
+POSTPONED_TASK_STATE = create_enum('POSTPONED_TASK_STATE', (('WAITING', 0, 'ожидает обработки'),
+                                                            ('PROCESSED', 1, 'обработана'),
+                                                            ('RESETED', 2, 'сброшена'),
+                                                            ('ERROR', 3, 'ошибка при обработке'),
+                                                            ('EXCEPTION', 4, 'исключение при обработке'),
+                                                            ('TIMEOUT', 5, 'превышено время выполнения')) )
 
-POSTPONED_TASK_LOGIC_RESULT = create_enum('POSTPONED_TASK_LOGIC_RESULT', (('SUCCESS', 0, u'удачное выполнение'),
-                                                                          ('ERROR', 1, u'ошибка'),
-                                                                          ('CONTINUE', 2, u'необходимо продолжить выполнение'),
-                                                                          ('WAIT', 3, u'ожидает других задач') ) )
+POSTPONED_TASK_LOGIC_RESULT = create_enum('POSTPONED_TASK_LOGIC_RESULT', (('SUCCESS', 0, 'удачное выполнение'),
+                                                                          ('ERROR', 1, 'ошибка'),
+                                                                          ('CONTINUE', 2, 'необходимо продолжить выполнение'),
+                                                                          ('WAIT', 3, 'ожидает других задач') ) )
 
 
 class PostponedTask(models.Model):
@@ -35,4 +35,4 @@ class PostponedTask(models.Model):
 
     internal_state = models.IntegerField(db_index=True)
 
-    internal_data = models.TextField(default=u'{}')
+    internal_data = models.TextField(default='{}')

@@ -7,14 +7,14 @@ from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED
 
 
 class MAKE_CHOICE_TASK_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 0, u'в очереди'),
-                ('PROCESSED', 1, u'обработана'),
-                ('UNKNOWN_CHOICE', 2, u'не существует такого выбора'),
-                ('WRONG_POINT', 3, u'в данный момент вы не можете влиять на эту точку выбора'),
-                ('LINE_NOT_AVAILABLE', 4, u'характер не позволяет герою сделать такой выбор'),
-                ('ALREADY_CHOSEN', 5, u'вы уже сделали выбор'),
-                ('QUEST_NOT_FOUND', 6, u'задание не найдено'),
-                ('NO_CHOICES_IN_QUEST', 7, u'в текущем задании не осталось точек выбора'))
+    records = ( ('UNPROCESSED', 0, 'в очереди'),
+                ('PROCESSED', 1, 'обработана'),
+                ('UNKNOWN_CHOICE', 2, 'не существует такого выбора'),
+                ('WRONG_POINT', 3, 'в данный момент вы не можете влиять на эту точку выбора'),
+                ('LINE_NOT_AVAILABLE', 4, 'характер не позволяет герою сделать такой выбор'),
+                ('ALREADY_CHOSEN', 5, 'вы уже сделали выбор'),
+                ('QUEST_NOT_FOUND', 6, 'задание не найдено'),
+                ('NO_CHOICES_IN_QUEST', 7, 'в текущем задании не осталось точек выбора'))
 
 
 class MakeChoiceTask(PostponedLogic):
@@ -41,7 +41,7 @@ class MakeChoiceTask(PostponedLogic):
 
         if not hero.quests.has_quests:
             self.state = MAKE_CHOICE_TASK_STATE.QUEST_NOT_FOUND
-            main_task.comment = u'no quests'
+            main_task.comment = 'no quests'
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         quest = hero.quests.current_quest
@@ -50,27 +50,27 @@ class MakeChoiceTask(PostponedLogic):
 
         if choice_state is None:
             self.state = MAKE_CHOICE_TASK_STATE.NO_CHOICES_IN_QUEST
-            main_task.comment = u'no any choices in quest '
+            main_task.comment = 'no any choices in quest '
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if self.option_uid not in quest.knowledge_base or quest.knowledge_base[self.option_uid].state_from != choice_state.uid:
             self.state = MAKE_CHOICE_TASK_STATE.WRONG_POINT
-            main_task.comment = u'wrong choice point for option %s"' % choice_state.uid
+            main_task.comment = 'wrong choice point for option %s"' % choice_state.uid
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if self.option_uid not in [option.uid for option in options]:
             self.state = MAKE_CHOICE_TASK_STATE.UNKNOWN_CHOICE
-            main_task.comment = u'no choice option "%s"' % self.option_uid
+            main_task.comment = 'no choice option "%s"' % self.option_uid
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if any(not default.default for default in defaults):
             self.state = MAKE_CHOICE_TASK_STATE.ALREADY_CHOSEN
-            main_task.comment = u'already choosen "%s"' % defaults
+            main_task.comment = 'already choosen "%s"' % defaults
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if not quest.make_choice(self.option_uid):
             self.state = MAKE_CHOICE_TASK_STATE.CAN_NOT_MAKE_CHOICE
-            main_task.comment = u'can not make choice with option "%s"' % self.option_uid
+            main_task.comment = 'can not make choice with option "%s"' % self.option_uid
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         hero.quests.mark_updated()

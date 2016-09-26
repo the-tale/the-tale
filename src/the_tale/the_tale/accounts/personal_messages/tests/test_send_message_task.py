@@ -36,7 +36,7 @@ class TaskTests(testcase.TestCase):
 
         self.task = postponed_tasks.SendMessagesTask(account_id=self.account_2.id,
                                                      recipients=[self.account_1.id, self.account_3.id],
-                                                     message=u'test-message')
+                                                     message='test-message')
 
         self.main_task = mock.Mock(comment=None, id=777)
 
@@ -49,7 +49,7 @@ class TaskTests(testcase.TestCase):
         self.assertTrue(self.task.state.is_UNPROCESSED)
         self.assertTrue(self.task.step.is_UNPROCESSED)
         self.assertEqual(self.task.account_id, self.account_2.id)
-        self.assertEqual(self.task.message, u'test-message')
+        self.assertEqual(self.task.message, 'test-message')
         self.assertEqual(self.task.recipients, [self.account_1.id, self.account_3.id])
 
 

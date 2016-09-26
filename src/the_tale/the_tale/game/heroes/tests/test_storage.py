@@ -54,4 +54,4 @@ class PositionDescriptionsStorageTests(testcase.TestCase):
         self.assertEqual(storage.position_descriptions._position_on_road_cache, {(self.place_1.id, self.place_2.id): text})
 
     def text_in_wild_lands(self, place_id):
-        self.assertEqual(storage.position_descriptions.text_in_wild_lands(), u'дикие земли')
+        self.assertEqual(storage.position_descriptions.text_in_wild_lands(), 'дикие земли')

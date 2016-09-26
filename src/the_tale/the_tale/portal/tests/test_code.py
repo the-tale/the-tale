@@ -100,7 +100,7 @@ class CodeTests(testcase.TestCase):
             except:
                 continue
 
-            for object in module.__dict__.values():
+            for object in list(module.__dict__.values()):
                 if isinstance(object, storage.BaseStorage) and hasattr(object, 'PROTOTYPE'):
                     prototypes.append(object.PROTOTYPE)
 

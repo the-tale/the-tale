@@ -37,7 +37,7 @@ class PlacePowerTest(testcase.TestCase):
                                         utg_name=names.generator.get_test_name(name='power_test_place'),
                                         race=RACE.HUMAN)
 
-        for i in xrange(3):
+        for i in range(3):
             logic.add_person_to_place(self.place)
 
         persons_storage.persons.sync(force=True)

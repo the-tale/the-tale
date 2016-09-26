@@ -28,7 +28,7 @@ from the_tale.game.cards import conf
 ########################################
 
 class AccountCardProcessor(dext_views.ArgumentProcessor):
-    ERROR_MESSAGE = u'У Вас нет такой карты'
+    ERROR_MESSAGE = 'У Вас нет такой карты'
     GET_NAME = 'card'
     CONTEXT_NAME = 'account_card'
 
@@ -45,7 +45,7 @@ class AccountCardProcessor(dext_views.ArgumentProcessor):
 
 
 class AccountCardsProcessor(dext_views.ArgumentProcessor):
-    ERROR_MESSAGE = u'У вас нет как минимум одной из указанных карт'
+    ERROR_MESSAGE = 'У вас нет как минимум одной из указанных карт'
     GET_NAME = 'cards'
     CONTEXT_NAME = 'account_cards'
 
@@ -79,13 +79,13 @@ guide_resource.add_processor(utils_views.FakeResourceProcessor())
 ########################################
 
 class INDEX_ORDER(DjangoEnum):
-    records = ( ('RARITY', 0, u'по редкости'),
-                ('NAME', 1, u'по имени') )
+    records = ( ('RARITY', 0, 'по редкости'),
+                ('NAME', 1, 'по имени') )
 
 CARDS_FILTER = [list_filter.reset_element(),
-                list_filter.choice_element(u'редкость:', attribute='rarity', choices=[(None, u'все')] + list(relations.RARITY.select('value', 'text'))),
-                list_filter.choice_element(u'доступность:', attribute='availability', choices=[(None, u'все')] + list(relations.AVAILABILITY.select('value', 'text'))),
-                list_filter.choice_element(u'сортировка:',
+                list_filter.choice_element('редкость:', attribute='rarity', choices=[(None, 'все')] + list(relations.RARITY.select('value', 'text'))),
+                list_filter.choice_element('доступность:', attribute='availability', choices=[(None, 'все')] + list(relations.AVAILABILITY.select('value', 'text'))),
+                list_filter.choice_element('сортировка:',
                                            attribute='order_by',
                                            choices=list(INDEX_ORDER.select('value', 'text')),
                                            default_value=INDEX_ORDER.RARITY.value)]
@@ -114,7 +114,7 @@ def use_dialog(context):
 @api.Processor(versions=(conf.settings.USE_API_VERSION, ))
 @resource('api', 'use', name='api-use', method='POST')
 def api_use(context):
-    u'''
+    '''
 Использовать карту из колоды игрока.
 
 - **адрес:** /game/cards/api/use
@@ -133,7 +133,7 @@ def api_use(context):
     form = context.account_card.type.form(context.django_request.POST)
 
     if not form.is_valid():
-        raise dext_views.ViewError(code=u'form_errors', message=form.errors)
+        raise dext_views.ViewError(code='form_errors', message=form.errors)
 
     task = context.account_card.activate(context.account_hero, data=form.get_card_data())
 
@@ -143,7 +143,7 @@ def api_use(context):
 @accounts_views.LoginRequiredProcessor()
 @resource('combine-dialog')
 def combine_dialog(context):
-    cards = sorted(effects.EFFECTS.values(), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
+    cards = sorted(list(effects.EFFECTS.values()), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
 
     return dext_views.Page('cards/combine_dialog.html',
                            content={'CARDS': cards,
@@ -155,7 +155,7 @@ def combine_dialog(context):
 @api.Processor(versions=(conf.settings.GET_API_VERSION, ))
 @resource('api', 'get', name='api-get', method='post')
 def api_get(context):
-    u'''
+    '''
 Взять новую карту в колоду игрока.
 
 - **адрес:** /game/cards/api/get
@@ -187,7 +187,7 @@ def api_get(context):
 @api.Processor(versions=(conf.settings.COMBINE_API_VERSION, ))
 @resource('api', 'combine', name='api-combine', method='post')
 def api_combine(context):
-    u'''
+    '''
 Объединить карты из колоды игрока.
 
 - **адрес:** /game/cards/api/combine
@@ -210,7 +210,7 @@ def api_combine(context):
     can_combine_status = context.account_hero.cards.can_combine_cards([card.uid for card in context.account_cards])
 
     if not can_combine_status.is_ALLOWED:
-        raise dext_views.ViewError(code=u'wrong_cards', message=can_combine_status.text)
+        raise dext_views.ViewError(code='wrong_cards', message=can_combine_status.text)
 
     choose_task = heroes_postponed_tasks.CombineCardsTask(hero_id=context.account_hero.id, cards=[card.uid for card in context.account_cards])
 
@@ -223,19 +223,19 @@ def api_combine(context):
 
 
 @dext_views.RelationArgumentProcessor(relation=relations.RARITY, default_value=None,
-                                      error_message=u'неверный тип редкости карты',
+                                      error_message='неверный тип редкости карты',
                                       context_name='cards_rarity', get_name='rarity')
 @dext_views.RelationArgumentProcessor(relation=relations.AVAILABILITY, default_value=None,
-                                      error_message=u'неверный тип доступности карты',
+                                      error_message='неверный тип доступности карты',
                                       context_name='cards_availability', get_name='availability')
 @dext_views.RelationArgumentProcessor(relation=INDEX_ORDER, default_value=INDEX_ORDER.RARITY,
-                                      error_message=u'неверный тип сортировки карт',
+                                      error_message='неверный тип сортировки карт',
                                       context_name='cards_order_by', get_name='order_by')
 @guide_resource('')
 def index(context):
     from the_tale.game.cards.relations import RARITY
 
-    cards = effects.EFFECTS.values()
+    cards = list(effects.EFFECTS.values())
 
     if context.cards_availability:
         cards = [card for card in cards if card.TYPE.availability == context.cards_availability]

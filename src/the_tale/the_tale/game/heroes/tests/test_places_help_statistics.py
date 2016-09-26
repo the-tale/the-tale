@@ -44,10 +44,10 @@ class PlacesHelpStatisticsTests(testcase.TestCase):
         self.assertEqual(len(self.statistics.history), 2)
 
     def test_add_place__overgrowth(self):
-        for i in xrange(0, heroes_settings.PLACE_HELP_HISTORY_SIZE):
+        for i in range(0, heroes_settings.PLACE_HELP_HISTORY_SIZE):
             self.statistics.add_place(i)
         self.statistics.add_place(666)
-        self.assertEqual(self.statistics.history, collections.deque((i, 1) for i in range(1, heroes_settings.PLACE_HELP_HISTORY_SIZE) + [666]))
+        self.assertEqual(self.statistics.history, collections.deque((i, 1) for i in list(range(1, heroes_settings.PLACE_HELP_HISTORY_SIZE)) + [666]))
 
     def test_get_most_common_places(self):
         self.fill_statistics()

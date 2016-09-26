@@ -22,15 +22,15 @@ def communication_abilities(mob):
     levels = []
 
     if mob.communication_verbal.is_CAN:
-        levels.append(u'вербальная')
+        levels.append('вербальная')
 
     if mob.communication_gestures.is_CAN:
-        levels.append(u'невербальная')
+        levels.append('невербальная')
 
     if mob.communication_telepathic.is_CAN:
-        levels.append(u'телепатия')
+        levels.append('телепатия')
 
     if not levels:
-        levels.append(u'—')
+        levels.append('—')
 
-    return u', '.join(levels)
+    return ', '.join(levels)

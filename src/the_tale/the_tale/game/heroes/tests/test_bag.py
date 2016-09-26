@@ -60,7 +60,7 @@ class BagTests(TestCase):
         self.assertTrue(self.bag.updated)
         self.assertEqual(self.bag._ui_info, None)
 
-        self.assertEqual(self.bag.bag.values()[0], artifact)
+        self.assertEqual(list(self.bag.bag.values())[0], artifact)
 
     def test_pop_artifact(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
@@ -165,7 +165,7 @@ class EquipmentTests(TestCase):
     def test_values__mark_updated_called(self):
         self.equipment.updated = False
 
-        self.equipment.values()
+        list(self.equipment.values())
 
         self.assertTrue(self.equipment.updated)
 

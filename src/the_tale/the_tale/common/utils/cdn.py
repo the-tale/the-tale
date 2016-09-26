@@ -1,6 +1,7 @@
 # coding: utf-8
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
+import collections
 
 
 def get_cdns_info(cdns):
@@ -12,15 +13,15 @@ def get_cdns_info(cdns):
 
         variable_value = local_path
 
-        if callable(checked_url):
+        if isinstance(checked_url, collections.Callable):
             checked_url = checked_url()
 
         if cdn_path is not None:
             try:
-                resource = urllib2.urlopen(checked_url)
+                resource = urllib.request.urlopen(checked_url)
                 resource.close()
                 variable_value = cdn_path
-            except urllib2.URLError:
+            except urllib.error.URLError:
                 pass
 
         info[variable_name] = variable_value

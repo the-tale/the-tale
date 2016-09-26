@@ -7,6 +7,7 @@ from the_tale.accounts.conf import accounts_settings
 
 from the_tale.statistics.metrics.base import BaseMetric
 from the_tale.statistics import relations
+from functools import reduce
 
 
 class AliveAfterBase(BaseMetric):

@@ -16,7 +16,7 @@ from the_tale.game.bills.bills.base_person_bill import BasePersonBill
 
 
 class BaseForm(BaseUserForm):
-    person = fields.ChoiceField(label=u'Житель')
+    person = fields.ChoiceField(label='Житель')
 
     def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -41,8 +41,8 @@ class BuildingDestroy(BasePersonBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Разрушение постройки'
-    DESCRIPTION = u'Разрушает здание, принадлежащее выбранному жителю.'
+    CAPTION = 'Разрушение постройки'
+    DESCRIPTION = 'Разрушает здание, принадлежащее выбранному жителю.'
 
     def __init__(self, building_name_forms=None, **kwargs):
         super(BuildingDestroy, self).__init__(**kwargs)
@@ -86,6 +86,6 @@ class BuildingDestroy(BasePersonBill):
         if 'building_name_forms' in data:
             obj.building_name_forms = utg_words.Word.deserialize(data['building_name_forms'])
         else:
-            obj.building_name_forms = names.generator.get_fast_name(u'название неизвестно')
+            obj.building_name_forms = names.generator.get_fast_name('название неизвестно')
 
         return obj

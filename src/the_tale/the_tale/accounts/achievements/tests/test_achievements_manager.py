@@ -33,11 +33,11 @@ class AchievementsManagerTests(testcase.TestCase):
         group_edit.user_set.add(self.account_2._model)
 
         self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
-                                                         caption=u'achievement_1', description=u'description_1', approved=True)
+                                                         caption='achievement_1', description='description_1', approved=True)
         self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=5, points=10,
-                                                         caption=u'achievement_2', description=u'description_2', approved=False)
+                                                         caption='achievement_2', description='description_2', approved=False)
         self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.DEATHS, barrier=4, points=10,
-                                                         caption=u'achievement_3', description=u'description_3', approved=True)
+                                                         caption='achievement_3', description='description_3', approved=True)
 
 
         self.account_achievements_1 = AccountAchievementsPrototype.get_by_account_id(self.account_1.id)
@@ -111,7 +111,7 @@ class AchievementsManagerTests(testcase.TestCase):
 
     def test_legendary_achievements(self):
         achievement_4 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.LEGENDS, type=ACHIEVEMENT_TYPE.LEGENDS, barrier=0, points=0,
-                                                    caption=u'achievement_4', description=u'description_4', approved=True)
+                                                    caption='achievement_4', description='description_4', approved=True)
 
         self.account_achievements_1.achievements.add_achievement(achievement_4)
         self.account_achievements_1.save()

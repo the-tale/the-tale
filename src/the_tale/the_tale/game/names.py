@@ -33,7 +33,7 @@ class NamesGenerators(object):
     def get_name(self, race, gender):
         name_forms = self._get_name(race, gender).get_forms_for(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
 
-        name_forms += [u'']*6
+        name_forms += ['']*6
 
         name = utg_words.Word(type=utg_relations.WORD_TYPE.NOUN,
                               forms=name_forms,
@@ -49,9 +49,9 @@ class NamesGenerators(object):
 
         return word
 
-    def get_test_name(self, name=u'', gender=relations.GENDER.MASCULINE):
+    def get_test_name(self, name='', gender=relations.GENDER.MASCULINE):
         name = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN,
-                                               prefix=(u'%s-' % name) if name else u't-',
+                                               prefix=('%s-' % name) if name else 't-',
                                                properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE, gender.utg_id))
 
         return name

@@ -59,7 +59,7 @@ class MobsStorageTests(testcase.TestCase):
     def test_initialize(self):
         self.assertEqual(len(mobs_storage.all()), 5)
         self.assertEqual(mobs_storage.mobs_number, 5)
-        self.assertEqual(sum(mobs_storage._types_count.itervalues()), 5)
+        self.assertEqual(sum(mobs_storage._types_count.values()), 5)
         self.assertTrue(mobs_storage.mob_type_fraction(game_relations.BEING_TYPE.CIVILIZED) > 2.0 / 5)
 
     def test_get_available_mobs_list(self):
@@ -145,9 +145,9 @@ class MobsStorageTests(testcase.TestCase):
         MobRecordPrototype.create_random('action_1', global_action_probability=0.25)
         MobRecordPrototype.create_random('action_2', global_action_probability=0.10)
 
-        counter = collections.Counter([mobs_storage.get_random_mob(hero).id for i in xrange(1000)])
+        counter = collections.Counter([mobs_storage.get_random_mob(hero).id for i in range(1000)])
 
-        non_actions_count = sum(count for uuid, count in counter.iteritems() if uuid not in ('action_1', 'action_2'))
+        non_actions_count = sum(count for uuid, count in counter.items() if uuid not in ('action_1', 'action_2'))
 
         self.assertTrue(counter['action_2'] < counter['action_1'] < non_actions_count)
 
@@ -159,8 +159,8 @@ class MobsStorageTests(testcase.TestCase):
         MobRecordPrototype.create_random('action_1', global_action_probability=0.66)
         MobRecordPrototype.create_random('action_2', global_action_probability=0.66)
 
-        counter = collections.Counter([mobs_storage.get_random_mob(hero).id for i in xrange(10000)])
+        counter = collections.Counter([mobs_storage.get_random_mob(hero).id for i in range(10000)])
 
-        self.assertEqual(sum([count for uuid, count in counter.iteritems() if uuid not in ('action_1', 'action_2')], 0), 0)
+        self.assertEqual(sum([count for uuid, count in counter.items() if uuid not in ('action_1', 'action_2')], 0), 0)
 
         self.assertTrue(abs(counter['action_2'] - counter['action_1']) < 0.2 * counter['action_2'])

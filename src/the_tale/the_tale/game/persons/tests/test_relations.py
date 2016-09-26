@@ -14,10 +14,10 @@ class RelationsTests(testcase.TestCase):
         super(RelationsTests, self).setUp()
 
     def test_profession_to_race_mastery(self):
-        for profession, masteries in economic.PROFESSION_TO_RACE.items():
+        for profession, masteries in list(economic.PROFESSION_TO_RACE.items()):
             self.assertEqual(len(masteries), len(RACE.records))
 
-            self.assertTrue(all([0 < mastery < 1.1201 for mastery in masteries.values()]))
+            self.assertTrue(all([0 < mastery < 1.1201 for mastery in list(masteries.values())]))
 
         # check, if race id's not changed
         self.assertEqual(RACE.HUMAN.value, 0)

@@ -9,9 +9,9 @@ from the_tale.game.heroes.relations import PREFERENCE_TYPE
 from the_tale.game.artifacts.relations import RARITY
 
 
-CLAN_OWNERSHIP_RIGHT_DESCRIPTION = u'Если вам не хватает могущества для владения гильдией, Вы можете приобрести разрешение на владение ей за печеньки.'
-INFINIT_PREMIUM_DESCRIPTION = u'Вечная подписка даёт вам все бонусы подписчика на всё время игры.'
-PREFERENCE_DESCRIPTION = u'Убрать ограничение на уровень героя'
+CLAN_OWNERSHIP_RIGHT_DESCRIPTION = 'Если вам не хватает могущества для владения гильдией, Вы можете приобрести разрешение на владение ей за печеньки.'
+INFINIT_PREMIUM_DESCRIPTION = 'Вечная подписка даёт вам все бонусы подписчика на всё время игры.'
+PREFERENCE_DESCRIPTION = 'Убрать ограничение на уровень героя'
 
 
 def preference_record(id, preference_type):
@@ -22,7 +22,7 @@ def preference_record(id, preference_type):
             None,
             preference_type.level_required,
             preference_type,
-            u'Предпочтение "%s"' % preference_type.text)
+            'Предпочтение "%s"' % preference_type.text)
 
 
 class PERMANENT_PURCHASE_TYPE(DjangoEnum):
@@ -32,8 +32,8 @@ class PERMANENT_PURCHASE_TYPE(DjangoEnum):
     preference_type = Column(single_type=False, related_name='purchase_type')
     full_name = Column()
 
-    records = ( ('CLAN_OWNERSHIP_RIGHT', 0, u'Разрешение на владение гильдией',
-                 CLAN_OWNERSHIP_RIGHT_DESCRIPTION, clans_settings.OWNER_MIGHT_REQUIRED, None, NullObject(), u'Разрешение на владение гильдией'),
+    records = ( ('CLAN_OWNERSHIP_RIGHT', 0, 'Разрешение на владение гильдией',
+                 CLAN_OWNERSHIP_RIGHT_DESCRIPTION, clans_settings.OWNER_MIGHT_REQUIRED, None, NullObject(), 'Разрешение на владение гильдией'),
 
                 preference_record(1, PREFERENCE_TYPE.MOB),
                 preference_record(2, PREFERENCE_TYPE.PLACE),
@@ -47,8 +47,8 @@ class PERMANENT_PURCHASE_TYPE(DjangoEnum):
                 preference_record(10, PREFERENCE_TYPE.COMPANION_DEDICATION),
                 preference_record(11, PREFERENCE_TYPE.COMPANION_EMPATHY),
 
-                ('INFINIT_SUBSCRIPTION', 12, u'Вечная подписка',
-                 INFINIT_PREMIUM_DESCRIPTION, None, None, NullObject(), u'Вечная подписка'),
+                ('INFINIT_SUBSCRIPTION', 12, 'Вечная подписка',
+                 INFINIT_PREMIUM_DESCRIPTION, None, None, NullObject(), 'Вечная подписка'),
               )
 
 
@@ -58,15 +58,15 @@ class RANDOM_PREMIUM_CHEST_REWARD(DjangoEnum):
     arguments = Column(unique=False, no_index=True)
     hero_method = Column(unique=False)
 
-    records = ( ('NORMAL_ARTIFACT', 0, u'обычный артефакт', 60, u'случайный обычный артефакт (лучше среднего для текущего уровня героя)',
+    records = ( ('NORMAL_ARTIFACT', 0, 'обычный артефакт', 60, 'случайный обычный артефакт (лучше среднего для текущего уровня героя)',
                  {'rarity': RARITY.NORMAL, 'better': True}, 'purchase_artifact'),
-                ('ENERGY', 1, u'энергия',                   20, u'500 энергии',
+                ('ENERGY', 1, 'энергия',                   20, '500 энергии',
                  {'energy': 500}, 'purchase_energy_bonus'),
-                ('RARE_ARTIFACT', 2, u'редкий артефакт',    15, u'случайный редкий артефакт',
+                ('RARE_ARTIFACT', 2, 'редкий артефакт',    15, 'случайный редкий артефакт',
                  {'rarity': RARITY.RARE, 'better': False}, 'purchase_artifact'),
-                ('EXPERIENCE', 3, u'опыт',                  4,  u'1500 опыта',
+                ('EXPERIENCE', 3, 'опыт',                  4,  '1500 опыта',
                  {'experience': 1500}, 'purchase_experience'),
-                ('EPIC_ARTIFACT', 4, u'эпический артефакт', 1,  u'случайный эпический артефакт',
+                ('EPIC_ARTIFACT', 4, 'эпический артефакт', 1,  'случайный эпический артефакт',
                  {'rarity': RARITY.EPIC, 'better': False}, 'purchase_artifact'),)
 
 
@@ -74,14 +74,14 @@ class GOODS_GROUP(DjangoEnum):
     uid = Column()
     uid_prefix = Column(unique=False)
 
-    records = ( ('PREMIUM', 0, u'подписка', 'subscription', 'subscription-'),
-                ('ENERGY', 1, u'энергия', 'energy', 'energy-'),
-                ('CHEST', 2, u'сундук', 'random-premium-chest', 'random-premium-chest'),
-                ('PREFERENCES', 3, u'предпочтения', 'preference', 'preference-'),
+    records = ( ('PREMIUM', 0, 'подписка', 'subscription', 'subscription-'),
+                ('ENERGY', 1, 'энергия', 'energy', 'energy-'),
+                ('CHEST', 2, 'сундук', 'random-premium-chest', 'random-premium-chest'),
+                ('PREFERENCES', 3, 'предпочтения', 'preference', 'preference-'),
 
-                ('PREFERENCES_RESET', 4, u'сброс предпочтений', 'preference-reset','hero-preference-reset-'), # DEPRECATED
+                ('PREFERENCES_RESET', 4, 'сброс предпочтений', 'preference-reset','hero-preference-reset-'), # DEPRECATED
 
-                ('HABITS', 5, u'черты', 'habits', 'hero-habits-'),
-                ('ABILITIES', 6, u'способности', 'abilities', 'hero-abilities-'),
-                ('CLANS', 7, u'гильдии', 'clans', 'clan-'),
-                ('CARDS', 8, u'Карты судьбы', 'cards', 'cards-') )
+                ('HABITS', 5, 'черты', 'habits', 'hero-habits-'),
+                ('ABILITIES', 6, 'способности', 'abilities', 'hero-abilities-'),
+                ('CLANS', 7, 'гильдии', 'clans', 'clan-'),
+                ('CARDS', 8, 'Карты судьбы', 'cards', 'cards-') )

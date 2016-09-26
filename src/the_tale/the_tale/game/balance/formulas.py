@@ -21,9 +21,9 @@ def hp_on_lvl(lvl): return int(c.INITIAL_HP + c.HP_PER_LVL * (lvl - 1)) # здо
 
 def turns_on_lvl(lvl):  return int(hours_to_turns(time_on_lvl(lvl))) # количество ходов, которое герой проведёт на уровне
 
-def total_time_for_lvl(lvl): return float(sum(time_on_lvl(x) for x in xrange(1, lvl))) # общее время, затрачиваемое героем на достижение уровня (с 1-ого)
+def total_time_for_lvl(lvl): return float(sum(time_on_lvl(x) for x in range(1, lvl))) # общее время, затрачиваемое героем на достижение уровня (с 1-ого)
 
-def total_exp_to_lvl(lvl): return int(sum(exp_on_lvl(x) for x in xrange(1, lvl+1))) # общий опыт, получаемые героем для стижения уровня (с 1-ого)
+def total_exp_to_lvl(lvl): return int(sum(exp_on_lvl(x) for x in range(1, lvl+1))) # общий опыт, получаемые героем для стижения уровня (с 1-ого)
 
 def lvl_after_time(time):
     total_exp = c.EXP_PER_HOUR * time
@@ -46,7 +46,7 @@ def expected_damage_to_mob_per_hit(lvl): return float(mob_hp_to_lvl(lvl) * c.DAM
 # таким образом, нет необходимости поддерживать добычу для каждого моба для каждого уровня, достаточно по одному предмету каждого качества,
 # а остальное по мере фантазии чисто для разнообразия
 def normal_loot_cost_at_lvl(lvl): return  int(c.NORMAL_LOOT_COST * math.log(lvl, 1.3)) + 1
-def medium_loot_cost_at_lvl(lvl): return sum(normal_loot_cost_at_lvl(i) for i in xrange(1, lvl+1)) / lvl
+def medium_loot_cost_at_lvl(lvl): return sum(normal_loot_cost_at_lvl(i) for i in range(1, lvl+1)) / lvl
 
 # при рассчётах принимаем, что герой будет встречать мобов разных уровней с одинаковой вероятностью
 def expected_gold_in_day(lvl):
@@ -58,7 +58,7 @@ def sell_artifact_price(lvl): return 1 + int((expected_gold_in_day(lvl) * c.INCO
 
 def total_gold_at_lvl(lvl):
     top_level = int(math.floor(lvl))
-    before_level = int(sum(expected_gold_in_day(x) * time_on_lvl(x)/24 for x in xrange(1, top_level)))
+    before_level = int(sum(expected_gold_in_day(x) * time_on_lvl(x)/24 for x in range(1, top_level)))
     on_level = (expected_gold_in_day(top_level+1) * time_on_lvl(top_level+1)/24) * (lvl - top_level)
     return before_level + on_level
 

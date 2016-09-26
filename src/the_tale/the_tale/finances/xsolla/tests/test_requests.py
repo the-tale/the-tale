@@ -32,7 +32,7 @@ class BaseRequestsTests(testcase.TestCase):
 
 
     def construct_answer(self, check_result):
-        answer = u'''<?xml version="1.0" encoding="windows-1251"?>
+        answer = '''<?xml version="1.0" encoding="windows-1251"?>
 <response>
     <result>%(xsolla_result)s</result>
     <comment>%(comment)s</comment>
@@ -130,7 +130,7 @@ class PayRequestsTests(BaseRequestsTests):
     def construct_pay_answer(self, pay_result, internal_id, **kwargs):
         xsolla_id = kwargs.get('xsolla_id', self.xsolla_id)
         payment_sum = kwargs.get('payment_sum', self.payment_sum)
-        answer = u'''<?xml version="1.0" encoding="windows-1251"?>
+        answer = '''<?xml version="1.0" encoding="windows-1251"?>
 <response>
     <id>%(xsolla_id)s</id>
     <id_shop>%(internal_id)s</id_shop>

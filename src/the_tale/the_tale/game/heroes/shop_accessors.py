@@ -40,5 +40,5 @@ class ShopAccessorsMixin(object):
         return artifact
 
     def purchase_card(self, card_type, count):
-        for i in xrange(count):
+        for i in range(count):
             self.cards.add_card(cards_objects.Card(card_type, available_for_auction=True))

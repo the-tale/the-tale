@@ -74,7 +74,7 @@ class RacesTests(testcase.TestCase):
         self.p1.persons[2].politic_power.outer_power = 0
         self.p1.persons[2].politic_power.inner_power = 0
 
-        for i in xrange(10000):
+        for i in range(10000):
             self.p1.races.update(self.p1.persons)
 
         self.assertTrue(0.66 < self.p1.races.get_race_percents(RACE.ORC) < 0.67)
@@ -90,7 +90,7 @@ class RacesTests(testcase.TestCase):
 
         next_races = self.p1.races.get_next_races(persons=self.p1.persons)
 
-        for percents in next_races.values():
+        for percents in list(next_races.values()):
             self.assertTrue(percents >= 0)
 
 

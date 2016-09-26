@@ -14,26 +14,26 @@ class ComplexChangeTask(PostponedLogic):
     TYPE = None
 
     class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, u'в очереди'),
-                    ('PROCESSED', 2, u'обработано'),
-                    ('HERO_CONDITIONS_NOT_PASSED', 3, u'не выполнены условия для героя'),
-                    ('CAN_NOT_PROCESS', 4, u'не удалось обработать'),
-                    ('BANNED', 5, u'игрок забанен') )
+        records = ( ('UNPROCESSED', 1, 'в очереди'),
+                    ('PROCESSED', 2, 'обработано'),
+                    ('HERO_CONDITIONS_NOT_PASSED', 3, 'не выполнены условия для героя'),
+                    ('CAN_NOT_PROCESS', 4, 'не удалось обработать'),
+                    ('BANNED', 5, 'игрок забанен') )
 
 
     class STEP(DjangoEnum):
-        records = ( ('ERROR', 0, u'ошибка'),
-                    ('LOGIC', 1, u'логика'),
-                    ('HIGHLEVEL', 2, u'высокоуровневая логика'),
-                    ('PVP_BALANCER', 3, u'pvp балансировщик'),
-                    ('SUCCESS', 4, u'обработка завершена') )
+        records = ( ('ERROR', 0, 'ошибка'),
+                    ('LOGIC', 1, 'логика'),
+                    ('HIGHLEVEL', 2, 'высокоуровневая логика'),
+                    ('PVP_BALANCER', 3, 'pvp балансировщик'),
+                    ('SUCCESS', 4, 'обработка завершена') )
 
 
     class RESULT(DjangoEnum):
-        records = ( ('SUCCESSED', 0, u'успешно'),
-                    ('FAILED', 1, u'ошибка'),
-                    ('CONTINUE', 2, u'продолжить'),
-                    ('IGNORE', 3, u'игнорировать способность'))
+        records = ( ('SUCCESSED', 0, 'успешно'),
+                    ('FAILED', 1, 'ошибка'),
+                    ('CONTINUE', 2, 'продолжить'),
+                    ('IGNORE', 3, 'игнорировать способность'))
 
     def construct_processor(self):
         raise NotImplementedError()
@@ -136,7 +136,7 @@ class ComplexChangeTask(PostponedLogic):
             if result.is_CONTINUE:
                 return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
 
-            main_task.comment = u'unknown result %r' % result
+            main_task.comment = 'unknown result %r' % result
             self.state = self.STATE.CAN_NOT_PROCESS
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -166,6 +166,6 @@ class ComplexChangeTask(PostponedLogic):
             if result.is_CONTINUE:
                 return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
 
-            main_task.comment = u'unknown result %r' % result
+            main_task.comment = 'unknown result %r' % result
             self.state = self.STATE.CAN_NOT_PROCESS
             return POSTPONED_TASK_LOGIC_RESULT.ERROR

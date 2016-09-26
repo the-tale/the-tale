@@ -4,7 +4,7 @@ from the_tale.common.utils.exceptions import TheTaleError
 
 
 class ThirdPartyError(TheTaleError):
-    MSG = u'third party error'
+    MSG = 'third party error'
 
 class UnkwnownAuthorisationStateError(ThirdPartyError):
-    MSG = u'unknown authorisation state: %(state)s'
+    MSG = 'unknown authorisation state: %(state)s'

@@ -31,7 +31,7 @@ class Invoice(models.Model):
     xsolla_v2 = models.CharField(max_length=XSOLLA_V2_MAX_LENGTH, null=True)
     xsolla_v3 = models.CharField(max_length=XSOLLA_V3_MAX_LENGTH, null=True)
 
-    comment = models.CharField(max_length=COMMENT_MAX_LENGTH, null=False, default=u'')
+    comment = models.CharField(max_length=COMMENT_MAX_LENGTH, null=False, default='')
 
     pay_result = RelationIntegerField(null=True, relation=PAY_RESULT, relation_column='value', db_index=True)
 

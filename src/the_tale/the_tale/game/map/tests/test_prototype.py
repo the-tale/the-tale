@@ -22,8 +22,8 @@ class PrototypeTests(TestCase):
         coordinates.update(dict( ((x, y), self.place_2.id) for x, y in self.place_2.nearest_cells))
         coordinates.update(dict( ((x, y), self.place_3.id) for x, y in self.place_3.nearest_cells))
 
-        for y in xrange(map_settings.HEIGHT):
-            for x in xrange(map_settings.WIDTH):
+        for y in range(map_settings.HEIGHT):
+            for x in range(map_settings.WIDTH):
                 place_id = coordinates.get((x, y))
                 if place_id is None:
                     self.assertEqual(map_info.get_dominant_place(x, y), None)

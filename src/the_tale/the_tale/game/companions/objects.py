@@ -272,7 +272,7 @@ class CompanionRecord(names.ManageNameMixin):
 
 
     def rarity_points(self):
-        points = [(u'здоровье', float(self.max_health - c.COMPANIONS_MEDIUM_HEALTH) / (c.COMPANIONS_MEDIUM_HEALTH - c.COMPANIONS_MIN_HEALTH) * 1)]
+        points = [('здоровье', float(self.max_health - c.COMPANIONS_MEDIUM_HEALTH) / (c.COMPANIONS_MEDIUM_HEALTH - c.COMPANIONS_MIN_HEALTH) * 1)]
 
         # dedication does not affect rarity ?
 

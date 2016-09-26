@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import re
 import json
@@ -159,7 +159,7 @@ REMOVED_TEXT = [
 
 def processor(text):
     for removed_text in REMOVED_TEXT:
-        text = text.replace(removed_text, u'')
+        text = text.replace(removed_text, '')
 
     return text.strip()
 

@@ -23,8 +23,8 @@ class EffectsTests(testcase.TestCase):
 
         artifacts_storage.sync(force=True)
 
-        self.artifact = self.hero.equipment.values()[0]
-        self.artifact_2 = self.hero.equipment.values()[1]
+        self.artifact = list(self.hero.equipment.values())[0]
+        self.artifact_2 = list(self.hero.equipment.values())[1]
 
 
     def test_all_effects_declared(self):
@@ -33,7 +33,7 @@ class EffectsTests(testcase.TestCase):
 
 
     def test_no_undeclared_effects(self):
-        for effect in effects.EFFECTS.values():
+        for effect in list(effects.EFFECTS.values()):
             self.assertTrue(effect.TYPE in relations.ARTIFACT_EFFECT.records)
 
     def _set_effect(self, effect):

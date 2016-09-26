@@ -286,7 +286,7 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
 
     def test_profile_update_settings__description(self):
         self.request_login(self.account.email)
-        self.assertEqual(self.account.description, u'')
+        self.assertEqual(self.account.description, '')
         response = self.client.post(reverse('accounts:profile:update-settings'), {'description': 'new-description'})
         self.assertEqual(AccountPrototype.get_by_id(self.account.id).description, 'new-description')
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})

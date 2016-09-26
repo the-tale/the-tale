@@ -34,7 +34,7 @@ class Achievement(models.Model):
     item_3 = models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
 
     class Meta:
-        permissions = (('edit_achievement', u'Может создавать и редактировать достижения'),)
+        permissions = (('edit_achievement', 'Может создавать и редактировать достижения'),)
 
 
 

@@ -12,12 +12,12 @@ from the_tale.accounts.third_party import prototypes
 
 
 class HANDLE_THIRD_PARTY_RESULT(DjangoEnum):
-    records = ( ('NO_ACCESS_TOKEN', 0, u'для сессии не указан токен доступа'),
-                ('ACCESS_TOKEN_REJECTED__LOGOUT', 1, u'токен доступа удалён, пользователь разлогинен'),
-                ('ACCESS_TOKEN_REJECTED', 2, u'токен доступа удалён, пользователь не был залогинен'),
-                ('ACCESS_TOKEN_ACCEPTED__USER_LOGED_IN', 3, u'токен доступа активен, пользователь залогинен'),
-                ('ACCESS_TOKEN_ACCEPTED', 4, u'токен доступа активен, пользователь уже залогинен'),
-                ('ACCESS_TOKEN_NOT_ACCEPTED_YET', 5, u'токен доступа ещё не одобрен пользователем') )
+    records = ( ('NO_ACCESS_TOKEN', 0, 'для сессии не указан токен доступа'),
+                ('ACCESS_TOKEN_REJECTED__LOGOUT', 1, 'токен доступа удалён, пользователь разлогинен'),
+                ('ACCESS_TOKEN_REJECTED', 2, 'токен доступа удалён, пользователь не был залогинен'),
+                ('ACCESS_TOKEN_ACCEPTED__USER_LOGED_IN', 3, 'токен доступа активен, пользователь залогинен'),
+                ('ACCESS_TOKEN_ACCEPTED', 4, 'токен доступа активен, пользователь уже залогинен'),
+                ('ACCESS_TOKEN_NOT_ACCEPTED_YET', 5, 'токен доступа ещё не одобрен пользователем') )
 
 
 class ThirdPartyMiddleware(object):

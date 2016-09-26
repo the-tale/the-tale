@@ -44,7 +44,7 @@ class TestsBase(testcase.TestCase):
 
 
     def set_hero_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
         self.hero.set_companion(companion)
 
@@ -77,7 +77,7 @@ class BattleTests(TestsBase):
         hit_selected = False
         run_up_push_selected = False
         vampire_strike_selected = False
-        for i in xrange(100):
+        for i in range(100):
             ability = actor.choose_ability()
 
             if ability.get_id() == HIT.get_id():
@@ -95,7 +95,7 @@ class BattleTests(TestsBase):
 
     def test_choose_ability__additional_abilities(self):
         from the_tale.game.heroes.habilities import ABILITIES
-        all_abilities = [ability(level=ability.MAX_LEVEL) for ability in ABILITIES.values()]
+        all_abilities = [ability(level=ability.MAX_LEVEL) for ability in list(ABILITIES.values())]
 
         active_abilities = set(ability.get_id() for ability in all_abilities if ability.activation_type.is_ACTIVE)
 
@@ -106,7 +106,7 @@ class BattleTests(TestsBase):
         chosen_abilities = set()
 
         with mock.patch('the_tale.game.heroes.objects.Hero.additional_abilities', all_abilities):
-            for i in xrange(1000):
+            for i in range(1000):
                 chosen_abilities.add(actor.choose_ability().get_id())
 
         self.assertEqual(active_abilities, chosen_abilities)
@@ -125,12 +125,12 @@ class BattleTests(TestsBase):
         companion_ability = random.choice(abilities)
 
         all_abilities = [ability(level=ability.MAX_LEVEL)
-                         for ability in ABILITIES.values()
+                         for ability in list(ABILITIES.values())
                          if ability.get_id() != companion_ability.effect.ABILITY.get_id()]
 
-        active_abilities = set(ability.get_id() for ability in ABILITIES.values() if ability.ACTIVATION_TYPE.is_ACTIVE)
+        active_abilities = set(ability.get_id() for ability in list(ABILITIES.values()) if ability.ACTIVATION_TYPE.is_ACTIVE)
 
-        companion_record = companions_logic.create_random_companion_record(u'battle',
+        companion_record = companions_logic.create_random_companion_record('battle',
                                                                            abilities=abilities_container.Container(start=(companion_ability,)),
                                                                            state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(companion_record))
@@ -147,7 +147,7 @@ class BattleTests(TestsBase):
             return value
 
         with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.modify_attribute', modify_attribute):
-            for i in xrange(1000):
+            for i in range(1000):
                 chosen_abilities.add(actor.choose_ability().get_id())
 
         self.assertEqual(len(active_abilities), len(chosen_abilities) + 1)
@@ -185,7 +185,7 @@ class BattleTests(TestsBase):
         hit_selected = False
         run_up_push_selected = False
         vampire_strike_selected = False
-        for i in xrange(100):
+        for i in range(100):
             ability = actor.choose_ability()
 
             if ability.get_id() == HIT.get_id():
@@ -220,7 +220,7 @@ class BattleTests(TestsBase):
 
     def check_first_strike(self, actor_1, actor_2, turn, expected_actors):
         with mock.patch('the_tale.game.actions.battle.strike') as strike:
-            for i in xrange(100):
+            for i in range(100):
                 actor_1.context.turn = turn
                 actor_2.context.turn = turn
                 battle.make_turn(actor_1, actor_2, self.hero)

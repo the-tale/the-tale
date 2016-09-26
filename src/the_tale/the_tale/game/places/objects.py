@@ -186,7 +186,7 @@ class Place(names.ManageNameMixin2):
 
     def name_from(self, with_url=True):
         if with_url:
-            return u'<a href="%s" target="_blank">%s</a>' % (self.url, self.name)
+            return '<a href="%s" target="_blank">%s</a>' % (self.url, self.name)
 
         return self.name
 
@@ -234,26 +234,26 @@ class Place(names.ManageNameMixin2):
     def _effects_generator(self):
         from . import storage
 
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.TAX, value=0.0)
+        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.TAX, value=0.0)
 
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
+        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
 
         if len(self.persons) > c.PLACE_MAX_PERSONS:
-            yield effects.Effect(name=u'избыток Мастеров', attribute=relations.ATTRIBUTE.STABILITY, value=-0.25)
+            yield effects.Effect(name='избыток Мастеров', attribute=relations.ATTRIBUTE.STABILITY, value=-0.25)
 
         if self.races.dominant_race and self.race != self.races.dominant_race:
-            yield effects.Effect(name=u'расовая дискриминация', attribute=relations.ATTRIBUTE.STABILITY, value=-0.20)
+            yield effects.Effect(name='расовая дискриминация', attribute=relations.ATTRIBUTE.STABILITY, value=-0.20)
 
 
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
+        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
 
         # politic radius
-        yield effects.Effect(name=u'размер города', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * 0.625)
-        yield effects.Effect(name=u'культура', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * self.attrs.culture * 0.625)
+        yield effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * 0.625)
+        yield effects.Effect(name='культура', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * self.attrs.culture * 0.625)
 
         # terrain radius
-        yield effects.Effect(name=u'размер города', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * 0.5)
-        yield effects.Effect(name=u'культура', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * self.attrs.culture * 0.5)
+        yield effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * 0.5)
+        yield effects.Effect(name='культура', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * self.attrs.culture * 0.5)
 
         for effect in self.effects.effects:
             yield effect
@@ -263,7 +263,7 @@ class Place(names.ManageNameMixin2):
                 yield effect
 
         elif not self.modifier.is_NONE:
-            yield effects.Effect(name=u'Несоответствие специализации', attribute=relations.ATTRIBUTE.STABILITY, value=-c.PLACE_STABILITY_UNIT)
+            yield effects.Effect(name='Несоответствие специализации', attribute=relations.ATTRIBUTE.STABILITY, value=-c.PLACE_STABILITY_UNIT)
 
         for exchange in storage.resource_exchanges.get_exchanges_for_place(self):
             resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
@@ -277,37 +277,37 @@ class Place(names.ManageNameMixin2):
                                      value=resource_2.amount * resource_2.direction)
 
         # economic
-        yield effects.Effect(name=u'экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=f.place_goods_production(self.attrs.power_economic))
-        yield effects.Effect(name=u'потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-f.place_goods_consumption(self.attrs.size))
-        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
+        yield effects.Effect(name='экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=f.place_goods_production(self.attrs.power_economic))
+        yield effects.Effect(name='потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-f.place_goods_consumption(self.attrs.size))
+        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
 
         if self.attrs.get_next_keepers_goods_spend_amount():
-            yield effects.Effect(name=u'дары Хранителей', attribute=relations.ATTRIBUTE.PRODUCTION, value=self.attrs.get_next_keepers_goods_spend_amount())
+            yield effects.Effect(name='дары Хранителей', attribute=relations.ATTRIBUTE.PRODUCTION, value=self.attrs.get_next_keepers_goods_spend_amount())
 
         # safety
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.SAFETY, value=1.0)
-        yield effects.Effect(name=u'монстры', attribute=relations.ATTRIBUTE.SAFETY, value=-c.BATTLES_PER_TURN)
-        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.SAFETY, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)
+        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.SAFETY, value=1.0)
+        yield effects.Effect(name='монстры', attribute=relations.ATTRIBUTE.SAFETY, value=-c.BATTLES_PER_TURN)
+        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.SAFETY, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)
 
         if self.is_frontier:
-            yield effects.Effect(name=u'дикие земли', attribute=relations.ATTRIBUTE.SAFETY, value=-c.WHILD_BATTLES_PER_TURN_BONUS)
+            yield effects.Effect(name='дикие земли', attribute=relations.ATTRIBUTE.SAFETY, value=-c.WHILD_BATTLES_PER_TURN_BONUS)
 
         # transport
-        yield effects.Effect(name=u'дороги', attribute=relations.ATTRIBUTE.TRANSPORT, value=1.0)
-        yield effects.Effect(name=u'трафик', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.attrs.size)
+        yield effects.Effect(name='дороги', attribute=relations.ATTRIBUTE.TRANSPORT, value=1.0)
+        yield effects.Effect(name='трафик', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.attrs.size)
 
         if self.is_frontier:
-            yield effects.Effect(name=u'бездорожье', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.WHILD_TRANSPORT_PENALTY)
+            yield effects.Effect(name='бездорожье', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.WHILD_TRANSPORT_PENALTY)
 
-        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.TRANSPORT, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)
+        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.TRANSPORT, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)
 
         # freedom
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
-        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.FREEDOM, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
+        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
+        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.FREEDOM, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
 
         # culture
-        yield effects.Effect(name=u'город', attribute=relations.ATTRIBUTE.CULTURE, value=1.0)
-        yield effects.Effect(name=u'стабильность', attribute=relations.ATTRIBUTE.CULTURE, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_CULTURE_PENALTY)
+        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.CULTURE, value=1.0)
+        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.CULTURE, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_CULTURE_PENALTY)
 
         for person in self.persons:
             for effect in person.place_effects():
@@ -336,21 +336,21 @@ class Place(names.ManageNameMixin2):
 
         if relations.ATTRIBUTE.SAFETY.order == order:
             if safety < c.PLACE_MIN_SAFETY:
-                yield effects.Effect(name=u'Серый Орден', attribute=relations.ATTRIBUTE.SAFETY, value=c.PLACE_MIN_SAFETY - safety)
+                yield effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.SAFETY, value=c.PLACE_MIN_SAFETY - safety)
 
         if relations.ATTRIBUTE.TRANSPORT.order == order:
             if transport < c.PLACE_MIN_TRANSPORT:
-                yield effects.Effect(name=u'Серый Орден', attribute=relations.ATTRIBUTE.TRANSPORT, value=c.PLACE_MIN_TRANSPORT - transport)
+                yield effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.TRANSPORT, value=c.PLACE_MIN_TRANSPORT - transport)
 
         if relations.ATTRIBUTE.STABILITY.order == order:
             if stability < c.PLACE_MIN_STABILITY:
-                yield effects.Effect(name=u'Серый Орден', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_MIN_STABILITY - stability)
+                yield effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_MIN_STABILITY - stability)
             if stability > 1:
-                yield effects.Effect(name=u'демоны', attribute=relations.ATTRIBUTE.STABILITY, value=1 - stability)
+                yield effects.Effect(name='демоны', attribute=relations.ATTRIBUTE.STABILITY, value=1 - stability)
 
         if relations.ATTRIBUTE.CULTURE.order == order:
             if culture < c.PLACE_MIN_CULTURE:
-                yield effects.Effect(name=u'Бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
+                yield effects.Effect(name='Бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
 
 
     def effects_for_attribute(self, attribute):

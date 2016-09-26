@@ -14,7 +14,7 @@ from the_tale.game.bills.bills.base_bill import BaseBill
 
 
 class BaseForm(BaseUserForm):
-    declined_bill = fields.TypedChoiceField(label=u'Отменяемый закон', coerce=int)
+    declined_bill = fields.TypedChoiceField(label='Отменяемый закон', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -25,7 +25,7 @@ class BaseForm(BaseUserForm):
         cleaned_data = super(BaseForm, self).clean()
 
         if 'declined_bill' not in cleaned_data or not places_storage.resource_exchanges.get_exchange_for_bill_id(cleaned_data['declined_bill']):
-            raise ValidationError(u'Закон уже не действует или не может быть отменён')
+            raise ValidationError('Закон уже не действует или не может быть отменён')
 
         return cleaned_data
 
@@ -44,8 +44,8 @@ class BillDecline(BaseBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Отмена действующего закона'
-    DESCRIPTION = u'Отменяет действующий в текущий момент закон'
+    CAPTION = 'Отмена действующего закона'
+    DESCRIPTION = 'Отменяет действующий в текущий момент закон'
 
     def __init__(self, declined_bill_id=None):
         super(BillDecline, self).__init__()

@@ -37,8 +37,8 @@ class PremiumDaysTests(testcase.TestCase):
         self.hero = heroes_logic.load_hero(account_id=self.account.id)
 
         self.purchase = PremiumDays(uid='premium-days-uid',
-                                    name=u'premium-days-name',
-                                    description=u'premium-days-description',
+                                    name='premium-days-name',
+                                    description='premium-days-description',
                                     cost=int(self.cost / payments_settings.GLOBAL_COST_MULTIPLIER),
                                     days=self.days,
                                     transaction_description='premium-days-transaction-description')
@@ -47,9 +47,9 @@ class PremiumDaysTests(testcase.TestCase):
         self.assertEqual(self.purchase.uid, 'premium-days-uid')
         self.assertEqual(self.purchase.days, self.days)
         self.assertEqual(self.purchase.cost, self.cost)
-        self.assertEqual(self.purchase.name, u'premium-days-name')
-        self.assertEqual(self.purchase.description, u'premium-days-description')
-        self.assertEqual(self.purchase.transaction_description, u'premium-days-transaction-description')
+        self.assertEqual(self.purchase.name, 'premium-days-name')
+        self.assertEqual(self.purchase.description, 'premium-days-description')
+        self.assertEqual(self.purchase.transaction_description, 'premium-days-transaction-description')
 
     def test_buy__fast_account(self):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
@@ -90,8 +90,8 @@ class PremiumDaysTests(testcase.TestCase):
         self.assertEqual(invoice.sender_id, 0)
         self.assertEqual(invoice.currency, CURRENCY_TYPE.PREMIUM)
         self.assertEqual(invoice.amount, -self.cost)
-        self.assertEqual(invoice.description_for_sender, u'premium-days-transaction-description')
-        self.assertEqual(invoice.description_for_recipient, u'premium-days-transaction-description')
+        self.assertEqual(invoice.description_for_sender, 'premium-days-transaction-description')
+        self.assertEqual(invoice.description_for_recipient, 'premium-days-transaction-description')
 
 
     def test_is_purchasable(self):
@@ -119,21 +119,21 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=self.account.id)
 
-        self.purchase = PermanentPurchase(uid=u'clan-creation-rights',
+        self.purchase = PermanentPurchase(uid='clan-creation-rights',
                                           name=self.PURCHASE_TYPE.text,
                                           description=self.PURCHASE_TYPE.description,
                                           cost=int(self.cost / payments_settings.GLOBAL_COST_MULTIPLIER),
                                           purchase_type=self.PURCHASE_TYPE,
-                                          transaction_description=u'clan-creation-rights')
+                                          transaction_description='clan-creation-rights')
 
 
     def test_create(self):
-        self.assertEqual(self.purchase.uid, u'clan-creation-rights')
+        self.assertEqual(self.purchase.uid, 'clan-creation-rights')
         self.assertEqual(self.purchase.purchase_type, self.PURCHASE_TYPE)
         self.assertEqual(self.purchase.cost, self.cost)
         self.assertEqual(self.purchase.name, self.PURCHASE_TYPE.text)
         self.assertEqual(self.purchase.description, self.PURCHASE_TYPE.description)
-        self.assertEqual(self.purchase.transaction_description, u'clan-creation-rights')
+        self.assertEqual(self.purchase.transaction_description, 'clan-creation-rights')
 
     def test_buy__fast_account(self):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
@@ -174,8 +174,8 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.assertEqual(invoice.sender_id, 0)
         self.assertEqual(invoice.currency, CURRENCY_TYPE.PREMIUM)
         self.assertEqual(invoice.amount, -self.cost)
-        self.assertEqual(invoice.description_for_sender, u'clan-creation-rights')
-        self.assertEqual(invoice.description_for_recipient, u'clan-creation-rights')
+        self.assertEqual(invoice.description_for_sender, 'clan-creation-rights')
+        self.assertEqual(invoice.description_for_recipient, 'clan-creation-rights')
 
     def test_is_purchasable(self):
         self.assertTrue(self.purchase.is_purchasable(self.account, self.hero))

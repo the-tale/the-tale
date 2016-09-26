@@ -4,11 +4,11 @@ from the_tale.statistics import exceptions
 
 
 class MetricsError(exceptions.StatisticsError):
-    MSG = u'metrics error'
+    MSG = 'metrics error'
 
 
 class UnequalDatesError(MetricsError):
-    MSG = u'unequal dates'
+    MSG = 'unequal dates'
 
 class ValuesCompletedError(MetricsError):
-    MSG = u'values already completed, metric must be reinitialized'
+    MSG = 'values already completed, metric must be reinitialized'

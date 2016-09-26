@@ -33,7 +33,7 @@ class MobRecord(models.Model):
 
     name = models.CharField(max_length=MAX_NAME_LENGTH, unique=True, null=False, db_index=True)
 
-    description = models.TextField(null=False, default=u'')
+    description = models.TextField(null=False, default='')
 
     abilities = models.TextField(null=False)
 
@@ -48,5 +48,5 @@ class MobRecord(models.Model):
     intellect_level = RelationIntegerField(relation=game_relations.INTELLECT_LEVEL, db_index=True)
 
     class Meta:
-        permissions = (("create_mobrecord", u"Может предлагать мобов"),
-                       ("moderate_mobrecord", u"Может утверждать мобов"),)
+        permissions = (("create_mobrecord", "Может предлагать мобов"),
+                       ("moderate_mobrecord", "Может утверждать мобов"),)

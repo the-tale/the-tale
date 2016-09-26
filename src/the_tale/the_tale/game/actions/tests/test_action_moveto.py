@@ -120,7 +120,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_fly_probability', 1.0)
     def test_teleport_by_flying_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -135,7 +135,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_teleport_probability', 1.0)
     def test_teleport_by_teleportator_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.assertEqual(self.action_move.state, self.action_move.STATE.CHOOSE_ROAD)
@@ -151,7 +151,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_teleport_probability', 1.0)
     def test_teleport_by_teleportator_companion__not_moving_state(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.assertEqual(self.action_move.state, self.action_move.STATE.CHOOSE_ROAD)
@@ -351,7 +351,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
     @mock.patch('the_tale.game.companions.objects.Companion.need_heal', True)
     def test_hero_need_heal_companion(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)
@@ -370,7 +370,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
     def test_hero_need_heal_companion__battle(self):
         self.action_move.state = self.action_move.STATE.BATTLE
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)
@@ -402,7 +402,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_say_wisdom', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_EXP_PER_MOVE_PROBABILITY', 1.0)
     def test_companion_say_wisdom(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.storage.process_turn(continue_steps_if_needed=False)

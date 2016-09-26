@@ -32,25 +32,25 @@ from the_tale.linguistics.lexicon import keys
 
 class WordsIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
-                list_filter.static_element(u'автор:', attribute='contributor'),
-                list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
-                list_filter.choice_element(u'часть речи:', attribute='type', choices=[(None, u'все')] + list(relations.ALLOWED_WORD_TYPE.select('value', 'text')) ),
-                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.WORD_STATE.select('value', 'text'))),
-                list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
+                list_filter.static_element('автор:', attribute='contributor'),
+                list_filter.filter_element('поиск:', attribute='filter', default_value=None),
+                list_filter.choice_element('часть речи:', attribute='type', choices=[(None, 'все')] + list(relations.ALLOWED_WORD_TYPE.select('value', 'text')) ),
+                list_filter.choice_element('состояние:', attribute='state', choices=[(None, 'все')] + list(relations.WORD_STATE.select('value', 'text'))),
+                list_filter.choice_element('сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
                                            default_value=relations.INDEX_ORDER_BY.UPDATED_AT.value),
-                list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
+                list_filter.static_element('количество:', attribute='count', default_value=0) ]
 
 
 class TemplatesIndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
-                list_filter.static_element(u'автор:', attribute='contributor'),
-                list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
-                list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
-                list_filter.choice_element(u'наличие ошибок:', attribute='errors_status', choices=[(None, u'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
-                list_filter.choice_element(u'сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
+                list_filter.static_element('автор:', attribute='contributor'),
+                list_filter.filter_element('поиск:', attribute='filter', default_value=None),
+                list_filter.choice_element('состояние:', attribute='state', choices=[(None, 'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
+                list_filter.choice_element('наличие ошибок:', attribute='errors_status', choices=[(None, 'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
+                list_filter.choice_element('сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
                                            default_value=relations.INDEX_ORDER_BY.UPDATED_AT.value),
-                list_filter.static_element(u'количество:', attribute='count', default_value=0),
-                list_filter.choice_element(u'ограничение:', attribute='restriction', choices=storage.restrictions_storage.get_form_choices) ]
+                list_filter.static_element('количество:', attribute='count', default_value=0),
+                list_filter.choice_element('ограничение:', attribute='restriction', choices=storage.restrictions_storage.get_form_choices) ]
 
 
 
@@ -100,10 +100,10 @@ class LinguisticsResource(Resource):
 
 class WordResource(Resource):
 
-    @validator(code='linguistics.words.moderation_rights', message=u'У вас нет прав для модерации слова')
+    @validator(code='linguistics.words.moderation_rights', message='У вас нет прав для модерации слова')
     def moderation_word_rights(self, *args, **kwargs): return self.can_moderate_words
 
-    @validate_argument('word', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', u'неверный идентификатор слова')
+    @validate_argument('word', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', 'неверный идентификатор слова')
     def initialize(self, word=None, *args, **kwargs):
         super(WordResource, self).initialize(*args, **kwargs)
         self.word = word
@@ -111,10 +111,10 @@ class WordResource(Resource):
         self.can_edit_words = self.account.is_authenticated() and not self.account.is_fast
         self.can_be_removed_by_owner = self.word and self.word.state.is_ON_REVIEW and self.account.is_authenticated() and self.account.id == self.word.author_id
 
-    @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.words', u'неверный сооавтор')
-    @validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', u'неверное состояние слова')
-    @validate_argument('type', lambda v: relations.ALLOWED_WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова')
-    @validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.words', u'неверный тип сортировки')
+    @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.words', 'неверный сооавтор')
+    @validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', 'неверное состояние слова')
+    @validate_argument('type', lambda v: relations.ALLOWED_WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова')
+    @validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.words', 'неверный тип сортировки')
     @handler('', method='get')
     def index(self, page=1, state=None, type=None, filter=None, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
 
@@ -166,7 +166,7 @@ class WordResource(Resource):
         words = prototypes.WordPrototype.from_query(words_query[words_from:words_to])
 
         authors = {account.id: account for account in AccountPrototype.from_query(AccountPrototype.get_list_by_id([word.author_id for word in words]))}
-        clans = {clan.id: clan for clan in ClanPrototype.from_query(ClanPrototype.get_list_by_id([author.clan_id for author in authors.itervalues()]))}
+        clans = {clan.id: clan for clan in ClanPrototype.from_query(ClanPrototype.get_list_by_id([author.clan_id for author in authors.values()]))}
 
 
         return self.template('linguistics/words/index.html',
@@ -182,21 +182,21 @@ class WordResource(Resource):
     @login_required
     @validate_fast_account()
     @validate_ban_forum()
-    @validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', u'неверный идентификатор слова')
-    @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова', required=True)
+    @validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', 'неверный идентификатор слова')
+    @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова', required=True)
     @handler('new', method='get')
     def new(self, type, parent=None):
 
         if parent and type != parent.type:
-            return self.auto_error('linguistics.words.new.unequal_types', u'Не совпадает тип создаваемого слова и тип слова-родителя')
+            return self.auto_error('linguistics.words.new.unequal_types', 'Не совпадает тип создаваемого слова и тип слова-родителя')
 
         if parent and parent.has_child():
             return self.auto_error('linguistics.words.new.has_on_review_copy',
-                                   u'Для этого слова уже создана улучшенная копия. Отредактируйте её или подождите, пока её примут в игру.')
+                                   'Для этого слова уже создана улучшенная копия. Отредактируйте её или подождите, пока её примут в игру.')
 
         if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id and not self.can_moderate_words:
             return self.auto_error('linguistics.words.new.can_not_edit_anothers_word',
-                                   u'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите, пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите, пока его проверит модератор.')
 
         FormClass = forms.WORD_FORMS[type]
 
@@ -215,21 +215,21 @@ class WordResource(Resource):
     @login_required
     @validate_fast_account()
     @validate_ban_forum()
-    @validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', u'неверный идентификатор слова')
-    @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', u'неверный тип слова', required=True)
+    @validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', 'неверный идентификатор слова')
+    @validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова', required=True)
     @handler('create', method='post')
     def create(self, type, parent=None):
 
         if parent and type != parent.type:
-            return self.json_error('linguistics.words.create.unequal_types', u'Не совпадает тип создаваемого слова и тип слова-родителя')
+            return self.json_error('linguistics.words.create.unequal_types', 'Не совпадает тип создаваемого слова и тип слова-родителя')
 
         if parent and parent.has_child():
             return self.auto_error('linguistics.words.create.has_on_review_copy',
-                                   u'Для этого слова уже создана улучшенная копия. Отредактируйте её (если вы её автор) или подождите, пока её проверит модератор.')
+                                   'Для этого слова уже создана улучшенная копия. Отредактируйте её (если вы её автор) или подождите, пока её проверит модератор.')
 
         if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id and not self.can_moderate_words:
             return self.auto_error('linguistics.words.create.can_not_edit_anothers_word',
-                                   u'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите пока его проверит модератор.')
 
         form = forms.WORD_FORMS[type](self.request.POST)
 
@@ -240,10 +240,10 @@ class WordResource(Resource):
 
         if parent is None and prototypes.WordPrototype._db_filter(normal_form=new_word.normal_form(), type=type).exists():
             return self.json_error('linguistics.words.create.parent_exists',
-                                   u'Такое слово уже существует и вы не можете создать аналогичное. Вместо этого отредактируйте существующее.')
+                                   'Такое слово уже существует и вы не можете создать аналогичное. Вместо этого отредактируйте существующее.')
 
         if parent and parent.utg_word == new_word:
-            return self.json_error('linguistics.words.create.full_copy_restricted', u'Вы пытаетесь создать полную копию слова, в этом нет необходимости.')
+            return self.json_error('linguistics.words.create.full_copy_restricted', 'Вы пытаетесь создать полную копию слова, в этом нет необходимости.')
 
         with transaction.atomic():
             removed_word = None
@@ -313,8 +313,8 @@ class WordResource(Resource):
             existed_query = existed_query.exclude(id=parent.id)
 
         if existed_query.exists():
-            return self.json_error(u'linguistics.words.in_game.conflict_with_not_parent',
-                                   u'Вы не можете переместить слово в игру. Уже есть слово с аналогичной нормальной формой и не являющееся родителем текущего слова.')
+            return self.json_error('linguistics.words.in_game.conflict_with_not_parent',
+                                   'Вы не можете переместить слово в игру. Уже есть слово с аналогичной нормальной формой и не являющееся родителем текущего слова.')
 
         with transaction.atomic():
             if parent:
@@ -346,7 +346,7 @@ class WordResource(Resource):
     def remove(self):
 
         if not (self.can_moderate_words or self.can_be_removed_by_owner):
-            return self.json_error('linguistics.words.remove.no_rights', u'Удалить слово может только модератор либо автор слова, если оно не находится в игре.')
+            return self.json_error('linguistics.words.remove.no_rights', 'Удалить слово может только модератор либо автор слова, если оно не находится в игре.')
 
         with transaction.atomic():
             prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
@@ -399,13 +399,13 @@ class WordResource(Resource):
 
 class TemplateResource(Resource):
 
-    @validator(code='linguistics.templates.moderation_rights', message=u'У вас нет прав для модерации шаблонов')
+    @validator(code='linguistics.templates.moderation_rights', message='У вас нет прав для модерации шаблонов')
     def moderation_template_rights(self, *args, **kwargs): return self.can_moderate_templates
 
-    @validator(code='linguistics.templates.edition_rights', message=u'У вас нет прав для редактирования шаблонов')
+    @validator(code='linguistics.templates.edition_rights', message='У вас нет прав для редактирования шаблонов')
     def edition_template_rights(self, *args, **kwargs): return self.can_edit_templates
 
-    @validate_argument('template', lambda v: prototypes.TemplatePrototype.get_by_id(int(v)), 'linguistics.templates', u'неверный идентификатор шаблона')
+    @validate_argument('template', lambda v: prototypes.TemplatePrototype.get_by_id(int(v)), 'linguistics.templates', 'неверный идентификатор шаблона')
     def initialize(self, template=None, *args, **kwargs):
         super(TemplateResource, self).initialize(*args, **kwargs)
         self._template = template
@@ -413,13 +413,13 @@ class TemplateResource(Resource):
         self.can_edit_templates = self.account.has_perm('linguistics.edit_template') or self.can_moderate_templates
         self.can_be_removed_by_owner = self._template and self._template.state.is_ON_REVIEW and self.account.is_authenticated() and self.account.id == self._template.author_id
 
-    @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.templates', u'неверный сооавтор')
-    @validate_argument('page', int, 'linguistics.templates', u'неверная страница')
-    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы')
-    @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', u'неверное состояние шаблона')
-    @validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.templates', u'неверный тип сортировки')
-    @validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.templates', u'неверный статус ошибок')
-    @validate_argument('restriction', lambda v: storage.restrictions_storage[int(v)], 'linguistics.templates', u'неверный тип ограничения')
+    @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.templates', 'неверный сооавтор')
+    @validate_argument('page', int, 'linguistics.templates', 'неверная страница')
+    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы')
+    @validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', 'неверное состояние шаблона')
+    @validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.templates', 'неверный тип сортировки')
+    @validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.templates', 'неверный статус ошибок')
+    @validate_argument('restriction', lambda v: storage.restrictions_storage[int(v)], 'linguistics.templates', 'неверный тип ограничения')
     @handler('', method='get')
     def index(self, key=None, state=None, filter=None, restriction=None, errors_status=None, page=1, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
         templates_query = prototypes.TemplatePrototype._db_all().order_by('raw_template')
@@ -482,7 +482,7 @@ class TemplateResource(Resource):
         templates = prototypes.TemplatePrototype.from_query(templates_query[template_from:template_to])
 
         authors = {account.id: account for account in AccountPrototype.from_query(AccountPrototype.get_list_by_id([template.author_id for template in templates]))}
-        clans = {clan.id: clan for clan in ClanPrototype.from_query(ClanPrototype.get_list_by_id([author.clan_id for author in authors.itervalues()]))}
+        clans = {clan.id: clan for clan in ClanPrototype.from_query(ClanPrototype.get_list_by_id([author.clan_id for author in authors.values()]))}
 
         return self.template('linguistics/templates/index.html',
                              {'key': key,
@@ -497,7 +497,7 @@ class TemplateResource(Resource):
     @login_required
     @validate_fast_account()
     @validate_ban_forum()
-    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
+    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы', required=True)
     @handler('new', method='get')
     def new(self, key):
 
@@ -514,7 +514,7 @@ class TemplateResource(Resource):
     @login_required
     @validate_fast_account()
     @validate_ban_forum()
-    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', u'неверный ключ фразы', required=True)
+    @validate_argument('key', lambda v: keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы', required=True)
     @handler('create', method='post')
     def create(self, key):
 
@@ -572,11 +572,11 @@ class TemplateResource(Resource):
 
         if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit.can_not_edit_anothers_template',
-                                   u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.edit.template_has_child',
-                                   u'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
+                                   'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
 
 
         verificators = self._template.get_all_verificatos()
@@ -602,11 +602,11 @@ class TemplateResource(Resource):
 
         if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.update.can_not_edit_anothers_template',
-                                   u'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.update.template_has_child',
-                                   u'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
+                                   'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
 
 
         form = forms.TemplateForm(self._template.key,
@@ -622,7 +622,7 @@ class TemplateResource(Resource):
         if (form.verificators == self._template.get_all_verificatos() and
             form.c.template == self._template.raw_template and
             form.get_restrictions() == self._template.raw_restrictions):
-            return self.json_error('linguistics.templates.update.full_copy_restricted', u'Вы пытаетесь создать полную копию шаблона, в этом нет необходимости.')
+            return self.json_error('linguistics.templates.update.full_copy_restricted', 'Вы пытаетесь создать полную копию шаблона, в этом нет необходимости.')
 
 
         if self.can_edit_templates or (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
@@ -665,15 +665,15 @@ class TemplateResource(Resource):
     def replace(self):
 
         if self._template.parent_id is None:
-            return self.json_error('linguistics.templates.replace.no_parent', u'У шаблона нет родителя.')
+            return self.json_error('linguistics.templates.replace.no_parent', 'У шаблона нет родителя.')
 
         parent_template = prototypes.TemplatePrototype.get_by_id(self._template.parent_id)
 
         if parent_template.key != self._template.key:
-            return self.json_error('linguistics.templates.replace.not_equal_keys', u'Фразы предназначены для разных случаев.')
+            return self.json_error('linguistics.templates.replace.not_equal_keys', 'Фразы предназначены для разных случаев.')
 
         if parent_template.errors_status.is_NO_ERRORS and self._template.errors_status.is_HAS_ERRORS:
-            return self.json_error('linguistics.templates.replace.can_not_replace_with_errors', u'Нельзя заменить шаблон без ошибок на шаблон с ошибками.')
+            return self.json_error('linguistics.templates.replace.can_not_replace_with_errors', 'Нельзя заменить шаблон без ошибок на шаблон с ошибками.')
 
         with transaction.atomic():
             prototypes.TemplatePrototype._db_filter(parent_id=parent_template.id).update(parent=self._template.id)
@@ -711,7 +711,7 @@ class TemplateResource(Resource):
     @handler('#template', 'detach', method='post')
     def detach(self):
         if self._template.parent_id is None:
-            return self.json_error('linguistics.templates.detach.no_parent', u'У шаблона нет родителя.')
+            return self.json_error('linguistics.templates.detach.no_parent', 'У шаблона нет родителя.')
 
         self._template.parent_id = None
         self._template.save()
@@ -726,7 +726,7 @@ class TemplateResource(Resource):
 
         if self._template.parent_id is not None:
             return self.json_error('linguistics.templates.in_game.has_parent',
-                                   u'У шаблона есть родитель. Текущий шаблон необходимо либо открепить либо использовать как замену родителю.')
+                                   'У шаблона есть родитель. Текущий шаблон необходимо либо открепить либо использовать как замену родителю.')
 
         if self._template.state.is_IN_GAME:
             return self.json_ok()
@@ -761,14 +761,14 @@ class TemplateResource(Resource):
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.remove.template_has_child',
-                                   u'У этой фразы есть копия, необходимо разорвать связь между ними.')
+                                   'У этой фразы есть копия, необходимо разорвать связь между ними.')
 
 
         if self._template.get_parent():
             return self.auto_error('linguistics.templates.remove.template_has_parent',
-                                   u'У этой фразы есть копия, необходимо разорвать связь между ними.')
+                                   'У этой фразы есть копия, необходимо разорвать связь между ними.')
 
-        ERROR_MSG = u'Удалить фразу может только модератор либо редактор или автор фразы, если она находится на рассмотрении.'
+        ERROR_MSG = 'Удалить фразу может только модератор либо редактор или автор фразы, если она находится на рассмотрении.'
 
         if self._template.state.is_ON_REVIEW:
             if not self.can_edit_templates and self._template.author_id != self.account.id:
@@ -806,15 +806,15 @@ class TemplateResource(Resource):
 
         if not self._template.state.is_ON_REVIEW:
             return self.auto_error('linguistics.templates.edit_key.wrong_state',
-                                   u'Менять тип можно только у находящихся на рассмотрении фраз')
+                                   'Менять тип можно только у находящихся на рассмотрении фраз')
 
         if not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit_key.can_not_edit',
-                                   u'Менять тип фразы могут только модераторы, редакторы и автор фразы, если она не внесена в игру.')
+                                   'Менять тип фразы могут только модераторы, редакторы и автор фразы, если она не внесена в игру.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.edit_key.template_has_child',
-                                   u'У этой фразы есть копия, сначало надо определить её судьбу.')
+                                   'У этой фразы есть копия, сначало надо определить её судьбу.')
 
         return self.template('linguistics/templates/edit_key.html',
                              {'page_type': 'keys',
@@ -826,15 +826,15 @@ class TemplateResource(Resource):
     def change_key(self):
         if not self._template.state.is_ON_REVIEW:
             return self.auto_error('linguistics.templates.change_key.wrong_state',
-                                   u'Менять тип можно только у находящихся на рассмотрении фраз')
+                                   'Менять тип можно только у находящихся на рассмотрении фраз')
 
         if not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.change_key.can_not_change',
-                                   u'Менять тип фразы могут только модераторы, редакторы и автор фразы, если она не внесена в игру.')
+                                   'Менять тип фразы могут только модераторы, редакторы и автор фразы, если она не внесена в игру.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.change_key.template_has_child',
-                                   u'У этой фразы есть копия, сначало надо определить её судьбу.')
+                                   'У этой фразы есть копия, сначало надо определить её судьбу.')
 
         form = forms.TemplateKeyForm(self.request.POST)
 

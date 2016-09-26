@@ -28,8 +28,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ELF,
                             gender=game_relations.GENDER.FEMININE,
                             type=relations.PERSON_TYPE.INNKEEPER,
-                            utg_name=noun([u'Мирелла', u'Миреллы', u'Мирелле', u'Миреллу', u'Миреллой', u'Мирелле',
-                                           u'Миреллы', u'Мирелл', u'Миреллам', u'Мирелл', u'Миреллами', u'Миреллах'], u'од,жр').word,
+                            utg_name=noun(['Мирелла', 'Миреллы', 'Мирелле', 'Миреллу', 'Миреллой', 'Мирелле',
+                                           'Миреллы', 'Мирелл', 'Миреллам', 'Мирелл', 'Миреллами', 'Миреллах'], 'од,жр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.FIDGET,
                             personality_practical=relations.PERSONALITY_PRACTICAL.CHARISMATIC)
 
@@ -37,8 +37,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ORC,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.EXECUTIONER,
-                            utg_name=noun([u'Тархан-Сухэ', u'Тархан-Сухэ', u'Тархан-Сухэ', u'Тархан-Сухэ', u'Тархан-Сухэ', u'Тархан-Сухэ',
-                                           u'Тархан-Сухэ', u'Тархан-Сухэ', u'Тархан-Сухэ', u'Тархан-Сухэ', u'Тархан-Сухэ', u'Тархан-Сухэ'], u'од,мр').word,
+                            utg_name=noun(['Тархан-Сухэ', 'Тархан-Сухэ', 'Тархан-Сухэ', 'Тархан-Сухэ', 'Тархан-Сухэ', 'Тархан-Сухэ',
+                                           'Тархан-Сухэ', 'Тархан-Сухэ', 'Тархан-Сухэ', 'Тархан-Сухэ', 'Тархан-Сухэ', 'Тархан-Сухэ'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.LEADER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.RESPONSIBLE)
 
@@ -46,8 +46,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.GOBLIN,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.ALCHEMIST,
-                            utg_name=noun([u'Тиен-Ханьюл', u'Тиен-Ханьюл', u'Тиен-Ханьюл', u'Тиен-Ханьюл', u'Тиен-Ханьюл', u'Тиен-Ханьюл',
-                                           u'Тиен-Ханьюл', u'Тиен-Ханьюл', u'Тиен-Ханьюл', u'Тиен-Ханьюл', u'Тиен-Ханьюл', u'Тиен-Ханьюл'], u'од,мр').word,
+                            utg_name=noun(['Тиен-Ханьюл', 'Тиен-Ханьюл', 'Тиен-Ханьюл', 'Тиен-Ханьюл', 'Тиен-Ханьюл', 'Тиен-Ханьюл',
+                                           'Тиен-Ханьюл', 'Тиен-Ханьюл', 'Тиен-Ханьюл', 'Тиен-Ханьюл', 'Тиен-Ханьюл', 'Тиен-Ханьюл'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.ORGANIZER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.INSIDIOUS)
 
@@ -55,8 +55,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.HUMAN,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.FARMER,
-                            utg_name=noun([u'Всемил', u'Всемила', u'Всемилу', u'Всемила', u'Всемилом', u'Всемиле',
-                                           u'Всемилы', u'Всемилов', u'Всемилам', u'Всемилов', u'Всемилами', u'Всемилах'], u'од,мр').word,
+                            utg_name=noun(['Всемил', 'Всемила', 'Всемилу', 'Всемила', 'Всемилом', 'Всемиле',
+                                           'Всемилы', 'Всемилов', 'Всемилам', 'Всемилов', 'Всемилами', 'Всемилах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.TRUTH_SEEKER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.HARDWORKING)
 
@@ -64,8 +64,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.DWARF,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.MINER,
-                            utg_name=noun([u'Барди', u'Барди', u'Барди', u'Барди', u'Барди', u'Барди',
-                                           u'Барди', u'Барди', u'Барди', u'Барди', u'Барди', u'Барди'], u'од,мр').word,
+                            utg_name=noun(['Барди', 'Барди', 'Барди', 'Барди', 'Барди', 'Барди',
+                                           'Барди', 'Барди', 'Барди', 'Барди', 'Барди', 'Барди'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.GOOD_SOUL,
                             personality_practical=relations.PERSONALITY_PRACTICAL.DEVOUT)
 
@@ -73,8 +73,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ORC,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.WARDEN,
-                            utg_name=noun([u'Октай', u'Октая', u'Октаю', u'Октая', u'Октаем', u'Октае',
-                                           u'Октаи', u'Октаев', u'Октаям', u'Октаев', u'Октаями', u'Октаях'], u'од,мр').word,
+                            utg_name=noun(['Октай', 'Октая', 'Октаю', 'Октая', 'Октаем', 'Октае',
+                                           'Октаи', 'Октаев', 'Октаям', 'Октаев', 'Октаями', 'Октаях'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.LEADER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.INFLUENTIAL)
 
@@ -82,8 +82,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ELF,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.ROGUE,
-                            utg_name=noun([u'Филлуной', u'Филлуноя', u'Филлуною', u'Филлуноя', u'Филлуноем', u'Филлуное',
-                                           u'Филлунои', u'Филлуноев', u'Филлуноям', u'Филлуноев', u'Филлунями', u'Филлуноях'], u'од,мр').word,
+                            utg_name=noun(['Филлуной', 'Филлуноя', 'Филлуною', 'Филлуноя', 'Филлуноем', 'Филлуное',
+                                           'Филлунои', 'Филлуноев', 'Филлуноям', 'Филлуноев', 'Филлунями', 'Филлуноях'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.KNAVE,
                             personality_practical=relations.PERSONALITY_PRACTICAL.REVENGEFUL)
 
@@ -91,8 +91,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ORC,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.BARD,
-                            utg_name=noun([u'Гардасан', u'Гардасана', u'Гардасану', u'Гардасана', u'Гардасаном', u'Гардасане',
-                                           u'Гардасаны', u'Гардасанов', u'Гардасанам', u'Гардасанов', u'Гардасанами', u'Гардасанах'], u'од,мр').word,
+                            utg_name=noun(['Гардасан', 'Гардасана', 'Гардасану', 'Гардасана', 'Гардасаном', 'Гардасане',
+                                           'Гардасаны', 'Гардасанов', 'Гардасанам', 'Гардасанов', 'Гардасанами', 'Гардасанах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.TRUTH_SEEKER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.REVENGEFUL)
 
@@ -100,8 +100,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.HUMAN,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.PRIEST,
-                            utg_name=noun([u'Владимир', u'Владимира', u'Владимиру', u'Владимира', u'Владимиром', u'Владимире',
-                                           u'Владимиры', u'Владимиров', u'Владимирам', u'Владимиров', u'Владимирами', u'Владимирах'], u'од,мр').word,
+                            utg_name=noun(['Владимир', 'Владимира', 'Владимиру', 'Владимира', 'Владимиром', 'Владимире',
+                                           'Владимиры', 'Владимиров', 'Владимирам', 'Владимиров', 'Владимирами', 'Владимирах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.GOOD_SOUL,
                             personality_practical=relations.PERSONALITY_PRACTICAL.INFLUENTIAL)
 
@@ -109,8 +109,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.HUMAN,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.BARD,
-                            utg_name=noun([u'Володимир', u'Володимира', u'Володимиру', u'Володимира', u'Володимиром', u'Володимире',
-                                           u'Володимиры', u'Володимиров', u'Володимирам', u'Володимиров', u'Володимирами', u'Володимирах'], u'од,мр').word,
+                            utg_name=noun(['Володимир', 'Володимира', 'Володимиру', 'Володимира', 'Володимиром', 'Володимире',
+                                           'Володимиры', 'Володимиров', 'Володимирам', 'Володимиров', 'Володимирами', 'Володимирах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.NIHILIST,
                             personality_practical=relations.PERSONALITY_PRACTICAL.CHARISMATIC)
 
@@ -118,8 +118,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.DWARF,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.BLACKSMITH,
-                            utg_name=noun([u'Хэнлезлок', u'Хэнлезлока', u'Хэнлезлоку', u'Хэнлезлока', u'Хэнлезлоком', u'Хэнлезлоке',
-                                           u'Хэнлезлоки', u'Хэнлезлоков', u'Хэнлезлокам', u'Хэнлезлоков', u'Хэнлезлоками', u'Хэнлезлоках'], u'од,мр').word,
+                            utg_name=noun(['Хэнлезлок', 'Хэнлезлока', 'Хэнлезлоку', 'Хэнлезлока', 'Хэнлезлоком', 'Хэнлезлоке',
+                                           'Хэнлезлоки', 'Хэнлезлоков', 'Хэнлезлокам', 'Хэнлезлоков', 'Хэнлезлоками', 'Хэнлезлоках'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.TRUTH_SEEKER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.HARDWORKING)
 
@@ -127,8 +127,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.GOBLIN,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.MERCHANT,
-                            utg_name=noun([u'Джай-Лу', u'Джай-Лу', u'Джай-Лу', u'Джай-Лу', u'Джай-Лу', u'Джай-Лу',
-                                           u'Джай-Лу', u'Джай-Лу', u'Джай-Лу', u'Джай-Лу', u'Джай-Лу', u'Джай-Лу'], u'од,мр').word,
+                            utg_name=noun(['Джай-Лу', 'Джай-Лу', 'Джай-Лу', 'Джай-Лу', 'Джай-Лу', 'Джай-Лу',
+                                           'Джай-Лу', 'Джай-Лу', 'Джай-Лу', 'Джай-Лу', 'Джай-Лу', 'Джай-Лу'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.ORGANIZER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.ENTERPRISING)
 
@@ -136,8 +136,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ORC,
                             gender=game_relations.GENDER.FEMININE,
                             type=relations.PERSON_TYPE.HERDSMAN,
-                            utg_name=noun([u'Дарла', u'Дарлы', u'Дарле', u'Дарлу', u'Дарлой', u'Дарле',
-                                           u'Дарлы', u'Дарл', u'Дарлам', u'Дарл', u'Дарлами', u'Дарлах'], u'од,жр').word,
+                            utg_name=noun(['Дарла', 'Дарлы', 'Дарле', 'Дарлу', 'Дарлой', 'Дарле',
+                                           'Дарлы', 'Дарл', 'Дарлам', 'Дарл', 'Дарлами', 'Дарлах'], 'од,жр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.LEADER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.HARDWORKING)
 
@@ -145,8 +145,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ELF,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.ROGUE,
-                            utg_name=noun([u'Альсекор', u'Альсекора', u'Альсекору', u'Альсекора', u'Альсекором', u'Альсекоре',
-                                           u'Альсекоры', u'Альсекоров', u'Альсекорам', u'Альсекоров', u'Альсекорами', u'Альсекорах'], u'од,мр').word,
+                            utg_name=noun(['Альсекор', 'Альсекора', 'Альсекору', 'Альсекора', 'Альсекором', 'Альсекоре',
+                                           'Альсекоры', 'Альсекоров', 'Альсекорам', 'Альсекоров', 'Альсекорами', 'Альсекорах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.ORGANIZER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.INFLUENTIAL)
 
@@ -154,8 +154,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.DWARF,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.PRIEST,
-                            utg_name=noun([u'Толнир', u'Толнира', u'Толниру', u'Толнира', u'Толниром', u'Толнире',
-                                           u'Толниры', u'Толниров', u'Толнирам', u'Толниров', u'Толнирами', u'Толнирах'], u'од,мр').word,
+                            utg_name=noun(['Толнир', 'Толнира', 'Толниру', 'Толнира', 'Толниром', 'Толнире',
+                                           'Толниры', 'Толниров', 'Толнирам', 'Толниров', 'Толнирами', 'Толнирах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.GOOD_SOUL,
                             personality_practical=relations.PERSONALITY_PRACTICAL.MULTIWISE)
 
@@ -163,8 +163,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.DWARF,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.WARDEN,
-                            utg_name=noun([u'Гульбер', u'Гульбера', u'Гульберу', u'Гульбера', u'Гульбером', u'Гульбере',
-                                           u'Гульберы', u'Гульберов', u'Гульберам', u'Гульберов', u'Гульберами', u'Гульберах'], u'од,мр').word,
+                            utg_name=noun(['Гульбер', 'Гульбера', 'Гульберу', 'Гульбера', 'Гульбером', 'Гульбере',
+                                           'Гульберы', 'Гульберов', 'Гульберам', 'Гульберов', 'Гульберами', 'Гульберах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.TRUTH_SEEKER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.RELIABLE)
 
@@ -172,8 +172,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.HUMAN,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.PRIEST,
-                            utg_name=noun([u'Святослав', u'Святослава', u'Святославу', u'Святослава', u'Святославом', u'Святославе',
-                                           u'Святославы', u'Святославов', u'Святославам', u'Святославов', u'Святославами', u'Святославах'], u'од,мр').word,
+                            utg_name=noun(['Святослав', 'Святослава', 'Святославу', 'Святослава', 'Святославом', 'Святославе',
+                                           'Святославы', 'Святославов', 'Святославам', 'Святославов', 'Святославами', 'Святославах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.FIDGET,
                             personality_practical=relations.PERSONALITY_PRACTICAL.CHARISMATIC)
 
@@ -181,8 +181,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.GOBLIN,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.MAGOMECHANIC,
-                            utg_name=noun([u'Юн-Дус', u'Юн-Дуса', u'Юн-Дусу', u'Юн-Дуса', u'Юн-Дусом', u'Юн-Дусе',
-                                           u'Юн-Дусы', u'Юн-Дусов', u'Юн-Дусам', u'Юн-Дусов', u'Юн-Дусами', u'Юн-Дусах'], u'од,мр').word,
+                            utg_name=noun(['Юн-Дус', 'Юн-Дуса', 'Юн-Дусу', 'Юн-Дуса', 'Юн-Дусом', 'Юн-Дусе',
+                                           'Юн-Дусы', 'Юн-Дусов', 'Юн-Дусам', 'Юн-Дусов', 'Юн-Дусами', 'Юн-Дусах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.RECLUSE,
                             personality_practical=relations.PERSONALITY_PRACTICAL.MULTIWISE)
 
@@ -190,8 +190,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ORC,
                             gender=game_relations.GENDER.FEMININE,
                             type=relations.PERSON_TYPE.MAGICIAN,
-                            utg_name=noun([u'Гро-Здельдлик', u'Гро-Здельдлик', u'Гро-Здельдлик', u'Гро-Здельдлик', u'Гро-Здельдлик', u'Гро-Здельдлик',
-                                           u'Гро-Здельдлик', u'Гро-Здельдлик', u'Гро-Здельдлик', u'Гро-Здельдлик', u'Гро-Здельдлик', u'Гро-Здельдлик'], u'од,жр').word,
+                            utg_name=noun(['Гро-Здельдлик', 'Гро-Здельдлик', 'Гро-Здельдлик', 'Гро-Здельдлик', 'Гро-Здельдлик', 'Гро-Здельдлик',
+                                           'Гро-Здельдлик', 'Гро-Здельдлик', 'Гро-Здельдлик', 'Гро-Здельдлик', 'Гро-Здельдлик', 'Гро-Здельдлик'], 'од,жр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.TRUTH_SEEKER,
                             personality_practical=relations.PERSONALITY_PRACTICAL.ORDERLY)
 
@@ -199,8 +199,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.HUMAN,
                             gender=game_relations.GENDER.FEMININE,
                             type=relations.PERSON_TYPE.INNKEEPER,
-                            utg_name=noun([u'Любава', u'Любавы', u'Любаве', u'Любаву', u'Любавой', u'Любаве',
-                                           u'Любавы', u'Любав', u'Любавам', u'Любав', u'Любавами', u'Любавах'], u'од,жр').word,
+                            utg_name=noun(['Любава', 'Любавы', 'Любаве', 'Любаву', 'Любавой', 'Любаве',
+                                           'Любавы', 'Любав', 'Любавам', 'Любав', 'Любавами', 'Любавах'], 'од,жр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.GUARANTOR,
                             personality_practical=relations.PERSONALITY_PRACTICAL.RESPONSIBLE)
 
@@ -208,8 +208,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ORC,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.HERDSMAN,
-                            utg_name=noun([u'Вейгхаз', u'Вейгхаза', u'Вейгхазу', u'Вейгхаза', u'Вейгхазом', u'Вейгхазе',
-                                           u'Вейгхазы', u'Вейгхазов', u'Вейгхазам', u'Вейгхазов', u'Вейгхазами', u'Вейгхазах'], u'од,мр').word,
+                            utg_name=noun(['Вейгхаз', 'Вейгхаза', 'Вейгхазу', 'Вейгхаза', 'Вейгхазом', 'Вейгхазе',
+                                           'Вейгхазы', 'Вейгхазов', 'Вейгхазам', 'Вейгхазов', 'Вейгхазами', 'Вейгхазах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.RECLUSE,
                             personality_practical=relations.PERSONALITY_PRACTICAL.ACTIVE)
 
@@ -217,8 +217,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.HUMAN,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.ALCHEMIST,
-                            utg_name=noun([u'Берислав', u'Берислава', u'Бериславу', u'Берислава', u'Бериславом', u'Бериславе',
-                                           u'Бериславы', u'Бериславов', u'Бериславам', u'Бериславов', u'Бериславами', u'Бериславах'], u'од,мр').word,
+                            utg_name=noun(['Берислав', 'Берислава', 'Бериславу', 'Берислава', 'Бериславом', 'Бериславе',
+                                           'Бериславы', 'Бериславов', 'Бериславам', 'Бериславов', 'Бериславами', 'Бериславах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.FIDGET,
                             personality_practical=relations.PERSONALITY_PRACTICAL.ORDERLY)
 
@@ -226,8 +226,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.GOBLIN,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.WARDEN,
-                            utg_name=noun([u'Фай-Лах', u'Фай-Лах', u'Фай-Лах', u'Фай-Лах', u'Фай-Лах', u'Фай-Лах',
-                                           u'Фай-Лах', u'Фай-Лах', u'Фай-Лах', u'Фай-Лах', u'Фай-Лах', u'Фай-Лах'], u'од,мр').word,
+                            utg_name=noun(['Фай-Лах', 'Фай-Лах', 'Фай-Лах', 'Фай-Лах', 'Фай-Лах', 'Фай-Лах',
+                                           'Фай-Лах', 'Фай-Лах', 'Фай-Лах', 'Фай-Лах', 'Фай-Лах', 'Фай-Лах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.FIDGET,
                             personality_practical=relations.PERSONALITY_PRACTICAL.ACTIVE)
 
@@ -235,8 +235,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ELF,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.PHYSICIAN,
-                            utg_name=noun([u'Веларион', u'Велариона', u'Велариону', u'Велариона', u'Веларионом', u'Веларионе',
-                                           u'Веларионы', u'Веларионов', u'Веларионам', u'Веларионов', u'Веларионами', u'Веларионах'], u'од,мр').word,
+                            utg_name=noun(['Веларион', 'Велариона', 'Велариону', 'Велариона', 'Веларионом', 'Веларионе',
+                                           'Веларионы', 'Веларионов', 'Веларионам', 'Веларионов', 'Веларионами', 'Веларионах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.GOOD_SOUL,
                             personality_practical=relations.PERSONALITY_PRACTICAL.ORDERLY)
 
@@ -245,8 +245,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.DWARF,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.MAGOMECHANIC,
-                            utg_name=noun([u'Фродрун', u'Фродруна', u'Фродруну', u'Фродруна', u'Фродруном', u'Фродруне',
-                                           u'Фродруны', u'Фродрунов', u'Фродрунам', u'Фродрунов', u'Фродрунами', u'Фродрунах'], u'од,мр').word,
+                            utg_name=noun(['Фродрун', 'Фродруна', 'Фродруну', 'Фродруна', 'Фродруном', 'Фродруне',
+                                           'Фродруны', 'Фродрунов', 'Фродрунам', 'Фродрунов', 'Фродрунами', 'Фродрунах'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.BULLY,
                             personality_practical=relations.PERSONALITY_PRACTICAL.ROMANTIC)
 
@@ -254,8 +254,8 @@ class Command(BaseCommand):
                             race=game_relations.RACE.ELF,
                             gender=game_relations.GENDER.MASCULINE,
                             type=relations.PERSON_TYPE.TAILOR,
-                            utg_name=noun([u'Таирвайн', u'Таирвайн', u'Таирвайн', u'Таирвайн', u'Таирвайн', u'Таирвайн',
-                                           u'Таирвайн', u'Таирвайн', u'Таирвайн', u'Таирвайн', u'Таирвайн', u'Таирвайн'], u'од,мр').word,
+                            utg_name=noun(['Таирвайн', 'Таирвайн', 'Таирвайн', 'Таирвайн', 'Таирвайн', 'Таирвайн',
+                                           'Таирвайн', 'Таирвайн', 'Таирвайн', 'Таирвайн', 'Таирвайн', 'Таирвайн'], 'од,мр').word,
                             personality_cosmetic=relations.PERSONALITY_COSMETIC.RECLUSE,
                             personality_practical=relations.PERSONALITY_PRACTICAL.ORDERLY)
 

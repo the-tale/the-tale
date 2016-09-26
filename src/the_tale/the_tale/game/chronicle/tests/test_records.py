@@ -40,7 +40,7 @@ class RecordTests(TestCase):
     def test_records_for_every_type(self):
         types = set([record for record in RECORD_TYPE.records if not record.deprecated])
 
-        for record_class in records.RECORDS.values():
+        for record_class in list(records.RECORDS.values()):
             if record_class.TYPE in types:
                 types.remove(record_class.TYPE)
 
@@ -182,5 +182,5 @@ def create_test_create_method(record_class):
     return test_create_method
 
 
-for record_name, record_class in records.RECORDS.items():
+for record_name, record_class in list(records.RECORDS.items()):
     setattr(RecordTests, 'test_' + record_name, create_test_create_method(record_class))

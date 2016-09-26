@@ -10,7 +10,7 @@ from the_tale.game.heroes import logic as heroes_logic
 class Hero(meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 9
-    TYPE_CAPTION = u'Герой'
+    TYPE_CAPTION = 'Герой'
 
     def __init__(self, caption, **kwargs):
         super(Hero, self).__init__(**kwargs)

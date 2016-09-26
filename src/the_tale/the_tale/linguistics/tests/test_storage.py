@@ -68,7 +68,7 @@ class LexiconStoragesTests(TestCase):
     def test_templates_query(self):
         key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
-        text = u'[w-1-ед,им|hero]'
+        text = '[w-1-ед,им|hero]'
 
         utg_template = utg_templates.Template()
         utg_template.parse(text, externals=['hero', 'level'])
@@ -102,14 +102,14 @@ class RestrictionsStorageTests(TestCase):
 
 
     def test_add_item(self):
-        restriction_1 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=666, name=u'bla-bla-name')
+        restriction_1 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=666, name='bla-bla-name')
 
         self.assertEqual(storage.restrictions_storage._data, {restriction_1.id: restriction_1})
         self.assertEqual(storage.restrictions_storage._restrictions, {restriction_1.storage_key(): restriction_1})
         self.assertEqual(storage.restrictions_storage._restrictions_by_group, {restriction_1.group: [restriction_1]})
 
-        restriction_2 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.GENDER, external_id=667, name=u'name-2')
-        restriction_3 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=668, name=u'name-3')
+        restriction_2 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.GENDER, external_id=667, name='name-2')
+        restriction_3 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=668, name='name-3')
 
         self.assertEqual(storage.restrictions_storage._data, {restriction_1.id: restriction_1,
                                                               restriction_2.id: restriction_2,
@@ -122,9 +122,9 @@ class RestrictionsStorageTests(TestCase):
 
 
     def test_get_restriction(self):
-        restriction_1 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=666, name=u'bla-bla-name')
-        restriction_2 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.GENDER, external_id=667, name=u'name-2')
-        restriction_3 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=668, name=u'name-3')
+        restriction_1 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=666, name='bla-bla-name')
+        restriction_2 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.GENDER, external_id=667, name='name-2')
+        restriction_3 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=668, name='name-3')
 
         self.assertEqual(restriction_1, storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.RACE, 666))
         self.assertEqual(restriction_2, storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.GENDER, 667))
@@ -132,9 +132,9 @@ class RestrictionsStorageTests(TestCase):
 
 
     def test_get_restrictions(self):
-        restriction_1 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=666, name=u'bla-bla-name')
-        restriction_2 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.GENDER, external_id=667, name=u'name-2')
-        restriction_3 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=668, name=u'name-3')
+        restriction_1 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=666, name='bla-bla-name')
+        restriction_2 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.GENDER, external_id=667, name='name-2')
+        restriction_3 = logic.create_restriction(group=relations.TEMPLATE_RESTRICTION_GROUP.RACE, external_id=668, name='name-3')
 
         self.assertEqual(storage.restrictions_storage.get_restrictions(relations.TEMPLATE_RESTRICTION_GROUP.RACE), [restriction_1, restriction_3])
         self.assertEqual(storage.restrictions_storage.get_restrictions(relations.TEMPLATE_RESTRICTION_GROUP.GENDER), [restriction_2])

@@ -271,5 +271,5 @@ class TaskTests(testcase.TestCase):
         self.assertEqual(commission_ivoice.sender_id, 0)
         self.assertTrue(commission_ivoice.currency.is_PREMIUM)
         self.assertEqual(commission_ivoice.amount, -lot.commission)
-        self.assertEqual(commission_ivoice.operation_uid, u'market-buy-commission-%s' % lot.type)
+        self.assertEqual(commission_ivoice.operation_uid, 'market-buy-commission-%s' % lot.type)
         self.assertTrue(commission_ivoice.state.is_FORCED)

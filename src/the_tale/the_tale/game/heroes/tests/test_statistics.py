@@ -209,13 +209,13 @@ class HeroStatisticsTest(TestCase):
         from the_tale.accounts.achievements.prototypes import AchievementPrototype, GiveAchievementTaskPrototype
 
         achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.PVP_VICTORIES_1X1, barrier=10, points=10,
-                                    caption=u'achievement_1', description=u'description_1', approved=True)
+                                    caption='achievement_1', description='description_1', approved=True)
         achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.PVP_VICTORIES_1X1, barrier=20, points=10,
-                                    caption=u'achievement_2', description=u'description_2', approved=True)
+                                    caption='achievement_2', description='description_2', approved=True)
         achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.PVP_VICTORIES_1X1, barrier=30, points=10,
-                                    caption=u'achievement_3', description=u'description_3', approved=True)
+                                    caption='achievement_3', description='description_3', approved=True)
         achievement_4 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.PVP_VICTORIES_1X1, barrier=40, points=10,
-                                    caption=u'achievement_4', description=u'description_4', approved=True)
+                                    caption='achievement_4', description='description_4', approved=True)
 
 
         self.assertEqual(self.hero.statistics.pvp_battles_1x1_number, 16)

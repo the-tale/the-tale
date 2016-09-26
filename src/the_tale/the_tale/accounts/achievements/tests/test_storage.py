@@ -19,17 +19,17 @@ class StorageTests(testcase.TestCase):
         self.account_1 = self.accounts_factory.create_account()
 
         self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
-                                                         caption=u'achievement_1', description=u'description_1', approved=True)
+                                                         caption='achievement_1', description='description_1', approved=True)
         self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=1, points=10,
-                                                         caption=u'achievement_2', description=u'description_2', approved=False)
+                                                         caption='achievement_2', description='description_2', approved=False)
         self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=2, points=10,
-                                                         caption=u'achievement_3', description=u'description_3', approved=True)
+                                                         caption='achievement_3', description='description_3', approved=True)
         self.achievement_4 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=3, points=10,
-                                                         caption=u'achievement_4', description=u'description_4', approved=True)
+                                                         caption='achievement_4', description='description_4', approved=True)
         self.achievement_5 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=4, points=10,
-                                                         caption=u'achievement_5', description=u'description_5', approved=True)
+                                                         caption='achievement_5', description='description_5', approved=True)
         self.achievement_6 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=2, points=10,
-                                                         caption=u'achievement_6', description=u'description_6', approved=True)
+                                                         caption='achievement_6', description='description_6', approved=True)
 
 
     def test_create(self):

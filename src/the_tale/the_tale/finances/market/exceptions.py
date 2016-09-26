@@ -6,7 +6,7 @@ from the_tale.common.utils.exceptions import TheTaleError
 
 
 class MarketError(TheTaleError):
-    MSG = u'market error'
+    MSG = 'market error'
 
 class DuplicateGoodTypeUIDError(MarketError):
-    MSG = u'duplicate good type uid "%(uid)s" for good type %(good_type)s'
+    MSG = 'duplicate good type uid "%(uid)s" for good type %(good_type)s'

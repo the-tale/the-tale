@@ -35,7 +35,7 @@ class IndexRequestsTest(TestCase):
 
     def test_full_page(self):
         texts = []
-        for i in xrange(chronicle_settings.RECORDS_ON_PAGE):
+        for i in range(chronicle_settings.RECORDS_ON_PAGE):
             self.create_record(i)
             texts.append('record_text_%d_%d' % (0, i))
 
@@ -43,7 +43,7 @@ class IndexRequestsTest(TestCase):
         self.check_redirect(reverse('game:chronicle:')+'?page=2', reverse('game:chronicle:')+'?page=1')
 
     def test_second_page(self):
-        for i in xrange(chronicle_settings.RECORDS_ON_PAGE+1):
+        for i in range(chronicle_settings.RECORDS_ON_PAGE+1):
             self.create_record(i)
 
         texts = ['record_text_%d_%d' % (0, chronicle_settings.RECORDS_ON_PAGE)]

@@ -65,7 +65,7 @@ def create_test_map():
     p3 = places_logic.create_place( x=1, y=3, size=3, utg_name=names.generator.get_test_name(name='1x10'), race=relations.RACE.HUMAN)
 
     for place in places_storage.places.all():
-        for i in xrange(3):
+        for i in range(3):
             places_logic.add_person_to_place(place)
 
     RoadPrototype.create(point_1=p1, point_2=p2).update()
@@ -232,7 +232,7 @@ def _game_info_from_1_5_to_1_4__heroes(data):
             for name, type, actor_data in quest_info['actors']:
                 if type == 0:
                     actor_data['mastery'] = 1
-                    actor_data['mastery_verbose'] = u'гений'
+                    actor_data['mastery_verbose'] = 'гений'
 
 
 
@@ -294,7 +294,7 @@ def accounts_info(accounts_ids):
 
     accounts_data = {}
 
-    for account in accounts.itervalues():
+    for account in accounts.values():
         hero = heroes[account.id]
 
         hero_data = {'id': hero.id,
@@ -316,7 +316,7 @@ def accounts_info(accounts_ids):
 def clans_info(accounts_data):
     from the_tale.accounts.clans import prototypes as clans_prototypes
 
-    clans_ids = set(account['clan'] for account in accounts_data.itervalues() if account['clan'] is not None)
+    clans_ids = set(account['clan'] for account in accounts_data.values() if account['clan'] is not None)
     return {clan.id: {'id': clan.id,
                       'abbr': clan.abbr,
                       'name': clan.name}

@@ -213,7 +213,7 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:mobs:show', args=[mob_record.id])})
 
-        self.assertEqual(mob_record.name, u'mob name-нс,ед,им')
+        self.assertEqual(mob_record.name, 'mob name-нс,ед,им')
         self.assertEqual(mob_record.level, 666)
         self.assertEqual(mob_record.terrains, frozenset([TERRAIN.PLANE_GRASS, TERRAIN.HILLS_GRASS]))
         self.assertEqual(mob_record.abilities, frozenset(['hit', 'strong_hit', 'sidestep']) )
@@ -523,7 +523,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
         self.check_ajax_ok(response, data={'next_url': reverse('guide:mobs:show', args=[mob_record.id])})
 
         self.assertEqual(mob_record.uuid, self.mob.uuid)
-        self.assertEqual(mob_record.name, u'new name-нс,ед,им')
+        self.assertEqual(mob_record.name, 'new name-нс,ед,им')
         self.assertEqual(mob_record.utg_name, self.name)
         self.assertEqual(mob_record.level, 667)
         self.assertEqual(mob_record.terrains, frozenset([TERRAIN.PLANE_JUNGLE, TERRAIN.HILLS_JUNGLE]))

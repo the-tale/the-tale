@@ -62,7 +62,7 @@ class CardsGoodType(goods_types.BaseGoodType):
                 return group
 
 cards_hero_good = CardsGoodType(uid='cards-hero-good',
-                                name=u'Карты Судьбы',
-                                description=u'Карты Судьбы',
+                                name='Карты Судьбы',
+                                description='Карты Судьбы',
                                 item_uid_prefix='cards#',
                                 item_template='cards/card_template.html')

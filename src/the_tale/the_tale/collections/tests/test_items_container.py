@@ -16,15 +16,15 @@ class ItemsContainerTests(testcase.TestCase):
 
         self.container = ItemsContainer()
 
-        self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1')
-        self.collection_2 = CollectionPrototype.create(caption=u'collection_2', description=u'description_2', approved=True)
+        self.collection_1 = CollectionPrototype.create(caption='collection_1', description='description_1')
+        self.collection_2 = CollectionPrototype.create(caption='collection_2', description='description_2', approved=True)
 
-        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1')
-        self.kit_2 = KitPrototype.create(collection=self.collection_2, caption=u'kit_2', description=u'description_2')
+        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption='kit_1', description='description_1')
+        self.kit_2 = KitPrototype.create(collection=self.collection_2, caption='kit_2', description='description_2')
 
-        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_1', text=u'text_1_1')
-        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_2', text=u'text_1_2', approved=True)
-        self.item_2_1 = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_1', text=u'text_2_1', approved=True)
+        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption='item_1_1', text='text_1_1')
+        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption='item_1_2', text='text_1_2', approved=True)
+        self.item_2_1 = ItemPrototype.create(kit=self.kit_2, caption='item_2_1', text='text_2_1', approved=True)
 
 
     def test_serialize(self):

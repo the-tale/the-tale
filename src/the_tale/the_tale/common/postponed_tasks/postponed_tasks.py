@@ -21,4 +21,4 @@ class FakePostponedInternalTask(PostponedLogic):
     def processed_data(self): return {'test_value': 666}
 
     @property
-    def error_message(self): return u'some error message'
+    def error_message(self): return 'some error message'

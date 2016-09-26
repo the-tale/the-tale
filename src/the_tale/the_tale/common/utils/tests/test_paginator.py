@@ -22,23 +22,23 @@ class PaginatorTests(testcase.TestCase):
 
     def test_structure__little_pages(self):
         paginator = self.create_paginator(4*D, D*2)
-        self.assertEqual(paginator.pages_numbers, range(0, 4*D))
+        self.assertEqual(paginator.pages_numbers, list(range(0, 4*D)))
 
     def test_structure__left_hole(self):
         missed = 3
         paginator = self.create_paginator(4*D+missed, 2*D+missed)
-        self.assertEqual(paginator.pages_numbers, range(0, D+1) + [None] + range(D+missed, 4*D+missed))
+        self.assertEqual(paginator.pages_numbers, list(range(0, D+1)) + [None] + list(range(D+missed, 4*D+missed)))
 
     def test_structure__right_hole(self):
         missed = 3
         paginator = self.create_paginator(4*D+missed, 2*D)
-        self.assertEqual(paginator.pages_numbers, range(0, 3*D+1) + [None] + range(3*D+missed-1, 4*D+missed))
+        self.assertEqual(paginator.pages_numbers, list(range(0, 3*D+1)) + [None] + list(range(3*D+missed-1, 4*D+missed)))
 
     def test_structure__two_holes(self):
         missed = 3
         paginator = self.create_paginator(4*D+2*missed, 2*D+missed)
         self.assertEqual(paginator.pages_numbers,
-                         range(0, D+1) + [None] + range(D+missed, D+missed+2*D+1) + [None] + range(3*D+2*missed-1, 4*D+2*missed))
+                         list(range(0, D+1)) + [None] + list(range(D+missed, D+missed+2*D+1)) + [None] + list(range(3*D+2*missed-1, 4*D+2*missed)))
 
     def test_wrong_page_number__good_number(self):
         paginator = self.create_paginator(10, 5)

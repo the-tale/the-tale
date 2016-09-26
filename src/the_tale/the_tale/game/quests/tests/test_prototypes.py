@@ -97,7 +97,7 @@ class PrototypeTests(PrototypeTestsBase):
         # modify quest results, to give only positive power
         if positive_results:
             for finish in quest.knowledge_base.filter(facts.Finish):
-                finish.results = {object_uid: QUEST_RESULTS.SUCCESSED for object_uid in finish.results.iterkeys()}
+                finish.results = {object_uid: QUEST_RESULTS.SUCCESSED for object_uid in finish.results.keys()}
 
         old_quests_done = self.hero.statistics.quests_done
 
@@ -354,7 +354,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
 
     def test_get_upgrdade_choice__no_preference(self):
-        for i in xrange(100):
+        for i in range(100):
             self.assertTrue(self.quest._get_upgrdade_choice(self.hero).is_BUY)
 
     def test_get_upgrdade_choice(self):
@@ -365,7 +365,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         choices = set()
 
-        for i in xrange(100):
+        for i in range(100):
             choices.add(self.quest._get_upgrdade_choice(self.hero))
 
         self.assertEqual(choices, set((relations.UPGRADE_EQUIPMENT_VARIANTS.BUY,
@@ -378,7 +378,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.RING)
 
-        for i in xrange(100):
+        for i in range(100):
             self.assertTrue(self.quest._get_upgrdade_choice(self.hero).is_BUY)
 
 
@@ -407,7 +407,7 @@ class PrototypeTests(PrototypeTestsBase):
     @mock.patch('the_tale.game.quests.prototypes.QuestPrototype._get_upgrdade_choice', classmethod(lambda *argv, **kwargs: relations.UPGRADE_EQUIPMENT_VARIANTS.REPAIR))
     def test_upgrade_equipment__repair(self):
 
-        test_artifact = random.choice(self.hero.equipment.values())
+        test_artifact = random.choice(list(self.hero.equipment.values()))
         test_artifact.integrity = 0
         self.hero.preferences.set_equipment_slot(test_artifact.type.equipment_slot)
 
@@ -485,7 +485,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(self.hero.bag.occupation, 2)
 
-        artifact_1, artifact_2 = sorted(self.hero.bag.values(), key=lambda artifact: artifact.bag_uuid)
+        artifact_1, artifact_2 = sorted(list(self.hero.bag.values()), key=lambda artifact: artifact.bag_uuid)
 
         self.assertEqual(artifact_1.level + 1, artifact_2.level)
 
@@ -548,7 +548,7 @@ class PrototypeTests(PrototypeTestsBase):
         from the_tale.game.companions import storage as companions_storage
         from the_tale.game.companions import logic as companions_logic
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
         companion.coherence = 50
 
@@ -698,8 +698,8 @@ class CheckRequirementsTests(PrototypeTestsBase):
     def setUp(self):
         super(CheckRequirementsTests, self).setUp()
 
-        self.hero_fact = self.quest.knowledge_base.filter(facts.Hero).next()
-        self.person_fact = self.quest.knowledge_base.filter(facts.Person).next()
+        self.hero_fact = next(self.quest.knowledge_base.filter(facts.Hero))
+        self.person_fact = next(self.quest.knowledge_base.filter(facts.Person))
 
         self.person = persons_storage.persons[self.person_fact.externals['id']]
 
@@ -740,7 +740,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
     def test_check_located_in__wrong_hero(self):
         wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
         self.quest.knowledge_base += wrong_hero
-        self.check_located_in(object=wrong_hero, place=self.quest.knowledge_base.filter(facts.Place).next(), result=False)
+        self.check_located_in(object=wrong_hero, place=next(self.quest.knowledge_base.filter(facts.Place)), result=False)
 
     def test_check_located_in__hero__in_place(self):
         self.hero.position.set_place(self.place_1)
@@ -783,7 +783,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
     def test_check_located_near__wrong_hero(self):
         wrong_hero = facts.Hero(uid='wrong_hero', externals={'id': 666})
         self.quest.knowledge_base += wrong_hero
-        self.check_located_near(object=wrong_hero, place=self.quest.knowledge_base.filter(facts.Place).next(), result=False)
+        self.check_located_near(object=wrong_hero, place=next(self.quest.knowledge_base.filter(facts.Place)), result=False)
 
     def test_check_located_near__hero__in_place(self):
         self.hero.position.set_place(self.place_1)
@@ -923,8 +923,8 @@ class SatisfyRequirementsTests(PrototypeTestsBase):
     def setUp(self):
         super(SatisfyRequirementsTests, self).setUp()
 
-        self.hero_fact = self.quest.knowledge_base.filter(facts.Hero).next()
-        self.person_fact = self.quest.knowledge_base.filter(facts.Person).next()
+        self.hero_fact = next(self.quest.knowledge_base.filter(facts.Hero))
+        self.person_fact = next(self.quest.knowledge_base.filter(facts.Person))
 
         self.person = persons_storage.persons[self.person_fact.externals['id']]
 

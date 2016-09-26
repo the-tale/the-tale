@@ -35,7 +35,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
 
     @classmethod
     def get_forum_subcategory_caption(cls, clan_name):
-        return u'Раздел гильдии «%s»' % clan_name
+        return 'Раздел гильдии «%s»' % clan_name
 
     @classmethod
     @transaction.atomic
@@ -116,10 +116,10 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
         self.save()
 
     def create_remove_member_message(self, initiator, removed_account):
-        message = u'''
+        message = '''
 Игрок %(clan_leader_link)s исключил вас из гильдии %(clan_link)s.
-''' % {'clan_leader_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
-       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.id), self.name)}
+''' % {'clan_leader_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
+       'clan_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.id), self.name)}
 
         MessagePrototype.create(initiator, removed_account, message)
 
@@ -189,47 +189,47 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
     def clan(self): return ClanPrototype.get_by_id(self.clan_id)
 
     def create_invite_message(self, initiator):
-        message = u'''
+        message = '''
 Игрок %(clan_leader_link)s предлагает вам вступить в гильдию %(clan_link)s:
 
 %(text)s
 
 ----------
 принять или отклонить предложение вы можете на этой странице: %(invites_link)s
-''' % {'clan_leader_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
+''' % {'clan_leader_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
        'text': self.text,
-       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name),
-       'invites_link': u'[url="%s"]Приглашения в гильдию [/url]' % full_url('http', 'accounts:clans:membership:for-account')}
+       'clan_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name),
+       'invites_link': '[url="%s"]Приглашения в гильдию [/url]' % full_url('http', 'accounts:clans:membership:for-account')}
 
         MessagePrototype.create(initiator, self.account, message)
 
     def create_request_message(self, initiator):
-        message = u'''
+        message = '''
 Игрок %(account)s просит принять его в вашу гильдию:
 
 %(text)s
 
 ----------
 принять или отклонить предложение вы можете на этой странице: %(invites_link)s
-''' % {'account': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', self.account.id), self.account.nick_verbose),
+''' % {'account': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', self.account.id), self.account.nick_verbose),
        'text': self.text,
-       'invites_link': u'[url="%s"]Заявки в гильдию[/url]' % full_url('http', 'accounts:clans:membership:for-clan')}
+       'invites_link': '[url="%s"]Заявки в гильдию[/url]' % full_url('http', 'accounts:clans:membership:for-clan')}
 
         MessagePrototype.create(initiator, self.clan.get_leader(), message)
 
     def create_accept_request_message(self, initiator):
-        message = u'''
+        message = '''
 Игрок %(clan_leader_link)s принял вас в гильдию %(clan_link)s.
-''' % {'clan_leader_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
-       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name)}
+''' % {'clan_leader_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
+       'clan_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name)}
 
         MessagePrototype.create(initiator, self.account, message)
 
     def create_reject_request_message(self, initiator):
-        message = u'''
+        message = '''
 Игрок %(clan_leader_link)s отказал вам в принятии в гильдию %(clan_link)s.
-''' % {'clan_leader_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
-       'clan_link': u'[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name)}
+''' % {'clan_leader_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
+       'clan_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name)}
 
         MessagePrototype.create(initiator, self.account, message)
 

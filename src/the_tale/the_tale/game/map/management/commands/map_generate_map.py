@@ -28,7 +28,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         try:
-            for i in xrange(options['repeate_number']): # pylint: disable=W0612
+            for i in range(options['repeate_number']): # pylint: disable=W0612
                 # print i
                 update_map(index=map_info_storage.item.id+1)
         except Exception: # pylint: disable=W0703

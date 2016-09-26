@@ -20,19 +20,19 @@ class PrototypeTestsBase(testcase.TestCase):
 
         self.account_1_items = AccountItemsPrototype.get_by_account_id(self.account_1.id)
 
-        self.collection_1 = CollectionPrototype.create(caption=u'collection_1', description=u'description_1')
-        self.collection_2 = CollectionPrototype.create(caption=u'collection_2', description=u'description_2', approved=True)
+        self.collection_1 = CollectionPrototype.create(caption='collection_1', description='description_1')
+        self.collection_2 = CollectionPrototype.create(caption='collection_2', description='description_2', approved=True)
 
-        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption=u'kit_1', description=u'description_1')
+        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption='kit_1', description='description_1')
 
-        self.kit_2 = KitPrototype.create(collection=self.collection_2, caption=u'kit_2', description=u'description_2', approved=True)
-        self.kit_3 = KitPrototype.create(collection=self.collection_2, caption=u'kit_3', description=u'description_3', approved=True)
+        self.kit_2 = KitPrototype.create(collection=self.collection_2, caption='kit_2', description='description_2', approved=True)
+        self.kit_3 = KitPrototype.create(collection=self.collection_2, caption='kit_3', description='description_3', approved=True)
 
-        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_1', text=u'text_1_1', approved=False)
-        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption=u'item_1_2', text=u'text_1_2', approved=True)
-        self.item_2_1 = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_1', text=u'text_2_1', approved=True)
-        self.item_2_2 = ItemPrototype.create(kit=self.kit_2, caption=u'item_2_2', text=u'text_2_2', approved=False)
-        self.item_3_1 = ItemPrototype.create(kit=self.kit_3, caption=u'item_3_1', text=u'text_3_1', approved=True)
+        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption='item_1_1', text='text_1_1', approved=False)
+        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption='item_1_2', text='text_1_2', approved=True)
+        self.item_2_1 = ItemPrototype.create(kit=self.kit_2, caption='item_2_1', text='text_2_1', approved=True)
+        self.item_2_2 = ItemPrototype.create(kit=self.kit_2, caption='item_2_2', text='text_2_2', approved=False)
+        self.item_3_1 = ItemPrototype.create(kit=self.kit_3, caption='item_3_1', text='text_3_1', approved=True)
 
 
 class CollectionPrototypeTests(PrototypeTestsBase):
@@ -42,7 +42,7 @@ class CollectionPrototypeTests(PrototypeTestsBase):
         self.assertTrue(self.collection_2.id in collections_storage)
 
         with self.check_changed(lambda: collections_storage.version):
-            collection = CollectionPrototype.create(caption=u'collection_3', description=u'description_3')
+            collection = CollectionPrototype.create(caption='collection_3', description='description_3')
 
         self.assertTrue(collection.id in collections_storage)
 
@@ -61,7 +61,7 @@ class KitPrototypeTests(PrototypeTestsBase):
         self.assertTrue(self.kit_2.id in kits_storage)
 
         with self.check_changed(lambda: kits_storage.version):
-            kit = KitPrototype.create(collection=self.collection_2, caption=u'kit_3', description=u'description_3')
+            kit = KitPrototype.create(collection=self.collection_2, caption='kit_3', description='description_3')
 
         self.assertTrue(kit.id in kits_storage)
 
@@ -80,7 +80,7 @@ class ItemPrototypeTests(PrototypeTestsBase):
         self.assertTrue(self.item_1_2.id in items_storage)
 
         with self.check_changed(lambda: items_storage.version):
-            item = ItemPrototype.create(kit=self.kit_2, caption=u'item_3', text=u'description_3')
+            item = ItemPrototype.create(kit=self.kit_2, caption='item_3', text='description_3')
 
         self.assertTrue(item.id in items_storage)
 

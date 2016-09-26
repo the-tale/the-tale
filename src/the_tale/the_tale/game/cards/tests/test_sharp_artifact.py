@@ -53,7 +53,7 @@ class SharpAllArtifactsTests(CardsTestMixin, testcase.TestCase):
         self.card = self.CARD()
 
     def test_use(self):
-        with self.check_delta(lambda: self.hero.equipment.get_power().total(), len(self.hero.equipment.values())):
+        with self.check_delta(lambda: self.hero.equipment.get_power().total(), len(list(self.hero.equipment.values()))):
             result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))

@@ -26,24 +26,24 @@ class Command(BaseCommand):
         version = options['game-version']
 
         if version is None:
-            print >> sys.stderr, 'game version MUST be specified'
+            print('game version MUST be specified', file=sys.stderr)
             sys.exit(1)
 
-        print
-        print 'GENERATE JAVASCRIPT CONSTANTS'
-        print
+        print()
+        print('GENERATE JAVASCRIPT CONSTANTS')
+        print()
 
         run_django_command(['game_generate_js'])
 
-        print
-        print 'GENERATE CSS'
-        print
+        print()
+        print('GENERATE CSS')
+        print()
 
         run_django_command(['less_generate_css'])
 
-        print
-        print 'GENERATE META CONFIG'
-        print
+        print()
+        print('GENERATE META CONFIG')
+        print()
 
         META_CONFIG.increment_static_data_version()
         META_CONFIG.version = version

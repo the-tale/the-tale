@@ -18,25 +18,25 @@ EFFECT_CHOICES = sorted(relations.ARTIFACT_EFFECT.choices(), key=lambda v: v[1])
 
 class ArtifactRecordBaseForm(forms.Form):
 
-    level = fields.IntegerField(label=u'минимальный уровень')
+    level = fields.IntegerField(label='минимальный уровень')
 
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label=u'Название')
+    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название')
 
-    description = bbcode.BBField(label=u'Описание', required=False)
+    description = bbcode.BBField(label='Описание', required=False)
 
-    type = fields.TypedChoiceField(label=u'тип', choices=relations.ARTIFACT_TYPE.choices(), coerce=relations.ARTIFACT_TYPE.get_from_name)
-    power_type = fields.TypedChoiceField(label=u'тип силы', choices=relations.ARTIFACT_POWER_TYPE.choices(), coerce=relations.ARTIFACT_POWER_TYPE.get_from_name)
+    type = fields.TypedChoiceField(label='тип', choices=relations.ARTIFACT_TYPE.choices(), coerce=relations.ARTIFACT_TYPE.get_from_name)
+    power_type = fields.TypedChoiceField(label='тип силы', choices=relations.ARTIFACT_POWER_TYPE.choices(), coerce=relations.ARTIFACT_POWER_TYPE.get_from_name)
 
-    rare_effect = fields.TypedChoiceField(label=u'редкий эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
-    epic_effect = fields.TypedChoiceField(label=u'эпический эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
+    rare_effect = fields.TypedChoiceField(label='редкий эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
+    epic_effect = fields.TypedChoiceField(label='эпический эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
 
-    special_effect = fields.TypedChoiceField(label=u'особое свойство', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
+    special_effect = fields.TypedChoiceField(label='особое свойство', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
 
-    mob = fields.ChoiceField(label=u'Монстр', required=False)
+    mob = fields.ChoiceField(label='Монстр', required=False)
 
     def __init__(self, *args, **kwargs):
         super(ArtifactRecordBaseForm, self).__init__(*args, **kwargs)
-        self.fields['mob'].choices = [('', u'-------')] + [(mob.id, mob.name) for mob in sorted(mobs_storage.all(), key=lambda mob: mob.name)]
+        self.fields['mob'].choices = [('', '-------')] + [(mob.id, mob.name) for mob in sorted(mobs_storage.all(), key=lambda mob: mob.name)]
 
     def clean_mob(self):
         mob = self.cleaned_data.get('mob')
@@ -64,7 +64,7 @@ class ArtifactRecordForm(ArtifactRecordBaseForm):
 
 
 class ModerateArtifactRecordForm(ArtifactRecordBaseForm):
-    approved = fields.BooleanField(label=u'одобрен', required=False)
+    approved = fields.BooleanField(label='одобрен', required=False)
 
     @classmethod
     def get_initials(cls, mob):

@@ -107,7 +107,7 @@ class HabilitiesContainerTest(TestCase):
         self.assertFalse(self.abilities.can_reset)
 
     def test_rechooce_choices(self):
-        for i in xrange(1000):
+        for i in range(1000):
             old_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())
 
             with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
@@ -136,7 +136,7 @@ class HabilitiesContainerTest(TestCase):
 
         self.assertEqual(len(self.abilities._get_candidates()), c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
 
-        for i in xrange(1000):
+        for i in range(1000):
             old_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())
             self.assertFalse(self.abilities.rechooce_choices())
             new_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())
@@ -174,12 +174,12 @@ class HabilitiesTest(TestCase):
         pass
 
     def test_serrialization(self):
-        for ability_class in ABILITIES.values():
+        for ability_class in list(ABILITIES.values()):
             ability = ability_class(level=random.randint(1, ability_class.MAX_LEVEL))
             self.assertEqual(ability, ability_class.deserialize(ability.serialize()))
 
     def test_on_miss_method_exists(self):
-        for ability_class in ABILITIES.values():
+        for ability_class in list(ABILITIES.values()):
             if ability_class.LOGIC_TYPE is not None and ability_class.LOGIC_TYPE.is_WITH_CONTACT:
                 self.assertTrue('on_miss' in ability_class.__dict__)
 
@@ -368,7 +368,7 @@ class ChooseAbilityTaskTest(TestCase):
                 return ability.get_id()
 
     def get_only_for_mobs_ability_id(self):
-        for ability_key, ability in ABILITIES.items():
+        for ability_key, ability in list(ABILITIES.items()):
             if (not ability().availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value):
                 return ability_key
 

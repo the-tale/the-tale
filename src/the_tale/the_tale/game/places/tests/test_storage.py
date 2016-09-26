@@ -85,7 +85,7 @@ class PlacesStorageTest(testcase.TestCase):
     def test_random_place(self):
         places = set([self.p1.id, self.p2.id, self.p3.id])
 
-        for i in xrange(100):
+        for i in range(100):
             places.discard(self.storage.random_place().id)
 
         self.assertFalse(places)

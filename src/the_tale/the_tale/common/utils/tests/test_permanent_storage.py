@@ -8,14 +8,14 @@ from the_tale.common.utils.permanent_storage import PermanentStorage, PermanentR
 
 
 class TEST_RELATION(DjangoEnum):
-    records = ( ('REC_1', 0, u'rec_1'),
-                 ('REC_3', 1, u'rec_2'),
-                 ('REC_5', 2, u'rec_3')  )
+    records = ( ('REC_1', 0, 'rec_1'),
+                 ('REC_3', 1, 'rec_2'),
+                 ('REC_5', 2, 'rec_3')  )
 
 class WRONG_TEST_RELATION(DjangoEnum):
-    records = ( ('WREC_1', 0, u'wrec_1'),
-                 ('WREC_3', 1, u'wrec_2'),
-                 ('WREC_5', 2, u'wrec_3')  )
+    records = ( ('WREC_1', 0, 'wrec_1'),
+                 ('WREC_3', 1, 'wrec_2'),
+                 ('WREC_5', 2, 'wrec_3')  )
 
 class TestPermanentRelationStorage(PermanentRelationsStorage):
     RELATION = TEST_RELATION

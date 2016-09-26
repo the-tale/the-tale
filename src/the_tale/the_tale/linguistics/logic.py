@@ -46,7 +46,7 @@ def get_templates_count():
 
     groups_count = {group: 0 for group in groups_relations.LEXICON_GROUP.records}
 
-    for key, key_count in keys_count.iteritems():
+    for key, key_count in keys_count.items():
         groups_count[key.group] += key_count
 
     return groups_count, keys_count
@@ -65,7 +65,7 @@ def _process_arguments(args):
     externals = {}
     restrictions = set()
 
-    for k, v in args.iteritems():
+    for k, v in args.items():
         word_form, variable_restrictions = VARIABLE(k).type.constructor(v)
         externals[k] = word_form
         restrictions.update((k, restriction_id) for restriction_id in variable_restrictions)
@@ -82,7 +82,7 @@ def prepair_get_text(key, args, quiet=False):
 
     externals, restrictions = _process_arguments(args)
 
-    if (not game_lexicon.item.has_key(lexicon_key) and
+    if (lexicon_key not in game_lexicon.item and
         not quiet and
         not project_settings.TESTS_RUNNING):
         logger.warn('no ingame templates for key: %s', lexicon_key)
@@ -91,7 +91,7 @@ def prepair_get_text(key, args, quiet=False):
 
 
 def fake_text(lexicon_key, externals):
-    return unicode(lexicon_key) + u': ' + u' '.join(u'%s=%s' % (k, v.form) for k, v in externals.iteritems())
+    return str(lexicon_key) + ': ' + ' '.join('%s=%s' % (k, v.form) for k, v in externals.items())
 
 @dext_decorators.retry_on_exception(max_retries=conf.linguistics_settings.MAX_RENDER_TEXT_RETRIES, exceptions=[utg_exceptions.UtgError])
 def _render_utg_text(lexicon_key, restrictions, externals):
@@ -108,7 +108,7 @@ def render_text(lexicon_key, externals, quiet=False, restrictions=frozenset()):
         return _render_utg_text(lexicon_key, restrictions, externals)
     except utg_exceptions.UtgError as e:
         if not quiet and not project_settings.TESTS_RUNNING:
-            logger.error(u'Exception in linguistics; key=%s, args=%r, message: "%s"' % (lexicon_key, externals, e),
+            logger.error('Exception in linguistics; key=%s, args=%r, message: "%s"' % (lexicon_key, externals, e),
                          exc_info=sys.exc_info(),
                          extra={} )
         return fake_text(lexicon_key, externals)
@@ -120,7 +120,7 @@ def get_text(key, args, quiet=False):
     if lexicon_key is None:
         return None
 
-    if not game_lexicon.item.has_key(lexicon_key):
+    if lexicon_key not in game_lexicon.item:
         return fake_text(key, externals)
 
     return render_text(lexicon_key, externals, quiet, restrictions=restrictions)
@@ -161,7 +161,7 @@ def update_templates_errors():
 
 
 def efication(text):
-    return text.replace(u'ё', u'е').replace(u'Ё', u'Е')
+    return text.replace('ё', 'е').replace('Ё', 'Е')
 
 
 def create_restriction(group, external_id, name):
@@ -202,8 +202,8 @@ def fill_empty_keys_with_fake_phrases(prefix):
     models.Template.objects.filter(raw_template__startswith=prefix).delete()
 
     for i, key in enumerate(keys.LEXICON_KEY.records):
-        if not game_lexicon._item.has_key(key):
-            text = u'%s-%d' % (prefix, i)
+        if key not in game_lexicon._item:
+            text = '%s-%d' % (prefix, i)
             template = utg_templates.Template()
             template.parse(text, externals=[v.value for v in key.variables])
             prototype = prototypes.TemplatePrototype.create(key=key,
@@ -263,16 +263,16 @@ def ui_format(text):
 
     # ⛁ old money
 
-    text = RE_NAME.sub(u'<span class="log-short log-short-name" rel="tooltip" title="актёр">!\\1!</span>', text)
-    text = RE_HP_UP.sub(u'<span class="log-short log-short-hp-up" rel="tooltip" title="восстановленное здоровье">+!\\1!♥</span>', text)
-    text = RE_HP_DOWN.sub(u'<span class="log-short log-short-hp-down" rel="tooltip" title="полученный урон">-!\\1!♥</span>', text)
-    text = RE_GOLD_UP.sub(u'<span class="log-short log-short-gold-up" rel="tooltip" title="полученные монеты">+!\\1!☉</span>', text)
-    text = RE_GOLD_DOWN.sub(u'<span class="log-short log-short-gold-down" rel="tooltip" title="потерянные монеты">-!\\1!☉</span>', text)
-    text = RE_EXP_UP.sub(u'<span class="log-short log-short-exp-up" rel="tooltip" title="полученный опыт">+!\\1!★</span>', text)
+    text = RE_NAME.sub('<span class="log-short log-short-name" rel="tooltip" title="актёр">!\\1!</span>', text)
+    text = RE_HP_UP.sub('<span class="log-short log-short-hp-up" rel="tooltip" title="восстановленное здоровье">+!\\1!♥</span>', text)
+    text = RE_HP_DOWN.sub('<span class="log-short log-short-hp-down" rel="tooltip" title="полученный урон">-!\\1!♥</span>', text)
+    text = RE_GOLD_UP.sub('<span class="log-short log-short-gold-up" rel="tooltip" title="полученные монеты">+!\\1!☉</span>', text)
+    text = RE_GOLD_DOWN.sub('<span class="log-short log-short-gold-down" rel="tooltip" title="потерянные монеты">-!\\1!☉</span>', text)
+    text = RE_EXP_UP.sub('<span class="log-short log-short-exp-up" rel="tooltip" title="полученный опыт">+!\\1!★</span>', text)
     # text = RE_EXP_DOWN.sub(u'<span class="log-short log-short-exp-down" rel="tooltip" title="полученный урон">-!\\1!★</span>', text)
-    text = RE_ENERGY_UP.sub(u'<span class="log-short log-short-energy-up" rel="tooltip" title="полученная энергия">+!\\1!⚡</span>', text)
-    text = RE_ENERGY_DOWN.sub(u'<span class="log-short log-short-energy-down" rel="tooltip" title="потерянная энергия">-!\\1!⚡</span>', text)
-    text = RE_EFFECTIVENESS_UP.sub(u'<span class="log-short log-short-effectiveness-up" rel="tooltip" title="полученная эффективность">+!\\1!👁</span>', text)
+    text = RE_ENERGY_UP.sub('<span class="log-short log-short-energy-up" rel="tooltip" title="полученная энергия">+!\\1!⚡</span>', text)
+    text = RE_ENERGY_DOWN.sub('<span class="log-short log-short-energy-down" rel="tooltip" title="потерянная энергия">-!\\1!⚡</span>', text)
+    text = RE_EFFECTIVENESS_UP.sub('<span class="log-short log-short-effectiveness-up" rel="tooltip" title="полученная эффективность">+!\\1!👁</span>', text)
     # text = RE_EFFECTIVENESS_DOWN(u'<span class="log-short log-short-effectiveness-down" rel="tooltip" title="полученный урон">-!\\1!⚡</span>', text)
 
     return text

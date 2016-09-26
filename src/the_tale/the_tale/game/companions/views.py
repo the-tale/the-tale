@@ -36,22 +36,22 @@ class ModerateCompanionProcessor(dext_views.PermissionProcessor):
 
 
 class EditorAccessProcessor(dext_views.AccessProcessor):
-    ERROR_CODE = u'companions.no_edit_rights'
-    ERROR_MESSAGE = u'Вы не можете редактировать спутников'
+    ERROR_CODE = 'companions.no_edit_rights'
+    ERROR_MESSAGE = 'Вы не можете редактировать спутников'
 
     def check(self, context):
         return context.companions_can_edit
 
 
 class ModeratorAccessProcessor(dext_views.AccessProcessor):
-    ERROR_CODE = u'companions.no_moderate_rights'
-    ERROR_MESSAGE = u'Вы не можете модерировать спутников'
+    ERROR_CODE = 'companions.no_moderate_rights'
+    ERROR_MESSAGE = 'Вы не можете модерировать спутников'
 
     def check(self, context): return context.companions_can_moderate
 
 
 class CompanionProcessor(dext_views.ArgumentProcessor):
-    ERROR_MESSAGE = u'Спутник не найден'
+    ERROR_MESSAGE = 'Спутник не найден'
     URL_NAME = 'companion'
     CONTEXT_NAME = 'companion'
 
@@ -84,28 +84,28 @@ INDEX_DEDICATION = list_filter.filter_relation(relations.DEDICATION)
 INDEX_ABILITIES = list_filter.filter_relation(abilities_effects.ABILITIES, sort_key=lambda r: r.text)
 
 class INDEX_ORDER(DjangoEnum):
-    records = ( ('RARITY', 0, u'по редкости'),
-                ('NAME', 1, u'по имени') )
+    records = ( ('RARITY', 0, 'по редкости'),
+                ('NAME', 1, 'по имени') )
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
-                      list_filter.choice_element(u'тип:',
+                      list_filter.choice_element('тип:',
                                                  attribute='type',
                                                  default_value=INDEX_TYPE.FILTER_ALL.value,
                                                  choices=INDEX_TYPE.filter_choices()),
-                      list_filter.choice_element(u'самоотверженность:',
+                      list_filter.choice_element('самоотверженность:',
                                                  attribute='dedication',
                                                  default_value=INDEX_DEDICATION.FILTER_ALL.value,
                                                  choices=INDEX_DEDICATION.filter_choices()),
-                      list_filter.choice_element(u'особенность:',
+                      list_filter.choice_element('особенность:',
                                                  attribute='ability',
                                                  default_value=INDEX_ABILITIES.FILTER_ALL.value,
                                                  choices=INDEX_ABILITIES.filter_choices()),
-                       list_filter.choice_element(u'сортировка:',
+                       list_filter.choice_element('сортировка:',
                                                   attribute='order_by',
                                                   choices=list(INDEX_ORDER.select('value', 'text')),
                                                   default_value=INDEX_ORDER.RARITY.value) ]
 
-MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'состояние:',
+MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element('состояние:',
                                                                            attribute='state',
                                                                            default_value=relations.STATE.ENABLED.value,
                                                                            choices=relations.STATE.select('value', 'text'))]
@@ -123,19 +123,19 @@ class ModeratorIndexFilter(list_filter.ListFilter):
 ########################################
 
 @dext_views.RelationArgumentProcessor(relation=relations.STATE, default_value=relations.STATE.ENABLED,
-                                      error_message=u'неверное состояние записи о спутнике',
+                                      error_message='неверное состояние записи о спутнике',
                                       context_name='companions_state', get_name='state')
 @dext_views.RelationArgumentProcessor(relation=INDEX_TYPE, default_value=INDEX_TYPE.FILTER_ALL,
-                                      error_message=u'неверный тип спутника',
+                                      error_message='неверный тип спутника',
                                       context_name='companions_type', get_name='type')
 @dext_views.RelationArgumentProcessor(relation=INDEX_DEDICATION, default_value=INDEX_DEDICATION.FILTER_ALL,
-                                      error_message=u'неверный тип самоотверженности спутника',
+                                      error_message='неверный тип самоотверженности спутника',
                                       context_name='companions_dedication', get_name='dedication')
 @dext_views.RelationArgumentProcessor(relation=INDEX_ABILITIES, default_value=INDEX_ABILITIES.FILTER_ALL,
-                                      error_message=u'неверный тип особенности спутника',
+                                      error_message='неверный тип особенности спутника',
                                       context_name='companions_ability', get_name='ability')
 @dext_views.RelationArgumentProcessor(relation=INDEX_ORDER, default_value=INDEX_ORDER.RARITY,
-                                      error_message=u'неверный тип сортировки',
+                                      error_message='неверный тип сортировки',
                                       context_name='order_by', get_name='order_by')
 @resource('')
 def index(context):
@@ -152,14 +152,14 @@ def index(context):
         companions = [companion for companion in companions if companion.abilities.has(context.companions_ability.original_relation)]
 
     if not context.companions_can_edit and not context.companions_can_moderate:
-        companions = filter(lambda companion: companion.state.is_ENABLED, companions) # pylint: disable=W0110
+        companions = [companion for companion in companions if companion.state.is_ENABLED] # pylint: disable=W0110
 
     if context.order_by.is_RARITY:
         companions = sorted(companions, key=lambda c: (c.rarity.value, c.name))
     elif context.order_by.is_NAME:
         companions = sorted(companions, key=lambda c: c.name)
 
-    companions = filter(lambda companion: companion.state == context.companions_state, companions) # pylint: disable=W0110
+    companions = [companion for companion in companions if companion.state == context.companions_state] # pylint: disable=W0110
 
     url_builder = UrlBuilder(url('guide:companions:'), arguments={ 'state': context.companions_state.value if context.companions_state is not None else None,
                                                                    'type': context.companions_type.value,
@@ -191,7 +191,7 @@ def index(context):
 def show(context):
 
     if context.companion.state.is_DISABLED and not (context.companions_can_edit or context.companions_can_moderate):
-        raise dext_views.ViewError(code='no_rights', message=u'Вы не можете просматривать информацию по данному спутнику.')
+        raise dext_views.ViewError(code='no_rights', message='Вы не можете просматривать информацию по данному спутнику.')
 
     template_restriction, ingame_companion_phrases = logic.required_templates_count(context.companion)
 
@@ -210,7 +210,7 @@ def show(context):
 def show_dialog(context):
 
     if context.companion.state.is_DISABLED and not (context.companions_can_edit or context.companions_can_moderate):
-        raise dext_views.ViewError(code='no_rights', message=u'Вы не можете просматривать информацию по данному спутнику.')
+        raise dext_views.ViewError(code='no_rights', message='Вы не можете просматривать информацию по данному спутнику.')
 
     return dext_views.Page('companions/info.html',
                            content={'companion': context.companion,

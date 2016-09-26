@@ -133,7 +133,7 @@ class LogicStorageTests(testcase.TestCase):
         self.assertEqual(len(self.storage.heroes), 1)
         self.assertEqual(len(self.storage.accounts_to_heroes), 1)
         self.assertEqual(self.storage.bundles_to_accounts, {self.hero_2.actions.current_action.bundle_id: set([self.account_2.id])})
-        self.assertEqual(self.storage.heroes.values()[0].id, self.hero_2.id)
+        self.assertEqual(list(self.storage.heroes.values())[0].id, self.hero_2.id)
         self.assertFalse(self.storage.skipped_heroes)
 
     def test_save_hero_data(self):
@@ -209,7 +209,7 @@ class LogicStorageTests(testcase.TestCase):
 
         self.storage.process_cache_queue(update_cache=True)
 
-        self.assertItemsEqual(self.storage.current_cache.keys(), (self.hero_1.cached_ui_info_key, self.hero_2.cached_ui_info_key))
+        self.assertItemsEqual(list(self.storage.current_cache.keys()), (self.hero_1.cached_ui_info_key, self.hero_2.cached_ui_info_key))
         self.assertEqual(self.storage.cache_queue, set())
 
     def test_process_cache_queue__without_update(self):
@@ -220,7 +220,7 @@ class LogicStorageTests(testcase.TestCase):
 
         self.storage.process_cache_queue(update_cache=False)
 
-        self.assertItemsEqual(self.storage.current_cache.keys(), ())
+        self.assertItemsEqual(list(self.storage.current_cache.keys()), ())
         self.assertEqual(self.storage.cache_queue, set())
 
     def test_process_cache_queue__update_cache__with_update(self):

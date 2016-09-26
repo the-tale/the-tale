@@ -112,4 +112,4 @@ class FakeWriter(Writer):
 
     def get_message(self, type_, **kwargs):
         self._counter += 1
-        return u'%s_%s_%d' % (self._fake_uid, type_, self._counter)
+        return '%s_%s_%d' % (self._fake_uid, type_, self._counter)

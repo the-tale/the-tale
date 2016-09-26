@@ -10,7 +10,7 @@ from . import storage
 class Mob(meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 5
-    TYPE_CAPTION = u'Монстр'
+    TYPE_CAPTION = 'Монстр'
 
     def __init__(self, caption, **kwargs):
         super(Mob, self).__init__(**kwargs)

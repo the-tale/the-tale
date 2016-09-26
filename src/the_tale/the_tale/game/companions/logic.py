@@ -72,7 +72,7 @@ def create_random_companion_record(name,
                                    communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.CAN,
                                    intellect_level=game_relations.INTELLECT_LEVEL.LOW):
     return create_companion_record(utg_name=names.generator.get_test_name(name=name),
-                                   description=u'description-%s' % name,
+                                   description='description-%s' % name,
                                    type=type,
                                    max_health=max_health,
                                    dedication=dedication,

@@ -54,7 +54,7 @@ class IndexRequestsTests(RequestsTestsBase):
         self.requested_url = url('game:companions:')
         self.requested_url_disabled = url('game:companions:', state=relations.STATE.DISABLED.value)
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name('c-1'),
                                                          description='companion-description',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
@@ -68,7 +68,7 @@ class IndexRequestsTests(RequestsTestsBase):
                                                          intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.ENABLED)
 
-        self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
+        self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name('c-2'),
                                                          description='companion-description',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
@@ -228,7 +228,7 @@ class CreateRequestsTests(RequestsTestsBase):
         self.assertEqual(new_companion.dedication, post_data['dedication'])
         self.assertEqual(new_companion.archetype, post_data['archetype'])
         self.assertEqual(new_companion.mode, post_data['mode'])
-        self.assertEqual(new_companion.name, u'name-нс,ед,им')
+        self.assertEqual(new_companion.name, 'name-нс,ед,им')
 
         self.assertEqual(new_companion.abilities, helpers.FAKE_ABILITIES_CONTAINER_1)
 
@@ -247,7 +247,7 @@ class ShowRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(ShowRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name('c-1'),
                                                          description='companion-description-1',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
@@ -261,7 +261,7 @@ class ShowRequestsTests(RequestsTestsBase):
                                                          intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.ENABLED)
 
-        self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
+        self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name('c-2'),
                                                          description='companion-description-2',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
@@ -367,7 +367,7 @@ class InfoRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(InfoRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name('c-1'),
                                                          description='companion-description-1',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
@@ -381,7 +381,7 @@ class InfoRequestsTests(RequestsTestsBase):
                                                          intellect_level=game_relations.INTELLECT_LEVEL.random(),
                                                          state=relations.STATE.ENABLED)
 
-        self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-2'),
+        self.companion_2 = logic.create_companion_record(utg_name=names.generator.get_test_name('c-2'),
                                                          description='companion-description-2',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
@@ -471,7 +471,7 @@ class EditRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(EditRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name('c-1'),
                                                          description='companion-description-1',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
@@ -516,7 +516,7 @@ class UpdateRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(UpdateRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name('c-1'),
                                                          description='companion-description-1',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,
@@ -585,7 +585,7 @@ class UpdateRequestsTests(RequestsTestsBase):
         self.assertEqual(companion.max_health, post_data['max_health'])
         self.assertEqual(companion.dedication, post_data['dedication'])
         self.assertEqual(companion.mode, post_data['mode'])
-        self.assertEqual(companion.name, u'new_name-нс,ед,им')
+        self.assertEqual(companion.name, 'new_name-нс,ед,им')
         self.assertEqual(companion.abilities, helpers.FAKE_ABILITIES_CONTAINER_2)
 
 
@@ -608,7 +608,7 @@ class EnableRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(EnableRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name(u'c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=names.generator.get_test_name('c-1'),
                                                          description='companion-description-1',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=100,

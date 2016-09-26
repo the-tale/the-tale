@@ -30,12 +30,12 @@ def get_premium_sequences(accounts_query):
             operations_by_accounts[account_id] = []
         operations_by_accounts[account_id].append(operation_uid)
 
-    operations_by_accounts = {account_id: tuple(normalize(operations)) for account_id, operations in operations_by_accounts.iteritems()}
+    operations_by_accounts = {account_id: tuple(normalize(operations)) for account_id, operations in operations_by_accounts.items()}
 
     # allowed_accounts_ids = Account.objects.filter(created_at__lt=datetime.datetime(year=2014, month=1, day=1)).values_list('id', flat=True)
     # operations_by_accounts = {k:v for k,v in operations_by_accounts.iteritems() if k in allowed_accounts_ids}
 
-    return collections.Counter(operations_by_accounts.itervalues())
+    return collections.Counter(iter(operations_by_accounts.values()))
 
 
 def normalize(ops):
@@ -49,8 +49,8 @@ def normalize(ops):
 
 
 def print_sequences(sequences):
-    for operations, count in sorted(sequences.items(), key=lambda x: x[1]):
-        print 'count: %3d total: %3d seq: %r' % (count, sum(operations), operations)
+    for operations, count in sorted(list(sequences.items()), key=lambda x: x[1]):
+        print('count: %3d total: %3d seq: %r' % (count, sum(operations), operations))
 
 
 class StatsNode(simple_tree.Node):
@@ -85,7 +85,7 @@ class StatsNode(simple_tree.Node):
 
     def label(self):
 
-        label = u'''
+        label = '''
 <font point-size="14pt">%s</font> <br/>
 остановившиеся: <br/>
 %d [акт %d ~ %.2f] <br/>
@@ -115,11 +115,11 @@ class Command(BaseCommand):
         old_premiums_now_active = get_premium_sequences(Account.objects.filter(is_fast=False,
                                                                                premium_end_at__lt=datetime.datetime.now(),
                                                                                active_end_at__gt=datetime.datetime.now()))
-        print 'old_premiums now active: ', sum(old_premiums_now_active.itervalues())
+        print('old_premiums now active: ', sum(old_premiums_now_active.values()))
 
         now_premiums = get_premium_sequences(Account.objects.filter(is_fast=False,
                                                                     premium_end_at__gt=datetime.datetime.now()))
-        print 'now premiums: ', sum(now_premiums.itervalues())
+        print('now premiums: ', sum(now_premiums.values()))
 
         # print '-----PREMIUMS----'
         premiums = get_premium_sequences(Account.objects.filter(is_fast=False, premium_end_at__gt=datetime.datetime.now()))
@@ -136,33 +136,33 @@ class Command(BaseCommand):
         # print_sequences(olds)
 
 
-        tree = StatsNode(uid='root', data={'uid': u'root',
+        tree = StatsNode(uid='root', data={'uid': 'root',
                                            'len': 0,
                                            'total_stop': 0,
                                            'active_stop': 0})
 
-        for path, count in alls.iteritems():
+        for path, count in alls.items():
             # if count == 1:
             #     continue
 
             tree_path = [tree]
             for length in path:
-                tree_path.append(StatsNode(uid=u'%s_%d' % (tree_path[-1].uid, length),
-                                           data={'uid': u'%s' % length,
+                tree_path.append(StatsNode(uid='%s_%d' % (tree_path[-1].uid, length),
+                                           data={'uid': '%s' % length,
                                                  'len': length,
                                                  'total_stop': 0,
                                                  'active_stop': 0}))
             tree_path[-1].data['total_stop'] = count
             tree.add_path(tree_path[1:])
 
-        for path, count in premiums.iteritems():
+        for path, count in premiums.items():
             # if count == 1:
             #     continue
 
             tree_path = [tree]
             for length in path:
-                tree_path.append(StatsNode(uid=u'%s_%d' % (tree_path[-1].uid, length),
-                                           data={'uid': u'%s' % length,
+                tree_path.append(StatsNode(uid='%s_%d' % (tree_path[-1].uid, length),
+                                           data={'uid': '%s' % length,
                                                  'len': length,
                                                  'total_stop': 0,
                                                  'active_stop': 0}))
@@ -170,8 +170,8 @@ class Command(BaseCommand):
             tree.add_path(tree_path[1:])
 
         def processor(node):
-            node.data['active_next'] = sum(child.data['active_next'] + child.data['active_stop'] for child in node.children.itervalues())
-            node.data['total_next'] = sum(child.data['total_next'] + child.data['total_stop'] for child in node.children.itervalues())
+            node.data['active_next'] = sum(child.data['active_next'] + child.data['active_stop'] for child in node.children.values())
+            node.data['total_next'] = sum(child.data['total_next'] + child.data['total_stop'] for child in node.children.values())
 
         tree.process_depth_first(processor)
 
@@ -183,28 +183,28 @@ class Command(BaseCommand):
             if not node.children:
                 return None
 
-            total = sum(child.conversion_total for child in node.children.itervalues())
+            total = sum(child.conversion_total for child in node.children.values())
             choice_value = random.randint(0, total)
 
-            for child in node.children.itervalues():
+            for child in node.children.values():
                 if choice_value <= child.conversion_total:
                     return child
                 choice_value -= child.conversion_total
 
 
         N = 100000
-        lens = sorted(collections.Counter(sum(node.data['len'] for node in tree.random_path(randomizer)) for i in xrange(N)).items(),
+        lens = sorted(list(collections.Counter(sum(node.data['len'] for node in tree.random_path(randomizer)) for i in range(N)).items()),
                       key=lambda x: x[1])
 
         # for length, count in lens:
         #     print '%4d %d' % (length, count)
 
         def print_gt(barier):
-            print '> %d: %.2f ~ (>%.2f$)' % (barier, sum(float(count) / N for length, count in lens if length > barier), 7.5 * barier / 90)
+            print('> %d: %.2f ~ (>%.2f$)' % (barier, sum(float(count) / N for length, count in lens if length > barier), 7.5 * barier / 90))
 
-        print
+        print()
         MEDIUM = sum(length * float(count) / N for length, count in lens)
-        print 'medium: ', MEDIUM
+        print('medium: ', MEDIUM)
         print_gt(30)
         print_gt(60)
         print_gt(90)
@@ -213,10 +213,10 @@ class Command(BaseCommand):
 
         ids = Account.objects.filter(is_fast=False, created_at__gt=datetime.datetime.now() - datetime.timedelta(days=MEDIUM)).values_list('id', flat=True)
         prems_for_medium_days = len(set(Invoice.objects.filter(recipient_id__in=ids, operation_uid__contains='subscription').values_list('recipient_id')))
-        print 'prems for medium days:', prems_for_medium_days
-        print 'to acquire in day > %.2f ' % (prems_for_medium_days / MEDIUM)
+        print('prems for medium days:', prems_for_medium_days)
+        print('to acquire in day > %.2f ' % (prems_for_medium_days / MEDIUM))
 
-        for i in xrange(10):
+        for i in range(10):
             tree = tree.filter(lambda node: node.data['total_stop'] > 1 or node.children)
 
         simple_tree.Drawer(tree).draw('/tmp/tree.png')

@@ -10,7 +10,7 @@ from . import storage
 class Person(meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 10
-    TYPE_CAPTION = u'Мастер'
+    TYPE_CAPTION = 'Мастер'
 
     def __init__(self, caption, **kwargs):
         super(Person, self).__init__(**kwargs)

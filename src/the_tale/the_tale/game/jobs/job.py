@@ -49,7 +49,7 @@ class Job(object):
     def create_name(cls, effect):
         from the_tale.linguistics.logic import get_text
 
-        return get_text(u'job_name_{actor}_{effect}'.format(actor=cls.ACTOR, effect=effect.name).upper(), {})
+        return get_text('job_name_{actor}_{effect}'.format(actor=cls.ACTOR, effect=effect.name).upper(), {})
 
 
     def serialize(self):

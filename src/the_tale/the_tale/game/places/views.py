@@ -53,7 +53,7 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 @api.Processor(versions=(conf.settings.API_LIST_VERSION,))
 @resource('api', 'list', name='api-list')
 def api_list(context):
-    u'''
+    '''
 Получить перечень всех городов с их основными параметрами
 
 - **адрес:** /game/places/api/list
@@ -94,10 +94,10 @@ def api_list(context):
 
 
 @api.Processor(versions=(conf.settings.API_SHOW_VERSION, '2.0'))
-@PlaceProcessor(error_message=u'Город не найден', url_name='place', context_name='place')
+@PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')
 @resource('#place', 'api', 'show', name='api-show')
 def api_show(context):
-    u'''
+    '''
 Подробная информация о конкретном городе
 
 - **адрес:** /game/places/&lt;place&gt;/api/show
@@ -245,7 +245,7 @@ def api_show(context):
     return dext_views.AjaxOk(content=info.place_info(context.place, full_building_info=context.api_version!='2.0'))
 
 
-@PlaceProcessor(error_message=u'Город не найден', url_name='place', context_name='place')
+@PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')
 @resource('#place', name='show')
 def show(context):
     accounts_short_infos = game_short_info.get_accounts_accounts_info(list(context.place.politic_power.inner_accounts_ids()))

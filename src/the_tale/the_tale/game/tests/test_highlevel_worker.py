@@ -162,7 +162,7 @@ class HighlevelTest(testcase.TestCase):
 
         self.assertEqual(time.turn_number, 1)
 
-        for i in xrange(c.MAP_SYNC_TIME-1):
+        for i in range(c.MAP_SYNC_TIME-1):
             self.worker.process_next_turn(time.turn_number)
             self.assertFalse(hasattr(self.worker, '_data_synced'))
 

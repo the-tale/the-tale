@@ -344,7 +344,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(hero_2.pvp.energy_speed, 1)
 
         with mock.patch('the_tale.game.pvp.abilities.Flame.use') as use:
-            for i in xrange(100):
+            for i in range(100):
                 self.meta_action_battle.process_bot(hero_1, hero_2)
 
         self.assertEqual(use.call_count, 0)

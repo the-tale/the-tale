@@ -197,7 +197,7 @@ class RawQuestsTest(QuestsTestBase):
         powers = set()
 
         if isinstance(current_state, facts.Finish):
-            for object_uid in current_state.results.iterkeys():
+            for object_uid in current_state.results.keys():
                 powers.add((start, object_uid))
 
         return powers

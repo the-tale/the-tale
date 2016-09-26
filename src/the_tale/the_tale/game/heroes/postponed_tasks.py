@@ -24,13 +24,13 @@ from the_tale.game.heroes import relations
 
 
 class CHOOSE_HERO_ABILITY_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 0, u'в очереди'),
-                ('PROCESSED', 1, u'обработана'),
-                ('WRONG_ID', 2, u'неверный идентификатор способности'),
-                ('NOT_IN_CHOICE_LIST', 3, u'способность недоступна для выбора'),
-                ('NOT_FOR_PLAYERS', 4, u'способность не для игроков'),
-                ('MAXIMUM_ABILITY_POINTS_NUMBER', 5, u'все доступные способности выбраны'),
-                ('ALREADY_MAX_LEVEL', 6, u'способность уже имеет максимальный уровень') )
+    records = ( ('UNPROCESSED', 0, 'в очереди'),
+                ('PROCESSED', 1, 'обработана'),
+                ('WRONG_ID', 2, 'неверный идентификатор способности'),
+                ('NOT_IN_CHOICE_LIST', 3, 'способность недоступна для выбора'),
+                ('NOT_FOR_PLAYERS', 4, 'способность не для игроков'),
+                ('MAXIMUM_ABILITY_POINTS_NUMBER', 5, 'все доступные способности выбраны'),
+                ('ALREADY_MAX_LEVEL', 6, 'способность уже имеет максимальный уровень') )
 
 class ChooseHeroAbilityTask(PostponedLogic):
 
@@ -56,21 +56,21 @@ class ChooseHeroAbilityTask(PostponedLogic):
 
         if self.ability_id not in ABILITIES:
             self.state = CHOOSE_HERO_ABILITY_STATE.WRONG_ID
-            main_task.comment = u'no ability with id "%s"' % self.ability_id
+            main_task.comment = 'no ability with id "%s"' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         choices = hero.abilities.get_for_choose()
 
         if self.ability_id not in [choice.get_id() for choice in choices]:
             self.state = CHOOSE_HERO_ABILITY_STATE.NOT_IN_CHOICE_LIST
-            main_task.comment = u'ability not in choices list: %s' % self.ability_id
+            main_task.comment = 'ability not in choices list: %s' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         ability_class = ABILITIES[self.ability_id]
 
         if not (ability_class.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value):
             self.state = CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS
-            main_task.comment = u'ability "%s" does not available to players' % self.ability_id
+            main_task.comment = 'ability "%s" does not available to players' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if not hero.abilities.can_choose_new_ability:
@@ -96,8 +96,8 @@ class ChooseHeroAbilityTask(PostponedLogic):
 
 
 class CHANGE_HERO_TASK_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 0, u'в очереди'),
-                ('PROCESSED', 1, u'обработана') )
+    records = ( ('UNPROCESSED', 0, 'в очереди'),
+                ('PROCESSED', 1, 'обработана') )
 
 class ChangeHeroTask(PostponedLogic):
 
@@ -140,9 +140,9 @@ class ChangeHeroTask(PostponedLogic):
 
 
 class RESET_HERO_ABILITIES_TASK_STATE(DjangoEnum):
-   records = ( ('UNPROCESSED', 0, u'в очереди'),
-               ('PROCESSED', 1, u'обработана'),
-               ('RESET_TIMEOUT', 2, u'сброс способностей пока не доступен'))
+   records = ( ('UNPROCESSED', 0, 'в очереди'),
+               ('PROCESSED', 1, 'обработана'),
+               ('RESET_TIMEOUT', 2, 'сброс способностей пока не доступен'))
 
 class ResetHeroAbilitiesTask(PostponedLogic):
 
@@ -165,7 +165,7 @@ class ResetHeroAbilitiesTask(PostponedLogic):
         hero = storage.heroes[self.hero_id]
 
         if not hero.abilities.can_reset:
-            main_task.comment = u'reset timeout'
+            main_task.comment = 'reset timeout'
             self.state = RESET_HERO_ABILITIES_TASK_STATE.RESET_TIMEOUT
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -179,27 +179,27 @@ class ResetHeroAbilitiesTask(PostponedLogic):
 
 
 class CHOOSE_PREFERENCES_TASK_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 0, u'в очереди'),
-                ('PROCESSED', 1, u'обработана'),
-                ('COOLDOWN', 2, u'смена способности недоступна'),
-                ('LOW_LEVEL', 3, u'низкий уровень героя'),
-                ('UNAVAILABLE_PERSON', 4, u'житель недоступен'),
-                ('OUTGAME_PERSON', 5, u'житель выведен из игры'),
-                ('UNSPECIFIED_PREFERENCE', 6, u'предпочтение неуказано'),
-                ('UNKNOWN_ENERGY_REGENERATION_TYPE', 7, u'неизвестный тип восстановления энергии'),
-                ('UNKNOWN_MOB', 8, u'неизвестный тип монстра'),
-                ('LARGE_MOB_LEVEL', 9, u'слишком сильный монстр'),
-                ('UNKNOWN_PLACE', 10, u'неизвестное место'),
-                ('ENEMY_AND_FRIEND', 11, u'житель одновременно и друг и враг'),
-                ('UNKNOWN_PERSON', 12, u'неизвестный житель'),
-                ('UNKNOWN_EQUIPMENT_SLOT', 13, u'неизвестный тип экипировки'),
-                ('UNKNOWN_PREFERENCE', 14, u'неизвестный тип предпочтения'),
-                ('MOB_NOT_IN_GAME', 15, u'этот тип противника выведен из игры'),
-                ('UNKNOWN_RISK_LEVEL', 16, u'неизвестный уровень риска'),
-                ('EMPTY_EQUIPMENT_SLOT', 17, u'пустой слот экипировки'),
-                ('UNKNOWN_ARCHETYPE', 18, u'неизвестный архетип'),
-                ('UNKNOWN_COMPANION_DEDICATION', 19, u'неизвестное отношение со спутником'),
-                ('UNKNOWN_COMPANION_EMPATHY', 20, u'неизвестная форма эмпатии'))
+    records = ( ('UNPROCESSED', 0, 'в очереди'),
+                ('PROCESSED', 1, 'обработана'),
+                ('COOLDOWN', 2, 'смена способности недоступна'),
+                ('LOW_LEVEL', 3, 'низкий уровень героя'),
+                ('UNAVAILABLE_PERSON', 4, 'житель недоступен'),
+                ('OUTGAME_PERSON', 5, 'житель выведен из игры'),
+                ('UNSPECIFIED_PREFERENCE', 6, 'предпочтение неуказано'),
+                ('UNKNOWN_ENERGY_REGENERATION_TYPE', 7, 'неизвестный тип восстановления энергии'),
+                ('UNKNOWN_MOB', 8, 'неизвестный тип монстра'),
+                ('LARGE_MOB_LEVEL', 9, 'слишком сильный монстр'),
+                ('UNKNOWN_PLACE', 10, 'неизвестное место'),
+                ('ENEMY_AND_FRIEND', 11, 'житель одновременно и друг и враг'),
+                ('UNKNOWN_PERSON', 12, 'неизвестный житель'),
+                ('UNKNOWN_EQUIPMENT_SLOT', 13, 'неизвестный тип экипировки'),
+                ('UNKNOWN_PREFERENCE', 14, 'неизвестный тип предпочтения'),
+                ('MOB_NOT_IN_GAME', 15, 'этот тип противника выведен из игры'),
+                ('UNKNOWN_RISK_LEVEL', 16, 'неизвестный уровень риска'),
+                ('EMPTY_EQUIPMENT_SLOT', 17, 'пустой слот экипировки'),
+                ('UNKNOWN_ARCHETYPE', 18, 'неизвестный архетип'),
+                ('UNKNOWN_COMPANION_DEDICATION', 19, 'неизвестное отношение со спутником'),
+                ('UNKNOWN_COMPANION_EMPATHY', 20, 'неизвестная форма эмпатии'))
 
 
 class ChoosePreferencesTask(PostponedLogic):
@@ -225,14 +225,14 @@ class ChoosePreferencesTask(PostponedLogic):
     def process_energy_regeneration(self, main_task, hero):
 
         if self.preference_id is None:
-            main_task.comment = u'energy regeneration preference can not be None'
+            main_task.comment = 'energy regeneration preference can not be None'
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNSPECIFIED_PREFERENCE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         try:
             energy_regeneration_type = relations.ENERGY_REGENERATION(int(self.preference_id))
         except Exception:
-            main_task.comment = u'unknown energy regeneration type: %s' % (self.preference_id, )
+            main_task.comment = 'unknown energy regeneration type: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ENERGY_REGENERATION_TYPE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -247,19 +247,19 @@ class ChoosePreferencesTask(PostponedLogic):
         if mob_uuid is not None:
 
             if  not mobs_storage.has_mob(mob_uuid):
-                main_task.comment = u'unknown mob id: %s' % (mob_uuid, )
+                main_task.comment = 'unknown mob id: %s' % (mob_uuid, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_MOB
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             mob = mobs_storage.get_by_uuid(mob_uuid)
 
             if not mob.state.is_ENABLED:
-                main_task.comment = u'mob %s not in game' % (mob_uuid, )
+                main_task.comment = 'mob %s not in game' % (mob_uuid, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.MOB_NOT_IN_GAME
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             if hero.level < mob.level:
-                main_task.comment = u'hero level < mob level (%d < %d)' % (hero.level, mob.level)
+                main_task.comment = 'hero level < mob level (%d < %d)' % (hero.level, mob.level)
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.LARGE_MOB_LEVEL
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -272,14 +272,14 @@ class ChoosePreferencesTask(PostponedLogic):
         try:
             place_id = int(self.preference_id) if self.preference_id is not None else None
         except:
-            main_task.comment = u'unknown place id: %s' % (self.preference_id, )
+            main_task.comment = 'unknown place id: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if place_id is not None:
 
             if place_id not in places_storage.places:
-                main_task.comment = u'unknown place id: %s' % (place_id, )
+                main_task.comment = 'unknown place id: %s' % (place_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PLACE
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -292,18 +292,18 @@ class ChoosePreferencesTask(PostponedLogic):
         try:
             friend_id = int(self.preference_id) if self.preference_id is not None else None
         except:
-            main_task.comment = u'unknown person id: %s' % (self.preference_id, )
+            main_task.comment = 'unknown person id: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if friend_id is not None:
             if hero.preferences.enemy and hero.preferences.enemy.id == friend_id:
-                main_task.comment = u'try set enemy as a friend (%d)' % (friend_id, )
+                main_task.comment = 'try set enemy as a friend (%d)' % (friend_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             if friend_id not in persons_storage.persons:
-                main_task.comment = u'unknown person id: %s' % (friend_id, )
+                main_task.comment = 'unknown person id: %s' % (friend_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -316,18 +316,18 @@ class ChoosePreferencesTask(PostponedLogic):
         try:
             enemy_id = int(self.preference_id) if self.preference_id is not None else None
         except:
-            main_task.comment = u'unknown person id: %s' % (self.preference_id, )
+            main_task.comment = 'unknown person id: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if enemy_id is not None:
             if hero.preferences.friend and hero.preferences.friend.id == enemy_id:
-                main_task.comment = u'try set friend as an enemy (%d)' % (enemy_id, )
+                main_task.comment = 'try set friend as an enemy (%d)' % (enemy_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.ENEMY_AND_FRIEND
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             if enemy_id not in persons_storage.persons:
-                main_task.comment = u'unknown person id: %s' % (enemy_id, )
+                main_task.comment = 'unknown person id: %s' % (enemy_id, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PERSON
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -341,14 +341,14 @@ class ChoosePreferencesTask(PostponedLogic):
         try:
             equipment_slot = int(self.preference_id) if self.preference_id is not None else None
         except:
-            main_task.comment = u'unknown equipment slot: %s' % (self.preference_id, )
+            main_task.comment = 'unknown equipment slot: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if equipment_slot is not None:
 
             if equipment_slot not in relations.EQUIPMENT_SLOT.index_value:
-                main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
+                main_task.comment = 'unknown equipment slot: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -363,21 +363,21 @@ class ChoosePreferencesTask(PostponedLogic):
         try:
             equipment_slot = int(self.preference_id) if self.preference_id is not None else None
         except:
-            main_task.comment = u'unknown equipment slot: %s' % (self.preference_id, )
+            main_task.comment = 'unknown equipment slot: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if equipment_slot is not None:
 
             if equipment_slot not in relations.EQUIPMENT_SLOT.index_value:
-                main_task.comment = u'unknown equipment slot: %s' % (equipment_slot, )
+                main_task.comment = 'unknown equipment slot: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_EQUIPMENT_SLOT
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             equipment_slot = relations.EQUIPMENT_SLOT.index_value[equipment_slot]
 
             if hero.equipment.get(equipment_slot) is None:
-                main_task.comment = u'empty equipment slot for favorite item: %s' % (equipment_slot, )
+                main_task.comment = 'empty equipment slot for favorite item: %s' % (equipment_slot, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.EMPTY_EQUIPMENT_SLOT
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -391,14 +391,14 @@ class ChoosePreferencesTask(PostponedLogic):
         try:
             risk_level = int(self.preference_id) if self.preference_id is not None else None
         except:
-            main_task.comment = u'unknown risk level: %s' % (self.preference_id, )
+            main_task.comment = 'unknown risk level: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if risk_level is not None:
 
             if risk_level not in relations.RISK_LEVEL.index_value:
-                main_task.comment = u'unknown risk level: %s' % (risk_level, )
+                main_task.comment = 'unknown risk level: %s' % (risk_level, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_RISK_LEVEL
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -414,14 +414,14 @@ class ChoosePreferencesTask(PostponedLogic):
         try:
             archetype = int(self.preference_id) if self.preference_id is not None else None
         except:
-            main_task.comment = u'unknown archetype: %s' % (self.preference_id, )
+            main_task.comment = 'unknown archetype: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ARCHETYPE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if archetype is not None:
 
             if archetype not in game_relations.ARCHETYPE.index_value:
-                main_task.comment = u'unknown archetype: %s' % (archetype, )
+                main_task.comment = 'unknown archetype: %s' % (archetype, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_ARCHETYPE
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -437,7 +437,7 @@ class ChoosePreferencesTask(PostponedLogic):
         try:
             companion_dedication = int(self.preference_id) if self.preference_id is not None else None
         except:
-            main_task.comment = u'unknown companion dedication: %s' % (self.preference_id, )
+            main_task.comment = 'unknown companion dedication: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_DEDICATION
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -445,7 +445,7 @@ class ChoosePreferencesTask(PostponedLogic):
         if companion_dedication is not None:
 
             if companion_dedication not in relations.COMPANION_DEDICATION.index_value:
-                main_task.comment = u'unknown companion dedication: %s' % (companion_dedication, )
+                main_task.comment = 'unknown companion dedication: %s' % (companion_dedication, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_DEDICATION
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -461,14 +461,14 @@ class ChoosePreferencesTask(PostponedLogic):
         try:
             companion_empathy = int(self.preference_id) if self.preference_id is not None else None
         except:
-            main_task.comment = u'unknown companion empathy: %s' % (self.preference_id, )
+            main_task.comment = 'unknown companion empathy: %s' % (self.preference_id, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_EMPATHY
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if companion_empathy is not None:
 
             if companion_empathy not in relations.COMPANION_EMPATHY.index_value:
-                main_task.comment = u'unknown companion empathy: %s' % (companion_empathy, )
+                main_task.comment = 'unknown companion empathy: %s' % (companion_empathy, )
                 self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_COMPANION_EMPATHY
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -486,12 +486,12 @@ class ChoosePreferencesTask(PostponedLogic):
         account = AccountPrototype.get_by_id(hero.account_id)
 
         if not hero.preferences.can_update(self.preference_type, datetime.datetime.now()):
-            main_task.comment = u'blocked since time delay'
+            main_task.comment = 'blocked since time delay'
             self.state = CHOOSE_PREFERENCES_TASK_STATE.COOLDOWN
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         if not hero.preferences.is_available(self.preference_type, account):
-            main_task.comment = u'hero level < required level (%d < %d)' % (hero.level, self.preference_type.level_required)
+            main_task.comment = 'hero level < required level (%d < %d)' % (hero.level, self.preference_type.level_required)
             self.state = CHOOSE_PREFERENCES_TASK_STATE.LOW_LEVEL
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -529,7 +529,7 @@ class ChoosePreferencesTask(PostponedLogic):
             result = self.process_companion_empathy(main_task, hero)
 
         else:
-            main_task.comment = u'unknown preference type: %s' % (self.preference_type, )
+            main_task.comment = 'unknown preference type: %s' % (self.preference_type, )
             self.state = CHOOSE_PREFERENCES_TASK_STATE.UNKNOWN_PREFERENCE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -545,15 +545,15 @@ class ChoosePreferencesTask(PostponedLogic):
 
 
 class GET_CARD_TASK_STATE(DjangoEnum):
-   records = ( ('UNPROCESSED', 0, u'в очереди'),
-               ('PROCESSED', 1, u'обработана'),
-               ('CAN_NOT_GET', 2, u'Вы пока не можете взять новую карту'))
+   records = ( ('UNPROCESSED', 0, 'в очереди'),
+               ('PROCESSED', 1, 'обработана'),
+               ('CAN_NOT_GET', 2, 'Вы пока не можете взять новую карту'))
 
 class GetCardTask(PostponedLogic):
 
     TYPE = 'get-card'
 
-    MESSAGE = u'''
+    MESSAGE = '''
 <span class="%(rarity)s-card-label">%(name)s</span><br/><br/>
 
 <blockquote>%(description)s</blockquote>
@@ -590,7 +590,7 @@ class GetCardTask(PostponedLogic):
         hero = storage.heroes[self.hero_id]
 
         if hero.cards.help_count < c.CARDS_HELP_COUNT_TO_NEW_CARD:
-            main_task.comment = u'can not get new card'
+            main_task.comment = 'can not get new card'
             self.state = GET_CARD_TASK_STATE.CAN_NOT_GET
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -611,15 +611,15 @@ class GetCardTask(PostponedLogic):
 
 
 class COMBINE_CARDS_STATE(DjangoEnum):
-   records = ( ('UNPROCESSED', 0, u'в очереди'),
-               ('PROCESSED', 1, u'обработана'),
-               ('CAN_NOT_COMBINE', 2, u'не удалось объединить карты'))
+   records = ( ('UNPROCESSED', 0, 'в очереди'),
+               ('PROCESSED', 1, 'обработана'),
+               ('CAN_NOT_COMBINE', 2, 'не удалось объединить карты'))
 
 class CombineCardsTask(PostponedLogic):
 
     TYPE = 'combine-cards'
 
-    MESSAGE = u'''
+    MESSAGE = '''
 <p>Вы получаете новую карту: <span class="%(rarity)s-card-label">%(name)s</span><br/><br/></p>
 
 <blockquote>%(description)s</blockquote>
@@ -661,7 +661,7 @@ class CombineCardsTask(PostponedLogic):
         can_combine_cards = hero.cards.can_combine_cards(self.cards)
 
         if not can_combine_cards.is_ALLOWED:
-            main_task.comment = u'can not get combine cards (status: %r)' % can_combine_cards
+            main_task.comment = 'can not get combine cards (status: %r)' % can_combine_cards
             self.state = COMBINE_CARDS_STATE.CAN_NOT_COMBINE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
@@ -685,9 +685,9 @@ class InvokeHeroMethodTask(PostponedLogic):
     TYPE = 'invoke-hero-method'
 
     class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 0, u'в очереди'),
-                    ('PROCESSED', 1, u'обработана'),
-                    ('METHOD_NOT_FOUND', 2, u'метод не обнаружен'))
+        records = ( ('UNPROCESSED', 0, 'в очереди'),
+                    ('PROCESSED', 1, 'обработана'),
+                    ('METHOD_NOT_FOUND', 2, 'метод не обнаружен'))
 
     def __init__(self, hero_id, method_name, method_kwargs, state=STATE.UNPROCESSED):
         super(InvokeHeroMethodTask, self).__init__()
@@ -712,7 +712,7 @@ class InvokeHeroMethodTask(PostponedLogic):
         method = getattr(hero, self.method_name, None)
 
         if method is None:
-            main_task.comment = u'can not found method: %s' % self.method_name
+            main_task.comment = 'can not found method: %s' % self.method_name
             self.state = self.STATE.METHOD_NOT_FOUND
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 

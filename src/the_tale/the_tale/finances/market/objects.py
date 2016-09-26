@@ -119,7 +119,7 @@ class Goods(object):
                    goods=goods)
 
     def to_model_fields(self):
-        goods = [good.serialize() for good in self._goods.itervalues()]
+        goods = [good.serialize() for good in self._goods.values()]
         return {'data': s11n.to_json({'goods': goods})}
 
     def add_good(self, good):
@@ -142,7 +142,7 @@ class Goods(object):
         return bool(self.goods_count())
 
     def all(self):
-        return sorted(self._goods.itervalues(), key=lambda good: good.name)
+        return sorted(iter(self._goods.values()), key=lambda good: good.name)
 
     def clear(self):
         self._goods = {}

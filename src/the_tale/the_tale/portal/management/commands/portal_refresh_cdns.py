@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        print 'refresh CDNs'
+        print('refresh CDNs')
 
         info = cdn.get_cdns_info(project_settings.CDNS)
 

@@ -142,50 +142,50 @@ class Command(BaseCommand):
 
         current_premiums_ids = set(accounts_models.Account.objects.filter(is_fast=False, premium_end_at__gt=datetime.datetime.now()).values_list('id', flat=True))
 
-        accounts_sets = [(u'все аккаунты', all_accounts_ids),
-                         (u'хоть раз платили', donaters_ids),
-                         (u'ни разу не платили', not_donaters_ids),
-                         (u'хоть раз купили подписку', premiums_ids),
-                         (u'платили, но без подписки', not_premiums_ids),
-                         (u'текущие подписчики', current_premiums_ids)]
+        accounts_sets = [('все аккаунты', all_accounts_ids),
+                         ('хоть раз платили', donaters_ids),
+                         ('ни разу не платили', not_donaters_ids),
+                         ('хоть раз купили подписку', premiums_ids),
+                         ('платили, но без подписки', not_premiums_ids),
+                         ('текущие подписчики', current_premiums_ids)]
 
-        processors = [(u'количество', accounts_count, None, None),
-                      (u'форум: сообщения', posts_on_forum, None, None),
-                      (u'форум: темы', threads_on_forum, None, None),
-                      (u'форум: есть сообщения', has_posts_on_forum, u'от всех', accounts_count),
-                      (u'форум: нет сообщений', no_posts_on_forum, u'от всех', accounts_count),
-                      (u'форум: есть темы', has_threads_on_forum, u'от всех', accounts_count),
-                      (u'форум: нет тем', no_threads_on_forum, u'от всех', accounts_count),
-                      (u'могущество всего', might, None, None),
-                      (u'могущество != 0', has_might, u'от всех', accounts_count),
-                      (u'могущество = 0', no_might, u'от всех', accounts_count),
-                      (u'законы: всего (после 06.08.2013)', bills_total, None, None),
-                      (u'законы: принятые (после 06.08.2013)', bills_accepted, None, None),
-                      (u'законы: есть законы (после 06.08.2013)', has_bills_total, u'от всех', accounts_count),
-                      (u'законы: нет законов (после 06.08.2013)', no_bills_total, u'от всех', accounts_count),
-                      (u'голоса: всего (после 06.08.2013)', votes_total, None, None),
-                      (u'голоса: есть голоса (после 06.08.2013)', has_votes_total, u'от всех', accounts_count),
-                      (u'голоса: нет голосов (после 06.08.2013)', no_votes_total, u'от всех', accounts_count),
-                      (u'фолклор: произведения', folclor_posts, None, None),
-                      (u'фолклор: есть произведения', has_folclor_posts, u'от всех', accounts_count),
-                      (u'фолклор: нет произведений', no_folclor_posts, u'от всех', accounts_count),
-                      (u'фолклор: голоса', folclor_votes, None, None),
-                      (u'фолклор: есть голоса', has_folclor_votes, u'от всех', accounts_count),
-                      (u'фолклор: нет голосов', no_folclor_votes, u'от всех', accounts_count),
-                      (u'лингвистика: вклад в шаблоны', linguistics_templates, None, None),
-                      (u'лингвистика: есть шаблоны', linguistics_has_templates, u'от всех', accounts_count),
-                      (u'лингвистика: нет шаблонов', linguistics_no_templates, u'от всех', accounts_count),
-                      (u'лингвистика: вклад в слова', linguistics_words, None, None),
-                      (u'лингвистика: есть слова', linguistics_has_words, u'от всех', accounts_count),
-                      (u'лингвистика: нет слов', linguistics_no_words, u'от всех', accounts_count),
-                      (u'гильдии: лидеры', clans_clanleads, u'от всех', accounts_count),
-                      (u'гильдии: рядовые', clans_members, u'от всех', accounts_count),
-                      (u'гильдии: не в гильдии', clans_not_members, u'от всех', accounts_count)]
+        processors = [('количество', accounts_count, None, None),
+                      ('форум: сообщения', posts_on_forum, None, None),
+                      ('форум: темы', threads_on_forum, None, None),
+                      ('форум: есть сообщения', has_posts_on_forum, 'от всех', accounts_count),
+                      ('форум: нет сообщений', no_posts_on_forum, 'от всех', accounts_count),
+                      ('форум: есть темы', has_threads_on_forum, 'от всех', accounts_count),
+                      ('форум: нет тем', no_threads_on_forum, 'от всех', accounts_count),
+                      ('могущество всего', might, None, None),
+                      ('могущество != 0', has_might, 'от всех', accounts_count),
+                      ('могущество = 0', no_might, 'от всех', accounts_count),
+                      ('законы: всего (после 06.08.2013)', bills_total, None, None),
+                      ('законы: принятые (после 06.08.2013)', bills_accepted, None, None),
+                      ('законы: есть законы (после 06.08.2013)', has_bills_total, 'от всех', accounts_count),
+                      ('законы: нет законов (после 06.08.2013)', no_bills_total, 'от всех', accounts_count),
+                      ('голоса: всего (после 06.08.2013)', votes_total, None, None),
+                      ('голоса: есть голоса (после 06.08.2013)', has_votes_total, 'от всех', accounts_count),
+                      ('голоса: нет голосов (после 06.08.2013)', no_votes_total, 'от всех', accounts_count),
+                      ('фолклор: произведения', folclor_posts, None, None),
+                      ('фолклор: есть произведения', has_folclor_posts, 'от всех', accounts_count),
+                      ('фолклор: нет произведений', no_folclor_posts, 'от всех', accounts_count),
+                      ('фолклор: голоса', folclor_votes, None, None),
+                      ('фолклор: есть голоса', has_folclor_votes, 'от всех', accounts_count),
+                      ('фолклор: нет голосов', no_folclor_votes, 'от всех', accounts_count),
+                      ('лингвистика: вклад в шаблоны', linguistics_templates, None, None),
+                      ('лингвистика: есть шаблоны', linguistics_has_templates, 'от всех', accounts_count),
+                      ('лингвистика: нет шаблонов', linguistics_no_templates, 'от всех', accounts_count),
+                      ('лингвистика: вклад в слова', linguistics_words, None, None),
+                      ('лингвистика: есть слова', linguistics_has_words, 'от всех', accounts_count),
+                      ('лингвистика: нет слов', linguistics_no_words, 'от всех', accounts_count),
+                      ('гильдии: лидеры', clans_clanleads, 'от всех', accounts_count),
+                      ('гильдии: рядовые', clans_members, 'от всех', accounts_count),
+                      ('гильдии: не в гильдии', clans_not_members, 'от всех', accounts_count)]
 
 
         for processor_name, processor, compare_name, comparator in processors:
-            print
-            print u'----- %s -----' % processor_name
+            print()
+            print('----- %s -----' % processor_name)
             total = None
             for set_name, set_ids in accounts_sets:
                 value = processor(set_ids)
@@ -193,9 +193,9 @@ class Command(BaseCommand):
                     total = value
 
                 if comparator is None:
-                    message = u'{:<30} {:>8} {:>8}%'
-                    print message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5))
+                    message = '{:<30} {:>8} {:>8}%'
+                    print(message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5)))
                 else:
-                    message = u'{:<30} {:>8} {:>8}% {:>10} {}%'
+                    message = '{:<30} {:>8} {:>8}% {:>10} {}%'
                     compare_to_value = comparator(set_ids)
-                    print message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5), compare_name, round(100 * float(value) / compare_to_value, 2),)
+                    print(message.format(set_name, value, str(round(100 * float(value) / total, 2)).zfill(5), compare_name, round(100 * float(value) / compare_to_value, 2),))

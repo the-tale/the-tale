@@ -25,9 +25,9 @@ class Place(models.Model):
 
     is_frontier = models.BooleanField(default=False)
 
-    description = models.TextField(null=False, default=u'', blank=True)
+    description = models.TextField(null=False, default='', blank=True)
 
-    data = models.TextField(null=False, default=u'{}')
+    data = models.TextField(null=False, default='{}')
 
     habit_honor_positive = models.FloatField(default=0)
     habit_honor_negative = models.FloatField(default=0)
@@ -62,7 +62,7 @@ class Building(models.Model):
 
     person = models.OneToOneField('persons.Person', null=False, on_delete=models.CASCADE)
 
-    data = models.TextField(null=False, default=u'{}')
+    data = models.TextField(null=False, default='{}')
 
 
 class ResourceExchange(models.Model):

@@ -13,10 +13,10 @@ from . import conf
 
 
 class PostForm(forms.Form):
-    caption = fields.CharField(label=u'Название', max_length=models.Post.CAPTION_MAX_LENGTH, min_length=models.Post.CAPTION_MIN_LENGTH)
-    text = bbcode.BBField(label=u'Текст', min_length=conf.settings.MIN_TEXT_LENGTH)
+    caption = fields.CharField(label='Название', max_length=models.Post.CAPTION_MAX_LENGTH, min_length=models.Post.CAPTION_MIN_LENGTH)
+    text = bbcode.BBField(label='Текст', min_length=conf.settings.MIN_TEXT_LENGTH)
 
-    meta_objects = fields.CharField(label=u'Текст рассказывает о', required=False)
+    meta_objects = fields.CharField(label='Текст рассказывает о', required=False)
 
     def clean_meta_objects(self):
         data = self.cleaned_data.get('meta_objects', '')
@@ -29,7 +29,7 @@ class PostForm(forms.Form):
             slug = slug.strip()
 
             if slug in slugs:
-                raise ValidationError(u'Повторяющийся дентификатор: %s' % slug)
+                raise ValidationError('Повторяющийся дентификатор: %s' % slug)
 
             slugs.add(slug)
 
@@ -38,16 +38,16 @@ class PostForm(forms.Form):
             except (meta_relations_exceptions.WrongTypeError,
                     meta_relations_exceptions.WrongObjectError,
                     meta_relations_exceptions.WrongUIDFormatError):
-                raise ValidationError(u'Неверный идентификатор: %s' % slug)
+                raise ValidationError('Неверный идентификатор: %s' % slug)
 
         if len(objects) > conf.settings.IS_ABOUT_MAXIMUM:
-            raise ValidationError(u'Слишком много связей, должно быть не более %d' % conf.settings.IS_ABOUT_MAXIMUM)
+            raise ValidationError('Слишком много связей, должно быть не более %d' % conf.settings.IS_ABOUT_MAXIMUM)
 
         return objects
 
 
 class TagsForm(forms.Form):
-    tags = fields.MultipleChoiceField(label=u'теги', choices=())
+    tags = fields.MultipleChoiceField(label='теги', choices=())
 
     def __init__(self, *args, **kwargs):
         super(TagsForm, self).__init__(*args, **kwargs)

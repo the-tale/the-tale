@@ -60,7 +60,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         coordinates = set()
 
-        for i in xrange(100):
+        for i in range(100):
             coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
 
         self.assertEqual(coordinates, set([(x_1, y_1), (x_2, y_2)]))
@@ -72,7 +72,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         coordinates = set()
 
-        for i in xrange(100):
+        for i in range(100):
             coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
 
         self.assertEqual(coordinates, set(self.p1.nearest_cells))
@@ -89,7 +89,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         coordinates = set()
 
-        for i in xrange(100):
+        for i in range(100):
             coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=True, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
 
         self.assertEqual(coordinates, set([(self.p1.x, self.p1.y)]))
@@ -244,7 +244,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.action_move.state = self.action_move.STATE.BATTLE
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveNearPlacePrototype.TYPE)
@@ -262,7 +262,7 @@ class MoveNearActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_say_wisdom', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_EXP_PER_MOVE_PROBABILITY', 1.0)
     def test_companion_say_wisdom(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
 
         self.storage.process_turn(continue_steps_if_needed=False)

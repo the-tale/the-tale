@@ -13,7 +13,7 @@ from the_tale.game.logic import create_test_map
 
 class SendMailTests(testcase.TestCase):
 
-    SEND_ARGS = dict(subject=u'subject',
+    SEND_ARGS = dict(subject='subject',
                      text_content='text_content',
                      html_content='html_content')
 

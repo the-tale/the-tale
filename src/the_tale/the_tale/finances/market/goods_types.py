@@ -15,7 +15,7 @@ def get_type(type):
     return _GOODS_TYPES[type]
 
 def get_types():
-    return _GOODS_TYPES.itervalues()
+    return iter(_GOODS_TYPES.values())
 
 def get_groups():
     groups = {}
@@ -37,7 +37,7 @@ class GoodsGroup(object):
 
     @property
     def uid(self):
-        return u'%s-%s' % (self.type.uid, self.id)
+        return '%s-%s' % (self.type.uid, self.id)
 
 
 class BaseGoodType(object):

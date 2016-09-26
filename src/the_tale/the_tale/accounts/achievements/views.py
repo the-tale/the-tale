@@ -24,8 +24,8 @@ def argument_to_achievement(value): return achievements_storage[int(value)]
 
 class AchievementsResource(Resource):
 
-    @validate_argument('group', argument_to_group, 'accounts.achievements', u'Группа не найдена')
-    @validate_argument('achievement', argument_to_achievement, 'accounts.achievements', u'Достижение не найдено')
+    @validate_argument('group', argument_to_group, 'accounts.achievements', 'Группа не найдена')
+    @validate_argument('achievement', argument_to_achievement, 'accounts.achievements', 'Достижение не найдено')
     def initialize(self, group=None, achievement=None, *args, **kwargs):
         super(AchievementsResource, self).initialize(*args, **kwargs)
         self.achievement = achievement
@@ -35,7 +35,7 @@ class AchievementsResource(Resource):
     @property
     def can_edit_achievements(self): return self.account.has_perm('achievements.edit_achievement')
 
-    @validator(code='accounts.achievements.no_edit_rights', message=u'нет прав для редактирования достижений')
+    @validator(code='accounts.achievements.no_edit_rights', message='нет прав для редактирования достижений')
     def validate_can_edit_achievements(self, *args, **kwargs):
         return self.can_edit_achievements
 
@@ -58,7 +58,7 @@ class AchievementsResource(Resource):
             return url('accounts:achievements:')
 
 
-    @validate_argument('account', AccountPrototype.get_by_id, 'accounts.achievements', u'Игрок не найден')
+    @validate_argument('account', AccountPrototype.get_by_id, 'accounts.achievements', 'Игрок не найден')
     @handler('')
     def index(self, account=None):
 
@@ -81,7 +81,7 @@ class AchievementsResource(Resource):
                               'groups_statistics': achievements_storage.get_groups_statistics(account_achievements),
                               'last_achievements': last_achievements})
 
-    @validate_argument('account', AccountPrototype.get_by_id, 'accounts.achievements', u'Игрок не найден')
+    @validate_argument('account', AccountPrototype.get_by_id, 'accounts.achievements', 'Игрок не найден')
     @handler('#group', name='group')
     def show_group(self, account=None):
 

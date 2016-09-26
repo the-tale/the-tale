@@ -145,7 +145,7 @@ class TestSubcategoryRequests(BaseTestRequests):
         texts = [self.thread1.caption,
                  self.thread2.caption,
                  (self.thread3.caption, 0)]
-        for i in xrange(forum_settings.THREADS_ON_PAGE):
+        for i in range(forum_settings.THREADS_ON_PAGE):
             caption = 'thread-x-%d-caption' % i
             ThreadPrototype.create(self.subcat1, caption, self.account, 'thread-text')
             texts.append((caption, 0))
@@ -161,7 +161,7 @@ class TestSubcategoryRequests(BaseTestRequests):
         self.thread2._model.important = True
         self.thread2.save()
 
-        for i in xrange(forum_settings.THREADS_ON_PAGE):
+        for i in range(forum_settings.THREADS_ON_PAGE):
             caption = 'thread-x-%d-caption' % i
             ThreadPrototype.create(self.subcat1, caption, self.account, 'thread-text')
             if i != 0:
@@ -340,7 +340,7 @@ class TestShowThreadRequests(BaseTestRequests):
 
         texts = []
 
-        for i in xrange(forum_settings.POSTS_ON_PAGE-1):
+        for i in range(forum_settings.POSTS_ON_PAGE-1):
             text = 'subcat3-post%d-text' % i
             PostPrototype.create(self.thread3, self.account, text)
             texts.append(text)
@@ -358,10 +358,10 @@ class TestShowThreadRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(url('forum:threads:show', self.thread3.id)+'?page=2'), texts=[text])
 
     def test_posts_count(self):
-        for i in xrange(4):
+        for i in range(4):
             PostPrototype.create(self.thread1, self.account, 'subcat1-thread1-post%d-text' % i)
 
-        for i in xrange(7):
+        for i in range(7):
             PostPrototype.create(self.thread2, self.account, 'subcat1-thread2-post%d-text' % i)
 
         # first post in thread does not count
@@ -474,7 +474,7 @@ class TestFeedRequests(BaseTestRequests):
                  ('thread2_2-caption', 0),
                  ('thread2_2-text', 0)]
 
-        texts.extend([('post%d-text' % i, 0) for i in xrange(0, 9)])
+        texts.extend([('post%d-text' % i, 0) for i in range(0, 9)])
 
         self.check_html_ok(self.request_html(url('forum:feed')), texts=texts, content_type='application/atom+xml')
 

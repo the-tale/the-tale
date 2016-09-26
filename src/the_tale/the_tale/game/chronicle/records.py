@@ -23,7 +23,7 @@ class RecordBase(object):
         self.created_at_turn = TimePrototype.get_current_turn_number()
 
     def get_text(self):
-        return self.text if self.text is not None else u''
+        return self.text if self.text is not None else ''
 
     def create_record(self):
         return RecordPrototype.create(self)

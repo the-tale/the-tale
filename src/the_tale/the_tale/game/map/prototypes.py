@@ -99,8 +99,8 @@ class MapInfoPrototype(BasePrototype):
 
         terrain_squares = collections.defaultdict(int)
 
-        for y in xrange(0, height):
-            for x in xrange(0, width):
+        for y in range(0, height):
+            for x in range(0, width):
                 cell = world.generator.cell_info(x, y)
 
                 if cell.height < -0.2:

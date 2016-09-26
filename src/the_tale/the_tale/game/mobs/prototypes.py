@@ -293,8 +293,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
 
     @classmethod
     def get_available_abilities(cls):
-        return filter(lambda a: a.TYPE.is_BATTLE and a.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_MONSTERS.value, # pylint: disable=W0110
-                      ABILITIES.values())
+        return [a for a in ABILITIES.values() if a.TYPE.is_BATTLE and a.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_MONSTERS.value]
 
     def create_mob(self, hero, is_boss=False):
         return MobPrototype(record_id=self.id, level=hero.level, is_boss=is_boss)
@@ -302,7 +301,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
     @classmethod
     def create_random(cls, uuid, type=game_relations.BEING_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=map_relations.TERRAIN.records, state=relations.MOB_RECORD_STATE.ENABLED, global_action_probability=0, is_mercenary=True, is_eatable=True): # pylint: disable=W0102
 
-        name = u'mob_'+uuid.lower()
+        name = 'mob_'+uuid.lower()
 
         utg_name = names.generator.get_test_name(name=name)
 
@@ -311,7 +310,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
 
         abilities = set(['hit'])
 
-        for i in xrange(abilities_number-1): # pylint: disable=W0612
+        for i in range(abilities_number-1): # pylint: disable=W0612
             abilities.add(random.choice(list(battle_abilities-abilities)))
 
         return cls.create(uuid,

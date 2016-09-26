@@ -60,7 +60,7 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'accounts.Account'
 
-OWNER = u''
+OWNER = ''
 
 NEWRELIC_ENABLED = True
 NEWRELIC_CONF_PATH = '/home/the-tale/conf/newrelic.ini'

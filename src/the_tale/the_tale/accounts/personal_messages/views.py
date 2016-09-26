@@ -54,7 +54,7 @@ resource.add_processor(accounts_views.FullAccountProcessor())
 ########################################
 
 @utils_views.PageNumberProcessor()
-@accounts_views.AccountProcessor(error_message=u'Отправитель не найден', get_name='sender', context_name='sender', default_value=None)
+@accounts_views.AccountProcessor(error_message='Отправитель не найден', get_name='sender', context_name='sender', default_value=None)
 @utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
 @resource('')
 def index(context):
@@ -72,9 +72,9 @@ def index(context):
 
     class Filter(list_filter.ListFilter):
         ELEMENTS = [list_filter.reset_element(),
-                    list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
-                    list_filter.choice_element(u'отправитель:', attribute='sender', choices=[(None, u'все')] + [(account.id, account.nick) for account in senders] ),
-                    list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
+                    list_filter.filter_element('поиск:', attribute='filter', default_value=None),
+                    list_filter.choice_element('отправитель:', attribute='sender', choices=[(None, 'все')] + [(account.id, account.nick) for account in senders] ),
+                    list_filter.static_element('количество:', attribute='count', default_value=0) ]
 
     url_builder = UrlBuilder(url('accounts:messages:'), arguments={'page': context.page,
                                                                    'sender': context.sender.id if context.sender is not None else None,
@@ -106,7 +106,7 @@ def index(context):
 
 
 @utils_views.PageNumberProcessor()
-@accounts_views.AccountProcessor(error_message=u'Получатель не найден', get_name='recipient', context_name='recipient', default_value=None)
+@accounts_views.AccountProcessor(error_message='Получатель не найден', get_name='recipient', context_name='recipient', default_value=None)
 @utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
 @resource('sent')
 def sent(context):
@@ -123,9 +123,9 @@ def sent(context):
 
     class Filter(list_filter.ListFilter):
         ELEMENTS = [list_filter.reset_element(),
-                    list_filter.filter_element(u'поиск:', attribute='filter', default_value=None),
-                    list_filter.choice_element(u'получатель:', attribute='recipient', choices=[(None, u'все')] + [(account.id, account.nick) for account in recipients] ),
-                    list_filter.static_element(u'количество:', attribute='count', default_value=0) ]
+                    list_filter.filter_element('поиск:', attribute='filter', default_value=None),
+                    list_filter.choice_element('получатель:', attribute='recipient', choices=[(None, 'все')] + [(account.id, account.nick) for account in recipients] ),
+                    list_filter.static_element('количество:', attribute='count', default_value=0) ]
 
     url_builder=UrlBuilder(url('accounts:messages:sent'), arguments={'page': context.page,
                                                                      'recipient': context.recipient.id if context.recipient is not None else None,
@@ -160,27 +160,27 @@ def check_recipients(recipients_form):
     system_user = accounts_logic.get_system_user()
 
     if system_user.id in recipients_form.c.recipients:
-        raise dext_views.ViewError(code='system_user', message=u'Нельзя отправить сообщение системному пользователю')
+        raise dext_views.ViewError(code='system_user', message='Нельзя отправить сообщение системному пользователю')
 
     if accounts_models.Account.objects.filter(is_fast=True, id__in=recipients_form.c.recipients).exists():
-        raise dext_views.ViewError(code='fast_account', message=u'Нельзя отправить сообщение пользователю, не завершившему регистрацию')
+        raise dext_views.ViewError(code='fast_account', message='Нельзя отправить сообщение пользователю, не завершившему регистрацию')
 
     if accounts_models.Account.objects.filter(id__in=recipients_form.c.recipients).count() != len(recipients_form.c.recipients):
-        raise dext_views.ViewError(code='unexisted_account', message=u'Вы пытаетесь отправить сообщение несуществующему пользователю')
+        raise dext_views.ViewError(code='unexisted_account', message='Вы пытаетесь отправить сообщение несуществующему пользователю')
 
 
 @accounts_views.BanForumProcessor()
 @dext_views.FormProcessor(form_class=forms.RecipientsForm)
-@MessageProcessor(error_message=u'Сообщение не найдено', get_name='answer_to', context_name='answer_to', default_value=None)
+@MessageProcessor(error_message='Сообщение не найдено', get_name='answer_to', context_name='answer_to', default_value=None)
 @resource('new', method='POST')
 def new(context):
-    text = u''
+    text = ''
 
     if context.answer_to:
         if context.answer_to.recipient_id != context.account.id:
-            raise dext_views.ViewError(code='no_permissions_to_answer_to', message=u'Вы пытаетесь ответить на чужое сообщение')
+            raise dext_views.ViewError(code='no_permissions_to_answer_to', message='Вы пытаетесь ответить на чужое сообщение')
 
-        text = u'[quote]\n%s\n[/quote]\n' % context.answer_to.text
+        text = '[quote]\n%s\n[/quote]\n' % context.answer_to.text
 
     check_recipients(context.form)
 
@@ -210,12 +210,12 @@ def create(context):
     return dext_views.AjaxProcessing(status_url=task.status_url)
 
 
-@MessageProcessor(error_message=u'Сообщение не найдено', url_name='message_id', context_name='message')
+@MessageProcessor(error_message='Сообщение не найдено', url_name='message_id', context_name='message')
 @resource('#message_id', 'delete', method='POST')
 def delete(context):
 
     if context.account.id not in (context.message.sender_id, context.message.recipient_id):
-        raise dext_views.ViewError(code='no_permissions', message=u'Вы не можете влиять на это сообщение')
+        raise dext_views.ViewError(code='no_permissions', message='Вы не можете влиять на это сообщение')
 
     context.message.hide_from(sender=(context.account.id == context.message.sender_id),
                               recipient=(context.account.id == context.message.recipient_id))

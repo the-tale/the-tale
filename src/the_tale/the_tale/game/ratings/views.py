@@ -23,7 +23,7 @@ from the_tale.game.ratings.relations import RATING_TYPE
 
 class RatingResource(Resource):
 
-    @validate_argument('rating_type', RATING_TYPE, 'ratings', u'Неверный тип рейтингов')
+    @validate_argument('rating_type', RATING_TYPE, 'ratings', 'Неверный тип рейтингов')
     def initialize(self, rating_type=None, *args, **kwargs):
         super(RatingResource, self).initialize(*args, **kwargs)
         self.rating_type = rating_type

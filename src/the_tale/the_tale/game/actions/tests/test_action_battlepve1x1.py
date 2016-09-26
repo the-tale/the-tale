@@ -49,7 +49,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         # do half of tests with companion
         if random.random() < 0.5:
-            companion_record = companions_storage.companions.enabled_companions().next()
+            companion_record = next(companions_storage.companions.enabled_companions())
             companion = companions_logic.create_companion(companion_record)
             self.hero.set_companion(companion)
             self.hero.companion.health = 1
@@ -87,22 +87,22 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_loot(self):
         self.assertEqual(self.hero.statistics.loot_had, 0)
-        self.assertEqual(len(self.hero.bag.items()), 0)
+        self.assertEqual(len(list(self.hero.bag.items())), 0)
         self.action_battle.mob.health = 0
         self.storage.process_turn()
         self.assertEqual(self.hero.statistics.loot_had, 1)
-        self.assertEqual(len(self.hero.bag.items()), 1)
+        self.assertEqual(len(list(self.hero.bag.items())), 1)
         self.storage._test_save()
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_PER_BATTLE', 1)
     @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
     def test_artifacts(self):
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
-        self.assertEqual(len(self.hero.bag.items()), 0)
+        self.assertEqual(len(list(self.hero.bag.items())), 0)
         self.action_battle.mob.health = 0
         self.storage.process_turn()
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
-        self.assertEqual(len(self.hero.bag.items()), 1)
+        self.assertEqual(len(list(self.hero.bag.items())), 1)
         self.storage._test_save()
 
     @mock.patch('the_tale.game.actions.prototypes.battle.make_turn', lambda a, b, c: None)
@@ -150,7 +150,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
                                         for ability in effects.ABILITIES.records
                                         if isinstance(ability.effect, effects.BaseBattleAbility)])
 
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion_record.abilities = container.Container(start=(battle_ability,))
 
         companion = companions_logic.create_companion(companion_record)
@@ -174,7 +174,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.mob_type', game_relations.BEING_TYPE.ANIMAL)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat_corpses', lambda hero: True)
     def test_full_battle__with_companion__eat_corpse(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         self.hero.set_companion(companions_logic.create_companion(companion_record))
         self.hero.reset_accessors_cache()
 
@@ -327,7 +327,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.hero.actions.pop_action()
 
-        mob = (m for m in mobs_storage.all() if m.type.is_CIVILIZED).next()
+        mob = next((m for m in mobs_storage.all() if m.type.is_CIVILIZED))
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
             action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob.create_mob(self.hero, is_boss=False))
@@ -370,7 +370,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
     @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: True)
     def test_process_artifact_breaking__broken(self):
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.power = Power(100, 100)
 
         old_power = self.hero.power.total()
@@ -380,7 +380,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
     @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: False)
     def test_process_artifact_breaking__not_broken(self):
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.power = Power(100, 100)
 
         old_power = self.hero.power.total()
@@ -390,23 +390,23 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
     @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: False)
     def test_process_artifact_breaking__break_only_mostly_damaged(self):
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.power = Power(100, 100)
             artifact.integrity = 0
 
         artifact.integrity = artifact.max_integrity
 
-        for i in xrange(100):
+        for i in range(100):
             self.action_battle.process_artifact_breaking()
 
         self.assertEqual(artifact.power, Power(100, 100))
 
 
     def test_process_artifact_breaking__integrity_damage(self):
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.integrity = artifact.max_integrity
 
         self.action_battle.process_artifact_breaking()
 
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             self.assertTrue(artifact.integrity < artifact.max_integrity)

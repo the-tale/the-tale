@@ -57,7 +57,7 @@ class PostPrototype(BasePrototype):
         thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_uid(conf.settings.FORUM_CATEGORY_UID),
                                              caption=caption,
                                              author=get_system_user(),
-                                             text=u'обсуждение [url="%s%s"]произведения[/url]' % (project_settings.SITE_URL,
+                                             text='обсуждение [url="%s%s"]произведения[/url]' % (project_settings.SITE_URL,
                                                                                                   reverse('blogs:posts:show', args=[model.id])),
                                              markup_method=MARKUP_METHOD.POSTMARKUP)
 
@@ -86,12 +86,12 @@ class PostPrototype(BasePrototype):
         self.save()
 
         thread = ForumThreadPrototype(self._model.forum_thread)
-        thread.caption = thread.caption + u' [удалён]'
+        thread.caption = thread.caption + ' [удалён]'
         thread.save()
 
         ForumPostPrototype.create(thread,
                                   get_system_user(),
-                                  u'Произведение было удалено',
+                                  'Произведение было удалено',
                                   technical=True)
 
 

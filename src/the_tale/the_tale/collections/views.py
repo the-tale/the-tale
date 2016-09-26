@@ -18,9 +18,9 @@ from the_tale.collections.storage import collections_storage, kits_storage, item
 
 class BaseCollectionsResource(Resource):
 
-    @validate_argument('collection', lambda value: collections_storage[int(value)], 'collections', u'Коллекция не найдена')
-    @validate_argument('kit', lambda value: kits_storage[int(value)], 'collections', u'Набор не найден')
-    @validate_argument('item', lambda value: items_storage[int(value)], 'collections', u'Предмет не найден')
+    @validate_argument('collection', lambda value: collections_storage[int(value)], 'collections', 'Коллекция не найдена')
+    @validate_argument('kit', lambda value: kits_storage[int(value)], 'collections', 'Набор не найден')
+    @validate_argument('item', lambda value: items_storage[int(value)], 'collections', 'Предмет не найден')
     def initialize(self, collection=None, kit=None, item=None, **kwargs):
         super(BaseCollectionsResource, self).initialize(**kwargs)
         self.item = item
@@ -116,19 +116,19 @@ class BaseCollectionsResource(Resource):
 class CollectionsResource(BaseCollectionsResource):
 
 
-    @validator(code='collections.collections.no_edit_rights', message=u'нет прав для редактирования коллекции')
+    @validator(code='collections.collections.no_edit_rights', message='нет прав для редактирования коллекции')
     def validate_can_edit_collection(self, *args, **kwargs):
         return self.can_edit_collection
 
-    @validator(code='collections.collections.no_moderate_rights', message=u'нет прав для модерации коллекции')
+    @validator(code='collections.collections.no_moderate_rights', message='нет прав для модерации коллекции')
     def validate_can_moderate_collection(self, *args, **kwargs):
         return self.can_moderate_collection
 
-    @validator(code='collections.collections.not_approved', message=u'коллекция не найдена', status_code=404)
+    @validator(code='collections.collections.not_approved', message='коллекция не найдена', status_code=404)
     def validate_collection_approved(self, *args, **kwargs):
         return self.collection and (self.can_edit_collection or self.collection.approved)
 
-    @validate_argument('account', AccountPrototype.get_by_id, 'collections', u'Игрок не найден')
+    @validate_argument('account', AccountPrototype.get_by_id, 'collections', 'Игрок не найден')
     @handler('')
     def index(self, account=None):
 
@@ -183,7 +183,7 @@ class CollectionsResource(BaseCollectionsResource):
 
 
     @validate_collection_approved()
-    @validate_argument('account', AccountPrototype.get_by_id, 'collections', u'Игрок не найден')
+    @validate_argument('account', AccountPrototype.get_by_id, 'collections', 'Игрок не найден')
     @handler('#collection', name='show')
     def show(self, account=None):
 
@@ -276,15 +276,15 @@ class CollectionsResource(BaseCollectionsResource):
 
 class KitsResource(BaseCollectionsResource):
 
-    @validator(code='collections.kits.no_edit_rights', message=u'нет прав для редактирования набора')
+    @validator(code='collections.kits.no_edit_rights', message='нет прав для редактирования набора')
     def validate_can_edit_kit(self, *args, **kwargs):
         return self.can_edit_kit or self.can_moderate_kit
 
-    @validator(code='collections.kits.no_moderate_rights', message=u'нет прав для модерации набора')
+    @validator(code='collections.kits.no_moderate_rights', message='нет прав для модерации набора')
     def validate_can_moderate_kit(self, *args, **kwargs):
         return self.can_moderate_kit
 
-    @validator(code='collections.kits.not_approved', message=u'набор не найден', status_code=404)
+    @validator(code='collections.kits.not_approved', message='набор не найден', status_code=404)
     def validate_kit_approved(self, *args, **kwargs):
         return self.kit and (self.can_edit_kit or self.kit.approved)
 
@@ -361,7 +361,7 @@ class KitsResource(BaseCollectionsResource):
 
 class ItemsResource(BaseCollectionsResource):
 
-    @validator(code='collections.items.no_edit_rights', message=u'нет прав для редактирования предмета')
+    @validator(code='collections.items.no_edit_rights', message='нет прав для редактирования предмета')
     def validate_can_edit_item(self, *args, **kwargs):
         return self.can_edit_item or self.can_moderate_item
         # if self.item is None or not self.item.approved:
@@ -370,7 +370,7 @@ class ItemsResource(BaseCollectionsResource):
         # else:
         #     return self.can_moderate_item
 
-    @validator(code='collections.items.no_moderate_rights', message=u'нет прав для модерации предмета')
+    @validator(code='collections.items.no_moderate_rights', message='нет прав для модерации предмета')
     def validate_can_moderate_item(self, *args, **kwargs):
         return self.can_moderate_item
 

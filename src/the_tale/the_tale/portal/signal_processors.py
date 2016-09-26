@@ -37,7 +37,7 @@ def portal_day_started(sender, **kwargs): # pylint: disable=W0613
                                                                 method_name=AccountPrototype.prolong_premium.__name__,
                                                                 data={'days': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY})
 
-    message = u'''
+    message = '''
 Поздравляем!
 
 Ваш герой выбран героем дня и Вы получаете %(days)d дней подписки!

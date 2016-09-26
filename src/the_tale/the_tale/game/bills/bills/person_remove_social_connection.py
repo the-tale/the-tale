@@ -23,8 +23,8 @@ from the_tale.game.bills.bills.base_bill import BaseBill
 
 
 class BaseForm(BaseUserForm):
-    person_1 = fields.ChoiceField(label=u'Первый Мастер')
-    person_2 = fields.ChoiceField(label=u'Второй Мастер')
+    person_1 = fields.ChoiceField(label='Первый Мастер')
+    person_2 = fields.ChoiceField(label='Второй Мастер')
 
     def __init__(self, person_1_id, person_2_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -47,15 +47,15 @@ class BaseForm(BaseUserForm):
         person_2 = persons_storage.persons[int(cleaned_data['person_2'])]
 
         if person_1.id == person_2.id:
-            raise ValidationError(u'Необхоимо выбрать двух разных Мастеров')
+            raise ValidationError('Необхоимо выбрать двух разных Мастеров')
 
         connection = persons_storage.social_connections.get_connection(person_1, person_2)
 
         if connection is None:
-            raise ValidationError(u'Мастера не имеют связи')
+            raise ValidationError('Мастера не имеют связи')
 
         if not connection.can_be_removed():
-            raise ValidationError(u'Эту связь пока нельзя разорвать, дождитесь пока она просуществует минимально допустимое время')
+            raise ValidationError('Эту связь пока нельзя разорвать, дождитесь пока она просуществует минимально допустимое время')
 
         return cleaned_data
 
@@ -78,7 +78,7 @@ class UserForm(BaseForm):
 
         if (not person_1.politic_power.is_in_inner_circle(self.owner_id) and
             not person_2.politic_power.is_in_inner_circle(self.owner_id)):
-            raise ValidationError(u'Вы не состоите в ближнем круге ни одного из Мастеров')
+            raise ValidationError('Вы не состоите в ближнем круге ни одного из Мастеров')
 
         return cleaned_data
 
@@ -93,8 +93,8 @@ class PersonRemoveSocialConnection(BaseBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Удалить социальную связь'
-    DESCRIPTION = u'Социальную связь между Мастерами можно удалить, помирив конкурентов или рассорив партнёров. Выдвинуть закон может только Хранитель героя из ближнего круга одного из Мастеров. Герой должен быть в ближнем круге на момент создания закона и/или его редактирования.'
+    CAPTION = 'Удалить социальную связь'
+    DESCRIPTION = 'Социальную связь между Мастерами можно удалить, помирив конкурентов или рассорив партнёров. Выдвинуть закон может только Хранитель героя из ближнего круга одного из Мастеров. Герой должен быть в ближнем круге на момент создания закона и/или его редактирования.'
 
     def __init__(self,
                  person_1_id=None,

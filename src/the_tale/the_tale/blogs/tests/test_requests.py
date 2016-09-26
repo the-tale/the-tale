@@ -44,10 +44,10 @@ class BaseTestRequests(TestCase):
 
         CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
 
-        self.clan_2 = ClanPrototype.create(self.account_2, abbr=u'abbr2', name=u'name2', motto=u'motto', description=u'description')
+        self.clan_2 = ClanPrototype.create(self.account_2, abbr='abbr2', name='name2', motto='motto', description='description')
 
     def create_posts(self, number, author, caption_template, text_template):
-        return [prototypes.PostPrototype.create(author, caption_template % i, text_template % i) for i in xrange(number) ]
+        return [prototypes.PostPrototype.create(author, caption_template % i, text_template % i) for i in range(number) ]
 
     def check_post_votes(self, post_id, votes):
         post = models.Post.objects.get(id=post_id)

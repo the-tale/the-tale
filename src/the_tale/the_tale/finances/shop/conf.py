@@ -20,13 +20,13 @@ payments_settings = app_settings('PAYMENTS',
                                  XSOLLA_RUB_FOR_PREMIUM_CURRENCY=0.013,
 
                                  # default values was gotten from documentation
-                                 XSOLLA_BASE_LINK= u'https://secure.xsolla.com/paystation2/',
+                                 XSOLLA_BASE_LINK= 'https://secure.xsolla.com/paystation2/',
                                  XSOLLA_PID=6,
-                                 XSOLLA_MARKETPLACE=u'paydesk',
+                                 XSOLLA_MARKETPLACE='paydesk',
                                  XSOLLA_THEME=115,
                                  XSOLLA_PROJECT=4521,
-                                 XSOLLA_LOCAL=u'ru',
-                                 XSOLLA_DESCRIPTION=u'покупка печенек',
+                                 XSOLLA_LOCAL='ru',
+                                 XSOLLA_DESCRIPTION='покупка печенек',
                                  XSOLLA_ID_THEME='id_theme',
 
                                  XSOLLA_DIALOG_WIDTH=900,

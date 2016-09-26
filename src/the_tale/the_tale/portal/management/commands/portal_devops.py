@@ -41,4 +41,4 @@ class Command(BaseCommand):
         if command == 'test-setup':
             self.setup(host='the-tale.com', user='root', newrelic=False)
         else:
-            print 'unknown command'
+            print('unknown command')

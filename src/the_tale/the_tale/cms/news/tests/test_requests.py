@@ -56,7 +56,7 @@ class TestIndexRequests(TestRequestsBase):
     def test_index_page(self):
         texts = []
 
-        for i in xrange(1, 4):
+        for i in range(1, 4):
             texts.extend(['news%d-caption' %i,
                           'news%d-description' %i,
                           ('news%d-content' %i, 0)])
@@ -64,12 +64,12 @@ class TestIndexRequests(TestRequestsBase):
         self.check_html_ok(self.client.get(url('news:')), texts=texts)
 
     def test_second_page(self):
-        for i in xrange(conf.settings.NEWS_ON_PAGE):
+        for i in range(conf.settings.NEWS_ON_PAGE):
             self.create_news(i)
 
         first_page_texts = []
 
-        for i in xrange(conf.settings.NEWS_ON_PAGE):
+        for i in range(conf.settings.NEWS_ON_PAGE):
             first_page_texts.extend([('caption-%d' % i, 1), ('description-%d' % i, 1)])
 
         self.check_html_ok(self.request_html(url('news:', page=1)), texts=first_page_texts)

@@ -23,7 +23,7 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
 
     row_rows = []
 
-    for row_number in xrange(sheet.nrows):
+    for row_number in range(sheet.nrows):
 
         row_data = list(sheet.row_values(row_number))
 
@@ -110,14 +110,14 @@ def load_table_for_enums(filename, rows_enum, columns_enum, sheet_index=0, encod
         rows_values = zip(*rows_enum.select('name'))[0]
         rows_items = rows_enum.select('value', 'name')
     else:
-        rows_values = rows_enum._ID_TO_STR.values()
-        rows_items = rows_enum._ID_TO_STR.items()
+        rows_values = list(rows_enum._ID_TO_STR.values())
+        rows_items = list(rows_enum._ID_TO_STR.items())
 
     if issubclass(columns_enum, rels.Relation):
         columns_values = zip(*columns_enum.select('name'))[0]
         columns_dict = dict(columns_enum.select('name', 'value'))
     else:
-        columns_values = columns_enum._ID_TO_STR.values()
+        columns_values = list(columns_enum._ID_TO_STR.values())
         columns_dict = columns_enum._STR_TO_ID
 
     data = load_table(filename=filename, sheet_index=sheet_index, encoding=encoding,

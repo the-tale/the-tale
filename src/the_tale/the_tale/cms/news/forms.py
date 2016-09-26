@@ -5,9 +5,9 @@ from dext.forms import forms, fields
 
 class NewNewsForm(forms.Form):
 
-    caption = fields.CharField(label=u'Заголовок')
-    description = fields.TextField(label=u'Кратко')
-    content = fields.TextField(label=u'Полностью')
+    caption = fields.CharField(label='Заголовок')
+    description = fields.TextField(label='Кратко')
+    content = fields.TextField(label='Полностью')
 
     @classmethod
     def get_initials(cls, news):

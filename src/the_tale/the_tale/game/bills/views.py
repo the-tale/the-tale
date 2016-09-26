@@ -29,15 +29,15 @@ from . import meta_relations
 
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
-                      list_filter.static_element(u'автор:', attribute='owner'),
-                      list_filter.choice_element(u'состояние:', attribute='state', choices=[(None, u'все'),
-                                                                                            (BILL_STATE.VOTING.value, u'голосование'),
-                                                                                            (BILL_STATE.ACCEPTED.value, u'принятые'),
-                                                                                            (BILL_STATE.REJECTED.value, u'отклонённые') ]),
-                      list_filter.choice_element(u'тип:', attribute='bill_type', choices=[(None, u'все')] + list(BILL_TYPE.select('value', 'text'))),
-                      list_filter.choice_element(u'город:', attribute='place', choices=lambda x: [(None, u'все')] + places_storage.places.get_choices()) ]
+                      list_filter.static_element('автор:', attribute='owner'),
+                      list_filter.choice_element('состояние:', attribute='state', choices=[(None, 'все'),
+                                                                                            (BILL_STATE.VOTING.value, 'голосование'),
+                                                                                            (BILL_STATE.ACCEPTED.value, 'принятые'),
+                                                                                            (BILL_STATE.REJECTED.value, 'отклонённые') ]),
+                      list_filter.choice_element('тип:', attribute='bill_type', choices=[(None, 'все')] + list(BILL_TYPE.select('value', 'text'))),
+                      list_filter.choice_element('город:', attribute='place', choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()) ]
 
-LOGINED_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element(u'голосование:', attribute='voted', choices=[(None, u'все')] + list(VOTED_TYPE.select('value', 'text'))),]
+LOGINED_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element('голосование:', attribute='voted', choices=[(None, 'все')] + list(VOTED_TYPE.select('value', 'text'))),]
 
 class UnloginedIndexFilter(list_filter.ListFilter):
     ELEMENTS = BASE_INDEX_FILTERS
@@ -73,33 +73,33 @@ class BillResource(Resource):
     @validator(code='bills.voting_state_required')
     def validate_voting_state(self, *args, **kwargs): return self.bill.state.is_VOTING
 
-    @validator(code='bills.not_owner', message=u'Вы не являетесь владельцем данного законопроекта')
+    @validator(code='bills.not_owner', message='Вы не являетесь владельцем данного законопроекта')
     def validate_ownership(self, *args, **kwargs): return self.account.id == self.bill.owner.id
 
-    @validator(code='bills.moderator_rights_required', message=u'Вы не являетесь модератором')
+    @validator(code='bills.moderator_rights_required', message='Вы не являетесь модератором')
     def validate_moderator_rights(self, *args, **kwargs): return self.can_moderate_bill()
 
-    @validator(code='bills.can_not_participate_in_politics', message=u'Для участия в политике вам необходимо закончить регистрацию')
+    @validator(code='bills.can_not_participate_in_politics', message='Для участия в политике вам необходимо закончить регистрацию')
     def validate_participate_in_politics(self, *args, **kwargs): return self.can_participate_in_politics
 
-    @validator(code='bills.can_not_vote', message=u'Голосовать могут только подписчики')
+    @validator(code='bills.can_not_vote', message='Голосовать могут только подписчики')
     def validate_can_vote(self, *args, **kwargs): return self.can_vote
 
-    @validate_argument('bill', BillPrototype.get_by_id, 'bills', u'Закон не найден')
+    @validate_argument('bill', BillPrototype.get_by_id, 'bills', 'Закон не найден')
     def initialize(self, bill=None, *args, **kwargs):
         super(BillResource, self).initialize(*args, **kwargs)
 
         self.bill = bill
 
         if self.bill and self.bill.state.is_REMOVED:
-            return self.auto_error('bills.removed', u'Законопроект удалён')
+            return self.auto_error('bills.removed', 'Законопроект удалён')
 
-    @validate_argument('page', int, 'bills', u'неверная страница')
-    @validate_argument('owner', AccountPrototype.get_by_id, 'bills', u'неверный владелец закона')
-    @validate_argument('state', argument_to_bill_state, 'bills', u'неверное состояние закона')
-    @validate_argument('bill_type', argument_to_bill_type, 'bills', u'неверный тип закона')
-    @validate_argument('voted', VOTED_TYPE, 'bills', u'неверный тип фильтра голосования')
-    @validate_argument('place', lambda value: places_storage.places[int(value)], 'bills', u'не существует такого города')
+    @validate_argument('page', int, 'bills', 'неверная страница')
+    @validate_argument('owner', AccountPrototype.get_by_id, 'bills', 'неверный владелец закона')
+    @validate_argument('state', argument_to_bill_state, 'bills', 'неверное состояние закона')
+    @validate_argument('bill_type', argument_to_bill_type, 'bills', 'неверный тип закона')
+    @validate_argument('voted', VOTED_TYPE, 'bills', 'неверный тип фильтра голосования')
+    @validate_argument('place', lambda value: places_storage.places[int(value)], 'bills', 'не существует такого города')
     @handler('', method='get')
     def index(self, page=1, owner=None, state=None, bill_type=None, voted=None, place=None):#pylint: disable=R0914
 
@@ -173,11 +173,11 @@ class BillResource(Resource):
     @validate_fast_account()
     @validate_ban_game()
     @validate_participate_in_politics()
-    @validate_argument('bill_type', argument_to_bill_type, 'bills.new', u'неверный тип закона')
+    @validate_argument('bill_type', argument_to_bill_type, 'bills.new', 'неверный тип закона')
     @handler('new', method='get')
     def new(self, bill_type):
         if not bill_type.enabled:
-            return self.auto_error('bills.new.bill_type.not_enabled', u'Этот тип закона создать нельзя', response_type='html')
+            return self.auto_error('bills.new.bill_type.not_enabled', 'Этот тип закона создать нельзя', response_type='html')
 
         bill_class = BILLS_BY_ID[bill_type.value]
         return self.template('bills/new.html', {'bill_class': bill_class,
@@ -188,19 +188,19 @@ class BillResource(Resource):
     @validate_fast_account()
     @validate_ban_game()
     @validate_participate_in_politics()
-    @validate_argument('bill_type', argument_to_bill_type, 'bills.create', u'неверный тип закона')
+    @validate_argument('bill_type', argument_to_bill_type, 'bills.create', 'неверный тип закона')
     @handler('create', method='post')
     def create(self, bill_type):
 
         if not bill_type.enabled:
-            return self.json_error('bills.create.bill_type.not_enabled', u'Этот тип закона создать нельзя')
+            return self.json_error('bills.create.bill_type.not_enabled', 'Этот тип закона создать нельзя')
 
         if datetime.datetime.now() - self.account.created_at < datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE):
             return self.json_error('bills.create.too_young_owner',
-                                   u'Новые игроки не могут выдвигать законы в %d течении дней с момент регистрации' % bills_settings.MINIMUM_BILL_OWNER_AGE)
+                                   'Новые игроки не могут выдвигать законы в %d течении дней с момент регистрации' % bills_settings.MINIMUM_BILL_OWNER_AGE)
 
         if self.active_bills_limit_reached:
-            return self.json_error('bills.create.active_bills_limit_reached', u'Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению')
+            return self.json_error('bills.create.active_bills_limit_reached', 'Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению')
 
         bill_data = BILLS_BY_ID[bill_type.value]()
 
@@ -241,7 +241,7 @@ class BillResource(Resource):
     @validate_ban_game()
     @validate_participate_in_politics()
     @validate_ownership()
-    @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
+    @validate_voting_state(message='Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'edit', name='edit', method='get')
     def edit(self):
         user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials, owner_id=self.account.id)
@@ -255,7 +255,7 @@ class BillResource(Resource):
     @validate_ban_game()
     @validate_participate_in_politics()
     @validate_ownership()
-    @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
+    @validate_voting_state(message='Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'update', name='update', method='post')
     def update(self):
         user_form = self.bill.data.get_user_form_update(post=self.request.POST, owner_id=self.account.id)
@@ -277,7 +277,7 @@ class BillResource(Resource):
     @login_required
     @validate_fast_account()
     @validate_moderator_rights()
-    @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
+    @validate_voting_state(message='Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'moderate', name='moderate', method='get')
     def moderation_page(self):
         moderation_form = self.bill.data.get_moderator_form_update(initial=self.bill.moderator_form_initials)
@@ -288,7 +288,7 @@ class BillResource(Resource):
     @login_required
     @validate_fast_account()
     @validate_moderator_rights()
-    @validate_voting_state(message=u'Можно редактировать только законы, находящиеся в стадии голосования')
+    @validate_voting_state(message='Можно редактировать только законы, находящиеся в стадии голосования')
     @handler('#bill', 'moderate', name='moderate', method='post')
     def moderate(self):
         moderator_form = self.bill.data.get_moderator_form_update(post=self.request.POST)
@@ -304,16 +304,16 @@ class BillResource(Resource):
     @validate_ban_game()
     @validate_participate_in_politics()
     @validate_can_vote()
-    @validate_voting_state(message=u'На данной стадии за закон нельзя голосовать')
-    @validate_argument('type', lambda t: VOTE_TYPE.index_value[int(t)], 'bills.vote', u'Неверно указан тип голоса')
+    @validate_voting_state(message='На данной стадии за закон нельзя голосовать')
+    @validate_argument('type', lambda t: VOTE_TYPE.index_value[int(t)], 'bills.vote', 'Неверно указан тип голоса')
     @handler('#bill', 'vote', name='vote', method='post')
     def vote(self, type): # pylint: disable=W0622
 
         if not self.bill.can_vote(self.hero):
-            return self.json_error('bills.vote.can_not_vote', u'Вы не можете голосовать за этот закон')
+            return self.json_error('bills.vote.can_not_vote', 'Вы не можете голосовать за этот закон')
 
         if VotePrototype.get_for(self.account, self.bill):
-            return self.json_error('bills.vote.vote_exists', u'Вы уже проголосовали')
+            return self.json_error('bills.vote.vote_exists', 'Вы уже проголосовали')
 
         with transaction.atomic():
             VotePrototype.create(self.account, self.bill, type)

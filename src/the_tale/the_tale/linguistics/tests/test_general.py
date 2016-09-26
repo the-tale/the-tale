@@ -32,7 +32,7 @@ class GeneralTests(TestCase):
         return {'type': type,
                 'state': state,
                 'normal_form': normal_form,
-                'forms': u'' }
+                'forms': '' }
 
     def test_uniqueness(self):
         type_1 = utg_relations.WORD_TYPE.records[0]
@@ -63,27 +63,27 @@ class GeneralTests(TestCase):
                 continue
             for substitutions in verificator.substitutions:
                 for word, properties in substitutions:
-                    self.assertTrue(isinstance(word, (int, long)) or lexicon_dictinonary.DICTIONARY.has_word(word))
+                    self.assertTrue(isinstance(word, int) or lexicon_dictinonary.DICTIONARY.has_word(word))
 
 
     def test_all_lexicon_keys_have_suffient_number_of_verificator_substitutions(self):
 
         for key in keys.LEXICON_KEY.records:
             verificators = collections.Counter(v.type.verificator for v in key.variables)
-            for verificator, number in verificators.iteritems():
+            for verificator, number in verificators.items():
                 self.assertTrue(len(verificator.substitutions) >= number)
 
 
     def test_correct_autofill_of_noun_countable_form(self):
         word = utg_words.Word.create_test_word(utg_relations.WORD_TYPE.NOUN)
 
-        for key, index in utg_data.WORDS_CACHES[word.type].iteritems():
+        for key, index in utg_data.WORDS_CACHES[word.type].items():
             if utg_relations.NOUN_FORM.COUNTABLE in key:
-                word.forms[index] = u''
+                word.forms[index] = ''
 
         word.autofill_missed_forms()
 
-        for key, index in utg_data.WORDS_CACHES[word.type].iteritems():
+        for key, index in utg_data.WORDS_CACHES[word.type].items():
             if utg_relations.NOUN_FORM.COUNTABLE in key:
                 modified_key = list(property if property != utg_relations.NOUN_FORM.COUNTABLE else utg_relations.NOUN_FORM.NORMAL for property in key)
                 self.assertEqual(word.form(utg_words.Properties(*key)),

@@ -16,9 +16,9 @@ class HIT(AbilityPrototype):
     MAX_LEVEL = 1
     HAS_DAMAGE = True
 
-    NAME = u'Удар'
+    NAME = 'Удар'
     normalized_name = NAME
-    DESCRIPTION = u'Каждый уважающий себя боец должен быть в состоянии ударить противника, пнуть или поставить магическую подножку.'
+    DESCRIPTION = 'Каждый уважающий себя боец должен быть в состоянии ударить противника, пнуть или поставить магическую подножку.'
 
     DAMAGE_MODIFIER = [1.00]
 
@@ -45,9 +45,9 @@ class STRONG_HIT(AbilityPrototype):
 
     PRIORITY = [15, 16, 17, 18, 19]
 
-    NAME = u'Сильный удар'
+    NAME = 'Сильный удар'
     normalized_name = NAME
-    DESCRIPTION = u'Боец наносит очень сильный и болезненный удар по противнику.'
+    DESCRIPTION = 'Боец наносит очень сильный и болезненный удар по противнику.'
 
     DAMAGE_MODIFIER = [1.25, 1.4, 1.55, 1.7, 1.85]
 
@@ -74,9 +74,9 @@ class INSANE_STRIKE(AbilityPrototype):
 
     PRIORITY = [8, 9, 10, 11, 12]
 
-    NAME = u'Безрассудная атака'
+    NAME = 'Безрассудная атака'
     normalized_name = NAME
-    DESCRIPTION = u'Боец, не ведая страха, бросается в атаку и наносит противнику огромный урон, но и сам получает существенные ранения.'
+    DESCRIPTION = 'Боец, не ведая страха, бросается в атаку и наносит противнику огромный урон, но и сам получает существенные ранения.'
 
     DEFENDER_DAMAGE_MODIFIER = [1.5, 2.0, 2.5, 3, 3.5]
     ATTACKER_DAMAGE_MODIFIER = 0.33
@@ -107,9 +107,9 @@ class MAGIC_MUSHROOM(AbilityPrototype):
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [9, 11, 11, 12, 12]
 
-    NAME = u'Ярость'
+    NAME = 'Ярость'
     normalized_name = NAME
-    DESCRIPTION = u'Боец на небольшое время впадает в ярость, существенно увеличивая наносимый урон.'
+    DESCRIPTION = 'Боец на небольшое время впадает в ярость, существенно увеличивая наносимый урон.'
 
     DAMAGE_FACTORS = [ [1.75, 1.55, 1.25, 1.05],
                        [1.85, 1.65, 1.40, 1.15],
@@ -132,9 +132,9 @@ class SIDESTEP(AbilityPrototype):
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [12, 13, 14, 15, 16]
 
-    NAME = u'Дезориентация'
+    NAME = 'Дезориентация'
     normalized_name = NAME
-    DESCRIPTION = u'Боец дезориентирует противника, из-за чего тот начинает промахиваться.'
+    DESCRIPTION = 'Боец дезориентирует противника, из-за чего тот начинает промахиваться.'
 
     MISS_PROBABILITIES = [ [1.00, 0.35, 0.175],
                            [1.00, 0.45, 0.200, 0.05],
@@ -161,9 +161,9 @@ class RUN_UP_PUSH(AbilityPrototype):
     PRIORITY = [7, 8, 9, 10, 11]
     HAS_DAMAGE = True
 
-    NAME = u'Ошеломление'
+    NAME = 'Ошеломление'
     normalized_name = NAME
-    DESCRIPTION = u'Боец оглушает противника и тот пропускает один или несколько ходов.'
+    DESCRIPTION = 'Боец оглушает противника и тот пропускает один или несколько ходов.'
 
     DAMAGE_MODIFIER = [0.35, 0.45, 0.55, 0.65, 0.75]
 
@@ -199,9 +199,9 @@ class REGENERATION(AbilityPrototype):
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [8, 9, 10, 11, 12]
 
-    NAME = u'Регенерация'
+    NAME = 'Регенерация'
     normalized_name = NAME
-    DESCRIPTION = u'Во время боя боец может восстановить часть своего здоровья.'
+    DESCRIPTION = 'Во время боя боец может восстановить часть своего здоровья.'
 
     RESTORED_PERCENT = [0.17, 0.20, 0.23, 0.25, 0.28]
 
@@ -221,9 +221,9 @@ class CRITICAL_HIT(AbilityPrototype):
     TYPE = relations.ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
 
-    NAME = u'Критический удар'
+    NAME = 'Критический удар'
     normalized_name = NAME
-    DESCRIPTION = u'Удача благосклонна к бойцу — урон от любого удара может существенно увеличиться.'
+    DESCRIPTION = 'Удача благосклонна к бойцу — урон от любого удара может существенно увеличиться.'
 
     CRITICAL_CHANCE = [0.03, 0.06, 0.09, 0.10, 0.13]
 
@@ -239,9 +239,9 @@ class BERSERK(AbilityPrototype):
     TYPE = relations.ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
 
-    NAME = u'Берсерк'
+    NAME = 'Берсерк'
     normalized_name = NAME
-    DESCRIPTION = u'Чем меньше у бойца остаётся здоровья, тем больше урона врагу он наносит.'
+    DESCRIPTION = 'Чем меньше у бойца остаётся здоровья, тем больше урона врагу он наносит.'
 
     MAXIMUM_BONUS = [0.05, 0.10, 0.15, 0.20, 0.25]
 
@@ -257,9 +257,9 @@ class NINJA(AbilityPrototype):
     TYPE = relations.ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
 
-    NAME = u'Ниндзя'
+    NAME = 'Ниндзя'
     normalized_name = NAME
-    DESCRIPTION = u'Ниндзя может уклониться от атаки противника.'
+    DESCRIPTION = 'Ниндзя может уклониться от атаки противника.'
 
     MISS_PROBABILITY = [0.025, 0.05, 0.075, 0.10, 0.120]
 
@@ -278,9 +278,9 @@ class FIREBALL(AbilityPrototype):
     PRIORITY = [4, 5, 6, 7, 8]
     HAS_DAMAGE = True
 
-    NAME = u'Пиромания'
+    NAME = 'Пиромания'
     normalized_name = NAME
-    DESCRIPTION = u'Боец устраивает огненный взрыв, который наносит большой урон противнику и поджигает его.'
+    DESCRIPTION = 'Боец устраивает огненный взрыв, который наносит большой урон противнику и поджигает его.'
 
     DAMAGE_MODIFIER = [1.45, 1.50, 1.55, 1.60, 1.65]
     PERIODIC_DAMAGE_MODIFIERS = [ [0.18, 0.08],
@@ -315,9 +315,9 @@ class POISON_CLOUD(AbilityPrototype):
     PRIORITY = [6, 7, 8, 9, 10]
     HAS_DAMAGE = True
 
-    NAME = u'Ядовитость'
+    NAME = 'Ядовитость'
     normalized_name = NAME
-    DESCRIPTION = u'Боец отравляет противника и тот начинает постепенно терять здоровье.'
+    DESCRIPTION = 'Боец отравляет противника и тот начинает постепенно терять здоровье.'
 
     PERIODIC_DAMAGE_MODIFIERS = [ [0.75, 0.50, 0.25],
                                   [0.90, 0.65, 0.40],
@@ -343,9 +343,9 @@ class VAMPIRE_STRIKE(AbilityPrototype):
     PRIORITY = [14, 15, 16, 17, 18]
     HAS_DAMAGE = True
 
-    NAME = u'Вампиризм'
+    NAME = 'Вампиризм'
     normalized_name = NAME
-    DESCRIPTION = u'Боец использует одну из секретных техник, чтобы нанести урон противнику и одновременно восстановить часть своего здоровья.'
+    DESCRIPTION = 'Боец использует одну из секретных техник, чтобы нанести урон противнику и одновременно восстановить часть своего здоровья.'
 
     DAMAGE_FRACTION = [0.85, 0.95, 1.00, 1.10, 1.15]
     HEAL_FRACTION =   [0.45, 0.55, 0.65, 0.70, 0.75]
@@ -376,9 +376,9 @@ class FREEZING(AbilityPrototype):
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [7, 8, 10, 10, 11]
 
-    NAME = u'Контроль'
+    NAME = 'Контроль'
     normalized_name = NAME
-    DESCRIPTION = u'Своими действиями боец замедляет движения противника.'
+    DESCRIPTION = 'Своими действиями боец замедляет движения противника.'
 
     INITIATIVE_MODIFIERS = [ [0.37, 0.48, 0.58, 0.68, 0.78, 0.88],
                              [0.33, 0.44, 0.54, 0.64, 0.74, 0.84, 0.94],
@@ -401,9 +401,9 @@ class SPEEDUP(AbilityPrototype):
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITHOUT_CONTACT
     PRIORITY = [8, 10, 11, 11, 12]
 
-    NAME = u'Ускорение'
+    NAME = 'Ускорение'
     normalized_name = NAME
-    DESCRIPTION = u'Боец временно улучшает свои рефлексы.'
+    DESCRIPTION = 'Боец временно улучшает свои рефлексы.'
 
     INITIATIVE_MODIFIERS = [ [2.90, 2.40, 1.80, 1.40],
                              [3.15, 2.55, 2.00, 1.55, 1.05],
@@ -425,9 +425,9 @@ class LAST_CHANCE(AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.PASSIVE
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_MONSTERS
 
-    NAME = u'Последний шанс'
+    NAME = 'Последний шанс'
     normalized_name = NAME
-    DESCRIPTION = u'Способность для тех, кто действительно сражается до конца. Иногда позволяет пережить смертельный удар и продолжить сражаться с 1 здоровьем (может спасать владельца несколько раз за бой).'
+    DESCRIPTION = 'Способность для тех, кто действительно сражается до конца. Иногда позволяет пережить смертельный удар и продолжить сражаться с 1 здоровьем (может спасать владельца несколько раз за бой).'
 
     PROBABILITIES = [0.1, 0.2, 0.3, 0.4, 0.5]
 

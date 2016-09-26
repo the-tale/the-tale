@@ -28,7 +28,7 @@ class FakeResourceProcessor(dext_views.BaseViewProcessor):
 
 class PageNumberProcessor(dext_views.ArgumentProcessor):
     CONTEXT_NAME = 'page'
-    ERROR_MESSAGE = u'Неверный номер страницы'
+    ERROR_MESSAGE = 'Неверный номер страницы'
     GET_NAME = 'page'
     DEFAULT_VALUE = 0
 
@@ -39,7 +39,7 @@ class PageNumberProcessor(dext_views.ArgumentProcessor):
 
 class TextFilterProcessor(dext_views.ArgumentProcessor):
     CONTEXT_NAME = 'filter'
-    ERROR_MESSAGE = u'Неверный текст для фильтра'
+    ERROR_MESSAGE = 'Неверный текст для фильтра'
     GET_NAME = 'filter'
     DEFAULT_VALUE = None
 

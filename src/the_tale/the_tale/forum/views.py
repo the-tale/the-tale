@@ -56,10 +56,10 @@ def is_moderator(account):
 
 class BaseForumResource(Resource):
 
-    @validate_argument('category', CategoryPrototype.get_by_slug, 'forum', u'категория не найдена')
-    @validate_argument('subcategory', SubCategoryPrototype.get_by_id, 'forum', u'подкатегория не найдена')
-    @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', u'обсуждение не найдено')
-    @validate_argument('post', PostPrototype.get_by_id, 'forum', u'сообщение не найдено')
+    @validate_argument('category', CategoryPrototype.get_by_slug, 'forum', 'категория не найдена')
+    @validate_argument('subcategory', SubCategoryPrototype.get_by_id, 'forum', 'подкатегория не найдена')
+    @validate_argument('thread', ThreadPrototype.get_by_id, 'forum', 'обсуждение не найдено')
+    @validate_argument('post', PostPrototype.get_by_id, 'forum', 'сообщение не найдено')
     def initialize(self, category=None, subcategory=None, thread=None, post=None, *args, **kwargs):
         super(BaseForumResource, self).initialize(*args, **kwargs)
 
@@ -71,7 +71,7 @@ class BaseForumResource(Resource):
         # TODO: check consistency
 
         if self.subcategory and self.subcategory.is_restricted_for(self.account):
-            return self.auto_error('forum.subcategory_access_restricted', u'Вы не можете работать с материалами из этого раздела')
+            return self.auto_error('forum.subcategory_access_restricted', 'Вы не можете работать с материалами из этого раздела')
 
 
 
@@ -84,13 +84,13 @@ class PostsResource(BaseForumResource):
     def delete_post(self):
 
         if not (can_delete_posts(self.account, self.thread) or self.post.author == self.account):
-            return self.json_error('forum.delete_post.no_permissions', u'У Вас нет прав для удаления сообщения')
+            return self.json_error('forum.delete_post.no_permissions', 'У Вас нет прав для удаления сообщения')
 
         if Post.objects.filter(thread=self.thread._model, created_at__lt=self.post.created_at).count() == 0:
-            return self.json_error('forum.delete_post.remove_first_post', u'Вы не можете удалить первое сообщение в теме')
+            return self.json_error('forum.delete_post.remove_first_post', 'Вы не можете удалить первое сообщение в теме')
 
         if self.post.author.id != self.account.id and is_moderator(self.post.author):
-            return self.auto_error('forum.delete_post.remove_moderator_post', u'Вы не можете удалить сообщение модератора')
+            return self.auto_error('forum.delete_post.remove_moderator_post', 'Вы не можете удалить сообщение модератора')
 
         self.post.delete(self.account)
 
@@ -109,7 +109,7 @@ class PostsResource(BaseForumResource):
     def edit_post(self):
 
         if not (can_change_posts(self.account) or self.post.author == self.account):
-            return self.template('error.html', {'error_message': u'У Вас нет прав для редактирования сообщения',
+            return self.template('error.html', {'error_message': 'У Вас нет прав для редактирования сообщения',
                                                 'error_code': 'forum.edit_thread.no_permissions'})
 
         return self.template('forum/edit_post.html',
@@ -127,7 +127,7 @@ class PostsResource(BaseForumResource):
     def update_post(self):
 
         if not (can_change_posts(self.account) or self.post.author == self.account):
-            return self.json_error('forum.update_post.no_permissions', u'У Вас нет прав для редактирования сообщения')
+            return self.json_error('forum.update_post.no_permissions', 'У Вас нет прав для редактирования сообщения')
 
         edit_post_form = forms.NewPostForm(self.request.POST)
 
@@ -169,7 +169,7 @@ class ThreadsResource(BaseForumResource):
         new_post_delay = PostPrototype.get_new_post_delay(self.account)
 
         if new_post_delay > 0:
-            error_message = (u'Создавать новые сообщения можно не чаще раза в %d секунд. <br/>Задержка увеличивается для игроков, только начинающих общаться на форуме.<br/> Вы сможете создать новое сообщение через %d сек.' %
+            error_message = ('Создавать новые сообщения можно не чаще раза в %d секунд. <br/>Задержка увеличивается для игроков, только начинающих общаться на форуме.<br/> Вы сможете создать новое сообщение через %d сек.' %
                              ( forum_settings.POST_DELAY,
                                int(new_post_delay)))
             return self.json_error('forum.create_post.delay', error_message)
@@ -188,9 +188,9 @@ class ThreadsResource(BaseForumResource):
         return self.json_ok(data={'next_url': url('forum:threads:show', self.thread.id, page=self.thread.paginator.pages_count) + ('#m%d' % post.id)})
 
 
-    @validate_argument('author', AccountPrototype.get_by_id, 'forum.threads.index', u'автор не найден')
-    @validate_argument('participant', AccountPrototype.get_by_id, 'forum.threads.index', u'участник не найден')
-    @validate_argument('page', int, 'forum.threads.index', u'неверный номер страницы')
+    @validate_argument('author', AccountPrototype.get_by_id, 'forum.threads.index', 'автор не найден')
+    @validate_argument('participant', AccountPrototype.get_by_id, 'forum.threads.index', 'участник не найден')
+    @validate_argument('page', int, 'forum.threads.index', 'неверный номер страницы')
     @handler('', method='get')
     def index(self, author=None, page=1, participant=None):
 
@@ -223,7 +223,7 @@ class ThreadsResource(BaseForumResource):
 
         return self.template('forum/threads_list.html',
                              {'is_filtering': is_filtering,
-                              'pages_count': range(paginator.pages_count),
+                              'pages_count': list(range(paginator.pages_count)),
                               'current_page_number': page,
                               'author_account': author,
                               'participant_account': participant,
@@ -239,7 +239,7 @@ class ThreadsResource(BaseForumResource):
     def delete_thread(self):
 
         if not can_delete_thread(self.account):
-            return self.json_error('forum.delete_thread.no_permissions', u'У Вас нет прав для удаления темы')
+            return self.json_error('forum.delete_thread.no_permissions', 'У Вас нет прав для удаления темы')
 
         self.thread.delete()
 
@@ -252,7 +252,7 @@ class ThreadsResource(BaseForumResource):
     def update_thread(self):
 
         if not can_change_thread(self.account, self.thread):
-            return self.json_error('forum.update_thread.no_permissions', u'У Вас нет прав для редактирования темы')
+            return self.json_error('forum.update_thread.no_permissions', 'У Вас нет прав для редактирования темы')
 
         account_is_moderator = is_moderator(self.account)
 
@@ -271,7 +271,7 @@ class ThreadsResource(BaseForumResource):
 
         if new_subcategory_id is not None and self.thread.subcategory.id != edit_thread_form.c.subcategory:
             if not can_change_thread_category(self.account):
-                return self.json_error('forum.update_thread.no_permissions_to_change_subcategory', u'У вас нет прав для переноса темы в другой раздел')
+                return self.json_error('forum.update_thread.no_permissions_to_change_subcategory', 'У вас нет прав для переноса темы в другой раздел')
 
         if account_is_moderator:
             self.thread.update(caption=edit_thread_form.c.caption, new_subcategory_id=new_subcategory_id, important=edit_thread_form.c.important)
@@ -287,7 +287,7 @@ class ThreadsResource(BaseForumResource):
     def edit_thread(self):
 
         if not can_change_thread(self.account, self.thread):
-            return self.template('error.html', {'error_message': u'Вы не можете редактировать эту тему',
+            return self.template('error.html', {'error_message': 'Вы не можете редактировать эту тему',
                                                 'error_code': 'forum.edit_thread.no_permissions'})
 
         account_is_moderator = is_moderator(self.account)
@@ -311,7 +311,7 @@ class ThreadsResource(BaseForumResource):
                               'can_change_thread_category': can_change_thread_category(self.account)} )
 
 
-    @validate_argument('page', int, 'forum.threads.show', u'неверный номер страницы')
+    @validate_argument('page', int, 'forum.threads.show', 'неверный номер страницы')
     @handler('#thread', name='show', method='get')
     def get_thread(self, page=1):
 
@@ -427,7 +427,7 @@ class SubCategoryResource(BaseForumResource):
     def new_thread(self):
 
         if not can_create_thread(self.account, self.subcategory):
-            return self.template('error.html', {'error_message': u'Вы не можете создавать темы в данном разделе',
+            return self.template('error.html', {'error_message': 'Вы не можете создавать темы в данном разделе',
                                                 'error_code': 'forum.new_thread.no_permissions'})
 
         return self.template('forum/new_thread.html',
@@ -442,11 +442,11 @@ class SubCategoryResource(BaseForumResource):
     def create_thread(self):
 
         if not can_create_thread(self.account, self.subcategory):
-            return self.json_error('forum.create_thread.no_permissions', u'Вы не можете создавать темы в данном разделе')
+            return self.json_error('forum.create_thread.no_permissions', 'Вы не можете создавать темы в данном разделе')
 
         new_thread_delay = ThreadPrototype.get_new_thread_delay(self.account)
         if new_thread_delay > 0:
-            error_message = (u'Создавать новые обсуждения можно не чаще раза в %d минут.<br/> Вы сможете создать новое обсуждение через %d сек.' %
+            error_message = ('Создавать новые обсуждения можно не чаще раза в %d минут.<br/> Вы сможете создать новое обсуждение через %d сек.' %
                              ( int(forum_settings.THREAD_DELAY / 60),
                                int(new_thread_delay)))
             return self.json_error('forum.create_thread.delay', error_message)
@@ -464,7 +464,7 @@ class SubCategoryResource(BaseForumResource):
         return self.json_ok(data={'thread_url': reverse('forum:threads:show', args=[thread.id]),
                                   'thread_id': thread.id})
 
-    @validate_argument('page', int, 'forum.subcategories.show', u'неверный номер страницы')
+    @validate_argument('page', int, 'forum.subcategories.show', 'неверный номер страницы')
     @handler('#subcategory', name='show', method='get')
     def get_subcategory(self, page=1):
 
@@ -483,8 +483,8 @@ class SubCategoryResource(BaseForumResource):
 
         threads = ThreadPrototype.from_query(threads_query.select_related().order_by('-important', '-updated_at')[thread_from:thread_to])
 
-        important_threads = sorted(filter(lambda t: t.important, threads), key=lambda t: t.caption)
-        threads = filter(lambda t: not t.important, threads)
+        important_threads = sorted([t for t in threads if t.important], key=lambda t: t.caption)
+        threads = [t for t in threads if not t.important]
 
         read_state = ReadState(account=self.account)
 
@@ -545,10 +545,10 @@ class ForumResource(BaseForumResource):
 
     @handler('feed', method='get')
     def feed(self):
-        feed = Atom1Feed(u'Сказка: Форум',
+        feed = Atom1Feed('Сказка: Форум',
                          self.request.build_absolute_uri('/'),
-                         u'Новые темы на форуме мморпг «Сказка»',
-                         language=u'ru',
+                         'Новые темы на форуме мморпг «Сказка»',
+                         language='ru',
                          feed_url=self.request.build_absolute_uri(reverse('forum:feed')))
 
         threads = [ThreadPrototype(model=thread) for thread in Thread.objects.filter(subcategory__restricted=False).order_by('-created_at')[:forum_settings.FEED_ITEMS_NUMBER]]

@@ -236,7 +236,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         if send_message: # TODO: move out logic
             account = accounts_prototypes.AccountPrototype.get_by_id(self.account_id)
-            message_prototypes.MessagePrototype.create(accounts_logic.get_system_user(), account, text=u'Поздравляем, Ваш герой получил %d уровень!' % self.level)
+            message_prototypes.MessagePrototype.create(accounts_logic.get_system_user(), account, text='Поздравляем, Ваш герой получил %d уровень!' % self.level)
 
     def add_experience(self, value, without_modifications=False):
         real_experience = int(value) if without_modifications else int(value * self.experience_modifier)
@@ -464,7 +464,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                                       externals=externals,
                                       turn_delta=turn_delta,
                                       restrictions=restrictions,
-                                      position=self.position.get_description() if diary else u'')
+                                      position=self.position.get_description() if diary else '')
 
         self.push_message(message, diary=diary, journal=journal)
 
@@ -637,7 +637,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         changed_fields = ['changed_fields', 'actual_on_turn', 'patch_turn']
 
         if old_info:
-            for key, value in new_info.iteritems():
+            for key, value in new_info.items():
                 if old_info[key] != value:
                     changed_fields.append(key)
 
@@ -684,7 +684,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         if patch_turns is not None and data['patch_turn'] in patch_turns:
             patch_fields = set(data['changed_fields'])
-            for field in data.keys():
+            for field in list(data.keys()):
                 if field not in patch_fields:
                     del data[field]
         else:

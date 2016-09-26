@@ -12,9 +12,9 @@ class AbilityPrototype(object):
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_ALL
     HAS_DAMAGE = False
 
-    NAME = u''
-    normalized_name = u''
-    DESCRIPTIN = u''
+    NAME = ''
+    normalized_name = ''
+    DESCRIPTIN = ''
     MAX_LEVEL = 5
 
     __slots__ = ('level', )

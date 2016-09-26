@@ -13,11 +13,11 @@ class ContainerTests(testcase.TestCase):
         super(ContainerTests, self).setUp()
 
         self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
-                                                         caption=u'achievement_1', description=u'description_1', approved=True)
+                                                         caption='achievement_1', description='description_1', approved=True)
         self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=4, points=20,
-                                                         caption=u'achievement_2', description=u'description_2', approved=False)
+                                                         caption='achievement_2', description='description_2', approved=False)
         self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=8, points=30,
-                                                         caption=u'achievement_3', description=u'description_3', approved=True)
+                                                         caption='achievement_3', description='description_3', approved=True)
 
         self.container = AchievementsContainer()
 

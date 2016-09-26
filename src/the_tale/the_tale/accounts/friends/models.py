@@ -9,6 +9,6 @@ class Friendship(models.Model):
     friend_1 = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
     friend_2 = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
 
-    text = models.TextField(default=u'Давайте дружить')
+    text = models.TextField(default='Давайте дружить')
 
     is_confirmed = models.BooleanField(default=False, db_index=True)

@@ -76,19 +76,19 @@ class TestRequests(TestRequestsBase):
 class SayRequestsTests(TestRequestsBase):
 
     def test_no_battle(self):
-        self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}), 'pvp.say.no_battle')
+        self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': 'some text'}), 'pvp.say.no_battle')
 
     def test_battle_not_in_processing_state(self):
         self.pvp_create_battle(self.account_1, None)
-        self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u'some text'}), 'pvp.say.no_battle')
+        self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': 'some text'}), 'pvp.say.no_battle')
 
     def test_form_errors(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
-        self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': u''}), 'pvp.say.form_errors')
+        self.check_ajax_error(self.client.post(reverse('game:pvp:say'), {'text': ''}), 'pvp.say.form_errors')
 
     def test_success(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
-        response = self.client.post(reverse('game:pvp:say'), {'text': u'some text'})
+        response = self.client.post(reverse('game:pvp:say'), {'text': 'some text'})
         task = PostponedTaskPrototype._db_get_object(0)
         self.check_ajax_processing(response, task.status_url)
 
@@ -97,7 +97,7 @@ class UsePvPAbilityRequestsTests(TestRequestsBase):
 
     def setUp(self):
         super(UsePvPAbilityRequestsTests, self).setUp()
-        self.ability = random.choice(ABILITIES.values())
+        self.ability = random.choice(list(ABILITIES.values()))
         self.change_style_url = url('game:pvp:use-ability', ability=self.ability.TYPE)
 
     def test_no_battle(self):

@@ -141,7 +141,7 @@ class Worker(BaseWorker):
 
         time_in_level = float(pvp_settings.BALANCING_TIMEOUT) / pvp_settings.BALANCING_MAX_LEVEL_DELTA
 
-        for record in self.arena_queue.values():
+        for record in list(self.arena_queue.values()):
 
             time_delta = (datetime.datetime.now() - record.created_at).total_seconds()
 

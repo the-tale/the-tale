@@ -71,7 +71,7 @@ def get_referers_statistics():
         else:
             statistics[st.domain] = st
 
-    statistics = sorted(statistics.values(), key=lambda s: -s.count)
+    statistics = sorted(list(statistics.values()), key=lambda s: -s.count)
 
     return statistics
 
@@ -92,7 +92,7 @@ def get_invoice_statistics():
 def get_repeatable_payments_statistics():
     # группы по количеству оплат
     payments_count = collections.Counter(InvoiceQuery.filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', flat=True))
-    payments_count_groups = collections.Counter(payments_count.values())
+    payments_count_groups = collections.Counter(list(payments_count.values()))
 
     # группы по заплаченным деньгам
     gold_count = InvoiceQuery.filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', 'amount')
@@ -102,7 +102,7 @@ def get_repeatable_payments_statistics():
 
     payment_sum_groups = {}
 
-    for amount in accounts_spend.values():
+    for amount in list(accounts_spend.values()):
         for group in PAYMENT_GROUPS.records:
             if amount < group.top_border:
                 payment_sum_groups[group.value] = payment_sum_groups.get(group.value, 0) + 1
@@ -111,12 +111,12 @@ def get_repeatable_payments_statistics():
     # группы по повторным подпискам
     subscriptions_count = collections.Counter(InvoiceQuery.filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
                                                                   operation_uid__startswith='ingame-purchase-<subscription').values_list('recipient_id', flat=True))
-    subscriptions_count_groups = collections.Counter(subscriptions_count.values())
+    subscriptions_count_groups = collections.Counter(list(subscriptions_count.values()))
 
     # группы по повторным покупкам энергии
     energy_count = collections.Counter(InvoiceQuery.filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
                                                            operation_uid__startswith='ingame-purchase-<energy-').values_list('recipient_id', flat=True))
-    energy_count_groups = collections.Counter(energy_count.values())
+    energy_count_groups = collections.Counter(list(energy_count.values()))
 
 
     return {'payments_count_groups': sorted(payments_count_groups.items()),
@@ -232,7 +232,7 @@ class DevelopersInfoResource(Resource):
         del mobs_by_territory['WATER_SHOAL']
         del mobs_by_territory['WATER_DEEP']
 
-        mobs_by_territory = sorted(mobs_by_territory.items(), key=lambda x: x[1][-1])
+        mobs_by_territory = sorted(list(mobs_by_territory.items()), key=lambda x: x[1][-1])
 
 
         artifacts_without_mobs = []

@@ -28,7 +28,7 @@ class UpgradeArtifactTests(CardsTestMixin, testcase.TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.assertTrue(len(self.hero.equipment.values()) > 1)
+        self.assertTrue(len(list(self.hero.equipment.values())) > 1)
 
         self.card = self.CARD()
 
@@ -36,25 +36,25 @@ class UpgradeArtifactTests(CardsTestMixin, testcase.TestCase):
     def test_use(self):
 
         for rarity in artifacts_relations.RARITY.records[:-1]:
-            for artifact in self.hero.equipment.values():
+            for artifact in list(self.hero.equipment.values()):
                 artifact.rarity = rarity
 
             result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
             self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-            self.assertEqual(len([artifact for artifact in self.hero.equipment.values() if artifact.rarity == rarity]), len(self.hero.equipment.values()) - 1)
-            self.assertEqual(len([artifact for artifact in self.hero.equipment.values() if artifact.rarity == artifacts_relations.RARITY(rarity.value+1)]), 1)
+            self.assertEqual(len([artifact for artifact in list(self.hero.equipment.values()) if artifact.rarity == rarity]), len(list(self.hero.equipment.values())) - 1)
+            self.assertEqual(len([artifact for artifact in list(self.hero.equipment.values()) if artifact.rarity == artifacts_relations.RARITY(rarity.value+1)]), 1)
 
     def test_all_epic(self):
         rarity = artifacts_relations.RARITY.records[-1]
 
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.rarity = rarity
 
         result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
-        self.assertEqual(len([artifact for artifact in self.hero.equipment.values() if artifact.rarity == rarity]), len(self.hero.equipment.values()))
+        self.assertEqual(len([artifact for artifact in list(self.hero.equipment.values()) if artifact.rarity == rarity]), len(list(self.hero.equipment.values())))
 
 
     def test_no_artifacts(self):

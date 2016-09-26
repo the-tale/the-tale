@@ -181,7 +181,7 @@ class BattleContextTest(testcase.TestCase):
         self.context.use_stun(1)
         self.assertEqual(self.context.stun_length, 4)
 
-        for i in xrange(3):
+        for i in range(3):
             self.context.on_own_turn()
             self.assertEqual(self.context.stun_length, 3-i)
             self.assertTrue(self.context.is_stunned)
@@ -238,7 +238,7 @@ class BattleContextTest(testcase.TestCase):
 
     def test_ninja(self):
         self.context.use_ninja(1.0)
-        for i in xrange(100):
+        for i in range(100):
             self.assertTrue(self.context.should_miss_attack())
 
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)

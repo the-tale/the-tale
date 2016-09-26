@@ -18,9 +18,9 @@ class Actor(models.Model):
     person = models.ForeignKey('persons.Person', null=True, related_name='+', on_delete=models.SET_NULL)
 
     def __unicode__(self):
-        if self.bill_id is not None: return unicode(self.bill)
-        if self.place_id is not None: return unicode(self.place)
-        if self.person_id is not None: return unicode(self.person)
+        if self.bill_id is not None: return str(self.bill)
+        if self.place_id is not None: return str(self.place)
+        if self.person_id is not None: return str(self.person)
 
 
 class Record(models.Model):

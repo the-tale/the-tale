@@ -24,7 +24,7 @@ class BaseEffect(object):
 
 class PhysicalDamage(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.PHYSICAL_DAMAGE
-    DESCRIPTION = u'Немного увеличивает физический урон'
+    DESCRIPTION = 'Немного увеличивает физический урон'
     MULTIPLIER = 1.02
 
     @classmethod
@@ -34,7 +34,7 @@ class PhysicalDamage(BaseEffect):
 
 class MagicalDamage(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.MAGICAL_DAMAGE
-    DESCRIPTION = u'Немного увеличивает магический урон'
+    DESCRIPTION = 'Немного увеличивает магический урон'
     MULTIPLIER = 1.02
 
     @classmethod
@@ -44,7 +44,7 @@ class MagicalDamage(BaseEffect):
 
 class Initiative(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.INITIATIVE
-    DESCRIPTION = u'Немного увеличивает инициативу героя в бою'
+    DESCRIPTION = 'Немного увеличивает инициативу героя в бою'
     MULTIPLIER = 1.02
 
     @classmethod
@@ -54,7 +54,7 @@ class Initiative(BaseEffect):
 
 class Health(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.HEALTH
-    DESCRIPTION = u'Немного увеличивает максимальное здоровье героя'
+    DESCRIPTION = 'Немного увеличивает максимальное здоровье героя'
     MULTIPLIER = 1.02
 
     @classmethod
@@ -64,7 +64,7 @@ class Health(BaseEffect):
 
 class Experience(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.EXPERIENCE
-    DESCRIPTION = u'Немного увеличивает получаемый героем опыт'
+    DESCRIPTION = 'Немного увеличивает получаемый героем опыт'
     MULTIPLIER = 1.02
 
     @classmethod
@@ -74,7 +74,7 @@ class Experience(BaseEffect):
 
 class PersonPower(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.POWER
-    DESCRIPTION = u'Немного увеличивает влияние героя (бонус к влиянию: 10%)'
+    DESCRIPTION = 'Немного увеличивает влияние героя (бонус к влиянию: 10%)'
     MODIFIER = 0.1
 
     @classmethod
@@ -84,7 +84,7 @@ class PersonPower(BaseEffect):
 
 class Energy(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.ENERGY
-    DESCRIPTION = u'Немного увеличивает максимум энергии Хранителя'
+    DESCRIPTION = 'Немного увеличивает максимум энергии Хранителя'
     MODIFIER = 3
 
     @classmethod
@@ -94,7 +94,7 @@ class Energy(BaseEffect):
 
 class Speed(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.SPEED
-    DESCRIPTION = u'Немного увеличивает скорость движения героя'
+    DESCRIPTION = 'Немного увеличивает скорость движения героя'
     MODIFIER = 1.02
 
     @classmethod
@@ -104,7 +104,7 @@ class Speed(BaseEffect):
 
 class Bag(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.BAG
-    DESCRIPTION = u'Немного увеличивает вместимость рюкзака героя'
+    DESCRIPTION = 'Немного увеличивает вместимость рюкзака героя'
     MULTIPLIER = 1
 
     @classmethod
@@ -115,7 +115,7 @@ class Bag(BaseEffect):
 
 class GreatPhysicalDamage(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE
-    DESCRIPTION = u'Сильно увеличивает физический урон'
+    DESCRIPTION = 'Сильно увеличивает физический урон'
     MULTIPLIER = 1.1
 
     @classmethod
@@ -125,7 +125,7 @@ class GreatPhysicalDamage(BaseEffect):
 
 class GreatMagicalDamage(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_MAGICAL_DAMAGE
-    DESCRIPTION = u'Сильно увеличивает магический урон'
+    DESCRIPTION = 'Сильно увеличивает магический урон'
     MULTIPLIER = 1.1
 
     @classmethod
@@ -135,7 +135,7 @@ class GreatMagicalDamage(BaseEffect):
 
 class GreatInitiative(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_INITIATIVE
-    DESCRIPTION = u'Сильно увеличивает инициативу героя в бою'
+    DESCRIPTION = 'Сильно увеличивает инициативу героя в бою'
     MULTIPLIER = 1.1
 
     @classmethod
@@ -145,7 +145,7 @@ class GreatInitiative(BaseEffect):
 
 class GreatHealth(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_HEALTH
-    DESCRIPTION = u'Сильно увеличивает максимальное здоровье героя'
+    DESCRIPTION = 'Сильно увеличивает максимальное здоровье героя'
     MULTIPLIER = 1.1
 
     @classmethod
@@ -155,7 +155,7 @@ class GreatHealth(BaseEffect):
 
 class GreatExperience(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_EXPERIENCE
-    DESCRIPTION = u'Сильно увеличивает получаемый героем опыт'
+    DESCRIPTION = 'Сильно увеличивает получаемый героем опыт'
     MULTIPLIER = 1.1
 
     @classmethod
@@ -165,7 +165,7 @@ class GreatExperience(BaseEffect):
 
 class GreatPersonPower(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_POWER
-    DESCRIPTION = u'Сильно увеличивает влияние героя  (бонус к влиянию: 50%)'
+    DESCRIPTION = 'Сильно увеличивает влияние героя  (бонус к влиянию: 50%)'
     MODIFIER = 0.5
 
     @classmethod
@@ -175,7 +175,7 @@ class GreatPersonPower(BaseEffect):
 
 class GreatEnergy(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_ENERGY
-    DESCRIPTION = u'Сильно увеличивает максимум энергии Хранителя'
+    DESCRIPTION = 'Сильно увеличивает максимум энергии Хранителя'
     MODIFIER = 6
 
     @classmethod
@@ -185,7 +185,7 @@ class GreatEnergy(BaseEffect):
 
 class GreatSpeed(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_SPEED
-    DESCRIPTION = u'Сильно увеличивает скорость движения героя'
+    DESCRIPTION = 'Сильно увеличивает скорость движения героя'
     MODIFIER = 1.1
 
     @classmethod
@@ -195,7 +195,7 @@ class GreatSpeed(BaseEffect):
 
 class GreatBag(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_BAG
-    DESCRIPTION = u'Сильно увеличивает вместимость рюкзака героя'
+    DESCRIPTION = 'Сильно увеличивает вместимость рюкзака героя'
     MULTIPLIER = 3
 
     @classmethod
@@ -205,7 +205,7 @@ class GreatBag(BaseEffect):
 
 class RestLength(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.REST_LENGTH
-    DESCRIPTION = u'Герой быстрее восстанавливает здоровье во время отдыха'
+    DESCRIPTION = 'Герой быстрее восстанавливает здоровье во время отдыха'
     MULTIPLIER = 0.5
 
     @classmethod
@@ -215,7 +215,7 @@ class RestLength(BaseEffect):
 
 class ResurrectLength(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.RESURRECT_LENGTH
-    DESCRIPTION = u'Герой быстрее восстаёт из мёртвых'
+    DESCRIPTION = 'Герой быстрее восстаёт из мёртвых'
     MULTIPLIER = 0.75
 
     @classmethod
@@ -225,7 +225,7 @@ class ResurrectLength(BaseEffect):
 
 class IDLELength(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.IDLE_LENGTH
-    DESCRIPTION = u'Герой меньше бездельничает'
+    DESCRIPTION = 'Герой меньше бездельничает'
     MULTIPLIER = 0.75
 
     @classmethod
@@ -235,7 +235,7 @@ class IDLELength(BaseEffect):
 
 class Conviction(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CONVICTION
-    DESCRIPTION = u'Уменьшение всех трат'
+    DESCRIPTION = 'Уменьшение всех трат'
     BONUS = nonbattle.HUCKSTER.BUY_BONUS[-1] / 2
 
     @classmethod
@@ -245,7 +245,7 @@ class Conviction(BaseEffect):
 
 class Charm(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CHARM
-    DESCRIPTION = u'Увеличение цены продажи предметов'
+    DESCRIPTION = 'Увеличение цены продажи предметов'
     BONUS = nonbattle.HUCKSTER.SELL_BONUS[-1] / 2
 
     @classmethod
@@ -255,7 +255,7 @@ class Charm(BaseEffect):
 
 class SpiritualConnection(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.SPIRITUAL_CONNECTION
-    DESCRIPTION = u'Все затраты энергии уменьшаются на 1, но не меньше 1. Эффекты этого типа не суммируются.'
+    DESCRIPTION = 'Все затраты энергии уменьшаются на 1, но не меньше 1. Эффекты этого типа не суммируются.'
     MULTIPLIER = 1
 
     @classmethod
@@ -264,7 +264,7 @@ class SpiritualConnection(BaseEffect):
 
 class PeaceOfMind(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.PEACE_OF_MIND
-    DESCRIPTION = u'Хранитель иногда получает в два раза больше энергии от героя'
+    DESCRIPTION = 'Хранитель иногда получает в два раза больше энергии от героя'
     MULTIPLIER = 0.2
 
     @classmethod
@@ -274,7 +274,7 @@ class PeaceOfMind(BaseEffect):
 
 class SpecialAura(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.SPECIAL_AURA
-    DESCRIPTION = u'Физическая и магическая сила всех артефактов, получаемых героем, увеличивается на 1'
+    DESCRIPTION = 'Физическая и магическая сила всех артефактов, получаемых героем, увеличивается на 1'
     MULTIPLIER = Power(1, 1)
 
     @classmethod
@@ -296,58 +296,58 @@ class AdditionalAbilitiesBase(BaseEffect):
 
 class LastChance(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.LAST_CHANCE
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.LAST_CHANCE.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.LAST_CHANCE.NAME
     ABILITY = battle.LAST_CHANCE
 
 class Regeneration(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.REGENERATION
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.REGENERATION.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.REGENERATION.NAME
     ABILITY = battle.REGENERATION
 
 class Ice(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.ICE
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.FREEZING.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.FREEZING.NAME
     ABILITY = battle.FREEZING
 
 class Flame(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.FLAME
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.FIREBALL.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.FIREBALL.NAME
     ABILITY = battle.FIREBALL
 
 class Poison(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.POISON
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.POISON_CLOUD.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.POISON_CLOUD.NAME
     ABILITY = battle.POISON_CLOUD
 
 class VampireStrike(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.VAMPIRE_STRIKE
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.VAMPIRE_STRIKE.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.VAMPIRE_STRIKE.NAME
     ABILITY = battle.VAMPIRE_STRIKE
 
 class Speedup(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.SPEEDUP
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.SPEEDUP.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.SPEEDUP.NAME
     ABILITY = battle.SPEEDUP
 
 class CriticalHit(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.CRITICAL_HIT
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.CRITICAL_HIT.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.CRITICAL_HIT.NAME
     ABILITY = battle.CRITICAL_HIT
 
 class AstralBarrier(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.ASTRAL_BARRIER
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle_modifiers.GARGOYLE.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle_modifiers.GARGOYLE.NAME
     ABILITY = battle_modifiers.GARGOYLE
 
 class Recklessness(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.RECKLESSNESS
-    DESCRIPTION = u'Герою становится доступна способность «%s» максимального уровня' % battle.INSANE_STRIKE.NAME
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.INSANE_STRIKE.NAME
     ABILITY = battle.INSANE_STRIKE
 
 
 class Esprit(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.ESPRIT
-    DESCRIPTION = u'Задержка смены предпочтений уменьшается до 1 дня'
+    DESCRIPTION = 'Задержка смены предпочтений уменьшается до 1 дня'
     MULTIPLIER = int(60*60*24*1)
 
     @classmethod
@@ -357,7 +357,7 @@ class Esprit(BaseEffect):
 
 class TerribleView(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.TERRIBLE_VIEW
-    DESCRIPTION = u'Герой выглядит настолько ужасно, что некоторые противники в ужасе убегают, не вступая в бой'
+    DESCRIPTION = 'Герой выглядит настолько ужасно, что некоторые противники в ужасе убегают, не вступая в бой'
     MULTIPLIER = c.KILL_BEFORE_BATTLE_PROBABILITY # just to be equal to some similar behavour
 
     @classmethod
@@ -367,7 +367,7 @@ class TerribleView(BaseEffect):
 
 class CloudedMind(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CLOUDED_MIND
-    DESCRIPTION = u'Разум героя затуманивается и тот начинает вести себя независимо от черт'
+    DESCRIPTION = 'Разум героя затуманивается и тот начинает вести себя независимо от черт'
     MULTIPLIER = True
 
     @classmethod
@@ -377,7 +377,7 @@ class CloudedMind(BaseEffect):
 
 class LuckOfStranger(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.LUCK_OF_STRANGER
-    DESCRIPTION = u'Увеличивается шанс получения редких артефактов'
+    DESCRIPTION = 'Увеличивается шанс получения редких артефактов'
     MULTIPLIER = 2
 
     @classmethod
@@ -387,7 +387,7 @@ class LuckOfStranger(BaseEffect):
 
 class LuckOfHero(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.LUCK_OF_HERO
-    DESCRIPTION = u'Увеличивается шанс получения эпических артефактов'
+    DESCRIPTION = 'Увеличивается шанс получения эпических артефактов'
     MULTIPLIER = 2
 
     @classmethod
@@ -397,7 +397,7 @@ class LuckOfHero(BaseEffect):
 
 class Fortitude(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.FORTITUDE
-    DESCRIPTION = u'Черты героя уменьшаются медленнее'
+    DESCRIPTION = 'Черты героя уменьшаются медленнее'
     MULTIPLIER = 0.5
 
     @classmethod
@@ -407,7 +407,7 @@ class Fortitude(BaseEffect):
 
 class Ideological(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.IDEOLOGICAL
-    DESCRIPTION = u'Черты героя растут быстрее'
+    DESCRIPTION = 'Черты героя растут быстрее'
     MULTIPLIER = 2
 
     @classmethod
@@ -417,7 +417,7 @@ class Ideological(BaseEffect):
 
 class Unbreakable(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.UNBREAKABLE
-    DESCRIPTION = u'Экипировка героя медленнее ломается'
+    DESCRIPTION = 'Экипировка героя медленнее ломается'
     MULTIPLIER = 0.25
 
     @classmethod
@@ -426,12 +426,12 @@ class Unbreakable(BaseEffect):
 
 class NoEffect(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.NO_EFFECT
-    DESCRIPTION = u'нет эффекта'
+    DESCRIPTION = 'нет эффекта'
 
 
 class ChildGift(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CHILD_GIFT
-    DESCRIPTION = u'Это потерянный подарок ребёнка. Помогите герою, когда артефакт лежит в рюкзаке, и подарок вернётся к ребёнку.'
+    DESCRIPTION = 'Это потерянный подарок ребёнка. Помогите герою, когда артефакт лежит в рюкзаке, и подарок вернётся к ребёнку.'
     REMOVE_ON_HELP = True
 
 

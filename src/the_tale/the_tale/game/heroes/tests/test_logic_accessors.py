@@ -79,7 +79,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
         markers = set()
 
-        for i in xrange(1000):
+        for i in range(1000):
             markers |= self.hero.prefered_quest_markers()
 
         self.assertEqual(markers, set())
@@ -96,7 +96,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
         markers = set()
 
-        for i in xrange(1000):
+        for i in range(1000):
             markers |= self.hero.prefered_quest_markers()
 
         self.hero.habit_honor.change(-1000)
@@ -105,7 +105,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertTrue(self.hero.habit_honor.interval.is_LEFT_2)
         self.assertTrue(self.hero.habit_peacefulness.interval.is_LEFT_2)
 
-        for i in xrange(1000):
+        for i in range(1000):
             markers |= self.hero.prefered_quest_markers()
 
         self.assertEqual(markers, set([OPTION_MARKERS.HONORABLE,
@@ -143,26 +143,26 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
 
     def test_companion_damage__bonus_damage(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
         self.hero.set_companion(companion)
 
         with mock.patch('the_tale.game.balance.constants.COMPANIONS_BONUS_DAMAGE_PROBABILITY', 666666):
             with mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS', c.COMPANIONS_WOUNDS_IN_HOUR):
                 with mock.patch('the_tale.game.heroes.objects.Hero.attribute_modifier', lambda s, t: 666 if t.is_COMPANION_DAMAGE else t.default()):
-                    for i in xrange(1000):
+                    for i in range(1000):
                         self.assertEqual(self.hero.companion_damage, c.COMPANIONS_DAMAGE_PER_WOUND + 666)
 
 
     def test_companion_damage__bonus_damage__damage_from_heal(self):
-        companion_record = companions_storage.companions.enabled_companions().next()
+        companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
         self.hero.set_companion(companion)
 
         with mock.patch('the_tale.game.balance.constants.COMPANIONS_BONUS_DAMAGE_PROBABILITY', 666666):
             with mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 0):
                 with mock.patch('the_tale.game.heroes.objects.Hero.attribute_modifier', lambda s, t: 666 if t.is_COMPANION_DAMAGE else t.default()):
-                    for i in xrange(1000):
+                    for i in range(1000):
                         self.assertEqual(self.hero.companion_damage, c.COMPANIONS_DAMAGE_PER_WOUND)
 
 

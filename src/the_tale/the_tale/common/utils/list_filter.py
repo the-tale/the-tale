@@ -1,3 +1,4 @@
+import collections
 # coding: utf-8
 
 
@@ -14,7 +15,7 @@ class ListFilter(object):
             element = ElementClass(self, value=values.get(ElementClass.ATTRIBUTE))
             self.elements.append(element)
             self.is_filtering |= any(argument_name in url_builder.default_arguments and url_builder.default_arguments[argument_name] != argument_value
-                                    for argument_name, argument_value in element.default_arguments.items())
+                                    for argument_name, argument_value in list(element.default_arguments.items()))
 
 
 class BaseElement(object):
@@ -36,7 +37,7 @@ def filter_relation(base_relation, sort_key=lambda r: r.value):
 
     class FILTER_RELATION(DjangoEnum):
         original_relation = Column(unique=False, single_type=False)
-        records = [(u'FILTER_ALL', 0, u'все', None)] + [(r.name, 1+i, r.text, r) for i, r in enumerate(sorted(base_relation.records, key=sort_key))]
+        records = [('FILTER_ALL', 0, 'все', None)] + [(r.name, 1+i, r.text, r) for i, r in enumerate(sorted(base_relation.records, key=sort_key))]
 
         @classmethod
         def filter_choices(cls):
@@ -46,7 +47,7 @@ def filter_relation(base_relation, sort_key=lambda r: r.value):
 
     return FILTER_RELATION
 
-def reset_element(caption=u'сбросить фильтрацию'):
+def reset_element(caption='сбросить фильтрацию'):
     class ResetElement(BaseElement):
         TYPE = 'reset'
         CAPTION = caption
@@ -62,7 +63,7 @@ def reset_element(caption=u'сбросить фильтрацию'):
             for element in self.list_filter.elements:
                 arguments.update(element.default_arguments)
 
-            for key in arguments.keys():
+            for key in list(arguments.keys()):
                 if key not in url_builder.arguments_names:
                     del arguments[key]
 
@@ -114,12 +115,12 @@ def choice_element(caption, attribute, choices, default_value=None):
 
         def __init__(self, list_filter, value):
             super(ChoiceElement, self).__init__(list_filter, value)
-            self.choices = self.CHOICES if not callable(self.CHOICES) else self.CHOICES()
+            self.choices = self.CHOICES if not isinstance(self.CHOICES, collections.Callable) else self.CHOICES()
 
             self.choice_name = None
 
             for choice_id, choice_name in self.choices:
-                if not isinstance(choice_name, basestring):
+                if not isinstance(choice_name, str):
                     for subchoice_id, subchoice_name in choice_name:
                         if subchoice_id == self.value:
                             self.choice_name = subchoice_name

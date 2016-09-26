@@ -166,13 +166,13 @@ class Command(BaseCommand):
         for MetricClass in METRICS:
             if force_clear or MetricClass.FULL_CLEAR_RECUIRED:
                 if verbose:
-                    print 'clear %s' % MetricClass.TYPE
+                    print('clear %s' % MetricClass.TYPE)
                 MetricClass.clear()
 
         for i, MetricClass in enumerate(METRICS):
             metric = MetricClass()
             if verbose:
-                print '[%3d] calculate %s' % (i, metric.TYPE)
+                print('[%3d] calculate %s' % (i, metric.TYPE))
 
             metric.initialize()
             metric.complete_values()
@@ -184,7 +184,7 @@ class Command(BaseCommand):
 
         output_dir_name = os.path.dirname(output_file)
         if not os.path.exists(output_dir_name):
-            os.makedirs(output_dir_name, 0755)
+            os.makedirs(output_dir_name, 0o755)
 
         with open(output_file, 'w') as f:
             f.write(jinja2.render('statistics/js_data.js',

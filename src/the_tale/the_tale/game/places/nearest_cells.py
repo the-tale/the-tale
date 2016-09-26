@@ -51,8 +51,8 @@ def update_nearest_cells():
     for place in storage.places.all():
         place.nearest_cells = []
 
-    for x in xrange(0, map_conf.map_settings.WIDTH):
-        for y in xrange(0, map_conf.map_settings.HEIGHT):
+    for x in range(0, map_conf.map_settings.WIDTH):
+        for y in range(0, map_conf.map_settings.HEIGHT):
             nearest_place = None
             nearest_power = 0
 

@@ -16,21 +16,21 @@ def send_to_s3(backupname, filename):
     from boto.s3.connection import S3Connection
     from boto.s3.key import Key
 
-    print 'send to Amazon S3'
+    print('send to Amazon S3')
 
-    print 'create connection'
+    print('create connection')
 
     conn = S3Connection(portal_settings.AWS_ACCESS_KEY, portal_settings.AWS_SECRET_KEY)
 
-    print 'get bucket'
+    print('get bucket')
     backups = conn.get_bucket(portal_settings.AWS_S3_BACKUP_BUCKET)
 
-    print 'create key'
+    print('create key')
     k = Key(backups)
 
     k.key = backupname
 
-    print 'upload file'
+    print('upload file')
 
     k.set_contents_from_filename(filename)
 
@@ -52,15 +52,15 @@ class Command(BaseCommand):
 
             os.mkdir(backup_dir)
 
-            for db_name, db_data in project_settings.DATABASES.items():
+            for db_name, db_data in list(project_settings.DATABASES.items()):
                 backup_file_name = os.path.join(backup_dir, db_data['NAME'] + '.sql')
-                print 'dump: %s' % db_name
+                print('dump: %s' % db_name)
                 cmd = 'pg_dump -U "%(db_user)s" "%(db_name)s" > "%(file_name)s"' % {'db_user': db_data['USER'],
                                                                                     'db_name': db_data['NAME'],
                                                                                     'file_name': backup_file_name}
                 subprocess.call(cmd, shell=True)
 
-            print 'make archive'
+            print('make archive')
 
             raw_archive_path = os.path.join(tmp_dir, timestamp_string)
 
@@ -69,7 +69,7 @@ class Command(BaseCommand):
                                                root_dir=tmp_dir,
                                                base_dir=timestamp_string)
 
-            print 'archive created: %s' % archive_file
+            print('archive created: %s' % archive_file)
 
             shutil.copyfile(archive_file, portal_settings.LAST_BACKUP_PATH)
 

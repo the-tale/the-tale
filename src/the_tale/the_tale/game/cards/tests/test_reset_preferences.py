@@ -25,7 +25,7 @@ class ResetPreferenceCommon(testcase.TestCase):
     def test_one_card_for_one_preference(self):
         preferences = list()
 
-        for card in effects.EFFECTS.values():
+        for card in list(effects.EFFECTS.values()):
             if hasattr(card, 'PREFERENCE'):
                 preferences.append(card.PREFERENCE)
 

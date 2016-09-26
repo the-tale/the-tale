@@ -47,7 +47,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
     def test_put_loot__bag_is_full(self):
         with self.check_delta(lambda: self.hero.bag.occupation, self.hero.max_bag_size):
-            for i in xrange(self.hero.max_bag_size*2):
+            for i in range(self.hero.max_bag_size*2):
                 self.hero.put_loot(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL))
 
     @mock.patch('the_tale.game.heroes.objects.Hero.bonus_artifact_power', Power(0, 0))
@@ -85,7 +85,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         distribution = self.hero.preferences.archetype.power_distribution
         min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level)
 
-        for artifact in self.hero.equipment.equipment.values():
+        for artifact in list(self.hero.equipment.equipment.values()):
             artifact.power = max_power.clone()
 
         old_power = self.hero.power
@@ -138,7 +138,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
 
-        self.assertTrue(not self.hero.bag.items())
+        self.assertTrue(not list(self.hero.bag.items()))
         self.assertEqual(self.hero.equipment.get(slot), artifact)
 
         # change artifact
@@ -156,8 +156,8 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
 
-        self.assertEqual(self.hero.bag.items()[0][1], artifact)
-        self.assertEqual(len(self.hero.bag.items()), 1)
+        self.assertEqual(list(self.hero.bag.items())[0][1], artifact)
+        self.assertEqual(len(list(self.hero.bag.items())), 1)
         self.assertEqual(self.hero.equipment.get(slot), new_artifact)
 
         self.storage._test_save()
@@ -315,10 +315,10 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         self.assertEqual(dropped_item.id, artifact_2.id)
 
-        self.assertEqual(self.hero.bag.values()[0].id, artifact_1.id)
+        self.assertEqual(list(self.hero.bag.values())[0].id, artifact_1.id)
 
     def test_repair_artifact(self):
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.integrity = 0
 
         artifact = self.hero.repair_artifact()
@@ -329,11 +329,11 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
     def test_repair_artifact__only_damaged_artifacts(self):
 
-        test_artifact = random.choice(self.hero.equipment.values())
+        test_artifact = random.choice(list(self.hero.equipment.values()))
 
-        for i in xrange(100):
+        for i in range(100):
 
-            for artifact in self.hero.equipment.values():
+            for artifact in list(self.hero.equipment.values()):
                 artifact.integrity = 0
 
             test_artifact.integrity = test_artifact.max_integrity
@@ -347,11 +347,11 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
     def test_repair_artifact__single_damaged_artifact(self):
 
-        test_artifact = random.choice(self.hero.equipment.values())
+        test_artifact = random.choice(list(self.hero.equipment.values()))
 
-        for i in xrange(100):
+        for i in range(100):
 
-            for artifact in self.hero.equipment.values():
+            for artifact in list(self.hero.equipment.values()):
                 artifact.integrity = artifact.max_integrity
 
             test_artifact.integrity = 0
@@ -433,7 +433,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
             self.hero.equipment.equip(slot, artifact)
             self.assertTrue(artifact.can_be_broken())
 
-        for i in xrange(100):
+        for i in range(100):
             for candidate in self.hero.artifacts_to_break():
                 self.assertTrue(candidate.integrity <= int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1)
 
@@ -447,7 +447,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
             self.hero.equipment.equip(slot, artifact)
             self.assertTrue(artifact.can_be_broken())
 
-        for i in xrange(100):
+        for i in range(100):
             for candidate in self.hero.artifacts_to_break(from_all=True):
                 self.assertTrue(candidate.integrity <= int(c.EQUIP_SLOTS_NUMBER * c.EQUIPMENT_BREAK_FRACTION) + 1)
 
@@ -461,7 +461,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         self.hero.damage_integrity()
 
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             self.assertTrue(artifact.integrity < artifact.max_integrity)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.safe_artifact_integrity_probability', 0.0)
@@ -473,7 +473,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         self.hero.damage_integrity()
 
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             self.assertEqual(artifact.integrity, artifact.max_integrity)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.safe_artifact_integrity_probability', 0.0)
@@ -635,7 +635,7 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
         distribution = self.hero.preferences.archetype.power_distribution
         min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level) # pylint: disable=W0612
 
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.power = max_power
 
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=False, prefered_item=False)),
@@ -647,7 +647,7 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
 
         excluded_slots = []
 
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.power = max_power
             excluded_slots.append(artifact.type.equipment_slot)
 
@@ -718,7 +718,7 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
         distribution = self.hero.preferences.archetype.power_distribution
         min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level)
 
-        for i in xrange(100):
+        for i in range(100):
             old_artifact = self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE)
             old_artifact.power = max_power - Power(1, 1)
 
@@ -730,7 +730,7 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
         with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
             equipped, unequipped, coins = self.hero.receive_artifact(equip=False, better=False, prefered_slot=True, prefered_item=True, archetype=True)
 
-        self.assertTrue(equipped in self.hero.bag.values())
+        self.assertTrue(equipped in list(self.hero.bag.values()))
         self.assertEqual(unequipped, None)
         self.assertEqual(coins, None)
 
@@ -742,8 +742,8 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
             equipped, unequipped, coins = self.hero.receive_artifact(equip=True, better=False, prefered_slot=True, prefered_item=True, archetype=True)
 
         self.assertEqual(self.hero.equipment.get(equipped.type.equipment_slot), equipped)
-        self.assertFalse(equipped in self.hero.bag.values())
-        self.assertFalse(unequipped in self.hero.bag.values())
+        self.assertFalse(equipped in list(self.hero.bag.values()))
+        self.assertFalse(unequipped in list(self.hero.bag.values()))
         self.assertEqual(coins, None)
 
 
@@ -756,8 +756,8 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
             equipped, unequipped, coins = self.hero.receive_artifact(equip=True, better=False, prefered_slot=True, prefered_item=True, archetype=True)
 
         self.assertEqual(self.hero.equipment.get(equipped.type.equipment_slot), equipped)
-        self.assertFalse(equipped in self.hero.bag.values())
-        self.assertFalse(unequipped in self.hero.bag.values())
+        self.assertFalse(equipped in list(self.hero.bag.values()))
+        self.assertFalse(unequipped in list(self.hero.bag.values()))
 
         self.assertTrue(coins > 0)
 
@@ -765,7 +765,7 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
 
         rarity = random.choice(artifacts_relations.RARITY.records[:-1])
 
-        for artifact in self.hero.equipment.values():
+        for artifact in list(self.hero.equipment.values()):
             artifact.rarity = rarity
             artifact.power = Power(666666, 666666)
 
@@ -776,11 +776,11 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
         # (buy normal artifact, increase its rarity, rarity increase preference rating, replace rare artifact with much better by stats normal artifact)
         with self.check_decreased(lambda: self.hero.power.total()):
             with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
-                self.hero.increment_equipment_rarity(random.choice(self.hero.equipment.values()))
+                self.hero.increment_equipment_rarity(random.choice(list(self.hero.equipment.values())))
 
             self.assertEqual(reset_accessors_cache.call_count, 1)
 
             self.hero.reset_accessors_cache()
 
-            self.assertEqual(len([artifact for artifact in self.hero.equipment.values() if artifact.rarity == rarity]), len(self.hero.equipment.values()) - 1)
-            self.assertEqual(len([artifact for artifact in self.hero.equipment.values() if artifact.rarity == artifacts_relations.RARITY(rarity.value+1)]), 1)
+            self.assertEqual(len([artifact for artifact in list(self.hero.equipment.values()) if artifact.rarity == rarity]), len(list(self.hero.equipment.values())) - 1)
+            self.assertEqual(len([artifact for artifact in list(self.hero.equipment.values()) if artifact.rarity == artifacts_relations.RARITY(rarity.value+1)]), 1)

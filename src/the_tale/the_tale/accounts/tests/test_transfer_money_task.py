@@ -28,7 +28,7 @@ class TransferMoneyTaskTests(testcase.TestCase):
                                                       recipient_id=self.recipient.id,
                                                       amount=666,
                                                       commission=13,
-                                                      comment=u'some comment string')
+                                                      comment='some comment string')
 
         self.main_task = mock.Mock(id=777)
 
@@ -39,7 +39,7 @@ class TransferMoneyTaskTests(testcase.TestCase):
         self.assertEqual(self.task.recipient_id, self.recipient.id)
         self.assertEqual(self.task.transfer_transaction, None)
         self.assertEqual(self.task.commission_transaction, None)
-        self.assertEqual(self.task.comment, u'some comment string')
+        self.assertEqual(self.task.comment, 'some comment string')
         self.assertEqual(self.task.amount, 666)
         self.assertEqual(self.task.commission, 13)
 
@@ -89,7 +89,7 @@ class TransferMoneyTaskTests(testcase.TestCase):
         self.assertEqual(transfer_invoice.sender_id, self.sender.id)
         self.assertTrue(transfer_invoice.currency.is_PREMIUM)
         self.assertTrue(transfer_invoice.amount, 666)
-        self.assertTrue(transfer_invoice.operation_uid, u'transfer-money-between-accounts-transfer')
+        self.assertTrue(transfer_invoice.operation_uid, 'transfer-money-between-accounts-transfer')
 
         commission_invoice = self.task.commission_transaction.get_invoice()
 
@@ -99,7 +99,7 @@ class TransferMoneyTaskTests(testcase.TestCase):
         self.assertEqual(commission_invoice.sender_id, 0)
         self.assertTrue(commission_invoice.currency.is_PREMIUM)
         self.assertTrue(commission_invoice.amount, 666)
-        self.assertTrue(commission_invoice.operation_uid, u'transfer-money-between-accounts-commission')
+        self.assertTrue(commission_invoice.operation_uid, 'transfer-money-between-accounts-commission')
 
         self.assertTrue(self.task.step.is_WAIT)
         self.assertTrue(self.task.state.is_UNPROCESSED)
@@ -213,4 +213,4 @@ class TransferMoneyTaskTests(testcase.TestCase):
 
         self.assertEqual(message.sender_id, logic.get_system_user().id)
         self.assertEqual(message.recipient_id, self.recipient.id)
-        self.assertIn(u'some comment string', message.text)
+        self.assertIn('some comment string', message.text)

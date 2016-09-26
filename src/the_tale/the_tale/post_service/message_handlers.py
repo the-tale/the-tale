@@ -93,7 +93,7 @@ class PersonalMessageHandler(BaseMessageHandler):
         if not account.email:
             return True
 
-        subject = u'«Сказка»: личное сообщение'
+        subject = '«Сказка»: личное сообщение'
 
         context = {'message': message}
 
@@ -136,7 +136,7 @@ class ForumPostHandler(BaseMessageHandler):
 
         accounts = SubscriptionPrototype.get_accounts_for_thread(post.thread)
 
-        subject = u'«Сказка»: %s' % post.thread.caption
+        subject = '«Сказка»: %s' % post.thread.caption
 
         context = {'post': post}
 
@@ -181,7 +181,7 @@ class ForumThreadHandler(BaseMessageHandler):
 
         accounts = SubscriptionPrototype.get_accounts_for_subcategory(thread.subcategory)
 
-        subject = u'«Сказка»: новая тема на форуме'
+        subject = '«Сказка»: новая тема на форуме'
 
         context = {'thread': thread,
                    'post': post}
@@ -224,7 +224,7 @@ class ResetPasswordHandler(BaseMessageHandler):
         if account.id == get_system_user().id or account.is_bot:
             return True
 
-        subject = u'«Сказка»: сброс пароля'
+        subject = '«Сказка»: сброс пароля'
 
         context = {'account': account,
                    'task_uuid': self.task_uuid}
@@ -260,7 +260,7 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
 
     def process(self):
 
-        subject = u'«Сказка»: подтвердите email'
+        subject = '«Сказка»: подтвердите email'
 
         task = ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
 
@@ -307,7 +307,7 @@ class NewsHandler(BaseMessageHandler):
 
         accounts = (AccountPrototype(model=account_model) for account_model in AccountPrototype._db_filter(news_subscription=True).iterator())
 
-        subject = u'«Сказка»::Новости: %s' % news.caption
+        subject = '«Сказка»::Новости: %s' % news.caption
 
         context = {'news': news}
 

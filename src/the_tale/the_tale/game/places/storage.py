@@ -29,7 +29,7 @@ class PlacesStorage(dext_storage.Storage):
 
     def random_place(self):
         self.sync()
-        return random.choice(self._data.values())
+        return random.choice(list(self._data.values()))
 
     def get_choices(self):
         self.sync()

@@ -4,10 +4,10 @@ from the_tale.common.utils.exceptions import TheTaleError
 
 
 class CompanionsError(TheTaleError):
-    MSG = u'companions error'
+    MSG = 'companions error'
 
 class CompanionsStorageError(CompanionsError):
-    MSG = u'companions storage error: %(message)s'
+    MSG = 'companions storage error: %(message)s'
 
 class HealCompanionForNegativeValueError(CompanionsError):
-    MSG = u'heal companion for negative value: %(delta)s'
+    MSG = 'heal companion for negative value: %(delta)s'

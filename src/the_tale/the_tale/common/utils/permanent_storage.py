@@ -6,10 +6,10 @@ class PermanentStorageError(TheTaleError):
     pass
 
 class DuplicateInsertError(PermanentStorageError):
-    MSG = u'item %(item)r already in storage'
+    MSG = 'item %(item)r already in storage'
 
 class WrongRelationError(PermanentStorageError):
-    MSG = u'try insert wrong relation record %(wrong_relation)r, expected %(expected_relation)s'
+    MSG = 'try insert wrong relation record %(wrong_relation)r, expected %(expected_relation)s'
 
 
 class PermanentStorage(object):

@@ -31,13 +31,13 @@ class Worker(BaseWorker):
         self.stop_queue.queue.purge()
 
     def logic_multicast(self, command, arguments, worker_id=False, wait_answer=False):
-        for logic_worker in self.logic_workers.itervalues():
+        for logic_worker in self.logic_workers.values():
             if worker_id:
                 arguments['worker_id'] = logic_worker.name
             getattr(logic_worker, 'cmd_%s' % command)(**arguments)
 
         if wait_answer:
-            self.wait_answers_from(command, workers=self.logic_workers.keys())
+            self.wait_answers_from(command, workers=list(self.logic_workers.keys()))
 
     def initialize(self):
         self.cmd_initialize()
@@ -89,7 +89,7 @@ class Worker(BaseWorker):
         self.accounts_for_tasks = {}
         self.accounts_owners = {}
         self.accounts_queues = {}
-        self.logic_accounts_number = {logic_worker_name: 0 for logic_worker_name in self.logic_workers.iterkeys()}
+        self.logic_accounts_number = {logic_worker_name: 0 for logic_worker_name in self.logic_workers.keys()}
 
         for task_model in models.SupervisorTask.objects.filter(state=relations.SUPERVISOR_TASK_STATE.WAITING).iterator():
             task = prototypes.SupervisorTaskPrototype(task_model)
@@ -135,7 +135,7 @@ class Worker(BaseWorker):
         lowest_number = 999999999999
         chosen_worker = None
 
-        for logic_name in sorted(self.logic_accounts_number.iterkeys()):
+        for logic_name in sorted(self.logic_accounts_number.keys()):
             if self.logic_accounts_number[logic_name] < lowest_number:
                 lowest_number = self.logic_accounts_number[logic_name]
                 chosen_worker = logic_name
@@ -223,7 +223,7 @@ class Worker(BaseWorker):
             # wait answer from previouse turn processing
             # we do not want to increment turn number in middle of turn processing
             self.wait_answers_from('next_turn',
-                                   workers=self.logic_workers.keys(),
+                                   workers=list(self.logic_workers.keys()),
                                    timeout=conf.game_settings.PROCESS_TURN_WAIT_LOGIC_TIMEOUT)
         except amqp_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from logic')
@@ -277,7 +277,7 @@ class Worker(BaseWorker):
 
         self._send_stop_signals()
 
-        wait_answers_from = ['game_long_commands'] + self.logic_workers.keys()
+        wait_answers_from = ['game_long_commands'] + list(self.logic_workers.keys())
 
         if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
             wait_answers_from.append('highlevel')

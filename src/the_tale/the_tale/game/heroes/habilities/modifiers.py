@@ -33,9 +33,9 @@ class MAGE(AbilityModifiersBase):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
 
-    NAME = u'Маг'
+    NAME = 'Маг'
     normalized_name = NAME
-    DESCRIPTION = u'Маг всё своё усердие направляет в совершенствование магических умений, поэтому имеет увеличенный магический урон, защиту от магии и уменьшенные физический урон и защиту от физических атак. Увеличение магических способностей сильнее, чем ослабление физических.'
+    DESCRIPTION = 'Маг всё своё усердие направляет в совершенствование магических умений, поэтому имеет увеличенный магический урон, защиту от магии и уменьшенные физический урон и защиту от физических атак. Увеличение магических способностей сильнее, чем ослабление физических.'
 
     INCOMING_MAGIC_DAMAGE_MODIFIER =   [0.950, 0.900, 0.850, 0.800, 0.750]
     INCOMING_PHYSIC_DAMAGE_MODIFIER =  [1.025, 1.050, 1.075, 1.100, 1.125]
@@ -49,9 +49,9 @@ class WARRIOR(AbilityModifiersBase):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
 
-    NAME = u'Воин'
+    NAME = 'Воин'
     normalized_name = NAME
-    DESCRIPTION = u'Воин большую часть времени тратит на физические тренировки, благодаря чему наносит больший физический урон, имеет хорошую защиту от физических атак, но слабо противостоит магии и сам с трудом ей пользуется. Увеличение физических способностей сильнее, чем ослабление магических.'
+    DESCRIPTION = 'Воин большую часть времени тратит на физические тренировки, благодаря чему наносит больший физический урон, имеет хорошую защиту от физических атак, но слабо противостоит магии и сам с трудом ей пользуется. Увеличение физических способностей сильнее, чем ослабление магических.'
 
     INCOMING_MAGIC_DAMAGE_MODIFIER =   [1.025, 1.050, 1.075, 1.100, 1.125]
     INCOMING_PHYSIC_DAMAGE_MODIFIER =  [0.950, 0.900, 0.850, 0.800, 0.750]
@@ -65,9 +65,9 @@ class GARGOYLE(AbilityModifiersBase):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
 
-    NAME = u'Горгулья'
+    NAME = 'Горгулья'
     normalized_name = NAME
-    DESCRIPTION = u'Подобно горгулье, обладатель этой способности имеет увеличенную защиту от всех типов атак.'
+    DESCRIPTION = 'Подобно горгулье, обладатель этой способности имеет увеличенную защиту от всех типов атак.'
 
     INCOMING_MAGIC_DAMAGE_MODIFIER =  [0.975, 0.950, 0.925, 0.900, 0.875]
     INCOMING_PHYSIC_DAMAGE_MODIFIER = [0.975, 0.950, 0.925, 0.900, 0.875]
@@ -78,9 +78,9 @@ class KILLER(AbilityModifiersBase):
     TYPE = ABILITY_TYPE.BATTLE
     ACTIVATION_TYPE = ABILITY_ACTIVATION_TYPE.PASSIVE
 
-    NAME = u'Убийца'
+    NAME = 'Убийца'
     normalized_name = NAME
-    DESCRIPTION = u'Ориентируясь на короткий бой, убийца совершенствует свои атакующие способности в ущерб защитным.'
+    DESCRIPTION = 'Ориентируясь на короткий бой, убийца совершенствует свои атакующие способности в ущерб защитным.'
 
     OUTCOMING_MAGIC_DAMAGE_MODIFIER =  [1.050, 1.100, 1.150, 1.200, 1.260]
     OUTCOMING_PHYSIC_DAMAGE_MODIFIER = [1.050, 1.100, 1.150, 1.200, 1.260]

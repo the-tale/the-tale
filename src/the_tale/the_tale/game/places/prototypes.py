@@ -110,8 +110,8 @@ class BuildingPrototype(BasePrototype, names.ManageNameMixin):
 
         positions = set()
 
-        for i in xrange(0, building_position_radius+1):
-            for j in xrange(0, building_position_radius+1):
+        for i in range(0, building_position_radius+1):
+            for j in range(0, building_position_radius+1):
                 positions.add((center_x+i, center_y+j))
                 positions.add((center_x-i, center_y+j))
                 positions.add((center_x+i, center_y-j))

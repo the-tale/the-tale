@@ -7,10 +7,10 @@ from the_tale.common.utils.enum import create_enum
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.pvp.abilities import ABILITIES
 
-SAY_IN_HERO_LOG_TASK_STATE = create_enum('SAY_IN_HERO_LOG_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
-                                                                         ('ACCOUNT_HERO_NOT_FOUND', 1, u'герой не найден'),
-                                                                         ('PROCESSED', 2, u'обработана'),
-                                                                         ('BATTLE_NOT_FOUND', 3, u'битва не найдена') ) )
+SAY_IN_HERO_LOG_TASK_STATE = create_enum('SAY_IN_HERO_LOG_TASK_STATE', ( ('UNPROCESSED', 0, 'в очереди'),
+                                                                         ('ACCOUNT_HERO_NOT_FOUND', 1, 'герой не найден'),
+                                                                         ('PROCESSED', 2, 'обработана'),
+                                                                         ('BATTLE_NOT_FOUND', 3, 'битва не найдена') ) )
 
 
 
@@ -59,12 +59,12 @@ class SayInBattleLogTask(PostponedLogic):
 
 
 
-USE_PVP_ABILITY_TASK_STATE = create_enum('USE_PVP_ABILITY_TASK_STATE', ( ('UNPROCESSED', 0, u'в очереди'),
-                                                                         ('HERO_NOT_FOUND', 1, u'герой не найден'),
-                                                                         ('WRONG_ABILITY_ID', 2, u'неизвестная способность'),
-                                                                         ('NO_ENERGY', 3, u'недостаточно энергии'),
-                                                                         ('PROCESSED', 4, u'обработана'),
-                                                                         ('BATTLE_FINISHED', 5, u'битва уже закончена')) )
+USE_PVP_ABILITY_TASK_STATE = create_enum('USE_PVP_ABILITY_TASK_STATE', ( ('UNPROCESSED', 0, 'в очереди'),
+                                                                         ('HERO_NOT_FOUND', 1, 'герой не найден'),
+                                                                         ('WRONG_ABILITY_ID', 2, 'неизвестная способность'),
+                                                                         ('NO_ENERGY', 3, 'недостаточно энергии'),
+                                                                         ('PROCESSED', 4, 'обработана'),
+                                                                         ('BATTLE_FINISHED', 5, 'битва уже закончена')) )
 
 class UsePvPAbilityTask(PostponedLogic):
 

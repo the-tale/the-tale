@@ -33,11 +33,11 @@ def get_fields(word_type):
 
     form_fields.update(get_word_fields_dict(word_type))
 
-    for static_property, required in word_type.properties.iteritems():
+    for static_property, required in word_type.properties.items():
         property_type = utg_relations.PROPERTY_TYPE.index_relation[static_property]
         choices = [(r, r.text) for r in static_property.records]
         if not required:
-            choices = [('', u' — ')] + choices
+            choices = [('', ' — ')] + choices
         field = fields.TypedChoiceField(label=property_type.text,
                                         choices=choices,
                                         coerce=static_property.get_from_name,
@@ -53,7 +53,7 @@ def decompress_word(word_type, value):
     if value:
         initials = get_word_fields_initials(value)
 
-        for static_property, required in value.type.properties.iteritems():
+        for static_property, required in value.type.properties.items():
 
             v = value.properties.is_specified(static_property)
 
@@ -64,7 +64,7 @@ def decompress_word(word_type, value):
 
     else:
         initials = get_fields(word_type)
-        initials = {k: u'' for k in initials.iterkeys()}
+        initials = {k: '' for k in initials.keys()}
 
     fields = get_fields(word_type)
     keys = sorted(fields.keys())
@@ -103,7 +103,7 @@ class WordWidget(django_forms.MultiWidget):
 
 @fields.pgf
 class WordField(django_forms.MultiValueField):
-    LABEL_SUFFIX = u''
+    LABEL_SUFFIX = ''
 
     def __init__(self, word_type, show_properties=True, skip_markers=(), **kwargs):
         fields = get_fields(word_type)
@@ -115,7 +115,7 @@ class WordField(django_forms.MultiValueField):
 
         label = kwargs.get('label')
         if label:
-            label = mark_safe(u'<h3>%s</h3>' % label)
+            label = mark_safe('<h3>%s</h3>' % label)
             kwargs['label'] = label
 
         super(WordField, self).__init__(fields=[fields[key] for key in keys],
@@ -166,11 +166,11 @@ class WordField(django_forms.MultiValueField):
         fields = get_fields(self.word_type)
         keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
 
-        word_forms = [data_list[keys['%s_%d' % (WORD_FIELD_PREFIX, i)]] for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[self.word_type]))]
+        word_forms = [data_list[keys['%s_%d' % (WORD_FIELD_PREFIX, i)]] for i in range(len(utg_data.INVERTED_WORDS_CACHES[self.word_type]))]
 
         properties = utg_words.Properties()
 
-        for static_property, required in self.word_type.properties.iteritems():
+        for static_property, required in self.word_type.properties.items():
             value = data_list[keys['%s_%s' % (WORD_FIELD_PREFIX, static_property.__name__)]]
 
             if not value:
@@ -199,11 +199,11 @@ def get_word_fields_dict(word_type):
 
 def get_word_fields_initials(word):
     return {('%s_%d' % (WORD_FIELD_PREFIX, i)): word.forms[i]
-             for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[word.type]))}
+             for i in range(len(utg_data.INVERTED_WORDS_CACHES[word.type]))}
 
 
 def get_word_forms(form, word_type):
-     return [getattr(form.c, '%s_%d' % (WORD_FIELD_PREFIX, i)) for i in xrange(len(utg_data.INVERTED_WORDS_CACHES[word_type]))]
+     return [getattr(form.c, '%s_%d' % (WORD_FIELD_PREFIX, i)) for i in range(len(utg_data.INVERTED_WORDS_CACHES[word_type]))]
 
 
 class BaseWordForm(forms.Form):
@@ -224,7 +224,7 @@ WORD_FORMS = {word_type: create_word_type_form(word_type)
 
 
 class TemplateForm(forms.Form):
-    template = fields.TextField(label=u'Шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
+    template = fields.TextField(label='Шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
 
     def __init__(self, key, verificators, *args, **kwargs):
         super(TemplateForm, self).__init__(*args, **kwargs)
@@ -238,7 +238,7 @@ class TemplateForm(forms.Form):
             for restrictions_group in variable.type.restrictions:
                 field_name = 'restriction_%s_%d' % (variable.value, restrictions_group.value)
                 restrictions = storage.restrictions_storage.get_restrictions(restrictions_group)
-                choices = [('', u'нет')] + sorted([(restriction.id, restriction.name) for restriction in restrictions], key=lambda r: r[1])
+                choices = [('', 'нет')] + sorted([(restriction.id, restriction.name) for restriction in restrictions], key=lambda r: r[1])
                 self.fields[field_name] = fields.ChoiceField(label=restrictions_group.text, required=False, choices=choices)
 
     def verificators_fields(self):
@@ -280,12 +280,12 @@ class TemplateForm(forms.Form):
         try:
             template = utg_templates.Template()
             template.parse(data, externals=[v.value for v in self.key.variables])
-        except utg_exceptions.WrongDependencyFormatError, e:
-            raise django_forms.ValidationError(u'Ошибка в формате подстановки: %s' % e.arguments['dependency'])
-        except utg_exceptions.UnknownVerboseIdError, e:
-            raise django_forms.ValidationError(u'Неизвестная форма слова: %s' % e.arguments['verbose_id'])
-        except utg_exceptions.ExternalDependecyNotFoundError, e:
-            raise django_forms.ValidationError(u'Неизвестная переменная: %s' % e.arguments['dependency'])
+        except utg_exceptions.WrongDependencyFormatError as e:
+            raise django_forms.ValidationError('Ошибка в формате подстановки: %s' % e.arguments['dependency'])
+        except utg_exceptions.UnknownVerboseIdError as e:
+            raise django_forms.ValidationError('Неизвестная форма слова: %s' % e.arguments['verbose_id'])
+        except utg_exceptions.ExternalDependecyNotFoundError as e:
+            raise django_forms.ValidationError('Неизвестная переменная: %s' % e.arguments['dependency'])
 
         return data
 
@@ -296,7 +296,7 @@ class TemplateForm(forms.Form):
         for i, verificator in enumerate(verificators):
             initials['verificator_%d' % i] = verificator.text
 
-        for variable, restrictions in template.restrictions.iteritems():
+        for variable, restrictions in template.restrictions.items():
             for restriction in restrictions:
                 field_name = 'restriction_%s_%d' % (variable.value, restriction.group.value)
                 initials[field_name] = restriction.id
@@ -316,26 +316,26 @@ for group in groups_relations.LEXICON_GROUP.records:
     KEY_CHOICES.append((group.text, keys))
 
 class TemplateKeyForm(forms.Form):
-    key = django_forms.TypedChoiceField(label=u'Тип фразы', choices=KEY_CHOICES, coerce=lexicon_keys.LEXICON_KEY.get_from_name)
+    key = django_forms.TypedChoiceField(label='Тип фразы', choices=KEY_CHOICES, coerce=lexicon_keys.LEXICON_KEY.get_from_name)
 
 
 class LoadDictionaryForm(forms.Form):
-    words = fields.TextField(label=u'Данные словаря')
+    words = fields.TextField(label='Данные словаря')
 
     def clean_words(self):
         data = self.cleaned_data.get('words')
 
         if data is None:
-            raise ValidationError(u'Нет данных', code='not_json')
+            raise ValidationError('Нет данных', code='not_json')
 
         try:
             words_data = s11n.from_json(data)
         except ValueError:
-            raise ValidationError(u'Данные должны быть в формате JSON', code='not_json')
+            raise ValidationError('Данные должны быть в формате JSON', code='not_json')
 
         try:
             words = [utg_words.Word.deserialize(word_data) for word_data in words_data.get('words')]
         except:
-            raise ValidationError(u'Неверный формат описания слов', code='wrong_words_format')
+            raise ValidationError('Неверный формат описания слов', code='wrong_words_format')
 
         return words

@@ -12,7 +12,7 @@ class ItemsContainer(object):
         self.items = {}
 
     def serialize(self):
-        return {'items': self.items.items()}
+        return {'items': list(self.items.items())}
 
     @classmethod
     def deserialize(cls, prototype, data):
@@ -34,21 +34,21 @@ class ItemsContainer(object):
     def timestamp_for(self, item):
         return self.items.get(item.id)
 
-    def items_ids(self): return self.items.iterkeys()
+    def items_ids(self): return self.items.keys()
 
     def __len__(self):
          return len(self.items)
 
     def approved_items_count(self):
         from the_tale.collections.storage import items_storage
-        return len([item_id for item_id in self.items.iterkeys() if item_id in items_storage and items_storage[item_id].approved])
+        return len([item_id for item_id in self.items.keys() if item_id in items_storage and items_storage[item_id].approved])
 
     def last_items(self, number):
         from the_tale.collections.storage import items_storage
 
-        items_ids = zip(*sorted((-item_time, item_id)
-                                for item_id, item_time in self.items.iteritems()
-                                if item_id in items_storage))
+        items_ids = list(zip(*sorted((-item_time, item_id)
+                                for item_id, item_time in self.items.items()
+                                if item_id in items_storage)))
 
         if items_ids:
             items_ids = items_ids[1]

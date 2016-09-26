@@ -17,17 +17,17 @@ def argument_to_ability(ability_type): return ABILITIES.get(ABILITY_TYPE(ability
 class AbilitiesResource(Resource):
 
     @login_required
-    @validate_argument('ability', argument_to_ability, 'abilities', u'Неверный идентификатор способности')
+    @validate_argument('ability', argument_to_ability, 'abilities', 'Неверный идентификатор способности')
     def initialize(self, ability=None, *argv, **kwargs):
         super(AbilitiesResource, self).initialize(*argv, **kwargs)
         self.ability = ability()
 
     @api.handler(versions=('1.0',))
-    @validate_argument('building', int, 'abilities', u'Неверный идентификатор здания')
-    @validate_argument('battle', int, 'abilities', u'Неверный идентификатор сражения')
+    @validate_argument('building', int, 'abilities', 'Неверный идентификатор здания')
+    @validate_argument('battle', int, 'abilities', 'Неверный идентификатор сражения')
     @handler('#ability', 'api', 'use', method='post')
     def use(self, api_version, building=None, battle=None):
-        u'''
+        '''
 Использование одной из способностей игрока (список способностей см. в разделе типов)
 
 - **адрес:** /game/abilities/<идентификатор способности>/api/use

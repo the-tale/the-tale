@@ -59,9 +59,9 @@ class IndexRequestsTests(BaseRequestsTests):
     def create_words(self):
         type_1, type_2, type_3 = random.sample(relations.ALLOWED_WORD_TYPE.records, 3)
 
-        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_1.utg_type, prefix=u'w1-'))
-        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_2.utg_type, prefix=u'w2-'))
-        word_3 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_3.utg_type, prefix=u'w3-'))
+        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_1.utg_type, prefix='w1-'))
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_2.utg_type, prefix='w2-'))
+        word_3 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type_3.utg_type, prefix='w3-'))
 
         word_2.state = relations.WORD_STATE.IN_GAME
         word_2.save()
@@ -134,7 +134,7 @@ class NewRequestsTests(BaseRequestsTests):
 
             texts = []
 
-            for key, index in utg_data.WORDS_CACHES[word_type].iteritems():
+            for key, index in utg_data.WORDS_CACHES[word_type].items():
                 if logic.key_is_synomym(key):
                     continue
                 texts.append(('%s_%d ' % (WORD_FIELD_PREFIX, index)))
@@ -144,18 +144,18 @@ class NewRequestsTests(BaseRequestsTests):
 
     def test_displaying_fields_for_all_forms__with_parent(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-'), author=self.account_1)
+            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'), author=self.account_1)
             requested_url = url('linguistics:words:new', type=word.type.value, parent=word.id)
 
             texts = []
 
-            for key, index in utg_data.WORDS_CACHES[word_type].iteritems():
+            for key, index in utg_data.WORDS_CACHES[word_type].items():
                 if logic.key_is_synomym(key):
                     continue
                 texts.append(('%s_%d ' % (WORD_FIELD_PREFIX, index)))
                 texts.append(word.utg_word.forms[index])
 
-            for static_property, required in word.type.properties.iteritems():
+            for static_property, required in word.type.properties.items():
                 texts.append(('%s_%s ' % (WORD_FIELD_PREFIX, static_property.__name__), 1))
 
             self.check_html_ok(self.request_html(requested_url), texts=texts)
@@ -163,7 +163,7 @@ class NewRequestsTests(BaseRequestsTests):
 
     def test_can_not_replace_onreview_word_from_another_author(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
+            parent_word = utg_words.Word.create_test_word(word_type, prefix='parent-')
 
             parent = prototypes.WordPrototype.create(parent_word, author=self.account_2)
 
@@ -180,7 +180,7 @@ class NewRequestsTests(BaseRequestsTests):
             while wrong_type == word_type:
                 wrong_type = random.choice(utg_relations.WORD_TYPE.records)
 
-            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-'))
+            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'))
 
             requested_url = url('linguistics:words:new', type=wrong_type.value, parent=word.id)
 
@@ -190,7 +190,7 @@ class NewRequestsTests(BaseRequestsTests):
     @mock.patch('the_tale.linguistics.prototypes.WordPrototype.has_child', lambda self: True)
     def test_has_on_review_copy(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-'))
+            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'))
             requested_url = url('linguistics:words:new', type=word.type.value, parent=word.id)
             self.check_html_ok(self.request_html(requested_url), texts=['linguistics.words.new.has_on_review_copy'])
 
@@ -232,8 +232,8 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_create__with_on_review_parent(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
-            child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
+            parent_word = utg_words.Word.create_test_word(word_type, prefix='parent-')
+            child_word = utg_words.Word.create_test_word(word_type, prefix='child-')
 
             parent = prototypes.WordPrototype.create(parent_word, author=self.account_1)
 
@@ -255,8 +255,8 @@ class CreateRequestsTests(BaseRequestsTests):
         self.request_login(self.moderator.email)
 
         for word_type in utg_relations.WORD_TYPE.records:
-            parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
-            child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
+            parent_word = utg_words.Word.create_test_word(word_type, prefix='parent-')
+            child_word = utg_words.Word.create_test_word(word_type, prefix='child-')
 
             parent = prototypes.WordPrototype.create(parent_word, author=self.account_1)
 
@@ -277,8 +277,8 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_can_not_replace_onreview_word_from_another_author(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
-            child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
+            parent_word = utg_words.Word.create_test_word(word_type, prefix='parent-')
+            child_word = utg_words.Word.create_test_word(word_type, prefix='child-')
 
             parent = prototypes.WordPrototype.create(parent_word, author=self.account_2)
 
@@ -296,8 +296,8 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_create__with_parent(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
-            child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
+            parent_word = utg_words.Word.create_test_word(word_type, prefix='parent-')
+            child_word = utg_words.Word.create_test_word(word_type, prefix='child-')
 
             parent = prototypes.WordPrototype.create(parent_word)
             parent.state = relations.WORD_STATE.IN_GAME
@@ -350,9 +350,9 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_create__copy_of_onreview__when_ingame_parent_exists(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            ingame_parent_word = utg_words.Word.create_test_word(word_type, prefix=u'in-game-parent-')
-            onreview_parent_word = utg_words.Word.create_test_word(word_type, prefix=u'on-review-parent-')
-            child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
+            ingame_parent_word = utg_words.Word.create_test_word(word_type, prefix='in-game-parent-')
+            onreview_parent_word = utg_words.Word.create_test_word(word_type, prefix='on-review-parent-')
+            child_word = utg_words.Word.create_test_word(word_type, prefix='child-')
 
             ingame_parent = prototypes.WordPrototype.create(ingame_parent_word)
             ingame_parent.state = relations.WORD_STATE.IN_GAME
@@ -390,7 +390,7 @@ class CreateRequestsTests(BaseRequestsTests):
             while wrong_type == word_type:
                 wrong_type = random.choice(utg_relations.WORD_TYPE.records)
 
-            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-'))
+            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'))
 
             requested_url = url('linguistics:words:create', type=wrong_type.value, parent=word.id)
 
@@ -400,7 +400,7 @@ class CreateRequestsTests(BaseRequestsTests):
     @mock.patch('the_tale.linguistics.prototypes.WordPrototype.has_child', lambda self: True)
     def test_has_on_review_copy(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-'))
+            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-'))
             requested_url = url('linguistics:words:create', type=word.type.value, parent=word.id)
             self.check_ajax_error(self.client.post(requested_url, {}), 'linguistics.words.create.has_on_review_copy')
 
@@ -421,7 +421,7 @@ class ShowRequestsTests(BaseRequestsTests):
     def test_success__for_owner(self):
         self.request_login(self.account_1.email)
 
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
         requested_url = url('linguistics:words:show', word.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 0),
@@ -432,7 +432,7 @@ class ShowRequestsTests(BaseRequestsTests):
     def test_success__in_game__for_owner(self):
         self.request_login(self.account_1.email)
 
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
         word.state = relations.WORD_STATE.IN_GAME
         word.save()
 
@@ -445,7 +445,7 @@ class ShowRequestsTests(BaseRequestsTests):
 
 
     def test_success__unlogined(self):
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
         requested_url = url('linguistics:words:show', word.id)
         self.check_html_ok(self.request_html(requested_url), texts=[('pgf-has-child-message', 0),
                                                                     ('pgf-has-parent-message', 0),
@@ -454,7 +454,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-edit-button', 0)])
 
     def test_success__in_game(self):
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
         word.state = relations.WORD_STATE.IN_GAME
         word.save()
 
@@ -465,7 +465,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-remove-button', 0)])
 
     def test_moderator(self):
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
 
         self.request_login(self.moderator.email)
 
@@ -475,7 +475,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-remove-button', 1)])
 
     def test_moderator__in_game(self):
-        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
         word.state = relations.WORD_STATE.IN_GAME
         word.save()
 
@@ -487,11 +487,11 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-remove-button', 1)])
 
     def test_success__has_parent(self):
-        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
         word_1.state = relations.WORD_STATE.IN_GAME
         word_1.save()
 
-        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True),
                                                  parent=word_1)
 
         requested_url = url('linguistics:words:show', word_2.id)
@@ -499,11 +499,11 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                     ('pgf-has-parent-message', 1)])
 
     def test_success__has_child(self):
-        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True), author=self.account_1)
+        word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True), author=self.account_1)
         word_1.state = relations.WORD_STATE.IN_GAME
         word_1.save()
 
-        prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+        prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True),
                                         parent=word_1)
 
         requested_url = url('linguistics:words:show', word_1.id)
@@ -512,7 +512,7 @@ class ShowRequestsTests(BaseRequestsTests):
 
     def test_displaying_fields_for_all_forms(self):
         for word_type in utg_relations.WORD_TYPE.records:
-            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix=u'w-', only_required=True))
+            word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type, prefix='w-', only_required=True))
             requested_url = url('linguistics:words:show', word.id)
 
             texts = []
@@ -528,7 +528,7 @@ class ShowRequestsTests(BaseRequestsTests):
     def test_displaying_fields_words_with_optional_properties(self):
         word_type = utg_relations.WORD_TYPE.NOUN
         word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(word_type,
-                                                                               prefix=u'w-',
+                                                                               prefix='w-',
                                                                                properties=utg_words.Properties(utg_relations.NUMBER.PLURAL)))
         word.save()
 
@@ -548,7 +548,7 @@ class RemoveRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(RemoveRequestsTests, self).setUp()
         self.word_type = random.choice(utg_relations.WORD_TYPE.records)
-        self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+        self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True),
                                                     author=self.account_1)
 
         self.account_2 = self.accounts_factory.create_account()
@@ -639,7 +639,7 @@ class InGameRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(InGameRequestsTests, self).setUp()
         self.word_type = random.choice(utg_relations.WORD_TYPE.records)
-        self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+        self.word = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True),
                                                     author=self.account_1)
 
         self.author_contribution = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.WORD,
@@ -717,7 +717,7 @@ class InGameRequestsTests(BaseRequestsTests):
         self.word.state = relations.WORD_STATE.IN_GAME
         self.word.save()
 
-        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True))
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True))
 
         self.assertEqual(self.word.utg_word.normal_form(), word_2.utg_word.normal_form())
 
@@ -738,7 +738,7 @@ class InGameRequestsTests(BaseRequestsTests):
         self.word.state = relations.WORD_STATE.IN_GAME
         self.word.save()
 
-        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True),
                                                  parent=self.word,
                                                  author=self.account_1)
 
@@ -769,7 +769,7 @@ class InGameRequestsTests(BaseRequestsTests):
                                                 state=self.word.state.contribution_state)
 
 
-        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True),
                                                  parent=self.word,
                                                  author=account_2)
 
@@ -806,7 +806,7 @@ class InGameRequestsTests(BaseRequestsTests):
                                                                  state=self.word.state.contribution_state)
 
 
-        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix=u'w-', only_required=True),
+        word_2 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(self.word_type, prefix='w-', only_required=True),
                                                  parent=self.word,
                                                  author=account_2)
 
@@ -857,10 +857,10 @@ class DictionaryDownloadTests(BaseRequestsTests):
     def test_download(self):
         word_type = relations.ALLOWED_WORD_TYPE.random().utg_type
 
-        parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
-        child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
-        ingame_word = utg_words.Word.create_test_word(word_type, prefix=u'ingame-')
-        outgame_word = utg_words.Word.create_test_word(word_type, prefix=u'outgame-')
+        parent_word = utg_words.Word.create_test_word(word_type, prefix='parent-')
+        child_word = utg_words.Word.create_test_word(word_type, prefix='child-')
+        ingame_word = utg_words.Word.create_test_word(word_type, prefix='ingame-')
+        outgame_word = utg_words.Word.create_test_word(word_type, prefix='outgame-')
 
         parent = prototypes.WordPrototype.create(parent_word)
         parent.state = relations.WORD_STATE.IN_GAME
@@ -890,11 +890,11 @@ class DictionaryLoadTests(BaseRequestsTests):
 
         word_type = relations.ALLOWED_WORD_TYPE.random().utg_type
 
-        self.parent_word = utg_words.Word.create_test_word(word_type, prefix=u'parent-')
-        self.child_word = utg_words.Word.create_test_word(word_type, prefix=u'child-')
-        self.ingame_word = utg_words.Word.create_test_word(word_type, prefix=u'ingame-')
-        self.outgame_word = utg_words.Word.create_test_word(word_type, prefix=u'outgame-')
-        self.not_removed_word = utg_words.Word.create_test_word(word_type, prefix=u'not_removed-')
+        self.parent_word = utg_words.Word.create_test_word(word_type, prefix='parent-')
+        self.child_word = utg_words.Word.create_test_word(word_type, prefix='child-')
+        self.ingame_word = utg_words.Word.create_test_word(word_type, prefix='ingame-')
+        self.outgame_word = utg_words.Word.create_test_word(word_type, prefix='outgame-')
+        self.not_removed_word = utg_words.Word.create_test_word(word_type, prefix='not_removed-')
 
         self.parent = prototypes.WordPrototype.create(self.parent_word)
         self.parent.state = relations.WORD_STATE.IN_GAME

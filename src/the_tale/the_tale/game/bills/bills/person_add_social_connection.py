@@ -19,9 +19,9 @@ from the_tale.game.bills.bills.base_bill import BaseBill
 
 
 class BaseForm(BaseUserForm):
-    person_1 = fields.ChoiceField(label=u'Первый Мастер')
-    person_2 = fields.ChoiceField(label=u'Второй Мастер')
-    connection_type = fields.RelationField(label=u'Тип связи', relation=persons_relations.SOCIAL_CONNECTION_TYPE)
+    person_1 = fields.ChoiceField(label='Первый Мастер')
+    person_2 = fields.ChoiceField(label='Второй Мастер')
+    connection_type = fields.RelationField(label='Тип связи', relation=persons_relations.SOCIAL_CONNECTION_TYPE)
 
     def __init__(self, person_1_id, person_2_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -44,14 +44,14 @@ class BaseForm(BaseUserForm):
         person_2 = persons_storage.persons[int(cleaned_data['person_2'])]
 
         if person_1.id == person_2.id:
-            raise ValidationError(u'Нужно выбрать разных Мастеров')
+            raise ValidationError('Нужно выбрать разных Мастеров')
 
         if persons_storage.social_connections.is_connected(person_1, person_2):
-            raise ValidationError(u'Мастера уже имеют социальную связь')
+            raise ValidationError('Мастера уже имеют социальную связь')
 
         if (persons_storage.social_connections.connections_limit_reached(person_1) or
             persons_storage.social_connections.connections_limit_reached(person_2)):
-            raise ValidationError(u'Один из Мастеров уже имеет максимум связей')
+            raise ValidationError('Один из Мастеров уже имеет максимум связей')
 
         return cleaned_data
 
@@ -76,8 +76,8 @@ class PersonAddSocialConnection(BaseBill):
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
-    CAPTION = u'Добавить социальную связь'
-    DESCRIPTION = u'Мастера склонны конкурировать между собой, равно как и заключать партнёрские соглашения. Подобные социальные связи между ними влияют на распределение влияния между Мастерами и вероятность получить задание с парой связанных Мастеров. Выдвинуть закон может только Хранитель героя из ближнего круга первого Мастера. Герой должен быть в ближнем круге на момент создания закона и/или его редактирования.'
+    CAPTION = 'Добавить социальную связь'
+    DESCRIPTION = 'Мастера склонны конкурировать между собой, равно как и заключать партнёрские соглашения. Подобные социальные связи между ними влияют на распределение влияния между Мастерами и вероятность получить задание с парой связанных Мастеров. Выдвинуть закон может только Хранитель героя из ближнего круга первого Мастера. Герой должен быть в ближнем круге на момент создания закона и/или его редактирования.'
 
     def __init__(self,
                  person_1_id=None,

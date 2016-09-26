@@ -30,7 +30,7 @@ class LogicTest(testcase.TestCase):
                    ('b', 10),
                    ('c', 100)]
 
-        counter.update([random_value_by_priority(choices) for i in xrange(10000)])
+        counter.update([random_value_by_priority(choices) for i in range(10000)])
 
         self.assertTrue(counter['0'] == 0)
         self.assertTrue(counter['a'])
@@ -48,7 +48,7 @@ class LogicTest(testcase.TestCase):
                    ('b', 10),
                    ('c', 100)]
 
-        for i in xrange(10000):
+        for i in range(10000):
             for j, value in enumerate(shuffle_values_by_priority(choices)):
                 counter.update([(value, j)])
 
@@ -57,27 +57,27 @@ class LogicTest(testcase.TestCase):
         self.assertTrue(counter[('a', 2)] > counter[('a', 0)] > counter[('a', 3)] and counter[('a', 2)] > counter[('a', 1)] > counter[('a', 0)])
 
     def test_verbose_timedelta(self):
-        self.assertEqual(u'1 день', verbose_timedelta(datetime.timedelta(days=1)))
-        self.assertEqual(u'101 день', verbose_timedelta(datetime.timedelta(days=101)))
-        self.assertEqual(u'2 дня', verbose_timedelta(datetime.timedelta(days=2)))
-        self.assertEqual(u'33 дня', verbose_timedelta(datetime.timedelta(days=33)))
-        self.assertEqual(u'4 дня', verbose_timedelta(datetime.timedelta(days=4)))
-        self.assertEqual(u'5 дней', verbose_timedelta(datetime.timedelta(days=5)))
-        self.assertEqual(u'5 дней', verbose_timedelta(datetime.timedelta(seconds=5*24*60*60)))
+        self.assertEqual('1 день', verbose_timedelta(datetime.timedelta(days=1)))
+        self.assertEqual('101 день', verbose_timedelta(datetime.timedelta(days=101)))
+        self.assertEqual('2 дня', verbose_timedelta(datetime.timedelta(days=2)))
+        self.assertEqual('33 дня', verbose_timedelta(datetime.timedelta(days=33)))
+        self.assertEqual('4 дня', verbose_timedelta(datetime.timedelta(days=4)))
+        self.assertEqual('5 дней', verbose_timedelta(datetime.timedelta(days=5)))
+        self.assertEqual('5 дней', verbose_timedelta(datetime.timedelta(seconds=5*24*60*60)))
 
-        self.assertEqual(u'1 час', verbose_timedelta(datetime.timedelta(seconds=60*60)))
-        self.assertEqual(u'2 часа', verbose_timedelta(datetime.timedelta(seconds=2*60*60)))
-        self.assertEqual(u'23 часа', verbose_timedelta(datetime.timedelta(seconds=23*60*60)))
-        self.assertEqual(u'4 часа', verbose_timedelta(datetime.timedelta(seconds=4*60*60)))
-        self.assertEqual(u'5 часов', verbose_timedelta(datetime.timedelta(seconds=5*60*60)))
+        self.assertEqual('1 час', verbose_timedelta(datetime.timedelta(seconds=60*60)))
+        self.assertEqual('2 часа', verbose_timedelta(datetime.timedelta(seconds=2*60*60)))
+        self.assertEqual('23 часа', verbose_timedelta(datetime.timedelta(seconds=23*60*60)))
+        self.assertEqual('4 часа', verbose_timedelta(datetime.timedelta(seconds=4*60*60)))
+        self.assertEqual('5 часов', verbose_timedelta(datetime.timedelta(seconds=5*60*60)))
 
-        self.assertEqual(u'1 минута', verbose_timedelta(datetime.timedelta(seconds=60)))
-        self.assertEqual(u'2 минуты', verbose_timedelta(datetime.timedelta(seconds=2*60)))
-        self.assertEqual(u'23 минуты', verbose_timedelta(datetime.timedelta(seconds=23*60)))
-        self.assertEqual(u'4 минуты', verbose_timedelta(datetime.timedelta(seconds=4*60)))
-        self.assertEqual(u'5 минут', verbose_timedelta(datetime.timedelta(seconds=5*60)))
+        self.assertEqual('1 минута', verbose_timedelta(datetime.timedelta(seconds=60)))
+        self.assertEqual('2 минуты', verbose_timedelta(datetime.timedelta(seconds=2*60)))
+        self.assertEqual('23 минуты', verbose_timedelta(datetime.timedelta(seconds=23*60)))
+        self.assertEqual('4 минуты', verbose_timedelta(datetime.timedelta(seconds=4*60)))
+        self.assertEqual('5 минут', verbose_timedelta(datetime.timedelta(seconds=5*60)))
 
-        self.assertEqual(u'меньше минуты', verbose_timedelta(datetime.timedelta(seconds=49)))
+        self.assertEqual('меньше минуты', verbose_timedelta(datetime.timedelta(seconds=49)))
 
     def test_lazy_property_decorator(self):
 
@@ -171,7 +171,7 @@ class LogicTest(testcase.TestCase):
         set_2 = set()
         set_3 = set()
 
-        for i in xrange(1000):
+        for i in range(1000):
             set_2.add(randint_from_1(2))
             set_3.add(randint_from_1(3))
 
@@ -179,6 +179,6 @@ class LogicTest(testcase.TestCase):
         self.assertEqual(set_3, set((1, 2, 3, 4, 5)))
 
     def test_absolutize_urls(self):
-        text = u'<a href=""></a> <a href="/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>'
+        text = '<a href=""></a> <a href="/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>'
         self.assertEqual(absolutize_urls(text),
-                         u'<a href=""></a> <a href="http://localhost:8000/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>')
+                         '<a href=""></a> <a href="http://localhost:8000/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>')
