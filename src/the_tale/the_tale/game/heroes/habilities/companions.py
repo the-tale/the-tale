@@ -119,26 +119,28 @@ class _CompanionHealBase(AbilityPrototype):
         return value
 
 
+def get_being_types(modifier):
+    return [t.text for t in game_relations.BEING_TYPE.records if t.companion_heal_modifier == modifier]
 
 class HEALING(_CompanionHealBase):
     NAME = 'Врачевание'
     normalized_name = NAME
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL
-    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_heal_modifier == MODIFIER]
+    BEING_TYPES = get_being_types(MODIFIER)
     DESCRIPTION = 'Умение обращаться с ниткой, иголкой и хирургическим ножом позволяет иногда восстановить немного здоровья живому (%s) спутнику.' % ', '.join(BEING_TYPES)
 
 class MAGE_MECHANICS(_CompanionHealBase):
     NAME = 'Магомеханика'
     normalized_name = NAME
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_CONSTRUCT_HEAL
-    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_heal_modifier == MODIFIER]
+    BEING_TYPES = get_being_types(MODIFIER)
     DESCRIPTION = 'С помощью плоскогубцев, проволоки и толики магии магомеханик иногда может отремонтировать своего магомеханического (%s) спутника.' % ', '.join(BEING_TYPES)
 
 class WITCHCRAFT(_CompanionHealBase):
     NAME = 'Ведовство'
     normalized_name = NAME
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL
-    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_heal_modifier == MODIFIER]
+    BEING_TYPES = get_being_types(MODIFIER)
     DESCRIPTION = 'Герой, сведущий в нетрадиционных областях знаний, иногда может восстановить здоровье особого (%s) спутника.' % ', '.join(BEING_TYPES)
 
 
@@ -167,21 +169,21 @@ class SOCIABILITY(_CompanionCoherenceSpeedBase):
     NAME = 'Коммуникабельность'
     normalized_name = NAME
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED
-    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_coherence_modifier == MODIFIER]
+    BEING_TYPES = get_being_types(MODIFIER)
     DESCRIPTION = 'Хороший разговор сближает лучше кровавой стычки, коммуникабельный герой быстрее увеличивает слаженность живого (%s) спутника.' % ', '.join(BEING_TYPES)
 
 class SERVICE(_CompanionCoherenceSpeedBase):
     NAME = 'Обслуживание'
     normalized_name = NAME
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_CONSTRUCT_COHERENCE_SPEED
-    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_coherence_modifier == MODIFIER]
+    BEING_TYPES = get_being_types(MODIFIER)
     DESCRIPTION = 'Каждому магомеханическому (%s) спутнику требуется регулярная смазка, или подзарядка кристаллов, или ещё какая-нибудь заумная операция. Чем ответственнее герой относится к обслуживанию своего спутника, тем быстрее растёт его слаженность.' % ', '.join(BEING_TYPES)
 
 class SACREDNESS(_CompanionCoherenceSpeedBase):
     NAME = 'Сакральность'
     normalized_name = NAME
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED
-    BEING_TYPES = [t.text for t in game_relations.BEING_TYPE.records if t.companion_coherence_modifier == MODIFIER]
+    BEING_TYPES = get_being_types(MODIFIER)
     DESCRIPTION = 'Особые (%s) спутники настолько необычны, что герою приходится учиться думать как его напарник. Если герою удаётся найти схожие струны в душе спутника, то их слаженность начинает расти быстрее.' % ', '.join(BEING_TYPES)
 
 

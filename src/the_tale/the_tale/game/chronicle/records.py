@@ -128,7 +128,7 @@ class PlaceChronicleBillSuccessed(RecordBase):
 
 
 RECORDS = {}
-for class_name, record_class in globals().items():
+for class_name, record_class in list(globals().items()):
     if not isinstance(record_class, type) or not issubclass(record_class, RecordBase):
         continue
     if class_name[0] == '_':

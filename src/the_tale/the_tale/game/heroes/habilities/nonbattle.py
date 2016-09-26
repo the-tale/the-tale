@@ -20,19 +20,18 @@ class CHARISMA(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = 'Герой настолько обаятелен, что умудряется получать лучшие награды за выполнение заданий.'
 
-    QUESTS_FRACTION = c.EXPECTED_QUESTS_IN_DAY / f.artifacts_in_day()
-    ARTIFACTS_FRACTION = 1 - QUESTS_FRACTION
-
-    # MAX_MONEY_ABILITIES_BONUS = c.INCOME_LOOT_FRACTION + c.INCOME_ARTIFACTS_FRACTION * (artifacts_fraction + TOTAL_BONUS * quests_fraction)
-    # (MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION  = artifacts_fraction + TOTAL_BONUS * quests_fraction
-    # (MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION - artifacts_fraction = TOTAL_BONUS * quests_fraction
-    # MAX_MONEY_ABILITIES_BONUS заменяем на 1 + self.MONEY_BONUS[self.level-1]
-    TOTAL_BONUS = ((MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION - ARTIFACTS_FRACTION) / QUESTS_FRACTION
-
-    MONEY_BONUS = [i * (TOTAL_BONUS - 1) / 5.0 for i in range(1, 6)]
-
     @property
-    def money_bonus(self): return self.MONEY_BONUS[self.level-1]
+    def money_bonus(self):
+        QUESTS_FRACTION = c.EXPECTED_QUESTS_IN_DAY / f.artifacts_in_day()
+        ARTIFACTS_FRACTION = 1 - QUESTS_FRACTION
+
+        # MAX_MONEY_ABILITIES_BONUS = c.INCOME_LOOT_FRACTION + c.INCOME_ARTIFACTS_FRACTION * (artifacts_fraction + TOTAL_BONUS * quests_fraction)
+        # (MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION  = artifacts_fraction + TOTAL_BONUS * quests_fraction
+        # (MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION - artifacts_fraction = TOTAL_BONUS * quests_fraction
+        # MAX_MONEY_ABILITIES_BONUS заменяем на 1 + self.MONEY_BONUS[self.level-1]
+        TOTAL_BONUS = ((MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION - ARTIFACTS_FRACTION) / QUESTS_FRACTION
+
+        return (self.level-1) * (TOTAL_BONUS - 1) / 5.0
 
     def modify_attribute(self, type_, value): return value + self.money_bonus if type_.is_QUEST_MONEY_REWARD else value
 
@@ -49,17 +48,22 @@ class HUCKSTER(AbilityPrototype):
     DESCRIPTION = 'Увеличивается цена продажи и уменьшаются все траты.'
 
     BUY_BONUS = [-0.025, -0.050, -0.075, -0.10, -0.125]
-    # MAX_MONEY_ABILITIES_BONUS = c.INCOME_LOOT_FRACTION * TOTAL_BONUS + c.INCOME_ARTIFACTS_FRACTION
-    # TOTAL_BONUS = (MAX_MONEY_ABILITIES_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION
-    # MAX_MONEY_ABILITIES_BONUS пересчиываем с учётом скидки на покупку -> (1+BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
-    MAX_BONUS = (1+BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
-    SELL_BONUS = [((MAX_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION - 1) / 5.0 * i for i in range(1, 6)]
 
     @property
     def buy_bonus(self): return self.BUY_BONUS[self.level-1]
 
+    @classmethod
+    def _sell_bonus(self, level):
+        # MAX_MONEY_ABILITIES_BONUS = c.INCOME_LOOT_FRACTION * TOTAL_BONUS + c.INCOME_ARTIFACTS_FRACTION
+        # TOTAL_BONUS = (MAX_MONEY_ABILITIES_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION
+        # MAX_MONEY_ABILITIES_BONUS пересчиываем с учётом скидки на покупку -> (1+BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
+        MAX_BONUS = (1+self.BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
+        return ((MAX_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION - 1) / 5.0 * (level-1)
+
+
     @property
-    def sell_bonus(self): return self.SELL_BONUS[self.level-1]
+    def sell_bonus(self):
+        return self._sell_bonus(level=self.level)
 
     def modify_attribute(self, type_, value):
         if type_.is_BUY_PRICE:
@@ -205,10 +209,9 @@ class DIPLOMATIC(AbilityPrototype):
     normalized_name = NAME
     DESCRIPTION = 'Некоторые герои приноровились выполнять задание особенно хитро и тщательно, тем самым увеличивая своё влияние на участников задания. Максимальный бонус к влиянию: %d%%' % (MAXIMUM_MULTIPLIER * 100)
 
-    POWER_MULTIPLIER = [MAXIMUM_MULTIPLIER * i / 5 for i in range(1, 6)]
-
     @property
-    def power_multiplier(self): return self.POWER_MULTIPLIER[self.level-1]
+    def power_multiplier(self):
+        return self.MAXIMUM_MULTIPLIER * (self.level-1) / 5
 
     def modify_attribute(self, type_, value): return value + self.power_multiplier if type_.is_POWER else value
 

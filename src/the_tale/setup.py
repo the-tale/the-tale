@@ -42,7 +42,7 @@ setuptools.setup(
                       'kombu==3.0.35',
                       'postmarkup==1.2.2',
                       'markdown==2.2.0',
-                      'xlrd==0.8.0',
+                      'xlrd==1.0.0',
                       'mock==1.0b1',
                       'MarkupSafe==0.15',
                       'boto3==1.4.0',

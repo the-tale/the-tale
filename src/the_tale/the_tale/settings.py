@@ -346,23 +346,6 @@ CURRENCIES_LIST = ['BYR', 'RUB', 'UAH', 'USD']
 # LOGGING
 ############################
 
-
-def get_worker_log_file_handler(name):
-    return {'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': os.path.join(HOME_DIR, 'logs', '%s.log' % name),
-            'when': 'D',
-            'interval': 2,
-            'backupCount': 2,
-            'encoding': 'utf-8',
-            'formatter': 'verbose',
-            'utc': True }
-
-def get_worker_logger(name):
-    return {'handlers': ['file_%s' % name],
-            'level': 'DEBUG' if DEBUG else 'INFO',
-            'propagate': True }
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -383,34 +366,14 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'verbose'
             },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-            },
-        'file_game_supervisor': get_worker_log_file_handler('game_supervisor'),
-        'file_game_logic_1': get_worker_log_file_handler('game_logic_1'),
-        'file_game_logic_2': get_worker_log_file_handler('game_logic_2'),
-        'file_game_highlevel': get_worker_log_file_handler('game_highlevel'),
-        'file_game_turns_loop': get_worker_log_file_handler('game_turns_loop'),
-        'file_game_long_commands': get_worker_log_file_handler('game_long_commands'),
-        'file_portal_long_commands': get_worker_log_file_handler('portal_long_commands'),
-        'file_linguistics_manager': get_worker_log_file_handler('linguistics_manager'),
-        'file_market_manager': get_worker_log_file_handler('market_manager'),
-        'file_game_pvp_balancer': get_worker_log_file_handler('game_pvp_balancer'),
-        'file_game_quests_generator': get_worker_log_file_handler('game_quests_generator'),
-        'file_linguistics': get_worker_log_file_handler('linguistics'),
-        'file_accounts_registration': get_worker_log_file_handler('accounts_registration'),
-        'file_accounts_accounts_manager': get_worker_log_file_handler('accounts_accounts_manager'),
-        'file_achievements_achievements_manager': get_worker_log_file_handler('achievements_achievements_manager'),
-        'file_collections_items_manager': get_worker_log_file_handler('collections_items_manager'),
-        'file_post_service_message_sender': get_worker_log_file_handler('post_service_message_sender'),
-        'file_bank_bank_processor': get_worker_log_file_handler('bank_bank_processor'),
-        'file_bank_xsolla_banker': get_worker_log_file_handler('bank_xsolla_banker'),
-        'file_bank_xsolla_requests': get_worker_log_file_handler('bank_xsolla_requests'),
-        'file_postponed_tasks_refrigerator': get_worker_log_file_handler('postponed_tasks_refrigerator')
+            'formatter': 'verbose'
+            }
     },
     'loggers': {
         'django.request': {
@@ -422,27 +385,6 @@ LOGGING = {
             'handlers': ['mail_admins'],#, 'console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False
-        },
-        'the-tale.workers.game_supervisor': get_worker_logger('game_supervisor'),
-        'the-tale.workers.game_logic_1': get_worker_logger('game_logic_1'),
-        'the-tale.workers.game_logic_2': get_worker_logger('game_logic_2'),
-        'the-tale.workers.game_highlevel': get_worker_logger('game_highlevel'),
-        'the-tale.workers.game_turns_loop': get_worker_logger('game_turns_loop'),
-        'the-tale.workers.game_long_commands': get_worker_logger('game_long_commands'),
-        'the-tale.workers.portal_long_commands': get_worker_logger('portal_long_commands'),
-        'the-tale.workers.linguistics_manager': get_worker_logger('linguistics_manager'),
-        'the-tale.workers.market_manager': get_worker_logger('market_manager'),
-        'the-tale.workers.game_pvp_balancer': get_worker_logger('game_pvp_balancer'),
-        'the-tale.workers.game_quests_generator': get_worker_logger('game_quests_generator'),
-        'the-tale.workers.accounts_registration': get_worker_logger('accounts_registration'),
-        'the-tale.workers.accounts_accounts_manager': get_worker_logger('accounts_accounts_manager'),
-        'the-tale.workers.achievements_achievements_manager': get_worker_logger('achievements_achievements_manager'),
-        'the-tale.workers.collections_items_manager': get_worker_logger('collections_items_manager'),
-        'the-tale.workers.post_service_message_sender': get_worker_logger('post_service_message_sender'),
-        'the-tale.workers.bank_bank_processor': get_worker_logger('bank_bank_processor'),
-        'the-tale.workers.bank_xsolla_banker': get_worker_logger('bank_xsolla_banker'),
-        'the-tale.bank_xsolla_requests': get_worker_logger('bank_xsolla_requests'),
-        'the-tale.workers.postponed_tasks_refrigerator': get_worker_logger('postponed_tasks_refrigerator'),
-        'the-tale.linguistics': get_worker_logger('linguistics')
+        }
     } if not TESTS_RUNNING else {}
 }

@@ -14,9 +14,9 @@ from the_tale.game.companions.abilities import relations
 
 def ChoiceField(filter=lambda ability: True, sort_key=None):
     choices = [('', '---')] + sorted([(ability, '%s [%d]' % (ability.text, ability.rarity_delta))
-                                       for ability in effects.ABILITIES.records
-                                       if filter(ability)],
-                                       key=sort_key)
+                                      for ability in effects.ABILITIES.records
+                                      if filter(ability)],
+                                      key=sort_key)
     return fields.TypedChoiceField(label='', choices=choices, required=False, coerce=effects.ABILITIES.get_from_name)
 
 
@@ -30,9 +30,9 @@ def get_abilities_fields():
 
     sort_key = lambda x: x[1]
     return {
-        relations.FIELDS.COHERENCE_SPEED: ChoiceField(filter=lambda ability: ability.effect.TYPE.is_COHERENCE_SPEED),
-        relations.FIELDS.HONOR: ChoiceField(filter=lambda ability: ability.effect.TYPE.is_CHANGE_HABITS and ability.effect.habit_type.is_HONOR),
-        relations.FIELDS.PEACEFULNESS: ChoiceField(filter=lambda ability: ability.effect.TYPE.is_CHANGE_HABITS and ability.effect.habit_type.is_PEACEFULNESS),
+        relations.FIELDS.COHERENCE_SPEED: ChoiceField(filter=lambda ability: ability.effect.TYPE.is_COHERENCE_SPEED, sort_key=sort_key),
+        relations.FIELDS.HONOR: ChoiceField(filter=lambda ability: ability.effect.TYPE.is_CHANGE_HABITS and ability.effect.habit_type.is_HONOR, sort_key=sort_key),
+        relations.FIELDS.PEACEFULNESS: ChoiceField(filter=lambda ability: ability.effect.TYPE.is_CHANGE_HABITS and ability.effect.habit_type.is_PEACEFULNESS, sort_key=sort_key),
         relations.FIELDS.START_1: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.START_2: ChoiceField(filter=common_filter, sort_key=sort_key),
         relations.FIELDS.START_3: ChoiceField(filter=common_filter, sort_key=sort_key),

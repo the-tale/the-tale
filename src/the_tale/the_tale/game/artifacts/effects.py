@@ -246,7 +246,7 @@ class Conviction(BaseEffect):
 class Charm(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CHARM
     DESCRIPTION = 'Увеличение цены продажи предметов'
-    BONUS = nonbattle.HUCKSTER.SELL_BONUS[-1] / 2
+    BONUS = nonbattle.HUCKSTER._sell_bonus(5) / 2
 
     @classmethod
     def modify_attribute(cls, type_, value):

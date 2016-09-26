@@ -1,16 +1,20 @@
 ---
 - name: bootstrap ansible
   hosts: all
-  remote_user: root
+  become: yes
+  become_user: root
   gather_facts: no
   tasks:
     - name: setup absolutly needed system packages
-      raw: sudo apt-get install -qq python-all aptitude python-apt
+      raw: sudo apt-get install -qy python-all aptitude python-apt python-pip
     - name: upgrade pip to latest version
       raw: sudo pip install --upgrade pip
 
 - name: configure host
   hosts: all
+  become: yes
+  become_user: root
+
   vars:
     ansible_python_interpreter: /usr/bin/python2.7
 
@@ -24,10 +28,13 @@
         - virtualenv
         - python-pip
 
-- name: configure database
+- name: configure services
   hosts: all
+  become: yes
+  become_user: root
   roles:
-    - role: ANXS.postgresql # https://github.com/ANXS/postgresql/blob/master/defaults/main.yml
+    - name: configure postgres
+      role: ANXS.postgresql # https://github.com/ANXS/postgresql/blob/master/defaults/main.yml
       postgresql_version: 9.5
       postgresql_encoding: 'UTF-8'
       postgresql_locale: 'en_GB.UTF-8'
@@ -43,28 +50,19 @@
           pass: the-tale
           encrypted: no
 
-
-- name: configure nginx
-  hosts: all
-  roles:
-    - role: geerlingguy.nginx
+    - name: configue nginx
+      role: geerlingguy.nginx
       nginx_remove_default_vhost: true
       nginx_vhosts:
         - listen: "80 default_server"
           server_name: "local.the-tale"
           root: "/var/www/the-tale"
 
+    - name: configure redis
+      role: geerlingguy.redis
 
-- name: configure redis
-  hosts: all
-  roles:
-    - role: geerlingguy.redis
-
-
-- name: configure rabbitmq
-  hosts: all
-  roles:
-    - role: Stouts.rabbitmq
+    - name: configure rabbitmq
+      role: Stouts.rabbitmq
       rabbitmq_plugins: []
       rabbitmq_users:
         - user: the-tale
@@ -81,8 +79,18 @@
         - guest
 
 
-- name: install The Tale
+- name: install The Tale user
   hosts: all
+  become: yes
+  become_user: root
+  tasks:
+    - user: name=the-tale
+
+
+- name: install The Tale environment
+  hosts: all
+  become: yes
+  become_user: the-tale
   tasks:
     - user: name=the-tale
     - pip:
@@ -90,6 +98,8 @@
         virtualenv: /home/the-tale/current/venv
         virtualenv_command: virtualenv
         virtualenv_python: python3.5
+        editable: True
+        extra_args: "-e"
       with_items:
         - {name: "/mnt/repos/dext/"}
         - {name: "/mnt/repos/deworld/"}

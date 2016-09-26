@@ -382,7 +382,7 @@ def quest_money_reward(name, value, text, description, rarity_delta, border_left
 
 def huckster(name, value, text, description, rarity_delta):
     effect = Huckster(buy_bonus_left=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2 / 5, buy_bonus_right=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2,
-                      sell_bonus_left=nonbatle_abilities.HUCKSTER.SELL_BONUS[-1] / 2 / 5, sell_bonus_right=nonbatle_abilities.HUCKSTER.SELL_BONUS[-1] / 2)
+                      sell_bonus_left=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2 / 5, sell_bonus_right=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2)
     return (name,
             value,
             text,
