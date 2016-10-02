@@ -132,7 +132,7 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
         current_time = TimePrototype.get_current_time()
 
         while True:
-            self.assertNotEqual(self.hero.actions.current_action, ActionIdlenessPrototype.TYPE)
+            self.assertNotEqual(self.hero.actions.current_action.TYPE, ActionIdlenessPrototype.TYPE)
 
             task = self.create_task(option_uid=self.option_2_1_uid)
 

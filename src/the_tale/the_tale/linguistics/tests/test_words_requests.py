@@ -876,7 +876,7 @@ class DictionaryDownloadTests(BaseRequestsTests):
 
         response = self.client.get(url('linguistics:words:dictionary-download'))
 
-        data = s11n.from_json(response.content)
+        data = s11n.from_json(response.content.decode('utf-8'))
 
         self.assertEqual(len(data['words']), 2)
         self.assertIn(parent.utg_word.serialize(), data['words'])

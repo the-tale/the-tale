@@ -160,11 +160,17 @@ class Damage(object):
     def __imul__(self, other):
         return self.multiply(other, other)
 
-    def __div__(self, other):
-        return self.clone().multiply(1.0/other, 1.0/other)
+    def __truediv__(self, other):
+        return self.clone().multiply(1.0 / other, 1.0 / other)
 
-    def __idiv__(self, other):
-        return self.multiply(1.0/other, 1.0/other)
+    def __itruediv__(self, other):
+        return self.multiply(1.0 / other, 1.0 / other)
+
+    def __floordiv__(self, other):
+        return self.clone().multiply(1.0 // other, 1.0 // other)
+
+    def __ifloordiv__(self, other):
+        return self.multiply(1.0 // other, 1.0 // other)
 
     def __repr__(self): return 'Damage(%f, %f)' % (self.physic, self.magic)
 

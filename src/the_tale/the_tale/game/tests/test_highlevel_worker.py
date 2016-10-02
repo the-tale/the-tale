@@ -168,7 +168,7 @@ class HighlevelTest(testcase.TestCase):
             if time.turn_number < bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA:
                 self.assertFalse(hasattr(self.worker, '_bills_applied'))
             else:
-                self.assertEqual(self.worker._bills_applied, time.turn_number / (bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA))
+                self.assertEqual(self.worker._bills_applied, time.turn_number // (bills_settings.BILLS_PROCESS_INTERVAL // c.TURN_DELTA))
 
             time.increment_turn()
             time.save()

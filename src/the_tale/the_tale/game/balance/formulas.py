@@ -46,12 +46,12 @@ def expected_damage_to_mob_per_hit(lvl): return float(mob_hp_to_lvl(lvl) * c.DAM
 # таким образом, нет необходимости поддерживать добычу для каждого моба для каждого уровня, достаточно по одному предмету каждого качества,
 # а остальное по мере фантазии чисто для разнообразия
 def normal_loot_cost_at_lvl(lvl): return  int(c.NORMAL_LOOT_COST * math.log(lvl, 1.3)) + 1
-def medium_loot_cost_at_lvl(lvl): return sum(normal_loot_cost_at_lvl(i) for i in range(1, lvl+1)) / lvl
+def medium_loot_cost_at_lvl(lvl): return sum(normal_loot_cost_at_lvl(i) for i in range(1, lvl+1)) // lvl
 
 # при рассчётах принимаем, что герой будет встречать мобов разных уровней с одинаковой вероятностью
 def expected_gold_in_day(lvl):
     loot_cost = c.BATTLES_PER_HOUR * 24 * c.GET_LOOT_PROBABILITY * medium_loot_cost_at_lvl(lvl)
-    return int(1 + loot_cost / c.INCOME_LOOT_FRACTION)
+    return int(1 + loot_cost // c.INCOME_LOOT_FRACTION)
 
 def artifacts_in_day(): return c.ARTIFACTS_LOOT_PER_DAY + c.EXPECTED_QUESTS_IN_DAY
 def sell_artifact_price(lvl): return 1 + int((expected_gold_in_day(lvl) * c.INCOME_ARTIFACTS_FRACTION) / artifacts_in_day())
@@ -59,7 +59,7 @@ def sell_artifact_price(lvl): return 1 + int((expected_gold_in_day(lvl) * c.INCO
 def total_gold_at_lvl(lvl):
     top_level = int(math.floor(lvl))
     before_level = int(sum(expected_gold_in_day(x) * time_on_lvl(x)/24 for x in range(1, top_level)))
-    on_level = (expected_gold_in_day(top_level+1) * time_on_lvl(top_level+1)/24) * (lvl - top_level)
+    on_level = (expected_gold_in_day(top_level+1) * time_on_lvl(top_level+1)//24) * (lvl - top_level)
     return before_level + on_level
 
 def normal_action_price(lvl):
@@ -114,19 +114,19 @@ def gold_in_path(lvl, path_length):
 def turns_to_game_time(turns):
     game_time = turns * c.GAME_SECONDS_IN_TURN
 
-    year = int(game_time / c.GAME_SECONDS_IN_GAME_YEAR)
+    year = int(game_time // c.GAME_SECONDS_IN_GAME_YEAR)
     game_time %= int(c.GAME_SECONDS_IN_GAME_YEAR)
 
-    month = int(game_time / c.GAME_SECONDS_IN_GAME_MONTH) + 1
+    month = int(game_time // c.GAME_SECONDS_IN_GAME_MONTH) + 1
     game_time %= int(c.GAME_SECONDS_IN_GAME_MONTH)
 
-    day = int(game_time / c.GAME_SECONDS_IN_GAME_DAY) + 1
+    day = int(game_time // c.GAME_SECONDS_IN_GAME_DAY) + 1
     game_time %= int(c.GAME_SECONDS_IN_GAME_DAY)
 
-    hour = int(game_time / c.GAME_SECONDS_IN_GAME_HOUR)
+    hour = int(game_time // c.GAME_SECONDS_IN_GAME_HOUR)
     game_time %= int(c.GAME_SECONDS_IN_GAME_HOUR)
 
-    minute = int(game_time / c.GAME_SECONDS_IN_GAME_MINUTE)
+    minute = int(game_time // c.GAME_SECONDS_IN_GAME_MINUTE)
     game_time %= int(c.GAME_SECONDS_IN_GAME_MINUTE)
 
     second = game_time

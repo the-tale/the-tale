@@ -39,6 +39,8 @@ class MoveNearActionTest(testcase.TestCase):
         self.hero.position.set_place(self.p1)
 
         self.action_move = prototypes.ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.p1, back=False)
+
+
     def tearDown(self):
         pass
 
@@ -188,6 +190,23 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertTrue(self.action_idl.leader)
 
         self.storage._test_save()
+
+
+    def test_full__start_equal_to_finish(self):
+
+        self.action_move.destination_x = self.p1.x
+        self.action_move.destination_y = self.p1.y
+
+        current_time = TimePrototype.get_current_time()
+
+        while len(self.hero.actions.actions_list) != 1:
+            self.storage.process_turn(continue_steps_if_needed=False)
+            current_time.increment_turn()
+
+        self.assertTrue(self.action_idl.leader)
+
+        self.storage._test_save()
+
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: True)
     def test_battle(self):

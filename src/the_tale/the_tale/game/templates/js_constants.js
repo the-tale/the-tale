@@ -50,7 +50,7 @@ pgf.game.constants.CARD_RARITY = {
 };
 
 pgf.game.constants.CARD_TYPE = {
-    {% for card_type, effect in CARDS_EFFECTS.iteritems() %}
+    {% for card_type, effect in CARDS_EFFECTS.items() %}
     "{{card_type.value}}": {
         "text": "{{card_type.text}}",
         "description": "{{effect.DESCRIPTION}}"
@@ -86,7 +86,7 @@ pgf.game.constants.abilities = {
 
 pgf.game.constants.linguistics_formatters = {
 
-    {% for key, text in LINGUISTICS_FORMATTERS.iteritems() %}
+    {% for key, text in LINGUISTICS_FORMATTERS.items() %}
 
     "{{key}}": "{{text|replace("\"", "'")|safe}}"{% if not loop.last %},{% endif %}
 

@@ -466,7 +466,7 @@ class HabilitiesViewsTest(TestCase):
     def test_choose_ability_request_anonymous(self):
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id]) + '?ability_id=' + self.get_new_ability_id())
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.assertEqual(s11n.from_json(response.content.decode('utf-8'))['status'], 'error')
 
     def test_choose_ability_request_hero_not_exist(self):
         self.request_login(self.account1.email)
@@ -482,7 +482,7 @@ class HabilitiesViewsTest(TestCase):
         self.request_login(self.account1.email)
         response = self.client.post(reverse('game:heroes:choose-ability', args=[self.hero.id+1]) + '?ability_id=xxxyyy')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(s11n.from_json(response.content)['status'], 'error')
+        self.assertEqual(s11n.from_json(response.content.decode('utf-8'))['status'], 'error')
 
     def test_choose_ability_request_ok(self):
         self.request_login(self.account1.email)

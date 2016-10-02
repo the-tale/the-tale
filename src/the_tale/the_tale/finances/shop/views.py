@@ -1,4 +1,6 @@
 # coding: utf-8
+import functools
+
 from dext.common.utils import views as dext_views
 from dext.common.utils.urls import url
 from dext.settings import settings
@@ -82,9 +84,16 @@ def shop(context):
                     (relations.GOODS_GROUP.ENERGY, relations.GOODS_GROUP.PREMIUM, False): 1,
                     (relations.GOODS_GROUP.ENERGY, relations.GOODS_GROUP.PREMIUM, True): -1 }
 
-        return choices.get((x.type, y.type, context.account.is_premium), cmp(price_types.index(x.type), price_types.index(y.type)))
+        if price_types.index(x.type) < price_types.index(y.type):
+            default = -1
+        elif price_types.index(x.type) > price_types.index(y.type):
+            default = 1
+        else:
+            default = 0
 
-    price_groups = sorted(price_list.PRICE_GROUPS, cmp=_cmp)
+        return choices.get((x.type, y.type, context.account.is_premium), default)
+
+    price_groups = sorted(price_list.PRICE_GROUPS, key=functools.cmp_to_key(_cmp))
 
     return dext_views.Page('shop/shop.html',
                            content={'PRICE_GROUPS': price_groups,

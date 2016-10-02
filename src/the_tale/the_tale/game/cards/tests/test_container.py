@@ -412,8 +412,8 @@ class CanCombineCardsTests(testcase.TestCase):
 
     def test_no_cards(self):
         self.assertTrue(self.hero.cards.can_combine_cards([666, 667]).is_HAS_NO_CARDS)
-        self.assertTrue(self.hero.cards.can_combine_cards([self.card__add_power_common_1, 667]).is_HAS_NO_CARDS)
-        self.assertTrue(self.hero.cards.can_combine_cards([666, self.card__add_power_common_1]).is_HAS_NO_CARDS)
+        self.assertTrue(self.hero.cards.can_combine_cards([self.card__add_power_common_1.uid, 667]).is_HAS_NO_CARDS)
+        self.assertTrue(self.hero.cards.can_combine_cards([666, self.card__add_power_common_1.uid]).is_HAS_NO_CARDS)
 
 
     def test_allowed(self):

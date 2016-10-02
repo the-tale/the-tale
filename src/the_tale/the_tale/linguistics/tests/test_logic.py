@@ -501,7 +501,9 @@ class LogicTests(testcase.TestCase):
         key = random.choice(keys.LEXICON_KEY.records)
         hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'), linguistics_restrictions=lambda: [])
         args = {'hero': hero_mock, 'level': 1}
-        self.assertEqual(logic.get_text(key.name, args=args), logic.fake_text(key.name, logic.prepair_get_text(key.name, args)[1]))
+
+        self.assertEqual(logic.get_text(key.name, args=args),
+                         logic.fake_text(key, logic.prepair_get_text(key.name, args)[1]))
 
 
     def test_get_word_restrictions(self):

@@ -47,7 +47,7 @@ class Container(object):
     def coherence_abilities(self):
         abilities = []
 
-        open_interval = c.COMPANIONS_MAX_COHERENCE / (len(self.common) + 1)
+        open_interval = c.COMPANIONS_MAX_COHERENCE // (len(self.common) + 1)
 
         for i, ability in enumerate(self.common):
             abilities.append((open_interval * (i+1), ability))

@@ -103,9 +103,6 @@ class TestIndexRequests(BaseTestRequests):
 
         self.check_html_ok(self.request_html(reverse('blogs:posts:')+'?page=2'), texts=texts)
 
-    def test_index_redirect_from_large_page(self):
-        self.assertRedirects(self.request_html(reverse('blogs:posts:')+'?page=2'),
-                             reverse('blogs:posts:')+'?order_by=created_at&page=1', status_code=302, target_status_code=200)
 
     def test_filter_by_user_no_posts_message(self):
         self.create_two_pages()

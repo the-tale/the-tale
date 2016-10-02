@@ -111,7 +111,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertTrue(all(requirement.check(quest) for requirement in quest.knowledge_base[quest.machine.pointer.state].require))
 
-        self.assertTrue(self.hero.quests.history[quest.knowledge_base.filter(facts.Start).next().type] > 0)
+        self.assertTrue(self.hero.quests.history[next(quest.knowledge_base.filter(facts.Start)).type] > 0)
 
         self.assertTrue(old_quests_done < self.hero.statistics.quests_done)
 
@@ -542,7 +542,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         # we don't modify power bonus like main power, becouse of possible experience_modifier < 1
         with self.check_delta(lambda: self.hero.experience, 21):
-            self.quest._finish_quest(mock.Mock(results=mock.Mock(iteritems=lambda: [])), self.hero)
+            self.quest._finish_quest(mock.Mock(results=mock.Mock(items=lambda: [])), self.hero)
 
     def test_finish_quest__add_companion_experience(self):
         from the_tale.game.companions import storage as companions_storage
@@ -556,7 +556,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         with self.check_increased(lambda: self.hero.companion.experience):
             with self.check_not_changed(lambda: self.hero.companion.coherence):
-                self.quest._finish_quest(mock.Mock(results=mock.Mock(iteritems=lambda: [])), self.hero)
+                self.quest._finish_quest(mock.Mock(results=mock.Mock(items=lambda: [])), self.hero)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True)
     def test_give_power__add_bonus_power(self):
@@ -764,7 +764,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_in(object=self.hero_fact, place=self.place_3_fact, result=False)
 
     def test_check_located_in__wrong_requirement(self):
-        place_uid = self.quest.knowledge_base.filter(facts.Place).next().uid
+        place_uid = next(self.quest.knowledge_base.filter(facts.Place)).uid
         requirement = requirements.LocatedIn(object=place_uid, place=place_uid)
         self.assertRaises(exceptions.UnknownRequirementError, self.quest.check_located_in, requirement)
 
@@ -807,7 +807,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_near(object=self.hero_fact, place=self.place_3_fact, result=False)
 
     def test_check_located_near__wrong_requirement(self):
-        place_uid = self.quest.knowledge_base.filter(facts.Place).next().uid
+        place_uid = next(self.quest.knowledge_base.filter(facts.Place)).uid
         requirement = requirements.LocatedNear(object=place_uid, place=place_uid)
         self.assertRaises(exceptions.UnknownRequirementError, self.quest.check_located_near, requirement)
 

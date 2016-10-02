@@ -131,8 +131,6 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.assertRaises(SupervisorException, self.worker.register_task, task_2)
 
-        self.assertTrue(self.worker.logger.calls_count > 0)
-
     def test_register_account_not_in_task(self):
         self.worker.process_initialize()
 

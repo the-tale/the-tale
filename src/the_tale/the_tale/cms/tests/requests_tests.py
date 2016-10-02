@@ -41,8 +41,8 @@ class TestCMSRequests(testcase.TestCase):
     def test_page_request(self):
         response = self.request_html(reverse('cms:test:page', args=['slug3']))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('caption3' in response.content)
-        self.assertTrue('content3' in response.content)
+        self.assertTrue('caption3' in response.content.decode('utf-8'))
+        self.assertTrue('content3' in response.content.decode('utf-8'))
 
     def test_unknown_page_request(self):
         response = self.request_html(reverse('cms:test:page', args=['wrong_slug3']))
@@ -57,8 +57,8 @@ class TestCMSRequests(testcase.TestCase):
         Page.objects.create(section='test', slug='', caption='caption4', content='content4', order=4, active=True, author=self.staff_account._model)
         response = self.request_html(reverse('cms:test:'))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue('caption4' in response.content)
-        self.assertTrue('content4' in response.content)
+        self.assertTrue('caption4' in response.content.decode('utf-8'))
+        self.assertTrue('content4' in response.content.decode('utf-8'))
 
     def test_disabled_page(self):
         response = self.request_html(reverse('cms:test:page', args=['slug1']))

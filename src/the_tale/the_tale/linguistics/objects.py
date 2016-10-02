@@ -26,7 +26,8 @@ class Restriction(names.ManageNameMixin):
     def storage_key(self): return (self.group.value, self.external_id)
 
     def __eq__(self, other):
-        return (self.id == other.id and
+        return (self.__class__ == other.__class__ and
+                self.id == other.id and
                 self.group == other.group and
                 self.external_id == other.external_id and
                 self.name == other.name)

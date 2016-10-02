@@ -209,7 +209,7 @@ class LogicStorageTests(testcase.TestCase):
 
         self.storage.process_cache_queue(update_cache=True)
 
-        self.assertItemsEqual(list(self.storage.current_cache.keys()), (self.hero_1.cached_ui_info_key, self.hero_2.cached_ui_info_key))
+        self.assertCountEqual(list(self.storage.current_cache.keys()), (self.hero_1.cached_ui_info_key, self.hero_2.cached_ui_info_key))
         self.assertEqual(self.storage.cache_queue, set())
 
     def test_process_cache_queue__without_update(self):
@@ -220,7 +220,7 @@ class LogicStorageTests(testcase.TestCase):
 
         self.storage.process_cache_queue(update_cache=False)
 
-        self.assertItemsEqual(list(self.storage.current_cache.keys()), ())
+        self.assertCountEqual(list(self.storage.current_cache.keys()), ())
         self.assertEqual(self.storage.cache_queue, set())
 
     def test_process_cache_queue__update_cache__with_update(self):

@@ -698,7 +698,7 @@ class HeroLevelUpTests(testcase.TestCase):
 
             self.hero.add_experience(f.exp_on_lvl(1) / self.hero.experience_modifier)
             self.assertEqual(self.hero.level, 2)
-            self.assertEqual(self.hero.experience, f.exp_on_lvl(1)/2)
+            self.assertEqual(self.hero.experience, f.exp_on_lvl(1)//2)
 
             self.hero.add_experience(f.exp_on_lvl(2) / self.hero.experience_modifier)
             self.assertEqual(self.hero.level, 3)
@@ -890,12 +890,12 @@ class HeroLevelUpTests(testcase.TestCase):
             self.assertEqual(len([a for a in abilities if a.activation_type.is_ACTIVE]), 0)
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
-    def test_get_abilities_for_choose_all_slots_busy(self):
-        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(ABILITIES.values())] if a.activation_type.is_PASSIVE]
+    def test_get_abilities_for_choose_all_slots_busy__battle(self):
+        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in ABILITIES.values()] if a.activation_type.is_PASSIVE and a.type.is_BATTLE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(ABILITIES.values())] if a.activation_type.is_ACTIVE]
+        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in ABILITIES.values()] if a.activation_type.is_ACTIVE and a.type.is_BATTLE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -904,12 +904,12 @@ class HeroLevelUpTests(testcase.TestCase):
             self.assertEqual(len(abilities), 0)
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
-    def test_get_abilities_for_choose_all_slots_busy_but_one_not_max_level(self):
-        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(battle.ABILITIES.values())] if a.activation_type.is_PASSIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value]
+    def test_get_abilities_for_choose_all_slots_busy_but_one_not_max_level__battle(self):
+        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(battle.ABILITIES.values())] if a.activation_type.is_PASSIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value and a.type.is_BATTLE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(battle.ABILITIES.values())] if a.activation_type.is_ACTIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value]
+        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(battle.ABILITIES.values())] if a.activation_type.is_ACTIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value and a.type.is_BATTLE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -921,12 +921,12 @@ class HeroLevelUpTests(testcase.TestCase):
             self.assertEqual(abilities, [ability.__class__(level=ability.level+1)])
 
     @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
-    def test_get_abilities_for_choose_all_slots_busy_and_all_not_max_level(self):
-        passive_abilities = [a for a in [a(level=1) for a in list(ABILITIES.values())] if a.activation_type.is_PASSIVE]
+    def test_get_abilities_for_choose_all_slots_busy_and_all_not_max_level__battle(self):
+        passive_abilities = [a for a in [a(level=1) for a in list(ABILITIES.values())] if a.activation_type.is_PASSIVE and a.type.is_BATTLE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = [a for a in [a(level=1) for a in list(ABILITIES.values())] if a.activation_type.is_ACTIVE]
+        active_abilities = [a for a in [a(level=1) for a in list(ABILITIES.values())] if a.activation_type.is_ACTIVE and a.type.is_BATTLE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -1150,7 +1150,7 @@ class HeroUiInfoTest(testcase.TestCase):
         GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
-            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+            with mock.patch('the_tale.game.heroes.objects.Hero.ui_info', mock.Mock(return_value=get_simple_cache_data())) as ui_info:
                 objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))

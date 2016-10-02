@@ -131,7 +131,7 @@ class AbilitiesPrototype(object):
         max_active_abilities, max_passive_abilities = self.ability_types_limitations[ability_type]
 
         # filter by type (battle, nonbattle, etc...)
-        ability_classes = [a for a in list(ABILITIES.values()) if a.TYPE==ability_type] # pylint: disable=W0110
+        ability_classes = [a for a in ABILITIES.values() if a.TYPE==ability_type] # pylint: disable=W0110
         choosen_abilities = [a for a in self.abilities.values() if a.TYPE==ability_type] # pylint: disable=W0110
 
         # filter by availability for players

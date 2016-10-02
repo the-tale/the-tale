@@ -24,7 +24,7 @@ class ApiTest(testcase.TestCase):
         self.resource = TestResource(self.fake_request())
 
     def check_api_error(self, error_code, **kwargs):
-        data = s11n.from_json(self.resource.test_view(**kwargs).content)
+        data = s11n.from_json(self.resource.test_view(**kwargs).content.decode('utf-8'))
         self.assertEqual(data['status'], 'error')
         self.assertEqual(data['code'], error_code)
 
@@ -38,7 +38,7 @@ class ApiTest(testcase.TestCase):
         self.assertFalse(api.check_client_version('program-v-0-1'))
 
     def test_handler(self):
-        self.assertEqual(s11n.from_json(self.resource.test_view(arg_1=6, api_version='1.1', api_client='client-v0.1').content),
+        self.assertEqual(s11n.from_json(self.resource.test_view(arg_1=6, api_version='1.1', api_client='client-v0.1').content.decode('utf-8')),
                          {'status': 'ok', 'data': {'arg_1': 6} })
 
     def test_handler__no_api_version(self):
@@ -48,7 +48,7 @@ class ApiTest(testcase.TestCase):
         self.check_api_error('api.wrong_method_version', arg_1=6, api_version='1.2', api_client='client-v0.1')
 
     def test_handler__depricated_api_version(self):
-        self.assertEqual(s11n.from_json(self.resource.test_view(arg_1=6, api_version='1.0', api_client='client-v0.1').content),
+        self.assertEqual(s11n.from_json(self.resource.test_view(arg_1=6, api_version='1.0', api_client='client-v0.1').content.decode('utf-8')),
                          {'status': 'ok', 'data': {'arg_1': 6}, 'depricated': True })
 
     def test_handler__no_client_version(self):

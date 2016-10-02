@@ -103,10 +103,10 @@ class RecordTests(TestCase):
         actors_ids = []
         for role, actor in _get_bill_decline_bill_arguments(bill)['actors']:
             actors_ids.append((role, actor.id))
-        self.assertEqual(sorted(actors_ids), sorted([(ACTOR_ROLE.BILL, bill.id),
-                                                     (ACTOR_ROLE.BILL, declined_bill.id),
-                                                     (ACTOR_ROLE.PLACE, self.place_1.id),
-                                                     (ACTOR_ROLE.PLACE, self.place_2.id)]))
+        self.assertEqual(set(actors_ids), set([(ACTOR_ROLE.BILL, bill.id),
+                                               (ACTOR_ROLE.BILL, declined_bill.id),
+                                               (ACTOR_ROLE.PLACE, self.place_1.id),
+                                               (ACTOR_ROLE.PLACE, self.place_2.id)]))
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
@@ -131,9 +131,9 @@ class RecordTests(TestCase):
         actors_ids = []
         for role, actor in _get_bill_decline_bill_arguments(bill)['actors']:
             actors_ids.append((role, actor.id))
-        self.assertEqual(sorted(actors_ids), sorted([(ACTOR_ROLE.BILL, bill.id),
-                                                     (ACTOR_ROLE.BILL, declined_bill.id),
-                                                     (ACTOR_ROLE.PLACE, self.place_1.id)]))
+        self.assertEqual(set(actors_ids), set([(ACTOR_ROLE.BILL, bill.id),
+                                               (ACTOR_ROLE.BILL, declined_bill.id),
+                                               (ACTOR_ROLE.PLACE, self.place_1.id)]))
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
@@ -176,7 +176,7 @@ def create_test_create_method(record_class):
         record.create_record()
         self.assertEqual(old_records_number + 1, Record.objects.all().count())
 
-        for actor in zip(*actors)[1]:
+        for actor in list(zip(*actors))[1]:
             self.assertTrue(Actor.objects.filter(uid=create_external_actor(actor).uid).exists())
 
     return test_create_method

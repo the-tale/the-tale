@@ -126,7 +126,7 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.assertEqual(hero_info.interfered_persons, [interfered_person.id])
         self.assertEqual(hero_info.is_first_quest_path_required, is_first_quest_path_required)
         self.assertEqual(hero_info.is_short_quest_path_required, is_short_quest_path_required)
-        self.assertItemsEqual(hero_info.excluded_quests, list(self.hero.quests.history.keys()))
+        self.assertCountEqual(hero_info.excluded_quests, list(self.hero.quests.history.keys()))
         self.assertEqual(hero_info.prefered_quest_markers, prefered_quest_markers)
         self.assertEqual(hero_info.quests_priorities, self.hero.get_quests_priorities())
 
@@ -146,7 +146,7 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.assertEqual(hero_info.interfered_persons, [])
         self.assertEqual(hero_info.is_first_quest_path_required, self.hero.is_first_quest_path_required)
         self.assertEqual(hero_info.is_short_quest_path_required, self.hero.is_short_quest_path_required)
-        self.assertItemsEqual(hero_info.excluded_quests, list(self.hero.quests.history.keys()))
+        self.assertCountEqual(hero_info.excluded_quests, list(self.hero.quests.history.keys()))
         self.assertEqual(hero_info.prefered_quest_markers, set())
         self.assertEqual(hero_info.quests_priorities, self.hero.get_quests_priorities())
 

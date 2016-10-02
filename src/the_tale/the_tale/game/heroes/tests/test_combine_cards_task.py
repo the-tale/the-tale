@@ -74,10 +74,10 @@ class CombineCardsTaskTest(TestCase):
         self.assertTrue(self.hero.cards.has_cards)
         self.assertEqual(self.hero.cards.cards_count(), 1)
 
-        self.assertTrue(self.hero.cards.all_cards().next().type.rarity.is_COMMON)
+        self.assertTrue(next(iter(self.hero.cards.all_cards())).type.rarity.is_COMMON)
 
-        self.assertTrue(self.hero.cards.all_cards().next().type.text.lower() in task.processed_data['message'].lower())
-        self.assertTrue(self.hero.cards.all_cards().next().effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
+        self.assertTrue(next(iter(self.hero.cards.all_cards())).type.text.lower() in task.processed_data['message'].lower())
+        self.assertTrue(next(iter(self.hero.cards.all_cards())).effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
 
         self.assertTrue(task.state.is_PROCESSED)
 
@@ -97,10 +97,10 @@ class CombineCardsTaskTest(TestCase):
 
         self.assertTrue(self.hero.cards.has_cards)
 
-        self.assertTrue(self.hero.cards.all_cards().next().type.rarity.is_UNCOMMON)
+        self.assertTrue(next(iter(self.hero.cards.all_cards())).type.rarity.is_UNCOMMON)
 
-        self.assertTrue(self.hero.cards.all_cards().next().name.lower() in task.processed_data['message'].lower())
-        self.assertTrue(self.hero.cards.all_cards().next().effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
+        self.assertTrue(next(iter(self.hero.cards.all_cards())).name.lower() in task.processed_data['message'].lower())
+        self.assertTrue(next(iter(self.hero.cards.all_cards())).effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
 
         self.assertTrue(task.state.is_PROCESSED)
 

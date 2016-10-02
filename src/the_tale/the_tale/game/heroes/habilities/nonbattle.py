@@ -31,7 +31,7 @@ class CHARISMA(AbilityPrototype):
         # MAX_MONEY_ABILITIES_BONUS заменяем на 1 + self.MONEY_BONUS[self.level-1]
         TOTAL_BONUS = ((MAX_MONEY_ABILITIES_BONUS - c.INCOME_LOOT_FRACTION) / c.INCOME_ARTIFACTS_FRACTION - ARTIFACTS_FRACTION) / QUESTS_FRACTION
 
-        return (self.level-1) * (TOTAL_BONUS - 1) / 5.0
+        return self.level * (TOTAL_BONUS - 1) / 5.0
 
     def modify_attribute(self, type_, value): return value + self.money_bonus if type_.is_QUEST_MONEY_REWARD else value
 
@@ -58,7 +58,7 @@ class HUCKSTER(AbilityPrototype):
         # TOTAL_BONUS = (MAX_MONEY_ABILITIES_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION
         # MAX_MONEY_ABILITIES_BONUS пересчиываем с учётом скидки на покупку -> (1+BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
         MAX_BONUS = (1+self.BUY_BONUS[-1]) * MAX_MONEY_ABILITIES_BONUS
-        return ((MAX_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION - 1) / 5.0 * (level-1)
+        return ((MAX_BONUS - c.INCOME_ARTIFACTS_FRACTION) / c.INCOME_LOOT_FRACTION - 1) / 5.0 * level
 
 
     @property
@@ -211,7 +211,7 @@ class DIPLOMATIC(AbilityPrototype):
 
     @property
     def power_multiplier(self):
-        return self.MAXIMUM_MULTIPLIER * (self.level-1) / 5
+        return self.MAXIMUM_MULTIPLIER * self.level / 5
 
     def modify_attribute(self, type_, value): return value + self.power_multiplier if type_.is_POWER else value
 

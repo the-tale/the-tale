@@ -325,7 +325,7 @@ class FullTests(BaseRequestsTests):
 
         self.check_ajax_ok(response)
 
-        token_url = s11n.from_json(response.content)['data']['authorisation_page']
+        token_url = s11n.from_json(response.content.decode('utf-8'))['data']['authorisation_page']
 
         token = prototypes.AccessTokenPrototype._db_latest()
 
@@ -374,7 +374,7 @@ class FullTests(BaseRequestsTests):
 
         self.check_ajax_ok(response)
 
-        token_url = s11n.from_json(response.content)['data']['authorisation_page']
+        token_url = s11n.from_json(response.content.decode('utf-8'))['data']['authorisation_page']
 
         token = prototypes.AccessTokenPrototype._db_latest()
 
@@ -413,7 +413,7 @@ class FullTests(BaseRequestsTests):
 
         self.check_ajax_ok(response)
 
-        token_url = s11n.from_json(response.content)['data']['authorisation_page']
+        token_url = s11n.from_json(response.content.decode('utf-8'))['data']['authorisation_page']
 
         token = prototypes.AccessTokenPrototype._db_latest()
 

@@ -51,7 +51,7 @@ class GetCardTaskTest(TestCase):
 
         self.assertTrue(self.hero.cards.has_cards)
 
-        self.assertTrue(self.hero.cards.all_cards().next().name.lower() in task.processed_data['message'].lower())
-        self.assertTrue(self.hero.cards.all_cards().next().effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
+        self.assertTrue(next(iter(self.hero.cards.all_cards())).name.lower() in task.processed_data['message'].lower())
+        self.assertTrue(next(iter(self.hero.cards.all_cards())).effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
 
         self.assertTrue(task.state.is_PROCESSED)

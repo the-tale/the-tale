@@ -1,4 +1,5 @@
 # coding: utf-8
+import time
 import mock
 
 from the_tale.common.utils import testcase
@@ -297,4 +298,4 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
             self.hero.set_companion(companion)
 
         with self.check_increased(self.hero.politics_power_multiplier):
-            self.hero.abilities.add(nonbattle_abilities.DIPLOMATIC.get_id(), level=len(nonbattle_abilities.DIPLOMATIC.POWER_MULTIPLIER))
+            self.hero.abilities.add(nonbattle_abilities.DIPLOMATIC.get_id(), level=5)

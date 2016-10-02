@@ -4,7 +4,7 @@
   {% set structure = drawer.get_structure(drawer.type) %}
 
   {% if drawer.show_properties %}
-    {% for property in drawer.type.properties|sort %}
+    {% for property in drawer.type.properties %}
       {{drawer.get_property(property)}}
     {% endfor %}
   {% endif %}

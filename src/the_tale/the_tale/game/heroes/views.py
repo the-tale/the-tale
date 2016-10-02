@@ -58,7 +58,7 @@ class CurrentHeroProcessor(dext_views.BaseViewProcessor):
 
 
 def split_list(items):
-    half = (len(items)+1)/2
+    half = (len(items)+1)//2
     left = items[:half]
     right = items[half:]
     if len(left) > len(right):
