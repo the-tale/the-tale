@@ -1,6 +1,5 @@
 # coding: utf-8
 import mock
-import contextlib
 
 from dext.settings import settings
 
@@ -226,12 +225,12 @@ class HighlevelTest(testcase.TestCase):
         refresh_attributes = mock.Mock()
         mark_as_updated = mock.Mock()
 
-        with contextlib.nested(mock.patch('the_tale.game.places.attributes.Attributes.set_power_economic', set_power_economic),
-                               mock.patch('the_tale.game.places.attributes.Attributes.sync_size', sync_size),
-                               mock.patch('the_tale.game.places.objects.Place.effects', mock.Mock(update_step=update_step, effects=[], serialize=lambda: {})),
-                               mock.patch('the_tale.game.places.objects.Place.sync_habits', sync_habits),
-                               mock.patch('the_tale.game.places.objects.Place.refresh_attributes', refresh_attributes),
-                               mock.patch('the_tale.game.places.objects.Place.mark_as_updated', mark_as_updated)):
+        with mock.patch('the_tale.game.places.attributes.Attributes.set_power_economic', set_power_economic), \
+             mock.patch('the_tale.game.places.attributes.Attributes.sync_size', sync_size), \
+             mock.patch('the_tale.game.places.objects.Place.effects', mock.Mock(update_step=update_step, effects=[], serialize=lambda: {})), \
+             mock.patch('the_tale.game.places.objects.Place.sync_habits', sync_habits), \
+             mock.patch('the_tale.game.places.objects.Place.refresh_attributes', refresh_attributes), \
+             mock.patch('the_tale.game.places.objects.Place.mark_as_updated', mark_as_updated):
             self.worker.sync_data()
 
         places_number = len(places_storage.places.all())

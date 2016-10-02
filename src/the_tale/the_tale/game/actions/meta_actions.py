@@ -27,7 +27,7 @@ from . import relations
 
 
 class MetaAction(object):
-    __slots__ = ('percents', 'state', 'last_processed_turn', 'storage', 'updated', 'uid')
+    __slots__ = ('percents', 'state', 'last_processed_turn', 'storage', 'updated')
 
     TYPE = None
     TEXTGEN_TYPE = None
@@ -36,21 +36,19 @@ class MetaAction(object):
         UNINITIALIZED = relations.UNINITIALIZED_STATE
         PROCESSED = 'processed'
 
-    def __init__(self, last_processed_turn=-1, percents=0, state=STATE.UNINITIALIZED, uid=NotImplemented):
+    def __init__(self, last_processed_turn=-1, percents=0, state=STATE.UNINITIALIZED):
         self.storage = None
         self.last_processed_turn = last_processed_turn
         self.updated = False
 
         self.percents = percents
         self.state = state
-        self.uid = uid
 
     def serialize(self):
         return {'type': self.TYPE.value,
                 'last_processed_turn': self.last_processed_turn,
                 'state': self.state,
-                'percents': self.percents,
-                'uid': self.uid}
+                'percents': self.percents}
 
     @classmethod
     def deserialize(cls, data):
@@ -58,7 +56,6 @@ class MetaAction(object):
         obj.last_processed_turn = data['last_processed_turn']
         obj.state = data['state']
         obj.percents = data['percents']
-        obj.uid = data['uid']
 
         return obj
 
@@ -100,7 +97,9 @@ class ArenaPvP1x1(MetaAction):
         self.hero_1_id = hero_1_id
         self.hero_2_id = hero_2_id
 
-        self.uid = '%s#%s#%s' % (self.TYPE.value, min(hero_1_id, hero_2_id), max(hero_1_id, hero_2_id))
+    @property
+    def uid(self):
+        return '%s#%s#%s' % (self.TYPE.value, min(self.hero_1_id, self.hero_2_id), max(self.hero_1_id, self.hero_2_id))
 
     def serialize(self):
         data = super(ArenaPvP1x1, self).serialize()

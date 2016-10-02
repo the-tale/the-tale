@@ -79,7 +79,7 @@ class IdlenessActionTest(testcase.TestCase):
 
     def test_regenerate_energy_action_create(self):
         self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
-        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
+        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.action_idl.percents = 0.0
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
@@ -89,7 +89,7 @@ class IdlenessActionTest(testcase.TestCase):
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
         self.action_idl.percents = 0
         self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
+        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)

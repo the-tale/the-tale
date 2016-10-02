@@ -1,5 +1,4 @@
 # coding: utf-8
-import contextlib
 import random
 
 import mock
@@ -111,10 +110,9 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.hero.quests.update_history(quest_type='spying', turn_number=0)
         self.hero.quests.update_history(quest_type='hunt', turn_number=0)
 
-        with contextlib.nested(
-                mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', is_first_quest_path_required),
-                mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', is_short_quest_path_required),
-                mock.patch('the_tale.game.heroes.objects.Hero.prefered_quest_markers', lambda hero: prefered_quest_markers) ):
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', is_first_quest_path_required), \
+             mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', is_short_quest_path_required), \
+             mock.patch('the_tale.game.heroes.objects.Hero.prefered_quest_markers', lambda hero: prefered_quest_markers):
             hero_info = logic.create_hero_info(self.hero)
 
         self.assertEqual(hero_info.id, self.hero.id)

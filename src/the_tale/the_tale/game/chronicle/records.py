@@ -17,8 +17,8 @@ class RecordBase(object):
 
         self.actors = [ (role, create_external_actor(actor)) for role, actor in actors ]
 
-        if not self.IGNORE_ACTORS_CHECK and sorted(zip(*self.actors)[0]) != sorted(self.ACTORS):
-            raise ChronicleException('wrong actors for chronicle record %r versus %r' % (zip(*self.actors)[0], self.ACTORS))
+        if not self.IGNORE_ACTORS_CHECK and set(next(zip(*self.actors))) != set(self.ACTORS):
+            raise ChronicleException('wrong actors for chronicle record %r versus %r' % (next(zip(*self.actors)), self.ACTORS))
 
         self.created_at_turn = TimePrototype.get_current_turn_number()
 

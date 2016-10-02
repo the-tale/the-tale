@@ -260,7 +260,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
     def test_regenerate_energy_on_move(self):
         self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
-        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
+        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -274,7 +274,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
     def test_not_regenerate_energy_on_move_for_sacrifice(self):
         self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
+        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
         self.storage.process_turn(continue_steps_if_needed=False)
@@ -289,7 +289,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
     def test_regenerate_energy_after_battle_for_sacrifice(self):
         self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
+        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.action_move.state = self.action_move.STATE.BATTLE
 
         self.storage.process_turn(continue_steps_if_needed=False)

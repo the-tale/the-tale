@@ -80,7 +80,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_energy, 0)
         self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_energy_speed, 1)
-        self.assertTrue(self.meta_action_battle.hero_1_context.pvp_advantage_strike_damage > 0)
+        self.assertTrue(self.meta_action_battle.hero_1_context.pvp_advantage_strike_damage.total > 0)
 
         self.assertEqual(self.meta_action_battle.hero_2.health, self.hero_2.max_health)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.advantage, 0)
@@ -91,7 +91,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_energy, 0)
         self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_energy_speed, 1)
-        self.assertTrue(self.meta_action_battle.hero_2_context.pvp_advantage_strike_damage > 0)
+        self.assertTrue(self.meta_action_battle.hero_2_context.pvp_advantage_strike_damage.total > 0)
 
     def test_one_hero_killed(self):
         current_time = TimePrototype.get_current_time()
@@ -221,7 +221,7 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         self.assertTrue(0 < properties['ability_chance'] <= 1)
         self.assertEqual(set(properties['priorities']), set(ABILITIES.keys()))
 
-        for ability_priority in properties['priorities']:
+        for ability_priority in properties['priorities'].values():
             self.assertTrue(ability_priority > 0)
 
     def test_process_bot_called__hero_1(self):

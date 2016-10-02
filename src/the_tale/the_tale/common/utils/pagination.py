@@ -16,7 +16,7 @@ class Paginator(object):
 
     @classmethod
     def get_page_numbers(cls, records_number, records_on_page):
-        return (records_number - 1) / records_on_page + 1
+        return (records_number - 1) // records_on_page + 1
 
     @classmethod
     def _make_paginator_structure(cls, current_page, number):

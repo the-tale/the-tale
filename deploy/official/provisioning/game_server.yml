@@ -108,3 +108,10 @@
         - {name: "/mnt/repos/utg/"}
         - {name: "/mnt/repos/questgen/"}
         - {name: "/mnt/repos/the-tale/src/the_tale/"}
+    - pip:
+        name: "{{item.name}}"
+        virtualenv: /home/the-tale/current/venv
+        virtualenv_command: virtualenv
+        virtualenv_python: python3.5
+      with_items:
+        - {name: django-test-without-migrations}

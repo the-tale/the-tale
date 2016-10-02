@@ -43,7 +43,7 @@ class AuthRequestsTests(TestCase):
                                     {'email': self.account.email, 'password': '111111'})
         self.check_ajax_ok(response)
 
-        data = s11n.from_json(response.content)
+        data = s11n.from_json(response.content.decode('utf-8'))
 
         self.assertEqual(data['data']['next_url'], '/bla-bla')
         self.assertEqual(data['data']['account_id'], self.account.id)

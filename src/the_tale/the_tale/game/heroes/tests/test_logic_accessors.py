@@ -1,7 +1,4 @@
 # coding: utf-8
-import time
-import contextlib
-
 import mock
 
 from the_tale.common.utils import testcase
@@ -53,13 +50,12 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         else:
             turn_number = 6 * heroes_settings.INACTIVE_HERO_DELAY + self.hero.id + 1
 
-        with contextlib.nested(
-                mock.patch('the_tale.game.heroes.objects.Hero.is_banned', banned),
-                mock.patch('the_tale.game.heroes.objects.Hero.is_bot', bot),
-                mock.patch('the_tale.game.heroes.objects.Hero.is_active', active),
-                mock.patch('the_tale.game.heroes.objects.Hero.is_premium', premium),
-                mock.patch('the_tale.game.actions.container.ActionsContainer.is_single', single),
-                mock.patch('the_tale.game.actions.container.ActionsContainer.number', 1 if idle else 2)):
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', banned), \
+             mock.patch('the_tale.game.heroes.objects.Hero.is_bot', bot), \
+             mock.patch('the_tale.game.heroes.objects.Hero.is_active', active), \
+             mock.patch('the_tale.game.heroes.objects.Hero.is_premium', premium), \
+             mock.patch('the_tale.game.actions.container.ActionsContainer.is_single', single), \
+             mock.patch('the_tale.game.actions.container.ActionsContainer.number', 1 if idle else 2):
             self.assertEqual(self.hero.can_process_turn(turn_number), expected_result)
 
 

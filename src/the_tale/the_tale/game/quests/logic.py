@@ -430,7 +430,7 @@ def create_hero_info(hero):
                          preferences_equipment_slot=hero.preferences.equipment_slot,
                          interfered_persons=hero.quests.get_interfered_persons(),
                          quests_priorities=quests_priorities,
-                         excluded_quests=hero.quests.excluded_quests(len(quests_priorities) / 2),
+                         excluded_quests=hero.quests.excluded_quests(len(quests_priorities) // 2),
                          prefered_quest_markers=hero.prefered_quest_markers())
 
 def request_quest_for_hero(hero):

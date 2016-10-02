@@ -40,7 +40,7 @@ class ActionsContainerTests(testcase.TestCase):
         self.assertEqual(container.actions_list, [])
         self.assertFalse(container.is_single)
 
-    @mock.patch('the_tale.game.actions.prototypes.ACTION_TYPES', dict(ACTION_TYPES, **{TestAction.TYPE: TestAction}))
+    @mock.patch('the_tale.game.actions.prototypes.ACTION_TYPES', {**ACTION_TYPES, **{TestAction.TYPE: TestAction}})
     def test_serialization(self):
         self.assertEqual(self.container.serialize(), ActionsContainer.deserialize(data=self.container.serialize()).serialize())
 
@@ -101,5 +101,5 @@ class ActionsContainerTests(testcase.TestCase):
         self.assertTrue(self.container.is_single)
 
         with mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.SINGLE', False):
-            with mock.patch('the_tale.game.actions.prototypes.ACTION_TYPES', dict(ACTION_TYPES, **{TestAction.TYPE: TestAction})):
+            with mock.patch('the_tale.game.actions.prototypes.ACTION_TYPES', {**ACTION_TYPES, **{TestAction.TYPE: TestAction}}):
                 self.assertFalse(ActionsContainer.deserialize(self.container.serialize()).is_single)

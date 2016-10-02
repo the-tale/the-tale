@@ -1,6 +1,5 @@
 # coding: utf-8
 import random
-import contextlib
 
 import mock
 
@@ -435,10 +434,9 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        with contextlib.nested(
-            self.check_increased(lambda: self.hero.money),
-            self.check_increased(lambda: self.hero.statistics.money_earned_from_companions),
-            self.check_delta(self.hero.diary.__len__, 2)):
+        with self.check_increased(lambda: self.hero.money), \
+             self.check_increased(lambda: self.hero.statistics.money_earned_from_companions), \
+             self.check_delta(self.hero.diary.__len__, 2):
 
             while self.hero.companion:
                 self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))

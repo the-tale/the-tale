@@ -1,6 +1,4 @@
 # coding: utf-8
-import contextlib
-
 import mock
 
 from the_tale.common.utils import testcase
@@ -302,7 +300,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_regenerate_energy_action_create(self):
         self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
-        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
+        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 3)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
@@ -310,7 +308,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
         self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
-        self.hero.last_energy_regeneration_at_turn -= max(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))[0])
+        self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
@@ -835,8 +833,8 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
 
         current_time = TimePrototype.get_current_time()
 
-        with contextlib.nested( self.check_decreased(lambda: self.hero.money),
-                                self.check_increased(lambda: self.hero.statistics.money_spend_for_companions)):
+        with self.check_decreased(lambda: self.hero.money), \
+             self.check_increased(lambda: self.hero.statistics.money_spend_for_companions):
             while self.hero.actions.current_action.TYPE != prototypes.ActionInPlacePrototype.TYPE:
                 current_time.increment_turn()
                 self.storage.process_turn(continue_steps_if_needed=False)
@@ -845,14 +843,13 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat', lambda hero: True)
     def test_buy_meal(self):
         self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number() - c.TURNS_IN_HOUR * 12
-        with contextlib.nested( self.check_decreased(lambda: self.hero.money),
-                                self.check_increased(lambda: self.hero.statistics.money_spend_for_companions) ):
+        with self.check_decreased(lambda: self.hero.money), \
+             self.check_increased(lambda: self.hero.statistics.money_spend_for_companions):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
     def check_not_used(self):
-        with contextlib.nested(
-                self.check_not_changed(lambda: self.hero.money),
-                self.check_not_changed(lambda: self.hero.statistics.money_spend_for_companions)):
+        with self.check_not_changed(lambda: self.hero.money), \
+             self.check_not_changed(lambda: self.hero.statistics.money_spend_for_companions):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 0.5)
@@ -866,8 +863,8 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     def test_not_enough_money(self):
         self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number() - 1000
 
-        with contextlib.nested( self.check_delta(lambda: self.hero.money, -self.hero.money),
-                                self.check_delta(lambda: self.hero.statistics.money_spend_for_companions, self.hero.money )):
+        with self.check_delta(lambda: self.hero.money, -self.hero.money), \
+             self.check_delta(lambda: self.hero.statistics.money_spend_for_companions, self.hero.money ):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 66666666)
@@ -1021,14 +1018,12 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
     def test_no_companion(self):
         self.hero.remove_companion()
 
-        with contextlib.nested(
-                self.check_not_changed(lambda: self.hero.bag.occupation),
-                self.check_not_changed(lambda: self.hero.money),
-                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
-                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
-                self.check_not_changed(lambda: self.hero.statistics.loot_had),
-                self.check_not_changed(lambda: len(self.hero.journal))
-                ):
+        with self.check_not_changed(lambda: self.hero.bag.occupation), \
+             self.check_not_changed(lambda: self.hero.money), \
+             self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions), \
+             self.check_not_changed(lambda: self.hero.statistics.artifacts_had), \
+             self.check_not_changed(lambda: self.hero.statistics.loot_had), \
+             self.check_not_changed(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_money', lambda self: True)
@@ -1036,27 +1031,23 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
     def test_place_not_changed(self):
         self.hero.position.update_previous_place()
 
-        with contextlib.nested(
-                self.check_not_changed(lambda: self.hero.bag.occupation),
-                self.check_not_changed(lambda: self.hero.money),
-                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
-                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
-                self.check_not_changed(lambda: self.hero.statistics.loot_had),
-                self.check_not_changed(lambda: len(self.hero.journal))
-                ):
+        with self.check_not_changed(lambda: self.hero.bag.occupation), \
+             self.check_not_changed(lambda: self.hero.money), \
+             self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions), \
+             self.check_not_changed(lambda: self.hero.statistics.artifacts_had), \
+             self.check_not_changed(lambda: self.hero.statistics.loot_had), \
+             self.check_not_changed(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_money', lambda self: True)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: False)
     def test_steal_money(self):
-        with contextlib.nested(
-                self.check_not_changed(lambda: self.hero.bag.occupation),
-                self.check_increased(lambda: self.hero.money),
-                self.check_increased(lambda: self.hero.statistics.money_earned_from_companions),
-                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
-                self.check_not_changed(lambda: self.hero.statistics.loot_had),
-                self.check_increased(lambda: len(self.hero.journal))
-                ):
+        with self.check_not_changed(lambda: self.hero.bag.occupation), \
+             self.check_increased(lambda: self.hero.money), \
+             self.check_increased(lambda: self.hero.statistics.money_earned_from_companions), \
+             self.check_not_changed(lambda: self.hero.statistics.artifacts_had), \
+             self.check_not_changed(lambda: self.hero.statistics.loot_had), \
+             self.check_increased(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
 
 
@@ -1064,14 +1055,12 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
     @mock.patch('the_tale.game.heroes.objects.Hero.artifacts_probability', lambda self, mob: 0)
     def test_steal_item__loot(self):
-        with contextlib.nested(
-                self.check_increased(lambda: self.hero.bag.occupation),
-                self.check_not_changed(lambda: self.hero.money),
-                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
-                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
-                self.check_delta(lambda: self.hero.statistics.loot_had, 1),
-                self.check_increased(lambda: len(self.hero.journal))
-                ):
+        with self.check_increased(lambda: self.hero.bag.occupation), \
+             self.check_not_changed(lambda: self.hero.money), \
+             self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions), \
+             self.check_not_changed(lambda: self.hero.statistics.artifacts_had), \
+             self.check_delta(lambda: self.hero.statistics.loot_had, 1), \
+             self.check_increased(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
 
 
@@ -1079,14 +1068,12 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
     @mock.patch('the_tale.game.heroes.objects.Hero.artifacts_probability', lambda self, mob: 1)
     def test_steal_item__artifact(self):
-        with contextlib.nested(
-                self.check_increased(lambda: self.hero.bag.occupation),
-                self.check_not_changed(lambda: self.hero.money),
-                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
-                self.check_delta(lambda: self.hero.statistics.artifacts_had, 1),
-                self.check_not_changed(lambda: self.hero.statistics.loot_had),
-                self.check_increased(lambda: len(self.hero.journal))
-                ):
+        with self.check_increased(lambda: self.hero.bag.occupation), \
+             self.check_not_changed(lambda: self.hero.money), \
+             self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions), \
+             self.check_delta(lambda: self.hero.statistics.artifacts_had, 1), \
+             self.check_not_changed(lambda: self.hero.statistics.loot_had), \
+             self.check_increased(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
 
 
@@ -1095,25 +1082,21 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
     @mock.patch('the_tale.game.heroes.objects.Hero.bag_is_full', True)
     def test_steal_item__bag_is_full(self):
-        with contextlib.nested(
-                self.check_not_changed(lambda: self.hero.bag.occupation),
-                self.check_not_changed(lambda: self.hero.money),
-                self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions),
-                self.check_not_changed(lambda: self.hero.statistics.artifacts_had),
-                self.check_not_changed(lambda: self.hero.statistics.loot_had),
-                self.check_not_changed(lambda: len(self.hero.journal))
-                ):
+        with self.check_not_changed(lambda: self.hero.bag.occupation), \
+             self.check_not_changed(lambda: self.hero.money), \
+             self.check_not_changed(lambda: self.hero.statistics.money_earned_from_companions), \
+             self.check_not_changed(lambda: self.hero.statistics.artifacts_had), \
+             self.check_not_changed(lambda: self.hero.statistics.loot_had), \
+             self.check_not_changed(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
 
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_money', lambda self: True)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
     def test_steal_all(self):
-        with contextlib.nested(
-                self.check_increased(lambda: self.hero.bag.occupation),
-                self.check_increased(lambda: self.hero.money),
-                self.check_increased(lambda: self.hero.statistics.money_earned_from_companions),
-                self.check_delta(lambda: self.hero.statistics.artifacts_had + self.hero.statistics.loot_had, 1),
-                self.check_increased(lambda: len(self.hero.journal))
-                ):
+        with self.check_increased(lambda: self.hero.bag.occupation), \
+             self.check_increased(lambda: self.hero.money), \
+             self.check_increased(lambda: self.hero.statistics.money_earned_from_companions), \
+             self.check_delta(lambda: self.hero.statistics.artifacts_had + self.hero.statistics.loot_had, 1), \
+             self.check_increased(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
