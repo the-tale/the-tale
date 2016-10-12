@@ -84,8 +84,8 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 # modifiers MUST be calculated before stability
                 attributes.attr('MODIFIER_TRADE_CENTER', 23, u'специализация «Торговый центр»', order=-1, formatter=attributes.float_formatter,
                  description=u'Соответствие города специализации «Торговый центр».'),
-                attributes.attr('MODIFIER_CRAFT_CENTER', 24, u'специализация «Город мастеров»', order=-1, formatter=attributes.float_formatter,
-                 description=u'Соответствие города специализации «Город мастеров».'),
+                attributes.attr('MODIFIER_CRAFT_CENTER', 24, u'специализация «Город ремёсел', order=-1, formatter=attributes.float_formatter,
+                 description=u'Соответствие города специализации «Город ремёсел.'),
                 attributes.attr('MODIFIER_FORT', 25, u'специализация «Форт»', order=-1, formatter=attributes.float_formatter,
                  description=u'Соответствие города специализации «Форт».'),
                 attributes.attr('MODIFIER_POLITICAL_CENTER', 26, u'специализация «Политический центр»', order=-1, formatter=attributes.float_formatter,
