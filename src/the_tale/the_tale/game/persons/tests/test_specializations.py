@@ -28,7 +28,7 @@ class RelationsTests(testcase.TestCase):
         bonuses = set()
 
         for specializations in economic.PROFESSION_TO_SPECIALIZATIONS.values():
-            specialization_bonuses = tuple([x[1] for x in sorted(specializations.items())])
+            specialization_bonuses = tuple([x[1] for x in sorted(specializations.items(), key=lambda x: (x[0].value, x[1]))])
             self.assertNotIn(specialization_bonuses, bonuses)
             bonuses.add(specialization_bonuses)
 

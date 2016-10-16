@@ -226,7 +226,9 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
     abilities = property(get_abilities, set_abilities)
 
     def get_abilities_objects(self):
-        return sorted([ABILITIES[ability_id] for ability_id in self.abilities])
+        abilities = [ABILITIES[ability_id] for ability_id in self.abilities]
+        abilities.sort(key=lambda a: a.NAME)
+        return abilities
 
     def get_terrains(self):
         if not hasattr(self, '_terrains'):

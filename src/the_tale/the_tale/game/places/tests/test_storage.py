@@ -32,7 +32,6 @@ class PlacesStorageTest(testcase.TestCase):
 
     def test_sync(self):
         self.assertEqual(len(self.storage._data), 3)
-        self.assertTrue(self.storage._version > 0)
 
         self.assertNotEqual(self.p1.attrs.size, 7)
 
@@ -50,7 +49,6 @@ class PlacesStorageTest(testcase.TestCase):
 
     def test_sync_after_settings_update(self):
         self.assertEqual(len(self.storage._data), 3)
-        self.assertTrue(self.storage._version > 0)
 
         self.assertNotEqual(self.p1.attrs.size, 7)
 

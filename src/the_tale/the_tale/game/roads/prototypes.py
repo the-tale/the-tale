@@ -12,6 +12,13 @@ from the_tale.game.roads import exceptions
 from the_tale.game.roads.relations import PATH_DIRECTION
 
 
+def old_round(value):
+    floor = math.floor(value)
+    if value - floor >= 0.5:
+        floor += 1
+    return floor
+
+
 class RoadPrototype(BasePrototype):
     _model_class = Road
     _readonly = ('id', 'path', 'point_1_id', 'point_2_id')
@@ -84,7 +91,7 @@ class RoadPrototype(BasePrototype):
         x = start_x
         y = start_y
 
-        if math.fabs(finish_x - start_x) >  math.fabs(finish_y - start_y):
+        if math.fabs(finish_x - start_x) > math.fabs(finish_y - start_y):
             dx = math.copysign(1.0, finish_x - start_x)
             dy = dx * float(finish_y - start_y) / (finish_x - start_x)
         else:
@@ -99,14 +106,14 @@ class RoadPrototype(BasePrototype):
             real_x += dx
             real_y += dy
 
-            if int(round(real_x)) == x + 1: path.append(PATH_DIRECTION.RIGHT.value)
-            elif int(round(real_x)) == x - 1: path.append(PATH_DIRECTION.LEFT.value)
+            if int(old_round(real_x)) == x + 1: path.append(PATH_DIRECTION.RIGHT.value)
+            elif int(old_round(real_x)) == x - 1: path.append(PATH_DIRECTION.LEFT.value)
 
-            if int(round(real_y)) == y + 1: path.append(PATH_DIRECTION.DOWN.value)
-            elif int(round(real_y)) == y - 1: path.append(PATH_DIRECTION.UP.value)
+            if int(old_round(real_y)) == y + 1: path.append(PATH_DIRECTION.DOWN.value)
+            elif int(old_round(real_y)) == y - 1: path.append(PATH_DIRECTION.UP.value)
 
-            x = int(round(real_x))
-            y = int(round(real_y))
+            x = int(old_round(real_x))
+            y = int(old_round(real_y))
 
         return ''.join(path)
 

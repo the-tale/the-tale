@@ -3,6 +3,7 @@ import subprocess
 import importlib
 
 from django.apps import apps as django_apps
+from django.conf import settings as project_settings
 from dext.common.utils.urls import url
 from dext.common.utils import storage
 
@@ -15,13 +16,13 @@ class CodeTests(testcase.TestCase):
         super(CodeTests, self).setUp()
 
     def _filter_code(self, name, only_models=True):
-        process = subprocess.Popen(['grep', '-R', name, './the_tale'], stdout=subprocess.PIPE)
+        process = subprocess.Popen(['grep', '-R', name, project_settings.PROJECT_DIR], stdout=subprocess.PIPE)
 
         out, err = process.communicate()
 
         self.assertEqual(process.returncode, 0)
 
-        out = [string for string in out.split('\n') if ':' in string]
+        out = [string for string in out.decode('utf-8').split('\n') if ':' in string]
         out = [string.split(':', 1) for string in out]
         out = [code
                for filename, code in out
@@ -67,7 +68,9 @@ class CodeTests(testcase.TestCase):
                                                'urlparse',
                                                'boto',
                                                'Queue',
-                                               'utg']))
+                                               'utg',
+                                               'functools',
+                                               'urllib']))
 
     def test_only_absolute_imports__import(self):
 
@@ -75,11 +78,12 @@ class CodeTests(testcase.TestCase):
             code = code.strip()[len('import '):]
 
             for module_name in code.split(','):
+                module_name = module_name.strip()
                 self.assertTrue(self.check_starts(module_name,
                                                 ['sys', 'os', 'shutil', 'datetime', 'tempfile', 'subprocess', 'random', 'collections', 're', 'itertools', 'Queue', 'time',
                                                  'jinja2', 'math', 'uuid', 'postmarkup', 'functools', 'urllib2', 'xlrd', 'copy', 'gv', 'string', 'traceback', 'newrelic',
                                                  'markdown', 'md5', 'mock', 'pymorphy', 'numbers', 'gc', 'numpy', 'matplotlib', 'contextlib', 'pynames', 'json', 'PIL', 'deworld',
-                                                 'urllib', 'socket', 'types', 'csv', 'getpass', 'logging', 'operator']))
+                                                 'urllib', 'socket', 'types', 'csv', 'getpass', 'logging', 'operator', 'hashlib']))
 
     def test_api_urls_not_changed(self):
         self.assertEqual(url('portal:api-info'), '/api/info')
