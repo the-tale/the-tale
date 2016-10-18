@@ -18,6 +18,7 @@ from the_tale.game.map.generator.drawer import get_draw_info
 from the_tale.game.places import storage as places_storage
 from the_tale.game.roads.storage import roads_storage
 from the_tale.game.map.relations import TERRAIN
+from the_tale.game.map import models
 
 
 
@@ -77,14 +78,4 @@ def update_map(index):
             # 'buildings': dict( (building.id, building.map_info() ) for building in buildings_storage.all() ),
             'roads': dict( (road.id, road.map_info() ) for road in roads_storage.all()) }
 
-    region_js_file = map_settings.GEN_REGION_OUTPUT % map_info_storage.version
-
-    output_dir_name = os.path.dirname(region_js_file)
-    if not os.path.exists(output_dir_name):
-        os.makedirs(output_dir_name, 0o755)
-
-    with open(region_js_file, 'w') as region_json_file:
-        region_json_file.write(s11n.to_json(data).encode('utf-8'))
-
-    if project_settings.DEBUG:
-        deworld.draw_world(index, generator, catalog=map_settings.GEN_WORLD_PROGRESSION)
+    models.MapRegion.objects.create(turn_number=time.turn_number, data=data)

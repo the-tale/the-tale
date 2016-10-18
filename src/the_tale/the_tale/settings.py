@@ -257,10 +257,12 @@ if TESTS_RUNNING:
 ################
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-        'LOCATION': '127.0.0.1:11211',
-        'OPTIONS': {'tcp_nodelay': True}
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
     }
 }
 CACHE_MIDDLEWARE_SECONDS = 24*60*60
@@ -302,12 +304,6 @@ STATIC_DEBUG_URL = '/static/%s/' % META_CONFIG.static_data_version
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 ADMIN_DEBUG_MEDIA_PREFIX = STATIC_DEBUG_URL + 'admin/'
 
-DCONT_URL = '//%s/dcont/' % SITE_URL
-if 'DCONT_DIR' not in globals():
-    DCONT_DIR = os.path.join(PROJECT_DIR, 'dcont')
-DCONT_CDN = '//%s%s' % (CDN_DOMAIN, DCONT_URL)
-DCONT_DEBUG_URL = '/dcont/'
-
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
 LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
 
@@ -331,10 +327,6 @@ CDNS = ( ('STATIC_JQUERY_JS',
          ('STATIC_CONTENT',
           STATIC_URL, STATIC_CDN,
           lambda: 'http:%simages/rss.png?_=%f' % (STATIC_CDN, time.time())), # prevent url from caching for cases, when portal closed to 503
-
-         ('DCONT_CONTENT',
-          DCONT_URL, None,
-          None)
     )
 
 

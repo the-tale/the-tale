@@ -21,6 +21,7 @@ from the_tale.game.places import info as places_info
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
 from . import conf
+from . import models
 
 
 ########################################
@@ -44,6 +45,11 @@ def index(context):
     return dext_views.Page('map/index.html',
                            content={'current_map_version': map_info_storage.version,
                                     'resource': context.resource})
+
+
+@resource('region')
+def region(context):
+    return dext_views.AjaxOk(content=models.MapRegion.objects.latest('created_at').data)
 
 
 @dext_views.IntArgumentProcessor(error_message='Неверная X координата', get_name='x', context_name='x')

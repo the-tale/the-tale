@@ -1,7 +1,9 @@
 # coding: utf-8
-import datetime
 
 from django.db import models
+
+from django.contrib.postgres import fields as postgres_fields
+
 
 class WorldInfo(models.Model):
 
@@ -26,3 +28,15 @@ class MapInfo(models.Model):
     world = models.ForeignKey(WorldInfo, null=False, related_name='+', on_delete=models.CASCADE)
 
     statistics = models.TextField(null=False, default='{}')
+
+
+class MapRegion(models.Model):
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    turn_number = models.BigIntegerField(null=False, unique=True)
+
+    data = postgres_fields.JSONField()
+
+    class Meta:
+        index_together = (('turn_number', 'created_at'),)

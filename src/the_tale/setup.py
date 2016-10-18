@@ -46,7 +46,8 @@ setuptools.setup(
                       'mock==1.0b1',
                       'MarkupSafe==0.15',
                       'boto3==1.4.0',
-                      'unicodecsv==0.14.1'],
+                      'unicodecsv==0.14.1',
+                      'django-redis==4.5.0'],
 
     include_package_data=True,
     test_suite = 'tests' )

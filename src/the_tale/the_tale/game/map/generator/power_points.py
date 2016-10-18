@@ -84,14 +84,14 @@ def _point_arrow_height(obj, borders, length_normalizer, width_normalizer, power
         distance, other_place = distances[0] # pylint: disable=W0612
         arrow = power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - obj.y, other_place.x - obj.x),
                                                   length=obj.r,
-                                                  width=(obj.r / 3) + 1)
+                                                  width=(obj.r // 3) + 1)
         arrows.extend([arrow, arrow.rounded_arrow])
 
     if len(distances) > 1:
         distance, other_place = distances[1]
         arrow = power_points.ArrowAreaPoint.Arrow(angle=math.atan2(other_place.y - obj.y, other_place.x - obj.x),
                                                   length=obj.r,
-                                                  width=(obj.r / 3) + 1)
+                                                  width=(obj.r // 3) + 1)
         arrows.extend([arrow, arrow.rounded_arrow])
 
     return power_points.ArrowAreaPoint(layer_type=layers.LAYER_TYPE.HEIGHT,
@@ -145,8 +145,8 @@ def _point_circle_wetness(obj, power, normalizer, power_percent):
 def _default_temperature_points(delta=0.0):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.TEMPERATURE,
                                         name='default_temperature',
-                                        x=map_settings.WIDTH/2,
-                                        y=map_settings.HEIGHT/2,
+                                        x=map_settings.WIDTH // 2,
+                                        y=map_settings.HEIGHT // 2,
                                         power=0.5 + delta,
                                         radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,
                                         normalizer=normalizers.equal)
@@ -155,8 +155,8 @@ def _default_temperature_points(delta=0.0):
 def _default_wetness_points(delta=0.0):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.WETNESS,
                                         name='default_wetness',
-                                        x=map_settings.WIDTH/2,
-                                        y=map_settings.HEIGHT/2,
+                                        x=map_settings.WIDTH // 2,
+                                        y=map_settings.HEIGHT // 2,
                                         power=0.6 + delta,
                                         radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,
                                         normalizer=normalizers.equal)
@@ -164,8 +164,8 @@ def _default_wetness_points(delta=0.0):
 def _default_soil_points(delta=0.0):
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.SOIL,
                                         name='default_soil',
-                                        x=map_settings.WIDTH/2,
-                                        y=map_settings.HEIGHT/2,
+                                        x=map_settings.WIDTH // 2,
+                                        y=map_settings.HEIGHT // 2,
                                         power=0.3 + delta,
                                         radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,
                                         normalizer=normalizers.equal)
@@ -173,8 +173,8 @@ def _default_soil_points(delta=0.0):
 def _default_vegetation_points():
     return power_points.CircleAreaPoint(layer_type=layers.LAYER_TYPE.VEGETATION,
                                         name='default_vegetation',
-                                        x=map_settings.WIDTH/2,
-                                        y=map_settings.HEIGHT/2,
+                                        x=map_settings.WIDTH // 2,
+                                        y=map_settings.HEIGHT // 2,
                                         power=(0.25, 0.25),
                                         default_power=(0.0, 0.0),
                                         radius=int(math.hypot(map_settings.WIDTH, map_settings.HEIGHT)/2)+1,

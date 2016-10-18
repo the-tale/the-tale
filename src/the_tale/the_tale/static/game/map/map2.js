@@ -127,12 +127,12 @@ pgf.game.map.MapManager = function(params) {
     var mapWidth = undefined;
     var mapHeight = undefined;
 
-    function LoadMap(version) {
+    function LoadMap() {
         jQuery.ajax({   dataType: 'json',
                         type: 'get',
-                        url: params.RegionUrl(version),
+                        url: params.RegionUrl(),
                         success: function(data, request, status) {
-                            mapData = data;
+                            mapData = data.data;
 
                             instance.mapWidth = data.width;
                             instance.mapHeight = data.height;
@@ -192,7 +192,7 @@ pgf.game.map.MapManager = function(params) {
         }
 
         if (mapData && game_data.map_version != mapData.map_version) {
-            LoadMap(game_data.map_version);
+            LoadMap();
         }
     });
 
@@ -203,7 +203,7 @@ pgf.game.map.MapManager = function(params) {
     this.GetPlaceData = GetPlaceData;
     this.GetCellData = GetCellData;
 
-    LoadMap(params.currentMapVersion);
+    LoadMap();
 };
 
 pgf.game.map.Map = function(selector, params) {

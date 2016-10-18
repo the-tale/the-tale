@@ -11,6 +11,8 @@ from dext.settings import settings
 from the_tale.statistics.conf import statistics_settings
 from the_tale.statistics.prototypes import RecordPrototype
 
+from the_tale.statistics import models
+
 from the_tale.statistics.metrics import registrations
 from the_tale.statistics.metrics import lifetime
 from the_tale.statistics.metrics import monetization
@@ -177,17 +179,5 @@ class Command(BaseCommand):
             metric.initialize()
             metric.complete_values()
 
-
-        data_version = int(settings.get(statistics_settings.JS_DATA_FILE_VERSION_KEY, 0))
-        data_version += 1
-        output_file = statistics_settings.JS_DATA_FILE_LOCATION % data_version
-
-        output_dir_name = os.path.dirname(output_file)
-        if not os.path.exists(output_dir_name):
-            os.makedirs(output_dir_name, 0o755)
-
-        with open(output_file, 'w') as f:
-            f.write(jinja2.render('statistics/js_data.js',
-                                  context={'data': s11n.to_json(RecordPrototype.get_js_data())}).encode('utf-8'))
-
-        settings[statistics_settings.JS_DATA_FILE_VERSION_KEY] = str(data_version)
+        models.FullStatistics.objects.all().delete()
+        models.FullStatistics.objects.create(data=RecordPrototype.get_js_data())

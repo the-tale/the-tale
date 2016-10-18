@@ -5,6 +5,8 @@
   become_user: root
   gather_facts: no
   tasks:
+    - name: update package list
+      raw: sudo apt-get update
     - name: setup absolutly needed system packages
       raw: sudo apt-get install -qy python-all aptitude python-apt python-pip
     - name: upgrade pip to latest version
@@ -84,7 +86,12 @@
   become: yes
   become_user: root
   tasks:
-    - user: name=the-tale
+    - name: create user
+      user: name=the-tale
+    - name: install packages, required for development
+      apt: name={{item}} state=installed
+      with_items:
+        - node-less
 
 
 - name: install The Tale environment
@@ -93,7 +100,8 @@
   become_user: the-tale
   tasks:
     - user: name=the-tale
-    - pip:
+    - name: create environment
+      pip:
         name: "{{item.name}}"
         virtualenv: /home/the-tale/current/venv
         virtualenv_command: virtualenv
@@ -108,10 +116,17 @@
         - {name: "/mnt/repos/utg/"}
         - {name: "/mnt/repos/questgen/"}
         - {name: "/mnt/repos/the-tale/src/the_tale/"}
-    - pip:
+    - name: install packages for test environment
+      pip:
         name: "{{item.name}}"
         virtualenv: /home/the-tale/current/venv
         virtualenv_command: virtualenv
         virtualenv_python: python3.5
       with_items:
         - {name: django-test-without-migrations}
+    - name: run migrations
+      raw: /home/the-tale/current/venv/bin/django-admin migrate --settings the_tale.settings
+    - name: create world
+      raw: /home/the-tale/current/venv/bin/django-admin game_create_world --settings the_tale.settings
+    - name: create superuser
+      raw: /home/the-tale/current/venv/bin/django-admin accounts_create_superuser --settings the_tale.settings
