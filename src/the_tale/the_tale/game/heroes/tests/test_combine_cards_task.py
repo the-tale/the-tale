@@ -1,5 +1,5 @@
 # coding: utf-8
-import mock
+from unittest import mock
 
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT

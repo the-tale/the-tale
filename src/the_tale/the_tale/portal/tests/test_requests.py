@@ -1,5 +1,5 @@
 # coding: utf-8
-import mock
+from unittest import mock
 
 from django.conf import settings as project_settings
 
@@ -46,8 +46,7 @@ class TestRequests(testcase.TestCase):
 
     def test_info(self):
         self.check_ajax_ok(self.request_json(url('portal:api-info', api_version='1.0', api_client=project_settings.API_CLIENT)),
-                           data={'dynamic_content': project_settings.DCONT_URL,
-                                 'static_content': project_settings.STATIC_URL,
+                           data={'static_content': project_settings.STATIC_URL,
                                  'game_version': project_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
                                  'account_id': None,
@@ -59,8 +58,7 @@ class TestRequests(testcase.TestCase):
         self.request_login(account.email)
 
         self.check_ajax_ok(self.request_json(url('portal:api-info', api_version='1.0', api_client=project_settings.API_CLIENT)),
-                           data={'dynamic_content': project_settings.DCONT_URL,
-                                 'static_content': project_settings.STATIC_URL,
+                           data={'static_content': project_settings.STATIC_URL,
                                  'game_version': project_settings.META_CONFIG.version,
                                  'turn_delta': c.TURN_DELTA,
                                  'account_id': account.id,

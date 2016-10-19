@@ -1,5 +1,5 @@
 # coding: utf-8
-import mock
+from unittest import mock
 
 from django.test import Client
 from django.conf import settings as project_settings

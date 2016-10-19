@@ -1,7 +1,7 @@
 # coding: utf-8
 import datetime
 
-import mock
+from unittest import mock
 
 from django.test import client
 from django.core.urlresolvers import reverse

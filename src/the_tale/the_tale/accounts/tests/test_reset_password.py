@@ -1,5 +1,5 @@
 # coding: utf-8
-import mock
+from unittest import mock
 
 from django.test import client
 from django.contrib.auth import authenticate as django_authenticate

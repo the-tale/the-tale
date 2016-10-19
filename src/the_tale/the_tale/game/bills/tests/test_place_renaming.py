@@ -1,7 +1,7 @@
 # coding: utf-8
 import datetime
 
-import mock
+from unittest import mock
 
 from the_tale.forum.models import Post, Thread, MARKUP_METHOD
 

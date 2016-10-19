@@ -2,7 +2,7 @@
 
 import numbers
 
-import mock
+from unittest import mock
 
 from the_tale.common.utils.testcase import TestCase
 

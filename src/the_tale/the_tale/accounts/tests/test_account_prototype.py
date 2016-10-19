@@ -2,7 +2,7 @@
 import time
 import datetime
 
-import mock
+from unittest import mock
 
 from django.contrib.auth import authenticate as django_authenticate
 from django.contrib.auth.hashers import make_password

@@ -2,7 +2,7 @@
 
 import contextlib
 
-import mock
+from unittest import mock
 
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 

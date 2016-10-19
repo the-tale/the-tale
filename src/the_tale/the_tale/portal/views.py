@@ -158,7 +158,6 @@ class PortalResource(Resource):
 формат данных в ответе:
 
     {
-      "dynamic_content": "абсолютный url",   // базовый абсолютный путь к динамическим игровым данным (например, карте)
       "static_content": "абсолютный url",    // базовый абсолютный путь к статическим игровым данным (например, картинкам)
       "game_version": "текущая.версия.игры", // текущая версия игры
       "turn_delta": <целое>,                 // задержка между ходами в секундах
@@ -174,8 +173,7 @@ class PortalResource(Resource):
 
         cdn_paths = portal_logic.cdn_paths()
 
-        return self.ok(data={'dynamic_content': cdn_paths['DCONT_CONTENT'],
-                             'static_content': cdn_paths['STATIC_CONTENT'],
+        return self.ok(data={'static_content': cdn_paths['STATIC_CONTENT'],
                              'game_version': project_settings.META_CONFIG.version,
                              'turn_delta': c.TURN_DELTA,
                              'account_id': self.account.id if self.account.is_authenticated() else None,

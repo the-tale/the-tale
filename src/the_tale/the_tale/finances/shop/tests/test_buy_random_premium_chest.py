@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import mock
+from unittest import mock
 
 from the_tale.finances.shop.postponed_tasks import BuyRandomPremiumChest
 from the_tale.finances.shop.tests import base_buy_task

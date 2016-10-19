@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import mock
+from unittest import mock
 
 from the_tale.game.actions import contexts
 from the_tale.game.actions.prototypes import ActionBase

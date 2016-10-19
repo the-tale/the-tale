@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import mock
+from unittest import mock
 import datetime
 
 from the_tale.game.persons import logic as persons_logic

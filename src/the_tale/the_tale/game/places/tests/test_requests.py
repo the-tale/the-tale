@@ -2,7 +2,7 @@
 import datetime
 import jinja2
 
-import mock
+from unittest import mock
 
 from dext.common.utils.urls import url
 

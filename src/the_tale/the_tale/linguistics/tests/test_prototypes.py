@@ -2,7 +2,7 @@
 
 import random
 
-import mock
+from unittest import mock
 
 from utg import relations as utg_relations
 from utg import words as utg_words

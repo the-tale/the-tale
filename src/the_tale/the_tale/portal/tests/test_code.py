@@ -70,7 +70,8 @@ class CodeTests(testcase.TestCase):
                                                'Queue',
                                                'utg',
                                                'functools',
-                                               'urllib']))
+                                               'urllib',
+                                               'unittest']))
 
     def test_only_absolute_imports__import(self):
 

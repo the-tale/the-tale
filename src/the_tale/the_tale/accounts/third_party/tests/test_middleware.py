@@ -1,7 +1,7 @@
 # coding: utf-8
 import uuid
 
-import mock
+from unittest import mock
 
 from django.conf import settings as project_settings
 

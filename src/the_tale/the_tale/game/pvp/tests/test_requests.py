@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-import mock
+from unittest import mock
 import jinja2
 
 from django.test import client

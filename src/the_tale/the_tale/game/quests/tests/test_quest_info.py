@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import mock
+from unittest import mock
 
 from questgen import facts
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS

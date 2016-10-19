@@ -2,7 +2,7 @@
 import time
 import datetime
 
-import mock
+from unittest import mock
 
 from .. import logic
 from .helpers import BaseTestPrototypes

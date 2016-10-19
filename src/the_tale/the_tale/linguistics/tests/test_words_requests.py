@@ -1,7 +1,7 @@
 # coding: utf-8# coding: utf-8
 import random
 
-import mock
+from unittest import mock
 
 from dext.common.utils.urls import url
 from dext.common.utils import s11n

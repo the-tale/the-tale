@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import mock
+from unittest import mock
 
 from dext.common.utils.urls import url
 from dext.settings import settings

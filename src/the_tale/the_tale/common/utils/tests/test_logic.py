@@ -181,4 +181,4 @@ class LogicTest(testcase.TestCase):
     def test_absolutize_urls(self):
         text = '<a href=""></a> <a href="/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>'
         self.assertEqual(absolutize_urls(text),
-                         '<a href=""></a> <a href="http://localhost:8000/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>')
+                         '<a href=""></a> <a href="http://local.the-tale:8000/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>')

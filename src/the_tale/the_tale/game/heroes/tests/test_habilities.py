@@ -2,7 +2,7 @@
 import random
 import datetime
 
-import mock
+from unittest import mock
 
 from dext.common.utils import s11n
 

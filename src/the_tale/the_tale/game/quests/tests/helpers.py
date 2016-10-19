@@ -1,5 +1,5 @@
 # coding: utf-8
-import mock
+from unittest import mock
 
 from questgen.quests.base_quest import BaseQuest, RESULTS
 from questgen import facts

@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-import mock
+from unittest import mock
 
 from the_tale.amqp_environment import environment
 

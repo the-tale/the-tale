@@ -1,7 +1,7 @@
 # coding: utf-8
 import random
 
-import mock
+from unittest import mock
 
 from questgen.knowledge_base import KnowledgeBase
 from questgen import facts
