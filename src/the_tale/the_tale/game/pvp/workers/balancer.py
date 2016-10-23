@@ -42,7 +42,6 @@ class BalancingRecord(collections.namedtuple('BalancingRecord', ('min_level', 'm
 
 class Worker(BaseWorker):
     STOP_SIGNAL_REQUIRED = False
-    GET_CMD_TIMEOUT = 0
     NO_CMD_TIMEOUT = pvp_settings.BALANCER_SLEEP_TIME
 
     def __init__(self, *argv, **kwargs):

@@ -9,7 +9,6 @@ from the_tale.accounts.achievements.storage import achievements_storage
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

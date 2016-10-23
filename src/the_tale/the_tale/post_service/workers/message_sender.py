@@ -12,7 +12,6 @@ from the_tale.post_service.conf import post_service_settings
 class MessageSenderException(Exception): pass
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 0
     NO_CMD_TIMEOUT = 1.0
 
     def clean_queues(self):

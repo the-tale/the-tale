@@ -8,7 +8,6 @@ from the_tale.finances.market import objects
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 60
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

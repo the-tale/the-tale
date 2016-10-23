@@ -15,7 +15,6 @@ from the_tale.portal import signal_processors # DO NOT REMOVE
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 60
 
     def initialize(self):
         if self.initialized:

@@ -5,7 +5,6 @@ from the_tale.common.utils.workers import BaseWorker
 from the_tale.finances.xsolla.prototypes import InvoicePrototype
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 60
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

@@ -6,11 +6,11 @@
   gather_facts: no
   tasks:
     - name: update package list
-      raw: sudo apt-get update
+      raw: apt-get update
     - name: setup absolutly needed system packages
-      raw: sudo apt-get install -qy python-all aptitude python-apt python-pip
+      raw: apt-get install -qy python-all aptitude python-apt python-pip
     - name: upgrade pip to latest version
-      raw: sudo pip install --upgrade pip
+      raw: pip install --upgrade pip
 
 - name: configure host
   hosts: all
@@ -25,10 +25,21 @@
     - name: setup basic packages
       apt: name={{item}} state=installed
       with_items:
+        - emacs
         - python-dev
         - python3-dev
         - virtualenv
         - python-pip
+        - supervisor
+
+    - name: install packages, required for development
+      apt: name={{item}} state=installed
+      with_items:
+        - node-less
+
+    - name: start supervisor
+      raw: systemctl start supervisor
+
 
 - name: configure services
   hosts: all
@@ -81,25 +92,21 @@
         - guest
 
 
-- name: install The Tale user
+- name: preinstall The Tale
   hosts: all
   become: yes
   become_user: root
   tasks:
     - name: create user
       user: name=the-tale
-    - name: install packages, required for development
-      apt: name={{item}} state=installed
-      with_items:
-        - node-less
 
 
-- name: install The Tale environment
+- name: install The Tale
   hosts: all
   become: yes
   become_user: the-tale
   tasks:
-    - user: name=the-tale
+
     - name: create environment
       pip:
         name: "{{item.name}}"
@@ -116,6 +123,7 @@
         - {name: "/mnt/repos/utg/"}
         - {name: "/mnt/repos/questgen/"}
         - {name: "/mnt/repos/the-tale/src/the_tale/"}
+
     - name: install packages for test environment
       pip:
         name: "{{item.name}}"
@@ -124,9 +132,28 @@
         virtualenv_python: python3.5
       with_items:
         - {name: django-test-without-migrations}
+
     - name: run migrations
-      raw: /home/the-tale/current/venv/bin/django-admin migrate --settings the_tale.settings
+      raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin migrate --settings the_tale.settings
+
     - name: create world
-      raw: /home/the-tale/current/venv/bin/django-admin game_create_world --settings the_tale.settings
+      raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin game_create_world --settings the_tale.settings
+
     - name: create superuser
-      raw: /home/the-tale/current/venv/bin/django-admin accounts_create_superuser --settings the_tale.settings
+      raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin accounts_create_superuser --settings the_tale.settings
+
+
+- name: postinstall The Tale
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+
+    - name: create logs directory
+      file: path=/var/log/the-tale state=directory mode=0755 owner=the-tale group=the-tale
+
+    - name: install supervisor configs
+      template: src="./templates/the-tale-supervisor.conf" dest="/etc/supervisor/conf.d/the-tale.conf"
+
+    - name: reload supervisor configs
+      raw: systemctl restart supervisor

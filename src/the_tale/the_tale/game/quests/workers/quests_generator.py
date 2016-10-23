@@ -10,7 +10,6 @@ from the_tale.game.quests import logic
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 0
     NO_CMD_TIMEOUT = 0.1
 
     def initialize(self):

@@ -40,25 +40,17 @@ class Worker(BaseWorker):
             self.wait_answers_from(command, workers=list(self.logic_workers.keys()))
 
     def initialize(self):
-        self.cmd_initialize()
+        self.gracefull_stop_required = False
 
-    def cmd_initialize(self):
-        self.send_cmd('initialize', {})
-
-    def process_initialize(self):
         self.time = prototypes.TimePrototype.get_current_time()
 
         PostponedTaskPrototype.reset_all()
 
         self.logic_workers = {worker.name: worker for worker in (environment.workers.logic_1, environment.workers.logic_2)}
 
-        #initialization
         self.logger.info('initialize logic')
-        self.logic_multicast('initialize', arguments=dict(turn_number=self.time.turn_number), worker_id=True, wait_answer=True)
 
-        self.logger.info('initialize long commands')
-        environment.workers.game_long_commands.cmd_initialize(worker_id='game_long_commands')
-        self.wait_answers_from('initialize', workers=['game_long_commands'])
+        self.logic_multicast('initialize', arguments=dict(turn_number=self.time.turn_number), worker_id=True, wait_answer=True)
 
         if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
             self.logger.info('initialize highlevel')
@@ -66,13 +58,6 @@ class Worker(BaseWorker):
             self.wait_answers_from('initialize', workers=['highlevel'])
         else:
             self.logger.info('skip initialization of highlevel')
-
-        if conf.game_settings.ENABLE_WORKER_TURNS_LOOP:
-            self.logger.info('initialize turns loop')
-            environment.workers.turns_loop.cmd_initialize(worker_id='turns_loop')
-            self.wait_answers_from('initialize', workers=['turns_loop'])
-        else:
-            self.logger.info('skip initialization of turns loop')
 
         if conf.game_settings.ENABLE_PVP:
             self.logger.info('initialize pvp balancer')
@@ -246,9 +231,6 @@ class Worker(BaseWorker):
             self._force_stop()
             raise
 
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
     def _force_stop(self):
         self.logger.error('force stop all workers, send signals.')
 
@@ -260,30 +242,36 @@ class Worker(BaseWorker):
 
     def _send_stop_signals(self):
         self.logic_multicast('stop', arguments={})
-        environment.workers.game_long_commands.cmd_stop()
 
         if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
             environment.workers.highlevel.cmd_stop()
-        if conf.game_settings.ENABLE_WORKER_TURNS_LOOP:
-            environment.workers.turns_loop.cmd_stop()
         if conf.game_settings.ENABLE_PVP:
             environment.workers.pvp_balancer.cmd_stop()
 
-    def process_stop(self):
+    def on_sigterm(self, signal_code, frame):
+        if self.logger:
+            self.logger.info('SIGTERM received')
+
+        self.stop_required = True
+        self.gracefull_stop_required = True
+
+    def on_stop(self):
+
+        self.logger.info('stop supervisor')
 
         self.wait_answer_from_next_turn()
 
         prototypes.GameState.stop()
+        self.logger.info('game state changed')
 
         self._send_stop_signals()
 
-        wait_answers_from = ['game_long_commands'] + list(self.logic_workers.keys())
+        self.logger.info('stop signals sent')
+
+        wait_answers_from = list(self.logic_workers.keys())
 
         if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
             wait_answers_from.append('highlevel')
-
-        if conf.game_settings.ENABLE_WORKER_TURNS_LOOP:
-            wait_answers_from.append('turns_loop')
 
         if conf.game_settings.ENABLE_PVP:
             wait_answers_from.append('pvp_balancer')

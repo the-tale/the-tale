@@ -7,7 +7,6 @@ from the_tale.collections.storage import items_storage
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

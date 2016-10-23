@@ -2,8 +2,6 @@
 
 from django.core.management.base import BaseCommand
 
-from dext.common.utils import pid
-
 from the_tale.accounts.logic import block_expired_accounts
 
 class Command(BaseCommand):
@@ -14,8 +12,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        if pid.check('game_supervisor'):
-            print('game MUST be stopped befor run this command')
-            return
+        # if pid.check('game_supervisor'):
+        #     print('game MUST be stopped befor run this command')
+        #     return
 
         block_expired_accounts()

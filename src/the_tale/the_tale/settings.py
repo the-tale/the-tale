@@ -10,6 +10,7 @@ from dext.common.utils.meta_config import MetaConfig
 
 TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
+
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 HOME_DIR = os.getenv("HOME")
 
@@ -288,8 +289,6 @@ AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
                                               AMQP_BROKER_VHOST)
 
 
-DEXT_PID_DIRECTORY = os.path.join(HOME_DIR, '.the-tale')
-
 ##############################
 # static content settings
 ##############################
@@ -319,10 +318,6 @@ CDNS = ( ('STATIC_JQUERY_JS',
          ('STATIC_TWITTER_BOOTSTRAP',
           '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
           'http:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
-
-          # bootstrapcdn returns css not equal to our (media instructions missed)
-          # '//netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/',
-          # 'http://netdna.bootstrapcdn.com/twitter-bootstrap/2.0.4/css/bootstrap-combined.min.css'),
 
          ('STATIC_CONTENT',
           STATIC_URL, STATIC_CDN,
@@ -374,7 +369,7 @@ LOGGING = {
             'propagate': True,
         },
         'the-tale': {
-            'handlers': ['mail_admins'],#, 'console'],
+            'handlers': ['mail_admins', 'console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False
         }

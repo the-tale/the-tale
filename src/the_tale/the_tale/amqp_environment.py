@@ -28,27 +28,26 @@ class Environment(BaseEnvironment):
         from the_tale.game.pvp.workers import balancer
         from the_tale.game.quests.workers import quests_generator
 
-        # bank processor MUST be placed first, to be stopped last
-        self.workers.bank_processor = bank_processor.Worker(name='bank_bank_processor', groups=['all', 'portal'])
-        self.workers.xsolla_banker = xsolla_banker.Worker(name='bank_xsolla_banker', groups=['all', 'portal'])
-        self.workers.refrigerator = refrigerator.Worker(name='postponed_tasks_refrigerator', groups=['all', 'portal'])
-        self.workers.message_sender = message_sender.Worker(name='post_service_message_sender', groups=['all', 'portal'])
-        self.workers.registration = registration.Worker(name='accounts_registration', groups=['all', 'portal'])
-        self.workers.accounts_manager = accounts_manager.Worker(name='accounts_accounts_manager', groups=['all', 'portal'])
-        self.workers.achievements_manager = achievements_manager.Worker(name='achievements_achievements_manager', groups=['all', 'portal'])
-        self.workers.items_manager = items_manager.Worker(name='collections_items_manager', groups=['all', 'portal'])
-        self.workers.portal_long_commands = portal_long_commands.Worker(name='portal_long_commands', groups=['all', 'portal'])
-        self.workers.linguistics_manager = linguistics_manager.Worker(name='linguistics_manager', groups=['all', 'portal'])
-        self.workers.market_manager = market_manager.Worker(name='market_manager', groups=['all', 'portal'])
+        self.workers.bank_processor = bank_processor.Worker(name='bank_processor')
+        self.workers.xsolla_banker = xsolla_banker.Worker(name='xsolla_banker')
+        self.workers.refrigerator = refrigerator.Worker(name='refrigerator')
+        self.workers.message_sender = message_sender.Worker(name='message_sender')
+        self.workers.registration = registration.Worker(name='registration')
+        self.workers.accounts_manager = accounts_manager.Worker(name='accounts_manager')
+        self.workers.achievements_manager = achievements_manager.Worker(name='achievements_manager')
+        self.workers.items_manager = items_manager.Worker(name='items_manager')
+        self.workers.portal_long_commands = portal_long_commands.Worker(name='portal_long_commands')
+        self.workers.linguistics_manager = linguistics_manager.Worker(name='linguistics_manager')
+        self.workers.market_manager = market_manager.Worker(name='market_manager')
 
-        self.workers.supervisor = supervisor.Worker(name='game_supervisor', groups=['all', 'game'])
-        self.workers.logic_1 = logic.Worker(name='game_logic_1', groups=['all', 'game'])
-        self.workers.logic_2 = logic.Worker(name='game_logic_2', groups=['all', 'game'])
-        self.workers.highlevel = highlevel.Worker(name='game_highlevel', groups=['all', 'game']) if game_settings.ENABLE_WORKER_HIGHLEVEL else None
-        self.workers.turns_loop = turns_loop.Worker(name='game_turns_loop', groups=['all', 'game']) if game_settings.ENABLE_WORKER_TURNS_LOOP else None
-        self.workers.game_long_commands = game_long_commands.Worker(name='game_long_commands', groups=['all', 'game'])
-        self.workers.pvp_balancer = balancer.Worker(name='game_pvp_balancer', groups=['all', 'game']) if game_settings.ENABLE_PVP else None
-        self.workers.quests_generator = quests_generator.Worker(name='game_quests_generator', groups=['all', 'game'])
+        self.workers.supervisor = supervisor.Worker(name='supervisor')
+        self.workers.logic_1 = logic.Worker(name='logic_1')
+        self.workers.logic_2 = logic.Worker(name='logic_2')
+        self.workers.highlevel = highlevel.Worker(name='highlevel')# if game_settings.ENABLE_WORKER_HIGHLEVEL else None
+        self.workers.turns_loop = turns_loop.Worker(name='turns_loop')# if game_settings.ENABLE_WORKER_TURNS_LOOP else None
+        self.workers.game_long_commands = game_long_commands.Worker(name='game_long_commands')
+        self.workers.pvp_balancer = balancer.Worker(name='pvp_balancer')# if game_settings.ENABLE_PVP else None
+        self.workers.quests_generator = quests_generator.Worker(name='quests_generator')
 
         super(Environment, self).initialize()
 

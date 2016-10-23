@@ -12,7 +12,6 @@ class RefrigeratorException(Exception): pass
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 0
     NO_CMD_TIMEOUT = 0.1
     REFRESH_SETTINGS = False
 

@@ -12,7 +12,6 @@ from the_tale.accounts.conf import accounts_settings
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 60
 
     def clean_queues(self):
         super(Worker, self).clean_queues()

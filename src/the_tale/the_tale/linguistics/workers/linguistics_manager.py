@@ -8,7 +8,6 @@ from the_tale.linguistics.conf import linguistics_settings
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 0.25
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
