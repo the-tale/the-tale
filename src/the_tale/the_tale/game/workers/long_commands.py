@@ -10,6 +10,7 @@ from dext.common.utils.logic import run_django_command
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
 
     def initialize(self):
         if self.initialized:

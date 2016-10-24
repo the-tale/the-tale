@@ -45,12 +45,3 @@ class Worker(BaseWorker):
 
     def process_wait_task(self, task_id):
         self.tasks[task_id] = PostponedTaskPrototype.get_by_id(task_id)
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'refrigerator'}, serializer='json', compression=None)
-        self.logger.info('REFRIGERATOR STOPPED')

@@ -8,6 +8,7 @@ from the_tale.linguistics.conf import linguistics_settings
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -51,12 +52,3 @@ class Worker(BaseWorker):
         if self._next_words_update_at is None:
             self._next_words_update_at = datetime.datetime.now() + linguistics_settings.LINGUISTICS_MANAGER_UPDATE_DELAY
         # and not update templates, sicnce errors status calculated in save method
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'linguistics_manager'}, serializer='json', compression=None)
-        self.logger.info('LINGUISTICS MANAGER STOPPED')

@@ -23,6 +23,7 @@ class SupervisorException(Exception): pass
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
     RECEIVE_ANSWERS = True
 
     def clean_queues(self):

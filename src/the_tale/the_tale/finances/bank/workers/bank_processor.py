@@ -14,6 +14,7 @@ class BankException(Exception): pass
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 0.25
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -81,12 +82,3 @@ class Worker(BaseWorker):
 
     def process_cancel_invoice(self, invoice_id):
         InvoicePrototype.get_by_id(invoice_id).cancel()
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'bank_processor'}, serializer='json', compression=None)
-        self.logger.info('BANK PROCESSOR STOPPED')

@@ -6,6 +6,7 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 class RegistrationException(Exception): pass
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -23,12 +24,3 @@ class Worker(BaseWorker):
         task = PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger)
         task.save()
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'registration'}, serializer='json', compression=None)
-        self.logger.info('REGISTRATION STOPPED')

@@ -64,6 +64,7 @@ class PowerInfo(object):
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
     STOP_SIGNAL_REQUIRED = False
 
     def initialize(self):

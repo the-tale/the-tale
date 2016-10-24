@@ -21,6 +21,7 @@ class LogicException(Exception): pass
 
 
 class Worker(workers.BaseWorker):
+    GET_CMD_TIMEOUT = 10
     STOP_SIGNAL_REQUIRED = False
 
     def initialize(self):

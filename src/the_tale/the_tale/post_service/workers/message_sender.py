@@ -12,7 +12,8 @@ from the_tale.post_service.conf import post_service_settings
 class MessageSenderException(Exception): pass
 
 class Worker(BaseWorker):
-    NO_CMD_TIMEOUT = 1.0
+    GET_CMD_TIMEOUT = 0.01
+    NO_CMD_TIMEOUT = 5.0
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -56,12 +57,3 @@ class Worker(BaseWorker):
 
     def process_send_now(self, message_id):
         self.send_message(MessagePrototype.get_by_id(message_id))
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'message_sender'}, serializer='json', compression=None)
-        self.logger.info('MESSAGE SENDER STOPPED')

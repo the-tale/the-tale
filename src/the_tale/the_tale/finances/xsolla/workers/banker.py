@@ -5,6 +5,7 @@ from the_tale.common.utils.workers import BaseWorker
 from the_tale.finances.xsolla.prototypes import InvoicePrototype
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -25,12 +26,3 @@ class Worker(BaseWorker):
 
     def process_handle_invoices(self):
         self.handle_invoices()
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'xsolla_banker'}, serializer='json', compression=None)
-        self.logger.info('XSOLLA BANKER STOPPED')

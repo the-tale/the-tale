@@ -11,6 +11,7 @@ from the_tale.game.prototypes import GameState
 class TurnsLoopException(Exception): pass
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 0.01
     NO_CMD_TIMEOUT = game_settings.TURN_DELAY
 
     def process_no_cmd(self):

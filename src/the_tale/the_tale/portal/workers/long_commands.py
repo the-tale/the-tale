@@ -15,6 +15,7 @@ from the_tale.portal import signal_processors # DO NOT REMOVE
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
 
     def initialize(self):
         if self.initialized:
@@ -80,12 +81,6 @@ class Worker(BaseWorker):
                                             delay=portal_settings.CDN_SYNC_DELAY):
             return
 
-        # is currenciess refresh needed
-        if self._try_run_command_with_delay(cmd=self.run_refresh_currencies,
-                                            settings_key=portal_settings.SETTINGS_PREV_CURRENCIES_SYNC_TIME_KEY,
-                                            delay=portal_settings.CURRENCIES_SYNC_DELAY):
-            return
-
         # is remove expired access tokens refresh needed
         if self._try_run_command_with_delay(cmd=self.run_remove_expired_access_tokens,
                                             settings_key=portal_settings.SETTINGS_PREV_EXPIRE_ACCESS_TOKENS_SYNC_TIME_KEY,
@@ -98,17 +93,6 @@ class Worker(BaseWorker):
                                             delay=portal_settings.EXPIRE_CLEAN_REMOVED_TEMPLATES):
             return
 
-
-
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'portal long commands'}, serializer='json', compression=None)
-        self.logger.info('LONG COMMANDS STOPPED')
 
     def _run_django_subprocess(self, name, cmd):
         self.logger.info('run %s command' % name)

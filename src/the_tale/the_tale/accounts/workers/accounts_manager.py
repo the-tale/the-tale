@@ -12,6 +12,7 @@ from the_tale.accounts.conf import accounts_settings
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -72,12 +73,3 @@ class Worker(BaseWorker):
         else:
             # here we can process classmethods, if they appear in future
             pass
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'accounts_manager'}, serializer='json', compression=None)
-        self.logger.info('ACCOUNTS MANAGER STOPPED')

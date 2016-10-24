@@ -139,6 +139,9 @@
     - name: create world
       raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin game_create_world --settings the_tale.settings
 
+    - name: sync data
+      raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin portal_postupdate_operations --settings the_tale.settings
+
     - name: create superuser
       raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin accounts_create_superuser --settings the_tale.settings
 

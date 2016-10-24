@@ -29,7 +29,7 @@ Vagrant.configure("2") do |config|
     config.vm.define :the_tale do |mgs_vm|
         mgs_vm.vm.provider "virtualbox" do |vb|
             vb.name = "the_tale"
-            vb.customize ["modifyvm", :id, "--memory", "2048"]
+            vb.customize ["modifyvm", :id, "--memory", "4096"]
             vb.customize ["modifyvm", :id, "--cpus", "2"]
             vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
             vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
@@ -46,7 +46,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.provision "ansible" do |ansible|
       ansible.playbook = "provisioning/game_server.yml"
-      ansible.verbose = 'vvv'
+      ansible.verbose = 'vv'
       # ansible.sudo_user = "root"
       # ansible.sudo = true
     end

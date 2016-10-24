@@ -10,6 +10,7 @@ from the_tale.game.quests import logic
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 0.01
     NO_CMD_TIMEOUT = 0.1
 
     def initialize(self):
@@ -26,17 +27,6 @@ class Worker(BaseWorker):
     def process_no_cmd(self):
         if self.initialized:
             self.generate_quest()
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-
-        self.logger.info('QUESTS GENERATOR STOPPED')
-
-        self.stop_queue.put({'code': 'stopped', 'worker': 'quests_generator'}, serializer='json', compression=None)
 
     def cmd_request_quest(self, account_id, hero_info):
         self.send_cmd('request_quest', {'account_id': account_id,

@@ -9,6 +9,7 @@ from the_tale.accounts.achievements.storage import achievements_storage
 
 
 class Worker(BaseWorker):
+    GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
         super(Worker, self).clean_queues()
@@ -64,13 +65,3 @@ class Worker(BaseWorker):
             if not achievement.check(old_value=0, new_value=source.get_achievement_type_value(achievement.type)):
                 continue
             self.add_achievement(achievement, source.account_id, notify=False)
-
-
-    def cmd_stop(self):
-        return self.send_cmd('stop')
-
-    def process_stop(self):
-        self.initialized = False
-        self.stop_required = True
-        self.stop_queue.put({'code': 'stopped', 'worker': 'achievements_manager'}, serializer='json', compression=None)
-        self.logger.info('ACHIEVEMENTS MANAGER STOPPED')
