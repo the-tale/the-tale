@@ -2,15 +2,11 @@
 
 install vagrant from here: https://www.vagrantup.com/downloads.html
 
+cd ./deploy/
+
 sudo pip install ansible
 
-sudo ansible-galaxy install ANXS.postgresql
-sudo ansible-galaxy install geerlingguy.nginx
-sudo ansible-galaxy install geerlingguy.redis
-sudo ansible-galaxy install Stouts.rabbitmq
-
-
-cd ./deploy/official/
+sudo ansible-galaxy install -r requirements.yml
 
 vagrant plugin install vagrant-hostmanager
 

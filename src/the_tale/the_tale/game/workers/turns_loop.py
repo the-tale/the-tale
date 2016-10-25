@@ -7,6 +7,8 @@ from the_tale.common.utils.workers import BaseWorker
 from the_tale.game.conf import game_settings
 from the_tale.game.prototypes import GameState
 
+from the_tale.game import conf
+
 
 class TurnsLoopException(Exception): pass
 
@@ -23,6 +25,9 @@ class Worker(BaseWorker):
 
 
     def initialize(self):
+        if not conf.game_settings.ENABLE_WORKER_TURNS_LOOP:
+            return False
+
         if self.initialized:
             self.logger.warn('WARNING: turn loop already initialized, do reinitialization')
 

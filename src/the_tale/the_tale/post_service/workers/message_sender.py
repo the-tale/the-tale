@@ -20,6 +20,9 @@ class Worker(BaseWorker):
         self.stop_queue.queue.purge()
 
     def initialize(self):
+        if not post_service_settings.ENABLE_MESSAGE_SENDER:
+            return False
+
         self.initialized = True
         self.next_message_process_time = datetime.datetime.now()
         self.logger.info('MESSAGE SENDER INITIALIZED')

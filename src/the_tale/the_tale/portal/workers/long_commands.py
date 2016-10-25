@@ -18,6 +18,9 @@ class Worker(BaseWorker):
     GET_CMD_TIMEOUT = 10
 
     def initialize(self):
+        if not portal_settings.ENABLE_WORKER_LONG_COMMANDS:
+            return False
+
         if self.initialized:
             self.logger.warn('WARNING: long commands already initialized, do reinitialization')
 

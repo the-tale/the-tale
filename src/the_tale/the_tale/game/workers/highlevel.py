@@ -12,13 +12,13 @@ from the_tale.game.balance import constants as c
 from the_tale.game.bills import prototypes as bill_prototypes
 
 from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.places import storage as places_storage
 
 from the_tale.game.bills.conf import bills_settings
 
 from the_tale.game import exceptions
+from the_tale.game import conf
 
 
 E = 0.001
@@ -68,8 +68,7 @@ class Worker(BaseWorker):
     STOP_SIGNAL_REQUIRED = False
 
     def initialize(self):
-        # worker initialized by supervisor
-        pass
+        return conf.game_settings.ENABLE_WORKER_HIGHLEVEL
 
     def cmd_initialize(self, turn_number, worker_id):
         self.send_cmd('initialize', {'turn_number': turn_number, 'worker_id': worker_id})

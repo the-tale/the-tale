@@ -21,6 +21,8 @@ from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
+from the_tale.game import conf
+
 
 class PvPBalancerException(Exception): pass
 
@@ -54,6 +56,9 @@ class Worker(BaseWorker):
             self._do_balancing()
 
     def initialize(self):
+        if not conf.game_settings.ENABLE_PVP:
+            return False
+
         self.logger.info('PVP_BALANCER INITIALIZED')
 
     def cmd_initialize(self, worker_id):

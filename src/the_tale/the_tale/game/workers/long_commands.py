@@ -8,11 +8,17 @@ from the_tale.amqp_environment import environment
 from the_tale.common.utils.workers import BaseWorker
 from dext.common.utils.logic import run_django_command
 
+from the_tale.game import conf
+
 
 class Worker(BaseWorker):
     GET_CMD_TIMEOUT = 10
 
     def initialize(self):
+
+        if not conf.game_settings.ENABLE_WORKER_LONG_COMMANDS:
+            return False
+
         if self.initialized:
             self.logger.warn('WARNING: long commands already initialized, do reinitialization')
 

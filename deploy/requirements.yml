@@ -1,0 +1,5 @@
+
+- src: ANXS.postgresql
+- src: geerlingguy.nginx
+- src: geerlingguy.redis
+- src: Stouts.rabbitmq
