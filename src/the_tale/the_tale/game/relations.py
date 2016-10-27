@@ -29,7 +29,7 @@ def _race_linguistics_restrictions(race):
     def _linguistics_restrictions():
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
-        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, RACE.index_name[race].value)]
+        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, getattr(RACE, race).value)]
     return _linguistics_restrictions
 
 class RACE(DjangoEnum):

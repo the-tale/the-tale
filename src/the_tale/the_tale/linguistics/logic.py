@@ -75,7 +75,7 @@ def _process_arguments(args):
 
 
 def prepair_get_text(key, args, quiet=False):
-    lexicon_key = LEXICON_KEY.index_name.get(key.upper())
+    lexicon_key = getattr(LEXICON_KEY, key.upper(), None)
 
     if lexicon_key is None and not quiet:
         raise exceptions.NoLexiconKeyError(key=key)

@@ -17,7 +17,7 @@ from the_tale.game.companions.abilities import effects as companion_effects
 
 
 def word_type_record(name):
-    utg_type = utg_relations.WORD_TYPE.index_name[name]
+    utg_type = getattr(utg_relations.WORD_TYPE, name)
     return (name,
             utg_type.value,
             utg_type.text,

@@ -1,8 +1,7 @@
 # coding: utf-8
 import os
 
-from rels import Column
-from rels import Enum
+import rels
 
 from dext.common.utils import discovering
 
@@ -19,11 +18,13 @@ def get_key_records():
     return keys
 
 
-class LEXICON_KEY(Enum):
-    text = Column(unique=False)
-    group = Column(unique=False)
-    description = Column(unique=False)
-    variables = Column(unique=False, no_index=True)
-    ui_text = Column(unique=False, no_index=True, single_type=False)
+class LEXICON_KEY(rels.Relation):
+    name = rels.Column(primary=True, no_index=True)
+    value = rels.Column(external=True, no_index=True)
+    text = rels.Column(unique=False)
+    group = rels.Column(unique=False)
+    description = rels.Column(unique=False)
+    variables = rels.Column(unique=False, no_index=True)
+    ui_text = rels.Column(unique=False, no_index=True, single_type=False)
 
     records = get_key_records()

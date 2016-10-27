@@ -364,7 +364,7 @@ class Place(names.ManageNameMixin2):
         return effects
 
     def attribute_ui_info(self, attribute_name):
-        attribute = relations.ATTRIBUTE.index_name[attribute_name.upper()]
+        attribute = getattr(relations.ATTRIBUTE, attribute_name.upper())
         return (attribute, getattr(self.attrs, attribute_name.lower()))
 
     def all_effects(self):

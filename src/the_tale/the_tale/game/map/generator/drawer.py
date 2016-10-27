@@ -20,7 +20,7 @@ class CellDrawer(object):
         sprites = []
 
         if self.road or self.object:
-            sprites.append((SPRITES.index_name[self.terrain.base].value, 0))
+            sprites.append((getattr(SPRITES, self.terrain.base).value, 0))
         else:
             sprites.append((self.terrain.value, 0))
 
@@ -107,7 +107,7 @@ def get_road_sprite_info(m, x, y):
 
 
 def get_hero_sprite(hero):
-    return SPRITES.index_name[('HERO_%s_%s' % (hero.race.name, hero.gender.name)).upper()]
+    return getattr(SPRITES, ('HERO_%s_%s' % (hero.race.name, hero.gender.name)).upper())
 
 
 def get_draw_info(biomes_map):
@@ -129,12 +129,12 @@ def get_draw_info(biomes_map):
             biom = biomes_map[y][x]
             cell_drawer = map_images[y][x]
 
-            cell_drawer.terrain = SPRITES.index_name[biom.id.name]
+            cell_drawer.terrain = getattr(SPRITES, biom.id.name)
 
             if roads_map[y][x]:
                 road_sprite = get_road_sprite_info(roads_map, x, y)
 
-                cell_drawer.road = SPRITES.index_name[road_sprite['name']]
+                cell_drawer.road = getattr(SPRITES, road_sprite['name'])
                 cell_drawer.road_rotate = road_sprite['rotate']
 
     for place in places_storage.places.all():
@@ -146,12 +146,12 @@ def get_draw_info(biomes_map):
         sprite_name = ('city_%s_%s' % (place.race.name.lower(), verbose_size)).upper()
 
         cell_drawer = map_images[place.y][place.x]
-        cell_drawer.object = SPRITES.index_name[sprite_name]
+        cell_drawer.object = getattr(SPRITES, sprite_name)
 
     for building in places_storage.buildings.all():
         sprite_name = 'BUILDING_%s' % building.type.name
 
         cell_drawer = map_images[building.y][building.x]
-        cell_drawer.object = SPRITES.index_name[sprite_name]
+        cell_drawer.object = getattr(SPRITES, sprite_name)
 
     return map_images

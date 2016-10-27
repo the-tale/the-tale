@@ -15,7 +15,7 @@ def _modifier_linguistics_restrictions(modifier):
     def _linguistics_restrictions():
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
-        return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER, CITY_MODIFIERS.index_name[modifier].value).id, )
+        return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER, getattr(CITY_MODIFIERS, modifier).value).id, )
     return _linguistics_restrictions
 
 
@@ -28,7 +28,7 @@ def record(name, value, text, quest, modifier_effects, description):
             _modifier_linguistics_restrictions(name),
             tuple([effects.Effect(name=text, attribute=getattr(relations.ATTRIBUTE, attribute), value=value) for attribute, value in modifier_effects]),
             description,
-            relations.ATTRIBUTE.index_name['MODIFIER_{}'.format(name)] if name != 'NONE' else None)
+            getattr(relations.ATTRIBUTE, 'MODIFIER_{}'.format(name)) if name != 'NONE' else None)
 
 
 class CITY_MODIFIERS(DjangoEnum):

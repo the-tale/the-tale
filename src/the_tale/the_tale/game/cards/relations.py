@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from rels import Relation
 from rels import Column
 from rels.django import DjangoEnum
 
@@ -30,7 +31,10 @@ class CARDS_COMBINING_STATUS(DjangoEnum):
 
 
 
-class CARD_TYPE(DjangoEnum):
+class CARD_TYPE(Relation):
+    name = Column(primary=True, no_index=True)
+    value = Column(external=True, no_index=True)
+    text = Column()
     availability = Column(unique=False)
     rarity = Column(unique=False)
     form = Column(unique=False, primary=False, single_type=False)

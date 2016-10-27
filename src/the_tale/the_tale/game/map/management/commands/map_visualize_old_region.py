@@ -24,13 +24,13 @@ REAL_SIZE = ((OUTPUT_RECTANGLE[2]-OUTPUT_RECTANGLE[0]),
 
 
 def draw_sprite(image, texture, sprite_name, x, y, rotate=0, base=False):
-    sprite_info = SPRITES.index_name[sprite_name]
+    sprite_info = getattr(SPRITES, sprite_name)
 
     if isinstance(sprite_info, str):
-        sprite_info = SPRITES.index_name[sprite_info]
+        sprite_info = getattr(SPRITES, sprite_info)
 
     if base:
-        sprite_info = SPRITES.index_name[sprite_info.base]
+        sprite_info = getattr(SPRITES, sprite_info.base)
 
     sprite_borders = (sprite_info.x, sprite_info.y,
                       sprite_info.x + map_settings.CELL_SIZE, sprite_info.y + map_settings.CELL_SIZE)

@@ -141,7 +141,7 @@ class HeroMethod(BaseEffect):
 
 
 def place_attribute(id, attribute_name, base_value, attribute_text):
-    attribute = places_relations.ATTRIBUTE.index_name[attribute_name]
+    attribute = getattr(places_relations.ATTRIBUTE, attribute_name)
     return ('PLACE_{}'.format(attribute_name),
             id,
             attribute.text,

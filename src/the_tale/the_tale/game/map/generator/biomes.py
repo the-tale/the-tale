@@ -12,7 +12,7 @@ from the_tale.game.map.relations import TERRAIN
 _xls_attributes = {'filename': map_settings.TERRAIN_PRIORITIES_FIXTURE,
                    'rows': [terrain.name for terrain in TERRAIN.records] }
 
-_modify_row_names = lambda d: dict((TERRAIN.index_name[key], value) for key, value in list(d.items()))
+_modify_row_names = lambda d: dict((getattr(TERRAIN, key), value) for key, value in list(d.items()))
 
 _HEIGHT_POINTS = _modify_row_names(xls.load_table(sheet_index=0, columns=[ round(val/10.0, 1) for val in range(-10, 11)], **_xls_attributes))
 _TEMPERATURE_POINTS = _modify_row_names(xls.load_table(sheet_index=1, columns=[ round(val/10.0, 1) for val in range(0, 11)], **_xls_attributes))

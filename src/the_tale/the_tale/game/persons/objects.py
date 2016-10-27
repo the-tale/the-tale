@@ -208,7 +208,7 @@ class Person(names.ManageNameMixin2):
 
         for attribute in places_relations.ATTRIBUTE.records:
             effect_name = 'PLACE_{}'.format(attribute.name)
-            effect = jobs_effects.EFFECT.index_name.get(effect_name)
+            effect = getattr(jobs_effects.EFFECT, effect_name, None)
             if effect:
                 effects_priorities[effect] += self.economic_attributes[attribute]
 

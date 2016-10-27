@@ -162,9 +162,9 @@ class RawQuestsTest(QuestsTestBase):
         # print writer.diary_id()
         # print writer.action_id()
 
-        self.assertTrue(writer.journal_id().upper() in LEXICON_KEY.index_name or
-                        writer.diary_id().upper() in LEXICON_KEY.index_name or
-                        writer.action_id().upper() in LEXICON_KEY.index_name)
+        self.assertTrue(hasattr(LEXICON_KEY, writer.journal_id().upper()) or
+                        hasattr(LEXICON_KEY, writer.diary_id().upper()) or
+                        hasattr(LEXICON_KEY, writer.action_id().upper()))
 
     def _check_action_messages(self, quest_type, actions):
         for action in actions:
@@ -213,13 +213,13 @@ class RawQuestsTest(QuestsTestBase):
             starts.append((current_state.uid, current_state.type))
 
             writer = Writer(type=starts[-1][1], message=None, substitution={}, hero=self.hero)
-            self.assertTrue(writer.name_id().upper() in LEXICON_KEY.index_name)
+            self.assertTrue(hasattr(LEXICON_KEY, writer.name_id().upper()))
 
             for participant in knowledge_base.filter(facts.QuestParticipant):
                 if knowledge_base[participant.start].type != starts[-1][1]:
                     continue
 
-                self.assertTrue(writer.actor_id(participant.role).upper() in LEXICON_KEY.index_name)
+                self.assertTrue(hasattr(LEXICON_KEY, writer.actor_id(participant.role).upper()))
 
         self._check_action_messages(starts[-1][1], current_state.actions)
 
@@ -238,8 +238,8 @@ class RawQuestsTest(QuestsTestBase):
 
             if isinstance(next_jump, facts.Option):
                 writer = Writer(type=starts[-1][1], message='choice', substitution={}, hero=self.hero)
-                self.assertTrue(writer.choice_variant_id(next_jump.type).upper() in LEXICON_KEY.index_name)
-                self.assertTrue(writer.current_choice_id(next_jump.type).upper() in LEXICON_KEY.index_name)
+                self.assertTrue(hasattr(LEXICON_KEY, writer.choice_variant_id(next_jump.type).upper()))
+                self.assertTrue(hasattr(LEXICON_KEY, writer.current_choice_id(next_jump.type).upper()))
 
             path.append(next_jump.state_to)
             self._bruteforce(knowledge_base, path, table, list(starts), processed, powers )
