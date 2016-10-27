@@ -47,3 +47,8 @@ handlerCSRF = create_handler_view(PortalResource, 'handlerCSRF')
 handler403 = create_handler_view(PortalResource, 'handler403')
 handler404 = create_handler_view(PortalResource, 'handler404')
 handler500 = create_handler_view(PortalResource, 'handler500')
+
+import resource
+import gc
+gc.collect()
+print('memory usage: {}'.format(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024))

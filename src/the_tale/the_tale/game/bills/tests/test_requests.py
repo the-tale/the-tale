@@ -94,7 +94,7 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
 
     def test_bill_creation_locked_message(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(1, self.account1, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 1),
                                                                              ('pgf-create-new-bill-buttons', 0),
@@ -112,9 +112,9 @@ class TestIndexRequests(BaseTestRequests):
                                                                              ('pgf-can-not-participate-in-politics', 1)))
 
     def test_one_page(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(2, self.account1, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(3, self.account2, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
 
         texts = [('pgf-no-bills-message', 0),
@@ -129,16 +129,16 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=texts)
 
     def test_removed_bills(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(1, self.account1, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)[0].remove(self.account1)
 
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-no-bills-message', 1),))
 
     def create_two_pages(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(bills_settings.BILLS_ON_PAGE, self.account1, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
 
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(3, self.account2, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
 
     def test_two_pages(self):
@@ -198,7 +198,7 @@ class TestIndexRequests(BaseTestRequests):
                            texts=account_2_texts)
 
     def test_filter_by_state(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         bill_voting, bill_accepted, bill_rejected = self.create_bills(3, self.account1, 'Caption-%d', 'rationale-%d', bill_data)
 
         bill_accepted.state = BILL_STATE.ACCEPTED
@@ -226,14 +226,14 @@ class TestIndexRequests(BaseTestRequests):
         check_state_filter(self, None, 1, 1, 1)
 
     def test_filter_by_type_no_bills_message(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(3, self.account1, 'Caption-%d', 'rationale-%d', bill_data)
 
         self.check_html_ok(self.request_html(reverse('game:bills:')+('?bill_type=%d' % PersonRemove.type.value)),
                            texts=[('pgf-no-bills-message', 1)])
 
     def test_filter_by_type(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(3, self.account1, 'Caption-%d', 'rationale-%d', bill_data)
 
         self.check_html_ok(self.request_html(reverse('game:bills:')+('?bill_type=%d' % PlaceRenaming.type.value)),
@@ -243,17 +243,17 @@ class TestIndexRequests(BaseTestRequests):
                                   ('Caption-2', 1)])
 
     def test_filter_by_place_no_bills_message(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(3, self.account1, 'Caption-%d', 'rationale-%d', bill_data)
 
         self.check_html_ok(self.request_html(reverse('game:bills:')+('?place=%d' % self.place2.id)),
                            texts=[('pgf-no-bills-message', 1)])
 
     def test_filter_by_place(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(3, self.account1, 'Caption-%d', 'rationale-%d', bill_data)
 
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(3, self.account1, 'Caption-2-%d', 'rationale-2-%d', bill_data)
 
         self.check_html_ok(self.request_html(reverse('game:bills:')+('?place=%d' % self.place1.id)),
@@ -326,7 +326,7 @@ class TestShowRequests(BaseTestRequests):
 
 
     def test_unlogined(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(1, self.account1, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -334,7 +334,7 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-unlogined-message', 1),))
 
     def test_is_fast(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(1, self.account2, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -344,7 +344,7 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-participate-in-politics', 1),))
 
     def test_can_not_participate_in_politics(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(1, self.account2, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -355,7 +355,7 @@ class TestShowRequests(BaseTestRequests):
     @mock.patch('the_tale.game.places.objects.Place.is_new', False)
     def test_can_not_participate_in_politics__voted(self):
         # one vote automaticaly created for bill author
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(1, self.account1, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -368,7 +368,7 @@ class TestShowRequests(BaseTestRequests):
         self.hero.places_history._reset()
         heroes_logic.save_hero(self.hero)
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(1, self.account2, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -379,7 +379,7 @@ class TestShowRequests(BaseTestRequests):
         self.assertEqual(heroes_logic.load_hero(account_id=self.account1.id).places_history.history, collections.deque([], maxlen=200))
 
         # one vote automaticaly created for bill author
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         self.create_bills(1, self.account1, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -389,13 +389,13 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[0])), status_code=404)
 
     def test_removed(self):
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_1'))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
         bill = self.create_bills(1, self.account1, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)[0]
         bill.remove(self.account1)
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=[('bills.removed', 1)])
 
     def test_show(self):
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(1, self.account1, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -416,7 +416,7 @@ class TestShowRequests(BaseTestRequests):
 
         blogs_helpers.prepair_forum()
 
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(1, self.account1, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = BillPrototype._db_latest()
 
@@ -431,7 +431,7 @@ class TestShowRequests(BaseTestRequests):
 
 
     def test_show__vote_for(self):
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(1, self.account1, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -443,7 +443,7 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
     def test_show__vote_against(self):
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(1, self.account1, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -457,7 +457,7 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
     def test_show__vote_refrained(self):
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(1, self.account1, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -472,7 +472,7 @@ class TestShowRequests(BaseTestRequests):
 
 
     def test_show_when_not_voting_state(self):
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(1, self.account1, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
         bill.state = BILL_STATE.ACCEPTED
@@ -486,7 +486,7 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
     def test_show_after_voting(self):
-        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator.get_test_name('new_name_2'))
+        bill_data = PlaceRenaming(place_id=self.place2.id, name_forms=names.generator().get_test_name('new_name_2'))
         self.create_bills(1, self.account1, 'Caption-a2-%d', 'rationale-a2-%d', bill_data)
         bill = Bill.objects.all()[0]
 
@@ -502,7 +502,7 @@ class TestShowRequests(BaseTestRequests):
 class TestCreateRequests(BaseTestRequests):
 
     def get_post_data(self):
-        new_name = names.generator.get_test_name('new-name')
+        new_name = names.generator().get_test_name('new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
@@ -583,7 +583,7 @@ class TestVoteRequests(BaseTestRequests):
 
         heroes_logic.save_hero(self.hero)
 
-        new_name = names.generator.get_test_name('new-name')
+        new_name = names.generator().get_test_name('new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
@@ -669,7 +669,7 @@ class TestEditRequests(BaseTestRequests):
     def setUp(self):
         super(TestEditRequests, self).setUp()
 
-        new_name = names.generator.get_test_name('new-name')
+        new_name = names.generator().get_test_name('new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
@@ -731,7 +731,7 @@ class TestUpdateRequests(BaseTestRequests):
     def setUp(self):
         super(TestUpdateRequests, self).setUp()
 
-        new_name = names.generator.get_test_name('new-name')
+        new_name = names.generator().get_test_name('new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
@@ -744,7 +744,7 @@ class TestUpdateRequests(BaseTestRequests):
         self.bill = BillPrototype(Bill.objects.all()[0])
 
     def get_post_data(self):
-        new_name = names.generator.get_test_name('new-new-name')
+        new_name = names.generator().get_test_name('new-new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'new-caption',
@@ -813,7 +813,7 @@ class TestModerationPageRequests(BaseTestRequests):
     def setUp(self):
         super(TestModerationPageRequests, self).setUp()
 
-        new_name = names.generator.get_test_name('new-name')
+        new_name = names.generator().get_test_name('new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
@@ -867,7 +867,7 @@ class TestModerateRequests(BaseTestRequests):
     def setUp(self):
         super(TestModerateRequests, self).setUp()
 
-        new_name = names.generator.get_test_name('new-name')
+        new_name = names.generator().get_test_name('new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
@@ -930,7 +930,7 @@ class TestDeleteRequests(BaseTestRequests):
     def setUp(self):
         super(TestDeleteRequests, self).setUp()
 
-        new_name = names.generator.get_test_name('new-name')
+        new_name = names.generator().get_test_name('new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',

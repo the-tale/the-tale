@@ -24,7 +24,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.bill = self.create_place_renaming_bill(1)
 
     def create_place_renaming_bill(self, index):
-        self.bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_%d' % index))
+        self.bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_%d' % index))
         return BillPrototype.create(self.account1, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
@@ -62,7 +62,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         self.assertEqual(self.bill.data.place_id, self.place1.id)
         self.assertEqual(Post.objects.all().count(), 1)
 
-        new_name = names.generator.get_test_name('new-new-name')
+        new_name = names.generator().get_test_name('new-new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'new-caption',
@@ -97,7 +97,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
         self.assertEqual(self.bill.approved_by_moderator, False)
 
-        noun = names.generator.get_test_name('new-name')
+        noun = names.generator().get_test_name('new-name')
 
         data = self.bill.user_form_initials
         data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
@@ -136,7 +136,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        new_name = names.generator.get_test_name('new-new-name')
+        new_name = names.generator().get_test_name('new-new-name')
 
         data = self.bill.user_form_initials
         data.update(linguistics_helpers.get_word_post_data(new_name, prefix='name'))
@@ -160,7 +160,7 @@ class PlaceRenamingTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        new_name = names.generator.get_test_name('new-new-name')
+        new_name = names.generator().get_test_name('new-new-name')
         self.bill.data.place.set_utg_name(new_name)
 
         data = self.bill.user_form_initials

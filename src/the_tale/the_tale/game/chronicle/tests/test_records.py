@@ -34,7 +34,7 @@ class RecordTests(TestCase):
                                    uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
-        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator.get_test_name('new_name'))
+        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator().get_test_name('new_name'))
         self.bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_records_for_every_type(self):
@@ -47,7 +47,7 @@ class RecordTests(TestCase):
         self.assertEqual(types, set())
 
     def create_test_word(self, index):
-        return names.generator.get_test_name('new name %d' % index)
+        return names.generator().get_test_name('new name %d' % index)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))

@@ -305,7 +305,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
 
         name = 'mob_'+uuid.lower()
 
-        utg_name = names.generator.get_test_name(name=name)
+        utg_name = names.generator().get_test_name(name=name)
 
         battle_abilities = cls.get_available_abilities()
         battle_abilities = set([a.get_id() for a in battle_abilities])

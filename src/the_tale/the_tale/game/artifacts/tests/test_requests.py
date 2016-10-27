@@ -29,7 +29,7 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 class PostMixin(object):
     def get_create_data(self, mob=None):
-        word = names.generator.get_test_name(name='artifact')
+        word = names.generator().get_test_name(name='artifact')
         data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
         data.update({
@@ -51,7 +51,7 @@ class PostMixin(object):
         return data
 
     def get_update_data(self, mob=None):
-        word = names.generator.get_test_name(name='new name')
+        word = names.generator().get_test_name(name='new name')
         data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
         data.update({
@@ -457,7 +457,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
         self.check_ajax_ok(self.client.post(reverse('game:artifacts:create'), self.get_create_data()))
         self.artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all().order_by('-created_at')[0])
 
-        self.name = names.generator.get_test_name(name='new name')
+        self.name = names.generator().get_test_name(name='new name')
 
         self.request_logout()
         self.request_login(self.account_3.email)

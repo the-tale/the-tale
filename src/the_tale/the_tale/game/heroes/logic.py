@@ -321,7 +321,7 @@ def create_hero(account):
 
     current_turn_number = TimePrototype.get_current_turn_number()
 
-    utg_name = names.generator.get_name(race, gender)
+    utg_name = names.generator().get_name(race, gender)
 
     hero_position = position.Position.create(place_id=start_place.id, road_id=None)
 

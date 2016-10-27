@@ -30,7 +30,7 @@ from .. import meta_relations
 
 class PostMixin(object):
     def get_create_data(self, name='mob name'):
-        word = names.generator.get_test_name(name=name)
+        word = names.generator().get_test_name(name=name)
 
         data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
@@ -49,7 +49,7 @@ class PostMixin(object):
         return data
 
     def get_update_data(self, name='new name'):
-        word = names.generator.get_test_name(name=name)
+        word = names.generator().get_test_name(name=name)
 
         data = linguistics_helpers.get_word_post_data(word, prefix='name')
 
@@ -496,7 +496,7 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
         self.check_ajax_ok(self.client.post(reverse('game:mobs:create'), self.get_create_data()))
         self.mob = MobRecordPrototype(MobRecord.objects.all().order_by('-created_at')[0])
 
-        self.name = names.generator.get_test_name(name='new name')
+        self.name = names.generator().get_test_name(name='new name')
 
         self.request_logout()
         self.request_login(self.account_3.email)

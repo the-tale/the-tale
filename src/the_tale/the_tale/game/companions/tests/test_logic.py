@@ -25,7 +25,7 @@ class LogicTests(testcase.TestCase):
 
 
     def test_create_companion_record(self):
-        name = names.generator.get_test_name()
+        name = names.generator().get_test_name()
         description = 'test description'
 
         type = game_relations.BEING_TYPE.random()
@@ -78,7 +78,7 @@ class LogicTests(testcase.TestCase):
 
 
     def test_create_companion_record__set_state(self):
-        companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(),
+        companion_record = logic.create_companion_record(utg_name=names.generator().get_test_name(),
                                                          description='description',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=10,
@@ -97,7 +97,7 @@ class LogicTests(testcase.TestCase):
 
     def test_create_companion_record__linguistics_restriction_setupped(self):
         with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
-            companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(),
+            companion_record = logic.create_companion_record(utg_name=names.generator().get_test_name(),
                                                             description='description',
                                                             type=game_relations.BEING_TYPE.random(),
                                                             max_health=10,
@@ -117,8 +117,8 @@ class LogicTests(testcase.TestCase):
 
 
     def test_update_companion_record(self):
-        old_name = names.generator.get_test_name(name='old')
-        new_name = names.generator.get_test_name(name='new')
+        old_name = names.generator().get_test_name(name='old')
+        new_name = names.generator().get_test_name(name='new')
 
         type = game_relations.BEING_TYPE.random()
         dedication = relations.DEDICATION.random()
@@ -205,7 +205,7 @@ class LogicTests(testcase.TestCase):
         communication_telepathic = game_relations.COMMUNICATION_TELEPATHIC.random()
         intellect_level = game_relations.INTELLECT_LEVEL.random()
 
-        companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(name='old'),
+        companion_record = logic.create_companion_record(utg_name=names.generator().get_test_name(name='old'),
                                                          description='old-description',
                                                          type=type,
                                                          max_health=max_health,
@@ -257,8 +257,8 @@ class LogicTests(testcase.TestCase):
 
 
     def test_update_companion_record__linguistics_restrictions(self):
-        old_name = names.generator.get_test_name(name='old')
-        new_name = names.generator.get_test_name(name='new')
+        old_name = names.generator().get_test_name(name='old')
+        new_name = names.generator().get_test_name(name='new')
 
         companion_record = logic.create_companion_record(utg_name=old_name,
                                                          description='old-description',
@@ -293,7 +293,7 @@ class LogicTests(testcase.TestCase):
                                                                      name=new_name.normal_form())])
 
     def test_create_companion(self):
-        companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(),
+        companion_record = logic.create_companion_record(utg_name=names.generator().get_test_name(),
                                                          description='description',
                                                          type=game_relations.BEING_TYPE.random(),
                                                          max_health=10,

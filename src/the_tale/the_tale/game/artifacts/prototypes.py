@@ -322,7 +322,7 @@ class ArtifactRecordPrototype(BasePrototype, names.ManageNameMixin):
                       power_type=relations.ARTIFACT_POWER_TYPE.NEUTRAL,
                       state=relations.ARTIFACT_RECORD_STATE.ENABLED):
         name = 'artifact_'+uuid.lower()
-        utg_name = names.generator.get_test_name(name=name)
+        utg_name = names.generator().get_test_name(name=name)
         return cls.create(uuid, level=level, utg_name=utg_name, description='description of %s' % name, mob=mob, type_=type_, power_type=power_type, state=state)
 
     def update_by_creator(self, form, editor):

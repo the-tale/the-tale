@@ -180,7 +180,7 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
     def get_post_data(self, name='новое имя', gender=GENDER.MASCULINE, race=RACE.DWARF):
         data = {'gender': gender,
                 'race': race}
-        data.update(linguistics_helpers.get_word_post_data(names.generator.get_test_name(name=name), prefix='name'))
+        data.update(linguistics_helpers.get_word_post_data(names.generator().get_test_name(name=name), prefix='name'))
         return data
 
     def test_chane_hero_ownership(self):
@@ -204,7 +204,7 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
         self.check_ajax_processing(response, task.status_url)
 
-        self.assertEqual(task.internal_logic.name, names.generator.get_test_name(name='новое имя'))
+        self.assertEqual(task.internal_logic.name, names.generator().get_test_name(name='новое имя'))
         self.assertEqual(task.internal_logic.gender, GENDER.MASCULINE)
         self.assertEqual(task.internal_logic.race, RACE.DWARF)
 
@@ -262,7 +262,7 @@ class ResetNameRequestsTests(HeroRequestsTestBase):
         self.check_ajax_error(self.client.post(url('game:heroes:reset-name', self.hero.id)), 'heroes.moderator_rights_required')
 
     def test_change_hero(self):
-        self.hero.set_utg_name(names.generator.get_test_name('x'))
+        self.hero.set_utg_name(names.generator().get_test_name('x'))
         logic.save_hero(self.hero)
 
         self.assertEqual(PostponedTask.objects.all().count(), 0)

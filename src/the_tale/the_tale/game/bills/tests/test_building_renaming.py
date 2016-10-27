@@ -27,12 +27,12 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.person_2 = self.place2.persons[0]
         self.person_3 = self.place3.persons[0]
 
-        self.building = BuildingPrototype.create(self.person_1, utg_name=names.generator.get_test_name('building-name'))
-        self.building_2 = BuildingPrototype.create(self.person_2, utg_name=names.generator.get_test_name('building-name-2'))
+        self.building = BuildingPrototype.create(self.person_1, utg_name=names.generator().get_test_name('building-name'))
+        self.building_2 = BuildingPrototype.create(self.person_2, utg_name=names.generator().get_test_name('building-name-2'))
 
         self.bill_data = BuildingRenaming(person_id=self.person_1.id,
                                           old_place_name_forms=self.place1.utg_name,
-                                          new_building_name_forms=names.generator.get_test_name('new-building-name'))
+                                          new_building_name_forms=names.generator().get_test_name('new-building-name'))
         self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', self.bill_data, chronicle_on_accepted='chronicle-accepted-1')
 
 
@@ -45,7 +45,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
 
     def test_update(self):
-        data = linguistics_helpers.get_word_post_data(names.generator.get_test_name('new-building-name-2'), prefix='name')
+        data = linguistics_helpers.get_word_post_data(names.generator().get_test_name('new-building-name-2'), prefix='name')
         data.update({'caption': 'new-caption',
                      'rationale': 'new-rationale',
                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
@@ -78,7 +78,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        noun = names.generator.get_test_name('r-building-name')
+        noun = names.generator().get_test_name('r-building-name')
 
         data = {'rationale': 'bill-rationale',
                 'person': 1,
@@ -110,7 +110,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        noun = names.generator.get_test_name('r-building-name')
+        noun = names.generator().get_test_name('r-building-name')
 
         data = {'rationale': 'bill-rationale',
                 'person': 1,
@@ -139,7 +139,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        noun = names.generator.get_test_name('r-building-name')
+        noun = names.generator().get_test_name('r-building-name')
 
         data = {'rationale': 'bill-rationale',
                 'person': 1,
@@ -171,7 +171,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
         VotePrototype.create(self.account2, self.bill, False)
         VotePrototype.create(self.account3, self.bill, True)
 
-        noun = names.generator.get_test_name('r-building-name')
+        noun = names.generator().get_test_name('r-building-name')
 
         data = {'rationale': 'bill-rationale',
                 'person': 1,

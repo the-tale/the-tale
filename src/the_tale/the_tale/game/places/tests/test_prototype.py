@@ -26,7 +26,7 @@ class BuildingPrototypeTests(testcase.TestCase):
     def test_get_available_positions(self):
 
         building = BuildingPrototype.create(self.place_1.persons[0],
-                                            utg_name=names.generator.get_test_name(name='building-name'))
+                                            utg_name=names.generator().get_test_name(name='building-name'))
 
         positions = BuildingPrototype.get_available_positions(self.place_1.x, self.place_1.y)
 
@@ -57,7 +57,7 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         old_version = storage.buildings.version
 
-        name = names.generator.get_test_name(name='building-name')
+        name = names.generator().get_test_name(name='building-name')
 
         building = BuildingPrototype.create(self.place_1.persons[0], utg_name=name)
 
@@ -67,7 +67,7 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         old_version = storage.buildings.version
 
-        name_2 = names.generator.get_test_name(name='building-name-2')
+        name_2 = names.generator().get_test_name(name='building-name-2')
         building_2 = BuildingPrototype.create(self.place_1.persons[0], utg_name=name_2)
 
         self.assertEqual(old_version, storage.buildings.version)
@@ -82,11 +82,11 @@ class BuildingPrototypeTests(testcase.TestCase):
 
         person = self.place_1.persons[0]
 
-        name = names.generator.get_test_name(name='building-name')
+        name = names.generator().get_test_name(name='building-name')
         building = BuildingPrototype.create(person, utg_name=name)
         building.destroy()
 
-        name_2 = names.generator.get_test_name(name='building-name-2')
+        name_2 = names.generator().get_test_name(name='building-name-2')
         building = BuildingPrototype.create(person, utg_name=name_2)
 
         self.assertNotEqual(old_version, storage.buildings.version)
@@ -95,7 +95,7 @@ class BuildingPrototypeTests(testcase.TestCase):
         self.assertEqual(building.utg_name, name_2)
 
     def test_amortize(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
 
         old_integrity = building.integrity
 
@@ -112,13 +112,13 @@ class BuildingPrototypeTests(testcase.TestCase):
 
 
     def test_amortization_grows(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
 
         old_integrity = building.integrity
         building.amortize(1000)
         amortization_delta = old_integrity - building.integrity
 
-        building_2 = BuildingPrototype.create(self.place_1.persons[1], utg_name=names.generator.get_test_name(name='building-name-2'))
+        building_2 = BuildingPrototype.create(self.place_1.persons[1], utg_name=names.generator().get_test_name(name='building-name-2'))
 
         old_integrity_2 = building_2.integrity
         building_2.amortize(1000)
@@ -128,7 +128,7 @@ class BuildingPrototypeTests(testcase.TestCase):
 
     def test_amortization_delta_depends_from_person_building_amortization_speed(self):
         person = self.place_1.persons[0]
-        building = BuildingPrototype.create(person, utg_name=names.generator.get_test_name(name='building-name'))
+        building = BuildingPrototype.create(person, utg_name=names.generator().get_test_name(name='building-name'))
 
         person.attrs.building_amortization_speed = 1
 
@@ -137,7 +137,7 @@ class BuildingPrototypeTests(testcase.TestCase):
 
 
     def test_save__update_storage(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
 
         old_version = storage.buildings.version
         building.save()
@@ -145,7 +145,7 @@ class BuildingPrototypeTests(testcase.TestCase):
 
 
     def test_destroy__update_storage(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name(name='building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
 
         old_version = storage.buildings.version
         building.destroy()

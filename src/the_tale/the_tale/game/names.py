@@ -1,7 +1,5 @@
 # coding: utf-8
 
-import pynames
-
 from utg import words as utg_words
 from utg import relations as utg_relations
 
@@ -11,12 +9,18 @@ from the_tale.game import relations
 
 
 class NamesGenerators(object):
+    __slots__ = ('elven', 'orcish', 'dwarfish', 'goblin', 'human', 'language')
 
-    elven = pynames.generators.elven.DnDNamesGenerator()
-    orcish = pynames.generators.mongolian.MongolianNamesGenerator()
-    dwarfish = pynames.generators.scandinavian.ScandinavianNamesGenerator()
-    goblin = pynames.generators.korean.KoreanNamesGenerator()
-    human = pynames.generators.russian.PaganNamesGenerator()
+    def __init__(self):
+        import pynames
+
+        self.elven = pynames.generators.elven.DnDNamesGenerator()
+        self.orcish = pynames.generators.mongolian.MongolianNamesGenerator()
+        self.dwarfish = pynames.generators.scandinavian.ScandinavianNamesGenerator()
+        self.goblin = pynames.generators.korean.KoreanNamesGenerator()
+        self.human = pynames.generators.russian.PaganNamesGenerator()
+
+        self.language = pynames.LANGUAGE.RU
 
     def _get_name(self, race, gender):
         if race.is_HUMAN:
@@ -31,7 +35,7 @@ class NamesGenerators(object):
             return self.dwarfish.get_name(genders=[gender.pynames_id])
 
     def get_name(self, race, gender):
-        name_forms = self._get_name(race, gender).get_forms_for(gender=gender.pynames_id, language=pynames.LANGUAGE.RU)
+        name_forms = self._get_name(race, gender).get_forms_for(gender=gender.pynames_id, language=self.language)
 
         name_forms += ['']*6
 
@@ -96,4 +100,12 @@ class ManageNameMixin2(object):
         self.utg_name = word
 
 
-generator = NamesGenerators()
+_generator = None
+
+def generator():
+    global _generator
+
+    if _generator is None:
+        _generator = NamesGenerators()
+
+    return _generator

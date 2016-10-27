@@ -46,7 +46,7 @@ class WORD_USED_IN_STATUS(DjangoEnum):
 
 
 class WORD_BLOCK_BASE(DjangoEnum):
-    schema = Column()
+    schema = Column(no_index=False)
 
     records = ( ('NC', 0, 'число-падеж', (utg_relations.NUMBER, utg_relations.CASE)),
                 ('NCG', 1, 'число-падеж-род', (utg_relations.NUMBER, utg_relations.CASE, utg_relations.GENDER)),

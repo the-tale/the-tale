@@ -187,7 +187,7 @@ class HighlevelTest(testcase.TestCase):
                                    uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
-        new_name = names.generator.get_test_name('new-new-name')
+        new_name = names.generator().get_test_name('new-new-name')
 
         bill_data_1 = bills.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
         bill_1 = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', 'bill-1-rationale', bill_data_1, chronicle_on_accepted='chronicle-on-accepted')
