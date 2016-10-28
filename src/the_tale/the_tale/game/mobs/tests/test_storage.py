@@ -40,7 +40,7 @@ class MobsStorageTests(testcase.TestCase):
 
         self.bandit = MobRecordPrototype.create(uuid='bandit',
                                                 level=1,
-                                                utg_name=names.generator.get_test_name(name='bandint'),
+                                                utg_name=names.generator().get_test_name(name='bandint'),
                                                 description='description',
                                                 abilities=['hit'],
                                                 terrains=[map_relations.TERRAIN.PLANE_SAND],
@@ -48,7 +48,7 @@ class MobsStorageTests(testcase.TestCase):
                                                 state=MOB_RECORD_STATE.ENABLED)
         self.bandint_wrong = MobRecordPrototype.create(uuid='bandit_wrong',
                                                        level=1,
-                                                       utg_name=names.generator.get_test_name(name='bandit_wrong'),
+                                                       utg_name=names.generator().get_test_name(name='bandit_wrong'),
                                                        description='bandit_wrong description',
                                                        abilities=['hit'],
                                                        terrains=[map_relations.TERRAIN.PLANE_SAND],

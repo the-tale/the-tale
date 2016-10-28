@@ -92,7 +92,7 @@ class RatingPrototypeTests(PrototypeTestsBase):
         from the_tale.game.bills.bills import PlaceRenaming
         from the_tale.game.bills.prototypes import BillPrototype
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator.get_test_name('new_name_%d' % index))
+        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_%d' % index))
         bill = BillPrototype.create(owner, 'bill-%d-caption' % index, 'bill-%d-rationale' % index, bill_data, chronicle_on_accepted='chronicle-on-accepted')
         bill.state = state
         bill.save()

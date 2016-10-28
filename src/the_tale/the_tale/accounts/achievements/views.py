@@ -84,7 +84,6 @@ class AchievementsResource(Resource):
     @validate_argument('account', AccountPrototype.get_by_id, 'accounts.achievements', 'Игрок не найден')
     @handler('#group', name='group')
     def show_group(self, account=None):
-
         if account is None and self.account.is_authenticated():
             return self.redirect(url('accounts:achievements:group', self.group.slug, account=self.account.id))
 

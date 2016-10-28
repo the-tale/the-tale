@@ -78,7 +78,7 @@ class MobsPrototypeTests(testcase.TestCase):
 
     def test_linguistics_restrictions_update_on_save(self):
         mob = MobRecordPrototype.create_random(uuid='bandit', state=MOB_RECORD_STATE.DISABLED)
-        mob.set_utg_name(names.generator.get_test_name('new-name'))
+        mob.set_utg_name(names.generator().get_test_name('new-name'))
 
         with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
             mob.save()
@@ -91,7 +91,7 @@ class MobsPrototypeTests(testcase.TestCase):
     def test_mob_attributes(self):
         MobRecordPrototype.create(uuid='bandit',
                                   level=1,
-                                  utg_name=names.generator.get_test_name(name='bandit'),
+                                  utg_name=names.generator().get_test_name(name='bandit'),
                                   description='bandint',
                                   abilities=['hit', 'thick', 'slow', 'extra_strong'],
                                   terrains=TERRAIN.records,

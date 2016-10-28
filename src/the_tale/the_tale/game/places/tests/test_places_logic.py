@@ -34,7 +34,7 @@ class PlacePowerTest(testcase.TestCase):
         self.place = logic.create_place(x=0,
                                         y=0,
                                         size=5,
-                                        utg_name=names.generator.get_test_name(name='power_test_place'),
+                                        utg_name=names.generator().get_test_name(name='power_test_place'),
                                         race=RACE.HUMAN)
 
         for i in range(3):

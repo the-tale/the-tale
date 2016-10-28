@@ -34,7 +34,7 @@ class UseCardTaskTests(testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], utg_name=names.generator.get_test_name('building-1-name'))
+        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
 
         environment.deinitialize()
         environment.initialize()

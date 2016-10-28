@@ -189,7 +189,7 @@ def add_person_to_place(place):
                                              race=race,
                                              gender=gender,
                                              type=persons_relations.PERSON_TYPE.random(),
-                                             utg_name=names.generator.get_name(race, gender))
+                                             utg_name=names.generator().get_name(race, gender))
 
     place.refresh_attributes()
 

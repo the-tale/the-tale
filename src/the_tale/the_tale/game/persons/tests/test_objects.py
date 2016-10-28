@@ -63,7 +63,7 @@ class PersonTests(testcase.TestCase):
                                                                        power_delta=100,
                                                                        place_id=None))
 
-        BuildingPrototype.create(self.person, utg_name=names.generator.get_test_name('building-name'))
+        BuildingPrototype.create(self.person, utg_name=names.generator().get_test_name('building-name'))
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
             self.person.cmd_change_power(hero_id=666, has_place_in_preferences=False, has_person_in_preferences=False, power=-100)

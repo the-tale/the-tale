@@ -41,7 +41,7 @@ class GeneratorTests(TestCase):
 def create_test_building_power_point(building_type):
 
     def test_building_power_point(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name('building-name'))
+        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name('building-name'))
         building._model.type = building_type
         building.save()
 

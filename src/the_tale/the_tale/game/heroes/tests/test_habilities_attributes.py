@@ -99,7 +99,7 @@ class AttributeAbiliesForMobTest(testcase.TestCase):
         uuid = 'test_mob %d' % index
         mob_record =  MobRecordPrototype.create(uuid,
                                                 level=1,
-                                                utg_name=names.generator.get_test_name(uuid),
+                                                utg_name=names.generator().get_test_name(uuid),
                                                 description='',
                                                 abilities=abilities,
                                                 terrains=[],

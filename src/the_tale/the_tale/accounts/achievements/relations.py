@@ -5,7 +5,7 @@ from rels.django import DjangoEnum
 
 
 class ACHIEVEMENT_GROUP(DjangoEnum): # visualization
-    slug = rels.Column()
+    slug = rels.Column(no_index=False)
 
     records = ( ('TIME', 0, 'Время', 'time'),
                 ('MONEY', 1, 'Деньги', 'money'),

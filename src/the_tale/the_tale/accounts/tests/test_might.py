@@ -78,7 +78,7 @@ class CalculateMightTests(testcase.TestCase):
 
     def test_accepted_bill_might(self):
         old_might = calculate_might(self.account)
-        bill_data = PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator.get_test_name('bill_place'))
+        bill_data = PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator().get_test_name('bill_place'))
         bill = BillPrototype.create(self.account, 'caption', 'rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
         bill.state = BILL_STATE.ACCEPTED
         bill.save()
@@ -92,7 +92,7 @@ class CalculateMightTests(testcase.TestCase):
 
     def test_voted_bill_might(self):
         old_might = calculate_might(self.account)
-        bill_data = PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator.get_test_name('bill_place'))
+        bill_data = PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator().get_test_name('bill_place'))
         bill = BillPrototype.create(self.account, 'caption', 'rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
         bill.state = BILL_STATE.VOTING
         bill.save()
@@ -106,7 +106,7 @@ class CalculateMightTests(testcase.TestCase):
 
     def test_rejected_bill_might(self):
         old_might = calculate_might(self.account)
-        bill_data = PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator.get_test_name('bill_place'))
+        bill_data = PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator().get_test_name('bill_place'))
         bill = BillPrototype.create(self.account, 'caption', 'rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
         bill.state = BILL_STATE.REJECTED
         bill.save()
@@ -120,7 +120,7 @@ class CalculateMightTests(testcase.TestCase):
 
     def test_forum_vote_might(self):
         old_might = calculate_might(self.account)
-        bill_data = PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator.get_test_name('bill_place'))
+        bill_data = PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator().get_test_name('bill_place'))
         bill = BillPrototype.create(self.account_2, 'caption', 'rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
         bill.state = BILL_STATE.REJECTED
         bill.save()

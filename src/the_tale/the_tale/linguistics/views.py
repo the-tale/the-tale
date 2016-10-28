@@ -79,7 +79,7 @@ class LinguisticsResource(Resource):
     def index(self):
         groups_count, keys_count = logic.get_templates_count()
 
-        groups_keys = {group: sorted(keys.LEXICON_KEY.index_group.get(group), key=lambda key: key.text)
+        groups_keys = {group: sorted([key for key in keys.LEXICON_KEY.records if group == key.group], key=lambda key: key.text)
                       for group in lexicon_groups_relations.LEXICON_GROUP.records}
 
         return self.template('linguistics/index.html',

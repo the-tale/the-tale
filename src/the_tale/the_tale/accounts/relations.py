@@ -50,7 +50,7 @@ class RANDOM_PREMIUM_REQUEST_STATE(DjangoEnum):
 
 class MIGHT_AMOUNT(DjangoEnum):
     amount = Column(unique=False, single_type=False)
-    award = Column(unique=False, single_type=False)
+    award = Column(unique=False, single_type=False, no_index=False)
 
     records = ( ('FOR_FORUM_POST', 0, 'за сообщение на форуме', 0.3, None),
                 ('FOR_FORUM_THREAD', 2, 'со обсуждение на форуме', 3, None),

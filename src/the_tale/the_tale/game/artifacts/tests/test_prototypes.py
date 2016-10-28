@@ -89,7 +89,7 @@ class PrototypeTests(testcase.TestCase):
 
     def test_linguistics_restriction_version_update_on_save(self):
         artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot')
-        artifact.set_utg_name(names.generator.get_test_name('new-name'))
+        artifact.set_utg_name(names.generator().get_test_name('new-name'))
 
         with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
             artifact.save()
@@ -101,7 +101,7 @@ class PrototypeTests(testcase.TestCase):
     def test_artifacts_attributes(self):
         ArtifactRecordPrototype.create(uuid='bandit_loot',
                                        level=1,
-                                       utg_name=names.generator.get_test_name('artifact'),
+                                       utg_name=names.generator().get_test_name('artifact'),
                                        description='bandit loot description',
                                        type_=relations.ARTIFACT_TYPE.HELMET,
                                        power_type=relations.ARTIFACT_POWER_TYPE.NEUTRAL)

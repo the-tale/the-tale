@@ -161,7 +161,7 @@ class ResourceExchangeStorageTests(testcase.TestCase):
                                    uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
 
-        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator.get_test_name('new_name'))
+        bill_data = bills.PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator().get_test_name('new_name'))
         bill = BillPrototype.create(account, 'bill-caption', 'bill-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         ResourceExchangePrototype.create(place_1=self.place_1,

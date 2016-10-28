@@ -123,7 +123,7 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
 
 class EQUIPMENT_SLOT(DjangoEnum):
     artifact_type = Column(related_name='equipment_slot')
-    default = Column(unique=False, single_type=False)
+    default = Column(unique=False, single_type=False, no_index=False)
 
     # records sorted in order in which they must be placed in UI
     records = ( ('HAND_PRIMARY', 0, 'основная рука', ARTIFACT_TYPE.MAIN_HAND, 'default_weapon'),

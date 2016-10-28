@@ -46,7 +46,7 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
         self.highlevel = environment.workers.highlevel
         self.highlevel.process_initialize(0, 'highlevel')
 
-        self.building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name('building-name'))
+        self.building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name('building-name'))
         self.building._model.integrity = 0.5
         self.building.save()
 
@@ -121,7 +121,7 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_repair_building', True)
     def test_use_for_repaired_building(self):
-        self.building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator.get_test_name('building-name'))
+        self.building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name('building-name'))
         self.building._model.integrity = 1.0
         self.building.save()
 

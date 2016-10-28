@@ -40,7 +40,7 @@ class BaseEffectsTests(testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.companion_record = logic.create_companion_record(utg_name=names.generator.get_test_name(),
+        self.companion_record = logic.create_companion_record(utg_name=names.generator().get_test_name(),
                                                               description='description',
                                                               type=game_relations.BEING_TYPE.random(),
                                                               max_health=10,

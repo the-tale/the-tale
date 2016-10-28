@@ -31,6 +31,7 @@ class XsollaEnabledProcessor(dext_views.BaseViewProcessor):
 
         context.xsolla_enabled = real_payments_enabled and payments_settings.XSOLLA_ENABLED
 
+
 class PurchaseProcessor(dext_views.ArgumentProcessor):
     ERROR_MESSAGE = 'Неверный идентификатор покупки'
     GET_NAME = 'purchase'

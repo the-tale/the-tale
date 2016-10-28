@@ -181,7 +181,7 @@ class HeroResource(Resource):
     @handler('#hero', 'reset-name', method='post')
     def reset_name(self):
         change_task = postponed_tasks.ChangeHeroTask(hero_id=self.hero.id,
-                                     name=names.generator.get_name(self.hero.race, self.hero.gender),
+                                     name=names.generator().get_name(self.hero.race, self.hero.gender),
                                      race=self.hero.race,
                                      gender=self.hero.gender)
 

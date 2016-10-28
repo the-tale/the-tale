@@ -16,5 +16,5 @@ def create_person(place):
     return logic.create_person(place,
                                race=race,
                                type=random.choice(PERSON_TYPE.records),
-                               utg_name=names.generator.get_name(race, gender),
+                               utg_name=names.generator().get_name(race, gender),
                                gender=gender)

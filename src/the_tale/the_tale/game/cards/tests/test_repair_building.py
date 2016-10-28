@@ -46,8 +46,8 @@ class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
         self.highlevel = environment.workers.highlevel
         self.highlevel.process_initialize(0, 'highlevel')
 
-        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], utg_name=names.generator.get_test_name('building-1-name'))
-        self.building_2 = BuildingPrototype.create(person=self.place_2.persons[0], utg_name=names.generator.get_test_name('building-1-name'))
+        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
+        self.building_2 = BuildingPrototype.create(person=self.place_2.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
 
         self.building_1.amortize(c.TURNS_IN_HOUR*24)
         self.building_2.amortize(c.TURNS_IN_HOUR*24)
