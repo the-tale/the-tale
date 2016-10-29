@@ -41,6 +41,8 @@ class Worker(BaseWorker):
             self.wait_answers_from(command, workers=list(self.logic_workers.keys()))
 
     def initialize(self):
+        self.clean_queues()
+
         self.gracefull_stop_required = False
 
         self.time = prototypes.TimePrototype.get_current_time()
