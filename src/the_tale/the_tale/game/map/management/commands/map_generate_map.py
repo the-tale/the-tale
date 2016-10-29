@@ -5,11 +5,8 @@ import traceback
 
 from django.core.management.base import BaseCommand
 
-
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.generator import update_map
-
-from optparse import make_option
 
 logger = logging.getLogger('the-tale.workers.game_highlevel')
 
@@ -17,13 +14,9 @@ class Command(BaseCommand):
 
     help = 'generate map'
 
-    option_list = BaseCommand.option_list + ( make_option('-n', '--number',
-                                                          action='store',
-                                                          type=int,
-                                                          dest='repeate_number',
-                                                          default=1,
-                                                          help='howe many times do generation'), )
-
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument('-n', '--number', action='store', type=int, dest='repeate_number', default=1, help='howe many times do generation')
 
     def handle(self, *args, **options):
 

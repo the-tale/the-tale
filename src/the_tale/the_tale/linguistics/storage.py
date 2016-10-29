@@ -69,7 +69,7 @@ class GameLexiconDictionaryStorage(storage.SingleStorage):
             data = s11n.from_json(data)
             template = utg_templates.Template.deserialize(data['template'])
             restrictions = frozenset(tuple(key) for key in data.get('restrictions', ()))
-            self._item.add_template(LEXICON_KEY(key), template, restrictions=restrictions)
+            self._item.add_template(key, template, restrictions=restrictions)
 
         self._version = settings.get(self.SETTINGS_KEY)
 

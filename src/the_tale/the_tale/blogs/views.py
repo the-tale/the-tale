@@ -38,7 +38,7 @@ class PostResource(Resource):
 
     @validator(code='blogs.posts.fast_account', message='Для выполнения этого действия необходимо завершить регистрацию')
     def validate_fast_account_restrictions(self, *args, **kwargs):
-        return self.account.is_authenticated() and not self.account.is_fast
+        return self.account.is_authenticated and not self.account.is_fast
 
     @validator(code='blogs.posts.no_edit_rights', message='Вы не можете редактировать это произведение')
     def validate_edit_rights(self, *args, **kwargs): return self.account.id == self.post.author.id or self.can_moderate_post
@@ -103,7 +103,7 @@ class PostResource(Resource):
 
         votes = {}
 
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             votes = dict( (vote.post_id, prototypes.VotePrototype(vote)) for vote in models.Vote.objects.filter(post_id__in=[post.id for post in posts], voter=self.account._model) )
 
         return self.template('blogs/index.html',
@@ -168,7 +168,7 @@ class PostResource(Resource):
                                                  'is_about_objects': is_about_objects,
                                                  'thread_data': thread_data,
                                                  'tags': models.Tag.objects.filter(id__in=models.Tagged.objects.filter(post_id=self.post.id).values_list('tag', flat=True)).order_by('name'),
-                                                 'vote': None if not self.account.is_authenticated() else prototypes.VotePrototype.get_for(self.account, self.post)})
+                                                 'vote': None if not self.account.is_authenticated else prototypes.VotePrototype.get_for(self.account, self.post)})
 
     @login_required
     @validate_ban_forum()

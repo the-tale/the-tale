@@ -57,7 +57,7 @@ class BillResource(Resource):
 
     @property
     def can_participate_in_politics(self):
-        return self.account.is_authenticated() and not self.account.is_fast
+        return self.account.is_authenticated and not self.account.is_fast
 
     @property
     def active_bills_limit_reached(self):
@@ -65,10 +65,10 @@ class BillResource(Resource):
 
     @property
     def can_vote(self):
-        return self.account.is_authenticated() and self.account.is_premium
+        return self.account.is_authenticated and self.account.is_premium
 
     def can_moderate_bill(self):
-        return self.account.is_authenticated() and self.account.has_perm('bills.moderate_bill')
+        return self.account.is_authenticated and self.account.has_perm('bills.moderate_bill')
 
     @validator(code='bills.voting_state_required')
     def validate_voting_state(self, *args, **kwargs): return self.bill.state.is_VOTING
@@ -117,7 +117,7 @@ class BillResource(Resource):
         if place is not None:
             bills_query = bills_query.filter(actor__place_id=place.id)
 
-        if not self.account.is_authenticated():
+        if not self.account.is_authenticated:
             voted = None
 
         if voted is not None:
@@ -135,7 +135,7 @@ class BillResource(Resource):
                                                                     'voted': voted.value if voted else None,
                                                                     'place': place.id if place else None})
 
-        IndexFilter = LoginedIndexFilter if self.account.is_authenticated() else UnloginedIndexFilter #pylint: disable=C0103
+        IndexFilter = LoginedIndexFilter if self.account.is_authenticated else UnloginedIndexFilter #pylint: disable=C0103
 
         index_filter = IndexFilter(url_builder=url_builder, values={'owner': owner.nick if owner else None,
                                                                     'state': state.value if state else None,
@@ -157,7 +157,7 @@ class BillResource(Resource):
         bills = [ BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
 
         votes = {}
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             votes = dict( (vote.bill_id, VotePrototype(vote))
                           for vote in Vote.objects.filter(bill_id__in=[bill.id for bill in bills], owner=self.account._model) )
 
@@ -233,7 +233,7 @@ class BillResource(Resource):
                                                  'VOTE_TYPE': VOTE_TYPE,
                                                  'page_type': 'show',
                                                  'bill_meta_object': meta_relations.Bill.create_from_object(self.bill),
-                                                 'vote': VotePrototype.get_for(self.account, self.bill) if self.account.is_authenticated() else None,
+                                                 'vote': VotePrototype.get_for(self.account, self.bill) if self.account.is_authenticated else None,
                                                  'can_vote': self.bill.can_vote(self.hero) if self.hero is not None else None})
 
     @login_required

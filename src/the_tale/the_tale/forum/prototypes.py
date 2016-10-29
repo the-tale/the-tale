@@ -58,7 +58,7 @@ class SubCategoryPrototype(BasePrototype):
     def is_restricted_for(self, account):
         if not self.restricted:
             return False
-        if not account.is_authenticated():
+        if not account.is_authenticated:
             return True
         return PermissionPrototype.get_for(account_id=account.id, subcategory_id=self.id) is None
 

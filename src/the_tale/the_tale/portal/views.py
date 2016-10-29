@@ -66,7 +66,7 @@ class PortalResource(Resource):
             if account_of_the_day.clan_id is not None:
                 clan_of_the_day = ClanPrototype.get_by_id(account_of_the_day.clan_id)
 
-        forum_threads = ThreadPrototype.get_last_threads(account=self.account if self.account.is_authenticated() else None,
+        forum_threads = ThreadPrototype.get_last_threads(account=self.account if self.account.is_authenticated else None,
                                                          limit=portal_settings.FORUM_THREADS_ON_INDEX)
 
         blog_posts = [ BlogPostPrototype(blog_post_model)
@@ -176,6 +176,6 @@ class PortalResource(Resource):
         return self.ok(data={'static_content': cdn_paths['STATIC_CONTENT'],
                              'game_version': project_settings.META_CONFIG.version,
                              'turn_delta': c.TURN_DELTA,
-                             'account_id': self.account.id if self.account.is_authenticated() else None,
-                             'account_name': self.account.nick if self.account.is_authenticated() else None,
+                             'account_id': self.account.id if self.account.is_authenticated else None,
+                             'account_name': self.account.nick if self.account.is_authenticated else None,
                              'abilities_cost': {ability_type.value: ability_type.cost for ability_type in ABILITY_TYPE.records}})

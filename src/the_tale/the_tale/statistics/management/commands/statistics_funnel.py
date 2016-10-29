@@ -19,9 +19,6 @@ class Command(BaseCommand):
 
     help = 'statistics funnel'
 
-    option_list = BaseCommand.option_list
-
-
     def print_funnel(self, year, month, new_users):
         DATE_FROM = datetime.datetime(year, month, 1)
 

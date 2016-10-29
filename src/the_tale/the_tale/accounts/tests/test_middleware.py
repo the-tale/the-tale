@@ -22,7 +22,7 @@ class RegistrationMiddlewareTests(testcase.TestCase):
         create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.middleware = RegistrationMiddleware()
+        self.middleware = RegistrationMiddleware(mock.Mock())
         self.referral_link = '/?%s=%d' % (accounts_settings.REFERRAL_URL_ARGUMENT, self.account.id)
         self.action_link = '/?%s=action' % accounts_settings.ACTION_URL_ARGUMENT
 
@@ -138,7 +138,7 @@ class FirstTimeVisitMiddlewareTests(testcase.TestCase):
 
         self.account = self.accounts_factory.create_account()
 
-        self.middleware = FirstTimeVisitMiddleware()
+        self.middleware = FirstTimeVisitMiddleware(mock.Mock())
 
         self.requested_url = url('accounts:show', self.account.id)
 

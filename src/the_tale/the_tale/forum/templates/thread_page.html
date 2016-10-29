@@ -54,7 +54,7 @@ jQuery(document).ready( function(e) {
         jQuery('html, body').scrollTop(0)
     });
 
-    {% if resource.account.is_authenticated() %}
+    {% if resource.account.is_authenticated %}
     {{  accounts_macros.personal_message_js() }}
     {% endif %}
 
@@ -249,7 +249,7 @@ jQuery(document).ready( function(e) {
 
           {% if not (post.is_removed or post.technical) %}
 
-            {% if resource.account.is_authenticated() and post.author_id != resource.account.id %}
+            {% if resource.account.is_authenticated and post.author_id != resource.account.id %}
             <div style="float: right;" class="pgf-complaint-button">
               <a href="{{forum_complaint_theme()}}">пожаловаться</a>
             </div>
@@ -279,7 +279,7 @@ jQuery(document).ready( function(e) {
           {% if not author.is_system_user %}
             могущество: {{author.might|int}} <br/>
 
-            {% if resource.account.is_authenticated() %}
+            {% if resource.account.is_authenticated %}
               <a class="pgf-new-message" data-recipient="{{author.id}}" href="#">личное сообщение</a><br/>
             {% endif %}
 

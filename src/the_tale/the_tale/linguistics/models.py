@@ -28,7 +28,7 @@ class Word(models.Model):
 
     used_in_ingame_templates = models.IntegerField(default=0)
     used_in_onreview_templates = models.IntegerField(default=0)
-    used_in_status = RelationIntegerField(relation=relations.WORD_USED_IN_STATUS, default=2, db_index=True)
+    used_in_status = RelationIntegerField(relation=relations.WORD_USED_IN_STATUS, db_index=True)
 
     class Meta:
         unique_together = (('normal_form', 'type', 'state'),)

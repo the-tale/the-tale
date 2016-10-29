@@ -53,7 +53,7 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
         postponed_taks.process(logger=mock.Mock())
         self.check_ajax_ok(self.client.get(url('postponed-tasks:status', postponed_taks.id)))
 
-        self.assertEqual(int(self.client.session['_auth_user_id']), self.account.id)
+        self.assertNotIn('_auth_user_id', self.client.session)
 
     def test_processed_view__logout__other_user(self):
         account_2 = self.accounts_factory.create_account()
@@ -65,7 +65,7 @@ class PostponedChangeCredentialsTaskTests(testcase.TestCase):
         postponed_taks.process(logger=mock.Mock())
         self.check_ajax_ok(self.client.get(url('postponed-tasks:status', postponed_taks.id)))
 
-        self.assertNotIn('_auth_user_id', self.client.session)
+        self.assertEqual(int(self.client.session.get('_auth_user_id')), account_2.id)
 
     def test_processed_view__real__without_relogin(self):
         self.task._model.relogin_required = False

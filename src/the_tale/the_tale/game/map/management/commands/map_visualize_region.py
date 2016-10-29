@@ -4,8 +4,6 @@ import json
 
 import PIL
 
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
 
 from dext.common.utils.logic import run_django_command
@@ -41,16 +39,10 @@ class Command(BaseCommand):
 
     requires_model_validation = False
 
-    option_list = BaseCommand.option_list + ( make_option('-r', '--region',
-                                                          action='store',
-                                                          type=str,
-                                                          dest='region',
-                                                          help='region file name'),
-                                              make_option('-o', '--output',
-                                                          action='store',
-                                                          type=str,
-                                                          dest='output',
-                                                          help='output file'),)
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument('-r', '--region', action='store', type=str, dest='region', help='region file name')
+        parser.add_argument('-o', '--output', action='store', type=str, dest='output', help='output file')
 
 
     def handle(self, *args, **options):

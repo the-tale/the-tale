@@ -43,7 +43,7 @@ def can_delete_posts(account, thread):
 
 def can_create_thread(account, subcategory):
     if not subcategory.closed:
-        return account.is_authenticated() and not account.is_fast
+        return account.is_authenticated and not account.is_fast
 
     return account.has_perm('forum.moderate_thread')
 
@@ -182,7 +182,7 @@ class ThreadsResource(BaseForumResource):
 
         post = PostPrototype.create(self.thread, self.account, new_post_form.c.text)
 
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             ThreadReadInfoPrototype.read_thread(self.thread, self.account)
 
         return self.json_ok(data={'next_url': url('forum:threads:show', self.thread.id, page=self.thread.paginator.pages_count) + ('#m%d' % post.id)})
@@ -194,7 +194,7 @@ class ThreadsResource(BaseForumResource):
     @handler('', method='get')
     def index(self, author=None, page=1, participant=None):
 
-        threads_query = ThreadPrototype.threads_visible_to_account_query(self.account if self.account.is_authenticated() else None).order_by('-updated_at')
+        threads_query = ThreadPrototype.threads_visible_to_account_query(self.account if self.account.is_authenticated else None).order_by('-updated_at')
 
         is_filtering = False
 
@@ -320,7 +320,7 @@ class ThreadsResource(BaseForumResource):
         if not thread_data.initialize(account=self.account, thread=self.thread, page=page):
             return self.redirect(thread_data.paginator.last_page_url, permanent=False)
 
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             ThreadReadInfoPrototype.read_thread(self.thread, self.account)
 
         return self.template('forum/thread.html',
@@ -375,10 +375,10 @@ class ThreadPageData(object):
         self.can_change_thread = not self.inline and can_change_thread(self.account, self.thread)
 
         self.ignore_first_post = (self.inline and self.paginator.current_page_number==0)
-        self.can_post = self.account.is_authenticated() and not self.account.is_fast
+        self.can_post = self.account.is_authenticated and not self.account.is_fast
 
         self.no_posts = (len(self.posts) == 0) or (self.ignore_first_post and len(self.posts) == 1)
-        self.can_subscribe = self.account.is_authenticated() and not self.account.is_fast
+        self.can_subscribe = self.account.is_authenticated and not self.account.is_fast
 
         self.has_subscription = SubscriptionPrototype.has_subscription(self.account, self.thread)
 
@@ -488,7 +488,7 @@ class SubCategoryResource(BaseForumResource):
 
         read_state = ReadState(account=self.account)
 
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             SubCategoryReadInfoPrototype.read_subcategory(subcategory=self.subcategory, account=self.account)
 
         return self.template('forum/subcategory.html',
@@ -496,7 +496,7 @@ class SubCategoryResource(BaseForumResource):
                               'subcategory': self.subcategory,
                               'can_create_thread': can_create_thread(self.account, self.subcategory),
                               'paginator': paginator,
-                              'can_subscribe': self.account.is_authenticated() and not self.account.is_fast,
+                              'can_subscribe': self.account.is_authenticated and not self.account.is_fast,
                               'has_subscription': SubscriptionPrototype.has_subscription(self.account, subcategory=self.subcategory),
                               'threads': threads,
                               'important_threads': important_threads,
@@ -509,7 +509,7 @@ class ForumResource(BaseForumResource):
     def index(self):
         categories = list(CategoryPrototype(category_model) for category_model in Category.objects.all().order_by('order', 'id'))
 
-        subcategories = SubCategoryPrototype.subcategories_visible_to_account(account=self.account if self.account.is_authenticated() else None)
+        subcategories = SubCategoryPrototype.subcategories_visible_to_account(account=self.account if self.account.is_authenticated else None)
 
         forum_structure = []
 

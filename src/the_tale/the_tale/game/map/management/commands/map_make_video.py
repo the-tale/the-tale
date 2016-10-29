@@ -3,8 +3,6 @@ import os
 import tempfile
 import subprocess
 
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
 
 from dext.common.utils.logic import run_django_command
@@ -20,17 +18,10 @@ class Command(BaseCommand):
 
     help = 'make map changing video from region datas'
 
-    option_list = BaseCommand.option_list + ( make_option('-r', '--regions',
-                                                          action='store',
-                                                          type=str,
-                                                          dest='regions',
-                                                          default=map_settings.GEN_MAP_DIR,
-                                                          help='region file name'),
-                                              make_option('-o', '--output',
-                                                          action='store',
-                                                          type=str,
-                                                          dest='output',
-                                                          help='output file'),)
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument('-r', '--regions', action='store', type=str, dest='regions', default=map_settings.GEN_MAP_DIR, help='region file name')
+        parser.add_argument('-o', '--output', action='store', type=str, dest='output', help='output file')
 
 
     def handle(self, *args, **options):

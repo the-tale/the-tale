@@ -10,7 +10,7 @@
 {% block head %}
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
-    {% if resource.account.is_authenticated() %}
+    {% if resource.account.is_authenticated %}
     {{  accounts_macros.personal_message_js() }}
     {% endif %}
 });

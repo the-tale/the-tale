@@ -31,6 +31,9 @@
         - virtualenv
         - python-pip
         - supervisor
+        - libffi-dev
+        - g++
+        - libssl-dev
 
     - name: install packages, required for development
       apt: name={{item}} state=installed
@@ -123,6 +126,15 @@
         - {name: "/mnt/repos/utg/"}
         - {name: "/mnt/repos/questgen/"}
         - {name: "/mnt/repos/the-tale/src/the_tale/"}
+
+    - name: install helpfull packages
+      pip:
+        name: "{{item.name}}"
+        virtualenv: /home/the-tale/current/venv
+        virtualenv_command: virtualenv
+        virtualenv_python: python3.5
+      with_items:
+        - {name: "ipython"}
 
     - name: install packages for test environment
       pip:

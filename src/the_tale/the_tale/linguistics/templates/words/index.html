@@ -8,11 +8,11 @@
 
 {% block words_content %}
 
-{% if not resource.account.is_authenticated() %}
+{% if not resource.account.is_authenticated %}
 {{ base_macros.registration_required_message("иметь возможность добавлять слова в словарь.") }}
 {% endif %}
 
-{% if resource.account.is_authenticated() %}
+{% if resource.account.is_authenticated %}
 <div class="btn-group pgf-create-new-word-buttons pull-left"
      style="display: inline-block; vertical-align: middle; margin-right: 0.5em; margin-bottom: 0.5em;">
   <a class="btn btn-success btn-primary dropdown-toggle" data-toggle="dropdown">

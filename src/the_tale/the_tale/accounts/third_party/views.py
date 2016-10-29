@@ -39,7 +39,7 @@ class TokensResource(Resource):
         super(TokensResource, self).initialize(*args, **kwargs)
         self.token = token
 
-        if self.account.is_authenticated() and self.token and self.token.account_id is not None and self.token.account_id != self.account.id:
+        if self.account.is_authenticated and self.token and self.token.account_id is not None and self.token.account_id != self.account.id:
             return self.auto_error('third_party.tokens.token.wrong_owner', 'Вы не можете дать разрешение на работу с чужим аккаунтом')
 
     @login_required
@@ -167,7 +167,7 @@ class TokensResource(Resource):
         '''
         data = {}
 
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             data['account_id'] = self.account.id
             data['account_name'] = self.account.nick_verbose
         else:

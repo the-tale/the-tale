@@ -35,7 +35,7 @@ class ReadStateTests(testcase.TestCase):
     def get_read_state(self, account=None):
         return ReadState(self.account if account is None else account)
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: False)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', False)
     def test_thread_has_new_messages__unauthenticated(self):
         read_state = self.get_read_state()
         self.assertFalse(read_state.thread_has_new_messages(self.thread))
@@ -65,7 +65,7 @@ class ReadStateTests(testcase.TestCase):
         self.assertFalse(read_state.thread_has_new_messages(self.thread))
 
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: False)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', False)
     def test_thread_is_new__unauthenticated(self):
         read_state = self.get_read_state()
         self.assertFalse(read_state.thread_is_new(self.thread))
@@ -116,7 +116,7 @@ class ReadStateTests(testcase.TestCase):
 
         self.assertFalse(read_state.thread_is_new(self.thread))
 
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda a: False)
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', False)
     def test_subcategory_has_new_messages__unauthenticated(self):
         self.assertFalse(self.get_read_state().subcategory_has_new_messages(self.subcategory))
 

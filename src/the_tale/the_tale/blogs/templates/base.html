@@ -16,7 +16,7 @@
 
       <ul class="nav nav-pills">
         <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('blogs:posts:') }}">Произведения</a></li>
-        {% if resource.account.is_authenticated() and not resource.account.is_fast %}
+        {% if resource.account.is_authenticated and not resource.account.is_fast %}
         <li {% if page_type == 'new' %}class="active"{% endif %}><a href="{{url('blogs:posts:new')}}">Добавить произведение</a></li>
         {% endif %}
       </ul>

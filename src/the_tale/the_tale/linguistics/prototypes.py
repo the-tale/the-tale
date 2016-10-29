@@ -53,7 +53,8 @@ class WordPrototype(BasePrototype):
                                normal_form=utg_word.normal_form(),
                                forms=s11n.to_json(utg_word.serialize()),
                                parent=parent._model if parent is not None else None,
-                               author=author._model if author is not None else None)
+                               author=author._model if author is not None else None,
+                               used_in_status=relations.WORD_USED_IN_STATUS.NOT_USED)
 
         prototype = cls(model)
 

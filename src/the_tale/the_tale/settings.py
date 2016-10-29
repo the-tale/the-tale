@@ -49,7 +49,6 @@ SOCIAL_TWITTER_GROUP_URL = None
 SOCIAL_FACEBOOK_GROUP_URL = None
 
 SOCIAL_WIKI_URL = None
-SOCIAL_ANDROID_URL = None
 SOCIAL_CHROME_URL = None
 SOCIAL_DARK_THEME_URL = None
 
@@ -84,9 +83,7 @@ ADDTHIS = None
 MAIL_RU = None
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-
-# TODO: switch to JSONSerializer (all current sessions will be lost if not converted to JSON)
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 
 ################################
@@ -152,18 +149,16 @@ TEMPLATES = [ {'BACKEND': 'dext.common.utils.jinja2.Engine',
     ]
 
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'dext.settings.middleware.SettingsMiddleware',
-    'the_tale.accounts.middleware.RegistrationMiddleware',
-    'the_tale.accounts.third_party.middleware.ThirdPartyMiddleware',
-    'the_tale.accounts.middleware.FirstTimeVisitMiddleware'
-)
+MIDDLEWARE = ('django.middleware.common.CommonMiddleware',
+              'django.contrib.sessions.middleware.SessionMiddleware',
+              'django.middleware.csrf.CsrfViewMiddleware',
+              'django.contrib.auth.middleware.AuthenticationMiddleware',
+              'django.contrib.messages.middleware.MessageMiddleware',
+              'django.middleware.clickjacking.XFrameOptionsMiddleware',
+              'dext.settings.middleware.SettingsMiddleware',
+              'the_tale.accounts.middleware.RegistrationMiddleware',
+              'the_tale.accounts.third_party.middleware.ThirdPartyMiddleware',
+              'the_tale.accounts.middleware.FirstTimeVisitMiddleware')
 
 ROOT_URLCONF = 'the_tale.urls'
 
@@ -232,6 +227,10 @@ INSTALLED_APPS = [
     'the_tale.finances.xsolla',
 
     'the_tale.statistics']
+
+
+PASSWORD_HASHERS = ['django.contrib.auth.hashers.Argon2PasswordHasher',
+                    'django.contrib.auth.hashers.PBKDF2PasswordHasher']
 
 ###############################
 # AMQP
@@ -360,7 +359,12 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
-            }
+            },
+        'django.server': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
     },
     'loggers': {
         'django.request': {
@@ -372,6 +376,11 @@ LOGGING = {
             'handlers': ['mail_admins', 'console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False
+        },
+        'django.server': {
+            'handlers': ['django.server'],
+            'level': 'INFO',
+            'propagate': False,
         }
     } if not TESTS_RUNNING else {}
 }

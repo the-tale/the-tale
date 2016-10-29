@@ -57,7 +57,7 @@
 
     <script type="text/javascript">
 
-{% if resource.account.is_authenticated() %}
+{% if resource.account.is_authenticated %}
 pgf.base.settings.init("account_{{resource.account.id}}");
 {% else %}
 pgf.base.settings.init("anonimues");
@@ -195,7 +195,6 @@ jQuery(document).ready(function() {
                                                                            (url("portal:chat"), "Чат"),
                                                                            ('-', '<li class="divider"></li>'),
                                                                            (settings.SOCIAL_WIKI_URL, "Wiki"),
-                                                                           (settings.SOCIAL_ANDROID_URL, "Клиент для Android"),
                                                                            (settings.SOCIAL_CHROME_URL, "Расширение для Chrome"),
                                                                            (settings.SOCIAL_DARK_THEME_URL, "Тёмная тема")]) }}
 
@@ -205,7 +204,7 @@ jQuery(document).ready(function() {
                                                                 (url("game:chronicle:"), "Летопись"),
                                                                 (url("game:pvp:calls"), "Арена"), ] ) }}
 
-            {% if resource.account.is_authenticated() %}
+            {% if resource.account.is_authenticated %}
             {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}
             {% else %}
             {{ base_macros.main_menu_item("map", url("game:map:"), "<span class='game-link'>Карта</span>") }}
@@ -225,7 +224,7 @@ jQuery(document).ready(function() {
             </li>
             <li class="divider-vertical"></li>
 
-            {% if resource.account.is_authenticated() %}
+            {% if resource.account.is_authenticated %}
 
             <li rel="tooltip"  title="У вас есть новые сообщения"
                 class="pgf-new-messages-signalization {% if resource.account.new_messages_number == 0 %}pgf-hidden{%endif%}">
@@ -272,7 +271,7 @@ jQuery(document).ready(function() {
 
         {% block content_header %}
 
-        {% if resource.account.is_authenticated() and resource.account.is_fast %}
+        {% if resource.account.is_authenticated and resource.account.is_fast %}
         <div class="alert alert-success">
           <a class="btn btn-success"
              href="{{ url('accounts:profile:show') }}"

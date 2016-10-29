@@ -39,7 +39,7 @@ jQuery(document).ready(function(e){
   На этой странице можно найти информацию о героях, ищущих спарринг-партнёра для поединка на арене.
 </p>
 
-{% if not resource.account.is_authenticated() %}
+{% if not resource.account.is_authenticated %}
 {{ base_macros.registration_required_message("принимать участие в PvP.") }}
 {% else %}
 {% if resource.can_participate %}

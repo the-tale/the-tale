@@ -36,7 +36,7 @@ def accept_call_valid_levels(hero_level):
 class PvPResource(Resource):
 
     @lazy_property
-    def own_hero(self): return heroes_logic.load_hero(account_id=self.account.id) if self.account.is_authenticated() else None
+    def own_hero(self): return heroes_logic.load_hero(account_id=self.account.id) if self.account.is_authenticated else None
 
     @validator(code='pvp.no_rights', message='Вы не можете участвовать в PvP')
     def validate_participation_right(self, *args, **kwargs): return self.can_participate

@@ -41,7 +41,7 @@ def get_templates_count():
 
     keys_count = {key: 0 for key in keys.LEXICON_KEY.records}
 
-    keys_count.update( {keys.LEXICON_KEY(data['key']):  data['key__count']
+    keys_count.update( {data['key']:  data['key__count']
                         for data in keys_count_data} )
 
     groups_count = {group: 0 for group in groups_relations.LEXICON_GROUP.records}

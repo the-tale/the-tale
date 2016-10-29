@@ -1,8 +1,4 @@
 # coding: utf-8
-
-
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
 
 from the_tale.game.map.relations import TERRAIN
@@ -18,19 +14,10 @@ class Command(BaseCommand):
 
     requires_model_validation = False
 
-    option_list = BaseCommand.option_list + ( make_option('-x',
-                                                          action='store',
-                                                          type=int,
-                                                          dest='x',
-                                                          default=None,
-                                                          help='x coordinate'),
-
-                                              make_option('-y',
-                                                          action='store',
-                                                          type=int,
-                                                          dest='y',
-                                                          default=None,
-                                                          help='y coordinate'), )
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument('-x', action='store', type=int, dest='x', default=None, help='x coordinate')
+        parser.add_argument('-y', action='store', type=int, dest='y', default=None, help='y coordinate')
 
 
     def handle(self, *args, **options): # pylint: disable=R0914

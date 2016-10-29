@@ -39,7 +39,7 @@
 
   {% if not bill.state.is_VOTING %}
     {# display nothing #}
-  {% elif not resource.account.is_authenticated() %}
+  {% elif not resource.account.is_authenticated %}
     {{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
   {% elif not resource.can_vote %}
 

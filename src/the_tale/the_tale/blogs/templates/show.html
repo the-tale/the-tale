@@ -28,7 +28,7 @@
     {% endif %}
   </a>
 
-  {% if resource.account.is_authenticated() %}
+  {% if resource.account.is_authenticated %}
   {%if vote is not none%}
   <a class="pgf-forms-post-simple blog-post-vote-link pgf-remove-vote-button"
      href="{{ url('blogs:posts:unvote', post.id) }}" rel="tooltip" title="отозвать голос">
@@ -70,7 +70,7 @@
       <a href="{{url('forum:threads:show', post.forum_thread_id)}}">форум</a>
     </li>
 
-    {% if resource.account.is_authenticated() and resource.account.id == post.author.id %}
+    {% if resource.account.is_authenticated and resource.account.id == post.author.id %}
     <li class="" style="margin-left: 0.5em;">
       <a href="{{ url('blogs:posts:edit', post.id) }}">редактировать</a>
     </li>

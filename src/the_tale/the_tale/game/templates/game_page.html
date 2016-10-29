@@ -126,7 +126,7 @@ jQuery(document).ready(function(e){
 
 {{super()}}
 
-{% if resource.account.is_authenticated() %}
+{% if resource.account.is_authenticated %}
 
 {% set news_record = get_last_news() %}
 

@@ -108,8 +108,8 @@ class WordResource(Resource):
         super(WordResource, self).initialize(*args, **kwargs)
         self.word = word
         self.can_moderate_words = self.account.has_perm('linguistics.moderate_word')
-        self.can_edit_words = self.account.is_authenticated() and not self.account.is_fast
-        self.can_be_removed_by_owner = self.word and self.word.state.is_ON_REVIEW and self.account.is_authenticated() and self.account.id == self.word.author_id
+        self.can_edit_words = self.account.is_authenticated and not self.account.is_fast
+        self.can_be_removed_by_owner = self.word and self.word.state.is_ON_REVIEW and self.account.is_authenticated and self.account.id == self.word.author_id
 
     @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.words', 'неверный сооавтор')
     @validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', 'неверное состояние слова')
@@ -411,7 +411,7 @@ class TemplateResource(Resource):
         self._template = template
         self.can_moderate_templates = self.account.has_perm('linguistics.moderate_template')
         self.can_edit_templates = self.account.has_perm('linguistics.edit_template') or self.can_moderate_templates
-        self.can_be_removed_by_owner = self._template and self._template.state.is_ON_REVIEW and self.account.is_authenticated() and self.account.id == self._template.author_id
+        self.can_be_removed_by_owner = self._template and self._template.state.is_ON_REVIEW and self.account.is_authenticated and self.account.id == self._template.author_id
 
     @validate_argument('contributor', AccountPrototype.get_by_id, 'linguistics.templates', 'неверный сооавтор')
     @validate_argument('page', int, 'linguistics.templates', 'неверная страница')

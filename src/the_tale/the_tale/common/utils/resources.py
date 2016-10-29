@@ -18,14 +18,14 @@ class Resource(BaseResource):
         super(Resource, self).__init__(request, *args, **kwargs)
 
         self.account = self.request.user
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             self.account = AccountPrototype(model=self.account)
 
 
     def initialize(self, *args, **kwargs):
         super(Resource, self).initialize(*args, **kwargs)
 
-        if self.account.is_authenticated() and self.account.is_update_active_state_needed:
+        if self.account.is_authenticated and self.account.is_update_active_state_needed:
             environment.workers.accounts_manager.cmd_run_account_method(account_id=self.account.id,
                                                                         method_name=AccountPrototype.update_active_state.__name__,
                                                                         data={})

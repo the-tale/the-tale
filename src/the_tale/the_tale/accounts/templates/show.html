@@ -14,7 +14,7 @@
 
 jQuery(document).ready(function(){
 
-{% if resource.account.is_authenticated() and master_account.id != resource.account.id%}
+{% if resource.account.is_authenticated and master_account.id != resource.account.id%}
 
     {{  accounts_macros.personal_message_js() }}
 

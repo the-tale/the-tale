@@ -8,7 +8,7 @@ def login_required(func):
     def wrapper(resource, *argv, **kwargs):
         from the_tale.accounts.logic import login_page_url
 
-        if resource.account.is_authenticated():
+        if resource.account.is_authenticated:
             return func(resource, *argv, **kwargs)
         else:
             from dext.common.utils.response import mime_type_to_response_type
@@ -29,7 +29,7 @@ def staff_required(permissions=()):
             if permissions:
                 raise NotImplementedError('staff required decorator has not implemented for working with permissions list')
             else:
-                if resource.account.is_authenticated() and resource.account.is_staff:
+                if resource.account.is_authenticated and resource.account.is_staff:
                     return func(resource, *argv, **kwargs)
                 else:
                     return resource.auto_error('common.staff_required', 'У Вас нет прав для проведения данной операции')
@@ -48,7 +48,7 @@ def superuser_required(permissions=()):
             if permissions:
                 raise NotImplementedError('superuser required decorator has not implemented for working with permissions list')
             else:
-                if resource.account.is_authenticated() and resource.account.is_superuser:
+                if resource.account.is_authenticated and resource.account.is_superuser:
                     return func(resource, *argv, **kwargs)
                 else:
                     return resource.auto_error('common.superuser_required', 'У Вас нет прав для проведения данной операции')

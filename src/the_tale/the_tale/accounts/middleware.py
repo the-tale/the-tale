@@ -39,9 +39,12 @@ class HANDLE_ACTION_RESULT(DjangoEnum):
 
 class RegistrationMiddleware(object):
 
+    def __init__(self, get_response):
+        self.get_response = get_response
+
     def handle_registration(self, request):
 
-        if not request.user.is_anonymous():
+        if not request.user.is_anonymous:
             return HANDLE_REGISTRATION_RESULT.NOT_ANONYMOUS
 
         if accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY not in request.session:
@@ -60,7 +63,7 @@ class RegistrationMiddleware(object):
         return HANDLE_REGISTRATION_RESULT.USER_LOGINED
 
     def handle_referer(self, request):
-        if not request.user.is_anonymous():
+        if not request.user.is_anonymous:
             return HANDLE_REFERER_RESULT.NOT_ANONYMOUS
 
         referer = request.META.get('HTTP_REFERER')
@@ -76,7 +79,7 @@ class RegistrationMiddleware(object):
 
     def handle_referral(self, request):
 
-        if not request.user.is_anonymous():
+        if not request.user.is_anonymous:
             return HANDLE_REFERRAL_RESULT.NOT_ANONYMOUS
 
         if accounts_settings.REFERRAL_URL_ARGUMENT not in request.GET:
@@ -93,7 +96,7 @@ class RegistrationMiddleware(object):
 
     def handle_action(self, request):
 
-        if not request.user.is_anonymous():
+        if not request.user.is_anonymous:
             return HANDLE_ACTION_RESULT.NOT_ANONYMOUS
 
         if accounts_settings.ACTION_URL_ARGUMENT not in request.GET:
@@ -108,20 +111,27 @@ class RegistrationMiddleware(object):
         return HANDLE_ACTION_RESULT.SAVED
 
 
-    def process_request(self, request):
+    def __call__(self, request):
         self.handle_registration(request)
         self.handle_referer(request)
         self.handle_referral(request)
         self.handle_action(request)
 
+        return self.get_response(request)
 
 
 class FirstTimeVisitMiddleware(object):
 
-    def process_request(self, request):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+
+    def __call__(self, request):
         if not request.session.get(accounts_settings.SESSION_FIRST_TIME_VISIT_VISITED_KEY):
             request.session[accounts_settings.SESSION_FIRST_TIME_VISIT_KEY] = True
             request.session[accounts_settings.SESSION_FIRST_TIME_VISIT_VISITED_KEY] = True
         else:
             if request.session.get(accounts_settings.SESSION_FIRST_TIME_VISIT_KEY):
                 request.session[accounts_settings.SESSION_FIRST_TIME_VISIT_KEY] = False
+
+        return self.get_response(request)

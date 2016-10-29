@@ -4,6 +4,7 @@ import uuid
 import rels
 from rels.django import DjangoEnum
 
+from django.contrib.auth import update_session_auth_hash
 from django.core.urlresolvers import reverse
 from django.db import transaction
 
@@ -79,30 +80,28 @@ class RegistrationTask(PostponedLogic):
 
 
 class CHANGE_CREDENTIALS_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 1, 'необработана'),
-                 ('PROCESSED', 2, 'обработана'),
-                 ('WRONG_STATE', 3, 'неверное состояние задачи'))
+    records = (('UNPROCESSED', 1, 'необработана'),
+               ('PROCESSED', 2, 'обработана'),
+               ('WRONG_STATE', 3, 'неверное состояние задачи'))
 
 
 class ChangeCredentials(PostponedLogic):
 
     TYPE = 'change-credentials'
 
-    def __init__(self, task_id, state=CHANGE_CREDENTIALS_STATE.UNPROCESSED):
+    def __init__(self, task_id, oneself=False, state=CHANGE_CREDENTIALS_STATE.UNPROCESSED):
         super(ChangeCredentials, self).__init__()
         self.task_id = task_id
+        self.oneself = oneself
         self.state = state if isinstance(state, rels.Record) else CHANGE_CREDENTIALS_STATE.index_value[state]
 
     def serialize(self):
         return { 'state': self.state.value,
-                 'task_id': self.task_id}
+                 'task_id': self.task_id,
+                 'oneself': self.oneself}
 
     @property
     def processed_data(self): return {'next_url': reverse('accounts:profile:edited') }
-
-    def processed_view(self, resource):
-        if resource.account.is_authenticated() and self.task.account.id != resource.account.id:
-            logic.logout_user(resource.request)
 
     @property
     def error_message(self): return self.state.text

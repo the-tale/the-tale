@@ -9,7 +9,7 @@
 
 {% block bills_content %}
 
-{% if not resource.account.is_authenticated() %}
+{% if not resource.account.is_authenticated %}
 {{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
 {% elif resource.active_bills_limit_reached %}
 

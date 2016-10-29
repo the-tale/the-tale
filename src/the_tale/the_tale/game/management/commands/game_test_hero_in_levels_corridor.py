@@ -53,9 +53,6 @@ class Command(BaseCommand):
 
     help = 'test how hero move in levels corridor on real map'
 
-
-    option_list = BaseCommand.option_list
-
     @mock.patch('the_tale.game.balance.constants.EXP_PER_QUEST_FRACTION', 0.0)
     def handle(self, *args, **options):
         try:

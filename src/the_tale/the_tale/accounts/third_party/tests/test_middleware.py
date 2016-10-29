@@ -25,7 +25,7 @@ class MiddlewareTests(TestCase):
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.middleware = middleware.ThirdPartyMiddleware()
+        self.middleware = middleware.ThirdPartyMiddleware(mock.Mock())
 
 
     def test_token_not_in_session__authenticated(self):

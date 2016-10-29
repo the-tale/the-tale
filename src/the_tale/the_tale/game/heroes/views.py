@@ -50,7 +50,7 @@ from the_tale.game.heroes.habilities import relations as habilities_relations
 
 class CurrentHeroProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
-        if not context.account.is_authenticated():
+        if not context.account.is_authenticated:
             context.account_hero = None
             return
 

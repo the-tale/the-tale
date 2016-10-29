@@ -34,7 +34,7 @@ jQuery(document).ready( function(e) {
   <div class="span9">
     <div class="easy-block">
 
-      {% if resource.account.is_authenticated() and resource.account.is_fast %}
+      {% if resource.account.is_authenticated and resource.account.is_fast %}
       <div class="alert alert-info pgf-fast-account-help-block">
         <h3>Вы не закончили регистрацию!</h3>
         До завершения регистрации Ваш аккаунт имеет ограниченную функциональность. Для завершения регистрации укажите имя, email и пароль в форме ниже.<br/>
@@ -70,7 +70,7 @@ jQuery(document).ready( function(e) {
         {{ edit_profile_form.email.widget }}
         {{ edit_profile_form.password.widget }}
 
-        {% if resource.account.is_authenticated() and resource.account.is_fast %}
+        {% if resource.account.is_authenticated and resource.account.is_fast %}
         <p class="pgf-fast-account-user-agreement-block">
           <strong>Завершая регистрацию, Вы соглашаетесь с <a target="_blank" href="{{url('guide:user-agreement')}}">соглашением</a>.</strong>
         </p>

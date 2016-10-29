@@ -12,7 +12,7 @@
 
       <ul class="nav nav-pills">
         <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('game:bills:') }}">Список законов</a></li>
-        {% if resource.account.is_authenticated() and resource.can_participate_in_politics and not resource.active_bills_limit_reached %}
+        {% if resource.account.is_authenticated and resource.can_participate_in_politics and not resource.active_bills_limit_reached %}
         <li class="dropdown">
           <a class="dropdown-toggle pgf-create-new-bill-buttons" data-toggle="dropdown" href="#">Предложить закон <b class="caret"></b></a>
           <ul class="dropdown-menu">

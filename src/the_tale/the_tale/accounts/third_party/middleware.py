@@ -21,9 +21,12 @@ class HANDLE_THIRD_PARTY_RESULT(DjangoEnum):
 
 
 class ThirdPartyMiddleware(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
 
-    def process_request(self, request):
+    def __call__(self, request):
         self.handle_third_party(request)
+        return self.get_response(request)
 
     def handle_third_party(self, request):
 
@@ -39,7 +42,7 @@ class ThirdPartyMiddleware(object):
             access_token = prototypes.AccessTokenPrototype.get_by_uid(access_token_uid)
 
             if access_token is None:
-                if request.user.is_authenticated():
+                if request.user.is_authenticated:
                     accounts_logic.logout_user(request)
                     request.session[third_party_settings.ACCESS_TOKEN_SESSION_KEY] = access_token_uid
                     return HANDLE_THIRD_PARTY_RESULT.ACCESS_TOKEN_REJECTED__LOGOUT
@@ -53,14 +56,14 @@ class ThirdPartyMiddleware(object):
         account_id = cached_data['account_id']
 
         if account_id is None:
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 accounts_logic.logout_user(request)
                 # resave token, since it will be removed on logout
                 request.session[third_party_settings.ACCESS_TOKEN_SESSION_KEY] = access_token_uid
 
             return HANDLE_THIRD_PARTY_RESULT.ACCESS_TOKEN_NOT_ACCEPTED_YET
 
-        if not request.user.is_authenticated() or request.user.id != account_id:
+        if not request.user.is_authenticated or request.user.id != account_id:
             account = AccountPrototype.get_by_id(account_id)
             accounts_logic.force_login_user(request, account._model)
 

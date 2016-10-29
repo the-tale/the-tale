@@ -93,6 +93,6 @@ def cell_info(context):
                                     'x': x,
                                     'y': y,
                                     'terrain_points': terrain_points,
-                                    'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account.is_authenticated() else None,
+                                    'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account.is_authenticated else None,
                                     'resource': context.resource,
                                     'ABILITY_TYPE': ABILITY_TYPE})

@@ -32,7 +32,8 @@ class GeneralTests(TestCase):
         return {'type': type,
                 'state': state,
                 'normal_form': normal_form,
-                'forms': '' }
+                'forms': '',
+                'used_in_status': relations.WORD_USED_IN_STATUS.NOT_USED}
 
     def test_uniqueness(self):
         type_1 = utg_relations.WORD_TYPE.records[0]

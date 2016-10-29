@@ -17,20 +17,20 @@ class ReadState(object):
         self.threads_read_info = self.get_threads_read_info()
 
     def get_subcategories_read_info(self):
-        if not self._account.is_authenticated():
+        if not self._account.is_authenticated:
             return {}
 
         return SubCategoryReadInfoPrototype.get_subcategories_info(account_id=self._account.id)
 
     def get_threads_read_info(self):
-        if not self._account.is_authenticated():
+        if not self._account.is_authenticated:
             return {}
 
         return ThreadReadInfoPrototype.get_threads_info(account_id=self._account.id)
 
     @lazy_property
     def threads_info(self):
-        if not self._account.is_authenticated():
+        if not self._account.is_authenticated:
             return {}
 
         time_barrier = datetime.datetime.now() - datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME)
@@ -38,7 +38,7 @@ class ReadState(object):
         return {thread.id: thread for thread in ThreadPrototype.from_query(ThreadPrototype._db_filter(updated_at__gt=time_barrier))}
 
     def thread_has_new_messages(self, thread):
-        if not self._account.is_authenticated():
+        if not self._account.is_authenticated:
             return False
 
         if thread.updated_at + datetime.timedelta(seconds=forum_settings.UNREAD_STATE_EXPIRE_TIME) < datetime.datetime.now():
@@ -55,7 +55,7 @@ class ReadState(object):
         return thread.updated_at > read_at
 
     def thread_is_new(self, thread):
-        if not self._account.is_authenticated():
+        if not self._account.is_authenticated:
             return False
 
         if thread.author.id == self._account.id:
@@ -77,7 +77,7 @@ class ReadState(object):
 
     def subcategory_has_new_messages(self, subcategory):
 
-        if not self._account.is_authenticated():
+        if not self._account.is_authenticated:
             return False
 
         subcategory_read_info = self.subcategories_read_info.get(subcategory.id)

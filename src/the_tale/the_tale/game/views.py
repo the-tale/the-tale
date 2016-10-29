@@ -335,7 +335,7 @@ def api_info(context):
     '''
     account = context.requested_account
 
-    if account is None and context.account.is_authenticated():
+    if account is None and context.account.is_authenticated:
         account = context.account
 
     data = game_logic.form_game_info(account=account,

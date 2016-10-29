@@ -1,6 +1,5 @@
 # coding: utf-8
 import sys
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 from django.conf import settings as project_settings
@@ -13,12 +12,9 @@ class Command(BaseCommand):
 
     help = 'prepair all generated static files'
 
-    option_list = BaseCommand.option_list + ( make_option('-g', '--game-version',
-                                                          action='store',
-                                                          type=str,
-                                                          dest='game-version',
-                                                          help='game version'),
-                                              )
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument('-g', '--game-version', action='store', type=str, dest='game-version', help='game version')
 
 
     def handle(self, *args, **options):

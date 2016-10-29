@@ -41,7 +41,8 @@
 
    sudo ansible-galaxy install -r requirements.yml
 
-   vagrant plugin install vagrant-hostmanager
+   vagrant plugin update vagrant-hostmanager
+   vagrant plugin update vagrant-vbguest
 
    vagrant up # создаём виртуальную машину, запускаем и устанавливаем на неё всё необходимое, для обновления софта на запущенной машине: vagrant provision
 
@@ -93,3 +94,13 @@
 Каждый рабочий ведёт свой лог в каталоге ``/var/logs/the-tale/``
 
 **Внимание:** каждый процесс рабочего сейчас занимает около 70mb оперативной памяти, если запускаете всех, убедитесь, что на виртуальной машине достаточно памяти.
+
+****************************
+Первый пользователь
+****************************
+
+Первый пользователь создаётся автоматически со следующими параметрами:
+
+- ник: superuser
+- почта: superuser@example.com
+- пароль: 111111

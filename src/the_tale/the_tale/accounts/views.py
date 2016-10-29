@@ -44,9 +44,9 @@ from . import meta_relations
 
 class CurrentAccountProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
-        context.account = AccountPrototype(model=context.django_request.user) if context.django_request.user.is_authenticated() else context.django_request.user
+        context.account = AccountPrototype(model=context.django_request.user) if context.django_request.user.is_authenticated else context.django_request.user
 
-        if context.account.is_authenticated() and context.account.is_update_active_state_needed:
+        if context.account.is_authenticated and context.account.is_update_active_state_needed:
             environment.workers.accounts_manager.cmd_run_account_method(account_id=context.account.id,
                                                                         method_name=AccountPrototype.update_active_state.__name__,
                                                                         data={})
@@ -82,7 +82,7 @@ class LoginRequiredProcessor(dext_views.BaseViewProcessor):
         return logic.login_page_url(target_url)
 
     def preprocess(self, context):
-        if context.account.is_authenticated():
+        if context.account.is_authenticated:
             return
 
         if context.django_request.is_ajax():
@@ -411,7 +411,7 @@ class RegistrationResource(BaseAccountsResource):
     @handler('fast', method='post')
     def fast(self):
 
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             return self.json_error('accounts.registration.fast.already_registered', 'Вы уже зарегистрированы')
 
         if conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
@@ -454,7 +454,7 @@ class AuthResource(BaseAccountsResource):
 
     @handler('login', name='page-login', method='get')
     def login_page(self, next_url='/'):
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             return self.redirect(next_url)
 
         login_form = forms.LoginForm()
@@ -652,7 +652,7 @@ class ProfileResource(BaseAccountsResource):
 
     @handler('reset-password', method='get')
     def reset_password_page(self):
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             return self.redirect('/')
 
         reset_password_form = forms.ResetPasswordForm()
@@ -661,7 +661,7 @@ class ProfileResource(BaseAccountsResource):
 
     @handler('reset-password-done', method='get')
     def reset_password_done(self):
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             return self.redirect('/')
 
         return self.template('accounts/reset_password_done.html', {} )
@@ -670,7 +670,7 @@ class ProfileResource(BaseAccountsResource):
                        'accounts.profile.reset_password_done', 'Не получилось сбросить пароль, возможно вы используете неверную ссылку')
     @handler('reset-password-processed', method='get')
     def reset_password_processed(self, task):
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             return self.redirect('/')
 
         if task.is_time_expired:
@@ -687,7 +687,7 @@ class ProfileResource(BaseAccountsResource):
     @handler('reset-password', method='post')
     def reset_password(self):
 
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             return self.json_error('accounts.profile.reset_password.already_logined', 'Вы уже вошли на сайт и можете просто изменить пароль')
 
         reset_password_form = forms.ResetPasswordForm(self.request.POST)

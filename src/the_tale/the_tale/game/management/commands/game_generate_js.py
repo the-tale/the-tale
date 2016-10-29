@@ -27,8 +27,6 @@ class Command(BaseCommand):
 
     help = 'generate javascript files'
 
-    option_list = BaseCommand.option_list
-
     def handle(self, *args, **options):
 
         LINGUISTICS_FORMATTERS = {key.value: linguistics_logic.ui_format(key.ui_text)

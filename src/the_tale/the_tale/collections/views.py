@@ -132,7 +132,7 @@ class CollectionsResource(BaseCollectionsResource):
     @handler('')
     def index(self, account=None):
 
-        if account is None and self.account.is_authenticated():
+        if account is None and self.account.is_authenticated:
             return self.redirect(url('collections:collections:', account=self.account.id))
 
         self.master_account = account
@@ -144,7 +144,7 @@ class CollectionsResource(BaseCollectionsResource):
             last_items = master_account_items.last_items(number=collections_settings.LAST_ITEMS_NUMBER)
 
         account_items = None
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             account_items = AccountItemsPrototype.get_by_account_id(self.account.id)
 
         collections_statistics = get_collections_statistics(account_items=master_account_items)
@@ -187,7 +187,7 @@ class CollectionsResource(BaseCollectionsResource):
     @handler('#collection', name='show')
     def show(self, account=None):
 
-        if account is None and self.account.is_authenticated():
+        if account is None and self.account.is_authenticated:
             return self.redirect(url('collections:collections:show', self.collection.id, account=self.account.id))
 
         self.master_account = account
@@ -197,7 +197,7 @@ class CollectionsResource(BaseCollectionsResource):
             master_account_items = AccountItemsPrototype.get_by_account_id(self.master_account.id)
 
         account_items = None
-        if self.account.is_authenticated():
+        if self.account.is_authenticated:
             account_items = AccountItemsPrototype.get_by_account_id(self.account.id)
 
         collections_statistics = get_collections_statistics(account_items=master_account_items)

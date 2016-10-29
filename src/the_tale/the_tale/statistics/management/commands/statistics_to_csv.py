@@ -12,8 +12,6 @@ class Command(BaseCommand):
 
     help = 'statistics funnel'
 
-    option_list = BaseCommand.option_list
-
     def handle(self, *args, **options):
 
         for record in relations.RECORD_TYPE.records:

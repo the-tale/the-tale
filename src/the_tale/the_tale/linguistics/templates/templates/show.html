@@ -10,7 +10,7 @@
 {% block head %}
 <script type="text/javascript">
 jQuery(document).ready( function(e) {
-    {% if resource.account.is_authenticated() %}
+    {% if resource.account.is_authenticated %}
     {{  accounts_macros.personal_message_js() }}
     {% endif %}
 });
@@ -101,7 +101,7 @@ jQuery(document).ready( function(e) {
 </p>
 {% endfor %}
 
-{% if not template.state.is_REMOVED and resource.account.is_authenticated() and not resource.account.is_fast %}
+{% if not template.state.is_REMOVED and resource.account.is_authenticated and not resource.account.is_fast %}
 <a class="btn btn-info pgf-edit-button" href="{{url('linguistics:templates:edit', template.id)}}">Редактировать</a>
 
 <a class="btn btn-info pgf-change-key" href="{{url('linguistics:templates:edit-key', template.id)}}">Изменить тип</a>

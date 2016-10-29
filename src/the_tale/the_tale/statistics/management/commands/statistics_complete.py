@@ -1,6 +1,5 @@
 # coding: utf-8
 import os
-from optparse import make_option
 
 from django.core.management.base import BaseCommand
 
@@ -141,18 +140,11 @@ class Command(BaseCommand):
 
     help = 'complete statistics'
 
-    option_list = BaseCommand.option_list + ( make_option('-f', '--force-clear',
-                                                          action='store_true',
-                                                          dest='force-clear',
-                                                          help='force clear all metrics'),
-                                              make_option('-l', '--log',
-                                                          action='store_true',
-                                                          dest='verbose',
-                                                          help='print log'),
-                                              make_option('-r', '--recalculate-last',
-                                                          action='store_true',
-                                                          dest='recalculate-last',
-                                                          help='recalculate last day'),        )
+    def add_arguments(self, parser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument('-f', '--force-clear', action='store_true', dest='force-clear', help='force clear all metrics')
+        parser.add_argument('-l', '--log', action='store_true', dest='verbose', help='print log')
+        parser.add_argument('-r', '--recalculate-last', action='store_true', dest='recalculate-last', help='recalculate last day')
 
     def handle(self, *args, **options):
 

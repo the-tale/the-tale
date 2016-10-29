@@ -130,7 +130,6 @@ def logout_user(request):
     signals.on_before_logout.send(None, request=request)
 
     django_logout(request)
-
     request.session.flush()
 
     request.session[accounts_settings.SESSION_FIRST_TIME_VISIT_VISITED_KEY] = True
@@ -162,7 +161,7 @@ def get_session_expire_at_timestamp(request):
 
 
 def is_first_time_visit(request):
-    return not request.user.is_authenticated() and request.session.get(accounts_settings.SESSION_FIRST_TIME_VISIT_KEY)
+    return not request.user.is_authenticated and request.session.get(accounts_settings.SESSION_FIRST_TIME_VISIT_KEY)
 
 
 def get_account_info(account, hero):

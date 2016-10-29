@@ -1,5 +1,6 @@
 # coding: utf-8
-from django.conf.urls import patterns, include
+from django.conf.urls import url
+from django.conf.urls import include
 
 from dext.views import resource_patterns
 
@@ -13,9 +14,7 @@ from the_tale.guide.views import GuideResource
 
 urlpatterns = resource_patterns(GuideResource)
 
-urlpatterns += patterns('',
-                       (r'^mobs/', include(resource_patterns(GuideMobResource), namespace='mobs') ),
-                       (r'^artifacts/', include(resource_patterns(GuideArtifactResource), namespace='artifacts') ),
-                       (r'^cards/', include(cards_views.guide_resource.get_urls(), namespace='cards') ),
-                       (r'^companions/', include(companions_resource.get_urls(), namespace='companions') )
-    )
+urlpatterns += [url(r'^mobs/', include(resource_patterns(GuideMobResource), namespace='mobs') ),
+                url(r'^artifacts/', include(resource_patterns(GuideArtifactResource), namespace='artifacts') ),
+                url(r'^cards/', include(cards_views.guide_resource.get_urls(), namespace='cards') ),
+                url(r'^companions/', include(companions_resource.get_urls(), namespace='companions') )]

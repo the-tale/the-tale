@@ -20,7 +20,7 @@
 
 {% block templates_content %}
 
-{% if not resource.account.is_authenticated() %}
+{% if not resource.account.is_authenticated %}
 {{ base_macros.registration_required_message("иметь возможность добавлять шаблоны фраз.") }}
 {% endif %}
 
@@ -46,7 +46,7 @@
 <br/>
 
 
-{% if key and resource.account.is_authenticated() %}
+{% if key and resource.account.is_authenticated %}
 <a class="btn btn-success" href="{{url('linguistics:templates:new', key=key.value)}}">Добавить шаблон</a>
 {% endif %}
 
