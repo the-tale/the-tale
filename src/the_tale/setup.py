@@ -37,7 +37,7 @@ setuptools.setup(
     keywords=['gamedev', 'the-tale', 'game development', 'zpg', 'zero player game'],
     packages=setuptools.find_packages(),
     install_requires=['psycopg2==2.6.2',
-                      'kombu==4.0.0',
+                      'kombu==3.0.37',
                       'postmarkup==1.2.2',
                       'Markdown==2.6.7',
                       'xlrd==1.0.0',
