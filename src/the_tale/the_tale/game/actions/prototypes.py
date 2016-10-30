@@ -884,14 +884,16 @@ class ActionMoveToPrototype(ActionBase):
             else:
                 self.normal_move()
 
-            if self.hero.position.percents >= 1:
-                self.place_hero_in_current_destination()
+            # state can be changed in can_picked_up_in_road
+            if self.state == self.STATE.MOVING:
+                if self.hero.position.percents >= 1:
+                    self.place_hero_in_current_destination()
 
-            elif self.percents >= 1:
-                self.state = self.STATE.PROCESSED
+                elif self.percents >= 1:
+                    self.state = self.STATE.PROCESSED
 
-            elif self.break_at is not None and self.break_at < self.percents:
-                self.state = self.STATE.PROCESSED
+                elif self.break_at is not None and self.break_at < self.percents:
+                    self.state = self.STATE.PROCESSED
 
     def place_hero_in_current_destination(self, create_action=True):
         self.hero.position.percents = 1
