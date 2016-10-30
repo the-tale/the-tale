@@ -82,10 +82,10 @@ def prepair_get_text(key, args, quiet=False):
 
     externals, restrictions = _process_arguments(args)
 
-    if (game_lexicon.item.has_key(lexicon_key) and
+    if (not game_lexicon.item.has_key(lexicon_key) and
         not quiet and
         not project_settings.TESTS_RUNNING):
-        logger.warn('no ingame templates for key: %s', lexicon_key)
+        logger.warn('no ingame templates for key: %s %s', lexicon_key.__class__, lexicon_key)
 
     return lexicon_key, externals, restrictions
 
@@ -120,7 +120,7 @@ def get_text(key, args, quiet=False):
     if lexicon_key is None:
         return None
 
-    if game_lexicon.item.has_key(lexicon_key):
+    if not game_lexicon.item.has_key(lexicon_key):
         return fake_text(key, externals)
 
     return render_text(lexicon_key, externals, quiet, restrictions=restrictions)

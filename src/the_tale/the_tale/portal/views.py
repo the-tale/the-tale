@@ -63,7 +63,7 @@ class PortalResource(Resource):
             hero_of_the_day = heroes_logic.load_hero(account_id=account_of_the_day_id)
             account_of_the_day = AccountPrototype.get_by_id(account_of_the_day_id)
 
-            if account_of_the_day.clan_id is not None:
+            if account_of_the_day and account_of_the_day.clan_id is not None:
                 clan_of_the_day = ClanPrototype.get_by_id(account_of_the_day.clan_id)
 
         forum_threads = ThreadPrototype.get_last_threads(account=self.account if self.account.is_authenticated else None,
