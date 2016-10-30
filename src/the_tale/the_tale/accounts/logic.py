@@ -135,9 +135,9 @@ def logout_user(request):
     request.session[accounts_settings.SESSION_FIRST_TIME_VISIT_VISITED_KEY] = True
 
 
-def remove_account(account):
+def remove_account(account, force=False):
     from the_tale.game.logic import remove_game_data
-    if account.can_be_removed():
+    if force or account.can_be_removed():
         with transaction.atomic():
             remove_game_data(account)
             account.remove()
@@ -149,6 +149,22 @@ def block_expired_accounts():
 
     for account_model in Account.objects.filter(is_fast=True, created_at__lt=expired_before):
         remove_account(AccountPrototype(account_model))
+
+
+def thin_out_accounts(number, prolong_active_to):
+    from . import models
+
+    restricted_accounts = set()
+    restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('initiator', flat=True))
+    restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('receiver', flat=True))
+    restricted_accounts |= set(Account.objects.exclude(clan_id=None).values_list('id', flat=True))
+
+    for account_model in Account.objects.all().order_by('created_at')[number:]:
+        if account_model.id not in restricted_accounts:
+            remove_account(AccountPrototype(account_model), force=True)
+
+    Account.objects.all().update(active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=prolong_active_to))
+
 
 # for bank
 def get_account_id_by_email(email):
