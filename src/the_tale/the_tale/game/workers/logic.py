@@ -50,7 +50,7 @@ class Worker(workers.BaseWorker):
     def cmd_next_turn(self, turn_number):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
 
-    # @profile.profile_decorator('/home/tie/repos/mine/the-tale/profile.info')
+    # @profile.profile_decorator('/home/the-tale/profile.info')
     def process_next_turn(self, turn_number):
 
         self.turn_number += 1

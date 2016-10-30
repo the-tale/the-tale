@@ -198,8 +198,7 @@ def fill_places(kb, hero_info, max_distance):
 
         places.append((path_length, place))
 
-    places.sort()
-
+    places.sort(key=lambda x: x[0])
 
     chosen_places = []
 
