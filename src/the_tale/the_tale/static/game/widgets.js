@@ -774,7 +774,7 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
             function(i, el) {
                 el = jQuery(el);
 
-                var disable = processingChangeAbilitiesRequest || data.own_hero.pvp.energy == 0;
+                var disable = processingChangeAbilitiesRequest || data.own_hero.action.data.pvp.energy == 0;
 
                 el.toggleClass('disabled pgf-disabled', disable);
             });
@@ -832,8 +832,8 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
 
         if (!data.own_hero) return;
 
-        var ownPvP = data.own_hero.pvp;
-        var enemyPvP = data.enemy_hero.pvp;
+        var ownPvP = data.own_hero.action.data.pvp;
+        var enemyPvP = data.enemy_hero.action.data.pvp;
 
         jQuery('.pgf-advantage-percents', widget).width( ((0.5 + ownPvP.advantage * 0.5) * 100) + '%');
         jQuery('.pgf-advantage', widget).text(parseInt(ownPvP.advantage * 100) + '%');

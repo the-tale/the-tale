@@ -65,7 +65,7 @@ def game_page(context):
                                     'hero': context.account_hero,
                                     'ABILITY_TYPE': ABILITY_TYPE})
 
-@api.Processor(versions=(game_settings.INFO_API_VERSION, '1.4', '1.3', '1.2', '1.1', '1.0'))
+@api.Processor(versions=(game_settings.INFO_API_VERSION, '1.5', '1.4', '1.3', '1.2', '1.1', '1.0'))
 @dext_views.IntsArgumentProcessor(error_message='Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
 @accounts_views.AccountProcessor(error_message='Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
 @resource('api', 'info', name='api-info')
@@ -124,17 +124,6 @@ def api_info(context):
 
     <hero_info> = {
       "patch_turn": null|<целое число>,  // номер хода, для которого возвращается патч или null, если информация полная
-      "pvp":{                            // данные относящиеся к pvp
-         "advantage": <целое число>,     // преимущество героя
-         "effectiveness": <целое число>, // эффективность героя
-         "probabilities": {              // вероятности успешного применения способностей
-           "ice": <дробное число>,       // льда
-           "blood": <дробное число>,     // крови
-           "flame": <дробное число>,     // пламени
-         },
-         "energy": <целое число>,        // текущая энергия
-         "energy_speed": <целое число>   // прирост энергии
-      },
 
       "energy":{                      // энергия игрока [личная информация]
             "bonus": <целое число>,   // дополнительная энергия
@@ -248,6 +237,7 @@ def api_info(context):
         "description": "строка",     // описание
         "info_link": "url"|null      // ссылка на доп. информацию
         "type": <целое число>        // идентификатор типа действия
+        "data": null|<словарь>       // дополнительная информация о действиии или null, если такой нет
       },
 
       "position":{                      // позиция героя на клеточной карте
@@ -341,6 +331,9 @@ def api_info(context):
     data = game_logic.form_game_info(account=account,
                                      is_own=False if account is None else (context.account.id == account.id),
                                      client_turns=context.client_turns)
+
+    if context.api_version in ('1.5', '1.4', '1.3', '1.2', '1.1', '1.0'):
+        data = game_logic.game_info_from_1_6_to_1_5(data)
 
     if context.api_version in ('1.4', '1.3', '1.2', '1.1', '1.0'):
         data = game_logic.game_info_from_1_5_to_1_4(data)

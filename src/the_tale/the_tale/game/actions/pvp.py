@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.pvp.abilities import Ice, Blood, Flame
 
 class PvPData(object):
@@ -10,7 +12,7 @@ class PvPData(object):
         self.updated = False
 
         self.advantage = 0
-        self.effectiveness = 0
+        self.effectiveness = c.PVP_EFFECTIVENESS_INITIAL
 
         self.energy = 0
         self.energy_speed = 1
@@ -20,6 +22,8 @@ class PvPData(object):
 
         self.turn_energy = 0
         self.turn_energy_speed = 1
+
+        self.store_turn_data()
 
     def set_advantage(self, value):
         self.updated = True

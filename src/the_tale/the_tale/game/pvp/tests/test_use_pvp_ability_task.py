@@ -13,6 +13,10 @@ from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game.pvp.postponed_tasks import UsePvPAbilityTask, USE_PVP_ABILITY_TASK_STATE
 from the_tale.game.pvp.abilities import ABILITIES
 
+from the_tale.game.actions import meta_actions
+from the_tale.game.actions import prototypes as actions_prototypes
+
+
 class UsePvPAbilityTests(testcase.TestCase):
 
     def setUp(self):
@@ -37,6 +41,13 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.ability = random.choice(list(ABILITIES.values()))
 
         self.task = UsePvPAbilityTask(battle_id=self.battle.id, account_id=self.account_1.id, ability_id=self.ability.TYPE)
+
+        self.meta_action_battle = meta_actions.ArenaPvP1x1.create(self.storage, self.hero_1, self.hero_2)
+        self.meta_action_battle.set_storage(self.storage)
+
+        actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=self.hero_1.actions.current_action.bundle_id, meta_action=self.meta_action_battle)
+        actions_prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=self.hero_1.actions.current_action.bundle_id, meta_action=self.meta_action_battle)
+
 
     def test_create(self):
         self.assertEqual(self.task.state, USE_PVP_ABILITY_TASK_STATE.UNPROCESSED)
@@ -67,7 +78,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.assertEqual(self.task.state, USE_PVP_ABILITY_TASK_STATE.NO_ENERGY)
 
     def test_process_success(self):
-        self.hero_1.pvp.set_energy(1)
+        self.meta_action_battle.hero_1_pvp.set_energy(1)
 
         old_hero_1_last_message = self.hero_1.journal.messages[-1]
         old_hero_2_last_message = self.hero_2.journal.messages[-1]
@@ -78,7 +89,7 @@ class UsePvPAbilityTests(testcase.TestCase):
         self.assertNotEqual(old_hero_1_last_message, self.hero_1.journal.messages[-1])
         self.assertNotEqual(old_hero_2_last_message, self.hero_2.journal.messages[-1])
 
-        self.assertNotEqual(old_hero_1_last_message.ui_info()[-1], self.hero_1.journal.ui_info()[-1][-1])
-        self.assertEqual(old_hero_2_last_message.ui_info()[-1], self.hero_2.journal.ui_info()[-1][-1])
+        self.assertNotEqual(old_hero_1_last_message.ui_info(), self.hero_1.journal.ui_info()[-1])
+        self.assertEqual(old_hero_2_last_message.ui_info(), self.hero_2.journal.ui_info()[-1])
 
-        self.assertEqual(self.hero_1.pvp.energy, 0)
+        self.assertEqual(self.meta_action_battle.hero_1_pvp.energy, 0)

@@ -235,6 +235,15 @@ def _game_info_from_1_5_to_1_4__heroes(data):
                     actor_data['mastery_verbose'] = 'гений'
 
 
+def _game_info_from_1_6_to_1_5__heroes(data):
+    data['pvp'] = {"advantage": 0,
+                   "effectiveness": 0,
+                   "probabilities": {"ice": 0,
+                                     "blood": 0,
+                                     "flame": 0 },
+                    "energy": 0,
+                    "energy_speed": 0}
+
 
 def game_info_from_1_1_to_1_0(data):
     if data['account'] is not None:
@@ -284,6 +293,16 @@ def game_info_from_1_5_to_1_4(data):
         _game_info_from_1_5_to_1_4__heroes(data['enemy']['hero'])
 
     return data
+
+def game_info_from_1_6_to_1_5(data):
+    if data['account'] is not None:
+        _game_info_from_1_5_to_1_4__heroes(data['account']['hero'])
+
+    if data['enemy'] is not None:
+        _game_info_from_1_5_to_1_4__heroes(data['enemy']['hero'])
+
+    return data
+
 
 
 def accounts_info(accounts_ids):

@@ -49,9 +49,8 @@ from .. import objects
 def get_simple_cache_data(*argv, **kwargs):
     return {'ui_caching_started_at': kwargs.get('ui_caching_started_at', 0),
             'changed_fields': [],
-            'pvp__actual': 'x',
-            'pvp__last_turn': 'y',
-            'patch_turn': None}
+            'patch_turn': None,
+            'action': {'data': None}}
 
 
 class HeroTest(testcase.TestCase):
@@ -1250,9 +1249,8 @@ class HeroUiInfoTest(testcase.TestCase):
                                                           'b': 2,
                                                           'c': 3,
                                                           'd': 4,
-                                                          'pvp__actual': 'x',
-                                                          'pvp__last_turn': 'y',
                                                           'patch_turn': 666,
+                                                          'action': {'data': None},
                                                           'changed_fields': ['b', 'c', 'changed_fields', 'patch_turn']})
     def test_cached_ui_info_for_hero__make_patch(self):
         data = objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=[666], for_last_turn=False)
@@ -1264,8 +1262,7 @@ class HeroUiInfoTest(testcase.TestCase):
     def test_cached_ui_info_for_hero__turn_in_patch_turns(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
         old_info['patch_turn'] = 666
-        old_info['changed_fields'].extend(field for field in old_info.keys()
-                                          if random.random() < 0.5 and field not in ('pvp__last_turn', 'pvp__actual'))
+        old_info['changed_fields'].extend(field for field in old_info.keys() if random.random() < 0.5)
 
         with mock.patch('dext.common.utils.cache.get', lambda x: copy.deepcopy(old_info)):
             data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=[665, 666, 667], for_last_turn=False)
@@ -1277,31 +1274,30 @@ class HeroUiInfoTest(testcase.TestCase):
     def test_cached_ui_info_for_hero__turn_not_in_patch_turns(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
         old_info['patch_turn'] = 664
-        old_info['changed_fields'].extend(field for field in old_info.keys()
-                                          if random.random() < 0.5 and field not in ('pvp__last_turn', 'pvp__actual'))
+        old_info['changed_fields'].extend(field for field in old_info.keys() if random.random() < 0.5)
 
         with mock.patch('dext.common.utils.cache.get', lambda x: copy.deepcopy(old_info)):
             data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=[665, 666, 667], for_last_turn=False)
 
-        self.assertEqual(set(data.keys()) | set(('changed_fields', 'pvp__last_turn', 'pvp__actual')),
-                         set(self.hero.ui_info(actual_guaranteed=True, old_info=None).keys()) | set(('pvp',)))
+        self.assertEqual(set(data.keys()) | set(('changed_fields',)),
+                         set(self.hero.ui_info(actual_guaranteed=True, old_info=None).keys()))
         self.assertEqual(data['patch_turn'], None)
 
     def test_cached_ui_info_for_hero__actual_info(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
-        old_info['pvp__last_turn'] = 'last_turn'
-        old_info['pvp__actual'] = 'actual'
+        old_info['action']['data'] = {'pvp__last_turn': 'last_turn',
+                                      'pvp__actual': 'actual'}
 
         with mock.patch('dext.common.utils.cache.get', lambda x: copy.deepcopy(old_info)):
             data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
-            self.assertEqual(data['pvp'], 'actual')
-            self.assertNotIn('pvp__last_turn', data)
-            self.assertNotIn('pvp__actual', data)
+            self.assertEqual(data['action']['data']['pvp'], 'actual')
+            self.assertNotIn('pvp__last_turn', data['action']['data'])
+            self.assertNotIn('pvp__actual', data['action']['data'])
 
             data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=True)
-            self.assertEqual(data['pvp'], 'last_turn')
-            self.assertNotIn('pvp__last_turn', data)
-            self.assertNotIn('pvp__actual', data)
+            self.assertEqual(data['action']['data']['pvp'], 'last_turn')
+            self.assertNotIn('pvp__last_turn', data['action']['data'])
+            self.assertNotIn('pvp__actual', data['action']['data'])
 
 
     def test_ui_info_patch(self):

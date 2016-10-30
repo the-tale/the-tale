@@ -21,6 +21,7 @@ from the_tale.game import relations as game_relations
 from the_tale.game.pvp.prototypes import Battle1x1Prototype, Battle1x1ResultPrototype
 from the_tale.game.pvp.relations import BATTLE_1X1_RESULT
 
+from . import pvp
 from . import battle
 from . import contexts
 from . import relations
@@ -78,7 +79,7 @@ class MetaAction(object):
 
 
 class ArenaPvP1x1(MetaAction):
-    __slots__ = ('hero_1_context', 'hero_2_context', 'hero_1_old_health', 'hero_2_old_health', 'bot_pvp_properties', 'hero_1_id', 'hero_2_id')
+    __slots__ = ('hero_1_context', 'hero_2_context', 'hero_1_old_health', 'hero_2_old_health', 'bot_pvp_properties', 'hero_1_id', 'hero_2_id', 'hero_1_pvp', 'hero_2_pvp')
 
     TYPE = relations.ACTION_TYPE.ARENA_PVP_1X1
     TEXTGEN_TYPE = 'meta_action_arena_pvp_1x1'
@@ -87,7 +88,17 @@ class ArenaPvP1x1(MetaAction):
         BATTLE_RUNNING = 'battle_running'
         BATTLE_ENDING = 'battle_ending'
 
-    def __init__(self, hero_1_old_health=None, hero_2_old_health=None, hero_1_context=None, hero_2_context=None, bot_pvp_properties=None, hero_1_id=None, hero_2_id=None, **kwargs):
+    def __init__(self,
+                 hero_1_old_health=None,
+                 hero_2_old_health=None,
+                 hero_1_context=None,
+                 hero_2_context=None,
+                 bot_pvp_properties=None,
+                 hero_1_id=None,
+                 hero_2_id=None,
+                 hero_1_pvp=None,
+                 hero_2_pvp=None,
+                 **kwargs):
         super(ArenaPvP1x1, self).__init__(**kwargs)
         self.hero_1_context = hero_1_context
         self.hero_2_context = hero_2_context
@@ -96,6 +107,8 @@ class ArenaPvP1x1(MetaAction):
         self.bot_pvp_properties = bot_pvp_properties
         self.hero_1_id = hero_1_id
         self.hero_2_id = hero_2_id
+        self.hero_1_pvp = hero_1_pvp
+        self.hero_2_pvp = hero_2_pvp
 
     @property
     def uid(self):
@@ -109,7 +122,9 @@ class ArenaPvP1x1(MetaAction):
                      'hero_2_context': self.hero_2_context.serialize(),
                      'bot_pvp_properties': self.bot_pvp_properties,
                      'hero_1_id': self.hero_1_id,
-                     'hero_2_id': self.hero_2_id})
+                     'hero_2_id': self.hero_2_id,
+                     'hero_1_pvp': self.hero_1_pvp.serialize(),
+                     'hero_2_pvp': self.hero_2_pvp.serialize()})
         return data
 
     @classmethod
@@ -120,6 +135,8 @@ class ArenaPvP1x1(MetaAction):
         obj.hero_2_id = data['hero_2_id']
         obj.hero_1_old_health = data['hero_1_old_health']
         obj.hero_2_old_health = data['hero_2_old_health']
+        obj.hero_1_pvp = pvp.PvPData.deserialize(data['hero_1_pvp']) if 'hero_1_pvp' in data else pvp.PvPData()
+        obj.hero_2_pvp = pvp.PvPData.deserialize(data['hero_2_pvp']) if 'hero_2_pvp' in data else pvp.PvPData()
         obj.hero_1_context = contexts.BattleContext.deserialize(data['hero_1_context'])
         obj.hero_2_context = contexts.BattleContext.deserialize(data['hero_2_context'])
         obj.bot_pvp_properties = data['bot_pvp_properties']
@@ -136,10 +153,7 @@ class ArenaPvP1x1(MetaAction):
         hero_2_old_health = hero_2.health
 
         hero_1.health = hero_1.max_health
-        cls.reset_hero_info(hero_1)
-
         hero_2.health = hero_2.max_health
-        cls.reset_hero_info(hero_2)
 
         hero_1_context = contexts.BattleContext()
         hero_1_context.use_pvp_advantage_stike_damage(hero_1.basic_damage * c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER)
@@ -154,6 +168,8 @@ class ArenaPvP1x1(MetaAction):
                           hero_1_context=hero_1_context,
                           hero_2_context=hero_2_context,
                           state=cls.STATE.BATTLE_RUNNING,
+                          hero_1_pvp=pvp.PvPData(),
+                          hero_2_pvp=pvp.PvPData(),
                           bot_pvp_properties=cls.get_bot_pvp_properties())
 
         meta_action.set_storage(storage)
@@ -171,6 +187,16 @@ class ArenaPvP1x1(MetaAction):
         return {'priorities': bot_priorities, 'ability_chance': random.uniform(0.1, 0.33)}
 
 
+    def ui_info(self, hero):
+        if hero.id == self.hero_1_id:
+            info = self.hero_1_pvp
+        else:
+            info = self.hero_2_pvp
+
+        return {'pvp__actual': info.ui_info(),
+                'pvp__last_turn': info.turn_ui_info()}
+
+
     @property
     def hero_1(self):
         return self.storage.heroes.get(self.hero_1_id)
@@ -182,15 +208,6 @@ class ArenaPvP1x1(MetaAction):
     def add_message(self, *argv, **kwargs):
         self.hero_1.add_message(*argv, **kwargs)
         self.hero_2.add_message(*argv, **kwargs)
-
-    @classmethod
-    def reset_hero_info(cls, hero):
-        hero.pvp.set_advantage(0)
-        hero.pvp.set_effectiveness(c.PVP_EFFECTIVENESS_INITIAL)
-        hero.pvp.set_energy(0)
-        hero.pvp.set_energy_speed(1)
-
-        hero.pvp.store_turn_data()
 
     @classmethod
     def prepair_bot(cls, hero, enemy):
@@ -214,9 +231,9 @@ class ArenaPvP1x1(MetaAction):
             self.state = self.STATE.BATTLE_ENDING
             self.percents = 1.0
 
-    def update_hero_pvp_info(self, hero):
-        hero.pvp.set_energy(hero.pvp.energy + hero.pvp.energy_speed)
-        hero.pvp.set_effectiveness(hero.pvp.effectiveness - hero.pvp.effectiveness * c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION)
+    def update_hero_pvp_info(self, pvp):
+        pvp.set_energy(pvp.energy + pvp.energy_speed)
+        pvp.set_effectiveness(pvp.effectiveness - pvp.effectiveness * c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION)
 
     def process_battle_ending(self):
         battle_1 = Battle1x1Prototype.get_by_account_id(self.hero_1.account_id)
@@ -251,12 +268,9 @@ class ArenaPvP1x1(MetaAction):
         self.hero_1.health = self.hero_1_old_health
         self.hero_2.health = self.hero_2_old_health
 
-        self.reset_hero_info(self.hero_1)
-        self.reset_hero_info(self.hero_2)
-
         self.state = self.STATE.PROCESSED
 
-    def process_bot(self, bot, enemy):
+    def process_bot(self, bot, enemy, enemy_pvp):
         from the_tale.game.pvp.abilities import Flame
 
         properties = self.bot_pvp_properties
@@ -266,7 +280,7 @@ class ArenaPvP1x1(MetaAction):
 
         used_ability_type = random_value_by_priority(properties['priorities'].items())
 
-        if used_ability_type == Flame.TYPE and enemy.pvp.energy_speed == 1:
+        if used_ability_type == Flame.TYPE and enemy_pvp.energy_speed == 1:
             return
 
         PVP_ABILITIES[used_ability_type](hero=bot, enemy=enemy).use()
@@ -274,14 +288,14 @@ class ArenaPvP1x1(MetaAction):
 
     def process_battle_running(self):
         # apply all changes made by player
-        hero_1_effectivenes = self.hero_1.pvp.effectiveness
-        hero_2_effectivenes = self.hero_2.pvp.effectiveness
+        hero_1_effectivenes = self.hero_1_pvp.effectiveness
+        hero_2_effectivenes = self.hero_2_pvp.effectiveness
 
         if self.hero_1.is_bot:
-            self.process_bot(bot=self.hero_1, enemy=self.hero_2)
+            self.process_bot(bot=self.hero_1, enemy=self.hero_2, enemy_pvp=self.hero_2_pvp)
 
         if self.hero_2.is_bot:
-            self.process_bot(bot=self.hero_2, enemy=self.hero_1)
+            self.process_bot(bot=self.hero_2, enemy=self.hero_1, enemy_pvp=self.hero_1_pvp)
 
         # modify advantage
         max_effectivenes = float(max(hero_1_effectivenes, hero_2_effectivenes))
@@ -291,11 +305,11 @@ class ArenaPvP1x1(MetaAction):
             effectiveness_fraction = (hero_1_effectivenes - hero_2_effectivenes) / max_effectivenes
         advantage_delta = c.PVP_MAX_ADVANTAGE_STEP * effectiveness_fraction
 
-        self.hero_1.pvp.set_advantage(self.hero_1.pvp.advantage + advantage_delta)
-        self.hero_1_context.use_pvp_advantage(self.hero_1.pvp.advantage)
+        self.hero_1_pvp.set_advantage(self.hero_1_pvp.advantage + advantage_delta)
+        self.hero_1_context.use_pvp_advantage(self.hero_1_pvp.advantage)
 
-        self.hero_2.pvp.set_advantage(self.hero_2.pvp.advantage - advantage_delta)
-        self.hero_2_context.use_pvp_advantage(self.hero_2.pvp.advantage)
+        self.hero_2_pvp.set_advantage(self.hero_2_pvp.advantage - advantage_delta)
+        self.hero_2_context.use_pvp_advantage(self.hero_2_pvp.advantage)
 
         # battle step
         if self.hero_1.health > 0 and self.hero_2.health > 0:
@@ -304,17 +318,17 @@ class ArenaPvP1x1(MetaAction):
                              self)
 
             if self.hero_1_context.pvp_advantage_used or self.hero_2_context.pvp_advantage_used:
-                self.hero_1.pvp.set_advantage(0)
-                self.hero_2.pvp.set_advantage(0)
+                self.hero_1_pvp.set_advantage(0)
+                self.hero_2_pvp.set_advantage(0)
 
             self.percents = 1.0 - min(self.hero_1.health_percents, self.hero_2.health_percents)
 
         # update resources, etc
-        self.update_hero_pvp_info(self.hero_1)
-        self.update_hero_pvp_info(self.hero_2)
+        self.update_hero_pvp_info(self.hero_1_pvp)
+        self.update_hero_pvp_info(self.hero_2_pvp)
 
-        self.hero_1.pvp.store_turn_data()
-        self.hero_2.pvp.store_turn_data()
+        self.hero_1_pvp.store_turn_data()
+        self.hero_2_pvp.store_turn_data()
 
         # check if anyone has killed
         self._check_hero_health(self.hero_1, self.hero_2)

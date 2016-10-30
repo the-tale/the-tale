@@ -81,7 +81,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'quests',
                  'places_history',
                  'cards',
-                 'pvp',
                  'abilities',
                  'bag',
                  'equipment',
@@ -118,7 +117,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  quests,
                  places_history,
                  cards,
-                 pvp,
                  abilities,
                  bag,
                  equipment,
@@ -191,8 +189,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         self.cards = cards
         self.cards._hero = self
-
-        self.pvp = pvp
 
         self.abilities = abilities
         self.abilities.hero = self
@@ -607,9 +603,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                                 'discount': self.energy_discount},
                     'action': self.actions.current_action.ui_info(),
                     'companion': self.companion.ui_info() if self.companion else None,
-                    # 'pvp' will be filled in modify_ui_info_with_turn
-                    'pvp__actual': self.pvp.ui_info(),
-                    'pvp__last_turn': self.pvp.turn_ui_info(),
                     'base': { 'name': self.name,
                               'level': self.level,
                               'destiny_points': self.abilities.destiny_points,
@@ -647,16 +640,18 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
     @classmethod
     def modify_ui_info_with_turn(cls, data, for_last_turn):
+        action_data = data['action']['data']
+
+        if action_data is None or 'pvp__actual' not in action_data:
+            return
+
         if for_last_turn:
-            data['pvp'] = data['pvp__last_turn']
+            action_data['pvp'] = action_data['pvp__last_turn']
         else:
-            data['pvp'] = data['pvp__actual']
+            action_data['pvp'] = action_data['pvp__actual']
 
-        if 'pvp__last_turn' in data['changed_fields'] or 'pvp__actual' in data['changed_fields']:
-            data['changed_fields'].append('pvp')
-
-        del data['pvp__last_turn']
-        del data['pvp__actual']
+        del action_data['pvp__last_turn']
+        del action_data['pvp__actual']
 
 
     @classmethod

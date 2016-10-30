@@ -217,7 +217,8 @@ class ActionBase(object):
                 'type': self.ui_type.value,
                 'description': self.description,
                 'info_link': self.info_link,
-                'is_boss': self.mob.is_boss if self.mob else None}
+                'is_boss': self.mob.is_boss if self.mob else None,
+                'data': None}
 
     @property
     def leader(self):
@@ -1945,6 +1946,11 @@ class ActionMetaProxyPrototype(ActionBase):
     @property
     def ui_type(self):
         return self.meta_action.TYPE
+
+    def ui_info(self):
+        info = super().ui_info()
+        info['data'] = self.meta_action.ui_info(self.hero)
+        return info
 
     ###########################################
     # Object operations

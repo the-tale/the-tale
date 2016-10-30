@@ -33,7 +33,6 @@ from . import preferences
 from . import relations
 from . import messages
 from . import places_help_statistics
-from . import pvp
 from . import habilities
 from . import bag
 from . import conf
@@ -147,10 +146,9 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
                         places_history=places_help_statistics.PlacesHelpStatistics.deserialize(data['places_history']),
                         cards=cards_container.CardsContainer.deserialize(s11n.from_json(hero_model.cards)),
-                        pvp=pvp.PvPData.deserialize(s11n.from_json(hero_model.pvp)),
                         abilities=habilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
-                        bag=bag.Bag.deserialize(s11n.from_json(hero_model.bag)),
-                        equipment=bag.Equipment.deserialize(s11n.from_json(hero_model.equipment)),
+                        bag=bag.Bag.deserialize(data['bag']),
+                        equipment=bag.Equipment.deserialize(data['equipment']),
                         created_at_turn=hero_model.created_at_turn,
                         saved_at_turn=hero_model.saved_at_turn,
                         saved_at=hero_model.saved_at,
@@ -167,7 +165,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         ban_state_end_at=hero_model.ban_state_end_at,
                         last_rare_operation_at_turn=hero_model.last_rare_operation_at_turn,
                         settings_approved=hero_model.settings_approved,
-                        actual_bills=s11n.from_json(hero_model.actual_bills),
+                        actual_bills=data['actual_bills'],
                         utg_name=utg_words.Word.deserialize(data['name']))
 
 
@@ -175,13 +173,14 @@ def save_hero(hero, new=False):
     data = {'companion': hero.companion.serialize() if hero.companion else None,
             'name': hero.utg_name.serialize(),
             'quests': hero.quests.serialize(),
-            'places_history': hero.places_history.serialize()}
+            'places_history': hero.places_history.serialize(),
+            'equipment': hero.equipment.serialize(),
+            'bag': hero.bag.serialize(),
+            'actual_bills': hero.actual_bills}
 
     arguments = dict(saved_at_turn=TimePrototype.get_current_turn_number(),
                      saved_at=datetime.datetime.now(),
                      data=s11n.to_json(data),
-                     bag=s11n.to_json(hero.bag.serialize()),
-                     equipment=s11n.to_json(hero.equipment.serialize()),
                      abilities=s11n.to_json(hero.abilities.serialize()),
                      cards=s11n.to_json(hero.cards.serialize()),
                      messages=s11n.to_json(hero.journal.serialize()),
@@ -190,10 +189,8 @@ def save_hero(hero, new=False):
                      raw_power_physic=hero.power.physic,
                      raw_power_magic=hero.power.magic,
                      quest_created_time = hero.quests.min_quest_created_time,
-                     pvp=s11n.to_json(hero.pvp.serialize()),
                      preferences=s11n.to_json(hero.preferences.serialize()),
                      stat_politics_multiplier=hero.politics_power_multiplier() if hero.can_change_all_powers() else 0,
-                     actual_bills=s11n.to_json(hero.actual_bills),
 
                      pos_previous_place_id=hero.position.previous_place_id,
                      pos_place_id=hero.position.place_id,
@@ -346,7 +343,6 @@ def create_hero(account):
                         quests=quests_container.QuestsContainer(),
                         places_history=places_help_statistics.PlacesHelpStatistics(),
                         cards=cards_container.CardsContainer(),
-                        pvp=pvp.PvPData(),
                         abilities=habilities.AbilitiesPrototype.create(),
                         bag=bag.Bag(),
                         equipment=bag.Equipment(),

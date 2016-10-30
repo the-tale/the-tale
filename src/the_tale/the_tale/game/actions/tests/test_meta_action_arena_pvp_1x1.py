@@ -17,6 +17,7 @@ from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 from the_tale.game.pvp.abilities import ABILITIES, Flame
 
 from .. import meta_actions
+from .. import prototypes
 
 
 class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
@@ -38,12 +39,6 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
 
         # for test data reset
         self.hero_1.health = self.hero_1.max_health / 2
-        self.hero_1.pvp.set_advantage(1)
-        self.hero_1.pvp.set_effectiveness(0.5)
-
-        # for test data reset
-        self.hero_2.pvp.set_advantage(1)
-        self.hero_2.pvp.set_effectiveness(0.5)
 
         self.battle_1 = self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.battle_1.calculate_rating = True
@@ -55,6 +50,9 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
 
         self.meta_action_battle = meta_actions.ArenaPvP1x1.create(self.storage, self.hero_1, self.hero_2)
         self.meta_action_battle.set_storage(self.storage)
+
+        prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=self.hero_1.actions.current_action.bundle_id, meta_action=self.meta_action_battle)
+        prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=self.hero_1.actions.current_action.bundle_id, meta_action=self.meta_action_battle)
 
 
     def test_serialization(self):
@@ -72,25 +70,27 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
 
         # test reset of pvp_data
         self.assertEqual(self.meta_action_battle.hero_1.health, self.hero_1.max_health)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.advantage, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.energy, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.energy_speed, 1)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_advantage, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_energy, 0)
-        self.assertEqual(self.meta_action_battle.hero_1.pvp.turn_energy_speed, 1)
+
+        self.assertEqual(self.meta_action_battle.hero_1_pvp.advantage, 0)
+        self.assertEqual(self.meta_action_battle.hero_1_pvp.effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
+        self.assertEqual(self.meta_action_battle.hero_1_pvp.energy, 0)
+        self.assertEqual(self.meta_action_battle.hero_1_pvp.energy_speed, 1)
+        self.assertEqual(self.meta_action_battle.hero_1_pvp.turn_advantage, 0)
+        self.assertEqual(self.meta_action_battle.hero_1_pvp.turn_effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
+        self.assertEqual(self.meta_action_battle.hero_1_pvp.turn_energy, 0)
+        self.assertEqual(self.meta_action_battle.hero_1_pvp.turn_energy_speed, 1)
         self.assertTrue(self.meta_action_battle.hero_1_context.pvp_advantage_strike_damage.total > 0)
 
         self.assertEqual(self.meta_action_battle.hero_2.health, self.hero_2.max_health)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.advantage, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.energy, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.energy_speed, 1)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_advantage, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_energy, 0)
-        self.assertEqual(self.meta_action_battle.hero_2.pvp.turn_energy_speed, 1)
+
+        self.assertEqual(self.meta_action_battle.hero_2_pvp.advantage, 0)
+        self.assertEqual(self.meta_action_battle.hero_2_pvp.effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
+        self.assertEqual(self.meta_action_battle.hero_2_pvp.energy, 0)
+        self.assertEqual(self.meta_action_battle.hero_2_pvp.energy_speed, 1)
+        self.assertEqual(self.meta_action_battle.hero_2_pvp.turn_advantage, 0)
+        self.assertEqual(self.meta_action_battle.hero_2_pvp.turn_effectiveness, c.PVP_EFFECTIVENESS_INITIAL)
+        self.assertEqual(self.meta_action_battle.hero_2_pvp.turn_energy, 0)
+        self.assertEqual(self.meta_action_battle.hero_2_pvp.turn_energy_speed, 1)
         self.assertTrue(self.meta_action_battle.hero_2_context.pvp_advantage_strike_damage.total > 0)
 
     def test_one_hero_killed(self):
@@ -175,22 +175,22 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_update_hero_pvp_info(self):
-        self.hero_2.pvp.set_effectiveness(50)
+        self.meta_action_battle.hero_2_pvp.set_effectiveness(50)
 
-        self.meta_action_battle.update_hero_pvp_info(self.hero_2)
-        self.assertTrue(self.hero_2.pvp.energy > self.hero_1.pvp.energy)
+        self.meta_action_battle.update_hero_pvp_info(self.meta_action_battle.hero_2_pvp)
+        self.assertTrue(self.meta_action_battle.hero_2_pvp.energy > self.meta_action_battle.hero_1_pvp.energy)
 
-        self.assertTrue(0 < self.hero_2.pvp.effectiveness < 50)
+        self.assertTrue(0 < self.meta_action_battle.hero_2_pvp.effectiveness < 50)
 
     # rename quest to fixt segmentation fault
     def test_z_advantage_after_turn(self):
-        self.hero_1.pvp.set_effectiveness(50)
-        self.hero_2.pvp.set_effectiveness(25)
+        self.meta_action_battle.hero_1_pvp.set_effectiveness(50)
+        self.meta_action_battle.hero_2_pvp.set_effectiveness(25)
 
         self.meta_action_battle.process()
 
-        self.assertTrue(self.hero_1.pvp.advantage > 0)
-        self.assertTrue(self.hero_2.pvp.advantage < 0)
+        self.assertTrue(self.meta_action_battle.hero_1_pvp.advantage > 0)
+        self.assertTrue(self.meta_action_battle.hero_2_pvp.advantage < 0)
 
 
     def test_full_battle(self):
@@ -248,16 +248,16 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
 
     def test_process_bot_called__use_ability(self):
         self.hero_1.is_bot = True
-        self.hero_1.pvp.set_energy(10)
+        self.meta_action_battle.hero_1_pvp.set_energy(10)
 
         properties = self.meta_action_battle.bot_pvp_properties
         properties['ability_chance'] = 1.0
 
-        self.hero_2.pvp.set_energy_speed(2) # flame abilitie will not be used, if enemy energy speed is 1
+        self.meta_action_battle.hero_2_pvp.set_energy_speed(2) # flame abilitie will not be used, if enemy energy speed is 1
 
         self.meta_action_battle.process()
 
-        self.assertTrue(self.hero_1.pvp.energy in (1, 2))
+        self.assertTrue(self.meta_action_battle.hero_1_pvp.energy in (1, 2))
 
     def test_initialize_bots__bot_is_second(self):
         account_1 = self.accounts_factory.create_account()
@@ -341,10 +341,10 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
 
         self.meta_action_battle.bot_pvp_properties = {'priorities': {Flame.TYPE: 1}, 'ability_chance': 1}
 
-        self.assertEqual(hero_2.pvp.energy_speed, 1)
+        self.assertEqual(self.meta_action_battle.hero_2_pvp.energy_speed, 1)
 
         with mock.patch('the_tale.game.pvp.abilities.Flame.use') as use:
             for i in range(100):
-                self.meta_action_battle.process_bot(hero_1, hero_2)
+                self.meta_action_battle.process_bot(hero_1, hero_2, self.meta_action_battle.hero_2_pvp)
 
         self.assertEqual(use.call_count, 0)

@@ -54,9 +54,6 @@ class Hero(models.Model):
 
     data = models.TextField(null=False, default='{}')
 
-    equipment = models.TextField(null=False, default='{}')
-    bag = models.TextField(null=False, default='{}')
-
     abilities = models.TextField(null=False, default='', blank=True)
 
     cards = models.TextField(null=False, default='{}')
@@ -70,8 +67,6 @@ class Hero(models.Model):
 
     settings_approved = models.BooleanField(null=False, default=True, blank=True)
 
-    pvp = models.TextField(null=False, default='{}')
-
     next_spending = RelationIntegerField(relation=relations.ITEMS_OF_EXPENDITURE, relation_column='value')
 
     energy = models.IntegerField(null=False, default=0)
@@ -79,7 +74,6 @@ class Hero(models.Model):
     energy_bonus = models.BigIntegerField(default=0)
 
     might = models.FloatField(null=False, default=0.0)
-    actual_bills = models.TextField(default='[]')
 
     #position
     pos_previous_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
