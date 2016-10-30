@@ -10,12 +10,14 @@ from the_tale.game.quests import logic
 
 
 class Worker(BaseWorker):
-    GET_CMD_TIMEOUT = 0.01
+    GET_CMD_TIMEOUT = 0.1
     NO_CMD_TIMEOUT = 0.1
 
     def initialize(self):
         if self.initialized:
             self.logger.warn('WARNING: quests generator already initialized, do reinitialization')
+
+        self.clean_queues()
 
         self.initialized = True
 
