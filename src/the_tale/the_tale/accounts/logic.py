@@ -158,6 +158,7 @@ def thin_out_accounts(number, prolong_active_to):
     restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('initiator', flat=True))
     restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('receiver', flat=True))
     restricted_accounts |= set(Account.objects.exclude(clan_id=None).values_list('id', flat=True))
+    restricted_accounts |= set(Bill.objects.exclude(clan_id=None).values_list('id', flat=True))
 
     for account_model in Account.objects.all().order_by('created_at')[number:]:
         if account_model.id not in restricted_accounts:

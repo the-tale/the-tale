@@ -54,4 +54,5 @@ class ACTION_TYPE(DjangoEnum):
                 ('TEST', 14, 'техническое действие для тестов', False, True),
 
                 ('HEAL_COMPANION', 15, 'герой ухаживает за спутником', False, False),
+                ('FIRST_STEPS', 16, 'действия героя сразу после иницииации (новый герой создан для нового игрока)', False, False)
               )

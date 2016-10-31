@@ -441,6 +441,8 @@ class ActionIdlenessPrototype(ActionBase):
         return choices
 
     class STATE(ActionBase.STATE):
+        BEFORE_FIRST_STEPS = 'BEFORE_FIRST_STEPS'
+        FIRST_STEPS = 'FIRST_STEPS'
         QUEST = 'QUEST'
         IN_PLACE = 'IN_PLACE'
         WAITING = 'WAITING'
@@ -462,7 +464,7 @@ class ActionIdlenessPrototype(ActionBase):
             return cls(hero=hero,
                        bundle_id=bundle_id,
                        percents=1.0,
-                       state=cls.STATE.WAITING)
+                       state=cls.STATE.BEFORE_FIRST_STEPS)
 
     def init_quest(self):
 
@@ -511,6 +513,15 @@ class ActionIdlenessPrototype(ActionBase):
 
         if self.preprocess():
             return
+
+        if self.state == self.STATE.BEFORE_FIRST_STEPS:
+            self.state = self.STATE.FIRST_STEPS
+            ActionFirstStepsPrototype.create(hero=self.hero)
+            return
+
+        if self.state == self.STATE.FIRST_STEPS:
+            self.state = self.STATE.WAITING
+            self.percents = 1.0
 
         if self.state == self.STATE.RESURRECT:
             if self.process_position():
@@ -1187,6 +1198,48 @@ class ActionResurrectPrototype(ActionBase):
                 self.hero.resurrect()
                 self.state = self.STATE.PROCESSED
                 self.hero.add_message('action_resurrect_finish', hero=self.hero)
+
+
+class ActionFirstStepsPrototype(ActionBase):
+
+    TYPE = relations.ACTION_TYPE.FIRST_STEPS
+    TEXTGEN_TYPE = 'action_first_steps'
+    HELP_CHOICES = set((HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.STOCK_UP_ENERGY))
+
+    class STATE(ActionBase.STATE):
+        THINK_ABOUT_INITIATION = 'THINK_ABOUT_INITIATION'
+        THINK_ABOUT_FUTURE = 'THINK_ABOUT_FUTURE'
+        THINK_ABOUT_HEROES = 'THINK_ABOUT_HEROES'
+
+
+    @classmethod
+    def _create(cls, hero, bundle_id):
+        hero.add_message('action_first_steps_initiation_diary', diary=True, hero=hero)
+        hero.add_message('action_first_steps_initiation', hero=hero)
+
+        return cls( hero=hero,
+                    bundle_id=bundle_id,
+                    state=cls.STATE.THINK_ABOUT_INITIATION)
+
+    def process(self):
+
+        if self.state == self.STATE.THINK_ABOUT_INITIATION:
+            self.percents = 0.33
+            self.hero.add_message('action_first_steps_future', hero=self.hero)
+            self.state = self.STATE.THINK_ABOUT_FUTURE
+            return
+
+        if self.state == self.STATE.THINK_ABOUT_FUTURE:
+            self.percents = 0.66
+            self.hero.add_message('action_first_steps_heroes', hero=self.hero)
+            self.state = self.STATE.THINK_ABOUT_HEROES
+            return
+
+        if self.state == self.STATE.THINK_ABOUT_HEROES:
+            self.percents = 1.0
+            self.hero.add_message('action_first_steps_now', hero=self.hero)
+            self.state = self.STATE.PROCESSED
+            return
 
 
 class ActionInPlacePrototype(ActionBase):

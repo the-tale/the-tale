@@ -299,14 +299,6 @@ def preferences_for_new_hero(hero):
         hero.preferences.set_companion_empathy(relations.COMPANION_EMPATHY.ORDINAL, change_time=datetime.datetime.fromtimestamp(0))
 
 
-def messages_for_new_hero(hero):
-    hero.add_message('hero_common_diary_create', diary=True, journal=False, hero=hero)
-    hero.add_message('hero_common_journal_create_1', hero=hero, turn_delta=-4)
-    hero.add_message('hero_common_journal_create_2', hero=hero, turn_delta=-3)
-    hero.add_message('hero_common_journal_create_3', hero=hero, turn_delta=-2)
-    hero.add_message('hero_common_journal_create_4', hero=hero, turn_delta=-1)
-
-
 def create_hero(account):
     from the_tale.game.relations import GENDER, RACE
 
@@ -367,7 +359,6 @@ def create_hero(account):
 
     dress_new_hero(hero)
     preferences_for_new_hero(hero)
-    messages_for_new_hero(hero)
 
     save_hero(hero, new=True)
 

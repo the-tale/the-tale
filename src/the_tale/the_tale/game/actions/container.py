@@ -29,9 +29,7 @@ class ActionsContainer(object):
     def initialize(self, hero):
         from the_tale.game.actions import prototypes
         if not self.actions_list:
-            self.actions_list.append(prototypes.ActionIdlenessPrototype(bundle_id=hero.account_id,
-                                                                        percents=1.0,
-                                                                        state=prototypes.ActionIdlenessPrototype.STATE.WAITING))
+            prototypes.ActionIdlenessPrototype.create(hero=hero, _bundle_id=hero.account_id)
             self.is_single = True
 
         for action in self.actions_list:

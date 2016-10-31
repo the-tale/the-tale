@@ -40,11 +40,23 @@ class IdlenessActionTest(testcase.TestCase):
     def test_create(self):
         self.assertEqual(self.action_idl.leader, True)
         self.assertEqual(self.action_idl.percents, 1.0)
+        self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.BEFORE_FIRST_STEPS)
+        self.storage._test_save()
+
+    def test_first_steps(self):
+        self.storage.process_turn()
+        self.assertEqual(len(self.hero.actions.actions_list), 2)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionFirstStepsPrototype.TYPE)
+        self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.FIRST_STEPS)
+        self.assertEqual(self.action_idl.bundle_id, self.hero.account_id)
         self.storage._test_save()
 
 
     def test_first_quest(self):
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.FIRST_STEPS
+
         self.storage.process_turn()
+
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionQuestPrototype.TYPE)
         self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.QUEST)
@@ -80,14 +92,19 @@ class IdlenessActionTest(testcase.TestCase):
     def test_regenerate_energy_action_create(self):
         self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
+
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0.0
+
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
         self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0
+
         self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.storage.process_turn()
