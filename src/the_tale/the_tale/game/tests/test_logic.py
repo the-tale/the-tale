@@ -3,14 +3,19 @@ from unittest import mock
 
 from the_tale.common.utils import testcase
 
+from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import remove_game_data, create_test_map, form_game_info
 from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
 
+from the_tale.game.actions import meta_actions
+from the_tale.game.actions import prototypes as action_prototypes
+
 from the_tale.game.heroes import models as heroes_models
 from the_tale.game.heroes import logic as heroes_logic
+
 
 
 class LogicTests(testcase.TestCase):
@@ -111,15 +116,15 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
 
     def create_not_own_ui_info(self, hero):
         return {'actual_on_turn': hero.saved_at_turn,
-                                                   'pvp__actual':'actual',
-                                                    'pvp__last_turn':'last_turn',
-                                                    'ui_caching_started_at': 0,
-                                                    'cards': 'fake',
-                                                    'changed_fields': [],
-                                                    'energy': {'max': 'fake',
-                                                               'value': 'fake',
-                                                               'bonus': 'fake',
-                                                               'discount': 'fake'}}
+                'action': {'data': {'pvp__actual':'actual',
+                                    'pvp__last_turn':'last_turn'}},
+                'ui_caching_started_at': 0,
+                'cards': 'fake',
+                'changed_fields': [],
+                'energy': {'max': 'fake',
+                           'value': 'fake',
+                           'bonus': 'fake',
+                           'discount': 'fake'}}
 
     def test_not_own_hero_get_cached_data__not_cached(self):
         hero = heroes_logic.load_hero(account_id=self.account_1.id)
@@ -141,11 +146,11 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
                         mock.Mock(return_value=self.create_not_own_ui_info(hero))) as ui_info:
             data = form_game_info(self.account_1, is_own=False)
 
-        self.assertEqual(data['account']['hero']['pvp'], 'last_turn')
+        self.assertEqual(data['account']['hero']['action']['data']['pvp'], 'last_turn')
         self.assertEqual(data['enemy'], None)
 
-        self.assertFalse('pvp__actual' in data['account']['hero']['pvp'])
-        self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
+        self.assertFalse('pvp__actual' in data['account']['hero']['action']['data']['pvp'])
+        self.assertFalse('pvp__last_turn' in data['account']['hero']['action']['data']['pvp'])
 
         self.assertNotEqual(data['account']['hero']['cards'], 'fake')
         self.assertEqual(data['account']['hero']['energy']['max'], 0)
@@ -204,26 +209,37 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
         self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
 
-        hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
-        hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
+        self.storage = LogicStorage()
+        self.storage.load_account_data(self.account_1)
+        self.storage.load_account_data(self.account_2)
 
-        hero_1.pvp.set_energy(1)
+        hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
+        hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
+
+        meta_action_battle = meta_actions.ArenaPvP1x1.create(self.storage, hero_1, hero_2)
+        meta_action_battle.set_storage(self.storage)
+
+        action_prototypes.ActionMetaProxyPrototype.create(hero=hero_1, _bundle_id=hero_1.actions.current_action.bundle_id, meta_action=meta_action_battle)
+        action_prototypes.ActionMetaProxyPrototype.create(hero=hero_2, _bundle_id=hero_1.actions.current_action.bundle_id, meta_action=meta_action_battle)
+
+        meta_action_battle.hero_1_pvp.set_energy(1)
+        meta_action_battle.hero_2_pvp.set_energy(2)
+
         heroes_logic.save_hero(hero_1)
-
-        hero_2.pvp.set_energy(2)
         heroes_logic.save_hero(hero_2)
 
         data = form_game_info(self.account_1, is_own=True)
 
-        self.assertEqual(data['account']['hero']['pvp']['energy'], 1)
-        self.assertEqual(data['enemy']['hero']['pvp']['energy'], 0)
+        self.assertEqual(data['account']['hero']['action']['data']['pvp']['energy'], 1)
+        self.assertEqual(data['enemy']['hero']['action']['data']['pvp']['energy'], 0)
 
-        hero_2.pvp.store_turn_data()
+        meta_action_battle.hero_2_pvp.store_turn_data()
         heroes_logic.save_hero(hero_2)
 
         data = form_game_info(self.account_1, is_own=True)
 
-        self.assertEqual(data['enemy']['hero']['pvp']['energy'], 2)
+        self.assertEqual(data['enemy']['hero']['action']['data']['pvp']['energy'], 2)
+
 
     def test_game_info_caching(self):
         self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
@@ -235,8 +251,8 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         def get_ui_info(hero, **kwargs):
             if hero.id == hero_1.id:
                 return {'actual_on_turn': hero_1.saved_at_turn,
-                        'pvp__actual':'actual',
-                        'pvp__last_turn':'last_turn',
+                        'action': {'data': {'pvp__actual':'actual',
+                                            'pvp__last_turn':'last_turn'}},
                         'changed_fields': [],
                         'ui_caching_started_at': 0}
             else:
@@ -245,13 +261,13 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         with mock.patch('the_tale.game.heroes.objects.Hero.ui_info', get_ui_info):
             data = form_game_info(self.account_1, is_own=True)
 
-        self.assertEqual(data['account']['hero']['pvp'], 'actual')
-        self.assertEqual(data['enemy']['hero']['pvp'], 'last_turn')
+        self.assertEqual(data['account']['hero']['action']['data']['pvp'], 'actual')
+        self.assertEqual(data['enemy']['hero']['action']['data']['pvp'], 'last_turn')
 
-        self.assertFalse('pvp__actual' in data['account']['hero']['pvp'])
-        self.assertFalse('pvp__last_turn' in data['account']['hero']['pvp'])
-        self.assertFalse('pvp__actual' in data['enemy']['hero']['pvp'])
-        self.assertFalse('pvp__last_turn' in data['enemy']['hero']['pvp'])
+        self.assertFalse('pvp__actual' in data['account']['hero']['action']['data']['pvp'])
+        self.assertFalse('pvp__last_turn' in data['account']['hero']['action']['data']['pvp'])
+        self.assertFalse('pvp__actual' in data['enemy']['hero']['action']['data']['pvp'])
+        self.assertFalse('pvp__last_turn' in data['enemy']['hero']['action']['data']['pvp'])
 
         self.assertNotEqual(data['enemy']['hero']['cards'], 'fake')
         self.assertEqual(data['enemy']['hero']['energy']['max'], 0)

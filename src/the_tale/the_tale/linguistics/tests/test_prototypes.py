@@ -447,7 +447,7 @@ class VerificatorTests(testcase.TestCase):
 
     def setUp(self):
         super(VerificatorTests, self).setUp()
-        self.key = keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE
+        self.key = keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION
 
     def test_get_verificators__without_old(self):
         groups = lexicon_logic.get_verificators_groups(key=keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP, old_groups={})

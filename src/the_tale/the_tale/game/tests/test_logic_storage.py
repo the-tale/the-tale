@@ -296,7 +296,7 @@ class LogicStorageTests(testcase.TestCase):
                                                continue_steps_if_needed=True)
 
         self.assertEqual(self.hero_1.actions.number, 2)
-        self.assertEqual(self.hero_1.actions.current_action.TYPE, actions_prototypes.ActionQuestPrototype.TYPE)
+        self.assertEqual(self.hero_1.actions.current_action.TYPE, actions_prototypes.ActionFirstStepsPrototype.TYPE)
 
         self.storage.process_turn() # just nothing was broken
 
@@ -316,7 +316,7 @@ class LogicStorageTests(testcase.TestCase):
         self.storage.process_turn()
 
         self.assertEqual(self.hero_1.actions.number, 2)
-        self.assertEqual(self.hero_1.actions.current_action.TYPE, actions_prototypes.ActionQuestPrototype.TYPE)
+        self.assertEqual(self.hero_1.actions.current_action.TYPE, actions_prototypes.ActionFirstStepsPrototype.TYPE)
 
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.DUMP_CACHED_HEROES', False)

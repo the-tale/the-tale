@@ -49,9 +49,9 @@ class BaseRequestsTests(TestCase):
 class IndexRequestsTests(BaseRequestsTests):
 
     def test_state_errors(self):
-        self.check_html_ok(self.request_html(url('linguistics:templates:', key=keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE.value, state='www')),
+        self.check_html_ok(self.request_html(url('linguistics:templates:', key=keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION.value, state='www')),
                            texts=['linguistics.templates.state.wrong_format'])
-        self.check_html_ok(self.request_html(url('linguistics:templates:', key=keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE.value, state=666)),
+        self.check_html_ok(self.request_html(url('linguistics:templates:', key=keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION.value, state=666)),
                            texts=['linguistics.templates.state.not_found'], status_code=404)
 
     def test_key_errors(self):
@@ -60,7 +60,7 @@ class IndexRequestsTests(BaseRequestsTests):
 
     def test_no_templates(self):
         self.assertEqual(prototypes.TemplatePrototype._db_count(), 0)
-        self.check_html_ok(self.request_html(url('linguistics:templates:', key=keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE.value)),
+        self.check_html_ok(self.request_html(url('linguistics:templates:', key=keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION.value)),
                            texts=['pgf-no-templates-message'])
 
     def test_no_key(self):
@@ -99,7 +99,7 @@ class NewRequestsTests(BaseRequestsTests):
 
 
     def test_succcess(self):
-        key = keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE
+        key = keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION
         texts = [key.description]
         self.check_html_ok(self.request_html(url('linguistics:templates:new', key=key.value)),
                            texts=texts)
@@ -1002,7 +1002,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
         text = '[hero|загл] 2 [пепельница|hero|вн]'
         utg_template = utg_templates.Template()
         utg_template.parse(text, externals=['hero'])
-        template = prototypes.TemplatePrototype.create(key=keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE,
+        template = prototypes.TemplatePrototype.create(key=keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION,
                                                        raw_template=text,
                                                        utg_template=utg_template,
                                                        verificators=[],
@@ -1640,7 +1640,7 @@ class ChangeKeyTests(BaseRequestsTests):
         super(ChangeKeyTests, self).setUp()
 
         self.key_1 = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
-        self.key_2 = keys.LEXICON_KEY.HERO_COMMON_DIARY_CREATE
+        self.key_2 = keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION
 
         self.verificators = prototypes.TemplatePrototype.get_start_verificatos(key=self.key_1)
         self.verificators[0].text = 'verificator-1'

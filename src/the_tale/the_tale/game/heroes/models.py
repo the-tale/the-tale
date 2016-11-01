@@ -58,7 +58,6 @@ class Hero(models.Model):
 
     cards = models.TextField(null=False, default='{}')
 
-    messages = models.TextField(null=False, default='[]')
     diary = models.TextField(null=False, default='[]')
 
     actions = models.TextField(null=False, default='{}')
