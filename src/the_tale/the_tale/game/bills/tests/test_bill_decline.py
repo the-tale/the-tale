@@ -8,7 +8,7 @@ from the_tale.game.places import storage as places_storage
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PlaceResourceExchange, BillDecline, PlaceDescripton
 from the_tale.game.bills.tests.helpers import choose_exchange_resources, BaseTestPrototypes
-from the_tale.game.bills.relations import BILL_STATE
+from the_tale.game.bills import relations
 
 
 class BillDeclineResourceExchangeTests(BaseTestPrototypes):
@@ -111,8 +111,8 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         old_storage_version =places_storage.resource_exchanges._version
 
@@ -139,8 +139,8 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.assertTrue(declined_bill.declined_by.id, bill.id)
 
     def test_has_meaning(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -160,8 +160,8 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_reapply(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         old_storage_version = places_storage.resource_exchanges._version
 
@@ -176,7 +176,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
         self.assertTrue(self.bill.apply())
 
-        self.bill.state = BILL_STATE.VOTING
+        self.bill.state = relations.BILL_STATE.VOTING
         self.bill.save()
 
         with mock.patch('the_tale.game.bills.prototypes.BillPrototype.decline') as skipped_decline:

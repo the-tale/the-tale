@@ -49,8 +49,8 @@ class PersonChronicleTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def check_apply(self, change_power_mock):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True

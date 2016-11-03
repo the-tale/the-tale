@@ -167,9 +167,9 @@ class PrototypeTests(PrototypeTestsBase):
             self.quest._give_person_power(self.hero, person, 3.0)
 
         self.assertEqual(sorted(cmd_change_power.call_args_list, key=lambda x: x[1]['power_delta']),
-                         [mock.call(power_delta=-3.1, place_id=None, has_person_in_preferences=True, person_id=concurrent.id, has_place_in_preferences=False, hero_id=1),
-                          mock.call(power_delta=3.1, place_id=None, has_person_in_preferences=True, person_id=partner.id, has_place_in_preferences=False, hero_id=1),
-                          mock.call(power_delta=31, place_id=None, has_person_in_preferences=True, person_id=person.id, has_place_in_preferences=False, hero_id=1)])
+                         [mock.call(power_delta=-3.1, place_id=None, has_person_in_preferences=True, person_id=concurrent.id, has_place_in_preferences=False, hero_id=self.hero.id),
+                          mock.call(power_delta=3.1, place_id=None, has_person_in_preferences=True, person_id=partner.id, has_place_in_preferences=False, hero_id=self.hero.id),
+                          mock.call(power_delta=31, place_id=None, has_person_in_preferences=True, person_id=person.id, has_place_in_preferences=False, hero_id=self.hero.id)])
 
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
@@ -189,9 +189,9 @@ class PrototypeTests(PrototypeTestsBase):
             self.quest._give_person_power(self.hero, person, 3.0)
 
         self.assertEqual(sorted(cmd_change_power.call_args_list, key=lambda x: x[1]['power_delta']),
-                         [mock.call(power_delta=-3.1, place_id=None, has_person_in_preferences=False, person_id=concurrent.id, has_place_in_preferences=False, hero_id=1),
-                          mock.call(power_delta=3.1, place_id=None, has_person_in_preferences=False, person_id=partner.id, has_place_in_preferences=False, hero_id=1),
-                          mock.call(power_delta=31, place_id=None, has_person_in_preferences=False, person_id=person.id, has_place_in_preferences=False, hero_id=1)])
+                         [mock.call(power_delta=-3.1, place_id=None, has_person_in_preferences=False, person_id=concurrent.id, has_place_in_preferences=False, hero_id=self.hero.id),
+                          mock.call(power_delta=3.1, place_id=None, has_person_in_preferences=False, person_id=partner.id, has_place_in_preferences=False, hero_id=self.hero.id),
+                          mock.call(power_delta=31, place_id=None, has_person_in_preferences=False, person_id=person.id, has_place_in_preferences=False, hero_id=self.hero.id)])
 
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)

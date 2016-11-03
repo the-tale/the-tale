@@ -183,7 +183,7 @@ class ItemsUpdateTests(BaseRequestTests):
         self.item_1_1.reload()
         self.assertEqual(self.item_1_1.caption, 'item_1_1')
         self.assertEqual(self.item_1_1.text, 'text_1_1')
-        self.assertEqual(self.item_1_1.kit_id, self.collection_1.id)
+        self.assertEqual(self.item_1_1.kit_id, self.kit_1.id)
 
     def test_form_errors(self):
         self.request_login(self.account_2.email)
@@ -193,7 +193,7 @@ class ItemsUpdateTests(BaseRequestTests):
         self.item_1_1.reload()
         self.assertEqual(self.item_1_1.caption, 'item_1_1')
         self.assertEqual(self.item_1_1.text, 'text_1_1')
-        self.assertEqual(self.item_1_1.kit_id, self.collection_1.id)
+        self.assertEqual(self.item_1_1.kit_id, self.kit_1.id)
 
     def test_success__for_edit(self):
         self.request_login(self.account_2.email)

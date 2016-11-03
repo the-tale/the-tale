@@ -6,6 +6,7 @@ import datetime
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PlaceResourceConversion
 
+from .. import relations
 
 from the_tale.game.bills.tests.helpers import choose_conversions, BaseTestPrototypes
 
@@ -90,8 +91,8 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def apply_bill(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         form = PlaceResourceConversion.ModeratorForm({'caption': 'long caption',
                                                       'rationale': 'long rationale',

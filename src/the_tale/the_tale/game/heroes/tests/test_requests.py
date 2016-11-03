@@ -21,6 +21,8 @@ from the_tale.game.relations import GENDER, RACE
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
+from the_tale.blogs.tests import helpers as blogs_helpers
+
 from the_tale.game import names
 
 from .. import relations
@@ -127,8 +129,6 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=texts)
 
     def test_folclor(self):
-        from the_tale.blogs.tests import helpers as blogs_helpers
-
         blogs_helpers.prepair_forum()
 
         blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(), 'folclor-1-caption', 'folclor-1-text',

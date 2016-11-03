@@ -222,14 +222,14 @@ class ClanPrototypeTransactionTests(testcase.TransactionTestCase, ClansTestsMixi
         self.assertEqual(ForumPermissionPrototype.get_for(account_2.id, self.clan.forum_subcategory_id), None)
 
     def test_update(self):
-        self.clan.update(abbr='updated_abbr',
+        self.clan.update(abbr='abbr2',
                          name='updated_name',
                          motto='updated_motto',
                          description='updated_description')
 
         self.clan.reload()
 
-        self.assertEqual(self.clan.abbr, 'updated_abbr')
+        self.assertEqual(self.clan.abbr, 'abbr2')
         self.assertEqual(self.clan.name, 'updated_name')
         self.assertEqual(self.clan.motto, 'updated_motto')
         self.assertEqual(self.clan.description, 'updated_description')

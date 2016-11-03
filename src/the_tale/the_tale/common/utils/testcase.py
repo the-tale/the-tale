@@ -48,6 +48,12 @@ def setUp(self):
 
     GameState.start()
 
+    from the_tale.blogs import conf as blogs_conf
+    from the_tale.blogs import models as blogs_models
+
+    for tag_id in blogs_conf.settings.DEFAULT_TAGS:
+        blogs_models.Tag.objects.create(id=tag_id, name='{}'.format(tag_id), description='{}'.format(tag_id))
+
 
 
 class TestAccountsFactory(object):

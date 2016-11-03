@@ -161,8 +161,7 @@ class LogicTests(testcase.TransactionTestCase):
 
         self.assertEqual(cmd_logic_task.call_count, 2)
 
-        self.assertEqual(tasks[0].internal_logic.lot_id, self.lot_1.id)
-        self.assertEqual(tasks[1].internal_logic.lot_id, lot_4.id)
+        self.assertEqual(set((tasks[0].internal_logic.lot_id, tasks[1].internal_logic.lot_id)), set((self.lot_1.id, lot_4.id)))
 
 
     @mock.patch('the_tale.finances.market.goods_types.get_types', lambda: [goods_types.test_hero_good])

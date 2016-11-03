@@ -12,7 +12,7 @@ from the_tale.game import names
 from ..models import Vote
 from ..prototypes import BillPrototype, VotePrototype
 from ..bills import PlaceRenaming
-from ..relations import VOTE_TYPE
+from .. import relations
 from .helpers import BaseTestPrototypes
 
 
@@ -42,9 +42,9 @@ class PlaceRenamingTests(BaseTestPrototypes):
 
 
     def test_update(self):
-        VotePrototype.create(self.account2, self.bill, VOTE_TYPE.FOR)
-        VotePrototype.create(self.account3, self.bill, VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account4, self.bill, VOTE_TYPE.REFRAINED)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.FOR)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
         self.bill.recalculate_votes()
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -133,8 +133,8 @@ class PlaceRenamingTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         new_name = names.generator().get_test_name('new-new-name')
 
@@ -157,8 +157,8 @@ class PlaceRenamingTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_has_meaning__duplicate_name(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         new_name = names.generator().get_test_name('new-new-name')
         self.bill.data.place.set_utg_name(new_name)

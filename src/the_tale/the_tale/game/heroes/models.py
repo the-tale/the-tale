@@ -3,6 +3,8 @@ import datetime
 
 from django.db import models
 
+from django.contrib.postgres.fields import JSONField
+
 from dext.common.utils import s11n
 
 from rels.django import RelationIntegerField
@@ -52,7 +54,7 @@ class Hero(models.Model):
 
     money = models.BigIntegerField(null=False, default=0)
 
-    data = models.TextField(null=False, default='{}')
+    data = JSONField(default='{}')
 
     abilities = models.TextField(null=False, default='', blank=True)
 

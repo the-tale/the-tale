@@ -29,24 +29,26 @@ class APIListRequestTests(testcase.TestCase):
     def test_success(self):
         data = self.check_ajax_ok(self.request_ajax_json(logic.api_list_url()))
 
-        self.assertEqual(data, {'places': {'1': {'specialization': modifiers.CITY_MODIFIERS.NONE.value,
-                                                   'frontier': False,
-                                                   'name': '1x1-\u043d\u0441,\u0435\u0434,\u0438\u043c',
-                                                   'position': {'y': 1, 'x': 1},
-                                                   'id': 1,
-                                                   'size': 1},
-                                            '3': {'specialization': modifiers.CITY_MODIFIERS.NONE.value,
-                                                   'frontier': False,
-                                                   'name': '1x10-\u043d\u0441,\u0435\u0434,\u0438\u043c',
-                                                   'position': {'y': 3, 'x': 1},
-                                                   'id': 3,
-                                                   'size': 3},
-                                            '2': {'specialization': modifiers.CITY_MODIFIERS.NONE.value,
-                                                   'frontier': False,
-                                                   'name': '10x10-\u043d\u0441,\u0435\u0434,\u0438\u043c',
-                                                   'position': {'y': 3, 'x': 3},
-                                                   'id': 2,
-                                                   'size': 3}}})
+        self.assertEqual(data,
+                         {'places': {
+                              str(self.place_1.id): {'specialization': modifiers.CITY_MODIFIERS.NONE.value,
+                                                     'frontier': False,
+                                                     'name': '1x1-\u043d\u0441,\u0435\u0434,\u0438\u043c',
+                                                     'position': {'y': 1, 'x': 1},
+                                                     'id': self.place_1.id,
+                                                     'size': 1},
+                              str(self.place_3.id): {'specialization': modifiers.CITY_MODIFIERS.NONE.value,
+                                                     'frontier': False,
+                                                     'name': '1x10-\u043d\u0441,\u0435\u0434,\u0438\u043c',
+                                                     'position': {'y': 3, 'x': 1},
+                                                     'id': self.place_3.id,
+                                                     'size': 3},
+                              str(self.place_2.id): {'specialization': modifiers.CITY_MODIFIERS.NONE.value,
+                                                     'frontier': False,
+                                                     'name': '10x10-\u043d\u0441,\u0435\u0434,\u0438\u043c',
+                                                     'position': {'y': 3, 'x': 3},
+                                                     'id': self.place_2.id,
+                                                     'size': 3}}})
 
 
 class APIShowTests(testcase.TestCase):

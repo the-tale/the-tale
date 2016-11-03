@@ -7,6 +7,8 @@ from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PlaceResourceExchange
 from the_tale.game.bills.bills.place_resource_exchange import ALLOWED_EXCHANGE_TYPES
 
+from .. import relations
+
 from the_tale.game.bills.tests.helpers import choose_exchange_resources, BaseTestPrototypes
 
 from the_tale.game.places import storage as places_storage
@@ -147,8 +149,8 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def apply_bill(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True

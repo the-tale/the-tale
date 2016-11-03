@@ -10,7 +10,7 @@ from the_tale.game.places.prototypes import BuildingPrototype
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places.relations import BUILDING_STATE
 
-from the_tale.game.bills.relations import BILL_STATE
+from the_tale.game.bills import relations
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import BuildingDestroy
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
@@ -68,8 +68,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
     def test_apply(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -96,8 +96,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
     def test_duplicate_apply(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -108,7 +108,7 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.assertTrue(self.bill.apply())
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        bill.state = BILL_STATE.VOTING
+        bill.state = relations.BILL_STATE.VOTING
         bill.save()
 
         self.assertTrue(bill.apply())
@@ -120,8 +120,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
     def test_has_meaning__duplicate(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -132,7 +132,7 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.assertTrue(self.bill.apply())
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        bill.state = BILL_STATE.VOTING
+        bill.state = relations.BILL_STATE.VOTING
         bill.save()
 
         self.assertFalse(bill.has_meaning())
@@ -143,8 +143,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
     def test_no_building(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -166,8 +166,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
     def test_has_meaning__no_building(self):
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True

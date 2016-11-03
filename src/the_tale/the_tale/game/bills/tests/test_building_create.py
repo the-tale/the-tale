@@ -11,7 +11,7 @@ from the_tale.game.places.models import Building
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places.prototypes import BuildingPrototype
 
-from the_tale.game.bills.relations import BILL_STATE
+from the_tale.game.bills import relations
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import BuildingCreate
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
@@ -83,8 +83,8 @@ class BuildingCreateTests(BaseTestPrototypes):
     def test_apply(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
@@ -115,8 +115,8 @@ class BuildingCreateTests(BaseTestPrototypes):
     def test_duplicate_apply(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('building-name')
 
@@ -131,7 +131,7 @@ class BuildingCreateTests(BaseTestPrototypes):
         dup_noun = names.generator().get_test_name('dup-building-name')
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        bill.state = BILL_STATE.VOTING
+        bill.state = relations.BILL_STATE.VOTING
         bill.save()
 
         data = bill.user_form_initials
@@ -159,8 +159,8 @@ class BuildingCreateTests(BaseTestPrototypes):
     def test_has_meaning__duplicate(self):
         self.assertEqual(Building.objects.all().count(), 0)
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('building-name')
 
@@ -176,7 +176,7 @@ class BuildingCreateTests(BaseTestPrototypes):
         form = BuildingCreate.ModeratorForm(data)
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        bill.state = BILL_STATE.VOTING
+        bill.state = relations.BILL_STATE.VOTING
         bill.save()
 
         self.assertFalse(bill.has_meaning())

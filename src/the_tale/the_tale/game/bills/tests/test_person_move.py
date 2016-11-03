@@ -7,7 +7,7 @@ from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.persons import storage as persons_storage
 
-from the_tale.game.bills.relations import BILL_STATE
+from the_tale.game.bills import relations
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
 from the_tale.game.bills.bills import PersonMove
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
@@ -131,8 +131,8 @@ class PersonMoveTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -154,8 +154,8 @@ class PersonMoveTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_has_meaning__already_in_town(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -167,7 +167,7 @@ class PersonMoveTests(BaseTestPrototypes):
         self.assertTrue(self.bill.apply())
 
         bill = BillPrototype.get_by_id(self.bill.id)
-        bill.state = BILL_STATE.VOTING
+        bill.state = relations.BILL_STATE.VOTING
         bill.save()
 
         self.assertTrue(form.is_valid())

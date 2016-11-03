@@ -3,7 +3,7 @@
 from unittest import mock
 import datetime
 
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
+from the_tale.game.bills.prototypes import BillPrototype
 from the_tale.game.bills.bills import PersonRemove
 
 from the_tale.game.persons.models import Person

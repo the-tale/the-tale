@@ -75,13 +75,13 @@ class BuildingRenamingTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
         data = {'rationale': 'bill-rationale',
-                'person': 1,
+                'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
         data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
@@ -107,13 +107,13 @@ class BuildingRenamingTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_is_make_sense__same_name(self):
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
         data = {'rationale': 'bill-rationale',
-                'person': 1,
+                'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
         data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
@@ -136,13 +136,13 @@ class BuildingRenamingTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_no_building(self):
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
         data = {'rationale': 'bill-rationale',
-                'person': 1,
+                'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
         data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
@@ -168,13 +168,13 @@ class BuildingRenamingTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_is_make_sense__no_building(self):
 
-        VotePrototype.create(self.account2, self.bill, False)
-        VotePrototype.create(self.account3, self.bill, True)
+        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         noun = names.generator().get_test_name('r-building-name')
 
         data = {'rationale': 'bill-rationale',
-                'person': 1,
+                'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
         data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
