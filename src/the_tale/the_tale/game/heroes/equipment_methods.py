@@ -179,7 +179,7 @@ class EquipmentMethodsMixin(object):
         expected_artifact_power = Power.normal_power_to_level(self.level)
 
         for artifact in self.equipment.values():
-            delta = c.ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE * (float(artifact.power.total()) / expected_artifact_power)
+            delta = c.ARTIFACT_INTEGRITY_DAMAGE_PER_BATTLE * (float(artifact.power.total()) / expected_artifact_power)**2
 
             if self.preferences.favorite_item is not None and self.preferences.favorite_item == artifact.type.equipment_slot:
                 delta *= c.ARTIFACT_INTEGRITY_DAMAGE_FOR_FAVORITE_ITEM
