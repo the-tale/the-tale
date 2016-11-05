@@ -131,7 +131,7 @@ class PlaceEffectTests(EffectsTestsBase):
                                         negative_heroes=set([self.hero_2.id]),
                                         job_power=self.job_power)
 
-        self.assertEqual(invoke_hero_method.call_args_list,
+        self.assertCountEqual(invoke_hero_method.call_args_list,
                          [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
                                     method_kwargs={'person_id': None,
                                                    'place_id': self.place.id,
@@ -165,7 +165,9 @@ class PlaceEffectTests(EffectsTestsBase):
                                         negative_heroes=set([self.hero_3.id, self.hero_2.id]),
                                         job_power=self.job_power)
 
-        self.assertEqual(invoke_hero_method.call_args_list,
+        self.assertEqual(len(invoke_hero_method.call_args_list), 3)
+
+        self.assertCountEqual(invoke_hero_method.call_args_list,
                          [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
                                     method_kwargs={'person_id': self.person.id,
                                                    'place_id': self.place.id,
@@ -237,7 +239,7 @@ class HeroEffectTests(EffectsTestsBase):
                                         negative_heroes=set([self.hero_2.id]),
                                         job_power=self.job_power)
 
-        self.assertEqual(invoke_hero_method.call_args_list,
+        self.assertCountEqual(invoke_hero_method.call_args_list,
                          [mock.call(method_name=effect.logic.method_name, account_id=self.account_1.id, hero_id=self.hero_1.id,
                                     method_kwargs={'person_id': None,
                                                    'place_id': self.place.id,
@@ -264,7 +266,7 @@ class HeroEffectTests(EffectsTestsBase):
                                         negative_heroes=set([self.hero_3.id, self.hero_2.id]),
                                         job_power=self.job_power)
 
-        self.assertEqual(invoke_hero_method.call_args_list,
+        self.assertCountEqual(invoke_hero_method.call_args_list,
                          [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
                                     method_kwargs={'person_id': self.person.id,
                                                    'place_id': self.place.id,

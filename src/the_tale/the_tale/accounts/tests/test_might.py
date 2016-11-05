@@ -41,7 +41,7 @@ class CalculateMightTests(testcase.TestCase):
         self.bills_subcategory = SubCategoryPrototype.create(self.forum_category, 'subcategory', order=0, uid=bills_settings.FORUM_CATEGORY_UID)
         self.blogs_subcategory = SubCategoryPrototype.create(self.forum_category, blogs_conf.settings.FORUM_CATEGORY_UID + '-caption', order=1, uid=blogs_conf.settings.FORUM_CATEGORY_UID)
 
-        self.restricted_subcategory = SubCategoryPrototype.create(self.forum_category, 'restricted-caption', order=2, restricted=True, uid='restricted-subcategory')
+        self.restricted_subcategory = SubCategoryPrototype.create(self.forum_category, 'restricted-caption', order=2, restricted=True, uid='restricted-sub')
 
 
     def test_initialize(self):
@@ -389,7 +389,7 @@ class CalculateMightTests(testcase.TestCase):
         post = BlogPostPrototype.create(author=self.account_2, caption='caption', text='text')
 
         Post.objects.all().delete()
-        Thread.objects.all().delete()
+        # Thread.objects.all().delete()
         Vote.objects.all().delete()
 
         post.state = BLOG_POST_STATE.ACCEPTED

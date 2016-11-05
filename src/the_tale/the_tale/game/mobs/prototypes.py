@@ -303,7 +303,7 @@ class MobRecordPrototype(BasePrototype, names.ManageNameMixin):
     @classmethod
     def create_random(cls, uuid, type=game_relations.BEING_TYPE.CIVILIZED, level=1, abilities_number=3, terrains=map_relations.TERRAIN.records, state=relations.MOB_RECORD_STATE.ENABLED, global_action_probability=0, is_mercenary=True, is_eatable=True): # pylint: disable=W0102
 
-        name = 'mob_'+uuid.lower()
+        name = uuid.lower()
 
         utg_name = names.generator().get_test_name(name=name)
 

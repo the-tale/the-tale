@@ -138,6 +138,7 @@ class ResetPasswordTask(models.Model):
     is_processed = models.BooleanField(default=False, db_index=True)
 
 class ChangeCredentialsTask(models.Model):
+    MAX_COMMENT_LENGTH = 256
 
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
@@ -151,7 +152,7 @@ class ChangeCredentialsTask(models.Model):
 
     old_email = models.EmailField(max_length=254, null=True)
 
-    new_email = models.EmailField(max_length=254, null=True)
+    new_email = models.EmailField(max_length=MAX_COMMENT_LENGTH, null=True)
 
     new_password = models.TextField(default=None, null=True) # django password hash
 

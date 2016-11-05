@@ -406,7 +406,7 @@ class BillPrototype(BasePrototype):
     def get_applicable_bills_ids(cls):
         return cls._model_class.objects.filter(state=BILL_STATE.VOTING,
                                                approved_by_moderator=True,
-                                               updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME)).values_list('id', flat=True)
+                                               updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME)).order_by('updated_at').values_list('id', flat=True)
 
     @classmethod
     def get_active_bills_ids(cls):

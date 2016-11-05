@@ -17,7 +17,9 @@ from the_tale.accounts import exceptions
 
 from the_tale.game.logic import create_test_map
 
+
 def raise_exception(*argv, **kwargs): raise Exception('unknown error')
+
 
 class TestChangeCredentialsTask(testcase.TestCase):
 

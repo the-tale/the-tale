@@ -103,11 +103,11 @@ class IndexRequestsTests(AccountRequestsTests):
             texts.append((account.nick, 0))
 
         for i in range(6):
-            account = self.accounts_factory.create_account(nick='test_user_b_%d' % i)
+            account = self.accounts_factory.create_account(nick='test_user_bb_%d' % i)
             texts.append((account.nick, 1))
 
         for i in range(conf.accounts_settings.ACCOUNTS_ON_PAGE):
-            account = self.accounts_factory.create_account(nick='test_user_b2_%d' % i)
+            account = self.accounts_factory.create_account(nick='test_user_ba_%d' % i)
             texts.append((account.nick, 0))
 
         self.check_html_ok(self.request_html(url('accounts:', prefix='test_user_b', page=2)), texts=texts)
@@ -494,7 +494,7 @@ class TransferMoneyDialogTests(AccountRequestsTests):
         self.check_html_ok(self.request_ajax_html(url('accounts:transfer-money-dialog', self.account_2.id)))
 
     def test_404(self):
-        self.check_html_ok(self.request_ajax_html(url('accounts:transfer-money-dialog', 666)), texts=['pgf-error-account.wrong_value'])
+        self.check_html_ok(self.request_ajax_html(url('accounts:transfer-money-dialog', 66666666)), texts=['pgf-error-account.wrong_value'])
 
 
 class TransferMoneyTests(AccountRequestsTests):

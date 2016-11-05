@@ -59,10 +59,10 @@ class TestMobsAndArtifactsRequests(TestRequestsBase):
         from the_tale.game.mobs.prototypes import MobRecordPrototype
         from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 
-        mob_without_loot = MobRecordPrototype.create_random('mob_without_loot')
-        mob_without_artifact = MobRecordPrototype.create_random('mob_without_artifact')
-        mob_without_loot_on_first_level = MobRecordPrototype.create_random('mob_without_loot_on_first_level')
-        mob_without_artifact_on_firs_level = MobRecordPrototype.create_random('mob_without_artifact_on_firs_level')
+        mob_without_loot = MobRecordPrototype.create_random('no_loot')
+        mob_without_artifact = MobRecordPrototype.create_random('no_artifact')
+        mob_without_loot_on_first_level = MobRecordPrototype.create_random('no_loot_on_1_level')
+        mob_without_artifact_on_firs_level = MobRecordPrototype.create_random('no_artifact_on_1_level')
 
         ArtifactRecordPrototype.create_random('not_first_loot', mob=mob_without_loot_on_first_level, level=mob_without_loot_on_first_level.level+1)
         ArtifactRecordPrototype.create_random('not_first_artifact', mob=mob_without_artifact_on_firs_level, level=mob_without_artifact_on_firs_level.level+1)

@@ -461,7 +461,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                          extra={} )
 
             self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
-            self._model.comment = '%s' % traceback_strings
+            self._model.comment = ('%s' % traceback_strings)[:self._model.MAX_COMMENT_LENGTH]
             self._model.save()
 
 

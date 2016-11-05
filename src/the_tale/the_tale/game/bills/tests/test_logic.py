@@ -82,5 +82,5 @@ class LogicTests(BaseTestPrototypes):
 
         bill_3.apply()
 
-        self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id),
-                         [time.mktime(bill.voting_end_at.timetuple()), time.mktime(bill_3.voting_end_at.timetuple())])
+        self.assertCountEqual(logic.actual_bills_accepted_timestamps(self.account1.id),
+                              [time.mktime(bill.voting_end_at.timetuple()), time.mktime(bill_3.voting_end_at.timetuple())])

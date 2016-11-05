@@ -492,10 +492,10 @@ class LogicStorageTests(testcase.TestCase):
             self.storage.process_turn()
             self.storage.save_changed_data()
 
-        self.assertEqual(calls, [{'actual_guaranteed': True, 'old_info': None},
-                                 {'actual_guaranteed': True, 'old_info': None},
-                                 {'actual_guaranteed': True, 'old_info': {'hero': self.hero_1.id}},
-                                 {'actual_guaranteed': True, 'old_info': {'hero': self.hero_2.id}}])
+        self.assertCountEqual(calls, [{'actual_guaranteed': True, 'old_info': None},
+                                      {'actual_guaranteed': True, 'old_info': None},
+                                      {'actual_guaranteed': True, 'old_info': {'hero': self.hero_1.id}},
+                                      {'actual_guaranteed': True, 'old_info': {'hero': self.hero_2.id}}])
 
 
     def test_save_changed_data__old_info(self):
