@@ -922,7 +922,12 @@ class TestModerateRequests(BaseTestRequests):
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), {}), 'bills.moderate.form_errors')
 
     def test_moderate_success(self):
-        self.check_ajax_ok(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()))
+        self.check_ajax_ok(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}))
+
+        with self.check_not_changed(Post.objects.count):
+            with self.check_not_changed(lambda: BillPrototype.get_by_id(self.bill.id).updated_at):
+                with self.check_not_changed(Vote.objects.count):
+                    self.check_ajax_ok(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()))
 
 
 class TestDeleteRequests(BaseTestRequests):

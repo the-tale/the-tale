@@ -292,10 +292,12 @@ class BillPrototype(BasePrototype):
         return rendered_text
 
 
-    def _initialize_with_form(self, form):
+    def _initialize_with_form(self, form, is_updated=True):
         self.data.initialize_with_form(form)
 
-        self._model.updated_at = datetime.datetime.now()
+        if is_updated:
+            self._model.updated_at = datetime.datetime.now()
+
         self._model.caption = form.c.caption
         self._model.rationale = form.c.rationale
         self._model.approved_by_moderator = False
@@ -333,7 +335,7 @@ class BillPrototype(BasePrototype):
 
     @transaction.atomic
     def update_by_moderator(self, form):
-        self._initialize_with_form(form)
+        self._initialize_with_form(form, is_updated=False)
         self._model.approved_by_moderator = form.c.approved
         self.save()
 
