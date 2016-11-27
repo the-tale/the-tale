@@ -288,62 +288,58 @@ class HeroTest(testcase.TestCase):
                                             message='abrakadabra')
 
         self.hero.journal.clear()
-        self.hero.diary.clear()
 
         self.assertEqual(len(self.hero.journal), 0)
-        self.assertEqual(len(self.hero.diary), 0)
 
-        self.hero.push_message(message)
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+            self.hero.push_message(message)
 
         self.assertEqual(len(self.hero.journal), 1)
-        self.assertEqual(len(self.hero.diary), 0)
 
-        self.hero.push_message(message, diary=True)
-
-        self.assertEqual(len(self.hero.journal), 2)
-        self.assertEqual(len(self.hero.diary), 1)
-
-        self.hero.push_message(message, diary=True, journal=False)
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+            self.hero.push_message(message, diary=True)
 
         self.assertEqual(len(self.hero.journal), 2)
-        self.assertEqual(len(self.hero.diary), 2)
+
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+            self.hero.push_message(message, diary=True, journal=False)
+
+        self.assertEqual(len(self.hero.journal), 2)
+
 
     def test_add_message__inactive_hero(self):
 
         self.hero.journal.clear()
-        self.hero.diary.clear()
 
         self.hero.journal.updated = False
-        self.hero.diary.updated = False
 
         self.assertTrue(self.hero.is_active)
 
-        with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_1')):
-            self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
-
-        self.assertEqual(len(self.hero.journal), 1)
-        self.assertEqual(len(self.hero.diary), 1)
-
-        with mock.patch('the_tale.game.heroes.objects.Hero.is_active', False):
-            with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+            with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_1')):
                 self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
 
+        self.assertEqual(len(self.hero.journal), 1)
+
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_active', False):
+            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+                with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
+                    self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
+
             self.assertEqual(len(self.hero.journal), 2)
-            self.assertEqual(len(self.hero.diary), 2)
 
-            with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
-                self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
-
-            self.assertEqual(len(self.hero.journal), 0)
-            self.assertEqual(len(self.hero.diary), 2)
-
-            with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
-                with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True):
+            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+                with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
 
-            self.assertEqual(len(self.hero.journal), 1)
-            self.assertEqual(len(self.hero.diary), 2)
+            self.assertEqual(len(self.hero.journal), 0)
 
+            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+                with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
+                    with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True):
+                        self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
+
+            self.assertEqual(len(self.hero.journal), 1)
 
 
     def test_energy_maximum(self):
@@ -547,10 +543,9 @@ class HeroTest(testcase.TestCase):
 
         self.assertEqual(self.hero.companion, None)
 
-        with self.check_delta(self.hero.diary.__len__, 1):
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
             self.hero.set_companion(companion)
 
-        self.assertTrue(self.hero.diary.messages[-1].key.is_COMPANIONS_RECEIVED)
         self.assertEqual(self.hero.companion.record.id, companion_record.id)
         self.assertEqual(self.hero.companion._hero.id, self.hero.id)
 
@@ -574,11 +569,8 @@ class HeroTest(testcase.TestCase):
 
         self.hero.set_companion(companion_1)
 
-        with self.check_delta(self.hero.diary.__len__, 2):
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 2):
             self.hero.set_companion(companion_2)
-
-        self.assertTrue(self.hero.diary.messages[-2].key.is_COMPANIONS_LEFT)
-        self.assertTrue(self.hero.diary.messages[-1].key.is_COMPANIONS_RECEIVED)
 
         self.assertEqual(self.hero.companion.record.id, companion_record_2.id)
 

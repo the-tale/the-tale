@@ -23,7 +23,8 @@ var widgets = {};
 
 jQuery(document).ready(function(e){
 
-    updater = new pgf.game.Updater({url: "{{ game_info_url() }}"});
+updater = new pgf.game.Updater({url: "{{ game_info_url() }}",
+                                diaryUrl: "{{game_diary_url() }}"});
 
     {% if settings.DEBUG %}
     {{ game_macros.game_debug_javascript() }}

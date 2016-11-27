@@ -257,14 +257,12 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         for honor in HABIT_HONOR_INTERVAL.records:
             for peacefulness in HABIT_PEACEFULNESS_INTERVAL.records:
 
-                self.hero.diary.clear()
-
                 self.hero.position.previous_place_id = None
                 self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
                 with mock.patch('the_tale.game.places.habits.Honor.interval', honor):
                     with mock.patch('the_tale.game.places.habits.Peacefulness.interval', peacefulness):
-                        with self.check_delta(self.hero.diary.messages_number, 1):
+                        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
                             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
 
@@ -276,7 +274,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_not_changed(lambda: len(self.hero.diary.messages)):
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
@@ -286,7 +284,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.position.update_previous_place()
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_not_changed(lambda: len(self.hero.diary.messages)):
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
@@ -971,22 +969,18 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_leave_in_place_probability', 1.0)
     def test_leave(self):
-        with self.check_increased(lambda: len(self.hero.diary)):
+        with self.check_calls_exists('the_tale.game.heroes.logic.push_message_to_diary'):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.companion, None)
 
-        self.assertTrue(self.hero.diary.messages[-1].key.is_ACTION_INPLACE_COMPANION_LEAVE)
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_leave_in_place_probability', 0.0)
     def test_not_leave(self):
-        with self.check_not_changed(lambda: len(self.hero.diary)):
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertNotEqual(self.hero.companion, None)
-
-        self.assertFalse(self.hero.diary.messages[-1].key.is_ACTION_INPLACE_COMPANION_LEAVE)
 
 
 class InPlaceActionCompanionStealingTest(testcase.TestCase):

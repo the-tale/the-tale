@@ -44,6 +44,30 @@
       raw: systemctl start supervisor
 
 
+# todo: do not install if already installed
+- name: install protobuf (required for development)
+  hosts: all
+  become: yes
+  become_user: root
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python2.7
+
+  tasks:
+
+    - name: install required packages
+      apt: name={{item}} state=installed
+      with_items:
+        - unzip
+
+    - raw: rm -rf /tmp/protobuf
+    - raw: mkdir /tmp/protobuf
+    - raw: wget https://github.com/google/protobuf/releases/download/v3.1.0/protoc-3.1.0-linux-x86_64.zip -O /tmp/protobuf/proto.zip
+    - raw: cd /tmp/protobuf && unzip proto.zip
+    - raw: cp /tmp/protobuf/bin/protoc /usr/bin
+    - raw: chmod 755 /usr/bin/protoc
+
+
 - name: configure services
   hosts: all
   become: yes
@@ -53,17 +77,24 @@
       role: ANXS.postgresql # https://github.com/ANXS/postgresql/blob/master/defaults/main.yml
       postgresql_version: 9.5
       postgresql_encoding: 'UTF-8'
-      postgresql_locale: 'en_GB.UTF-8'
-      postgresql_ctype: 'en_GB.UTF-8'
+      postgresql_locale: 'en_US.UTF-8'
+      postgresql_ctype: 'en_US.UTF-8'
       postgresql_ext_install_dev_headers: yes
       postgresql_databases:
         - name: the-tale
           hstore: yes         # flag to install the hstore extension on this database (yes/no)
           uuid_ossp: yes      # flag to install the uuid-ossp extension on this database (yes/no)
           citext: no          # flag to install the citext extension on this database (yes/no)
+        - name: tt-diary
+          hstore: yes
+          uuid_ossp: yes
+          citext: no
       postgresql_users:
         - name: the-tale
           pass: the-tale
+          encrypted: no
+        - name: tt-diary
+          pass: tt-diary
           encrypted: no
 
     - name: configue nginx
@@ -100,8 +131,11 @@
   become: yes
   become_user: root
   tasks:
-    - name: create user
+    - name: create the-tale user
       user: name=the-tale
+
+    - name: create tt-diary user
+      user: name=tt-diary
 
 
 - name: install The Tale
@@ -125,6 +159,7 @@
         - {name: "/mnt/repos/pynames/"}
         - {name: "/mnt/repos/utg/"}
         - {name: "/mnt/repos/questgen/"}
+        - {name: "/mnt/repos/the-tale/src/tt_protocol/"}
         - {name: "/mnt/repos/the-tale/src/the_tale/"}
 
     - name: install helpfull packages
@@ -151,11 +186,42 @@
     - name: create world
       raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin game_create_world --settings the_tale.settings
 
-    - name: sync data
-      raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin portal_postupdate_operations --settings the_tale.settings
+    # - name: sync data
+    #   raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin portal_postupdate_operations --settings the_tale.settings
 
     - name: create superuser
       raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin accounts_create_superuser --settings the_tale.settings
+
+
+- name: install TT Diary
+  hosts: all
+  become: yes
+  become_user: tt-diary
+  tasks:
+
+    - name: create environment
+      pip:
+        name: "{{item.name}}"
+        virtualenv: /home/tt-diary/current/venv
+        virtualenv_command: virtualenv
+        virtualenv_python: python3.5
+        editable: True
+        extra_args: "-e"
+      with_items:
+        - {name: "/mnt/repos/the-tale/src/tt_protocol/"}
+        - {name: "/mnt/repos/the-tale/src/tt_diary/"}
+
+    - name: install helpfull packages
+      pip:
+        name: "{{item.name}}"
+        virtualenv: /home/tt-diary/current/venv
+        virtualenv_command: virtualenv
+        virtualenv_python: python3.5
+      with_items:
+        - {name: "ipython"}
+
+    # - name: run migrations
+    #   raw: cd /home/tt-diary/current && . /home/tt-diary/current/venv/bin/activate && django-admin migrate --settings tt_diary.settings
 
 
 - name: postinstall The Tale
@@ -164,11 +230,20 @@
   become_user: root
   tasks:
 
-    - name: create logs directory
+    - name: create the-tale logs directory
       file: path=/var/log/the-tale state=directory mode=0755 owner=the-tale group=the-tale
 
-    - name: install supervisor configs
+    - name: create tt-diary logs directory
+      file: path=/var/log/tt-diary state=directory mode=0755 owner=tt-diary group=tt-diary
+
+    - name: create tt-diary config directory
+      file: path=/etc/tt-diary state=directory mode=0755 owner=tt-diary group=tt-diary
+
+    - name: install the-tale supervisor configs
       template: src="./templates/the-tale-supervisor.conf" dest="/etc/supervisor/conf.d/the-tale.conf"
+
+    - name: install tt-diary configs
+      template: src="./templates/tt-diary.conf" dest="/etc/tt-diary/config.json" mode=0644 owner=tt-diary group=tt-diary
 
     - name: reload supervisor configs
       raw: systemctl restart supervisor

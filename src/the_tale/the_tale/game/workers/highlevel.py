@@ -74,6 +74,7 @@ class Worker(BaseWorker):
         self.send_cmd('initialize', {'turn_number': turn_number, 'worker_id': worker_id})
 
     def process_initialize(self, turn_number, worker_id):
+        self.clean_queues() # it is bad solution, but it allow to clean queues after tests
 
         if self.initialized:
             self.logger.warn('highlevel already initialized, do reinitialization')

@@ -12,6 +12,11 @@ def game_info_url(account=None, client_turns=None):
                                              client_turns=client_turns))
 
 
+@jinja2.jinjaglobal
+def game_diary_url():
+    return jinja2.Markup(logic.game_diary_url())
+
+
 @jinja2.jinjafilter
 def verbose_game_date(turn):
     return GameTime.create_from_turn(turn).verbose_date

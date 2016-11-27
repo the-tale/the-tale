@@ -125,7 +125,6 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
             with self.check_not_changed(lambda: self.hero.bag.occupation):
                 self.storage.process_turn(continue_steps_if_needed=False)
         self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_BATTLEPVE1X1_JOURNAL_HERO_AND_MOB_KILLED)
-        self.assertTrue(self.hero.diary.messages[-1].key.is_ACTION_BATTLEPVE1X1_DIARY_HERO_AND_MOB_KILLED)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
         self.assertTrue(not self.hero.is_alive)

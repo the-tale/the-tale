@@ -5,6 +5,8 @@ from the_tale.finances.shop import exceptions
 from the_tale.finances.shop import relations
 from the_tale.finances.shop.conf import payments_settings
 
+from the_tale.game.heroes import conf as heroes_conf
+
 PREMIUM_DAYS_DESCRIPTION = '''
 <p>
 Подписка даёт следующие преимущества:
@@ -18,9 +20,10 @@ PREMIUM_DAYS_DESCRIPTION = '''
   <li>на 50% увеличивается получаемый героем опыт;</li>
   <li>на 50% увеличивается скорость изменения черт;</li>
   <li>на 200% увеличивается максимум энергии (до 72 единиц);</li>
+  <li>размер дневника героя увеличен до {DIARY_LOG_LENGTH_PREMIUM} сообщений;</li>
   <li>жизнь героя не замедляется при длительном отсутствии игрока в игре.</li>
 </ul>
-'''
+'''.format(DIARY_LOG_LENGTH_PREMIUM=heroes_conf.heroes_settings.DIARY_LOG_LENGTH_PREMIUM)
 
 PREFERENCES_DESCRIPTION = '''
 <p>

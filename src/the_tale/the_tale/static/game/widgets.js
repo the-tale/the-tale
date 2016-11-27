@@ -15,9 +15,12 @@ if (!pgf.game.events) {
     pgf.game.events = {};
 }
 
+
 pgf.game.events.DATA_REFRESHED = 'pgf-data-refreshed';
 pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed';
 pgf.game.events.GAME_DATA_SHOWED =  'pgf-game-data-showed';
+pgf.game.events.DIARY_REFRESHED = 'pgs-diary-refreshed';
+
 
 pgf.game.Updater = function(params) {
 
@@ -32,6 +35,9 @@ pgf.game.Updater = function(params) {
 
     var oldDatas = {}; // turn_number: data
     var currentTurn = undefined;
+
+    var lastDiaryVersion = undefined;
+    var diaryRefreshGoing = false;
 
 
     instance.data = {};
@@ -101,6 +107,34 @@ pgf.game.Updater = function(params) {
         return true;
     };
 
+    instance.RefreshDiary = function() {
+        if (!params.diaryUrl) {
+            return;
+        }
+
+        if (instance.diaryRefreshGoing) {
+            return;
+        }
+
+        instance.diaryRefreshGoing = true;
+
+        jQuery.ajax({
+            dataType: 'json',
+            type: 'get',
+            url: params.diaryUrl,
+
+            success: function(data, request, status) {
+                instance.lastDiaryVersion = data.data.version;
+                jQuery(document).trigger(pgf.game.events.DIARY_REFRESHED, data.data);
+            },
+            error: function() {
+            },
+            complete: function() {
+                instance.diaryRefreshGoing = false;
+            }
+        });
+    };
+
     instance.Refresh = function(fullRequest) {
 
         var url = params.url;
@@ -144,6 +178,10 @@ pgf.game.Updater = function(params) {
                 }
 
                 jQuery(document).trigger(pgf.game.events.DATA_REFRESHED, instance.data);
+
+                if (instance.data.account.hero.diary != instance.lastDiaryVersion) {
+                    instance.RefreshDiary();
+                }
 
                 setTimeout(function(e){
                     jQuery('.pgf-wait-data').toggleClass('pgf-hidden', true);
@@ -1158,7 +1196,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
         }
     });
 
-    function ShortInfo(message) {
+    function ShortInfoJournal(message) {
         var shortInfo = "";
         var key = message[3]
 
@@ -1172,12 +1210,26 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
         return shortInfo;
     }
 
+    function ShortInfoDiary(message) {
+        var shortInfo = "";
+        var key = message.type
+
+        if (key in pgf.game.constants.linguistics_formatters) {
+            shortInfo = ' ' + pgf.game.constants.linguistics_formatters[key];
+            var variables = message.variables;
+            for (variable in variables) {
+                shortInfo = shortInfo.replace('!'+variable+'!', variables[variable].charAt(0).toUpperCase() + variables[variable].slice(1));
+            }
+        }
+        return shortInfo;
+    }
+
     function RenderDiaryMessage(index, message, element) {
 
         var text = "";
         for (var i in message[1]) {
-            var shortInfo = ShortInfo(message[1][i]);
-            var intenalText = (SHOW_ARTISTIC_TEXT || !shortInfo ? message[1][i][2] : "") + (SHOW_TECHNICAL_TEXT ? shortInfo : "");
+            var shortInfo = ShortInfoDiary(message[1][i]);
+            var intenalText = (SHOW_ARTISTIC_TEXT || !shortInfo ? message[1][i].message : "") + (SHOW_TECHNICAL_TEXT ? shortInfo : "");
             if (i == 0) {
                 text += "<div class='submessage' style='vertical-align: top;'>" + intenalText + "</div>";
             }
@@ -1186,9 +1238,9 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
             }
         }
 
-        jQuery('.pgf-time', element).text(message[1][0][5]);
+        jQuery('.pgf-time', element).text(message[1][0].game_date);
         jQuery('.pgf-date', element).text(message[0]);
-        jQuery('.pgf-position', element).text(message[1][0][6].charAt(0).toUpperCase() + message[1][0][6].slice(1));
+        jQuery('.pgf-position', element).text(message[1][0].position.charAt(0).toUpperCase() + message[1][0].position.slice(1));
         jQuery('.pgf-message', element).html(text);
     }
 
@@ -1197,7 +1249,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
         var text = "";
         for (var i in message[1]) {
-            var shortInfo = ShortInfo(message[1][i]);
+            var shortInfo = ShortInfoJournal(message[1][i]);
             var intenalText = (SHOW_ARTISTIC_TEXT || !shortInfo ? message[1][i][2] : "") + (SHOW_TECHNICAL_TEXT ? shortInfo : "");
             if (i == 0) {
                 text += "<div class='submessage' style='vertical-align: top;'>" + intenalText + "</div>";
@@ -1221,22 +1273,7 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     }
 
-    this.Refresh = function(game_data) {
-
-        var heroData = undefined;
-
-        heroData = game_data.account.hero;
-
-        var turnMessages = [];
-        if (heroData) {
-            if (params.type == 'log') {
-                turnMessages = heroData.messages;
-            }
-            if (params.type == 'diary') {
-                turnMessages = heroData.diary;
-            }
-        }
-
+    this.RefreshJournal = function(turnMessages) {
         var lastTimestamp = -1;
         var lastGameTime = undefined;
 
@@ -1265,13 +1302,51 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     };
 
+    this.RefreshDiary = function(turnMessages) {
+        var lastTimestamp = -1;
+        var lastGameTime = undefined;
+
+        if (messages.length > 0)  messages.shift(); // if messages has elements, remove last since it can be not full
+
+        if (messages.length > 0) lastTimestamp = messages[0][1][messages[0][1].length-1].timestamp; //get linux timestamp
+        if (messages.length > 0) lastGameTime = messages[0].game_time; //get game time
+
+        for (var i=0; i<=turnMessages.length-1; ++i) {
+
+            if (turnMessages[i][0] <= lastTimestamp) continue;
+
+            if (lastGameTime == turnMessages[i].game_time + turnMessages[i].game_date) {
+                messages[0][1].push(turnMessages[i]);
+            }
+            else {
+                messages.unshift([turnMessages[i].game_time, [turnMessages[i]]]);
+            }
+
+            lastGameTime = turnMessages[i].game_time + turnMessages[i].game_date;
+        }
+
+        for (var i=0; i<=messages.length - MESSAGES_MAX_LENGTH; i++){
+            messages.pop();
+        }
+
+    };
+
     this.Render = function() {
         RenderLog();
     };
 
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-        instance.Refresh(game_data);
-        instance.Render();
+        if (params.type == 'log') {
+            instance.RefreshJournal(game_data.account.hero.messages);
+            instance.Render();
+        }
+    });
+
+    jQuery(document).bind(pgf.game.events.DIARY_REFRESHED, function(e, diary){
+        if (params.type == 'diary') {
+            instance.RefreshDiary(diary.messages);
+            instance.Render();
+        }
     });
 };
 

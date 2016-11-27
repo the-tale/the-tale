@@ -152,7 +152,7 @@ class ChangeCredentialsTask(models.Model):
 
     old_email = models.EmailField(max_length=254, null=True)
 
-    new_email = models.EmailField(max_length=MAX_COMMENT_LENGTH, null=True)
+    new_email = models.EmailField(max_length=254, null=True)
 
     new_password = models.TextField(default=None, null=True) # django password hash
 

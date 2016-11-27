@@ -82,6 +82,7 @@ def get_api_methods():
             APIReference('logout', 'Выход из игры', accounts_views.AuthResource.api_logout),
             APIReference('account_info', 'Информация об игроке', accounts_views.api_show),
             APIReference('game_info', 'Информация об игре/герое', game_views.api_info),
+            APIReference('game_diary', 'Дневник героя', game_views.api_diary),
             APIReference('game_abilities', 'Использование способности', AbilitiesResource.use),
             APIReference('game_quests', 'Выбор в задании', QuestsResource.api_choose),
             APIReference('cards_get', 'Карты: взять', cards_views.api_get),

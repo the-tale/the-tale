@@ -25,7 +25,8 @@ class FirstStepsActionTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
-        self.action_first_steps = ActionFirstStepsPrototype.create(hero=self.hero)
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+            self.action_first_steps = ActionFirstStepsPrototype.create(hero=self.hero)
 
 
     def test_create(self):
@@ -38,26 +39,24 @@ class FirstStepsActionTest(testcase.TestCase):
     def test_processed(self):
         current_time = TimePrototype.get_current_time()
 
-        self.assertEqual(self.hero.diary.messages_number(), 1)
         self.assertEqual(self.hero.journal.messages_number(), 2)
 
-        self.storage.process_turn()
-        current_time.increment_turn()
+        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+            self.storage.process_turn()
 
-        self.assertEqual(self.hero.diary.messages_number(), 1)
-        self.assertEqual(self.hero.journal.messages_number(), 3)
+            current_time.increment_turn()
 
-        self.storage.process_turn()
-        current_time.increment_turn()
+            self.assertEqual(self.hero.journal.messages_number(), 3)
 
-        self.assertEqual(self.hero.diary.messages_number(), 1)
-        self.assertEqual(self.hero.journal.messages_number(), 4)
+            self.storage.process_turn()
+            current_time.increment_turn()
 
-        self.storage.process_turn(continue_steps_if_needed=False)
-        current_time.increment_turn()
+            self.assertEqual(self.hero.journal.messages_number(), 4)
 
-        self.assertEqual(self.hero.diary.messages_number(), 1)
-        self.assertEqual(self.hero.journal.messages_number(), 5)
+            self.storage.process_turn(continue_steps_if_needed=False)
+            current_time.increment_turn()
+
+            self.assertEqual(self.hero.journal.messages_number(), 5)
 
         self.assertTrue(self.hero.actions.current_action.TYPE.is_IDLENESS)
 

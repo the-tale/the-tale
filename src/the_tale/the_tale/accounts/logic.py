@@ -154,11 +154,13 @@ def block_expired_accounts():
 def thin_out_accounts(number, prolong_active_to):
     from . import models
 
+    from the_tale.game.bills import models as bills_models
+
     restricted_accounts = set()
     restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('initiator', flat=True))
     restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('receiver', flat=True))
     restricted_accounts |= set(Account.objects.exclude(clan_id=None).values_list('id', flat=True))
-    restricted_accounts |= set(Bill.objects.exclude(clan_id=None).values_list('id', flat=True))
+    restricted_accounts |= set(bills_models.Bill.objects.values_list('owner_id', flat=True))
 
     for account_model in Account.objects.all().order_by('created_at')[number:]:
         if account_model.id not in restricted_accounts:

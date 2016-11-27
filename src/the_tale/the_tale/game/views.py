@@ -12,6 +12,7 @@ from the_tale.accounts import views as accounts_views
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
 from the_tale.game.heroes import views as heroes_views
+from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
 from the_tale.game.map.conf import map_settings
@@ -172,17 +173,7 @@ def api_info(context):
         "initiative": <дробное число>            // инициатива героя
       },
 
-      "diary":[                // список последних сообщений в дневнике
-        [                      // запись в дневнике
-          <timestamp>,         // timestamp создания сообщения
-          "строка",            // текстовое описание времени в игре
-          "строка",            // текст
-          <целое число>|null,  // идентификатор типа фразы, найти идентификатор типа фразы можно в адресе страницы лингвистики с фразами этого типа
-          {"строка": "строка"} // словарь соотношения переменных и их значений (ВНИМАНИЕ! перечень переменных может изменяться без изменения версии этого метода)
-          "строка",            // текстовое описание даты в игре
-          "строка"             // текстовое описание места, где герой находился во время создания записи
-        ]
-      ],
+      "diary": "строка",       // версия дневника героя, если она изменилась, необходимо перезапросить дневни
 
       "messages":[             // сообщения из журнала
         [                      // запись в задании
@@ -349,6 +340,55 @@ def api_info(context):
 
     if context.api_version == '1.0':
         data = game_logic.game_info_from_1_1_to_1_0(data)
+
+    return dext_views.AjaxOk(content=data)
+
+
+@api.Processor(versions=(game_settings.DIARY_API_VERSION,))
+@accounts_views.LoginRequiredProcessor()
+@resource('api', 'diary', name='api-diary')
+def api_diary(context):
+    '''
+Информация о дневнике героя
+
+- **адрес:** /game/api/diary
+- **http-метод:** GET
+- **версии:** 1.0
+- **параметры:** нет
+- **возможные ошибки**: нет
+
+Формат данных в ответе:
+
+    {
+        "version": <целое>,                       // версия дневника
+        "messages": [                             // список последних сообщений в дневнике
+           {                                      // запись в дневнике
+              "timestamp": <timestamp>,           // timestamp создания сообщения
+              "game_time": "строка",              // текстовое описание времени в игре
+              "game_date": "строка",              // текстовое описание даты в игре
+              "message": "строка",                // текст
+              "type": <целое число>|null,         // идентификатор типа фразы, найти идентификатор типа фразы можно в адресе страницы лингвистики с фразами этого типа
+              "variables": {"строка": "строка"},  // словарь соотношения переменных и их значений (ВНИМАНИЕ! перечень переменных может изменяться без изменения версии этого метода)
+              "position": "строка"                // текстовое описание места, где герой находился во время создания записи
+            }
+        ]
+    }
+
+    '''
+
+    pb_diary = heroes_logic.get_diary(context.account.id)
+
+    data = {'version': pb_diary.version,
+            'messages': []}
+
+    for pb_message in pb_diary.messages:
+        data['messages'].append({'timestamp': pb_message.timestamp,
+                                 'game_time': pb_message.game_time,
+                                 'game_date': pb_message.game_date,
+                                 'message':   pb_message.message,
+                                 'type': pb_message.type,
+                                 'variables': dict(pb_message.variables),
+                                 'position': pb_message.position})
 
     return dext_views.AjaxOk(content=data)
 

@@ -11,6 +11,7 @@ heroes_settings = app_settings('HEROES',
                                USE_ABILITY_CHANCE=0.1,
                                MESSAGES_LOG_LENGTH=10,
                                DIARY_LOG_LENGTH=20,
+                               DIARY_LOG_LENGTH_PREMIUM=50,
 
                                MIN_PVP_BATTLES=25,
 
@@ -35,5 +36,9 @@ heroes_settings = app_settings('HEROES',
                                RARE_OPERATIONS_INTERVAL=1000,
                                INACTIVE_HERO_DELAY=int(10),  # для неактивных героев замедлять время в N раз
                                POWER_PER_ACTIVE_BILL=1.5,
-                               ACTIVE_BILLS_MAXIMUM=4
+                               ACTIVE_BILLS_MAXIMUM=4,
+
+                               DIARY_PUSH_MESSAGE_URL='http://localhost:10001/push-message',
+                               DIARY_VERSION_URL='http://localhost:10001/version',
+                               DIARY_URL='http://localhost:10001/diary'
     )

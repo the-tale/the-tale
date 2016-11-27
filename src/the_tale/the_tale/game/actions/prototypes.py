@@ -16,7 +16,9 @@ from the_tale.game.prototypes import TimePrototype
 from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import logic as heroes_logic
 
-from the_tale.game.balance import constants as c, formulas as f
+from the_tale.game.balance import constants as c
+from the_tale.game.balance import formulas as f
+from the_tale.game.balance import power as p
 
 from the_tale.game.quests import logic as quests_logic
 
@@ -1098,7 +1100,9 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         self.hero.damage_integrity()
 
-        if random.uniform(0.0, 1.0) > c.ARTIFACTS_BREAKS_PER_BATTLE:
+        expected_power = p.Power.normal_total_power_to_level(self.hero.level)
+
+        if random.uniform(0.0, 1.0) > c.ARTIFACTS_BREAKS_PER_BATTLE * (float(self.hero.power.total()) / expected_power)**2:
             return
 
         artifacts = self.hero.artifacts_to_break()

@@ -1,4 +1,5 @@
 # coding: utf-8
+import time
 import datetime
 
 from unittest import mock
@@ -12,12 +13,17 @@ from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.logic import login_page_url
 
-from the_tale.game.logic import create_test_map, game_info_url
+from the_tale.game.logic import create_test_map, game_info_url, game_diary_url
 
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 
 from the_tale.cms.news import logic as news_logic
+
+from the_tale.game.heroes import logic as heroes_logic
+from the_tale.game.heroes import messages as heroes_messages
+
+from the_tale.game.prototypes import TimePrototype
 
 
 class RequestTestsBase(TestCase, PvPTestsMixin):
@@ -36,6 +42,7 @@ class RequestTestsBase(TestCase, PvPTestsMixin):
         self.game_info_url_no_id = game_info_url()
 
         self.request_login(self.account_1.email)
+
 
 class GamePageRequestTests(RequestTestsBase):
 
@@ -146,3 +153,44 @@ class NewsAlertsTests(TestCase):
         self.account.last_news_remind_time = datetime.datetime.now()
         self.account.save()
         self.check_reminder(reverse('game:'), 0, 0, 0)
+
+
+
+class DiaryRequestTests(RequestTestsBase):
+
+    def setUp(self):
+        super(DiaryRequestTests, self).setUp()
+
+        heroes_logic.push_message_to_diary(account_id=self.account_1.id, message=self.create_message(1), is_premium=False)
+        heroes_logic.push_message_to_diary(account_id=self.account_1.id, message=self.create_message(2), is_premium=False)
+        heroes_logic.push_message_to_diary(account_id=self.account_1.id, message=self.create_message(3), is_premium=False)
+
+
+    def create_message(self, uid):
+        return heroes_messages.MessageSurrogate(turn_number=TimePrototype.get_current_turn_number(),
+                                                timestamp=time.time(),
+                                                key=None,
+                                                externals=None,
+                                                message='message {}'.format(uid),
+                                                position='position {}'.format(uid))
+
+
+
+    def test_unlogined(self):
+        self.request_logout()
+        self.check_ajax_error(self.request_ajax_json(game_diary_url()), 'common.login_required')
+
+
+    def test_logined(self):
+        data = self.check_ajax_ok(self.request_ajax_json(game_diary_url()))
+
+        self.assertIn('version', data)
+
+        for message in data['messages']:
+            self.assertEqual(set(message), {'timestamp',
+                                            'game_time',
+                                            'game_date',
+                                            'message',
+                                            'type',
+                                            'variables',
+                                            'position'})

@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+
+message Message {
+  double timestamp = 1;
+  uint64 turn_number = 2;
+  uint32 type = 3;
+  string game_time = 4;
+  string game_date = 5;
+  string position = 6;
+  string message = 7;
+  map<string, string> variables = 8;
+}
+
+
+message Diary {
+  uint64 version = 1;
+  repeated Message messages = 2;
+}
+
+
+message VersionRequest {
+  uint32 account_id = 1;
+}
+
+message VersionResponse {
+  uint64 version = 1;
+}
+
+message PushMessageRequest {
+  uint32 account_id = 1;
+  uint32 diary_size = 2;
+  Message message = 3;
+}
+
+message PushMessageResponse {
+}
+
+message DiaryRequest {
+  uint32 account_id = 1;
+}
+
+message DiaryResponse {
+  Diary diary = 1;
+}

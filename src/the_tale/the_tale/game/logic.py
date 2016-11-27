@@ -127,6 +127,7 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_tur
                                                       patch_turns=client_turns,
                                                       for_last_turn=(not is_own))
     data['hero'] = hero_data
+    data['hero']['diary'] = heroes_logic.diary_version(account.id)
 
     data['is_old'] = (data['hero']['actual_on_turn'] < game_time.turn_number)
 
@@ -188,6 +189,14 @@ def game_info_url(account_id=None, client_turns=None):
     return url('game:api-info', **arguments)
 
 
+def game_diary_url():
+    arguments = {'api_version': conf.game_settings.DIARY_API_VERSION,
+                 'api_client': project_settings.API_CLIENT}
+
+    return url('game:api-diary', **arguments)
+
+
+
 def _game_info_from_1_1_to_1_0__heroes(data):
     data['secondary']['power'] = sum(data['secondary']['power'])
 
@@ -243,6 +252,7 @@ def _game_info_from_1_6_to_1_5__heroes(data):
                                      "flame": 0 },
                     "energy": 0,
                     "energy_speed": 0}
+    data['diary'] = []
 
 
 def game_info_from_1_1_to_1_0(data):

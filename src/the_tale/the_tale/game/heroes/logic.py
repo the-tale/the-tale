@@ -4,9 +4,11 @@ import datetime
 
 from utg import words as utg_words
 
+from django.db import models as django_models
+
 from dext.common.utils import s11n
 
-from django.db import models as django_models
+from tt_protocol.protocol import diary_pb2
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game import relations as game_relations
@@ -24,6 +26,8 @@ from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.places import storage as places_storage
 
 from the_tale.game.companions import objects as companions_objects
+
+from the_tale.common.utils import tt_api
 
 from . import models
 from . import objects
@@ -120,7 +124,10 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
     except models.Hero.DoesNotExist:
         return None
 
-    data = s11n.from_json(hero_model.data)
+    if isinstance(hero_model.data, str):
+        data = s11n.from_json(hero_model.data)
+    else:
+        data = hero_model.data
 
     companion_data = data.get('companion')
     companion = companions_objects.Companion.deserialize(companion_data) if companion_data else None
@@ -142,7 +149,6 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         actions=actions_container.ActionsContainer.deserialize(s11n.from_json(hero_model.actions)),
                         companion=companion,
                         journal=messages.JournalContainer(), # we are not storrings journal in database, since messages in it replaced very fast
-                        diary=messages.DiaryContainer.deserialize(s11n.from_json(hero_model.diary)),
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
                         places_history=places_help_statistics.PlacesHelpStatistics.deserialize(data['places_history']),
                         cards=cards_container.CardsContainer.deserialize(s11n.from_json(hero_model.cards)),
@@ -183,7 +189,6 @@ def save_hero(hero, new=False):
                      data=s11n.to_json(data),
                      abilities=s11n.to_json(hero.abilities.serialize()),
                      cards=s11n.to_json(hero.cards.serialize()),
-                     diary=s11n.to_json(hero.diary.serialize()),
                      actions=s11n.to_json(hero.actions.serialize()),
                      raw_power_physic=hero.power.physic,
                      raw_power_magic=hero.power.magic,
@@ -330,7 +335,6 @@ def create_hero(account):
                         actions=actions_container.ActionsContainer(),
                         companion=None,
                         journal=messages.JournalContainer(),
-                        diary=messages.DiaryContainer(),
                         quests=quests_container.QuestsContainer(),
                         places_history=places_help_statistics.PlacesHelpStatistics(),
                         cards=cards_container.CardsContainer(),
@@ -380,3 +384,39 @@ def remove_hero(hero_id=None, account_id=None):
 
 def get_heroes_to_accounts_map(heroes_ids):
     return dict(models.Hero.objects.filter(id__in=heroes_ids).values_list('id', 'account_id'))
+
+
+def push_message_to_diary(account_id, message, is_premium):
+    diary_size = conf.heroes_settings.DIARY_LOG_LENGTH_PREMIUM if is_premium else conf.heroes_settings.DIARY_LOG_LENGTH
+
+    game_time = message.game_time()
+
+    diary_message = diary_pb2.Message(timestamp=message.timestamp,
+                                      turn_number=message.turn_number,
+                                      type=message.key.value if message.key else None,
+                                      game_time=game_time.verbose_time,
+                                      game_date=game_time.verbose_date,
+                                      position=message.position,
+                                      message=message.message,
+                                      variables=message.get_variables())
+
+    tt_api.async_request(url=conf.heroes_settings.DIARY_PUSH_MESSAGE_URL,
+                         data=diary_pb2.PushMessageRequest(account_id=account_id,
+                                                           message=diary_message,
+                                                           diary_size=diary_size))
+
+
+def diary_version(account_id):
+    answer = tt_api.sync_request(url=conf.heroes_settings.DIARY_VERSION_URL,
+                                 data=diary_pb2.VersionRequest(account_id=account_id),
+                                 AnswerType=diary_pb2.VersionResponse)
+
+    return answer.version
+
+
+def get_diary(account_id):
+    answer = tt_api.sync_request(url=conf.heroes_settings.DIARY_URL,
+                                 data=diary_pb2.DiaryRequest(account_id=account_id),
+                                 AnswerType=diary_pb2.DiaryResponse)
+
+    return answer.diary

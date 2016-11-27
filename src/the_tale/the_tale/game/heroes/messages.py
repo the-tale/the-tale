@@ -78,11 +78,14 @@ class MessageSurrogate(object):
             self._variables = {name: str(external.form) for name, external in self.externals.items()}
         return self._variables
 
+    def game_time(self):
+        return GameTime.create_from_turn(self.turn_number)
+
     def ui_info(self, with_info=False):
         if self._ui_info is not None:
             return self._ui_info
 
-        game_time = GameTime.create_from_turn(self.turn_number)
+        game_time = self.game_time()
 
         if with_info:
             self._ui_info = (self.timestamp,

@@ -76,7 +76,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'actions',
                  'companion',
                  'journal',
-                 'diary',
                  'health',
                  'quests',
                  'places_history',
@@ -112,7 +111,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  actions,
                  companion,
                  journal,
-                 diary,
                  health,
                  quests,
                  places_history,
@@ -180,7 +178,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
             self.companion._hero = self
 
         self.journal = journal
-        self.diary = diary
 
         self.quests = quests
         self.quests.initialize(hero=self)
@@ -432,6 +429,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     ##########################
 
     def push_message(self, message, diary=False, journal=True):
+        from . import logic
+
         if journal:
             self.journal.push_message(message)
 
@@ -439,7 +438,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                 message = message.clone()
 
         if diary:
-            self.diary.push_message(message)
+            logic.push_message_to_diary(self.id, message, self.is_premium)
+
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
         from the_tale.linguistics import logic
@@ -571,8 +571,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                 self.next_spending == other.next_spending and
                 self.position == other.position and
                 self.statistics == other.statistics and
-                self.journal == other.journal and
-                self.diary == other.diary)
+                self.journal == other.journal)
 
     ##########################
     # ui info
@@ -585,8 +584,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                     'patch_turn': None if old_info is None else old_info['actual_on_turn'],
                     'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
                     'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
+                    'diary': None,  # diary version will be setupped by game:info view
                     'messages': self.journal.ui_info(),
-                    'diary': self.diary.ui_info(with_info=True),
                     'position': self.position.ui_info(),
                     'bag': self.bag.ui_info(self),
                     'equipment': self.equipment.ui_info(self),
