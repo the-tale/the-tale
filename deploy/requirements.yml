@@ -5,3 +5,4 @@
 - src: Stouts.rabbitmq
 - src: Stouts.backup
 - src: ANXS.postgresql
+- src: Datadog.datadog

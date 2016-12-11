@@ -1,79 +1,82 @@
 
-- include: tasks/bootstrap_ansible.yml
+# - include: tasks/bootstrap_ansible.yml
 
-- include: tasks/configure_system.yml
+# - include: tasks/configure_system.yml
 
-- include: tasks/dev_environment.yml
-  when: "{{tt_test_enviroment}}"
+# - include: tasks/dev_environment.yml
+#   when: "{{tt_test_enviroment}}"
 
-- include: tasks/install_packages.yml
+# - include: tasks/install_packages.yml
 
-- include: tasks/firewall.yml
+# - include: tasks/firewall.yml
 
-- include: tasks/postgresql.yml
-- include: tasks/redis.yml
-- include: tasks/rabbitmq.yml
+# - include: tasks/postgresql.yml
+# - include: tasks/redis.yml
+# - include: tasks/rabbitmq.yml
 
-- include: tasks/nginx.yml
-  when: "{{tt_install_nginx}}"
+# - include: tasks/nginx.yml
+#   when: "{{tt_install_nginx}}"
 
-- include: tasks/postfix.yml
-  when: "{{tt_install_postfix}}"
+# - include: tasks/postfix.yml
+#   when: "{{tt_install_postfix}}"
 
-- include: tasks/backups.yml
-  when: "{{tt_backups}}"
+# - include: tasks/backups.yml
+#   when: "{{tt_backups}}"
 
-
-- name: install The Tale
-  include: tasks/tt_service.yml
-  vars:
-    name: The Tale
-    user: the_tale
-    packages: "{{tt_services['the_tale']['packages']}}"
-    django_settings: the_tale.settings
-    port: 10000
+- include: tasks/datadog.yml
+  when: "{{not tt_test_enviroment}}"
 
 
-- name: install TT Diary
-  include: tasks/tt_service.yml
-  vars:
-    name: TT Diary
-    user: tt_diary
-    packages: "{{tt_services['tt_diary']['packages']}}"
-    django_settings: tt_diary.settings
-    port: 10001
+# - name: install The Tale
+#   include: tasks/tt_service.yml
+#   vars:
+#     name: The Tale
+#     user: the_tale
+#     packages: "{{tt_services['the_tale']['packages']}}"
+#     django_settings: the_tale.settings
+#     port: 10000
 
 
-- name: The Tale postupdate operations
-  hosts: all
-  become: yes
-  become_user: the_tale
-  tasks:
-
-    - name: create world
-      raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin game_create_world --settings the_tale.settings
-
-    - name: create superuser
-      raw: "cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin accounts_create_superuser --settings the_tale.settings"
-
-    - name: sync data
-      raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin portal_postupdate_operations --settings the_tale.settings
+# - name: install TT Diary
+#   include: tasks/tt_service.yml
+#   vars:
+#     name: TT Diary
+#     user: tt_diary
+#     packages: "{{tt_services['tt_diary']['packages']}}"
+#     django_settings: tt_diary.settings
+#     port: 10001
 
 
-- name: host postupdate operations
-  hosts: all
-  become: yes
-  become_user: root
-  tasks:
+# - name: The Tale postupdate operations
+#   hosts: all
+#   become: yes
+#   become_user: the_tale
+#   tasks:
 
-    - name: install the_tale supervisor configs
-      template: src="./templates/the-tale-supervisor.conf" dest="/etc/supervisor/conf.d/the_tale.conf"
+#     - name: create world
+#       raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin game_create_world --settings the_tale.settings
 
-    - name: reload supervisor configs
-      raw: systemctl restart supervisor
+#     - name: create superuser
+#       raw: "cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin accounts_create_superuser --settings the_tale.settings"
 
-    - name: "install authorizd keys"
-      authorized_key:
-        user: "{{user}}"
-        key: "{{item}}"
-      with_items: "{{tt_authorized_keys}}"
+#     - name: sync data
+#       raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin portal_postupdate_operations --settings the_tale.settings
+
+
+# - name: host postupdate operations
+#   hosts: all
+#   become: yes
+#   become_user: root
+#   tasks:
+
+#     - name: install the_tale supervisor configs
+#       template: src="./templates/the-tale-supervisor.conf" dest="/etc/supervisor/conf.d/the_tale.conf"
+
+#     - name: reload supervisor configs
+#       raw: systemctl restart supervisor
+
+#     - name: "install authorized keys"
+#       authorized_key:
+#         user: root
+#         key: "{{item}}"
+#       with_items: "{{tt_authorized_keys}}"

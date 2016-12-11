@@ -68,7 +68,7 @@
         owner: "{{user}}"
         group: "{{user}}"
 
-      when: "{{tt_services[user]['settings_local']}}"
+      when: "{{tt_services[user]['settings_local']|bool}}"
 
     - name: run migrations
       raw: "cd /home/{{user}}/current && . /home/{{user}}/current/venv/bin/activate && django-admin migrate --settings {{django_settings}}"
@@ -97,7 +97,7 @@
         owner: "{{user}}"
         group: "{{user}}"
 
-    - name: "install {{name}} authorizd keys"
+    - name: "install {{name}} authorized keys"
       authorized_key:
         user: "{{user}}"
         key: "{{item}}"
