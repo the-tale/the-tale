@@ -14,8 +14,6 @@ map_settings = app_settings('MAP',
 
                             CELL_RANDOMIZE_FRACTION=0.1,
 
-                            TEXTURE_PATH=os.path.join(project_settings.STATIC_DIR, 'game', 'images', 'map.png'),
-
                             CELL_SIZE=32,
 
                             TERRAIN_PRIORITIES_FIXTURE=os.path.join(os.path.dirname(__file__), 'fixtures', 'bioms.xls')  )

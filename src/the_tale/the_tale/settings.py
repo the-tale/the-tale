@@ -10,7 +10,6 @@ from dext.common.utils.meta_config import MetaConfig
 
 TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
-
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 HOME_DIR = os.getenv("HOME")
 
@@ -24,11 +23,12 @@ DEBUG = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'the-tale',
-        'USER': '',
-        'PASSWORD': '',
+        'NAME': 'the_tale',
+        'USER': 'the_tale',
+        'PASSWORD': 'the_tale',
         'HOST': '',
         'PORT': '',
+        'CONN_MAX_AGE': 60*60 # close connection after an hour
     }
 }
 
@@ -41,8 +41,7 @@ CSRF_FAILURE_VIEW = 'the_tale.urls.handlerCSRF'
 SESSION_COOKIE_HTTPONLY = True
 
 SITE_ID = 1
-SITE_URL = NotImplemented
-CDN_DOMAIN = None
+SITE_URL = 'local.the-tale:8000'
 
 SOCIAL_VK_GROUP_URL = None
 SOCIAL_TWITTER_GROUP_URL = None
@@ -56,16 +55,16 @@ YOUTUBE_TUTORIAL = None
 
 X_FRAME_OPTIONS = 'DENY'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['the-tale.org',
+                 '.the-tale.org',
+                 'local.the-tale',
+                 '.local.the-tale']
 
 AUTH_USER_MODEL = 'accounts.Account'
 
-OWNER = ''
+OWNER = 'Информация о владельце сайта'
 
-NEWRELIC_ENABLED = True
-NEWRELIC_CONF_PATH = '/home/the-tale/conf/newrelic.ini'
-
-PAGE_TITLE = NotImplemented
+PAGE_TITLE = 'Сказка'
 
 API_CLIENT = 'the_tale-%s' % META_CONFIG.version
 
@@ -76,13 +75,13 @@ API_CLIENT = 'the_tale-%s' % META_CONFIG.version
 USE_I18N = True
 USE_L10N = True
 
-SECRET_KEY = NotImplemented
+SECRET_KEY = 'test secret key, must be replaced'
 
 GA_CODE = None
 ADDTHIS = None
 MAIL_RU = None
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 
@@ -90,14 +89,15 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 # Mail settings
 ################################
 
-SERVER_EMAIL = NotImplemented
+SERVER_EMAIL = '«Сказка»: системное сообщение <no-reply@example.com>'
 ADMINS = ()
 
-EMAIL_NOREPLY = NotImplemented
-EMAIL_SUPPORT = NotImplemented
-EMAIL_SUPPORT_SHORT = NotImplemented
+EMAIL_NOREPLY = '«Сказка» <no-reply@example.com>'
+EMAIL_SUPPORT = '«Сказка» <support@example.com>'
+EMAIL_SUPPORT_SHORT = 'support@example.com'
 
-EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '/tmp/emails'
 
 ################################
 # Other settings
@@ -116,7 +116,6 @@ TEMPLATES = [ {'BACKEND': 'dext.common.utils.jinja2.Engine',
                                           'django.contrib.messages.context_processors.messages',
                                           'the_tale.portal.context_processors.section',
                                           'the_tale.portal.context_processors.cdn_paths',
-                                          'the_tale.portal.context_processors.currencies',
                                           'the_tale.game.balance.context_processors.balance',
                                           'the_tale.game.bills.context_processors.bills_context',
                                           'the_tale.linguistics.context_processors.linguistics_context'
@@ -139,7 +138,6 @@ TEMPLATES = [ {'BACKEND': 'dext.common.utils.jinja2.Engine',
                                            'django.contrib.messages.context_processors.messages',
                                            'the_tale.portal.context_processors.section',
                                            'the_tale.portal.context_processors.cdn_paths',
-                                           'the_tale.portal.context_processors.currencies',
                                            'the_tale.game.balance.context_processors.balance',
                                            'the_tale.game.bills.context_processors.bills_context',
                                            'the_tale.linguistics.context_processors.linguistics_context'
@@ -168,6 +166,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.admin',
+    'django.contrib.staticfiles',
 
     'dext.less',
     'dext.settings',
@@ -229,17 +228,21 @@ INSTALLED_APPS = [
     'the_tale.statistics']
 
 
-PASSWORD_HASHERS = ['django.contrib.auth.hashers.Argon2PasswordHasher',
-                    'django.contrib.auth.hashers.PBKDF2PasswordHasher']
+if TESTS_RUNNING:
+    # argon password hasher print warnings on time of tests running, so replace it with more fast and more stable hasher
+    PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']
+else:
+    PASSWORD_HASHERS = ['django.contrib.auth.hashers.Argon2PasswordHasher',
+                        'django.contrib.auth.hashers.PBKDF2PasswordHasher']
 
 ###############################
 # AMQP
 ###############################
 
 AMQP_BROKER_HOST = 'localhost'
-AMQP_BROKER_USER = 'the-tale'
-AMQP_BROKER_PASSWORD = 'the-tale'
-AMQP_BROKER_VHOST = '/the-tale'
+AMQP_BROKER_USER = 'the_tale'
+AMQP_BROKER_PASSWORD = 'the_tale'
+AMQP_BROKER_VHOST = '/the_tale'
 
 ##############################
 # tests
@@ -256,15 +259,14 @@ if TESTS_RUNNING:
 # CACHING
 ################
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1",
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
+CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
+                      'LOCATION': 'unix:///var/run/redis/redis.sock',
+                      'OPTIONS': {
+                          'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                          'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}
+
+
+
 CACHE_MIDDLEWARE_SECONDS = 24*60*60
 CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
@@ -272,6 +274,12 @@ try:
     from the_tale.settings_local import * # pylint: disable=W0403,W0401,W0614
 except Exception: # pylint: disable=W0702,W0703
     pass
+
+
+if TESTS_RUNNING:
+    GAME_ENABLE_WORKER_HIGHLEVEL = True
+    PVP_BALANCING_WITHOUT_LEVELS = False
+
 
 if DEBUG:
     for template in TEMPLATES:
@@ -292,21 +300,22 @@ AMQP_CONNECTION_URL = 'amqp://%s:%s@%s/%s' % (AMQP_BROKER_USER,
 # static content settings
 ##############################
 
-STATIC_URL = '//%s/static/%s/' % (SITE_URL, META_CONFIG.static_data_version)
+STATICFILES_DIRS = [os.path.join(PROJECT_DIR, 'static')]
 
-if 'STATIC_DIR' not in globals():
-    STATIC_DIR = os.path.join(PROJECT_DIR, 'static')
+STATIC_URL = '/static/%s/' % META_CONFIG.static_data_version
+
+STATIC_ROOT = '/var/www/the_tale/static/%s/' % META_CONFIG.static_data_version
+
+CDN_DOMAIN = globals().get('CDN_DOMAIN', 'static.the-tale.org')
+
 STATIC_CDN = '//%s/static/%s/' % (CDN_DOMAIN, META_CONFIG.static_data_version)
-STATIC_DEBUG_URL = '/static/%s/' % META_CONFIG.static_data_version
 
-ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
-ADMIN_DEBUG_MEDIA_PREFIX = STATIC_DEBUG_URL + 'admin/'
+ADMIN_MEDIA_PREFIX = '%sadmin/' % STATIC_URL
 
 LESS_FILES_DIR = os.path.join(PROJECT_DIR, 'less')
 LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
 
-if 'CDNS_ENABLED' not in globals():
-    CDNS_ENABLED = False
+CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
 
 CDNS = ( ('STATIC_JQUERY_JS',
           '%splugins/jquery/jquery-1.7.2.min.js' % STATIC_URL, '//yandex.st/jquery/1.7.2/jquery.min.js',
@@ -323,10 +332,6 @@ CDNS = ( ('STATIC_JQUERY_JS',
           lambda: 'http:%simages/rss.png?_=%f' % (STATIC_CDN, time.time())), # prevent url from caching for cases, when portal closed to 503
     )
 
-
-
-CURRENCIES_BASE = 'USD'
-CURRENCIES_LIST = ['BYR', 'RUB', 'UAH', 'USD']
 
 ############################
 # LOGGING

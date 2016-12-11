@@ -1,0 +1,12 @@
+- name: bootstrap ansible
+  hosts: all
+  become: yes
+  become_user: root
+  gather_facts: no
+  tasks:
+    - name:
+      raw: apt-get update
+    - name: setup absolutly needed system packages
+      raw: apt-get install -qy python-all aptitude python-apt python-pip
+    - name: upgrade pip to latest version
+      raw: pip install --upgrade pip

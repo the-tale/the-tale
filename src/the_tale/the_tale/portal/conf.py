@@ -54,9 +54,6 @@ portal_settings = app_settings('PORTAL',
                                SETTINGS_PREV_STATISTICS_RUN_TIME_KEY='prev statistics run time',
                                STATISTICS_RUN_TIME=1, # UTC time
 
-                               SETTINGS_PREV_BACKUP_RUN_TIME_KEY='prev backup run time',
-                               BACKUP_RUN_TIME=3, # UTC time
-
                                SETTINGS_PREV_RATINGS_SYNC_TIME_KEY='prev ratings sync run time',
                                RATINGS_SYNC_DELAY=4*60*60,
 
@@ -80,12 +77,5 @@ portal_settings = app_settings('PORTAL',
                                ENABLE_WORKER_LONG_COMMANDS=True,
 
                                SETTINGS_CDN_INFO_KEY='cdn info',
-                               SETTINGS_CURRENCIES_INFO_KEY='currencies info',
-
-                               AWS_ACCESS_KEY='amazon access key',
-                               AWS_SECRET_KEY='amazon secret key',
-                               AWS_S3_BACKUP_BUCKET='tale-backups',
-
-                               LAST_BACKUP_PATH='/tmp/last_backup.gztar',
 
                                LANDING_MOB_DESCRIPTION_MAX_LENGTH=1000)

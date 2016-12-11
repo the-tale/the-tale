@@ -46,9 +46,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.provision "ansible" do |ansible|
       ansible.playbook = "provisioning/game_server.yml"
-      ansible.verbose = 'vv'
-      # ansible.sudo_user = "root"
-      # ansible.sudo = true
+      ansible.extra_vars = "provisioning/develop_variables.yml"
     end
 
 end

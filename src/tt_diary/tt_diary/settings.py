@@ -2,9 +2,9 @@
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'tt-diary',
-        'USER': 'tt-diary',
-        'PASSWORD': 'tt-diary',
+        'NAME': 'tt_diary',
+        'USER': 'tt_diary',
+        'PASSWORD': 'tt_diary',
         'HOST': '',
         'PORT': '',
     }

@@ -1,0 +1,13 @@
+
+- name: configure sustem
+  hosts: all
+  become: yes
+  become_user: root
+
+  tasks:
+
+    - sysctl:
+        # http://askubuntu.com/questions/103242/is-it-safe-to-turn-swap-off-permanently
+        name: vm.swappiness
+        value: 10
+        state: present

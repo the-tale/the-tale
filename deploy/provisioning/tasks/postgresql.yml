@@ -1,0 +1,29 @@
+- name: configure postgresql
+  hosts: all
+  become: yes
+  become_user: root
+
+  vars:
+
+      postgresql_version: 9.5
+      postgresql_encoding: 'UTF-8'
+      postgresql_locale: 'en_US.UTF-8'
+      postgresql_ctype: 'en_US.UTF-8'
+      postgresql_ext_install_dev_headers: yes
+
+      postgresql_max_connections: 100
+      postgresql_superuser_reserved_connections: 3
+
+      postgresql_shared_buffers: "{{(tt_RAM*0.1)|int}}MB"  # 10% of RAM
+
+      postgresql_work_mem:             32MB
+      postgresql_maintenance_work_mem: "{{tt_postgresql_maintenance_work_mem}}"
+
+      postgresql_max_worker_processes: "{{tt_postgresql_max_worker_processes}}"
+
+      postgresql_synchronous_commit: off
+
+  roles:
+
+    - name: configure postgres
+      role: ANXS.postgresql # https://github.com/ANXS/postgresql/blob/master/defaults/main.yml

@@ -1,0 +1,104 @@
+
+- name: "preinstall {{name}}"
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+    - name: "create {{name}} user"
+      user: "name={{user}}"
+
+    - name: configure database
+      postgresql_db:
+        name: "{{user}}"
+        login_user: postgres
+
+    - name: configure database user
+      postgresql_user:
+        db: "{{user}}"
+        name: "{{user}}"
+        password: "{{user}}"
+        priv: ALL
+        role_attr_flags: "NOSUPERUSER,NOCREATEROLE,NOINHERIT,LOGIN,NOREPLICATION,{%if tt_test_enviroment%}CREATEDB{%else%}NOCREATEDB{%endif%}"
+        login_user: postgres
+
+    - name: create {{name}} static files directory
+      file: "path=/var/www/{{user}} state=directory mode=0755 owner={{user}} group={{user}}"
+
+
+- name: "install {{name}}"
+  hosts: all
+  become: yes
+  become_user: "{{user}}"
+  tasks:
+
+    - name: create environment
+      pip:
+        name: "{{item.name}}"
+        virtualenv: "/home/{{user}}/current/venv"
+        virtualenv_command: virtualenv
+        virtualenv_python: python3.5
+        editable: "{{item.editable}}"
+        extra_args: "{{item.extra}}"
+      with_items: "{{packages}}"
+
+    - name: install helpfull packages
+      pip:
+        name: "{{item.name}}"
+        virtualenv: "/home/{{user}}/current/venv"
+        virtualenv_command: virtualenv
+        virtualenv_python: python3.5
+      with_items:
+        - {name: "ipython"}
+
+    - name: install packages for test environment
+      pip:
+        name: "{{item.name}}"
+        virtualenv: "/home/{{user}}/current/venv"
+        virtualenv_command: virtualenv
+        virtualenv_python: python3.5
+      with_items:
+        - {name: django-test-without-migrations}
+      when: "{{tt_test_enviroment}}"
+
+    - name: install settings.py
+      template:
+        src: "{{tt_services[user]['settings_local']}}"
+        dest: "/home/{{user}}/current/venv/lib/python3.5/site-packages/the_tale/settings_local.py"
+        mode: 0644
+        owner: "{{user}}"
+        group: "{{user}}"
+
+      when: "{{tt_services[user]['settings_local']}}"
+
+    - name: run migrations
+      raw: "cd /home/{{user}}/current && . /home/{{user}}/current/venv/bin/activate && django-admin migrate --settings {{django_settings}}"
+
+    # - name: collect {{name}} static files
+    #   raw: "cd /home/{{user}}/current && . /home/{{user}}/current/venv/bin/activate && django-admin collectstatic --settings {{django_settings}}"
+
+
+- name: "postinstall {{name}}"
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+
+    - name: "create {{name}} logs directory"
+      file: "path=/var/log/{{user}} state=directory mode=0755 owner={{user}} group={{user}}"
+
+    - name: "create {{name}} config directory"
+      file: "path=/etc/{{user}} state=directory mode=0755 owner={{user}} group={{user}}"
+
+    - name: "install {{name}} configs"
+      template:
+        src: ../templates/tt_service.json
+        dest: "/etc/{{user}}/config.json"
+        mode: 0644
+        owner: "{{user}}"
+        group: "{{user}}"
+
+    - name: "install {{name}} authorizd keys"
+      authorized_key:
+        user: "{{user}}"
+        key: "{{item}}"
+      with_items: "{{tt_authorized_keys}}"

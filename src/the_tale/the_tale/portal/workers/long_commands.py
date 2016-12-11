@@ -128,11 +128,6 @@ class Worker(BaseWorker):
         self._run_django_subprocess('refresh_cdns', ['portal_refresh_cdns'])
         self.logger.info('cdns refreshed')
 
-    def run_refresh_currencies(self):
-        self.logger.info('currencies cdns')
-        self._run_django_subprocess('refresh_currencies', ['portal_refresh_currencies'])
-        self.logger.info('currencies refreshed')
-
     def run_statistics(self):
         self.logger.info('start statistics')
         self._run_django_subprocess('statistics_complete', ['statistics_complete'])

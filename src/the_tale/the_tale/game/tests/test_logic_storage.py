@@ -522,7 +522,7 @@ class LogicStorageTests(testcase.TestCase):
 
         with mock.patch('the_tale.game.logic_storage.LogicStorage._get_bundles_to_save', lambda x: [self.bundle_2_id]):
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data') as save_hero_data:
-                with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                with mock.patch('the_tale.game.heroes.objects.Hero.ui_info', mock.Mock(return_value={})) as ui_info:
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info.call_count, 2) # cache all heroes, since they are new
@@ -538,7 +538,7 @@ class LogicStorageTests(testcase.TestCase):
 
         with mock.patch('the_tale.game.logic_storage.LogicStorage._get_bundles_to_save', lambda x: [self.bundle_2_id]):
             with mock.patch('the_tale.game.logic_storage.LogicStorage._save_hero_data') as save_hero_data:
-                with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
+                with mock.patch('the_tale.game.heroes.objects.Hero.ui_info', mock.Mock(return_value={})) as ui_info:
                     self.storage.save_changed_data()
 
         self.assertEqual(ui_info.call_count, 1) # cache only first hero

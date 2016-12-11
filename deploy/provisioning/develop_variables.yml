@@ -1,0 +1,35 @@
+
+tt_domain: local.the-tale
+tt_test_enviroment: True
+tt_log_level: debug
+tt_site_workers: 1
+tt_install_nginx: True
+tt_install_postfix: True
+
+tt_postfix_virtual_aliases: {}
+
+tt_authorized_keys: []
+
+tt_services:
+  the_tale:
+    settings_local: None
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/dext/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/deworld/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/rels/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/pynames/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/utg/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/questgen/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/the_tale/"}
+  tt_diary:
+    settings_local: None
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_diary/"}
+
+tt_RAM: 4096
+tt_postgresql_maintenance_work_mem: 32MB # 256MB
+tt_postgresql_max_worker_processes: 1    # ???? ~ cores number div 2? or just cores number
+
+tt_backups: None

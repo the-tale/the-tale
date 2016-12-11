@@ -6,6 +6,7 @@ from django.conf import settings as project_settings
 
 from dext.common.utils.urls import url
 from dext.common.utils import s11n
+from dext.common.utils import cache
 
 from the_tale.common.utils.testcase import TestCase
 
@@ -342,7 +343,9 @@ class FullTests(BaseRequestsTests):
                                  'state': relations.AUTHORISATION_STATE.UNPROCESSED.value,
                                  'session_expire_at': 666.6})
 
+        # emulate accept view
         token.accept(self.account_1)
+        cache.delete(third_party_settings.ACCESS_TOKEN_CACHE_KEY % token.uid)
 
         self.check_ajax_ok(api_client.get(authorisation_state_url),
                            data={'account_id': self.account_1.id,

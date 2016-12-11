@@ -79,14 +79,14 @@ class CodeTests(testcase.TestCase):
 
         for code in self._filter_code('^\s*import ', only_models=False):
             code = code.strip()[len('import '):]
-
             for module_name in code.split(','):
                 module_name = module_name.strip()
                 self.assertTrue(self.check_starts(module_name,
                                                 ['sys', 'os', 'shutil', 'datetime', 'tempfile', 'subprocess', 'random', 'collections', 're', 'itertools', 'Queue', 'time',
-                                                 'jinja2', 'math', 'uuid', 'postmarkup', 'functools', 'urllib2', 'xlrd', 'copy', 'gv', 'string', 'traceback', 'newrelic',
+                                                 'jinja2', 'math', 'uuid', 'postmarkup', 'functools', 'urllib2', 'xlrd', 'copy', 'gv', 'string', 'traceback',
                                                  'markdown', 'md5', 'mock', 'pymorphy', 'numbers', 'gc', 'numpy', 'matplotlib', 'contextlib', 'pynames', 'json', 'PIL', 'deworld',
-                                                 'urllib', 'socket', 'types', 'csv', 'getpass', 'logging', 'operator', 'hashlib', 'psutil', 'tt_protocol', 'tt_diary', 'queue', 'threading']))
+                                                 'urllib', 'socket', 'types', 'csv', 'getpass', 'logging', 'operator', 'hashlib', 'psutil', 'tt_protocol', 'tt_diary', 'queue', 'threading',
+                                                 'site']))
 
     def test_api_urls_not_changed(self):
         self.assertEqual(url('portal:api-info'), '/api/info')

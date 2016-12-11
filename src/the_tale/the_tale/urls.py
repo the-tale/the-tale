@@ -34,17 +34,12 @@ urlpatterns = [url(r'^', include('the_tale.cms.urls', namespace='cms') ),
 
 
 if project_settings.DEBUG:
-    urlpatterns += static(project_settings.ADMIN_DEBUG_MEDIA_PREFIX, document_root=os.path.join(os.path.dirname(admin.__file__), 'static', 'admin'))
-    urlpatterns += [url(r'^%scss/' % project_settings.STATIC_DEBUG_URL[1:], include('dext.less.urls') )]
-    urlpatterns += static(project_settings.STATIC_DEBUG_URL, document_root=project_settings.STATIC_DIR)
+    urlpatterns += static(project_settings.STATIC_URL+'admin/', document_root=os.path.join(os.path.dirname(admin.__file__), 'static', 'admin'))
+    urlpatterns += [url(r'^%scss/' % project_settings.STATIC_URL[2:], include('dext.less.urls') )]
+    urlpatterns += static(project_settings.STATIC_URL, document_root=os.path.join(project_settings.PROJECT_DIR, 'static'))
 
 
 handlerCSRF = create_handler_view(PortalResource, 'handlerCSRF')
 handler403 = create_handler_view(PortalResource, 'handler403')
 handler404 = create_handler_view(PortalResource, 'handler404')
 handler500 = create_handler_view(PortalResource, 'handler500')
-
-# import resource
-# import gc
-# gc.collect()
-# print('memory usage: {}'.format(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024))

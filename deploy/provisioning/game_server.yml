@@ -1,249 +1,79 @@
----
-- name: bootstrap ansible
-  hosts: all
-  become: yes
-  become_user: root
-  gather_facts: no
-  tasks:
-    - name: update package list
-      raw: apt-get update
-    - name: setup absolutly needed system packages
-      raw: apt-get install -qy python-all aptitude python-apt python-pip
-    - name: upgrade pip to latest version
-      raw: pip install --upgrade pip
 
-- name: configure host
-  hosts: all
-  become: yes
-  become_user: root
+- include: tasks/bootstrap_ansible.yml
 
-  vars:
-    ansible_python_interpreter: /usr/bin/python2.7
+- include: tasks/configure_system.yml
 
-  tasks:
+- include: tasks/dev_environment.yml
+  when: "{{tt_test_enviroment}}"
 
-    - name: setup basic packages
-      apt: name={{item}} state=installed
-      with_items:
-        - emacs
-        - python-dev
-        - python3-dev
-        - virtualenv
-        - python-pip
-        - supervisor
-        - libffi-dev
-        - g++
-        - libssl-dev
+- include: tasks/install_packages.yml
 
-    - name: install packages, required for development
-      apt: name={{item}} state=installed
-      with_items:
-        - node-less
+- include: tasks/firewall.yml
 
-    - name: start supervisor
-      raw: systemctl start supervisor
+- include: tasks/postgresql.yml
+- include: tasks/redis.yml
+- include: tasks/rabbitmq.yml
 
+- include: tasks/nginx.yml
+  when: "{{tt_install_nginx}}"
 
-# todo: do not install if already installed
-- name: install protobuf (required for development)
-  hosts: all
-  become: yes
-  become_user: root
+- include: tasks/postfix.yml
+  when: "{{tt_install_postfix}}"
 
-  vars:
-    ansible_python_interpreter: /usr/bin/python2.7
-
-  tasks:
-
-    - name: install required packages
-      apt: name={{item}} state=installed
-      with_items:
-        - unzip
-
-    - raw: rm -rf /tmp/protobuf
-    - raw: mkdir /tmp/protobuf
-    - raw: wget https://github.com/google/protobuf/releases/download/v3.1.0/protoc-3.1.0-linux-x86_64.zip -O /tmp/protobuf/proto.zip
-    - raw: cd /tmp/protobuf && unzip proto.zip
-    - raw: cp /tmp/protobuf/bin/protoc /usr/bin
-    - raw: chmod 755 /usr/bin/protoc
-
-
-- name: configure services
-  hosts: all
-  become: yes
-  become_user: root
-  roles:
-    - name: configure postgres
-      role: ANXS.postgresql # https://github.com/ANXS/postgresql/blob/master/defaults/main.yml
-      postgresql_version: 9.5
-      postgresql_encoding: 'UTF-8'
-      postgresql_locale: 'en_US.UTF-8'
-      postgresql_ctype: 'en_US.UTF-8'
-      postgresql_ext_install_dev_headers: yes
-      postgresql_databases:
-        - name: the-tale
-          hstore: yes         # flag to install the hstore extension on this database (yes/no)
-          uuid_ossp: yes      # flag to install the uuid-ossp extension on this database (yes/no)
-          citext: no          # flag to install the citext extension on this database (yes/no)
-        - name: tt-diary
-          hstore: yes
-          uuid_ossp: yes
-          citext: no
-      postgresql_users:
-        - name: the-tale
-          pass: the-tale
-          encrypted: no
-        - name: tt-diary
-          pass: tt-diary
-          encrypted: no
-
-    - name: configue nginx
-      role: geerlingguy.nginx
-      nginx_remove_default_vhost: true
-      nginx_vhosts:
-        - listen: "80 default_server"
-          server_name: "local.the-tale"
-          root: "/var/www/the-tale"
-
-    - name: configure redis
-      role: geerlingguy.redis
-
-    - name: configure rabbitmq
-      role: Stouts.rabbitmq
-      rabbitmq_plugins: []
-      rabbitmq_users:
-        - user: the-tale
-          password: the-tale
-          vhost: /the-tale
-          configure_priv: .*
-          read_priv: .*
-          write_priv: .*
-
-      rabbitmq_vhosts:
-        - /the-tale
-
-      rabbitmq_users_remove:
-        - guest
-
-
-- name: preinstall The Tale
-  hosts: all
-  become: yes
-  become_user: root
-  tasks:
-    - name: create the-tale user
-      user: name=the-tale
-
-    - name: create tt-diary user
-      user: name=tt-diary
+- include: tasks/backups.yml
+  when: "{{tt_backups}}"
 
 
 - name: install The Tale
-  hosts: all
-  become: yes
-  become_user: the-tale
-  tasks:
-
-    - name: create environment
-      pip:
-        name: "{{item.name}}"
-        virtualenv: /home/the-tale/current/venv
-        virtualenv_command: virtualenv
-        virtualenv_python: python3.5
-        editable: True
-        extra_args: "-e"
-      with_items:
-        - {name: "/mnt/repos/dext/"}
-        - {name: "/mnt/repos/deworld/"}
-        - {name: "/mnt/repos/rels/"}
-        - {name: "/mnt/repos/pynames/"}
-        - {name: "/mnt/repos/utg/"}
-        - {name: "/mnt/repos/questgen/"}
-        - {name: "/mnt/repos/the-tale/src/tt_protocol/"}
-        - {name: "/mnt/repos/the-tale/src/the_tale/"}
-
-    - name: install helpfull packages
-      pip:
-        name: "{{item.name}}"
-        virtualenv: /home/the-tale/current/venv
-        virtualenv_command: virtualenv
-        virtualenv_python: python3.5
-      with_items:
-        - {name: "ipython"}
-
-    - name: install packages for test environment
-      pip:
-        name: "{{item.name}}"
-        virtualenv: /home/the-tale/current/venv
-        virtualenv_command: virtualenv
-        virtualenv_python: python3.5
-      with_items:
-        - {name: django-test-without-migrations}
-
-    - name: run migrations
-      raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin migrate --settings the_tale.settings
-
-    - name: create world
-      raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin game_create_world --settings the_tale.settings
-
-    # - name: sync data
-    #   raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin portal_postupdate_operations --settings the_tale.settings
-
-    - name: create superuser
-      raw: cd /home/the-tale/current && . /home/the-tale/current/venv/bin/activate && django-admin accounts_create_superuser --settings the_tale.settings
+  include: tasks/tt_service.yml
+  vars:
+    name: The Tale
+    user: the_tale
+    packages: "{{tt_services['the_tale']['packages']}}"
+    django_settings: the_tale.settings
+    port: 10000
 
 
 - name: install TT Diary
+  include: tasks/tt_service.yml
+  vars:
+    name: TT Diary
+    user: tt_diary
+    packages: "{{tt_services['tt_diary']['packages']}}"
+    django_settings: tt_diary.settings
+    port: 10001
+
+
+- name: The Tale postupdate operations
   hosts: all
   become: yes
-  become_user: tt-diary
+  become_user: the_tale
   tasks:
 
-    - name: create environment
-      pip:
-        name: "{{item.name}}"
-        virtualenv: /home/tt-diary/current/venv
-        virtualenv_command: virtualenv
-        virtualenv_python: python3.5
-        editable: True
-        extra_args: "-e"
-      with_items:
-        - {name: "/mnt/repos/the-tale/src/tt_protocol/"}
-        - {name: "/mnt/repos/the-tale/src/tt_diary/"}
+    - name: create world
+      raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin game_create_world --settings the_tale.settings
 
-    - name: install helpfull packages
-      pip:
-        name: "{{item.name}}"
-        virtualenv: /home/tt-diary/current/venv
-        virtualenv_command: virtualenv
-        virtualenv_python: python3.5
-      with_items:
-        - {name: "ipython"}
+    - name: create superuser
+      raw: "cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin accounts_create_superuser --settings the_tale.settings"
 
-    # - name: run migrations
-    #   raw: cd /home/tt-diary/current && . /home/tt-diary/current/venv/bin/activate && django-admin migrate --settings tt_diary.settings
+    - name: sync data
+      raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin portal_postupdate_operations --settings the_tale.settings
 
 
-- name: postinstall The Tale
+- name: host postupdate operations
   hosts: all
   become: yes
   become_user: root
   tasks:
 
-    - name: create the-tale logs directory
-      file: path=/var/log/the-tale state=directory mode=0755 owner=the-tale group=the-tale
-
-    - name: create tt-diary logs directory
-      file: path=/var/log/tt-diary state=directory mode=0755 owner=tt-diary group=tt-diary
-
-    - name: create tt-diary config directory
-      file: path=/etc/tt-diary state=directory mode=0755 owner=tt-diary group=tt-diary
-
-    - name: install the-tale supervisor configs
-      template: src="./templates/the-tale-supervisor.conf" dest="/etc/supervisor/conf.d/the-tale.conf"
-
-    - name: install tt-diary configs
-      template: src="./templates/tt-diary.conf" dest="/etc/tt-diary/config.json" mode=0644 owner=tt-diary group=tt-diary
+    - name: install the_tale supervisor configs
+      template: src="./templates/the-tale-supervisor.conf" dest="/etc/supervisor/conf.d/the_tale.conf"
 
     - name: reload supervisor configs
       raw: systemctl restart supervisor
+
+    - name: "install authorizd keys"
+      authorized_key:
+        user: "{{user}}"
+        key: "{{item}}"
+      with_items: "{{tt_authorized_keys}}"
