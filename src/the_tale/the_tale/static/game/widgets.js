@@ -188,7 +188,10 @@ pgf.game.Updater = function(params) {
 
                     if (jQuery('.pgf-game-data').hasClass('pgf-hidden')) {
                         jQuery('.pgf-game-data').toggleClass('pgf-hidden', false);
-                        jQuery(document).trigger(pgf.game.map.events.MAP_RESIZED);
+
+                        if (pgf.game.map) {
+                            jQuery(document).trigger(pgf.game.map.events.MAP_RESIZED);
+                        }
                         jQuery(document).trigger(pgf.game.events.GAME_DATA_SHOWED);
                     }
                 }, 750);
