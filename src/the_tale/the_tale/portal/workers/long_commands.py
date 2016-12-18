@@ -59,13 +59,6 @@ class Worker(BaseWorker):
             self.run_statistics()
             return
 
-        # is backup run needed
-        if (time.time() - float(settings.get(portal_settings.SETTINGS_PREV_BACKUP_RUN_TIME_KEY, 0)) > 23.5*60*60 and
-            portal_settings.BACKUP_RUN_TIME <= datetime.datetime.now().hour <= portal_settings.BACKUP_RUN_TIME + 1):
-            settings[portal_settings.SETTINGS_PREV_BACKUP_RUN_TIME_KEY] = str(time.time())
-            self.run_backup()
-            return
-
         # is rating sync needed
         if self._try_run_command_with_delay(cmd=self.run_recalculate_ratings,
                                             settings_key=portal_settings.SETTINGS_PREV_RATINGS_SYNC_TIME_KEY,
@@ -139,10 +132,6 @@ class Worker(BaseWorker):
     def run_clean_removed_templates(self):
         self.logger.info('clean removed templates')
         self._run_django_subprocess('linguistics_clean_removed_templates', ['linguistics_clean_removed_templates'])
-
-    def run_backup(self):
-        self.logger.info('start backup')
-        self._run_django_subprocess('backup', ['portal_dump'])
 
     def run_cleaning(self):
         self.logger.info('start cleaning')

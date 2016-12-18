@@ -306,10 +306,10 @@ def game_info_from_1_5_to_1_4(data):
 
 def game_info_from_1_6_to_1_5(data):
     if data['account'] is not None:
-        _game_info_from_1_5_to_1_4__heroes(data['account']['hero'])
+        _game_info_from_1_6_to_1_5__heroes(data['account']['hero'])
 
     if data['enemy'] is not None:
-        _game_info_from_1_5_to_1_4__heroes(data['enemy']['hero'])
+        _game_info_from_1_6_to_1_5__heroes(data['enemy']['hero'])
 
     return data
 

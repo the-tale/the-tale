@@ -134,8 +134,8 @@ pgf.game.map.MapManager = function(params) {
                         success: function(data, request, status) {
                             mapData = data.data;
 
-                            instance.mapWidth = data.width;
-                            instance.mapHeight = data.height;
+                            instance.mapWidth = mapData.width;
+                            instance.mapHeight = mapData.height;
 
                             jQuery(document).trigger(pgf.game.map.events.DATA_UPDATED);
                         },

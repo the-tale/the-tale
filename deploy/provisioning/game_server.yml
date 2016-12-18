@@ -35,6 +35,7 @@
     packages: "{{tt_services['the_tale']['packages']}}"
     django_settings: the_tale.settings
     port: 10000
+    collect_static: true
 
 
 - name: install TT Diary
@@ -45,6 +46,7 @@
     packages: "{{tt_services['tt_diary']['packages']}}"
     django_settings: tt_diary.settings
     port: 10001
+    collect_static: false
 
 
 - name: The Tale postupdate operations
