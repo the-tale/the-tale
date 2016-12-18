@@ -179,7 +179,7 @@ pgf.game.Updater = function(params) {
 
                 jQuery(document).trigger(pgf.game.events.DATA_REFRESHED, instance.data);
 
-                if (instance.data.account.hero.diary != instance.lastDiaryVersion) {
+                if (instance.data.account && instance.data.account.hero.diary != instance.lastDiaryVersion) {
                     instance.RefreshDiary();
                 }
 
