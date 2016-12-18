@@ -1,0 +1,92 @@
+/* #f9f9f9; */
+.forum-table .new-messages a {
+  font-weight: bold;
+  /* color: #FF6600 !important; */
+}
+.forum-table .new-thread {
+  color: #FF6600 !important;
+}
+.forum-table .updated-at {
+  width: 10em;
+}
+.forum-table .posts-count {
+  width: 5em;
+}
+.forum-table .threads-count {
+  width: 5em;
+}
+.forum-table .author {
+  width: 13em;
+}
+.forum-table .last-thread {
+  width: 20em;
+}
+.forum-table .thread-page-links {
+  color: #4A516B;
+}
+.forum-table .subscription {
+  width: 6em;
+}
+.post {
+  margin-bottom: 1em;
+}
+.post .head {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  margin-bottom: 0.5em;
+  border-top: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
+  background-color: #ebf0f0;
+}
+.post .head div {
+  display: inline-block;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+.post .info {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  margin-bottom: 0.5em;
+  border-right: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
+  background-color: #ebf0f0;
+  height: 100px;
+  vertical-align: top;
+  text-align: center;
+  color: gray;
+}
+.post .info-head {
+  border-top: 1px solid #dddddd;
+  background-color: #ebf0f0;
+  text-align: center;
+  font-size: 12pt;
+}
+.post.developer .head {
+  background-color: #e9f9e9;
+}
+.post.developer .info {
+  background-color: #e9f9e9;
+}
+.post.developer .info-head {
+  background-color: #e9f9e9;
+}
+.post.banned .head {
+  background-color: #f9e9e9;
+}
+.post.banned .info {
+  background-color: #f9e9e9;
+}
+.post.banned .info-head {
+  background-color: #f9e9e9;
+}
+.post .message {
+  padding: 0.5em;
+  vertical-align: top;
+}
+.post .message .post-removed-message {
+  color: #b94a48;
+}
+.new-post-form,
+.change-post-form {
+  margin-top: 1em;
+}

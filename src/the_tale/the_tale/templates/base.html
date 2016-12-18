@@ -1,0 +1,338 @@
+{% import 'macros.html' as base_macros with context %}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="keywords" content="ZPG, ZRPG, Zero Player Game, самоиграйка, изменяемый мир, 0-player, тамагочи, браузерная игра, многопользовательская игра, инди игра, песочница">
+    <meta name="description" content="{% block description %}Независимая многопользовательская браузерная ролевая Zero Player Game (ZPG или ZRPG) c «живыми» героями, изменяемым миром и системой политики.{% endblock %}"></meta>
+    <meta name="author" content="Tiendil">
+    <link href="{{ url('news:feed') }}" type="application/atom+xml" rel="alternate" title="Новости" />
+    <link href="{{ url('forum:feed') }}" type="application/atom+xml" rel="alternate" title="Форум" />
+    <link rel="shortcut icon" href="{{ STATIC_CONTENT }}favicon.ico" />
+    <title>{% block title%}{{settings.PAGE_TITLE}}{% endblock %}</title>
+
+    {% if settings.GA_CODE %}
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', '{{ settings.GA_CODE }}', '{{settings.SITE_URL}}');
+  ga('require', 'displayfeatures');
+  ga('send', 'pageview');
+
+</script>
+    {% endif %}
+
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}css/main.css" />
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}css/javascript.css" />
+
+    <script src="{{ STATIC_JQUERY_JS }}" type="text/javascript"></script>
+    <script src="{{ STATIC_JQUERY_UI_JS }}" type="text/javascript" charset="utf-8"></script>
+
+    <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery.url.js" type="text/javascript"></script>
+
+    <script src="{{ STATIC_CONTENT }}plugins/spin/spin.min.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery.spin.js" type="text/javascript"></script>
+
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_TWITTER_BOOTSTRAP }}css/bootstrap.min.css" />
+    <script src="{{ STATIC_TWITTER_BOOTSTRAP }}js/bootstrap.min.js" type="text/javascript"></script>
+
+    {% if settings.ADDTHIS %}
+    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid={{settings.ADDTHIS}}"></script>
+    {% endif %}
+
+    <script src="{{ STATIC_CONTENT }}plugins/globalize/globalize.js"></script>
+    <script src="{{ STATIC_CONTENT }}plugins/globalize/cultures/globalize.culture.ru.js"></script>
+    <script src="{{ STATIC_CONTENT }}common/base.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}common/dialog.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}common/forms.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}common/urls.js" type="text/javascript"></script>
+
+    {% if settings.DEBUG %}
+    <script src="{{ STATIC_CONTENT }}common/debug.js" type="text/javascript"></script>
+    {% endif %}
+
+    <script type="text/javascript">
+
+{% if resource.account.is_authenticated %}
+pgf.base.settings.init("account_{{resource.account.id}}");
+{% else %}
+pgf.base.settings.init("anonimues");
+{% endif %}
+
+API_CLIENT = "{{settings.API_CLIENT}}";
+
+jQuery(document).ready(function() {
+
+    Globalize.culture('ru');
+    pgf.base.AutoFormatTime();
+
+    jQuery.ajaxSetup({
+        cache: false,
+        beforeSend: function(xhr, settings) {
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                xhr.setRequestHeader("X-CSRFToken", "{{resource.csrf}}" );
+            }
+        }
+    });
+
+    jQuery('.pgf-fast-registration').click(function(e){
+        e.preventDefault();
+        pgf.forms.Post({ OnSuccess: function(data)
+                         {
+                             location.href = "{{ url('game:') }}";
+                         },
+                         action: jQuery(e.currentTarget).attr('href')
+                       });
+    });
+
+    jQuery('[rel="tooltip"]').tooltip(pgf.base.tooltipsArgs)
+    jQuery('[rel="popover"]').popover(pgf.base.popoverArgs)
+
+    var StopScroll = function(e) {
+        var innerScrollable = jQuery(e.target).parents('.pgf-scrollable');
+        if (innerScrollable.length == 0) {
+            innerScrollable = jQuery(e.target);
+        }
+        innerScrollable = innerScrollable.eq(0);
+
+        var scrollTop = innerScrollable.scrollTop();
+        if (e.originalEvent.wheelDelta > 0 && innerScrollable.scrollTop() == 0) {
+            e.preventDefault();
+        }
+        var inner = innerScrollable.get(0).scrollHeight - innerScrollable.innerHeight();
+        var outer = innerScrollable.get(0).scrollHeight - innerScrollable.outerHeight();
+        if (e.originalEvent.wheelDelta < 0 && outer <= scrollTop && scrollTop <= inner) {
+            e.preventDefault();
+        }
+    };
+
+    // jQuery('.pgf-scrollable').live('mousewheel', function(e) {
+    jQuery('.modal-backdrop').live('mousewheel', StopScroll);
+    jQuery('.modal').live('mousewheel', StopScroll);
+
+    ///////////////////////////
+    // BBField processing
+    function InitializeBBFileds(container) {
+
+        jQuery('.pgf-bbfield', container).each(function(i, e){
+            var id = jQuery(e).attr('id');
+            pgf.base.AddPreview('#'+id, 'textarea', "{{url('portal:preview')}}");
+            pgf.base.InitBBFields('#'+id);
+        });
+    }
+
+    InitializeBBFileds(document);
+
+    jQuery(document).bind(pgf.ui.dialog.DIALOG_OPENED, function(e, dialog) {
+        InitializeBBFileds(dialog);
+    });
+    /////////////////////////
+});
+    </script>
+
+    {% block head %}{% endblock%}
+  </head>
+  <body>
+
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+
+          <a class="brand" href="{{ url('portal:') }}"><img src="{{STATIC_CONTENT}}images/logo.png"></img></a>
+
+          <ul class="nav">
+            {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
+            {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:game"), "Описание игры"),
+                                                                         (url("guide:keepers"), "Хранители"),
+                                                                         (url("guide:hero-abilities"), "Способности героев"),
+                                                                         (url("guide:hero-habits"), "Черты героев"),
+                                                                         (url("guide:hero-preferences"), "Предпочтения героев"),
+                                                                         (url("guide:cards:"), "Карты Судьбы"),
+                                                                         (url("guide:quests"), "Задания"),
+                                                                         (url("guide:persons"), "Мастера"),
+                                                                         (url("guide:cities"), "Города"),
+                                                                         (url("guide:politics"), "Политика"),
+                                                                         (url("guide:clans"), "Гильдии"),
+                                                                         (url("guide:map"), "Карта"),
+                                                                         (url("guide:pvp"), "PvP"),
+                                                                         (url("guide:mobs:"), "Бестиарий"),
+                                                                         (url("guide:artifacts:"), "Артефакты"),
+                                                                         (url("guide:companions:"), "Спутники"),
+                                                                         (url("cms:world:"), get_cms_section_info("world").caption),
+                                                                         ('-', '<li class="divider"></li>'),
+                                                                         (url("guide:account-types"), "Общее"),
+                                                                         (url("cms:development:"), get_cms_section_info("development").caption),
+                                                                         (faq_url(), "FAQ"),
+                                                                         (players_projects_url(), "Проекты игроков")]) }}
+            {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
+                                                                           (url("accounts:clans:"), "Гильдии"),
+                                                                           (url("game:ratings:"), "Рейтинги"),
+                                                                           (url("accounts:achievements:"), "Достижения"),
+                                                                           (url("collections:collections:"), "Коллекции"),
+                                                                           ('-', '<li class="divider"></li>'),
+                                                                           (settings.SOCIAL_VK_GROUP_URL, "ВКонтакте"),
+                                                                           (settings.SOCIAL_FACEBOOK_GROUP_URL, "Facebook"),
+                                                                           (settings.SOCIAL_TWITTER_GROUP_URL, "Twitter"),
+                                                                           (url("portal:chat"), "Чат"),
+                                                                           ('-', '<li class="divider"></li>'),
+                                                                           (settings.SOCIAL_WIKI_URL, "Wiki"),
+                                                                           (settings.SOCIAL_CHROME_URL, "Расширение для Chrome"),
+                                                                           (settings.SOCIAL_DARK_THEME_URL, "Тёмная тема")]) }}
+
+            {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),
+                                                                (url("linguistics:"), "Лингвистика"),
+                                                                (url("blogs:posts:"), "Фольклор"),
+                                                                (url("game:chronicle:"), "Летопись"),
+                                                                (url("game:pvp:calls"), "Арена"), ] ) }}
+
+            {% if resource.account.is_authenticated %}
+            {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}
+            {% else %}
+            {{ base_macros.main_menu_item("map", url("game:map:"), "<span class='game-link'>Карта</span>") }}
+            <li><a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link"><strong>Создать героя</strong></a></li>
+            {% endif %}
+            {{ base_macros.main_menu_item("shop", url("shop:"), "Торговля") }}
+
+          </ul>
+
+          <ul class="nav pull-right">
+            <li>
+              {% set game_time = resource.time.game_time %}
+              <p id="time-block" class="navbar-text">
+                <span class="pgf-game-date">{{ game_time.verbose_date}}</span>
+                <span class="pgf-game-time">{{ game_time.verbose_time }}</span>
+              </p>
+            </li>
+            <li class="divider-vertical"></li>
+
+            {% if resource.account.is_authenticated %}
+
+            <li rel="tooltip"  title="У вас есть новые сообщения"
+                class="pgf-new-messages-signalization {% if resource.account.new_messages_number == 0 %}pgf-hidden{%endif%}">
+              <a href="{{ url('accounts:messages:') }}">
+                <i class="icon-white icon-envelope" style="vertical-align: middle;"></i>
+                (<span class="pgf-new-messages-number">{{resource.account.new_messages_number}}</span>)
+              </a>
+            </li>
+
+            {{ base_macros.main_menu_item("profile",
+                                          "#",
+                                          resource.account.nick_verbose,
+                                          [(url("accounts:profile:show"), "Профиль"),
+                                           (url("accounts:friends:"), "Друзья"),
+                                           (url("accounts:messages:"), "Сообщения"),
+                                           (url("accounts:third-party:tokens:"), "Приложения"),
+                                           (url("forum:subscriptions:"), "Подписки"),
+                                           (url("accounts:show", resource.account.id), "Моя страница"),
+                                           (url("game:heroes:my-hero"), "Мой герой"),
+                                           (url("accounts:clans:show", resource.account.clan_id) if resource.account.clan_id is not none else none, "Моя гильдия") ,
+                                           ('-', '<li class="divider"></li>'),
+                                           (logout_url(), "Выход")] ) }}
+
+            {% else %}
+            <li><a href="{{ login_page_url(resource.request.get_full_path())|safe }}">Войти</a></li>
+            {% endif %}
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    {% block body %}
+
+    {% if settings.DEBUG %}
+    <ul style="position: absolute; right: 0; top: 60px;">
+      {% block debug_menu%}
+      {% endblock %}
+    </ul>
+    {% endif %}
+
+    <div id="main-container">
+      <div id="content" class="container">
+
+        {% block content_header %}
+
+        {% if resource.account.is_authenticated and resource.account.is_fast %}
+        <div class="alert alert-success">
+          <a class="btn btn-success"
+             href="{{ url('accounts:profile:show') }}"
+             style="width: 200px; float: left; margin-right: 0.5em; margin-top: 0.2em;">
+            <span style="vertical-align: middle; font-size: 11pt; font-weight: bold;">Завершить регистрацию</span>
+          </a>
+          <p style="margin: 0;">
+            Ваша игра доступна только с этого компьютера. <br/>
+            Для игры из другого места необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a>.<br/>
+            Подробнее об игре можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>. Также один из игроков записал небольшой <a href="{{settings.YOUTUBE_TUTORIAL}}">обзор игры</a>.
+          </p>
+        </div>
+        {% endif %}
+        {% endblock %}
+
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+
+    <footer role="contentinfo" class="container">
+      <div class="row">
+        <div class="span9">
+          <ul class="unstyled">
+            <li><a href="{{url('portal:search')}}">поиск по сайту</a></li>
+            <li><a href="{{url('guide:user-agreement')}}">пользовательское соглашение</a></li>
+            <li><a href="{{url('guide:press-kit')}}">для прессы</a></li>
+            <li>поддержка: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a></li>
+            <li>использована часть иконок из набора <a href="http://glyphicons.com" target="_blank">Glyphicons</a></li>
+            <li>© 2011-{{now().year}} {{settings.OWNER}}</li>
+            <li>версия {{settings.META_CONFIG.version}}</li>
+            <li><a href="{{url('statistics:')}}">статистика</a></li>
+          </ul>
+        </div>
+        <div class="span3">
+{% if settings.MAIL_RU %}
+          <!-- Rating@Mail.ru counter -->
+<script type="text/javascript">//<![CDATA[
+var _tmr = _tmr || [];
+_tmr.push({id: "2422333",  type: "pageView", start: (new Date()).getTime()});
+(function (d, w) {
+   var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true;
+   ts.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//top-fwz1.mail.ru/js/code.js";
+   var f = function () {var s = d.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ts, s);};
+   if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }
+})(document, window);
+//]]></script><noscript><div style="position:absolute;left:-10000px;">
+<img src="//top-fwz1.mail.ru/counter?id={{settings.MAIL_RU}};js=na" style="border:0;" height="1" width="1" alt="Рейтинг@Mail.ru" />
+</div></noscript>
+<!-- //Rating@Mail.ru counter -->
+<!-- Rating@Mail.ru logo -->
+<a target="_blank" href="http://top.mail.ru/jump?from=2422333">
+<img src="//top-fwz1.mail.ru/counter?id={{settings.MAIL_RU}};t=432;l=1"
+border="0" height="31" width="88" alt="Рейтинг@Mail.ru"></a>
+<!-- //Rating@Mail.ru logo -->
+<!-- begin of Top100 code -->
+{% endif %}
+        </div>
+      </div>
+    </footer>
+
+    {% endblock %}
+  </body>
+</html>

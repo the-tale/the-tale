@@ -1,0 +1,146 @@
+{% extends "linguistics/templates/base.html" %}
+
+{% import 'linguistics/templates/macros.html' as templates_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
+{% import 'linguistics/macros.html' as linguistics_macros with context %}
+
+{% block title %}{{template.key.text}} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Шаблон «{{template.key.text}}».{% endblock %}
+
+{% block head %}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+    {% if resource.account.is_authenticated %}
+    {{  accounts_macros.personal_message_js() }}
+    {% endif %}
+});
+</script>
+{% endblock %}
+
+
+{% block templates_content %}
+
+{% if template.state.is_REMOVED %}
+<p class="alert alert-danger pgf-template-in-game-message">Фраза удалена. Восстановить удалённые фразы может только модератор.</p>
+{% endif %}
+
+{% if template.state.is_IN_GAME %}
+<p class="alert alert-success pgf-template-in-game-message">Фраза находится в игре.</p>
+{% endif %}
+
+{% if template.state.is_ON_REVIEW %}
+<p class="alert alert-warning pgf-template-on-review-message">Фраза находится на рассмотрении.</p>
+{% endif %}
+
+{% if template_child %}
+<p class="alert alert-success pgf-has-child-message">Эта фраза имеет непроверенную <a href="{{url('linguistics:templates:show', template_child.id)}}">копию</a>.</p>
+{% endif %}
+
+{% if template_parent %}
+<p class="alert alert-success pgf-has-parent-message">Эта фраза явлется копией <a href="{{url('linguistics:templates:show', template_parent.id)}}">другой фразы</a>.</p>
+{% endif %}
+
+<ul>
+  <li>обновлено: <span class="pgf-format-date" data-timestamp="{{ template.updated_at|timestamp }}"></span></li>
+  <li>{{linguistics_macros.contributors_list(contributors)}}</li>
+</ul>
+
+
+{{ templates_macros.key_info(template.key, template.restrictions)}}
+
+<p>
+  Cвойства слов приведены в описании <a href="{{url('linguistics:templates:specification')}}">формата шаблонов</a>.
+</p>
+
+<a href="{{url('linguistics:templates:', key=template.key.value)}}">◀ вернуться к списку шаблонов</a>
+
+<br/>
+<br/>
+
+<h4>Шаблон</h4>
+
+<p style="margin: 1em; margin-top: 0.25em;">
+  <span
+     {% if related_template and related_template.raw_template != template.raw_template %}
+     class="changed-template"
+     rel="tooltip"
+     title="в копии: {{related_template.raw_template}}"
+     {% endif %}>
+    {{template.raw_template}}
+  </span>
+</p>
+
+{% if errors %}
+<h4>Ошибки</h4>
+
+{% for error in errors %}
+<p class="alert alert-danger pgf-verificator-error-message" style="white-space: pre-wrap;">{{error|safe}}</p>
+{% endfor %}
+
+{% endif %}
+
+{% if related_template %}
+{% set related_verificators = related_template.get_all_verificatos() %}
+{% endif %}
+
+{% for verificator in template.get_all_verificatos() %}
+<h4>{{verificator.get_label()}}</h4>
+<p style="margin: 1em; margin-top: 0.25em;">
+  <span
+     {% if related_template and verificator.text != related_verificators[loop.index-1].text %}
+     class="changed-template"
+     rel="tooltip"
+     {% set related_text = related_verificators[loop.index-1].text %}
+     title="в копии: {% if related_text %}{{related_text}}{% else %}нет текста{% endif %}"
+     {% endif %}>
+    {% if verificator.text %}<spen style="white-space: pre-wrap;">{{verificator.text}}</span>
+    {% else %}
+    <p class="alert alert-danger">Не указан проверочный текст.</p>
+    {% endif %}
+  </span>
+</p>
+{% endfor %}
+
+{% if not template.state.is_REMOVED and resource.account.is_authenticated and not resource.account.is_fast %}
+<a class="btn btn-info pgf-edit-button" href="{{url('linguistics:templates:edit', template.id)}}">Редактировать</a>
+
+<a class="btn btn-info pgf-change-key" href="{{url('linguistics:templates:edit-key', template.id)}}">Изменить тип</a>
+{% endif %}
+
+{% if resource.can_moderate_templates %}
+
+{% if template_parent %}
+<a class="btn btn-info pgf-forms-post-simple pgf-replace-button"
+   href="{{url('linguistics:templates:replace', template.id)}}">Заменить родителя</a>
+{% endif %}
+
+{% if template.state.is_ON_REVIEW %}
+<a class="btn btn-success pgf-forms-post-simple pgf-in-game-button"
+   href="{{url('linguistics:templates:in-game', template.id)}}">В игру</a>
+{% endif %}
+
+{% if template.state.is_IN_GAME %}
+<a class="btn btn-warning pgf-forms-post-simple pgf-on-review-button"
+   href="{{url('linguistics:templates:on-review', template.id)}}">Из игры</a>
+{% endif %}
+
+{% if template.state.is_REMOVED %}
+<a class="btn btn-warning pgf-forms-post-simple pgf-restore-button"
+   href="{{url('linguistics:templates:restore', template.id)}}">Восстановить</a>
+{% endif %}
+
+{% endif %}
+
+{% if not template.state.is_REMOVED and not (template_parent or template_child) and (resource.can_moderate_templates or resource.can_be_removed_by_owner and not template_parent) %}
+<a class="btn btn-danger pgf-forms-post-simple pgf-remove-button"
+   href="{{url('linguistics:templates:remove', template.id)}}">Удалить</a>
+{% endif %}
+
+{% if resource.can_edit_templates %}
+{% if template_parent %}
+<a class="btn btn-info pgf-forms-post-simple pgf-detach-button"
+   href="{{url('linguistics:templates:detach', template.id)}}">Отцепить от родителя</a>
+{% endif %}
+{% endif %}
+
+{% endblock %}

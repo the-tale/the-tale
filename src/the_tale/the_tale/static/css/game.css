@@ -1,0 +1,561 @@
+.hero-base-block .hero-level:hover {
+  background-color: #BBB;
+}
+.hero-base-block .free-destiny-points:hover {
+  background-color: #bbbbbb;
+}
+.hero-base-block .record-with-progress {
+  margin: 6px 0;
+  position: relative;
+  padding-left: 20px;
+  padding-right: 5.3em;
+}
+.hero-base-block .record-with-progress:hover {
+  background-color: #e1e6e6;
+}
+.hero-base-block .record-with-progress .game-ui-icon {
+  position: absolute;
+  left: 0px;
+}
+.hero-base-block .record-with-progress .progress {
+  display: inline-block;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.hero-base-block .record-with-progress .text-values {
+  font-size: 11px;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+.hero-base-block .attribute-record {
+  display: inline-block;
+  white-space: nowrap;
+  width: 49%;
+}
+.hero-base-block .attribute-record:hover {
+  background-color: #e1e6e6;
+}
+.hero-base-block .attribute-record .game-ui-icon {
+  vertical-align: middle;
+}
+.hero-base-block .attribute-record .value {
+  vertical-align: middle;
+}
+.shortests-hero-record:hover {
+  background-color: #e1e6e6;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.physic-label {
+  color: #aa4444;
+}
+.magic-label {
+  color: #4444aa;
+}
+.rare-artifact-label {
+  color: #0070dd;
+  font-weight: bold;
+}
+.epic-artifact-label {
+  color: #a335ee;
+  font-weight: bold;
+}
+.normal-artifact-label {
+  font-weight: bold;
+}
+.common-card-label {
+  color: #333333 !important;
+  font-weight: bold !important;
+}
+.tooltip .common-card-label {
+  color: white !important;
+  font-weight: bold !important;
+}
+.uncommon-card-label {
+  color: #30b030 !important;
+  font-weight: bold !important;
+}
+.rare-card-label {
+  color: #0070dd !important;
+  font-weight: bold !important;
+}
+.epic-card-label {
+  color: #a335ee !important;
+  font-weight: bold !important;
+}
+.legendary-card-label {
+  color: #ff8000 !important;
+  font-weight: bold !important;
+}
+.dropdown-menu a:hover.common-card-label {
+  color: white !important;
+}
+.dropdown-menu a:hover.uncommon-card-label {
+  color: white !important;
+}
+.dropdown-menu a:hover.rare-card-label {
+  color: white !important;
+}
+.dropdown-menu a:hover.epic-card-label {
+  color: white !important;
+}
+.dropdown-menu a:hover.legendary-card-label {
+  color: white !important;
+}
+.common-card-bg {
+  background-color: #333333;
+}
+.uncommon-card-bg {
+  background-color: #30b030;
+}
+.rare-card-bg {
+  background-color: #0070dd;
+}
+.epic-card-bg {
+  background-color: #a335ee;
+}
+.legendary-card-bg {
+  background-color: #ff8000;
+}
+.physic-power {
+  color: #aa4444;
+}
+.magic-power {
+  color: #4444aa;
+}
+.hero-equipment-block .equip-record {
+  padding-top: 0.1em;
+}
+.hero-equipment-block .equip-record.has-artifact {
+  cursor: pointer;
+}
+.hero-equipment-block .equip-record:hover {
+  background-color: #e1e6e6;
+}
+.hero-equipment-block .equip-record .game-ui-icon {
+  vertical-align: middle;
+}
+.hero-equipment-block .equip-record .name {
+  font-size: 10pt;
+  margin-left: 0.25em;
+  overflow: hidden;
+}
+.hero-equipment-block .equip-record .power-container {
+  float: right;
+}
+#equipment-tabs a {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+#hero-bag-block .bag-record {
+  margin-top: 5px;
+  cursor: default;
+  overflow: hidden;
+  cursor: pointer;
+}
+#hero-bag-block .bag-record:hover {
+  background-color: #e1e6e6;
+}
+#hero-bag-block .bag-record i {
+  vertical-align: middle;
+}
+#hero-bag-block .bag-record .name {
+  font-size: 10pt;
+  margin-left: 0.25em;
+  vertical-align: middle;
+}
+#hero-bag-block .bag-record .power-container {
+  vertical-align: middle;
+}
+#hero-bag-block .bag-record .count-container {
+  vertical-align: middle;
+}
+.quests-line {
+  border-bottom: 3px solid #cccccc;
+  margin-bottom: 1em;
+}
+.quests-line:last-child {
+  border-bottom: none;
+}
+.quests-line .quest-record:hover {
+  background-color: #e1e6e6;
+}
+.quest-icon {
+  width: 64px;
+  height: 64px;
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 0;
+}
+.quest-icon.caravan {
+  background: url('../game/images/quests.png') no-repeat scroll 0 0 transparent;
+}
+.quest-icon.delivery {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -64px transparent;
+}
+.quest-icon.help {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -128px transparent;
+}
+.quest-icon.help_friend {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -192px transparent;
+}
+.quest-icon.hometown {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -256px transparent;
+}
+.quest-icon.hunt {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -320px transparent;
+}
+.quest-icon.interfere_enemy {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -384px transparent;
+}
+.quest-icon.collect_debt {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -448px transparent;
+}
+.quest-icon.spying {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -512px transparent;
+}
+.quest-icon.search_smith {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -576px transparent;
+}
+.quest-icon.no-quest {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -640px transparent;
+}
+.quest-icon.next-spending {
+  background: url('../game/images/quests.png') no-repeat scroll 0 -704px transparent;
+}
+.quest-icon.pilgrimage {
+  background: url('../game/images/quests.png') no-repeat scroll -64px -320px transparent;
+}
+.quest-record {
+  min-height: 84px;
+  cursor: default;
+}
+.quest-record .quest-body {
+  padding-left: 70px;
+}
+.quest-record .choices {
+  margin-top: 0.5em;
+  margin-bottom: 1em;
+}
+.quest-record .actors-container {
+  margin: 0;
+}
+.choice-record.disabled .choice-link {
+  color: #999999;
+  margin-left: 1em;
+}
+.choice-record.disabled .character-warning {
+  display: inline;
+}
+.choice-record .character-warning {
+  display: none;
+}
+.first-row-block {
+  min-height: 300px;
+}
+.second-row-block {
+  min-height: 400px;
+}
+.log-block {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 350px;
+}
+.log-record {
+  cursor: default;
+}
+.log-record:hover {
+  background-color: #e1e6e6;
+}
+.log-record .time {
+  display: inline;
+  float: left;
+  /* color: */
+}
+.log-record .message {
+  margin-left: 1em;
+  /* padding-left: 0.5em; */
+}
+.log-record .message .submessage {
+  margin-bottom: 0.75em;
+  display: inline-block;
+}
+.diary-record {
+  cursor: default;
+}
+.diary-record:hover {
+  background-color: #e1e6e6;
+}
+.diary-record .datetime {
+  font-style: italic;
+}
+.diary-record .message {
+  margin-left: 1em;
+}
+.diary-record .message .submessage {
+  margin-bottom: 0.75em;
+  display: inline-block;
+}
+#pgf-map-block {
+  position: relative;
+}
+#pgf-map-block .map-commands {
+  position: absolute;
+  right: -1px;
+  top: 0;
+  z-index: 503;
+  background-color: #f5fafa;
+  /* border: 1px solid @border-color; */
+  border-bottom-left-radius: 8px;
+  padding: 0.25em;
+  margin-right: 0.75em;
+  margin-top: 0.75em;
+}
+.place-description-dialog {
+  cursor: default;
+}
+.place-description-dialog .dialog-title span {
+  vertical-align: middle;
+}
+.place-description-dialog .description {
+  min-height: 70px;
+  text-align: justify;
+  padding-right: 0.5em;
+}
+.place-description-dialog .description img {
+  float: left;
+}
+.place-description-dialog .data-updated-time {
+  color: #999999;
+}
+.place-description-dialog .person-table {
+  margin-bottom: 0;
+}
+.place-description-dialog .person-table .person-power {
+  width: 150px;
+}
+.place-description-dialog .person-record {
+  min-height: 32px;
+  margin-top: 1em;
+  cursor: default;
+}
+.place-description-dialog .person-record .progress {
+  width: 100px;
+  display: inline-block;
+  margin: 0;
+  vertical-align: middle;
+  margin-bottom: 1px;
+}
+#abilities-block {
+  text-align: center;
+  font-size: 14pt;
+}
+.angel-ability.wait,
+.angel-ability.no-energy,
+.angel-ability.no-registration,
+.angel-ability.no-charges,
+.angel-ability.energy-exists,
+.angel-ability.no-items {
+  color: #999999;
+  text-decoration: none;
+}
+.angel-ability .icon-tint {
+  display: none;
+  vertical-align: middle;
+}
+.angel-ability .icon-ban-circle {
+  display: none;
+  vertical-align: middle;
+}
+.angel-ability .icon-bell {
+  display: none;
+  vertical-align: middle;
+}
+.angel-ability.no-energy .icon-tint {
+  display: inline-block;
+}
+.angel-ability.no-charges .icon-tint {
+  display: inline-block;
+}
+.angel-ability.no-registration .icon-ban-circle {
+  display: inline-block;
+}
+.angel-ability.energy-exists .icon-bell {
+  display: inline-block;
+}
+.angel-ability.no-items .icon-bell {
+  display: inline-block;
+}
+.game-ui-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+}
+.game-ui-icon.health {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 0 transparent;
+}
+.game-ui-icon.experience {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -16px transparent;
+}
+.game-ui-icon.energy {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -32px transparent;
+}
+.game-ui-icon.physic-power {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -48px transparent;
+}
+.game-ui-icon.magic-power {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -64px transparent;
+}
+.game-ui-icon.gold {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -80px transparent;
+}
+.game-ui-icon.hand_primary {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -96px transparent;
+}
+.game-ui-icon.hand_secondary {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -112px transparent;
+}
+.game-ui-icon.helmet {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -128px transparent;
+}
+.game-ui-icon.amulet {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -144px transparent;
+}
+.game-ui-icon.shoulders {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -160px transparent;
+}
+.game-ui-icon.plate {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -176px transparent;
+}
+.game-ui-icon.gloves {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -192px transparent;
+}
+.game-ui-icon.cloak {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -208px transparent;
+}
+.game-ui-icon.pants {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -224px transparent;
+}
+.game-ui-icon.boots {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -240px transparent;
+}
+.game-ui-icon.ring {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -256px transparent;
+}
+.game-ui-icon.might {
+  background: url('../game/images/game_ui.png') no-repeat scroll 0 -288px transparent;
+}
+.profession-icon-container {
+  vertical-align: middle !important;
+  width: 32px;
+}
+.profession-icon-container:hover {
+  background-color: #e1e6e6 !important;
+}
+.profession-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.profession-icon.alchemist {
+  background: url('../game/images/professions.png') no-repeat scroll 0 0 transparent;
+}
+.profession-icon.aristocrat {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -32px transparent;
+}
+.profession-icon.bard {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -64px transparent;
+}
+.profession-icon.bureaucrat {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -96px transparent;
+}
+.profession-icon.magician {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -128px transparent;
+}
+.profession-icon.rogue {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -160px transparent;
+}
+.profession-icon.tamer {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -192px transparent;
+}
+.profession-icon.blacksmith {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -224px transparent;
+}
+.profession-icon.physician {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -256px transparent;
+}
+.profession-icon.mayor {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -288px transparent;
+}
+.profession-icon.hunter {
+  background: url('../game/images/professions.png') no-repeat scroll 0 -320px transparent;
+}
+.profession-icon.executioner {
+  background: url('../game/images/professions.png') no-repeat scroll -32px 0 transparent;
+}
+.profession-icon.carpenter {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -32px transparent;
+}
+.profession-icon.tailor {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -64px transparent;
+}
+.profession-icon.fisherman {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -96px transparent;
+}
+.profession-icon.priest {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -128px transparent;
+}
+.profession-icon.herdsman {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -160px transparent;
+}
+.profession-icon.warden {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -192px transparent;
+}
+.profession-icon.merchant {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -224px transparent;
+}
+.profession-icon.innkeeper {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -256px transparent;
+}
+.profession-icon.farmer {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -288px transparent;
+}
+.profession-icon.miner {
+  background: url('../game/images/professions.png') no-repeat scroll -32px -320px transparent;
+}
+.log-short {
+  font-weight: bold;
+}
+.log-short.log-short-hp-up {
+  color: green;
+}
+.log-short.log-short-hp-down {
+  color: red;
+}
+.log-short.log-short-gold-up {
+  color: #FF6600;
+}
+.log-short.log-short-gold-down {
+  color: #FF6600;
+}
+.log-short.log-short-exp-up {
+  color: #6600FF;
+}
+.log-short.log-short-exp-down {
+  color: #6600FF;
+}
+.log-short.log-short-energy-up {
+  color: blue;
+}
+.log-short.log-short-energy-down {
+  color: blue;
+}
+.log-short.log-short-effectiveness-up {
+  color: #993300;
+}
+.log-short.log-short-effectiveness-down {
+  color: #993300;
+}

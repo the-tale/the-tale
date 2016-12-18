@@ -1,0 +1,75 @@
+{% extends "ratings/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+
+{% block title %} {{ rating_type.text }} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Рейтинг игроков: {{ rating_type.text }}{% endblock %}
+
+{% block ratings_content %}
+
+<h2>
+  Рейтинги
+  {% if ratings_updated_at_timestamp is not none %}
+  <small style="font-size: 10pt;">время обновления: <span class="pgf-format-datetime" data-timestamp="{{ratings_updated_at_timestamp}}"></span></small>
+  {% endif %}
+</h2>
+
+<ul class="nav nav-pills">
+  {% for menu_rating in RATING_TYPE.records %}
+  <li {% if rating_type == menu_rating %}class="active"{% endif %}><a href="{{ url('game:ratings:show', menu_rating.value) }}">{{menu_rating.text}}</a></li>
+  {% endfor %}
+</ul>
+
+{% if ratings %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>место</th>
+      <th>хранитель</th>
+      <th>герой</th>
+      <th>
+        {{rating_type.text|lower}}
+        {% if rating_type.hint %}
+        <i class="icon icon-info-sign" style="vertical-align: middle;" rel="tooltip" title="{{rating_type.hint}}"></i>
+        {% endif %}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for rating in ratings %}
+
+    {% set hero = heroes[rating.account_id] %}
+
+    <tr {% if resource.account.is_authenticated and resource.account.id == rating.account.id %}style="font-weight: bold; font-size: 12pt;"{% endif %}>
+      <td>{{ place_getter(rating) }}</td>
+      <td>
+        <a href="{{url('accounts:show', rating.account_id)}}">{{ rating.account.nick_verbose }}</a>
+        {% set clan = clans.get(rating.account.clan_id) %}
+        {% if clan is not none %}
+        <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+        {% endif %}
+      </td>
+      <td>{{ hero.gender_verbose}} {{ hero.race_verbose }} <a href="{{url('game:heroes:show', hero.id)}}">{{ hero.name }}</a></td>
+      <td>{{ value_getter(values[rating.account_id]) }}</td>
+    </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
+
+{{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+
+<p class="alert alert-info">
+  В рейтинге пока нет ни одного игрока
+</p>
+
+{% endif %}
+
+
+{% endblock %}

@@ -1,0 +1,24 @@
+
+- name: install packages
+  hosts: all
+  become: yes
+  become_user: root
+
+  tasks:
+
+    - name: setup basic packages
+      apt: name={{item}} state=installed
+      with_items:
+        - emacs
+        - python-dev
+        - python3-dev
+        - python-psycopg2
+        - virtualenv
+        - python-pip
+        - supervisor
+        - libffi-dev
+        - g++
+        - libssl-dev
+
+    - name: start supervisor
+      raw: systemctl start supervisor

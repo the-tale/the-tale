@@ -1,0 +1,138 @@
+{% extends "blogs/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'forum/thread_page.html' as thread_page with context %}
+
+{% block title %} {{ post.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %} Фольклорное произведение «{{post.caption}}».{% endblock %}
+
+
+
+{% block blogs_content %}
+
+<h3 style="display: inline-block;">{{ post.caption }} {{base_macros.magnet(post_meta_object)}}</h3>
+
+<div class="blog-post-info">
+  <span class="text">
+    <span class="pgf-format-datetime"
+          data-timestamp="{{ post.created_at|timestamp }}"
+          style="cursor: default;"
+          rel="tooltip"
+          title="{{post.created_at_turn|verbose_game_date}}"></span>,
+  </span>
+  <span class="text">автор:</span>
+  <a href="{{url('accounts:show', post.author.id)}}">
+    {{post.author.nick_verbose}}
+    {% if post.author.clan %}
+    <a href="{{url('accounts:clans:show', post.author.clan.id)}}">[{{post.author.clan.abbr}}]</a>
+    {% endif %}
+  </a>
+
+  {% if resource.account.is_authenticated %}
+  {%if vote is not none%}
+  <a class="pgf-forms-post-simple blog-post-vote-link pgf-remove-vote-button"
+     href="{{ url('blogs:posts:unvote', post.id) }}" rel="tooltip" title="отозвать голос">
+    <span class="blog-post-vote label label-success">+</span>
+  </a>
+  {% else %}
+  <a class="pgf-forms-post-simple blog-post-vote-link pgf-add-vote-button"
+     href="{{ url('blogs:posts:vote', post.id) }}" rel="tooltip" title="понравилось">
+    <span class="blog-post-vote label">+</span>
+  </a>
+  {% endif %}
+  {% endif %}
+
+  <span class="text">рейтинг:</span>
+  <span class="blog-post-rating label {% if post.votes > 0 %}label-success{% endif %} {% if post.votes < 0 %}label-important{% endif %}">
+    {{ post.votes }}
+  </span>
+
+</div>
+
+<p>
+  {% if not tags %}
+    <span class="label">у произведения нет меток</spanb>
+  {% else %}
+    {% for tag in tags %}
+      <span style="cursor: default;" class="label label-success" rel="tooltip" title="{{tag.description}}">{{tag.name}}</span>
+    {% endfor %}
+  {% endif %}
+  <i style="vertical-align: middle;" class="icon icon-info-sign" rel="tooltip" title="Метки устанавливает администрация по просьбе сообщества игроков. Чтобы установить метку произведению обратитесь в соответствующую тему на форуме."></i>
+</p>
+
+<div class="pagination">
+  <ul>
+    <li>
+      {{ base_macros.addthis_short(post.caption, description=post.text_html|safe, url=full_url('http', 'blogs:posts:show', post.id)) }}
+    </li>
+
+    <li>
+      <a href="{{url('forum:threads:show', post.forum_thread_id)}}">форум</a>
+    </li>
+
+    {% if resource.account.is_authenticated and resource.account.id == post.author.id %}
+    <li class="" style="margin-left: 0.5em;">
+      <a href="{{ url('blogs:posts:edit', post.id) }}">редактировать</a>
+    </li>
+    {% else %}
+    <li class="" style="margin-left: 0.5em;">
+      <a href="{{forum_complaint_theme()}}">пожаловаться</a>
+    </li>
+    {% endif %}
+
+    {% if resource.can_moderate_post %}
+    <li class="" style="margin-left: 0.5em;">
+      <a href="{{url('blogs:posts:edit-tags', post.id)}}">редактировать теги</a>
+    </li>
+
+    {% if not post.state.is_ACCEPTED %}
+    <li class="" style="margin-left: 0.5em;">
+      <a class="pgf-forms-post-simple" href="{{url('blogs:posts:accept', post.id)}}">принять</a>
+    </li>
+    {% endif %}
+
+    {% if not post.state.is_DECLINED %}
+    <li class="" style="margin-left: 0.5em;">
+      <a class="pgf-forms-post-simple" href="{{url('blogs:posts:decline', post.id)}}">заблокировать</a>
+    </li>
+    {% endif %}
+    {% endif %}
+  </ul>
+</div>
+
+{% if is_about_objects %}
+
+<div class="accordion" id="pgf-blog-post-is-about">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-blog-post-is-about" href="#pgf-blog-post-is-about-intro">
+        Это произведение о…
+      </a>
+    </div>
+    <div id="pgf-blog-post-is-about-intro" class="accordion-body collapse" style="height: 0px; padding-left: 10px; padding-right: 10px;">
+
+      <table class="table table-condensed table-striped table-bordered">
+        <tbody>
+          {% for object in is_about_objects %}
+            <tr>
+              <td width="75px">{{object.TYPE_CAPTION}}</td>
+              <td><a href="{{object.url}}" target="_blank">{{object.caption}}</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+
+<div class="blog-post-content">
+  {{ post.text_html|safe }}
+</div>
+
+{{ thread_page.thread_page(thread_data) }}
+
+{% endblock %}

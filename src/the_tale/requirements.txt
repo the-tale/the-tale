@@ -1,0 +1,7 @@
+pynames==0.2.1
+utg==0.2.0
+rels==0.2.2.2
+
+-e git+https://github.com/Tiendil/dext.git@v0.3.0#egg=Dext
+-e git+https://github.com/Tiendil/deworld.git@v0.2.0#egg=DeWorld
+-e git+https://github.com/Tiendil/questgen.git@v0.3.0#egg=Questgen

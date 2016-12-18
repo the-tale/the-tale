@@ -1,0 +1,14 @@
+
+- name: install packages, required for developmentconfigure host
+  hosts: all
+  become: yes
+  become_user: root
+
+  tasks:
+
+    - apt: name={{item}} state=installed
+      with_items:
+        - node-less
+        - unzip
+
+    - script: ../scripts/install_protobuf.sh

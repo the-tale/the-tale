@@ -9,3 +9,8 @@ env/
 checkers/pylint.html
 settings_local.py
 profile.info
+.vagrant
+ubuntu-xenial-16.04-cloudimg-console.log
+game_server.retry
+ansible.log
+__pycache__

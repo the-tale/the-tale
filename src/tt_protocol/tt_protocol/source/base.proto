@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+
+message ApiError {
+  string code = 1;
+  string message = 2;
+  google.protobuf.Any details = 3;
+}
+
+
+message ApiResponse {
+
+  enum Status {
+    SUCCESS = 0;
+    ERROR = 1;
+  }
+
+  Status status = 1;
+
+  double server_time = 2;
+
+  oneof answer {
+    google.protobuf.Any data = 3;
+    ApiError error = 4;
+  }
+}

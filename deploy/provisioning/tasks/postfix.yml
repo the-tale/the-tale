@@ -1,0 +1,31 @@
+- name: configure postfix
+  hosts: all
+  become: yes
+  become_user: root
+
+  tasks:
+
+    - name: Ensure postfix is installed
+      apt: name=postfix state=installed
+
+    - name: install configs
+      template:
+        src: ../templates/postfix.cf
+        dest: /etc/postfix/main.cf
+        mode: 0644
+        owner: root
+        group: root
+
+    - name: configure virtual aliases
+      template:
+        src: ../templates/postfix_virtual_aliases
+        dest: /etc/postfix/virtual
+        mode: 0644
+        owner: root
+        group: root
+
+    - name: update aliases
+      raw: newaliases
+
+    - name: Ensure postfix is started and enabled at boot.
+      service: name=postfix state=started enabled=yes

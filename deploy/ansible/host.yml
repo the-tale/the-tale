@@ -1,5 +1,0 @@
----
-- hosts: all
-  roles:
-     - { role: docker, become: yes }
-     - { role: developer-host, tags: dev }

@@ -1,0 +1,57 @@
+{% extends "bills/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'bills/macros.html' as bills_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+
+{% block title %}Политика | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Выдвинутые игроками законы.{% endblock %}
+
+{% block bills_content %}
+
+{% if not resource.account.is_authenticated %}
+{{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
+{% elif resource.active_bills_limit_reached %}
+
+<p class="alert alert-info pgf-active-bills-limit-reached">
+  Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению.
+</p>
+
+{% elif not resource.can_participate_in_politics %}
+
+<p class="alert alert-info pgf-can-not-participate-in-politics">
+  Предлагать законы только игроки, завершившие регистрацию.
+</p>
+
+{% endif %}
+
+<p>
+  Жизнью Пандоры управляют игроки. В этом разделе Вы можете напрямую принять участие в управлении миром, жизни его городов и их жителей.
+</p>
+
+<p>
+  Подробнее о системе политики можно почитать в <a href="{{url('guide:politics')}}">Путеводителе</a>.
+</p>
+
+
+{{ list_filter_macros.html_filter(index_filter) }}
+
+{% if bills %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+<ul class="unstyled">
+  {% for bill in bills %}
+  <li style="margin-bottom: 1em;">
+    {{ bills_macros.bill_record(bill, votes.get(bill.id)) }}
+  </li>
+  {% endfor %}
+</ul>
+
+{{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+<span class="pgf-no-bills-message">Не найдено законопроектов, отвечающих условиям поиска</span>
+{% endif %}
+
+{% endblock %}
