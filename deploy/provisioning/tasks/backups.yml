@@ -3,13 +3,31 @@
   become: yes
   become_user: root
 
-  roles:
-    - Stouts.backup
+  tasks:
 
-  vars:
-    backup_target_user: "{{tt_backups['user']}}"
-    backup_target_pass: "{{tt_backups['password']}}"
-    backup_volsize: 1000000 # 1Tb, store only full backups
-    backup_full_max_age: 0  # make full backup every time
-    backup_max_full_backups: 1000000 # do not delete backups
-    backup_profiles: "{{tt_backups['profiles']}}"
+    - name: create environment
+      pip:
+        name: "{{item}}"
+        virtualenv: "/root/venv_backups"
+        virtualenv_command: virtualenv
+        virtualenv_python: python3.5
+      with_items:
+        - awscli
+
+    - name: "create root bin directory"
+      file: "path=/root/bin state=directory mode=0755 owner=root group=root"
+
+    - name: "install backup script"
+      template:
+        src: ../templates/postgresql_backup.sh
+        dest: /root/bin/postgresql_backup.sh
+        mode: 0700
+        owner: root
+        group: root
+
+    - name: configure cron
+      cron:
+        cron_file: postgresql_backup
+        hour: 3
+        user: root
+        job: /root/bin/postgresql_backup.sh &>> /var/log/postgresql_backup.log
