@@ -214,7 +214,7 @@ class AbilitiesPrototype(object):
         candidates = self._get_candidates()
 
         # sort to freeze random operations result on candidates
-        candidates.sort(key=lambda a: a.TYPE.value)
+        candidates.sort(key=lambda a: a.NAME)
 
         random_state = random.getstate()
         random.seed(self.hero.id + self.destiny_points_spend, version=1)
