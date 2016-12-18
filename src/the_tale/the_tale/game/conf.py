@@ -26,7 +26,7 @@ game_settings = app_settings('GAME',
 
                              SAVED_UNCACHED_HEROES_FRACTION=0.00025,
 
-                             JS_CONSTNATS_FILE_LOCATION='./the_tale/static/game/data/constants.js',
+                             JS_CONSTNATS_FILE_LOCATION=os.path.join(APP_DIR, '../static/game/data/constants.js'),
 
                              COLLECT_GARBAGE=True,
                              COLLECT_GARBAGE_PERIOD=20, # in turns

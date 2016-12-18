@@ -52,4 +52,4 @@ class Command(BaseCommand):
                                            'SPRITES': SPRITES,
                                            'CELL_SIZE': map_settings.CELL_SIZE,
                                            'LINGUISTICS_FORMATTERS': LINGUISTICS_FORMATTERS
-                                          }).encode('utf-8'))
+                                          }))

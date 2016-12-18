@@ -9,14 +9,12 @@
 }
 .blog-post-info a {
   /* color: @disabled-text-color; */
-
 }
 .blog-post-info .blog-post-vote-link {
   text-decoration: none !important;
 }
 .blog-post-info .blog-post-vote {
   /* color: white; */
-
   display: inline-block;
   width: 1em;
   text-align: center;

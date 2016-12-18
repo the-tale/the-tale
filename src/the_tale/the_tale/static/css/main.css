@@ -1,27 +1,15 @@
 @import "game.css";
-
 @import "accounts.css";
-
 @import "hero_page.css";
-
 @import "forum.css";
-
 @import "news.css";
-
 @import "forms.css";
-
 @import "guide.css";
-
 @import "politics.css";
-
 @import "newspaper.css";
-
 @import "pvp.css";
-
 @import "blogs.css";
-
 @import "mobs.css";
-
 @import "linguistics.css";
 html {
   height: 100%;
@@ -32,9 +20,7 @@ body {
   word-wrap: break-word;
   background-color: #ebf0f0 !important;
   /* old style blocks */
-
   /* new style blocks */
-
 }
 body #main-container {
   height: 100%;
@@ -46,7 +32,7 @@ body #main-container #content {
 }
 body div.block,
 body li.block {
-  background-color: WhiteSmoke;
+  background-color: #f5f5f5;
   border: 1px solid #cccccc;
   border-radius: 8px;
   padding: 0.75em;

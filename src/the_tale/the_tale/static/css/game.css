@@ -273,12 +273,10 @@
   display: inline;
   float: left;
   /* color: */
-
 }
 .log-record .message {
   margin-left: 1em;
   /* padding-left: 0.5em; */
-
 }
 .log-record .message .submessage {
   margin-bottom: 0.75em;
@@ -310,7 +308,6 @@
   z-index: 503;
   background-color: #f5fafa;
   /* border: 1px solid @border-color; */
-
   border-bottom-left-radius: 8px;
   padding: 0.25em;
   margin-right: 0.75em;
