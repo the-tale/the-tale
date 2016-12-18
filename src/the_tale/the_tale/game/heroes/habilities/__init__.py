@@ -211,10 +211,13 @@ class AbilitiesPrototype(object):
 
     def get_for_choose(self):
 
+        candidates = self._get_candidates()
+
+        # sort to freeze random operations result on candidates
+        candidates.sort(key=lambda a: a.TYPE.value)
+
         random_state = random.getstate()
         random.seed(self.hero.id + self.destiny_points_spend)
-
-        candidates = self._get_candidates()
 
         abilities = self._get_for_choose(candidates,
                                          max_old_abilities_for_choose=c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM,
