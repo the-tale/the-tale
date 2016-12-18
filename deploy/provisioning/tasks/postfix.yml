@@ -24,8 +24,11 @@
         owner: root
         group: root
 
-    - name: update aliases
+    - name: update aliases (old way)
       raw: newaliases
+
+    - name: update aliases (new way)
+      raw: postmap /etc/postfix/virtual
 
     - name: Ensure postfix is started and enabled at boot.
       service: name=postfix state=started enabled=yes
