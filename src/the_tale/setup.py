@@ -48,7 +48,7 @@ setuptools.setup(
                       'psutil==4.4.2',
                       'requests==2.12.1',
                       'protobuf==3.1.0.post1',
-                      'uwsgi==2.0.14'],
+                      'gunicorn==19.6.0'],
 
     include_package_data=True,
     test_suite = 'tests' )
