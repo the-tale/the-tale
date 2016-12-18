@@ -217,7 +217,7 @@ class AbilitiesPrototype(object):
         candidates.sort(key=lambda a: a.TYPE.value)
 
         random_state = random.getstate()
-        random.seed(self.hero.id + self.destiny_points_spend)
+        random.seed(self.hero.id + self.destiny_points_spend, version=1)
 
         abilities = self._get_for_choose(candidates,
                                          max_old_abilities_for_choose=c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM,
