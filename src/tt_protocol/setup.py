@@ -6,7 +6,7 @@ import setuptools
 VERSION = '0.1'
 
 setuptools.setup(
-    name='TTPRotocol',
+    name='TTProtocol',
     version=VERSION,
     description='The Tale protocol buffers communication protocol desctiption',
     long_description = 'The Tale protocol buffers communication protocol desctiption',
