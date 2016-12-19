@@ -61,7 +61,7 @@ class RecordPrototype(BasePrototype):
     @classmethod
     def select_values(cls, *argv, **kwargs):
         data = cls.select(*argv, **kwargs)
-        return zip(*data)[1]
+        return next(next(zip(*data)))
 
     @classmethod
     def select_for_js(cls, type, date_from, date_to):
