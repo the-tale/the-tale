@@ -264,7 +264,7 @@ class IncomeFromGroupsBase(BaseMetric):
         if not invoices:
             return 0
 
-        recipients = set(self.filter_recipients(zip(*invoices)[0]))
+        recipients = set(self.filter_recipients(next(zip(*invoices))))
 
         return sum([amount for recipient_id, amount in invoices if recipient_id in recipients], 0)
 

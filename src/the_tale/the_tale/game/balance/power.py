@@ -30,7 +30,7 @@ class Power(object):
 
     @classmethod
     def clean_power_for_hero_level(cls, level):
-        half_power = level * c.POWER_PER_LVL / 2 + 1
+        half_power = level * c.POWER_PER_LVL // 2 + 1
         return cls(half_power, half_power)
 
     def total(self):

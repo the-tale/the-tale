@@ -1,0 +1,27 @@
+
+- include: ../tasks/bootstrap_ansible.yml
+
+- include: ../tasks/configure_system.yml
+
+- include: ../tasks/dev_environment.yml
+  when: "{{tt_test_enviroment}}"
+
+- include: ../tasks/install_packages.yml
+
+- include: ../tasks/firewall.yml
+
+- include: ../tasks/postgresql.yml
+- include: ../tasks/redis.yml
+- include: ../tasks/rabbitmq.yml
+
+- include: ../tasks/nginx.yml
+  when: "{{tt_install_nginx}}"
+
+- include: ../tasks/postfix.yml
+  when: "{{tt_install_postfix}}"
+
+- include: ../tasks/backups.yml
+  when: "{{tt_backups}}"
+
+- include: ../tasks/datadog.yml
+  when: "{{not tt_test_enviroment}}"

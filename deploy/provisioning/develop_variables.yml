@@ -12,7 +12,6 @@ tt_authorized_keys: []
 
 tt_services:
   the_tale:
-    settings_local: None
     packages:
       - {editable: True, extra: "-e", name: "/mnt/repos/dext/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/deworld/"}
@@ -23,7 +22,6 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/the_tale/"}
   tt_diary:
-    settings_local: None
     packages:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_diary/"}

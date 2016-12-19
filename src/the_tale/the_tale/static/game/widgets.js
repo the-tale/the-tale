@@ -1309,23 +1309,29 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
         var lastTimestamp = -1;
         var lastGameTime = undefined;
 
-        if (messages.length > 0)  messages.shift(); // if messages has elements, remove last since it can be not full
+        if (messages.length > 0) {
+            messages.shift(); // if messages has elements, remove last since it can be not full
 
-        if (messages.length > 0) lastTimestamp = messages[0][1][messages[0][1].length-1].timestamp; //get linux timestamp
-        if (messages.length > 0) lastGameTime = messages[0].game_time; //get game time
+            var lastMessage = messages[0][1][messages[0][1].length-1];
+
+            lastTimestamp = lastMessage.timestamp;
+            lastGameTime = lastMessage.game_time;
+        }
 
         for (var i=0; i<=turnMessages.length-1; ++i) {
 
-            if (turnMessages[i][0] <= lastTimestamp) continue;
+            var message = turnMessages[i];
 
-            if (lastGameTime == turnMessages[i].game_time + turnMessages[i].game_date) {
-                messages[0][1].push(turnMessages[i]);
+            if (message.timestamp <= lastTimestamp) continue;
+
+            if (lastGameTime == message.game_time + message.game_date) {
+                messages[0][1].push(message);
             }
             else {
-                messages.unshift([turnMessages[i].game_time, [turnMessages[i]]]);
+                messages.unshift([message.game_time, [message]]);
             }
 
-            lastGameTime = turnMessages[i].game_time + turnMessages[i].game_date;
+            lastGameTime = message.game_time + message.game_date;
         }
 
         for (var i=0; i<=messages.length - MESSAGES_MAX_LENGTH; i++){
