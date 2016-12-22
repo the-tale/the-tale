@@ -38,6 +38,9 @@ class BaseEffect(object):
         after_update_operations = []
 
         for hero_id in positive_heroes:
+            if hero_id not in heroes_to_accounts:
+                continue # skip removed fast accounts
+
             operation = self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
                                                 hero_id=hero_id,
                                                 method_name=method_names[0],
@@ -47,6 +50,9 @@ class BaseEffect(object):
         negative_kwargs = dict(message_type=self.message_type(actor_type, effect, direction, 'enemies'), **method_kwargs)
 
         for hero_id in negative_heroes:
+            if hero_id not in heroes_to_accounts:
+                continue # skip removed fast accounts
+
             operation = self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
                                                 hero_id=hero_id,
                                                 method_name=method_names[1],
