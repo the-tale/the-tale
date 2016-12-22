@@ -27,6 +27,7 @@
 
     - name: configure cron
       cron:
+        name: postgres backup
         cron_file: postgresql_backup
         hour: 3
         user: root
