@@ -216,9 +216,9 @@ class ResourceExchangePrototype(BasePrototype):
         return BillPrototype.get_by_id(self.bill_id)
 
     def get_resources_for_place(self, place):
-        if place.id == self.place_1.id:
+        if self.place_1 and place.id == self.place_1.id:
             return (self.resource_1, self.resource_2, self.place_2)
-        if place.id == self.place_2.id:
+        if self.place_2 and place.id == self.place_2.id:
             return (self.resource_2, self.resource_1, self.place_1)
         return (relations.RESOURCE_EXCHANGE_TYPE.NONE, relations.RESOURCE_EXCHANGE_TYPE.NONE, None)
 
