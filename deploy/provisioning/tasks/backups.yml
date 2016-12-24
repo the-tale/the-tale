@@ -29,6 +29,7 @@
       cron:
         name: postgres backup
         cron_file: postgresql_backup
+        minute: 0
         hour: 3
         user: root
         job: /root/bin/postgresql_backup.sh &>> /var/log/postgresql_backup.log
