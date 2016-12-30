@@ -17,7 +17,7 @@ from the_tale.accounts.logic import get_system_user
 
 
 @receiver(portal_signals.day_started, dispatch_uid='portal_day_started')
-def portal_day_started(sender, **kwargs): # pylint: disable=W0613
+def portal_day_started(sender, **kwargs):
     accounts_query = AccountPrototype.live_query().filter(active_end_at__gt=datetime.datetime.now(),
                                                           ban_game_end_at__lt=datetime.datetime.now(),
                                                           ban_forum_end_at__lt=datetime.datetime.now(),
@@ -27,9 +27,18 @@ def portal_day_started(sender, **kwargs): # pylint: disable=W0613
     if accounts_number < 1:
         return
 
-    account_model = accounts_query[random.randint(0, accounts_number-1)]
+    account = None
 
-    account = AccountPrototype(model=account_model)
+
+    for i in range(1000):
+        account_model = accounts_query[random.randint(0, accounts_number-1)]
+        account = AccountPrototype(model=account_model)
+
+        # explicity check for premium, since infinit subscribers does not filtered by previouse query
+        if not account.is_premium:
+            break
+    else:
+        return # if not premium account does not found
 
     settings[portal_settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY] = str(account.id)
 
