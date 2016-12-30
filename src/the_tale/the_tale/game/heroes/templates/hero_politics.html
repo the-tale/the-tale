@@ -44,9 +44,9 @@
     </tbody>
   </table>
 
-  <h3>Помощь городам</h3>
+  <h3>Известность</h3>
 
-  <p>Города, которым герой помогает чаще.</p>
+  <p>Известность героя в городах Пандоры. Чем чаще герой помогает городу, тем больше его известность.</p>
 
   {% set places_history = resource.hero.places_history.get_most_common_places() %}
 
@@ -58,13 +58,13 @@
           <tr>
             <th width="30px">№</th>
             <th >город</th>
-            <th width="100px">помогал (раз)</th>
+            <th width="100px">известность</th>
           </tr>
           {% for place, count in places_history %}
             <tr>
               <td>{{loop.index}}</td>
               <td><a href="{{url('game:places:show', place.id)}}">{{place.name}}</a></td>
-              <td>{{count|round(1)}}</td>
+              <td>{{count|float|round(1)}}</td>
             </tr>
           {% endfor %}
         </tbody>
