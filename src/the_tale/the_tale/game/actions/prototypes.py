@@ -1218,30 +1218,31 @@ class ActionFirstStepsPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id):
-        hero.add_message('action_first_steps_initiation_diary', diary=True, hero=hero)
-        hero.add_message('action_first_steps_initiation', hero=hero)
+        hero.add_message('action_first_steps_initiation_diary', diary=True, hero=hero, place=hero.position.place)
+        hero.add_message('action_first_steps_initiation', hero=hero, place=hero.position.place)
 
         return cls( hero=hero,
                     bundle_id=bundle_id,
                     state=cls.STATE.THINK_ABOUT_INITIATION)
 
+
     def process(self):
 
         if self.state == self.STATE.THINK_ABOUT_INITIATION:
             self.percents = 0.33
-            self.hero.add_message('action_first_steps_future', hero=self.hero)
+            self.hero.add_message('action_first_steps_future', hero=self.hero, place=self.hero.position.place)
             self.state = self.STATE.THINK_ABOUT_FUTURE
             return
 
         if self.state == self.STATE.THINK_ABOUT_FUTURE:
             self.percents = 0.66
-            self.hero.add_message('action_first_steps_heroes', hero=self.hero)
+            self.hero.add_message('action_first_steps_heroes', hero=self.hero, place=self.hero.position.place)
             self.state = self.STATE.THINK_ABOUT_HEROES
             return
 
         if self.state == self.STATE.THINK_ABOUT_HEROES:
             self.percents = 1.0
-            self.hero.add_message('action_first_steps_now', hero=self.hero)
+            self.hero.add_message('action_first_steps_now', hero=self.hero, place=self.hero.position.place)
             self.state = self.STATE.PROCESSED
             return
 
