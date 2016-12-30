@@ -30,6 +30,11 @@ class TestRequests(testcase.TestCase):
     def test_landing(self):
         self.check_html_ok(self.request_html(url('portal:landing')))
 
+    def test_landing__authengitacted(self):
+        account = self.accounts_factory.create_account()
+        self.request_login(account.email)
+        self.check_redirect(url('portal:landing'), url('portal:'))
+
     def test_preview(self):
         text = 'simple test text'
         self.check_html_ok(self.client.post(url('portal:preview'), {'text': text}), texts=[text])
