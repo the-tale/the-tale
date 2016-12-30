@@ -229,7 +229,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-destiny-points', widget).text(data.base.destiny_points);
         jQuery('.pgf-name', widget).text(data.base.name);
         jQuery('.pgf-hero-page-link', widget).attr('href', heroPageUrl);
-        jQuery('.pgf-free-destiny-points', widget).attr('href', heroPageUrl).toggleClass('pgf-hidden', !data.base.destiny_points);
+        jQuery('.pgf-free-destiny-points', widget).attr('href', heroPageUrl+'#hero-tab-main=attributes').toggleClass('pgf-hidden', !data.base.destiny_points);
 
         jQuery('.pgf-health', widget).text(parseInt(data.base.health));
         jQuery('.pgf-max-health', widget).text(data.base.max_health);

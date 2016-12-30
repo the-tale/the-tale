@@ -41,6 +41,20 @@ pgf.base.InitializeTabs = function(settingName, def, tabs) {
 
     var tabShowed = false;
 
+    var openTab = pgf.base.settings.get(settingName, def);
+
+    function SetHash(id) {
+        window.location.hash = '#'+settingName+'='+id;
+    }
+
+    for (var i in tabs) {
+        var id = tabs[i][1];
+        if (window.location.hash.includes(settingName+'='+id)) {
+            openTab = id;
+            break;
+        }
+    }
+
     for (var i in tabs) {
         var selector = jQuery(tabs[i][0]);
 
@@ -50,28 +64,43 @@ pgf.base.InitializeTabs = function(settingName, def, tabs) {
 
         var id = tabs[i][1];
 
-        if (pgf.base.settings.get(settingName, def) == id) {
+        if (openTab == id) {
             selector.tab('show');
+            SetHash(id);
             tabShowed = true;
         }
 
         (function(id) {
-            selector.click(function(e){
-                               pgf.base.settings.set(settingName, id);
-                           });
+            selector.click(function(e) {
+                pgf.base.settings.set(settingName, id);
+                SetHash(id);
+            });
         })(id);
     }
 
     if (!tabShowed) {
         for (var i in tabs) {
             var selector = jQuery(tabs[i][0]);
+            var id = tabs[i][1];
 
             if (selector.length) {
                 selector.tab('show');
+                SetHash(id);
                 break;
             }
         }
     }
+
+    jQuery(window).bind('hashchange', function() {
+        for (var i in tabs) {
+            var selector = jQuery(tabs[i][0]);
+            var id = tabs[i][1];
+            if (window.location.hash.includes(settingName+'='+id)) {
+                selector.tab('show');
+                break;
+            }
+        }
+    });
 };
 
 pgf.base.TooltipPlacement = function (tip, element) {
