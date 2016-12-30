@@ -92,7 +92,7 @@
             {% for person in place.persons_by_power %}
               <tr>
                 <td>{{persons_macros.person_verbose(person, hero)}}</td>
-                <td>{{person.total_politic_power_fraction|percents}}</td>
+                <td>{{person.total_politic_power_fraction|percents(2)}}</td>
                 <td>{{person.politic_power.positive_heroes_number}} / {{person.politic_power.negative_heroes_number}}</td>
               </tr>
             {% endfor %}

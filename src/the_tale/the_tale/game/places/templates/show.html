@@ -134,7 +134,7 @@
   <tbody>
     {% for person in place.persons_by_power %}
       <tr>
-        <td>{{person.total_politic_power_fraction|percents}}</td>
+        <td>{{person.total_politic_power_fraction|percents(2)}}</td>
         <td>
           {{persons_macros.person_verbose(person, hero)}}
         </td>
