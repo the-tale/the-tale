@@ -1489,8 +1489,11 @@ pgf.game.widgets.Abilities = function() {
         jQuery('.pgf-in-pvp-queue-message').toggleClass('pgf-hidden', !pvpWaiting);
 
         jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
-        jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', canRepairBuilding);
-        jQuery('.pgf-ability-building_repair').toggleClass('pgf-disable disabled', (jQuery('.pgf-ability-building_repair').data('building-workers') == 0));
+        jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable disabled', !canRepairBuilding);
+
+        if (jQuery('.pgf-ability-building_repair').data('building-workers') ==0) {
+            jQuery('.pgf-ability-building_repair').toggleClass('pgf-disable disabled', true);
+        }
     }
 
     function RenderDeck() {
