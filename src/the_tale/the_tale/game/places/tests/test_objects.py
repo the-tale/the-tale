@@ -129,6 +129,7 @@ class PlaceTests(testcase.TestCase):
                                          bill=None)
 
 
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
     @mock.patch('the_tale.game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
@@ -152,8 +153,10 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.production - expected_production < 0.001)
 
+
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
-    @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
+    @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 0.03)
     def test_refresh_attributes__safety(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.FORT)
 
@@ -162,13 +165,15 @@ class PlaceTests(testcase.TestCase):
         self.p1.refresh_attributes()
 
         expected_safety = (1.0 - c.BATTLES_PER_TURN +
-                           100 * len(self.p1.persons) +
+                           0.03 * len(self.p1.persons) +
                            0.05 -
                            relations.RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL.amount +
                            relations.RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE.amount)
 
         self.assertTrue(-0.001 < self.p1.attrs.safety - expected_safety < 0.001)
 
+
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__safety__min_value(self):
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.SAFETY, value=-1000))
 
@@ -178,6 +183,19 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.safety - c.PLACE_MIN_SAFETY < 0.001)
 
+
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
+    def test_refresh_attributes__safety__max_value(self):
+        self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.SAFETY, value=1000))
+
+        self._create_test_exchanges()
+
+        self.p1.refresh_attributes()
+
+        self.assertTrue(-0.001 < self.p1.attrs.safety - 1 < 0.001)
+
+
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__transport(self):
@@ -199,6 +217,7 @@ class PlaceTests(testcase.TestCase):
         self.assertTrue(-0.001 < self.p1.attrs.transport - expected_transport < 0.001)
 
 
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__transport__min_value(self):
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.TRANSPORT, value=-1000))
 
@@ -209,6 +228,7 @@ class PlaceTests(testcase.TestCase):
         self.assertTrue(-0.001 < self.p1.attrs.transport - c.PLACE_MIN_TRANSPORT < 0.001)
 
 
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__culture__min_value(self):
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.CULTURE, value=-1000))
 
@@ -219,6 +239,7 @@ class PlaceTests(testcase.TestCase):
         self.assertTrue(-0.001 < self.p1.attrs.culture - c.PLACE_MIN_CULTURE < 0.001)
 
 
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__tax(self):
 
         self._create_test_exchanges()
@@ -229,6 +250,8 @@ class PlaceTests(testcase.TestCase):
 
         self.assertEqual(self.p1.attrs.tax, 0.05)
 
+
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__freedom(self):
@@ -242,8 +265,8 @@ class PlaceTests(testcase.TestCase):
         self.assertTrue(-0.001 < self.p1.attrs.freedom - (1000 + 100 * len(self.p1.persons) + 1.0 + 0.1) < 0.001)
 
 
-    @mock.patch('the_tale.game.places.races.Races.dominant_race', RACE.ELF)
-    @mock.patch('the_tale.game.places.objects.Place.race', RACE.ELF)
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)
     def test_refresh_attributes__stability(self):
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))

@@ -239,10 +239,10 @@ class Place(names.ManageNameMixin2):
         yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
 
         if len(self.persons) > c.PLACE_MAX_PERSONS:
-            yield effects.Effect(name='избыток Мастеров', attribute=relations.ATTRIBUTE.STABILITY, value=-0.25)
+            yield effects.Effect(name='избыток Мастеров', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_STABILITY_PENALTY_FOR_MASTERS)
 
         if self.races.dominant_race and self.race != self.races.dominant_race:
-            yield effects.Effect(name='расовая дискриминация', attribute=relations.ATTRIBUTE.STABILITY, value=-0.20)
+            yield effects.Effect(name='расовая дискриминация', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_STABILITY_PENALTY_FOR_RACES)
 
 
         yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
@@ -337,6 +337,8 @@ class Place(names.ManageNameMixin2):
         if relations.ATTRIBUTE.SAFETY.order == order:
             if safety < c.PLACE_MIN_SAFETY:
                 yield effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.SAFETY, value=c.PLACE_MIN_SAFETY - safety)
+            if safety > 1:
+                yield effects.Effect(name='демоны', attribute=relations.ATTRIBUTE.SAFETY, value=1 - safety)
 
         if relations.ATTRIBUTE.TRANSPORT.order == order:
             if transport < c.PLACE_MIN_TRANSPORT:
@@ -350,7 +352,7 @@ class Place(names.ManageNameMixin2):
 
         if relations.ATTRIBUTE.CULTURE.order == order:
             if culture < c.PLACE_MIN_CULTURE:
-                yield effects.Effect(name='Бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
+                yield effects.Effect(name='бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
 
 
     def effects_for_attribute(self, attribute):
