@@ -1,3 +1,4 @@
+{% import 'persons/macros.html' as persons_macros with context %}
 
 {% macro _voting_results(bill) %}
 
@@ -118,4 +119,8 @@
 
 {{ bill_info(bill, vote) }}
 
+{% endmacro %}
+
+{% macro person_info(person) %}
+<a href="{{url('game:persons:show', person.id)}}">{{person.name}}</a> — {{ persons_macros.person_description(person) }}
 {% endmacro %}
