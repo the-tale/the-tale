@@ -31,6 +31,7 @@ mailbox_size_limit = 0
 message_size_limit = 20480000
 recipient_delimiter = +
 inet_interfaces = all
+inet_protocols = ipv4
 
 notify_classes = resource, software, bounce, 2bounce, delay, policy, protocol
 
