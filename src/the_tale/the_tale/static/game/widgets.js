@@ -1509,7 +1509,12 @@ pgf.game.widgets.Abilities = function() {
         var hero = game_data.account.hero;
 
         // total energy with discount bonus
-        angelEnergy = hero.energy.value + hero.energy.bonus + hero.energy.discount;
+        angelEnergy = hero.energy.value + hero.energy.bonus;
+
+        // energy discount can not decrease ability cost below 1
+        if (angelEnergy >= 1) {
+            angelEnergy += hero.energy.discount;
+        }
 
         pvpWaiting = game_data.account.in_pvp_queue;
         canParticipateInPvp = hero.permissions.can_participate_in_pvp;
