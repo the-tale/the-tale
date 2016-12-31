@@ -231,6 +231,10 @@ class Place(names.ManageNameMixin2):
     def is_modifier_active(self):
         return getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0) >= c.PLACE_TYPE_ENOUGH_BORDER
 
+
+    def is_wrong_race(self):
+        return self.races.dominant_race and self.race != self.races.dominant_race
+
     def _effects_generator(self):
         from . import storage
 
@@ -241,7 +245,7 @@ class Place(names.ManageNameMixin2):
         if len(self.persons) > c.PLACE_MAX_PERSONS:
             yield effects.Effect(name='избыток Мастеров', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_STABILITY_PENALTY_FOR_MASTERS)
 
-        if self.races.dominant_race and self.race != self.races.dominant_race:
+        if self.is_wrong_race():
             yield effects.Effect(name='расовая дискриминация', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_STABILITY_PENALTY_FOR_RACES)
 
 

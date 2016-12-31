@@ -14,18 +14,13 @@
             <span {%if not place.is_modifier_active()%}style="color: orange; cursor: default;" rel="tooltip" title="Город не соответствует требованиям специализации"{% endif %}>
               {{place.modifier.text}}
             </span>
-          {% endif %}
+            {% endif %}
         <a href="{{url('game:places:show', place.id)}}" target="_blank" style="vertical-align: middle;">{{ place.name }}</a>
 
         {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}<span class="badge badge-success">родной город</span>{% endif %}
 
         <br/>
-        <small>
-          Земля {{place.race.utg_name_form.word.forms[7]}},
-          {{place.habit_honor.interval.place_text}},
-          {{place.habit_peacefulness.interval.place_text}}
-          {%- if place.is_frontier -%}, <a href="{{url('guide:cities')}}" target="_blank">Фронтир</a>{% endif %}
-        </small>
+        <small>{{places_macros.place_description(place)}}</small>
 
       </span>
 

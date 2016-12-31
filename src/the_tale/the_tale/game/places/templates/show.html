@@ -20,12 +20,7 @@
     {% endif %}
     {{place.name}}
     {{ base_macros.magnet(place_meta_object) }}
-    <small>
-      земля {{place.race.utg_name_form.word.forms[7]}},
-      {{place.habit_honor.interval.place_text}},
-      {{place.habit_peacefulness.interval.place_text}}
-      {%- if place.is_frontier -%}, <a href="{{url('guide:cities')}}" class="pgf-frontier-message" target="_blank">Фронтир</a>{% endif %}
-    </small>
+    <small>{{places_macros.place_description(place)}}</small>
 
     {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}
       <span class="badge badge-success">родной город</span>
