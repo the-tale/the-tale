@@ -243,10 +243,16 @@ class Place(names.ManageNameMixin2):
         yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
 
         if len(self.persons) > c.PLACE_MAX_PERSONS:
-            yield effects.Effect(name='избыток Мастеров', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_STABILITY_PENALTY_FOR_MASTERS)
+            yield effects.Effect(name='избыток Мастеров',
+                                 attribute=relations.ATTRIBUTE.STABILITY,
+                                 value=c.PLACE_STABILITY_PENALTY_FOR_MASTER * (len(self.persons) - c.PLACE_MAX_PERSONS))
 
         if self.is_wrong_race():
-            yield effects.Effect(name='расовая дискриминация', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_STABILITY_PENALTY_FOR_RACES)
+            dominant_race_power = self.races.get_race_percents(self.races.dominant_race)
+            current_race_power = self.races.get_race_percents(self.race)
+            yield effects.Effect(name='расовая дискриминация',
+                                 attribute=relations.ATTRIBUTE.STABILITY,
+                                 value=c.PLACE_STABILITY_PENALTY_FOR_RACES * (dominant_race_power - current_race_power))
 
 
         yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
@@ -267,7 +273,10 @@ class Place(names.ManageNameMixin2):
                 yield effect
 
         elif not self.modifier.is_NONE:
-            yield effects.Effect(name='Несоответствие специализации', attribute=relations.ATTRIBUTE.STABILITY, value=-c.PLACE_STABILITY_UNIT)
+            modifier_points = getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0)
+            yield effects.Effect(name='Несоответствие специализации',
+                                 attribute=relations.ATTRIBUTE.STABILITY,
+                                 value=c.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION * (c.PLACE_TYPE_ENOUGH_BORDER - modifier_points) / c.PLACE_TYPE_ENOUGH_BORDER)
 
         for exchange in storage.resource_exchanges.get_exchanges_for_place(self):
             resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)

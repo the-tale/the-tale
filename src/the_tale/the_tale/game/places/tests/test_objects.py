@@ -307,7 +307,7 @@ class PlaceTests(testcase.TestCase):
 
             self.p1.refresh_attributes()
 
-        with self.check_delta(lambda: self.p1.attrs.stability, -0.25):
+        with self.check_delta(lambda: round(self.p1.attrs.stability, 2), -0.15000000000000002):
             while len(self.p1.persons) <= c.PLACE_MAX_PERSONS:
                 person = random.choice(list(persons_storage.persons.all()))
                 persons_logic.move_person_to_place(person, self.p1)
@@ -324,8 +324,28 @@ class PlaceTests(testcase.TestCase):
         with self.check_not_changed(lambda: self.p1.attrs.stability):
             self.p1.refresh_attributes()
 
-        with self.check_delta(lambda: self.p1.attrs.stability, -0.19999999999999996):
+        with self.check_not_changed(lambda: self.p1.attrs.stability):
             self.p1.race = game_relations.RACE.random(exclude=(self.p1.race,))
+            self.p1.refresh_attributes()
+
+        with self.check_delta(lambda: round(self.p1.attrs.stability, 2), -0.4):
+            self.p1.races._races[self.p1.races.dominant_race] += 0.1
+            self.p1.races._races[self.p1.race] -= 0.1
+            self.p1.refresh_attributes()
+
+
+    @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
+    def test_refresh_attributes__stability_penalty_for_wrong_specialization(self):
+        self.p1.refresh_attributes()
+
+        with self.check_not_changed(lambda: self.p1.attrs.stability):
+            self.p1.set_modifier(modifiers.CITY_MODIFIERS.TRADE_CENTER)
+            self.p1.effects.add(effects.Effect(name='x', attribute=relations.ATTRIBUTE.MODIFIER_TRADE_CENTER, value=100))
+            self.p1.refresh_attributes()
+
+        with self.check_delta(lambda: self.p1.attrs.stability, -0.5):
+            self.p1.attrs.modifier_trade_center = 0
+            self.p1.effects.clear()
             self.p1.refresh_attributes()
 
 

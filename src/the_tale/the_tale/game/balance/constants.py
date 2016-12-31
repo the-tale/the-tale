@@ -484,8 +484,9 @@ PLACE_STABILITY_MAX_TRANSPORT_PENALTY = h.speed_from_safety(PLACE_STABILITY_MAX_
 PLACE_STABILITY_MAX_FREEDOM_PENALTY = -PLACE_STABILITY_MAX_TRANSPORT_PENALTY
 PLACE_STABILITY_MAX_CULTURE_PENALTY = -1.0
 
-PLACE_STABILITY_PENALTY_FOR_MASTERS = float(-0.25)
-PLACE_STABILITY_PENALTY_FOR_RACES = float(-0.20)
+PLACE_STABILITY_PENALTY_FOR_MASTER = float(-0.15)
+PLACE_STABILITY_PENALTY_FOR_RACES = float(-2.0) # штраф к стабильности за 100% разницы в давлении рас
+PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION = float(-0.5) # штраф за полное несоответствие специализации (когда 0 очков)
 
 
 # считаем на сколько условных единиц бонусов от Мастеров влияет нулевая стабильность
