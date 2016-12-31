@@ -82,6 +82,19 @@ class TokensResource(Resource):
         return self.json_ok()
 
 
+    @login_required
+    @decorators.refuse_third_party
+    @handler('remove-all', method='post')
+    def remove_all(self):
+        tokens = prototypes.AccessTokenPrototype.get_list_by_account_id(self.account.id)
+
+        for token in tokens:
+            token.remove()
+            cache.delete(third_party_settings.ACCESS_TOKEN_CACHE_KEY % token.uid)
+
+        return self.json_ok()
+
+
     @api.handler(versions=('1.0',))
     @handler('api', 'request-authorisation', name='request-authorisation', method='post')
     def api_request_authorisation(self, api_version=None):
