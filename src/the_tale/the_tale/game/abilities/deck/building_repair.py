@@ -41,6 +41,8 @@ class BuildingRepair(AbilityPrototype):
             else:
                 task.hero.add_message('angel_ability_building_repair', hero=task.hero)
 
+            task.hero.process_removed_artifacts()
+
             return task.logic_result(next_step=ComplexChangeTask.STEP.HIGHLEVEL)
 
         elif task.step.is_HIGHLEVEL:

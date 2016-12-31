@@ -31,4 +31,6 @@ class DropItem(AbilityPrototype):
 
         task.hero.cards.change_help_count(1)
 
+        task.hero.process_removed_artifacts()
+
         return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
