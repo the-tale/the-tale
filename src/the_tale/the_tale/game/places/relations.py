@@ -123,18 +123,22 @@ class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
 
     records = ( ('NONE',  0, 'ничего', None, 0, 0),
 
-                ('PRODUCTION_SMALL',  1, '%d продукции' % PRODUCTION_BASE, ATTRIBUTE.PRODUCTION, PRODUCTION_BASE, 1),
-                ('PRODUCTION_NORMAL', 2, '%d продукции' % (PRODUCTION_BASE * 2), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 2, 1),
-                ('PRODUCTION_LARGE',  3, '%d продукции' % (PRODUCTION_BASE * 4), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 4, 1),
+                ('PRODUCTION_SMALL',       1,  '%d продукции' % PRODUCTION_BASE, ATTRIBUTE.PRODUCTION, PRODUCTION_BASE, 1),
+                ('PRODUCTION_NORMAL',      2,  '%d продукции' % (PRODUCTION_BASE * 2), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 2, 1),
+                ('PRODUCTION_LARGE',       13, '%d продукции' % (PRODUCTION_BASE * 3), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 3, 1),
+                ('PRODUCTION_EXTRA_LARGE', 3,  '%d продукции' % (PRODUCTION_BASE * 4), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 4, 1),
 
-                ('SAFETY_SMALL',      4, '%.2f%% безопасности' % float(SAFETY_BASE * 100), ATTRIBUTE.SAFETY, SAFETY_BASE, 1),
-                ('SAFETY_NORMAL',     5, '%.2f%% безопасности' % float(SAFETY_BASE * 2 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 2, 1),
-                ('SAFETY_LARGE',      6, '%.2f%% безопасности' % float(SAFETY_BASE * 4 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 4, 1),
+                ('SAFETY_SMALL',       4,  '%.2f%% безопасности' % float(SAFETY_BASE * 100), ATTRIBUTE.SAFETY, SAFETY_BASE, 1),
+                ('SAFETY_NORMAL',      5,  '%.2f%% безопасности' % float(SAFETY_BASE * 2 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 2, 1),
+                ('SAFETY_LARGE',       14, '%.2f%% безопасности' % float(SAFETY_BASE * 3 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 3, 1),
+                ('SAFETY_EXTRA_LARGE', 6,  '%.2f%% безопасности' % float(SAFETY_BASE * 4 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 4, 1),
 
-                ('TRANSPORT_SMALL',   7, '%.2f%% транспорта' % float(TRANSPORT_BASE * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE, 1),
-                ('TRANSPORT_NORMAL',  8, '%.2f%% транспорта' % float(TRANSPORT_BASE * 2 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 2, 1),
-                ('TRANSPORT_LARGE',   9, '%.2f%% транспорта' % float(TRANSPORT_BASE * 4 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 4, 1),
+                ('TRANSPORT_SMALL',       7,  '%.2f%% транспорта' % float(TRANSPORT_BASE * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE, 1),
+                ('TRANSPORT_NORMAL',      8,  '%.2f%% транспорта' % float(TRANSPORT_BASE * 2 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 2, 1),
+                ('TRANSPORT_LARGE',       15, '%.2f%% транспорта' % float(TRANSPORT_BASE * 3 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 3, 1),
+                ('TRANSPORT_EXTRA_LARGE', 9,  '%.2f%% транспорта' % float(TRANSPORT_BASE * 4 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 4, 1),
 
-                ('TAX_SMALL',   10, '%.2f%% пошлины' % float(TAX_BASE * 100), ATTRIBUTE.TAX, TAX_BASE, -1),
-                ('TAX_NORMAL',  11, '%.2f%% пошлины' % float(TAX_BASE * 2 * 100), ATTRIBUTE.TAX, TAX_BASE * 2, -1),
-                ('TAX_LARGE',   12, '%.2f%% пошлины' % float(TAX_BASE * 4 * 100), ATTRIBUTE.TAX, TAX_BASE * 4, -1) )
+                ('TAX_SMALL',       10, '%.2f%% пошлины' % float(TAX_BASE * 100), ATTRIBUTE.TAX, TAX_BASE, -1),
+                ('TAX_NORMAL',      11, '%.2f%% пошлины' % float(TAX_BASE * 2 * 100), ATTRIBUTE.TAX, TAX_BASE * 2, -1),
+                ('TAX_LARGE',       16, '%.2f%% пошлины' % float(TAX_BASE * 3 * 100), ATTRIBUTE.TAX, TAX_BASE * 3, -1),
+                ('TAX_EXTRA_LARGE', 12, '%.2f%% пошлины' % float(TAX_BASE * 4 * 100), ATTRIBUTE.TAX, TAX_BASE * 4, -1) )
