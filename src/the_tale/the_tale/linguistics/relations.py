@@ -144,4 +144,6 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                 ('PERSON_PERSONALITY_PRACTICAL', 31, 'практическая особенность характера', persons_relations.PERSONALITY_PRACTICAL),
 
                 ('COMPANION_ABILITY', 32, 'особенность', companion_effects.ABILITIES),
+
+                ('COMPANION_EXISTENCE', 33, 'наличие спутника', companions_relations.COMPANION_EXISTENCE)
               )

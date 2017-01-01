@@ -116,6 +116,8 @@ class MobPrototype(object):
         from the_tale.linguistics.storage import restrictions_storage
         from the_tale.game.map import logic as map_logic
 
+        from the_tale.game.companions import relations as companion_relations
+
         terrains = map_logic.get_terrain_linguistics_restrictions(self.terrain)
 
         return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id,
@@ -126,7 +128,8 @@ class MobPrototype(object):
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.MOB.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.action_type.value).id) + terrains
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.action_type.value).id,
+                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE, companion_relations.COMPANION_EXISTENCE.HAS_NO.value).id) + terrains
 
     def linguistics_restrictions(self): return self.linguistics_restrictions_constants
 

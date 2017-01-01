@@ -17,7 +17,6 @@ from the_tale.game import relations as game_relations
 
 from the_tale.game.map import logic as map_logic
 
-
 from . import relations
 from . import conf
 
@@ -701,9 +700,16 @@ class LogicAccessorsMixin(object):
 
         return restrictions
 
+
     def linguistics_restrictions(self):
+        from the_tale.game.companions import relations as companion_relations
+
         constants = self.linguistics_restrictions_constants()
 
         terrains = map_logic.get_terrain_linguistics_restrictions(self.position.get_terrain())
 
-        return constants + terrains + (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id,)
+        return (constants +
+                terrains +
+                (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id,
+                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE,
+                                                      companion_relations.COMPANION_EXISTENCE.HAS.value if self.companion else companion_relations.COMPANION_EXISTENCE.HAS_NO.value).id))

@@ -81,7 +81,9 @@ class Companion(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.record.communication_gestures.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id ]
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE, relations.COMPANION_EXISTENCE.HAS_NO.value).id ]
+
         if self._hero:
             terrain = self._hero.position.get_terrain()
 

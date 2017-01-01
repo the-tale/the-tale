@@ -115,7 +115,8 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.ACTOR,
-                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
+                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
+                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE)),
 
                 ('MODIFIER', 8, 'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
