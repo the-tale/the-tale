@@ -20,12 +20,13 @@
       {% if restrictions %}
         <td>
           {% if restrictions.get(variable) %}
-            {% for restriction in restrictions[variable] %}
-              {% if loop.index > 1 %},{% endif %}
-              {{restriction.name}}
-            {% endfor %}
+            <ul>
+              {% for restriction in restrictions[variable] %}
+                <li>{{restriction.group.text}}: {{restriction.name}}</li>
+              {% endfor %}
+            </ul>
           {% else %}
-            нет ограничений
+            <span style="margin-left: 2em;">нет ограничений</span>
           {% endif %}
         </td>
       {% endif %}
