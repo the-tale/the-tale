@@ -51,6 +51,9 @@ class Bill(models.Model):
     is_declined = models.BooleanField(blank=True, default=False)
     declined_by = models.ForeignKey('bills.Bill', null=True, default=None, related_name='+', blank=True, on_delete=models.SET_NULL)
 
+
+    def __str__(self): return '{}-{}'.format(self.id, self.caption)
+
     class Meta:
         permissions = (("moderate_bill", "Может администрировать законопроекты"), )
 

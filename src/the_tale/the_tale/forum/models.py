@@ -15,7 +15,7 @@ class Category(models.Model):
 
     order = models.IntegerField(default=0, null=False, blank=True)
 
-    def __unicode__(self): return self.slug
+    def __str__(self): return self.slug
 
 
 class SubCategory(models.Model):
@@ -45,7 +45,7 @@ class SubCategory(models.Model):
 
     description = models.TextField(default='', null=False)
 
-    def __unicode__(self): return self.caption
+    def __str__(self): return self.caption
 
 
 class Thread(models.Model):
@@ -74,7 +74,7 @@ class Thread(models.Model):
     def get_absolute_url(self):
         return reverse('forum:threads:show', args=[self.id])
 
-    def __unicode__(self): return '%d - %s' % (self.id, self.caption)
+    def __str__(self): return '%d - %s' % (self.id, self.caption)
 
 
 class Subscription(models.Model):
@@ -114,7 +114,7 @@ class Post(models.Model):
     class Meta:
         permissions = (("moderate_post", "Может редактировать сообщения пользователей"), )
 
-    def __unicode__(self): return 'thread %d, post %d' % (self.thread_id, self.id)
+    def __str__(self): return 'thread %d, post %d' % (self.thread_id, self.id)
 
 
 

@@ -112,7 +112,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         ordering = ['nick']
         permissions = (("moderate_account", "Может редактировать аккаунты и т.п."), )
 
-    def __unicode__(self): return self.nick
+    def __str__(self): return self.nick
 
     def get_full_name(self): return self.nick
 

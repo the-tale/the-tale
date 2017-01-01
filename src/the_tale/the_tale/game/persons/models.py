@@ -28,7 +28,7 @@ class Person(models.Model):
 
     data = models.TextField(null=False, default='{}')
 
-    def __unicode__(self): return '%s from %s' % (s11n.from_json(self.data)['name']['forms'][0], self.place)
+    def __str__(self): return '%s from %s' % (s11n.from_json(self.data)['name']['forms'][0], self.place)
 
 
 

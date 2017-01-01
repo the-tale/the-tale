@@ -170,4 +170,4 @@ class PoliticPower(object):
         return (self.inner_power_fraction(all_powers) + self.outer_power_fraction(all_powers)) / 2
 
 
-    def __unicode__(self): return '{}, {}'.format(self.outer_power, self.inner_power)
+    def __str__(self): return '{}, {}'.format(self.outer_power, self.inner_power)

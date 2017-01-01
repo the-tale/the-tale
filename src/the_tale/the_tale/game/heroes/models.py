@@ -133,7 +133,7 @@ class Hero(models.Model):
     stat_politics_multiplier = models.FloatField(default=0, null=False) # for ratings
 
 
-    def __unicode__(self): return 'hero[%s] — %s' % (self.id, s11n.from_json(self.data)['name']['forms'][0])
+    def __str__(self): return 'hero[%s] — %s' % (self.id, s11n.from_json(self.data)['name']['forms'][0])
 
 
 # just copy for collection statistics
