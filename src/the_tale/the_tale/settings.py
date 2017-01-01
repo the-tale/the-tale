@@ -10,6 +10,8 @@ from dext.common.utils.meta_config import MetaConfig
 
 TESTS_RUNNING = 'test' in sys.argv or 'testserver' in sys.argv
 
+RUNSERVER_RUNNING = 'runserver' in sys.argv
+
 PROJECT_DIR = os.path.abspath(os.path.dirname(__file__))
 HOME_DIR = os.getenv("HOME")
 
@@ -274,6 +276,10 @@ try:
     from the_tale.settings_local import * # pylint: disable=W0403,W0401,W0614
 except Exception: # pylint: disable=W0702,W0703
     pass
+
+
+if RUNSERVER_RUNNING:
+    INSTALLED_APPS.remove('django.contrib.staticfiles')
 
 
 if TESTS_RUNNING:
