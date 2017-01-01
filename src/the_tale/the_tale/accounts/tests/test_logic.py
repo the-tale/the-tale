@@ -16,6 +16,12 @@ from the_tale.accounts.models import Account
 from the_tale.accounts.postponed_tasks import RegistrationTask
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
+from the_tale.accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.clans.conf import clans_settings
+
+from the_tale.game.heroes import logic as heroes_logic
+
+
 class TestLogic(testcase.TestCase):
 
     def setUp(self):
@@ -68,3 +74,33 @@ class TestLogic(testcase.TestCase):
         self.assertEqual(task.internal_logic.comment, 'some comment')
         self.assertEqual(task.internal_logic.amount, int(1000 * (1 - conf.accounts_settings.MONEY_SEND_COMMISSION)))
         self.assertEqual(task.internal_logic.commission, 1000 * conf.accounts_settings.MONEY_SEND_COMMISSION)
+
+
+
+class TestGetAccountInfoLogic(testcase.TestCase):
+
+    def setUp(self):
+        super(TestGetAccountInfoLogic, self).setUp()
+        create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+        self.hero = heroes_logic.load_hero(self.account.id)
+
+
+    def test_no_clan(self):
+        info = logic.get_account_info(self.account, self.hero)
+        self.assertEqual(info['clan'], None)
+
+
+    def test_has_clan(self):
+        from the_tale.forum.prototypes import CategoryPrototype
+
+        CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
+
+        clan = ClanPrototype.create(self.account, abbr='abbr', name='name', motto='motto', description='description')
+
+        info = logic.get_account_info(self.account, self.hero)
+        self.assertEqual(info['clan'],
+                         {'id': clan.id,
+                          'abbr': clan.abbr,
+                          'name': clan.name})

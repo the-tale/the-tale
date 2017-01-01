@@ -121,7 +121,6 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-in-list', 0),
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 0),
-                 ('pgf-no-common-places-message', 1),
                  ('pgf-ban-forum-message', 0),
                  ('pgf-ban-game-message', 0)]
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
@@ -136,20 +135,6 @@ class ShowRequestsTests(AccountRequestsTests):
     def test_show__ban_forum(self):
         texts = [('pgf-ban-forum-message', 1),
                  ('pgf-ban-game-message', 0)]
-        self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
-
-    def test_show__places_history(self):
-        texts = [(self.place1.name, 1),
-                 (self.place2.name, 1),
-                 (self.place3.name, 0),
-                 ('pgf-no-common-places-message', 0)]
-
-        hero = heroes_logic.load_hero(account_id=self.account_1.id)
-        hero.places_history.add_place(self.place1.id)
-        hero.places_history.add_place(self.place2.id)
-        hero.places_history.add_place(self.place1.id)
-        heroes_logic.save_hero(hero)
-
         self.check_html_ok(self.request_html(reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     def test_show_friends_no_friendship(self):

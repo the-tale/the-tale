@@ -201,6 +201,14 @@ def get_account_info(account, hero):
 
     places_history = [{'place': {'id': place.id, 'name': place.name}, 'count': help_count} for place, help_count in hero.places_history.get_most_common_places()]
 
+    clan_info = None
+
+    if account.clan_id:
+        clan = account.clan
+        clan_info = {'id': clan.id,
+                     'abbr': clan.abbr,
+                     'name': clan.name}
+
     return {'id': account.id,
             'registered': not account.is_fast,
             'name': account.nick_verbose,
@@ -214,7 +222,8 @@ def get_account_info(account, hero):
             'permissions': {
                 'can_affect_game': account.can_affect_game
                 },
-            'description': account.description_html}
+            'description': account.description_html,
+            'clan': clan_info}
 
 
 def get_transfer_commission(money):
