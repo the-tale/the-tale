@@ -5,6 +5,7 @@ from unittest import mock
 
 from the_tale.common.utils import testcase
 
+from the_tale.game import names
 from the_tale.game.relations import RACE
 
 from the_tale.game.logic import create_test_map
@@ -19,9 +20,13 @@ from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import logic as persons_logic
 
 from ..prototypes import ResourceExchangePrototype
+
 from .. import relations
 from .. import modifiers
+from .. import storage
 from .. import objects
+from .. import models
+from .. import logic
 
 
 class PlaceTests(testcase.TestCase):
@@ -474,3 +479,112 @@ class PlaceJobsTests(testcase.TestCase):
                 self.assertEqual(self.place_1.update_job(), (1, 2))
 
         self.assertEqual(apply_to_heroes.call_count, 1)
+
+
+
+class BuildingTests(testcase.TestCase):
+
+    def setUp(self):
+        super(BuildingTests, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+
+    def test_create(self):
+        self.assertEqual(models.Building.objects.all().count(), 0)
+
+        old_version = storage.buildings.version
+
+        name = names.generator().get_test_name(name='building-name')
+
+        building = logic.create_building(self.place_1.persons[0], utg_name=name)
+
+        self.assertNotEqual(old_version, storage.buildings.version)
+
+        self.assertEqual(models.Building.objects.all().count(), 1)
+
+        old_version = storage.buildings.version
+
+        name_2 = names.generator().get_test_name(name='building-name-2')
+        building_2 = logic.create_building(self.place_1.persons[0], utg_name=name_2)
+
+        self.assertEqual(old_version, storage.buildings.version)
+        self.assertEqual(models.Building.objects.all().count(), 1)
+        self.assertEqual(hash(building), hash(building_2))
+        self.assertEqual(building.utg_name, name)
+
+    def test_create_after_destroy(self):
+        self.assertEqual(models.Building.objects.all().count(), 0)
+
+        old_version = storage.buildings.version
+
+        person = self.place_1.persons[0]
+
+        name = names.generator().get_test_name(name='building-name')
+        building = logic.create_building(person, utg_name=name)
+        logic.destroy_building(building)
+
+        name_2 = names.generator().get_test_name(name='building-name-2')
+        building = logic.create_building(person, utg_name=name_2)
+
+        self.assertNotEqual(old_version, storage.buildings.version)
+
+        self.assertEqual(models.Building.objects.all().count(), 1)
+        self.assertEqual(building.utg_name, name_2)
+
+    def test_amortize(self):
+        building = logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
+
+        old_integrity = building.integrity
+
+        building.amortize(1000)
+
+        self.assertTrue(old_integrity > building.integrity)
+
+        building.integrity = -1
+
+        building.amortize(1000)
+
+        self.assertEqual(building.integrity, 0)
+        self.assertTrue(building.state.is_WORKING)
+
+
+    def test_amortization_grows(self):
+        building = logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
+
+        old_integrity = building.integrity
+        building.amortize(1000)
+        amortization_delta = old_integrity - building.integrity
+
+        building_2 = logic.create_building(self.place_1.persons[1], utg_name=names.generator().get_test_name(name='building-name-2'))
+
+        old_integrity_2 = building_2.integrity
+        building_2.amortize(1000)
+        amortization_delta_2 = old_integrity_2 - building_2.integrity
+
+        self.assertTrue(amortization_delta < amortization_delta_2)
+
+    def test_amortization_delta_depends_from_person_building_amortization_speed(self):
+        person = self.place_1.persons[0]
+        building = logic.create_building(person, utg_name=names.generator().get_test_name(name='building-name'))
+
+        person.attrs.building_amortization_speed = 1
+
+        with self.check_decreased(lambda: building.amortization_delta(1000)):
+            person.attrs.building_amortization_speed = 0.5
+
+
+    def test_save__update_storage(self):
+        building = logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
+
+        old_version = storage.buildings.version
+        logic.save_building(building)
+        self.assertNotEqual(old_version, storage.buildings.version)
+
+
+    def test_destroy__update_storage(self):
+        building = logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
+
+        old_version = storage.buildings.version
+        logic.destroy_building(building)
+        self.assertNotEqual(old_version, storage.buildings.version)
+        self.assertFalse(building.id in storage.buildings)

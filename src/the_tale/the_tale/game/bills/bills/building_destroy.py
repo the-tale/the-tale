@@ -9,6 +9,7 @@ from the_tale.game import names
 from the_tale.game.persons import objects as persons_objects
 
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
 
 from the_tale.game.bills.relations import BILL_TYPE
 from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
@@ -65,7 +66,7 @@ class BuildingDestroy(BasePersonBill):
 
     def apply(self, bill=None):
         if self.has_meaning():
-            self.building.destroy()
+            places_logic.destroy_building(self.building)
 
     def initialize_with_form(self, user_form):
         super(BuildingDestroy, self).initialize_with_form(user_form)

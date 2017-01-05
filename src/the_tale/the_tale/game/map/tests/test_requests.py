@@ -23,7 +23,6 @@ from the_tale.game.chronicle.prototypes import RecordPrototype as ChronicleRecor
 from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.places import modifiers as places_modifiers
-from the_tale.game.places.prototypes import BuildingPrototype
 from the_tale.game.places import conf as places_conf
 from the_tale.game.places import logic as places_logic
 

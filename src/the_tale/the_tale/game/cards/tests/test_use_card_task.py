@@ -19,7 +19,7 @@ from the_tale.game.cards import effects
 from the_tale.game.cards import objects
 from the_tale.game.cards.postponed_tasks import UseCardTask
 
-from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import logic as places_logic
 
 
 class UseCardTaskTests(testcase.TestCase):
@@ -34,7 +34,7 @@ class UseCardTaskTests(testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
+        self.building_1 = places_logic.create_building(person=self.place_1.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
 
         environment.deinitialize()
         environment.initialize()

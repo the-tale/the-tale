@@ -10,6 +10,7 @@ from the_tale.linguistics.forms import WordField
 from the_tale.game.persons import objects as persons_objects
 
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
 
 from the_tale.game.bills.relations import BILL_TYPE
 from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
@@ -72,7 +73,7 @@ class BuildingRenaming(BasePersonBill):
     def apply(self, bill=None):
         if self.has_meaning():
             self.building.set_utg_name(self.new_building_name_forms)
-            self.building.save()
+            places_logic.save_building(self.building)
 
 
     def user_form_initials(self):

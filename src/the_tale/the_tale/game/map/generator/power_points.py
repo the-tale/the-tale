@@ -9,7 +9,6 @@ from the_tale.game.relations import RACE
 from the_tale.game.persons import objects as persons_objects
 from the_tale.game.persons import storage as persons_storage
 
-from the_tale.game.places.prototypes import BuildingPrototype
 from the_tale.game.places import objects as places_objects
 from the_tale.game.places import storage as places_storage
 
@@ -57,7 +56,7 @@ class MapObject(object):
             self.x = game_object.place.x
             self.y = game_object.place.y
             self.r = int(round(game_object.place.attrs.terrain_radius))
-        elif isinstance(game_object, BuildingPrototype):
+        elif isinstance(game_object, places_objects.Building):
             self.uid = 'building_%d_%s' % (game_object.id, suffix)
             self.x = game_object.x
             self.y = game_object.y

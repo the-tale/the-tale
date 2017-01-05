@@ -35,7 +35,9 @@ class BaseMoveToActionTest(testcase.TestCase):
         self.storage = LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
+
         self.action_idl = self.hero.actions.current_action
+        self.action_idl.state = self.action_idl.STATE.WAITING # skip first steps
 
         self.hero.position.set_place(self.p1)
 
@@ -47,7 +49,6 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
     def setUp(self):
         super(MoveToActionTest, self).setUp()
-
         self.action_event = self.action_move
 
 

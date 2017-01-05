@@ -9,6 +9,11 @@
     {{bill.data.person_name}} {{ bill.data.person_gender_verbose }} {{ bill.data.person_race_verbose }} {{ bill.data.person_type.text }} <small>Мастер покинул игру</small>
   {% endif %}
 </li>
+
+{% if bill.data.x is not none %}
+<li><strong>координаты:</strong> x={{bill.data.x}}, y={{bill.data.y}} (на момент принятия закона)</li>
+{% endif %}
+
 <li><strong>город:</strong> <a href="{{url('game:places:show', bill.data.place.id)}}">{{bill.data.place.name}}</a></li>
 {% if bill.data.place_name_changed %}
 <li><strong>название города во время создания закона:</strong> {{bill.data.old_place_name}}</li>

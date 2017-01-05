@@ -6,7 +6,7 @@ import datetime
 from the_tale.game import names
 
 from the_tale.game.places.models import Building
-from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import logic as places_logic
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places.relations import BUILDING_STATE
 
@@ -25,8 +25,8 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.person_2 = self.place2.persons[0]
         self.person_3 = self.place3.persons[0]
 
-        self.building_1 = BuildingPrototype.create(self.person_1, utg_name=names.generator().get_test_name('building-name-1'))
-        self.building_2 = BuildingPrototype.create(self.person_2, utg_name=names.generator().get_test_name('building-name-2'))
+        self.building_1 = places_logic.create_building(self.person_1, utg_name=names.generator().get_test_name('building-name-1'))
+        self.building_2 = places_logic.create_building(self.person_2, utg_name=names.generator().get_test_name('building-name-2'))
 
         self.bill_data = BuildingDestroy(person_id=self.person_1.id, old_place_name_forms=self.place1.utg_name)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
@@ -153,8 +153,7 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
-        self.building_1.destroy()
-        self.building_1.save()
+        places_logic.destroy_building(self.building_1)
 
         self.assertTrue(self.bill.apply())
 
@@ -176,7 +175,6 @@ class BuildingDestroyTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
-        self.building_1.destroy()
-        self.building_1.save()
+        places_logic.destroy_building(self.building_1)
 
         self.assertFalse(self.bill.has_meaning())

@@ -12,7 +12,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.heroes import logic as heroes_logic
 
-from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import logic as places_logic
 from the_tale.game.places import relations as places_relations
 
 from the_tale.game.persons.tests.helpers import create_person
@@ -63,7 +63,7 @@ class PersonTests(testcase.TestCase):
                                                                        power_delta=100,
                                                                        place_id=None))
 
-        BuildingPrototype.create(self.person, utg_name=names.generator().get_test_name('building-name'))
+        places_logic.create_building(self.person, utg_name=names.generator().get_test_name('building-name'))
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
             self.person.cmd_change_power(hero_id=666, has_place_in_preferences=False, has_person_in_preferences=False, power=-100)

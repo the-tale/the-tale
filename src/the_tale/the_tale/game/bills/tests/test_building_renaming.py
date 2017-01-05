@@ -8,7 +8,7 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 from the_tale.game import names
 
 from the_tale.game.places.models import Building
-from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import logic as places_logic
 from the_tale.game.places.relations import BUILDING_STATE
 
 from .. import relations
@@ -27,8 +27,8 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.person_2 = self.place2.persons[0]
         self.person_3 = self.place3.persons[0]
 
-        self.building = BuildingPrototype.create(self.person_1, utg_name=names.generator().get_test_name('building-name'))
-        self.building_2 = BuildingPrototype.create(self.person_2, utg_name=names.generator().get_test_name('building-name-2'))
+        self.building = places_logic.create_building(self.person_1, utg_name=names.generator().get_test_name('building-name'))
+        self.building_2 = places_logic.create_building(self.person_2, utg_name=names.generator().get_test_name('building-name-2'))
 
         self.bill_data = BuildingRenaming(person_id=self.person_1.id,
                                           old_place_name_forms=self.place1.utg_name,
@@ -99,9 +99,9 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 2)
 
-        self.building.reload()
+        building = places_logic.load_building(self.building.id)
 
-        self.assertEqual(self.building.name, 'r-building-name-нс,ед,им')
+        self.assertEqual(building.name, 'r-building-name-нс,ед,им')
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
@@ -153,15 +153,15 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
-        self.building.destroy()
-        self.building.save()
+        places_logic.destroy_building(self.building)
 
         self.assertTrue(self.bill.apply())
 
         self.assertEqual(Building.objects.filter(state=BUILDING_STATE.WORKING).count(), 1)
 
-        self.building.reload()
-        self.assertEqual(self.building.name, 'building-name-нс,ед,им')
+        building = places_logic.load_building(self.building.id)
+
+        self.assertEqual(building.name, 'building-name-нс,ед,им')
 
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
@@ -185,7 +185,6 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
         self.bill.update_by_moderator(form)
 
-        self.building.destroy()
-        self.building.save()
+        places_logic.destroy_building(self.building)
 
         self.assertFalse(self.bill.has_meaning())

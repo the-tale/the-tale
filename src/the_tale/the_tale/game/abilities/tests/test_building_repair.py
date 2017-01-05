@@ -11,7 +11,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game import names
 
-from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import logic as places_logic
 
 from the_tale.game.abilities.deck.building_repair import BuildingRepair
 
@@ -46,9 +46,9 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
         self.highlevel = environment.workers.highlevel
         self.highlevel.process_initialize(0, 'highlevel')
 
-        self.building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name('building-name'))
-        self.building._model.integrity = 0.5
-        self.building.save()
+        self.building = places_logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name('building-name'))
+        self.building.integrity = 0.5
+        places_logic.save_building(self.building)
 
     def use_attributes(self, hero, building_id=None, step=ComplexChangeTask.STEP.LOGIC, storage=None, highlevel=None, critical=False):
         return super(BuildingRepairTest, self).use_attributes(building_id=self.building.id if building_id is None else building_id, critical=critical, highlevel=highlevel, step=step, storage=storage, hero=hero)
@@ -98,7 +98,7 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.assertEqual(self.building.integrity, 0.5)
 
-        with mock.patch('the_tale.game.places.prototypes.BuildingPrototype.repair') as repair:
+        with mock.patch('the_tale.game.places.objects.Building.repair') as repair:
             result, step, postsave_actions = self.ability_1.use(**self.use_attributes(hero=self.hero_1,
                                                                                       step=step,
                                                                                       highlevel=self.highlevel,
@@ -121,9 +121,9 @@ class BuildingRepairTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_repair_building', True)
     def test_use_for_repaired_building(self):
-        self.building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name('building-name'))
-        self.building._model.integrity = 1.0
-        self.building.save()
+        self.building = places_logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name('building-name'))
+        self.building.integrity = 1.0
+        places_logic.save_building(self.building)
 
         self.assertEqual(self.ability_1.use(**self.use_attributes(hero=self.hero_1, storage=self.storage)), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 

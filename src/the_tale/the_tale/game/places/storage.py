@@ -5,11 +5,11 @@ from dext.common.utils import storage as dext_storage
 
 from the_tale.common.utils import storage
 
-from .prototypes import BuildingPrototype, ResourceExchangePrototype
-from . import exceptions
+from .prototypes import ResourceExchangePrototype
 from .relations import BUILDING_STATE
 
 from . import models
+from . import exceptions
 
 
 class PlacesStorage(dext_storage.Storage):
@@ -52,12 +52,22 @@ class PlacesStorage(dext_storage.Storage):
 places = PlacesStorage()
 
 
-class BuildingsStorage(storage.CachedStorage):
+class BuildingsStorage(dext_storage.CachedStorage):
     SETTINGS_KEY = 'buildings change time'
     EXCEPTION = exceptions.BuildingsStorageError
-    PROTOTYPE = BuildingPrototype
 
-    def _get_all_query(self): return self.PROTOTYPE._model_class.objects.exclude(state=BUILDING_STATE.DESTROYED)
+
+    def _construct_object(self, model):
+        from . import logic
+        return logic.load_building(building_model=model)
+
+    def _save_object(self, building):
+        from . import logic
+        return logic.save_building(building)
+
+    def _get_all_query(self):
+        return models.Building.objects.exclude(state=BUILDING_STATE.DESTROYED)
+
 
     def _reset_cache(self):
         self._persons_to_buildings = {}

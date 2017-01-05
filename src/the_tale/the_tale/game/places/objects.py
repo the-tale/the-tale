@@ -1,4 +1,5 @@
 # coding: utf-8
+import math
 import random
 import datetime
 
@@ -474,3 +475,116 @@ class Place(names.ManageNameMixin2):
                 'race': self.race.value,
                 'name': self.name,
                 'size': self.attrs.size}
+
+
+
+
+class Building(names.ManageNameMixin2):
+    __slots__ = ('id',
+                 'x',
+                 'y',
+                 'type',
+                 'integrity',
+                 'created_at_turn',
+                 'state',
+                 'utg_name',
+                 'person_id',
+
+                 # mames mixin
+                 '_utg_name_form__lazy',
+                 '_name__lazy')
+
+
+    def __init__(self, id, x, y, type, integrity, created_at_turn, state, utg_name, person_id):
+        self.id = id
+        self.x = x
+        self.y = y
+        self.type = type
+        self.integrity = integrity
+        self.created_at_turn = created_at_turn
+        self.state = state
+        self.utg_name = utg_name
+        self.person_id = person_id
+
+
+    def shift(self, dx, dy):
+        self.x += dx
+        self.y += dy
+
+
+    @property
+    def person(self):
+        from the_tale.game.persons import storage as persons_storage
+        return persons_storage.persons[self.person_id]
+
+
+    @property
+    def place(self):
+        return self.person.place
+
+
+    @property
+    def terrain_change_power(self):
+        # +1 to prevent power == 0
+        power = self.place.attrs.terrain_radius * self.integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
+        return int(round(power))
+
+
+    def amortization_delta(self, turns_number):
+        from the_tale.game.places import storage
+
+        buildings_number = sum(storage.buildings.get_by_person_id(person.id) is not None
+                               for person in self.place.persons)
+
+        per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED * self.person.attrs.building_amortization_speed
+        return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number-1)
+
+
+    @property
+    def amortization_in_day(self):
+        return self.amortization_delta(c.TURNS_IN_HOUR*24)
+
+
+    def amortize(self, turns_number):
+        self.integrity -= self.amortization_delta(turns_number)
+        if self.integrity <= 0.0001:
+            self.integrity = 0
+
+
+    @property
+    def workers_to_full_repairing(self):
+        return int(math.ceil((1.0 - self.integrity) * c.BUILDING_FULL_REPAIR_ENERGY_COST / c.BUILDING_WORKERS_ENERGY_COST))
+
+
+    @property
+    def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
+
+
+    def repair(self):
+        self.integrity = min(1.0, self.integrity + self.repair_delta)
+
+
+    @property
+    def need_repair(self): return self.integrity < 0.9999
+
+
+    @property
+    def terrain(self):
+        from the_tale.game.map.storage import map_info_storage
+        map_info = map_info_storage.item
+        return map_info.terrain[self.y][self.x]
+
+
+    def linguistics_restrictions(self):
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+
+        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value)]
+
+
+    def map_info(self):
+        return {'id': self.id,
+                'pos': {'x': self.x, 'y': self.y},
+                'person': self.person.id,
+                'place': self.place.id,
+                'type': self.type.value}
