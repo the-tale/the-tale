@@ -120,6 +120,7 @@ class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
     SAFETY_BASE = c.PLACE_SAFETY_FROM_BEST_PERSON / 4
     TRANSPORT_BASE = c.PLACE_TRANSPORT_FROM_BEST_PERSON / 4
     TAX_BASE = 0.025
+    CULTURE_BASE = c.PLACE_CULTURE_FROM_BEST_PERSON / 4
 
     records = ( ('NONE',  0, 'ничего', None, 0, 0),
 
@@ -141,4 +142,9 @@ class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
                 ('TAX_SMALL',       10, '%.2f%% пошлины' % float(TAX_BASE * 100), ATTRIBUTE.TAX, TAX_BASE, -1),
                 ('TAX_NORMAL',      11, '%.2f%% пошлины' % float(TAX_BASE * 2 * 100), ATTRIBUTE.TAX, TAX_BASE * 2, -1),
                 ('TAX_LARGE',       16, '%.2f%% пошлины' % float(TAX_BASE * 3 * 100), ATTRIBUTE.TAX, TAX_BASE * 3, -1),
-                ('TAX_EXTRA_LARGE', 12, '%.2f%% пошлины' % float(TAX_BASE * 4 * 100), ATTRIBUTE.TAX, TAX_BASE * 4, -1) )
+                ('TAX_EXTRA_LARGE', 12, '%.2f%% пошлины' % float(TAX_BASE * 4 * 100), ATTRIBUTE.TAX, TAX_BASE * 4, -1),
+
+                ('CULTURE_SMALL',       17, '%.2f%% культуры' % float(CULTURE_BASE * 100), ATTRIBUTE.CULTURE, CULTURE_BASE, 1),
+                ('CULTURE_NORMAL',      18, '%.2f%% культуры' % float(CULTURE_BASE * 2 * 100), ATTRIBUTE.CULTURE, CULTURE_BASE * 2, 1),
+                ('CULTURE_LARGE',       19, '%.2f%% культуры' % float(CULTURE_BASE * 3 * 100), ATTRIBUTE.CULTURE, CULTURE_BASE * 3, 1),
+                ('CULTURE_EXTRA_LARGE', 20, '%.2f%% культуры' % float(CULTURE_BASE * 4 * 100), ATTRIBUTE.CULTURE, CULTURE_BASE * 4, 1), )
