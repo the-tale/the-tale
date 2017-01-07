@@ -20,6 +20,8 @@ from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game import effects
 
 from the_tale.game.places import objects as places_objects
@@ -381,7 +383,13 @@ class BillPrototype(BasePrototype):
 
     @classmethod
     def is_active_bills_limit_reached(cls, account):
-        return cls._model_class.objects.filter(owner_id=account.id, state=BILL_STATE.VOTING).exists()
+        bills_count = cls._model_class.objects.filter(owner_id=account.id, state=BILL_STATE.VOTING).count()
+
+        if account.is_premium:
+            return bills_count >= c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS
+
+        return bills_count >= c.FREE_ACCOUNT_MAX_ACTIVE_BILLS
+
 
     def save(self):
         self._model.technical_data = s11n.to_json(self.data.serialize())

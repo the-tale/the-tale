@@ -200,7 +200,7 @@ class BillResource(Resource):
                                    'Новые игроки не могут выдвигать законы в %d течении дней с момент регистрации' % bills_settings.MINIMUM_BILL_OWNER_AGE)
 
         if self.active_bills_limit_reached:
-            return self.json_error('bills.create.active_bills_limit_reached', 'Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению')
+            return self.json_error('bills.create.active_bills_limit_reached', 'Вы не можете предложить закон, пока не закончилось голосование по вашим предыдущим предложениям')
 
         bill_data = BILLS_BY_ID[bill_type.value]()
 

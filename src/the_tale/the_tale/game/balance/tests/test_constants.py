@@ -272,8 +272,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.14815)
         self.assertEqual(round(c.PLACE_CULTURE_FROM_BEST_PERSON, 5), 0.15)
 
-        self.assertEqual(c.PLACE_MAX_BILLS_NUMBER, 3)
-
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA_IN_DAY, 0.1)
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA, 0.1 / 24)
 
@@ -399,6 +397,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.COMPANIONS_LEAVE_IN_PLACE, 0.05)
 
         self.assertEqual(c.COMPANIONS_BONUS_DAMAGE_PROBABILITY, 0.25)
+
+        self.assertEqual(c.PLACE_MAX_BILLS_NUMBER, 3)
+        self.assertEqual(c.FREE_ACCOUNT_MAX_ACTIVE_BILLS, 1)
+        self.assertEqual(c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS, 4)
 
 
     def test_dedication_maximum_multiplier(self):

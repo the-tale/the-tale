@@ -468,8 +468,6 @@ PLACE_FREEDOM_FROM_BEST_PERSON = PLACE_TRANSPORT_FROM_BEST_PERSON
 
 PLACE_CULTURE_FROM_BEST_PERSON = float(0.15)
 
-PLACE_MAX_BILLS_NUMBER = int(3)
-
 PLACE_RACE_CHANGE_DELTA_IN_DAY = float(0.1)
 PLACE_RACE_CHANGE_DELTA = (PLACE_RACE_CHANGE_DELTA_IN_DAY * MAP_SYNC_TIME) / (24 * TURNS_IN_HOUR)
 
@@ -648,3 +646,13 @@ COMPANIONS_GIVE_COMPANION_AFTER = int(24) # выдавать спутника г
 COMPANIONS_LEAVE_IN_PLACE = float(1.0 / 20) # вероятность того, что нелюдимый спутник покинет героя в городе
 
 COMPANIONS_BONUS_DAMAGE_PROBABILITY = float(0.25) # вероятность спутника получить дополнительный урон
+
+
+##############################
+# Bills
+##############################
+
+PLACE_MAX_BILLS_NUMBER = int(3)
+
+FREE_ACCOUNT_MAX_ACTIVE_BILLS = int(1)
+PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS = int(4)
