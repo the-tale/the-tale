@@ -41,7 +41,6 @@ class ContainerTests(testcase.TestCase):
 
 
     def test_initialization(self):
-        self.assertFalse(self.container.updated)
         self.assertEqual(self.container._cards, {})
 
     def test_serialization(self):
@@ -55,8 +54,6 @@ class ContainerTests(testcase.TestCase):
         self.assertEqual(self.container.serialize(), container.CardsContainer.deserialize(self.container.serialize()).serialize())
 
     def test_add_card(self):
-        self.assertFalse(self.container.updated)
-
         card_1 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
         card_2 = objects.Card(relations.CARD_TYPE.ADD_GOLD_COMMON, available_for_auction=True)
         card_3 = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_LEGENDARY)
@@ -70,7 +67,6 @@ class ContainerTests(testcase.TestCase):
                                                           mock.call(self.account.id, card_2),
                                                           mock.call(self.account.id, card_3)])
 
-        self.assertTrue(self.container.updated)
         self.assertEqual(self.container._cards, {card_1.uid: card_1,
                                                  card_2.uid: card_2,
                                                  card_3.uid: card_3})
@@ -83,14 +79,11 @@ class ContainerTests(testcase.TestCase):
         self.container.add_card(card_1)
         self.container.add_card(card_2)
 
-        self.container.updated = False
-
         with mock.patch('the_tale.finances.market.goods_types.BaseGoodType.sync_removed_item') as sync_removed_item:
             self.container.remove_card(card_1.uid)
 
         self.assertEqual(sync_removed_item.call_args_list, [mock.call(self.account.id, card_1)])
 
-        self.assertTrue(self.container.updated)
         self.assertEqual(self.container._cards, {card_2.uid: card_2})
 
 

@@ -75,8 +75,6 @@ class BuildingCreate(BasePersonBill):
     def base_name(self): return self.building_name_forms.normal_form()
 
     def has_meaning(self):
-        print(self.x, self.y)
-        print((self.x, self.y) in places_logic.get_available_positions(center_x=self.person.place.x, center_y=self.person.place.y))
         return (self.person and
                 places_storage.buildings.get_by_person_id(self.person.id) is None and
                 (self.x, self.y) in places_logic.get_available_positions(center_x=self.person.place.x, center_y=self.person.place.y))

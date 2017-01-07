@@ -403,7 +403,6 @@ class ChooseAbilityTaskTest(TestCase):
         task = ChooseHeroAbilityTask(self.hero.id, battle_abilities.HIT.get_id())
 
         self.hero.abilities.abilities[battle_abilities.HIT.get_id()].level = battle_abilities.HIT.MAX_LEVEL
-        self.hero.abilities.updated = True
         logic.save_hero(self.hero)
 
         with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.get_for_choose', lambda x: [ABILITIES[task.ability_id]]):

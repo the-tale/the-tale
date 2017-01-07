@@ -68,8 +68,7 @@ class ActionBase(object):
                   'back',
                   'info_link',
                   'saved_meta_action',
-                  'replane_required',
-                  'updated')
+                  'replane_required')
 
 
     class STATE:
@@ -108,8 +107,6 @@ class ActionBase(object):
                  meta_action=None,
                  replane_required=False,
                  hero=None):
-
-        self.updated = False
 
         self.hero = hero
 
@@ -353,8 +350,6 @@ class ActionBase(object):
         pass
 
     def process_action(self):
-        self.hero.actions.updated = True
-
         self.process()
 
         # remove only leader action
@@ -477,8 +472,6 @@ class ActionIdlenessPrototype(ActionBase):
 
         self.percents = 1.0
         self.hero.actions.current_action.percents = self.percents
-
-        self.updated = True
 
         return True
 
@@ -712,8 +705,6 @@ class ActionMoveToPrototype(ActionBase):
 
         if self.percents + E > stop_percents:
             self.state = self.STATE.PROCESSED
-
-        self.updated = True
 
         return True
 
@@ -1043,8 +1034,6 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         if self.mob.health <= 0:
             self.on_mob_killed()
 
-        self.updated = True
-
         return True
 
     def fast_resurrect(self):
@@ -1056,7 +1045,6 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         self.hero.resurrect()
 
-        self.updated = True
         return True
 
     def _kill_mob(self, hero_alive=True):
@@ -1185,7 +1173,6 @@ class ActionResurrectPrototype(ActionBase):
         self.hero.resurrect()
         self.state = self.STATE.PROCESSED
 
-        self.updated = True
         return True
 
 

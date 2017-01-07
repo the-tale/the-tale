@@ -25,7 +25,6 @@ class MessagesContainerTest(testcase.TestCase):
 
     def test_create(self):
         self.assertEqual(self.messages.messages, collections.deque())
-        self.assertFalse(self.messages.updated)
 
     def test_serialize(self):
         self.messages.push_message(self.create_message('1'))
@@ -36,18 +35,12 @@ class MessagesContainerTest(testcase.TestCase):
     def test_clear(self):
         self.messages.push_message(self.create_message('1'))
 
-        self.messages.updated = False
-
         self.messages.clear()
 
-        self.assertTrue(self.messages.updated)
         self.assertEqual(self.messages.messages, collections.deque())
 
-        self.messages.updated = False
-
         self.messages.clear()
 
-        self.assertFalse(self.messages.updated)
         self.assertEqual(self.messages.messages, collections.deque())
 
 

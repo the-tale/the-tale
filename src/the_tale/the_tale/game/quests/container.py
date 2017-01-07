@@ -8,7 +8,7 @@ from the_tale.game.quests.conf import quests_settings
 
 class QuestsContainer(object):
 
-    __slots__ = ('updated', 'quests_list', 'history', 'interfered_persons', 'hero', '_ui_info')
+    __slots__ = ('quests_list', 'history', 'interfered_persons', 'hero', '_ui_info')
 
     def __init__(self):
         self.quests_list = []
@@ -19,7 +19,6 @@ class QuestsContainer(object):
         self.mark_updated()
 
     def mark_updated(self):
-        self.updated = True
         self._ui_info = None
 
     def serialize(self):

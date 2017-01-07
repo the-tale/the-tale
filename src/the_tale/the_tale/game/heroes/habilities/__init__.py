@@ -25,13 +25,12 @@ __all__ = ['ABILITIES', 'ABILITY_LOGIC_TYPE', 'ABILITY_TYPE', 'ABILITY_AVAILABIL
 
 class AbilitiesPrototype(object):
 
-    __slots__ = ('abilities', 'reseted_at', 'destiny_points_spend', 'updated', 'hero')
+    __slots__ = ('abilities', 'reseted_at', 'destiny_points_spend', 'hero')
 
     def __init__(self):
         self.abilities = {}
         self.reseted_at = datetime.datetime.now()
         self.destiny_points_spend = 0
-        self.updated = False
         self.hero = None
 
     def set_reseted_at(self, reseted_at):
@@ -67,7 +66,6 @@ class AbilitiesPrototype(object):
         self.destiny_points_spend += 1
         self.reseted_at = datetime.datetime.now()
         self.initialize()
-        self.updated = True
 
         if self.hero:
             self.hero.reset_accessors_cache()
@@ -106,7 +104,6 @@ class AbilitiesPrototype(object):
         return self.abilities[ability_id]
 
     def add(self, ability_id, level=1):
-        self.updated = True
         self.abilities[ability_id] = ABILITIES[ability_id](level=level)
         self.destiny_points_spend += 1
 
@@ -114,7 +111,6 @@ class AbilitiesPrototype(object):
             self.hero.reset_accessors_cache()
 
     def increment_level(self, ability_id):
-        self.updated = True
         self.abilities[ability_id].level += 1
         self.destiny_points_spend += 1
 
@@ -196,7 +192,6 @@ class AbilitiesPrototype(object):
 
             ability = random.choice(candidates)
             ability.level += 1
-            self.updated = True
 
         if self.hero:
             self.hero.reset_accessors_cache()
@@ -249,8 +244,6 @@ class AbilitiesPrototype(object):
         while old_choices == new_choices:
             self.destiny_points_spend += 1
             new_choices = set(ability.get_id() for ability in self.get_for_choose())
-
-        self.updated = True
 
         if self.hero:
             self.hero.reset_accessors_cache()

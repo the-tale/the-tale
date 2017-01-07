@@ -276,11 +276,6 @@ def save_hero(hero, new=False):
     else:
         models.Hero.objects.filter(id=hero.id).update(**arguments)
 
-
-    hero.journal.updated = False
-    hero.actions.updated = False
-    hero.preferences.updated = False
-
     hero.saved_at_turn = arguments['saved_at_turn']
     hero.saved_at = arguments['saved_at']
 

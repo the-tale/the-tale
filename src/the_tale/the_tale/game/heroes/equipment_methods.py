@@ -161,7 +161,7 @@ class EquipmentMethodsMixin(object):
         for slot in choices:
             artifact = self.equipment.get(slot)
             if artifact is not None and artifact.sharp(distribution, max_power):
-                self.equipment.updated = True
+                self.equipment.mark_updated()
                 return artifact
 
         # if all artifacts are on maximum level
@@ -169,7 +169,7 @@ class EquipmentMethodsMixin(object):
         for slot in choices:
             artifact = self.equipment.get(slot)
             if artifact is not None and artifact.sharp(distribution, max_power, force=True):
-                self.equipment.updated = True
+                self.equipment.mark_updated()
                 return artifact
 
     def damage_integrity(self):

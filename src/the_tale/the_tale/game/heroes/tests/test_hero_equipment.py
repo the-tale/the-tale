@@ -73,13 +73,16 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
     def test_sharp_artifact(self):
         old_power = self.hero.power
-        artifact = self.hero.sharp_artifact()
+
+        with mock.patch('the_tale.game.heroes.bag.Equipment.mark_updated') as mark_updated:
+            artifact = self.hero.sharp_artifact()
+
+        self.assertTrue(mark_updated.call_count >= 1)
+
         self.assertTrue(self.hero.power.physic > old_power.physic or
                         self.hero.power.magic > old_power.magic)
         self.assertTrue(artifact.power == Power(2, 1) or
                         artifact.power == Power(1, 2))
-        self.assertTrue(self.hero.equipment.updated)
-
 
     def test_sharp_artifact_when_all_artifacts_has_max_power(self):
         distribution = self.hero.preferences.archetype.power_distribution
@@ -89,14 +92,17 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
             artifact.power = max_power.clone()
 
         old_power = self.hero.power
-        artifact = self.hero.sharp_artifact()
+
+        with mock.patch('the_tale.game.heroes.bag.Equipment.mark_updated') as mark_updated:
+            artifact = self.hero.sharp_artifact()
+
+        self.assertTrue(mark_updated.call_count >= 1)
 
         self.assertTrue(self.hero.power.physic > old_power.physic or
                         self.hero.power.magic > old_power.magic)
 
         self.assertTrue(artifact.power == max_power + Power(1, 0) or
                         artifact.power == max_power + Power(0, 1))
-        self.assertTrue(self.hero.equipment.updated)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_sharp_preferences(self):

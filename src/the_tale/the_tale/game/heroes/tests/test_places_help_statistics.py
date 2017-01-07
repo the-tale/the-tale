@@ -24,7 +24,6 @@ class PlacesHelpStatisticsTests(testcase.TestCase):
         self.statistics.add_place(4)
 
     def test_initialization(self):
-        self.assertFalse(self.statistics.updated)
         self.assertEqual(self.statistics.history, collections.deque())
 
     def test_serialization(self):
@@ -37,9 +36,7 @@ class PlacesHelpStatisticsTests(testcase.TestCase):
 
 
     def test_add_place(self):
-        self.assertFalse(self.statistics.updated)
         self.statistics.add_place(1)
-        self.assertTrue(self.statistics.updated)
         self.statistics.add_place(1)
         self.assertEqual(len(self.statistics.history), 2)
 

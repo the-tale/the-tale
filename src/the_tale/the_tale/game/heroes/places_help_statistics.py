@@ -9,11 +9,10 @@ from the_tale.game.heroes.conf import heroes_settings
 
 class PlacesHelpStatistics(object):
 
-    __slots__ = ('history', 'updated')
+    __slots__ = ('history',)
 
     def __init__(self):
         self.history = collections.deque(maxlen=heroes_settings.PLACE_HELP_HISTORY_SIZE)
-        self.updated = False
 
     def serialize(self):
         return {'history': list(self.history)}
@@ -25,7 +24,6 @@ class PlacesHelpStatistics(object):
         return obj
 
     def add_place(self, place_id, value=1):
-        self.updated = True
         self.history.append((place_id, value))
 
     def _get_places_statisitcs(self):
@@ -56,5 +54,4 @@ class PlacesHelpStatistics(object):
         return [place_id for place_id, helps_number in common_places if helps_number >= min_helps_number]
 
     def _reset(self):
-        self.updated = True
         self.history = collections.deque(maxlen=heroes_settings.PLACE_HELP_HISTORY_SIZE)

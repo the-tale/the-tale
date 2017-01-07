@@ -95,7 +95,6 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
 
     def test_can_reset_abilities(self):
         self.hero.abilities.set_reseted_at(datetime.datetime.fromtimestamp(0))
-        self.hero.abilities.updated = True
         logic.save_hero(self.hero)
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)),
                            texts=(('pgf-reset-abilities-timeout-button', 0),
@@ -215,7 +214,6 @@ class ResetAbilitiesRequestsTests(HeroRequestsTestBase):
         super(ResetAbilitiesRequestsTests, self).setUp()
 
         self.hero.abilities.set_reseted_at(datetime.datetime.fromtimestamp(0))
-        self.hero.abilities.updated = True
         logic.save_hero(self.hero)
 
     def test_wrong_ownership(self):
@@ -227,7 +225,6 @@ class ResetAbilitiesRequestsTests(HeroRequestsTestBase):
 
     def test_reset_timeout(self):
         self.hero.abilities.set_reseted_at(datetime.datetime.now())
-        self.hero.abilities.updated = True
         logic.save_hero(self.hero)
         self.check_ajax_error(self.post_ajax_json(url('game:heroes:reset-abilities', self.hero.id)),
                               'heroes.reset_abilities.reset_timeout')

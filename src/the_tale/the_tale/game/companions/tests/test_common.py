@@ -63,7 +63,7 @@ class CommonTests(testcase.TestCase):
 
         old_health = self.hero.companion.health
 
-        print('defend_probability: ', self.hero.companion.defend_in_battle_probability)
+        # print('defend_probability: ', self.hero.companion.defend_in_battle_probability)
 
         # for i in xrange(50):
         #     self.hero.randomized_level_up(increment_level=True)
@@ -79,14 +79,13 @@ class CommonTests(testcase.TestCase):
             if not self.hero.is_alive:
                 if hasattr(self.hero.actions.current_action, 'fast_resurrect'):
                     self.hero.actions.current_action.fast_resurrect()
-                print('!')
 
             if self.hero.companion:
-                if old_health != self.hero.companion.health:
-                    print('%.2f:\t%s -> %s [%s] c%s' % ( (current_time.turn_number / c.TURNS_IN_HOUR / 24.0),
-                                                          self.hero.companion.health - self.hero.companion.max_health,
-                                                          self.hero.companion.health,
-                                                          self.hero.companion.health - old_health,
-                                                          self.hero.companion.coherence))
+                # if old_health != self.hero.companion.health:
+                #     print('%.2f:\t%s -> %s [%s] c%s' % ( (current_time.turn_number / c.TURNS_IN_HOUR / 24.0),
+                #                                           self.hero.companion.health - self.hero.companion.max_health,
+                #                                           self.hero.companion.health,
+                #                                           self.hero.companion.health - old_health,
+                #                                           self.hero.companion.coherence))
 
                 old_health = self.hero.companion.health

@@ -237,15 +237,12 @@ class SupervisorWorkerTests(testcase.TestCase):
         hero_6 = heroes_logic.load_hero(account_id=account_6.id)
 
         hero_3.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
-        hero_3.actions.updated = True
         heroes_logic.save_hero(hero_3)
 
         hero_4.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
-        hero_4.actions.updated = True
         heroes_logic.save_hero(hero_4)
 
         hero_6.actions.current_action.bundle_id = hero_2.actions.current_action.bundle_id
-        hero_6.actions.updated = True
         heroes_logic.save_hero(hero_6)
 
         self.worker.initialize()

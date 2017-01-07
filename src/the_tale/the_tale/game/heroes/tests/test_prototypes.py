@@ -311,8 +311,6 @@ class HeroTest(testcase.TestCase):
 
         self.hero.journal.clear()
 
-        self.hero.journal.updated = False
-
         self.assertTrue(self.hero.is_active)
 
         with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):

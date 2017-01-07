@@ -1,4 +1,6 @@
 # coding: utf-8
+from unittest import mock
+
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.game.logic import create_test_map
@@ -31,7 +33,6 @@ class BagTests(TestCase):
 
     def test_create(self):
         self.assertEqual(self.bag.next_uuid, 0)
-        self.assertEqual(self.bag.updated, True)
         self.assertEqual(self.bag.bag, {})
         self.assertEqual(self.bag._ui_info, None)
 
@@ -48,7 +49,6 @@ class BagTests(TestCase):
 
         self.assertEqual(artifact.bag_uuid, None)
 
-        self.bag.updated = False
         self.bag._ui_info = 'fake ui info'
 
         with self.check_delta(lambda: self.bag.occupation, 1):
@@ -57,7 +57,6 @@ class BagTests(TestCase):
 
         self.assertNotEqual(artifact.bag_uuid, None)
 
-        self.assertTrue(self.bag.updated)
         self.assertEqual(self.bag._ui_info, None)
 
         self.assertEqual(list(self.bag.bag.values())[0], artifact)
@@ -67,13 +66,11 @@ class BagTests(TestCase):
 
         self.bag.put_artifact(artifact)
 
-        self.bag.updated = False
         self.bag._ui_info = 'fake ui info'
 
         with self.check_delta(lambda: self.bag.occupation, -1):
             self.bag.pop_artifact(artifact)
 
-        self.assertTrue(self.bag.updated)
         self.assertEqual(self.bag._ui_info, None)
 
         self.assertEqual(self.bag.bag, {})
@@ -94,12 +91,10 @@ class BagTests(TestCase):
 
 
     def test_mark_updated(self):
-        self.bag.updated = False
         self.bag._ui_info = 'fake ui info'
 
         self.bag.mark_updated()
 
-        self.assertTrue(self.bag.updated)
         self.assertEqual(self.bag._ui_info, None)
 
 
@@ -122,7 +117,6 @@ class EquipmentTests(TestCase):
 
 
     def test_create(self):
-        self.assertEqual(self.equipment.updated, True)
         self.assertEqual(self.equipment.equipment, {})
         self.assertEqual(self.equipment._ui_info, None)
 
@@ -147,32 +141,28 @@ class EquipmentTests(TestCase):
         self.assertEqual(self.equipment._ui_info, None)
 
     def test_mark_updated(self):
-        self.equipment.updated = False
         self.equipment._ui_info = 'fake ui info'
 
         self.equipment.mark_updated()
 
-        self.assertTrue(self.equipment.updated)
         self.assertEqual(self.equipment._ui_info, None)
 
     def test_get__mark_updated_called(self):
-        self.equipment.updated = False
+        with mock.patch('the_tale.game.heroes.bag.Equipment.mark_updated') as mark_updated:
+            self.equipment.get(relations.EQUIPMENT_SLOT.PLATE)
 
-        self.equipment.get(relations.EQUIPMENT_SLOT.PLATE)
+        self.assertEqual(mark_updated.call_count, 1)
 
-        self.assertTrue(self.equipment.updated)
 
     def test_values__mark_updated_called(self):
-        self.equipment.updated = False
+        with mock.patch('the_tale.game.heroes.bag.Equipment.mark_updated') as mark_updated:
+            list(self.equipment.values())
 
-        list(self.equipment.values())
-
-        self.assertTrue(self.equipment.updated)
+        self.assertEqual(mark_updated.call_count, 1)
 
 
     def test_quests_cache_reseted(self):
-        self.hero.quests.updated = False
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:
+            self.equipment.mark_updated()
 
-        self.equipment.mark_updated()
-
-        self.assertTrue(self.hero.quests.updated)
+        self.assertEqual(mark_updated.call_count, 1)

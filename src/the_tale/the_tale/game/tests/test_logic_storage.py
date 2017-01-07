@@ -141,28 +141,22 @@ class LogicStorageTests(testcase.TestCase):
         self.hero_1.health = 1
         self.hero_2.health = 1
 
-        self.hero_1.actions.updated = True
-
         self.storage._save_hero_data(self.hero_1.id)
 
         self.assertEqual(self.hero_1.health, heroes_logic.load_hero(hero_id=self.hero_1.id).health)
         self.assertNotEqual(self.hero_2.health, heroes_logic.load_hero(hero_id=self.hero_2.id).health)
 
-        self.assertFalse(self.hero_1.actions.updated)
 
     def test_save_all(self):
 
         self.hero_1.health = 1
         self.hero_2.health = 1
 
-        self.hero_1.actions.updated = True
-
         self.storage.save_all()
 
         self.assertEqual(self.hero_1.health, heroes_logic.load_hero(hero_id=self.hero_1.id).health)
         self.assertEqual(self.hero_2.health, heroes_logic.load_hero(hero_id=self.hero_2.id).health)
 
-        self.assertFalse(self.hero_1.actions.updated)
 
     def test_save_hero_data_with_meta_action(self):
         bundle_id = 666

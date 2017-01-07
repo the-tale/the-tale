@@ -199,7 +199,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.assertTrue(self.action_battle.mob.health < old_mob_health)
         self.assertTrue(self.action_battle.percents > old_action_percents)
-        self.assertTrue(self.action_battle.updated)
+
 
     def test_bit_mob_and_kill(self):
 
@@ -207,14 +207,12 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.assertEqual(self.action_battle.mob.health, self.action_battle.mob.max_health - 1)
         self.assertTrue(0 < self.action_battle.percents < 1)
-        self.assertTrue(self.action_battle.updated)
 
         self.assertEqual(self.action_battle.state, self.action_battle.STATE.BATTLE_RUNNING)
 
         self.action_battle.bit_mob(self.action_battle.mob.max_health)
         self.assertEqual(self.action_battle.mob.health, 0)
         self.assertEqual(self.action_battle.percents, 1)
-        self.assertTrue(self.action_battle.updated)
 
         self.assertEqual(self.action_battle.state, self.action_battle.STATE.PROCESSED)
 
