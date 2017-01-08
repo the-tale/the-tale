@@ -6,7 +6,7 @@
 {% import 'blogs/macros.html' as blogs_macros with context %}
 
 {% block title %} {{ bill.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
-{% block description %}Информация о законе «{{ bill.caption }}».{% endblock %}
+{% block description %}Информация о записи «{{ bill.caption }}».{% endblock %}
 
 {% block bills_content %}
 
@@ -17,7 +17,7 @@
 <div class="pagination">
   <ul>
     <li>
-      {{ base_macros.addthis_short("Закон «%s»" % bill.caption, bill.rationale_html|safe, url=full_url('http', 'game:bills:show', bill.id)) }}
+      {{ base_macros.addthis_short("Запись «%s»" % bill.caption, bill.rationale_html|safe, url=full_url('http', 'game:bills:show', bill.id)) }}
     </li>
 
     {% if bill.state.is_VOTING %}
@@ -40,7 +40,7 @@
   {% if not bill.state.is_VOTING %}
     {# display nothing #}
   {% elif not resource.account.is_authenticated %}
-    {{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
+    {{ base_macros.registration_required_message("иметь возможность создавать записи и голосовать.") }}
   {% elif not resource.can_vote %}
 
     <p class="alert alert-info pgf-can-not-participate-in-politics">
@@ -51,11 +51,11 @@
 
     <div class="alert alert-info pgf-can-not-vote-message">
       <p>
-        Вы не можете участвовать в голосовании по этому закону. Возможные причины:
+        Вы не можете участвовать в голосовании по этой записи. Возможные причины:
       </p>
 
       <ul>
-        <li>Закон касается городов, которым вы не помогаете.</li>
+        <li>Запись касается городов, в которых Ваш герой недостаточно известен.</li>
       </ul>
     </div>
 
@@ -66,7 +66,6 @@
       <ul>
         <li>Вы не сможете изменить своё решение, будьте аккуратны в выборе!</li>
         <li>Отдав свой голос, пригласите своих друзей сделать то же самое.</li>
-        <li>Помните, закон будет принят только если количество проголосовавших «за» превысит как процентный барьер, так и количественный.</li>
       </ul>
 
       <p>

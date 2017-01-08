@@ -11,7 +11,7 @@ class RATING_TYPE(DjangoEnum):
     field = rels.Column()
 
     records = ( ('MIGHT', 'might', 'Могущество', '', 'might'),
-                ('BILLS', 'bills', 'Принятые законы', '', 'bills_count'),
+                ('BILLS', 'bills', 'Принятые записи в Книге Судеб', '', 'bills_count'),
                 ('MAGIC_POWER', 'magic-power', 'Магическая сила героя', '', 'magic_power'),
                 ('PHYSIC_POWER', 'physic-power', 'Физическая сила героя', '', 'physic_power'),
                 ('LEVEL', 'level', 'Уровень героя', '', 'level'),

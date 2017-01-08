@@ -473,7 +473,7 @@ PLACE_RACE_CHANGE_DELTA = (PLACE_RACE_CHANGE_DELTA_IN_DAY * MAP_SYNC_TIME) / (24
 
 PLACE_STABILITY_UNIT = float(0.1) # базовая единица изменения стабильности
 
-# считаем что штраф от одного закона должен восстанавливаться за неделю
+# считаем что штраф от одной записи в Книге Судеб должен восстанавливаться за неделю
 PLACE_STABILITY_RECOVER_SPEED = float(PLACE_STABILITY_UNIT / (7*24)) # стабильности в час
 
 PLACE_STABILITY_MAX_PRODUCTION_PENALTY = float(-PLACE_GOODS_BONUS * 2)

@@ -125,7 +125,7 @@ def api_show(context):
       "persons": <persons_info>,                   // Мастера
       "attributes": <attributes_info>,             // все параметры города
       "demographics": <demographics_info>,         // расовый состав
-      "bills": <bills_info>,                       // действующие законы
+      "bills": <bills_info>,                       // действующие записи в книге судеб
       "habits": <habits_info>,                     // черты города
       "chronicle": <chronicle_info>,               // последние записи в летописи
       "accounts": <accounts_info>,                 // краткая дополнительная информация об игроках, связанных с городом
@@ -200,9 +200,9 @@ def api_show(context):
     ]
 
     <bills_info> = [
-      { "id": <целое число>,           // идентификатор закона
-        "caption": "строка",           // название закона
-        "properties": ["строка", …] }, // перечень описаний эффектов закона на город
+      { "id": <целое число>,           // идентификатор записи
+        "caption": "строка",           // название записи
+        "properties": ["строка", …] }, // перечень описаний эффектов
       …
     ]
 

@@ -61,7 +61,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('TAX', 10, 'пошлина', verbose_units='%', formatter=attributes.percents_formatter,
                  description='Размер пошлины, которую платят герои при посещении города (процент от наличности в кошельке героя).'),
                 attributes.attr('STABILITY', 11, 'стабильность', order=0, verbose_units='%', formatter=attributes.percents_formatter,
-                 description='Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при принятии законов), и постепенно восстанавливается до 100%.'),
+                 description='Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при одобрении записи в Книге Судеб), и постепенно восстанавливается до 100%.'),
                 attributes.attr('STABILITY_RENEWING_SPEED', 12, 'восстановление стабильности', order=-1, verbose_units='% в час', formatter=attributes.percents_formatter,
                  description='Скорость восстановления стабильности в городе.'),
                 attributes.attr('EXPERIENCE_BONUS', 13, 'бонус к опыту', verbose_units='%', formatter=attributes.percents_formatter,

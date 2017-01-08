@@ -27,7 +27,7 @@ class BILL_TYPE(DjangoEnum):
                 ('BUILDING_DESTROY', 5, 'разрушить постройку',                      1.0 * c.PLACE_STABILITY_UNIT, True),
                 ('BUILDING_RENAMING', 6, 'переименовать постройку',                 0.2 * c.PLACE_STABILITY_UNIT, True),
                 ('PLACE_RESOURCE_EXCHANGE', 7, 'обмен ресурсами',                   0.8 * c.PLACE_STABILITY_UNIT, True),
-                ('BILL_DECLINE', 8, 'отмена закона',                                0.4 * c.PLACE_STABILITY_UNIT, True),
+                ('BILL_DECLINE', 8, 'отмена записи в Книге Судеб',                  0.4 * c.PLACE_STABILITY_UNIT, True),
                 ('PLACE_RESOURCE_CONVERSION', 9, 'изменение параметров города',     0.8 * c.PLACE_STABILITY_UNIT, True),
                 ('PERSON_CHRONICLE', 10, 'запись в летописи о Мастере'  ,           0.2 * c.PLACE_STABILITY_UNIT, True),
                 ('PLACE_CHRONICLE', 11, 'запись в летописи о городе',               0.2 * c.PLACE_STABILITY_UNIT, True),

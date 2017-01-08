@@ -1,8 +1,8 @@
 
 {% extends "bills/base.html" %}
 
-{% block title %}Редактирование законопроекта | {{settings.PAGE_TITLE}}{% endblock %}
-{% block description %}Редактирование закона.{% endblock %}
+{% block title %}Редактирование записи | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Редактирование записи.{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -19,7 +19,7 @@ jQuery(document).ready( function(e) {
 
 {% block bills_content %}
 
-<h3>Редактирование законопроекта <small><a href="{{ url('game:bills:show', bill.id) }}">вернуться</a></small></h3>
+<h3>Редактирование записи <small><a href="{{ url('game:bills:show', bill.id) }}">вернуться</a></small></h3>
 
 {% include "bills/rules.html" with context%}
 

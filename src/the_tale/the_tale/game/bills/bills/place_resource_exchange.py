@@ -69,7 +69,7 @@ class BaseForm(BaseUserForm):
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_1)) or
             c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_2)) ):
-            raise ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных законов' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
+            raise ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных записей в Книге Судьбы' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
 
         resource_1 = cleaned_data.get('resource_1')
         resource_2 = cleaned_data.get('resource_2')
@@ -107,7 +107,7 @@ class PlaceResourceExchange(BaseBill):
     ModeratorForm = ModeratorForm
 
     CAPTION = 'Обмен ресурсами между городами'
-    DESCRIPTION = 'Устанавливает обмен ресурсами между городами. Обмен разрешён только между соседними городами (связанными прямой дорогой), один город может иметь не более %(max_exchanges)d активных законов. Обмен не обязан быть равноценным.' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
+    DESCRIPTION = 'Устанавливает обмен ресурсами между городами. Обмен разрешён только между соседними городами (связанными прямой дорогой), один город может иметь не более %(max_exchanges)d активных записей в Книге Судьбы. Обмен не обязан быть равноценным.' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
 
     def __init__(self, place_1_id=None, place_2_id=None, resource_1=None, resource_2=None, old_place_1_name_forms=None, old_place_2_name_forms=None):
         super(PlaceResourceExchange, self).__init__()

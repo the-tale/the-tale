@@ -49,7 +49,7 @@
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
       <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Мастера</a></li>
       <li><a href="#pgf-cell-place-parameters" class="pgf-cell-place-parameters-button" data-toggle="tab">Параметры</a></li>
-      <li><a href="#pgf-cell-place-bills" class="pgf-cell-place-bills-button" data-toggle="tab">Законы</a></li>
+      <li><a href="#pgf-cell-place-bills" class="pgf-cell-place-bills-button" data-toggle="tab">Записи</a></li>
       <li><a href="#pgf-cell-place-chronicle" class="pgf-cell-place-chronicle-button" data-toggle="tab">События</a></li>
       {% endif %}
       {% if building %}
@@ -126,7 +126,7 @@
 
       <div class="tab-pane active description" id="pgf-cell-place-bills">
         <p>
-          Список <strong>активных</strong> законов (действующих в текущий момент), связанных с городом.
+          Список <strong>активных</strong> записей в Книге Судеб (действующих в текущий момент), связанных с городом.
         </p>
 
         {% if place_bills %}
@@ -145,7 +145,7 @@
           {% endfor %}
 
         {% else %}
-          <p class="alert alert-info">Нет активных законов.</p>
+          <p class="alert alert-info">Нет активных записей в Книге Судеб.</p>
         {% endif %}
       </div>
 

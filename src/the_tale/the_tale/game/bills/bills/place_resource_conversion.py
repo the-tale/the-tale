@@ -66,7 +66,7 @@ class BaseForm(BaseUserForm):
         place = places_storage.places.get(int(cleaned_data['place']))
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place)) ):
-            raise ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных закона' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
+            raise ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных записей в Книге Судеб' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
 
         return cleaned_data
 

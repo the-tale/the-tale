@@ -55,7 +55,7 @@ class MIGHT_AMOUNT(DjangoEnum):
     records = ( ('FOR_FORUM_POST', 0, 'за сообщение на форуме', 0.3, None),
                 ('FOR_FORUM_THREAD', 2, 'со обсуждение на форуме', 3, None),
                 ('FOR_BILL_VOTE', 3, 'за отданый голос', 1, None),
-                ('FOR_BILL_ACCEPTED', 4, 'за принятый закон', 33, None),
+                ('FOR_BILL_ACCEPTED', 4, 'за принятую запись в Книге Судеб', 33, None),
                 ('FOR_MIN_FOLCLOR_POST', 5, 'за фольклорное произведение', 20, None),
                 ('FOR_ADDED_WORD_FOR_PLAYER', 6, 'за слово в лингвистике для игрока', 5, None),
                 ('FOR_ADDED_WORD_FOR_MODERATOR', 7, 'за слово в лингвистике для модератора', 5, None),

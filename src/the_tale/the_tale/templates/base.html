@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta name="keywords" content="ZPG, ZRPG, Zero Player Game, самоиграйка, изменяемый мир, 0-player, тамагочи, браузерная игра, многопользовательская игра, инди игра, песочница">
-    <meta name="description" content="{% block description %}Независимая многопользовательская браузерная ролевая Zero Player Game (ZPG или ZRPG) c «живыми» героями, изменяемым миром и системой политики.{% endblock %}"></meta>
+    <meta name="description" content="{% block description %}Независимая многопользовательская браузерная ролевая Zero Player Game (ZPG или ZRPG) c «живыми» героями и изменяющимся миром.{% endblock %}"></meta>
     <meta name="author" content="Tiendil">
     <link href="{{ url('news:feed') }}" type="application/atom+xml" rel="alternate" title="Новости" />
     <link href="{{ url('forum:feed') }}" type="application/atom+xml" rel="alternate" title="Форум" />
@@ -170,7 +170,7 @@ jQuery(document).ready(function() {
                                                                          (url("guide:quests"), "Задания"),
                                                                          (url("guide:persons"), "Мастера"),
                                                                          (url("guide:cities"), "Города"),
-                                                                         (url("guide:politics"), "Политика"),
+                                                                         (url("guide:politics"), "Книга Судеб"),
                                                                          (url("guide:clans"), "Гильдии"),
                                                                          (url("guide:map"), "Карта"),
                                                                          (url("guide:pvp"), "PvP"),
@@ -196,7 +196,7 @@ jQuery(document).ready(function() {
                                                                            (settings.SOCIAL_WIKI_URL, "Wiki"),
                                                                            (settings.SOCIAL_DARK_THEME_URL, "Тёмная тема")]) }}
 
-            {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),
+            {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Книга Судеб"),
                                                                 (url("linguistics:"), "Лингвистика"),
                                                                 (url("blogs:posts:"), "Фольклор"),
                                                                 (url("game:chronicle:"), "Летопись"),

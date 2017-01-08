@@ -55,7 +55,7 @@ class Bill(models.Model):
     def __str__(self): return '{}-{}'.format(self.id, self.caption)
 
     class Meta:
-        permissions = (("moderate_bill", "Может администрировать законопроекты"), )
+        permissions = (("moderate_bill", "Может администрировать записи в Книге Судеб"), )
 
 
 class Actor(models.Model):
