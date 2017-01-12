@@ -17,7 +17,6 @@ pgf.game.constants = {
     PERSON_TYPE_TO_TEXT: {{person_type_to_text|safe}},
 
     RACE_TO_TEXT: {{race_to_text|safe}},
-    RACE_TO_STR: {{race_to_str|safe}},
 
     GAME_STATE: {{game_state|safe}},
 };

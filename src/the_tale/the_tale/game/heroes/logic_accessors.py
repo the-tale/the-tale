@@ -291,8 +291,6 @@ class LogicAccessorsMixin(object):
                         if bill_voted_time > time_border]),
                    conf.heroes_settings.ACTIVE_BILLS_MAXIMUM)
 
-    @property
-    def gender_verbose(self): return self.gender.text
 
     @property
     def power(self): return power.Power.clean_power_for_hero_level(self.level) + self.equipment.get_power()
@@ -303,7 +301,12 @@ class LogicAccessorsMixin(object):
         return damage.multiply(self.physic_damage_modifier, self.magic_damage_modifier)
 
     @property
-    def race_verbose(self): return self.race.text
+    def race_verbose(self):
+        if self.gender.is_FEMININE:
+            return self.race.female_text
+
+        return self.race.male_text
+
 
     @property
     def health_percents(self): return float(self.health) / self.max_health

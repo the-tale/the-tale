@@ -28,7 +28,6 @@
 {% if not short %}<td>{{ hero.might|int }}</td>{% endif %}
 {% if not short %}<td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>{% endif %}
 <td>
-  {{ hero.gender_verbose }}
   {{ hero.race_verbose }}
   <a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name }}</a>
 </td>

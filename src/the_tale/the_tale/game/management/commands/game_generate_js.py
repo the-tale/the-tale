@@ -33,14 +33,18 @@ class Command(BaseCommand):
                                   for key in linguistics_keys.LEXICON_KEY.records
                                   if key.ui_text is not None}
 
+        race_to_text = {}
+        for race in RACE.records:
+            race_to_text[race.value] = {'male': race.male_text,
+                                        'female': race.female_text}
+
         with open(game_settings.JS_CONSTNATS_FILE_LOCATION, 'w') as f:
             f.write(jinja2.render('game/js_constants.js',
                                   context={'actor_type': s11n.to_json({a.name: a.value for a in ACTOR_TYPE.records}),
                                            'gender_to_text': s11n.to_json(dict(GENDER.select('value', 'text'))),
                                            'gender_to_str': s11n.to_json(dict(GENDER.select('value', 'name'))),
                                            'person_type_to_text': s11n.to_json(dict(PERSON_TYPE.select('value', 'text'))),
-                                           'race_to_text': s11n.to_json(dict(RACE.select('value', 'text'))),
-                                           'race_to_str': s11n.to_json(dict(RACE.select('value', 'name'))),
+                                           'race_to_text': s11n.to_json(race_to_text),
                                            'game_state': s11n.to_json(dict(GAME_STATE.select('name', 'value'))),
                                            'ARTIFACT_TYPE': artifacts_relations.ARTIFACT_TYPE,
                                            'NO_EFFECT': artifacts_relations.ARTIFACT_EFFECT.NO_EFFECT,

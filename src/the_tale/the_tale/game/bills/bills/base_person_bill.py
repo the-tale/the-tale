@@ -57,11 +57,10 @@ class BasePersonBill(BaseBill):
 
     @property
     def person_race_verbose(self):
-        return self.person_race.text
+        if self.person_gender.is_FEMININE:
+            return self.person_race.female_text
 
-    @property
-    def person_gender_verbose(self):
-        return self.person_gender.text
+        return self.person_race.male_text
 
     def user_form_initials(self):
         return {'person': self.person_id}
@@ -116,6 +115,6 @@ class BasePersonBill(BaseBill):
         if 'old_place_name_forms' in data:
             obj.old_place_name_forms = utg_words.Word.deserialize(data['old_place_name_forms'])
         else:
-            obj.old_place_name_forms = names.generator().get_fast_name('название неизвестно')
+            obj.old_place_name_forms = names.generator().get_fast_name('название утрачено')
 
         return obj

@@ -87,6 +87,6 @@ class BuildingDestroy(BasePersonBill):
         if 'building_name_forms' in data:
             obj.building_name_forms = utg_words.Word.deserialize(data['building_name_forms'])
         else:
-            obj.building_name_forms = names.generator().get_fast_name('название неизвестно')
+            obj.building_name_forms = names.generator().get_fast_name('название утрачено')
 
         return obj

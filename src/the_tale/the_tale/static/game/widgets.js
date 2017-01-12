@@ -22,6 +22,14 @@ pgf.game.events.GAME_DATA_SHOWED =  'pgf-game-data-showed';
 pgf.game.events.DIARY_REFRESHED = 'pgs-diary-refreshed';
 
 
+pgf.game.GetRaceText = function(race, gender) {
+
+    if (gender == 1) return pgf.game.constants.RACE_TO_TEXT[race].female;
+
+    return pgf.game.constants.RACE_TO_TEXT[race].male;
+};
+
+
 pgf.game.Updater = function(params) {
 
     var INITIAL_REFRESH_DELAY = 1000;
@@ -244,8 +252,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-diary-block-experience-to-level').text(data.base.experience_to_level);
 
         jQuery('.pgf-race-gender').removeClass('pgf-hidden');
-        jQuery('.pgf-gender', widget).text(pgf.game.constants.GENDER_TO_TEXT[data.base.gender]);
-        jQuery('.pgf-race', widget).text(pgf.game.constants.RACE_TO_TEXT[data.base.race]);
+        jQuery('.pgf-race', widget).text(pgf.game.GetRaceText(data.base.race, data.base.gender));
 
         jQuery('.pgf-health-percents', widget).width( (100 * data.base.health / data.base.max_health) + '%');
         jQuery('.pgf-experience-percents', widget).width( (100 * data.base.experience / data.base.experience_to_level) + '%');
@@ -360,14 +367,12 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         popoverTitle = 'Мастер';
 
         var place = widgets.mapManager.GetPlaceData(data.place);
-        var race = pgf.game.constants.RACE_TO_TEXT[data.race];
-        var gender = pgf.game.constants.GENDER_TO_TEXT[data.gender];
+        var race = pgf.game.GetRaceText(data.race, data.gender);
         var profession = pgf.game.constants.PERSON_TYPE_TO_TEXT[data.profession];
 
         var content = jQuery('#pgf-popover-person').clone();
         if (place) jQuery('.pgf-place', content).text(place.name);
         jQuery('.pgf-race', content).text(race);
-        jQuery('.pgf-gender', content).text(gender);
         jQuery('.pgf-type', content).text(profession);
 
         nameElement.click(function(e){

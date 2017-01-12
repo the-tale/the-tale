@@ -53,7 +53,7 @@
         <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
         {% endif %}
       </td>
-      <td>{{ hero.gender_verbose}} {{ hero.race_verbose }} <a href="{{url('game:heroes:show', hero.id)}}">{{ hero.name }}</a></td>
+      <td>{{ hero.race_verbose }} <a href="{{url('game:heroes:show', hero.id)}}">{{ hero.name }}</a></td>
       <td>{{ value_getter(values[rating.account_id]) }}</td>
     </tr>
     {% endfor %}
