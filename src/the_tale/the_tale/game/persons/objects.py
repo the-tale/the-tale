@@ -252,6 +252,8 @@ class Person(names.ManageNameMixin2):
                 'race': self.race.value,
                 'gender': self.gender.value,
                 'profession': self.type.value,
+                'personality': {'practical': self.personality_practical.value,
+                                'cosmetic': self.personality_cosmetic.value},
                 'place': self.place.id}
 
 

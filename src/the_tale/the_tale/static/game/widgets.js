@@ -23,10 +23,18 @@ pgf.game.events.DIARY_REFRESHED = 'pgs-diary-refreshed';
 
 
 pgf.game.GetRaceText = function(race, gender) {
-
     if (gender == 1) return pgf.game.constants.RACE_TO_TEXT[race].female;
-
     return pgf.game.constants.RACE_TO_TEXT[race].male;
+};
+
+pgf.game.GetPersonalityPracticalText = function(personality, gender) {
+    if (gender == 1) return pgf.game.constants.PERSONALITY_PRACTICAL_TO_TEXT[personality].female;
+    return pgf.game.constants.PERSONALITY_PRACTICAL_TO_TEXT[personality].male;
+};
+
+pgf.game.GetPersonalityCosmeticText = function(personality, gender) {
+    if (gender == 1) return pgf.game.constants.PERSONALITY_COSMETIC_TO_TEXT[personality].female;
+    return pgf.game.constants.PERSONALITY_COSMETIC_TO_TEXT[personality].male;
 };
 
 
@@ -368,11 +376,15 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
 
         var place = widgets.mapManager.GetPlaceData(data.place);
         var race = pgf.game.GetRaceText(data.race, data.gender);
+        var personalityPractical = pgf.game.GetPersonalityPracticalText(data.personality.practical, data.gender)
+        var personalityCosmetic = pgf.game.GetPersonalityCosmeticText(data.personality.cosmetic, data.gender)
         var profession = pgf.game.constants.PERSON_TYPE_TO_TEXT[data.profession];
 
         var content = jQuery('#pgf-popover-person').clone();
         if (place) jQuery('.pgf-place', content).text(place.name);
         jQuery('.pgf-race', content).text(race);
+        jQuery('.pgf-personality-practical', content).text(personalityPractical);
+        jQuery('.pgf-personality-cosmetic', content).text(personalityCosmetic);
         jQuery('.pgf-type', content).text(profession);
 
         nameElement.click(function(e){
