@@ -102,6 +102,7 @@ def get_api_types():
     from the_tale.game.actions.relations import ACTION_TYPE
     from the_tale.game.quests.relations import ACTOR_TYPE
     from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
+    from the_tale.game.jobs import effects as job_effects
     from the_tale.game.places import modifiers as places_modifiers
     from the_tale.game.places import relations as places_relations
     from the_tale.accounts.third_party.relations import AUTHORISATION_STATE
@@ -142,6 +143,8 @@ def get_api_types():
             TypeReference('person_social', 'Мастер: тип социальной связи', persons_relations.SOCIAL_CONNECTION_TYPE),
             TypeReference('person_personality_cosmetic', 'Мастер: косметические особенности характера', persons_relations.PERSONALITY_COSMETIC),
             TypeReference('person_personality_practival', 'Мастер: практические особенности характера', persons_relations.PERSONALITY_PRACTICAL),
+
+            TypeReference('job_effect', 'Проекты: типы эфектов', job_effects.EFFECT)
            ]
 
 

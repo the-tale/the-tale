@@ -65,6 +65,14 @@ class Job(object):
                    negative_power=data['negative_power'],
                    power_required=data['power_required'])
 
+    def ui_info(self):
+        return { 'name': self.name,
+                 'effect': self.effect.value,
+                 'positive_power': int(self.positive_power),
+                 'negative_power': int(self.negative_power),
+                 'power_required': int(self.power_required)}
+
+
     def give_power(self, power):
         if power > 0:
             self.positive_power += power
