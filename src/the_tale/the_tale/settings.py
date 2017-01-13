@@ -51,6 +51,7 @@ SOCIAL_FACEBOOK_GROUP_URL = None
 
 SOCIAL_WIKI_URL = None
 SOCIAL_DARK_THEME_URL = None
+SOCIAL_GITHUB_URL = 'https://github.com/Tiendil/the-tale'
 
 YOUTUBE_TUTORIAL = None
 
