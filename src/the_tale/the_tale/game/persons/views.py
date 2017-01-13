@@ -8,6 +8,7 @@ from the_tale.common.utils import views as utils_views
 from the_tale.accounts import views as accounts_views
 
 from the_tale.game.heroes import logic as heroes_logic
+from the_tale.game.chronicle import prototypes as chronicle_prototypes
 
 from the_tale.game import short_info as game_short_info
 
@@ -101,4 +102,5 @@ def show(context):
                                     'accounts_short_infos': accounts_short_infos,
                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
                                     'social_connections': storage.social_connections.get_connected_persons(context.person),
+                                    'master_chronicle': chronicle_prototypes.chronicle_info(context.person, conf.settings.CHRONICLE_RECORDS_NUMBER),
                                     'resource': context.resource})

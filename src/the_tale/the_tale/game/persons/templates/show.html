@@ -3,6 +3,7 @@
 {% import 'blogs/macros.html' as blogs_macros with context %}
 {% import 'game/macros.html' as game_macros with context %}
 {% import 'persons/macros.html' as persons_macros with context %}
+{% import 'chronicle/macros.html' as chronicle_macros with context %}
 
 {% block title %} {{ person.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о Мастере «{{person.name}}»{% endblock %}
@@ -122,6 +123,78 @@
       У Мастера нет связей.
     </p>
   {% endif %}
+
+
+  <div class="accordion" id="pgf-person-accordion">
+
+    <div class="accordion-group">
+      <div class="accordion-heading">
+        <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-person-accordion" href="#pgf-person-specialisations">
+          Специализации
+        </a>
+      </div>
+      <div id="pgf-person-specialisations" class="accordion-body collapse" style="height: 0px;">
+        <div class="accordion-inner">
+
+          <p>
+            Очки специализации отображаются с учётом всех модификаторов.
+          </p>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Специализация</th>
+                <th>Очки влияния</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for name, points in person.specializations_for_ui() %}
+                <tr>
+                  <td>{{name}}</td>
+                  <td style="color:{%if points>1%}green{%elif points<-1%}red{%else%}black{%endif%};">{{points|round(2)}}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div class="accordion-group">
+      <div class="accordion-heading">
+        <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-person-accordion" href="#pgf-person-chronicle">
+          Летопись
+        </a>
+      </div>
+      <div id="pgf-person-chronicle" class="accordion-body collapse" style="height: 0px;">
+        <div class="accordion-inner">
+          <p>
+            Последние события, связаные с Мастером.
+          </p>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>дата</th>
+                <th>событие</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for date_short, date_long, text in master_chronicle %}
+                {{ chronicle_macros.chronicle_record_3(date_short, date_long, text) }}
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 
   <h3>Герои</h3>
 
