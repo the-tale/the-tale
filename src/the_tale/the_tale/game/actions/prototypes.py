@@ -1271,6 +1271,8 @@ class ActionInPlacePrototype(ActionBase):
         if hero.position.place == hero.position.previous_place:
             return prototype
 
+        hero.add_message('action_inplace_enter', hero=hero, place=hero.position.place)
+
         if (hero.energy < hero.energy_maximum and
             random.random() < hero.position.place.attrs.energy_regen_chance):
             energy = hero.change_energy(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)

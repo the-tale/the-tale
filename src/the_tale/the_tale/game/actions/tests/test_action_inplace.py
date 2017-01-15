@@ -114,7 +114,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         with self.check_increased(lambda: self.hero.companion.health):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
-        self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_INPLACE_COMPANION_HEAL)
+        self.assertTrue(any(message.key.is_ACTION_INPLACE_COMPANION_HEAL for message in self.hero.journal.messages))
 
         self.storage._test_save()
 
@@ -206,10 +206,9 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_delta(lambda: len(self.hero.journal.messages), 1):
-            with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
-                with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
-                    prototypes.ActionInPlacePrototype.create(hero=self.hero)
+        with self.check_delta(lambda: self.hero.statistics.money_spend, 0):
+            with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 0):
+                prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.money, 0)
 
