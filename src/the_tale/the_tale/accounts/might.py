@@ -1,6 +1,5 @@
 # coding: utf-8
 import math
-import collections
 
 from django.db import models
 from django.utils.html import strip_tags
@@ -21,25 +20,39 @@ from the_tale.linguistics import prototypes as linguistics_prototypes
 from the_tale.linguistics import relations as linguistics_relations
 
 
-def calculate_linguistics_migth(account_id, contribution_type, might_per_entity, source):
+def get_linguistic_entity_info(entity_id, contribution_type, source):
+    contributors = linguistics_prototypes.ContributionPrototype._db_filter(entity_id=entity_id,
+                                                                           source=source,
+                                                                           state=linguistics_relations.CONTRIBUTION_STATE.IN_GAME).order_by('created_at').values_list('type', 'account_id')
 
-    entities_ids = linguistics_prototypes.ContributionPrototype._db_filter(account_id=account_id,
-                                                                           type=contribution_type,
-                                                                           source=source).values_list('entity_id', flat=True)
+    author_type, author_id = contributors[0]
+
+    contributors_count = sum(1 for type, a_id in contributors if type == contribution_type)
+
+    if author_type == contribution_type:
+        contributors_count -= 1
+
+    return author_id, contributors_count
+
+
+def calculate_linguistics_migth(account_id, contribution_type, might_per_added_entity, might_per_edited_entity, source):
 
     state = linguistics_relations.CONTRIBUTION_STATE.IN_GAME
 
-    contributions_per_entity = collections.Counter(linguistics_prototypes.ContributionPrototype._db_filter(type=contribution_type,
-                                                                                                           entity_id__in=entities_ids,
-                                                                                                           source=source,
-                                                                                                           state=state).values_list('entity_id', flat=True))
+    entities_ids = set(linguistics_prototypes.ContributionPrototype._db_filter(account_id=account_id,
+                                                                               type=contribution_type,
+                                                                               state=state,
+                                                                               source=source).values_list('entity_id', flat=True))
 
     might = 0
 
-    might_per_entity = float(might_per_entity)
+    for entity_id in entities_ids:
+        author_id, contributors_count = get_linguistic_entity_info(entity_id, contribution_type, source)
 
-    for contributions_count in contributions_per_entity.values():
-        might += might_per_entity / contributions_count
+        if author_id == account_id:
+            might += might_per_added_entity
+        else:
+            might += might_per_edited_entity / contributors_count
 
     return might
 
@@ -78,19 +91,23 @@ def calculate_might(account): # pylint: disable=R0914
 
     might += calculate_linguistics_migth(account.id,
                                          contribution_type=linguistics_relations.CONTRIBUTION_TYPE.WORD,
-                                         might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD_FOR_PLAYER.amount,
+                                         might_per_added_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD_FOR_PLAYER.amount,
+                                         might_per_edited_entity=relations.MIGHT_AMOUNT.FOR_EDITED_WORD_FOR_PLAYER.amount,
                                          source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
     might += calculate_linguistics_migth(account.id,
                                          contribution_type=linguistics_relations.CONTRIBUTION_TYPE.WORD,
-                                         might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD_FOR_MODERATOR.amount,
+                                         might_per_added_entity=relations.MIGHT_AMOUNT.FOR_ADDED_WORD_FOR_MODERATOR.amount,
+                                         might_per_edited_entity=relations.MIGHT_AMOUNT.FOR_EDITED_WORD_FOR_MODERATOR.amount,
                                          source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
     might += calculate_linguistics_migth(account.id,
                                          contribution_type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE,
-                                         might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE_FOR_PLAYER.amount,
+                                         might_per_added_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE_FOR_PLAYER.amount,
+                                         might_per_edited_entity=relations.MIGHT_AMOUNT.FOR_EDITED_TEMPLATE_FOR_PLAYER.amount,
                                          source=linguistics_relations.CONTRIBUTION_SOURCE.PLAYER)
     might += calculate_linguistics_migth(account.id,
                                          contribution_type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE,
-                                         might_per_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE_FOR_MODERATOR.amount,
+                                         might_per_added_entity=relations.MIGHT_AMOUNT.FOR_ADDED_TEMPLATE_FOR_MODERATOR.amount,
+                                         might_per_edited_entity=relations.MIGHT_AMOUNT.FOR_EDITED_TEMPLATE_FOR_MODERATOR.amount,
                                          source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
 
     folclor_posts = BlogPostProtype.from_query(BlogPostProtype._db_filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED))
