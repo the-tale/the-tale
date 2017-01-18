@@ -123,7 +123,6 @@ class BaseCombination(BaseMetric):
                                               date__gt=self.last_date).order_by('date').values_list('date', 'value_int')
             sources.append(data)
 
-
         for source_record in zip(*sources):
 
             dates, values = zip(*source_record)

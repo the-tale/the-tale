@@ -137,4 +137,28 @@ class RECORD_TYPE(DjangoEnum):
 
                 ('INCOME_FROM_TRANSFER_MONEY_COMMISSION', 107, 'доход от комиссии за перечисление печенек', VALUE_TYPE.INT, 'доход от комиссии за перечисление печенек'),
                 ('INCOME_FROM_TRANSFER_MONEY_COMMISSION_PERCENTS', 108, '% дохода за перечисления печенек', VALUE_TYPE.INT, '% дохода за перечисления печенек'),
+
+                ('FORUM_POSTS', 109, 'сообщений на форуме в день', VALUE_TYPE.INT, 'сообщений на форуме в день'),
+                ('FORUM_POSTS_IN_MONTH', 110, 'сообщений на форуме в месяц', VALUE_TYPE.INT, 'сообщений на форуме в месяц'),
+                ('FORUM_POSTS_TOTAL', 111, 'сообщений на форуме всего', VALUE_TYPE.INT, 'сообщений на форуме всего'),
+                ('FORUM_THREADS', 112, 'тем на форуме в день', VALUE_TYPE.INT, 'тем на форуме в день'),
+                ('FORUM_THREADS_IN_MONTH', 113, 'тем на форуме в месяц', VALUE_TYPE.INT, 'тем на форуме в месяц'),
+                ('FORUM_THREADS_TOTAL', 114, 'тем на форуме всего', VALUE_TYPE.INT, 'тем на форуме всего'),
+                ('FORUM_POSTS_PER_THREAD_IN_MONTH', 115, 'сообщений на тему на форуме в месяц', VALUE_TYPE.INT, 'соообщений на тему на форуме в месяц'),
+
+                ('BILLS', 116, 'записей в Книгу Судеб в день', VALUE_TYPE.INT, 'записей в Книгу Судеб в день'),
+                ('BILLS_IN_MONTH', 117, 'записей в Книгу Судеб в месяц', VALUE_TYPE.INT, 'записей в Книгу Судеб в месяц'),
+                ('BILLS_TOTAL', 118, 'записей в Книгу Судеб всего', VALUE_TYPE.INT, 'записей в Книгу Судеб всего'),
+                ('BILLS_VOTES', 119, 'голосов за запись в день', VALUE_TYPE.INT, 'голосов за запись в день'),
+                ('BILLS_VOTES_IN_MONTH', 120, 'голосов за запись в месяц', VALUE_TYPE.INT, 'голосов за запись в месяц'),
+                ('BILLS_VOTES_TOTAL', 121, 'голосов за запись всего', VALUE_TYPE.INT, 'голосов за запись всего'),
+                ('BILLS_VOTES_PER_BILL_IN_MONTH', 122, 'голосов на закон в месяц', VALUE_TYPE.INT, 'голосов на закон в месяц'),
+
+                ('FOLCLOR_POSTS', 123, 'произведений фольклора в день', VALUE_TYPE.INT, 'произведений фольклора в день'),
+                ('FOLCLOR_POSTS_IN_MONTH', 124, 'произведений фольклора в месяц', VALUE_TYPE.INT, 'произведений фольклора в месяц'),
+                ('FOLCLOR_POSTS_TOTAL', 125, 'произведений фольклора всего', VALUE_TYPE.INT, 'фольклора всего'),
+                ('FOLCLOR_VOTES', 126, 'голосов за произведение в день', VALUE_TYPE.INT, 'голосов за произведение в день'),
+                ('FOLCLOR_VOTES_IN_MONTH', 127, 'голосов за произведение в месяц', VALUE_TYPE.INT, 'голосов за произведение в месяц'),
+                ('FOLCLOR_VOTES_TOTAL', 128, 'голосов за произведение всего', VALUE_TYPE.INT, 'голосов за произведение всего'),
+                ('FOLCLOR_VOTES_PER_POST_IN_MONTH', 129, 'голосов на произведение в месяц', VALUE_TYPE.INT, 'голосов на произведение в месяц'),
               )
