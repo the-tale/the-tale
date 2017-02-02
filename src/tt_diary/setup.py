@@ -15,12 +15,6 @@ setuptools.setup(
     author_email='a.eletsky@gmail.com',
     license='BSD',
     packages=setuptools.find_packages(),
-    install_requires=['aiohttp==1.1.1',
-                      'cchardet==1.1.1',
-                      'aiodns==1.1.1',
-                      'aiopg==0.12.0',
-                      'Django==1.10.2',
-                      'protobuf==3.1.0.post1'],
-    entry_points={'console_scripts': ['tt_service=tt_diary.commands.tt_service:main']},
+    install_requires=[],
     include_package_data=True,
     test_suite = 'tests' )

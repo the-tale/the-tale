@@ -34,7 +34,7 @@ game_settings = app_settings('GAME',
 
                              GAME_STATE_KEY='game state',
 
-                             INFO_API_VERSION='1.6',
+                             INFO_API_VERSION='1.7',
                              DIARY_API_VERSION='1.0',
 
                              SAVE_ON_EXCEPTION_TIMEOUT=60*60, # seconds

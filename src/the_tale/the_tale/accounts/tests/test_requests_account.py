@@ -17,7 +17,9 @@ from the_tale.finances.bank import prototypes as bank_prototypes
 from the_tale.finances.bank import relations as bank_relations
 
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+
+from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from ..models import Award
 from ..prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
@@ -34,7 +36,7 @@ from the_tale.forum.prototypes import CategoryPrototype
 from the_tale.game.heroes import logic as heroes_logic
 
 
-class AccountRequestsTests(TestCase):
+class AccountRequestsTests(TestCase, pm_helpers.Mixin):
 
     def setUp(self):
         super(AccountRequestsTests, self).setUp()
@@ -348,7 +350,7 @@ class ResetNickRequestsTests(AccountRequestsTests):
         self.assertEqual(old_nick, AccountPrototype.get_by_id(self.account_1.id).nick)
 
 
-class BanRequestsTests(AccountRequestsTests):
+class BanRequestsTests(AccountRequestsTests, pm_helpers.Mixin):
 
     def setUp(self):
         super(BanRequestsTests, self).setUp()
@@ -367,46 +369,49 @@ class BanRequestsTests(AccountRequestsTests):
         self.request_logout()
         self.request_login(self.account_2.email)
 
-        self.check_ajax_error(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.FORUM)),
-                              'accounts.no_moderation_rights')
+        with self.check_no_messages(self.account_1.id):
+            self.check_ajax_error(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.FORUM)),
+                                  'accounts.no_moderation_rights')
 
         self.account_1.reload()
         self.assertFalse(self.account_1.is_ban_forum)
         self.assertFalse(self.account_1.is_ban_game)
-        self.assertEqual(MessagePrototype._db_count(), 0)
 
     def test_form_errors(self):
-        self.check_ajax_error(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.FORUM, description='')),
+        with self.check_no_messages(self.account_1.id):
+            self.check_ajax_error(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.FORUM, description='')),
                               'form_errors')
 
         self.account_1.reload()
         self.assertFalse(self.account_1.is_ban_forum)
         self.assertFalse(self.account_1.is_ban_game)
-        self.assertEqual(MessagePrototype._db_count(), 0)
 
     def test_success__ban_forum(self):
-        self.check_ajax_ok(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.FORUM)))
+
+        with self.check_new_message(self.account_1.id, [logic.get_system_user_id()]):
+            self.check_ajax_ok(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.FORUM)))
 
         self.account_1.reload()
         self.assertTrue(self.account_1.is_ban_forum)
         self.assertFalse(self.account_1.is_ban_game)
-        self.assertEqual(MessagePrototype._db_count(), 1)
+
 
     def test_success__ban_game(self):
-        self.check_ajax_ok(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.GAME)))
+        with self.check_new_message(self.account_1.id, [logic.get_system_user_id()]):
+            self.check_ajax_ok(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.GAME)))
 
         self.account_1.reload()
         self.assertFalse(self.account_1.is_ban_forum)
         self.assertTrue(self.account_1.is_ban_game)
-        self.assertEqual(MessagePrototype._db_count(), 1)
+
 
     def test_success__ban_total(self):
-        self.check_ajax_ok(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.TOTAL)))
+        with self.check_new_message(self.account_1.id, [logic.get_system_user_id()]):
+            self.check_ajax_ok(self.client.post(reverse('accounts:ban', args=[self.account_1.id]), self.form_data(BAN_TYPE.TOTAL)))
 
         self.account_1.reload()
         self.assertTrue(self.account_1.is_ban_forum)
         self.assertTrue(self.account_1.is_ban_game)
-        self.assertEqual(MessagePrototype._db_count(), 1)
 
 
 class ResetBansRequestsTests(AccountRequestsTests):

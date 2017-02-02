@@ -135,7 +135,8 @@ FAKE_ECONOMIC = {places_relations.ATTRIBUTE.PRODUCTION: 1.0,
                  places_relations.ATTRIBUTE.FREEDOM: 0,
                  places_relations.ATTRIBUTE.SAFETY: 0.6,
                  places_relations.ATTRIBUTE.TRANSPORT: -0.4,
-                 places_relations.ATTRIBUTE.STABILITY: 0.2}
+                 places_relations.ATTRIBUTE.STABILITY: 0.2,
+                 places_relations.ATTRIBUTE.CULTURE: 0.7}
 
 
 class PersonJobsTests(testcase.TestCase):
@@ -153,6 +154,7 @@ class PersonJobsTests(testcase.TestCase):
         self.assertEqual(self.person.job_effects_priorities(),
                          {jobs_effects.EFFECT.PLACE_PRODUCTION: 1.0,
                           jobs_effects.EFFECT.PLACE_SAFETY: 0.6,
+                          jobs_effects.EFFECT.PLACE_CULTURE: 0.7,
                           jobs_effects.EFFECT.PLACE_STABILITY: 0.2,
                           jobs_effects.EFFECT.HERO_MONEY: 0.3,
                           jobs_effects.EFFECT.HERO_ARTIFACT: 0.3,
@@ -166,6 +168,7 @@ class PersonJobsTests(testcase.TestCase):
         self.assertEqual(self.person.job_effects_priorities(),
                          {jobs_effects.EFFECT.PLACE_PRODUCTION: 1.5,
                           jobs_effects.EFFECT.PLACE_SAFETY: 1.1,
+                          jobs_effects.EFFECT.PLACE_CULTURE: 1.2,
                           jobs_effects.EFFECT.PLACE_STABILITY: 0.7,
                           jobs_effects.EFFECT.PLACE_TRANSPORT: 0.09999999999999998,
                           jobs_effects.EFFECT.PLACE_FREEDOM: 0.5,

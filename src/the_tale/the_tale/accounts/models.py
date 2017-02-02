@@ -75,8 +75,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
     # duplicate django user email - add unique constraints
     email = models.EmailField(max_length=MAX_EMAIL_LENGTH, null=True, unique=True, blank=True)
 
-    new_messages_number = models.IntegerField(null=False, default=0)
-
     last_news_remind_time = models.DateTimeField(auto_now_add=True)
 
     clan = models.ForeignKey('clans.Clan', null=True, default=None, related_name='+', on_delete=models.SET_NULL)

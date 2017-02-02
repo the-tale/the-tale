@@ -10,10 +10,11 @@ from aiohttp import test_utils
 from tt_protocol.protocol import base_pb2
 from tt_protocol.protocol import diary_pb2
 
-from tt_diary import utils
+from tt_web import utils
+from tt_web import postgresql
+
 from tt_diary import objects
 from tt_diary import service
-from tt_diary import postgresql
 from tt_diary import operations
 
 
@@ -48,17 +49,6 @@ class BaseTests(test_utils.AioHTTPTestCase):
         await request.release()
 
         return response_data
-
-
-
-def async_test(f):
-    def wrapper(*args, **kwargs):
-        coro = asyncio.coroutine(f)
-        future = coro(*args, **kwargs)
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(future)
-    return wrapper
-
 
 
 def get_config():

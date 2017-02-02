@@ -189,8 +189,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         accounts_query.update(premium_expired_notification_send_at=current_time)
 
     def notify_about_premium_expiration(self):
-        from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
-        from the_tale.accounts.logic import get_system_user
+        from the_tale.accounts.personal_messages import logic as pm_logic
+        from the_tale.accounts import logic
 
         current_time = datetime.datetime.now()
 
@@ -201,7 +201,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 ''' % {'verbose_timedelta': verbose_timedelta(self.premium_end_at - current_time),
        'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:shop')}
 
-        PersonalMessagePrototype.create(get_system_user(), self, message)
+        pm_logic.send_message(logic.get_system_user_id(), [self.id], message, async=True)
+
 
     @lazy_property
     def bank_account(self):
@@ -214,15 +215,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                                                     null_object=True)
 
         return bank_account
-
-    @property
-    def new_messages_number(self): return self._model.new_messages_number
-    def reset_new_messages_number(self):
-        Account.objects.filter(id=self.id).update(new_messages_number=0)
-        self._model.new_messages_number = 0
-    def increment_new_messages_number(self):
-        Account.objects.filter(id=self.id).update(new_messages_number=models.F('new_messages_number')+1)
-        self._model.new_messages_number = self._model.new_messages_number + 1
 
     def set_clan_id(self, clan_id):
         Account.objects.filter(id=self.id).update(clan=clan_id)
@@ -553,8 +545,8 @@ class RandomPremiumRequestPrototype(BasePrototype):
             return None
 
     def process(self):
-        from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
-        from the_tale.accounts.logic import get_system_user
+        from the_tale.accounts.personal_messages import logic as pm_logic
+        from the_tale.accounts import logic
 
         accounts_ids = AccountPrototype.live_query().filter(is_fast=False,
                                                             created_at__lt=datetime.datetime.now() - accounts_settings.RANDOM_PREMIUM_CREATED_AT_BARRIER,
@@ -570,7 +562,7 @@ class RandomPremiumRequestPrototype(BasePrototype):
             account.prolong_premium(self.days)
             account.save()
 
-            PersonalMessagePrototype.create(get_system_user(), account, self.MESSAGE % {'days': self.days})
+            pm_logic.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, async=True)
 
             self.receiver_id = account.id
             self.state = relations.RANDOM_PREMIUM_REQUEST_STATE.PROCESSED

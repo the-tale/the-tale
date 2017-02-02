@@ -9,7 +9,8 @@ from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESU
 
 from the_tale.accounts import logic as accounts_logic
 
-from the_tale.accounts.personal_messages import prototypes as personal_messages_prototypes
+from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.finances.bank import transaction as bank_transaction
 from the_tale.finances.bank import prototypes as bank_prototypes
@@ -25,7 +26,7 @@ from the_tale.finances.market import goods_types
 from the_tale.game.logic import create_test_map
 
 
-class TaskTests(testcase.TestCase):
+class TaskTests(testcase.TestCase, pm_helpers.Mixin):
 
     def setUp(self):
         super(TaskTests, self).setUp()
@@ -74,6 +75,8 @@ class TaskTests(testcase.TestCase):
                                                transaction=self.transaction)
 
         self.main_task = mock.Mock(comment=None, id=777)
+
+        pm_logic.debug_clear_service()
 
 
     def test_serialization(self):
@@ -245,7 +248,7 @@ class TaskTests(testcase.TestCase):
 
         with mock.patch('the_tale.finances.bank.transaction.Transaction.confirm') as confirm:
             with self.check_delta(bank_prototypes.InvoicePrototype._model_class.objects.count, 1):
-                with self.check_delta(personal_messages_prototypes.MessagePrototype._db_count, 1):
+                with self.check_new_message(self.account_1.id, [accounts_logic.get_system_user_id()]):
                     self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(confirm.call_count, 1)
@@ -257,11 +260,6 @@ class TaskTests(testcase.TestCase):
         self.assertTrue(lot.state.is_CLOSED_BY_BUYER)
         self.assertTrue(lot.closed_at < datetime.datetime.now())
         self.assertEqual(lot.buyer_id, self.account_2.id)
-
-        personal_message = personal_messages_prototypes.MessagePrototype._db_all().latest()
-
-        self.assertEqual(personal_message.recipient_id, self.account_1.id)
-        self.assertEqual(personal_message.sender_id, accounts_logic.get_system_user().id)
 
         commission_ivoice = bank_prototypes.InvoicePrototype._db_latest()
 

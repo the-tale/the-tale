@@ -4,9 +4,9 @@ import asyncio
 
 from aiohttp import test_utils
 
-from tt_diary import utils
+from tt_web import utils
+
 from tt_diary import objects
-from tt_diary import exceptions
 from tt_diary import operations
 
 from . import helpers

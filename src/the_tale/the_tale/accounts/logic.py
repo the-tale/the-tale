@@ -44,6 +44,17 @@ def logout_url():
     return url('accounts:auth:api-logout', api_version='1.0', api_client=project_settings.API_CLIENT)
 
 
+def get_system_user_id():
+    if not project_settings.TESTS_RUNNING and hasattr(get_system_user_id, '_id'):
+        return get_system_user_id._id
+
+    account = get_system_user()
+
+    get_system_user_id._id = account.id
+
+    return get_system_user_id._id
+
+
 def get_system_user():
     account = AccountPrototype.get_by_nick(accounts_settings.SYSTEM_USER_NICK)
     if account: return account

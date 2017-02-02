@@ -6,21 +6,21 @@ from dext.common.utils.urls import UrlBuilder, url
 from the_tale import amqp_environment
 
 
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils import list_filter
 from the_tale.common.utils import views as utils_views
+from the_tale.common.utils import api
 
 from the_tale.accounts import prototypes as accounts_prototypes
 from the_tale.accounts import views as accounts_views
 from the_tale.accounts import models as accounts_models
 from the_tale.accounts import logic as accounts_logic
 
-from the_tale.accounts.personal_messages import models
-from the_tale.accounts.personal_messages import prototypes
-from the_tale.accounts.personal_messages import forms
-from the_tale.accounts.personal_messages import conf
-from the_tale.accounts.personal_messages import postponed_tasks
+
+from . import conf
+from . import logic
+from . import forms
+
 
 ########################################
 # processors definition
@@ -33,7 +33,7 @@ class MessageProcessor(dext_views.ArgumentProcessor):
         except ValueError:
             self.raise_wrong_format()
 
-        message = prototypes.MessagePrototype.get_by_id(message_id)
+        message = logic.get_message(context.account.id, message_id)
 
         if not message:
             self.raise_wrong_value()
@@ -54,106 +54,160 @@ resource.add_processor(accounts_views.FullAccountProcessor())
 ########################################
 
 @utils_views.PageNumberProcessor()
-@accounts_views.AccountProcessor(error_message='Отправитель не найден', get_name='sender', context_name='sender', default_value=None)
 @utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
 @resource('')
 def index(context):
-    context.account.reset_new_messages_number()
-    query = models.Message.objects.filter(recipient_id=context.account.id, hide_from_recipient=False)
+    logic.read_messages(context.account.id)
 
-    senders_ids = list(set(query.values_list('sender_id', flat=True).order_by('sender').distinct()))
-    senders = sorted(accounts_prototypes.AccountPrototype.get_list_by_id(senders_ids), key=lambda account: account.nick)
+    contacts_ids = logic.get_contacts(context.account.id)
 
-    if context.sender is not None:
-        query = query.filter(sender_id=context.sender.id)
-
-    if context.filter is not None:
-        query = query.filter(text__icontains=context.filter)
+    messages_count, messages = logic.get_received_messages(context.account.id,
+                                                           text=context.filter,
+                                                           offset=context.page*conf.settings.MESSAGES_ON_PAGE,
+                                                           limit=conf.settings.MESSAGES_ON_PAGE)
 
     class Filter(list_filter.ListFilter):
         ELEMENTS = [list_filter.reset_element(),
                     list_filter.filter_element('поиск:', attribute='filter', default_value=None),
-                    list_filter.choice_element('отправитель:', attribute='sender', choices=[(None, 'все')] + [(account.id, account.nick) for account in senders] ),
                     list_filter.static_element('количество:', attribute='count', default_value=0) ]
 
     url_builder = UrlBuilder(url('accounts:messages:'), arguments={'page': context.page,
-                                                                   'sender': context.sender.id if context.sender is not None else None,
                                                                    'filter': context.filter})
 
-    messages_count = query.count()
-
-    index_filter = Filter(url_builder=url_builder, values={'sender': context.sender.id if context.sender is not None else None,
-                                                           'filter': context.filter,
+    index_filter = Filter(url_builder=url_builder, values={'filter': context.filter,
                                                            'count': messages_count})
-
-    # page = int(context.page) - 1
 
     paginator = Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
 
     if paginator.wrong_page_number:
         return dext_views.Redirect(paginator.last_page_url, permanent=False)
 
-    message_from, message_to = paginator.page_borders(context.page)
+    accounts_ids = set(contacts_ids)
 
-    messages = [ prototypes.MessagePrototype(message_model) for message_model in query.order_by('-created_at')[message_from:message_to]]
+    for message in messages:
+        accounts_ids.add(message.sender_id)
+        accounts_ids.update(message.recipients_ids)
+
+    accounts = {account.id: account for account in accounts_prototypes.AccountPrototype.get_list_by_id(list(accounts_ids))}
+
+    contacts = [accounts[contact_id] for contact_id in contacts_ids]
+    contacts.sort(key=lambda account: account.nick_verbose)
 
     return dext_views.Page('personal_messages/index.html',
                            content= {'messages': messages,
                                      'paginator': paginator,
-                                     'incoming': True,
+                                     'page': 'incoming',
+                                     'contacts': contacts,
+                                     'accounts': accounts,
                                      'index_filter': index_filter,
+                                     'master_account': context.account,
                                      'resource': context.resource})
 
 
 @utils_views.PageNumberProcessor()
-@accounts_views.AccountProcessor(error_message='Получатель не найден', get_name='recipient', context_name='recipient', default_value=None)
 @utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
 @resource('sent')
 def sent(context):
-    query = models.Message.objects.filter(sender_id=context.account.id, hide_from_sender=False)
 
-    recipients_ids = list(set(query.values_list('recipient_id', flat=True).order_by('recipient').distinct()))
-    recipients = sorted(accounts_prototypes.AccountPrototype.get_list_by_id(recipients_ids), key=lambda account: account.nick)
+    contacts_ids = logic.get_contacts(context.account.id)
 
-    if context.recipient is not None:
-        query = query.filter(recipient_id=context.recipient.id)
-
-    if context.filter is not None:
-        query = query.filter(text__icontains=context.filter)
+    messages_count, messages = logic.get_sent_messages(context.account.id,
+                                                       text=context.filter,
+                                                       offset=context.page*conf.settings.MESSAGES_ON_PAGE,
+                                                       limit=conf.settings.MESSAGES_ON_PAGE)
 
     class Filter(list_filter.ListFilter):
         ELEMENTS = [list_filter.reset_element(),
                     list_filter.filter_element('поиск:', attribute='filter', default_value=None),
-                    list_filter.choice_element('получатель:', attribute='recipient', choices=[(None, 'все')] + [(account.id, account.nick) for account in recipients] ),
                     list_filter.static_element('количество:', attribute='count', default_value=0) ]
 
     url_builder=UrlBuilder(url('accounts:messages:sent'), arguments={'page': context.page,
-                                                                     'recipient': context.recipient.id if context.recipient is not None else None,
                                                                      'filter': context.filter})
 
-    messages_count = query.count()
-
-    index_filter = Filter(url_builder=url_builder, values={'recipient': context.recipient.id if context.recipient is not None else None,
-                                                           'filter': context.filter,
+    index_filter = Filter(url_builder=url_builder, values={'filter': context.filter,
                                                            'count': messages_count})
-
-    # page = int(page) - 1
 
     paginator = Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
 
     if paginator.wrong_page_number:
         return dext_views.Redirect(paginator.last_page_url, permanent=False)
 
-    message_from, message_to = paginator.page_borders(context.page)
+    accounts_ids = set(contacts_ids)
 
-    messages = [ prototypes.MessagePrototype(message_model) for message_model in query.order_by('-created_at')[message_from:message_to]]
+    for message in messages:
+        accounts_ids.add(message.sender_id)
+        accounts_ids.update(message.recipients_ids)
+
+    accounts = {account.id: account for account in accounts_prototypes.AccountPrototype.get_list_by_id(list(accounts_ids))}
+
+    contacts = [accounts[contact_id] for contact_id in contacts_ids]
+    contacts.sort(key=lambda account: account.nick_verbose)
 
     return dext_views.Page('personal_messages/index.html',
                            content={'messages': messages,
                                     'paginator': paginator,
-                                    'incoming': False,
+                                    'accounts': accounts,
+                                    'contacts': contacts,
+                                    'page': 'sent',
+                                    'master_account': context.account,
                                     'index_filter': index_filter,
                                     'resource': context.resource})
+
+
+@utils_views.PageNumberProcessor()
+@accounts_views.AccountProcessor(error_message='Контакт не найден', get_name='contact', context_name='contact')
+@utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
+@resource('conversation')
+def conversation(context):
+
+    contacts_ids = logic.get_contacts(context.account.id)
+
+    messages_count, messages = logic.get_conversation(context.account.id,
+                                                      context.contact.id,
+                                                      text=context.filter,
+                                                      offset=context.page*conf.settings.MESSAGES_ON_PAGE,
+                                                      limit=conf.settings.MESSAGES_ON_PAGE)
+
+    class Filter(list_filter.ListFilter):
+        ELEMENTS = [list_filter.reset_element(),
+                    list_filter.filter_element('поиск:', attribute='filter', default_value=None),
+                    list_filter.static_element('количество:', attribute='count', default_value=0) ]
+
+    url_builder = UrlBuilder(url('accounts:messages:'), arguments={'page': context.page,
+                                                                   'contact': context.contact.id,
+                                                                   'filter': context.filter})
+
+    index_filter = Filter(url_builder=url_builder, values={'contact': context.contact.id,
+                                                           'filter': context.filter,
+                                                           'count': messages_count})
+
+    paginator = Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
+
+    if paginator.wrong_page_number:
+        return dext_views.Redirect(paginator.last_page_url, permanent=False)
+
+    accounts_ids = set(contacts_ids)
+
+    for message in messages:
+        accounts_ids.add(message.sender_id)
+        accounts_ids.update(message.recipients_ids)
+
+    accounts = {account.id: account for account in accounts_prototypes.AccountPrototype.get_list_by_id(list(accounts_ids))}
+
+    contacts = [accounts[contact_id] for contact_id in contacts_ids]
+    contacts.sort(key=lambda account: account.nick_verbose)
+
+    return dext_views.Page('personal_messages/index.html',
+                           content= {'messages': messages,
+                                     'paginator': paginator,
+                                     'page': 'contacts',
+                                     'contacts': contacts,
+                                     'accounts': accounts,
+                                     'master_account': context.account,
+                                     'index_filter': index_filter,
+                                     'contact': context.contact,
+                                     'resource': context.resource})
+
 
 
 def check_recipients(recipients_form):
@@ -177,10 +231,7 @@ def new(context):
     text = ''
 
     if context.answer_to:
-        if context.answer_to.recipient_id != context.account.id:
-            raise dext_views.ViewError(code='no_permissions_to_answer_to', message='Вы пытаетесь ответить на чужое сообщение')
-
-        text = '[quote]\n%s\n[/quote]\n' % context.answer_to.text
+        text = '[quote]\n%s\n[/quote]\n' % context.answer_to.body
 
     check_recipients(context.form)
 
@@ -199,31 +250,60 @@ def new(context):
 def create(context):
     check_recipients(context.form)
 
-    logic_task = postponed_tasks.SendMessagesTask(account_id=context.account.id,
-                                                  recipients=context.form.c.recipients,
-                                                  message=context.form.c.text)
+    logic.send_message(sender_id=context.account.id,
+                       recipients_ids=context.form.c.recipients,
+                       body=context.form.c.text)
 
-    task = PostponedTaskPrototype.create(logic_task)
-
-    amqp_environment.environment.workers.accounts_manager.cmd_task(task.id)
-
-    return dext_views.AjaxProcessing(status_url=task.status_url)
+    return dext_views.AjaxOk()
 
 
 @MessageProcessor(error_message='Сообщение не найдено', url_name='message_id', context_name='message')
 @resource('#message_id', 'delete', method='POST')
 def delete(context):
+    owners_ids = [context.message.sender_id]
+    owners_ids.extend(context.message.recipients_ids)
 
-    if context.account.id not in (context.message.sender_id, context.message.recipient_id):
+    if context.account.id not in owners_ids:
         raise dext_views.ViewError(code='no_permissions', message='Вы не можете влиять на это сообщение')
 
-    context.message.hide_from(sender=(context.account.id == context.message.sender_id),
-                              recipient=(context.account.id == context.message.recipient_id))
+    logic.hide_message(account_id=context.account.id, message_id=context.message.id)
 
     return dext_views.AjaxOk()
 
 
 @resource('delete-all', method='POST')
 def delete_all(context):
-    prototypes.MessagePrototype.hide_all(account_id=context.account.id)
+    logic.hide_all_messages(account_id=context.account.id)
     return dext_views.AjaxOk()
+
+
+@accounts_views.AccountProcessor(error_message='Контакт не найден', get_name='contact', context_name='contact')
+@resource('delete-conversation', method='POST')
+def delete_conversation(context):
+    logic.hide_conversation(account_id=context.account.id, partner_id=context.contact.id)
+    return dext_views.AjaxOk()
+
+
+@api.Processor(versions=(conf.settings.NEW_MESSAGES_NUMNER_API_VERSION,))
+@resource('api', 'new-messages-number', name='api-new-messages-number')
+def api_new_messages(context):
+    '''
+Получить количество новых сообщений для игрока.
+
+- **адрес:** /accounts/messages/api/new-messages-number
+- **http-метод:** GET
+- **версии:** 0.1
+- **параметры:**
+    * нет
+- **возможные ошибки**:
+    * нет
+
+формат данных в ответе:
+
+    {
+      "number": <целое число> // количество новых сообщений
+    }
+
+    '''
+
+    return dext_views.AjaxOk(content={'number': logic.new_messages_number(context.account.id)})

@@ -53,9 +53,6 @@ updater = new pgf.game.Updater({url: "{{ game_info_url() }}",
         if (game_data.mode == "pvp") {
             location.href = "{{ url('game:pvp:') }}";
         }
-        jQuery(".pgf-new-messages-signalization").toggleClass("pgf-hidden", game_data.account.new_messages == 0);
-        jQuery(".pgf-new-messages-number").text(game_data.account.new_messages);
-
     });
 
     var mapMode = 'normal';

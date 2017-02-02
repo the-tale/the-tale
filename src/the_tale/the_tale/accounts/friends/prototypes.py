@@ -10,9 +10,9 @@ from the_tale.common.utils import bbcode
 
 from the_tale.accounts.models import Account
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import get_system_user
+from the_tale.accounts import logic as accounts_logic
 
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.personal_messages import logic as pm_logic
 
 from the_tale.accounts.friends.models import Friendship
 
@@ -26,12 +26,15 @@ class FriendshipPrototype(BasePrototype):
     _get_by = ()
 
     def _confirm(self):
-        MessagePrototype.create(get_system_user(),
-                                self.friend_1,
-                                'игрок %(account_link)s подтвердил, что вы являетесь друзьями' %
-                                {'account_link': '[url=%s]%s[/url]' % (full_url('http', 'accounts:show', self.friend_2.id), self.friend_2.nick_verbose)})
         self._model.is_confirmed = True
         self.save()
+
+        account_link='[url={}]{}[/url]'.format(full_url('http', 'accounts:show', self.friend_2.id), self.friend_2.nick_verbose)
+        message = 'игрок {account_link} подтвердил, что вы являетесь друзьями'.format(account_link=account_link)
+
+        pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                              recipients_ids=[self.friend_1.id],
+                              body=message)
 
     @lazy_property
     def friend_1(self): return AccountPrototype(model=self._model.friend_1)
@@ -117,7 +120,10 @@ class FriendshipPrototype(BasePrototype):
 
         # send message from name of user, who request friendship
         # since many users try to respod to system user
-        MessagePrototype.create(friend_1, friend_2, message)
+        pm_logic.send_message(sender_id=friend_1.id,
+                              recipients_ids=[friend_2.id],
+                              body=message)
+
 
         return prototype
 
@@ -125,25 +131,26 @@ class FriendshipPrototype(BasePrototype):
     def remove_friendship(cls, initiator, friend):
         request = cls.get_for_bidirectional(initiator, friend)
 
-        if request is None: return
+        if request is None:
+            return
+
+        account_link = '[url="{}"]{}[/url]'.format(full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose)
 
         if request.is_confirmed:
-            MessagePrototype.create(get_system_user(),
-                                    friend,
-                                    'игрок %(account_link)s удалил вас из списка друзей' %
-                                    {'account_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose)})
+            message = 'игрок {account_link} удалил вас из списка друзей'.format(account_link=account_link)
         else:
-            MessagePrototype.create(get_system_user(),
-                                    friend,
-                                    'игрок %(account_link)s отказался добавить вас в список друзей' %
-                                    {'account_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose)})
+            message = 'игрок {account_link} отказался добавить вас в список друзей'.format(account_link=account_link)
+
+        pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                              recipients_ids=[friend.id],
+                              body=message)
 
         request.remove()
 
-        return
 
     def save(self):
         self._model.save()
+
 
     def remove(self):
         self._model.delete()

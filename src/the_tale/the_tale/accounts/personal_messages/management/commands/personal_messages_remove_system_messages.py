@@ -2,7 +2,7 @@
 
 from django.core.management.base import BaseCommand
 
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.personal_messages import logic
 
 
 class Command(BaseCommand):
@@ -12,4 +12,4 @@ class Command(BaseCommand):
     requires_model_validation = False
 
     def handle(self, *args, **options):
-        MessagePrototype.remove_old_messages()
+        logic.remove_old_system_messages()

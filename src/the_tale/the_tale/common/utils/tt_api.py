@@ -36,14 +36,14 @@ def sync_request(url, data, AnswerType=None):
 
 
 
-def async_request(url, data, AnswerType=None):
+def async_request(url, data, AnswerType=None, callback=lambda answer: None):
     global THREAD
 
     if THREAD is None:
         THREAD = SenderThread()
         THREAD.start()
 
-    QUEUE.put((url, data, AnswerType))
+    QUEUE.put((url, data, AnswerType, callback))
 
 
 
@@ -56,9 +56,10 @@ class SenderThread(threading.Thread):
     def run(self):
         while True:
             try:
-                url, data, AnswerType = QUEUE.get()
+                url, data, AnswerType, callback = QUEUE.get()
                 self.logger.info('send to url {url}'.format(url=url))
-                sync_request(url, data, AnswerType)
+                answer = sync_request(url, data, AnswerType)
+                callback(answer)
             except Exception:
                 self.logger.error('Exception tt_api_sender',
                                    exc_info=sys.exc_info(),

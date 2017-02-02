@@ -8,14 +8,15 @@ from the_tale.finances.bank import relations as bank_relations
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.personal_messages import prototypes as personal_messages_prototypes
+from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.accounts import postponed_tasks
 from the_tale.accounts import logic
 
 
 
-class TransferMoneyTaskTests(testcase.TestCase):
+class TransferMoneyTaskTests(testcase.TestCase, pm_helpers.Mixin):
 
     def setUp(self):
         super(TransferMoneyTaskTests, self).setUp()
@@ -31,6 +32,8 @@ class TransferMoneyTaskTests(testcase.TestCase):
                                                       comment='some comment string')
 
         self.main_task = mock.Mock(id=777)
+
+        pm_logic.debug_clear_service()
 
     def test_initialization(self):
         self.assertTrue(self.task.state.is_UNPROCESSED)
@@ -203,14 +206,8 @@ class TransferMoneyTaskTests(testcase.TestCase):
         commission_invoice.state = bank_relations.INVOICE_STATE.FROZEN
         commission_invoice.save()
 
-        with self.check_delta(personal_messages_prototypes.MessagePrototype._db_count, 1):
+        with self.check_new_message(self.recipient.id, [logic.get_system_user_id()]):
             self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertTrue(self.task.step.is_SUCCESS)
         self.assertTrue(self.task.state.is_PROCESSED)
-
-        message = personal_messages_prototypes.MessagePrototype._db_latest()
-
-        self.assertEqual(message.sender_id, logic.get_system_user().id)
-        self.assertEqual(message.recipient_id, self.recipient.id)
-        self.assertIn('some comment string', message.text)

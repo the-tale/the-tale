@@ -8,7 +8,7 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils import bbcode
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.personal_messages import logic as pm_logic
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.accounts.clans.models import Clan, Membership, MembershipRequest
@@ -121,7 +121,9 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
 ''' % {'clan_leader_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
        'clan_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.id), self.name)}
 
-        MessagePrototype.create(initiator, removed_account, message)
+        pm_logic.send_message(sender_id=initiator.id,
+                              recipients_ids=[removed_account.id],
+                              body=message)
 
     def save(self):
         self._model.save()
@@ -201,7 +203,10 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
        'clan_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name),
        'invites_link': '[url="%s"]Приглашения в гильдию [/url]' % full_url('http', 'accounts:clans:membership:for-account')}
 
-        MessagePrototype.create(initiator, self.account, message)
+        pm_logic.send_message(sender_id=initiator.id,
+                              recipients_ids=[self.account.id],
+                              body=message)
+
 
     def create_request_message(self, initiator):
         message = '''
@@ -215,7 +220,10 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
        'text': self.text,
        'invites_link': '[url="%s"]Заявки в гильдию[/url]' % full_url('http', 'accounts:clans:membership:for-clan')}
 
-        MessagePrototype.create(initiator, self.clan.get_leader(), message)
+        pm_logic.send_message(sender_id=initiator.id,
+                              recipients_ids=[self.clan.get_leader().id],
+                              body=message)
+
 
     def create_accept_request_message(self, initiator):
         message = '''
@@ -223,7 +231,10 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
 ''' % {'clan_leader_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
        'clan_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name)}
 
-        MessagePrototype.create(initiator, self.account, message)
+        pm_logic.send_message(sender_id=initiator.id,
+                              recipients_ids=[self.account.id],
+                              body=message)
+
 
     def create_reject_request_message(self, initiator):
         message = '''
@@ -231,7 +242,10 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
 ''' % {'clan_leader_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose),
        'clan_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:clans:show', self.clan.id), self.clan.name)}
 
-        MessagePrototype.create(initiator, self.account, message)
+        pm_logic.send_message(sender_id=initiator.id,
+                              recipients_ids=[self.account.id],
+                              body=message)
+
 
     @classmethod
     @transaction.atomic

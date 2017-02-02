@@ -1,7 +1,7 @@
 {
-    "database": {"name": "tt-diary",
-                 "user": "tt-diary",
-                 "password": "tt-diary",
+    "database": {"name": "tt_diary",
+                 "user": "tt_diary",
+                 "password": "tt_diary",
                  "host": "localhost",
                  "port": 5432,
                  "minsize": 1,

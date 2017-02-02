@@ -12,8 +12,8 @@ from the_tale.portal import signals as portal_signals
 from the_tale.portal.conf import portal_settings
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype
-from the_tale.accounts.logic import get_system_user
+from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts import logic as accounts_logic
 
 
 @receiver(portal_signals.day_started, dispatch_uid='portal_day_started')
@@ -52,4 +52,7 @@ def portal_day_started(sender, **kwargs):
 Ваш герой выбран героем дня и Вы получаете %(days)d дней подписки!
 ''' % {'days': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY}
 
-    MessagePrototype.create(get_system_user(), account, message)
+    pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                          recipients_ids=[account.id],
+                          body=message,
+                          async=True)

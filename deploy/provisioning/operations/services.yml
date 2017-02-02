@@ -20,6 +20,17 @@
     collect_static: false
 
 
+- name: install TT Personal Messages
+  include: ../tasks/tt_service.yml
+  vars:
+    name: TT Personal Messages
+    user: tt_personal_messages
+    packages: "{{tt_services['tt_personal_messages']['packages']}}"
+    django_settings: tt_personal_messages.settings
+    port: 10002
+    collect_static: false
+
+
 - name: The Tale postupdate operations
   hosts: all
   become: yes

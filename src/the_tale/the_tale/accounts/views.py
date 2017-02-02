@@ -24,7 +24,7 @@ from the_tale.game.heroes.models import Hero
 from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.personal_messages import logic as pm_logic
 from the_tale.accounts.clans.prototypes import ClanPrototype
 from the_tale.accounts.third_party import decorators
 
@@ -330,9 +330,9 @@ def ban(context):
     else:
         raise dext_views.ViewError(code='unknown_ban_type', message='Неизвестный тип бана')
 
-    MessagePrototype.create(logic.get_system_user(),
-                            context.master_account,
-                            message % {'message': context.form.c.description})
+    pm_logic.send_message(sender_id=logic.get_system_user_id(),
+                          recipients_ids=[context.master_account.id],
+                          body=message % {'message': context.form.c.description})
 
     return dext_views.AjaxOk()
 
@@ -344,9 +344,10 @@ def reset_bans(context):
     context.master_account.reset_ban_forum()
     context.master_account.reset_ban_game()
 
-    MessagePrototype.create(logic.get_system_user(),
-                            context.master_account,
-                            'С вас сняли все ограничения, наложенные ранее.')
+    pm_logic.send_message(sender_id=logic.get_system_user_id(),
+                          recipients_ids=[context.master_account.id],
+                          body='С вас сняли все ограничения, наложенные ранее.')
+
 
     return dext_views.AjaxOk()
 

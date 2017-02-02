@@ -10,7 +10,7 @@ from the_tale.amqp_environment import environment
 from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts import prototypes as account_prototypes
-from the_tale.accounts.personal_messages import prototypes as personal_messages_prototypes
+from the_tale.accounts.personal_messages import logic as pm_logic
 from the_tale.accounts import logic as accounts_logic
 
 from the_tale.finances.bank import transaction as bank_transaction
@@ -290,7 +290,11 @@ class BuyLotTask(PostponedLogic):
 
             seller = account_prototypes.AccountPrototype.get_by_id(lot.seller_id)
 
-            personal_messages_prototypes.MessagePrototype.create(accounts_logic.get_system_user(), seller, good_bought_message(lot))
+            pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                  recipients_ids=[seller.id],
+                                  body=good_bought_message(lot),
+                                  async=True)
+
 
             bank_prototypes.InvoicePrototype.create(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
                                                     recipient_id=seller.id,
@@ -394,7 +398,10 @@ class CloseLotByTimoutTask(PostponedLogic):
 
             seller = account_prototypes.AccountPrototype.get_by_id(lot.seller_id)
 
-            personal_messages_prototypes.MessagePrototype.create(accounts_logic.get_system_user(), seller, good_timeout_message(lot))
+            pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                  recipients_ids=[seller.id],
+                                  body=good_timeout_message(lot),
+                                  async=True)
 
             self.state = self.STATE.PROCESSED
             self.step = self.STEP.SUCCESS

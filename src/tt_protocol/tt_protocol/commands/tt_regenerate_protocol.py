@@ -18,7 +18,8 @@ def main():
     args = parser.parse_args()
 
     files = ('base.proto',
-             'diary.proto')
+             'diary.proto',
+             'personal_messages.proto')
 
     files = [os.path.join(SOURCE_DIR, filename) for filename in files]
 

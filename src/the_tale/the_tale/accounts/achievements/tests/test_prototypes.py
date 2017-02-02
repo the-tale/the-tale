@@ -5,7 +5,9 @@ from dext.common.utils.urls import url
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import get_system_user
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+
+from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype, GiveItemTaskPrototype
 
@@ -18,7 +20,7 @@ from the_tale.accounts.achievements import exceptions
 from the_tale.game.logic import create_test_map
 
 
-class AchievementPrototypeTests(testcase.TestCase):
+class AchievementPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
 
     def setUp(self):
         super(AchievementPrototypeTests, self).setUp()
@@ -29,6 +31,8 @@ class AchievementPrototypeTests(testcase.TestCase):
                                                          caption='achievement_2', description='description_2', approved=False)
         self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=3, points=10,
                                                          caption='achievement_3', description='description_3', approved=True)
+
+        pm_logic.debug_clear_service()
 
 
     def test_create(self):
@@ -45,7 +49,7 @@ class AchievementPrototypeTests(testcase.TestCase):
 
 
 
-class AccountAchievementsPrototypeTests(testcase.TestCase):
+class AccountAchievementsPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
 
     def setUp(self):
         super(AccountAchievementsPrototypeTests, self).setUp()
@@ -85,28 +89,23 @@ class AccountAchievementsPrototypeTests(testcase.TestCase):
 
     def test_add_achievement__notify(self):
         with self.check_delta(GiveItemTaskPrototype._db_count, 2):
-            with self.check_delta(MessagePrototype._db_count, 1):
+            with self.check_new_message(self.account_1.id, [get_system_user().id]):
                 self.account_achievements_1.add_achievement(self.achievement_1, notify=True)
 
-        message = MessagePrototype._db_get_object(0)
-        self.assertEqual(message.sender_id, get_system_user().id)
-        self.assertEqual(message.recipient_id, self.account_1.id)
-        self.assertTrue((url('accounts:achievements:group', self.achievement_1.group.slug) + ('#a%d' % self.achievement_1.id)) in
-                        message.text)
 
     def test_add_achievement__does_not_notify_when_already_has_achievement(self):
         with self.check_delta(GiveItemTaskPrototype._db_count, 2):
-            with self.check_not_changed(MessagePrototype._db_count):
+            with self.check_no_messages(self.account_1.id):
                 self.account_achievements_1.add_achievement(self.achievement_1, notify=False)
 
         with self.check_delta(GiveItemTaskPrototype._db_count, 2):
-            with self.check_not_changed(MessagePrototype._db_count):
+            with self.check_no_messages(self.account_1.id):
                 self.account_achievements_1.add_achievement(self.achievement_1, notify=True)
 
 
     def test_add_achievement__notify_false(self):
         with self.check_delta(GiveItemTaskPrototype._db_count, 2):
-            with self.check_not_changed(MessagePrototype._db_count):
+            with self.check_no_messages(self.account_1.id):
                 self.account_achievements_1.add_achievement(self.achievement_1, notify=False)
 
     def test_check(self):

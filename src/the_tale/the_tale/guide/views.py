@@ -67,6 +67,7 @@ class TypeReference(object):
 def get_api_methods():
     from the_tale.portal.views import PortalResource
     from the_tale.accounts import views as accounts_views
+    from the_tale.accounts.personal_messages import views as personal_messages_views
     from the_tale.game import views as game_views
     from the_tale.game.abilities.views import AbilitiesResource
     from the_tale.game.quests.views import QuestsResource
@@ -81,6 +82,7 @@ def get_api_methods():
             APIReference('login', 'Вход в игру', accounts_views.AuthResource.api_login),
             APIReference('logout', 'Выход из игры', accounts_views.AuthResource.api_logout),
             APIReference('account_info', 'Информация об игроке', accounts_views.api_show),
+            APIReference('new_messages_numner', 'Количество новых сообщений', personal_messages_views.api_new_messages),
             APIReference('game_info', 'Информация об игре/герое', game_views.api_info),
             APIReference('game_diary', 'Дневник героя', game_views.api_diary),
             APIReference('game_abilities', 'Использование способности', AbilitiesResource.use),

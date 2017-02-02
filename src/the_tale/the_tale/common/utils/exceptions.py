@@ -12,8 +12,8 @@ class TTAPIError(TheTaleError):
 
 
 class TTAPIUnexpectedHTTPStatus(TTAPIError):
-    MSG = 'Unexpected http status {status} for url "{url}"'
+    MSG = 'Unexpected http status %(status)s for url "%(url)s"'
 
 
 class TTAPIUnexpectedAPIStatus(TTAPIError):
-    MSG = 'Unexpected http status {status} for url "{url}"'
+    MSG = 'Unexpected api status %(status)s for url "%(url)s"'
