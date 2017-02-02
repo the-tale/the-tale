@@ -75,6 +75,7 @@ def get_api_methods():
     from the_tale.game.cards import views as cards_views
     from the_tale.game.places import views as places_views
     from the_tale.game.persons import views as persons_views
+    from the_tale.game.map import views as map_views
 
     return [APIReference('portal_info', 'Базовая информация', PortalResource.api_info),
             APIReference('authorization', 'Авторизация в игре', getattr(TokensResource, 'api_request_authorisation')),
@@ -92,7 +93,9 @@ def get_api_methods():
             APIReference('cards_use', 'Карты: использовать', cards_views.api_use),
             APIReference('places_list', 'Города: перечень всех городов', places_views.api_list),
             APIReference('places_show', 'Города: подробная информация о городе', places_views.api_show),
-            APIReference('persons_show', 'Мастера: подробная информация о Мастере', persons_views.api_show)]
+            APIReference('persons_show', 'Мастера: подробная информация о Мастере', persons_views.api_show),
+            APIReference('region', 'Карта: получить карту', map_views.region),
+            APIReference('region_versions', 'Карта: получить список версий карт', map_views.region_versions)]
 
 
 def get_api_types():

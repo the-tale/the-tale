@@ -132,7 +132,7 @@ pgf.game.map.MapManager = function(params) {
                         type: 'get',
                         url: params.RegionUrl(),
                         success: function(data, request, status) {
-                            mapData = data.data;
+                            mapData = data.data.region;
 
                             instance.mapWidth = mapData.width;
                             instance.mapHeight = mapData.height;

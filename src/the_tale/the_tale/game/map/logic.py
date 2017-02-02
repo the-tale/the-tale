@@ -1,5 +1,9 @@
 # coding: utf-8
 
+from django.conf import settings as project_settings
+
+from dext.common.utils.urls import url
+
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
@@ -7,6 +11,8 @@ from the_tale.game.map.conf import map_settings
 
 from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
 from the_tale.linguistics.storage import restrictions_storage
+
+from . import conf
 
 
 def create_test_map_info():
@@ -31,3 +37,20 @@ def get_terrain_linguistics_restrictions(terrain):
                                                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_VEGETATION, terrain_record.meta_vegetation.value).id )
 
     return _TERRAIN_LINGUISTICS_CACHE[terrain]
+
+
+def region_url(turn=None):
+    arguments = {'api_version': conf.map_settings.REGION_API_VERSION,
+                 'api_client': project_settings.API_CLIENT}
+
+    if turn is not None:
+        arguments['turn'] = turn
+
+    return url('game:map:api-region', **arguments)
+
+
+def region_versions_url():
+    arguments = {'api_version': conf.map_settings.REGION_API_VERSION,
+                 'api_client': project_settings.API_CLIENT}
+
+    return url('game:map:api-region-versions', **arguments)
