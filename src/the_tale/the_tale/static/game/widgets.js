@@ -288,6 +288,8 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         if (data.companion) {
             jQuery('.pgf-companion-info-link', widget).data('companion-id', data.companion.type);
+            jQuery('.pgf-companion-info-link.pgf-alive', widget).toggleClass('pgf-hidden', data.companion.health === 0);
+            jQuery('.pgf-companion-info-link.pgf-dead', widget).toggleClass('pgf-hidden', data.companion.health !== 0);
 
             jQuery('.pgf-companion .pgf-name', widget).text(data.companion.name);
             jQuery('.pgf-companion .pgf-coherence', widget).text(data.companion.coherence);

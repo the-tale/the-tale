@@ -145,7 +145,7 @@ class ClansResource(Resource):
                               'roles': roles,
                               'accounts': accounts,
                               'leader': accounts[0],
-                              'active_state_days': accounts_settings.ACTIVE_STATE_TIMEOUT / (24*60*60),
+                              'active_state_days': accounts_settings.ACTIVE_STATE_TIMEOUT // (24*60*60),
                               'affect_game_accounts_number': affect_game_accounts_number,
                               'active_accounts_number': active_accounts_number,
                               'heroes': heroes})

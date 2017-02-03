@@ -200,8 +200,10 @@ class GuideResource(Resource):
 
     @handler('persons', method='get')
     def persons(self):
+        from the_tale.game.persons import economic
         return self.template('guide/persons.html', {'section': 'persons',
                                                     'persons_settings': persons_conf.settings,
+                                                    'BASE_ATTRIBUTES': economic.BASE_ATTRIBUTES,
                                                     'INNER_CIRCLE_SIZE': persons_logic.PersonPoliticPower.INNER_CIRCLE_SIZE,
                                                     'JOBS_EFFECTS': jobs_effects.EFFECT,
                                                     'PERSON_TYPES': sorted(persons_relations.PERSON_TYPE.records, key=lambda r: r.text),

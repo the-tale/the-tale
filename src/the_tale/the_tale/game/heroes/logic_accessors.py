@@ -24,6 +24,9 @@ from . import conf
 class LogicAccessorsMixin(object):
     __slots__ = ('_cached_modifiers',)
 
+    def has_alive_companion(self):
+        return self.companion and not self.companion.is_dead
+
     def reset_accessors_cache(self):
         if not hasattr(self, '_cached_modifiers'):
             self._cached_modifiers = {}
@@ -57,7 +60,7 @@ class LogicAccessorsMixin(object):
         value = self.habit_peacefulness.modify_attribute(modifier, value)
         value = self.equipment.modify_attribute(modifier, value)
 
-        if self.companion and not modifier.is_ADDITIONAL_ABILITIES:
+        if self.has_alive_companion() and not modifier.is_ADDITIONAL_ABILITIES:
             value = self.companion.modify_attribute(modifier, value)
 
         return value
@@ -66,7 +69,7 @@ class LogicAccessorsMixin(object):
         return ( self.abilities.check_attribute(modifier) or
                  self.habit_honor.check_attribute(modifier) or
                  self.habit_peacefulness.check_attribute(modifier) or
-                 (self.companion and self.companion.check_attribute(modifier)))
+                 (self.has_alive_companion() and self.companion.check_attribute(modifier)))
 
     def update_context(self, hero_actor, enemy):
         self.abilities.update_context(hero_actor, enemy)
@@ -575,7 +578,7 @@ class LogicAccessorsMixin(object):
     @property
     def companion_coherence_speed(self):
 
-        if self.companion is None:
+        if self.companion is None or self.companion.is_dead:
             return 0
 
         return self.attribute_modifier(self.companion.type.companion_coherence_modifier)
@@ -583,6 +586,9 @@ class LogicAccessorsMixin(object):
     @property
     def companion_habits_multiplier(self):
         return self.preferences.companion_empathy.habit_multiplier
+
+    def keep_dead_companion(self):
+        return self.is_premium
 
     def habit_events(self):
         return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)

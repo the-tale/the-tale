@@ -408,18 +408,44 @@ class TryCompanionBlockTests(TestsBase):
     def test_killed_on_block(self):
         actor_1, actor_2 = self.get_actors()
 
+        self.assertFalse(actor_1.keep_dead_companion())
+
         self.set_hero_companion()
 
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
-            while self.hero.companion:
-                self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
+            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+                while self.hero.companion:
+                    self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
         self.assertEqual(self.hero.companion, None)
         self.assertFalse(actor_1.has_companion)
         self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_KILLED)
+        self.assertEqual(reset_accessors_cache.call_count, 1)
+
+
+    @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
+    @mock.patch('the_tale.game.heroes.objects.Hero.keep_dead_companion', mock.Mock(return_value=True))
+    def test_killed_on_block__keep_companion(self):
+        actor_1, actor_2 = self.get_actors()
+
+        self.assertTrue(actor_1.keep_dead_companion())
+
+        self.set_hero_companion()
+
+        self.assertTrue(actor_1.has_companion)
+        self.assertFalse(actor_2.has_companion)
+
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
+            while not self.hero.companion.is_dead:
+                self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
+
+        self.assertNotEqual(self.hero.companion, None)
+        self.assertTrue(self.hero.companion.is_dead)
+        self.assertEqual(reset_accessors_cache.call_count, 1)
 
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
@@ -485,8 +511,7 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))
 
 
-    @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
-    def test_strike(self):
+    def prepair_strike_test(self):
         from the_tale.game.companions.abilities import effects
         from the_tale.game.companions.abilities import container
 
@@ -501,4 +526,20 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
+        return actor_1, actor_2
+
+
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
+    def test_strike(self):
+        actor_1, actor_2 = self.prepair_strike_test()
+
         self.assertTrue(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))
+
+
+    @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
+    def test_strike__companion_dead(self):
+        actor_1, actor_2 = self.prepair_strike_test()
+
+        self.hero.companion.health = 0
+
+        self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))

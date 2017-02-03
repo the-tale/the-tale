@@ -56,6 +56,9 @@ class Actor(object):
     def remove_companion(self):
         self.actor.remove_companion()
 
+    def keep_dead_companion(self):
+        return self.actor.keep_dead_companion()
+
     @property
     def health(self): return self.actor.health
 
@@ -212,6 +215,9 @@ def try_companion_block(attacker, defender, messenger):
     if not defender.has_companion:
         return False
 
+    if defender.companion.is_dead:
+        return False
+
     if random.random() > defender.companion.defend_in_battle_probability:
         return False
 
@@ -223,16 +229,22 @@ def try_companion_block(attacker, defender, messenger):
 
     messenger.add_message('companions_wound', attacker=attacker, companion_owner=defender, companion=defender.companion, damage=damage)
 
-    if defender.companion.is_dead:
-        messenger.add_message('companions_killed', diary=True, attacker=attacker, companion_owner=defender, companion=defender.companion)
+    if not defender.companion.is_dead:
+        return True
 
-        if defender.actor.can_companion_broke_to_spare_parts():
-            coins = int(f.normal_action_price(defender.level) *
-                        sum(item.price_fraction for item in heroes_relations.ITEMS_OF_EXPENDITURE.records))
-            defender.actor.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_COMPANIONS, coins)
-            messenger.add_message('companions_broke_to_spare_parts', diary=True, companion_owner=defender, companion=defender.companion, coins=coins)
+    if defender.keep_dead_companion():
+        defender.actor.reset_accessors_cache()
+        return True
 
-        defender.remove_companion()
+    messenger.add_message('companions_killed', diary=True, attacker=attacker, companion_owner=defender, companion=defender.companion)
+
+    if defender.actor.can_companion_broke_to_spare_parts():
+        coins = int(f.normal_action_price(defender.level) *
+                    sum(item.price_fraction for item in heroes_relations.ITEMS_OF_EXPENDITURE.records))
+        defender.actor.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_COMPANIONS, coins)
+        messenger.add_message('companions_broke_to_spare_parts', diary=True, companion_owner=defender, companion=defender.companion, coins=coins)
+
+    defender.remove_companion()
 
     return True
 
@@ -240,6 +252,9 @@ def try_companion_block(attacker, defender, messenger):
 def try_companion_strike(attacker, defender, messenger):
 
     if not attacker.has_companion:
+        return False
+
+    if attacker.companion.is_dead:
         return False
 
     if random.random() > c.COMPANIONS_BATTLE_STRIKE_PROBABILITY:

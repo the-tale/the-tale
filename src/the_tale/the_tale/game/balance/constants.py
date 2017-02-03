@@ -586,7 +586,7 @@ COMPANIONS_MAX_HEALTH = int(700) # максимальное максимальн
 
 COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH) / 2
 
-_COMPANIONS_MEDIUM_LIFETYME = int(15) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
+_COMPANIONS_MEDIUM_LIFETYME = int(12) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
 
 # дельты мультипликатора вероятности блока для
 COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA = float(0.2) # слаженность (от среднего)
