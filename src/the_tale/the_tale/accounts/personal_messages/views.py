@@ -173,9 +173,9 @@ def conversation(context):
                     list_filter.filter_element('поиск:', attribute='filter', default_value=None),
                     list_filter.static_element('количество:', attribute='count', default_value=0) ]
 
-    url_builder = UrlBuilder(url('accounts:messages:'), arguments={'page': context.page,
-                                                                   'contact': context.contact.id,
-                                                                   'filter': context.filter})
+    url_builder = UrlBuilder(url('accounts:messages:conversation'), arguments={'page': context.page,
+                                                                               'contact': context.contact.id,
+                                                                               'filter': context.filter})
 
     index_filter = Filter(url_builder=url_builder, values={'contact': context.contact.id,
                                                            'filter': context.filter,
