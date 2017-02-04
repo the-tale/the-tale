@@ -1,0 +1,124 @@
+syntax = "proto3";
+package personal_messages;
+
+enum OwnerType {
+  SENDER = 0;
+  RECIPIENT = 1;
+}
+
+message Message {
+  uint64 id = 1;
+  double created_at = 2;
+  uint32 sender_id = 3;
+  repeated uint32 recipients_ids = 4;
+  string body = 5;
+}
+
+
+message NewMessagesNumberRequest {
+  uint32 account_id = 1;
+}
+
+message NewMessagesNumberResponse {
+  uint32 number = 1;
+}
+
+
+message ReadMessagesRequest {
+  uint32 account_id = 1;
+}
+
+message ReadMessagesResponse {}
+
+
+message SendMessageRequest {
+  uint32 sender_id = 1;
+  repeated uint32 recipients_ids = 2;
+  string body = 3;
+}
+
+message SendMessageResponse {
+  uint64 message_id = 1;
+}
+
+
+message HideMessageRequest {
+  uint32 account_id = 1;
+  uint64 message_id = 2;
+}
+
+message HideMessageResponse {}
+
+
+message HideAllMessagesRequest {
+  uint32 account_id = 1;
+}
+
+message HideAllMessagesResponse {}
+
+
+message HideConversationRequest {
+  uint32 account_id = 1;
+  uint32 partner_id = 2;
+}
+
+message HideConversationResponse {}
+
+
+message RemoveOldMessagesRequest {
+  repeated uint32 accounts_ids = 1;
+  double barrier = 2;
+}
+
+message RemoveOldMessagesResponse {}
+
+
+message GetMessagesRequest {
+  uint32 account_id = 1;
+  OwnerType type = 2;
+  string text = 3;
+  uint32 offset = 4;
+  uint32 limit = 5;
+}
+
+message GetMessagesResponse {
+  uint32 total = 1;
+  repeated Message messages = 2;
+}
+
+
+message GetConversationRequest {
+  uint32 account_id = 1;
+  uint32 partner_id = 2;
+  string text = 3;
+  uint32 offset = 4;
+  uint32 limit = 5;
+}
+
+message GetConversationResponse {
+  uint32 total = 1;
+  repeated Message messages = 2;
+}
+
+
+message GetMessageRequest {
+  uint32 account_id = 1;
+  uint64 message_id = 2;
+}
+
+message GetMessageResponse {
+  Message message = 1;
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}
+
+
+message GetContactsRequest {
+  uint32 account_id = 1;
+}
+
+message GetContactsResponse {
+  repeated uint32 accounts_ids = 1;
+}

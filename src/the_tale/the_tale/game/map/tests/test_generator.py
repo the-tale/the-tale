@@ -7,8 +7,10 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game import names
 
-from the_tale.game.places.prototypes import BuildingPrototype
 from the_tale.game.places.relations import BUILDING_TYPE
+from the_tale.game.places import objects as places_objects
+from the_tale.game.places import logic as places_logic
+
 from the_tale.game.map.generator.power_points import get_building_power_points
 from the_tale.game.map.generator.descriptors import UICell, UICells
 from the_tale.game.map.storage import map_info_storage
@@ -41,9 +43,7 @@ class GeneratorTests(TestCase):
 def create_test_building_power_point(building_type):
 
     def test_building_power_point(self):
-        building = BuildingPrototype.create(self.place_1.persons[0], utg_name=names.generator().get_test_name('building-name'))
-        building._model.type = building_type
-        building.save()
+        building = places_logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name('building-name'))
 
         self.assertTrue(len(get_building_power_points(building)) > 0)
 

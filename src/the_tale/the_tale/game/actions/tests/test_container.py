@@ -36,7 +36,6 @@ class ActionsContainerTests(testcase.TestCase):
 
     def test_create(self):
         container = ActionsContainer()
-        self.assertFalse(container.updated)
         self.assertEqual(container.actions_list, [])
         self.assertFalse(container.is_single)
 
@@ -53,22 +52,16 @@ class ActionsContainerTests(testcase.TestCase):
     def test_push_action(self):
         self.assertEqual([a.data for a in self.container.actions_list], [None, 2, 3])
 
-        self.container.updated = False
-
         TestAction.create(hero=self.hero, data=4)
-
-        self.assertTrue(self.container.updated)
 
         self.assertEqual([a.data for a in self.container.actions_list], [None, 2, 3, 4])
 
     def test_pop_action(self):
         self.assertEqual([a.data for a in self.container.actions_list], [None, 2, 3])
-        self.container.updated = False
 
         action = self.container.pop_action()
 
         self.assertEqual(action.data, 3)
-        self.assertTrue(self.container.updated)
         self.assertEqual([a.data for a in self.container.actions_list], [None, 2])
 
     def test_current_action(self):

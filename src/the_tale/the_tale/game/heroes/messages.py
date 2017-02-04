@@ -115,17 +115,15 @@ def _message_key(m): return (m.turn_number, m.timestamp)
 
 class MessagesContainer(object):
 
-    __slots__ = ('messages', 'updated')
+    __slots__ = ('messages',)
 
     MESSAGES_LOG_LENGTH = None
 
     def __init__(self):
         self.messages = collections.deque(maxlen=self.MESSAGES_LOG_LENGTH)
-        self.updated = False
+
 
     def push_message(self, msg):
-        self.updated = True
-
         self.messages.append(msg)
 
         if len(self.messages) > 1 and (self.messages[-1].turn_number < self.messages[-2].turn_number or self.messages[-1].timestamp < self.messages[-2].timestamp):
@@ -139,7 +137,7 @@ class MessagesContainer(object):
     def clear(self):
         if self.messages:
             self.messages.clear()
-            self.updated = True
+
 
     def __len__(self): return len(self.messages)
 

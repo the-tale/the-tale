@@ -115,7 +115,8 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
                                                                                                                    relations.TEMPLATE_RESTRICTION_GROUP.ACTOR,
-                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
+                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
+                                                                                                                   relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE)),
 
                 ('MODIFIER', 8, 'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
@@ -154,8 +155,6 @@ class VARIABLE(DjangoEnum):
                 ('SELL_PRICE', 'sell_price', 'цена продажи', VARIABLE_TYPE.NUMBER),
                 ('OLD_ARTIFACT', 'old_artifact', 'старый артефакт', VARIABLE_TYPE.ARTIFACT),
                 ('PERSON', 'person', 'мастер', VARIABLE_TYPE.PERSON),
-                ('DECLINED_BILL', 'declined_bill', 'название не прошедшего закона', VARIABLE_TYPE.TEXT),
-                ('BILL', 'bill', 'название закона', VARIABLE_TYPE.TEXT),
                 ('NEW_NAME', 'new_name', 'новое название города', VARIABLE_TYPE.PLACE),
                 ('OLD_NAME', 'old_name', 'старое название города', VARIABLE_TYPE.PLACE),
                 ('NEW_MODIFIER', 'new_modifier', 'новый модификатор города', VARIABLE_TYPE.MODIFIER),
@@ -175,5 +174,4 @@ class VARIABLE(DjangoEnum):
                 ('CONVERSION', 'conversion', 'информация о конверсии параметров', VARIABLE_TYPE.TEXT),
                 ('COMPANION', 'companion', 'спутник', VARIABLE_TYPE.ACTOR),
                 ('COMPANION_OWNER', 'companion_owner', 'владелец спутника', VARIABLE_TYPE.ACTOR),
-                ('ATTACKER_DAMAGE', 'attacker_damage', 'урон по атакующему', VARIABLE_TYPE.NUMBER),
-                )
+                ('ATTACKER_DAMAGE', 'attacker_damage', 'урон по атакующему', VARIABLE_TYPE.NUMBER), )

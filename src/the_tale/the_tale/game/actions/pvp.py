@@ -6,11 +6,9 @@ from the_tale.game.pvp.abilities import Ice, Blood, Flame
 
 class PvPData(object):
 
-    __slots__ = ('updated', 'advantage', 'effectiveness', 'energy', 'energy_speed', 'turn_advantage', 'turn_effectiveness', 'turn_energy', 'turn_energy_speed')
+    __slots__ = ('advantage', 'effectiveness', 'energy', 'energy_speed', 'turn_advantage', 'turn_effectiveness', 'turn_energy', 'turn_energy_speed')
 
     def __init__(self):
-        self.updated = False
-
         self.advantage = 0
         self.effectiveness = c.PVP_EFFECTIVENESS_INITIAL
 
@@ -26,16 +24,18 @@ class PvPData(object):
         self.store_turn_data()
 
     def set_advantage(self, value):
-        self.updated = True
         self.advantage = value
         if self.advantage < -1: self.advantage = -1
         if self.advantage > 1: self.advantage = 1
 
-    def set_effectiveness(self, value): self.updated = True; self.effectiveness = value
+    def set_effectiveness(self, value):
+        self.effectiveness = value
 
-    def set_energy(self, value): self.updated = True; self.energy = value
+    def set_energy(self, value):
+        self.energy = value
 
-    def set_energy_speed(self, value): self.updated = True; self.energy_speed = value
+    def set_energy_speed(self, value):
+        self.energy_speed = value
 
     def serialize(self):
         return {'advantage': self.advantage,
@@ -83,8 +83,6 @@ class PvPData(object):
                   'energy_speed': self.turn_energy_speed }
 
     def store_turn_data(self):
-        self.updated = True
-
         self.turn_advantage = self.advantage
         self.turn_effectiveness = self.effectiveness
         self.turn_energy = self.energy

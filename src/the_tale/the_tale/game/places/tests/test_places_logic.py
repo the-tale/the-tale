@@ -10,14 +10,17 @@ from the_tale.game import names
 from the_tale.game.balance import constants as c
 from the_tale.game.relations import RACE
 from the_tale.game.prototypes import TimePrototype
+from the_tale.game.logic import create_test_map
 
 from the_tale.game.persons import storage as persons_storage
 
+from the_tale.game.map import conf as map_conf
 from the_tale.game.map import logic as map_logic
 
 from .. import logic
-from .. import exceptions
 from .. import storage
+from .. import exceptions
+from .. import prototypes
 
 
 class PlacePowerTest(testcase.TestCase):
@@ -42,6 +45,7 @@ class PlacePowerTest(testcase.TestCase):
 
         persons_storage.persons.sync(force=True)
 
+
     def test_inner_circle_size(self):
         self.assertEqual(self.place.politic_power.INNER_CIRCLE_SIZE, 7)
 
@@ -64,3 +68,39 @@ class PlacePowerTest(testcase.TestCase):
                                    hero_id=None,
                                    has_in_preferences=False,
                                    power=500))
+
+
+class GetAvailablePositionsTests(testcase.TestCase):
+
+    def setUp(self):
+        super(GetAvailablePositionsTests, self).setUp()
+        self.place_1, self.place_2, self.place_3 = create_test_map()
+
+
+    def test_get_available_positions(self):
+
+        building = logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
+
+        positions = logic.get_available_positions(self.place_1.x, self.place_1.y)
+
+        self.assertTrue(positions)
+
+        for place in storage.places.all():
+            self.assertFalse((place.x, place.y) in positions)
+
+        for building in storage.buildings.all():
+            self.assertFalse((building.x, building.y) in positions)
+
+        for x, y in positions:
+            self.assertTrue(0 <= x < map_conf.map_settings.WIDTH)
+            self.assertTrue(0 <= y < map_conf.map_settings.HEIGHT)
+
+
+    def test_dynamic_position_radius(self):
+        with mock.patch('the_tale.game.balance.constants.BUILDING_POSITION_RADIUS', 2):
+            positions = logic.get_available_positions(-3, -1)
+            self.assertEqual(positions, set([(0, 0), (0, 1), (0, 2)]))
+
+        with mock.patch('the_tale.game.balance.constants.BUILDING_POSITION_RADIUS', 2):
+            positions = logic.get_available_positions(-4, -1)
+            self.assertEqual(positions, set([(0, 0), (0, 1), (0, 2), (0, 3)]))

@@ -46,7 +46,7 @@ jQuery(document).ready(function(e){
         <li>
           <h4>
             <a href="{{ url('game:heroes:show', hero_of_the_day.id) }}">{{ hero_of_the_day.name }}</a>
-            <small>{{ hero_of_the_day.gender_verbose }} {{ hero_of_the_day.race_verbose}}</small>
+            <small>{{ hero_of_the_day.race_verbose}}</small>
           </h4>
         </li>
         <li><strong>уровень:</strong> {{ hero_of_the_day.level}}</li>
@@ -184,7 +184,7 @@ jQuery(document).ready(function(e){
 
     <div class="easy-block" style="padding-top: 1em;">
       <h4 class="newspaper-column-header">
-        Политика
+        Книга Судеб
         <small><a href="{{ url('game:bills:') }}">ещё…</a></small>
       </h4>
 

@@ -43,12 +43,12 @@ class BaseTestRequests(TestCase):
         self.place1, self.place2, self.place3 = create_test_map()
 
         self.account1 = self.accounts_factory.create_account()
-        self.account1.prolong_premium(30)
+        # self.account1.prolong_premium(30)
         self.account1._model.created_at -= datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE)
         self.account1.save()
 
         self.account2 = self.accounts_factory.create_account()
-        self.account2.prolong_premium(30)
+        # self.account2.prolong_premium(30)
         self.account2._model.created_at -= datetime.timedelta(days=bills_settings.MINIMUM_BILL_OWNER_AGE)
         self.account2.save()
 
@@ -372,6 +372,9 @@ class TestShowRequests(BaseTestRequests):
         self.create_bills(1, self.account2, 'Caption-a1-%d', 'rationale-a1-%d', bill_data)
         bill = Bill.objects.all()[0]
 
+        self.account1.prolong_premium(30)
+        self.account1.save()
+
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=(('pgf-can-not-vote-message', 1),))
 
     @mock.patch('the_tale.game.places.objects.Place.is_new', False)
@@ -496,6 +499,10 @@ class TestShowRequests(BaseTestRequests):
 
         self.request_logout()
         self.request_login(self.account2.email)
+
+        self.account2.prolong_premium(30)
+        self.account2.save()
+
         self.check_html_ok(self.request_html(reverse('game:bills:show', args=[bill.id])), texts=texts)
 
 
@@ -916,12 +923,16 @@ class TestModerateRequests(BaseTestRequests):
     def test_wrong_state(self):
         self.bill.state = BILL_STATE.ACCEPTED
         self.bill.save()
+
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), self.get_post_data()), 'bills.voting_state_required')
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('game:bills:moderate', args=[self.bill.id]), {}), 'bills.moderate.form_errors')
 
     def test_moderate_success(self):
+        self.account2.prolong_premium(30)
+        self.account2.save()
+
         self.check_ajax_ok(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}))
 
         with self.check_not_changed(Post.objects.count):

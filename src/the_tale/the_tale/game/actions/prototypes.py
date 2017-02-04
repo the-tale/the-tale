@@ -68,8 +68,7 @@ class ActionBase(object):
                   'back',
                   'info_link',
                   'saved_meta_action',
-                  'replane_required',
-                  'updated')
+                  'replane_required')
 
 
     class STATE:
@@ -108,8 +107,6 @@ class ActionBase(object):
                  meta_action=None,
                  replane_required=False,
                  hero=None):
-
-        self.updated = False
 
         self.hero = hero
 
@@ -353,8 +350,6 @@ class ActionBase(object):
         pass
 
     def process_action(self):
-        self.hero.actions.updated = True
-
         self.process()
 
         # remove only leader action
@@ -477,8 +472,6 @@ class ActionIdlenessPrototype(ActionBase):
 
         self.percents = 1.0
         self.hero.actions.current_action.percents = self.percents
-
-        self.updated = True
 
         return True
 
@@ -712,8 +705,6 @@ class ActionMoveToPrototype(ActionBase):
 
         if self.percents + E > stop_percents:
             self.state = self.STATE.PROCESSED
-
-        self.updated = True
 
         return True
 
@@ -1043,8 +1034,6 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         if self.mob.health <= 0:
             self.on_mob_killed()
 
-        self.updated = True
-
         return True
 
     def fast_resurrect(self):
@@ -1056,7 +1045,6 @@ class ActionBattlePvE1x1Prototype(ActionBase):
 
         self.hero.resurrect()
 
-        self.updated = True
         return True
 
     def _kill_mob(self, hero_alive=True):
@@ -1185,7 +1173,6 @@ class ActionResurrectPrototype(ActionBase):
         self.hero.resurrect()
         self.state = self.STATE.PROCESSED
 
-        self.updated = True
         return True
 
 
@@ -1218,30 +1205,31 @@ class ActionFirstStepsPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id):
-        hero.add_message('action_first_steps_initiation_diary', diary=True, hero=hero)
-        hero.add_message('action_first_steps_initiation', hero=hero)
+        hero.add_message('action_first_steps_initiation_diary', diary=True, hero=hero, place=hero.position.place)
+        hero.add_message('action_first_steps_initiation', hero=hero, place=hero.position.place)
 
         return cls( hero=hero,
                     bundle_id=bundle_id,
                     state=cls.STATE.THINK_ABOUT_INITIATION)
 
+
     def process(self):
 
         if self.state == self.STATE.THINK_ABOUT_INITIATION:
             self.percents = 0.33
-            self.hero.add_message('action_first_steps_future', hero=self.hero)
+            self.hero.add_message('action_first_steps_future', hero=self.hero, place=self.hero.position.place)
             self.state = self.STATE.THINK_ABOUT_FUTURE
             return
 
         if self.state == self.STATE.THINK_ABOUT_FUTURE:
             self.percents = 0.66
-            self.hero.add_message('action_first_steps_heroes', hero=self.hero)
+            self.hero.add_message('action_first_steps_heroes', hero=self.hero, place=self.hero.position.place)
             self.state = self.STATE.THINK_ABOUT_HEROES
             return
 
         if self.state == self.STATE.THINK_ABOUT_HEROES:
             self.percents = 1.0
-            self.hero.add_message('action_first_steps_now', hero=self.hero)
+            self.hero.add_message('action_first_steps_now', hero=self.hero, place=self.hero.position.place)
             self.state = self.STATE.PROCESSED
             return
 
@@ -1282,6 +1270,8 @@ class ActionInPlacePrototype(ActionBase):
         # process variouse effects only if it is not repeated town visit
         if hero.position.place == hero.position.previous_place:
             return prototype
+
+        hero.add_message('action_inplace_enter', hero=hero, place=hero.position.place)
 
         if (hero.energy < hero.energy_maximum and
             random.random() < hero.position.place.attrs.energy_regen_chance):

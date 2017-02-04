@@ -1,3 +1,4 @@
+{% import 'persons/macros.html' as persons_macros with context %}
 
 {% macro _voting_results(bill) %}
 
@@ -51,7 +52,7 @@
         {% elif bill.state.is_ACCEPTED %}
 
           {% if bill.is_declined %}
-            отменён законом <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
+            отменена запись <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
           {% else %}
             принят
             <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
@@ -75,9 +76,9 @@
       <td>
         {% if vote %}
         {% if vote.type.is_FOR %}
-        <span class="label label-success pgf-voted-for-marker" style="cursor: default;" rel="tooltip" title="Вы поддержали закон">«за»</span>
+        <span class="label label-success pgf-voted-for-marker" style="cursor: default;" rel="tooltip" title="Вы поддержали запись">«за»</span>
         {% elif vote.type.is_AGAINST %}
-        <span class="label label-important pgf-voted-against-marker" style="cursor: default;" rel="tooltip" title="Вы выступили против закона">«против»</span>
+        <span class="label label-important pgf-voted-against-marker" style="cursor: default;" rel="tooltip" title="Вы выступили против записи">«против»</span>
         {% else %}
         <span class="label label-info pgf-voted-refrained-marker" style="cursor: default;" rel="tooltip" title="Вы воздержались от голосования">«воздержался»</span>
         {% endif %}
@@ -85,13 +86,13 @@
           {% if not bill.state.is_VOTING %}
             <i class="icon-ban-circle"
                rel="tooltip"
-               title="Голосование по закону окончено"></i>
+               title="Голосование по записи окончено"></i>
           {% elif resource.can_vote and resource.hero is not none and bill.can_vote(resource.hero) %}
             —
           {% else %}
             <i class="icon-ban-circle"
                rel="tooltip"
-               title="Вы не можете голосовать за этот закон, подробности смотрите на странице закона или в Путеводителе"></i>
+               title="Вы не можете голосовать за эту запись, подробности смотрите на странице записи или в Путеводителе"></i>
           {% endif %}
         {% endif %}
       </td>
@@ -118,4 +119,8 @@
 
 {{ bill_info(bill, vote) }}
 
+{% endmacro %}
+
+{% macro person_info(person) %}
+<a href="{{url('game:persons:show', person.id)}}">{{person.name}}</a> — {{ persons_macros.person_description(person) }}
 {% endmacro %}

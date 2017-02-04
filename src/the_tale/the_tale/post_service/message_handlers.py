@@ -57,32 +57,35 @@ class PersonalMessageHandler(BaseMessageHandler):
     EMAIL_HTML_TEMPLATE = 'post_service/emails/personal_message.html'
     EMAIL_TEXT_TEMPLATE = 'post_service/emails/personal_message.txt'
 
-    def __init__(self, message_id=None):
+    def __init__(self, message_id=None, account_id=None):
         super(PersonalMessageHandler, self).__init__()
         self.message_id = message_id
+        self.account_id = account_id
 
     def serialize(self):
         return {'type': self.TYPE,
-                'message_id': self.message_id}
+                'message_id': self.message_id,
+                'account_id': self.account_id}
 
     @classmethod
     def deserialize(cls, data):
         obj = cls()
         obj.message_id = data['message_id']
+        obj.account_id = data['account_id']
         return obj
 
     @property
-    def uid(self): return 'personal-message-%d-message' % self.message_id
+    def uid(self): return 'personal-message-{}-{}'.format(self.account_id, self.message_id)
 
     def process(self):
-        from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
+        from the_tale.accounts.personal_messages import logic as pm_logic
 
-        message = PersonalMessagePrototype.get_by_id(self.message_id)
+        message = pm_logic.get_message(self.account_id, message_id=self.message_id)
 
         if message is None:
             return True # message can be removed by admins or with removed thread
 
-        account = message.recipient
+        account = AccountPrototype.get_by_id(self.account_id)
 
         if not account.personal_messages_subscription:
             return True
@@ -95,7 +98,8 @@ class PersonalMessageHandler(BaseMessageHandler):
 
         subject = '«Сказка»: личное сообщение'
 
-        context = {'message': message}
+        context = {'message': message,
+                   'sender': AccountPrototype.get_by_id(message.sender_id)}
 
         html_content = jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
         text_content = jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)

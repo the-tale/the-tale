@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 import datetime
 
 from django.conf import settings as project_settings
@@ -9,6 +10,7 @@ from dext.common.utils import s11n
 from utg import words as utg_words
 from utg import relations as utg_relations
 
+from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
 from the_tale.game.prototypes import TimePrototype
@@ -59,9 +61,6 @@ NORMAL_PLACE_JOB_POWER = f.normal_job_power(PlacePoliticPower.INNER_CIRCLE_SIZE)
 
 
 def load_place(place_id=None, place_model=None):
-
-    # TODO: get values instead model
-    # TODO: check that load_hero everywhere called with correct arguments
     try:
         if place_id is not None:
             place_model = models.Place.objects.get(id=place_id)
@@ -104,6 +103,7 @@ def load_place(place_id=None, place_model=None):
     place.attrs.sync()
 
     return place
+
 
 def save_place(place, new=False):
     from the_tale.game.places import storage
@@ -217,3 +217,138 @@ def refresh_all_places_attributes():
     for place in storage.places.all():
         place.refresh_attributes()
         save_place(place)
+
+
+def get_available_positions(center_x, center_y, building_position_radius=c.BUILDING_POSITION_RADIUS): # pylint: disable=R0914
+    from the_tale.game.places import storage
+    from the_tale.game.roads.storage import roads_storage
+    from the_tale.game.roads.relations import PATH_DIRECTION
+    from the_tale.game.map.conf import map_settings
+
+    positions = set()
+
+    for i in range(0, building_position_radius+1):
+        for j in range(0, building_position_radius+1):
+            positions.add((center_x+i, center_y+j))
+            positions.add((center_x-i, center_y+j))
+            positions.add((center_x+i, center_y-j))
+            positions.add((center_x-i, center_y-j))
+
+    positions =  set(pos for pos in positions
+                     if 0 <= pos[0] < map_settings.WIDTH and 0 <= pos[1] < map_settings.HEIGHT)
+
+    removed_positions = set()
+
+    for place in storage.places.all():
+        removed_positions.add((place.x, place.y))
+
+    for building in storage.buildings.all():
+        removed_positions.add((building.x, building.y))
+
+    for road in roads_storage.all_exists_roads():
+        x, y = road.point_1.x, road.point_1.y
+        for direction in road.path:
+            if direction == PATH_DIRECTION.LEFT.value: x -= 1
+            elif direction == PATH_DIRECTION.RIGHT.value: x += 1
+            elif direction == PATH_DIRECTION.UP.value: y -= 1
+            elif direction == PATH_DIRECTION.DOWN.value: y += 1
+
+            removed_positions.add((x, y))
+
+    result = positions - removed_positions
+
+    return result if result else get_available_positions(center_x, center_y, building_position_radius=building_position_radius+1)
+
+
+def create_building(person, utg_name, position=None):
+    from the_tale.game.places import storage
+
+    from . import logic
+
+
+    building = storage.buildings.get_by_person_id(person.id)
+
+    if building:
+        return building
+
+    # remove any destroyed buildings for person
+    models.Building.objects.filter(person_id=person.id).delete()
+
+    if position is None:
+        position = random.choice(list(get_available_positions(person.place.x, person.place.y)))
+
+    x, y = position
+
+    building = objects.Building(id=None,
+                                x=x,
+                                y=y,
+                                type=person.type.building_type,
+                                integrity=1.0,
+                                created_at_turn=TimePrototype.get_current_turn_number(),
+                                state=relations.BUILDING_STATE.WORKING,
+                                utg_name=utg_name,
+                                person_id=person.id)
+
+    save_building(building, new=True)
+
+    return building
+
+
+def save_building(building, new=False):
+    from the_tale.game.places import storage
+
+    data = {'name': building.utg_name.serialize()}
+
+    arguments = {'x': building.x,
+                 'y': building.y,
+                 'created_at_turn': building.created_at_turn,
+                 'state': building.state,
+                 'type': building.type,
+                 'integrity': building.integrity,
+                 'place_id': building.place.id,
+                 'person_id': building.person.id,
+                 'data': s11n.to_json(data)}
+
+    if new:
+        building_model = models.Building.objects.create(**arguments)
+        building.id = building_model.id
+        storage.buildings.add_item(building.id, building)
+    else:
+        models.Building.objects.filter(id=building.id).update(**arguments)
+
+    storage.buildings.update_version()
+
+
+def load_building(building_id=None, building_model=None):
+    try:
+        if building_id is not None:
+            building_model = models.Building.objects.get(id=building_id)
+        elif building_model is None:
+            return None
+    except models.Building.DoesNotExist:
+        return None
+
+    data = s11n.from_json(building_model.data)
+
+    building = objects.Building(id=building_model.id,
+                                x=building_model.x,
+                                y=building_model.y,
+                                created_at_turn=building_model.created_at_turn,
+                                utg_name=utg_words.Word.deserialize(data['name']),
+                                type=building_model.type,
+                                integrity=building_model.integrity,
+                                state=building_model.state,
+                                person_id=building_model.person_id)
+
+    return building
+
+
+
+def destroy_building(building):
+    from the_tale.game.places import storage
+
+    building.state = relations.BUILDING_STATE.DESTROYED
+    save_building(building)
+
+    storage.buildings.update_version()
+    storage.buildings.refresh()

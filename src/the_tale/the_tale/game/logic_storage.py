@@ -70,11 +70,11 @@ class LogicStorage(object):
 
         self.process_cache_queue()
 
-    def recache_bundle(self, bundle_id):
+    def recache_bundle(self, bundle_id, force_full_data=False):
         for account_id in self.bundles_to_accounts[bundle_id]:
             self.cache_queue.add(self.accounts_to_heroes[account_id].id)
 
-        self.process_cache_queue()
+        self.process_cache_queue(force_full_data=force_full_data)
 
     def _save_hero_data(self, hero_id):
         heroes_logic.save_hero(self.heroes[hero_id])
@@ -323,13 +323,14 @@ class LogicStorage(object):
             logger.info('[save_changed_data] cached heroes: %d' % cached_heroes_number)
 
 
-    def process_cache_queue(self, update_cache=False):
+    def process_cache_queue(self, update_cache=False, force_full_data=False):
         to_cache = {}
 
         for hero_id in self.cache_queue:
             hero = self.heroes[hero_id]
             cache_key = hero.cached_ui_info_key
-            to_cache[cache_key] = hero.ui_info(actual_guaranteed=True, old_info=self.previous_cache.get(cache_key))
+            to_cache[cache_key] = hero.ui_info(actual_guaranteed=True,
+                                               old_info=None if force_full_data else self.previous_cache.get(cache_key))
 
         cache.set_many(to_cache, heroes_settings.UI_CACHING_TIMEOUT)
 

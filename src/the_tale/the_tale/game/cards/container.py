@@ -13,10 +13,9 @@ from the_tale.game.cards import effects
 
 class CardsContainer(object):
 
-    __slots__ = ('updated', '_cards', '_hero', '_help_count', '_premium_help_count', '_next_uid')
+    __slots__ = ('_cards', '_hero', '_help_count', '_premium_help_count', '_next_uid')
 
     def __init__(self):
-        self.updated = False
         self._cards = {}
         self._hero = None
         self._help_count = 0
@@ -62,15 +61,12 @@ class CardsContainer(object):
                 'help_barrier': c.CARDS_HELP_COUNT_TO_NEW_CARD }
 
     def add_card(self, card):
-        self.updated = True
         card.uid = self._get_next_uid()
         self._cards[card.uid] = card
         goods_types.cards_hero_good.sync_added_item(self._hero.account_id, card)
 
 
     def remove_card(self, card_uid):
-        self.updated = True
-
         if card_uid not in self._cards:
             raise exceptions.RemoveUnexistedCardError(card_uid=card_uid)
 
@@ -92,8 +88,6 @@ class CardsContainer(object):
     def change_help_count(self, delta):
         if self._help_count + delta < 0:
             raise exceptions.HelpCountBelowZero(current_value=self._help_count, delta=delta)
-
-        self.updated = True
 
         self._help_count += delta
 

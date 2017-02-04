@@ -12,7 +12,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game.heroes import logic as heroes_logic
 
-from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import logic as places_logic
 from the_tale.game.places import relations as places_relations
 
 from the_tale.game.persons.tests.helpers import create_person
@@ -63,7 +63,7 @@ class PersonTests(testcase.TestCase):
                                                                        power_delta=100,
                                                                        place_id=None))
 
-        BuildingPrototype.create(self.person, utg_name=names.generator().get_test_name('building-name'))
+        places_logic.create_building(self.person, utg_name=names.generator().get_test_name('building-name'))
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
             self.person.cmd_change_power(hero_id=666, has_place_in_preferences=False, has_person_in_preferences=False, power=-100)
@@ -135,7 +135,8 @@ FAKE_ECONOMIC = {places_relations.ATTRIBUTE.PRODUCTION: 1.0,
                  places_relations.ATTRIBUTE.FREEDOM: 0,
                  places_relations.ATTRIBUTE.SAFETY: 0.6,
                  places_relations.ATTRIBUTE.TRANSPORT: -0.4,
-                 places_relations.ATTRIBUTE.STABILITY: 0.2}
+                 places_relations.ATTRIBUTE.STABILITY: 0.2,
+                 places_relations.ATTRIBUTE.CULTURE: 0.7}
 
 
 class PersonJobsTests(testcase.TestCase):
@@ -153,6 +154,7 @@ class PersonJobsTests(testcase.TestCase):
         self.assertEqual(self.person.job_effects_priorities(),
                          {jobs_effects.EFFECT.PLACE_PRODUCTION: 1.0,
                           jobs_effects.EFFECT.PLACE_SAFETY: 0.6,
+                          jobs_effects.EFFECT.PLACE_CULTURE: 0.7,
                           jobs_effects.EFFECT.PLACE_STABILITY: 0.2,
                           jobs_effects.EFFECT.HERO_MONEY: 0.3,
                           jobs_effects.EFFECT.HERO_ARTIFACT: 0.3,
@@ -166,6 +168,7 @@ class PersonJobsTests(testcase.TestCase):
         self.assertEqual(self.person.job_effects_priorities(),
                          {jobs_effects.EFFECT.PLACE_PRODUCTION: 1.5,
                           jobs_effects.EFFECT.PLACE_SAFETY: 1.1,
+                          jobs_effects.EFFECT.PLACE_CULTURE: 1.2,
                           jobs_effects.EFFECT.PLACE_STABILITY: 0.7,
                           jobs_effects.EFFECT.PLACE_TRANSPORT: 0.09999999999999998,
                           jobs_effects.EFFECT.PLACE_FREEDOM: 0.5,

@@ -82,5 +82,5 @@ class PlaceDescripton(base_place_bill.BasePlaceBill):
     def deserialize(cls, data):
         obj = super(PlaceDescripton, cls).deserialize(data)
         obj.description = data['description']
-        obj.old_description = data.get('old_description', 'неизвестно')
+        obj.old_description = data.get('old_description', 'утрачено')
         return obj

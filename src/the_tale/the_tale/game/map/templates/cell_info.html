@@ -14,18 +14,13 @@
             <span {%if not place.is_modifier_active()%}style="color: orange; cursor: default;" rel="tooltip" title="Город не соответствует требованиям специализации"{% endif %}>
               {{place.modifier.text}}
             </span>
-          {% endif %}
+            {% endif %}
         <a href="{{url('game:places:show', place.id)}}" target="_blank" style="vertical-align: middle;">{{ place.name }}</a>
 
         {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}<span class="badge badge-success">родной город</span>{% endif %}
 
         <br/>
-        <small>
-          Земля {{place.race.utg_name_form.word.forms[7]}},
-          {{place.habit_honor.interval.place_text}},
-          {{place.habit_peacefulness.interval.place_text}}
-          {%- if place.is_frontier -%}, <a href="{{url('guide:cities')}}" target="_blank">Фронтир</a>{% endif %}
-        </small>
+        <small>{{places_macros.place_description(place)}}</small>
 
       </span>
 
@@ -54,7 +49,7 @@
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
       <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Мастера</a></li>
       <li><a href="#pgf-cell-place-parameters" class="pgf-cell-place-parameters-button" data-toggle="tab">Параметры</a></li>
-      <li><a href="#pgf-cell-place-bills" class="pgf-cell-place-bills-button" data-toggle="tab">Законы</a></li>
+      <li><a href="#pgf-cell-place-bills" class="pgf-cell-place-bills-button" data-toggle="tab">Записи</a></li>
       <li><a href="#pgf-cell-place-chronicle" class="pgf-cell-place-chronicle-button" data-toggle="tab">События</a></li>
       {% endif %}
       {% if building %}
@@ -92,7 +87,7 @@
             {% for person in place.persons_by_power %}
               <tr>
                 <td>{{persons_macros.person_verbose(person, hero)}}</td>
-                <td>{{person.total_politic_power_fraction|percents}}</td>
+                <td>{{person.total_politic_power_fraction|percents(2)}}</td>
                 <td>{{person.politic_power.positive_heroes_number}} / {{person.politic_power.negative_heroes_number}}</td>
               </tr>
             {% endfor %}
@@ -131,7 +126,7 @@
 
       <div class="tab-pane active description" id="pgf-cell-place-bills">
         <p>
-          Список <strong>активных</strong> законов (действующих в текущий момент), связанных с городом.
+          Список <strong>активных</strong> записей в Книге Судеб (действующих в текущий момент), связанных с городом.
         </p>
 
         {% if place_bills %}
@@ -150,7 +145,7 @@
           {% endfor %}
 
         {% else %}
-          <p class="alert alert-info">Нет активных законов.</p>
+          <p class="alert alert-info">Нет активных записей в Книге Судеб.</p>
         {% endif %}
       </div>
 

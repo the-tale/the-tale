@@ -28,7 +28,7 @@ from . import relations
 
 
 class MetaAction(object):
-    __slots__ = ('percents', 'state', 'last_processed_turn', 'storage', 'updated')
+    __slots__ = ('percents', 'state', 'last_processed_turn', 'storage')
 
     TYPE = None
     TEXTGEN_TYPE = None
@@ -40,7 +40,6 @@ class MetaAction(object):
     def __init__(self, last_processed_turn=-1, percents=0, state=STATE.UNINITIALIZED):
         self.storage = None
         self.last_processed_turn = last_processed_turn
-        self.updated = False
 
         self.percents = percents
         self.state = state
@@ -70,7 +69,6 @@ class MetaAction(object):
         turn_number = TimePrototype.get_current_turn_number()
         if self.last_processed_turn < turn_number:
             self.last_processed_turn = turn_number
-            self.updated = True
             self._process()
 
 

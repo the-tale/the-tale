@@ -3,9 +3,9 @@ from psycopg2.extras import Json as PGJson
 
 import asyncio
 
-from . import postgresql as db
+from tt_web import postgresql as db
+from tt_web import utils
 
-from . import utils
 from . import objects
 
 

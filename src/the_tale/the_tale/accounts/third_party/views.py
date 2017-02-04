@@ -25,7 +25,7 @@ from the_tale.accounts.third_party import decorators
 class RefuseThirdPartyProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
         if third_party_settings.ACCESS_TOKEN_SESSION_KEY in context.django_request.session:
-            raise dext_views.ViewError(code='third_party.access_restricted', message='Доступ к этому функционалу запрещён для сторонних приложений')
+            raise dext_views.ViewError(code='third_party.access_restricted', message='Доступ к этой функциональности запрещён для сторонних приложений')
 
 ###############################
 # old views
@@ -82,6 +82,19 @@ class TokensResource(Resource):
         return self.json_ok()
 
 
+    @login_required
+    @decorators.refuse_third_party
+    @handler('remove-all', method='post')
+    def remove_all(self):
+        tokens = prototypes.AccessTokenPrototype.get_list_by_account_id(self.account.id)
+
+        for token in tokens:
+            token.remove()
+            cache.delete(third_party_settings.ACCESS_TOKEN_CACHE_KEY % token.uid)
+
+        return self.json_ok()
+
+
     @api.handler(versions=('1.0',))
     @handler('api', 'request-authorisation', name='request-authorisation', method='post')
     def api_request_authorisation(self, api_version=None):
@@ -112,11 +125,11 @@ class TokensResource(Resource):
 - ответ метода будет содержать информацию о статусе авторизации и о пользователе;
 - после успешной авторизации с API можно работать точно так же, как и после обычного входа в игру.
 
-При успешном выполнении запроса, будет установлено значение cookie с именем sessionid, которая и является идентификатором сессии пользователя.
+**Значение cookie с именем sessionid будет изменено сервером при первом запросе к нему после того как пользователь подтвердил разрешение** (скорее всего это будет запрос состояния авторизации). После этого необходимо будет использовать установленное сервером значение cookie.
 
 Запрос авторизации не хранится вечно, гарантируется его доступность в течение 10 минут после создания.
 
-В случае обращения к закрытому функционалу (профилю пользователя, магазину и так далее) в ответ вернётся ошибка <code>third_party.access_restricted</code>.
+В случае обращения к закрытой функциональности (профилю пользователя, магазину и так далее) в ответ вернётся ошибка <code>third_party.access_restricted</code>.
 
 При «выходе из игры» разрешение, выданное приложению, удаляется.
 
@@ -124,7 +137,7 @@ class TokensResource(Resource):
 
 - **Функцию выхода из игры рекомендуется реализовывать. Также рекомендуется выходить из игры при любой нобходимости релогина.**
 - Не указывайте версию своей программы ни в одном из параметров запроса, т.к. они сохраняются на сервере и не будут изменяться при изменении версии.
-- Делайте подробное описание. Расскажите подробно о функционале программы.
+- Делайте подробное описание. Расскажите подробно о функциональности программы.
 
         '''
 

@@ -1,5 +1,6 @@
 # coding: utf-8
 import random
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -17,12 +18,13 @@ from the_tale.game import relations as game_relations
 from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes.habilities import companions as heroes_companions_abilities
 
-from the_tale.game.companions import logic
-from the_tale.game.companions import objects
-from the_tale.game.companions import relations
+from .. import logic
+from .. import objects
+from .. import relations
+from .. import exceptions
 
-from the_tale.game.companions.abilities import container as abilities_container
-from the_tale.game.companions.abilities import effects as companions_effects
+from ..abilities import container as abilities_container
+from ..abilities import effects as companions_effects
 
 
 class CompanionTests(testcase.TestCase):
@@ -258,6 +260,33 @@ class CompanionTests(testcase.TestCase):
         self.assertFalse(self.companion.need_heal)
 
 
+    def test_heal__less_then_zero(self):
+        with self.assertRaises(exceptions.HealCompanionForNegativeValueError):
+            self.companion.heal(-1)
+
+
+    def test_heal(self):
+        self.companion.health = 1
+        self.assertEqual(self.companion.heal(5), 5)
+        self.assertEqual(self.companion.health, 6)
+
+
+    def test_heal__overheal(self):
+        self.companion.health = self.companion.max_health - 2
+        self.assertEqual(self.companion.heal(5), 2)
+        self.assertEqual(self.companion.health, self.companion.max_health)
+
+
+    def test_heal__resurrect(self):
+        self.companion.health = 0
+
+        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
+            self.assertEqual(self.companion.heal(5), 5)
+
+        self.assertEqual(self.companion.health, 5)
+        self.assertEqual(reset_accessors_cache.call_count, 1)
+
+
     def test_defend_in_battle_probability__hero_dedication(self):
         self.hero.set_companion(self.companion)
 
@@ -285,3 +314,17 @@ class CompanionTests(testcase.TestCase):
 
         with self.check_increased(lambda: self.hero.companion.defend_in_battle_probability):
             self.hero.companion.coherence = 100
+
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage', 3)
+    def test_hit(self):
+        self.assertEqual(self.companion.hit(), 3)
+        self.assertEqual(self.companion.health, self.companion.max_health - 3)
+        self.assertFalse(self.companion.is_dead)
+
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage', 10000)
+    def test_hit__health_lower_zero(self):
+        self.assertEqual(self.companion.hit(), self.companion.max_health)
+        self.assertEqual(self.companion.health, 0)
+        self.assertTrue(self.companion.is_dead)

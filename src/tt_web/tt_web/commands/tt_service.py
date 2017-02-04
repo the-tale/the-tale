@@ -4,7 +4,7 @@ import importlib
 
 from aiohttp import web
 
-from tt_diary import utils
+from tt_web import utils
 
 
 parser = argparse.ArgumentParser(description='Run service')

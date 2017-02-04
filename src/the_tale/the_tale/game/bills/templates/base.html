@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Политика | {{settings.PAGE_TITLE}}{% endblock %}
+{% block title %}Книга Судеб | {{settings.PAGE_TITLE}}{% endblock %}
 
 {% block content %}
 
@@ -8,13 +8,13 @@
   <div class="span12">
     <div class="easy-block">
 
-      <h2>Политика</h2>
+      <h2>Книга Судеб</h2>
 
       <ul class="nav nav-pills">
-        <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('game:bills:') }}">Список законов</a></li>
+        <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('game:bills:') }}">Список записей</a></li>
         {% if resource.account.is_authenticated and resource.can_participate_in_politics and not resource.active_bills_limit_reached %}
         <li class="dropdown">
-          <a class="dropdown-toggle pgf-create-new-bill-buttons" data-toggle="dropdown" href="#">Предложить закон <b class="caret"></b></a>
+          <a class="dropdown-toggle pgf-create-new-bill-buttons" data-toggle="dropdown" href="#">Создать запись <b class="caret"></b></a>
           <ul class="dropdown-menu">
             {% for bill_id, bill_type in bills_menu_types() %}
               {% if bill_type.type.enabled %}

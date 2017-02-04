@@ -42,7 +42,7 @@ class Place(models.Model):
 
     persons_changed_at_turn = models.BigIntegerField(default=0)
 
-    def __unicode__(self): return s11n.from_json(self.data)['name']['forms'][0]
+    def __str__(self): return s11n.from_json(self.data)['name']['forms'][0]
 
 
 class Building(models.Model):

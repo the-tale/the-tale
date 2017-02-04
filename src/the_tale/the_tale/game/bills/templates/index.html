@@ -4,23 +4,23 @@
 {% import 'bills/macros.html' as bills_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 
-{% block title %}Политика | {{settings.PAGE_TITLE}}{% endblock %}
-{% block description %}Выдвинутые игроками законы.{% endblock %}
+{% block title %}Книга Судеб | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Созданный игроками записи в Книге Судеб.{% endblock %}
 
 {% block bills_content %}
 
 {% if not resource.account.is_authenticated %}
-{{ base_macros.registration_required_message("иметь возможность предлагать законы и голосовать.") }}
+{{ base_macros.registration_required_message("иметь возможность создавать записи в Книгу Судеб и голосовать.") }}
 {% elif resource.active_bills_limit_reached %}
 
 <p class="alert alert-info pgf-active-bills-limit-reached">
-  Вы не можете предложить закон, пока не закончилось голосование по вашему предыдущему предложению.
+  Вы не можете создать запись, пока не закончилось голосование по вашим предыдущим предложениям.
 </p>
 
 {% elif not resource.can_participate_in_politics %}
 
 <p class="alert alert-info pgf-can-not-participate-in-politics">
-  Предлагать законы только игроки, завершившие регистрацию.
+  Создавать записи могут только игроки, завершившие регистрацию.
 </p>
 
 {% endif %}
@@ -30,7 +30,7 @@
 </p>
 
 <p>
-  Подробнее о системе политики можно почитать в <a href="{{url('guide:politics')}}">Путеводителе</a>.
+  Подробнее о Книге Судеб <a href="{{url('guide:politics')}}">Путеводителе</a>.
 </p>
 
 
@@ -51,7 +51,7 @@
 {{ base_macros.render_paginator(paginator) }}
 
 {% else %}
-<span class="pgf-no-bills-message">Не найдено законопроектов, отвечающих условиям поиска</span>
+<span class="pgf-no-bills-message">Не найдено записей, отвечающих условиям поиска</span>
 {% endif %}
 
 {% endblock %}

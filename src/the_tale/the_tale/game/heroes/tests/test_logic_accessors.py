@@ -189,6 +189,107 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
             self.assertTrue(self.hero.communication_telepathic.is_CAN_NOT)
 
 
+    def test_has_alive_companion(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        companion = companions_logic.create_companion(companion_record)
+        self.hero.set_companion(companion)
+
+        self.assertTrue(self.hero.has_alive_companion())
+
+        self.hero.companion.health = 0
+
+        self.assertFalse(self.hero.has_alive_companion())
+
+
+    def test_modify_attribute__companion_alive(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        companion = companions_logic.create_companion(companion_record)
+        self.hero.set_companion(companion)
+
+        self.assertFalse(self.hero.companion.is_dead)
+
+        with mock.patch('the_tale.game.companions.objects.Companion.modify_attribute') as modify_attribute:
+            self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1)
+
+        self.assertTrue(modify_attribute.call_count >= 1)
+
+
+    def test_modify_attribute__companion_dead(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        companion = companions_logic.create_companion(companion_record)
+        self.hero.set_companion(companion)
+
+        self.hero.companion.health = 0
+
+        self.assertTrue(self.hero.companion.is_dead)
+
+        with mock.patch('the_tale.game.companions.objects.Companion.modify_attribute') as modify_attribute:
+            self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1)
+
+        self.assertEqual(modify_attribute.call_count, 0)
+
+
+    def test_check_attribute__companion_alive(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        companion = companions_logic.create_companion(companion_record)
+        self.hero.set_companion(companion)
+
+        self.assertFalse(self.hero.companion.is_dead)
+
+        with mock.patch('the_tale.game.companions.objects.Companion.check_attribute') as check_attribute:
+            self.hero.check_attribute(relations.MODIFIERS.POWER_TO_ENEMY)
+
+        self.assertTrue(check_attribute.call_count >= 1)
+
+
+    def test_check_attribute__companion_dead(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        companion = companions_logic.create_companion(companion_record)
+        self.hero.set_companion(companion)
+
+        self.hero.companion.health = 0
+
+        self.assertTrue(self.hero.companion.is_dead)
+
+        with mock.patch('the_tale.game.companions.objects.Companion.check_attribute') as check_attribute:
+            self.hero.check_attribute(relations.MODIFIERS.POWER_TO_ENEMY)
+
+        self.assertEqual(check_attribute.call_count, 0)
+
+
+    def test_companion_coherence_speed__no_companion(self):
+        self.assertEqual(self.hero.companion_coherence_speed, 0)
+
+
+    def test_companion_coherence_speed__companion_alive(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        companion = companions_logic.create_companion(companion_record)
+        self.hero.set_companion(companion)
+
+        self.assertFalse(self.hero.companion.is_dead)
+
+        self.assertGreater(self.hero.companion_coherence_speed, 0)
+
+
+    def test_companion_coherence_speed__companion_dead(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        companion = companions_logic.create_companion(companion_record)
+        self.hero.set_companion(companion)
+
+        self.hero.companion.health = 0
+        self.assertTrue(self.hero.companion.is_dead)
+
+        self.assertEqual(self.hero.companion_coherence_speed, 0)
+
+
+    def test_keep_dead_companion(self):
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', False):
+            self.assertFalse(self.hero.keep_dead_companion())
+
+        with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True):
+            self.assertTrue(self.hero.keep_dead_companion())
+
+
 class PoliticalPowerTests(HeroLogicAccessorsTestBase):
 
     def test_power_modifier__risk_level(self):

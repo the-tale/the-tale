@@ -15,7 +15,7 @@
       <tr><td>базовое</td><td>{{100}}%</td></tr>
       <tr><td>от уровня</td><td>{{resource.hero.politics_power_level|percents(2)}}</td></tr>
       <tr><td>от могущества Хранителя</td><td>{{resource.hero.politics_power_might|percents(2)}}</td></tr>
-      <tr><td>от принятых законов</td><td>{{resource.hero.politics_power_bills|percents(2)}}</td></tr>
+      <tr><td>от принятых записей в Книге Судеб</td><td>{{resource.hero.politics_power_bills|percents(2)}}</td></tr>
       <tr><td>от риска</td><td>{{resource.hero.preferences.risk_level.power_modifier|percents(2)}}</td></tr>
       <tr><td>от остального (способностей, предпочтений, спутников, артефактов)</td><td>{{resource.hero.politics_power_modifier|percents(2)}}</td></tr>
       <tr><td>итого</td><td>{{resource.hero.politics_power_multiplier()|percents(2)}}</td></tr>
@@ -44,9 +44,9 @@
     </tbody>
   </table>
 
-  <h3>Помощь городам</h3>
+  <h3>Известность</h3>
 
-  <p>Города, которым герой помогает чаще.</p>
+  <p>Известность героя в городах Пандоры. Чем чаще герой помогает городу, тем больше его известность.</p>
 
   {% set places_history = resource.hero.places_history.get_most_common_places() %}
 
@@ -58,13 +58,13 @@
           <tr>
             <th width="30px">№</th>
             <th >город</th>
-            <th width="100px">помогал (раз)</th>
+            <th width="100px">известность</th>
           </tr>
           {% for place, count in places_history %}
             <tr>
               <td>{{loop.index}}</td>
               <td><a href="{{url('game:places:show', place.id)}}">{{place.name}}</a></td>
-              <td>{{count|round(1)}}</td>
+              <td>{{count|float|round(1)}}</td>
             </tr>
           {% endfor %}
         </tbody>

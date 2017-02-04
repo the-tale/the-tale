@@ -119,7 +119,7 @@ class AccountAchievementsPrototype(BasePrototype):
 
     def add_achievement(self, achievement, notify):
         from the_tale.collections.prototypes import GiveItemTaskPrototype
-        from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+        from the_tale.accounts.personal_messages import logic as pm_logic
         from the_tale.accounts.logic import get_system_user
 
         already_had_achievement = self.achievements.has_achievement(achievement)
@@ -154,7 +154,7 @@ class AccountAchievementsPrototype(BasePrototype):
                     'description': achievement.description,
                     'rewards_message': rewards_message})
 
-        MessagePrototype.create(get_system_user(), self.account, message)
+        pm_logic.send_message(get_system_user().id, [self.account.id], message, async=True)
 
 
     def remove_achievement(self, achievement):

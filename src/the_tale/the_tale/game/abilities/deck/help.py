@@ -162,15 +162,6 @@ class Help(AbilityPrototype):
             return self.use_heal_companion(task, action, hero, critical)
 
 
-    def process_removed_artifacts(self, hero):
-        for artifact in list(hero.bag.values()):
-            if artifact.must_be_removed_on_help():
-                hero.bag.pop_artifact(artifact)
-
-                if artifact.is_child_gift():
-                    hero.statistics.change_gifts_returned(1)
-                    hero.add_message('hero_common_journal_return_child_gift', hero=hero, artifact=artifact)
-
     def use(self, task, storage, **kwargs): # pylint: disable=R0911
 
         battle = Battle1x1Prototype.get_by_account_id(task.hero.account_id)
@@ -215,6 +206,6 @@ class Help(AbilityPrototype):
 
         task.hero.cards.change_help_count(1)
 
-        self.process_removed_artifacts(task.hero)
+        task.hero.process_removed_artifacts()
 
         return result

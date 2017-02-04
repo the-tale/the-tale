@@ -34,3 +34,8 @@ class RARITY(DjangoEnum):
                 ('RARE', 2, 'редкий спутник', cards_relations.RARITY.RARE),
                 ('EPIC', 3, 'эпический спутник', cards_relations.RARITY.EPIC),
                 ('LEGENDARY', 4, 'легендарный спутник', cards_relations.RARITY.LEGENDARY) )
+
+
+class COMPANION_EXISTENCE(DjangoEnum):
+    records = (('HAS', 0, 'есть спутник'),
+               ('HAS_NO', 1, 'нет спутника'))

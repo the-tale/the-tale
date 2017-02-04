@@ -252,6 +252,8 @@ class Person(names.ManageNameMixin2):
                 'race': self.race.value,
                 'gender': self.gender.value,
                 'profession': self.type.value,
+                'personality': {'practical': self.personality_practical.value,
+                                'cosmetic': self.personality_cosmetic.value},
                 'place': self.place.id}
 
 
@@ -271,19 +273,42 @@ class Person(names.ManageNameMixin2):
                 yield effect
 
 
-    def place_effects(self):
-        for attribute, modifier in self.get_economic_modifiers():
-            yield effects.Effect(name=self.name, attribute=attribute, value=modifier)
 
+    def modify_specialization_points(self, points):
+        return f.place_specialization_from_person(person_points=points,
+                                                  politic_power_fraction=self.total_politic_power_fraction,
+                                                  place_size_multiplier=self.place.attrs.modifier_multiplier)
+
+
+    def specializations_for_ui(self):
+        specializations = []
+
+        for specialization, points in self.specialization_attributes.items():
+            if specialization.points_attribute is None:
+                continue
+
+            specializations.append((specialization.text, self.modify_specialization_points(points)))
+
+        specializations.sort(key=lambda x: -x[1])
+
+        return specializations
+
+
+    def specialization_effects(self):
         for specialization, points in self.specialization_attributes.items():
             if specialization.points_attribute is None:
                 continue
 
             yield effects.Effect(name=self.name,
                                  attribute=specialization.points_attribute,
-                                 value = f.place_specialization_from_person(person_points=points,
-                                                                            politic_power_fraction=self.total_politic_power_fraction,
-                                                                            place_size_multiplier=self.place.attrs.modifier_multiplier))
+                                 value = self.modify_specialization_points(points))
+
+
+    def place_effects(self):
+        for attribute, modifier in self.get_economic_modifiers():
+            yield effects.Effect(name=self.name, attribute=attribute, value=modifier)
+
+        yield from self.specialization_effects()
 
         if self.attrs.terrain_radius_bonus != 0:
             yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.terrain_radius_bonus)

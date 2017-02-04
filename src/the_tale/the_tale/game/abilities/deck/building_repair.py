@@ -2,6 +2,7 @@
 import random
 
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
 
 from the_tale.game.abilities.prototypes import AbilityPrototype
 from the_tale.game.abilities.relations import ABILITY_TYPE
@@ -41,6 +42,8 @@ class BuildingRepair(AbilityPrototype):
             else:
                 task.hero.add_message('angel_ability_building_repair', hero=task.hero)
 
+            task.hero.process_removed_artifacts()
+
             return task.logic_result(next_step=ComplexChangeTask.STEP.HIGHLEVEL)
 
         elif task.step.is_HIGHLEVEL:
@@ -54,7 +57,7 @@ class BuildingRepair(AbilityPrototype):
             if task.data.get('critical'): # repair second time
                 building.repair()
 
-            building.save()
+            places_logic.save_building(building)
 
             places_storage.buildings.update_version()
 

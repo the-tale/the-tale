@@ -5,6 +5,7 @@ from django.conf import settings as project_settings
 
 from dext.views import handler
 from dext.settings import settings
+from dext.common.utils.urls import url
 
 from the_tale.common.utils import bbcode
 from the_tale.common.utils.resources import Resource
@@ -98,14 +99,14 @@ class PortalResource(Resource):
     def search(self):
         return self.template('portal/search.html', {})
 
-    @handler('chat')
-    def chat(self):
-        return self.template('portal/chat.html', {})
 
     @handler('landing')
     def landing(self, type="normal"):
         from the_tale.game.map.storage import map_info_storage
         from the_tale.game.mobs.storage import mobs_storage
+
+        if self.account.is_authenticated:
+            return self.redirect(url('portal:'))
 
         mobs = [mob
                 for mob in mobs_storage.get_available_mobs_list(level=666)

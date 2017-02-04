@@ -86,12 +86,10 @@ class ContainerTests(testcase.TestCase):
 
     def test_mark_updated(self):
         self.container._ui_info = 'fake ui info'
-        self.container.updated = False
 
         self.container.mark_updated()
 
         self.assertEqual(self.container._ui_info, None)
-        self.assertTrue(self.container.updated)
 
 
     def test_ui_info(self):

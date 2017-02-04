@@ -37,15 +37,18 @@ class CONVERSION(DjangoEnum):
 
     records = ( _conversion_record('TAX_TO_PRODUCTION_SMALL', 0, RESOURCE_EXCHANGE_TYPE.TAX_SMALL, 1, RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL, 1),
                 _conversion_record('TAX_TO_PRODUCTION_NORMAL', 1, RESOURCE_EXCHANGE_TYPE.TAX_NORMAL, 1, RESOURCE_EXCHANGE_TYPE.PRODUCTION_NORMAL, 1),
-                _conversion_record('TAX_TO_PRODUCTION_LARGE', 2, RESOURCE_EXCHANGE_TYPE.TAX_LARGE, 1, RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE, 1),
+                _conversion_record('TAX_TO_PRODUCTION_LARGE', 9, RESOURCE_EXCHANGE_TYPE.TAX_LARGE, 1, RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE, 1),
+                _conversion_record('TAX_TO_PRODUCTION_EXTRA_LARGE', 2, RESOURCE_EXCHANGE_TYPE.TAX_EXTRA_LARGE, 1, RESOURCE_EXCHANGE_TYPE.PRODUCTION_EXTRA_LARGE, 1),
 
                 _conversion_record('TAX_TO_SAFETY_SMALL', 3, RESOURCE_EXCHANGE_TYPE.TAX_SMALL, 1, RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL, 1),
                 _conversion_record('TAX_TO_SAFETY_NORMAL', 4, RESOURCE_EXCHANGE_TYPE.TAX_NORMAL, 1, RESOURCE_EXCHANGE_TYPE.SAFETY_NORMAL, 1),
-                _conversion_record('TAX_TO_SAFETY_LARGE', 5, RESOURCE_EXCHANGE_TYPE.TAX_LARGE, 1, RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE, 1),
+                _conversion_record('TAX_TO_SAFETY_LARGE', 10, RESOURCE_EXCHANGE_TYPE.TAX_LARGE, 1, RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE, 1),
+                _conversion_record('TAX_TO_SAFETY_EXTRA_LARGE', 5, RESOURCE_EXCHANGE_TYPE.TAX_EXTRA_LARGE, 1, RESOURCE_EXCHANGE_TYPE.SAFETY_EXTRA_LARGE, 1),
 
                 _conversion_record('TAX_TO_TRANSPORT_SMALL', 6, RESOURCE_EXCHANGE_TYPE.TAX_SMALL, 1, RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL, 1),
                 _conversion_record('TAX_TO_TRANSPORT_NORMAL', 7, RESOURCE_EXCHANGE_TYPE.TAX_NORMAL, 1, RESOURCE_EXCHANGE_TYPE.TRANSPORT_NORMAL, 1),
-                _conversion_record('TAX_TO_TRANSPORT_LARGE', 8, RESOURCE_EXCHANGE_TYPE.TAX_LARGE, 1, RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE, 1),
+                _conversion_record('TAX_TO_TRANSPORT_LARGE', 11, RESOURCE_EXCHANGE_TYPE.TAX_LARGE, 1, RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE, 1),
+                _conversion_record('TAX_TO_TRANSPORT_EXTRA_LARGE', 8, RESOURCE_EXCHANGE_TYPE.TAX_EXTRA_LARGE, 1, RESOURCE_EXCHANGE_TYPE.TRANSPORT_EXTRA_LARGE, 1),
         )
 
 
@@ -63,7 +66,7 @@ class BaseForm(BaseUserForm):
         place = places_storage.places.get(int(cleaned_data['place']))
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place)) ):
-            raise ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных закона' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
+            raise ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных записей в Книге Судеб' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
 
         return cleaned_data
 

@@ -201,8 +201,8 @@ class BasePrototype(object, metaclass=_PrototypeMetaclass):
     def from_query(cls, query):
         return [cls(model=model) for model in query]
 
-    def __unicode__(self):
-        return self._model.__unicode__()
+    def __str__(self):
+        return self._model.__str__()
 
     def __repr__(self):
         return '%s(model=%s)' % (self.__class__.__name__, self._model.__repr__())

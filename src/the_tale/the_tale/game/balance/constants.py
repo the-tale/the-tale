@@ -468,14 +468,12 @@ PLACE_FREEDOM_FROM_BEST_PERSON = PLACE_TRANSPORT_FROM_BEST_PERSON
 
 PLACE_CULTURE_FROM_BEST_PERSON = float(0.15)
 
-PLACE_MAX_BILLS_NUMBER = int(3)
-
 PLACE_RACE_CHANGE_DELTA_IN_DAY = float(0.1)
 PLACE_RACE_CHANGE_DELTA = (PLACE_RACE_CHANGE_DELTA_IN_DAY * MAP_SYNC_TIME) / (24 * TURNS_IN_HOUR)
 
 PLACE_STABILITY_UNIT = float(0.1) # базовая единица изменения стабильности
 
-# считаем что штраф от одного закона должен восстанавливаться за неделю
+# считаем что штраф от одной записи в Книге Судеб должен восстанавливаться за неделю
 PLACE_STABILITY_RECOVER_SPEED = float(PLACE_STABILITY_UNIT / (7*24)) # стабильности в час
 
 PLACE_STABILITY_MAX_PRODUCTION_PENALTY = float(-PLACE_GOODS_BONUS * 2)
@@ -483,6 +481,10 @@ PLACE_STABILITY_MAX_SAFETY_PENALTY = float(-0.25)
 PLACE_STABILITY_MAX_TRANSPORT_PENALTY = h.speed_from_safety(PLACE_STABILITY_MAX_SAFETY_PENALTY, BATTLES_PER_TURN)
 PLACE_STABILITY_MAX_FREEDOM_PENALTY = -PLACE_STABILITY_MAX_TRANSPORT_PENALTY
 PLACE_STABILITY_MAX_CULTURE_PENALTY = -1.0
+
+PLACE_STABILITY_PENALTY_FOR_MASTER = float(-0.15)
+PLACE_STABILITY_PENALTY_FOR_RACES = float(-2.0) # штраф к стабильности за 100% разницы в давлении рас
+PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION = float(-0.5) # штраф за полное несоответствие специализации (когда 0 очков)
 
 
 # считаем на сколько условных единиц бонусов от Мастеров влияет нулевая стабильность
@@ -509,6 +511,7 @@ JOB_SAFETY_BONUS = float(PLACE_SAFETY_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTI
 JOB_TRANSPORT_BONUS = float(PLACE_TRANSPORT_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTION)
 JOB_FREEDOM_BONUS = float(PLACE_FREEDOM_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTION)
 JOB_STABILITY_BONUS = float(PLACE_STABILITY_UNIT * PLACE_JOB_EFFECT_FRACTION)
+JOB_CULTURE_BONUS = float(PLACE_CULTURE_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTION)
 
 ###########################
 # мастера
@@ -583,7 +586,7 @@ COMPANIONS_MAX_HEALTH = int(700) # максимальное максимальн
 
 COMPANIONS_MEDIUM_HEALTH = float(COMPANIONS_MIN_HEALTH + COMPANIONS_MAX_HEALTH) / 2
 
-_COMPANIONS_MEDIUM_LIFETYME = int(15) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
+_COMPANIONS_MEDIUM_LIFETYME = int(12) # ожидаемое время жизни среднего спутника со средним здоровьем без лечения в днях
 
 # дельты мультипликатора вероятности блока для
 COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA = float(0.2) # слаженность (от среднего)
@@ -644,3 +647,13 @@ COMPANIONS_GIVE_COMPANION_AFTER = int(24) # выдавать спутника г
 COMPANIONS_LEAVE_IN_PLACE = float(1.0 / 20) # вероятность того, что нелюдимый спутник покинет героя в городе
 
 COMPANIONS_BONUS_DAMAGE_PROBABILITY = float(0.25) # вероятность спутника получить дополнительный урон
+
+
+##############################
+# Bills
+##############################
+
+PLACE_MAX_BILLS_NUMBER = int(3)
+
+FREE_ACCOUNT_MAX_ACTIVE_BILLS = int(1)
+PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS = int(4)

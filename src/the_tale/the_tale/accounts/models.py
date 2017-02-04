@@ -75,8 +75,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
     # duplicate django user email - add unique constraints
     email = models.EmailField(max_length=MAX_EMAIL_LENGTH, null=True, unique=True, blank=True)
 
-    new_messages_number = models.IntegerField(null=False, default=0)
-
     last_news_remind_time = models.DateTimeField(auto_now_add=True)
 
     clan = models.ForeignKey('clans.Clan', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
@@ -112,7 +110,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         ordering = ['nick']
         permissions = (("moderate_account", "Может редактировать аккаунты и т.п."), )
 
-    def __unicode__(self): return self.nick
+    def __str__(self): return self.nick
 
     def get_full_name(self): return self.nick
 

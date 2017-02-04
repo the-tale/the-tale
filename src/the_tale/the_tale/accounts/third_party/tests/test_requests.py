@@ -439,3 +439,49 @@ class FullTests(BaseRequestsTests):
 
         self.assertNotEqual(prototypes.AccessTokenPrototype.get_by_uid(token.uid), None)
         self.assertNotIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)
+
+
+
+class RemoveAllRequestsTests(BaseRequestsTests):
+
+    def setUp(self):
+        super(RemoveAllRequestsTests, self).setUp()
+
+        self.tokens = [ prototypes.AccessTokenPrototype.create(account=self.account_1,
+                                                               application_name='app-name-{}'.format(i),
+                                                               application_info='app-info-{}'.format(i),
+                                                               application_description='app-descr-{}'.format(i))
+                        for i in range(3)]
+
+        self.account_2 = self.accounts_factory.create_account()
+        self.token_x = prototypes.AccessTokenPrototype.create(account=self.account_2,
+                                                              application_name='app-name-x',
+                                                              application_info='app-info-x',
+                                                              application_description='app-descr-x')
+
+        self.requested_url = url('accounts:third-party:tokens:remove-all')
+
+
+    def test_refuse_third_party(self):
+        self.request_third_party_token(account=self.account_1)
+        self.check_ajax_error(self.client.post(self.requested_url), 'third_party.access_restricted')
+
+
+    def test_login_required(self):
+        self.request_logout()
+        with self.check_not_changed(prototypes.AccessTokenPrototype._db_count):
+            self.check_ajax_error(self.client.post(self.requested_url), 'common.login_required')
+
+
+    def test_success(self):
+        with mock.patch('dext.common.utils.cache.delete') as cache_delete:
+            with self.check_delta(prototypes.AccessTokenPrototype._db_count, -3):
+                self.check_ajax_ok(self.client.post(self.requested_url))
+
+        self.assertCountEqual(cache_delete.call_args_list,
+                              [mock.call(third_party_settings.ACCESS_TOKEN_CACHE_KEY % token.uid) for token in self.tokens])
+        self.assertEqual(cache_delete.call_count, 3)
+
+        self.assertEqual(prototypes.AccessTokenPrototype.get_list_by_account_id(self.account_1.id), [])
+        self.assertEqual(set(t.id for t in prototypes.AccessTokenPrototype.get_list_by_account_id(self.account_2.id)),
+                         {self.token_x.id})

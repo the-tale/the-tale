@@ -283,11 +283,12 @@ jQuery(document).ready( function(e) {
               <a class="pgf-new-message" data-recipient="{{author.id}}" href="#">личное сообщение</a><br/>
             {% endif %}
 
-            {% if author.is_developer%}<strong>разработчик</strong>{% endif %}
-            {% if author.is_ban_forum %}<strong>игрок забанен</strong>{% endif %}
+            {% if author.is_developer%}<strong title="Один из разработчиков игры" rel="tooltip" style="cursor: pointer;">разработчик</strong>
+            {% elif author.can_affect_game%}<strong title="Герой игрока оказывает влияние на мир игры без ограничений" rel="tooltip" style="cursor: pointer;">длань судьбы</strong>
+            {% elif author.is_ban_forum %}<strong title="Игрок нарушил правила игры и был забанен" rel="tooltip" style="cursor: pointer;">игрок забанен</strong>{% endif %}
 
             <br/>
-            {{game_object.gender_verbose}}-{{game_object.race_verbose}}<br/>
+            {{game_object.race_verbose}}<br/>
             <a href="{{url('game:heroes:show', game_object.id)}}">{{game_object.name}}</a><br/>
             {{game_object.level}} уровня
           {% else %}

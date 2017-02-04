@@ -1,22 +1,10 @@
 
-import logging
-
 from aiohttp import web
 
-from . import utils
-from . import postgresql
+from tt_web import log
+from tt_web import postgresql
+
 from . import operations
-
-
-LOG_FORMAT = '[%(levelname)s %(asctime)s %(module)s %(process)d] %(message)s'
-
-
-def initilize_log(config):
-    root = logging.getLogger()
-
-    root.setLevel(getattr(logging, config['level'].upper()))
-
-    logging.basicConfig(format=LOG_FORMAT)
 
 
 async def on_startup(app):
@@ -42,7 +30,7 @@ def create_application(config, loop=None):
 
     app['config'] = config
 
-    initilize_log(config['log'])
+    log.initilize(config['log'])
 
     app.on_startup.append(on_startup)
     app.on_cleanup.append(on_cleanup)

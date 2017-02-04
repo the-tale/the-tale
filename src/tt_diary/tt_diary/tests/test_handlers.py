@@ -5,9 +5,10 @@ from aiohttp import test_utils
 
 from tt_protocol.protocol import diary_pb2
 
-from tt_diary import utils
+from tt_web import utils
+from tt_web import exceptions
+
 from tt_diary import objects
-from tt_diary import exceptions
 from tt_diary import operations
 from tt_diary import protobuf
 

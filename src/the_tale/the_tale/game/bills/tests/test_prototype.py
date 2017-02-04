@@ -58,12 +58,24 @@ class BillPrototypeTests(BaseTestPrototypes):
         self.assertEqual(BillPrototype.accepted_bills_count(self.account3.id), 0)
 
 
-    def test_is_active_bills_limit_reached(self):
-        self.assertFalse(BillPrototype.is_active_bills_limit_reached(self.account1))
-
-        self.create_bill()
+    def test_is_active_bills_limit_reached__free_accounts(self):
+        for i in range(c.FREE_ACCOUNT_MAX_ACTIVE_BILLS):
+            self.assertFalse(BillPrototype.is_active_bills_limit_reached(self.account1))
+            self.create_bill()
 
         self.assertTrue(BillPrototype.is_active_bills_limit_reached(self.account1))
+
+
+    def test_is_active_bills_limit_reached__premiun_accounts(self):
+        self.account1.prolong_premium(30)
+        self.account1.save()
+
+        for i in range(c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS):
+            self.assertFalse(BillPrototype.is_active_bills_limit_reached(self.account1))
+            self.create_bill()
+
+        self.assertTrue(BillPrototype.is_active_bills_limit_reached(self.account1))
+
 
     @mock.patch('the_tale.game.places.objects.Place.is_new', False)
     def test_can_vote__places_restrictions__no_places(self):

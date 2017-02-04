@@ -157,11 +157,6 @@ class RawQuestsTest(QuestsTestBase):
     def _check_messages(self, quest_type, message):
         writer = Writer(type=quest_type, message=message, substitution={}, hero=self.hero)
 
-        # print '--------'
-        # print writer.journal_id()
-        # print writer.diary_id()
-        # print writer.action_id()
-
         self.assertTrue(hasattr(LEXICON_KEY, writer.journal_id().upper()) or
                         hasattr(LEXICON_KEY, writer.diary_id().upper()) or
                         hasattr(LEXICON_KEY, writer.action_id().upper()))

@@ -59,6 +59,8 @@ class ArenaPvP1x1Accept(AbilityPrototype):
 
             task.hero.update_habits(HABIT_CHANGE_SOURCE.ARENA_SEND)
 
+            task.hero.process_removed_artifacts()
+
             return task.logic_result(next_step=ComplexChangeTask.STEP.PVP_BALANCER)
 
         elif task.step.is_PVP_BALANCER:

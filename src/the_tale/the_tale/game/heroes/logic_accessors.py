@@ -17,13 +17,15 @@ from the_tale.game import relations as game_relations
 
 from the_tale.game.map import logic as map_logic
 
-
 from . import relations
 from . import conf
 
 
 class LogicAccessorsMixin(object):
     __slots__ = ('_cached_modifiers',)
+
+    def has_alive_companion(self):
+        return self.companion and not self.companion.is_dead
 
     def reset_accessors_cache(self):
         if not hasattr(self, '_cached_modifiers'):
@@ -58,7 +60,7 @@ class LogicAccessorsMixin(object):
         value = self.habit_peacefulness.modify_attribute(modifier, value)
         value = self.equipment.modify_attribute(modifier, value)
 
-        if self.companion and not modifier.is_ADDITIONAL_ABILITIES:
+        if self.has_alive_companion() and not modifier.is_ADDITIONAL_ABILITIES:
             value = self.companion.modify_attribute(modifier, value)
 
         return value
@@ -67,7 +69,7 @@ class LogicAccessorsMixin(object):
         return ( self.abilities.check_attribute(modifier) or
                  self.habit_honor.check_attribute(modifier) or
                  self.habit_peacefulness.check_attribute(modifier) or
-                 (self.companion and self.companion.check_attribute(modifier)))
+                 (self.has_alive_companion() and self.companion.check_attribute(modifier)))
 
     def update_context(self, hero_actor, enemy):
         self.abilities.update_context(hero_actor, enemy)
@@ -292,8 +294,6 @@ class LogicAccessorsMixin(object):
                         if bill_voted_time > time_border]),
                    conf.heroes_settings.ACTIVE_BILLS_MAXIMUM)
 
-    @property
-    def gender_verbose(self): return self.gender.text
 
     @property
     def power(self): return power.Power.clean_power_for_hero_level(self.level) + self.equipment.get_power()
@@ -304,7 +304,12 @@ class LogicAccessorsMixin(object):
         return damage.multiply(self.physic_damage_modifier, self.magic_damage_modifier)
 
     @property
-    def race_verbose(self): return self.race.text
+    def race_verbose(self):
+        if self.gender.is_FEMININE:
+            return self.race.female_text
+
+        return self.race.male_text
+
 
     @property
     def health_percents(self): return float(self.health) / self.max_health
@@ -573,7 +578,7 @@ class LogicAccessorsMixin(object):
     @property
     def companion_coherence_speed(self):
 
-        if self.companion is None:
+        if self.companion is None or self.companion.is_dead:
             return 0
 
         return self.attribute_modifier(self.companion.type.companion_coherence_modifier)
@@ -581,6 +586,9 @@ class LogicAccessorsMixin(object):
     @property
     def companion_habits_multiplier(self):
         return self.preferences.companion_empathy.habit_multiplier
+
+    def keep_dead_companion(self):
+        return self.is_premium
 
     def habit_events(self):
         return self.attribute_modifier(relations.MODIFIERS.HONOR_EVENTS)
@@ -701,9 +709,16 @@ class LogicAccessorsMixin(object):
 
         return restrictions
 
+
     def linguistics_restrictions(self):
+        from the_tale.game.companions import relations as companion_relations
+
         constants = self.linguistics_restrictions_constants()
 
         terrains = map_logic.get_terrain_linguistics_restrictions(self.position.get_terrain())
 
-        return constants + terrains + (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id,)
+        return (constants +
+                terrains +
+                (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.actions.current_action.ui_type.value).id,
+                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE,
+                                                      companion_relations.COMPANION_EXISTENCE.HAS.value if self.companion else companion_relations.COMPANION_EXISTENCE.HAS_NO.value).id))

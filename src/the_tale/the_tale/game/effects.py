@@ -77,4 +77,8 @@ def create_container(ATTRIBUTES_RELATION):
 
             self.effects = [effect for effect in self.effects if not effect.remove_required]
 
+        def clear(self):
+            self.effects = []
+
+
     return Container

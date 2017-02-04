@@ -30,13 +30,9 @@ class Job(object):
                    power_required=normal_power * effect.power_modifier)
 
     def new_job(self, effect, normal_power):
-        self.positive_power -= self.power_required
-        self.negative_power -= self.power_required
-
-        if self.positive_power < 0:
+        if self.positive_power > self.negative_power:
             self.positive_power = 0
-
-        if self.negative_power < 0:
+        else:
             self.negative_power = 0
 
         self.name = self.create_name(effect)
@@ -68,6 +64,14 @@ class Job(object):
                    positive_power=data['positive_power'],
                    negative_power=data['negative_power'],
                    power_required=data['power_required'])
+
+    def ui_info(self):
+        return { 'name': self.name,
+                 'effect': self.effect.value,
+                 'positive_power': int(self.positive_power),
+                 'negative_power': int(self.negative_power),
+                 'power_required': int(self.power_required)}
+
 
     def give_power(self, power):
         if power > 0:

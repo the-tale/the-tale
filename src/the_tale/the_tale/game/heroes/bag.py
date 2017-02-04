@@ -11,11 +11,10 @@ class EquipmentException(Exception): pass
 
 class Bag(object):
 
-    __slots__ = ('next_uuid', 'updated', 'bag', '_ui_info')
+    __slots__ = ('next_uuid', 'bag', '_ui_info')
 
     def __init__(self):
         self.next_uuid = 0
-        self.updated = True
         self.bag = {}
         self._ui_info = None
 
@@ -32,7 +31,6 @@ class Bag(object):
         return obj
 
     def mark_updated(self):
-        self.updated = True
         self._ui_info = None
 
     def serialize(self):
@@ -114,18 +112,16 @@ class Bag(object):
 
 class Equipment(object):
 
-    __slots__ = ('equipment', 'updated', '_ui_info', 'hero')
+    __slots__ = ('equipment', '_ui_info', 'hero')
 
     def __init__(self):
         self.equipment = {}
-        self.updated = True
         self._ui_info = None
         self.hero = None
 
     # must be called on every attribute access, not only on updating of equipment
     # since artifacts can be changed from outsice this container
     def mark_updated(self):
-        self.updated = True
         self._ui_info = None
 
         if self.hero:

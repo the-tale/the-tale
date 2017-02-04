@@ -24,11 +24,13 @@ class TestRequests(testcase.TestCase):
     def test_search(self):
         self.check_html_ok(self.request_html(url('portal:search')))
 
-    def test_chat(self):
-        self.check_html_ok(self.request_html(url('portal:chat')))
-
     def test_landing(self):
         self.check_html_ok(self.request_html(url('portal:landing')))
+
+    def test_landing__authengitacted(self):
+        account = self.accounts_factory.create_account()
+        self.request_login(account.email)
+        self.check_redirect(url('portal:landing'), url('portal:'))
 
     def test_preview(self):
         text = 'simple test text'

@@ -17,7 +17,7 @@ class Actor(models.Model):
     place = models.ForeignKey('places.Place', null=True, related_name='+', on_delete=models.SET_NULL)
     person = models.ForeignKey('persons.Person', null=True, related_name='+', on_delete=models.SET_NULL)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.bill_id is not None: return str(self.bill)
         if self.place_id is not None: return str(self.place)
         if self.person_id is not None: return str(self.person)
@@ -34,7 +34,7 @@ class Record(models.Model):
 
     actors = models.ManyToManyField(Actor, through='RecordToActor')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.type.text
 
 
@@ -45,4 +45,4 @@ class RecordToActor(models.Model):
     record = models.ForeignKey(Record, on_delete=models.CASCADE)
     actor = models.ForeignKey(Actor, on_delete=models.PROTECT)
 
-    def __unicode__(self): return '<%d, %d>' % (self.record_id, self.actor_id)
+    def __str__(self): return '<%d, %d>' % (self.record_id, self.actor_id)

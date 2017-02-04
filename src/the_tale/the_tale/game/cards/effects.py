@@ -683,9 +683,7 @@ class RepairBuilding(BaseEffect):
             while building.need_repair:
                 building.repair()
 
-            building.save()
-
-            places_storage.buildings.update_version()
+            places_logic.save_building(building)
 
             return task.logic_result()
 

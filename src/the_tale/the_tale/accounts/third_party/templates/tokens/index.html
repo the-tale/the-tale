@@ -31,6 +31,10 @@
       </tbody>
     </table>
 
+      <a class="pgf-forms-post-simple btn btn-danger pgf-remove-button"
+         href="{{ url('accounts:third-party:tokens:remove-all') }}"
+         data-confirmation="Вы действительно хотите удалить все разрешения?">отозвать все разрешения</a>
+
   {% else %}
     <p class="alert alert-info pgf-no-tokens-message">
       Вы ещё не выдавали сторонним приложениям разрешений на доступ к Вашим данным.

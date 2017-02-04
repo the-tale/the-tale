@@ -38,6 +38,9 @@ class BaseEffect(object):
         after_update_operations = []
 
         for hero_id in positive_heroes:
+            if hero_id not in heroes_to_accounts:
+                continue # skip removed fast accounts
+
             operation = self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
                                                 hero_id=hero_id,
                                                 method_name=method_names[0],
@@ -47,6 +50,9 @@ class BaseEffect(object):
         negative_kwargs = dict(message_type=self.message_type(actor_type, effect, direction, 'enemies'), **method_kwargs)
 
         for hero_id in negative_heroes:
+            if hero_id not in heroes_to_accounts:
+                continue # skip removed fast accounts
+
             operation = self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
                                                 hero_id=hero_id,
                                                 method_name=method_names[1],
@@ -182,4 +188,6 @@ class EFFECT(DjangoEnum):
                 hero_profit(6, 'MONEY', 'золото ближнему кругу', 0.5, 'В случае удачного завершения проекта, высылает деньги помогающим героям из ближнего круга. В случае неудачи деньги достаются мешающим героям.'),
                 hero_profit(7, 'ARTIFACT', 'артефакт ближнему кругу', 1.5, 'В случае удачного завершения проекта, высылает по артефакту помогающим героям из ближнего круга. В случае неудачи артефакты достаются мешающим героям.'),
                 hero_profit(8, 'EXPERIENCE', 'опыт ближнему кругу', 2.0, 'В случае удачного завершения проекта, помогающие герои из ближнего круга получают немного опыта. В случае неудачи опыт достаётся мешающим героям.'),
-                hero_profit(9, 'ENERGY', 'энергию ближнему кругу', 1.0, 'В случае удачного завершения проекта, Хранители помогающих героев из ближнего круга получают немного энергии. В случае неудачи энергия достаётся Хранителям мешающих героев.') )
+                hero_profit(9, 'ENERGY', 'энергию ближнему кругу', 1.0, 'В случае удачного завершения проекта, Хранители помогающих героев из ближнего круга получают немного энергии. В случае неудачи энергия достаётся Хранителям мешающих героев.'),
+
+                place_attribute(10, 'CULTURE', base_value=c.JOB_STABILITY_BONUS, attribute_text='культуру'))

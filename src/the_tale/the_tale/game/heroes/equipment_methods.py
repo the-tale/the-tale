@@ -161,7 +161,7 @@ class EquipmentMethodsMixin(object):
         for slot in choices:
             artifact = self.equipment.get(slot)
             if artifact is not None and artifact.sharp(distribution, max_power):
-                self.equipment.updated = True
+                self.equipment.mark_updated()
                 return artifact
 
         # if all artifacts are on maximum level
@@ -169,7 +169,7 @@ class EquipmentMethodsMixin(object):
         for slot in choices:
             artifact = self.equipment.get(slot)
             if artifact is not None and artifact.sharp(distribution, max_power, force=True):
-                self.equipment.updated = True
+                self.equipment.mark_updated()
                 return artifact
 
     def damage_integrity(self):
@@ -291,3 +291,13 @@ class EquipmentMethodsMixin(object):
             artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level, rarity=artifacts_relations.RARITY.NORMAL)
 
             self.equipment.equip(slot, artifact)
+
+
+    def process_removed_artifacts(self):
+        for artifact in list(self.bag.values()):
+            if artifact.must_be_removed_on_help():
+                self.bag.pop_artifact(artifact)
+
+                if artifact.is_child_gift():
+                    self.statistics.change_gifts_returned(1)
+                    self.add_message('hero_common_journal_return_child_gift', hero=self, artifact=artifact)

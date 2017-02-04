@@ -16,6 +16,9 @@ from the_tale.statistics.metrics import registrations
 from the_tale.statistics.metrics import lifetime
 from the_tale.statistics.metrics import monetization
 from the_tale.statistics.metrics import actual
+from the_tale.statistics.metrics import forum
+from the_tale.statistics.metrics import bills
+from the_tale.statistics.metrics import folclor
 
 
 METRICS = [
@@ -132,7 +135,31 @@ METRICS = [
         monetization.IncomeGroupIncome500_1000Percents,
         monetization.IncomeGroupIncome1000_2500Percents,
         monetization.IncomeGroupIncome2500_10000Percents,
-        monetization.IncomeGroupIncome10000Percents
+        monetization.IncomeGroupIncome10000Percents,
+
+        forum.Posts,
+        forum.PostsInMonth,
+        forum.PostsTotal,
+        forum.Threads,
+        forum.ThreadsInMonth,
+        forum.ThreadsTotal,
+        forum.PostsPerThreadInMonth,
+
+        bills.Bills,
+        bills.BillsInMonth,
+        bills.BillsTotal,
+        bills.Votes,
+        bills.VotesInMonth,
+        bills.VotesTotal,
+        bills.VotesPerBillInMonth,
+
+        folclor.Posts,
+        folclor.PostsInMonth,
+        folclor.PostsTotal,
+        folclor.Votes,
+        folclor.VotesInMonth,
+        folclor.VotesTotal,
+        folclor.VotesPerPostInMonth
     ]
 
 

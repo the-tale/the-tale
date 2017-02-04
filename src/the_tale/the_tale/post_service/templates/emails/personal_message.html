@@ -2,9 +2,9 @@
 
 {% block content %}
 
-<strong>{{message.sender.nick_verbose}}:</strong><br/><br/>
+<strong>{{sender.nick_verbose}}:</strong><br/><br/>
 
-{{ message.text_safe_html|safe }}
+{{ message.body|bb_safe }}
 
 <br/>
 <br/>

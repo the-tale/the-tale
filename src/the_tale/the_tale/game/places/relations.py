@@ -61,7 +61,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('TAX', 10, 'пошлина', verbose_units='%', formatter=attributes.percents_formatter,
                  description='Размер пошлины, которую платят герои при посещении города (процент от наличности в кошельке героя).'),
                 attributes.attr('STABILITY', 11, 'стабильность', order=0, verbose_units='%', formatter=attributes.percents_formatter,
-                 description='Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при принятии законов), и постепенно восстанавливается до 100%.'),
+                 description='Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при одобрении записи в Книге Судеб), и постепенно восстанавливается до 100%.'),
                 attributes.attr('STABILITY_RENEWING_SPEED', 12, 'восстановление стабильности', order=-1, verbose_units='% в час', formatter=attributes.percents_formatter,
                  description='Скорость восстановления стабильности в городе.'),
                 attributes.attr('EXPERIENCE_BONUS', 13, 'бонус к опыту', verbose_units='%', formatter=attributes.percents_formatter,
@@ -84,7 +84,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 # modifiers MUST be calculated before stability
                 attributes.attr('MODIFIER_TRADE_CENTER', 23, 'специализация «Торговый центр»', order=-1, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Торговый центр».'),
-                attributes.attr('MODIFIER_CRAFT_CENTER', 24, 'специализация «Город мастеров»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_CRAFT_CENTER', 24, 'специализация «Город ремёсел»', order=-1, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Город мастеров».'),
                 attributes.attr('MODIFIER_FORT', 25, 'специализация «Форт»', order=-1, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Форт».'),
@@ -120,21 +120,31 @@ class RESOURCE_EXCHANGE_TYPE(DjangoEnum):
     SAFETY_BASE = c.PLACE_SAFETY_FROM_BEST_PERSON / 4
     TRANSPORT_BASE = c.PLACE_TRANSPORT_FROM_BEST_PERSON / 4
     TAX_BASE = 0.025
+    CULTURE_BASE = c.PLACE_CULTURE_FROM_BEST_PERSON / 4
 
     records = ( ('NONE',  0, 'ничего', None, 0, 0),
 
-                ('PRODUCTION_SMALL',  1, '%d продукции' % PRODUCTION_BASE, ATTRIBUTE.PRODUCTION, PRODUCTION_BASE, 1),
-                ('PRODUCTION_NORMAL', 2, '%d продукции' % (PRODUCTION_BASE * 2), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 2, 1),
-                ('PRODUCTION_LARGE',  3, '%d продукции' % (PRODUCTION_BASE * 4), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 4, 1),
+                ('PRODUCTION_SMALL',       1,  '%d продукции' % PRODUCTION_BASE, ATTRIBUTE.PRODUCTION, PRODUCTION_BASE, 1),
+                ('PRODUCTION_NORMAL',      2,  '%d продукции' % (PRODUCTION_BASE * 2), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 2, 1),
+                ('PRODUCTION_LARGE',       13, '%d продукции' % (PRODUCTION_BASE * 3), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 3, 1),
+                ('PRODUCTION_EXTRA_LARGE', 3,  '%d продукции' % (PRODUCTION_BASE * 4), ATTRIBUTE.PRODUCTION, PRODUCTION_BASE * 4, 1),
 
-                ('SAFETY_SMALL',      4, '%.2f%% безопасности' % float(SAFETY_BASE * 100), ATTRIBUTE.SAFETY, SAFETY_BASE, 1),
-                ('SAFETY_NORMAL',     5, '%.2f%% безопасности' % float(SAFETY_BASE * 2 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 2, 1),
-                ('SAFETY_LARGE',      6, '%.2f%% безопасности' % float(SAFETY_BASE * 4 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 4, 1),
+                ('SAFETY_SMALL',       4,  '%.2f%% безопасности' % float(SAFETY_BASE * 100), ATTRIBUTE.SAFETY, SAFETY_BASE, 1),
+                ('SAFETY_NORMAL',      5,  '%.2f%% безопасности' % float(SAFETY_BASE * 2 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 2, 1),
+                ('SAFETY_LARGE',       14, '%.2f%% безопасности' % float(SAFETY_BASE * 3 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 3, 1),
+                ('SAFETY_EXTRA_LARGE', 6,  '%.2f%% безопасности' % float(SAFETY_BASE * 4 * 100), ATTRIBUTE.SAFETY, SAFETY_BASE * 4, 1),
 
-                ('TRANSPORT_SMALL',   7, '%.2f%% транспорта' % float(TRANSPORT_BASE * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE, 1),
-                ('TRANSPORT_NORMAL',  8, '%.2f%% транспорта' % float(TRANSPORT_BASE * 2 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 2, 1),
-                ('TRANSPORT_LARGE',   9, '%.2f%% транспорта' % float(TRANSPORT_BASE * 4 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 4, 1),
+                ('TRANSPORT_SMALL',       7,  '%.2f%% транспорта' % float(TRANSPORT_BASE * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE, 1),
+                ('TRANSPORT_NORMAL',      8,  '%.2f%% транспорта' % float(TRANSPORT_BASE * 2 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 2, 1),
+                ('TRANSPORT_LARGE',       15, '%.2f%% транспорта' % float(TRANSPORT_BASE * 3 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 3, 1),
+                ('TRANSPORT_EXTRA_LARGE', 9,  '%.2f%% транспорта' % float(TRANSPORT_BASE * 4 * 100), ATTRIBUTE.TRANSPORT, TRANSPORT_BASE * 4, 1),
 
-                ('TAX_SMALL',   10, '%.2f%% пошлины' % float(TAX_BASE * 100), ATTRIBUTE.TAX, TAX_BASE, -1),
-                ('TAX_NORMAL',  11, '%.2f%% пошлины' % float(TAX_BASE * 2 * 100), ATTRIBUTE.TAX, TAX_BASE * 2, -1),
-                ('TAX_LARGE',   12, '%.2f%% пошлины' % float(TAX_BASE * 4 * 100), ATTRIBUTE.TAX, TAX_BASE * 4, -1) )
+                ('TAX_SMALL',       10, '%.2f%% пошлины' % float(TAX_BASE * 100), ATTRIBUTE.TAX, TAX_BASE, -1),
+                ('TAX_NORMAL',      11, '%.2f%% пошлины' % float(TAX_BASE * 2 * 100), ATTRIBUTE.TAX, TAX_BASE * 2, -1),
+                ('TAX_LARGE',       16, '%.2f%% пошлины' % float(TAX_BASE * 3 * 100), ATTRIBUTE.TAX, TAX_BASE * 3, -1),
+                ('TAX_EXTRA_LARGE', 12, '%.2f%% пошлины' % float(TAX_BASE * 4 * 100), ATTRIBUTE.TAX, TAX_BASE * 4, -1),
+
+                ('CULTURE_SMALL',       17, '%.2f%% культуры' % float(CULTURE_BASE * 100), ATTRIBUTE.CULTURE, CULTURE_BASE, 1),
+                ('CULTURE_NORMAL',      18, '%.2f%% культуры' % float(CULTURE_BASE * 2 * 100), ATTRIBUTE.CULTURE, CULTURE_BASE * 2, 1),
+                ('CULTURE_LARGE',       19, '%.2f%% культуры' % float(CULTURE_BASE * 3 * 100), ATTRIBUTE.CULTURE, CULTURE_BASE * 3, 1),
+                ('CULTURE_EXTRA_LARGE', 20, '%.2f%% культуры' % float(CULTURE_BASE * 4 * 100), ATTRIBUTE.CULTURE, CULTURE_BASE * 4, 1), )

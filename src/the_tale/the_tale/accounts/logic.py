@@ -44,6 +44,17 @@ def logout_url():
     return url('accounts:auth:api-logout', api_version='1.0', api_client=project_settings.API_CLIENT)
 
 
+def get_system_user_id():
+    if not project_settings.TESTS_RUNNING and hasattr(get_system_user_id, '_id'):
+        return get_system_user_id._id
+
+    account = get_system_user()
+
+    get_system_user_id._id = account.id
+
+    return get_system_user_id._id
+
+
 def get_system_user():
     account = AccountPrototype.get_by_nick(accounts_settings.SYSTEM_USER_NICK)
     if account: return account
@@ -201,6 +212,14 @@ def get_account_info(account, hero):
 
     places_history = [{'place': {'id': place.id, 'name': place.name}, 'count': help_count} for place, help_count in hero.places_history.get_most_common_places()]
 
+    clan_info = None
+
+    if account.clan_id:
+        clan = account.clan
+        clan_info = {'id': clan.id,
+                     'abbr': clan.abbr,
+                     'name': clan.name}
+
     return {'id': account.id,
             'registered': not account.is_fast,
             'name': account.nick_verbose,
@@ -214,7 +233,8 @@ def get_account_info(account, hero):
             'permissions': {
                 'can_affect_game': account.can_affect_game
                 },
-            'description': account.description_html}
+            'description': account.description_html,
+            'clan': clan_info}
 
 
 def get_transfer_commission(money):

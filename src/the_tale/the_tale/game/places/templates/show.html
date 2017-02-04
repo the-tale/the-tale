@@ -20,12 +20,7 @@
     {% endif %}
     {{place.name}}
     {{ base_macros.magnet(place_meta_object) }}
-    <small>
-      земля {{place.race.utg_name_form.word.forms[7]}},
-      {{place.habit_honor.interval.place_text}},
-      {{place.habit_peacefulness.interval.place_text}}
-      {%- if place.is_frontier -%}, <a href="{{url('guide:cities')}}" class="pgf-frontier-message" target="_blank">Фронтир</a>{% endif %}
-    </small>
+    <small>{{places_macros.place_description(place)}}</small>
 
     {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}
       <span class="badge badge-success">родной город</span>
@@ -134,7 +129,7 @@
   <tbody>
     {% for person in place.persons_by_power %}
       <tr>
-        <td>{{person.total_politic_power_fraction|percents}}</td>
+        <td>{{person.total_politic_power_fraction|percents(2)}}</td>
         <td>
           {{persons_macros.person_verbose(person, hero)}}
         </td>
@@ -328,13 +323,13 @@
   <div class="accordion-group">
     <div class="accordion-heading">
       <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-accordion" href="#pgf-place-bills">
-        Законы
+        Записи в Книге Судеб
       </a>
     </div>
     <div id="pgf-place-bills" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner">
         <p>
-          Список <strong>активных</strong> законов (действующих в текущий момент), связанных с городом.
+          Список <strong>активных</strong> записей в Книге Судеб (действующих в текущий момент), связанных с городом.
         </p>
 
         {% if place_bills %}
@@ -353,7 +348,7 @@
           {% endfor %}
 
         {% else %}
-          <p class="alert alert-info">Нет активных законов.</p>
+          <p class="alert alert-info">Нет активных записей в Книге Судеб.</p>
         {% endif %}
 
       </div>

@@ -67,6 +67,7 @@ class TypeReference(object):
 def get_api_methods():
     from the_tale.portal.views import PortalResource
     from the_tale.accounts import views as accounts_views
+    from the_tale.accounts.personal_messages import views as personal_messages_views
     from the_tale.game import views as game_views
     from the_tale.game.abilities.views import AbilitiesResource
     from the_tale.game.quests.views import QuestsResource
@@ -74,6 +75,7 @@ def get_api_methods():
     from the_tale.game.cards import views as cards_views
     from the_tale.game.places import views as places_views
     from the_tale.game.persons import views as persons_views
+    from the_tale.game.map import views as map_views
 
     return [APIReference('portal_info', 'Базовая информация', PortalResource.api_info),
             APIReference('authorization', 'Авторизация в игре', getattr(TokensResource, 'api_request_authorisation')),
@@ -81,6 +83,7 @@ def get_api_methods():
             APIReference('login', 'Вход в игру', accounts_views.AuthResource.api_login),
             APIReference('logout', 'Выход из игры', accounts_views.AuthResource.api_logout),
             APIReference('account_info', 'Информация об игроке', accounts_views.api_show),
+            APIReference('new_messages_numner', 'Количество новых сообщений', personal_messages_views.api_new_messages),
             APIReference('game_info', 'Информация об игре/герое', game_views.api_info),
             APIReference('game_diary', 'Дневник героя', game_views.api_diary),
             APIReference('game_abilities', 'Использование способности', AbilitiesResource.use),
@@ -90,7 +93,9 @@ def get_api_methods():
             APIReference('cards_use', 'Карты: использовать', cards_views.api_use),
             APIReference('places_list', 'Города: перечень всех городов', places_views.api_list),
             APIReference('places_show', 'Города: подробная информация о городе', places_views.api_show),
-            APIReference('persons_show', 'Мастера: подробная информация о Мастере', persons_views.api_show)]
+            APIReference('persons_show', 'Мастера: подробная информация о Мастере', persons_views.api_show),
+            APIReference('region', 'Карта: получить карту', map_views.region),
+            APIReference('region_versions', 'Карта: получить список версий карт', map_views.region_versions)]
 
 
 def get_api_types():
@@ -102,6 +107,7 @@ def get_api_types():
     from the_tale.game.actions.relations import ACTION_TYPE
     from the_tale.game.quests.relations import ACTOR_TYPE
     from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
+    from the_tale.game.jobs import effects as job_effects
     from the_tale.game.places import modifiers as places_modifiers
     from the_tale.game.places import relations as places_relations
     from the_tale.accounts.third_party.relations import AUTHORISATION_STATE
@@ -142,6 +148,8 @@ def get_api_types():
             TypeReference('person_social', 'Мастер: тип социальной связи', persons_relations.SOCIAL_CONNECTION_TYPE),
             TypeReference('person_personality_cosmetic', 'Мастер: косметические особенности характера', persons_relations.PERSONALITY_COSMETIC),
             TypeReference('person_personality_practival', 'Мастер: практические особенности характера', persons_relations.PERSONALITY_PRACTICAL),
+
+            TypeReference('job_effect', 'Проекты: типы эфектов', job_effects.EFFECT)
            ]
 
 
@@ -192,8 +200,10 @@ class GuideResource(Resource):
 
     @handler('persons', method='get')
     def persons(self):
+        from the_tale.game.persons import economic
         return self.template('guide/persons.html', {'section': 'persons',
                                                     'persons_settings': persons_conf.settings,
+                                                    'BASE_ATTRIBUTES': economic.BASE_ATTRIBUTES,
                                                     'INNER_CIRCLE_SIZE': persons_logic.PersonPoliticPower.INNER_CIRCLE_SIZE,
                                                     'JOBS_EFFECTS': jobs_effects.EFFECT,
                                                     'PERSON_TYPES': sorted(persons_relations.PERSON_TYPE.records, key=lambda r: r.text),

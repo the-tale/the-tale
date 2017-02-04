@@ -16,7 +16,7 @@ class Road(models.Model):
     class Meta:
         unique_together = (('point_1', 'point_2'), )
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s -> %s' % (self.point_1, self.point_2)
 
 

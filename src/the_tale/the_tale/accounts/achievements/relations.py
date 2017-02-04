@@ -14,7 +14,7 @@ class ACHIEVEMENT_GROUP(DjangoEnum): # visualization
                 ('QUESTS', 4, 'Задания', 'quests'),
                 ('DEATHS', 5, 'Смерти', 'deaths'),
                 ('PVP', 6, 'PvP', 'pvp'),
-                ('POLITICS', 7, 'Политика', 'politics'),
+                ('POLITICS', 7, 'Книга Судеб', 'politics'),
                 ('KEEPER', 8, 'Хранитель', 'keeper'),
                 ('CHARACTER', 9, 'Характер', 'character'),
                 ('CARDS', 10, 'Карты Судьбы', 'cards'),
@@ -39,7 +39,7 @@ class ACHIEVEMENT_TYPE(DjangoEnum): # filtration
 
                 ('PVP_BATTLES_1X1', 6, 'PvP бои', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
                 ('PVP_VICTORIES_1X1', 7, 'Процент PvP побед', ACHIEVEMENTS_SOURCE.GAME_OBJECT),
-                ('POLITICS_ACCEPTED_BILLS', 8, 'Принятые законы', ACHIEVEMENTS_SOURCE.ACCOUNT),
+                ('POLITICS_ACCEPTED_BILLS', 8, 'Принятые записи в Книге Судеб', ACHIEVEMENTS_SOURCE.ACCOUNT),
                 ('POLITICS_VOTES_TOTAL', 9, 'Отданные голосов', ACHIEVEMENTS_SOURCE.ACCOUNT),
                 ('POLITICS_VOTES_FOR', 10, 'Голоса, отданные «за»', ACHIEVEMENTS_SOURCE.ACCOUNT),
                 ('POLITICS_VOTES_AGAINST', 11, 'Голоса, отданные «против»', ACHIEVEMENTS_SOURCE.ACCOUNT),

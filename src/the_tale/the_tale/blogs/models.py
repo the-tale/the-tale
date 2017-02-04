@@ -36,7 +36,7 @@ class Post(models.Model):
     class Meta(object):
         permissions = (("moderate_post", "Может редактировать сообщения пользователей"), )
 
-    def __unicode__(self): return self.caption
+    def __str__(self): return self.caption
 
 
 class Vote(models.Model):
@@ -59,7 +59,7 @@ class Tag(models.Model):
     name = models.CharField(max_length=NAME_MAX_LENGTH)
     description = models.TextField()
 
-    def __unicode__(self): return self.name
+    def __str__(self): return self.name
 
 
 class Tagged(models.Model):
@@ -70,4 +70,4 @@ class Tagged(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now=True, null=False)
 
-    def __unicode__(self): return '<%s - %s>' % (self.tag.name, self.post.caption)
+    def __str__(self): return '<%s - %s>' % (self.tag.name, self.post.caption)

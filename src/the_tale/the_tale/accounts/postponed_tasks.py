@@ -19,7 +19,7 @@ from the_tale.finances.bank import transaction as bank_transaction
 from the_tale.finances.bank import prototypes as bank_prototypes
 from the_tale.finances.bank import relations as bank_relations
 
-from the_tale.accounts.personal_messages import prototypes as personal_messages_prototypes
+from the_tale.accounts.personal_messages import logic as pm_logic
 
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from the_tale.accounts import logic
@@ -322,12 +322,14 @@ class TransferMoneyTask(PostponedLogic):
             self.transfer_transaction.confirm()
             self.commission_transaction.confirm()
 
-            personal_messages_prototypes.MessagePrototype.create(logic.get_system_user(),
-                                                                 self.recipient,
-                                                                 text='Игрок «%(sender)s» перевёл(-а) вам печеньки: %(amount)d шт. \n\n[quote]%(comment)s[/quote]' %
-                                                                      {'sender': self.sender.nick_verbose,
-                                                                       'amount': self.amount,
-                                                                       'comment': self.comment})
+            message = text='Игрок «{sender}» перевёл(-а) вам печеньки: {amount} шт. \n\n[quote]{comment}[/quote]'.format(sender=self.sender.nick_verbose,
+                                                                                                                               amount=self.amount,
+                                                                                                                               comment=self.comment)
+
+            pm_logic.send_message(sender_id=logic.get_system_user_id(),
+                                  recipients_ids=[self.recipient.id],
+                                  body=message,
+                                  async=True)
 
             self.state = self.STATE.PROCESSED
             self.step = self.STEP.SUCCESS

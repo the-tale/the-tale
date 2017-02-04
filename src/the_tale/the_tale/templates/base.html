@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta name="keywords" content="ZPG, ZRPG, Zero Player Game, самоиграйка, изменяемый мир, 0-player, тамагочи, браузерная игра, многопользовательская игра, инди игра, песочница">
-    <meta name="description" content="{% block description %}Независимая многопользовательская браузерная ролевая Zero Player Game (ZPG или ZRPG) c «живыми» героями, изменяемым миром и системой политики.{% endblock %}"></meta>
+    <meta name="description" content="{% block description %}Независимая многопользовательская браузерная ролевая Zero Player Game (ZPG или ZRPG) c «живыми» героями и изменяющимся миром.{% endblock %}"></meta>
     <meta name="author" content="Tiendil">
     <link href="{{ url('news:feed') }}" type="application/atom+xml" rel="alternate" title="Новости" />
     <link href="{{ url('forum:feed') }}" type="application/atom+xml" rel="alternate" title="Форум" />
@@ -129,6 +129,15 @@ jQuery(document).ready(function() {
     jQuery('.modal-backdrop').live('mousewheel', StopScroll);
     jQuery('.modal').live('mousewheel', StopScroll);
 
+    {% if resource.account.is_authenticated %}
+    (function NewMessagesWorker() {
+        jQuery.get("{{new_messages_number_url()}}", function(data) {
+            jQuery(".pgf-new-messages-signalization").toggleClass("pgf-hidden", data.data.number == 0);
+            jQuery(".pgf-new-messages-number").text(data.data.number);
+            setTimeout(NewMessagesWorker, 60*1000)
+        })})();
+    {% endif %}
+
     ///////////////////////////
     // BBField processing
     function InitializeBBFileds(container) {
@@ -170,7 +179,7 @@ jQuery(document).ready(function() {
                                                                          (url("guide:quests"), "Задания"),
                                                                          (url("guide:persons"), "Мастера"),
                                                                          (url("guide:cities"), "Города"),
-                                                                         (url("guide:politics"), "Политика"),
+                                                                         (url("guide:politics"), "Книга Судеб"),
                                                                          (url("guide:clans"), "Гильдии"),
                                                                          (url("guide:map"), "Карта"),
                                                                          (url("guide:pvp"), "PvP"),
@@ -189,16 +198,16 @@ jQuery(document).ready(function() {
                                                                            (url("accounts:achievements:"), "Достижения"),
                                                                            (url("collections:collections:"), "Коллекции"),
                                                                            ('-', '<li class="divider"></li>'),
+                                                                           (settings.SOCIAL_GITHUB_URL, "GitHub"),
                                                                            (settings.SOCIAL_VK_GROUP_URL, "ВКонтакте"),
                                                                            (settings.SOCIAL_FACEBOOK_GROUP_URL, "Facebook"),
                                                                            (settings.SOCIAL_TWITTER_GROUP_URL, "Twitter"),
-                                                                           (url("portal:chat"), "Чат"),
                                                                            ('-', '<li class="divider"></li>'),
                                                                            (settings.SOCIAL_WIKI_URL, "Wiki"),
                                                                            (settings.SOCIAL_CHROME_URL, "Расширение для Chrome"),
                                                                            (settings.SOCIAL_DARK_THEME_URL, "Тёмная тема")]) }}
 
-            {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Политика"),
+            {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Книга Судеб"),
                                                                 (url("linguistics:"), "Лингвистика"),
                                                                 (url("blogs:posts:"), "Фольклор"),
                                                                 (url("game:chronicle:"), "Летопись"),
@@ -226,11 +235,10 @@ jQuery(document).ready(function() {
 
             {% if resource.account.is_authenticated %}
 
-            <li rel="tooltip"  title="У вас есть новые сообщения"
-                class="pgf-new-messages-signalization {% if resource.account.new_messages_number == 0 %}pgf-hidden{%endif%}">
+            <li rel="tooltip"  title="У вас есть новые сообщения" class="pgf-new-messages-signalization pgf-hidden">
               <a href="{{ url('accounts:messages:') }}">
                 <i class="icon-white icon-envelope" style="vertical-align: middle;"></i>
-                (<span class="pgf-new-messages-number">{{resource.account.new_messages_number}}</span>)
+                (<span class="pgf-new-messages-number">0</span>)
               </a>
             </li>
 
@@ -303,7 +311,8 @@ jQuery(document).ready(function() {
             <li>использована часть иконок из набора <a href="http://glyphicons.com" target="_blank">Glyphicons</a></li>
             <li>© 2011-{{now().year}} {{settings.OWNER}}</li>
             <li>версия {{settings.META_CONFIG.version}}</li>
-            <li><a href="{{url('statistics:')}}">статистика</a></li>
+            <li><a href="{{url('statistics:')}}">статистика игры</a></li>
+            <li><a href="{{settings.SOCIAL_GITHUB_URL}}">исходный код на GitHub</a></li>
           </ul>
         </div>
         <div class="span3">

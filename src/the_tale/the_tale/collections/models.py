@@ -22,7 +22,7 @@ class Collection(models.Model):
         permissions = (('edit_collection', 'Может создавать и редактировать коллекции'),
                        ('moderate_collection', 'Может утверждать коллекции'),)
 
-    def __unicode__(self): return self.caption
+    def __str__(self): return self.caption
 
 
 class Kit(models.Model):
@@ -44,7 +44,7 @@ class Kit(models.Model):
         permissions = (('edit_kit', 'Может создавать и редактировать наборы'),
                        ('moderate_kit', 'Может утверждать наборы'),)
 
-    def __unicode__(self): return self.caption
+    def __str__(self): return self.caption
 
 
 class Item(models.Model):
@@ -65,7 +65,7 @@ class Item(models.Model):
         permissions = (('edit_item', 'Может создавать и редактировать предметы'),
                        ('moderate_item', 'Может утверждать предметы'),)
 
-    def __unicode__(self): return self.caption
+    def __str__(self): return self.caption
 
 
 

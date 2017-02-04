@@ -10,7 +10,8 @@ from the_tale.common.utils import testcase
 
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.prototypes import TimePrototype, GameState
@@ -53,7 +54,7 @@ def get_simple_cache_data(*argv, **kwargs):
             'action': {'data': None}}
 
 
-class HeroTest(testcase.TestCase):
+class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
     def setUp(self):
         super(HeroTest, self).setUp()
@@ -65,6 +66,8 @@ class HeroTest(testcase.TestCase):
         self.storage = LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
+
+        pm_logic.debug_clear_service()
 
 
     def test_create(self):
@@ -310,8 +313,6 @@ class HeroTest(testcase.TestCase):
     def test_add_message__inactive_hero(self):
 
         self.hero.journal.clear()
-
-        self.hero.journal.updated = False
 
         self.assertTrue(self.hero.is_active)
 
@@ -654,18 +655,21 @@ class HeroTest(testcase.TestCase):
         self.assertEqual(self.hero.actual_bills_number, 3)
 
 
-class HeroLevelUpTests(testcase.TestCase):
+class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
 
     def setUp(self):
         super(HeroLevelUpTests, self).setUp()
 
         create_test_map()
 
-        account = self.accounts_factory.create_account(is_fast=True)
+        self.account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = LogicStorage()
-        self.storage.load_account_data(account)
-        self.hero = self.storage.accounts_to_heroes[account.id]
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+        pm_logic.debug_clear_service()
+
 
     def test_is_initial_state(self):
         self.assertTrue(self.hero.abilities.is_initial_state())
@@ -680,7 +684,7 @@ class HeroLevelUpTests(testcase.TestCase):
 
     def test_level_up(self):
 
-        with self.check_delta(MessagePrototype._db_count, 4):
+        with self.check_new_message(self.account.id, number=4):
             self.assertEqual(self.hero.level, 1)
             self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -701,11 +705,11 @@ class HeroLevelUpTests(testcase.TestCase):
             self.assertEqual(self.hero.level, 5)
 
     def test_increment_level__no_message(self):
-        with self.check_not_changed(MessagePrototype._db_count):
+        with self.check_no_messages(self.account.id):
             self.hero.increment_level()
 
     def test_increment_level__message(self):
-        with self.check_delta(MessagePrototype._db_count, 1):
+        with self.check_new_message(self.account.id):
             self.hero.increment_level(send_message=True)
 
     def test_increment_level__force_save(self):

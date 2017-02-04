@@ -17,7 +17,7 @@ from the_tale.game.cards.effects import EFFECTS
 from the_tale.game.cards import objects
 from the_tale.game.cards import logic
 
-from the_tale.game.places.prototypes import BuildingPrototype
+from the_tale.game.places import logic as places_logic
 
 
 class CardsRequestsTestsBase(testcase.TestCase):
@@ -34,7 +34,7 @@ class CardsRequestsTestsBase(testcase.TestCase):
 
         self.card = objects.Card(relations.CARD_TYPE.KEEPERS_GOODS_COMMON)
 
-        self.building_1 = BuildingPrototype.create(person=self.place_1.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
+        self.building_1 = places_logic.create_building(person=self.place_1.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
 
 
 class UseDialogRequestTests(CardsRequestsTestsBase):

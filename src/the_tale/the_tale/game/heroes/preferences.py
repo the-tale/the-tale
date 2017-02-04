@@ -82,11 +82,10 @@ class _PreferencesMetaclass(type):
 
 class HeroPreferences(object, metaclass=_PreferencesMetaclass):
 
-    __slots__ = ('data', 'updated', 'hero')
+    __slots__ = ('data', 'hero')
 
     def __init__(self):
         self.data = {}
-        self.updated = False
         self.hero = None
 
     def serialize(self):
@@ -130,8 +129,6 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
         return value
 
     def _set(self, preferences_type, value, change_time=None):
-        self.updated = True
-
         if change_time is None:
             change_time = datetime.datetime.now()
 
@@ -148,7 +145,6 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
 
     def reset_change_time(self, preferences_type):
         if preferences_type.base_name in self.data:
-            self.updated = True
             self.data[preferences_type.base_name]['changed_at'] = 0
 
     def _prepair_value(self, value):

@@ -22,6 +22,22 @@ pgf.game.events.GAME_DATA_SHOWED =  'pgf-game-data-showed';
 pgf.game.events.DIARY_REFRESHED = 'pgs-diary-refreshed';
 
 
+pgf.game.GetRaceText = function(race, gender) {
+    if (gender == 1) return pgf.game.constants.RACE_TO_TEXT[race].female;
+    return pgf.game.constants.RACE_TO_TEXT[race].male;
+};
+
+pgf.game.GetPersonalityPracticalText = function(personality, gender) {
+    if (gender == 1) return pgf.game.constants.PERSONALITY_PRACTICAL_TO_TEXT[personality].female;
+    return pgf.game.constants.PERSONALITY_PRACTICAL_TO_TEXT[personality].male;
+};
+
+pgf.game.GetPersonalityCosmeticText = function(personality, gender) {
+    if (gender == 1) return pgf.game.constants.PERSONALITY_COSMETIC_TO_TEXT[personality].female;
+    return pgf.game.constants.PERSONALITY_COSMETIC_TO_TEXT[personality].male;
+};
+
+
 pgf.game.Updater = function(params) {
 
     var INITIAL_REFRESH_DELAY = 1000;
@@ -229,7 +245,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-destiny-points', widget).text(data.base.destiny_points);
         jQuery('.pgf-name', widget).text(data.base.name);
         jQuery('.pgf-hero-page-link', widget).attr('href', heroPageUrl);
-        jQuery('.pgf-free-destiny-points', widget).attr('href', heroPageUrl).toggleClass('pgf-hidden', !data.base.destiny_points);
+        jQuery('.pgf-free-destiny-points', widget).attr('href', heroPageUrl+'#hero-tab-main=attributes').toggleClass('pgf-hidden', !data.base.destiny_points);
 
         jQuery('.pgf-health', widget).text(parseInt(data.base.health));
         jQuery('.pgf-max-health', widget).text(data.base.max_health);
@@ -244,8 +260,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-diary-block-experience-to-level').text(data.base.experience_to_level);
 
         jQuery('.pgf-race-gender').removeClass('pgf-hidden');
-        jQuery('.pgf-gender', widget).text(pgf.game.constants.GENDER_TO_TEXT[data.base.gender]);
-        jQuery('.pgf-race', widget).text(pgf.game.constants.RACE_TO_TEXT[data.base.race]);
+        jQuery('.pgf-race', widget).text(pgf.game.GetRaceText(data.base.race, data.base.gender));
 
         jQuery('.pgf-health-percents', widget).width( (100 * data.base.health / data.base.max_health) + '%');
         jQuery('.pgf-experience-percents', widget).width( (100 * data.base.experience / data.base.experience_to_level) + '%');
@@ -273,6 +288,8 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         if (data.companion) {
             jQuery('.pgf-companion-info-link', widget).data('companion-id', data.companion.type);
+            jQuery('.pgf-companion-info-link.pgf-alive', widget).toggleClass('pgf-hidden', data.companion.health === 0);
+            jQuery('.pgf-companion-info-link.pgf-dead', widget).toggleClass('pgf-hidden', data.companion.health !== 0);
 
             jQuery('.pgf-companion .pgf-name', widget).text(data.companion.name);
             jQuery('.pgf-companion .pgf-coherence', widget).text(data.companion.coherence);
@@ -360,14 +377,16 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
         popoverTitle = 'Мастер';
 
         var place = widgets.mapManager.GetPlaceData(data.place);
-        var race = pgf.game.constants.RACE_TO_TEXT[data.race];
-        var gender = pgf.game.constants.GENDER_TO_TEXT[data.gender];
+        var race = pgf.game.GetRaceText(data.race, data.gender);
+        var personalityPractical = pgf.game.GetPersonalityPracticalText(data.personality.practical, data.gender)
+        var personalityCosmetic = pgf.game.GetPersonalityCosmeticText(data.personality.cosmetic, data.gender)
         var profession = pgf.game.constants.PERSON_TYPE_TO_TEXT[data.profession];
 
         var content = jQuery('#pgf-popover-person').clone();
         if (place) jQuery('.pgf-place', content).text(place.name);
         jQuery('.pgf-race', content).text(race);
-        jQuery('.pgf-gender', content).text(gender);
+        jQuery('.pgf-personality-practical', content).text(personalityPractical);
+        jQuery('.pgf-personality-cosmetic', content).text(personalityCosmetic);
         jQuery('.pgf-type', content).text(profession);
 
         nameElement.click(function(e){
@@ -1489,8 +1508,11 @@ pgf.game.widgets.Abilities = function() {
         jQuery('.pgf-in-pvp-queue-message').toggleClass('pgf-hidden', !pvpWaiting);
 
         jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
-        jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable', canRepairBuilding);
-        jQuery('.pgf-ability-building_repair').toggleClass('pgf-disable disabled', (jQuery('.pgf-ability-building_repair').data('building-workers') == 0));
+        jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable disabled', !canRepairBuilding);
+
+        if (jQuery('.pgf-ability-building_repair').data('building-workers') ==0) {
+            jQuery('.pgf-ability-building_repair').toggleClass('pgf-disable disabled', true);
+        }
     }
 
     function RenderDeck() {
@@ -1506,7 +1528,12 @@ pgf.game.widgets.Abilities = function() {
         var hero = game_data.account.hero;
 
         // total energy with discount bonus
-        angelEnergy = hero.energy.value + hero.energy.bonus + hero.energy.discount;
+        angelEnergy = hero.energy.value + hero.energy.bonus;
+
+        // energy discount can not decrease ability cost below 1
+        if (angelEnergy >= 1) {
+            angelEnergy += hero.energy.discount;
+        }
 
         pvpWaiting = game_data.account.in_pvp_queue;
         canParticipateInPvp = hero.permissions.can_participate_in_pvp;

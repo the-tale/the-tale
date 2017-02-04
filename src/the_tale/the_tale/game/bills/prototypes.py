@@ -20,6 +20,8 @@ from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 from the_tale.game.prototypes import TimePrototype
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game import effects
 
 from the_tale.game.places import objects as places_objects
@@ -109,16 +111,16 @@ class BillPrototype(BasePrototype):
     @property
     def last_bill_event_text(self):
         if self.state.is_ACCEPTED:
-            return 'принят закон'
+            return 'одобрена запись'
         if self.state.is_REJECTED:
-            return 'отклонён закон'
+            return 'отклонена запись'
         if self.state.is_VOTING:
             if (self.updated_at - self.created_at).total_seconds() > 1:
-                return 'исправлен закон'
+                return 'исправлена запись'
             else:
-                return 'выдвинут закон'
+                return 'создана запись'
         if self.state.is_STOPPED:
-            return 'закон утратил смысл'
+            return 'запись утратила смысл'
         raise exceptions.UnknownLastEventTextError(bill_id=self.id)
 
     @classmethod
@@ -171,7 +173,7 @@ class BillPrototype(BasePrototype):
 
             PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                                  get_system_user(),
-                                 'Законопроект потерял смысл, голосование остановлено. %s' % results_text,
+                                 'Запись потеряла смысл, голосование остановлено. %s' % results_text,
                                  technical=True)
 
             signals.bill_stopped.send(self.__class__, bill=self)
@@ -208,7 +210,7 @@ class BillPrototype(BasePrototype):
 
                 PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                                      get_system_user(),
-                                     'Законопроект отклонён.\n\n%s' % results_text,
+                                     'Запись отклонена.\n\n%s' % results_text,
                                      technical=True)
 
                 signals.bill_processed.send(self.__class__, bill=self)
@@ -223,13 +225,13 @@ class BillPrototype(BasePrototype):
 
             PostPrototype.create(ThreadPrototype(self._model.forum_thread),
                                  get_system_user(),
-                                 'Законопроект принят. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
+                                 'Запись одобрена. Изменения вступят в силу в ближайшее время.\n\n%s' % results_text,
                                  technical=True)
 
 
             for actor in self.data.actors:
                 if isinstance(actor, places_objects.Place):
-                    actor.effects.add(effects.Effect(name='закон №{}'.format(self.id),
+                    actor.effects.add(effects.Effect(name='запись №{}'.format(self.id),
                                                      attribute=places_relations.ATTRIBUTE.STABILITY,
                                                      value=-self.type.stability))
 
@@ -246,7 +248,7 @@ class BillPrototype(BasePrototype):
         if self.ended_at is not None:
             raise exceptions.EndBillAlreadyEndedError(bill_id=self.id)
 
-        results_text = 'Срок действия [url="%s%s"]закона[/url] истёк.' % (project_settings.SITE_URL,
+        results_text = 'Срок действия [url="%s%s"]записи[/url] истёк.' % (project_settings.SITE_URL,
                                                                            reverse('game:bills:show', args=[self.id]) )
 
         self._model.ended_at = datetime.datetime.now()
@@ -323,8 +325,8 @@ class BillPrototype(BasePrototype):
         thread.caption = form.c.caption
         thread.save()
 
-        text = '[url="%s%s"]Законопроект[/url] был отредактирован, все голоса сброшены.' % (project_settings.SITE_URL,
-                                                                                             reverse('game:bills:show', args=[self.id]) )
+        text = '[url="%s%s"]Запись[/url] была отредактирована, все голоса сброшены.' % (project_settings.SITE_URL,
+                                                                                        reverse('game:bills:show', args=[self.id]) )
 
         PostPrototype.create(thread,
                              get_system_user(),
@@ -358,8 +360,8 @@ class BillPrototype(BasePrototype):
 
         bill_prototype = cls(model)
 
-        text = 'Обсуждение [url="%s%s"]закона[/url]' % (project_settings.SITE_URL,
-                                                         reverse('game:bills:show', args=[model.id]) )
+        text = 'Обсуждение [url="%s%s"]записи[/url]' % (project_settings.SITE_URL,
+                                                        reverse('game:bills:show', args=[model.id]) )
 
         thread = ThreadPrototype.create(SubCategoryPrototype.get_by_uid(bills_settings.FORUM_CATEGORY_UID),
                                         caption=caption,
@@ -381,7 +383,13 @@ class BillPrototype(BasePrototype):
 
     @classmethod
     def is_active_bills_limit_reached(cls, account):
-        return cls._model_class.objects.filter(owner_id=account.id, state=BILL_STATE.VOTING).exists()
+        bills_count = cls._model_class.objects.filter(owner_id=account.id, state=BILL_STATE.VOTING).count()
+
+        if account.is_premium:
+            return bills_count >= c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS
+
+        return bills_count >= c.FREE_ACCOUNT_MAX_ACTIVE_BILLS
+
 
     def save(self):
         self._model.technical_data = s11n.to_json(self.data.serialize())
@@ -394,12 +402,12 @@ class BillPrototype(BasePrototype):
         self.save()
 
         thread = ThreadPrototype(self._model.forum_thread)
-        thread.caption = thread.caption + ' [удалён]'
+        thread.caption = thread.caption + ' [удалена]'
         thread.save()
 
         PostPrototype.create(thread,
                              get_system_user(),
-                             'Законопроект был удалён',
+                             'Запись была удалена',
                              technical=True)
 
         signals.bill_removed.send(self.__class__, bill=self)

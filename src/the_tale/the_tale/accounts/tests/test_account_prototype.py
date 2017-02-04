@@ -13,20 +13,24 @@ from the_tale.post_service.models import Message
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype as PersonalMessagePrototype
+from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.conf import accounts_settings
+from the_tale.accounts import logic
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
 
-class AccountPrototypeTests(testcase.TestCase):
+class AccountPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
 
     def setUp(self):
         super(AccountPrototypeTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
         self.account = self.accounts_factory.create_account()
         self.fast_account = self.accounts_factory.create_account(is_fast=True)
+
+        pm_logic.debug_clear_service()
 
     def test_create(self):
         self.assertTrue(self.account.active_end_at > datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - 60))
@@ -138,52 +142,49 @@ class AccountPrototypeTests(testcase.TestCase):
         self.assertTrue(self.account.is_premium)
 
     def test_notify_about_premium_expiration(self):
-        self.assertEqual(PersonalMessagePrototype._db_count(), 0)
-        self.account.notify_about_premium_expiration()
-        self.assertEqual(PersonalMessagePrototype._db_count(), 1)
+        with self.check_new_message(self.account.id, [logic.get_system_user_id()]):
+            self.account.notify_about_premium_expiration()
 
     def test_send_premium_expired_notifications(self):
-        self.assertEqual(PersonalMessagePrototype._db_count(), 0)
+        with self.check_new_message(self.account.id, [logic.get_system_user_id()]):
+            account_1 = self.account
+            account_2 = self.accounts_factory.create_account()
+            account_3 = self.accounts_factory.create_account()
+            account_4 = self.accounts_factory.create_account()
 
-        account_1 = self.account
-        account_2 = self.accounts_factory.create_account()
-        account_3 = self.accounts_factory.create_account()
-        account_4 = self.accounts_factory.create_account()
+            account_1.prolong_premium(accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN.days-1)
+            account_1.save()
 
-        account_1.prolong_premium(accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN.days-1)
-        account_1.save()
+            account_3.prolong_premium(accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN.days-1)
+            account_3.save()
 
-        account_3.prolong_premium(accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN.days-1)
-        account_3.save()
+            account_4.prolong_premium(accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN.days+1)
+            account_4.save()
 
-        account_4.prolong_premium(accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN.days+1)
-        account_4.save()
+            zero_time = datetime.datetime.fromtimestamp(0)
 
-        zero_time = datetime.datetime.fromtimestamp(0)
+            self.assertEqual(account_1._model.premium_expired_notification_send_at, zero_time)
+            self.assertEqual(account_2._model.premium_expired_notification_send_at, zero_time)
+            self.assertEqual(account_3._model.premium_expired_notification_send_at, zero_time)
+            self.assertEqual(account_4._model.premium_expired_notification_send_at, zero_time)
 
-        self.assertEqual(account_1._model.premium_expired_notification_send_at, zero_time)
-        self.assertEqual(account_2._model.premium_expired_notification_send_at, zero_time)
-        self.assertEqual(account_3._model.premium_expired_notification_send_at, zero_time)
-        self.assertEqual(account_4._model.premium_expired_notification_send_at, zero_time)
+            AccountPrototype.send_premium_expired_notifications()
 
-        AccountPrototype.send_premium_expired_notifications()
+            account_1.reload()
+            account_2.reload()
+            account_3.reload()
+            account_4.reload()
 
-        account_1.reload()
-        account_2.reload()
-        account_3.reload()
-        account_4.reload()
+            self.assertNotEqual(account_1._model.premium_expired_notification_send_at, zero_time)
+            self.assertEqual(account_2._model.premium_expired_notification_send_at, zero_time)
+            self.assertNotEqual(account_3._model.premium_expired_notification_send_at, zero_time)
+            self.assertEqual(account_4._model.premium_expired_notification_send_at, zero_time)
 
-        self.assertNotEqual(account_1._model.premium_expired_notification_send_at, zero_time)
-        self.assertEqual(account_2._model.premium_expired_notification_send_at, zero_time)
-        self.assertNotEqual(account_3._model.premium_expired_notification_send_at, zero_time)
-        self.assertEqual(account_4._model.premium_expired_notification_send_at, zero_time)
+            current_time = datetime.datetime.now()
 
-        current_time = datetime.datetime.now()
+            self.assertTrue(current_time-datetime.timedelta(seconds=60) < account_1._model.premium_expired_notification_send_at < current_time)
+            self.assertTrue(current_time-datetime.timedelta(seconds=60) < account_3._model.premium_expired_notification_send_at < current_time)
 
-        self.assertTrue(current_time-datetime.timedelta(seconds=60) < account_1._model.premium_expired_notification_send_at < current_time)
-        self.assertTrue(current_time-datetime.timedelta(seconds=60) < account_3._model.premium_expired_notification_send_at < current_time)
-
-        self.assertEqual(PersonalMessagePrototype._db_count(), 2)
 
     def test_ban_game(self):
         self.assertFalse(self.account.is_ban_game)

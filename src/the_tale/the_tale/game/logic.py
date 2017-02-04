@@ -114,8 +114,7 @@ def remove_game_data(account):
 
 
 def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_turns=None):
-    data = { 'new_messages': account.new_messages_number if is_own else 0,
-             'id': account.id,
+    data = { 'id': account.id,
              'last_visit': time.mktime((account.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)).timetuple()),
              'is_own': is_own,
              'is_old': False,
@@ -310,6 +309,16 @@ def game_info_from_1_6_to_1_5(data):
 
     if data['enemy'] is not None:
         _game_info_from_1_6_to_1_5__heroes(data['enemy']['hero'])
+
+    return data
+
+
+def game_info_from_1_7_to_1_6(data):
+    if data['account'] is not None:
+        data['account']['new_messages'] = 0
+
+    if data['enemy'] is not None:
+        data['enemy']['new_messages'] = 0
 
     return data
 

@@ -35,6 +35,7 @@ def person_info(person):
                                                      attrs=person.attrs,
                                                      relation=relations.ATTRIBUTE),
             'chronicle': chronicle_prototypes.chronicle_info(person, conf.settings.CHRONICLE_RECORDS_NUMBER),
+            'job': person.job.ui_info(),
             'accounts': None,
             'clans': None
            }

@@ -111,8 +111,6 @@ class WordField(django_forms.MultiValueField):
 
         self.fields_keys = dict(enumerate(keys))
 
-        requireds = [fields[key].required for key in keys]
-
         label = kwargs.get('label')
         if label:
             label = mark_safe('<h3>%s</h3>' % label)
@@ -120,22 +118,18 @@ class WordField(django_forms.MultiValueField):
 
         super(WordField, self).__init__(fields=[fields[key] for key in keys],
                                                      widget=WordWidget(word_type=word_type, skip_markers=skip_markers, show_properties=show_properties),
+                                                     required=False,
                                                      **kwargs)
-        for key, required in zip(keys, requireds):
-            fields[key].required = required
-
         self.word_type = word_type
 
 
     def clean(self, value):
         clean_data = []
         errors_count = 0
+
         if not value or isinstance(value, (list, tuple)):
             if not value or not [v for v in value if v not in self.empty_values]:
-                if self.required:
-                    raise ValidationError(self.error_messages['required'], code='required')
-                else:
-                    return self.compress([])
+                raise ValidationError(self.error_messages['required'], code='required')
         else:
             raise ValidationError(self.error_messages['invalid'], code='invalid')
 

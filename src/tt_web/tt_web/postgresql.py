@@ -27,12 +27,34 @@ async def deinitialize():
     await POOL.wait_closed()
 
 
+async def execute(cursor, command, arguments):
+    await cursor.execute(command, arguments)
+    try:
+        result = await cursor.fetchall()
+    except psycopg2.ProgrammingError:
+        result = None
+    return result
+
+
 async def sql(command, arguments=None):
     async with POOL.acquire() as connection:
         async with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
-            await cursor.execute(command, arguments)
+            return await execute(cursor, command, arguments)
+
+
+async def transaction(callback, arguments):
+    async with POOL.acquire() as connection:
+        async with connection.cursor(cursor_factory=psycopg2.extras.DictCursor) as cursor:
+
+            await cursor.execute('BEGIN')
+
             try:
-                result = await cursor.fetchall()
-            except psycopg2.ProgrammingError:
-                result = None
+                result = await callback(arguments=arguments,
+                                        execute=lambda command, arguments=None: execute(cursor, command, arguments))
+            except:
+                await cursor.execute('ROLLBACK')
+                raise
+            else:
+                await cursor.execute('COMMIT')
+
             return result

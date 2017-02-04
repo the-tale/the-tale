@@ -7,6 +7,7 @@
 
     firewall_allowed_tcp_ports:
       - "22"   # ssh
+      - "25"   # postfix (incoming mail)
       - "80"   # http
       - "2222" # ssh for vagrant
       - "8000" # test server port

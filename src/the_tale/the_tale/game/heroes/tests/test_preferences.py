@@ -40,17 +40,13 @@ class PreferencesTestMixin(object):
         value = self.hero.preferences._get(self.PREFERENCE_TYPE)
         self.hero.preferences._set(self.PREFERENCE_TYPE, value)
         self.assertFalse(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
-        self.hero.preferences.updated = False
         self.hero.preferences.reset_change_time(self.PREFERENCE_TYPE)
         self.assertTrue(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
-        self.assertTrue(self.hero.preferences.updated)
 
     def test_reset_change_time__not_registered(self):
         self.hero.preferences.data = {}
         self.hero.preferences.reset_change_time(self.PREFERENCE_TYPE)
-        self.assertFalse(self.hero.preferences.updated)
         self.assertTrue(self.hero.preferences.can_update(self.PREFERENCE_TYPE, datetime.datetime.now()))
-        self.assertFalse(self.hero.preferences.updated)
 
 
 class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
@@ -75,11 +71,8 @@ class HeroPreferencesEnergyRegenerationTypeTest(PreferencesTestMixin, TestCase):
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_energy_regeneration_type(relations.ENERGY_REGENERATION.PRAY)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.energy_regeneration_type, relations.ENERGY_REGENERATION.PRAY)
 
@@ -174,11 +167,8 @@ class HeroPreferencesMobTest(PreferencesTestMixin, TestCase):
 
     def test_save(self):
         mob = mobs_storage.all()[0]
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_mob(mob)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.mob.id, mob.id)
 
@@ -322,11 +312,8 @@ class HeroPreferencesPlaceTest(PreferencesTestMixin, TestCase):
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_place(self.place)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.place.id, self.place.id)
 
@@ -537,11 +524,8 @@ class HeroPreferencesFriendTest(PreferencesTestMixin, TestCase):
     def test_save(self):
         friend = persons_storage.persons[self.friend_id]
 
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_friend(friend)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.friend.id, friend.id)
 
@@ -759,11 +743,8 @@ class HeroPreferencesEnemyTest(PreferencesTestMixin, TestCase):
     def test_save(self):
         enemy = persons_storage.persons[self.enemy_id]
 
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_enemy(enemy)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.enemy.id, enemy.id)
 
@@ -972,11 +953,8 @@ class HeroPreferencesEquipmentSlotTest(PreferencesTestMixin, TestCase):
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_equipment_slot(self.slot_1)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
 
@@ -1081,11 +1059,8 @@ class HeroPreferencesFavoriteItemTest(PreferencesTestMixin, TestCase):
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_favorite_item(self.slot_1)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.favorite_item, self.slot_1)
 
@@ -1197,11 +1172,8 @@ class HeroPreferencesRiskLevelTest(PreferencesTestMixin, TestCase):
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_risk_level(self.risk_1)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.risk_level, self.risk_1)
 
@@ -1300,11 +1272,8 @@ class HeroPreferencesArchetypeTest(PreferencesTestMixin, TestCase):
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_archetype(self.mage)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.archetype, self.mage)
 
@@ -1405,11 +1374,8 @@ class HeroPreferencesCompanionDedicationTest(PreferencesTestMixin, TestCase):
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_companion_dedication(self.egoism)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.companion_dedication, self.egoism)
 
@@ -1510,11 +1476,8 @@ class HeroPreferencesCompanionEmpathyTest(PreferencesTestMixin, TestCase):
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        self.assertFalse(self.hero.preferences.updated)
         self.hero.preferences.set_companion_empathy(self.empath)
-        self.assertTrue(self.hero.preferences.updated)
         logic.save_hero(self.hero)
-        self.assertFalse(self.hero.preferences.updated)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.companion_empathy, self.empath)
 

@@ -226,6 +226,13 @@ class PlaceEffectTests(EffectsTestsBase):
         self.check_apply_negative(effects.EFFECT.PLACE_STABILITY)
 
 
+    def test_culture__positive(self):
+        self.check_apply_positive(effects.EFFECT.PLACE_CULTURE)
+
+    def test_culture__negative(self):
+        self.check_apply_negative(effects.EFFECT.PLACE_CULTURE)
+
+
 
 class HeroEffectTests(EffectsTestsBase):
 

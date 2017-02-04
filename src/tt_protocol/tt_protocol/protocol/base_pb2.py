@@ -18,9 +18,9 @@ from google.protobuf import any_pb2 as google_dot_protobuf_dot_any__pb2
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='base.proto',
-  package='',
+  package='base',
   syntax='proto3',
-  serialized_pb=_b('\n\nbase.proto\x1a\x19google/protobuf/any.proto\"P\n\x08\x41piError\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12%\n\x07\x64\x65tails\x18\x03 \x01(\x0b\x32\x14.google.protobuf.Any\"\xb5\x01\n\x0b\x41piResponse\x12#\n\x06status\x18\x01 \x01(\x0e\x32\x13.ApiResponse.Status\x12\x13\n\x0bserver_time\x18\x02 \x01(\x01\x12$\n\x04\x64\x61ta\x18\x03 \x01(\x0b\x32\x14.google.protobuf.AnyH\x00\x12\x1a\n\x05\x65rror\x18\x04 \x01(\x0b\x32\t.ApiErrorH\x00\" \n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x42\x08\n\x06\x61nswerb\x06proto3')
+  serialized_pb=_b('\n\nbase.proto\x12\x04\x62\x61se\x1a\x19google/protobuf/any.proto\"P\n\x08\x41piError\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12%\n\x07\x64\x65tails\x18\x03 \x01(\x0b\x32\x14.google.protobuf.Any\"\xbf\x01\n\x0b\x41piResponse\x12(\n\x06status\x18\x01 \x01(\x0e\x32\x18.base.ApiResponse.Status\x12\x13\n\x0bserver_time\x18\x02 \x01(\x01\x12$\n\x04\x64\x61ta\x18\x03 \x01(\x0b\x32\x14.google.protobuf.AnyH\x00\x12\x1f\n\x05\x65rror\x18\x04 \x01(\x0b\x32\x0e.base.ApiErrorH\x00\" \n\x06Status\x12\x0b\n\x07SUCCESS\x10\x00\x12\t\n\x05\x45RROR\x10\x01\x42\x08\n\x06\x61nswerb\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_any__pb2.DESCRIPTOR,])
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
@@ -29,7 +29,7 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 _APIRESPONSE_STATUS = _descriptor.EnumDescriptor(
   name='Status',
-  full_name='ApiResponse.Status',
+  full_name='base.ApiResponse.Status',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -44,35 +44,35 @@ _APIRESPONSE_STATUS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=263,
-  serialized_end=295,
+  serialized_start=279,
+  serialized_end=311,
 )
 _sym_db.RegisterEnumDescriptor(_APIRESPONSE_STATUS)
 
 
 _APIERROR = _descriptor.Descriptor(
   name='ApiError',
-  full_name='ApiError',
+  full_name='base.ApiError',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='code', full_name='ApiError.code', index=0,
+      name='code', full_name='base.ApiError.code', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='message', full_name='ApiError.message', index=1,
+      name='message', full_name='base.ApiError.message', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='details', full_name='ApiError.details', index=2,
+      name='details', full_name='base.ApiError.details', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -90,41 +90,41 @@ _APIERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=41,
-  serialized_end=121,
+  serialized_start=47,
+  serialized_end=127,
 )
 
 
 _APIRESPONSE = _descriptor.Descriptor(
   name='ApiResponse',
-  full_name='ApiResponse',
+  full_name='base.ApiResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='status', full_name='ApiResponse.status', index=0,
+      name='status', full_name='base.ApiResponse.status', index=0,
       number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='server_time', full_name='ApiResponse.server_time', index=1,
+      name='server_time', full_name='base.ApiResponse.server_time', index=1,
       number=2, type=1, cpp_type=5, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='data', full_name='ApiResponse.data', index=2,
+      name='data', full_name='base.ApiResponse.data', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='error', full_name='ApiResponse.error', index=3,
+      name='error', full_name='base.ApiResponse.error', index=3,
       number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -143,11 +143,11 @@ _APIRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='answer', full_name='ApiResponse.answer',
+      name='answer', full_name='base.ApiResponse.answer',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=124,
-  serialized_end=305,
+  serialized_start=130,
+  serialized_end=321,
 )
 
 _APIERROR.fields_by_name['details'].message_type = google_dot_protobuf_dot_any__pb2._ANY
@@ -167,14 +167,14 @@ DESCRIPTOR.message_types_by_name['ApiResponse'] = _APIRESPONSE
 ApiError = _reflection.GeneratedProtocolMessageType('ApiError', (_message.Message,), dict(
   DESCRIPTOR = _APIERROR,
   __module__ = 'base_pb2'
-  # @@protoc_insertion_point(class_scope:ApiError)
+  # @@protoc_insertion_point(class_scope:base.ApiError)
   ))
 _sym_db.RegisterMessage(ApiError)
 
 ApiResponse = _reflection.GeneratedProtocolMessageType('ApiResponse', (_message.Message,), dict(
   DESCRIPTOR = _APIRESPONSE,
   __module__ = 'base_pb2'
-  # @@protoc_insertion_point(class_scope:ApiResponse)
+  # @@protoc_insertion_point(class_scope:base.ApiResponse)
   ))
 _sym_db.RegisterMessage(ApiResponse)
 

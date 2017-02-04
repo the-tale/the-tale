@@ -35,7 +35,7 @@ urlpatterns = [url(r'^', include('the_tale.cms.urls', namespace='cms') ),
 
 if project_settings.DEBUG:
     urlpatterns += static(project_settings.STATIC_URL+'admin/', document_root=os.path.join(os.path.dirname(admin.__file__), 'static', 'admin'))
-    urlpatterns += [url(r'^%scss/' % project_settings.STATIC_URL[2:], include('dext.less.urls') )]
+    urlpatterns += [url(r'^{}css/'.format(project_settings.STATIC_URL[1:]), include('dext.less.urls') )]
     urlpatterns += static(project_settings.STATIC_URL, document_root=os.path.join(project_settings.PROJECT_DIR, 'static'))
 
 

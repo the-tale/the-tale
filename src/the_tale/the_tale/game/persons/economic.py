@@ -11,6 +11,12 @@ from the_tale.game.places import relations as place_relations
 from . import relations
 
 
+BASE_ATTRIBUTES = [place_relations.ATTRIBUTE.PRODUCTION,
+                   place_relations.ATTRIBUTE.SAFETY,
+                   place_relations.ATTRIBUTE.TRANSPORT,
+                   place_relations.ATTRIBUTE.FREEDOM,
+                   place_relations.ATTRIBUTE.CULTURE,
+                   place_relations.ATTRIBUTE.STABILITY]
 
 
 _professions_xls_file = os.path.join(os.path.dirname(__file__), 'fixtures/economic.xls')
@@ -22,12 +28,7 @@ PROFESSION_TO_RACE = xls.load_table_for_enums(_professions_xls_file, sheet_index
 
 PROFESSION_TO_ECONOMIC = xls.load_table_for_enums_subsets(_professions_xls_file, sheet_index=1,
                                                           rows=relations.PERSON_TYPE.records,
-                                                          columns=[place_relations.ATTRIBUTE.PRODUCTION,
-                                                                   place_relations.ATTRIBUTE.SAFETY,
-                                                                   place_relations.ATTRIBUTE.TRANSPORT,
-                                                                   place_relations.ATTRIBUTE.FREEDOM,
-                                                                   place_relations.ATTRIBUTE.CULTURE,
-                                                                   place_relations.ATTRIBUTE.STABILITY],
+                                                          columns=BASE_ATTRIBUTES,
                                                           data_type=float)
 
 PROFESSION_TO_ECONOMIC = {relations.PERSON_TYPE(person_type_id): {place_relations.ATTRIBUTE(attribute_id): value

@@ -1,4 +1,5 @@
 # coding: utf-8
+import math
 import random
 import datetime
 
@@ -231,6 +232,10 @@ class Place(names.ManageNameMixin2):
     def is_modifier_active(self):
         return getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0) >= c.PLACE_TYPE_ENOUGH_BORDER
 
+
+    def is_wrong_race(self):
+        return self.races.dominant_race and self.race != self.races.dominant_race
+
     def _effects_generator(self):
         from . import storage
 
@@ -239,10 +244,16 @@ class Place(names.ManageNameMixin2):
         yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
 
         if len(self.persons) > c.PLACE_MAX_PERSONS:
-            yield effects.Effect(name='избыток Мастеров', attribute=relations.ATTRIBUTE.STABILITY, value=-0.25)
+            yield effects.Effect(name='избыток Мастеров',
+                                 attribute=relations.ATTRIBUTE.STABILITY,
+                                 value=c.PLACE_STABILITY_PENALTY_FOR_MASTER * (len(self.persons) - c.PLACE_MAX_PERSONS))
 
-        if self.races.dominant_race and self.race != self.races.dominant_race:
-            yield effects.Effect(name='расовая дискриминация', attribute=relations.ATTRIBUTE.STABILITY, value=-0.20)
+        if self.is_wrong_race():
+            dominant_race_power = self.races.get_race_percents(self.races.dominant_race)
+            current_race_power = self.races.get_race_percents(self.race)
+            yield effects.Effect(name='расовая дискриминация',
+                                 attribute=relations.ATTRIBUTE.STABILITY,
+                                 value=c.PLACE_STABILITY_PENALTY_FOR_RACES * (dominant_race_power - current_race_power))
 
 
         yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
@@ -263,7 +274,10 @@ class Place(names.ManageNameMixin2):
                 yield effect
 
         elif not self.modifier.is_NONE:
-            yield effects.Effect(name='Несоответствие специализации', attribute=relations.ATTRIBUTE.STABILITY, value=-c.PLACE_STABILITY_UNIT)
+            modifier_points = getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0)
+            yield effects.Effect(name='Несоответствие специализации',
+                                 attribute=relations.ATTRIBUTE.STABILITY,
+                                 value=c.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION * (c.PLACE_TYPE_ENOUGH_BORDER - modifier_points) / c.PLACE_TYPE_ENOUGH_BORDER)
 
         for exchange in storage.resource_exchanges.get_exchanges_for_place(self):
             resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
@@ -337,6 +351,8 @@ class Place(names.ManageNameMixin2):
         if relations.ATTRIBUTE.SAFETY.order == order:
             if safety < c.PLACE_MIN_SAFETY:
                 yield effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.SAFETY, value=c.PLACE_MIN_SAFETY - safety)
+            if safety > 1:
+                yield effects.Effect(name='демоны', attribute=relations.ATTRIBUTE.SAFETY, value=1 - safety)
 
         if relations.ATTRIBUTE.TRANSPORT.order == order:
             if transport < c.PLACE_MIN_TRANSPORT:
@@ -350,7 +366,7 @@ class Place(names.ManageNameMixin2):
 
         if relations.ATTRIBUTE.CULTURE.order == order:
             if culture < c.PLACE_MIN_CULTURE:
-                yield effects.Effect(name='Бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
+                yield effects.Effect(name='бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
 
 
     def effects_for_attribute(self, attribute):
@@ -459,3 +475,116 @@ class Place(names.ManageNameMixin2):
                 'race': self.race.value,
                 'name': self.name,
                 'size': self.attrs.size}
+
+
+
+
+class Building(names.ManageNameMixin2):
+    __slots__ = ('id',
+                 'x',
+                 'y',
+                 'type',
+                 'integrity',
+                 'created_at_turn',
+                 'state',
+                 'utg_name',
+                 'person_id',
+
+                 # mames mixin
+                 '_utg_name_form__lazy',
+                 '_name__lazy')
+
+
+    def __init__(self, id, x, y, type, integrity, created_at_turn, state, utg_name, person_id):
+        self.id = id
+        self.x = x
+        self.y = y
+        self.type = type
+        self.integrity = integrity
+        self.created_at_turn = created_at_turn
+        self.state = state
+        self.utg_name = utg_name
+        self.person_id = person_id
+
+
+    def shift(self, dx, dy):
+        self.x += dx
+        self.y += dy
+
+
+    @property
+    def person(self):
+        from the_tale.game.persons import storage as persons_storage
+        return persons_storage.persons[self.person_id]
+
+
+    @property
+    def place(self):
+        return self.person.place
+
+
+    @property
+    def terrain_change_power(self):
+        # +1 to prevent power == 0
+        power = self.place.attrs.terrain_radius * self.integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
+        return int(round(power))
+
+
+    def amortization_delta(self, turns_number):
+        from the_tale.game.places import storage
+
+        buildings_number = sum(storage.buildings.get_by_person_id(person.id) is not None
+                               for person in self.place.persons)
+
+        per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED * self.person.attrs.building_amortization_speed
+        return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number-1)
+
+
+    @property
+    def amortization_in_day(self):
+        return self.amortization_delta(c.TURNS_IN_HOUR*24)
+
+
+    def amortize(self, turns_number):
+        self.integrity -= self.amortization_delta(turns_number)
+        if self.integrity <= 0.0001:
+            self.integrity = 0
+
+
+    @property
+    def workers_to_full_repairing(self):
+        return int(math.ceil((1.0 - self.integrity) * c.BUILDING_FULL_REPAIR_ENERGY_COST / c.BUILDING_WORKERS_ENERGY_COST))
+
+
+    @property
+    def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
+
+
+    def repair(self):
+        self.integrity = min(1.0, self.integrity + self.repair_delta)
+
+
+    @property
+    def need_repair(self): return self.integrity < 0.9999
+
+
+    @property
+    def terrain(self):
+        from the_tale.game.map.storage import map_info_storage
+        map_info = map_info_storage.item
+        return map_info.terrain[self.y][self.x]
+
+
+    def linguistics_restrictions(self):
+        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+        from the_tale.linguistics.storage import restrictions_storage
+
+        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value)]
+
+
+    def map_info(self):
+        return {'id': self.id,
+                'pos': {'x': self.x, 'y': self.y},
+                'person': self.person.id,
+                'place': self.place.id,
+                'type': self.type.value}

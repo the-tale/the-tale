@@ -6,7 +6,10 @@ from the_tale.amqp_environment import environment
 from the_tale.common.utils import testcase
 from the_tale.common.utils.permissions import sync_group
 
-from the_tale.accounts.personal_messages.prototypes import MessagePrototype
+from the_tale.accounts import logic as accounts_logic
+
+from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
 from the_tale.accounts.achievements.prototypes import AchievementPrototype, AccountAchievementsPrototype, GiveAchievementTaskPrototype
@@ -18,7 +21,7 @@ from the_tale.game.logic import create_test_map
 
 
 
-class AchievementsManagerTests(testcase.TestCase):
+class AchievementsManagerTests(testcase.TestCase, pm_helpers.Mixin):
 
     def setUp(self):
         super(AchievementsManagerTests, self).setUp()
@@ -47,6 +50,8 @@ class AchievementsManagerTests(testcase.TestCase):
         self.worker = environment.workers.achievements_manager
         self.worker.initialize()
 
+        pm_logic.debug_clear_service()
+
     def test_add_achievements__not_tasks(self):
         self.worker.add_achievements()
         self.account_achievements_1.reload()
@@ -55,8 +60,10 @@ class AchievementsManagerTests(testcase.TestCase):
     def test_add_achievements(self):
         GiveAchievementTaskPrototype.create(account_id=self.account_1.id, achievement_id=self.achievement_3.id)
         self.assertFalse(self.account_achievements_1.has_achievement(self.achievement_3))
-        with self.check_delta(MessagePrototype._db_count, 1):
+
+        with self.check_new_message(self.account_1.id, [accounts_logic.get_system_user_id()]):
             self.worker.add_achievements()
+
         self.account_achievements_1.reload()
         self.assertTrue(self.account_achievements_1.has_achievement(self.achievement_3))
         self.assertEqual(GiveAchievementTaskPrototype._db_count(), 0)
@@ -75,8 +82,9 @@ class AchievementsManagerTests(testcase.TestCase):
         hero.statistics.change_pve_deaths(self.achievement_3.barrier)
         heroes_logic.save_hero(hero)
 
-        with self.check_not_changed(MessagePrototype._db_count):
-            self.worker.add_achievements()
+        with self.check_no_messages(self.account_2.id):
+            with self.check_no_messages(self.account_1.id):
+                self.worker.add_achievements()
 
         self.account_achievements_1.reload()
         account_achievements_2.reload()
@@ -98,8 +106,9 @@ class AchievementsManagerTests(testcase.TestCase):
         self.assertTrue(self.account_achievements_1.has_achievement(self.achievement_3))
         self.assertFalse(account_achievements_2.has_achievement(self.achievement_3))
 
-        with self.check_not_changed(MessagePrototype._db_count):
-            self.worker.add_achievements()
+        with self.check_no_messages(self.account_2.id):
+            with self.check_no_messages(self.account_1.id):
+                self.worker.add_achievements()
 
         self.account_achievements_1.reload()
         account_achievements_2.reload()
@@ -123,8 +132,9 @@ class AchievementsManagerTests(testcase.TestCase):
         self.assertTrue(self.account_achievements_1.has_achievement(achievement_4))
         self.assertFalse(account_achievements_2.has_achievement(achievement_4))
 
-        with self.check_not_changed(MessagePrototype._db_count):
-            self.worker.add_achievements()
+        with self.check_no_messages(self.account_2.id):
+            with self.check_no_messages(self.account_1.id):
+                self.worker.add_achievements()
 
         self.account_achievements_1.reload()
         account_achievements_2.reload()

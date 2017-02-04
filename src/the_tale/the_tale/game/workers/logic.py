@@ -144,7 +144,7 @@ class Worker(workers.BaseWorker):
             task.process(self.logger, storage=self.storage)
             task.do_postsave_actions()
 
-            self.storage.recache_bundle(bundle_id)
+            self.storage.recache_bundle(bundle_id, force_full_data=True)
 
 
     def cmd_force_save(self, account_id):

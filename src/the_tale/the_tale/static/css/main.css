@@ -176,6 +176,7 @@ small {
 }
 .modal {
   background-color: #f5fafa !important;
+  top: 40% !important;
 }
 .modal-body {
   max-height: none !important;

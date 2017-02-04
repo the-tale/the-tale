@@ -4,8 +4,18 @@
 {% import 'accounts/macros.html' as accounts_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 
-{% block title %}{% if incoming %}Входящие{% else %}Исходящие{% endif %} | {{settings.PAGE_TITLE}}{% endblock %}
-{% block description %}{% if incoming %}Ваши входящие сообщения{% else %}Ваши исходящие сообщения{% endif %}{% endblock %}
+{% block title %}
+  {% if page=="incoming" %}Входящие{% endif %}
+  {% if page=="sent" %}Исходящие{% endif %}
+  {% if page=="contacts" %}Переписка с {{contact.nick_verbose}}{% endif %}
+  | {{settings.PAGE_TITLE}}
+{% endblock %}
+
+{% block description %}
+  {% if page=="incoming" %}Ваши входящие сообщения{% endif %}
+  {% if page=="sent" %}Ваши исходящие сообщения{% endif %}
+  {% if page=="contacts" %}Переписка с {{contact.nick_verbose}}{% endif %}
+{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -21,13 +31,37 @@ jQuery(document).ready(function(){
 {% block messages_content %}
 
   <ul class="nav nav-pills">
-    <li {% if incoming %}class="active"{% endif %}><a href="{{ url('accounts:messages:') }}">входящие</a></li>
-    <li {% if not incoming %}class="active"{% endif %}><a href="{{ url('accounts:messages:sent') }}">исходящие</a></li>
-    {% if messages %}
+    <li {% if page=="incoming" %}class="active"{% endif %}><a href="{{ url('accounts:messages:') }}">входящие</a></li>
+    <li {% if page=="sent" %}class="active"{% endif %}><a href="{{ url("accounts:messages:sent") }}">исходящие</a></li>
+    <li class="dropdown {% if page=='contacts' %}active{% endif %}">
+      <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        Переписка
+        {% if page=="contacts" %}с {{contact.nick_verbose}}{% endif %}
+        <b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu" style="max-height: 310px; overflow-y: auto;">
+        {% if not contacts %}
+        <li><a href="#">нет контактов</a></li>
+        {% endif %}
+        {% for contact in contacts %}
+        <li><a href="{{ url('accounts:messages:conversation', contact=contact.id) }}">{{contact.nick_verbose}}</a></li>
+        {% endfor %}
+      </ul>
+    </li>
+
+    {% if page!="contacts" and messages %}
       <li class="pull-right">
         <a class="pgf-forms-post-simple"
            href="{{ url('accounts:messages:delete-all') }}"
-           data-confirmation="Вы действительно хотите удалить все сообщения?">удалить все сообщения</a>
+           data-confirmation="Вы действительно хотите удалить <strong>ВСЕ</strong> сообщения?">удалить <strong>все</strong> сообщения</a>
+      </li>
+      {% endif %}
+
+    {% if page=="contacts" and messages %}
+      <li class="pull-right">
+        <a class="pgf-forms-post-simple"
+           href="{{ url('accounts:messages:delete-conversation', contact=contact.id) }}"
+           data-confirmation="Вы действительно хотите удалить <strong>ВСЕ</strong> сообщения в переписке между Вами и игроком {{contact.nick_verbose}} <strong>(в том числе рассылки, в которых он был адресатом)</strong>?">удалить переписку c игроком {{contact.nick_verbose}}</a>
       </li>
     {% endif %}
   </ul>
@@ -36,7 +70,8 @@ jQuery(document).ready(function(){
 
 {% if messages %}
 
-{{ base_macros.render_paginator(paginator) }}
+  {{ base_macros.render_paginator(paginator) }}
+
 
 <ul class="unstyled">
   {% for message in messages %}
@@ -46,26 +81,45 @@ jQuery(document).ready(function(){
       <tbody>
         <tr class="head">
           <td class="author">
-            <a href="{{url('accounts:show', message.sender.id)}}">{{ message.sender.nick_verbose }}</a> ⟶
-            <a href="{{url('accounts:show', message.recipient.id)}}">{{ message.recipient.nick_verbose }}</a>
+            {% set recipients = sorted_recipients(message.recipients_ids, accounts) %}
+            <a href="{{url('accounts:show', message.sender_id)}}">{{ accounts[message.sender_id].nick_verbose }}</a> ⟶
+            <a href="{{url('accounts:show', recipients[0].id)}}">
+              {% if message.sender_id != master_account.id %}
+              {{master_account.nick_verbose}}
+              {% elif page=="contacts" %}
+              {{ contact.nick_verbose }}
+              {% else %}
+              {{ recipients[0].nick_verbose }}
+              {% endif %}
+            </a>
+            {% if recipients|length > 1 %}
+            <i class="icon icon-bullhorn" style="cursor: pointer;" rel="tooltip"
+               title="Сообщение отправлено нескольким адресатам: {% for recipient in recipients %}{{recipient.nick_verbose}}{% if not loop.last %},{% endif %} {% endfor %}"></i>
+            {% endif %}
           </td>
 
-          {% if incoming %}
+          {% if message.sender_id != master_account.id %}
           <td style="width: 4em;">
-            <a class="pgf-new-message" data-recipient="{{message.sender.id}}" data-answer-to="{{message.id}}" href="#">ответить</a><br/>
+            <a class="pgf-new-message" data-recipient="{{message.sender_id}}" data-answer-to="{{message.id}}" href="#">ответить</a><br/>
           </td>
+
+          {% if page!="contacts" %}
+          <td style="width: 6em;">
+            <a href="{{ url('accounts:messages:conversation', contact=message.sender_id) }}">к переписке</a><br/>
+          </td>
+          {% endif %}
           {% endif %}
 
           <td style="width: 4em;">
             <a href="{{ url('accounts:messages:delete', message.id) }}" class="pgf-forms-post-simple">удалить</a>
           </td>
 
-          <td class="created-at pgf-format-datetime" data-timestamp="{{ message.created_at|timestamp}}" style="width: 15em;"></td>
+          <td class="created-at pgf-format-datetime" data-timestamp="{{ message.created_at}}" style="width: 10em;"></td>
         </tr>
 
         <tr class="body">
-          <td colspan="4">
-            {{ message.text_html|safe }}
+          <td colspan="5">
+            {{ message.body|bb }}
           </td>
         </tr>
       </tbody>

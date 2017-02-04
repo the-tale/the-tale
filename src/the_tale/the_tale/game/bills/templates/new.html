@@ -1,8 +1,8 @@
 
 {% extends "bills/base.html" %}
 
-{% block title %}Создание нового законопроекта | {{settings.PAGE_TITLE}}{% endblock %}
-{% block description %}Создание нового законопроекта.{% endblock %}
+{% block title %}Создание новой записи | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Создание новой записи.{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -20,7 +20,7 @@ jQuery(document).ready( function(e) {
 
 {% block bills_content %}
 
-<h3>Создание нового закона</h3>
+<h3>Создание новой записи</h3>
 
 {% include "bills/rules.html" with context%}
 

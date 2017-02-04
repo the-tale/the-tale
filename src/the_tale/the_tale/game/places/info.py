@@ -103,10 +103,10 @@ def place_info(place, full_building_info):
             'demographics': place_info_demographics(place),
             'bills': place_info_bills(place),
             'habits': place_info_habits(place),
+            'job': place.job.ui_info(),
             'chronicle': chronicle_prototypes.chronicle_info(place, conf.settings.CHRONICLE_RECORDS_NUMBER),
             'accounts': None,
-            'clans': None
-           }
+            'clans': None}
 
     accounts_ids = set()
     accounts_ids.update(data['politic_power']['heroes']['positive'])

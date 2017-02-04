@@ -84,9 +84,10 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(self.quest.serialize(), QuestPrototype.deserialize(self.quest.serialize()).serialize())
 
     def test_do_step(self):
-        self.hero.quests.updated = False
-        self.quest.process()
-        self.assertTrue(self.hero.quests.updated)
+        with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:
+            self.quest.process()
+
+        self.assertEqual(mark_updated.call_count, 1)
 
     def complete_quest(self, callback=lambda : None, positive_results=True):
         current_time = TimePrototype.get_current_time()

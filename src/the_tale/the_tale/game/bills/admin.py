@@ -9,8 +9,10 @@ class BillAdmin(admin.ModelAdmin):
     list_display = ('id', 'type', 'state', 'owner', 'updated_at', 'votes_for', 'votes_against')
     list_filter = ('state', 'type')
 
+
 class ActorAdmin(admin.ModelAdmin):
     list_display = ('id', 'bill', 'place')
+
 
 class VoteAdmin(admin.ModelAdmin):
     list_display = ('id', 'owner', 'type')

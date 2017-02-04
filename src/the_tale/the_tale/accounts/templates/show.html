@@ -61,7 +61,7 @@ jQuery(document).ready(function(){
             и
             <a href="{{ url('game:heroes:show', master_hero.id) }}">{{ master_hero.name }}</a>
             —
-            {{ master_hero.gender_verbose }}-{{ master_hero.race_verbose }}
+            {{ master_hero.race_verbose }}
             {{ master_hero.level }} уровня
           </small>
 
@@ -166,39 +166,6 @@ jQuery(document).ready(function(){
           </div>
 
           <div class="span6">
-            <h3>Политика</h3>
-
-            <p>Города, которым герой помогает чаще.</p>
-
-            {% if account_info.places_history %}
-              <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+12)}}px;">
-
-                <table class="table table-condensed table-striped table-bordered">
-                  <tbody>
-                    <tr>
-                      <th width="30px">№</th>
-                      <th >город</th>
-                      <th width="100px">помогал (раз)</th>
-                    </tr>
-                    {% for record in account_info.places_history %}
-                      <tr>
-                        <td>{{loop.index}}</td>
-                        <td><a href="{{url('game:places:show', record.place.id)}}">{{record.place.name}}</a></td>
-                        <td>{{record.count|round(1)}}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-
-              </div>
-
-          {% else %}
-
-            <p class="alert alert-info pgf-no-common-places-message">
-              Герой ещё не помог ни одному городу.
-            </p>
-          {% endif %}
-
           </div>
 
         </div>

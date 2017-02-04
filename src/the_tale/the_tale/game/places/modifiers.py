@@ -43,7 +43,7 @@ class CITY_MODIFIERS(DjangoEnum):
                        (('SELL_PRICE', 0.15), ('BUY_PRICE', -0.15), ('PRODUCTION', c.PLACE_GOODS_BONUS / 2), ('FREEDOM', 0.1)),
                        'В городе идёт оживлённая торговля, поэтому герои всегда могут найти выгодную цену для продажи своих трофеев или покупки артефактов. Увеличивается производство и уровень свободы в городе.'),
 
-                record('CRAFT_CENTER', 1, 'Город мастеров', QUEST_PLACE_TYPE.NONE,
+                record('CRAFT_CENTER', 1, 'Город ремёсел', QUEST_PLACE_TYPE.NONE,
                        (('BUY_ARTIFACT_POWER', 0.1), ('PRODUCTION', c.PLACE_GOODS_BONUS)),
                        'Большое количество мастеров, трудящихся в городе, позволяет героям приобретать лучшие артефакты. Увеличивается уровень производства в городе.'),
 

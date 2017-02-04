@@ -272,8 +272,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.14815)
         self.assertEqual(round(c.PLACE_CULTURE_FROM_BEST_PERSON, 5), 0.15)
 
-        self.assertEqual(c.PLACE_MAX_BILLS_NUMBER, 3)
-
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA_IN_DAY, 0.1)
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA, 0.1 / 24)
 
@@ -289,6 +287,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.PLACE_STABILITY_MAX_FREEDOM_PENALTY, 2), 0.67)
         self.assertEqual(round(c.PLACE_STABILITY_MAX_CULTURE_PENALTY, 2), -1.0)
 
+        self.assertEqual(c.PLACE_STABILITY_PENALTY_FOR_MASTER, -0.15)
+        self.assertEqual(c.PLACE_STABILITY_PENALTY_FOR_RACES, -2.0)
+        self.assertEqual(c.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION, -0.5)
+
         self.assertEqual(c.WHILD_TRANSPORT_PENALTY, 0.1)
         self.assertEqual(c.TRANSPORT_FROM_PLACE_SIZE_PENALTY, 0.05)
 
@@ -303,6 +305,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(round(c.JOB_TRANSPORT_BONUS, 5), 0.02963)
         self.assertEqual(round(c.JOB_FREEDOM_BONUS, 5), 0.02963)
         self.assertEqual(round(c.JOB_STABILITY_BONUS, 5), 0.02)
+        self.assertEqual(round(c.JOB_CULTURE_BONUS, 5), 0.03)
 
         self.assertEqual(c.PERSON_MOVE_DELAY_IN_WEEKS, 2)
         self.assertEqual(c.PERSON_MOVE_DELAY, 120960)
@@ -343,7 +346,7 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.COMPANIONS_MEDIUM_HEALTH, 500)
 
-        self.assertEqual(c._COMPANIONS_MEDIUM_LIFETYME, 15)
+        self.assertEqual(c._COMPANIONS_MEDIUM_LIFETYME, 12)
 
         self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA, 0.2)
         self.assertEqual(c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA, 0.2)
@@ -354,10 +357,10 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.COMPANIONS_DEFEND_PROBABILITY, 0.1875)
 
         self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL, 5), 0.3)
-        self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS, 5), 0.13889)
+        self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS, 5), 0.17361)
 
-        self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR, 5), 0.43889)
-        self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS, 5), 0.00604)
+        self.assertEqual(round(c.COMPANIONS_WOUNDS_IN_HOUR, 5), 0.47361)
+        self.assertEqual(round(c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS, 5), 0.00756)
 
         self.assertEqual(c.COMPANIONS_HEALS_IN_HOUR, 1.5)
 
@@ -379,22 +382,26 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.COMPANIONS_HEAL_BONUS, 0.25)
 
-        self.assertEqual(round(c.COMPANIONS_REGEN_PER_HOUR, 5), 0.34722)
+        self.assertEqual(round(c.COMPANIONS_REGEN_PER_HOUR, 5), 0.43403)
 
         self.assertEqual(c.COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT, 1)
         self.assertEqual(c.COMPANIONS_REGEN_ON_HEAL_AMOUNT, 1)
         self.assertEqual(c.COMPANIONS_REGEN_BY_HERO, 1)
         self.assertEqual(c.COMPANIONS_REGEN_BY_MONEY_SPEND, 1)
 
-        self.assertEqual(round(c.COMPANIONS_EATEN_CORPSES_PER_BATTLE, 5), 0.02267)
-        self.assertEqual(round(c.COMPANIONS_REGEN_ON_HEAL_PER_HEAL, 5), 0.23148)
-        self.assertEqual(round(c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL, 5), 0.23148)
+        self.assertEqual(round(c.COMPANIONS_EATEN_CORPSES_PER_BATTLE, 5), 0.02833)
+        self.assertEqual(round(c.COMPANIONS_REGEN_ON_HEAL_PER_HEAL, 5), 0.28935)
+        self.assertEqual(round(c.COMPANIONS_HERO_REGEN_ON_HEAL_PER_HEAL, 5), 0.28935)
 
         self.assertEqual(c.COMPANIONS_GIVE_COMPANION_AFTER, 24)
 
         self.assertEqual(c.COMPANIONS_LEAVE_IN_PLACE, 0.05)
 
         self.assertEqual(c.COMPANIONS_BONUS_DAMAGE_PROBABILITY, 0.25)
+
+        self.assertEqual(c.PLACE_MAX_BILLS_NUMBER, 3)
+        self.assertEqual(c.FREE_ACCOUNT_MAX_ACTIVE_BILLS, 1)
+        self.assertEqual(c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS, 4)
 
 
     def test_dedication_maximum_multiplier(self):
@@ -410,4 +417,4 @@ class ConstantsTest(testcase.TestCase):
         health_in_day = c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS * c.COMPANIONS_DAMAGE_PER_WOUND * 24
 
         energy_to_heal_in_day = health_in_day / c.COMPANIONS_HEAL_AMOUNT  * c.ANGEL_HELP_COST
-        self.assertEqual(round(energy_to_heal_in_day / energy_in_day, 5), 0.13889)
+        self.assertEqual(round(energy_to_heal_in_day / energy_in_day, 5), 0.17361)

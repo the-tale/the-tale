@@ -2,9 +2,9 @@
 
 {% block content %}
 
-{{message.sender.nick_verbose}}:
+{{sender.nick_verbose}}:
 
-{{ message.text_safe_html|striptags }}
+{{ message.body|bb_safe|striptags }}
 
 Ваши личные сообщения: {{ full_url('http', 'accounts:messages:') }}
 

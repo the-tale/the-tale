@@ -10,7 +10,7 @@ jQuery(document).ready(function(e) {
                                                              { staticUrl: "{{ STATIC_CONTENT }}",
                                                              });
 
-    widgets.mapManager = new pgf.game.map.MapManager({RegionUrl:  function(version){return "{{ url('game:map:region') }}";}});
+    widgets.mapManager = new pgf.game.map.MapManager({RegionUrl:  function(version){return "{{ region_url() }}";}});
 
     widgets.map = new pgf.game.map.Map('#pgf-game-map',
                                        {spritesManager: spritesManager,

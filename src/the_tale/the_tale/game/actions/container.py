@@ -5,10 +5,9 @@ from the_tale.game.actions import relations
 
 class ActionsContainer(object):
 
-    __slots__ = ('updated', 'actions_list', 'is_single')
+    __slots__ = ('actions_list', 'is_single')
 
     def __init__(self):
-        self.updated = False
         self.is_single = False
         self.actions_list = []
 
@@ -43,12 +42,10 @@ class ActionsContainer(object):
         return all(action.SINGLE for action in self.actions_list)
 
     def push_action(self, action):
-        self.updated = True
         self.actions_list.append(action)
         self.is_single = self._is_single
 
     def pop_action(self):
-        self.updated = True
         action = self.actions_list.pop()
         self.is_single = self._is_single
         return action
@@ -64,7 +61,7 @@ class ActionsContainer(object):
 
     def reset_to_idl(self):
         self.actions_list = self.actions_list[:1]
-        self.updated = True
+
 
     def request_replane(self):
         for action in self.actions_list:

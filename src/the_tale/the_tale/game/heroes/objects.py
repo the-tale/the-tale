@@ -9,7 +9,7 @@ from the_tale import amqp_environment
 
 from the_tale.accounts import prototypes as accounts_prototypes
 from the_tale.accounts import logic as accounts_logic
-from the_tale.accounts.personal_messages import prototypes as message_prototypes
+from the_tale.accounts.personal_messages import logic as pm_logic
 
 from the_tale.common.utils.logic import random_value_by_priority
 
@@ -229,7 +229,10 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         if send_message: # TODO: move out logic
             account = accounts_prototypes.AccountPrototype.get_by_id(self.account_id)
-            message_prototypes.MessagePrototype.create(accounts_logic.get_system_user(), account, text='Поздравляем, Ваш герой получил %d уровень!' % self.level)
+            pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                  recipients_ids=[self.account_id],
+                                  body='Поздравляем, Ваш герой получил {} уровень!'.format(self.level),
+                                  async=True)
 
     def add_experience(self, value, without_modifications=False):
         real_experience = int(value) if without_modifications else int(value * self.experience_modifier)

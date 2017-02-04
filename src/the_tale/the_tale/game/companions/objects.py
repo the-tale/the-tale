@@ -81,7 +81,9 @@ class Companion(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.record.communication_gestures.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id ]
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE, relations.COMPANION_EXISTENCE.HAS_NO.value).id ]
+
         if self._hero:
             terrain = self._hero.position.get_terrain()
 
@@ -115,6 +117,10 @@ class Companion(object):
             raise exceptions.HealCompanionForNegativeValueError(delta=delta)
         old_health = self.health
         self.health = int(min(self.health + delta, self.max_health))
+
+        if old_health == 0:
+            self._hero.reset_accessors_cache()
+
         return self.health - old_health
 
     @property
@@ -128,6 +134,9 @@ class Companion(object):
 
         if random.random() < self._damage_from_heal_probability() / (self._damage_from_heal_probability() + self._hero.companion_damage_probability):
             self._heals_wounds_count += float(c.COMPANIONS_DAMAGE_PER_WOUND) / c.COMPANIONS_HEALTH_PER_HEAL
+
+        if self.health < 0:
+            self.health = 0
 
         return old_health - self.health
 
