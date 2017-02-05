@@ -129,7 +129,7 @@ jQuery(document).ready(function() {
     jQuery('.modal-backdrop').live('mousewheel', StopScroll);
     jQuery('.modal').live('mousewheel', StopScroll);
 
-    {% if resource.account.is_authenticated %}
+    {% if resource.account.is_authenticated and not resource.account.is_fast %}
     (function NewMessagesWorker() {
         jQuery.get("{{new_messages_number_url()}}", function(data) {
             jQuery(".pgf-new-messages-signalization").toggleClass("pgf-hidden", data.data.number == 0);
