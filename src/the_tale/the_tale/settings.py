@@ -22,6 +22,9 @@ META_CONFIG = MetaConfig(config_path=META_CONFIG_FILE)
 
 DEBUG = False
 
+SENTRY_JS_URL = None
+SENTRY_RAVEN_CONFIG = None
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -277,6 +280,11 @@ try:
     from the_tale.settings_local import * # pylint: disable=W0403,W0401,W0614
 except Exception: # pylint: disable=W0702,W0703
     pass
+
+
+if SENTRY_RAVEN_CONFIG:
+    INSTALLED_APPS.append('raven.contrib.django.raven_compat')
+    RAVEN_CONFIG = SENTRY_RAVEN_CONFIG
 
 
 if RUNSERVER_RUNNING:

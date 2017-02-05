@@ -1330,7 +1330,9 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
         if (messages.length > 0) {
             messages.shift(); // if messages has elements, remove last since it can be not full
+        }
 
+        if (messages.length > 0) {
             var lastMessage = messages[0][1][messages[0][1].length-1];
 
             lastTimestamp = lastMessage.timestamp;

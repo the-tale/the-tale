@@ -48,7 +48,8 @@ setuptools.setup(
                       'psutil==4.4.2',
                       'requests==2.12.1',
                       'protobuf==3.1.0.post1',
-                      'gunicorn==19.6.0'],
+                      'gunicorn==19.6.0',
+                      'raven==5.32.0'],
 
     include_package_data=True,
     test_suite = 'tests' )
