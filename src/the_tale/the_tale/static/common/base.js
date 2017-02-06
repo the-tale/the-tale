@@ -49,7 +49,7 @@ pgf.base.InitializeTabs = function(settingName, def, tabs) {
 
     for (var i in tabs) {
         var id = tabs[i][1];
-        if (window.location.hash.includes(settingName+'='+id)) {
+        if (window.location.hash.indexOf(settingName+'='+id) != -1) {
             openTab = id;
             break;
         }
@@ -95,7 +95,7 @@ pgf.base.InitializeTabs = function(settingName, def, tabs) {
         for (var i in tabs) {
             var selector = jQuery(tabs[i][0]);
             var id = tabs[i][1];
-            if (window.location.hash.includes(settingName+'='+id)) {
+            if (window.location.hash.indexOf(settingName+'='+id) != -1) {
                 selector.tab('show');
                 break;
             }
@@ -177,9 +177,12 @@ pgf.base.HideTooltips = function(clearedContainer, child_class) {
                                                              el.data('popover').enabled = false;
                                                          });
         jQuery('[rel="tooltip"]', clearedContainer).each(function(i, el){
-                                                             el = jQuery(el);
-                                                             el.data('tooltip').enabled = false;
-                                                         });
+            el = jQuery(el);
+            tooltipObject = el.data('tooltip');
+            if (tooltipObject) {
+                tooltipObject.enabled = false;
+            }
+        });
         if (clearedContainer.data('tooltip')) clearedContainer.data('tooltip').enabled = false;
         if (clearedContainer.data('popover')) clearedContainer.data('tooltip').enabled = false;
     }

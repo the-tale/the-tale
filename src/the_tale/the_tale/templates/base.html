@@ -136,8 +136,10 @@ jQuery(document).ready(function() {
     {% if resource.account.is_authenticated and not resource.account.is_fast %}
     (function NewMessagesWorker() {
         jQuery.get("{{new_messages_number_url()}}", function(data) {
-            jQuery(".pgf-new-messages-signalization").toggleClass("pgf-hidden", data.data.number == 0);
-            jQuery(".pgf-new-messages-number").text(data.data.number);
+            if (data && data.data && data.data.number) {
+                jQuery(".pgf-new-messages-signalization").toggleClass("pgf-hidden", data.data.number == 0);
+                jQuery(".pgf-new-messages-number").text(data.data.number);
+            }
             setTimeout(NewMessagesWorker, 60*1000)
         })})();
     {% endif %}
