@@ -48,7 +48,9 @@ jQuery(document).ready(function(e){
 {% macro game_stopped_message() %}
 <script type="text/javascript">
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
-        jQuery(".pgf-game-stopped-message").toggleClass("pgf-hidden", (game_data.game_state != pgf.game.constants.GAME_STATE.STOPPED));
+        if(pgf && pgf.game && pgf.game.constants) {
+            jQuery(".pgf-game-stopped-message").toggleClass("pgf-hidden", (game_data.game_state != pgf.game.constants.GAME_STATE.STOPPED));
+        }
     });
 </script>
 

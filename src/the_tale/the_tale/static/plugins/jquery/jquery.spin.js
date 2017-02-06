@@ -17,7 +17,7 @@ $("#el").spin(false); // Kills the spinner.
 			"small": { lines: 8, length: 4, width: 3, radius: 5, zIndex: 999 },
 			"large": { lines: 10, length: 8, width: 4, radius: 8, zIndex: 999 }
 		};
-		if (Spinner) {
+		if (window.Spinner) {
 			return this.each(function() {
 				var $this = $(this),
 					data = $this.data();
