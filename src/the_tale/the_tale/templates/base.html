@@ -163,7 +163,8 @@ jQuery(document).ready(function() {
     /////////////////////////
 
     {% if settings.SENTRY_JS_URL %}
-    Raven.config('https://82de0ba6cd034a9c847022a526226689@sentry.io/135768').install()
+    Raven.config('https://82de0ba6cd034a9c847022a526226689@sentry.io/135768',
+                 {whitelistUrls: [/the-tale\.org/, /static\.the-tale\.org/]}).install()
     {% endif %}
 
 });
