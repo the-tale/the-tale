@@ -16,7 +16,7 @@ KEYS = [('ACTION_FIRST_STEPS_INITIATION_DIARY', 640000, 'Дневник: пер�
         'фраза 2 в журнале героя — мысль о будущем.',
         [V.HERO, V.PLACE], None),
 
-        ('ACTION_FIRST_STEPS_HEROES', 640003, 'Журнал: размышление о героя', LEXICON_GROUP.ACTION_FIRST_STEPS,
+        ('ACTION_FIRST_STEPS_HEROES', 640003, 'Журнал: размышление о героях', LEXICON_GROUP.ACTION_FIRST_STEPS,
         'фраза 3 в журнале героя — мысль о героях.',
         [V.HERO, V.PLACE], None),
 
