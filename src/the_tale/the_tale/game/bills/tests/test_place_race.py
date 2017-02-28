@@ -40,6 +40,7 @@ class PlaceRaceTests(BaseTestPrototypes):
     def test_actors(self):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.place)])
 
+    @mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.DWARF)
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
@@ -56,6 +57,7 @@ class PlaceRaceTests(BaseTestPrototypes):
         self.assertTrue(self.bill.data.new_race.is_DWARF)
         self.assertTrue(self.bill.data.old_race.is_ELF)
 
+    @mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.DWARF)
     def test_success_form_validation(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
@@ -65,6 +67,7 @@ class PlaceRaceTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
 
 
+    @mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.GOBLIN)
     def test_not_allowed_race(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
                                                          'rationale': 'new-rationale',
@@ -74,6 +77,7 @@ class PlaceRaceTests(BaseTestPrototypes):
         self.assertFalse(form.is_valid())
 
 
+    @mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.GOBLIN)
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
@@ -95,6 +99,7 @@ class PlaceRaceTests(BaseTestPrototypes):
         self.assertTrue(self.place.race.is_GOBLIN)
 
 
+    @mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.GOBLIN)
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_has_meaning__duplicate_race(self):
@@ -113,3 +118,26 @@ class PlaceRaceTests(BaseTestPrototypes):
         places_logic.save_place(self.bill.data.place)
 
         self.assertFalse(self.bill.has_meaning())
+
+
+
+    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_has_meaning__no_master_with_race(self):
+        with mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.GOBLIN):
+            VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+            VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+
+            data = self.bill.user_form_initials
+            data['approved'] = True
+            form = self.bill.data.get_moderator_form_update(data)
+
+            self.assertTrue(form.is_valid())
+            self.bill.update_by_moderator(form)
+
+        self.bill.data.place.race = self.bill.data.new_race
+
+        places_logic.save_place(self.bill.data.place)
+
+        with mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.ELF):
+            self.assertFalse(self.bill.has_meaning())

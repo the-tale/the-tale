@@ -35,6 +35,9 @@ class BaseForm(BaseUserForm):
             if race == place.race:
                 raise ValidationError('Город уже принадлежит выбранной расе.')
 
+            if not any(race == person.race for person in place.persons):
+                raise ValidationError('В городе должен быть Мастер соответствующей расы.')
+
         return cleaned_data
 
 
@@ -53,7 +56,7 @@ class PlaceRace(base_place_bill.BasePlaceBill):
     ModeratorForm = ModeratorForm
 
     CAPTION = 'Изменение расы города'
-    DESCRIPTION = 'Изменяет расу города.'
+    DESCRIPTION = 'Изменяет расу города. В городе должен быть Мастер соответствующей расы.'
 
     def __init__(self, new_race=None, old_race=None, **kwargs):
         super(PlaceRace, self).__init__(**kwargs)
@@ -71,7 +74,8 @@ class PlaceRace(base_place_bill.BasePlaceBill):
         self.old_race = self.place.race
 
     def has_meaning(self):
-        return self.place.race != self.new_race
+        return ( (self.place.race != self.new_race) and
+                 any(self.new_race == person.race for person in self.place.persons) )
 
     def apply(self, bill=None):
         if self.has_meaning():
