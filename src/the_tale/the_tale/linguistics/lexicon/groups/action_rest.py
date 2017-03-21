@@ -5,14 +5,14 @@ from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
 
 KEYS = [('ACTION_REST_DESCRIPTION', 180000, 'Описание', LEXICON_GROUP.ACTION_REST,
         'Краткая декларация того, что делает герой.',
-        [V.HERO], None),
+        [V.DATE, V.HERO], None),
 
         ('ACTION_REST_RESRING', 180001, 'Журнал: Отдых', LEXICON_GROUP.ACTION_REST,
         'Герой лечится и восстанавливает немного здоровья.',
-        [V.HERO, V.HEALTH], 'hero#N +health#HP'),
+        [V.DATE, V.HERO, V.HEALTH], 'hero#N +health#HP'),
 
         ('ACTION_REST_START', 180002, 'Журнал: Начало', LEXICON_GROUP.ACTION_REST,
         'Герой начинает лечиться.',
-        [V.HERO], None),
+        [V.DATE, V.HERO], None),
 
         ]

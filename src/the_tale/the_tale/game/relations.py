@@ -1,4 +1,5 @@
 # coding: utf-8
+import datetime
 
 from rels import Column
 from rels.django import DjangoEnum
@@ -163,3 +164,9 @@ class BEING_TYPE(DjangoEnum):
                 ('UNDEAD', 9, 'нежить', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
                 ('MONSTER', 10, 'чудовища', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
                 ('CHIMERA', 11, 'химеры', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED) )
+
+
+class REAL_FEAST(DjangoEnum):
+    start_at = Column()
+    end_at = Column()
+    records = ( ('JESTER_DAYS', 0, 'Дни Шута (с 31-ого марта по 2-ого апреля)', datetime.datetime(year=datetime.MINYEAR, month=3, day=31), datetime.datetime(year=datetime.MINYEAR, month=4, day=2)), )

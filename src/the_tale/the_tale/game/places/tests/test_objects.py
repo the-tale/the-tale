@@ -333,7 +333,7 @@ class PlaceTests(testcase.TestCase):
             self.p1.race = game_relations.RACE.random(exclude=(self.p1.race,))
             self.p1.refresh_attributes()
 
-        with self.check_delta(lambda: round(self.p1.attrs.stability, 2), -0.4):
+        with self.check_delta(lambda: round(self.p1.attrs.stability, 2), -0.09999999999999998):
             self.p1.races._races[self.p1.races.dominant_race] += 0.1
             self.p1.races._races[self.p1.race] -= 0.1
             self.p1.refresh_attributes()
