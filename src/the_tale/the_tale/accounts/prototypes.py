@@ -48,8 +48,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'clan_id',
                  'referrals_number',
                  'might')
-    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
-    _get_by = ('id', 'email', 'nick')
+    _bidirectional = ('is_fast', 'nick', 'email', 'gender', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
+    _get_by = ('id', 'email', 'nick', 'gender')
 
     def cmd_update_hero(self):
         environment.workers.supervisor.cmd_update_hero_with_account_data(self.id,
