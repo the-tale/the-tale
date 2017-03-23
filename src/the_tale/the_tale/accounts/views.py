@@ -553,7 +553,8 @@ class ProfileResource(BaseAccountsResource):
     @handler('', name='show', method='get')
     def profile(self):
         data = {'email': self.account.email if self.account.email else 'укажите email',
-                'nick': self.account.nick if not self.account.is_fast and self.account.nick else 'укажите ваше имя'}
+                'nick': self.account.nick if not self.account.is_fast and self.account.nick else 'укажите ваше имя',
+                'gender': self.account.gender.text}
         edit_profile_form = forms.EditProfileForm(data)
 
         settings_form = forms.SettingsForm({'personal_messages_subscription': self.account.personal_messages_subscription,

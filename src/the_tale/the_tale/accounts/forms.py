@@ -8,6 +8,10 @@ from the_tale.common.utils import bbcode
 
 from the_tale.accounts import conf
 from the_tale.accounts import relations
+from the_tale.game.relations import GENDER
+
+
+profile_gender = ((GENDER.MASCULINE, GENDER.MASCULINE.text), (GENDER.FEMININE, GENDER.FEMININE.text))
 
 
 class EditProfileForm(forms.Form):
@@ -21,6 +25,9 @@ class EditProfileForm(forms.Form):
 
     password = fields.PasswordField(label='Новый пароль',
                                     required=False)
+
+    gender = fields.TypedChoiceField(label='Пол', choices=profile_gender, coerce=GENDER.get_from_name)
+
 
 class SettingsForm(forms.Form):
     personal_messages_subscription = fields.BooleanField(required=False,

@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from rels.django import RelationIntegerField
 
 from the_tale.accounts import relations
+from the_tale.game.relations import GENDER
 
 
 class AccountManager(BaseUserManager):
@@ -74,6 +75,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     # duplicate django user email - add unique constraints
     email = models.EmailField(max_length=MAX_EMAIL_LENGTH, null=True, unique=True, blank=True)
+
+    gender = RelationIntegerField(relation=GENDER, relation_column='value', default=GENDER.MASCULINE.value)
 
     last_news_remind_time = models.DateTimeField(auto_now_add=True)
 
