@@ -1,8 +1,9 @@
 # coding: utf-8
 import re
 import sys
-import collections
 import logging
+import itertools
+import collections
 
 from django.db import models as django_models
 from django.db import transaction
@@ -62,10 +63,12 @@ def get_word_restrictions(external, word_form):
 
 
 def _process_arguments(args):
+    from the_tale.game.prototypes import TimePrototype
+
     externals = {}
     restrictions = set()
 
-    for k, v in args.items():
+    for k, v in itertools.chain(args.items(), ((VARIABLE.DATE.value, TimePrototype.get_current_time().game_time),)):
         word_form, variable_restrictions = VARIABLE(k).type.constructor(v)
         externals[k] = word_form
         restrictions.update((k, restriction_id) for restriction_id in variable_restrictions)

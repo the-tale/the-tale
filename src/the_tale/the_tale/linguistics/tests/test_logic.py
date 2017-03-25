@@ -133,6 +133,8 @@ class LogicTests(testcase.TestCase):
 
         lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
 
+        self.assertIn('date', externals)
+
         self.assertEqual(logic.render_text(lexicon_key, externals, restrictions),
                          'Герой 1 w-3-нс,ед,дт')
 
