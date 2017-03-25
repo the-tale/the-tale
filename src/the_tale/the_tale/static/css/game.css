@@ -276,7 +276,7 @@
 }
 .log-record .message {
   margin-left: 1em;
-  /* padding-left: 0.5em; */
+  white-space: pre-wrap;
 }
 .log-record .message .submessage {
   margin-bottom: 0.75em;
@@ -293,6 +293,7 @@
 }
 .diary-record .message {
   margin-left: 1em;
+  white-space: pre-wrap;
 }
 .diary-record .message .submessage {
   margin-bottom: 0.75em;
