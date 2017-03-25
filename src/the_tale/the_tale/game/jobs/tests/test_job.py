@@ -6,6 +6,8 @@ from unittest import mock
 
 from the_tale.common.utils import testcase
 
+from the_tale.linguistics import logic as linguistics_logic
+
 from the_tale.game.jobs import job
 from the_tale.game.jobs import effects
 
@@ -19,6 +21,7 @@ class JobTest(testcase.TestCase):
     @mock.patch('the_tale.game.prototypes.TimePrototype.get_current_turn_number', classmethod(lambda cls: 666))
     def setUp(self):
         super(JobTest, self).setUp()
+        linguistics_logic.sync_static_restrictions()
         self.job = FakeJob.create(normal_power=1000)
 
 
