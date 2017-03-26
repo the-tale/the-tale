@@ -160,8 +160,6 @@ class ChangeCredentialsTask(models.Model):
 
     new_nick = models.CharField(default=None, null=True, max_length=Account.MAX_NICK_LENGTH)
 
-    new_gender = RelationIntegerField(relation=GENDER, relation_column='value')
-
     uuid = models.CharField(max_length=32, db_index=True)
 
     relogin_required = models.BooleanField(blank=True, default=False)

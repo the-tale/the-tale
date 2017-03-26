@@ -114,10 +114,12 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def update_settings(self, form):
         self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription,
                                                             news_subscription=form.c.news_subscription,
-                                                            description=form.c.description)
+                                                            description=form.c.description,
+                                                            gender=form.c.gender)
         self._model.personal_messages_subscription = form.c.personal_messages_subscription
         self._model.news_subscription = form.c.news_subscription
-        self.description = form.c.description
+        self._model.description = form.c.description
+        self._model.gender = form.c.gender
 
     def prolong_premium(self, days):
         self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
@@ -336,12 +338,12 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 class ChangeCredentialsTaskPrototype(BasePrototype):
     _model_class = ChangeCredentialsTask
-    _readonly = ('id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password', 'new_gender', 'relogin_required')
+    _readonly = ('id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password', 'relogin_required')
     _bidirectional = ()
     _get_by = ('id', 'uuid')
 
     @classmethod
-    def create(cls, account, new_email=None, new_password=None, new_nick=None, new_gender=GENDER.MASCULINE, relogin_required=False):
+    def create(cls, account, new_email=None, new_password=None, new_nick=None, relogin_required=False):
         old_email = account.email
         if account.is_fast and new_email is None:
             raise exceptions.MailNotSpecifiedForFastAccountError()
@@ -360,7 +362,6 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                                                      new_password=make_password(new_password) if new_password else '',
                                                      state=relations.CHANGE_CREDENTIALS_TASK_STATE.WAITING,
                                                      new_nick=new_nick,
-                                                     new_gender=new_gender,
                                                      relogin_required=relogin_required)
         return cls(model=model)
 

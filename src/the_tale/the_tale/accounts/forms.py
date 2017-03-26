@@ -11,9 +11,6 @@ from the_tale.accounts import relations
 from the_tale.game.relations import GENDER
 
 
-profile_gender = ((GENDER.MASCULINE, GENDER.MASCULINE.text), (GENDER.FEMININE, GENDER.FEMININE.text))
-
-
 class EditProfileForm(forms.Form):
 
     nick = fields.RegexField(label='Имя',
@@ -26,7 +23,7 @@ class EditProfileForm(forms.Form):
     password = fields.PasswordField(label='Новый пароль',
                                     required=False)
 
-    gender = fields.TypedChoiceField(label='Пол', choices=profile_gender, coerce=GENDER.get_from_name)
+profile_gender = ((GENDER.MASCULINE, GENDER.MASCULINE.text), (GENDER.FEMININE, GENDER.FEMININE.text))
 
 
 class SettingsForm(forms.Form):
@@ -37,6 +34,8 @@ class SettingsForm(forms.Form):
                                             label='получать письма о новостях')
 
     description = bbcode.BBField(required=False, label='Несколько слов о Вас, для страницы Вашего аккаунта', max_length=conf.accounts_settings.MAX_ACCOUNT_DESCRIPTION_LENGTH)
+
+    gender = fields.TypedChoiceField(label='Пол', choices=profile_gender, coerce=GENDER.get_from_name)
 
 
 class LoginForm(forms.Form):

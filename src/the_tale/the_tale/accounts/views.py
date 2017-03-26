@@ -559,13 +559,13 @@ class ProfileResource(BaseAccountsResource):
     @handler('', name='show', method='get')
     def profile(self):
         data = {'email': self.account.email if self.account.email else 'укажите email',
-                'nick': self.account.nick if not self.account.is_fast and self.account.nick else 'укажите ваше имя',
-                'gender': self.account.gender.text}
+                'nick': self.account.nick if not self.account.is_fast and self.account.nick else 'укажите ваше имя'}
         edit_profile_form = forms.EditProfileForm(data)
 
         settings_form = forms.SettingsForm({'personal_messages_subscription': self.account.personal_messages_subscription,
                                             'news_subscription': self.account.news_subscription,
-                                            'description': self.account.description})
+                                            'description': self.account.description,
+                                            'gender': self.account.gender})
 
         return self.template('accounts/profile.html',
                              {'edit_profile_form': edit_profile_form,
@@ -610,7 +610,6 @@ class ProfileResource(BaseAccountsResource):
                                                      new_email=edit_profile_form.c.email,
                                                      new_password=edit_profile_form.c.password,
                                                      new_nick=edit_profile_form.c.nick,
-                                                     new_gender=edit_profile_form.c.gender,
                                                      relogin_required=True)
 
         postponed_task = task.process(logger)
