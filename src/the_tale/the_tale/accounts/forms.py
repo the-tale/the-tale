@@ -63,7 +63,6 @@ class BanForm(forms.Form):
     description = fields.TextField(label='обоснование', required=True)
 
 
-
 class SendMoneyForm(forms.Form):
 
     money = fields.IntegerField(label='Печеньки')

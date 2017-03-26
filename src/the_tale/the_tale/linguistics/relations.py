@@ -15,8 +15,6 @@ from the_tale.game.map import relations as map_relations
 from the_tale.game.companions import relations as companions_relations
 from the_tale.game.companions.abilities import effects as companion_effects
 
-from lexicon.relations import VARIABLE_VERIFICATOR
-
 
 def word_type_record(name):
     utg_type = getattr(utg_relations.WORD_TYPE, name)
@@ -148,33 +146,4 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                 ('COMPANION_ABILITY', 32, 'особенность', companion_effects.ABILITIES),
 
                 ('COMPANION_EXISTENCE', 33, 'наличие спутника', companions_relations.COMPANION_EXISTENCE)
-              )
-
-
-_construct_utg_name_form = lambda v: (v.utg_name_form, v.linguistics_restrictions())
-
-
-class KEEPER_GENDER(DjangoEnum):
-    records = ( ('ACTOR', 0, 'герой, монстр или спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (TEMPLATE_RESTRICTION_GROUP.GENDER,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.RACE,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.MOB,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.MOB_TYPE,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.COMPANION,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.COMPANION_ABILITY,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.TERRAIN,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.META_TERRAIN,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.META_HEIGHT,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.META_VEGETATION,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.ACTOR,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
-                                                                                                                  TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE))
-                 )
+            )

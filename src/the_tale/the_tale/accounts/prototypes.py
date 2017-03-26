@@ -27,6 +27,7 @@ from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, Rese
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts import exceptions
 from the_tale.accounts import relations
+from the_tale.game.relations import GENDER
 
 
 class AccountPrototype(BasePrototype): #pylint: disable=R0904
@@ -70,11 +71,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         self.cmd_update_hero()
 
-
     @lazy_property
     def actual_bills(self):
         return s11n.from_json(self._model.actual_bills)
-
 
     @property
     def account_id(self): return self.id
@@ -119,7 +118,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self._model.personal_messages_subscription = form.c.personal_messages_subscription
         self._model.news_subscription = form.c.news_subscription
         self.description = form.c.description
-
 
     def prolong_premium(self, days):
         self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
@@ -175,7 +173,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self._model_class.objects.filter(id=self.id).update(ban_forum_end_at=end_time)
         self._model.ban_forum_end_at = end_time
 
-
     @classmethod
     def send_premium_expired_notifications(cls):
         current_time = datetime.datetime.now()
@@ -202,7 +199,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
        'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:shop')}
 
         pm_logic.send_message(logic.get_system_user_id(), [self.id], message, async=True)
-
 
     @lazy_property
     def bank_account(self):
@@ -263,8 +259,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                                                                             method_name=self.update_referrals_number.__name__,
                                                                             data={})
 
-
-
     ###########################################
     # Object operations
     ###########################################
@@ -318,7 +312,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)
 
-
     @classmethod
     def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, action_id=None, is_bot=False):
         referer_domain = None
@@ -341,15 +334,14 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         return isinstance(other, self.__class__) and self._model == other._model
 
 
-
 class ChangeCredentialsTaskPrototype(BasePrototype):
     _model_class = ChangeCredentialsTask
-    _readonly = ('id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password', 'relogin_required')
+    _readonly = ('id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password', 'new_gender', 'relogin_required')
     _bidirectional = ()
     _get_by = ('id', 'uuid')
 
     @classmethod
-    def create(cls, account, new_email=None, new_password=None, new_nick=None, relogin_required=False):
+    def create(cls, account, new_email=None, new_password=None, new_nick=None, new_gender=GENDER.MASCULINE, relogin_required=False):
         old_email = account.email
         if account.is_fast and new_email is None:
             raise exceptions.MailNotSpecifiedForFastAccountError()
@@ -368,6 +360,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                                                      new_password=make_password(new_password) if new_password else '',
                                                      state=relations.CHANGE_CREDENTIALS_TASK_STATE.WAITING,
                                                      new_nick=new_nick,
+                                                     new_gender=new_gender,
                                                      relogin_required=relogin_required)
         return cls(model=model)
 
@@ -450,7 +443,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
 
             logger.error('Worker exception: %r' % self,
                          exc_info=exception_info,
-                         extra={} )
+                         extra={})
 
             self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
             self._model.comment = ('%s' % traceback_strings)[:self._model.MAX_COMMENT_LENGTH]
@@ -463,12 +456,11 @@ class AwardPrototype(BasePrototype):
     _bidirectional = ()
     _get_by = ('id',)
 
-
     @classmethod
     def create(cls, description, type, account): # pylint: disable=W0622
         return cls(model=Award.objects.create(description=description,
                                               type=type,
-                                              account=account._model) )
+                                              account=account._model))
 
 
 class ResetPasswordTaskPrototype(BasePrototype):
@@ -526,7 +518,6 @@ class RandomPremiumRequestPrototype(BasePrototype):
 
 Один из игроков подарил вам подписку на %(days)s дней!
 '''
-
 
     @classmethod
     def create(cls, initiator_id, days):

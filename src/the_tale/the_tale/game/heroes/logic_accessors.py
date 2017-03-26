@@ -5,7 +5,7 @@ import datetime
 
 from django.conf import settings as project_settings
 
-from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP, KEEPER_GENDER
+from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
 from the_tale.linguistics.storage import restrictions_storage
 
 from the_tale.game.balance import constants as c
@@ -703,8 +703,7 @@ class LogicAccessorsMixin(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.communication_telepathic.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.intellect_level.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.HERO.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.mob_type.value).id,
-                        restrictions_storage.get_restriction(KEEPER_GENDER.ACTOR, game_relations.ACTOR.HERO.value).id,)
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.mob_type.value).id)
 
         self._cached_modifiers['#linguistics_restrictions'] = restrictions
 
