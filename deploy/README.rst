@@ -27,7 +27,7 @@
 Установка (для разработки)
 **************************
 
-Окружение для разработки поддымается в виртуалке с помощью Vargant. По умолчанию в виртуалке 4Gb RAM и 2 ядра процессора. Если этого много или мало, можно поправить в файле Vagrantfile.
+Окружение для разработки подымается в виртуалке с помощью Vargant. По умолчанию в виртуалке 4Gb RAM и 2 ядра процессора. Если этого много или мало, можно поправить в файле Vagrantfile.
 
 Установка:
 
@@ -48,7 +48,7 @@
 
    # устанавливаем Vagrant отсюда: https://www.vagrantup.com/downloads.html
 
-   cd ./deploy/
+   cd ./the-tale/deploy/
 
    sudo pip install ansible
 
@@ -57,7 +57,12 @@
    vagrant plugin update vagrant-hostmanager
    vagrant plugin update vagrant-vbguest
 
-   vagrant up # создаём виртуальную машину, запускаем и устанавливаем на неё всё необходимое, для обновления софта на запущенной машине: vagrant provision
+   # создаём виртуальную машину, запускаем и устанавливаем на неё всё необходимое
+   # при первом запуске будет вызван vagrant provision
+   vagrant up
+
+   # для обновления софта на виртуальной машине
+   vagrant provision
 
 
 *******************
@@ -78,29 +83,42 @@
 
 .. code::
 
+   # для захода в виртуалку выполняем из папки deploy
    vagrant ssh
 
-   sudo su the-tale
+   sudo su the_tale
    cd ~/current
    . ./venv/bin/activate
 
    django-admin runserver 0.0.0.0:8000 --settings the_tale.settings
 
 
- Сайт игры будет доступен локально по адресу ``http://local.the-tale``
+Сайт игры будет доступен локально по адресу ``http://local.the-tale``
 
 ****************************
 Управление фоновыми рабочими
 ****************************
 
+Перед запуском рабочих, необходимо запустить supervisor из-под юзера ubuntu
+
+.. code::
+
+   sudo systemctl start supervisor
+
+
+Конфигурация supervisor для запуска рабочих находится в файле ``/etc/supervisor/conf.d/the-tale.conf``
+
 Запуск рабочих осуществляется с помощью supervisor
 
 .. code::
 
-   supervisorctrl start all    # запустить все
-   supervisorctrl start game   # запустить рабочих самой игры (логика игры)
-   supervisorctrl start portal # запустить сервисных рабочих (регистрация, рассылки, платежи и так далее)
+   supervisorctl start all    # запустить все
+   supervisorctl start game   # запустить рабочих самой игры (логика игры)
+   supervisorctl start portal # запустить сервисных рабочих (регистрация, рассылки, платежи и так далее)
 
+
+Если есть проблемы с запуском (нет вывода после ввода команды или пишет, что процесс не найден),
+необходимо обновить конфигурацию виртуалки.
 
 Текущая конфигурация рабочих описана в файле ``./the_tale/amqp_environment.py``
 
