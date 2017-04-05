@@ -13,6 +13,7 @@ from the_tale.post_service.models import Message
 
 from the_tale.accounts.logic import login_page_url
 
+from the_tale.game.relations import GENDER
 from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.models import ChangeCredentialsTask
@@ -279,4 +280,11 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
         self.assertEqual(self.account.description, '')
         response = self.client.post(reverse('accounts:profile:update-settings'), {'description': 'new-description'})
         self.assertEqual(AccountPrototype.get_by_id(self.account.id).description, 'new-description')
+        self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
+
+    def test_profile_update_settings__gender(self):
+        self.request_login(self.account.email)
+        self.assertEqual(self.account.gender, GENDER.MASCULINE)
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'gender': GENDER.FEMININE})
+        self.assertEqual(AccountPrototype.get_by_id(self.account.id).gender, GENDER.FEMININE)
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})

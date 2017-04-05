@@ -23,6 +23,7 @@ class EditProfileForm(forms.Form):
     password = fields.PasswordField(label='Новый пароль',
                                     required=False)
 
+
 profile_gender = ((GENDER.MASCULINE, GENDER.MASCULINE.text), (GENDER.FEMININE, GENDER.FEMININE.text))
 
 
@@ -35,7 +36,7 @@ class SettingsForm(forms.Form):
 
     description = bbcode.BBField(required=False, label='Несколько слов о Вас, для страницы Вашего аккаунта', max_length=conf.accounts_settings.MAX_ACCOUNT_DESCRIPTION_LENGTH)
 
-    gender = fields.TypedChoiceField(label='Пол', choices=profile_gender, coerce=GENDER.get_from_name)
+    gender = fields.TypedChoiceField(required=False, label='Пол', choices=profile_gender, coerce=GENDER.get_from_name, initial=GENDER.MASCULINE.value)
 
 
 class LoginForm(forms.Form):

@@ -76,7 +76,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     # duplicate django user email - add unique constraints
     email = models.EmailField(max_length=MAX_EMAIL_LENGTH, null=True, unique=True, blank=True)
 
-    gender = RelationIntegerField(relation=GENDER, relation_column='value', default=GENDER.MASCULINE.value)
+    gender = RelationIntegerField(relation=GENDER, relation_column='value', default=GENDER.MASCULINE)
 
     last_news_remind_time = models.DateTimeField(auto_now_add=True)
 

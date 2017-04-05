@@ -55,7 +55,6 @@ def setUp(self):
         blogs_models.Tag.objects.create(id=tag_id, name='{}'.format(tag_id), description='{}'.format(tag_id))
 
 
-
 class TestAccountsFactory(object):
 
     def __init__(self):
@@ -102,7 +101,6 @@ class TestCaseMixin(object):
     @lazy_property
     def accounts_factory(self):
         return TestAccountsFactory()
-
 
 
 class TestCase(DextTestCase, TestCaseMixin):

@@ -5,6 +5,7 @@ import datetime
 import traceback
 import random
 
+import rels
 from urllib.parse import urlparse
 
 from django.contrib.auth.hashers import make_password
@@ -13,6 +14,7 @@ from django.db import models, transaction
 from dext.common.utils.urls import full_url
 from dext.common.utils import s11n
 
+from the_tale.game.relations import GENDER
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import bbcode
@@ -27,7 +29,6 @@ from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, Rese
 from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts import exceptions
 from the_tale.accounts import relations
-from the_tale.game.relations import GENDER
 
 
 class AccountPrototype(BasePrototype): #pylint: disable=R0904
@@ -115,10 +116,10 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription,
                                                             news_subscription=form.c.news_subscription,
                                                             description=form.c.description,
-                                                            gender=form.c.gender)
+                                                            gender=form.c.gender if isinstance(form.c.gender, rels.Record) else GENDER.MASCULINE.value)
         self._model.personal_messages_subscription = form.c.personal_messages_subscription
         self._model.news_subscription = form.c.news_subscription
-        self._model.description = form.c.description
+        self.description = form.c.description
         self._model.gender = form.c.gender
 
     def prolong_premium(self, days):
