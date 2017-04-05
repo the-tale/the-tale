@@ -87,6 +87,7 @@ class PostponedTaskPrototype(BasePrototype):
         if not hasattr(self, '_state'):
             self._state = POSTPONED_TASK_STATE(self._model.state)
         return self._state
+
     def set_state(self, value):
         self.state.update(value)
         self._model.state = self.state.value
