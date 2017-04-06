@@ -5,6 +5,7 @@ import datetime
 import traceback
 import random
 
+import rels
 from urllib.parse import urlparse
 
 from django.contrib.auth.hashers import make_password
@@ -13,6 +14,7 @@ from django.db import models, transaction
 from dext.common.utils.urls import full_url
 from dext.common.utils import s11n
 
+from the_tale.game.relations import GENDER
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import bbcode
@@ -48,8 +50,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'clan_id',
                  'referrals_number',
                  'might')
-    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
-    _get_by = ('id', 'email', 'nick')
+    _bidirectional = ('is_fast', 'nick', 'email', 'gender', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
+    _get_by = ('id', 'email', 'nick', 'gender')
 
     def cmd_update_hero(self):
         environment.workers.supervisor.cmd_update_hero_with_account_data(self.id,
@@ -70,11 +72,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         self.cmd_update_hero()
 
-
     @lazy_property
     def actual_bills(self):
         return s11n.from_json(self._model.actual_bills)
-
 
     @property
     def account_id(self): return self.id
@@ -115,11 +115,12 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def update_settings(self, form):
         self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription,
                                                             news_subscription=form.c.news_subscription,
-                                                            description=form.c.description)
+                                                            description=form.c.description,
+                                                            gender=form.c.gender if isinstance(form.c.gender, rels.Record) else GENDER.MASCULINE.value)
         self._model.personal_messages_subscription = form.c.personal_messages_subscription
         self._model.news_subscription = form.c.news_subscription
         self.description = form.c.description
-
+        self._model.gender = form.c.gender
 
     def prolong_premium(self, days):
         self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
@@ -175,7 +176,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self._model_class.objects.filter(id=self.id).update(ban_forum_end_at=end_time)
         self._model.ban_forum_end_at = end_time
 
-
     @classmethod
     def send_premium_expired_notifications(cls):
         current_time = datetime.datetime.now()
@@ -202,7 +202,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
        'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:shop')}
 
         pm_logic.send_message(logic.get_system_user_id(), [self.id], message, async=True)
-
 
     @lazy_property
     def bank_account(self):
@@ -263,8 +262,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                                                                             method_name=self.update_referrals_number.__name__,
                                                                             data={})
 
-
-
     ###########################################
     # Object operations
     ###########################################
@@ -318,7 +315,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)
 
-
     @classmethod
     def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, action_id=None, is_bot=False):
         referer_domain = None
@@ -339,7 +335,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._model == other._model
-
 
 
 class ChangeCredentialsTaskPrototype(BasePrototype):
@@ -450,7 +445,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
 
             logger.error('Worker exception: %r' % self,
                          exc_info=exception_info,
-                         extra={} )
+                         extra={})
 
             self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
             self._model.comment = ('%s' % traceback_strings)[:self._model.MAX_COMMENT_LENGTH]
@@ -463,12 +458,11 @@ class AwardPrototype(BasePrototype):
     _bidirectional = ()
     _get_by = ('id',)
 
-
     @classmethod
     def create(cls, description, type, account): # pylint: disable=W0622
         return cls(model=Award.objects.create(description=description,
                                               type=type,
-                                              account=account._model) )
+                                              account=account._model))
 
 
 class ResetPasswordTaskPrototype(BasePrototype):
@@ -526,7 +520,6 @@ class RandomPremiumRequestPrototype(BasePrototype):
 
 Один из игроков подарил вам подписку на %(days)s дней!
 '''
-
 
     @classmethod
     def create(cls, initiator_id, days):

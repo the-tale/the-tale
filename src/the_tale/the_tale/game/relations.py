@@ -33,6 +33,7 @@ def _race_linguistics_restrictions(race):
         return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, getattr(RACE, race).value)]
     return _linguistics_restrictions
 
+
 class RACE(DjangoEnum):
     multiple_text = Column()
     male_text = Column()
@@ -116,36 +117,42 @@ class ARCHETYPE(DjangoEnum):
 class SUPERVISOR_TASK_TYPE(DjangoEnum):
     records = (('ARENA_PVP_1X1', 0, 'создать pvp бой на арене'),)
 
+
 class SUPERVISOR_TASK_STATE(DjangoEnum):
-    records = ( ('WAITING', 0, 'ожидает ресурсы'),
-                ('PROCESSED', 1, 'обработана'),
-                ('ERROR', 2, 'ошибка при обработке'), )
+    records = (('WAITING', 0, 'ожидает ресурсы'),
+               ('PROCESSED', 1, 'обработана'),
+               ('ERROR', 2, 'ошибка при обработке'), )
+
 
 class COMMUNICATION_VERBAL(DjangoEnum):
-    records = ( ('CAN_NOT', 0, 'не может'),
-                ('CAN', 1, 'может'), )
+    records = (('CAN_NOT', 0, 'не может'),
+               ('CAN', 1, 'может'), )
+
 
 class COMMUNICATION_GESTURES(DjangoEnum):
-    records = ( ('CAN_NOT', 0, 'не может'),
-                ('CAN', 1, 'может'), )
+    records = (('CAN_NOT', 0, 'не может'),
+               ('CAN', 1, 'может'), )
+
 
 class COMMUNICATION_TELEPATHIC(DjangoEnum):
-    records = ( ('CAN_NOT', 0, 'не может'),
-                ('CAN', 1, 'может'), )
+    records = (('CAN_NOT', 0, 'не может'),
+               ('CAN', 1, 'может'), )
+
 
 class INTELLECT_LEVEL(DjangoEnum):
-    records = ( ('NONE', 0, 'отсутствует'),
-                ('REFLEXES', 1, 'рефлексы'),
-                ('INSTINCTS', 2, 'инстинкты'),
-                ('LOW', 3, 'низкий'),
-                ('NORMAL', 4, 'нормальный'),
-                ('HIGHT', 5, 'гений') )
+    records = (('NONE', 0, 'отсутствует'),
+               ('REFLEXES', 1, 'рефлексы'),
+               ('INSTINCTS', 2, 'инстинкты'),
+               ('LOW', 3, 'низкий'),
+               ('NORMAL', 4, 'нормальный'),
+               ('HIGHT', 5, 'гений'))
+
 
 class ACTOR(DjangoEnum):
-    records = ( ('HERO', 0, 'герой'),
-                ('MOB', 1, 'монстр'),
-                ('PERSON', 2, 'Мастер'),
-                ('COMPANION', 3, 'спутник')  )
+    records = (('HERO', 0, 'герой'),
+               ('MOB', 1, 'монстр'),
+               ('PERSON', 2, 'Мастер'),
+               ('COMPANION', 3, 'спутник'))
 
 
 class BEING_TYPE(DjangoEnum):

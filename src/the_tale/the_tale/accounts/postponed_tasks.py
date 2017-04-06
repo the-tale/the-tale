@@ -96,9 +96,9 @@ class ChangeCredentials(PostponedLogic):
         self.state = state if isinstance(state, rels.Record) else CHANGE_CREDENTIALS_STATE.index_value[state]
 
     def serialize(self):
-        return { 'state': self.state.value,
-                 'task_id': self.task_id,
-                 'oneself': self.oneself}
+        return {'state': self.state.value,
+                'task_id': self.task_id,
+                'oneself': self.oneself}
 
     @property
     def processed_data(self): return {'next_url': reverse('accounts:profile:edited') }
@@ -166,30 +166,26 @@ class UpdateAccount(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
 
-
-
 class TransferMoneyTask(PostponedLogic):
     TYPE = 'transfer-money-task'
 
     class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, 'в очереди'),
-                    ('PROCESSED', 2, 'обработано'),
-                    ('TRANSFER_TRANSACTION_REJECTED', 3, 'в переводе отказано'),
-                    ('COMMISSION_TRANSACTION_REJECTED', 4, 'невозможно снять комиссию'),
-                    ('SENDER_BANNED', 5, 'отправитель забанен'),
-                    ('RECIPIENT_BANNED', 6, 'получатель забанен забанен'),
-                    ('SENDER_IS_FAST', 7, 'отправитель не завершил регистрацию'),
-                    ('RECIPIENT_IS_FAST', 8, 'получатель не завершил регистрацию'),
-                    ('TRANSFER_TRANSACTION_WRONG_STATE', 9, 'ошибка при совершении перевода'),
-                    ('COMMISSION_TRANSACTION_WRONG_STATE', 10, 'ошибка при начислении комиссии') )
-
+        records = (('UNPROCESSED', 1, 'в очереди'),
+                   ('PROCESSED', 2, 'обработано'),
+                   ('TRANSFER_TRANSACTION_REJECTED', 3, 'в переводе отказано'),
+                   ('COMMISSION_TRANSACTION_REJECTED', 4, 'невозможно снять комиссию'),
+                   ('SENDER_BANNED', 5, 'отправитель забанен'),
+                   ('RECIPIENT_BANNED', 6, 'получатель забанен забанен'),
+                   ('SENDER_IS_FAST', 7, 'отправитель не завершил регистрацию'),
+                   ('RECIPIENT_IS_FAST', 8, 'получатель не завершил регистрацию'),
+                   ('TRANSFER_TRANSACTION_WRONG_STATE', 9, 'ошибка при совершении перевода'),
+                   ('COMMISSION_TRANSACTION_WRONG_STATE', 10, 'ошибка при начислении комиссии'))
 
     class STEP(DjangoEnum):
-        records = ( ('INITIALIZE', 0, 'инициировать перечисление'),
-                    ('WAIT', 1, 'ожидание транзакции'),
-                    ('SUCCESS', 2, 'перечисление завершено'),
-                    ('ERROR', 3, 'ошибка') )
-
+        records = (('INITIALIZE', 0, 'инициировать перечисление'),
+                   ('WAIT', 1, 'ожидание транзакции'),
+                   ('SUCCESS', 2, 'перечисление завершено'),
+                   ('ERROR', 3, 'ошибка'))
 
     def __init__(self, sender_id, recipient_id, amount, commission, comment, transfer_transaction=None, commission_transaction=None, step=STEP.INITIALIZE, state=STATE.UNPROCESSED):
         super(TransferMoneyTask, self).__init__()
@@ -204,15 +200,15 @@ class TransferMoneyTask(PostponedLogic):
         self.commission_transaction = bank_transaction.Transaction.deserialize(commission_transaction) if isinstance(commission_transaction, dict) else commission_transaction
 
     def serialize(self):
-        return { 'sender_id': self.sender_id,
-                 'recipient_id': self.recipient_id,
-                 'amount': self.amount,
-                 'commission': self.commission,
-                 'comment': self.comment,
-                 'transfer_transaction': self.transfer_transaction.serialize() if self.transfer_transaction else None,
-                 'commission_transaction': self.commission_transaction.serialize() if self.commission_transaction else None,
-                 'state': self.state.value,
-                 'step': self.step.value}
+        return {'sender_id': self.sender_id,
+                'recipient_id': self.recipient_id,
+                'amount': self.amount,
+                'commission': self.commission,
+                'comment': self.comment,
+                'transfer_transaction': self.transfer_transaction.serialize() if self.transfer_transaction else None,
+                'commission_transaction': self.commission_transaction.serialize() if self.commission_transaction else None,
+                'state': self.state.value,
+                'step': self.step.value}
 
     @property
     def error_message(self): return self.state.text
@@ -276,7 +272,6 @@ class TransferMoneyTask(PostponedLogic):
             self.step = self.STEP.WAIT
             return POSTPONED_TASK_LOGIC_RESULT.CONTINUE
 
-
         if self.step.is_WAIT:
 
             transfer_transaction_state = self.transfer_transaction.get_invoice_state()
@@ -322,9 +317,9 @@ class TransferMoneyTask(PostponedLogic):
             self.transfer_transaction.confirm()
             self.commission_transaction.confirm()
 
-            message = text='Игрок «{sender}» перевёл(-а) вам печеньки: {amount} шт. \n\n[quote]{comment}[/quote]'.format(sender=self.sender.nick_verbose,
-                                                                                                                               amount=self.amount,
-                                                                                                                               comment=self.comment)
+            message = text = 'Игрок «{sender}» перевёл(-а) вам печеньки: {amount} шт. \n\n[quote]{comment}[/quote]'.format(sender=self.sender.nick_verbose,
+                                                                                                                           amount=self.amount,
+                                                                                                                           comment=self.comment)
 
             pm_logic.send_message(sender_id=logic.get_system_user_id(),
                                   recipients_ids=[self.recipient.id],
