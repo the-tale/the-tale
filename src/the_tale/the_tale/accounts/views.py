@@ -37,10 +37,10 @@ from . import logic
 from . import meta_relations
 
 
-
 ###############################
 # new view processors
 ###############################
+
 
 class CurrentAccountProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
@@ -127,6 +127,7 @@ class ModerateAccountProcessor(dext_views.PermissionProcessor):
     PERMISSION = 'accounts.moderate_account'
     CONTEXT_NAME = 'can_moderate_accounts'
 
+
 class ModerateAccessProcessor(dext_views.AccessProcessor):
     ERROR_CODE = 'accounts.no_moderation_rights'
     ERROR_MESSAGE = 'Вы не являетесь модератором'
@@ -179,12 +180,12 @@ def index(context):
 
     accounts = [AccountPrototype(model) for model in accounts_models]
 
-    accounts_ids = [ model.id for model in accounts_models]
-    clans_ids = [ model.clan_id for model in accounts_models]
+    accounts_ids = [model.id for model in accounts_models]
+    clans_ids = [model.clan_id for model in accounts_models]
 
-    heroes = dict( (model.account_id, heroes_logic.load_hero(hero_model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
+    heroes = dict((model.account_id, heroes_logic.load_hero(hero_model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
 
-    clans = {clan.id:clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
+    clans = {clan.id: clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
 
     return dext_views.Page('accounts/index.html',
                            content={'heroes': heroes,
@@ -216,6 +217,7 @@ def show(context):
                                     'ratings_on_page': ratings_conf.ratings_settings.ACCOUNTS_ON_PAGE,
                                     'informer_link': conf.accounts_settings.INFORMER_LINK % {'account_id': context.master_account.id},
                                     'friendship': friendship} )
+
 
 @api.Processor(versions=('1.0', ))
 @accounts_resource('#account', 'api', 'show', name='api-show')
@@ -283,7 +285,7 @@ def admin(context):
                                     'give_award_form': forms.GiveAwardForm(),
                                     'resource': context.resource,
                                     'give_money_form': GMForm(),
-                                    'ban_form': forms.BanForm()} )
+                                    'ban_form': forms.BanForm()})
 
 
 @LoginRequiredProcessor()
@@ -296,7 +298,6 @@ def give_award(context):
                           account=context.master_account)
 
     return dext_views.AjaxOk()
-
 
 
 @LoginRequiredProcessor()
@@ -348,7 +349,6 @@ def reset_bans(context):
                           recipients_ids=[context.master_account.id],
                           body='С вас сняли все ограничения, наложенные ранее.')
 
-
     return dext_views.AjaxOk()
 
 
@@ -393,14 +393,18 @@ def transfer_money(context):
 
 logger = logging.getLogger('django.request')
 
+
 @validator(code='common.fast_account', message='Вы не закончили регистрацию и данная функция вам не доступна')
 def validate_fast_account(self, *args, **kwargs): return not self.account.is_fast
+
 
 @validator(code='common.ban_forum', message='Вам запрещено проводить эту операцию')
 def validate_ban_forum(self, *args, **kwargs): return not self.account.is_ban_forum
 
+
 @validator(code='common.ban_game', message='Вам запрещено проводить эту операцию')
 def validate_ban_game(self, *args, **kwargs): return not self.account.is_ban_game
+
 
 @validator(code='common.ban_any', message='Вам запрещено проводить эту операцию')
 def validate_ban_any(self, *args, **kwargs): return not self.account.is_ban_any
@@ -427,7 +431,8 @@ class RegistrationResource(BaseAccountsResource):
 
             if task is not None:
                 if task.state.is_processed:
-                    return self.json_error('accounts.registration.fast.already_processed', 'Вы уже зарегистрированы, обновите страницу')
+                    return self.json_error('accounts.registration.fast.already_processed',
+                                           'Вы уже зарегистрированы, обновите страницу')
                 if task.state.is_waiting:
                     return self.json_processing(task.status_url)
                 # in other case create new task
@@ -444,7 +449,10 @@ class RegistrationResource(BaseAccountsResource):
         if conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY in self.request.session:
             action_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY]
 
-        registration_task = postponed_tasks.RegistrationTask(account_id=None, referer=referer, referral_of_id=referral_of_id, action_id=action_id)
+        registration_task = postponed_tasks.RegistrationTask(account_id=None,
+                                                             referer=referer,
+                                                             referral_of_id=referral_of_id,
+                                                             action_id=action_id)
 
         task = PostponedTaskPrototype.create(registration_task,
                                              live_time=conf.accounts_settings.REGISTRATION_TIMEOUT)
@@ -558,11 +566,12 @@ class ProfileResource(BaseAccountsResource):
 
         settings_form = forms.SettingsForm({'personal_messages_subscription': self.account.personal_messages_subscription,
                                             'news_subscription': self.account.news_subscription,
-                                            'description': self.account.description})
+                                            'description': self.account.description,
+                                            'gender': self.account.gender})
 
         return self.template('accounts/profile.html',
                              {'edit_profile_form': edit_profile_form,
-                              'settings_form': settings_form} )
+                              'settings_form': settings_form})
 
     @login_required
     @handler('edited', name='edited', method='get')
@@ -611,7 +620,6 @@ class ProfileResource(BaseAccountsResource):
             return self.json_processing(postponed_task.status_url)
 
         return self.json_ok(data={'next_url': reverse('accounts:profile:confirm-email-request')})
-
 
     @handler('confirm-email', method='get')
     def confirm_email(self, uuid): # pylint: disable=W0621
@@ -673,18 +681,21 @@ class ProfileResource(BaseAccountsResource):
         return self.template('accounts/reset_password_done.html', {} )
 
     @validate_argument('task', ResetPasswordTaskPrototype.get_by_uuid,
-                       'accounts.profile.reset_password_done', 'Не получилось сбросить пароль, возможно вы используете неверную ссылку')
+                       'accounts.profile.reset_password_done',
+                       'Не получилось сбросить пароль, возможно вы используете неверную ссылку')
     @handler('reset-password-processed', method='get')
     def reset_password_processed(self, task):
         if self.account.is_authenticated:
             return self.redirect('/')
 
         if task.is_time_expired:
-            return self.auto_error('accounts.profile.reset_password_processed.time_expired', 'Срок действия ссылки закончился, попробуйте восстановить пароль ещё раз')
+            return self.auto_error('accounts.profile.reset_password_processed.time_expired',
+                                   'Срок действия ссылки закончился, попробуйте восстановить пароль ещё раз')
 
         if task.is_processed:
             return self.auto_error('accounts.profile.reset_password_processed.already_processed',
-                                   'Эта ссылка уже была использована для восстановления пароля, одну ссылку можно использовать только один раз')
+                                   'Эта ссылка уже была использована для восстановления пароля,'
+                                   'одну ссылку можно использовать только один раз')
 
         password = task.process(logger=logger)
 
@@ -694,7 +705,8 @@ class ProfileResource(BaseAccountsResource):
     def reset_password(self):
 
         if self.account.is_authenticated:
-            return self.json_error('accounts.profile.reset_password.already_logined', 'Вы уже вошли на сайт и можете просто изменить пароль')
+            return self.json_error('accounts.profile.reset_password.already_logined',
+                                   'Вы уже вошли на сайт и можете просто изменить пароль')
 
         reset_password_form = forms.ResetPasswordForm(self.request.POST)
 
@@ -704,7 +716,8 @@ class ProfileResource(BaseAccountsResource):
         account = AccountPrototype.get_by_email(reset_password_form.c.email)
 
         if account is None:
-            return self.auto_error('accounts.profile.reset_password.wrong_email', 'На указанный email аккаунт не зарегистрирован')
+            return self.auto_error('accounts.profile.reset_password.wrong_email',
+                                   'На указанный email аккаунт не зарегистрирован')
 
         ResetPasswordTaskPrototype.create(account)
 
