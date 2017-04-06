@@ -145,5 +145,7 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
 
                 ('COMPANION_ABILITY', 32, 'особенность', companion_effects.ABILITIES),
 
-                ('COMPANION_EXISTENCE', 33, 'наличие спутника', companions_relations.COMPANION_EXISTENCE)
-            )
+                ('COMPANION_EXISTENCE', 33, 'наличие спутника', companions_relations.COMPANION_EXISTENCE),
+
+                ('REAL_FEAST', 34, 'праздники из реального мира', game_relations.REAL_FEAST)
+              )

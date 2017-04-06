@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import datetime
 import collections
 
 from django.db import transaction
@@ -8,6 +8,9 @@ import rels
 from rels.django import DjangoEnum
 
 from dext.settings import settings
+
+from utg import words as utg_words
+from utg.relations import WORD_TYPE
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
@@ -36,20 +39,46 @@ class GameTime(collections.namedtuple('GameTimeTuple', ('year', 'month', 'day', 
     def create_from_turn(cls, turn_number):
         return cls(*f.turns_to_game_time(turn_number))
 
-    @property
+
+    @lazy_property
     def verbose_date(self):
         return '%(day)d %(month)s %(year)d года' % {'day': self.day,
-                                                     'month': MONTHS(self.month).date_text,
-                                                     'year': self.year}
-    @property
+                                                    'month': MONTHS(self.month).date_text,
+                                                    'year': self.year}
+
+    @lazy_property
     def verbose_date_short(self):
         return '%d-%d-%d' % (self.day, self.month, self.year)
 
-    @property
+
+    @lazy_property
     def verbose_time(self):
-        return '%(hour).2d:%(minute).2d' % {'hour': self.hour,
-                                             'minute': self.minute}
+        return '%(hour).2d:%(minute).2d' % {'hour': self.hour, 'minute': self.minute}
+
+
     def month_record(self): return MONTHS(self.month)
+
+
+    @lazy_property
+    def utg_name_form(self):
+        return utg_words.WordForm(utg_words.Word(type=WORD_TYPE.TEXT, forms=(self.verbose_date,)))
+
+
+    def linguistics_restrictions(self, now=None):
+        from the_tale.linguistics import storage
+        from the_tale.linguistics import relations as linguistics_relations
+
+        if now is None:
+            now = datetime.datetime.utcnow()
+
+        now = now.replace(year=datetime.MINYEAR)
+
+        for feast in relations.REAL_FEAST.records:
+            if feast.start_at <= now <= feast.end_at:
+                return (storage.restrictions_storage.get_restriction(linguistics_relations.TEMPLATE_RESTRICTION_GROUP.REAL_FEAST, feast.value).id, )
+
+        return ()
+
 
 
 class TimePrototype(object):

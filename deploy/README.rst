@@ -135,3 +135,34 @@
 - ник: superuser
 - почта: superuser@example.com
 - пароль: 111111
+
+
+****************************
+Запуск тестов
+****************************
+
+Для работы тестов необходимо запустить группу service: в супервизоре.
+
+.. code::
+
+   sudo supervisorctl start service:
+
+
+Запуск всех тестов (работают долго!):
+
+.. code::
+
+   sudo su the_tale
+   cd ~/current
+   source ./venv/bin/activate
+   django-admin dext_run_tests --settings the_tale.settings
+
+
+Запуск тестов конкретного приложения (для пример, the_tale.game.jobs):
+
+.. code::
+
+   sudo su the_tale
+   cd ~/current
+   source ./venv/bin/activate
+   django-admin test --nomigrations the_tale.game.jobs.tests --settings the_tale.settings
