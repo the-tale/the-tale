@@ -43,7 +43,6 @@ class AccountPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
                 continue
             self.account.get_achievement_type_value(achievement_type)
 
-
     @mock.patch('the_tale.accounts.conf.accounts_settings.ACTIVE_STATE_REFRESH_PERIOD', 0)
     def test_update_active_state__expired(self):
         self.assertTrue(self.account.is_update_active_state_needed)

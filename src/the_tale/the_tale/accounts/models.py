@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from rels.django import RelationIntegerField
 
 from the_tale.accounts import relations
+from the_tale.game import relations as game_relations
 
 
 class AccountManager(BaseUserManager):
@@ -75,6 +76,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     # duplicate django user email - add unique constraints
     email = models.EmailField(max_length=MAX_EMAIL_LENGTH, null=True, unique=True, blank=True)
 
+    gender = RelationIntegerField(relation=game_relations.GENDER, relation_column='value')
+
     last_news_remind_time = models.DateTimeField(auto_now_add=True)
 
     clan = models.ForeignKey('clans.Clan', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
@@ -135,6 +138,7 @@ class ResetPasswordTask(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_processed = models.BooleanField(default=False, db_index=True)
 
+
 class ChangeCredentialsTask(models.Model):
     MAX_COMMENT_LENGTH = 256
 
@@ -159,7 +163,6 @@ class ChangeCredentialsTask(models.Model):
     uuid = models.CharField(max_length=32, db_index=True)
 
     relogin_required = models.BooleanField(blank=True, default=False)
-
 
 
 class RandomPremiumRequest(models.Model):
