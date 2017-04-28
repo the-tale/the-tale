@@ -46,16 +46,19 @@
 
    # при необходимости переключаем репозитории в ветки develop
 
+   # устанавливаем Virtualbox отсюда: https://www.virtualbox.org/wiki/Linux_Downloads
    # устанавливаем Vagrant отсюда: https://www.vagrantup.com/downloads.html
+
+   # доставляем необходимые пакеты
+   sudo apt-get install build-essential libssl-dev libffi-dev python-dev
 
    cd ./the-tale/deploy/
 
    sudo pip install ansible
 
-   sudo ansible-galaxy install -r requirements.yml
+   ansible-galaxy install -r requirements.yml
 
-   vagrant plugin update vagrant-hostmanager
-   vagrant plugin update vagrant-vbguest
+   vagrant plugin install vagrant-hostmanager
 
    # создаём виртуальную машину, запускаем и устанавливаем на неё всё необходимое
    # при первом запуске будет вызван vagrant provision
