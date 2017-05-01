@@ -264,21 +264,21 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
     def test_profile_update_settings__personal_messages(self):
         self.request_login(self.account.email)
         self.assertTrue(self.account.personal_messages_subscription)
-        response = self.client.post(reverse('accounts:profile:update-settings'), {'personal_messages_subscription': False})
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'personal_messages_subscription': False, 'gender': game_relations.GENDER.FEMININE})
         self.assertFalse(AccountPrototype.get_by_id(self.account.id).personal_messages_subscription)
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
 
     def test_profile_update_settings__bews(self):
         self.request_login(self.account.email)
         self.assertTrue(self.account.news_subscription)
-        response = self.client.post(reverse('accounts:profile:update-settings'), {'news_subscription': False})
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'news_subscription': False, 'gender': game_relations.GENDER.FEMININE})
         self.assertFalse(AccountPrototype.get_by_id(self.account.id).news_subscription)
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
 
     def test_profile_update_settings__description(self):
         self.request_login(self.account.email)
         self.assertEqual(self.account.description, '')
-        response = self.client.post(reverse('accounts:profile:update-settings'), {'description': 'new-description'})
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'description': 'new-description', 'gender': game_relations.GENDER.FEMININE})
         self.assertEqual(AccountPrototype.get_by_id(self.account.id).description, 'new-description')
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
 

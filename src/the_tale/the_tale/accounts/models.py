@@ -18,7 +18,7 @@ class AccountManager(BaseUserManager):
         email = super(AccountManager, cls).normalize_email(email)
         return email if email else None
 
-    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None, referral_of=None, action_id=None, is_bot=False):
+    def create_user(self, nick, email, is_fast=None, password=None, active_end_at=None, referer=None, referer_domain=None, referral_of=None, action_id=None, is_bot=False, gender=game_relations.GENDER):
 
         if not nick:
             raise ValueError('Users must have nick')
@@ -32,7 +32,8 @@ class AccountManager(BaseUserManager):
                              is_bot=is_bot,
                              referral_of=referral_of,
                              last_login=datetime.datetime.now(),
-                             action_id=action_id)
+                             action_id=action_id,
+                             gender=gender)
         account.set_password(password)
         account.save(using=self._db)
         return account

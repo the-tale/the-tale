@@ -33,13 +33,12 @@ class SettingsForm(forms.Form):
 
     description = bbcode.BBField(required=False, label='Несколько слов о Вас, для страницы Вашего аккаунта', max_length=conf.accounts_settings.MAX_ACCOUNT_DESCRIPTION_LENGTH)
 
-    gender = fields.TypedChoiceField(required=False,
+    gender = fields.TypedChoiceField(required=True,
                                      label='Пол (необходим для корректного создания фраз, в которых упоминается игрок)',
                                      choices=((game_relations.GENDER.MASCULINE, game_relations.GENDER.MASCULINE.text),
                                               (game_relations.GENDER.FEMININE, game_relations.GENDER.FEMININE.text)),
                                      coerce=game_relations.GENDER.get_from_name,
                                      initial=game_relations.GENDER.MASCULINE)
-
 
 class LoginForm(forms.Form):
 

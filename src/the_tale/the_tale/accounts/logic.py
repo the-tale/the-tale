@@ -14,6 +14,8 @@ from the_tale import amqp_environment
 
 from the_tale.common.utils.password import generate_password
 
+from the_tale.game import relations as game_relations
+
 from the_tale.accounts.models import Account
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts import exceptions
@@ -70,7 +72,7 @@ def get_system_user():
     return account
 
 
-def register_user(nick, email=None, password=None, referer=None, referral_of_id=None, action_id=None, is_bot=False):
+def register_user(nick, email=None, password=None, referer=None, referral_of_id=None, action_id=None, is_bot=False, gender=game_relations.GENDER.MASCULINE):
     from the_tale.game.heroes import logic as heroes_logic
 
     if Account.objects.filter(nick=nick).exists():
@@ -102,7 +104,8 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
                                       password=password,
                                       referer=referer,
                                       referral_of=referral_of,
-                                      action_id=action_id)
+                                      action_id=action_id,
+                                      gender=gender)
 
     AccountAchievementsPrototype.create(account)
     AccountItemsPrototype.create(account)

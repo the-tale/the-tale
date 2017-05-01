@@ -315,7 +315,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)
 
     @classmethod
-    def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, action_id=None, is_bot=False):
+    def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, action_id=None, is_bot=False, gender=game_relations.GENDER.MASCULINE):
         referer_domain = None
         if referer:
             referer_info = urlparse(referer)
@@ -330,7 +330,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                                                                   referer=referer,
                                                                   referer_domain=referer_domain,
                                                                   referral_of=referral_of._model if referral_of else None,
-                                                                  action_id=action_id))
+                                                                  action_id=action_id,
+                                                                  gender=gender))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._model == other._model
