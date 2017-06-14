@@ -29,7 +29,7 @@ class PostForm(forms.Form):
             slug = slug.strip()
 
             if slug in slugs:
-                raise ValidationError('Повторяющийся дентификатор: %s' % slug)
+                raise ValidationError('Повторяющийся идентификатор: %s' % slug)
 
             slugs.add(slug)
 
