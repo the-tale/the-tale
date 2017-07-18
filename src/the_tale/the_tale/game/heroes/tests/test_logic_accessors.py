@@ -136,7 +136,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
         with self.check_increased(lambda: self.hero.loot_probability(self.mob)):
             with self.check_increased(lambda: self.hero.artifacts_probability(self.mob)):
-                self.hero.preferences.set_mob(self.mob.record)
+                self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, self.mob.record)
 
 
     def test_companion_damage__bonus_damage(self):
@@ -295,9 +295,9 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
     def test_power_modifier__risk_level(self):
         normal_power_modifier = self.hero.politics_power_multiplier()
 
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_HIGH)
         self.assertTrue(self.hero.politics_power_multiplier() > normal_power_modifier)
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(self.hero.politics_power_multiplier() < normal_power_modifier)
 
 
@@ -305,9 +305,9 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
         friend = self.place_1.persons[0]
         enemy = self.place_2.persons[0]
 
-        self.hero.preferences.set_place(self.place_1)
-        self.hero.preferences.set_friend(friend)
-        self.hero.preferences.set_enemy(enemy)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place_1)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, friend)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, enemy)
 
         self.assertEqual(self.hero.modify_politics_power(person=self.place_3.persons[0], power=100), 100)
         self.assertEqual(self.hero.modify_politics_power(person=self.place_3.persons[0], power=-100), -100)
@@ -331,9 +331,9 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
         friend = self.place_1.persons[0]
         enemy = self.place_2.persons[0]
 
-        self.hero.preferences.set_place(self.place_1)
-        self.hero.preferences.set_friend(friend)
-        self.hero.preferences.set_enemy(enemy)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place_1)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, friend)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, enemy)
 
         place_power = self.hero.modify_politics_power(place=self.place_1, power=100)
         enemy_power = self.hero.modify_politics_power(person=enemy, power=100)
@@ -349,9 +349,9 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
         friend = self.place_1.persons[0]
         enemy = self.place_2.persons[0]
 
-        self.hero.preferences.set_place(self.place_1)
-        self.hero.preferences.set_friend(friend)
-        self.hero.preferences.set_enemy(enemy)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place_1)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, friend)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, enemy)
 
         place_power = self.hero.modify_politics_power(place=self.place_1, power=100)
         enemy_power = self.hero.modify_politics_power(person=enemy, power=100)
@@ -363,7 +363,7 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
             self.assertTrue(friend_power < self.hero.modify_politics_power(person=friend, power=100))
 
     def test_modify_place_power(self):
-        self.hero.preferences.set_place(self.place_1)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place_1)
 
         self.assertEqual(self.hero.modify_politics_power(place=self.place_2, power=100), 100)
         self.assertEqual(self.hero.modify_politics_power(place=self.place_1, power=100), 100)
@@ -386,7 +386,7 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
             self.hero.actual_bills.append(time.time())
 
         with self.check_increased(self.hero.politics_power_multiplier):
-            self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
+            self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_HIGH)
 
         with self.check_increased(self.hero.politics_power_multiplier):
             self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE).record.special_effect = artifacts_relations.ARTIFACT_EFFECT.GREAT_POWER

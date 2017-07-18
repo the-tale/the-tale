@@ -1,8 +1,7 @@
-# coding: utf-8
 
 from django.core.management.base import BaseCommand
 
-from the_tale.accounts.personal_messages import logic
+from the_tale.accounts.personal_messages import tt_api
 
 
 class Command(BaseCommand):
@@ -12,4 +11,4 @@ class Command(BaseCommand):
     requires_model_validation = False
 
     def handle(self, *args, **options):
-        logic.remove_old_system_messages()
+        tt_api.remove_old_system_messages()

@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.common.utils.urls import url
 
@@ -6,7 +5,7 @@ from the_tale.common.utils import testcase
 
 from the_tale.accounts.logic import get_system_user
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype, GiveItemTaskPrototype
@@ -32,7 +31,7 @@ class AchievementPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
         self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=3, points=10,
                                                          caption='achievement_3', description='description_3', approved=True)
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
 
     def test_create(self):

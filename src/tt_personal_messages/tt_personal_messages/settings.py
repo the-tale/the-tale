@@ -15,7 +15,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 
-SECRET_KEY = 'asdjkadajklsdilasjfqwepdfqjdqpdjpsjda'
+SECRET_KEY = '2aosfz)qnym7x0367)@ow=w-c&#vq%yuascum21ml*p@cy4b6&'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 

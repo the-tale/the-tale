@@ -651,23 +651,6 @@ pgf.game.widgets.QuestsLine = function(selector, updater, widgets, params) {
     });
 };
 
-pgf.game.widgets.CreateCardTooltip = function (data, cssClass) {
-    var rarityClass = pgf.game.constants.CARD_RARITY[data.rarity].name.toLowerCase()+'-card-label';
-    var rarityName = pgf.game.constants.CARD_RARITY[data.rarity].text;
-    var description = pgf.game.constants.CARD_TYPE[data.type].description;
-
-    var tooltip = '<ul class="unstyled '+cssClass+'" style="text-align: left;">';
-    tooltip += '<li><h4>'+data.name+'</h4></li>';
-    tooltip += '<li class="'+rarityClass+'">'+rarityName+'</li>';
-    tooltip += '<li>'+description+'</li>';
-
-    if (data.auction) {
-        tooltip += '<hr/>';
-        tooltip += '<li><i>может быть продана на рынке</i></li>';
-    }
-    tooltip += '</ul>';
-    return tooltip;
-};
 
 pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     var instance = this;
@@ -680,10 +663,6 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     var cardsListContainer = jQuery('.pgf-cards-container', widget)
 
     var data = {};
-
-    instance.GetCards = function() {
-        return data.cards;
-    };
 
     function RenderAction() {
 
@@ -706,7 +685,6 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         jQuery('.pgf-new-card-progress', widget).width((data.cardsHelpCount / data.cardsHelpBarrier)*100+'%');
 
         jQuery('.pgf-cards-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
-        jQuery('.pgf-cards-choices .pgf-no-cards', widget).toggleClass('pgf-hidden', !jQuery.isEmptyObject(data.cards));
 
         jQuery('.pgf-new-card-icon', widget).toggleClass('pgf-hidden', data.cardsHelpCount < data.cardsHelpBarrier)
         jQuery('.pgf-get-card-statistics', widget).toggleClass('pgf-hidden', data.cardsHelpCount >= data.cardsHelpBarrier);
@@ -714,68 +692,49 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
         jQuery('.pgf-new-cards-number', widget).text(parseInt(data.cardsHelpCount / data.cardsHelpBarrier));
 
-        instance.ShowCards(cardsListContainer);
-
-        jQuery('.pgf-combine-card-button', widget).toggleClass('pgf-hidden', data.cards.length < 2);
-    }
-
-    this.ShowCards = function(container, filterUIDs) {
-        var cards = [];
-
-        if (filterUIDs != undefined) {
-            for (var i in data.cards) {
-                if (filterUIDs.indexOf(data.cards[i].uid) != -1) {
-                    cards.push(data.cards[i]);
-                }
-            };
-        }
-        else {
-            cards = data.cards;
+        if (widgets.cards) {
+            jQuery('.pgf-cards-choices .pgf-no-cards', widget).toggleClass('pgf-hidden', widgets.cards.HasCardsInHand());
+            widgets.cards.RenderHand(cardsListContainer);
         }
 
-        pgf.base.RenderTemplateList(container, cards, RenderCard, {});
-    };
+        jQuery('.pgf-card-link', cardsListContainer).off().click(function(e) {
+            e.preventDefault();
+            if (widgets.cards) {
+                widgets.cards.Use(jQuery('.pgf-card-record', e.currentTarget).data('ids')[0]);
+            }
+        });
 
-    var cardTooltipArgs = jQuery.extend({}, pgf.base.tooltipsArgs);
-    cardTooltipArgs.placement = function(tip, element) {
-        var offset = jQuery(element).offset();
-        if (offset.left == 0 && offset.top == 0) {
-            jQuery(tip).addClass('pgf-hidden');
-        }
-        return 'right';
+        jQuery('.pgf-get-card-button', widget).off().click(function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            if (widgets.cards) {
+                widgets.cards.GetCard();
+            }
+        });
+
+        jQuery('.pgf-storage-card-button', widget).off().click(function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            if (widgets.cards) {
+                widgets.cards.OpenStorageDialog();
+            }
+        });
+
+        jQuery('.pgf-transformator-card-button').off().click(function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            if (widgets.cards) {
+                widgets.cards.OpenTransformatorDialog();
+            }
+        });
     }
 
-    function RenderCard(index, item, element) {
-        jQuery('.pgf-card-record', element)
-            .text(item.name)
-            .addClass(pgf.game.constants.CARD_RARITY[item.rarity].name.toLowerCase()+'-card-label')
-            .data('card-uid', item.uid)
-            .addClass('pgf-card-uid-'+item.uid);
-
-        var tooltipClass = 'pgf-card-tooltip';
-        var tooltip = pgf.game.widgets.CreateCardTooltip(item, tooltipClass);
-        pgf.game.widgets.UpdateElementTooltip(element, tooltip, tooltipClass, cardTooltipArgs);
-    }
 
     this.Refresh = function(game_data) {
 
         var newData = {};
 
         data.action = [];
-
-        newData.cards = game_data.account.hero.cards.cards;
-
-        newData.cards.sort(function(a, b){
-            if (a.rarity < b.rarity) return -1;
-            if (a.rarity > b.rarity) return 1;
-
-            if (a.name < b.name) return -1;
-            if (a.name > b.name) return 1;
-
-            if (a.auction) return 1;
-
-            return -1;
-        });
 
         newData.cardsHelpCount = game_data.account.hero.cards.help_count;
         newData.cardsHelpBarrier = game_data.account.hero.cards.help_barrier;
@@ -784,11 +743,9 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             data.action = game_data.account.hero.action;
         }
 
-        if (!pgf.base.CompareObjects(data.cards, newData.cards) ||
-            data.cardsHelpCount != newData.cardsHelpCount ||
+        if (data.cardsHelpCount != newData.cardsHelpCount ||
             data.cardsHelpBarrier != newData.cardsHelpBarrier) {
 
-            data.cards = newData.cards;
             data.cardsHelpCount = newData.cardsHelpCount;
             data.cardsHelpBarrier = newData.cardsHelpBarrier;
             return true;
@@ -813,6 +770,26 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         else {
             RenderAction();
         }
+    });
+
+    jQuery(document).bind(pgf.game.events.CARDS_REFRESHED, function(e, diary){
+        if (widgets.cards) {
+            RenderCards();
+        }
+    });
+
+    jQuery(".pgf-cards-for-use-dropdown", widget).click(function(e){
+        e.preventDefault();
+        if (widgets.cards) {
+            widgets.cards.GetCards();
+        }
+    });
+
+    jQuery('.pgf-action-info-link').click(function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        var url = target.attr('href');
+        pgf.ui.dialog.Create({ fromUrl: url});
     });
 };
 
@@ -1454,11 +1431,10 @@ pgf.game.widgets.Abilities = function() {
 
         ChangeAbilityWaitingState(ability.type, true);
 
-        var buildingId = element.data('building-id');
         var battleId = element.data('battle-id');
         var redirectOnSuccess = element.data('redirect-on-success');
 
-        pgf.forms.Post({action: pgf.urls['game:abilities:use'](ability.type, buildingId, battleId),
+        pgf.forms.Post({action: pgf.urls['game:abilities:use'](ability.type, battleId),
                         wait: false,
                         OnError: function() {
                             ChangeAbilityWaitingState(ability.type, false);
@@ -1466,12 +1442,6 @@ pgf.game.widgets.Abilities = function() {
                         OnSuccess: function(data) {
                             allowAbilityUnlock[ability.type] = true;
                             ability.available_at = data.data.available_at;
-
-                            if (buildingId != undefined) {
-                                jQuery('.pgf-building-integrity').text(Math.round(data.data.building.new_building_integrity*10000)/100.0+'%');
-                                jQuery('.pgf-building-workers').text(data.data.building.workers_to_full_repairing);
-                                jQuery('.pgf-ability-building_repair').data('building-workers', data.data.building.workers_to_full_repairing);
-                            }
 
                             if (redirectOnSuccess != undefined) {
                                 setTimeout(function(){location.href = redirectOnSuccess;}, 0);
@@ -1567,95 +1537,4 @@ pgf.game.widgets.Abilities = function() {
 
     this.RenderAbility = RenderAbility;
     this.UpdateButtons = UpdateButtons;
-};
-
-pgf.game.CombineCardsDialog = function(dialog) {
-    var unchosenCards = [];
-    var chosenCards = [];
-
-    var cards = widgets.actions.GetCards();
-
-    for (var i in cards) {
-        unchosenCards.push(cards[i].uid);
-    }
-
-    var button = jQuery('.pgf-do-combine-cards', dialog);
-
-    function CanChoseCard() {
-        return chosenCards.length < 3;
-    }
-
-
-    function GetUrl() {
-        var cards = GetChoosenCards();
-        return button.attr('href')+'&cards='+cards.join(',');
-    }
-
-
-    function GetChoosenCards() {
-        var cards = [];
-
-        jQuery('.pgf-cards-chosen .pgf-card', dialog).each(function(i, e){
-            var cardUID = jQuery(e).data('card-uid');
-
-            if (cardUID != undefined) {
-                cards.push(cardUID);
-            }
-        });
-
-        return cards;
-    }
-
-    function RefreshLists() {
-        widgets.actions.ShowCards(jQuery('.pgf-card-choices', dialog), unchosenCards);
-        widgets.actions.ShowCards(jQuery('.pgf-cards-chosen', dialog), chosenCards);
-
-        jQuery('.pgf-card-choices .pgf-card', dialog).click(function(e){
-            e.preventDefault();
-
-            if (!CanChoseCard()) {
-                return;
-            }
-
-            var el = jQuery(e.currentTarget);
-            ChoseCard(el.data('card-uid'));
-        });
-
-        jQuery('.pgf-cards-chosen .pgf-card', dialog).click(function(e){
-            e.preventDefault();
-            var el = jQuery(e.currentTarget);
-            UnchoseCard(el.data('card-uid'));
-        });
-    }
-
-    RefreshLists();
-
-    function ChoseCard(cardUID) {
-        unchosenCards.splice(unchosenCards.indexOf(cardUID), 1);
-        chosenCards.push(cardUID);
-        RefreshLists();
-    }
-
-    function UnchoseCard(cardUID) {
-        chosenCards.splice(chosenCards.indexOf(cardUID), 1);
-        unchosenCards.push(cardUID);
-        RefreshLists();
-    }
-
-    button.click(function(e){
-        e.preventDefault();
-
-        pgf.forms.Post({ action: GetUrl(),
-                         OnSuccess: function(data){
-                             jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
-                             dialog.modal('hide');
-
-                             pgf.ui.dialog.Alert({message: data.data.message,
-                                                  title: 'Карты объединены'});
-                         }
-                       });
-
-
-    });
-
 };

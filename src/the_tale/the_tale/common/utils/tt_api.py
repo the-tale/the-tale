@@ -24,7 +24,11 @@ def sync_request(url, data, AnswerType=None):
     response_data = base_pb2.ApiResponse.FromString(response.content)
 
     if response_data.status != base_pb2.ApiResponse.SUCCESS:
-        raise exceptions.TTAPIUnexpectedAPIStatus(url=url, status=response_data.status)
+        raise exceptions.TTAPIUnexpectedAPIStatus(url=url,
+                                                  status=response_data.status,
+                                                  code=response_data.error.code,
+                                                  message=response_data.error.message,
+                                                  details=response_data.error.details)
 
     if AnswerType is None:
         return None

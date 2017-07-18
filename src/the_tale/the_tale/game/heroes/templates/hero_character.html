@@ -2,61 +2,6 @@
 
 jQuery(document).ready(function(e){
 
-  {% if is_owner %}
-    jQuery('.pgf-choose-preference-button').click(function(e){
-        e.preventDefault();
-        var target = jQuery(e.currentTarget);
-        var url = target.attr('href');
-        var preferenceType = target.data('preference-type')
-        pgf.ui.dialog.Create({ fromUrl: url,
-                               OnOpen: function(dialog) {
-                                   jQuery('.pgf-hero-preference-record', dialog).click(function(e){
-                                       e.preventDefault();
-
-                                       var actionUrl = "{{ url('game:heroes:choose-preferences', resource.hero.id) }}";
-                                       var preferenceId = jQuery(e.currentTarget).data('preference-id');
-
-                                       pgf.forms.Post({ action: actionUrl,
-                                                        data: {preference_id: preferenceId,
-                                                               preference_type: preferenceType },
-                                                        OnSuccess: function(data) { location.reload(); }
-                                                      });
-                                   });
-
-                                   jQuery("#pgf-places-selector", dialog).change(function(){
-                                       var placeId = jQuery("#pgf-places-selector").val();
-                                       jQuery('.place-table').toggleClass('pgf-hidden', true);
-                                       jQuery('.place-table-'+placeId).removeClass('pgf-hidden');
-                                   });
-
-                                   var placeId = jQuery("#pgf-places-selector", dialog).val();
-                                   jQuery('.place-table-'+placeId, dialog).removeClass('pgf-hidden');
-                               }
-                             });
-    });
-
-    jQuery('.pgf-remove-preference-button').click(function(e){
-        e.preventDefault();
-        var target = jQuery(e.currentTarget);
-        var preferenceType = target.data('preference-type')
-        var actionUrl = "{{ url('game:heroes:choose-preferences', resource.hero.id) }}";
-
-        var DeleteRequest = function() {
-            pgf.forms.Post({ action: actionUrl,
-                             data: {preference_type: preferenceType},
-                             OnSuccess: function(data) { location.reload(); }
-                           });
-        }
-
-        pgf.ui.dialog.Question({message: 'Вы уверены, что хотите удалить предпочтение?<br/>После удаления новое предпочтение можно будет установить только через {{ PREFERENCES_CHANGE_DELAY|verbose_timedelta }} дней.',
-                                title: 'Подтвердите удаление предпочтения',
-                                buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
-                                          {text: 'Отменить', classes: 'btn-success'}]
-                               });
-    });
-
-{% endif %}
-
     jQuery(document).bind(pgf.game.events.DATA_REFRESHED, function(e, game_data){
         var data = game_data.account.hero;
         jQuery('#pgf-attributes-container .pgf-habit-honor-raw').text(Math.round(data.habits.honor.raw*100)/100);
@@ -71,64 +16,21 @@ jQuery(document).ready(function(e){
 
 </script>
 
-{% macro preferences_record(type, current_time, value) -%}
-
-  {% set time_before_update = resource.hero.preferences.time_before_update(type, current_time) %}
+{% macro preferences_record(type, value) -%}
 
   <li class="hero-preferences-record">
-    <strong>{{ type.text }}:</strong>
+    <strong>{{ type.text }}</strong>
     <br/>
     <span class="" style="margin-left: 2em;">
-      {% if type.purchase_type in master_account.permanent_purchases or resource.hero.level >= type.level_required %}
-
         {% if value %}
           {{value|safe}}
         {% else %}
-
-          {% if is_owner and time_before_update.total_seconds() == 0 %}
-            <a class="pgf-choose-preference-button"
-               href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type.value}}"
-               data-preference-type="{{ type }}">
-               выбрать
-            </a>
-          {% else %}
             нет
-          {% endif %}
         {% endif %}
+    </span>
 
-        {% if is_owner %}
-
-          {% if time_before_update.total_seconds() == 0 %}
-
-            {% if value %}
-
-              {% if type.nullable %}
-                <a class="pgf-remove-preference-button pull-right" href="#" data-preference-type="{{ type }}" style="margin-left: 5px;" rel="tooltip" title="удалить">
-                  <i class="icon-trash"></i>
-                </a>
-              {% endif %}
-
-              <a class="pgf-choose-preference-button pull-right"
-                 href="{{ url('game:heroes:choose-preferences-dialog', resource.hero.id) }}?type={{type.value}}"
-                 data-preference-type="{{ type }}"
-                 rel="tooltip" title="редактировать">
-                 <i class="icon-pencil"></i>
-              </a>
-            {% endif %}
-
-          {% else %}
-            <i class="icon-time pull-right"
-               rel="tooltip"
-               title="Предпочтение можно будет изменить через {{ time_before_update|verbose_timedelta }}. <br/> Вы можете обнулить задержку, использовав карту судьбы «{{PREFERENCE_RESET_CARDS[type].TYPE.text}}».">
-            </i>
-          {% endif %}
-
-        {% endif %}
-
-      {% else %}
-        необходим {{ type.level_required }} уровень
-      {% endif %}
-
+    <span class="pull-right"  style="vertical-align: middle;">
+      {{info_link(url('game:heroes:preference-info-dialog', resource.hero.id, preference=type.value))}}
     </span>
 
   </li>
@@ -143,29 +45,30 @@ jQuery(document).ready(function(e){
       <span class="pgf-habit-{{habit.name.lower()}}-verbose"></span>
       <span class="pull-right"  style="vertical-align: middle;">
         <span class="pgf-habit-{{habit.name.lower()}}-raw" style="vertical-align: middle;"></span>
-        <a href="{{url('guide:hero-habit-info', habit=habit.value)}}" class="pgf-dialog-simple">
-          <i class="icon-info-sign"
-             style="vertical-align: middle;"
-             rel="tooltip"
-             title="подробнее"></i>
-        </a>
+        {{ info_link(url('guide:hero-habit-info', habit=habit.value)) }}
       </span>
     </span>
   </li>
+{% endmacro %}
+
+{% macro info_link(href) %}
+  <a class="pgf-dialog-simple" href="{{href}}">
+    <i class="icon-info-sign" style="vertical-align: middle;" rel="tooltip" title="подробнее"></i>
+  </a>
 {% endmacro %}
 
 
 <div class="easy-block">
   <h2 style="cursor: default;">Характер</h2>
 
-  <h3>черты</h3>
+  <h3>Черты</h3>
 
   <ul class="unstyled">
     {{ habit_record(HABIT_TYPE.HONOR)}}
     {{ habit_record(HABIT_TYPE.PEACEFULNESS)}}
   </ul>
 
-  <h3>предпочтения</h3>
+  <h3>Предпочтения</h3>
 
   <ul class="unstyled">
     {% set pref_religion = resource.hero.preferences.energy_regeneration_type.text %}
@@ -193,22 +96,21 @@ jQuery(document).ready(function(e){
       {% set pref_favorite_item = none %}
     {% endif %}
 
-    {% set current_time = now() %}
+    {{ preferences_record(PREFERENCE_TYPE.ARCHETYPE, pref_archetype) }}
+    {{ preferences_record(PREFERENCE_TYPE.RISK_LEVEL, pref_risk_level) }}
+    {{ preferences_record(PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE,  pref_religion) }}
+    {{ preferences_record(PREFERENCE_TYPE.EQUIPMENT_SLOT, pref_equipment_slot) }}
+    {{ preferences_record(PREFERENCE_TYPE.FAVORITE_ITEM, pref_favorite_item) }}
+    {{ preferences_record(PREFERENCE_TYPE.COMPANION_EMPATHY, pref_companion_empathy) }}
+    {{ preferences_record(PREFERENCE_TYPE.COMPANION_DEDICATION, pref_companion_dedication) }}
+    {{ preferences_record(PREFERENCE_TYPE.MOB, pref_mob) }}
+    {{ preferences_record(PREFERENCE_TYPE.PLACE, pref_place) }}
+    {{ preferences_record(PREFERENCE_TYPE.FRIEND, pref_friend) }}
+    {{ preferences_record(PREFERENCE_TYPE.ENEMY, pref_enemy) }}
 
-    {{ preferences_record(PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, current_time,  pref_religion) }}
-    {{ preferences_record(PREFERENCE_TYPE.COMPANION_DEDICATION, current_time, pref_companion_dedication) }}
-    {{ preferences_record(PREFERENCE_TYPE.PLACE, current_time, pref_place) }}
-    {{ preferences_record(PREFERENCE_TYPE.MOB, current_time, pref_mob) }}
-    {{ preferences_record(PREFERENCE_TYPE.FRIEND, current_time, pref_friend) }}
-    {{ preferences_record(PREFERENCE_TYPE.ARCHETYPE, current_time, pref_archetype) }}
-    {{ preferences_record(PREFERENCE_TYPE.ENEMY, current_time, pref_enemy) }}
-    {{ preferences_record(PREFERENCE_TYPE.COMPANION_EMPATHY, current_time, pref_companion_empathy) }}
-    {{ preferences_record(PREFERENCE_TYPE.FAVORITE_ITEM, current_time, pref_favorite_item) }}
-    {{ preferences_record(PREFERENCE_TYPE.RISK_LEVEL, current_time, pref_risk_level) }}
-    {{ preferences_record(PREFERENCE_TYPE.EQUIPMENT_SLOT, current_time, pref_equipment_slot) }}
   </ul>
 
-  <h3>особенности</h3>
+  <h3>Особенности</h3>
 
 {% macro feature_record(name, value, tooltip) %}
   <li class="hero-feature-record">

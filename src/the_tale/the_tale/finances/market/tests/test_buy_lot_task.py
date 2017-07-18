@@ -9,7 +9,7 @@ from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESU
 
 from the_tale.accounts import logic as accounts_logic
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.finances.bank import transaction as bank_transaction
@@ -76,7 +76,7 @@ class TaskTests(testcase.TestCase, pm_helpers.Mixin):
 
         self.main_task = mock.Mock(comment=None, id=777)
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
 
     def test_serialization(self):

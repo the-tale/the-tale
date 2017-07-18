@@ -67,7 +67,11 @@ jQuery(document).ready(function(e){
 {% macro game_debug_javascript() %}
 
     function OnNextTurn(number) {
-        currentTurnNumber = updater.data.turn.number;
+        var currentTurnNumber = 0;
+
+        if (updater && updater.data && updater.data.turn && updater.data.turn.number) {
+            currentTurnNumber = updater.data.turn.number;
+        }
 
         jQuery(document).one(pgf.game.events.DATA_REFRESHED, function(e){
             if (currentTurnNumber == updater.data.turn.number) {

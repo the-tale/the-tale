@@ -18,6 +18,7 @@ from the_tale.accounts import logic as accounts_logic
 
 
 from . import conf
+from . import tt_api
 from . import logic
 from . import forms
 
@@ -33,7 +34,7 @@ class MessageProcessor(dext_views.ArgumentProcessor):
         except ValueError:
             self.raise_wrong_format()
 
-        message = logic.get_message(context.account.id, message_id)
+        message = tt_api.get_message(context.account.id, message_id)
 
         if not message:
             self.raise_wrong_value()
@@ -57,11 +58,11 @@ resource.add_processor(accounts_views.FullAccountProcessor())
 @utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
 @resource('')
 def index(context):
-    logic.read_messages(context.account.id)
+    tt_api.read_messages(context.account.id)
 
-    contacts_ids = logic.get_contacts(context.account.id)
+    contacts_ids = tt_api.get_contacts(context.account.id)
 
-    messages_count, messages = logic.get_received_messages(context.account.id,
+    messages_count, messages = tt_api.get_received_messages(context.account.id,
                                                            text=context.filter,
                                                            offset=context.page*conf.settings.MESSAGES_ON_PAGE,
                                                            limit=conf.settings.MESSAGES_ON_PAGE)
@@ -109,9 +110,9 @@ def index(context):
 @resource('sent')
 def sent(context):
 
-    contacts_ids = logic.get_contacts(context.account.id)
+    contacts_ids = tt_api.get_contacts(context.account.id)
 
-    messages_count, messages = logic.get_sent_messages(context.account.id,
+    messages_count, messages = tt_api.get_sent_messages(context.account.id,
                                                        text=context.filter,
                                                        offset=context.page*conf.settings.MESSAGES_ON_PAGE,
                                                        limit=conf.settings.MESSAGES_ON_PAGE)
@@ -160,9 +161,9 @@ def sent(context):
 @resource('conversation')
 def conversation(context):
 
-    contacts_ids = logic.get_contacts(context.account.id)
+    contacts_ids = tt_api.get_contacts(context.account.id)
 
-    messages_count, messages = logic.get_conversation(context.account.id,
+    messages_count, messages = tt_api.get_conversation(context.account.id,
                                                       context.contact.id,
                                                       text=context.filter,
                                                       offset=context.page*conf.settings.MESSAGES_ON_PAGE,
@@ -250,7 +251,7 @@ def new(context):
 def create(context):
     check_recipients(context.form)
 
-    logic.send_message(sender_id=context.account.id,
+    tt_api.send_message(sender_id=context.account.id,
                        recipients_ids=context.form.c.recipients,
                        body=context.form.c.text)
 
@@ -266,21 +267,21 @@ def delete(context):
     if context.account.id not in owners_ids:
         raise dext_views.ViewError(code='no_permissions', message='Вы не можете влиять на это сообщение')
 
-    logic.hide_message(account_id=context.account.id, message_id=context.message.id)
+    tt_api.hide_message(account_id=context.account.id, message_id=context.message.id)
 
     return dext_views.AjaxOk()
 
 
 @resource('delete-all', method='POST')
 def delete_all(context):
-    logic.hide_all_messages(account_id=context.account.id)
+    tt_api.hide_all_messages(account_id=context.account.id)
     return dext_views.AjaxOk()
 
 
 @accounts_views.AccountProcessor(error_message='Контакт не найден', get_name='contact', context_name='contact')
 @resource('delete-conversation', method='POST')
 def delete_conversation(context):
-    logic.hide_conversation(account_id=context.account.id, partner_id=context.contact.id)
+    tt_api.hide_conversation(account_id=context.account.id, partner_id=context.contact.id)
     return dext_views.AjaxOk()
 
 
@@ -306,4 +307,4 @@ def api_new_messages(context):
 
     '''
 
-    return dext_views.AjaxOk(content={'number': logic.new_messages_number(context.account.id)})
+    return dext_views.AjaxOk(content={'number': tt_api.new_messages_number(context.account.id)})

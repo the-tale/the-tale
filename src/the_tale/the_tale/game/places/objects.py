@@ -552,20 +552,11 @@ class Building(names.ManageNameMixin2):
 
 
     @property
-    def workers_to_full_repairing(self):
-        return int(math.ceil((1.0 - self.integrity) * c.BUILDING_FULL_REPAIR_ENERGY_COST / c.BUILDING_WORKERS_ENERGY_COST))
-
-
-    @property
     def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
 
 
-    def repair(self):
-        self.integrity = min(1.0, self.integrity + self.repair_delta)
-
-
-    @property
-    def need_repair(self): return self.integrity < 0.9999
+    def repair(self, delta):
+        self.integrity += delta
 
 
     @property

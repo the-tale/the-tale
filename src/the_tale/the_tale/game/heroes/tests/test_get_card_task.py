@@ -8,6 +8,8 @@ from the_tale.game.balance import constants as c
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 
+from the_tale.game.cards import tt_api as cards_tt_api
+
 from the_tale.game.heroes.postponed_tasks import GetCardTask
 
 
@@ -24,6 +26,8 @@ class GetCardTaskTest(TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
+        cards_tt_api.debug_clear_service()
+
     def test_create(self):
         task = GetCardTask(self.hero.id)
         self.assertTrue(task.state.is_UNPROCESSED)
@@ -39,7 +43,7 @@ class GetCardTaskTest(TestCase):
         with self.check_not_changed(lambda: self.hero.cards.help_count):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
-        self.assertFalse(self.hero.cards.has_cards)
+        self.assertFalse(cards_tt_api.load_cards(self.hero.account_id))
         self.assertTrue(task.state.is_CAN_NOT_GET)
 
     def test_success(self):
@@ -49,9 +53,13 @@ class GetCardTaskTest(TestCase):
         with self.check_delta(lambda: self.hero.cards.help_count, -c.CARDS_HELP_COUNT_TO_NEW_CARD):
             self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
-        self.assertTrue(self.hero.cards.has_cards)
+        cards = cards_tt_api.load_cards(self.hero.account_id)
 
-        self.assertTrue(next(iter(self.hero.cards.all_cards())).name.lower() in task.processed_data['message'].lower())
-        self.assertTrue(next(iter(self.hero.cards.all_cards())).effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
+        self.assertTrue(cards)
+
+        card = list(cards.values())[0]
+
+        self.assertTrue(card.name.lower() in task.processed_data['message'].lower())
+        self.assertTrue(card.effect.DESCRIPTION.lower() in task.processed_data['message'].lower())
 
         self.assertTrue(task.state.is_PROCESSED)

@@ -11,14 +11,6 @@ KEYS = [('ANGEL_ABILITY_ARENA_PVP_1X1', 240000, 'Журнал: Отправка 
         'Герой выходит из очереди на PvP арену.',
         [V.DATE, V.HERO], None),
 
-        ('ANGEL_ABILITY_BUILDING_REPAIR', 240002, 'Журнал: Вызов ремонтника', LEXICON_GROUP.ANGEL_ABILITY,
-        'Вызов духа-ремонтника для починки здания.',
-        [V.DATE, V.HERO], None),
-
-        ('ANGEL_ABILITY_BUILDING_REPAIR_CRIT', 240003, 'Журнал: Вызов ремонтника (критический эффект)', LEXICON_GROUP.ANGEL_ABILITY,
-        'Вызов духа-ремонтника для починки здания. (критический эффект)',
-        [V.DATE, V.HERO], None),
-
         ('ANGEL_ABILITY_DROP_ITEM', 240004, 'Журнал: Выкинуть самый дешёвый предмет из рюкзака', LEXICON_GROUP.ANGEL_ABILITY,
         'У героя из рюкзака пропадает самый дешёвый предмет.',
         [V.DATE, V.DROPPED_ITEM, V.HERO], None),

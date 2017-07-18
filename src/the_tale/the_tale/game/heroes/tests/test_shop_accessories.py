@@ -31,18 +31,6 @@ class ShopAccessoriesTest(testcase.TestCase):
         self.hero.purchase_energy_bonus(100)
         self.assertEqual(self.hero.energy_bonus, 100 + heroes_settings.START_ENERGY_BONUS)
 
-    def test_purchase_reset_abilities(self):
-        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.reset') as reset:
-            self.hero.purchase_reset_abilities()
-
-        self.assertEqual(reset.call_count, 1)
-
-    def test_purchase_rechooce_abilities_choice(self):
-        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.rechooce_choices') as rechooce_choices:
-            self.hero.purchase_rechooce_abilities_choices()
-
-        self.assertEqual(rechooce_choices.call_count, 1)
-
     @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1.0)
     def test_purchase_experience(self):
         self.assertEqual(self.hero.experience, 0)
@@ -129,14 +117,3 @@ class ShopAccessoriesTest(testcase.TestCase):
 
         self.assertEqual(results, set([True, False]))
         self.assertEqual(request_replane.call_count, N)
-
-
-    def test_purchase_card(self):
-        from the_tale.game.cards.relations import CARD_TYPE
-
-        self.assertFalse(self.hero.cards.has_cards)
-
-        self.hero.purchase_card(CARD_TYPE.KEEPERS_GOODS_COMMON, count=3)
-
-        self.assertEqual(self.hero.cards.cards_count(), 3)
-        self.assertEqual([card.type for card in self.hero.cards.all_cards()], [CARD_TYPE.KEEPERS_GOODS_COMMON]*3)

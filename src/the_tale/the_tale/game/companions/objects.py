@@ -171,9 +171,7 @@ class Companion(object):
 
 
     def add_experience(self, value):
-        value = round(self._hero.modify_attribute(heroes_relations.MODIFIERS.COHERENCE_EXPERIENCE, value))
-
-        value *= self._hero.companion_coherence_speed
+        value = value * self._hero.companion_coherence_experience * self._hero.companion_coherence_speed
 
         self.experience += int(value)
 

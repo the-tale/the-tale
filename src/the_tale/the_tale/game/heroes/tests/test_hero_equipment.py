@@ -106,7 +106,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_sharp_preferences(self):
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.HAND_PRIMARY)
 
         artifact = self.hero.sharp_artifact()
         self.assertTrue(artifact.type.is_MAIN_HAND)
@@ -115,7 +115,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         distribution = self.hero.preferences.archetype.power_distribution
         min_power, max_power = Power.artifact_power_interval(distribution, self.hero.level)
 
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.HAND_PRIMARY)
 
         artifact = self.hero.equipment.get(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
         artifact.power = max_power
@@ -186,7 +186,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertEqual(unequipped, old_artifact)
         self.assertEqual(equipped, artifact)
 
-        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HAND_PRIMARY)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FAVORITE_ITEM, relations.EQUIPMENT_SLOT.HAND_PRIMARY)
 
         slot, unequipped, equipped = self.hero.get_equip_candidates()
         self.assertEqual(slot, None)
@@ -495,7 +495,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         not_favorite_integrity = new_artifact.integrity
 
-        self.hero.preferences.set_favorite_item(new_artifact.type.equipment_slot)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FAVORITE_ITEM, new_artifact.type.equipment_slot)
 
         self.hero.damage_integrity()
 
@@ -570,19 +570,19 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
 
 
     def test_get_allowed_artifact_types__with_archetype_magic(self):
-        self.hero.preferences.set_archetype(game_relations.ARCHETYPE.MAGICAL)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ARCHETYPE, game_relations.ARCHETYPE.MAGICAL)
         expected_artifact_types = self.base_artifacts + [self.artifact_most_magic, self.artifact_magic, self.artifact_neutral]
         self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=True),
                                    expected_artifact_types)
 
     def test_get_allowed_artifact_types__with_archetype_neutral(self):
-        self.hero.preferences.set_archetype(game_relations.ARCHETYPE.NEUTRAL)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ARCHETYPE, game_relations.ARCHETYPE.NEUTRAL)
         expected_artifact_types = self.base_artifacts + [self.artifact_magic, self.artifact_neutral, self.artifact_physic]
         self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=True),
                                    expected_artifact_types)
 
     def test_get_allowed_artifact_types__with_archetype_physic(self):
-        self.hero.preferences.set_archetype(game_relations.ARCHETYPE.PHYSICAL)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ARCHETYPE, game_relations.ARCHETYPE.PHYSICAL)
         expected_artifact_types = self.base_artifacts + [self.artifact_neutral, self.artifact_physic, self.artifact_most_physic]
         self.check_artifacts_lists(self.hero.get_allowed_artifact_types(slots=relations.EQUIPMENT_SLOT.records, archetype=True),
                                    expected_artifact_types)
@@ -597,43 +597,43 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
                                    expected_artifact_types)
 
     def test_receive_artifacts_slots_choices__prefered_item__no_preference(self):
-        self.hero.preferences.set_favorite_item(None)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FAVORITE_ITEM, None)
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=False, prefered_item=True)),
                          set(relations.EQUIPMENT_SLOT.records))
 
     def test_receive_artifacts_slots_choices__prefered_item__has_preference(self):
-        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HELMET)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FAVORITE_ITEM, relations.EQUIPMENT_SLOT.HELMET)
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=False, prefered_item=True)),
                          set(relations.EQUIPMENT_SLOT.records) - set([relations.EQUIPMENT_SLOT.HELMET]))
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', False)
     def test_receive_artifacts_slots_choices__prefered_slot__no_probability(self):
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.CLOAK)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.CLOAK)
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
                          set(relations.EQUIPMENT_SLOT.records))
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_prefered_slot_conflics_with_prefered_item__can_upgrade(self):
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HELMET)
-        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HELMET)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.HELMET)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FAVORITE_ITEM, relations.EQUIPMENT_SLOT.HELMET)
         self.assertEqual(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=True), [])
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', False)
     def test_prefered_slot_conflics_with_prefered_item__can_not_upgrade(self):
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.HELMET)
-        self.hero.preferences.set_favorite_item(relations.EQUIPMENT_SLOT.HELMET)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.HELMET)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FAVORITE_ITEM, relations.EQUIPMENT_SLOT.HELMET)
         self.assertFalse(relations.EQUIPMENT_SLOT.HELMET in self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=True))
 
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_receive_artifacts_slots_choices__prefered_slot__no_preference(self):
-        self.hero.preferences.set_equipment_slot(None)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, None)
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
                          set(relations.EQUIPMENT_SLOT.records))
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_receive_artifacts_slots_choices__prefered_slot__has_preference(self):
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.CLOAK)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.CLOAK)
         self.assertEqual(set(self.hero.receive_artifacts_slots_choices(better=False, prefered_slot=True, prefered_item=False)),
                          set([relations.EQUIPMENT_SLOT.CLOAK]))
 
@@ -716,7 +716,7 @@ class ReceiveArtifactsTests(_HeroEquipmentTestsBase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_only_better_for_prefered_slot(self):
         self.hero.level = 9999
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.PLATE)
 
         # just set any artifact
         self.hero.receive_artifact(equip=True, better=False, prefered_slot=True, prefered_item=True, archetype=True)

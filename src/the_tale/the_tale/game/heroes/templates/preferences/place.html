@@ -1,0 +1,14 @@
+
+<p style="margin-top: -1em;">
+  {% if hero.preferences.place %}
+  Родной город героя: <strong><a target="_blank" href="{{url('game:places:show', hero.preferences.place.id)}}">{{hero.preferences.place.name}}</a></strong>
+  {% else %}
+  <strong>У героя нет родного города.</strong>
+  {% endif %}
+</p>
+
+<hr style="margin-bottom: 1em;"/>
+
+<p>
+  Шумные ярмарки, людные улицы, веселые трактиры - они есть в любом городе, но этот особенно по душе вашему герою. Здесь живут его близкие друзья и соратники, сюда он возвращается отдохнуть, и набрать сил перед новыми приключениями.
+</p>

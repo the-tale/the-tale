@@ -45,7 +45,7 @@ from the_tale.game.quests import exceptions
 from the_tale.game.quests import uids
 from the_tale.game.quests import relations
 
-from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
+from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.quests.tests import helpers
 
@@ -156,7 +156,7 @@ class PrototypeTests(PrototypeTestsBase):
         person.attrs.social_relations_partners_power_modifier = 0.1
         person.attrs.social_relations_concurrents_power_modifier = 0.1
 
-        self.hero.preferences.set_friend(person)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.FRIEND, person)
 
         self.quest.current_info.power = 10
         self.quest.current_info.power_bonus = 1
@@ -361,7 +361,7 @@ class PrototypeTests(PrototypeTestsBase):
     def test_get_upgrdade_choice(self):
         from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, EQUIPMENT_SLOT.PLATE)
         self.hero.equipment.get(EQUIPMENT_SLOT.PLATE).integrity = 0
 
         choices = set()
@@ -377,7 +377,7 @@ class PrototypeTests(PrototypeTestsBase):
     def test_get_upgrdade_choice__no_item_equipped(self):
         from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.RING)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, EQUIPMENT_SLOT.RING)
 
         for i in range(100):
             self.assertTrue(self.quest._get_upgrdade_choice(self.hero).is_BUY)
@@ -410,7 +410,7 @@ class PrototypeTests(PrototypeTestsBase):
 
         test_artifact = random.choice(list(self.hero.equipment.values()))
         test_artifact.integrity = 0
-        self.hero.preferences.set_equipment_slot(test_artifact.type.equipment_slot)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, test_artifact.type.equipment_slot)
 
         old_power = self.hero.power.clone()
         self.assertEqual(self.hero.statistics.artifacts_had, 0)
@@ -642,8 +642,8 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
                                                             results={},
                                                             nesting=666))
 
-        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.QUEST_HONORABLE_DEFAULT),
-                                                        mock.call(HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE_DEFAULT)])
+        self.assertEqual(update_habits.call_args_list, [mock.call(heroes_relations.HABIT_CHANGE_SOURCE.QUEST_HONORABLE_DEFAULT),
+                                                        mock.call(heroes_relations.HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE_DEFAULT)])
 
 
 
@@ -690,8 +690,8 @@ class InterpreterCallbacksTests(PrototypeTestsBase):
                                                             results={},
                                                             nesting=666))
 
-        self.assertEqual(update_habits.call_args_list, [mock.call(HABIT_CHANGE_SOURCE.QUEST_HONORABLE),
-                                                        mock.call(HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE)])
+        self.assertEqual(update_habits.call_args_list, [mock.call(heroes_relations.HABIT_CHANGE_SOURCE.QUEST_HONORABLE),
+                                                        mock.call(heroes_relations.HABIT_CHANGE_SOURCE.QUEST_AGGRESSIVE)])
 
 
 class CheckRequirementsTests(PrototypeTestsBase):

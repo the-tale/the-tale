@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 from unittest import mock
@@ -8,7 +8,7 @@ from the_tale.common.utils import testcase
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -34,44 +34,40 @@ class HealCompanionTestMixin(CardsTestMixin):
 
         self.hero.set_companion(companions_logic.create_companion(random.choice(companions_storage.companions.all())))
 
-        self.card = self.CARD()
 
     @mock.patch('the_tale.game.companions.objects.Companion.max_health', 666)
     def test_use(self):
         self.hero.companion.health = 1
 
-        with self.check_delta(lambda: self.hero.companion.health, min(self.CARD.HEALTH, self.hero.companion.max_health-1)):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        with self.check_delta(lambda: self.hero.companion.health, min(self.CARD.effect.modificator, self.hero.companion.max_health-1)):
+            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
             self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_no_companion(self):
         self.hero.remove_companion()
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
     def test_maximum_health(self):
         self.assertEqual(self.hero.companion.health, self.hero.companion.max_health)
 
         with self.check_not_changed(lambda: self.hero.companion.health):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
             self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
 class HealCompanionCommonTests(HealCompanionTestMixin, testcase.TestCase):
-    CARD = effects.HealCompanionCommon
+    CARD = cards.CARD.HEAL_COMPANION_COMMON
 
 
 class HealCompanionUncommonTests(HealCompanionTestMixin, testcase.TestCase):
-    CARD = effects.HealCompanionUncommon
+    CARD = cards.CARD.HEAL_COMPANION_UNCOMMON
 
 
 class HealCompanionRareTests(HealCompanionTestMixin, testcase.TestCase):
-    CARD = effects.HealCompanionRare
+    CARD = cards.CARD.HEAL_COMPANION_RARE
 
 
 class HealCompanionEpicTests(HealCompanionTestMixin, testcase.TestCase):
-    CARD = effects.HealCompanionEpic
-
-class HealCompanionLegendaryTests(HealCompanionTestMixin, testcase.TestCase):
-    CARD = effects.HealCompanionLegendary
+    CARD = cards.CARD.HEAL_COMPANION_EPIC

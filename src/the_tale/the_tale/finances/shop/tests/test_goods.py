@@ -103,11 +103,9 @@ class PremiumDaysTests(testcase.TestCase):
 
 
 
-# THIS TESTS NOW IS SPECIFIC TO CLAN_OWNERSHIP_RIGHT
-# TODO: rewrite to more abstract tests
 class PermanentPurchaseTests(testcase.TestCase):
 
-    PURCHASE_TYPE = PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT
+    PURCHASE_TYPE = PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION
 
     def setUp(self):
         super(PermanentPurchaseTests, self).setUp()
@@ -119,21 +117,21 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=self.account.id)
 
-        self.purchase = PermanentPurchase(uid='clan-creation-rights',
+        self.purchase = PermanentPurchase(uid='infinit-subscription',
                                           name=self.PURCHASE_TYPE.text,
                                           description=self.PURCHASE_TYPE.description,
                                           cost=int(self.cost / payments_settings.GLOBAL_COST_MULTIPLIER),
                                           purchase_type=self.PURCHASE_TYPE,
-                                          transaction_description='clan-creation-rights')
+                                          transaction_description='infinit-subscription')
 
 
     def test_create(self):
-        self.assertEqual(self.purchase.uid, 'clan-creation-rights')
+        self.assertEqual(self.purchase.uid, 'infinit-subscription')
         self.assertEqual(self.purchase.purchase_type, self.PURCHASE_TYPE)
         self.assertEqual(self.purchase.cost, self.cost)
         self.assertEqual(self.purchase.name, self.PURCHASE_TYPE.text)
         self.assertEqual(self.purchase.description, self.PURCHASE_TYPE.description)
-        self.assertEqual(self.purchase.transaction_description, 'clan-creation-rights')
+        self.assertEqual(self.purchase.transaction_description, 'infinit-subscription')
 
     def test_buy__fast_account(self):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
@@ -174,17 +172,12 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.assertEqual(invoice.sender_id, 0)
         self.assertEqual(invoice.currency, CURRENCY_TYPE.PREMIUM)
         self.assertEqual(invoice.amount, -self.cost)
-        self.assertEqual(invoice.description_for_sender, 'clan-creation-rights')
-        self.assertEqual(invoice.description_for_recipient, 'clan-creation-rights')
+        self.assertEqual(invoice.description_for_sender, 'infinit-subscription')
+        self.assertEqual(invoice.description_for_recipient, 'infinit-subscription')
 
     def test_is_purchasable(self):
         self.assertTrue(self.purchase.is_purchasable(self.account, self.hero))
 
     def test_is_purchasable__already_purchased(self):
         self.account.permanent_purchases.insert(self.PURCHASE_TYPE)
-        self.assertFalse(self.purchase.is_purchasable(self.account, self.hero))
-
-    # TODO: other purchases must be checked in same way
-    def test_is_purchasable__have_might(self):
-        self.account.set_might(clans_settings.OWNER_MIGHT_REQUIRED)
         self.assertFalse(self.purchase.is_purchasable(self.account, self.hero))

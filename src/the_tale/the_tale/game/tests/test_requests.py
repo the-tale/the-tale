@@ -21,6 +21,7 @@ from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 from the_tale.cms.news import logic as news_logic
 
 from the_tale.game.heroes import logic as heroes_logic
+from the_tale.game.heroes import tt_api as heroes_tt_api
 from the_tale.game.heroes import messages as heroes_messages
 
 from the_tale.game.prototypes import TimePrototype
@@ -161,9 +162,9 @@ class DiaryRequestTests(RequestTestsBase):
     def setUp(self):
         super(DiaryRequestTests, self).setUp()
 
-        heroes_logic.push_message_to_diary(account_id=self.account_1.id, message=self.create_message(1), is_premium=False)
-        heroes_logic.push_message_to_diary(account_id=self.account_1.id, message=self.create_message(2), is_premium=False)
-        heroes_logic.push_message_to_diary(account_id=self.account_1.id, message=self.create_message(3), is_premium=False)
+        heroes_tt_api.push_message_to_diary(account_id=self.account_1.id, message=self.create_message(1), is_premium=False)
+        heroes_tt_api.push_message_to_diary(account_id=self.account_1.id, message=self.create_message(2), is_premium=False)
+        heroes_tt_api.push_message_to_diary(account_id=self.account_1.id, message=self.create_message(3), is_premium=False)
 
 
     def create_message(self, uid):

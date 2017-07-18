@@ -261,7 +261,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
                 with mock.patch('the_tale.game.places.habits.Honor.interval', honor):
                     with mock.patch('the_tale.game.places.habits.Peacefulness.interval', peacefulness):
-                        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+                        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
                             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
 
@@ -273,7 +273,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
@@ -283,7 +283,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.position.update_previous_place()
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
@@ -296,7 +296,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
-        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.PRAY)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 3)
@@ -304,7 +304,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
-        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
@@ -606,7 +606,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
-        self.hero.preferences.set_equipment_slot(heroes_relations.EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, heroes_relations.EQUIPMENT_SLOT.PLATE)
         self.hero.level = 666 # enshure that equipment power will be less than max allowerd _power
         heroes_logic.save_hero(self.hero)
 
@@ -968,7 +968,7 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_leave_in_place_probability', 1.0)
     def test_leave(self):
-        with self.check_calls_exists('the_tale.game.heroes.logic.push_message_to_diary'):
+        with self.check_calls_exists('the_tale.game.heroes.tt_api.push_message_to_diary'):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.companion, None)
@@ -976,7 +976,7 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_leave_in_place_probability', 0.0)
     def test_not_leave(self):
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertNotEqual(self.hero.companion, None)

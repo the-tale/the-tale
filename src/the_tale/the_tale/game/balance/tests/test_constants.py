@@ -165,7 +165,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
 
-        self.assertEqual(c.MINIMUM_CARD_POWER, 20)
+        self.assertEqual(c.MINIMUM_CARD_POWER, 100)
 
         self.assertEqual(c.NORMAL_JOB_LENGTH, 10)
 
@@ -174,7 +174,6 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.JOB_HERO_REWARD_FRACTION, 0.1)
 
-        self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 2*7*24*60*60)
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
 
         self.assertEqual(c.ABILITIES_ACTIVE_MAXIMUM, 5)
@@ -317,18 +316,17 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_POWER_BONUS, 0.1)
 
-        self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_POSITION_RADIUS, 2)
-        self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2*7*24)
-        self.assertTrue(0.0029 < c.BUILDING_AMORTIZATION_SPEED < 0.0030)
-        self.assertEqual(c.BUILDING_FULL_REPAIR_ENERGY_COST, 168.0)
+        self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2)
+        self.assertEqual(round(c.BUILDING_AMORTIZATION_SPEED, 5), 0.00069)
+        self.assertEqual(c.BUILDING_CARD_REPAIR_BASE, 0.25)
         self.assertEqual(c.BUILDING_AMORTIZATION_MODIFIER, 1.5)
-        self.assertEqual(c.BUILDING_WORKERS_ENERGY_COST, 3)
-        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.25)
+        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.5)
         self.assertEqual(c.BUILDING_TERRAIN_POWER_MULTIPLIER, 0.5)
 
-        self.assertEqual(c.CARDS_HELP_COUNT_TO_NEW_CARD, 18)
+        self.assertEqual(c.CARDS_HELP_COUNT_TO_NEW_CARD, 9)
         self.assertEqual(c.CARDS_COMBINE_TO_UP_RARITY, 3)
+        self.assertEqual(c.CARDS_LEVEL_MULTIPLIERS, [1, 3.5, 12, 42, 150])
 
         self.assertEqual(c.COMPANIONS_DEFENDS_IN_BATTLE, 1.5)
         self.assertEqual(c.COMPANIONS_HEAL_FRACTION, 0.05)

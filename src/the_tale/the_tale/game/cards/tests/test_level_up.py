@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
@@ -6,7 +5,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards.effects import LevelUp
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -16,7 +15,7 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
 class LevelUpTest(testcase.TestCase, CardsTestMixin):
-    CARD = LevelUp
+    CARD = cards.CARD.LEVEL_UP
 
     def setUp(self):
         super(LevelUpTest, self).setUp()
@@ -32,8 +31,6 @@ class LevelUpTest(testcase.TestCase, CardsTestMixin):
 
         self.abilities = self.hero.abilities
 
-        self.card = self.CARD()
-
 
     def test_use(self):
 
@@ -44,7 +41,7 @@ class LevelUpTest(testcase.TestCase, CardsTestMixin):
 
         with self.check_not_changed(lambda: self.hero.experience):
             with self.check_delta(lambda: self.hero.level, 1):
-                result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+                result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
                 self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         saved_hero = heroes_logic.load_hero(hero_id=self.hero.id)

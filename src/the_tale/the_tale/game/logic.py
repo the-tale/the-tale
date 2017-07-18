@@ -25,8 +25,6 @@ from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.relations import ARTIFACT_TYPE
 
-from the_tale.game.cards import container as cards_container
-
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map import logic as map_logic
 
@@ -42,8 +40,10 @@ from the_tale.game.companions import logic as companions_logic
 from the_tale.game.companions import relations as companions_relations
 
 from the_tale.game.heroes import relations as heroes_relations
+from the_tale.game.heroes import tt_api as heroes_tt_api
 from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.heroes import objects as heroes_objects
+from the_tale.game.heroes import cards_info as heroes_cards_info
 
 from . import relations
 
@@ -126,13 +126,13 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_tur
                                                       patch_turns=client_turns,
                                                       for_last_turn=(not is_own))
     data['hero'] = hero_data
-    data['hero']['diary'] = heroes_logic.diary_version(account.id)
+    data['hero']['diary'] = heroes_tt_api.diary_version(account.id)
 
     data['is_old'] = (data['hero']['actual_on_turn'] < game_time.turn_number)
 
     if not is_own:
         if 'cards' in hero_data:
-            hero_data['cards'] = cards_container.CardsContainer.ui_info_null()
+            hero_data['cards'] = heroes_cards_info.CardsInfo.ui_info_null()
         if 'energy' in hero_data:
             hero_data['energy']['max'] = 0
             hero_data['energy']['value'] = 0
@@ -254,6 +254,10 @@ def _game_info_from_1_6_to_1_5__heroes(data):
     data['diary'] = []
 
 
+def _game_info_from_1_8_to_1_7__heroes(data):
+    data['cards']['cards'] = []
+
+
 def game_info_from_1_1_to_1_0(data):
     if data['account'] is not None:
         _game_info_from_1_1_to_1_0__heroes(data['account']['hero'])
@@ -319,6 +323,16 @@ def game_info_from_1_7_to_1_6(data):
 
     if data['enemy'] is not None:
         data['enemy']['new_messages'] = 0
+
+    return data
+
+
+def game_info_from_1_8_to_1_7(data):
+    if data['account'] is not None:
+        _game_info_from_1_8_to_1_7__heroes(data['account']['hero'])
+
+    if data['enemy'] is not None:
+        _game_info_from_1_8_to_1_7__heroes(data['enemy']['hero'])
 
     return data
 

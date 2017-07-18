@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import datetime
 
@@ -6,7 +5,7 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.accounts import logic
@@ -30,7 +29,7 @@ class RandomPremiumRequestPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
 
         self.request = RandomPremiumRequestPrototype.create(self.account_1.id, days=30)
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
     def test_create(self):
         self.assertEqual(RandomPremiumRequestPrototype._db_count(), 1)
@@ -49,7 +48,7 @@ class RandomPremiumRequestPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
         self.assertEqual(RandomPremiumRequestPrototype.get_unprocessed().id, self.request.id)
 
     def check_not_processed(self, premiums=0):
-        self.assertEqual(pm_logic.new_messages_number(self.account_1.id), 0)
+        self.assertEqual(pm_tt_api.new_messages_number(self.account_1.id), 0)
         self.assertEqual(AccountPrototype._db_filter(premium_end_at__gt=datetime.datetime.now()).count(), premiums)
 
         self.request.reload()

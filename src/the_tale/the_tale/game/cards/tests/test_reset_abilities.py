@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -7,7 +7,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -15,7 +15,7 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
 class ResetAbilitiesTest(testcase.TestCase, CardsTestMixin):
-    CARD = effects.ResetAbilities
+    CARD = cards.CARD.RESET_ABILITIES
 
     def setUp(self):
         super(ResetAbilitiesTest, self).setUp()
@@ -29,8 +29,6 @@ class ResetAbilitiesTest(testcase.TestCase, CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = self.CARD()
-
 
     def test_use(self):
         self.hero.randomized_level_up(increment_level=True)
@@ -38,7 +36,7 @@ class ResetAbilitiesTest(testcase.TestCase, CardsTestMixin):
         self.assertFalse(self.hero.abilities.is_initial_state())
 
         with mock.patch('the_tale.game.logic_storage.LogicStorage.save_bundle_data') as save_bundle_data:
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertTrue(self.hero.abilities.is_initial_state())
 
@@ -51,7 +49,7 @@ class ResetAbilitiesTest(testcase.TestCase, CardsTestMixin):
 
         self.assertTrue(self.hero.abilities.is_initial_state())
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
         self.assertTrue(self.hero.abilities.is_initial_state())
 

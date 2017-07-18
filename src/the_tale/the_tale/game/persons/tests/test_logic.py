@@ -136,17 +136,17 @@ class PersonPowerTest(testcase.TestCase):
     @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 0.5)
     @mock.patch('the_tale.game.persons.objects.Person.has_building', True)
     def test_change_power__has_building(self):
-        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.25)
+        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.5)
 
         with mock.patch('the_tale.game.politic_power.PoliticPower.change_power') as change_power:
             self.assertEqual(self.person.politic_power.change_power(person=self.person,
                                                                     hero_id=None,
                                                                     has_in_preferences=False,
                                                                     power=1000),
-                             1250)
+                             1500)
 
         self.assertEqual(change_power.call_args,
                          mock.call(owner=self.person,
                                    hero_id=None,
                                    has_in_preferences=False,
-                                   power=625))
+                                   power=750))

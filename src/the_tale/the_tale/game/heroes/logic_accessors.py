@@ -584,6 +584,10 @@ class LogicAccessorsMixin(object):
         return self.attribute_modifier(self.companion.type.companion_coherence_modifier)
 
     @property
+    def companion_coherence_experience(self):
+        return self.attribute_modifier(relations.MODIFIERS.COHERENCE_EXPERIENCE)
+
+    @property
     def companion_habits_multiplier(self):
         return self.preferences.companion_empathy.habit_multiplier
 

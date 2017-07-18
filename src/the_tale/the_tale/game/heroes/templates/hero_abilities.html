@@ -53,22 +53,7 @@ jQuery(document).ready(function(e){
 
 <div class="easy-block pgf-abilities-block">
   <h2 style="cursor: default;">
-    Способности
-    {% if is_owner %}
-    {% if resource.hero.abilities.can_reset %}
-    <a href="{{url('game:heroes:reset-abilities', resource.hero.id)}}"
-       class="pgf-forms-post-simple pgf-reset-abilities-button pull-right"
-       rel="tooltip"
-       title="сбросить способности <br/> (повторно способности можно будет сбросить <br/> через {{ heroes_settings.ABILITIES_RESET_TIMEOUT|verbose_timedelta }})">
-      <i class="icon-trash" style="vertical-align: middle;"></i>
-    </a>
-    {% else %}
-    <a href="#" class="pgf-reset-abilities-timeout-button  pull-right"
-       rel="tooltip" title="способности можно будет сбросить через {{ resource.hero.abilities.time_before_reset|verbose_timedelta }}<br/> Вы можете сбросить их вне очереди использовав карту «{{CARD_TYPE.RESET_ABILITIES.text}}»">
-      <i class="icon-time" style="vertical-align: middle;"></i>
-    </a>
-    {% endif %}
-    {% endif %}
+    Способности <i class="icon-info-sign" style="vertical-align: middle;" rel="tooltip" title="Сбросить способности героя можно с помощью карты «новый путь»"></i>
   </h2>
 
   {% if is_owner %}

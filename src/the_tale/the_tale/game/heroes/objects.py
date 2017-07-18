@@ -9,7 +9,7 @@ from the_tale import amqp_environment
 
 from the_tale.accounts import prototypes as accounts_prototypes
 from the_tale.accounts import logic as accounts_logic
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 
 from the_tale.common.utils.logic import random_value_by_priority
 
@@ -22,6 +22,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.prototypes import TimePrototype, GameState
 from the_tale.game import relations as game_relations
 
+from . import tt_api
 from . import relations
 from . import messages
 from . import exceptions
@@ -229,7 +230,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         if send_message: # TODO: move out logic
             account = accounts_prototypes.AccountPrototype.get_by_id(self.account_id)
-            pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+            pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
                                   recipients_ids=[self.account_id],
                                   body='Поздравляем, Ваш герой получил {} уровень!'.format(self.level),
                                   async=True)
@@ -441,7 +442,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                 message = message.clone()
 
         if diary:
-            logic.push_message_to_diary(self.id, message, self.is_premium)
+            tt_api.push_message_to_diary(self.id, message, self.is_premium)
 
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
@@ -690,3 +691,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         del data['changed_fields']
 
         return data
+
+
+    def new_cards_combined(self, number):
+        self.statistics.change_cards_combined(number)

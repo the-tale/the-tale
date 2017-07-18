@@ -19,7 +19,7 @@ from the_tale.finances.bank import transaction as bank_transaction
 from the_tale.finances.bank import prototypes as bank_prototypes
 from the_tale.finances.bank import relations as bank_relations
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 
 from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
 from the_tale.accounts import logic
@@ -321,7 +321,7 @@ class TransferMoneyTask(PostponedLogic):
                                                                                                                            amount=self.amount,
                                                                                                                            comment=self.comment)
 
-            pm_logic.send_message(sender_id=logic.get_system_user_id(),
+            pm_tt_api.send_message(sender_id=logic.get_system_user_id(),
                                   recipients_ids=[self.recipient.id],
                                   body=message,
                                   async=True)

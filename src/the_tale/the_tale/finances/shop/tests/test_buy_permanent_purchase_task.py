@@ -8,7 +8,7 @@ class BuyPermanentPurchasePosponedTaskTests(base_buy_task._BaseBuyPosponedTaskTe
 
     def setUp(self):
         super(BuyPermanentPurchasePosponedTaskTests, self).setUp()
-        self.purchase_type = PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT
+        self.purchase_type = PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION
 
         self.task = BuyPermanentPurchase(account_id=self.account.id,
                                          purchase_type=self.purchase_type,

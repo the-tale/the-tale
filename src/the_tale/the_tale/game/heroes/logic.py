@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 import datetime
 
@@ -7,8 +7,6 @@ from utg import words as utg_words
 from django.db import models as django_models
 
 from dext.common.utils import s11n
-
-from tt_protocol.protocol import diary_pb2
 
 from the_tale.game.prototypes import TimePrototype
 from the_tale.game import relations as game_relations
@@ -20,14 +18,12 @@ from the_tale.game.balance import power
 
 from the_tale.game.actions import container as actions_container
 from the_tale.game.quests import container as quests_container
-from the_tale.game.cards import container as cards_container
+
 
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.places import storage as places_storage
 
 from the_tale.game.companions import objects as companions_objects
-
-from the_tale.common.utils import tt_api
 
 from . import models
 from . import objects
@@ -41,6 +37,7 @@ from . import habilities
 from . import bag
 from . import conf
 from . import habits
+from . import cards_info
 
 
 def live_query():
@@ -151,7 +148,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         journal=messages.JournalContainer(), # we are not storrings journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
                         places_history=places_help_statistics.PlacesHelpStatistics.deserialize(data['places_history']),
-                        cards=cards_container.CardsContainer.deserialize(s11n.from_json(hero_model.cards)),
+                        cards=cards_info.CardsInfo.deserialize(data.get('cards', {})),
                         abilities=habilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
                         bag=bag.Bag.deserialize(data['bag']),
                         equipment=bag.Equipment.deserialize(data['equipment']),
@@ -182,13 +179,13 @@ def save_hero(hero, new=False):
             'places_history': hero.places_history.serialize(),
             'equipment': hero.equipment.serialize(),
             'bag': hero.bag.serialize(),
-            'actual_bills': hero.actual_bills}
+            'actual_bills': hero.actual_bills,
+            'cards': hero.cards.serialize()}
 
     arguments = dict(saved_at_turn=TimePrototype.get_current_turn_number(),
                      saved_at=datetime.datetime.now(),
                      data=s11n.to_json(data),
                      abilities=s11n.to_json(hero.abilities.serialize()),
-                     cards=s11n.to_json(hero.cards.serialize()),
                      actions=s11n.to_json(hero.actions.serialize()),
                      raw_power_physic=hero.power.physic,
                      raw_power_magic=hero.power.magic,
@@ -287,15 +284,49 @@ def dress_new_hero(hero):
 
 def preferences_for_new_hero(hero):
     if hero.preferences.energy_regeneration_type is None:
-        hero.preferences.set_energy_regeneration_type(hero.race.energy_regeneration, change_time=datetime.datetime.fromtimestamp(0))
+        hero.preferences.set(relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, hero.race.energy_regeneration)
     if hero.preferences.risk_level is None:
-        hero.preferences.set_risk_level(relations.RISK_LEVEL.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+        hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.NORMAL)
     if hero.preferences.archetype is None:
-        hero.preferences.set_archetype(game_relations.ARCHETYPE.NEUTRAL, change_time=datetime.datetime.fromtimestamp(0))
+        hero.preferences.set(relations.PREFERENCE_TYPE.ARCHETYPE, game_relations.ARCHETYPE.NEUTRAL)
     if hero.preferences.companion_dedication is None:
-        hero.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.NORMAL, change_time=datetime.datetime.fromtimestamp(0))
+        hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_DEDICATION, relations.COMPANION_DEDICATION.NORMAL)
     if hero.preferences.companion_empathy is None:
-        hero.preferences.set_companion_empathy(relations.COMPANION_EMPATHY.ORDINAL, change_time=datetime.datetime.fromtimestamp(0))
+        hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_EMPATHY, relations.COMPANION_EMPATHY.ORDINAL)
+
+
+def cards_for_new_hero(hero):
+    from the_tale.game.cards import tt_api
+    from the_tale.game.cards import cards
+
+    tt_api.change_cards(hero.account_id,
+                        operation_type='new-hero-gift',
+                        to_add=[cards.CARD.CHANGE_HERO_SPENDINGS.effect.create_card(available_for_auction=False,
+                                                                                    type=cards.CARD.CHANGE_HERO_SPENDINGS,
+                                                                                    item=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT),
+                                cards.CARD.HEAL_COMPANION_COMMON.effect.create_card(available_for_auction=False,
+                                                                                    type=cards.CARD.HEAL_COMPANION_COMMON),
+                                cards.CARD.ADD_EXPERIENCE_COMMON.effect.create_card(available_for_auction=False,
+                                                                                    type=cards.CARD.ADD_EXPERIENCE_COMMON),
+                                cards.CARD.CHANGE_ABILITIES_CHOICES.effect.create_card(available_for_auction=False,
+                                                                                       type=cards.CARD.CHANGE_ABILITIES_CHOICES),
+                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                                type=cards.CARD.CHANGE_PREFERENCE,
+                                                                                preference=relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                                type=cards.CARD.CHANGE_PREFERENCE,
+                                                                                preference=relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                                type=cards.CARD.CHANGE_PREFERENCE,
+                                                                                preference=relations.PREFERENCE_TYPE.PLACE),
+                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                                type=cards.CARD.CHANGE_PREFERENCE,
+                                                                                preference=relations.PREFERENCE_TYPE.ARCHETYPE),
+                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                                type=cards.CARD.CHANGE_PREFERENCE,
+                                                                                preference=relations.PREFERENCE_TYPE.FRIEND),
+                                cards.CARD.ADD_BONUS_ENERGY_RARE.effect.create_card(available_for_auction=False,
+                                                                                type=cards.CARD.ADD_BONUS_ENERGY_RARE)])
 
 
 def create_hero(account):
@@ -332,7 +363,7 @@ def create_hero(account):
                         journal=messages.JournalContainer(),
                         quests=quests_container.QuestsContainer(),
                         places_history=places_help_statistics.PlacesHelpStatistics(),
-                        cards=cards_container.CardsContainer(),
+                        cards=cards_info.CardsInfo(),
                         abilities=habilities.AbilitiesPrototype.create(),
                         bag=bag.Bag(),
                         equipment=bag.Equipment(),
@@ -357,6 +388,7 @@ def create_hero(account):
 
     dress_new_hero(hero)
     preferences_for_new_hero(hero)
+    cards_for_new_hero(hero)
 
     save_hero(hero, new=True)
 
@@ -379,39 +411,3 @@ def remove_hero(hero_id=None, account_id=None):
 
 def get_heroes_to_accounts_map(heroes_ids):
     return dict(models.Hero.objects.filter(id__in=heroes_ids).values_list('id', 'account_id'))
-
-
-def push_message_to_diary(account_id, message, is_premium):
-    diary_size = conf.heroes_settings.DIARY_LOG_LENGTH_PREMIUM if is_premium else conf.heroes_settings.DIARY_LOG_LENGTH
-
-    game_time = message.game_time()
-
-    diary_message = diary_pb2.Message(timestamp=message.timestamp,
-                                      turn_number=message.turn_number,
-                                      type=message.key.value if message.key else None,
-                                      game_time=game_time.verbose_time,
-                                      game_date=game_time.verbose_date,
-                                      position=message.position,
-                                      message=message.message,
-                                      variables=message.get_variables())
-
-    tt_api.async_request(url=conf.heroes_settings.DIARY_PUSH_MESSAGE_URL,
-                         data=diary_pb2.PushMessageRequest(account_id=account_id,
-                                                           message=diary_message,
-                                                           diary_size=diary_size))
-
-
-def diary_version(account_id):
-    answer = tt_api.sync_request(url=conf.heroes_settings.DIARY_VERSION_URL,
-                                 data=diary_pb2.VersionRequest(account_id=account_id),
-                                 AnswerType=diary_pb2.VersionResponse)
-
-    return answer.version
-
-
-def get_diary(account_id):
-    answer = tt_api.sync_request(url=conf.heroes_settings.DIARY_URL,
-                                 data=diary_pb2.DiaryRequest(account_id=account_id),
-                                 AnswerType=diary_pb2.DiaryResponse)
-
-    return answer.diary

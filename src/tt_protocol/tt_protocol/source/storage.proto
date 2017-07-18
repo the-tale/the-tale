@@ -1,0 +1,88 @@
+syntax = "proto3";
+package storage;
+
+
+message Item {
+  string id = 1;
+  uint32 owner_id = 2;
+  uint32 storage_id = 3;
+  string data = 4;
+  string base_type = 5;
+  string full_type = 6;
+}
+
+message OperationCreate {
+  uint32 owner_id = 1;
+  string item_id = 2;
+  string data = 3;
+  string base_type = 4;
+  string full_type = 5;
+  string operation_type = 6;
+  uint32 storage_id = 7;
+}
+
+message OperationDestroy {
+  string item_id = 1;
+  uint32 owner_id = 2;
+  string operation_type = 3;
+}
+
+message OperationChangeOwner {
+  string item_id = 1;
+  uint32 old_owner_id = 2;
+  uint32 new_owner_id = 3;
+  uint32 new_storage_id = 4;
+  string operation_type = 5;
+}
+
+message OperationChangeStorage {
+  string item_id = 1;
+  uint32 owner_id = 2;
+  uint32 old_storage_id = 3;
+  uint32 new_storage_id = 4;
+  string operation_type = 5;
+}
+
+
+message Operation {
+  oneof operation {
+    OperationCreate create = 1;
+    OperationDestroy destroy = 2;
+    OperationChangeOwner change_owner = 3;
+    OperationChangeStorage change_storage = 4;
+  }
+}
+
+
+message ApplyRequest {
+  repeated Operation operations = 1;
+}
+
+
+message ApplyResponse {
+}
+
+
+message GetItemsRequest {
+  uint32 owner_id = 1;
+}
+
+
+message GetItemsResponse {
+  repeated Item items = 1;
+}
+
+
+message HasItemsRequest {
+  uint32 owner_id = 1;
+  repeated string items_ids = 2;
+}
+
+
+message HasItemsResponse {
+  bool has = 1;
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

@@ -10,7 +10,7 @@ from the_tale.amqp_environment import environment
 from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts import prototypes as account_prototypes
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts import logic as accounts_logic
 
 from the_tale.finances.bank import transaction as bank_transaction
@@ -290,7 +290,7 @@ class BuyLotTask(PostponedLogic):
 
             seller = account_prototypes.AccountPrototype.get_by_id(lot.seller_id)
 
-            pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+            pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
                                   recipients_ids=[seller.id],
                                   body=good_bought_message(lot),
                                   async=True)
@@ -398,7 +398,7 @@ class CloseLotByTimoutTask(PostponedLogic):
 
             seller = account_prototypes.AccountPrototype.get_by_id(lot.seller_id)
 
-            pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+            pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
                                   recipients_ids=[seller.id],
                                   body=good_timeout_message(lot),
                                   async=True)

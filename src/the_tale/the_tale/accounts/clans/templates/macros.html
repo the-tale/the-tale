@@ -7,18 +7,7 @@
 <li class="nav-element {%if page_id.is_INDEX%}active{%endif%}"><a href="{{ url('accounts:clans:') }}">Все гильдии</a></li>
 
 {% if own_clan_info.clan is none %}
-  {% if own_clan_info.can_create_clan %}
-    <li class="nav-element {%if page_id.is_NEW%}active{%endif%}"><a href="{{ url('accounts:clans:new') }}" class="pgf-create-clan-button">Создать гильдию</a></li>
-  {% else %}
-    <li class="nav-element disabled"
-        rel="tooltip"
-        title="Вы не можете создать гильдию. За подробной информацией обратитесь в путеводитель.">
-      <a href="#" class="pgf-create-clan-disabled-button">Создать гильдию</a>
-    </li>
-  {% endif %}
-
   <li class="nav-element {%if page_id.is_FOR_ACCOUNT%}active{%endif%}"><a href="{{ url('accounts:clans:membership:for-account') }}">Мои приглашения</a></li>
-
 {% else %}
   <li class="nav-element {%if page_id.is_SHOW%}active{%endif%}"><a href="{{ url('accounts:clans:show', own_clan_info.clan_id) }}">Моя гильдия</a></li>
 {% endif %}
@@ -85,6 +74,15 @@
   {% endif %}
 
 {% else %}
+{% endif %}
+
+{% if own_clan_info.clan is none %}
+
+<li class="nav-element">
+  <p class="alert alert-info">
+    Чтобы создать гильдию используйте карту <strong>«Братство»</strong>
+  </p>
+</li>
 {% endif %}
 
 {% endmacro %}

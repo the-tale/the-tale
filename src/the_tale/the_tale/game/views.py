@@ -11,6 +11,7 @@ from the_tale.common.utils import views as utils_views
 from the_tale.accounts import views as accounts_views
 from the_tale.accounts.clans.prototypes import ClanPrototype
 
+from the_tale.game.heroes import tt_api as heroes_tt_api
 from the_tale.game.heroes import views as heroes_views
 from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
@@ -22,7 +23,7 @@ from the_tale.game.conf import game_settings
 from the_tale.game.pvp.prototypes import Battle1x1Prototype
 from the_tale.game import logic as game_logic
 
-from the_tale.game.cards.effects import EFFECTS
+from the_tale.game.cards.cards import CARD
 
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
@@ -53,7 +54,7 @@ def game_page(context):
     if context.account.clan_id is not None:
         clan = ClanPrototype.get_by_id(context.account.clan_id)
 
-    cards = sorted(list(EFFECTS.values()), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
+    cards = sorted(CARD.records, key=lambda r: (r.rarity.value, r.text))
 
     return dext_views.Page('game/game_page.html',
                            content={'map_settings': map_settings,
@@ -76,7 +77,7 @@ def api_info(context):
 
 - **адрес:** /game/api/info
 - **http-метод:** GET
-- **версии:** 1.7
+- **версии:** 1.8
 - **параметры:**
     * GET: account — идентификатор аккаунта
     * GET: client_turns — номера ходов, по отношению к которым можно вернуть сокращённую информацию о герое (только изменённые с этого времени поля).
@@ -138,9 +139,6 @@ def api_info(context):
       },
 
       "cards":{                          // карты судьбы [личная информация]
-        "cards": [                       // список карт
-          <card_info>                    // информация о карте
-        ],
         "help_count": <целое число>,     // сколько помощи накоплено для получения новой карты
         "help_barrier": <целое число>    // сколько всего помощи надо накопить для новой карты
       },
@@ -290,14 +288,6 @@ def api_info(context):
         "id": <целое число>                          // уникальный идентификатор рода артефакта
     }
 
-    <card_info> = {                              // информация о карте в колоде игрока
-        "name": "строка",                        // название
-        "type": <целое число>,                   // тип
-        "rarity": <целое число>,                 // редкость карты
-        "uid": <целое число>,                    // уникальный идентификатор в колоде игрока
-        "auction": true|false                    // может быть продана на рынке
-    }
-
     <companion_info> = {                         // информация о спутнике героя
         "type": <целое число>,                   // тип спутника
         "name": "строка",                        // название/имя спутника
@@ -379,7 +369,7 @@ def api_diary(context):
 
     '''
 
-    pb_diary = heroes_logic.get_diary(context.account.id)
+    pb_diary = heroes_tt_api.get_diary(context.account.id)
 
     data = {'version': pb_diary.version,
             'messages': []}

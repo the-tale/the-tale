@@ -146,8 +146,6 @@ ARTIFACT_INTEGRITY_SAFE_BARRIER = float(0.2) # доля от максималь�
 ARTIFACT_BREAK_POWER_FRACTIONS = (float(0.2), float(0.3)) # на сколько артефакт может сломаться за раз
 ARTIFACT_BREAK_INTEGRITY_FRACTIONS = (float(0.1), float(0.2)) # на сколько артефакт может сломаться за раз
 
-PREFERENCES_CHANGE_DELAY = int(2*7*24*60*60) # время блокировки возможности изменять предпочтение
-
 PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER = float(2) # множитель вероятности получения лута из любимой добычи
 
 DAMAGE_TO_HERO_PER_HIT_FRACTION = float(1.0 / (BATTLES_BEFORE_HEAL * (BATTLE_LENGTH / 2 - COMPANIONS_DEFENDS_IN_BATTLE))) # доля урона, наносимого герою за удар
@@ -292,7 +290,7 @@ HERO_POWER_PER_DAY = int(100) # базовое количество влияни
 PERSON_POWER_PER_QUEST_FRACTION = float(0.33) # разброс влияния за задание
 PERSON_POWER_FOR_RANDOM_SPEND = int(200)
 
-MINIMUM_CARD_POWER = int(HERO_POWER_PER_DAY / 5)
+MINIMUM_CARD_POWER = int(HERO_POWER_PER_DAY)
 
 NORMAL_JOB_LENGTH = int(10) # средняя длительность занятия мастера в днях
 
@@ -531,32 +529,37 @@ PERSON_SOCIAL_CONNECTIONS_POWER_BONUS = float(0.1)
 # здания
 ###########################
 
-BUILDING_MASTERY_BONUS = float(0.15)
-
 BUILDING_POSITION_RADIUS = int(2)
 
 # на починку зданий игроки тратят энергию
 # желательно, чтобы для единственного здания в городе эффект единичной траты энергии был заметен
 
-BUILDING_FULL_DESTRUCTION_TIME = int(2*7*24) # in hours
-BUILDING_AMORTIZATION_SPEED = float(1.0 / BUILDING_FULL_DESTRUCTION_TIME) # percents/hour
+# единственное здание города  должно поддерживаться одним человеком без дополнительных усилий
+# поскольку ремонт производится картами, делаем срок жизни достаточно долгим, чтобы рандом не сильно влиял на возможность ремонта
+BUILDING_FULL_DESTRUCTION_TIME = int(2) # в месяцах
+BUILDING_AMORTIZATION_SPEED = float(1.0 / (BUILDING_FULL_DESTRUCTION_TIME*30*24)) # % в час
 
-# единственное здание города  может поддерживаться одним человеком при условии траты всей энергии
-BUILDING_FULL_REPAIR_ENERGY_COST = int(BUILDING_FULL_DESTRUCTION_TIME * ANGEL_ENERGY_REGENERATION_AMAUNT * ANGEL_ENERGY_REGENERATION_PERIOD / TURNS_IN_HOUR)
+_BUILDING_CARDS_IN_MONTH = int(2) # делаем допущение, что в среднем игрок получает 2 базовых карты починки в месяц
+
+# базовое значение размера починки от карты
+BUILDING_CARD_REPAIR_BASE = float(1.0 / BUILDING_FULL_DESTRUCTION_TIME / _BUILDING_CARDS_IN_MONTH)
 
 BUILDING_AMORTIZATION_MODIFIER = float(1.5) # цена ремонта здания зависит от количества зданий в городе и равно <цена>*BULDING_AMORTIZATION_MODIFIER^<количество зданий - 1>
-BUILDING_WORKERS_ENERGY_COST = int(3) # цена вызова одного рабочего
 
-BUILDING_PERSON_POWER_BONUS = float(0.25)
+BUILDING_PERSON_POWER_BONUS = float(0.5)
 BUILDING_TERRAIN_POWER_MULTIPLIER = float(0.5) # building terrain power is percent from city power
 
 ###########################
 # Карты
 ###########################
 
-CARDS_HELP_COUNT_TO_NEW_CARD = int(1.5 * ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)
-CARDS_COMBINE_TO_UP_RARITY = 3
-
+CARDS_HELP_COUNT_TO_NEW_CARD = int(0.8 * ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST)
+CARDS_COMBINE_TO_UP_RARITY = int(3)
+CARDS_LEVEL_MULTIPLIERS = [1,   # 3.5**0
+                           3.5, # 3.5**1
+                           12,  # 3.5**2 = 12.25 -> 12; 12/3.5 ~ 3.43
+                           42,  # 3.5**3 = 42.875 -> 42; 42 / 12 = 3.5
+                           150] # 3.5**4 = 150.0625 -> 150; 150/42 ~ 3.571
 
 ###########################
 # Спутники

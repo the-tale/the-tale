@@ -87,25 +87,6 @@ class HabilitiesContainerTest(TestCase):
         self.assertTrue(self.abilities.get(battle_abilities.REGENERATION.get_id()).level in [1, 2])
         self.assertEqual(self.abilities.get(battle_abilities.HIT.get_id()).level + self.abilities.get(battle_abilities.REGENERATION.get_id()).level, 3)
 
-    def test_reset_abilities(self):
-        self.assertFalse(self.abilities.can_reset) # new hero created with reset timeout
-        self.abilities.set_reseted_at(datetime.datetime.now() - heroes_settings.ABILITIES_RESET_TIMEOUT)
-        self.assertTrue(self.abilities.can_reset)
-
-        self.abilities.add(battle_abilities.STRONG_HIT.get_id())
-        self.assertTrue(len(self.abilities.all) > 1)
-
-        old_destiny_points = self.abilities.destiny_points_spend
-
-        with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
-            self.abilities.reset()
-
-        self.assertEqual(reset_accessors_cache.call_count, 1)
-
-        self.assertEqual(len(self.abilities.all), 2)
-        self.assertEqual(old_destiny_points + 1, self.abilities.destiny_points_spend)
-        self.assertFalse(self.abilities.can_reset)
-
     def test_rechooce_choices(self):
         for i in range(1000):
             old_choices = set(ability.get_id() for ability in self.abilities.get_for_choose())

@@ -1,0 +1,35 @@
+
+{% macro preference_record(item, choosen_id) %}
+<td class="hero-preference-choise {% if item == choosen_id %}choosen{% endif %}">
+  {% if item != choosen_id %}
+  {{ item.text }}
+  {% else %}
+  <strong>{{ item.text }}</strong>
+  {% endif %}
+</td>
+<td>
+  {{item.description}}
+</td>
+{% endmacro %}
+
+<p style="margin-top: -1em;">
+  Уровень эмпатии героя: <strong>{{hero.preferences.companion_empathy.text}}</strong>.
+</p>
+
+<hr style="margin-bottom: 1em;"/>
+
+<p>
+  Некоторые спутники не только помогают героям своими особыми способностями. Обладая собственным характером, они влияют на героев, изменяют черты их характера. В некоторых случаях такое влияние идёт на пользу герою, в других — во вред. Судить же о полезности такого влияния может только Хранитель.
+</p>
+
+<p>
+  Эмпатия определяет как будут влиять черты спутника (если они есть) на героя. Герои-эмпаты значительно больше подвержены влиянию спутников, чем эгоцентрики.
+</p>
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for companion_empathy in COMPANION_EMPATHY.records %}
+  <tr>
+    {{ preference_record(companion_empathy, hero.preferences.companion_empathy) }}
+  </tr>
+  {% endfor %}
+</table>

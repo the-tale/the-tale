@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -6,7 +6,7 @@ from the_tale.common.utils import testcase
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 from the_tale.game.quests.tests import helpers as quests_helpers
@@ -30,7 +30,6 @@ class AddPoliticPowerTestMixin(CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = self.CARD()
 
     def test_use(self):
         self.action_quest = ActionQuestPrototype.create(hero=self.hero)
@@ -42,8 +41,8 @@ class AddPoliticPowerTestMixin(CardsTestMixin):
             with self.check_not_changed(lambda: self.hero.power):
                 with self.check_not_changed(lambda: self.hero.level):
                     with self.check_not_changed(lambda: self.hero.quests.current_quest.current_info.power):
-                        with self.check_delta(lambda: self.hero.quests.current_quest.current_info.power_bonus, self.CARD.POWER):
-                            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+                        with self.check_delta(lambda: self.hero.quests.current_quest.current_info.power_bonus, self.CARD.effect.modificator):
+                            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
                             self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(mark_updated.call_count, 1)
@@ -51,24 +50,25 @@ class AddPoliticPowerTestMixin(CardsTestMixin):
     def test_no_quest(self):
         self.assertFalse(self.hero.quests.has_quests)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
-class AddPoliticPowercommonTests(AddPoliticPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPoliticPowerCommon
+class AddPoliticPowerCommonTests(AddPoliticPowerTestMixin, testcase.TestCase):
+    CARD = cards.CARD.ADD_POWER_COMMON
 
 
 class AddPoliticPowerUncommonTests(AddPoliticPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPoliticPowerUncommon
+    CARD = cards.CARD.ADD_POWER_UNCOMMON
 
 
 class AddPoliticPowerRareTests(AddPoliticPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPoliticPowerRare
+    CARD = cards.CARD.ADD_POWER_RARE
 
 
 class AddPoliticPowerEpicTests(AddPoliticPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPoliticPowerEpic
+    CARD = cards.CARD.ADD_POWER_EPIC
+
 
 class AddPoliticPowerLegendaryTests(AddPoliticPowerTestMixin, testcase.TestCase):
-    CARD = effects.AddPoliticPowerLegendary
+    CARD = cards.CARD.ADD_POWER_LEGENDARY

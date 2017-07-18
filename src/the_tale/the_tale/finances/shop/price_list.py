@@ -18,7 +18,6 @@ PREMIUM_DAYS_DESCRIPTION = '''
 <ul>
   <li>герой оказывает влияние на мир;</li>
   <li>можно голосовать;</li>
-  <li>можно ремонтировать здания;</li>
   <li>получаемые карты судьбы можно продавать на рынке;</li>
   <li>на 50% увеличивается получаемый героем опыт;</li>
   <li>на 50% увеличивается скорость изменения черт;</li>
@@ -31,21 +30,6 @@ PREMIUM_DAYS_DESCRIPTION = '''
 '''.format(DIARY_LOG_LENGTH_PREMIUM=heroes_conf.heroes_settings.DIARY_LOG_LENGTH_PREMIUM,
            PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS=c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS)
 
-PREFERENCES_DESCRIPTION = '''
-<p>
-У каждого героя есть предпочтения, в соответствии с которыми он строит своё поведение.<br/>
-Они доступны не сразу, а открываются с ростом уровня.<br/>
-Вы можете не ждать и получить доступ к любому из них за небольшое количество печенек.
-</p>
-'''
-
-GUILDS_DESCRIPTION = '''
-<p>
-Гильдии — это объединения игроков, преследующих одну и ту же цель и желающих согласовывать свои действия в Пандоре.<br/>
-Создать гильдию может любой игрок, если у него достаточно могущества.<br/>
-Если Ваше могущество меньше, Вы можете купить разрешение на владение гильдией.
-</p>
-'''
 
 RANDOM_PREMIUM_CHEST_DESCRIPTION = '''
 <p>
@@ -73,12 +57,6 @@ def permanent_purchase(uid, purchase_type, cost, transaction_description):
                                    cost=cost,
                                    purchase_type=purchase_type,
                                    transaction_description=transaction_description)
-
-def permanent_permission_purchase(uid, purchase_type, cost):
-    return permanent_purchase(uid=uid,
-                              purchase_type=purchase_type,
-                              cost=cost,
-                              transaction_description='Снятие ограничения уровня на предпочтение героя «%s»' % purchase_type.preference_type.text)
 
 
 RANDOM_PREMIUM_CHEST = goods.PurchaseGroup(type=relations.GOODS_GROUP.CHEST,
@@ -126,58 +104,6 @@ PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
                                                                purchase_type=relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION,
                                                                cost=6000,
                                                                transaction_description='Приобретение вечной подписки.')  ]),
-
-                goods.PurchaseGroup(type=relations.GOODS_GROUP.PREFERENCES,
-                                    name='Предпочтения',
-                                    description=PREFERENCES_DESCRIPTION,
-                                    items=[ permanent_permission_purchase(uid='preference-companion-dedication',
-                                                                          cost=10,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_DEDICATION),
-
-                                            permanent_permission_purchase(uid='preference-place',
-                                                                          cost=20,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_PLACE),
-
-                                            permanent_permission_purchase(uid='preference-mob',
-                                                                          cost=30,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_MOB),
-
-                                            permanent_permission_purchase(uid='preference-friend',
-                                                                          cost=40,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_FRIEND),
-
-                                            permanent_permission_purchase(uid='preference-archetype',
-                                                                          cost=50,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ARCHETYPE),
-
-                                            permanent_permission_purchase(uid='preference-enemy',
-                                                                          cost=60,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_ENEMY),
-
-                                            permanent_permission_purchase(uid='preference-companion-empathy',
-                                                                          cost=70,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_COMPANION_EMPATHY),
-
-                                            permanent_permission_purchase(uid='preference-favorite-item',
-                                                                          cost=80,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_FAVORITE_ITEM),
-
-                                            permanent_permission_purchase(uid='preference-risk-level',
-                                                                          cost=90,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_RISK_LEVEL),
-
-                                            permanent_permission_purchase(uid='preference-equipment-slot',
-                                                                          cost=100,
-                                                                          purchase_type=relations.PERMANENT_PURCHASE_TYPE.PREFERENCE_EQUIPMENT_SLOT)
-                                                                           ]),
-
-                goods.PurchaseGroup(type=relations.GOODS_GROUP.CLANS,
-                                    name='Гильдии',
-                                    description=GUILDS_DESCRIPTION,
-                                    items=[ permanent_purchase(uid='clan-ownership-right',
-                                                               cost=150,
-                                                               purchase_type=relations.PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT,
-                                                               transaction_description='Приобретение разрешения на владение гильдией.') ]),
                 ]
 
 

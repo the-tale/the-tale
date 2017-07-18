@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -6,7 +6,7 @@ from the_tale.common.utils import testcase
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -14,7 +14,7 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
 class InstantMonsterKillTests(CardsTestMixin, testcase.TestCase):
-    CARD = effects.InstantMonsterKill
+    CARD = cards.CARD.INSTANT_MONSTER_KILL
 
     def setUp(self):
         super(InstantMonsterKillTests, self).setUp()
@@ -28,12 +28,11 @@ class InstantMonsterKillTests(CardsTestMixin, testcase.TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = self.CARD()
 
     def test_no_battle(self):
         self.assertFalse(self.hero.actions.current_action.TYPE.is_BATTLE_PVE_1X1)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
     def test_use(self):
@@ -47,7 +46,7 @@ class InstantMonsterKillTests(CardsTestMixin, testcase.TestCase):
         self.assertTrue(self.hero.actions.current_action.mob.health > 0)
         self.assertTrue(self.hero.actions.current_action.percents < 1)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(self.hero.actions.current_action.mob.health <= 0)

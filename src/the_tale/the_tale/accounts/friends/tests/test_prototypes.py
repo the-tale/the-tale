@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
@@ -6,7 +5,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.accounts import logic as accounts_logic
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.accounts.friends.models import Friendship
@@ -23,7 +22,7 @@ class FriendshipPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
         self.account_2 = self.accounts_factory.create_account()
         self.account_3 = self.accounts_factory.create_account()
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
     def test_request_friendship__own_request_exists(self):
 

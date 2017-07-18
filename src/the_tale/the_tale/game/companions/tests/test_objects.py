@@ -291,13 +291,13 @@ class CompanionTests(testcase.TestCase):
         self.hero.set_companion(self.companion)
 
         with self.check_increased(lambda: self.hero.companion.defend_in_battle_probability):
-            self.hero.preferences.set_companion_dedication(heroes_relations.COMPANION_DEDICATION.EGOISM)
+            self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.COMPANION_DEDICATION, heroes_relations.COMPANION_DEDICATION.EGOISM)
 
         with self.check_decreased(lambda: self.hero.companion.defend_in_battle_probability):
-            self.hero.preferences.set_companion_dedication(heroes_relations.COMPANION_DEDICATION.NORMAL)
+            self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.COMPANION_DEDICATION, heroes_relations.COMPANION_DEDICATION.NORMAL)
 
         with self.check_decreased(lambda: self.hero.companion.defend_in_battle_probability):
-            self.hero.preferences.set_companion_dedication(heroes_relations.COMPANION_DEDICATION.ALTRUISM)
+            self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.COMPANION_DEDICATION, heroes_relations.COMPANION_DEDICATION.ALTRUISM)
 
 
     def test_defend_in_battle_probability__companion_dedication(self):

@@ -188,7 +188,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         accounts_query.update(premium_expired_notification_send_at=current_time)
 
     def notify_about_premium_expiration(self):
-        from the_tale.accounts.personal_messages import logic as pm_logic
+        from the_tale.accounts.personal_messages import tt_api as pm_tt_api
         from the_tale.accounts import logic
 
         current_time = datetime.datetime.now()
@@ -200,7 +200,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 ''' % {'verbose_timedelta': verbose_timedelta(self.premium_end_at - current_time),
        'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:shop')}
 
-        pm_logic.send_message(logic.get_system_user_id(), [self.id], message, async=True)
+        pm_tt_api.send_message(logic.get_system_user_id(), [self.id], message, async=True)
 
     @lazy_property
     def bank_account(self):
@@ -538,7 +538,7 @@ class RandomPremiumRequestPrototype(BasePrototype):
             return None
 
     def process(self):
-        from the_tale.accounts.personal_messages import logic as pm_logic
+        from the_tale.accounts.personal_messages import tt_api as pm_tt_api
         from the_tale.accounts import logic
 
         accounts_ids = AccountPrototype.live_query().filter(is_fast=False,
@@ -555,7 +555,7 @@ class RandomPremiumRequestPrototype(BasePrototype):
             account.prolong_premium(self.days)
             account.save()
 
-            pm_logic.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, async=True)
+            pm_tt_api.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, async=True)
 
             self.receiver_id = account.id
             self.state = relations.RANDOM_PREMIUM_REQUEST_STATE.PROCESSED

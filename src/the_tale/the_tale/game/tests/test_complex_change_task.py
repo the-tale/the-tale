@@ -43,7 +43,7 @@ class ComplexChangeTasksTests(TestCase):
         self.assertEqual(self.task.serialize(), UseAbilityTask.deserialize(self.task.serialize()).serialize())
 
     def test_response_data(self):
-        self.assertEqual(self.task.processed_data, {})
+        self.assertEqual(self.task.processed_data, {'message': None})
 
     def test_banned(self):
         self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(days=1)

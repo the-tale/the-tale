@@ -1,0 +1,35 @@
+
+{% macro preference_record(item, choosen_id) %}
+<td width="150px">
+  {% if item != choosen_id %}
+  {{ item.text }}
+  {% else %}
+  <strong>{{ item.text }}</strong>
+  {% endif %}
+</td>
+<td>
+  {{item.description}}
+</td>
+{% endmacro %}
+
+<p style="margin-top: -1em;">
+  Отношения героя со спутником: <strong>{{hero.preferences.companion_dedication.text}}</strong>.
+</p>
+
+<hr style="margin-bottom: 1em;"/>
+
+<p>
+  Герои берут спутников себе в компанию по разным причинам и относятся к ним по-разному. Некоторые герои чувствуют ответственность за тех, кто путешествует рядом с ними, и стремятся облегчить их жизнь. Другие практикуют утилитарный подход и стремяться получить максимум выгоды из компаньона.
+</p>
+
+<p>
+  Отношение со спутником определяет как часто спутник будет защищать героя в бою. Эгоистичный герой не мешает спутнику участвовать в сражениях и не против лишний раз укрыться за его спиной. Альтруистичный герой, наоборот, стремиться уберечь спутника от лишнего урона и не даёт последнему лезть в бой чересчур активно.
+</p>
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for companion_dedication in COMPANION_DEDICATION.records %}
+  <tr>
+    {{ preference_record(companion_dedication, hero.preferences.companion_dedication) }}
+  </tr>
+  {% endfor %}
+</table>

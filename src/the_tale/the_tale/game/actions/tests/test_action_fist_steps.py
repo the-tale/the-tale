@@ -25,7 +25,7 @@ class FirstStepsActionTest(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.action_first_steps = ActionFirstStepsPrototype.create(hero=self.hero)
 
 
@@ -41,7 +41,7 @@ class FirstStepsActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.journal.messages_number(), 2)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             self.storage.process_turn()
 
             current_time.increment_turn()

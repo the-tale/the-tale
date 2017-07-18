@@ -75,8 +75,6 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
     def test_own_hero_page(self):
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)),
                            texts=(('pgf-health-percents', 2),
-                                  ('pgf-reset-abilities-timeout-button', 1),
-                                  ('pgf-reset-abilities-button', 0),
                                   ('pgf-experience-percents', 2),
                                   ('pgf-energy-percents', 1),
                                   ('pgf-physic-power value', 1),
@@ -85,7 +83,6 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('"pgf-health"', 2),
                                   ('pgf-max-health', 2),
                                   ('pgf-choose-ability-button', 2),
-                                  ('pgf-choose-preference-button', 2),
                                   ('pgf-free-destiny-points', 3),
                                   ('pgf-no-destiny-points', 2),
                                   ('pgf-settings-container',2),
@@ -93,17 +90,9 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('pgf-moderation-container', 0),
                                   'pgf-no-folclor'))
 
-    def test_can_reset_abilities(self):
-        self.hero.abilities.set_reseted_at(datetime.datetime.fromtimestamp(0))
-        logic.save_hero(self.hero)
-        self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)),
-                           texts=(('pgf-reset-abilities-timeout-button', 0),
-                                  ('pgf-reset-abilities-button', 1)))
 
     def test_other_hero_page(self):
         texts = (('pgf-health-percents', 2),
-                 ('pgf-reset-abilities-timeout-button', 0),
-                 ('pgf-reset-abilities-button', 0),
                  ('pgf-experience-percents', 0),
                  ('pgf-energy-percents', 0),
                  ('pgf-physic-power value', 1),
@@ -112,7 +101,6 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                  ('"pgf-health"', 2),
                  ('pgf-max-health', 2),
                  ('pgf-choose-ability-button', 0),
-                 ('pgf-choose-preference-button', 0),
                  ('pgf-no-destiny-points', 0),
                  ('pgf-free-destiny-points', 0),
                  ('pgf-settings-container',0),
@@ -147,22 +135,6 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         group.user_set.add(account_2._model)
 
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=['pgf-moderation-container'])
-
-
-
-
-class ChangePreferencesRequestsTests(HeroRequestsTestBase):
-
-    def setUp(self):
-        super(ChangePreferencesRequestsTests, self).setUp()
-
-    def test_chooce_preferences_dialog(self):
-        self.hero.level = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
-        logic.save_hero(self.hero)
-
-        for preference_type in relations.PREFERENCE_TYPE.records:
-            texts = []
-            self.check_html_ok(self.request_html(url('game:heroes:choose-preferences-dialog', self.hero.id) + ('?type=%d' % preference_type.value)), texts=texts)
 
 
 class ChangeHeroRequestsTests(HeroRequestsTestBase):
@@ -206,38 +178,6 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         self.assertEqual(task.internal_logic.name, names.generator().get_test_name(name='новое имя'))
         self.assertEqual(task.internal_logic.gender, GENDER.MASCULINE)
         self.assertEqual(task.internal_logic.race, RACE.DWARF)
-
-
-class ResetAbilitiesRequestsTests(HeroRequestsTestBase):
-
-    def setUp(self):
-        super(ResetAbilitiesRequestsTests, self).setUp()
-
-        self.hero.abilities.set_reseted_at(datetime.datetime.fromtimestamp(0))
-        logic.save_hero(self.hero)
-
-    def test_wrong_ownership(self):
-        account_2 = self.accounts_factory.create_account()
-        self.request_logout()
-        self.request_login(account_2.email)
-        self.check_ajax_error(self.post_ajax_json(url('game:heroes:reset-abilities', self.hero.id)),
-                              'heroes.not_owner')
-
-    def test_reset_timeout(self):
-        self.hero.abilities.set_reseted_at(datetime.datetime.now())
-        logic.save_hero(self.hero)
-        self.check_ajax_error(self.post_ajax_json(url('game:heroes:reset-abilities', self.hero.id)),
-                              'heroes.reset_abilities.reset_timeout')
-
-
-    def test_success(self):
-        self.assertEqual(PostponedTask.objects.all().count(), 0)
-        response = self.post_ajax_json(url('game:heroes:reset-abilities', self.hero.id))
-        self.assertEqual(PostponedTask.objects.all().count(), 1)
-
-        task = PostponedTaskPrototype._db_get_object(0)
-
-        self.check_ajax_processing(response, task.status_url)
 
 
 class ResetNameRequestsTests(HeroRequestsTestBase):

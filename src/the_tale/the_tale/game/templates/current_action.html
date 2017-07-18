@@ -1,6 +1,8 @@
 
 {% import 'accounts/macros.html' as accounts_macros with context %}
 
+<script src="{{ STATIC_CONTENT }}game/cards.js" type="text/javascript"></script>
+
 <script type="text/javascript">
 jQuery(document).ready(function(e) {
 
@@ -8,58 +10,12 @@ jQuery(document).ready(function(e) {
 
     widgets.abilities = new pgf.game.widgets.Abilities();
 
-    jQuery('.pgf-action-info-link').click(function(e){
-        e.preventDefault();
-        var target = jQuery(e.currentTarget);
-        var url = target.attr('href');
-        pgf.ui.dialog.Create({ fromUrl: url});
-    });
-
-    jQuery('.pgf-card-link').live('click', function(e){
-        e.preventDefault();
-        var target = jQuery(e.currentTarget);
-        var url = target.attr('href') + '?card=' +target.data('card-uid');
-
-        pgf.ui.dialog.Create({ fromUrl: url,
-                               OnOpen: function(dialog) {
-                                   var cardForm = new pgf.forms.Form(jQuery('.pgf-use-card-form', dialog),
-                                                                     {OnSuccess: function(form, data){
-                                                                         jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
-                                                                         dialog.modal('hide');
-
-                                                                         if (data.data.message) {
-                                                                             pgf.ui.dialog.Alert({message: data.data.message,
-                                                                                                  title: 'Карта использована',
-                                                                                                  OnOk: function(e){}});
-                                                                         }
-
-                                                                     }});
-                               }
-                             });
-    });
-
-    jQuery('.pgf-get-card-button').click(function(e){
-        e.preventDefault();
-        pgf.forms.Post({ action: "{{get_card_url()}}",
-                         OnSuccess: function(data){
-                             jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
-                             pgf.ui.dialog.Alert({message: data.data.message,
-                                                  title: 'Вы получаете новую карту!',
-                                                  OnOk: function(e){}});
-                                 return;
-                             }
-                         });
-    });
-
-    jQuery('.pgf-combine-card-button').click(function(e){
-        e.preventDefault();
-
-        pgf.ui.dialog.Create({ fromUrl: "{{url('game:cards:combine-dialog')}}",
-                               OnOpen: function(dialog) {
-                                   pgf.game.CombineCardsDialog(dialog);
-                               }
-                             });
-    });
+    widgets.cards = new pgf.game.widgets.Cards({getItems: "{{get_cards_url()}}",
+                                                getCard: "{{get_card_url()}}",
+                                                transformItems: "{{transform_cards_url()}}",
+                                                moveToStorage: "{{move_to_storage_url()}}",
+                                                moveToHand: "{{move_to_hand_url()}}",
+                                                useCardDialog: "{{url('game:cards:use-dialog')}}"})
 
 });
 </script>
@@ -109,7 +65,7 @@ jQuery(document).ready(function(e) {
 
     <div class="dropdown" style="display: inline-block;  width: 30%; font-size: 11pt;">
       <i class="icon-gift pgf-new-card-icon" style="margin-top: 1px;" rel="tooltip" title="Вы можете получить новую карту!"></i>
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown">карты<b class="caret"></b></a>
+      <a href="#" class="dropdown-toggle pgf-cards-for-use-dropdown" data-toggle="dropdown">карты<b class="caret"></b></a>
       <ul class="pgf-scrollable dropdown-menu pgf-cards-choices"
           role="menu"
           style="max-height: 310px; overflow-y: auto; font-size: 10pt; z-index: 1011; text-align: left;">
@@ -130,8 +86,12 @@ jQuery(document).ready(function(e) {
             <a href="#" style="margin: 0.25em; height: 18px;">Взять карту! x <span class="pgf-new-cards-number"></span></a>
           </li>
 
-          <li class="pgf-combine-card-button pgf-hidden">
-            <a href="#" style="margin: 0.25em; height: 18px;">Объединить карты</a>
+          <li class="pgf-storage-card-button">
+            <a href="#" style="margin: 0.25em; height: 18px;">Хранилище</a>
+          </li>
+
+          <li class="pgf-transformator-card-button">
+            <a href="#" style="margin: 0.25em; height: 18px;">Превращение</a>
           </li>
 
           <li class="divider"></li>
@@ -139,8 +99,9 @@ jQuery(document).ready(function(e) {
           <ul class="pgf-cards-container unstyled">
             <li class="pgf-template">
               <a href="{{url('game:cards:use-dialog')}}"
-                 class="pgf-card-link pgf-card-record"
+                 class="pgf-card-link"
                  style="font-size: 10pt;">
+                <span class="pgf-number">1</span> <span style="color: #0088cc;">x</span> <span class="pgf-card-record"></span>
               </a>
             </li>
           </ul>

@@ -21,6 +21,8 @@ from the_tale.game import relations as game_relations
 from the_tale.game.pvp.prototypes import Battle1x1Prototype, Battle1x1ResultPrototype
 from the_tale.game.pvp.relations import BATTLE_1X1_RESULT
 
+from the_tale.game.heroes import relations as heroes_relations
+
 from . import pvp
 from . import battle
 from . import contexts
@@ -212,7 +214,7 @@ class ArenaPvP1x1(MetaAction):
         if not hero.is_bot:
             return
 
-        hero.preferences.set_archetype(random.choice(game_relations.ARCHETYPE.records))
+        hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ARCHETYPE, random.choice(game_relations.ARCHETYPE.records))
 
         hero.reset_level()
         for i in range(enemy.level-1):

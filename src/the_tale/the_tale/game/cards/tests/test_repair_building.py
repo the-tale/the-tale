@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -12,7 +11,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game import names
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
@@ -21,11 +20,11 @@ from the_tale.game.balance import constants as c
 from the_tale.game.places import logic as places_logic
 
 
-class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
-    CARD = effects.RepairBuilding
+class RepairBuildingMixin(CardsTestMixin):
+    CARD = None
 
     def setUp(self):
-        super(RepairBuildingTests, self).setUp()
+        super(RepairBuildingMixin, self).setUp()
 
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
@@ -38,8 +37,6 @@ class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = self.CARD()
-
         environment.deinitialize()
         environment.initialize()
 
@@ -49,15 +46,12 @@ class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
         self.building_1 = places_logic.create_building(person=self.place_1.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
         self.building_2 = places_logic.create_building(person=self.place_2.persons[0], utg_name=names.generator().get_test_name('building-1-name'))
 
-        self.building_1.amortize(c.TURNS_IN_HOUR*24)
-        self.building_2.amortize(c.TURNS_IN_HOUR*24)
+        self.building_1.integrity = 0
+        self.building_2.integrity = 0
 
     def test_use(self):
 
-        self.assertTrue(self.building_1.need_repair)
-        self.assertTrue(self.building_2.need_repair)
-
-        result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero, storage=self.storage, building_id=self.building_2.id))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(hero=self.hero, storage=self.storage, value=self.building_2.id))
 
         self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL))
         self.assertEqual(len(postsave_actions), 1)
@@ -67,17 +61,30 @@ class RepairBuildingTests(CardsTestMixin, testcase.TestCase):
 
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero,
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(hero=self.hero,
                                                                              step=step,
                                                                              highlevel=self.highlevel,
-                                                                             building_id=self.building_2.id))
+                                                                             value=self.building_2.id))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-        self.assertTrue(self.building_1.need_repair)
-        self.assertFalse(self.building_2.need_repair)
+        self.assertEqual(self.building_1.integrity, 0)
+        self.assertEqual(self.building_2.integrity, self.CARD.effect.modificator)
 
 
-    def test_use_for_wrong_place_id(self):
-        self.assertEqual(self.card.use(**self.use_attributes(hero=self.hero, building_id=666, storage=self.storage)),
+    def test_use_for_wrong_building_id(self):
+        self.assertEqual(self.CARD.effect.use(**self.use_attributes(hero=self.hero, value=666, storage=self.storage)),
                         (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+
+
+
+class RepairBuildingCommonTests(RepairBuildingMixin, testcase.TestCase):
+    CARD = cards.CARD.REPAIR_BUILDING_COMMON
+
+
+class RepairBuildingUncommonTests(RepairBuildingMixin, testcase.TestCase):
+    CARD = cards.CARD.REPAIR_BUILDING_UNCOMMON
+
+
+class RepairBuildingRareTests(RepairBuildingMixin, testcase.TestCase):
+    CARD = cards.CARD.REPAIR_BUILDING_RARE

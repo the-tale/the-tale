@@ -28,31 +28,6 @@ class ClanInfoTests(TestCase, ClansTestsMixin):
 
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda *argv: False)
-    def test_can_create_clan__anonymous(self):
-        self.assertFalse(self.clan_info.can_create_clan)
-
-    def test_can_create_clan__already_member(self):
-        self.create_clan(self.account, 0)
-        self.assertFalse(self.clan_info.can_create_clan)
-
-    def test_can_create_clan__is_fast(self):
-        self.account.is_fast = True
-        self.assertFalse(self.clan_info.can_create_clan)
-
-    def test_can_create_clan__can(self):
-        self.account.set_might(clans_settings.OWNER_MIGHT_REQUIRED)
-        self.assertTrue(self.clan_info.can_create_clan)
-
-    def test_can_create_clan__no_might(self):
-        self.assertFalse(self.clan_info.can_create_clan)
-
-    def test_can_create_clan__right_purchased(self):
-        self.account.permanent_purchases.insert(PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT)
-        self.assertTrue(self.account.might < clans_settings.OWNER_MIGHT_REQUIRED)
-        self.assertTrue(self.clan_info.can_create_clan)
-
-
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda *argv: False)
     def test_membership__anonymous(self):
         self.assertEqual(self.clan_info.membership, None)
 

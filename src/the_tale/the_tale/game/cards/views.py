@@ -1,4 +1,5 @@
-# coding: utf-8
+
+import uuid
 
 from rels.django import DjangoEnum
 
@@ -12,20 +13,32 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils import api
 from the_tale.common.utils import list_filter
 from the_tale.common.utils import views as utils_views
+from the_tale.common.utils import exceptions as utils_exceptions
 
 from the_tale.accounts import views as accounts_views
 
+from the_tale.game import relations as game_relations
+
 from the_tale.game.heroes import views as heroes_views
+from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import postponed_tasks as heroes_postponed_tasks
 
-from the_tale.game.cards import relations
-from the_tale.game.cards import effects
-from the_tale.game.cards import conf
+from . import relations
+from . import effects
+from . import tt_api
+from . import logic
+from . import cards
+from . import conf
 
 
 ########################################
 # processors definition
 ########################################
+
+class AccountCardsLoader(dext_views.BaseViewProcessor):
+    def preprocess(self, context):
+        context.account_cards = tt_api.load_cards(context.account.id)
+
 
 class AccountCardProcessor(dext_views.ArgumentProcessor):
     ERROR_MESSAGE = 'У Вас нет такой карты'
@@ -34,32 +47,33 @@ class AccountCardProcessor(dext_views.ArgumentProcessor):
 
     def parse(self, context, raw_value):
         try:
-            card_uid = int(raw_value)
+            card_uid = uuid.UUID(raw_value)
         except ValueError:
             self.raise_wrong_format()
 
-        if not context.account_hero.cards.has_card(card_uid=card_uid):
+        if card_uid not in context.account_cards:
             self.raise_wrong_value()
 
-        return context.account_hero.cards.get_card(card_uid)
+        return context.account_cards[card_uid]
 
 
 class AccountCardsProcessor(dext_views.ArgumentProcessor):
     ERROR_MESSAGE = 'У вас нет как минимум одной из указанных карт'
-    GET_NAME = 'cards'
-    CONTEXT_NAME = 'account_cards'
+    POST_NAME = 'card'
+    CONTEXT_NAME = 'cards'
+    IN_LIST = True
 
     def parse(self, context, raw_value):
         try:
-            cards_uids = [int(card_id.strip()) for card_id in raw_value.split(',')]
+            cards_uids = [uuid.UUID(card_id.strip()) for card_id in raw_value]
         except ValueError:
             self.raise_wrong_format()
 
         for card_uid in cards_uids:
-            if not context.account_hero.cards.has_card(card_uid=card_uid):
+            if card_uid not in context.account_cards:
                 self.raise_wrong_value()
 
-        return [context.account_hero.cards.get_card(card_uid) for card_uid in cards_uids]
+        return [context.account_cards[card_uid] for card_uid in cards_uids]
 
 
 ########################################
@@ -100,16 +114,31 @@ class CardsFilter(list_filter.ListFilter):
 ########################################
 
 @accounts_views.LoginRequiredProcessor()
+@AccountCardsLoader()
 @AccountCardProcessor()
 @resource('use-dialog')
 def use_dialog(context):
+
+    favorite_items = {slot: context.account_hero.equipment.get(slot)
+                      for slot in heroes_relations.EQUIPMENT_SLOT.records
+                      if context.account_hero.equipment.get(slot) is not None}
+
     return dext_views.Page('cards/use_dialog.html',
                            content={'hero': context.account_hero,
                                     'card': context.account_card,
-                                    'form': context.account_card.type.form(),
-                                    'resource': context.resource} )
+                                    'form': context.account_card.get_form(hero=context.account_hero),
+                                    'dialog_info': context.account_card.get_dialog_info(hero=context.account_hero),
+                                    'resource': context.resource,
+                                    'EQUIPMENT_SLOT': heroes_relations.EQUIPMENT_SLOT,
+                                    'RISK_LEVEL': heroes_relations.RISK_LEVEL,
+                                    'COMPANION_DEDICATION': heroes_relations.COMPANION_DEDICATION,
+                                    'COMPANION_EMPATHY': heroes_relations.COMPANION_EMPATHY,
+                                    'ENERGY_REGENERATION': heroes_relations.ENERGY_REGENERATION,
+                                    'ARCHETYPE': game_relations.ARCHETYPE,
+                                    'favorite_items': favorite_items} )
 
 @accounts_views.LoginRequiredProcessor()
+@AccountCardsLoader()
 @AccountCardProcessor()
 @api.Processor(versions=(conf.settings.USE_API_VERSION, ))
 @resource('api', 'use', name='api-use', method='POST')
@@ -119,18 +148,19 @@ def api_use(context):
 
 - **адрес:** /game/cards/api/use
 - **http-метод:** POST
-- **версии:** 1.0
+- **версии:** 2.0
 - **параметры:**
     * GET: card — уникальный идентификатор карты в калоде
-    * POST: person — идентификатор Мастера, если карта применяется к Мастеру
-    * POST: place — идентификатор города, если карта применяется к городу
-    * POST: building — идентификатор здания, если карта применяется к зданию
+    * POST: value — параметр использования карты, если у карты есть параметр, обычно это идентификатор объекта (Мастера, города, etc)
+    * POST: name — название гильдии для карты создания гильдии
+    * POST: abbr — аббревиатура гильдии для карты создания гильдии
+
 - **возможные ошибки**:
     * cards.use.form_errors — ошибка в одном из POST параметров
 
 Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
     '''
-    form = context.account_card.type.form(context.django_request.POST)
+    form = context.account_card.get_form(data=context.django_request.POST, hero=context.account_hero)
 
     if not form.is_valid():
         raise dext_views.ViewError(code='form_errors', message=form.errors)
@@ -138,17 +168,6 @@ def api_use(context):
     task = context.account_card.activate(context.account_hero, data=form.get_card_data())
 
     return dext_views.AjaxProcessing(task.status_url)
-
-
-@accounts_views.LoginRequiredProcessor()
-@resource('combine-dialog')
-def combine_dialog(context):
-    cards = sorted(list(effects.EFFECTS.values()), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
-
-    return dext_views.Page('cards/combine_dialog.html',
-                           content={'CARDS': cards,
-                                    'hero': context.account_hero,
-                                    'resource': context.resource} )
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -160,7 +179,7 @@ def api_get(context):
 
 - **адрес:** /game/cards/api/get
 - **http-метод:** POST
-- **версии:** 1.0
+- **версии:** 2.0
 - **параметры:** нет
 - **возможные ошибки**: нет
 
@@ -170,8 +189,18 @@ def api_get(context):
 
     {
       "message": "строка",      // описание результата в формате html
-      "card": <card_info>       // описание полученной карты, формат см. в описании формата информации о герое
+      "card": <card_info>       // описание полученной карты
     }
+
+    <card_info> = {                              // информация о карте в колоде игрока
+        "name": "строка",                        // название
+        "type": <целое число>,                   // тип
+        "rarity": <целое число>,                 // редкость карты
+        "uid": <целое число>,                    // уникальный идентификатор в колоде игрока
+        "auction": true|false,                   // может быть продана на рынке
+        "in_storage": true|false                 // находится ли карты в хранилище или в руке
+    }
+
     '''
     choose_task = heroes_postponed_tasks.GetCardTask(hero_id=context.account_hero.id)
 
@@ -183,42 +212,145 @@ def api_get(context):
 
 
 @accounts_views.LoginRequiredProcessor()
+@AccountCardsLoader()
 @AccountCardsProcessor()
 @api.Processor(versions=(conf.settings.COMBINE_API_VERSION, ))
 @resource('api', 'combine', name='api-combine', method='post')
 def api_combine(context):
     '''
-Объединить карты из колоды игрока.
+Превратить карты из колоды игрока.
 
 - **адрес:** /game/cards/api/combine
 - **http-метод:** POST
-- **версии:** 1.0
+- **версии:** 2.0
 - **параметры:**
-    * GET: cards — перечень уникальный идентификаторов карт в колоде игрока через запятую
+    * POST: card — идентификатор карты, участвующей в трансформации, может быть несколько
 - **возможные ошибки**:
-    * cards.api-combine.wrong_cards — указанные карты нельзя объединить
+    * cards.api-combine.wrong_cards — указанные карты нельзя превращать
 
-Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
-
-При завершении операции возвращается дополнительная инфрмация:
+Формат данных в ответе:
 
     {
       "message": "строка",      // описание результата в формате html
-      "card": <card_info>       // описание полученной карты, формат см. в описании формата информации о герое
+      "card": <card_info>       // описание полученной карты, формат см. в описании метода получения новой карты
     }
     '''
-    can_combine_status = context.account_hero.cards.can_combine_cards([card.uid for card in context.account_cards])
+    card, result = logic.get_combined_card(allow_premium_cards=context.account.is_premium, combined_cards=context.cards)
 
-    if not can_combine_status.is_ALLOWED:
-        raise dext_views.ViewError(code='wrong_cards', message=can_combine_status.text)
+    if not result.is_SUCCESS:
+        raise dext_views.ViewError(code='wrong_cards', message=result.text)
 
-    choose_task = heroes_postponed_tasks.CombineCardsTask(hero_id=context.account_hero.id, cards=[card.uid for card in context.account_cards])
+    try:
+        tt_api.change_cards(account_id=context.account.id,
+                            operation_type='combine-cards',
+                            to_add=[card],
+                            to_remove=context.cards)
+    except utils_exceptions.TTAPIUnexpectedAPIStatus:
+        # return error, in most cases it is duplicate request
+        raise dext_views.ViewError(code='can_not_combine_cards',
+                                   message='Не удалось объединить карты. Попробуйте обновить страницу и повторить попытку.')
 
-    task = PostponedTaskPrototype.create(choose_task)
+    ##################################
+    # change combined cards statistics
+    logic_task = heroes_postponed_tasks.InvokeHeroMethodTask(hero_id=context.account.id,
+                                                             method_name='new_cards_combined',
+                                                             method_kwargs={'number': 1})
+    task = PostponedTaskPrototype.create(logic_task)
+    amqp_environment.environment.workers.supervisor.cmd_logic_task(account_id=context.account.id, task_id=task.id)
+    ##################################
 
-    amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
+    MESSAGE = '''
+<p>Вы получаете новую карту: <span class="%(rarity)s-card-label">%(name)s</span><br/><br/></p>
 
-    return dext_views.AjaxProcessing(task.status_url)
+<blockquote>%(description)s</blockquote>
+'''
+
+    message = MESSAGE % {'name': card.name[0].upper() + card.name[1:],
+                         'description': card.effect.DESCRIPTION,
+                         'rarity': card.type.rarity.name.lower()}
+
+    return dext_views.AjaxOk(content={'message': message,
+                                      'card': card.ui_info()})
+
+
+@accounts_views.LoginRequiredProcessor()
+@AccountCardsLoader()
+@api.Processor(versions=(conf.settings.GET_CARDS_API_VERSION, ))
+@resource('api', 'get-cards', name='api-get-cards', method='get')
+def api_get_cards(context):
+    '''
+Возвращает список всех карт игрока
+
+- **адрес:** /game/cards/api/get-cards
+- **http-метод:** GET
+- **версии:** 2.0
+- **параметры:** нет
+- **возможные ошибки**: нет
+
+Формат данных в ответе:
+
+    {
+      "cards": [
+          <card_info>,       // описание полученной карты, формат см. в описании метода получения новой карты
+          ...
+       ]
+    }
+
+    '''
+
+    return dext_views.AjaxOk(content={'cards': [card.ui_info() for card in context.account_cards.values()]})
+
+
+@accounts_views.LoginRequiredProcessor()
+@AccountCardsLoader()
+@AccountCardsProcessor()
+@api.Processor(versions=(conf.settings.MOVE_TO_STORAGE_API_VERSION, ))
+@resource('api', 'move-to-storage', name='api-move-to-storage', method='post')
+def api_move_to_storage(context):
+    '''
+Перемещает карты в хранилище.
+
+- **адрес:** /game/cards/api/move-to-storage
+- **http-метод:** POST
+- **версии:** 2.0
+- **параметры:**
+    * POST: card — идентификатор перемещаемой карты, может быть несколько
+- **возможные ошибки**:
+    * card.wrong_value — указанные карты нельзя превращать
+    '''
+    tt_api.change_cards_storage(account_id=context.account.id,
+                                operation_type='move-to-storage',
+                                cards=context.cards,
+                                old_storage_id=conf.FAST_STORAGE,
+                                new_storage_id=conf.ARCHIVE_STORAGE)
+
+    return dext_views.AjaxOk()
+
+
+@accounts_views.LoginRequiredProcessor()
+@AccountCardsLoader()
+@AccountCardsProcessor()
+@api.Processor(versions=(conf.settings.MOVE_TO_HAND_API_VERSION, ))
+@resource('api', 'move-to-hand', name='api-move-to-hand', method='post')
+def api_move_to_hand(context):
+    '''
+Перемещает карты в руку.
+
+- **адрес:** /game/cards/api/move-to-hand
+- **http-метод:** POST
+- **версии:** 2.0
+- **параметры:**
+    * POST: card — идентификатор перемещаемой карты, может быть несколько
+- **возможные ошибки**:
+    * card.wrong_value — указанные карты нельзя превращать
+    '''
+    tt_api.change_cards_storage(account_id=context.account.id,
+                                operation_type='move-to-storage',
+                                cards=context.cards,
+                                old_storage_id=conf.ARCHIVE_STORAGE,
+                                new_storage_id=conf.FAST_STORAGE)
+
+    return dext_views.AjaxOk()
 
 
 
@@ -235,18 +367,18 @@ def api_combine(context):
 def index(context):
     from the_tale.game.cards.relations import RARITY
 
-    cards = list(effects.EFFECTS.values())
+    all_cards = cards.CARD.records
 
     if context.cards_availability:
-        cards = [card for card in cards if card.TYPE.availability == context.cards_availability]
+        all_cards = [card for card in all_cards if card.availability == context.cards_availability]
 
     if context.cards_rarity:
-        cards = [card for card in cards if card.TYPE.rarity == context.cards_rarity]
+        all_cards = [card for card in all_cards if card.rarity == context.cards_rarity]
 
     if context.cards_order_by.is_RARITY:
-        cards = sorted(cards, key=lambda c: (c.TYPE.rarity.value, c.TYPE.text))
+        all_cards = sorted(all_cards, key=lambda c: (c.rarity.value, c.text))
     elif context.cards_order_by.is_NAME:
-        cards = sorted(cards, key=lambda c: (c.TYPE.text, c.TYPE.rarity.value))
+        all_cards = sorted(all_cards, key=lambda c: (c.text, c.rarity.value))
 
     url_builder = UrlBuilder(url('guide:cards:'), arguments={ 'rarity': context.cards_rarity.value if context.cards_rarity else None,
                                                               'availability': context.cards_availability.value if context.cards_availability else None,
@@ -259,7 +391,7 @@ def index(context):
 
     return dext_views.Page('cards/index.html',
                            content={'section': 'cards',
-                                    'CARDS': cards,
+                                    'CARDS': all_cards,
                                     'index_filter': index_filter,
                                     'CARD_RARITY': RARITY,
                                     'resource': context.resource})

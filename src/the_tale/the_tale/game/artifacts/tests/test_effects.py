@@ -221,7 +221,7 @@ class EffectsTests(testcase.TestCase):
         self.assertEqual(self.hero.additional_abilities[0].__class__, effects.AstralBarrier.ABILITY)
 
     def test_esprit(self):
-        with self.check_decreased(lambda: self.hero.preferences_change_delay):
+        with self.check_increased(lambda: self.hero.companion_coherence_experience):
             self._set_effect(relations.ARTIFACT_EFFECT.ESPRIT)
 
     def test_terrible_view(self):

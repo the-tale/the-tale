@@ -360,7 +360,7 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             with self.check_not_changed(self.hero.journal.__len__):
                 with self.check_not_changed(lambda: self.hero.companion.health):
                     self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
@@ -377,7 +377,7 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             with self.check_delta(self.hero.journal.__len__, 1):
                 with self.check_not_changed(lambda: self.hero.companion.health):
                     self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
@@ -395,7 +395,7 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             with self.check_delta(self.hero.journal.__len__, 1):
                 with self.check_delta(lambda: self.hero.companion.health, -c.COMPANIONS_DAMAGE_PER_WOUND):
                     self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
@@ -416,7 +416,7 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_2.has_companion)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
-            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
                 while self.hero.companion:
                     self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
@@ -462,7 +462,7 @@ class TryCompanionBlockTests(TestsBase):
 
         with self.check_increased(lambda: self.hero.money), \
              self.check_increased(lambda: self.hero.statistics.money_earned_from_companions), \
-             self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 2):
+             self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 2):
 
             while self.hero.companion:
                 self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))

@@ -10,7 +10,7 @@ from the_tale.common.utils import testcase
 
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.game.logic import create_test_map
@@ -67,7 +67,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
 
     def test_create(self):
@@ -164,10 +164,10 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
     def test_experience_modifier__risk_level(self):
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_HIGH)
         self.assertTrue(c.EXP_FOR_NORMAL_ACCOUNT < self.hero.experience_modifier)
 
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(c.EXP_FOR_NORMAL_ACCOUNT > self.hero.experience_modifier)
 
     def test_experience_modifier__active_inactive_state(self):
@@ -278,9 +278,9 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
     def test_reward_modifier__risk_level(self):
         self.assertEqual(self.hero.quest_money_reward_multiplier(), 1.0)
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_HIGH)
         self.assertTrue(self.hero.quest_money_reward_multiplier() > 1.0)
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(self.hero.quest_money_reward_multiplier() < 1.0)
 
     def test_push_message(self):
@@ -294,17 +294,17 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(len(self.hero.journal), 0)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             self.hero.push_message(message)
 
         self.assertEqual(len(self.hero.journal), 1)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.hero.push_message(message, diary=True)
 
         self.assertEqual(len(self.hero.journal), 2)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.hero.push_message(message, diary=True, journal=False)
 
         self.assertEqual(len(self.hero.journal), 2)
@@ -316,26 +316,26 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertTrue(self.hero.is_active)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_1')):
                 self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
 
         self.assertEqual(len(self.hero.journal), 1)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.is_active', False):
-            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
                 with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
 
             self.assertEqual(len(self.hero.journal), 2)
 
-            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
                 with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
 
             self.assertEqual(len(self.hero.journal), 0)
 
-            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
                 with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True):
                         self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
@@ -397,7 +397,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         results = []
         for risk_level in relations.RISK_LEVEL.records:
             values = []
-            self.hero.preferences.set_risk_level(risk_level)
+            self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, risk_level)
             for health_percents in range(1, 100, 1):
                 self.hero.health = self.hero.max_health * float(health_percents) / 100
                 values.append(method(self.hero))
@@ -544,7 +544,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(self.hero.companion, None)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.hero.set_companion(companion)
 
         self.assertEqual(self.hero.companion.record.id, companion_record.id)
@@ -570,7 +570,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.hero.set_companion(companion_1)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 2):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 2):
             self.hero.set_companion(companion_2)
 
         self.assertEqual(self.hero.companion.record.id, companion_record_2.id)
@@ -623,7 +623,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.hero.set_companion(companion)
 
-        self.hero.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.EVERY_MAN_FOR_HIMSELF)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_DEDICATION, relations.COMPANION_DEDICATION.EVERY_MAN_FOR_HIMSELF)
 
         for i in range(1000):
             self.hero.switch_spending()
@@ -633,7 +633,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         heal_companion_priorities = set()
 
         for dedication in relations.COMPANION_DEDICATION.records:
-            self.hero.preferences.set_companion_dedication(dedication)
+            self.hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_DEDICATION, dedication)
             heal_companion_priorities.add(self.hero.spending_priorities()[relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION])
 
         self.assertEqual(len(heal_companion_priorities), len(relations.COMPANION_DEDICATION.records))
@@ -668,7 +668,7 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
 
     def test_is_initial_state(self):
@@ -948,7 +948,7 @@ class HeroQuestsTest(testcase.TestCase):
     def test_character_quests__hometown(self):
         self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.preferences.set_place(self.place)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place)
         self.hero.position.set_place(self.place)
         self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
@@ -958,7 +958,7 @@ class HeroQuestsTest(testcase.TestCase):
     def test_character_quests__friend(self):
         self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.preferences.set_friend(self.person)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, self.person)
         self.hero.position.set_place(self.place)
         self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
@@ -968,7 +968,7 @@ class HeroQuestsTest(testcase.TestCase):
     def test_character_quests__enemy(self):
         self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.preferences.set_enemy(self.person)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, self.person)
         self.hero.position.set_place(self.place)
         self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
@@ -977,18 +977,18 @@ class HeroQuestsTest(testcase.TestCase):
 
     def test_character_quests__hunt(self):
         self.assertFalse(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
-        self.hero.preferences.set_mob(mobs_storage.all()[0])
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mobs_storage.all()[0])
         self.assertTrue(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment._remove_all()
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.PLATE)
         logic.save_hero(self.hero)
 
         self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_with_artifact(self):
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.PLATE)
         logic.save_hero(self.hero)
 
         self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE) is not None)
@@ -1028,8 +1028,8 @@ class HeroQuestsTest(testcase.TestCase):
         enemy.attrs.friends_quests_priority_bonus = enemy_priorities[0]
         enemy.attrs.enemies_quests_priority_bonus = enemy_priorities[1]
 
-        self.hero.preferences.set_friend(friend)
-        self.hero.preferences.set_enemy(enemy)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, friend)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, enemy)
 
     def test_modify_quest_priority(self):
         self.prepair_quest_priority_preferences()
