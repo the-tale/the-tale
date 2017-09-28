@@ -5,6 +5,9 @@ from the_tale.accounts import logic as accounts_logic
 
 from the_tale.common.postponed_tasks import prototypes as postponed_tasks_prototypes
 
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
+from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
+
 from the_tale.finances.bank import relations as bank_relations
 from the_tale.finances.bank import prototypes as bank_prototypes
 
@@ -19,7 +22,7 @@ from the_tale.game.cards import tt_api as cards_tt_api
 from . import base_buy_task
 
 
-class BuyMarketLotPosponedTaskTests(base_buy_task._BaseBuyPosponedTaskTests):
+class BuyMarketLotPosponedTaskTests(base_buy_task._BaseBuyPosponedTaskTests, pm_helpers.Mixin):
     CREATE_INVOICE = False
 
     def setUp(self):
@@ -50,6 +53,8 @@ class BuyMarketLotPosponedTaskTests(base_buy_task._BaseBuyPosponedTaskTests):
 
         self.cmd_update_with_account_data__call_count = 0 # no need in updating hero state
         self.with_referrals = False # no money for referrals
+
+        pm_tt_api.debug_clear_service()
 
 
     def _test_create(self):
@@ -97,6 +102,8 @@ class BuyMarketLotPosponedTaskTests(base_buy_task._BaseBuyPosponedTaskTests):
         self.assertEqual(comission_invoice.sender_type, bank_relations.ENTITY_TYPE.GAME_LOGIC)
         self.assertEqual(comission_invoice.sender_id, 0)
 
+        self.assertEqual(pm_tt_api.new_messages_number(self.lot.owner_id), 1)
+
 
     def _test_process__wrong_state(self):
         self.assertNotIn(self.card.uid, cards_tt_api.load_cards(self.account.id))
@@ -118,9 +125,10 @@ class BuyMarketLotPosponedTaskTests(base_buy_task._BaseBuyPosponedTaskTests):
         self.assertNotIn(self.card.uid, cards_tt_api.load_cards(self.account.id))
         self.assertNotIn(self.card.uid, cards_tt_api.load_cards(self.seller_account.id))
 
-        with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
-            with mock.patch('the_tale.finances.bank.transaction.Transaction.cancel') as transaction_cancel:
-                self.assertEqual(self.task.process(main_task=mock.Mock(), storage=self.storage), postponed_tasks_prototypes.POSTPONED_TASK_LOGIC_RESULT.ERROR)
+        with self.check_no_messages(recipient_id=self.lot.owner_id):
+            with mock.patch('the_tale.accounts.prototypes.AccountPrototype.cmd_update_hero') as cmd_update_hero:
+                with mock.patch('the_tale.finances.bank.transaction.Transaction.cancel') as transaction_cancel:
+                    self.assertEqual(self.task.process(main_task=mock.Mock(), storage=self.storage), postponed_tasks_prototypes.POSTPONED_TASK_LOGIC_RESULT.ERROR)
 
         self.assertEqual(cmd_update_hero.call_count, self.cmd_update_with_account_data__call_count)
         self.assertEqual(transaction_cancel.call_count, 1)

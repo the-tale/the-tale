@@ -3,10 +3,13 @@ import rels
 from rels.django import DjangoEnum
 
 from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.utils.logic import random_value_by_priority
 
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+
 from the_tale.accounts import logic as accounts_logic
+
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 
 from the_tale.game.cards import tt_api as cards_tt_api
 from the_tale.game.cards import logic as cards_logic
@@ -23,6 +26,14 @@ from . import conf
 from . import exceptions
 from . import tt_api
 from . import logic
+
+
+def good_bought_message(name, price):
+    from the_tale.portal import logic as portal_logic
+
+    template = 'Поздравляем! Кто-то купил карту «%(good)s», Вы получаете печеньки: %(price)d шт.'
+    return template % {'good': name,
+                       'price': price}
 
 
 class BASE_BUY_TASK_STATE(DjangoEnum):
@@ -274,4 +285,10 @@ class BuyMarketLot(BaseBuyTask):
                                                 description_for_recipient='Комиссия с продажи «{}»'.format(lot_name),
                                                 operation_uid='{}-cards-hero-good'.format(conf.payments_settings.MARKET_COMMISSION_OPERATION_UID, lot.full_type),
                                                 force=True)
+
+        pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
+                               recipients_ids=[lot.owner_id],
+                               body=good_bought_message(name=lot_name, price=self.price - logic.get_commission(self.price)),
+                               async=True)
+
         return True

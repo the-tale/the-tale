@@ -477,7 +477,7 @@ class CloseSellLotTests(RequestesTestsBase, BankTestsMixin):
         self.assertEqual(invoice.amount, 100)
         self.assertEqual(invoice.description_for_sender, 'Покупка «%s»' % self.card.name)
         self.assertEqual(invoice.description_for_recipient, 'Продажа «%s»' % self.card.name)
-        self.assertEqual(invoice.operation_uid, 'market-buy-lot-%s' % self.card.item_full_type)
+        self.assertEqual(invoice.operation_uid, 'market-buy-lot-cards-hero-good')
 
 
 class CancelSellLotTests(RequestesTestsBase, BankTestsMixin):
