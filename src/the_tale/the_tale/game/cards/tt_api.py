@@ -37,6 +37,22 @@ def change_cards(account_id, operation_type, to_add=(), to_remove=()):
                         AnswerType=storage_pb2.ApplyResponse)
 
 
+def change_cards_owner(old_owner_id, new_owner_id, operation_type, new_storage_id, cards_ids):
+    operations = []
+
+    for card_id in cards_ids:
+        operations.append(storage_pb2.Operation(change_owner=storage_pb2.OperationChangeOwner(item_id=card_id.hex,
+                                                                                              old_owner_id=old_owner_id,
+                                                                                              new_owner_id=new_owner_id,
+                                                                                              new_storage_id=new_storage_id,
+                                                                                              operation_type=operation_type)))
+
+    tt_api.sync_request(url=conf.settings.TT_APPLY_URL,
+                        data=storage_pb2.ApplyRequest(operations=operations),
+                        AnswerType=storage_pb2.ApplyResponse)
+
+
+
 def change_cards_storage(account_id, operation_type, cards, old_storage_id, new_storage_id):
     operations = []
 

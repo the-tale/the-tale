@@ -132,6 +132,16 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def can_affect_game(self): return self.is_premium and not self.is_ban_game
 
     @property
+    def show_subscription_offer(self):
+        if self.is_fast:
+            return False
+
+        if self.is_premium:
+            return False
+
+        return accounts_settings.SHOW_SUBSCRIPTION_OFFER_AFTER < (datetime.datetime.now() - self.created_at).total_seconds()
+
+    @property
     def premium_end_at(self):
         if self.is_premium_infinit:
             return datetime.datetime.now() + accounts_settings.PREMIUM_INFINIT_TIMEOUT
@@ -198,7 +208,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 Вы можете продлить подписку на странице нашего %(shop_link)s.
 ''' % {'verbose_timedelta': verbose_timedelta(self.premium_end_at - current_time),
-       'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:shop')}
+       'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:')}
 
         pm_tt_api.send_message(logic.get_system_user_id(), [self.id], message, async=True)
 

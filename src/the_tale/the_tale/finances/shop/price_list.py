@@ -31,24 +31,6 @@ PREMIUM_DAYS_DESCRIPTION = '''
            PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS=c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS)
 
 
-RANDOM_PREMIUM_CHEST_DESCRIPTION = '''
-<p>
-Подарите подписку на %(days)s дней случайному активному игроку (не подписчику) и получите один из подарков:
-</p>
-<ul>
-%(gifts)s
-</ul>
-<p>
-Подарки указаны от самого вероятного к самому редкому.
-</p>
-
-<p>
-Чем больше подписчиков, тем увлекательнее жизнь Пандоры!
-</p>
-''' % {'gifts': '\n'.join('<li>%s</li>' % reward.description
-                          for reward in sorted(relations.RANDOM_PREMIUM_CHEST_REWARD.records, key=lambda r: -r.priority)),
-       'days': payments_settings.RANDOM_PREMIUM_DAYS }
-
 def permanent_purchase(uid, purchase_type, cost, transaction_description):
     return goods.PermanentPurchase(uid=uid,
                                    name=purchase_type.text,
@@ -59,59 +41,39 @@ def permanent_purchase(uid, purchase_type, cost, transaction_description):
                                    transaction_description=transaction_description)
 
 
-RANDOM_PREMIUM_CHEST = goods.PurchaseGroup(type=relations.GOODS_GROUP.CHEST,
-                                           name='Делай добро и дари подписку!',
-                                           short_name='Сделать добро',
-                                           description=RANDOM_PREMIUM_CHEST_DESCRIPTION,
-                                           items=[ goods.RandomPremiumChest(uid='random-premium-chest',
-                                                                            cost=200,
-                                                                            description=RANDOM_PREMIUM_CHEST_DESCRIPTION,
-                                                                            name='Сделать добро',
-                                                                            full_name='Делай добро и дари подписку!',
-                                                                            transaction_description='Подписка в подарок случайному игроку') ])
+SUBSCRIPTIONS = [goods.PremiumDays(uid='subscription-15',
+                                   name='15 дней',
+                                   full_name='15 дней подписки',
+                                   description=PREMIUM_DAYS_DESCRIPTION,
+                                   cost=180,
+                                   days=15,
+                                   transaction_description='Продление подписки на 15 дней.'),
 
+                 goods.PremiumDays(uid='subscription-30',
+                                   name='30 дней',
+                                   full_name='30 дней подписки',
+                                   description=PREMIUM_DAYS_DESCRIPTION,
+                                   cost=300,
+                                   days=30,
+                                   transaction_description='Продление подписки на 30 дней.'),
 
-PRICE_GROUPS = [RANDOM_PREMIUM_CHEST,
+                 goods.PremiumDays(uid='subscription-90',
+                                   name='90 дней',
+                                   full_name='90 дней подписки',
+                                   description=PREMIUM_DAYS_DESCRIPTION,
+                                   cost=750,
+                                   days=90,
+                                   transaction_description='Продление подписки на 90 дней.'),
 
-                goods.PurchaseGroup(type=relations.GOODS_GROUP.PREMIUM,
-                                    name='Подписка',
-                                    description=PREMIUM_DAYS_DESCRIPTION,
-                                    items=[ goods.PremiumDays(uid='subscription-15',
-                                                              name='15 дней',
-                                                              full_name='15 дней подписки',
-                                                              description=PREMIUM_DAYS_DESCRIPTION,
-                                                              cost=180,
-                                                              days=15,
-                                                              transaction_description='Продление подписки на 15 дней.'),
-
-                                            goods.PremiumDays(uid='subscription-30',
-                                                              name='30 дней',
-                                                              full_name='30 дней подписки',
-                                                              description=PREMIUM_DAYS_DESCRIPTION,
-                                                              cost=300,
-                                                              days=30,
-                                                              transaction_description='Продление подписки на 30 дней.'),
-
-                                            goods.PremiumDays(uid='subscription-90',
-                                                              name='90 дней',
-                                                              full_name='90 дней подписки',
-                                                              description=PREMIUM_DAYS_DESCRIPTION,
-                                                              cost=750,
-                                                              days=90,
-                                                              transaction_description='Продление подписки на 90 дней.'),
-
-                                            permanent_purchase(uid='subscription-infinit',
-                                                               purchase_type=relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION,
-                                                               cost=6000,
-                                                               transaction_description='Приобретение вечной подписки.')  ]),
-                ]
-
+                 permanent_purchase(uid='subscription-infinit',
+                                    purchase_type=relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION,
+                                    cost=6000,
+                                    transaction_description='Приобретение вечной подписки.')]
 
 
 PURCHASES_BY_UID = {}
 
-for group in PRICE_GROUPS:
-    for purchase in group.items:
-        if purchase.uid in PURCHASES_BY_UID:
-            raise exceptions.DuplicateUIDsInPriceListError('duplicate uids in price list')
-        PURCHASES_BY_UID[purchase.uid] = purchase
+for purchase in SUBSCRIPTIONS:
+    if purchase.uid in PURCHASES_BY_UID:
+        raise exceptions.DuplicateUIDsInPriceListError('duplicate uids in price list')
+    PURCHASES_BY_UID[purchase.uid] = purchase

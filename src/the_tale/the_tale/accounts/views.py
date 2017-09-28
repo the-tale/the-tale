@@ -4,7 +4,6 @@ import uuid
 
 from django.core.urlresolvers import reverse
 
-
 from dext.common.utils import views as dext_views
 from dext.common.utils import exceptions as dext_exceptions
 from dext.common.utils.urls import UrlBuilder

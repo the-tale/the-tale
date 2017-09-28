@@ -917,20 +917,6 @@ pgf.game.widgets.PvPInfo = function(selector, updater, widgets, params) {
     });
 };
 
-pgf.game.widgets.UpdateElementTooltip = function(element, tooltip, tooltipClass, tooltipsArgs) {
-    if (element.data('current-tooltip') != tooltip) {
-        pgf.base.HideTooltips(element, tooltipClass);
-        element.data('current-tooltip', tooltip);
-        if (element.data('tooltip')) {
-            element.data('tooltip').options.title = tooltip;
-            element.data('tooltip').enabled = true;
-        }
-        else {
-            element.tooltip(jQuery.extend(true, {}, tooltipsArgs, {title: tooltip}));
-        }
-    }
-};
-
 
 pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
     var instance = this;
@@ -949,7 +935,7 @@ pgf.game.widgets.Bag = function(selector, updater, widgets, params) {
 
         var tooltipClass = 'pgf-bag-artifact-tooltip';
         var tooltip = pgf.game.widgets.CreateArtifactTooltip(item, tooltipClass);
-        pgf.game.widgets.UpdateElementTooltip(element, tooltip, tooltipClass, pgf.base.tooltipsArgs);
+        pgf.base.UpdateElementTooltip(element, tooltip, tooltipClass, pgf.base.tooltipsArgs);
 
         jQuery('.pgf-name', element).text(item.name);
         jQuery('.pgf-power-container', element).toggleClass('pgf-hidden', pgf.game.constants.ARTIFACT_TYPE.USELESS.id == item.type);
@@ -1108,7 +1094,7 @@ pgf.game.widgets.Equipment = function(selector, updater, widgets, params) {
         var tooltipClass = 'pgf-equipment-artifact-tooltip';
 
         var tooltip = pgf.game.widgets.CreateArtifactTooltip(data, tooltipClass);
-        pgf.game.widgets.UpdateElementTooltip(element, tooltip, tooltipClass, pgf.base.tooltipsArgs);
+        pgf.base.UpdateElementTooltip(element, tooltip, tooltipClass, pgf.base.tooltipsArgs);
 
         jQuery('.pgf-name', element).text(data.name);
         jQuery('.pgf-physic-power', element).text(data.power[0]);

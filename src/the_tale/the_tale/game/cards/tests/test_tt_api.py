@@ -6,8 +6,6 @@ from unittest import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.finances.market import goods_types
-
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 
@@ -85,3 +83,23 @@ class TTAPiTests(testcase.TestCase):
 
         self.assertTrue(tt_api.has_cards(666, [self.cards[0].uid, self.cards[3].uid]))
         self.assertFalse(tt_api.has_cards(666, [self.cards[0].uid, self.cards[4].uid]))
+
+
+    def test_change_cards_owner(self):
+
+        tt_api.change_cards(account_id=666,
+                            operation_type='#test',
+                            to_add=[self.cards[0], self.cards[1], self.cards[3]],
+                            to_remove=[])
+
+        tt_api.change_cards_owner(old_owner_id=666,
+                                  new_owner_id=888,
+                                  operation_type='#test-move',
+                                  new_storage_id=0,
+                                  cards_ids=[self.cards[0].uid, self.cards[3].uid])
+
+        self.assertTrue(tt_api.has_cards(666, [self.cards[1].uid]))
+        self.assertFalse(tt_api.has_cards(666, [self.cards[0].uid, self.cards[3].uid]))
+
+        self.assertFalse(tt_api.has_cards(888, [self.cards[1].uid]))
+        self.assertTrue(tt_api.has_cards(888, [self.cards[0].uid, self.cards[3].uid]))

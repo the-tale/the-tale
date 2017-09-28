@@ -131,3 +131,15 @@ def get_combined_card_3(combined_cards, allow_premium_cards, available_for_aucti
                        available_for_auction=available_for_auction)
 
     return card, relations.COMBINED_CARD_RESULT.SUCCESS
+
+
+def get_cards_info_by_full_types():
+    cards_info = {}
+
+    for card in cards.CARD.records:
+        names = card.effect.full_type_names(card)
+
+        for full_type, name in names.items():
+            cards_info[full_type] = {'name': name, 'card': card}
+
+    return cards_info

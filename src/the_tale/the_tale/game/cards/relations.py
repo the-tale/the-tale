@@ -8,12 +8,13 @@ from the_tale.game.cards import forms
 
 class RARITY(DjangoEnum):
     priority = Column()
+    short_text = Column()
 
-    records = (('COMMON', 0, 'обычная карта', 3**4),
-               ('UNCOMMON', 1, 'необычная карта', 3**3),
-               ('RARE', 2, 'редкая карта', 3**2),
-               ('EPIC', 3, 'эпическая карта', 3**1),
-               ('LEGENDARY', 4, 'легендарная карта', 3**0))
+    records = (('COMMON', 0, 'обычная карта', 3**4, 'обычная'),
+               ('UNCOMMON', 1, 'необычная карта', 3**3, 'необычная'),
+               ('RARE', 2, 'редкая карта', 3**2, 'редкая'),
+               ('EPIC', 3, 'эпическая карта', 3**1, 'эпическая'),
+               ('LEGENDARY', 4, 'легендарная карта', 3**0, 'легендарная'))
 
 
 class AVAILABILITY(DjangoEnum):

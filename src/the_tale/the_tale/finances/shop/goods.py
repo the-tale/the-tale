@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
@@ -6,30 +5,6 @@ from the_tale.finances.shop import postponed_tasks
 from the_tale.finances.shop import exceptions
 from the_tale.finances.shop.logic import transaction_logic
 from the_tale.finances.shop.conf import payments_settings
-
-
-class PurchaseGroup(object):
-
-    def __init__(self, type, name, description, items, short_name=None):
-        self.type = type
-        self.name = name
-        self.short_name = short_name if short_name is not None else self.name
-        self.description = description
-        self.items = items
-
-    @property
-    def uid(self): return self.type.uid
-
-    def items_table(self, columns):
-        table = []
-
-        for i in range(0, len(self.items), columns):
-            table.append(self.items[i:i+columns])
-
-        while len(table[-1]) != columns:
-            table[-1].append(None)
-
-        return table
 
 
 class PurchaseItem(object):
@@ -85,25 +60,6 @@ class PremiumDays(PurchaseItem):
         return not account.is_premium_infinit
 
 
-class Energy(PurchaseItem):
-
-    def __init__(self, energy, **kwargs):
-        super(Energy, self).__init__(**kwargs)
-        self.energy = energy
-
-    def construct_postponed_task(self, account, transaction):
-        return postponed_tasks.BuyEnergy(account_id=account.id, energy=self.energy, transaction=transaction)
-
-
-class RandomPremiumChest(PurchaseItem):
-
-    def __init__(self, **kwargs):
-        super(RandomPremiumChest, self).__init__(**kwargs)
-
-    def construct_postponed_task(self, account, transaction):
-        return postponed_tasks.BuyRandomPremiumChest(account_id=account.id, transaction=transaction)
-
-
 class PermanentPurchase(PurchaseItem):
 
     def __init__(self, purchase_type, **kwargs):
@@ -131,15 +87,3 @@ class PermanentPurchase(PurchaseItem):
                 return False
 
         return True
-
-
-
-class Cards(PurchaseItem):
-
-    def __init__(self, card_type, count, **kwargs):
-        super(Cards, self).__init__(**kwargs)
-        self.card_type = card_type
-        self.count = count
-
-    def construct_postponed_task(self, account, transaction):
-        return postponed_tasks.BuyCards(account_id=account.id, card_type=self.card_type, count=self.count, transaction=transaction)

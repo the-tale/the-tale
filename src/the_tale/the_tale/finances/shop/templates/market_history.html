@@ -1,0 +1,58 @@
+{% extends "shop/base.html" %}
+
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+
+{% block title %}История рынка | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}История рыночных операций в ZPG «Сказка»{% endblock %}
+
+{% block payments_content %}
+
+<h3></h3>
+
+<p>
+  История сделок за всё время.
+</p>
+
+  {% if records %}
+
+    {{ base_macros.render_paginator(paginator) }}
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>название</th>
+          <th width="100px">цена</th>
+          <th width="150px">закрыт</a>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in records %}
+        {% set card = cards_info[record.item_type]['card'] %}
+        {% set name = cards_info[record.item_type]['name'] %}
+          <tr>
+            <td>
+              <span class="{{card.rarity.name|lower}}-card-label"
+                    style="cursor: pointer;"
+                    rel="tooltip"
+                    title="{{card.effect.DESCRIPTION}}">
+                {{name}}
+              </span>
+            </td>
+            <td>{{record.price}}</td>
+            <td><span class="pgf-format-datetime" data-timestamp="{{record.created_at|timestamp}}"></span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {{ base_macros.render_paginator(paginator) }}
+
+  {% else %}
+
+    <p class="pgf-no-lots-message alert alert-info">
+      На рынке пока не проводилось операций.
+    </p>
+
+  {% endif %}
+
+{% endblock %}

@@ -106,6 +106,9 @@ class BaseEffect:
         return '{}'.format(card.type.value)
 
 
+    def full_type_names(self, card_type):
+        return {'{}'.format(card_type.value): card_type.text}
+
     def get_dialog_info(self, card, hero):
         return None
 
@@ -232,7 +235,6 @@ class ChangeHabit(ModificatorBase):
 
         return task.logic_result(message='Черта героя изменена.')
 
-
     def allowed_habits(self):
         return game_relations.HABIT_TYPE.records
 
@@ -252,14 +254,32 @@ class ChangeHabit(ModificatorBase):
                                   'direction': direction},
                             uid=uid if uid else uuid.uuid4())
 
-    def item_full_type(self, card):
-        return '{}-{}-{:+d}'.format(card.type.value, card.data['habit_id'], card.data['direction'])
 
+    def _item_full_type(self, type, habit_id, direction):
+        return '{}-{}-{:+d}'.format(type.value, habit_id, direction)
+
+    def item_full_type(self, card):
+        return self._item_full_type(card.type, card.data['habit_id'], card.data['direction'])
+
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for direction in self.allowed_directions():
+            for habit in self.allowed_habits():
+                full_type = self._item_full_type(card_type, habit.value, direction)
+                names[full_type] = self._name_for_card(card_type, habit.value, direction)
+
+        return names
+
+    def _name_for_card(self, type, habit_id, direction):
+        return '{}: {} {:+d}'.format(type.text,
+                                     game_relations.HABIT_TYPE(habit_id).text,
+                                     int(self.modificator * direction))
 
     def name_for_card(self, card):
-        return '{}: {} {:+d}'.format(card.type.text,
-                                     game_relations.HABIT_TYPE(card.data['habit_id']).text,
-                                     int(self.modificator * card.data['direction']))
+        return self._name_for_card(card.type, card.data['habit_id'], card.data['direction'])
+
 
 
 
@@ -312,12 +332,29 @@ class ChangePreference(BaseEffect):
                             data={'preference_id': preference.value},
                             uid=uid if uid else uuid.uuid4())
 
-    def item_full_type(self, card):
-        return '{}-{}'.format(card.type.value, card.data['preference_id'])
+    def _item_full_type(self, type, preference_id):
+        return '{}-{}'.format(type.value, preference_id)
 
+
+    def item_full_type(self, card):
+        return self._item_full_type(card.type, card.data['preference_id'])
+
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for preference in self.allowed_preferences():
+            full_type = self._item_full_type(card_type, preference.value)
+            names[full_type] = self._name_for_card(card_type, preference.value)
+
+        return names
+
+
+    def _name_for_card(self, type, preference_id):
+        return type.text + ': ' + heroes_relations.PREFERENCE_TYPE(preference_id).text
 
     def name_for_card(self, card):
-        return card.type.text + ': ' + heroes_relations.PREFERENCE_TYPE(card.data['preference_id']).text
+        return self._name_for_card(card.type, card.data['preference_id'])
 
 
 
@@ -395,13 +432,29 @@ class ChangeItemOfExpenditure(BaseEffect):
                             data={'item_id': item.value},
                             uid=uid if uid else uuid.uuid4())
 
-    def item_full_type(self, card):
-        return '{}-{}'.format(card.type.value, card.data['item_id'])
 
+    def _item_full_type(self, type, item_id):
+        return '{}-{}'.format(type.value, item_id)
+
+    def item_full_type(self, card):
+        return self._item_full_type(card.type, card.data['item_id'])
+
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for item in self.allowed_items():
+            full_type = self._item_full_type(card_type, item.value)
+            names[full_type] = self._name_for_card(card_type, item.value)
+
+        return names
+
+
+    def _name_for_card(self, type, item_id):
+        return type.text + ': ' + heroes_relations.ITEMS_OF_EXPENDITURE(item_id).text
 
     def name_for_card(self, card):
-        return card.type.text + ': ' + heroes_relations.ITEMS_OF_EXPENDITURE(card.data['item_id']).text
-
+        return self._name_for_card(card.type, card.data['item_id'])
 
 
 class RepairRandomArtifact(BaseEffect):
@@ -639,13 +692,29 @@ class AddPersonPower(ModificatorBase):
                             data={'direction': direction},
                             uid=uid if uid else uuid.uuid4())
 
-    def item_full_type(self, card):
-        return '{}-{:+d}'.format(card.type.value, card.data['direction'])
 
+    def _item_full_type(self, type, direction):
+        return '{}-{:+d}'.format(type.value, direction)
+
+    def item_full_type(self, card):
+        return self._item_full_type(card.type, card.data['direction'])
+
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for direction in self.allowed_directions():
+            full_type = self._item_full_type(card_type, direction)
+            names[full_type] = self._name_for_card(card_type, direction)
+
+        return names
+
+
+    def _name_for_card(self, type, direction):
+        return '{}: {:+d}'.format(type.text, int(self.modificator * direction))
 
     def name_for_card(self, card):
-        return '{}: {:+d}'.format(card.type.text, int(self.modificator * card.data['direction']))
-
+        return self._name_for_card(card.type, card.data['direction'])
 
 
 class AddPlacePower(ModificatorBase):
@@ -699,12 +768,29 @@ class AddPlacePower(ModificatorBase):
                             data={'direction': direction},
                             uid=uid if uid else uuid.uuid4())
 
-    def item_full_type(self, card):
-        return '{}-{:+d}'.format(card.type.value, card.data['direction'])
+    def _item_full_type(self, type, direction):
+        return '{}-{:+d}'.format(type.value, direction)
 
+    def item_full_type(self, card):
+        return self._item_full_type(card.type, card.data['direction'])
+
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for direction in self.allowed_directions():
+            full_type = self._item_full_type(card_type, direction)
+            names[full_type] = self._name_for_card(card_type, direction)
+
+        return names
+
+
+    def _name_for_card(self, type, direction):
+        return '{}: {:+d}'.format(type.text, int(self.modificator * direction))
 
     def name_for_card(self, card):
-        return '{}: {:+d}'.format(card.type.text, int(self.modificator * card.data['direction']))
+        return self._name_for_card(card.type, card.data['direction'])
+
 
 
 
@@ -882,16 +968,33 @@ class GetCompanion(BaseEffect):
                             data={'companion_id': companion.id},
                             uid=uid if uid else uuid.uuid4())
 
+    def _item_full_type(self, type, companion_id):
+        return '{}-{}'.format(type.value, companion_id)
+
+
     def item_full_type(self, card):
-        return '{}-{}'.format(card.type.value, card.data['companion_id'])
+        return self._item_full_type(card.type, card.data['companion_id'])
+
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for companion in self.get_available_companions():
+            full_type = self._item_full_type(card_type, companion.id)
+            names[full_type] = self._name_for_card(card_type, companion.id)
+
+        return names
 
 
     def available(self, card):
         return bool(self.get_available_companions())
 
 
+    def _name_for_card(self, type, companion_id):
+        return type.text + ': ' + companions_storage.companions[companion_id].name
+
     def name_for_card(self, card):
-        return card.type.text + ': ' + companions_storage.companions[card.data['companion_id']].name
+        return self._name_for_card(card.type, card.data['companion_id'])
 
 
 class ReleaseCompanion(BaseEffect):

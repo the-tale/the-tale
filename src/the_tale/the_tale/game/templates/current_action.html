@@ -34,8 +34,8 @@ jQuery(document).ready(function(e) {
       </a>
     {% endif %}
 
-    {% if not resource.account.is_fast and not resource.account.is_premium %}
-      <a href="{{url('shop:shop')}}"
+    {% if resource.account.show_subscription_offer %}
+      <a href="{{url('shop:')}}"
          class="label label-info">
         Станьте подписчиком — вмешайтесь в судьбу Пандоры!
       </a>

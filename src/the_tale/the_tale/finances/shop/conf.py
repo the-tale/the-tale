@@ -16,6 +16,24 @@ payments_settings = app_settings('PAYMENTS',
 
                                  RANDOM_PREMIUM_DAYS=30,
 
+                                 MARKET_HISTORY_RECORDS_ON_PAGE=100,
+
+                                 MINIMUM_MARKET_PRICE=10,
+                                 MARKET_COMISSION=0.1,
+                                 MARKET_COMMISSION_OPERATION_UID='market-buy-commission',
+
+                                 MARKET_STATISTICS_PERIOD=30*24*60*60,
+
+                                 TT_PLACE_SELL_LOT_URL='http://localhost:10004/place-sell-lot',
+                                 TT_CLOSE_SELL_LOT_URL='http://localhost:10004/close-sell-lot',
+                                 TT_CANCEL_SELL_LOT_URL='http://localhost:10004/cancel-sell-lot',
+                                 TT_INFO_URL='http://localhost:10004/info',
+                                 TT_ITEM_TYPE_PRICES_URL='http://localhost:10004/item-type-prices',
+                                 TT_HISTORY_URL='http://localhost:10004/history',
+                                 TT_LIST_SELL_LOTS_URL='http://localhost:10004/list-sell-lots',
+                                 TT_STATISTICS_URL='http://localhost:10004/statistics',
+                                 TT_DEBUG_CLEAR_SERVICE_URL='http://localhost:10004/debug-clear-service',
+
                                  XSOLLA_ENABLED=False if not project_settings.TESTS_RUNNING else True,
 
                                  XSOLLA_RUB_FOR_PREMIUM_CURRENCY=0.013,

@@ -1,0 +1,115 @@
+
+{% macro header_ui(text, sort_parameter, tooltip, width=none, sort_default_direction="down") %}
+<th {%if width%}width="{{width}}px"{%endif%}
+    class="pgf-cards-list-header {% if sort_parameter %}pgf-sort-{{sort_parameter}}{% endif %}"
+    {% if sort_parameter %}
+    data-sort-parameter="{{sort_parameter}}"
+    data-sort-default-direction="{{sort_default_direction}}"
+    {% endif %}
+    rel="tooltip"
+    title="{{tooltip}}"
+    data-placement="top"
+    {% if sort_parameter %}
+    style="cursor: pointer;"
+    {% else %}
+    style="cursor: default;"
+    {% endif %}>
+  {{text}}
+  {% if sort_parameter %}
+  <span class="pgf-sort-up" style="opacity: 0.5;">▴</span>
+  <span class="pgf-sort-down" style="opacity: 0.5;">▾</span>
+  {% endif %}
+</th>
+{% endmacro %}
+
+{% macro cards_browser() %}
+
+<script src="{{ STATIC_CONTENT }}game/data/constants.js" type="text/javascript"></script>
+<script src="{{ STATIC_CONTENT }}game/cards.js" type="text/javascript"></script>
+<script src="{{ STATIC_CONTENT }}game/shop.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+  var userCards = undefined;
+  var cardsList = undefined;
+
+  jQuery(document).ready(function(e){
+
+      userCards = new pgf.game.widgets.Cards({getItems: "{{get_cards_url()}}",
+                                              getCard: "{{get_card_url()}}",
+                                              transformItems: "{{transform_cards_url()}}",
+                                              moveToStorage: "{{move_to_storage_url()}}",
+                                              moveToHand: "{{move_to_hand_url()}}",
+                                              useCardDialog: "{{url('game:cards:use-dialog')}}"})
+
+      cardsList = new pgf.game.ShopCardsBrowser({container: jQuery('.pgf-cards-browser'),
+                                                 marketInfoUrl: "",
+                                                 userCards: userCards,
+                                                 minSellPrice: {{shop_settings().MINIMUM_MARKET_PRICE}},
+                                                 sellComission: {{shop_settings().MARKET_COMISSION}},
+                                                 createSellLotUrl: "{{create_sell_lot_url()}}",
+                                                 closeSellLotUrl: "{{close_sell_lot_url()}}",
+                                                 cancelSellLotUrl: "{{cancel_sell_lot_url()}}",
+                                                 infoUrl: "{{info_url()}}",
+                                                 itemTypePricesUrl: "{{item_type_prices_url()}}",
+                                                 cookiesImage: "{{ STATIC_CONTENT }}images/cookies.png"});
+});
+
+</script>
+
+<div class="pgf-cards-browser">
+  <div class="btn-toolbar pgf-cards-filter">
+
+    <div class="btn-group">
+      <a class="btn disabled pgf-reset-filter" href="javascript: false;">видны все карты</a>
+    </div>
+
+    <input style="width: 150px; vertical-align: top;" class="pgf-cards-name-filter" name="filter" type="text" value="" placeholder="символы слова">
+
+    <div class="btn-group pgf-filter-group pgf-cards-rarity">
+      <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        редкость: <span class="pgf-card-rarity-filter-current-rarity">любая</span> <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu pgf-scrollable pgf-cards-rarity-filter-list" style="max-height: 310px; overflow-y: auto;">
+        <li class="pgf-template"><a href="javascript: false;" class="pgf-rarity-filter-record"></a></li>
+      </ul>
+    </div>
+
+    <div class="btn-group pgf-filter-count">
+      <a class="btn disabled" href="javascript: false;" >
+        в магазине: <span class="pgf-cards-number-in-trade"></span>,
+        в колоде: <span class="pgf-cards-number-in-deck-to-trade"></span> / <span class="pgf-cards-number-in-deck-total"></span>
+      </a>
+    </div>
+
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        {{header_ui("■", "rarity", "редкость", width="20")}}
+        {{header_ui("название", "name", "название карты")}}
+        {{header_ui("у вас", "in_deck", "карты в вашей колоде: можно продать / всего", width=100, sort_default_direction="up")}}
+        {{header_ui("вы продаёте", "owner_sell_number", "карты, которые вы продаёте", width=100, sort_default_direction="up")}}
+        {{header_ui("в продаже", "in_trade", "всего карт на рынке", width=100, sort_default_direction="up")}}
+        {{header_ui("мин. цена", "min_price", "текущая минимальная цена карты", width=100, sort_default_direction="up")}}
+        {{header_ui("макс. цена", "max_price", "текущая максимальная цена карты", width=100, sort_default_direction="up")}}
+        {{header_ui("операции", none, "купить или продать карты", width=100, sort_default_direction="up")}}
+      </tr>
+    </thead>
+    <tbody class="pgf-cards-list">
+      <tr class="pgf-template">
+        <td class="pgf-card-rarity" style="cursor: default;">■</td>
+        <td><span class="pgf-card-name" style="cursor: pointer;"></span></td>
+        <td><span class="pgf-cards-in-deck-to-trade"></span> /<span class="pgf-cards-in-deck-total"></span></td>
+        <td class="pgf-owner-sell-number"></td>
+        <td class="pgf-cards-in-trade"></td>
+        <td class="pgf-card-min-price"></td>
+        <td class="pgf-card-max-price"></td>
+        <td class=""><a href="javascript: false;" class="pgf-operations-button">купить / продать</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+{% endmacro %}

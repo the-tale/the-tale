@@ -2,7 +2,7 @@
 
 {% import 'accounts/macros.html' as accounts_macros with context %}
 
-{% block title %}Магазин | {{settings.PAGE_TITLE}}{% endblock %}
+{% block title %}Рынок | {{settings.PAGE_TITLE}}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -11,78 +11,156 @@
 <script id="xsolla-paystation-lightbox" type="text/javascript" src="https://secure.xsolla.com/partners/embed/lightbox.js"></script>
 {% endif %}
 
+<script type="text/javascript">
+
+jQuery(document).ready(function(e){
+
+    jQuery('.pgf-subscription-info').click(function(e){
+        pgf.ui.dialog.Create({fromSelector: jQuery('.pgf-subscription-info-dialog')});
+    });
+});
+
+</script>
+
 {% endblock %}
 
-{% block accounts_content %}
 
-<h2>
-  {% if page_type in ('shop', 'shop-history') %}Магазин{% else %}Рынок{% endif %}
-  <small>
-    месячный оборот рынка: {{gold_for_period()}} <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
-  </small>
-</h2>
-
-<table class="table table-condensed table-striped table-bordered table-no-highlighting">
+{% macro group_record(subscriptions) %}
+<table width="100%">
   <tbody>
     <tr>
-      <th style="text-align: center;">У ВАС ЕСТЬ</th>
-      <th width="200px">тип аккаунта</th>
-      <td>
-        {{ accounts_macros.account_type_label(context.account) }} &nbsp; <a href="{{url('guide:account-types')}}">[типы аккаунтов]</a>
+      <td width="20%" style="text-align: center;">
+
+        <div class="quest-icon question" style="float: none; margin: auto;"></div>
+        <h4>Подписка</h4>
+        <a class="btn btn-info pgf-subscription-info"
+           rel="tooltip"
+           style="display: inline-block;"
+           title="О преимуществах подписки"
+           href="#">
+          Подробнее
+        </a>
       </td>
-    </tr>
 
-    <tr>
-      <td rowspan="2" width="150px" style="text-align: center; padding: 1em; vertical-align: middle;">
-        <div style="display: inline-block; vertical-align: middle;">
-          <span style="font-size: 20pt; vertical-align: middle;">{{ context.account.bank_account.amount }}</span>
-          <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
-        </div>
+      {% for purchase in subscriptions %}
+      {% set is_purchasable = purchase.is_purchasable(resource.account, hero) %}
+      <td width="20%" style="text-align: center;">
 
-        <div style="display: inline-block; vertical-align: middle;">
-
-          {% if context.xsolla_enabled %}
-          <a style="vertical-align: middle; font-size: 36pt; line-height: 18px; padding: 10px;"
+        {% if purchase.uid == 'subscription-15' %}{% set icon_style = 'no-quest' %}{% endif %}
+        {% if purchase.uid == 'subscription-30' %}{% set icon_style = 'help_friend' %}{% endif %}
+        {% if purchase.uid == 'subscription-90' %}{% set icon_style = 'help' %}{% endif %}
+        {% if purchase.uid == 'subscription-infinit' %}{% set icon_style = 'spying' %}{% endif %}
+        <div class="quest-icon {{icon_style}}" style="float: none; margin: auto;"></div>
+        <h4>{{purchase.name}}</h4>
+        <a class="btn pgf-forms-post-simple {% if purchase.cost > account.bank_account.amount or not is_purchasable %}disabled pgf-disabled{% else %}btn-success{% endif %}"
+           data-confirmation="Вы уверены, что хотите купить <strong>«{{purchase.full_name}}»</strong>, потратив {{purchase.cost}} печенек?"
+           data-success-message="Поздравляем с покупкой! <strong>(«{{purchase.full_name}}»)</strong>"
+           rel="tooltip"
+           style="display: inline-block;"
+           {% if not is_purchasable %}
+             title="Вы уже приобрели этот предмет или получили его во время игры"
              href="#"
-             id="paystation-link"
-             rel="tooltip"
-             title="приобрести ещё…"
-             onclick="XPSLightBox.open('{{xsolla_paystaion_widget_link(context.account)|safe}}', {{shop_settings().XSOLLA_DIALOG_WIDTH}}, {{shop_settings().XSOLLA_DIALOG_HEIGHT}}); return false;"
-             class="pgf-xsolla-dialog-link btn btn-large btn-success">+</a>
-          {% endif %}
-        </div>
-      </td>
-
-      <th>окончание подписки</th>
-      <td>
-        {% if context.account.is_premium_infinit %}
-        <span class="updated-at">Вечная подписка!</spann>
-        {% elif context.account.is_premium %}
-        <span class="updated-at pgf-format-datetime" data-timestamp="{{ context.account.premium_end_at|timestamp }}"></spann>
-        {% else %}
-        —
-        {% endif %}
-      </td>
-    </tr>
-
-    <tr>
-      <th></th>
-      <td>
-        Стоимость печенек может колебаться в зависимости от курсов валют, платежной системы и комиссии агрегатора.<br/>
-        Перевести печеньки другому игроку можно со страницы игрока.
-      </td>
+           {% elif purchase.cost > account.bank_account.amount %}
+             title="Не хватает печенек"
+             href="#"
+           {% else %}
+             title="Купить подписку"
+             href="{{url('shop:buy', purchase=purchase.uid)}}"
+           {% endif %}>
+          <span style="font-size: 14pt; vertical-align: middle;">{{ purchase.cost }}</span>
+          <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle; display: inline-block;"></img>
+        </a>
+        {% endfor %}
     </tr>
   </tbody>
 </table>
 
-<ul class="nav nav-pills">
-  <li {% if page_type == 'shop' %}class="active"{% endif %}><a href="{{ url('shop:shop') }}">Магазин</a></li>
-  <li {% if page_type == 'shop-history' %}class="active"{% endif %}><a href="{{ url('shop:history') }}">История операций</a></li>
+{% endmacro %}
 
-  <li {% if page_type == 'index' %}class="active"{% endif %}><a href="{{ url('market:') }}">Рынок</a></li>
-  <li {% if page_type == 'new' %}class="active"{% endif %}><a href="{{url('market:new')}}">Выставить на продажу</a></li>
-  <li {% if page_type == 'own-lots' %}class="active"{% endif %}><a href="{{url('market:own-lots')}}">Ваш прилавок</a></li>
-  <li {% if page_type == 'market-history' %}class="active"{% endif %}><a href="{{url('market:history')}}">История рынка</a></li>
+
+{% block accounts_content %}
+
+<div class="pgf-hidden pgf-subscription-info-dialog">
+  <div class="modal hide">
+
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">×</button>
+      <h3 class="pgf-dialog-title dialog-title">О подписке</h3>
+    </div>
+
+    <div class="modal-body">
+
+      <p>
+        Подписка открывает доступ к самым интересным механикам игры, влияющим на окружающий мир. Эти механики закрыты для обычных игроков, чтобы предотвратить злоупотребление ими с помощью ботоводства.
+      </p>
+
+      <p>
+        В благодарность за помощь игре подписчики получают бонусы, облегчающие жизнь подопечных героев.
+      </p>
+
+      <h3>Преимущества</h3>
+
+      {% include "guide/subscription_bonuses.html"%}
+
+    </div>
+  </div>
+</div>
+
+<h2>
+  Магазин
+  <small>
+    <div style="vertical-align: top; display: inline-block;">
+      {% if account.is_premium %}
+        <a href="{{url('guide:account-types')}}" class="label label-success">
+           {% if context.account.is_premium_infinit %}
+             вечная подписка
+           {% else %}
+             подписка до <span class="updated-at pgf-format-datetime" data-timestamp="{{ context.account.premium_end_at|timestamp }}"></span>
+           {% endif %}
+        </a>
+      {% else %}
+        <a href="{{url('guide:account-types')}}" class="label label-info">базовый аккаунт</a>
+      {% endif %}
+    </div>
+
+    <span style="color: black;">у Вас есть</span> <span class="pgf-account-balance">{{ context.account.bank_account.amount }}</span>
+    <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;" rel="title" title="печеньки"></img>
+
+    {% if context.xsolla_enabled %}
+    <a style="vertical-align: middle; font-size: 25pt; line-height: 18px; color: green; font-weight: bold; text-decoration: none;"
+             href="#"
+             id="paystation-link"
+             rel="tooltip"
+             title="Приобрести ещё!"
+             onclick="XPSLightBox.open('{{xsolla_paystaion_widget_link(context.account)|safe}}', {{shop_settings().XSOLLA_DIALOG_WIDTH}}, {{shop_settings().XSOLLA_DIALOG_HEIGHT}}); return false;"
+             class="pgf-xsolla-dialog-link">+</a>
+    {% endif %}
+
+  </small>
+</h2>
+
+{% if not context.account.is_premium_infinit %}
+<div>{{ group_record(SUBSCRIPTIONS) }}</div>
+{% endif %}
+
+<br/>
+
+{% set statistics = market_statistics() %}
+
+<h2>
+  Рынок
+  <small>
+    за месяц
+    выставлено {{statistics['sell_lots_placed']}},
+    куплено {{statistics['sell_lots_closed']}},
+    оборот {{statistics['turnover']}} <img src="//static.the-tale.org/static/231/images/cookies.png" style="vertical-align: middle;">
+  </small>
+</h2>
+
+<ul class="nav nav-pills">
+  <li {% if page_type == 'shop' %}class="active"{% endif %}><a href="{{ url('shop:') }}">Товары</a></li>
+  <li {% if page_type == 'market-history' %}class="active"{% endif %}><a href="{{url('shop:market-history')}}">История рынка</a></li>
+  <li {% if page_type == 'shop-history' %}class="active"{% endif %}><a href="{{ url('shop:history') }}">История ваших операций</a></li>
 </ul>
 
 

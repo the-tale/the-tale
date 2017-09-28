@@ -431,3 +431,18 @@ pgf.base.OpenFancyboxIntroComix = function(staticContent) {
 
     pgf.base.OpenFancybox(images);
 };
+
+
+pgf.base.UpdateElementTooltip = function(element, tooltip, tooltipClass, tooltipsArgs) {
+    if (element.data('current-tooltip') != tooltip) {
+        pgf.base.HideTooltips(element, tooltipClass);
+        element.data('current-tooltip', tooltip);
+        if (element.data('tooltip')) {
+            element.data('tooltip').options.title = tooltip;
+            element.data('tooltip').enabled = true;
+        }
+        else {
+            element.tooltip(jQuery.extend(true, {}, tooltipsArgs, {title: tooltip}));
+        }
+    }
+};

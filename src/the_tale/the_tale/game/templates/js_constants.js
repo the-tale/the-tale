@@ -55,6 +55,7 @@ pgf.game.constants.CARD_TYPE = {
     {% for card_type in CARD.records %}
     "{{card_type.value}}": {
         "text": "{{card_type.text}}",
+        "rarity": {{card_type.rarity.value}},
         "description": "{{card_type.effect.DESCRIPTION}}",
         "combiners": [
             {% for combiner in card_type.combiners %}

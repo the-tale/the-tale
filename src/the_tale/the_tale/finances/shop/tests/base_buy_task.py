@@ -17,6 +17,8 @@ from the_tale.accounts.prototypes import AccountPrototype
 
 class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
+    CREATE_INVOICE = True
+
 
     def setUp(self):
         super(_BaseBuyPosponedTaskTests, self).setUp()
@@ -34,21 +36,23 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self.bank_account.amount = self.initial_amount
         self.bank_account.save()
 
-        self.invoice = InvoicePrototype.create(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
-                                               recipient_id=self.account.id,
-                                               sender_type=ENTITY_TYPE.GAME_LOGIC,
-                                               sender_id=0,
-                                               currency=CURRENCY_TYPE.PREMIUM,
-                                               amount=-self.amount,
-                                               description_for_sender='transaction-description-for-sender',
-                                               description_for_recipient='transaction-description-for-recipient',
-                                               operation_uid='transaction-operation-ui')
+        if self.CREATE_INVOICE:
+            self.invoice = InvoicePrototype.create(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
+                                                   recipient_id=self.account.id,
+                                                   sender_type=ENTITY_TYPE.GAME_LOGIC,
+                                                   sender_id=0,
+                                                   currency=CURRENCY_TYPE.PREMIUM,
+                                                   amount=-self.amount,
+                                                   description_for_sender='transaction-description-for-sender',
+                                                   description_for_recipient='transaction-description-for-recipient',
+                                                   operation_uid='transaction-operation-ui')
 
-        self.transaction = Transaction(self.invoice.id)
+            self.transaction = Transaction(self.invoice.id)
 
         self.task = None
         self.storage = None
         self.cmd_update_with_account_data__call_count = 1
+        self.with_referrals = True
         self.accounts_manages_worker = True
         self.supervisor_worker = False
 
@@ -69,6 +73,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self.assertEqual(self.bank_account.amount, self.initial_amount)
 
     def test_process__transaction_requested__invoice_rejected(self):
+        self.invoice.reload()
         self.invoice.state = INVOICE_STATE.REJECTED
         self.invoice.save()
 
@@ -81,6 +86,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self.assertEqual(self.bank_account.amount, self.initial_amount)
 
     def test_process__transaction_requested__invoice_wrong_state(self):
+        self.invoice.reload()
         self.invoice.state = INVOICE_STATE.CONFIRMED
         self.invoice.save()
 
@@ -93,6 +99,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self.assertEqual(self.bank_account.amount, self.initial_amount)
 
     def test_process__transaction_requested__invoice_frozen(self):
+        self.invoice.reload()
         self.invoice.state = INVOICE_STATE.FROZEN
         self.invoice.save()
 
@@ -119,6 +126,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self.assertEqual(self.bank_account.amount, self.initial_amount)
 
     def test_process__transaction_frozen(self):
+        self.invoice.reload()
         self.invoice.state = INVOICE_STATE.FROZEN
         self.invoice.save()
 
@@ -137,6 +145,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self.assertEqual(self.bank_account.amount, self.initial_amount) # money will be withdrawed after transaction confirm processed
 
     def test_process__wait_confirmation__transaction_frozen(self):
+        self.invoice.reload()
         self.invoice.state = INVOICE_STATE.FROZEN
         self.invoice.save()
 
@@ -146,6 +155,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self.assertTrue(self.task.state.is_WAIT_TRANSACTION_CONFIRMATION)
 
     def test_process__wait_confirmation__transaction_confirmed(self):
+        self.invoice.reload()
         self.invoice.state = INVOICE_STATE.CONFIRMED
         self.invoice.save()
 
@@ -154,11 +164,12 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         with mock.patch('the_tale.finances.shop.postponed_tasks.BaseBuyTask.process_referrals') as process_referrals:
             self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
-        self.assertEqual(process_referrals.call_count, 1)
+        self.assertEqual(process_referrals.call_count, 1 if self.with_referrals else 0)
 
         self.assertTrue(self.task.state.is_SUCCESSED)
 
     def test_process__wait_confirmation__transaction_confirmed__with_referal(self):
+        self.invoice.reload()
         self.invoice.state = INVOICE_STATE.CONFIRMED
         self.invoice.save()
 
@@ -171,18 +182,20 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
-        self.assertEqual(InvoicePrototype._db_count(), 2)
+        self.assertEqual(InvoicePrototype._db_count(), (2 if self.with_referrals else 1))
 
-        referral_invoice = InvoicePrototype._db_get_object(1)
+        if self.with_referrals:
+            referral_invoice = InvoicePrototype._db_get_object(1)
 
-        self.assertTrue(referral_invoice.amount > 0)
-        self.assertTrue(referral_invoice.amount < self.amount)
-        self.assertEqual(referral_invoice.recipient_id, account_2.id)
-        self.assertTrue(referral_invoice.state.is_FORCED)
+            self.assertTrue(referral_invoice.amount > 0)
+            self.assertTrue(referral_invoice.amount < self.amount)
+            self.assertEqual(referral_invoice.recipient_id, account_2.id)
+            self.assertTrue(referral_invoice.state.is_FORCED)
 
         self.assertTrue(self.task.state.is_SUCCESSED)
 
     def test_process__wait_confirmation__transaction_in_wrong_state(self):
+        self.invoice.reload()
         self.invoice.state = INVOICE_STATE.REJECTED
         self.invoice.save()
 
@@ -201,28 +214,3 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.bank_account.reload()
         self.assertEqual(self.bank_account.amount, self.initial_amount)
-
-
-
-class _BaseBuyHeroMethodPosponedTaskTests(_BaseBuyPosponedTaskTests):
-
-    def _test_create(self):
-        self.assertEqual(self.task.arguments, self._get_expected_arguments())
-
-    def _test_process__transaction_requested__invoice_unprocessed(self):
-        self._check_not_used()
-
-    def _test_process__transaction_requested__invoice_rejected(self):
-        self._check_not_used()
-
-    def _test_process__transaction_requested__invoice_wrong_state(self):
-        self._check_not_used()
-
-    def _test_process__transaction_requested__invoice_frozen(self):
-        self._check_not_used()
-
-    def _test_process__transaction_frozen(self):
-        self._check_used()
-
-    def _test_process__wrong_state(self):
-        self._check_not_used()

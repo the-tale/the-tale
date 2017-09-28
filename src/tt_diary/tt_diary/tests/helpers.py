@@ -12,62 +12,26 @@ from tt_protocol.protocol import diary_pb2
 
 from tt_web import utils
 from tt_web import postgresql
+from tt_web.tests import helpers as web_helpers
 
 from tt_diary import objects
 from tt_diary import service
 from tt_diary import operations
 
 
-class BaseTests(test_utils.AioHTTPTestCase):
+class BaseTests(web_helpers.BaseTests):
 
-    def setUp(self):
-        super().setUp()
-        asyncio.set_event_loop(self.loop)
+    def create_application(self):
+        return service.create_application(get_config(), loop=self.loop)
 
-
-    def get_app(self, loop):
-        application = service.create_application(get_config(), loop=loop)
-
-        application.on_startup.append(clean)
-        application.on_cleanup.insert(0, clean)
-
-        return application
-
-
-    async def check_answer(self, request, Data=None):
-        self.assertEqual(request.status, 200)
-        content = await request.content.read()
-        response = base_pb2.ApiResponse.FromString(content)
-        self.assertEqual(response.status, base_pb2.ApiResponse.SUCCESS)
-
-        if Data is None:
-            return None
-
-        response_data = Data()
-        response.data.Unpack(response_data)
-
-        await request.release()
-
-        return response_data
+    async def clean_environment(self, app=None):
+        operations.TIMESTAMPS_CACHE.clear()
+        await operations.clean_diaries()
 
 
 def get_config():
     config_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'config.json')
     return utils.load_config(config_path)
-
-
-async def initialize_services():
-    config = get_config()
-    await postgresql.initialize(config['database'])
-
-
-async def deinitialize_services():
-    await postgresql.deinitialize()
-
-
-async def clean(app=None):
-    operations.TIMESTAMPS_CACHE.clear()
-    await operations.clean_diaries()
 
 
 def create_message(message=None, turn_number=None, timestamp=None):

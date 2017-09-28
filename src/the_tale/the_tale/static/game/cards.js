@@ -29,8 +29,8 @@ pgf.game.widgets.CreateCardTooltip = function (data, cssClass) {
     tooltip += '<li>'+description+'</li>';
     tooltip += '<hr/>';
 
-    if (data.tradeble) {
-        tooltip += '<li><i>карт для продажи на рынке: ' + data.tradeble + '</i></li>';
+    if (data.inDeckToTrade) {
+        tooltip += '<li><i>карт для продажи на рынке: ' + data.inDeckToTrade + '</i></li>';
     }
     else {
         tooltip += '<li><i>нет карт для продажи на рынке</i></li>';
@@ -70,7 +70,7 @@ pgf.game.widgets.RenderCard = function(index, item, element) {
 
     var tooltipClass = 'pgf-card-tooltip';
     var tooltip = pgf.game.widgets.CreateCardTooltip(item, tooltipClass);
-    pgf.game.widgets.UpdateElementTooltip(element, tooltip, tooltipClass, pgf.game.widgets.GetCardsTooltipArgs());
+    pgf.base.UpdateElementTooltip(element, tooltip, tooltipClass, pgf.game.widgets.GetCardsTooltipArgs());
 };
 
 
@@ -91,7 +91,7 @@ pgf.game.widgets.PrepairCardsRenderSequence = function(cardInfos) {
 
         if (!(cardInfo.name in cardsByType)) {
             cardsByType[cardInfo.name] = {total: 0,
-                                          tradeble: 0,
+                                          inDeckToTrade: 0,
                                           type: cardInfo.type,
                                           rarity: cardInfo.rarity,
                                           ids: [],
@@ -101,7 +101,7 @@ pgf.game.widgets.PrepairCardsRenderSequence = function(cardInfos) {
         cardsByType[cardInfo.name].total += 1;
 
         if (cardInfo.auction) {
-            cardsByType[cardInfo.name].tradeble += 1;
+            cardsByType[cardInfo.name].inDeckToTrade += 1;
             cardsByType[cardInfo.name].ids.push(cardInfo.uid); // tradable cards at the tail of list
         }
         else {
@@ -132,6 +132,7 @@ pgf.game.widgets.Cards = function (params) {
                      cardsInTransformator: []};
 
     var localVersion = 0;
+    var firstRequest = true;
 
     function Refresh() {
         instance.data.hand = [];
@@ -197,10 +198,12 @@ pgf.game.widgets.Cards = function (params) {
                     instance.data.cards[card.uid] = card;
                 }
 
-                if (cardsChanged) {
+                if (cardsChanged || firstRequest) {
                     Refresh();
                     jQuery(document).trigger(pgf.game.events.CARDS_REFRESHED);
                 }
+
+                firstRequest = false;
             },
             error: function() {
             },
@@ -420,6 +423,11 @@ pgf.game.widgets.Cards = function (params) {
         });
     };
 
+    this.DeleteCard = function(cardId) {
+        localVersion += 1;
+        delete instance.data.cards[cardId];
+    };
+
     this.Use = function(cardId) {
         localVersion += 1;
         pgf.ui.dialog.Create({ fromUrl: params.useCardDialog + '?card=' + cardId,
@@ -428,8 +436,7 @@ pgf.game.widgets.Cards = function (params) {
                                                                      { OnSuccess: function(form, data) {
                                                                          jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED);
 
-                                                                         localVersion += 1;
-                                                                         delete instance.data.cards[cardId];
+                                                                         instance.DeleteCard(cardId);
 
                                                                          Refresh();
 
