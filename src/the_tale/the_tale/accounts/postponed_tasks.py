@@ -59,6 +59,9 @@ class RegistrationTask(PostponedLogic):
     def get_unique_nick(self):
         return uuid.uuid4().hex[:AccountPrototype._model_class.MAX_NICK_LENGTH]
 
+    @property
+    def processed_data(self): return {'next_url': reverse('game:') }
+
     def process(self, main_task):
         from the_tale.accounts.logic import register_user, REGISTER_USER_RESULT
 

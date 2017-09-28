@@ -417,12 +417,7 @@ class BaseAccountsResource(Resource):
 
 class RegistrationResource(BaseAccountsResource):
 
-    @handler('fast', method='post')
-    def fast(self):
-
-        if self.account.is_authenticated:
-            return self.json_error('accounts.registration.fast.already_registered', 'Вы уже зарегистрированы')
-
+    def register_fast(self):
         if conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
 
             task_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
@@ -460,7 +455,28 @@ class RegistrationResource(BaseAccountsResource):
 
         environment.workers.registration.cmd_task(task.id)
 
+        return task
+
+    @handler('fast', method='post')
+    def fast_post(self):
+
+        if self.account.is_authenticated:
+            return self.json_error('accounts.registration.fast.already_registered', 'Вы уже зарегистрированы')
+
+        task = self.register_fast()
+
         return self.json_processing(task.status_url)
+
+
+    @handler('fast', method='get')
+    def fast_get(self):
+
+        if self.account.is_authenticated:
+            return self.error('accounts.registration.fast.already_registered', 'Вы уже зарегистрированы')
+
+        task = self.register_fast()
+
+        return self.redirect(task.wait_url)
 
 
 class AuthResource(BaseAccountsResource):
