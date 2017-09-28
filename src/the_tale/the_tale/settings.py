@@ -22,7 +22,6 @@ META_CONFIG = MetaConfig(config_path=META_CONFIG_FILE)
 
 DEBUG = False
 
-SENTRY_JS_URL = None
 SENTRY_RAVEN_CONFIG = None
 
 DATABASES = {
@@ -375,6 +374,12 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'formatter': 'verbose'
             },
+        'sentry': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'formatter': 'verbose'
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
