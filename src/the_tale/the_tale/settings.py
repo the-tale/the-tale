@@ -331,13 +331,7 @@ LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
 
 CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
 
-CDNS = ( ('STATIC_JQUERY_JS',
-          '%splugins/jquery/jquery-1.7.2.min.js' % STATIC_URL, '//yandex.st/jquery/1.7.2/jquery.min.js',
-          'http://yandex.st/jquery/1.7.2/jquery.min.js'),
-         ('STATIC_JQUERY_UI_JS',
-          '%splugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js' % STATIC_URL, '//yandex.st/jquery-ui/1.8.9/jquery-ui.min.js',
-          'http://yandex.st/jquery-ui/1.8.9/jquery-ui.min.js'),
-         ('STATIC_TWITTER_BOOTSTRAP',
+CDNS = ( ('STATIC_TWITTER_BOOTSTRAP',
           '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
           'http:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
 
