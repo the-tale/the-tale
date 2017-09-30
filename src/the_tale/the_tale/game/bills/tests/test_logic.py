@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import time
 import datetime
 
@@ -27,7 +27,7 @@ class LogicTests(BaseTestPrototypes):
                                         modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
                                         modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                         old_modifier_name=None)
-        bill = bills_prototypes.BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill = bills_prototypes.BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [])
 
@@ -48,7 +48,7 @@ class LogicTests(BaseTestPrototypes):
                                         modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
                                         modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                         old_modifier_name=None)
-        bill_2 = bills_prototypes.BillPrototype.create(self.account2, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill_2 = bills_prototypes.BillPrototype.create(self.account2, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [time.mktime(bill.voting_end_at.timetuple())])
 
@@ -69,7 +69,7 @@ class LogicTests(BaseTestPrototypes):
                                         modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
                                         modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                         old_modifier_name=None)
-        bill_3 = bills_prototypes.BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill_3 = bills_prototypes.BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.assertEqual(logic.actual_bills_accepted_timestamps(self.account1.id), [time.mktime(bill.voting_end_at.timetuple())])
 

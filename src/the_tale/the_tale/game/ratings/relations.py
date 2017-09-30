@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import rels
 from rels.django import DjangoEnum

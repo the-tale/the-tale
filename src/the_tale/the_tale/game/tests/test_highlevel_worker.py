@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from dext.settings import settings
@@ -190,12 +190,12 @@ class HighlevelTest(testcase.TestCase):
         new_name = names.generator().get_test_name('new-new-name')
 
         bill_data_1 = bills.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
-        bill_1 = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', 'bill-1-rationale', bill_data_1, chronicle_on_accepted='chronicle-on-accepted')
+        bill_1 = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', bill_data_1, chronicle_on_accepted='chronicle-on-accepted')
         bill_1.approved_by_moderator = True
         bill_1.save()
 
         bill_data_2 = bills.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
-        bill_2 = bills_prototypes.BillPrototype.create(self.account, 'bill-2-caption', 'bill-2-rationale', bill_data_2, chronicle_on_accepted='chronicle-on-accepted')
+        bill_2 = bills_prototypes.BillPrototype.create(self.account, 'bill-2-caption', bill_data_2, chronicle_on_accepted='chronicle-on-accepted')
         bill_2.approved_by_moderator = True
         bill_2.save()
 

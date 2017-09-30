@@ -423,13 +423,8 @@ class RegistrationResource(BaseAccountsResource):
             task_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
             task = PostponedTaskPrototype.get_by_id(task_id)
 
-            if task is not None:
-                if task.state.is_processed:
-                    return self.json_error('accounts.registration.fast.already_processed',
-                                           'Вы уже зарегистрированы, обновите страницу')
-                if task.state.is_waiting:
-                    return self.json_processing(task.status_url)
-                # in other case create new task
+            if task is not None and (task.state.is_processed or task.state.is_waiting):
+                return task
 
         referer = None
         if conf.accounts_settings.SESSION_REGISTRATION_REFERER_KEY in self.request.session:
@@ -465,6 +460,9 @@ class RegistrationResource(BaseAccountsResource):
 
         task = self.register_fast()
 
+        if task.state.is_processed:
+            return self.json_error('accounts.registration.fast.already_processed', 'Вы уже зарегистрированы, обновите страницу')
+
         return self.json_processing(task.status_url)
 
 
@@ -475,6 +473,9 @@ class RegistrationResource(BaseAccountsResource):
             return self.error('accounts.registration.fast.already_registered', 'Вы уже зарегистрированы')
 
         task = self.register_fast()
+
+        if task.state.is_processed:
+            return self.error('accounts.registration.fast.already_processed', 'Вы уже зарегистрированы, обновите страницу')
 
         return self.redirect(task.wait_url)
 

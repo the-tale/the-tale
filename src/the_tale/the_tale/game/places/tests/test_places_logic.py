@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase

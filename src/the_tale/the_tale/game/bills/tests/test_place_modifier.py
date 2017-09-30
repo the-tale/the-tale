@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -27,7 +26,7 @@ class PlaceModifierTests(BaseTestPrototypes):
                                        modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                        old_modifier_name=None)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_id, self.place.id)
@@ -42,7 +41,6 @@ class PlaceModifierTests(BaseTestPrototypes):
     def test_update(self):
         self.place_2.attrs.modifier_craft_center = 100
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'place': self.place_2.id,
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'new_modifier': places_modifiers.CITY_MODIFIERS.CRAFT_CENTER})
@@ -60,7 +58,6 @@ class PlaceModifierTests(BaseTestPrototypes):
     def test_success_form_validation(self):
         self.place_2.attrs.modifier_craft_center = 100
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-2',
                                                          'place': self.place_2.id,
                                                          'new_modifier': places_modifiers.CITY_MODIFIERS.CRAFT_CENTER})
@@ -70,7 +67,6 @@ class PlaceModifierTests(BaseTestPrototypes):
     def test_not_allowed_modifier(self):
         self.place_2.attrs.modifier_craft_center = 0
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-2',
                                                          'place': self.place_2.id,
                                                          'new_modifier': places_modifiers.CITY_MODIFIERS.CRAFT_CENTER})

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 import datetime
 
@@ -35,7 +35,7 @@ class RecordTests(TestCase):
                                    category=forum_category)
 
         bill_data = bills.PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator().get_test_name('new_name'))
-        self.bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account, 'bill-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_records_for_every_type(self):
         types = set([record for record in RECORD_TYPE.records if not record.deprecated])
@@ -59,7 +59,7 @@ class RecordTests(TestCase):
                                                          resource_1=resource_1,
                                                          resource_2=resource_2)
 
-        declined_bill = BillPrototype.create(self.account, 'declined-bill-caption', 'declined-bill-rationale', declined_bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        declined_bill = BillPrototype.create(self.account, 'declined-bill-caption', declined_bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         declined_data = declined_bill.user_form_initials
         declined_data['approved'] = True
@@ -70,7 +70,7 @@ class RecordTests(TestCase):
         declined_bill.apply()
 
         bill_data = bills.BillDecline(declined_bill_id=declined_bill.id)
-        bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill = BillPrototype.create(self.account, 'bill-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
         return bill, declined_bill
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
@@ -81,7 +81,7 @@ class RecordTests(TestCase):
         declined_bill_data = bills.PlaceResourceConversion(place_id=self.place_1.id,
                                                            conversion=conversion_1)
 
-        declined_bill = BillPrototype.create(self.account, 'declined-bill-caption', 'declined-bill-rationale', declined_bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        declined_bill = BillPrototype.create(self.account, 'declined-bill-caption', declined_bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         declined_data = declined_bill.user_form_initials
         declined_data['approved'] = True
@@ -92,7 +92,7 @@ class RecordTests(TestCase):
         declined_bill.apply()
 
         bill_data = bills.BillDecline(declined_bill_id=declined_bill.id)
-        bill = BillPrototype.create(self.account, 'bill-caption', 'bill-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill = BillPrototype.create(self.account, 'bill-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
         return bill, declined_bill
 
     def test_bill_decline__actors__exchange(self):

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 import datetime
 
@@ -40,7 +40,7 @@ class BillPrototypeTests(BaseTestPrototypes):
         if account is None:
             account = self.account1
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        return BillPrototype.create(account, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        return BillPrototype.create(account, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_accepted_bills_count(self):
         for state in relations.BILL_STATE.records:
@@ -118,7 +118,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         super(TestPrototypeApply, self).setUp()
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -272,7 +272,7 @@ class TestPrototypeStop(BaseTestPrototypes):
         super(TestPrototypeStop, self).setUp()
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -296,7 +296,7 @@ class TestPrototypeEnd(BaseTestPrototypes):
         super(TestPrototypeEnd, self).setUp()
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.state = relations.BILL_STATE.ACCEPTED
 
@@ -336,9 +336,9 @@ class GetApplicableBillsTest(BaseTestPrototypes):
         super(GetApplicableBillsTest, self).setUp()
 
         self.bill_data = PlaceDescripton(place_id=self.place1.id, description='description')
-        self.bill_1 = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-        self.bill_2 = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-        self.bill_3 = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_1 = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_2 = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_3 = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         BillPrototype._model_class.objects.all().update(updated_at=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME),
                                                         approved_by_moderator=True)
@@ -380,7 +380,7 @@ class TestActorPrototype(BaseTestPrototypes):
         super(TestActorPrototype, self).setUp()
 
         self.bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_actors_created(self):
         self.assertTrue(Actor.objects.all().exists())
@@ -392,7 +392,6 @@ class TestActorPrototype(BaseTestPrototypes):
 
         data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'caption': 'new-caption',
-                     'rationale': 'new-rationale',
                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
                      'place': self.place2.id})
 
@@ -413,7 +412,7 @@ class TestVotePrototype(BaseTestPrototypes):
         super(TestVotePrototype, self).setUp()
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.approved_by_moderator = True
         self.bill.save()

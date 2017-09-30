@@ -33,7 +33,6 @@ class Bill(models.Model):
 
     remove_initiator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
 
-    rationale = models.TextField(null=False, blank=True)
     technical_data = models.TextField(null=False, blank=True, default={})
 
     chronicle_on_accepted = models.TextField(null=False, blank=True, default='')

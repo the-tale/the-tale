@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -27,7 +26,6 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
         self.declined_bill = BillPrototype.create(owner=self.account1,
                                                   caption='declined-bill-caption',
-                                                  rationale='declined-bill-rationale',
                                                   chronicle_on_accepted='chronicle-on-accepted',
                                                   bill=self.declined_bill_data)
 
@@ -40,7 +38,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.declined_bill.apply()
 
         self.bill_data = BillDecline(declined_bill_id=self.declined_bill.id)
-        self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted',)
+        self.bill = BillPrototype.create(self.account1, 'bill-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted',)
 
     def test_create(self):
         self.assertEqual(self.bill.data.declined_bill_id, self.declined_bill.id)
@@ -56,7 +54,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_update(self):
-        declined_bill_2 = BillPrototype.create(self.account1, 'declined-bill-caption', 'declined-bill-rationale',
+        declined_bill_2 = BillPrototype.create(self.account1, 'declined-bill-caption',
                                                self.declined_bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
 
         data = declined_bill_2.user_form_initials
@@ -68,7 +66,6 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         declined_bill_2.apply()
 
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-3',
                                                          'declined_bill': declined_bill_2.id})
         self.assertTrue(form.is_valid())
@@ -81,7 +78,6 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
 
     def test_form_validation__success(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'some caption',
-                                                         'rationale': 'some rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-3',
                                                          'declined_bill': self.declined_bill.id})
         self.assertTrue(form.is_valid())
@@ -91,7 +87,7 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_user_form_validation__wrong_bill(self):
         bill_data = PlaceDescripton(place_id=self.place1.id, description='new description')
-        bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted',)
+        bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted',)
 
         data = bill.user_form_initials
         data['approved'] = True
@@ -102,7 +98,6 @@ class BillDeclineResourceExchangeTests(BaseTestPrototypes):
         self.assertTrue(bill.apply())
 
         form = self.bill.data.get_user_form_update(post={'caption': 'caption',
-                                                         'rationale': 'rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-3',
                                                          'declined_bill': bill.id})
         self.assertFalse(form.is_valid())

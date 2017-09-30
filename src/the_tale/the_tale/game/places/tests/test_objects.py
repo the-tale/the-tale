@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 from unittest import mock

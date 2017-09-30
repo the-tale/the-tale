@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 

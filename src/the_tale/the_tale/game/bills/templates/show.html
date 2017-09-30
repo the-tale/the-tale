@@ -17,7 +17,7 @@
 <div class="pagination">
   <ul>
     <li>
-      {{ base_macros.addthis_short("Запись «%s»" % bill.caption, bill.rationale_html|safe, url=full_url('http', 'game:bills:show', bill.id)) }}
+      {{ base_macros.addthis_short("Запись «%s»" % bill.caption, "Запись «%s»" % bill.caption, url=full_url('http', 'game:bills:show', bill.id)) }}
     </li>
 
     {% if bill.state.is_VOTING %}
@@ -91,9 +91,6 @@
 <h4>Запись в летописи о принятии</h4>
 <p>{{ bill.chronicle_on_accepted }}</p>
 {% endif %}
-
-<h4>Обоснование</h4>
-<p>{{ bill.rationale_html|safe }}</p>
 
 {% set folclor_objects = posts_about(bill_meta_object) %}
 

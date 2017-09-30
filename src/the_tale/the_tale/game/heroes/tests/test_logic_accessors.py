@@ -189,19 +189,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
             self.assertTrue(self.hero.communication_telepathic.is_CAN_NOT)
 
 
-    def test_has_alive_companion(self):
-        companion_record = next(companions_storage.companions.enabled_companions())
-        companion = companions_logic.create_companion(companion_record)
-        self.hero.set_companion(companion)
-
-        self.assertTrue(self.hero.has_alive_companion())
-
-        self.hero.companion.health = 0
-
-        self.assertFalse(self.hero.has_alive_companion())
-
-
-    def test_modify_attribute__companion_alive(self):
+    def test_modify_attribute(self):
         companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
         self.hero.set_companion(companion)
@@ -214,22 +202,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertTrue(modify_attribute.call_count >= 1)
 
 
-    def test_modify_attribute__companion_dead(self):
-        companion_record = next(companions_storage.companions.enabled_companions())
-        companion = companions_logic.create_companion(companion_record)
-        self.hero.set_companion(companion)
-
-        self.hero.companion.health = 0
-
-        self.assertTrue(self.hero.companion.is_dead)
-
-        with mock.patch('the_tale.game.companions.objects.Companion.modify_attribute') as modify_attribute:
-            self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1)
-
-        self.assertEqual(modify_attribute.call_count, 0)
-
-
-    def test_check_attribute__companion_alive(self):
+    def test_check_attribute(self):
         companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
         self.hero.set_companion(companion)
@@ -240,21 +213,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
             self.hero.check_attribute(relations.MODIFIERS.POWER_TO_ENEMY)
 
         self.assertTrue(check_attribute.call_count >= 1)
-
-
-    def test_check_attribute__companion_dead(self):
-        companion_record = next(companions_storage.companions.enabled_companions())
-        companion = companions_logic.create_companion(companion_record)
-        self.hero.set_companion(companion)
-
-        self.hero.companion.health = 0
-
-        self.assertTrue(self.hero.companion.is_dead)
-
-        with mock.patch('the_tale.game.companions.objects.Companion.check_attribute') as check_attribute:
-            self.hero.check_attribute(relations.MODIFIERS.POWER_TO_ENEMY)
-
-        self.assertEqual(check_attribute.call_count, 0)
 
 
     def test_companion_coherence_speed__no_companion(self):

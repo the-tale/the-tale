@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.test import client
 from django.core.urlresolvers import reverse

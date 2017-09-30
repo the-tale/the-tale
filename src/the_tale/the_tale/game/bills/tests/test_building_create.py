@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 import datetime
 
@@ -34,7 +34,7 @@ class BuildingCreateTests(BaseTestPrototypes):
                                         utg_name=names.generator().get_test_name('building-name'),
                                         x=self.accepted_position_1[0],
                                         y=self.accepted_position_1[1])
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
 
     def test_create(self):
@@ -50,7 +50,6 @@ class BuildingCreateTests(BaseTestPrototypes):
     def test_update(self):
         data = linguistics_helpers.get_word_post_data(names.generator().get_test_name('new-building-name'), prefix='name')
         data.update({'caption': 'new-caption',
-                     'rationale': 'new-rationale',
                      'chronicle_on_accepted': 'chronicle-on-accepted',
                      'person': self.person_2.id,
                      'x': self.accepted_position_2[0],

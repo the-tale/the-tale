@@ -257,7 +257,7 @@ class AccountPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
                                         modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
                                         modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                        old_modifier_name=None)
-        bill = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.account.update_actual_bills()
         self.assertEqual(self.account.actual_bills, [])

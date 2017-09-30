@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -24,7 +23,7 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
         self.bill_data = PlaceResourceConversion(place_id=self.place1.id,
                                                  conversion=self.conversion_1)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data,
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data,
                                          chronicle_on_accepted='chronicle-on-accepted')
 
 
@@ -49,7 +48,6 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
 
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place': self.place2.id,
                                                          'conversion': self.conversion_2})
@@ -72,7 +70,6 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
 
     def test_form_validation__success(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
-                                                         'rationale': 'long rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place': self.place1.id,
                                                          'conversion': self.conversion_1})
@@ -81,7 +78,6 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PLACE_MAX_BILLS_NUMBER', 0)
     def test_user_form_validation__maximum_bills_reached(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
-                                                         'rationale': 'rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place': self.place1.id,
                                                          'conversion': self.conversion_1})
@@ -95,7 +91,6 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
         VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         form = PlaceResourceConversion.ModeratorForm({'caption': 'long caption',
-                                                      'rationale': 'long rationale',
                                                       'chronicle_on_accepted': 'chronicle-on-accepted',
                                                       'place': self.place1.id,
                                                       'conversion': self.conversion_1,
@@ -132,7 +127,7 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
 
         old_storage_version = places_storage.resource_exchanges._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.decline(decliner)
 
@@ -152,7 +147,7 @@ class PlaceResourceConversionTests(BaseTestPrototypes):
 
         old_storage_version = places_storage.resource_exchanges._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.decline(decliner)
 

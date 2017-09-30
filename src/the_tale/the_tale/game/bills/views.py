@@ -210,7 +210,6 @@ class BillResource(Resource):
             bill_data.initialize_with_form(user_form)
             bill = BillPrototype.create(owner=self.account,
                                         caption=user_form.c.caption,
-                                        rationale=user_form.c.rationale,
                                         chronicle_on_accepted=user_form.c.chronicle_on_accepted,
                                         bill=bill_data)
             return self.json_ok(data={'next_url': reverse('game:bills:show', args=[bill.id])})

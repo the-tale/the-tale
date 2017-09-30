@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -17,7 +16,7 @@ class PlaceChronicleTests(BaseTestPrototypes):
         super(PlaceChronicleTests, self).setUp()
 
         self.bill_data = PlaceChronicle(place_id=self.place1.id, old_name_forms=self.place1.utg_name, power_bonus=relations.POWER_BONUS_CHANGES.UP)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
 
     def test_create(self):
@@ -29,7 +28,6 @@ class PlaceChronicleTests(BaseTestPrototypes):
 
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-2',
                                                          'place': self.place2.id,
                                                          'power_bonus': relations.POWER_BONUS_CHANGES.DOWN })

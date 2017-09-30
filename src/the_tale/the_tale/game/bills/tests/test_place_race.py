@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -30,7 +29,7 @@ class PlaceRaceTests(BaseTestPrototypes):
                                    new_race=game_relations.RACE.GOBLIN,
                                    old_race=self.place.race)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_id, self.place.id)
@@ -43,7 +42,6 @@ class PlaceRaceTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.DWARF)
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'place': self.place_2.id,
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'new_race': game_relations.RACE.DWARF})
@@ -60,7 +58,6 @@ class PlaceRaceTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.DWARF)
     def test_success_form_validation(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-2',
                                                          'place': self.place_2.id,
                                                          'new_race': game_relations.RACE.DWARF})
@@ -70,7 +67,6 @@ class PlaceRaceTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.persons.objects.Person.race', game_relations.RACE.GOBLIN)
     def test_not_allowed_race(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-2',
                                                          'place': self.place_2.id,
                                                          'new_race': game_relations.RACE.ELF})

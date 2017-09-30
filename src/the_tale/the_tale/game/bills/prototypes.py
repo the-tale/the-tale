@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import datetime
 
@@ -40,7 +39,7 @@ from the_tale.game.bills import logic
 
 class BillPrototype(BasePrototype):
     _model_class = Bill
-    _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'rationale', 'votes_for',
+    _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'votes_for',
                  'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_percents_required',
                  'voting_end_at', 'ended_at', 'chronicle_on_accepted')
     _bidirectional = ('approved_by_moderator', 'state', 'is_declined', 'applyed_at_turn')
@@ -60,9 +59,6 @@ class BillPrototype(BasePrototype):
         if not hasattr(self, '_data'):
             self._data = deserialize_bill(s11n.from_json(self._model.technical_data))
         return self._data
-
-    @property
-    def rationale_html(self): return bbcode.render(self._model.rationale)
 
     @lazy_property
     def forum_thread(self): return ThreadPrototype.get_by_id(self.forum_thread_id)
@@ -85,7 +81,6 @@ class BillPrototype(BasePrototype):
     def user_form_initials(self):
         special_initials = self.data.user_form_initials()
         special_initials.update({'caption': self.caption,
-                                 'rationale': self.rationale,
                                  'chronicle_on_accepted': self.chronicle_on_accepted})
         return special_initials
 
@@ -294,12 +289,8 @@ class BillPrototype(BasePrototype):
 
 [b]запись в летописи о принятии:[/b]
 %(on_accepted)s
-
-[b]обоснование:[/b]
-%(rationale)s
 ''' % {'text': text,
        'caption': self.caption,
-       'rationale': self.rationale,
        'on_accepted': self.chronicle_on_accepted if self.chronicle_on_accepted else '—'}
 
         return rendered_text
@@ -312,7 +303,6 @@ class BillPrototype(BasePrototype):
             self._model.updated_at = datetime.datetime.now()
 
         self._model.caption = form.c.caption
-        self._model.rationale = form.c.rationale
         self._model.approved_by_moderator = False
         self._model.chronicle_on_accepted = form.c.chronicle_on_accepted
 
@@ -357,12 +347,11 @@ class BillPrototype(BasePrototype):
 
     @classmethod
     @transaction.atomic
-    def create(cls, owner, caption, rationale, bill, chronicle_on_accepted):
+    def create(cls, owner, caption, bill, chronicle_on_accepted):
 
         model = Bill.objects.create(owner=owner._model,
                                     type=bill.type,
                                     caption=caption,
-                                    rationale=rationale,
                                     created_at_turn=TimePrototype.get_current_turn_number(),
                                     technical_data=s11n.to_json(bill.serialize()),
                                     state=BILL_STATE.VOTING,

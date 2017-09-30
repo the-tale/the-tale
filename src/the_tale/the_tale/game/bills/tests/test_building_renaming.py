@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -33,7 +32,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
         self.bill_data = BuildingRenaming(person_id=self.person_1.id,
                                           old_place_name_forms=self.place1.utg_name,
                                           new_building_name_forms=names.generator().get_test_name('new-building-name'))
-        self.bill = BillPrototype.create(self.account1, 'bill-caption', 'bill-rationale', self.bill_data, chronicle_on_accepted='chronicle-accepted-1')
+        self.bill = BillPrototype.create(self.account1, 'bill-caption', self.bill_data, chronicle_on_accepted='chronicle-accepted-1')
 
 
     def test_create(self):
@@ -47,7 +46,6 @@ class BuildingRenamingTests(BaseTestPrototypes):
     def test_update(self):
         data = linguistics_helpers.get_word_post_data(names.generator().get_test_name('new-building-name-2'), prefix='name')
         data.update({'caption': 'new-caption',
-                     'rationale': 'new-rationale',
                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
                      'person': self.person_2.id})
         form = self.bill.data.get_user_form_update(post=data)
@@ -80,8 +78,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator().get_test_name('r-building-name')
 
-        data = {'rationale': 'bill-rationale',
-                'person': self.person_1.id,
+        data = {'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
         data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
@@ -112,8 +109,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator().get_test_name('r-building-name')
 
-        data = {'rationale': 'bill-rationale',
-                'person': self.person_1.id,
+        data = {'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
         data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
@@ -141,8 +137,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator().get_test_name('r-building-name')
 
-        data = {'rationale': 'bill-rationale',
-                'person': self.person_1.id,
+        data = {'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
         data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
@@ -173,8 +168,7 @@ class BuildingRenamingTests(BaseTestPrototypes):
 
         noun = names.generator().get_test_name('r-building-name')
 
-        data = {'rationale': 'bill-rationale',
-                'person': self.person_1.id,
+        data = {'person': self.person_1.id,
                 'chronicle_on_accepted': 'chronicle-accepted-1',
                 'caption': 'bill-caption'}
         data.update(linguistics_helpers.get_word_post_data(noun, prefix='name'))
