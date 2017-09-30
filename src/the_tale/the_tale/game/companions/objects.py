@@ -204,10 +204,16 @@ class Companion(object):
         if modifier.is_COMPANION_ABILITIES_LEVELS:
             return value
 
-        return self.record.abilities.modify_attribute(self.modification_coherence(modifier), self._hero.companion_abilities_levels, modifier, value)
+        return self.record.abilities.modify_attribute(self.modification_coherence(modifier),
+                                                      self._hero.companion_abilities_levels,
+                                                      modifier,
+                                                      value,
+                                                      is_dead=self.is_dead)
 
     def check_attribute(self, modifier):
-        return self.record.abilities.check_attribute(self.modification_coherence(modifier), modifier)
+        return self.record.abilities.check_attribute(self.modification_coherence(modifier),
+                                                     modifier,
+                                                     is_dead=self.is_dead)
 
     @property
     def experience_to_next_level(self):

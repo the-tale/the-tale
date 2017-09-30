@@ -75,14 +75,20 @@ class Container(object):
                 break
             yield ability
 
-    def modify_attribute(self, coherence, abilities_levels, modifier, value):
+    def modify_attribute(self, coherence, abilities_levels, modifier, value, is_dead):
         for ability in self.abilities_for_coherence(coherence):
+            if is_dead and not ability.work_when_dead:
+                continue
+
             value = ability.effect.modify_attribute(abilities_levels, modifier, value)
         return value
 
 
-    def check_attribute(self, coherence, modifier):
+    def check_attribute(self, coherence, modifier, is_dead):
         for ability in self.abilities_for_coherence(coherence):
+            if is_dead and not ability.work_when_dead:
+                continue
+
             if ability.effect.check_attribute(modifier):
                 return True
 
