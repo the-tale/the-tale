@@ -105,6 +105,12 @@ class BillPrototypeTests(BaseTestPrototypes):
             self.assertTrue(bill.can_vote(self.hero))
 
 
+    def test_remove_duplicate_actors(self):
+        bill = self.create_bill()
+
+        with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place1, self.place3]):
+            self.assertEqual(bill.actors, [self.place1, self.place3])
+
 
 class TestPrototypeApply(BaseTestPrototypes):
 

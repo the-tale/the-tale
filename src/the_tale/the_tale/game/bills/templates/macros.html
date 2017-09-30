@@ -110,7 +110,7 @@
   <a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a>
   <small>
     {{bill.type.text}}:
-    {% for actor in bill.data.actors %}
+    {% for actor in bill.actors %}
       {%- if loop.index > 1 -%},{% endif %}
       <a href="{{actor.url}}" target="_blank">{{ actor.name }}</a>
     {% endfor %}

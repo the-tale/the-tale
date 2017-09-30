@@ -115,7 +115,7 @@ class BillResource(Resource):
             bills_query = bills_query.filter(type=bill_type.value)
 
         if place is not None:
-            bills_query = bills_query.filter(actor__place_id=place.id)
+            bills_query = bills_query.filter(actor__place_id=place.id).distinct()
 
         if not self.account.is_authenticated:
             voted = None

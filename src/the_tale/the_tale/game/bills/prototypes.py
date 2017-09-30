@@ -133,13 +133,24 @@ class BillPrototype(BasePrototype):
     def get_recently_modified_bills(cls, bills_number):
         return [cls(model=model) for model in cls._model_class.objects.exclude(state=BILL_STATE.REMOVED).order_by('-updated_at')[:bills_number]]
 
+    @property
+    def actors(self):
+        actors = []
+
+        for actor in self.data.actors:
+            if actor not in actors:
+                actors.append(actor)
+
+        return actors
+
+
     def can_vote(self, hero):
         allowed_places_ids = hero.places_history.get_allowed_places_ids(bills_settings.PLACES__TO_ACCESS_VOTING)
 
         place_found = False
         place_allowed = False
 
-        for actor in self.data.actors:
+        for actor in self.actors:
             if isinstance(actor, places_objects.Place):
 
                 if actor.is_new:
@@ -229,7 +240,7 @@ class BillPrototype(BasePrototype):
                                  technical=True)
 
 
-            for actor in self.data.actors:
+            for actor in self.actors:
                 if isinstance(actor, places_objects.Place):
                     actor.effects.add(effects.Effect(name='запись №{}'.format(self.id),
                                                      attribute=places_relations.ATTRIBUTE.STABILITY,
@@ -319,7 +330,7 @@ class BillPrototype(BasePrototype):
 
         self.save()
 
-        ActorPrototype.update_actors(self, self.data.actors)
+        ActorPrototype.update_actors(self, self.actors)
 
         thread = ThreadPrototype(self._model.forum_thread)
         thread.caption = form.c.caption
@@ -373,7 +384,7 @@ class BillPrototype(BasePrototype):
         model.forum_thread = thread._model
         model.save()
 
-        ActorPrototype.update_actors(bill_prototype, bill_prototype.data.actors)
+        ActorPrototype.update_actors(bill_prototype, bill_prototype.actors)
 
         VotePrototype.create(owner, bill_prototype, VOTE_TYPE.FOR)
 
