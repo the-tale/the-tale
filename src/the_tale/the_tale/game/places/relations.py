@@ -47,7 +47,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('POLITIC_RADIUS', 3, 'радиус владений', verbose_units='кл', order=2, formatter=attributes.float_formatter,
                  description='Максимальное расстояние, на которое могут распространяться границы владений города (в клетках).'),
                 attributes.attr('PRODUCTION', 4, 'производство', formatter=int,
-                 description='Скорость производства товаров. Зависит от размера экономики города и его Мастеров.'),
+                 description='Скорость производства товаров. Зависит от размера экономики города, площади владений, Мастеров и многих других эффектов.'),
                 attributes.attr('GOODS', 5, 'товары', type=attributes.ATTRIBUTE_TYPE.CALCULATED, formatter=int,
                  description='Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увеличивается. Если товары кончаются, то уменьшается.'),
                 attributes.attr('KEEPERS_GOODS', 6, 'дары Хранителей', type=attributes.ATTRIBUTE_TYPE.CALCULATED, formatter=int,
@@ -79,7 +79,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('COMPANION_REGEN_CHANCE', 21, 'лечение спутника', verbose_units='%', formatter=attributes.percents_formatter,
                  description='Шанс спутника подлечиться при входе в город.'),
                 attributes.attr('POWER_ECONOMIC', 22, 'экономика', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
-                 description='Определяет скорость производства товаров городом. Зависит от общей суммы влияния, поступившего в город, в результате выполнения героями заданий за определённый период времени (примерное количество недель: %d). Влияние от задания может быть отрицательным. Чем больше суммарное влияние по сравнению с другими городами, тем больше размер экономики.' % c.PLACE_POWER_HISTORY_WEEKS),
+                 description='Влияет на скорость производства товаров в городе. Зависит от общей суммы влияния, поступившего в город, в результате выполнения героями заданий за определённый период времени (примерное количество недель: %d). Влияние от задания может быть отрицательным. Чем больше суммарное влияние по сравнению с другими городами, тем больше размер экономики.' % c.PLACE_POWER_HISTORY_WEEKS),
 
                 # modifiers MUST be calculated before stability
                 attributes.attr('MODIFIER_TRADE_CENTER', 23, 'специализация «Торговый центр»', order=-1, formatter=attributes.float_formatter,
@@ -105,7 +105,11 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                  description='Влияние города на соответствие специализациям.', formatter=attributes.float_formatter),
 
                 attributes.attr('CULTURE', 33, 'культура', verbose_units='%', formatter=attributes.percents_formatter,
-                 description='На сколько развита культура города, влияет на радиусы влияния и изменения ландшафта.')       )
+                 description='На сколько развита культура города, влияет на радиусы влияния и изменения ландшафта.'),
+
+                attributes.attr('AREA', 34, 'площадь владений', order=0,
+                 description='Площадь владений города. Чем больше у города владений, тем больше производство в нём. На Фронтире бонус к производству меньше.'),
+       )
 
 
     EFFECTS_ORDER = sorted(set(record[5] for record in records))

@@ -183,12 +183,6 @@ def max_ability_points_number(level):
     return min(level + 2, maximum)
 
 # города
-def place_goods_production(level):
-    return level * c.PLACE_GOODS_BONUS
-
-def place_goods_consumption(level):
-    return level * c.PLACE_GOODS_BONUS
-
 def place_specialization_modifier(size):
     return (math.log(size, 2) + 1) / 1.7
 

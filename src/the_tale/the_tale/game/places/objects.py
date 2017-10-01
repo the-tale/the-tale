@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import math
 import random
 import datetime
@@ -291,8 +291,18 @@ class Place(names.ManageNameMixin2):
                                      value=resource_2.amount * resource_2.direction)
 
         # economic
-        yield effects.Effect(name='экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=f.place_goods_production(self.attrs.power_economic))
-        yield effects.Effect(name='потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-f.place_goods_consumption(self.attrs.size))
+        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.AREA, value=len(self.nearest_cells))
+
+        # мы ожидаем, что радиус владений города сравним с его размером и домножаем на поправочный коэфициент
+        area_size_equivalent = ((math.sqrt(self.attrs.area) - 1) / 2) * 2
+
+        if self.is_frontier:
+            area_size_equivalent /= 2
+
+        yield effects.Effect(name='экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.66 * self.attrs.power_economic * c.PLACE_GOODS_BONUS)
+        yield effects.Effect(name='владения', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.34 * area_size_equivalent * c.PLACE_GOODS_BONUS)
+
+        yield effects.Effect(name='потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-self.attrs.size * c.PLACE_GOODS_BONUS)
         yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
 
         if self.attrs.get_next_keepers_goods_spend_amount():
@@ -326,7 +336,6 @@ class Place(names.ManageNameMixin2):
         for person in self.persons:
             for effect in person.place_effects():
                 yield effect
-
 
     def effects_generator(self, order):
         # TODO: do something with postchecks
