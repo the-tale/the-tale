@@ -173,6 +173,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.JOB_MAX_POWER, 2.0)
 
         self.assertEqual(c.JOB_HERO_REWARD_FRACTION, 0.1)
+        self.assertEqual(c.JOB_NEGATIVE_POWER_MULTIPLIER, 2.0)
 
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
 
