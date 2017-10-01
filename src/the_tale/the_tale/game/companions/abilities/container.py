@@ -94,6 +94,8 @@ class Container(object):
 
         return False
 
+    def can_be_freezed(self):
+        return all(ability.can_be_freezed for coherence, ability in self.all_abilities)
 
     def serialize(self):
         return {'common': [ability.value for ability in self.common],

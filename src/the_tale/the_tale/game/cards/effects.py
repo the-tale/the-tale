@@ -31,6 +31,7 @@ from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.heroes import relations as heroes_relations
 
+from the_tale.game.companions import relations as companions_relations
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
 
@@ -1014,6 +1015,47 @@ class ReleaseCompanion(BaseEffect):
         task.hero.remove_companion()
 
         return task.logic_result(message='Поздравляем! Ваш герой получил нового спутника.')
+
+
+class FreezeCompanion(BaseEffect):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Empty(data)
+
+    DESCRIPTION = 'Вы получаете карту призыва текущего спутника вашего героя. Спутник покидает героя. Слаженность спутника в карте не сохраняется. Возможность продать новую карту определяется возможностью продать текущую.'
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        from . import cards
+
+        if task.hero.companion is None:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='У героя сейчас нет спутника.')
+
+        if not task.hero.companion.record.abilities.can_be_freezed():
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Текущий спутник не может вернуться в карту.')
+
+        CARDS_BY_RARITIES = {companions_relations.RARITY.COMMON: cards.CARD.GET_COMPANION_COMMON,
+                             companions_relations.RARITY.UNCOMMON: cards.CARD.GET_COMPANION_UNCOMMON,
+                             companions_relations.RARITY.RARE: cards.CARD.GET_COMPANION_RARE,
+                             companions_relations.RARITY.EPIC: cards.CARD.GET_COMPANION_EPIC,
+                             companions_relations.RARITY.LEGENDARY: cards.CARD.GET_COMPANION_LEGENDARY}
+
+        card_type = CARDS_BY_RARITIES[task.hero.companion.record.rarity]
+
+        used_card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
+
+        card = card_type.effect.create_card(type=card_type,
+                                            available_for_auction=used_card.available_for_auction,
+                                            companion=task.hero.companion.record)
+
+        task.hero.add_message('companions_left', diary=True, companion_owner=task.hero, companion=task.hero.companion)
+        task.hero.remove_companion()
+
+        tt_api.change_cards(account_id=task.hero.account_id,
+                            operation_type='freeze-companion',
+                            to_add=[card])
+
+        return task.logic_result(message='Спутник покинул героя, вы получили карту спутника.')
 
 
 class HealCompanion(ModificatorBase):

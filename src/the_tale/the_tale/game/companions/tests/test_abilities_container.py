@@ -216,3 +216,14 @@ class ContainerTests(testcase.TestCase):
             self.assertEqual(self.container_1.check_attribute(33, None, is_dead=True), False)
             self.assertEqual(self.container_1.check_attribute(32, None, is_dead=True), False)
             self.assertEqual(self.container_1.check_attribute(9, None, is_dead=True), False)
+
+
+    def test_can_be_freezed(self):
+        self.assertTrue(self.container_1.can_be_freezed())
+        self.assertTrue(self.container_2.can_be_freezed())
+
+
+    def test_can_be_freezed(self):
+        self.container_1.start = frozenset(self.container_1.start | set((effects.ABILITIES.TEMPORARY,)))
+
+        self.assertFalse(self.container_1.can_be_freezed())

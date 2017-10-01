@@ -100,7 +100,7 @@ class CARD(Relation):
 
                 ('RESET_ABILITIES', 98, 'новый путь', FOR_ALL, RARE, effects.ResetAbilities(), []),
 
-                ('RELEASE_COMPANION', 99, 'четыре стороны', FOR_ALL, COMMON, effects.ReleaseCompanion(), []),
+                ('RELEASE_COMPANION', 99, 'четыре стороны', FOR_ALL, COMMON, effects.ReleaseCompanion(), [reactors.Special3('FREEZE_COMPANION')]),
 
                 ('HEAL_COMPANION_COMMON', 100, 'передышка', FOR_ALL, COMMON, effects.HealCompanion(base=15, level=1), [reactors.Simple3()]),
                 ('HEAL_COMPANION_UNCOMMON', 101, 'подорожник', FOR_ALL, UNCOMMON, effects.HealCompanion(base=15, level=2), [reactors.Simple3()]),
@@ -150,6 +150,8 @@ class CARD(Relation):
 
                 ('ADD_GOLD_EPIC', 136, 'клад', FOR_ALL, EPIC, effects.AddGold(base=1000, level=4), [reactors.Simple3()]),
                 ('ADD_GOLD_LEGENDARY', 137, 'фарт', FOR_ALL, LEGENDARY, effects.AddGold(base=1000, level=5), []),
+
+                ('FREEZE_COMPANION', 138, 'отгул', FOR_ALL, UNCOMMON, effects.FreezeCompanion(), [])
             )
 
 
