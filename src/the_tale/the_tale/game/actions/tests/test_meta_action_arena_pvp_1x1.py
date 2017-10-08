@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -6,7 +5,7 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.balance import constants as c
 
@@ -94,11 +93,10 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         self.assertTrue(self.meta_action_battle.hero_2_context.pvp_advantage_strike_damage.total > 0)
 
     def test_one_hero_killed(self):
-        current_time = TimePrototype.get_current_time()
         self.hero_1.health = 0
         self.meta_action_battle.process()
         self.assertEqual(self.meta_action_battle.state, meta_actions.ArenaPvP1x1.STATE.BATTLE_ENDING)
-        current_time.increment_turn()
+        turn.increment()
         self.meta_action_battle.process()
 
         self.assertEqual(self.meta_action_battle.state, meta_actions.ArenaPvP1x1.STATE.PROCESSED)
@@ -115,9 +113,9 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
     def _end_battle(self, hero_1_health, hero_2_health):
         self.hero_1.health = hero_1_health
         self.hero_2.health = hero_2_health
-        current_time = TimePrototype.get_current_time()
+
         self.meta_action_battle.process()
-        current_time.increment_turn()
+        turn.increment()
         self.meta_action_battle.process()
 
     def test_hero_1_win(self):
@@ -192,15 +190,12 @@ class ArenaPvP1x1Test(testcase.TestCase, PvPTestsMixin):
         self.assertTrue(self.meta_action_battle.hero_1_pvp.advantage > 0)
         self.assertTrue(self.meta_action_battle.hero_2_pvp.advantage < 0)
 
-
     def test_full_battle(self):
-        current_time = TimePrototype.get_current_time()
-
         self.assertEqual(Battle1x1.objects.filter(state=BATTLE_1X1_STATE.PROCESSING).count(), 2)
 
         while self.meta_action_battle.state != meta_actions.ArenaPvP1x1.STATE.PROCESSED:
             self.meta_action_battle.process()
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(self.meta_action_battle.state, meta_actions.ArenaPvP1x1.STATE.PROCESSED)
         self.assertTrue(self.hero_1.is_alive and self.hero_2.is_alive)

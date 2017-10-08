@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 from dext.common.utils import discovering
@@ -7,7 +7,7 @@ from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.accounts.prototypes import AccountPrototype
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.balance import constants as c
 
@@ -68,7 +68,8 @@ class MetaAction(object):
     def set_storage(self, storage): self.storage = storage
 
     def process(self):
-        turn_number = TimePrototype.get_current_turn_number()
+        turn_number = turn.number()
+
         if self.last_processed_turn < turn_number:
             self.last_processed_turn = turn_number
             self._process()

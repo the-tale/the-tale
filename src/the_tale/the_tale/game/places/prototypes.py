@@ -1,22 +1,10 @@
-# coding: utf-8
-import random
-import math
-
-from dext.common.utils import s11n
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.game import names
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.prototypes import TimePrototype
-
-from the_tale.game.map.conf import map_settings
-
 from . import models
 from . import relations
+
 
 class ResourceExchangePrototype(BasePrototype):
     _model_class = models.ResourceExchange

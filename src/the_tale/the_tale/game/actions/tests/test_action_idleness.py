@@ -1,11 +1,10 @@
-# coding: utf-8
 
 from unittest import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.game.balance import constants as c, formulas as f
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game.balance import constants as c
+from the_tale.game import turn
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
@@ -117,11 +116,9 @@ class IdlenessActionTest(testcase.TestCase):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0
 
-        current_time = TimePrototype.get_current_time()
-
         for i in range(c.TURNS_TO_IDLE*self.hero.level):
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
             self.assertEqual(len(self.hero.actions.actions_list), 1)
             self.assertEqual(self.hero.actions.current_action, self.action_idl)
 

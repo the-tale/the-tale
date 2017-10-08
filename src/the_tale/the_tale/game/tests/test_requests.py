@@ -20,11 +20,10 @@ from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 
 from the_tale.cms.news import logic as news_logic
 
-from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.heroes import tt_api as heroes_tt_api
 from the_tale.game.heroes import messages as heroes_messages
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 
 class RequestTestsBase(TestCase, PvPTestsMixin):
@@ -168,7 +167,7 @@ class DiaryRequestTests(RequestTestsBase):
 
 
     def create_message(self, uid):
-        return heroes_messages.MessageSurrogate(turn_number=TimePrototype.get_current_turn_number(),
+        return heroes_messages.MessageSurrogate(turn_number=turn.number(),
                                                 timestamp=time.time(),
                                                 key=None,
                                                 externals=None,

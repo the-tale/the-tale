@@ -1,15 +1,14 @@
-# coding: utf-8
+
 import time
 import collections
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.prototypes import TimePrototype, GameTime
+from the_tale.game import turn
 
 from . import conf
 
 from the_tale.linguistics.lexicon import keys as linguistics_keys
-
 
 
 class MessageSurrogate(object):
@@ -30,7 +29,7 @@ class MessageSurrogate(object):
 
     @classmethod
     def create(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=''):
-        return cls(turn_number=TimePrototype.get_current_turn_number()+turn_delta,
+        return cls(turn_number=turn.number() + turn_delta,
                    timestamp=time.time()+turn_delta*c.TURN_DELTA,
                    key=key,
                    externals=externals,
@@ -41,7 +40,7 @@ class MessageSurrogate(object):
     @classmethod
     def create_fake(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=''):
         from the_tale.linguistics.logic import fake_text
-        return cls(turn_number=TimePrototype.get_current_turn_number()+turn_delta,
+        return cls(turn_number=turn.number() + turn_delta,
                    timestamp=time.time()+turn_delta*c.TURN_DELTA,
                    key=None,
                    externals=externals,
@@ -79,7 +78,7 @@ class MessageSurrogate(object):
         return self._variables
 
     def game_time(self):
-        return GameTime.create_from_turn(self.turn_number)
+        return turn.game_datetime(self.turn_number)
 
     def ui_info(self, with_info=False):
         if self._ui_info is not None:
@@ -89,14 +88,14 @@ class MessageSurrogate(object):
 
         if with_info:
             self._ui_info = (self.timestamp,
-                             game_time.verbose_time,
+                             game_time.time.verbose(),
                              self.message,
                              self.key.value if self.key else None,
                              self.get_variables(),
-                             game_time.verbose_date,
+                             game_time.date.verbose_full(),
                              self.position)
         else:
-            self._ui_info = (self.timestamp, game_time.verbose_time, self.message, self.key.value if self.key else None, self.get_variables())
+            self._ui_info = (self.timestamp, game_time.time.verbose(), self.message, self.key.value if self.key else None, self.get_variables())
 
         return self._ui_info
 
@@ -143,7 +142,7 @@ class MessagesContainer(object):
 
 
     def ui_info(self, with_info=False):
-        current_turn = TimePrototype.get_current_turn_number()
+        current_turn = turn.number()
 
         messages = []
 

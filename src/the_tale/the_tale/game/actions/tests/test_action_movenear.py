@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -14,7 +14,7 @@ from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions import prototypes
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.map.relations import TERRAIN
 from the_tale.game.map.storage import map_info_storage
@@ -100,14 +100,13 @@ class MoveNearActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_processed(self):
 
-        current_time = TimePrototype.get_current_time()
-
         self.storage.process_turn(continue_steps_if_needed=False)
 
         x, y = self.action_move.get_destination()
         self.hero.position.set_coordinates(x, y, x, y, percents=1)
 
-        current_time.increment_turn()
+        turn.increment()
+
         self.storage.process_turn(continue_steps_if_needed=False)
 
         # can end in field or in start place
@@ -137,11 +136,9 @@ class MoveNearActionTest(testcase.TestCase):
 
     def test_full_move_and_back(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionIdlenessPrototype.TYPE)
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
@@ -149,7 +146,7 @@ class MoveNearActionTest(testcase.TestCase):
         prototypes.ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.p1, back=True)
         while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
         self.assertTrue(not self.hero.position.is_walking)
@@ -157,11 +154,9 @@ class MoveNearActionTest(testcase.TestCase):
 
     def test_move_change_place_coordinates_and_back(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionIdlenessPrototype.TYPE)
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
@@ -173,7 +168,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
         self.assertTrue(not self.hero.position.is_walking)
@@ -181,11 +176,9 @@ class MoveNearActionTest(testcase.TestCase):
 
     def test_full(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 
@@ -197,11 +190,9 @@ class MoveNearActionTest(testcase.TestCase):
         self.action_move.destination_x = self.p1.x
         self.action_move.destination_y = self.p1.y
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 

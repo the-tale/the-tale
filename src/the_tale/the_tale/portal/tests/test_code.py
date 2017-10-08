@@ -85,8 +85,8 @@ class CodeTests(testcase.TestCase):
                                                 ['sys', 'os', 'shutil', 'datetime', 'tempfile', 'subprocess', 'random', 'collections', 're', 'itertools', 'Queue', 'time',
                                                  'jinja2', 'math', 'uuid', 'postmarkup', 'functools', 'urllib2', 'xlrd', 'copy', 'gv', 'string', 'traceback',
                                                  'markdown', 'md5', 'mock', 'pymorphy', 'numbers', 'gc', 'numpy', 'matplotlib', 'contextlib', 'pynames', 'json', 'PIL', 'deworld',
-                                                 'urllib', 'socket', 'types', 'csv', 'getpass', 'logging', 'operator', 'hashlib', 'psutil', 'tt_protocol', 'tt_diary', 'queue', 'threading',
-                                                 'site']))
+                                                 'urllib', 'socket', 'types', 'csv', 'getpass', 'logging', 'operator', 'hashlib', 'psutil', 'tt_protocol', 'tt_diary', 'queue',
+                                                 'threading', 'site', 'tt_calendar']))
 
     def test_api_urls_not_changed(self):
         self.assertEqual(url('portal:api-info'), '/api/info')

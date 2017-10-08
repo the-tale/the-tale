@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -7,22 +6,15 @@ from the_tale.common.utils import testcase
 from the_tale.game.balance import constants as c
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
-
-from the_tale.game.roads.storage import waymarks_storage
-
-from the_tale.game.persons import models
-from the_tale.game.persons import storage
-from the_tale.game.persons import conf
-from the_tale.game.persons import relations
-from the_tale.game.persons import logic
-from the_tale.game.persons import exceptions
+from the_tale.game import turn
 
 from the_tale.linguistics import logic as linguistics_logic
 
 from .. import logic
-from .. import exceptions
+from .. import models
 from .. import storage
+from .. import relations
+from .. import exceptions
 
 
 class LogicTests(testcase.TestCase):
@@ -84,18 +76,15 @@ class LogicTests(testcase.TestCase):
 
         self.assertEqual(person.moved_at_turn, 0)
 
-        game_time = TimePrototype.get_current_time()
-        game_time.increment_turn()
-        game_time.increment_turn()
-        game_time.increment_turn()
+        turn.increment()
+        turn.increment()
+        turn.increment()
 
         with self.check_changed(lambda: storage.persons.version):
             logic.move_person_to_place(person, self.place_3)
 
         self.assertEqual(person.moved_at_turn, 3)
         self.assertEqual(person.place.id, self.place_3.id)
-
-
 
 
 class PersonPowerTest(testcase.TestCase):

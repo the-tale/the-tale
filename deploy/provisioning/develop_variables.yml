@@ -20,6 +20,7 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/utg/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/questgen/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_calendar/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/the_tale/"}
   tt_diary:
     packages:

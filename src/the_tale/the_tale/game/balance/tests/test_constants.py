@@ -131,24 +131,6 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE, 4)
 
-
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_MINUTE, 60)
-        self.assertEqual(c.GAME_MINUTES_IN_GAME_HOUR, 60)
-        self.assertEqual(c.GAME_HOURSE_IN_GAME_DAY, 24)
-        self.assertEqual(c.GAME_DAYS_IN_GAME_WEEK, 7)
-        self.assertEqual(c.GAME_WEEKS_IN_GAME_MONTH, 4)
-        self.assertEqual(c.GAME_MONTH_IN_GAME_YEAR, 4)
-
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_HOUR, 60*60)
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_DAY, 60*60*24)
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_WEEK, 60*60*24*7)
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_MONTH, 60*60*24*7*4)
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_YEAR, 60*60*24*7*4*4)
-
-        self.assertEqual(c.TURNS_IN_GAME_MONTH, 20160)
-        self.assertEqual(c.TURNS_IN_GAME_YEAR, 20160 * 4)
-        self.assertEqual(c.GAME_SECONDS_IN_TURN, 120)
-
         self.assertEqual(c.MAP_CELL_LENGTH, 3.0)
         self.assertEqual(c.QUEST_AREA_RADIUS, 180)
         self.assertEqual(c.QUEST_AREA_SHORT_RADIUS, 90)
@@ -156,7 +138,6 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.MAP_SYNC_TIME_HOURS, 1)
         self.assertEqual(c.MAP_SYNC_TIME, 360)
-
 
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)

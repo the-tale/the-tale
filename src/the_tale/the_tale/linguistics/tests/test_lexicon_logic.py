@@ -20,12 +20,13 @@ class LexiconLogicTests(TestCase):
 
     def test_get_verificators_groups__first_substitution(self):
         groups = logic.get_verificators_groups(key=keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP, old_groups={})
-        self.assertEqual(groups, {'date': (8, 0), 'hero': (0, 0), 'level': (1, 0)})
+        self.assertEqual(groups, {'date': (8, 0), 'time': (9, 0), 'hero': (0, 0), 'level': (1, 0)})
 
     def test_get_verificators_groups__first_substitution__multiple(self):
         groups = logic.get_verificators_groups(key=keys.LEXICON_KEY.QUEST_SEARCH_SMITH_DIARY_UPGRADE__BUY_AND_CHANGE, old_groups={})
         self.assertEqual(groups,
                          {'date': (8, 0),
+                          'time': (9, 0),
                           'artifact': (4, 0),
                           'coins': (1, 0),
                           'hero': (0, 0),
@@ -42,6 +43,7 @@ class LexiconLogicTests(TestCase):
         groups = logic.get_verificators_groups(key=keys.LEXICON_KEY.QUEST_SEARCH_SMITH_DIARY_UPGRADE__BUY_AND_CHANGE, old_groups=old_groups)
         self.assertEqual(groups,
                          {'date': (8, 0),
+                          'time': (9, 0),
                           'artifact': (4, 0),
                           'coins': (1, 1),
                           'hero': (0, 2),

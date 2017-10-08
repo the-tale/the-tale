@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
@@ -12,7 +11,8 @@ from the_tale.game.actions.prototypes import ActionEquippingPrototype
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts.relations import RARITY
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
+
 
 class ActionEquippingTest(testcase.TestCase):
 
@@ -96,12 +96,10 @@ class ActionEquippingTest(testcase.TestCase):
         self.assertEqual(self.hero.equipment.get(equip_slot), new_artifact)
         self.assertEqual(self.hero.equipment.get(equip_slot).power, Power(666, 666))
 
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
+        turn.increment()
 
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
-
 
         self.storage._test_save()

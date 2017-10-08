@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
@@ -7,7 +6,8 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionResurrectPrototype
 from the_tale.game.balance import constants as c
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
+
 
 class ResurrectActionTest(testcase.TestCase):
 
@@ -40,12 +40,12 @@ class ResurrectActionTest(testcase.TestCase):
 
     def test_processed(self):
 
-        current_time = TimePrototype.get_current_time()
-
         for i in range(c.TURNS_TO_RESURRECT-1):
 
             self.storage.process_turn()
-            current_time.increment_turn()
+
+            turn.increment()
+
             self.assertEqual(len(self.hero.actions.actions_list), 2)
             self.assertEqual(self.hero.actions.current_action, self.action_resurrect)
 
@@ -60,11 +60,10 @@ class ResurrectActionTest(testcase.TestCase):
 
     def test_full(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.health, self.hero.max_health)

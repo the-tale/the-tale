@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import random
 
@@ -18,7 +17,7 @@ class FakeJob(job.Job):
 
 class JobTest(testcase.TestCase):
 
-    @mock.patch('the_tale.game.prototypes.TimePrototype.get_current_turn_number', classmethod(lambda cls: 666))
+    @mock.patch('the_tale.game.turn.number', lambda: 666)
     def setUp(self):
         super(JobTest, self).setUp()
         linguistics_logic.sync_static_restrictions()
@@ -33,7 +32,7 @@ class JobTest(testcase.TestCase):
         self.assertTrue(self.job.effect.group.is_ON_HEROES)
 
 
-    @mock.patch('the_tale.game.prototypes.TimePrototype.get_current_turn_number', classmethod(lambda cls: 777))
+    @mock.patch('the_tale.game.turn.number', lambda: 777)
     def test_new_job__negative_power_reset(self):
         self.job.positive_power = 1
         self.job.negative_power = 2
@@ -48,7 +47,7 @@ class JobTest(testcase.TestCase):
         self.assertEqual(self.job.effect, effect)
 
 
-    @mock.patch('the_tale.game.prototypes.TimePrototype.get_current_turn_number', classmethod(lambda cls: 777))
+    @mock.patch('the_tale.game.turn.number', lambda: 777)
     def test_new_job__positive_power_reset(self):
         self.job.positive_power = 2
         self.job.negative_power = 1

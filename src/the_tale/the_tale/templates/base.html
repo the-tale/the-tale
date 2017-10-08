@@ -213,10 +213,10 @@ jQuery(document).ready(function() {
 
           <ul class="nav pull-right">
             <li>
-              {% set game_time = resource.time.game_time %}
+              {% set game_time = game_datetime() %}
               <p id="time-block" class="navbar-text">
-                <span class="pgf-game-date">{{ game_time.verbose_date}}</span>
-                <span class="pgf-game-time">{{ game_time.verbose_time }}</span>
+                <span class="pgf-game-date">{{ game_time.date.verbose_full()}}</span>
+                <span class="pgf-game-time">{{ game_time.time.verbose() }}</span>
               </p>
             </li>
             <li class="divider-vertical"></li>

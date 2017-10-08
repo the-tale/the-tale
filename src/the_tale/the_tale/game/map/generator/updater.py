@@ -1,13 +1,5 @@
-# coding: utf-8
-import os
 
-import deworld
-
-from dext.common.utils import s11n
-
-from django.conf import settings as project_settings
-
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.map.conf import map_settings
 from the_tale.game.map.storage import map_info_storage
@@ -44,8 +36,6 @@ def update_map(index):
 
     biomes_map = generator.get_biomes_map()
 
-    time = TimePrototype.get_current_time()
-
     draw_info = get_draw_info(biomes_map)
 
     terrain = []
@@ -55,7 +45,7 @@ def update_map(index):
         for x in range(0, generator.w):
             row.append(biomes_map[y][x].id)
 
-    map_info_storage.set_item(MapInfoPrototype.create(turn_number=time.turn_number,
+    map_info_storage.set_item(MapInfoPrototype.create(turn_number=turn.number(),
                                                       width=generator.w,
                                                       height=generator.h,
                                                       terrain=terrain,
@@ -78,4 +68,4 @@ def update_map(index):
             # 'buildings': dict( (building.id, building.map_info() ) for building in buildings_storage.all() ),
             'roads': dict( (road.id, road.map_info() ) for road in roads_storage.all()) }
 
-    models.MapRegion.objects.create(turn_number=time.turn_number, data=data)
+    models.MapRegion.objects.create(turn_number=turn.number(), data=data)

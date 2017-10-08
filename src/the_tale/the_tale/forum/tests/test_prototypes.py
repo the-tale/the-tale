@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 import datetime
@@ -6,7 +6,7 @@ import datetime
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.forum.conf import forum_settings
 from the_tale.forum.prototypes import (ThreadPrototype,
@@ -199,14 +199,11 @@ class ThreadPrototypeTests(testcase.TestCase):
         self.assertEqual(subcategory_update.call_count, 1)
 
     def test_post_created_at_turn(self):
-        current_turn = TimePrototype.get_current_time()
-
-        current_turn.increment_turn()
-        current_turn.increment_turn()
+        turn.increment(2)
 
         ThreadPrototype.create(self.subcategory, 'thread-2-caption', self.account, 'thread-2-text')
 
-        self.assertEqual(PostPrototype._db_latest().created_at_turn, current_turn.turn_number)
+        self.assertEqual(PostPrototype._db_latest().created_at_turn, turn.number())
 
 
 class ThreadPrototypeUpdateTests(testcase.TestCase):
@@ -348,14 +345,12 @@ class PostPrototypeTests(testcase.TestCase):
         self.assertEqual(thread_update.call_count, 1)
 
     def test_created_at_turn(self):
-        current_turn = TimePrototype.get_current_time()
-
-        current_turn.increment_turn()
-        current_turn.increment_turn()
+        turn.increment()
+        turn.increment()
 
         post = PostPrototype.create(thread=self.thread, author=self.account, text='post-1-text')
 
-        self.assertEqual(post.created_at_turn, current_turn.turn_number)
+        self.assertEqual(post.created_at_turn, turn.number())
 
 
     def test_update_thread_on_create(self):

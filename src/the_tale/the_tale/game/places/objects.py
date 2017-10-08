@@ -3,6 +3,8 @@ import math
 import random
 import datetime
 
+import tt_calendar
+
 from the_tale import amqp_environment
 
 from the_tale.common.utils import bbcode
@@ -11,14 +13,13 @@ from the_tale.common.utils import logic as utils_logic
 from the_tale.game import names
 
 from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
 
 from the_tale.game.jobs import logic as jobs_logic
 from the_tale.game.jobs import effects as jobs_effects
 
 from the_tale.game import effects
 
-from the_tale.game.prototypes import TimePrototype, GameTime
+from the_tale.game import turn
 
 from . import relations
 
@@ -105,7 +106,7 @@ class Place(names.ManageNameMixin2):
         self._modifier = modifier
 
     @property
-    def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self.updated_at_turn))
+    def updated_at_game_time(self): return tt_calendar.converter(self.updated_at_turn)
 
     @property
     def is_new(self):
@@ -205,7 +206,7 @@ class Place(names.ManageNameMixin2):
                       key=lambda p: p.total_politic_power_fraction,
                       reverse=True) # fix persons order
 
-    def mark_as_updated(self): self.updated_at_turn = TimePrototype.get_current_turn_number()
+    def mark_as_updated(self): self.updated_at_turn = turn.number()
 
     @property
     def terrains(self):

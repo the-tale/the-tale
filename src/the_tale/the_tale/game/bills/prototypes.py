@@ -8,7 +8,6 @@ from django.db import transaction
 from dext.common.utils import s11n
 
 from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.accounts.logic import get_system_user
@@ -17,7 +16,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.achievements.storage import achievements_storage
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.balance import constants as c
 
@@ -206,7 +205,7 @@ class BillPrototype(BasePrototype):
 
         self._model.voting_end_at = datetime.datetime.now()
 
-        self.applyed_at_turn = TimePrototype.get_current_turn_number()
+        self.applyed_at_turn = turn.number()
 
         with transaction.atomic():
 
@@ -352,7 +351,7 @@ class BillPrototype(BasePrototype):
         model = Bill.objects.create(owner=owner._model,
                                     type=bill.type,
                                     caption=caption,
-                                    created_at_turn=TimePrototype.get_current_turn_number(),
+                                    created_at_turn=turn.number(),
                                     technical_data=s11n.to_json(bill.serialize()),
                                     state=BILL_STATE.VOTING,
                                     chronicle_on_accepted=chronicle_on_accepted,

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import time
 import random
 import datetime
@@ -12,7 +12,7 @@ from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import power
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game import relations as game_relations
 
 from the_tale.game.map import logic as map_logic
@@ -145,7 +145,7 @@ class LogicAccessorsMixin(object):
 
     @property
     def need_regenerate_energy(self):
-        return TimePrototype.get_current_turn_number() > self.last_energy_regeneration_at_turn + self.preferences.energy_regeneration_type.period
+        return turn.number() > self.last_energy_regeneration_at_turn + self.preferences.energy_regeneration_type.period
 
 
     def can_change_all_powers(self):
@@ -198,7 +198,7 @@ class LogicAccessorsMixin(object):
         return self.active_state_end_at > datetime.datetime.now()
 
     def can_be_helped(self):
-        if (self.last_help_on_turn == TimePrototype.get_current_turn_number() and
+        if (self.last_help_on_turn == turn.number() and
             self.helps_in_turn >= conf.heroes_settings.MAX_HELPS_IN_TURN):
             return False
 
@@ -313,12 +313,11 @@ class LogicAccessorsMixin(object):
 
 
     @property
-    def birthday(self): return TimePrototype(self.created_at_turn).game_time
+    def birthday(self): return turn.game_datetime(self.created_at_turn)
 
     @property
     def age(self):
-        return TimePrototype(TimePrototype.get_current_turn_number() - self.created_at_turn).game_time
-
+        return turn.game_datetime() - turn.game_datetime(self.created_at_turn)
 
     def sell_price(self):
         price = 1 + self.attribute_modifier(relations.MODIFIERS.SELL_PRICE)

@@ -2,8 +2,6 @@
 from unittest import mock
 import datetime
 
-from the_tale.game.prototypes import TimePrototype
-
 from the_tale.game.persons import logic as persons_logic
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import relations as persons_relations

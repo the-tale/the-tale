@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -6,7 +6,7 @@ from the_tale.common.utils import testcase
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game.balance import constants as c
 
 from the_tale.game.companions import storage as companions_storage
@@ -169,12 +169,10 @@ class GeneralTest(testcase.TestCase):
         self.check_stock_up_energy_in_choices(False)
 
     def test_percents_consistency(self):
-        current_time = TimePrototype.get_current_time()
-
         # just test that quest will be ended
         while not self.action_idl.leader:
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
             self.assertEqual(self.storage.tests_get_last_action().percents, self.hero.last_action_percents)
 
     def test_help_choice_heal_not_in_choices_for_dead_hero(self):
@@ -190,9 +188,6 @@ class GeneralTest(testcase.TestCase):
         self.assertFalse(HELP_CHOICES.HEAL in self.action_idl.help_choices)
 
     def test_action_default_serialization(self):
-        # class TestAction(ActionBase):
-        #     TYPE = 'test-action'
-
         default_action = TestAction( hero=self.hero,
                                      bundle_id=self.bundle_id,
                                      state=TestAction.STATE.UNINITIALIZED)
@@ -202,7 +197,7 @@ class GeneralTest(testcase.TestCase):
                                                       'percents': 0.0,
                                                       'description': None,
                                                       'type': TestAction.TYPE.value,
-                                                      'created_at_turn': TimePrototype.get_current_turn_number()})
+                                                      'created_at_turn': turn.number()})
         deserialized_action = TestAction.deserialize(default_action.serialize())
         deserialized_action.hero = self.hero
         self.assertEqual(default_action, deserialized_action)
@@ -214,7 +209,6 @@ class GeneralTest(testcase.TestCase):
 
         self.storage.load_account_data(account_2)
         hero_2 = self.storage.accounts_to_heroes[account_2.id]
-
 
         meta_action = meta_actions.ArenaPvP1x1.create(self.storage, self.hero, hero_2)
 

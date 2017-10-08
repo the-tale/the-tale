@@ -2,7 +2,7 @@
 from unittest import mock
 import datetime
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.persons import storage as persons_storage
 
@@ -70,7 +70,7 @@ class PersonMoveTests(BaseTestPrototypes):
         form = self.bill.data.get_user_form_update(post=data, owner_id=self.account.id)
         self.assertFalse(form.is_valid())
 
-        TimePrototype.get_current_time().increment_turn()
+        turn.increment()
 
         form = self.bill.data.get_user_form_update(post=data, owner_id=self.account.id)
 
@@ -183,7 +183,7 @@ class PersonMoveTests(BaseTestPrototypes):
     def test_has_meaning__move_delay(self):
         self.assertFalse(self.bill.has_meaning())
 
-        TimePrototype.get_current_time().increment_turn()
+        turn.increment()
 
         self.assertTrue(self.bill.has_meaning())
 

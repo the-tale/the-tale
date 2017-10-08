@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 import markdown
@@ -26,7 +26,6 @@ from the_tale.game.persons import relations as persons_relations
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp import abilities as pvp_abilities
 
-from the_tale.game.cards import effects as cards_effects
 from the_tale.game.cards import cards
 
 from the_tale.accounts.clans.conf import clans_settings
@@ -35,13 +34,13 @@ from the_tale.accounts.conf import accounts_settings
 from the_tale.guide.conf import guide_settings
 
 
-
 class APIReference(object):
 
     def __init__(self, id_, name, method):
         self.id = id_
         self.name = name
         self.documentation = markdown.markdown(method.__doc__)
+
 
 class TypeReference(object):
 
@@ -84,7 +83,7 @@ def get_api_methods():
             APIReference('login', 'Вход в игру', accounts_views.AuthResource.api_login),
             APIReference('logout', 'Выход из игры', accounts_views.AuthResource.api_logout),
             APIReference('account_info', 'Информация об игроке', accounts_views.api_show),
-            APIReference('new_messages_numner', 'Количество новых сообщений', personal_messages_views.api_new_messages),
+            APIReference('new_messages_number', 'Количество новых сообщений', personal_messages_views.api_new_messages),
             APIReference('game_info', 'Информация об игре/герое', game_views.api_info),
             APIReference('game_diary', 'Дневник героя', game_views.api_diary),
             APIReference('game_abilities', 'Использование способности', AbilitiesResource.use),

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 import random
@@ -20,15 +20,12 @@ from the_tale.game import relations as game_relations
 
 from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.mobs import prototypes as mobs_prototypes
-from the_tale.game.mobs import relations as mobs_relations
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.abilities.relations import HELP_CHOICES
-
-
 
 
 class BattlePvE1x1ActionTest(testcase.TestCase):
@@ -133,11 +130,9 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
     def test_full_battle(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 
@@ -157,11 +152,9 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.hero.reset_accessors_cache()
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 
@@ -179,11 +172,9 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.hero.companion.health = 10
 
-        current_time = TimePrototype.get_current_time()
-
         while self.hero.actions.current_action.TYPE == ActionBattlePvE1x1Prototype.TYPE:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.storage.process_turn(continue_steps_if_needed=False)
 

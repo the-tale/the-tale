@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import math
 
@@ -6,7 +5,7 @@ import rels
 
 from the_tale.common.utils.logic import choose_from_interval, choose_nearest
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game.balance import constants as c
 
 from the_tale.game.map.conf import map_settings
@@ -227,7 +226,6 @@ class UICell(object):
             return _get_wild_transport(transport)
 
 
-
 class UICells(object):
 
     def __init__(self, generator=None): # pylint: disable=W0613
@@ -256,7 +254,7 @@ class UICells(object):
 
             for x in range(0, generator.w):
                 cell = generator.cell_info(x, y)
-                randomized_cell = cell.randomize(seed=(x+y)*TimePrototype.get_current_time().game_time.day, fraction=map_settings.CELL_RANDOMIZE_FRACTION)
+                randomized_cell = cell.randomize(seed=(x+y)*turn.game_datetime().day, fraction=map_settings.CELL_RANDOMIZE_FRACTION)
                 row.append(UICell(randomized_cell))
 
             cells.append(tuple(row))

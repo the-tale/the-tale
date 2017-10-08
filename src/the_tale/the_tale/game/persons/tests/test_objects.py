@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -7,7 +7,7 @@ from the_tale.game import names
 
 from the_tale.game.jobs import effects as jobs_effects
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.heroes import logic as heroes_logic
@@ -24,10 +24,9 @@ class PersonTests(testcase.TestCase):
 
     def setUp(self):
         super(PersonTests, self).setUp()
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
+        turn.increment()
 
-        self.persons_changed_at_turn = TimePrototype.get_current_turn_number()
+        self.persons_changed_at_turn = turn.number()
 
         self.p1, self.p2, self.p3 = create_test_map()
 
@@ -42,14 +41,13 @@ class PersonTests(testcase.TestCase):
         account = self.accounts_factory.create_account()
         self.hero_3 = heroes_logic.load_hero(account_id=account.id)
 
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
+        turn.increment()
 
 
     def test_initialize(self):
         self.assertEqual(self.person.place.persons_changed_at_turn, self.persons_changed_at_turn)
 
-        self.assertEqual(self.person.created_at_turn, TimePrototype.get_current_turn_number() - 1)
+        self.assertEqual(self.person.created_at_turn, turn.number() - 1)
 
     def test_power_from_building(self):
 

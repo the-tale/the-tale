@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -6,7 +6,7 @@ from the_tale.common.utils import testcase
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.actions.prototypes import ActionDoNothingPrototype
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 
 class DoNothingActionTest(testcase.TestCase):
@@ -47,13 +47,11 @@ class DoNothingActionTest(testcase.TestCase):
 
     def test_full(self):
 
-        current_time = TimePrototype.get_current_time()
-
         for i in range(7):
             self.assertEqual(len(self.hero.actions.actions_list), 2)
             self.assertTrue(self.action_donothing.leader)
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertTrue(self.action_idl.leader)

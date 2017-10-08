@@ -1,10 +1,10 @@
-# coding: utf-8
+
 import time
 import collections
 
 from the_tale.common.utils import testcase
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.heroes import messages
 
@@ -16,7 +16,7 @@ class MessagesContainerTest(testcase.TestCase):
         self.messages = messages.JournalContainer()
 
     def create_message(self, message, turn_delta=0, time_delta=0, position='some position info'):
-        return messages.MessageSurrogate(turn_number=TimePrototype.get_current_turn_number() + turn_delta,
+        return messages.MessageSurrogate(turn_number=turn.number() + turn_delta,
                                          timestamp=time.time() + time_delta,
                                          key=None,
                                          externals=None,
@@ -45,31 +45,27 @@ class MessagesContainerTest(testcase.TestCase):
 
 
     def test_push_message(self):
-        current_time = TimePrototype.get_current_time()
-
         self.messages.push_message(self.create_message('1'))
         self.messages.push_message(self.create_message('2'))
 
-        current_time.increment_turn()
+        turn.increment()
 
         self.messages.push_message(self.create_message('3'))
 
         self.assertEqual([msg.message for msg in self.messages.messages], ['1', '2', '3'])
 
     def test_push_message__next_turn(self):
-        current_time = TimePrototype.get_current_time()
-
         self.messages.push_message(self.create_message('1'))
         self.messages.push_message(self.create_message('2', turn_delta=2))
 
-        current_time.increment_turn()
+        turn.increment()
 
         self.messages.push_message(self.create_message('3'))
 
         self.assertEqual([msg.message for msg in self.messages.messages], ['1', '3', '2'])
         self.assertEqual([msg[2] for msg in self.messages.ui_info()], ['1', '3'])
 
-        current_time.increment_turn()
+        turn.increment()
 
         self.assertEqual([msg.message for msg in self.messages.messages], ['1', '3', '2'])
         self.assertEqual([msg[2] for msg in self.messages.ui_info()], ['1', '3', '2'])

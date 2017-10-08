@@ -11,7 +11,7 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game.balance import constants as c
 
 from the_tale.game.heroes import logic as heroes_logic
@@ -160,9 +160,8 @@ class TestPrototypeApply(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_not_enough_voices_percents(self):
 
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
-        current_time.increment_turn()
+        turn.increment()
+        turn.increment()
 
         VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
         VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
@@ -185,17 +184,16 @@ class TestPrototypeApply(BaseTestPrototypes):
 
             self.place1.refresh_attributes()
 
-        self.assertEqual(bill.applyed_at_turn, current_time.turn_number)
+        self.assertEqual(bill.applyed_at_turn, turn.number())
 
         self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_approved(self):
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
-        current_time.increment_turn()
-        current_time.increment_turn()
+        turn.increment()
+        turn.increment()
+        turn.increment()
 
         VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
         VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
@@ -234,7 +232,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.place1.refresh_attributes()
         self.assertTrue(self.place1.attrs.stability < 1.0)
 
-        self.assertEqual(bill.applyed_at_turn, current_time.turn_number)
+        self.assertEqual(bill.applyed_at_turn, turn.number())
 
         self.check_place(self.place1.id, 'new_name_1-нс,ед,им', self.bill.data.name_forms.forms)
 
@@ -289,7 +287,6 @@ class TestPrototypeStop(BaseTestPrototypes):
         self.assertTrue(self.bill.state.is_STOPPED)
 
 
-
 class TestPrototypeEnd(BaseTestPrototypes):
 
     def setUp(self):
@@ -300,7 +297,7 @@ class TestPrototypeEnd(BaseTestPrototypes):
 
         self.bill.state = relations.BILL_STATE.ACCEPTED
 
-        TimePrototype.get_current_time().increment_turn()
+        turn.increment()
 
     def test_not_accepted(self):
         for state in relations.BILL_STATE.records:

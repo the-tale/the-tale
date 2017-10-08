@@ -1,10 +1,9 @@
-# coding: utf-8
 
 from django.db import transaction
 
-from the_tale.common.utils.prototypes import BasePrototype
+import tt_calendar
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.game.chronicle.models import Record, Actor, RecordToActor
 from the_tale.game.chronicle import exceptions
@@ -17,7 +16,7 @@ class RecordPrototype(BasePrototype):
 
     @property
     def game_time(self):
-        return TimePrototype(self._model.created_at_turn).game_time
+        return tt_calendar.converter.from_turns(self._model.created_at_turn)
 
     @classmethod
     @transaction.atomic
@@ -170,5 +169,5 @@ class ActorPrototype(BasePrototype):
 
 
 def chronicle_info(obj, records_number):
-    return [(record.game_time.verbose_date_short, record.game_time.verbose_date, record.text)
+    return [(record.game_time.date.verbose_short(), record.time.verbose(), record.text)
             for record in RecordPrototype.get_last_actor_records(obj, records_number)]

@@ -141,7 +141,7 @@ jQuery(document).ready(function(e){
                 {% for record in chronicle_records %}
                   <li class="newspaper-link-list">
                     <span class="newspaper-link-time">
-                      {{record.game_time.verbose_date}}:
+                      {{record.game_time.date.verbose_full()}}:
                       {% for actor in chronicle_actors[record.id] %}
                         {%- if loop.index > 1 -%},{% endif %}
                         {% if actor.type.is_BILL %}<a href="{{url('game:bills:show', actor.bill_id)}}">{{actor.name}}</a>{% endif -%}

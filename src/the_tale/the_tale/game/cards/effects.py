@@ -2,9 +2,6 @@ import uuid
 import math
 import random
 
-from dext.common.utils import discovering
-from dext.common.utils.urls import url
-
 from rels import Column
 from rels.django import DjangoEnum
 
@@ -14,8 +11,6 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.game.balance.power import Power
 
-from the_tale.game.cards import relations
-
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import logic as places_logic
 
@@ -23,7 +18,6 @@ from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.balance import constants as c
-from the_tale.game.prototypes import TimePrototype
 from the_tale.game import relations as game_relations
 
 from the_tale.game.artifacts.storage import artifacts_storage

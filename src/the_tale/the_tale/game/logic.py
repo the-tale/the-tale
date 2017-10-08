@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import os
 import time
 import datetime
@@ -13,8 +13,7 @@ from the_tale.linguistics import logic as linguistics_logic
 
 from the_tale.game import names
 from the_tale.game import conf
-
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.persons import storage as persons_storage
 
@@ -113,7 +112,7 @@ def remove_game_data(account):
     heroes_logic.remove_hero(account_id=account.id)
 
 
-def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_turns=None):
+def _form_game_account_info(turn_number, account, in_pvp_queue, is_own, client_turns=None):
     data = { 'id': account.id,
              'last_visit': time.mktime((account.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)).timetuple()),
              'is_own': is_own,
@@ -128,7 +127,7 @@ def _form_game_account_info(game_time, account, in_pvp_queue, is_own, client_tur
     data['hero'] = hero_data
     data['hero']['diary'] = heroes_tt_api.diary_version(account.id)
 
-    data['is_old'] = (data['hero']['actual_on_turn'] < game_time.turn_number)
+    data['is_old'] = (data['hero']['actual_on_turn'] < turn_number)
 
     if not is_own:
         if 'cards' in hero_data:
@@ -147,18 +146,18 @@ def form_game_info(account=None, is_own=False, client_turns=None):
     from the_tale.game.prototypes import GameState
     from the_tale.game.pvp.prototypes import Battle1x1Prototype
 
-    game_time = TimePrototype.get_current_time()
-
     data = {'mode': 'pve',
-            'turn': game_time.ui_info(),
+            'turn': turn.ui_info(),
             'game_state': GameState.state().value,
             'map_version': map_info_storage.version,
             'account': None,
-            'enemy': None }
+            'enemy': None}
 
     if account:
+        turn_number = turn.number()
+
         battle = Battle1x1Prototype.get_by_account_id(account.id)
-        data['account'] = _form_game_account_info(game_time,
+        data['account'] = _form_game_account_info(turn_number,
                                                   account,
                                                   in_pvp_queue=False if battle is None else battle.state.is_WAITING,
                                                   is_own=is_own,
@@ -166,7 +165,7 @@ def form_game_info(account=None, is_own=False, client_turns=None):
 
         if battle and battle.state.is_PROCESSING:
             data['mode'] = 'pvp'
-            data['enemy'] = _form_game_account_info(game_time,
+            data['enemy'] = _form_game_account_info(turn_number,
                                                     AccountPrototype.get_by_id(battle.enemy_id),
                                                     in_pvp_queue=False,
                                                     is_own=False,

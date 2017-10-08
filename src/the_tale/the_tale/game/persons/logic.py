@@ -1,5 +1,4 @@
-# coding: utf-8
-import random
+
 import datetime
 from django.conf import settings as project_settings
 
@@ -14,9 +13,7 @@ from the_tale.game import prototypes as game_protypes
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
-from the_tale.game.prototypes import TimePrototype
-
-from the_tale.game.roads.storage import waymarks_storage
+from the_tale.game import turn
 
 from the_tale.game.jobs import job
 from the_tale.game import politic_power
@@ -90,7 +87,7 @@ def save_person(person, new=False):
         person.id = person_model.id
 
         # TODO: that string was in .create method, is it needed here?
-        person.place.persons_changed_at_turn = game_protypes.TimePrototype.get_current_turn_number()
+        person.place.persons_changed_at_turn = turn.number()
 
         storage.persons.add_item(person.id, person)
     else:
@@ -108,8 +105,8 @@ def create_person(place, race, type, utg_name, gender, personality_cosmetic=None
         personality_practical = relations.PERSONALITY_PRACTICAL.random()
 
     person = objects.Person(id=None,
-                            created_at_turn=TimePrototype.get_current_turn_number(),
-                            updated_at_turn=TimePrototype.get_current_turn_number(),
+                            created_at_turn=turn.number(),
+                            updated_at_turn=turn.number(),
                             updated_at=datetime.datetime.now(),
                             place_id=place.id,
                             gender=gender,
@@ -121,7 +118,7 @@ def create_person(place, race, type, utg_name, gender, personality_cosmetic=None
                             politic_power=PersonPoliticPower.create(),
                             utg_name=utg_name,
                             job=PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER),
-                            moved_at_turn=TimePrototype.get_current_turn_number())
+                            moved_at_turn=turn.number())
     person.refresh_attributes()
     place.refresh_attributes()
     save_person(person, new=True)
@@ -175,7 +172,7 @@ def create_social_connection(connection_type, person_1, person_2):
     if storage.social_connections.is_connected(person_1, person_2):
         raise exceptions.PersonsAlreadyConnectedError(person_1_id=person_1.id, person_2_id=person_2.id)
 
-    model = models.SocialConnection.objects.create(created_at_turn=game_protypes.TimePrototype.get_current_turn_number(),
+    model = models.SocialConnection.objects.create(created_at_turn=turn.number(),
                                                    person_1_id=person_1.id,
                                                    person_2_id=person_2.id,
                                                    connection=connection_type)
@@ -196,7 +193,7 @@ def remove_connection(connection):
 
 def move_person_to_place(person, new_place):
     person.place_id = new_place.id
-    person.moved_at_turn = TimePrototype.get_current_turn_number()
+    person.moved_at_turn = turn.number()
 
     save_person(person)
 

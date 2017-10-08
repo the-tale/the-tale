@@ -8,7 +8,7 @@ from django.db import models as django_models
 
 from dext.common.utils import s11n
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game import relations as game_relations
 from the_tale.game import names
 
@@ -50,7 +50,7 @@ def get_minimum_created_time_of_active_quests():
 
 
 def hero_position_from_model(hero_model):
-    return position.Position(last_place_visited_turn=TimePrototype.get_current_turn_number(), # TODO: get from model
+    return position.Position(last_place_visited_turn=turn.number(), # TODO: get from model
                              moved_out_place=False, # TODO: get from model
                              place_id=hero_model.pos_place_id,
                              road_id=hero_model.pos_road_id,
@@ -182,7 +182,7 @@ def save_hero(hero, new=False):
             'actual_bills': hero.actual_bills,
             'cards': hero.cards.serialize()}
 
-    arguments = dict(saved_at_turn=TimePrototype.get_current_turn_number(),
+    arguments = dict(saved_at_turn=turn.number(),
                      saved_at=datetime.datetime.now(),
                      data=s11n.to_json(data),
                      abilities=s11n.to_json(hero.abilities.serialize()),
@@ -338,7 +338,7 @@ def create_hero(account):
 
     gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
 
-    current_turn_number = TimePrototype.get_current_turn_number()
+    current_turn_number = turn.number()
 
     utg_name = names.generator().get_name(race, gender)
 
@@ -375,13 +375,13 @@ def create_hero(account):
                         is_alive=True,
                         gender=gender,
                         race=race,
-                        last_energy_regeneration_at_turn=TimePrototype.get_current_turn_number(),
+                        last_energy_regeneration_at_turn=turn.number(),
                         might=account.might,
                         ui_caching_started_at=datetime.datetime.now(),
                         active_state_end_at=account.active_end_at,
                         premium_state_end_at=account.premium_end_at,
                         ban_state_end_at=account.ban_game_end_at,
-                        last_rare_operation_at_turn=TimePrototype.get_current_turn_number(),
+                        last_rare_operation_at_turn=turn.number(),
                         settings_approved=False,
                         actual_bills=[],
                         utg_name=utg_name)

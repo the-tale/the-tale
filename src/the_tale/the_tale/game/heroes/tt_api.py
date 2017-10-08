@@ -14,8 +14,8 @@ def push_message_to_diary(account_id, message, is_premium):
     diary_message = diary_pb2.Message(timestamp=message.timestamp,
                                       turn_number=message.turn_number,
                                       type=message.key.value if message.key else None,
-                                      game_time=game_time.verbose_time,
-                                      game_date=game_time.verbose_date,
+                                      game_time=game_time.time.verbose(),
+                                      game_date=game_time.date.verbose_full(),
                                       position=message.position,
                                       message=message.message,
                                       variables=message.get_variables())

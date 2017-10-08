@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import random
 
@@ -27,7 +26,7 @@ from the_tale.game.persons import logic as persons_logic
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
 
@@ -80,11 +79,9 @@ class QuestsTestBase(testcase.TestCase):
 class QuestsTest(QuestsTestBase):
 
     def complete_quest(self):
-        current_time = TimePrototype.get_current_time()
-
         while not self.action_idl.leader:
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
             self.hero.ui_info(actual_guaranteed=True) # test if ui info formed correctly
 
@@ -103,8 +100,6 @@ def create_test_method(quest, quests):
         self.hero.statistics.change_quests_done(1)
         heroes_logic.save_hero(self.hero)
 
-        current_time = TimePrototype.get_current_time()
-
         test_upgrade_equipment = random.randint(0, 1) # test child quest or upgrade equipment for SearchSmith
 
         while self.hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE or not self.hero.quests.has_quests:
@@ -113,7 +108,7 @@ def create_test_method(quest, quests):
                 self.hero.next_spending = heroes_relations.ITEMS_OF_EXPENDITURE.INSTANT_HEAL
 
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
         # test if quest is serializable
         s11n.to_json(self.hero.quests.current_quest.serialize())

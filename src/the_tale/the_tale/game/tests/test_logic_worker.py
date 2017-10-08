@@ -10,7 +10,7 @@ from the_tale.common.utils import testcase
 from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 
 class LogicWorkerTests(testcase.TestCase):
@@ -27,7 +27,7 @@ class LogicWorkerTests(testcase.TestCase):
         environment.initialize()
 
         self.worker = environment.workers.logic_1
-        self.worker.process_initialize(TimePrototype.get_current_turn_number(), 'logic')
+        self.worker.process_initialize(turn.number(), 'logic')
 
     def tearDown(self):
         pass
@@ -48,15 +48,13 @@ class LogicWorkerTests(testcase.TestCase):
 
     def test_process_next_turn(self):
 
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
-        current_time.save()
+        turn.increment()
 
         self.worker.process_register_account(self.account.id)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
             with mock.patch('the_tale.game.heroes.logic.save_hero') as save_counter:
-                self.worker.process_next_turn(current_time.turn_number)
+                self.worker.process_next_turn(turn.number())
 
         self.assertEqual(save_counter.call_count, 1)
         self.assertEqual(release_required_counter.call_count, 0)
@@ -64,9 +62,7 @@ class LogicWorkerTests(testcase.TestCase):
 
     def test_process_next_turn_with_skipped_hero(self):
 
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
-        current_time.save()
+        turn.increment()
 
         self.worker.process_register_account(self.account.id)
 
@@ -76,7 +72,7 @@ class LogicWorkerTests(testcase.TestCase):
             with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
                 with mock.patch('the_tale.game.heroes.logic.save_hero') as save_counter:
                     with mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0):
-                        self.worker.process_next_turn(TimePrototype.get_current_turn_number())
+                        self.worker.process_next_turn(turn.number())
 
         self.assertEqual(action_process_turn.call_count, 0)
         self.assertEqual(save_counter.call_count, 1)

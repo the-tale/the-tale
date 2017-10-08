@@ -1,13 +1,11 @@
-# coding: utf-8
 from unittest import mock
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.balance import formulas as f
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionRegenerateEnergyPrototype
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 
 class RegenerateEnergyActionTest(testcase.TestCase):
@@ -44,16 +42,14 @@ class RegenerateEnergyActionTest(testcase.TestCase):
     def test_full(self):
         self.hero.change_energy(-self.hero.energy)
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.energy, self.hero.preferences.energy_regeneration_type.amount)
         self.assertEqual(self.hero.need_regenerate_energy, False)
-        self.assertEqual(self.hero.last_energy_regeneration_at_turn, TimePrototype.get_current_turn_number()-1)
+        self.assertEqual(self.hero.last_energy_regeneration_at_turn, turn.number()-1)
 
         self.storage._test_save()
 
@@ -61,15 +57,13 @@ class RegenerateEnergyActionTest(testcase.TestCase):
     def test_full__double_energy(self):
         self.hero.change_energy(-self.hero.energy)
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.energy, self.hero.preferences.energy_regeneration_type.amount * 2)
         self.assertEqual(self.hero.need_regenerate_energy, False)
-        self.assertEqual(self.hero.last_energy_regeneration_at_turn, TimePrototype.get_current_turn_number()-1)
+        self.assertEqual(self.hero.last_energy_regeneration_at_turn, turn.number()-1)
 
         self.storage._test_save()

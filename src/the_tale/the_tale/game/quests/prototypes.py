@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import math
 import time
 import random
@@ -12,7 +12,7 @@ from questgen import transformators
 from questgen.quests.base_quest import ROLES, RESULTS as QUEST_RESULTS
 from questgen import relations as questgen_relations
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
@@ -645,7 +645,7 @@ class QuestPrototype(object):
             raise exceptions.UnknownUpgadeEquipmentTypeError(type=upgrade_choice)
 
     def _start_quest(self, start, hero):
-        hero.quests.update_history(start.type, TimePrototype.get_current_turn_number())
+        hero.quests.update_history(start.type, turn.number())
         self.quests_stack.append(QuestInfo.construct(type=start.type,
                                                      uid=start.uid,
                                                      knowledge_base=self.machine.knowledge_base,

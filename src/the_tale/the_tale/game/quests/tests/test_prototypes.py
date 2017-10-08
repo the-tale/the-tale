@@ -1,5 +1,4 @@
-# coding: utf-8
-import copy
+
 import datetime
 import random
 import collections
@@ -20,7 +19,7 @@ from the_tale.common.utils.fake import FakeWorkerCommand
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
 
@@ -29,7 +28,6 @@ from the_tale.game.roads.storage import roads_storage
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import relations as persons_relations
 from the_tale.game.persons import logic as persons_logic
-from the_tale.game.persons import models as persons_models
 
 from the_tale.game.balance import formulas as f
 
@@ -54,8 +52,7 @@ class PrototypeTestsBase(testcase.TestCase):
 
     def setUp(self):
         super(PrototypeTestsBase, self).setUp()
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
+        turn.increment()
 
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
@@ -90,7 +87,6 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(mark_updated.call_count, 1)
 
     def complete_quest(self, callback=lambda : None, positive_results=True):
-        current_time = TimePrototype.get_current_time()
 
         # save link to quest, since it will be removed from hero when quest finished
         quest = self.hero.quests.current_quest
@@ -106,7 +102,7 @@ class PrototypeTests(PrototypeTestsBase):
             self.hero.health = self.hero.max_health
             self.storage.process_turn()
             callback()
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(isinstance(quest.knowledge_base[quest.machine.pointer.state], facts.Finish))
 

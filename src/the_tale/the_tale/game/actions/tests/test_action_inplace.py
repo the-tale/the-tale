@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -19,7 +19,7 @@ from the_tale.game.artifacts.relations import RARITY
 from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import logic as heroes_logic
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.places import modifiers as places_modifiers
 from the_tale.game.places import storage as places_storage
@@ -368,11 +368,9 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_full(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 
@@ -828,18 +826,16 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     def test_buy_meal__from_moveto(self):
         prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
 
-        current_time = TimePrototype.get_current_time()
-
         with self.check_decreased(lambda: self.hero.money), \
              self.check_increased(lambda: self.hero.statistics.money_spend_for_companions):
             while self.hero.actions.current_action.TYPE != prototypes.ActionInPlacePrototype.TYPE:
-                current_time.increment_turn()
+                turn.increment()
                 self.storage.process_turn(continue_steps_if_needed=False)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 0.5)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat', lambda hero: True)
     def test_buy_meal(self):
-        self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number() - c.TURNS_IN_HOUR * 12
+        self.hero.position.last_place_visited_turn = turn.number() - c.TURNS_IN_HOUR * 12
         with self.check_decreased(lambda: self.hero.money), \
              self.check_increased(lambda: self.hero.statistics.money_spend_for_companions):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
@@ -852,13 +848,13 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 0.5)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat', lambda hero: True)
     def test_no_turns_since_last_visit(self):
-        self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number()
+        self.hero.position.last_place_visited_turn = turn.number()
         self.check_not_used()
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 66666666)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat', lambda hero: True)
     def test_not_enough_money(self):
-        self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number() - 1000
+        self.hero.position.last_place_visited_turn = turn.number() - 1000
 
         with self.check_delta(lambda: self.hero.money, -self.hero.money), \
              self.check_delta(lambda: self.hero.statistics.money_spend_for_companions, self.hero.money ):

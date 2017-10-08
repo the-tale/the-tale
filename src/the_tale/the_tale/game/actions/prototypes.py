@@ -1,5 +1,4 @@
-# coding: utf-8
-# pylint: disable=C0302
+
 import random
 import copy
 import math
@@ -11,7 +10,7 @@ from dext.common.utils import discovering
 
 from the_tale.common.utils import logic as utils_logic
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import logic as heroes_logic
@@ -121,7 +120,7 @@ class ActionBase(object):
         self.removed = False
         self.storage = None
 
-        self.created_at_turn = created_at_turn if created_at_turn is not None else TimePrototype.get_current_turn_number()
+        self.created_at_turn = created_at_turn if created_at_turn is not None else turn.number()
 
         self.context = None
         self.mob_context = None
@@ -1299,7 +1298,7 @@ class ActionInPlacePrototype(ActionBase):
         if hero.companion and hero.position.moved_out_place:
             if hero.can_companion_eat():
                 expected_coins = ( f.expected_gold_in_day(hero.level) *
-                                   float(TimePrototype.get_current_turn_number() - hero.position.last_place_visited_turn) / (c.TURNS_IN_HOUR * 24) )
+                                   float(turn.number() - hero.position.last_place_visited_turn) / (c.TURNS_IN_HOUR * 24) )
                 coins = min(hero.money, int(expected_coins * hero.companion_money_for_food_multiplier))
 
                 if coins > 0:
@@ -1917,7 +1916,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
             if self.percents >= 1:
                 multiplier = 2 if self.hero.can_regenerate_double_energy else 1
                 energy_delta = self.hero.change_energy(self.regeneration_type.amount * multiplier)
-                self.hero.last_energy_regeneration_at_turn = TimePrototype.get_current_turn_number()
+                self.hero.last_energy_regeneration_at_turn = turn.number()
 
                 if energy_delta:
                     self.hero.add_message('%s_energy_received' % self.textgen_id, hero=self.hero, energy=energy_delta)
