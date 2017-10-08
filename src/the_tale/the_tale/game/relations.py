@@ -1,6 +1,4 @@
 
-import datetime
-
 from rels import Column
 from rels.django import DjangoEnum
 

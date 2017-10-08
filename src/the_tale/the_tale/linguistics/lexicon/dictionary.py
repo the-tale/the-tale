@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from utg.words import WordForm, Word, Properties
 from utg.relations import WORD_TYPE

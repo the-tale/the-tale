@@ -8,8 +8,6 @@ from utg import relations as utg_relations
 from dext.common.utils import s11n
 from dext.common.utils.urls import url
 
-from the_tale.game import prototypes as game_protypes
-
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 

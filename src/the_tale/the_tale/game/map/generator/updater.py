@@ -1,4 +1,6 @@
 
+from django.db.utils import IntegrityError
+
 from the_tale.game import turn
 
 from the_tale.game.map.conf import map_settings
@@ -68,4 +70,7 @@ def update_map(index):
             # 'buildings': dict( (building.id, building.map_info() ) for building in buildings_storage.all() ),
             'roads': dict( (road.id, road.map_info() ) for road in roads_storage.all()) }
 
-    models.MapRegion.objects.create(turn_number=turn.number(), data=data)
+    try:
+        models.MapRegion.objects.create(turn_number=turn.number(), data=data)
+    except IntegrityError:
+        models.MapRegion.objects.filter(turn_number=turn.number()).update(data=data)

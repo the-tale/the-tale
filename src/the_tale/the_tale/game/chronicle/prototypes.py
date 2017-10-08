@@ -169,5 +169,5 @@ class ActorPrototype(BasePrototype):
 
 
 def chronicle_info(obj, records_number):
-    return [(record.game_time.date.verbose_short(), record.time.verbose(), record.text)
+    return [(record.game_time.date.verbose_short(), record.game_time.time.verbose(), record.text)
             for record in RecordPrototype.get_last_actor_records(obj, records_number)]
