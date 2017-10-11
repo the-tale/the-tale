@@ -25,7 +25,7 @@ PREMIUM_DAYS_DESCRIPTION = '''
   <li>размер дневника героя увеличен до {DIARY_LOG_LENGTH_PREMIUM} сообщений;</li>
   <li>жизнь героя не замедляется при длительном отсутствии игрока в игре;</li>
   <li>спутник героя не покидает его, когда здоровье спутника опускается до нуля;</li>
-  <li>игрок может одноврменно создать до {PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS} записей в Книге Судеб.</li>
+  <li>игрок может одновременно создать до {PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS} записей в Книге Судеб.</li>
 </ul>
 '''.format(DIARY_LOG_LENGTH_PREMIUM=heroes_conf.heroes_settings.DIARY_LOG_LENGTH_PREMIUM,
            PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS=c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS)

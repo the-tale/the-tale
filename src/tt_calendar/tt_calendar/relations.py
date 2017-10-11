@@ -47,7 +47,7 @@ class QUINT_DAY(rels.EnumWithText):
 class REAL_FEAST(rels.EnumWithText):
     intervals = rels.Column(no_index=True, unique=False)
 
-    records = (('JESTER_DAYS', 0, 'Дни Шута (с 31-ого марта по 2-ого апреля)',
+    records = (('JESTER_DAYS', 0, 'Дни шута (с 31-ого марта по 2-ого апреля)',
                 [(datetime.datetime(year=datetime.MINYEAR, month=3, day=31), datetime.datetime(year=datetime.MINYEAR, month=4, day=2))]),
                ('GREAT_EXALTATION', 1, 'Великосвершенье (с 30-ого декабря по 2-ого января)',
                 [(datetime.datetime(year=datetime.MINYEAR, month=12, day=30), datetime.datetime(year=datetime.MINYEAR, month=12, day=31)),

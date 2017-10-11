@@ -10,7 +10,7 @@
 {% block bills_content %}
 
 {% if not resource.account.is_authenticated %}
-{{ base_macros.registration_required_message("иметь возможность создавать записи в Книгу Судеб и голосовать.") }}
+{{ base_macros.registration_required_message("иметь возможность создавать записи в Книгу Судеб и голосовать") }}
 {% elif resource.active_bills_limit_reached %}
 
 <p class="alert alert-info pgf-active-bills-limit-reached">
@@ -30,7 +30,7 @@
 </p>
 
 <p>
-  Подробнее о Книге Судеб <a href="{{url('guide:politics')}}">Путеводителе</a>.
+  Подробнее о Книге Судеб в <a href="{{url('guide:politics')}}">Путеводителе</a>.
 </p>
 
 

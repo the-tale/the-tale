@@ -487,7 +487,7 @@ class ABILITIES(DjangoEnum):
         ('FAN', 48, 'поклонник', 'возносит хвалу Хранителю вместе с героем и с небольшой вероятностью даёт бонусную энергию', DoubleEnergyRegeneration(0.05, 0.1), RARITY_BIGER, False, True),
         ('SAN', 49, 'сан', 'возносит хвалу Хранителю вместе с героем и с хорошей вероятностью даёт бонусную энергию', DoubleEnergyRegeneration(0.1, 0.2), RARITY_BIGEST, False, True),
 
-        ('EAT_CORPSES', 50, 'пожиратель', 'после боя иногда ест труп врага, пополняя себе хиты. Не ест конструктов, нежить, демонов и стихийных существ.', CompanionEatCorpses(0.5, 1), RARITY_BIGER, False, True),
+        ('EAT_CORPSES', 50, 'пожиратель', 'после боя иногда ест труп врага, пополняя себе здоровье. Не ест конструктов, нежить, демонов и стихийных существ.', CompanionEatCorpses(0.5, 1), RARITY_BIGER, False, True),
         ('REGENERATE', 51, 'регенерация', 'во время отдыха может восстановить своё здоровье', CompanionRegenerate(0.5, 1.0), RARITY_BIGER, False, True),
 
         ('EATER', 52, 'едок', 'при каждом посещении города герой тратит деньги на еду для спутника', CompanionEat(0.35, 0.25), RARITY_LOW, False, True),

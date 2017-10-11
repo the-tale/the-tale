@@ -7,12 +7,13 @@ from rels.django import DjangoEnum
 
 from the_tale.game.balance import constants as c
 
+
 class BILL_STATE(DjangoEnum):
-    records = ( ('VOTING', 1, 'на голосовании'),
-                ('ACCEPTED', 2, 'принят'),
-                ('REJECTED', 3, 'отклонён'),
-                ('REMOVED', 4, 'удалён'),
-                ('STOPPED', 5, 'потерял смысл'))
+    records = (('VOTING', 1, 'на голосовании'),
+               ('ACCEPTED', 2, 'принята'),
+               ('REJECTED', 3, 'отклонёна'),
+               ('REMOVED', 4, 'удалена'),
+               ('STOPPED', 5, 'потеряла смысл'))
 
 
 class BILL_TYPE(DjangoEnum):
