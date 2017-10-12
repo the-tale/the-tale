@@ -11,7 +11,7 @@ from the_tale.game.balance import constants as c
 class BILL_STATE(DjangoEnum):
     records = (('VOTING', 1, 'на голосовании'),
                ('ACCEPTED', 2, 'принята'),
-               ('REJECTED', 3, 'отклонёна'),
+               ('REJECTED', 3, 'отклонена'),
                ('REMOVED', 4, 'удалена'),
                ('STOPPED', 5, 'потеряла смысл'))
 
