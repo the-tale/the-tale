@@ -71,7 +71,15 @@ def get_system_user():
     return account
 
 
-def register_user(nick, email=None, password=None, referer=None, referral_of_id=None, action_id=None, is_bot=False, gender=game_relations.GENDER.MASCULINE):
+def register_user(nick,
+                  email=None,
+                  password=None,
+                  referer=None,
+                  referral_of_id=None,
+                  action_id=None,
+                  is_bot=False,
+                  gender=game_relations.GENDER.MASCULINE,
+                  full_create=True):
     from the_tale.game.heroes import logic as heroes_logic
 
     if Account.objects.filter(nick=nick).exists():
@@ -109,7 +117,7 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
     AccountAchievementsPrototype.create(account)
     AccountItemsPrototype.create(account)
 
-    hero = heroes_logic.create_hero(account=account)
+    hero = heroes_logic.create_hero(account=account, full_create=full_create)
 
     return REGISTER_USER_RESULT.OK, account.id, hero.actions.current_action.bundle_id
 

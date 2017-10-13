@@ -329,7 +329,7 @@ def cards_for_new_hero(hero):
                                                                                 type=cards.CARD.ADD_BONUS_ENERGY_RARE)])
 
 
-def create_hero(account):
+def create_hero(account, full_create=True):
     from the_tale.game.relations import GENDER, RACE
 
     start_place = places_storage.places.random_place()
@@ -388,7 +388,9 @@ def create_hero(account):
 
     dress_new_hero(hero)
     preferences_for_new_hero(hero)
-    cards_for_new_hero(hero)
+
+    if full_create:
+        cards_for_new_hero(hero)
 
     save_hero(hero, new=True)
 

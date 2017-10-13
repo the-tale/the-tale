@@ -36,7 +36,7 @@ setuptools.setup(
         'Natural Language :: Russian'],
     keywords=['gamedev', 'the-tale', 'game development', 'zpg', 'zero player game'],
     packages=setuptools.find_packages(),
-    install_requires=['psycopg2==2.6.2',
+    install_requires=['psycopg2==2.7.3.1',
                       'kombu==3.0.37',
                       'postmarkup==1.2.2',
                       'Markdown==2.6.7',
