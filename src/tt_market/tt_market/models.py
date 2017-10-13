@@ -1,12 +1,9 @@
 
-import uuid
-
 from django.db import models
 
 from django.contrib.postgres import fields as postgres_fields
 
 from . import conf
-from . import relations
 
 
 class SellLot(models.Model):
@@ -15,12 +12,13 @@ class SellLot(models.Model):
 
     price = models.IntegerField()
 
-    owner = models.BigIntegerField(null=True)
+    owner = models.BigIntegerField(null=True, db_index=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'sell_lots'
+        index_together = (('item_type', 'price'),)
 
 
 class LogRecord(models.Model):
@@ -43,3 +41,4 @@ class LogRecord(models.Model):
 
     class Meta:
         db_table = 'log_records'
+        index_together = (('operation_type', 'created_at'),)

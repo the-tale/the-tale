@@ -1,13 +1,8 @@
-import uuid
-import datetime
 
 import psycopg2
 from psycopg2.extras import Json as PGJson
 
-import asyncio
-
 from tt_web import postgresql as db
-from tt_web import utils
 from tt_web.common import simple_static_cache
 
 from . import objects
@@ -40,12 +35,12 @@ async def _place_sell_lots(execute, arguments):
 
     for lot in lots:
         try:
-            result = await execute('''INSERT INTO sell_lots (item_type, item, price, owner, created_at)
-                                      VALUES (%(item_type)s, %(item)s, %(price)s, %(owner)s, NOW())''',
-                                   {'item_type': lot.item_type,
-                                    'item': lot.item_id,
-                                    'price': lot.price,
-                                    'owner': lot.owner_id})
+            await execute('''INSERT INTO sell_lots (item_type, item, price, owner, created_at)
+                             VALUES (%(item_type)s, %(item)s, %(price)s, %(owner)s, NOW())''',
+                          {'item_type': lot.item_type,
+                           'item': lot.item_id,
+                           'price': lot.price,
+                           'owner': lot.owner_id})
             lots_ids.append(lot.item_id)
         except psycopg2.IntegrityError:
             raise exceptions.SellLotForItemAlreadyCreated(item_id=lot.item_id)
@@ -242,7 +237,6 @@ async def statistics(time_from, time_till):
 
         if row['operation_type'] == relations.OPERATION_TYPE.CLOSE_SELL_LOT.value:
             data['sell_lots_closed'] = row['count']
-
 
     result = await db.sql('''SELECT SUM(price) as turnover FROM log_records
                              WHERE %(from)s <= created_at AND created_at <= %(till)s AND operation_type=%(operation_type)s
