@@ -293,11 +293,7 @@ pgf.game.ShopCardsBrowser = function(params) {
         jQuery('.pgf-operations-button', listContainer).click(function(e){
             var cardType = jQuery(e.currentTarget).data('card-type');
 
-            pgf.ui.dialog.Create({ fromString: pgf.game.CARDS_OPERATIONS_DIALOG,
-                                   OnOpen: function(dialog) {
-                                       pgf.game.OperationsDialog(dialog, instance, cardType);
-                                   }
-                                 });
+            pgf.game.OperationsDialog(instance, cardType);
         });
     };
 
@@ -446,9 +442,42 @@ pgf.game.ShopUserDeckPreprocessor = function(cardInfos, marketInfo) {
 };
 
 
-pgf.game.OperationsDialog = function(dialog, shopCardsBrowser, cardType) {
+pgf.game.OperationsDialog = function(shopCardsBrowser, cardType) {
 
     var instance = this;
+
+    instance.dialog = undefined;
+    instance.prices = undefined;
+    instance.ownerPrices = undefined;
+
+    function RefreshPrices(prices, ownerPrices) {
+        jQuery('.pgf-has-no-prices', instance.dialog).toggleClass('pgf-hidden', !jQuery.isEmptyObject(prices));
+        jQuery('.pgf-has-prices', instance.dialog).toggleClass('pgf-hidden', jQuery.isEmptyObject(prices));
+
+        var orderedPrices = [];
+
+        for (var price in prices) {
+            orderedPrices.push([parseInt(price),
+                                prices[price],
+                                ownerPrices[price] ? ownerPrices[price] : 0]);
+        }
+        orderedPrices.sort(function(a, b){return a[0]-b[0];});
+
+        if (orderedPrices.length > 0) {
+            jQuery('.pgf-min-buy-price', instance.dialog).text(orderedPrices[0][0]);
+            jQuery('.pgf-close-sell-lots', instance.dialog).data('min-price', orderedPrices[0][0]);
+            jQuery('.pgf-account-balance').text(shopCardsBrowser.data.balance);
+        }
+        jQuery('.pgf-buy-block', instance.dialog).toggleClass('pgf-hidden', (jQuery.isEmptyObject(prices) || (orderedPrices[0][2] > 0) || !(shopCardsBrowser.data.balance > orderedPrices[0][0])));
+        jQuery('.pgf-buy-block-has-card-error', instance.dialog).toggleClass('pgf-hidden', (jQuery.isEmptyObject(prices) || (orderedPrices[0][2] == 0)));
+        jQuery('.pgf-buy-block-no-money-error', instance.dialog).toggleClass('pgf-hidden', ((orderedPrices.length == 0) || (shopCardsBrowser.data.balance > orderedPrices[0][0])))
+
+        pgf.base.RenderTemplateList(jQuery('.pgf-prices-container', instance.dialog),
+                                    orderedPrices,
+                                    RenderPriceRecord,
+                                    {});
+
+    }
 
     function LoadPrices(callback) {
         jQuery.ajax({
@@ -459,34 +488,12 @@ pgf.game.OperationsDialog = function(dialog, shopCardsBrowser, cardType) {
 
             success: function(data, request, status) {
 
-                var prices = data.data.prices;
-                var ownerPrices = data.data.owner_prices;
+                instance.prices = data.data.prices;
+                instance.ownerPrices = data.data.owner_prices;
 
-                jQuery('.pgf-has-no-prices', dialog).toggleClass('pgf-hidden', !jQuery.isEmptyObject(prices));
-                jQuery('.pgf-has-prices', dialog).toggleClass('pgf-hidden', jQuery.isEmptyObject(prices));
-
-                var orderedPrices = [];
-
-                for (var price in prices) {
-                    orderedPrices.push([parseInt(price),
-                                        prices[price],
-                                        ownerPrices[price] ? ownerPrices[price] : 0]);
+                if (instance.dialog) {
+                    RefreshPrices(instance.prices, instance.ownerPrices);
                 }
-                orderedPrices.sort(function(a, b){return a[0]-b[0];});
-
-                if (orderedPrices.length > 0) {
-                    jQuery('.pgf-min-buy-price', dialog).text(orderedPrices[0][0]);
-                    jQuery('.pgf-close-sell-lots', dialog).data('min-price', orderedPrices[0][0]);
-                    jQuery('.pgf-account-balance').text(shopCardsBrowser.data.balance);
-                }
-                jQuery('.pgf-buy-block', dialog).toggleClass('pgf-hidden', (jQuery.isEmptyObject(prices) || (orderedPrices[0][2] > 0) || !(shopCardsBrowser.data.balance > orderedPrices[0][0])));
-                jQuery('.pgf-buy-block-has-card-error', dialog).toggleClass('pgf-hidden', (jQuery.isEmptyObject(prices) || (orderedPrices[0][2] == 0)));
-                jQuery('.pgf-buy-block-no-money-error', dialog).toggleClass('pgf-hidden', ((orderedPrices.length == 0) || (shopCardsBrowser.data.balance > orderedPrices[0][0])))
-
-                pgf.base.RenderTemplateList(jQuery('.pgf-prices-container', dialog),
-                                            orderedPrices,
-                                            RenderPriceRecord,
-                                            {});
 
                 if (callback) {
                     callback();
@@ -505,8 +512,8 @@ pgf.game.OperationsDialog = function(dialog, shopCardsBrowser, cardType) {
             commission = 1;
         }
 
-        jQuery('.pgf-seller-income', dialog).text(value - commission);
-        jQuery('.pgf-seller-commission', dialog).text(commission);
+        jQuery('.pgf-seller-income', instance.dialog).text(value - commission);
+        jQuery('.pgf-seller-commission', instance.dialog).text(commission);
     }
 
     function ReturnOwnCardCallback(e) {
@@ -569,12 +576,12 @@ pgf.game.OperationsDialog = function(dialog, shopCardsBrowser, cardType) {
     function Refresh() {
         var card = shopCardsBrowser.GetCardByType(cardType);
 
-        jQuery('#pgf_id_cards_number', dialog).attr('max', card.inDeckToTrade);
-        jQuery('.pgf-card-min-price', dialog).text(shopCardsBrowser.params.minSellPrice);
-        jQuery('.pgf-max-cards-to-sell', dialog).text(card.inDeckToTrade);
+        jQuery('#pgf_id_cards_number', instance.dialog).attr('max', card.inDeckToTrade);
+        jQuery('.pgf-card-min-price', instance.dialog).text(shopCardsBrowser.params.minSellPrice);
+        jQuery('.pgf-max-cards-to-sell', instance.dialog).text(card.inDeckToTrade);
 
-        jQuery('.pgf-no-cards-to-sell-block', dialog).toggleClass('pgf-hidden', (0 < card.inDeckToTrade));
-        jQuery('.pgf-sell-cards-block', dialog).toggleClass('pgf-hidden', !(0 < card.inDeckToTrade));
+        jQuery('.pgf-no-cards-to-sell-block', instance.dialog).toggleClass('pgf-hidden', (0 < card.inDeckToTrade));
+        jQuery('.pgf-sell-cards-block', instance.dialog).toggleClass('pgf-hidden', !(0 < card.inDeckToTrade));
     }
 
     function Initialize() {
@@ -582,30 +589,30 @@ pgf.game.OperationsDialog = function(dialog, shopCardsBrowser, cardType) {
 
         var rarityClass = pgf.game.constants.CARD_RARITY[card.rarity].name.toLowerCase()+'-card-label';
 
-        jQuery('.pgf-card-description', dialog).text(pgf.game.constants.CARD_TYPE[card.type].description);
+        jQuery('.pgf-card-description', instance.dialog).text(pgf.game.constants.CARD_TYPE[card.type].description);
 
-        jQuery('.pgf-card-name', dialog)
+        jQuery('.pgf-card-name', instance.dialog)
             .text(card.name[0].toUpperCase() + card.name.slice(1, card.name.length))
             .toggleClass(rarityClass, true);
 
-        jQuery('.pgf-cookies-image', dialog).attr("src", shopCardsBrowser.params.cookiesImage);
+        jQuery('.pgf-cookies-image', instance.dialog).attr("src", shopCardsBrowser.params.cookiesImage);
 
-        jQuery('#pgf_id_cards_price', dialog).attr('min', shopCardsBrowser.params.minSellPrice);
+        jQuery('#pgf_id_cards_price', instance.dialog).attr('min', shopCardsBrowser.params.minSellPrice);
 
-        jQuery('.pgf-market-commission', dialog).text(Math.ceil(shopCardsBrowser.params.sellComission*100));
+        jQuery('.pgf-market-commission', instance.dialog).text(Math.ceil(shopCardsBrowser.params.sellComission*100));
 
         UpdateCalculations(shopCardsBrowser.params.minSellPrice, shopCardsBrowser.params.sellComission);
 
-        jQuery('#pgf_id_cards_price', dialog).on('input', function(e){
+        jQuery('#pgf_id_cards_price', instance.dialog).on('input', function(e){
             var value = jQuery(e.currentTarget).val();
             UpdateCalculations(value, shopCardsBrowser.params.sellComission);
         });
 
         Refresh();
 
-        jQuery('.pgf-create-sell-lots', dialog).click(function(e){
-            var price = jQuery('#pgf_id_cards_price', dialog).val();
-            var number = jQuery('#pgf_id_cards_number', dialog).val();
+        jQuery('.pgf-create-sell-lots', instance.dialog).click(function(e){
+            var price = jQuery('#pgf_id_cards_price', instance.dialog).val();
+            var number = jQuery('#pgf_id_cards_number', instance.dialog).val();
 
             var card = shopCardsBrowser.GetCardByType(cardType);
 
@@ -654,8 +661,8 @@ pgf.game.OperationsDialog = function(dialog, shopCardsBrowser, cardType) {
             });
         });
 
-        jQuery('.pgf-close-sell-lots', dialog).click(function(e){
-            var price = jQuery('.pgf-close-sell-lots', dialog).data('min-price');
+        jQuery('.pgf-close-sell-lots', instance.dialog).click(function(e){
+            var price = jQuery('.pgf-close-sell-lots', instance.dialog).data('min-price');
 
             if (shopCardsBrowser.data.balance < price) {
                 return;
@@ -716,17 +723,24 @@ pgf.game.OperationsDialog = function(dialog, shopCardsBrowser, cardType) {
     }
 
     LoadPrices(function(){
-        Initialize();
-    });
+        pgf.ui.dialog.Create({ fromString: pgf.game.CARDS_OPERATIONS_DIALOG,
+                               OnOpen: function(dialog) {
+                                   instance.dialog = dialog;
 
-    jQuery(document).bind(pgf.game.events.CARDS_REFRESHED, function(e, diary){
-        Refresh();
-    });
+                                   Initialize();
 
-    jQuery(document).bind(pgf.game.events.MARKET_REFRESHED, function(e, diary){
-        Refresh();
-    });
+                                   RefreshPrices(instance.prices, instance.ownerPrices);
 
+                                   jQuery(document).bind(pgf.game.events.CARDS_REFRESHED, function(e, diary){
+                                       Refresh();
+                                   });
+
+                                   jQuery(document).bind(pgf.game.events.MARKET_REFRESHED, function(e, diary){
+                                       Refresh();
+                                   });
+                               }
+                             });
+    });
 };
 
 
