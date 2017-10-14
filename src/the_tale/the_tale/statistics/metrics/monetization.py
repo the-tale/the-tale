@@ -8,12 +8,12 @@ from the_tale.common.utils.logic import days_range
 from the_tale.accounts.prototypes import AccountPrototype
 
 from the_tale.finances.shop.relations import GOODS_GROUP
+from the_tale.finances.shop import conf as shop_conf
 
 from the_tale.finances.bank.prototypes import InvoicePrototype
 from the_tale.finances.bank.relations import INVOICE_STATE, ENTITY_TYPE, CURRENCY_TYPE
 
 from the_tale.accounts import conf as accounts_conf
-from the_tale.finances.market import conf as market_conf
 
 from the_tale.forum import models as forum_models
 
@@ -355,7 +355,7 @@ class IncomeFromGoodsClans(IncomeFromGoodsBase):
 
 class IncomeFromGoodsMarketCommission(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION
-    GROUP_PREFIX = market_conf.settings.COMMISSION_OPERATION_UID
+    GROUP_PREFIX = shop_conf.payments_settings.MARKET_COMMISSION_OPERATION_UID
 
 class IncomeFromTransferMoneyCommission(IncomeFromGoodsBase):
     TYPE = relations.RECORD_TYPE.INCOME_FROM_TRANSFER_MONEY_COMMISSION

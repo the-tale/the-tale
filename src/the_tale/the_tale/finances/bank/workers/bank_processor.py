@@ -75,10 +75,16 @@ class Worker(BaseWorker):
         return self.send_cmd('confirm_invoice', {'invoice_id': invoice_id})
 
     def process_confirm_invoice(self, invoice_id):
-        InvoicePrototype.get_by_id(invoice_id).confirm()
+        invoice = InvoicePrototype.get_by_id(invoice_id)
+
+        if invoice:
+            invoice.confirm()
 
     def cmd_cancel_invoice(self, invoice_id):
         return self.send_cmd('cancel_invoice', {'invoice_id': invoice_id})
 
     def process_cancel_invoice(self, invoice_id):
-        InvoicePrototype.get_by_id(invoice_id).cancel()
+        invoice = InvoicePrototype.get_by_id(invoice_id)
+
+        if invoice:
+            invoice.cancel()

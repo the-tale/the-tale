@@ -1,0 +1,35 @@
+
+{% macro preference_record(item, choosen_id) %}
+<td width="100px">
+  {% if item != choosen_id %}
+  {{ item.text }}
+  {% else %}
+  <strong>{{ item.text }}</strong>
+  {% endif %}
+</td>
+<td>
+  {{item.description}}
+</td>
+{% endmacro %}
+
+<p style="margin-top: -1em;">
+  Уровень риска героя: <strong>{{hero.preferences.risk_level.text}}</strong>.
+</p>
+
+<hr style="margin-bottom: 1em;"/>
+
+<p>
+  Каждый герой волен сам распоряжаться своей жизнью (когда за ним не следит Хранитель). Одни герои предпочитают постоянно рисковать, брать опасные задания и меньше внимания обращать на своё здоровье. Другие, наоборот, осторожничают, при любой царапине тянутся за аптечкой, а за опасные задания даже не берутся.
+</p>
+
+<p>
+  Вы можете выбрать, как ваш подопечный будет относиться к своей безопасности. Чем рискованнее герой, тем больше опыта и наград он получает за выполнения заданий и тем больше влияния оказывает на жизнь Пандоры. Но помните, чем больше риска — тем больше вероятность смерти в бою, за своим здоровьем рисковые герои смотрят плохо.
+</p>
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for risk_level in RISK_LEVEL.records %}
+  <tr>
+    {{ preference_record(risk_level, hero.preferences.risk_level) }}
+  </tr>
+  {% endfor %}
+</table>

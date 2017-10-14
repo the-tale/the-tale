@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -30,7 +29,7 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
 
         self.bill_data = PersonRemoveSocialConnection(person_1_id=self.person_1_1.id,
                                                       person_2_id=self.person_2_1.id)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.person_1_1.politic_power.change_power(self.person_1_1, hero_id=self.account.id, has_in_preferences=True, power=100)
 
@@ -59,7 +58,6 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
                                                person_2=self.person_3_1)
 
         data = {'caption': 'new-caption',
-                'rationale': 'new-rationale',
                 'chronicle_on_accepted': 'new-chronicle-on-accepted',
                 'person_1': self.person_2_2.id,
                 'person_2': self.person_3_1.id}
@@ -82,7 +80,6 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
 
     def test_user_form__min_live_time(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person_1': self.person_1_1.id,
                 'person_2': self.person_2_1.id}
@@ -94,7 +91,6 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME', 0)
     def test_user_form__has_no_connection(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person_1': self.person_1_1.id,
                 'person_2': self.person_2_2.id}
@@ -106,7 +102,6 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PERSON_SOCIAL_CONNECTIONS_LIMIT', 1)
     def test_user_form__not_in_circles(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person_1': self.person_2_2.id,
                 'person_2': self.person_3_1.id}
@@ -117,7 +112,6 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME', 0)
     def test_user_form__second_in_circle(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person_1': self.person_2_1.id,
                 'person_2': self.person_1_1.id}

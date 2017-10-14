@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import uuid
 import random
 
@@ -162,7 +162,7 @@ class ResourceExchangeStorageTests(testcase.TestCase):
                                    category=forum_category)
 
         bill_data = bills.PlaceRenaming(place_id=self.place_1.id, name_forms=names.generator().get_test_name('new_name'))
-        bill = BillPrototype.create(account, 'bill-caption', 'bill-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill = BillPrototype.create(account, 'bill-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         ResourceExchangePrototype.create(place_1=self.place_1,
                                          place_2=self.place_2,

@@ -44,4 +44,6 @@ class Worker(BaseWorker):
         return self.send_cmd('wait_task', {'task_id': task_id})
 
     def process_wait_task(self, task_id):
-        self.tasks[task_id] = PostponedTaskPrototype.get_by_id(task_id)
+        task = PostponedTaskPrototype.get_by_id(task_id)
+        if task:
+            self.tasks[task_id] = task

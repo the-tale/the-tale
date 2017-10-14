@@ -1,0 +1,12 @@
+<form class="pgf-use-card-form" method="post" action="{{ use_card_url(card.uid) }}">
+
+  {{ form.errors_container }}
+
+  {{ form.name.widget }}
+  {{ form.abbr.widget }}
+
+  <div class="widget">
+    <input type="submit" accesskey="u" class="btn btn-success" value="Использовать"/>
+  </div>
+
+</form>

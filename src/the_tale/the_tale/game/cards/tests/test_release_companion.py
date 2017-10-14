@@ -1,10 +1,12 @@
-# coding: utf-8
+
 import random
+
+from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -14,8 +16,8 @@ from the_tale.game.companions import logic as companions_logic
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
-class ReleaseCompanionTests(CardsTestMixin):
-    EFFECT = effects.ReleaseCompanion
+class ReleaseCompanionTests(CardsTestMixin, testcase.TestCase):
+    CARD = cards.CARD.RELEASE_COMPANION
 
     def setUp(self):
         super(ReleaseCompanionTests, self).setUp()
@@ -28,30 +30,25 @@ class ReleaseCompanionTests(CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.effect = self.EFFECT()
-
-        self.card = self.effect.create_card(available_for_auction=True)
-
-        self.hero.cards.add_card(self.card)
+        self.card = self.CARD.effect.create_card(type=self.CARD, available_for_auction=True)
 
 
     def test_use__has_companion(self):
         old_companion_record = random.choice(companions_storage.companions.all())
         self.hero.set_companion(companions_logic.create_companion(old_companion_record))
 
-        result, step, postsave_actions = self.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card_uid=self.card.uid))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=self.card))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(self.hero.companion, None)
 
 
-    def test_use__companion_exists(self):
+    def test_use__no_companion_exists(self):
 
         self.assertEqual(self.hero.companion, None)
 
-        with self.check_not_changed(self.hero.cards.cards_count):
-            result, step, postsave_actions = self.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card_uid=self.card.uid))
-            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=self.card))
+        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
         self.assertEqual(self.hero.companion, None)

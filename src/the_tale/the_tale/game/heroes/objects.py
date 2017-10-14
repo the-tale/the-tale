@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import math
 import time
 import random
@@ -9,19 +9,20 @@ from the_tale import amqp_environment
 
 from the_tale.accounts import prototypes as accounts_prototypes
 from the_tale.accounts import logic as accounts_logic
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game import names
 from the_tale.game.places import storage as places_storage
 
-from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
 
-from the_tale.game.prototypes import TimePrototype, GameState
+from the_tale.game import turn
+from the_tale.game.prototypes import GameState
 from the_tale.game import relations as game_relations
 
+from . import tt_api
 from . import relations
 from . import messages
 from . import exceptions
@@ -229,7 +230,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         if send_message: # TODO: move out logic
             account = accounts_prototypes.AccountPrototype.get_by_id(self.account_id)
-            pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+            pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
                                   recipients_ids=[self.account_id],
                                   body='Поздравляем, Ваш герой получил {} уровень!'.format(self.level),
                                   async=True)
@@ -441,7 +442,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                 message = message.clone()
 
         if diary:
-            logic.push_message_to_diary(self.id, message, self.is_premium)
+            tt_api.push_message_to_diary(self.id, message, self.is_premium)
 
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
@@ -473,7 +474,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     ##########################
 
     def on_help(self):
-        current_turn = TimePrototype.get_current_turn_number()
+        current_turn = turn.number()
 
         if self.last_help_on_turn != current_turn:
             self.last_help_on_turn = current_turn
@@ -499,7 +500,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     def get_achievement_type_value(self, achievement_type):
 
         if achievement_type.is_TIME:
-            return f.turns_to_game_time(self.last_rare_operation_at_turn - self.created_at_turn)[0]
+            return turn.game_datetime(self.last_rare_operation_at_turn - self.created_at_turn).year
         elif achievement_type.is_MONEY:
             return self.statistics.money_earned
         elif achievement_type.is_MOBS:
@@ -536,7 +537,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         from the_tale.game.companions import storage as companions_storage
         from the_tale.game.companions import logic as companions_logic
 
-        current_turn = TimePrototype.get_current_turn_number()
+        current_turn = turn.number()
 
         passed_interval = current_turn - self.last_rare_operation_at_turn
 
@@ -585,7 +586,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         new_info = {'id': self.id,
                     'patch_turn': None if old_info is None else old_info['actual_on_turn'],
-                    'actual_on_turn': TimePrototype.get_current_turn_number() if actual_guaranteed else self.saved_at_turn,
+                    'actual_on_turn': turn.number() if actual_guaranteed else self.saved_at_turn,
                     'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
                     'diary': None,  # diary version will be setupped by game:info view
                     'messages': self.journal.ui_info(),
@@ -690,3 +691,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         del data['changed_fields']
 
         return data
+
+
+    def new_cards_combined(self, number):
+        self.statistics.change_cards_combined(number)

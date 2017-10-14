@@ -9,7 +9,8 @@ from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESU
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.prototypes import TimePrototype
+
+from the_tale.game import turn
 
 from the_tale.game.actions.prototypes import ActionIdlenessPrototype
 
@@ -129,8 +130,6 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
         self.assertEqual(task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertTrue(task.state.is_PROCESSED)
 
-        current_time = TimePrototype.get_current_time()
-
         while True:
             self.assertNotEqual(self.hero.actions.current_action.TYPE, ActionIdlenessPrototype.TYPE)
 
@@ -141,7 +140,8 @@ class MakeChoiceTaskTest(testcase.TestCase, QuestTestsMixin):
 
             self.storage.process_turn()
             self.storage.save_changed_data()
-            current_time.increment_turn()
+
+            turn.increment()
 
     @mock.patch('questgen.quests.quests_base.QuestsBase._available_quests', lambda *argv, **kwargs: [QuestWith2ChoicePoints])
     def test_no_choices(self):

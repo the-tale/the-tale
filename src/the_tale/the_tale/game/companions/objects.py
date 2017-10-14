@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 from dext.common.utils import s11n
 
@@ -10,16 +10,13 @@ from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import power as p
 
-from the_tale.game import prototypes as game_prototypes
+from the_tale.game import turn
 from the_tale.game import relations as game_relations
-
-from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.companions import relations
 from the_tale.game.companions import exceptions
 
 from the_tale.game.companions.abilities import container as abilities_container
-
 
 
 class Companion(object):
@@ -141,7 +138,7 @@ class Companion(object):
         return old_health - self.health
 
     def on_heal_started(self):
-        self.healed_at_turn = game_prototypes.TimePrototype.get_current_turn_number()
+        self.healed_at_turn = turn.number()
         self._heals_count += 1
 
     def _damage_from_heal_probability(self):
@@ -164,16 +161,14 @@ class Companion(object):
         if self.health == self.max_health:
             return False
 
-        return self.healed_at_turn + c.TURNS_IN_HOUR / c.COMPANIONS_HEALS_IN_HOUR <= game_prototypes.TimePrototype.get_current_turn_number()
+        return self.healed_at_turn + c.TURNS_IN_HOUR / c.COMPANIONS_HEALS_IN_HOUR <= turn.number()
 
     @property
     def is_dead(self): return self.health <= 0
 
 
     def add_experience(self, value):
-        value = round(self._hero.modify_attribute(heroes_relations.MODIFIERS.COHERENCE_EXPERIENCE, value))
-
-        value *= self._hero.companion_coherence_speed
+        value = value * self._hero.companion_coherence_experience * self._hero.companion_coherence_speed
 
         self.experience += int(value)
 
@@ -206,10 +201,16 @@ class Companion(object):
         if modifier.is_COMPANION_ABILITIES_LEVELS:
             return value
 
-        return self.record.abilities.modify_attribute(self.modification_coherence(modifier), self._hero.companion_abilities_levels, modifier, value)
+        return self.record.abilities.modify_attribute(self.modification_coherence(modifier),
+                                                      self._hero.companion_abilities_levels,
+                                                      modifier,
+                                                      value,
+                                                      is_dead=self.is_dead)
 
     def check_attribute(self, modifier):
-        return self.record.abilities.check_attribute(self.modification_coherence(modifier), modifier)
+        return self.record.abilities.check_attribute(self.modification_coherence(modifier),
+                                                     modifier,
+                                                     is_dead=self.is_dead)
 
     @property
     def experience_to_next_level(self):

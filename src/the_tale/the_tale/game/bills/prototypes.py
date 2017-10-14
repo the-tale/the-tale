@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import datetime
 
@@ -9,7 +8,6 @@ from django.db import transaction
 from dext.common.utils import s11n
 
 from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.utils import bbcode
 from the_tale.common.utils.prototypes import BasePrototype
 
 from the_tale.accounts.logic import get_system_user
@@ -18,7 +16,7 @@ from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.achievements.storage import achievements_storage
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.balance import constants as c
 
@@ -40,7 +38,7 @@ from the_tale.game.bills import logic
 
 class BillPrototype(BasePrototype):
     _model_class = Bill
-    _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'rationale', 'votes_for',
+    _readonly = ('id', 'type', 'created_at', 'updated_at', 'caption', 'votes_for',
                  'votes_against', 'votes_refrained', 'forum_thread_id', 'min_votes_percents_required',
                  'voting_end_at', 'ended_at', 'chronicle_on_accepted')
     _bidirectional = ('approved_by_moderator', 'state', 'is_declined', 'applyed_at_turn')
@@ -60,9 +58,6 @@ class BillPrototype(BasePrototype):
         if not hasattr(self, '_data'):
             self._data = deserialize_bill(s11n.from_json(self._model.technical_data))
         return self._data
-
-    @property
-    def rationale_html(self): return bbcode.render(self._model.rationale)
 
     @lazy_property
     def forum_thread(self): return ThreadPrototype.get_by_id(self.forum_thread_id)
@@ -85,7 +80,6 @@ class BillPrototype(BasePrototype):
     def user_form_initials(self):
         special_initials = self.data.user_form_initials()
         special_initials.update({'caption': self.caption,
-                                 'rationale': self.rationale,
                                  'chronicle_on_accepted': self.chronicle_on_accepted})
         return special_initials
 
@@ -133,13 +127,24 @@ class BillPrototype(BasePrototype):
     def get_recently_modified_bills(cls, bills_number):
         return [cls(model=model) for model in cls._model_class.objects.exclude(state=BILL_STATE.REMOVED).order_by('-updated_at')[:bills_number]]
 
+    @property
+    def actors(self):
+        actors = []
+
+        for actor in self.data.actors:
+            if actor not in actors:
+                actors.append(actor)
+
+        return actors
+
+
     def can_vote(self, hero):
         allowed_places_ids = hero.places_history.get_allowed_places_ids(bills_settings.PLACES__TO_ACCESS_VOTING)
 
         place_found = False
         place_allowed = False
 
-        for actor in self.data.actors:
+        for actor in self.actors:
             if isinstance(actor, places_objects.Place):
 
                 if actor.is_new:
@@ -200,7 +205,7 @@ class BillPrototype(BasePrototype):
 
         self._model.voting_end_at = datetime.datetime.now()
 
-        self.applyed_at_turn = TimePrototype.get_current_turn_number()
+        self.applyed_at_turn = turn.number()
 
         with transaction.atomic():
 
@@ -229,7 +234,7 @@ class BillPrototype(BasePrototype):
                                  technical=True)
 
 
-            for actor in self.data.actors:
+            for actor in self.actors:
                 if isinstance(actor, places_objects.Place):
                     actor.effects.add(effects.Effect(name='запись №{}'.format(self.id),
                                                      attribute=places_relations.ATTRIBUTE.STABILITY,
@@ -283,12 +288,8 @@ class BillPrototype(BasePrototype):
 
 [b]запись в летописи о принятии:[/b]
 %(on_accepted)s
-
-[b]обоснование:[/b]
-%(rationale)s
 ''' % {'text': text,
        'caption': self.caption,
-       'rationale': self.rationale,
        'on_accepted': self.chronicle_on_accepted if self.chronicle_on_accepted else '—'}
 
         return rendered_text
@@ -301,7 +302,6 @@ class BillPrototype(BasePrototype):
             self._model.updated_at = datetime.datetime.now()
 
         self._model.caption = form.c.caption
-        self._model.rationale = form.c.rationale
         self._model.approved_by_moderator = False
         self._model.chronicle_on_accepted = form.c.chronicle_on_accepted
 
@@ -319,7 +319,7 @@ class BillPrototype(BasePrototype):
 
         self.save()
 
-        ActorPrototype.update_actors(self, self.data.actors)
+        ActorPrototype.update_actors(self, self.actors)
 
         thread = ThreadPrototype(self._model.forum_thread)
         thread.caption = form.c.caption
@@ -346,13 +346,12 @@ class BillPrototype(BasePrototype):
 
     @classmethod
     @transaction.atomic
-    def create(cls, owner, caption, rationale, bill, chronicle_on_accepted):
+    def create(cls, owner, caption, bill, chronicle_on_accepted):
 
         model = Bill.objects.create(owner=owner._model,
                                     type=bill.type,
                                     caption=caption,
-                                    rationale=rationale,
-                                    created_at_turn=TimePrototype.get_current_turn_number(),
+                                    created_at_turn=turn.number(),
                                     technical_data=s11n.to_json(bill.serialize()),
                                     state=BILL_STATE.VOTING,
                                     chronicle_on_accepted=chronicle_on_accepted,
@@ -373,7 +372,7 @@ class BillPrototype(BasePrototype):
         model.forum_thread = thread._model
         model.save()
 
-        ActorPrototype.update_actors(bill_prototype, bill_prototype.data.actors)
+        ActorPrototype.update_actors(bill_prototype, bill_prototype.actors)
 
         VotePrototype.create(owner, bill_prototype, VOTE_TYPE.FOR)
 

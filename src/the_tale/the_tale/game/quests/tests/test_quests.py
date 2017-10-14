@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import random
 
@@ -16,8 +15,7 @@ from the_tale.common.utils import testcase
 
 from the_tale.linguistics.lexicon.keys import LEXICON_KEY
 
-from the_tale.game.heroes.relations import EQUIPMENT_SLOT
-from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
+from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.logic_storage import LogicStorage
@@ -28,7 +26,7 @@ from the_tale.game.persons import logic as persons_logic
 from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
 
@@ -63,11 +61,11 @@ class QuestsTestBase(testcase.TestCase):
         self.action_idl = self.hero.actions.current_action
 
         self.hero.money += 1
-        self.hero.preferences.set_mob(mobs_storage.all()[0])
-        self.hero.preferences.set_place(self.p1)
-        self.hero.preferences.set_friend(self.p1.persons[0])
-        self.hero.preferences.set_enemy(self.p2.persons[0])
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.MOB, mobs_storage.all()[0])
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.PLACE, self.p1)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.FRIEND, self.p1.persons[0])
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENEMY, self.p2.persons[0])
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, heroes_relations.EQUIPMENT_SLOT.PLATE)
         self.hero.position.set_place(self.p3)
         heroes_logic.save_hero(self.hero)
 
@@ -81,11 +79,9 @@ class QuestsTestBase(testcase.TestCase):
 class QuestsTest(QuestsTestBase):
 
     def complete_quest(self):
-        current_time = TimePrototype.get_current_time()
-
         while not self.action_idl.leader:
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
             self.hero.ui_info(actual_guaranteed=True) # test if ui info formed correctly
 
@@ -104,17 +100,15 @@ def create_test_method(quest, quests):
         self.hero.statistics.change_quests_done(1)
         heroes_logic.save_hero(self.hero)
 
-        current_time = TimePrototype.get_current_time()
-
         test_upgrade_equipment = random.randint(0, 1) # test child quest or upgrade equipment for SearchSmith
 
         while self.hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE or not self.hero.quests.has_quests:
             if quest == SearchSmith and test_upgrade_equipment:
                 self.hero.money = QuestPrototype.upgrade_equipment_cost(self.hero) * 2
-                self.hero.next_spending = ITEMS_OF_EXPENDITURE.INSTANT_HEAL
+                self.hero.next_spending = heroes_relations.ITEMS_OF_EXPENDITURE.INSTANT_HEAL
 
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
         # test if quest is serializable
         s11n.to_json(self.hero.quests.current_quest.serialize())

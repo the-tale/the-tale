@@ -1,11 +1,11 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import remove_game_data, create_test_map, form_game_info
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
@@ -164,7 +164,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
     def test_is_old(self):
         self.assertFalse(form_game_info(self.account_1, is_own=True)['account']['is_old'])
 
-        TimePrototype(turn_number=666).save()
+        turn.set(666)
         self.assertTrue(form_game_info(self.account_1, is_own=True)['account']['is_old'])
 
         heroes_logic.save_hero(heroes_logic.load_hero(account_id=self.account_1.id))
@@ -173,7 +173,8 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
     def test_is_old__not_own_hero(self):
         self.assertFalse(form_game_info(self.account_1, is_own=False)['account']['is_old'])
 
-        TimePrototype(turn_number=666).save()
+        turn.set(666)
+
         self.assertTrue(form_game_info(self.account_1, is_own=False)['account']['is_old'])
 
         heroes_logic.save_hero(heroes_logic.load_hero(account_id=self.account_1.id))
@@ -190,7 +191,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertFalse(form_game_info(self.account_1)['account']['is_old'])
         self.assertFalse(form_game_info(self.account_1)['enemy']['is_old'])
 
-        TimePrototype(turn_number=666).save()
+        turn.set(666)
         self.assertTrue(form_game_info(self.account_1)['account']['is_old'])
         self.assertTrue(form_game_info(self.account_1)['enemy']['is_old'])
 

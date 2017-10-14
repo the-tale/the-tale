@@ -93,7 +93,7 @@ def api_list(context):
     return dext_views.AjaxOk(content=data)
 
 
-@api.Processor(versions=(conf.settings.API_SHOW_VERSION, '2.0'))
+@api.Processor(versions=(conf.settings.API_SHOW_VERSION))
 @PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')
 @resource('#place', 'api', 'show', name='api-show')
 def api_show(context):
@@ -167,7 +167,6 @@ def api_show(context):
              "type": <целое число>,                 // тип, значения перечислены на странице API
              "integrity": <дробное число>,          // целостность здания от 0.0 до 1.0
              "created_at_turn": <целое число>,      // номер хода на котором создано
-             "repair_number": <целое число>         // сколько починок необходимо до полность целостности
          } | null,
          "personality": {                           // характер
              "cosmetic": <целое число>,             // идентификатор косметической особенности характера

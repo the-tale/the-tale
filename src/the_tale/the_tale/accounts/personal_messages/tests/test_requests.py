@@ -12,6 +12,7 @@ from the_tale.accounts.logic import login_page_url, get_system_user
 
 from .. import conf
 from .. import logic
+from .. import tt_api
 
 
 class BaseRequestsTests(TestCase):
@@ -31,17 +32,17 @@ class IndexRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(IndexRequestsTests, self).setUp()
 
-        logic.debug_clear_service()
+        tt_api.debug_clear_service()
 
-        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 1')
-        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 2')
-        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 3')
+        tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 1')
+        tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 2')
+        tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 3')
 
-        logic.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
-        logic.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 2')
+        tt_api.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
+        tt_api.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 2')
 
-        logic.send_message(self.account_3.id, [self.account_1.id], 'message_3_1 1')
-        logic.send_message(self.account_3.id, [self.account_2.id], 'message_3_2 1')
+        tt_api.send_message(self.account_3.id, [self.account_1.id], 'message_3_1 1')
+        tt_api.send_message(self.account_3.id, [self.account_2.id], 'message_3_2 1')
 
 
     def test_unlogined_index(self):
@@ -72,7 +73,7 @@ class IndexRequestsTests(BaseRequestsTests):
 
     def test_index_second_page(self):
         for i in range(conf.settings.MESSAGES_ON_PAGE):
-            logic.send_message(self.account_2.id, [self.account_1.id], 'test message_2_1 %d' % i)
+            tt_api.send_message(self.account_2.id, [self.account_1.id], 'test message_2_1 %d' % i)
 
         texts = []
         for i in range(conf.settings.MESSAGES_ON_PAGE):
@@ -92,17 +93,17 @@ class SentRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(SentRequestsTests, self).setUp()
 
-        logic.debug_clear_service()
+        tt_api.debug_clear_service()
 
-        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 1')
-        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 2')
-        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 3')
+        tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 1')
+        tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 2')
+        tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 3')
 
-        logic.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
-        logic.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 2')
+        tt_api.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
+        tt_api.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 2')
 
-        logic.send_message(self.account_3.id, [self.account_1.id], 'message_3_1 1')
-        logic.send_message(self.account_3.id, [self.account_2.id], 'message_3_2 1')
+        tt_api.send_message(self.account_3.id, [self.account_1.id], 'message_3_1 1')
+        tt_api.send_message(self.account_3.id, [self.account_2.id], 'message_3_2 1')
 
 
     def test_fast_account(self):
@@ -136,17 +137,17 @@ class ConversationRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(ConversationRequestsTests, self).setUp()
 
-        logic.debug_clear_service()
+        tt_api.debug_clear_service()
 
-        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 1')
-        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 2')
-        logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 3')
+        tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 1')
+        tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 2')
+        tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 3')
 
-        logic.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
-        logic.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 2')
+        tt_api.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
+        tt_api.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 2')
 
-        logic.send_message(self.account_3.id, [self.account_1.id], 'message_3_1 1')
-        logic.send_message(self.account_3.id, [self.account_2.id], 'message_3_2 1')
+        tt_api.send_message(self.account_3.id, [self.account_1.id], 'message_3_1 1')
+        tt_api.send_message(self.account_3.id, [self.account_2.id], 'message_3_2 1')
 
 
     def test_fast_account(self):
@@ -214,19 +215,19 @@ class NewRequestsTests(BaseRequestsTests):
 
 
     def test_answer_wrong_message_id(self):
-        logic.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
+        tt_api.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to='aaa'), {'recipients': self.account_2.id}),
                            texts=[('pgf-error-answer_to.wrong_format', 1)])
 
 
     def test_answer_to_not_found(self):
-        logic.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
+        tt_api.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to=666), {'recipients': self.account_2.id}),
                            texts=[('pgf-error-answer_to.wrong_value', 1)])
 
 
     def test_answer_to_no_permissions(self):
-        message_id = logic.send_message(self.account_2.id, [self.account_3.id], 'message_2_3 1')
+        message_id = tt_api.send_message(self.account_2.id, [self.account_3.id], 'message_2_3 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to=message_id), {'recipients': self.account_2.id}),
                            texts=[('pgf-error-answer_to.wrong_value', 1)])
 
@@ -244,7 +245,7 @@ class NewRequestsTests(BaseRequestsTests):
 
 
     def test_answer_to(self):
-        message_id = logic.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
+        message_id = tt_api.send_message(self.account_2.id, [self.account_1.id], 'message_2_1 1')
         self.check_html_ok(self.post_ajax_html(url('accounts:messages:new', answer_to=message_id), {'recipients': self.account_2.id}),
                            texts=[('pgf-new-message-form', 1),
                                   ('message_2_1 1', 1)])
@@ -269,14 +270,14 @@ class CreateRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(CreateRequestsTests, self).setUp()
         self.request_login(self.account_1.email)
-        logic.debug_clear_service()
+        tt_api.debug_clear_service()
 
 
     def test_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message'}), 'common.login_required')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
 
@@ -287,7 +288,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message'}), 'common.fast_account')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
 
@@ -297,7 +298,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message'}), 'common.ban_forum')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
 
@@ -305,7 +306,7 @@ class CreateRequestsTests(BaseRequestsTests):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': 'aaa'}),
                               'form_errors')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
 
@@ -313,7 +314,7 @@ class CreateRequestsTests(BaseRequestsTests):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': '666'}),
                               'unexisted_account')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
 
@@ -321,7 +322,7 @@ class CreateRequestsTests(BaseRequestsTests):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': '', 'recipients': self.account_2.id}),
                               'form_errors')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
 
@@ -331,7 +332,7 @@ class CreateRequestsTests(BaseRequestsTests):
         with self.check_delta(MessagePrototype._db_count, 1):
             self.check_ajax_ok(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': self.account_2.id}))
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 1)
 
         self.assertEqual(messages[0].body, 'test-message')
@@ -342,7 +343,7 @@ class CreateRequestsTests(BaseRequestsTests):
     def test_success_multiply_accoutns(self):
         self.check_ajax_ok(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account_2.id, self.account_3.id))}))
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 1)
 
         self.assertEqual(messages[0].body, 'test-message')
@@ -354,7 +355,7 @@ class CreateRequestsTests(BaseRequestsTests):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account_2.id, get_system_user().id))}),
                               'system_user')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
     def test_sent_to_fast_user(self):
@@ -364,7 +365,7 @@ class CreateRequestsTests(BaseRequestsTests):
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:create'), {'text': 'test-message', 'recipients': ('%d,%d' % (self.account_2.id, self.account_3.id))}),
                               'fast_account')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
 
@@ -372,15 +373,15 @@ class DeleteRequestsTests(BaseRequestsTests):
 
     def setUp(self):
         super(DeleteRequestsTests, self).setUp()
-        logic.debug_clear_service()
-        self.message_id = logic.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 1')
+        tt_api.debug_clear_service()
+        self.message_id = tt_api.send_message(self.account_1.id, [self.account_2.id], 'message_1_2 1')
 
 
     def test_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message_id)), 'common.login_required')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 1)
 
 
@@ -391,7 +392,7 @@ class DeleteRequestsTests(BaseRequestsTests):
 
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message_id)), 'common.fast_account')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 1)
 
 
@@ -400,7 +401,7 @@ class DeleteRequestsTests(BaseRequestsTests):
 
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete', self.message_id)), 'message_id.wrong_value')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 1)
 
 
@@ -409,10 +410,10 @@ class DeleteRequestsTests(BaseRequestsTests):
 
         self.check_ajax_ok(self.post_ajax_json(url('accounts:messages:delete', self.message_id)))
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
-        total, messages = logic.get_received_messages(self.account_2.id)
+        total, messages = tt_api.get_received_messages(self.account_2.id)
         self.assertEqual(total, 1)
 
 
@@ -421,10 +422,10 @@ class DeleteRequestsTests(BaseRequestsTests):
 
         self.check_ajax_ok(self.post_ajax_json(url('accounts:messages:delete', self.message_id)))
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 1)
 
-        total, messages = logic.get_received_messages(self.account_2.id)
+        total, messages = tt_api.get_received_messages(self.account_2.id)
         self.assertEqual(total, 0)
 
 
@@ -433,20 +434,20 @@ class DeleteAllRequestsTests(BaseRequestsTests):
 
     def setUp(self):
         super(DeleteAllRequestsTests, self).setUp()
-        logic.debug_clear_service()
-        self.messages_ids = [logic.send_message(self.account_1.id, [self.account_2.id], '1'),
-                             logic.send_message(self.account_2.id, [self.account_1.id, self.account_3.id], '2'),
-                             logic.send_message(self.account_1.id, [self.account_3.id], '3')]
+        tt_api.debug_clear_service()
+        self.messages_ids = [tt_api.send_message(self.account_1.id, [self.account_2.id], '1'),
+                             tt_api.send_message(self.account_2.id, [self.account_1.id, self.account_3.id], '2'),
+                             tt_api.send_message(self.account_1.id, [self.account_3.id], '3')]
 
 
     def test_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete-all')), 'common.login_required')
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 2)
 
-        total, messages = logic.get_received_messages(self.account_1.id)
+        total, messages = tt_api.get_received_messages(self.account_1.id)
         self.assertEqual(total, 1)
 
 
@@ -463,22 +464,22 @@ class DeleteAllRequestsTests(BaseRequestsTests):
 
         self.check_ajax_ok(self.post_ajax_json(url('accounts:messages:delete-all')))
 
-        total, messages = logic.get_sent_messages(self.account_1.id)
+        total, messages = tt_api.get_sent_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
-        total, messages = logic.get_received_messages(self.account_1.id)
+        total, messages = tt_api.get_received_messages(self.account_1.id)
         self.assertEqual(total, 0)
 
-        total, messages = logic.get_sent_messages(self.account_2.id)
+        total, messages = tt_api.get_sent_messages(self.account_2.id)
         self.assertEqual(total, 1)
 
-        total, messages = logic.get_received_messages(self.account_2.id)
+        total, messages = tt_api.get_received_messages(self.account_2.id)
         self.assertEqual(total, 1)
 
-        total, messages = logic.get_sent_messages(self.account_3.id)
+        total, messages = tt_api.get_sent_messages(self.account_3.id)
         self.assertEqual(total, 0)
 
-        total, messages = logic.get_received_messages(self.account_3.id)
+        total, messages = tt_api.get_received_messages(self.account_3.id)
         self.assertEqual(total, 2)
 
 
@@ -486,26 +487,26 @@ class DeleteConversationRequestsTests(BaseRequestsTests):
 
     def setUp(self):
         super(DeleteConversationRequestsTests, self).setUp()
-        logic.debug_clear_service()
-        self.messages_ids = [logic.send_message(self.account_1.id, [self.account_2.id], '1'),
-                             logic.send_message(self.account_2.id, [self.account_1.id, self.account_3.id], '2'),
-                             logic.send_message(self.account_1.id, [self.account_3.id], '3')]
+        tt_api.debug_clear_service()
+        self.messages_ids = [tt_api.send_message(self.account_1.id, [self.account_2.id], '1'),
+                             tt_api.send_message(self.account_2.id, [self.account_1.id, self.account_3.id], '2'),
+                             tt_api.send_message(self.account_1.id, [self.account_3.id], '3')]
 
 
     def test_unlogined(self):
         self.request_logout()
         self.check_ajax_error(self.post_ajax_json(url('accounts:messages:delete-conversation', contact=self.account_2.id)), 'common.login_required')
 
-        total, messages = logic.get_conversation(self.account_1.id, self.account_2.id)
+        total, messages = tt_api.get_conversation(self.account_1.id, self.account_2.id)
         self.assertEqual(total, 2)
 
-        total, messages = logic.get_conversation(self.account_2.id, self.account_1.id)
+        total, messages = tt_api.get_conversation(self.account_2.id, self.account_1.id)
         self.assertEqual(total, 2)
 
-        total, messages = logic.get_conversation(self.account_1.id, self.account_3.id)
+        total, messages = tt_api.get_conversation(self.account_1.id, self.account_3.id)
         self.assertEqual(total, 1)
 
-        total, messages = logic.get_conversation(self.account_3.id, self.account_1.id)
+        total, messages = tt_api.get_conversation(self.account_3.id, self.account_1.id)
         self.assertEqual(total, 1)
 
 
@@ -522,16 +523,16 @@ class DeleteConversationRequestsTests(BaseRequestsTests):
 
         self.check_ajax_ok(self.post_ajax_json(url('accounts:messages:delete-conversation', contact=self.account_2.id)))
 
-        total, messages = logic.get_conversation(self.account_1.id, self.account_2.id)
+        total, messages = tt_api.get_conversation(self.account_1.id, self.account_2.id)
         self.assertEqual(total, 0)
 
-        total, messages = logic.get_conversation(self.account_2.id, self.account_1.id)
+        total, messages = tt_api.get_conversation(self.account_2.id, self.account_1.id)
         self.assertEqual(total, 2)
 
-        total, messages = logic.get_conversation(self.account_1.id, self.account_3.id)
+        total, messages = tt_api.get_conversation(self.account_1.id, self.account_3.id)
         self.assertEqual(total, 1)
 
-        total, messages = logic.get_conversation(self.account_3.id, self.account_1.id)
+        total, messages = tt_api.get_conversation(self.account_3.id, self.account_1.id)
         self.assertEqual(total, 1)
 
 
@@ -540,7 +541,7 @@ class NewMessagesNumberTests(BaseRequestsTests):
     def setUp(self):
         super(NewMessagesNumberTests, self).setUp()
         self.request_login(self.account_1.email)
-        logic.debug_clear_service()
+        tt_api.debug_clear_service()
 
 
     def test_unlogined(self):

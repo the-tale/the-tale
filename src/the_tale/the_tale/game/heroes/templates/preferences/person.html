@@ -1,0 +1,34 @@
+{% import 'persons/macros.html' as persons_macros with context %}
+
+<div style="margin-top: -1em; margin-bottom: 1em;">
+{% if hero.preferences.friend is not none %}
+<strong>Соратник героя:</strong>
+<a target="_blank" href="{{url('game:persons:show', hero.preferences.friend.id)}}">{{hero.preferences.friend.name}}</a>
+—
+{{ persons_macros.person_description(hero.preferences.friend) }}
+{% else %}
+<strong>У героя нет соратника.</strong>
+{% endif %}
+
+<br/>
+
+{% if hero.preferences.enemy is not none %}
+<strong>Противник героя:</strong>
+<a target="_blank" href="{{url('game:persons:show', hero.preferences.enemy.id)}}">{{hero.preferences.enemy.name}}</a>
+—
+{{ persons_macros.person_description(hero.preferences.enemy) }}
+{% else %}
+<strong>У героя нет противника.</strong>
+{% endif %}
+
+</div>
+
+<hr style="margin-bottom: 1em;"/>
+
+<p>
+  {% if _is_friend %}
+  Пусть ваш герой по сути своей и одиночка, но даже у него должны быть верные друзья и союзники. Ваш герой и выбранный вами соратник будут верными друзьями, помогающими друг другу в меру своих способностей.
+  {% else %}
+  У настоящего героя много друзей, но врагов у него не меньше. Выбранный вами житель Пандоры будет восприниматься героем как противник, и все связанные с ним действия будут направлены на подрыв влияния неприятеля.
+  {% endif %}
+</p>

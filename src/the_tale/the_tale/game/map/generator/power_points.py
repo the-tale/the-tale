@@ -1,9 +1,11 @@
-# coding: utf-8
+
 import math
+
+import tt_calendar
 
 from deworld import power_points, layers, normalizers
 
-from the_tale.game.prototypes import TimePrototype, MONTHS
+from the_tale.game import turn
 from the_tale.game.relations import RACE
 
 from the_tale.game.persons import objects as persons_objects
@@ -305,12 +307,12 @@ def get_object_race_points(obj, race, power_percent):
 
 def get_power_points():
 
-    month = TimePrototype.get_current_time().game_time.month_record
+    game_datetime = turn.game_datetime()
 
     points = []
 
-    points = [_default_temperature_points(delta={MONTHS.COLD: -0.1, MONTHS.HOT: 0.1}.get(month, 0)),
-              _default_wetness_points(delta={MONTHS.DRY: -0.1, MONTHS.CRUDE: 0.1}.get(month, 0)),
+    points = [_default_temperature_points(delta={tt_calendar.MONTH.COLD: -0.1, tt_calendar.MONTH.HOT: 0.1}.get(game_datetime.month, 0)),
+              _default_wetness_points(delta={tt_calendar.MONTH.DRY: -0.1, tt_calendar.MONTH.CRUDE: 0.1}.get(game_datetime.month, 0)),
               _default_vegetation_points(),
               _default_soil_points()]
 

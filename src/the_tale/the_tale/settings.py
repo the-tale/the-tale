@@ -22,7 +22,6 @@ META_CONFIG = MetaConfig(config_path=META_CONFIG_FILE)
 
 DEBUG = False
 
-SENTRY_JS_URL = None
 SENTRY_RAVEN_CONFIG = None
 
 DATABASES = {
@@ -332,13 +331,7 @@ LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
 
 CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
 
-CDNS = ( ('STATIC_JQUERY_JS',
-          '%splugins/jquery/jquery-1.7.2.min.js' % STATIC_URL, '//yandex.st/jquery/1.7.2/jquery.min.js',
-          'http://yandex.st/jquery/1.7.2/jquery.min.js'),
-         ('STATIC_JQUERY_UI_JS',
-          '%splugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js' % STATIC_URL, '//yandex.st/jquery-ui/1.8.9/jquery-ui.min.js',
-          'http://yandex.st/jquery-ui/1.8.9/jquery-ui.min.js'),
-         ('STATIC_TWITTER_BOOTSTRAP',
+CDNS = ( ('STATIC_TWITTER_BOOTSTRAP',
           '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
           'http:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
 
@@ -375,6 +368,12 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'formatter': 'verbose'
             },
+        'sentry': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'formatter': 'verbose'
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',

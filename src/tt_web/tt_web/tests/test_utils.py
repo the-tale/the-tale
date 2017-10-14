@@ -5,11 +5,10 @@ import random
 
 from aiohttp import test_utils
 
-from tt_diary import utils
-from tt_diary import exceptions
-from tt_diary import service
-
 from . import helpers
+
+from .. import utils
+from .. import exceptions
 
 
 POINT = utils.SyncPoint()

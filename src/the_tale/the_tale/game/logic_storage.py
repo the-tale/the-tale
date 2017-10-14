@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import sys
 import time
 import datetime
@@ -12,7 +12,7 @@ from the_tale.game.heroes.conf import heroes_settings
 
 from the_tale.game import exceptions
 from the_tale.game import conf
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.heroes import logic as heroes_logic
 
@@ -224,7 +224,7 @@ class LogicStorage(object):
 
         timestamp = time.time()
 
-        turn_number = TimePrototype.get_current_turn_number()
+        turn_number = turn.number()
 
         processed_heroes = 0
 

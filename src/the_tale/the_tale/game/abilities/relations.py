@@ -29,5 +29,4 @@ class ABILITY_TYPE(DjangoEnum):
                 ('ARENA_PVP_1x1', 'arena_pvp_1x1', 'Отправить на арену', c.ANGEL_ARENA_COST, 'Отправить героя на гладиаторскую арену', ()),
                 ('ARENA_PVP_1x1_LEAVE_QUEUE', 'arena_pvp_1x1_leave_queue', 'Выйти из очереди', c.ANGEL_ARENA_QUIT_COST, 'Выйти из очереди на арену', ()),
                 ('ARENA_PVP_1x1_ACCEPT', 'arena_pvp_1x1_accept', 'Принять вызов', c.ANGEL_ARENA_COST, 'Принять вызов другого героя', ('battle',)),
-                ('BUILDING_REPAIR', 'building_repair', 'Вызвать рабочего', c.BUILDING_WORKERS_ENERGY_COST, 'Вызвать рабочего для ремонта здания', ('building',)),
                 ('DROP_ITEM', 'drop_item', 'Выбросить предмет', c.ANGEL_DROP_ITEM_COST, 'Выбросить из рюкзака самый ненужный предмет', ()))

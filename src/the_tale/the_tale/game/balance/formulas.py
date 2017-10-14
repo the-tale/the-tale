@@ -111,29 +111,6 @@ def gold_in_path(lvl, path_length):
 #   -  общее влияние равно сумме влияний за месяц с коофициентом давности, т.е. влияние, полученное месяц назад, применяется с коофициентом 0 (не влияет)
 
 
-def turns_to_game_time(turns):
-    game_time = turns * c.GAME_SECONDS_IN_TURN
-
-    year = int(game_time // c.GAME_SECONDS_IN_GAME_YEAR)
-    game_time %= int(c.GAME_SECONDS_IN_GAME_YEAR)
-
-    month = int(game_time // c.GAME_SECONDS_IN_GAME_MONTH) + 1
-    game_time %= int(c.GAME_SECONDS_IN_GAME_MONTH)
-
-    day = int(game_time // c.GAME_SECONDS_IN_GAME_DAY) + 1
-    game_time %= int(c.GAME_SECONDS_IN_GAME_DAY)
-
-    hour = int(game_time // c.GAME_SECONDS_IN_GAME_HOUR)
-    game_time %= int(c.GAME_SECONDS_IN_GAME_HOUR)
-
-    minute = int(game_time // c.GAME_SECONDS_IN_GAME_MINUTE)
-    game_time %= int(c.GAME_SECONDS_IN_GAME_MINUTE)
-
-    second = game_time
-
-    return (year, month, day, hour, minute, second)
-
-
 # могущество
 def might_crit_chance(might):
     if might < 1:
@@ -183,12 +160,6 @@ def max_ability_points_number(level):
     return min(level + 2, maximum)
 
 # города
-def place_goods_production(level):
-    return level * c.PLACE_GOODS_BONUS
-
-def place_goods_consumption(level):
-    return level * c.PLACE_GOODS_BONUS
-
 def place_specialization_modifier(size):
     return (math.log(size, 2) + 1) / 1.7
 

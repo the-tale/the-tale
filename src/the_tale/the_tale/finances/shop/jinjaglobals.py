@@ -1,16 +1,45 @@
 # coding: utf-8
 import hashlib
+import datetime
 
 from dext.common.utils.urls import UrlBuilder
 
 from dext.common.utils import jinja2
 
-from the_tale.finances.shop import conf
+from . import conf
+from . import logic
+from . import tt_api
 
 
 @jinja2.jinjaglobal
 def shop_settings():
     return conf.payments_settings
+
+
+@jinja2.jinjaglobal
+def create_sell_lot_url():
+    return jinja2.Markup(logic.create_sell_lot_url())
+
+
+@jinja2.jinjaglobal
+def close_sell_lot_url():
+    return jinja2.Markup(logic.close_sell_lot_url())
+
+
+@jinja2.jinjaglobal
+def cancel_sell_lot_url():
+    return jinja2.Markup(logic.cancel_sell_lot_url())
+
+
+@jinja2.jinjaglobal
+def info_url():
+    return jinja2.Markup(logic.info_url())
+
+
+@jinja2.jinjaglobal
+def item_type_prices_url():
+    return jinja2.Markup(logic.item_type_prices_url())
+
 
 @jinja2.jinjaglobal
 def xsolla_paystaion_widget_link(account):
@@ -41,3 +70,10 @@ def xsolla_paystaion_widget_link(account):
     link = url_builder(**attributes)
 
     return link
+
+
+@jinja2.jinjaglobal
+def market_statistics():
+    statistics = tt_api.statistics(time_from=datetime.datetime.utcnow() - datetime.timedelta(seconds=conf.payments_settings.MARKET_STATISTICS_PERIOD),
+                                   time_till=datetime.datetime.utcnow() + datetime.timedelta(days=1))
+    return statistics

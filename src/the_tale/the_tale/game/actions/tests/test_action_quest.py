@@ -1,9 +1,9 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
@@ -77,12 +77,11 @@ class QuestActionTests(testcase.TestCase):
 
 
     def test_full_quest(self):
-        current_time = TimePrototype.get_current_time()
 
         # just test that quest will be ended
         while not self.action_idl.leader:
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
         self.storage._test_save()
 

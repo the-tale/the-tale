@@ -1,15 +1,12 @@
-# coding: utf-8
 import gc
 import datetime
-
-# from dext.common.utils import profile
 
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import workers
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.conf import game_settings
 
@@ -17,7 +14,6 @@ from the_tale.game.quests import logic as quests_logic
 
 
 class LogicException(Exception): pass
-
 
 
 class Worker(workers.BaseWorker):
@@ -59,10 +55,8 @@ class Worker(workers.BaseWorker):
         if turn_number != self.turn_number:
             raise LogicException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
-
-        if TimePrototype.get_current_turn_number() != self.turn_number:
-            raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number,
-                                                                                                                      TimePrototype.get_current_turn_number()))
+        if turn.number() != self.turn_number:
+            raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number, turn.number()))
 
         self.storage.process_turn(logger=self.logger)
         self.storage.save_changed_data(logger=self.logger)

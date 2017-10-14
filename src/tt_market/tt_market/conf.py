@@ -1,0 +1,3 @@
+
+
+ITEM_TYPE_NAME_LENGTH = 32

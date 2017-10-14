@@ -54,7 +54,7 @@
           {% if bill.is_declined %}
             отменена запись <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
           {% else %}
-            принят
+            принята
             <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
             ({{bill.applyed_at_turn|verbose_game_date}})
           {% endif %}
@@ -110,7 +110,7 @@
   <a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a>
   <small>
     {{bill.type.text}}:
-    {% for actor in bill.data.actors %}
+    {% for actor in bill.actors %}
       {%- if loop.index > 1 -%},{% endif %}
       <a href="{{actor.url}}" target="_blank">{{ actor.name }}</a>
     {% endfor %}

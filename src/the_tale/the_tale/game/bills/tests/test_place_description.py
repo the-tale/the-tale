@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -26,7 +25,7 @@ class PlaceDescriptionTests(BaseTestPrototypes):
         self.place_2 = places_storage.places.all()[1]
 
         self.bill_data = PlaceDescripton(place_id=self.place.id, description='new description')
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
         self.assertEqual(self.bill.data.place_id, self.place.id)
@@ -37,7 +36,6 @@ class PlaceDescriptionTests(BaseTestPrototypes):
 
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'place': self.place_2.id,
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'new_description': 'new new description'})
@@ -52,7 +50,6 @@ class PlaceDescriptionTests(BaseTestPrototypes):
 
     def test_long_description_error(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'place': self.place_2.id,
                                                          'new_description': '!' * (places_conf.settings.MAX_DESCRIPTION_LENGTH+1)})
         self.assertFalse(form.is_valid())

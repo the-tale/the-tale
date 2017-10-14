@@ -10,19 +10,6 @@ class FormulasTest(testcase.TestCase):
 
     LVLS = [1, 2, 3, 4, 5, 7, 11, 17, 19, 25, 30, 40, 60, 71, 82, 99, 101]
 
-    def test_turns_to_game_time(self):
-
-        self.assertEqual(f.turns_to_game_time(0), (0, 1, 1, 0, 0, 0))
-        self.assertEqual(f.turns_to_game_time(1), (0, 1, 1, 0, 2, 0))
-        self.assertEqual(f.turns_to_game_time(5), (0, 1, 1, 0, 10, 0))
-        self.assertEqual(f.turns_to_game_time(20), (0, 1, 1, 0, 40, 0))
-        self.assertEqual(f.turns_to_game_time(70), (0, 1, 1, 2, 20, 0))
-        self.assertEqual(f.turns_to_game_time(700), (0, 1, 1, 23, 20, 0))
-        self.assertEqual(f.turns_to_game_time(7001), (0, 1, 10, 17, 22, 0))
-        self.assertEqual(f.turns_to_game_time(70010), (0, 4, 14, 5, 40, 0))
-        self.assertEqual(f.turns_to_game_time(700103), (8, 3, 21, 8, 46, 0))
-        self.assertEqual(f.turns_to_game_time(7001038), (86, 4, 8, 15, 56, 0))
-
     def test_experience_for_quest(self):
         self.assertTrue(f.experience_for_quest(100) < f.experience_for_quest(1000)< f.experience_for_quest(10000))
         self.assertEqual(int(f.experience_for_quest__real(100)), 50)

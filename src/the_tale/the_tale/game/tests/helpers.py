@@ -1,5 +1,6 @@
-# coding: utf-8
+
 from unittest import mock
+
 
 class ComplexChangeTaskMixin(object):
     PROCESSOR = None
@@ -7,6 +8,7 @@ class ComplexChangeTaskMixin(object):
 
     def use_attributes(self,
                        hero,
+                       value=None,
                        place_id=None,
                        building_id=None,
                        person_id=None,
@@ -15,14 +17,18 @@ class ComplexChangeTaskMixin(object):
                        highlevel=None,
                        pvp_balancer=None,
                        critical=False,
-                       card_uid=None,
-                       battle_id=None):
+                       card=None,
+                       battle_id=None,
+                       extra_data=None):
 
         if step is None:
             step = self.LOGIC.STEP.LOGIC
 
         data = {'hero_id': hero.id,
                 'account_id': hero.account_id}
+
+        if value is not None:
+            data['value'] = value
 
         if place_id is not None:
             data['place_id'] = place_id
@@ -38,8 +44,12 @@ class ComplexChangeTaskMixin(object):
         if battle_id is not None:
             data['battle_id'] = battle_id
 
-        if card_uid is not None:
-            data['card_uid'] = card_uid
+        if card is not None:
+            data['card'] = {'id': card.uid.hex,
+                            'data': card.serialize()}
+
+        if extra_data:
+            data.update(extra_data)
 
         task = self.LOGIC(processor_id=self.PROCESSOR,
                           hero_id=hero.id,

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -6,7 +6,7 @@ from the_tale.common.utils import testcase
 from the_tale.game.relations import HABIT_HONOR_INTERVAL
 
 from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.balance import formulas as f, constants as c
+from the_tale.game.balance import constants as c
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
@@ -14,13 +14,12 @@ from the_tale.game.companions import logic as companions_logic
 from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.abilities.relations import HELP_CHOICES
 
 from the_tale.game.actions import prototypes
 from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
-
 
 
 class BaseMoveToActionTest(testcase.TestCase):
@@ -88,22 +87,18 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
     def test_full_move(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while self.hero.position.place is None or self.hero.position.place.id != self.p3.id:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
         self.storage._test_save()
 
     def test_full(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while not self.action_idl.leader:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.storage._test_save()
 
@@ -196,8 +191,6 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport_to_end(self):
-        current_time = TimePrototype.get_current_time()
-
         self.storage.process_turn(continue_steps_if_needed=False)
 
         self.action_move.teleport_to_end()
@@ -206,7 +199,8 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.assertFalse(self.action_move.leader)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
 
-        current_time.increment_turn()
+        turn.increment()
+
         self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(self.hero.position.place.id, self.p3.id)
@@ -216,8 +210,6 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport__length_is_0(self):
-
-        current_time = TimePrototype.get_current_time()
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
@@ -230,7 +222,7 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
 
         self.assertEqual(self.action_move.state, self.action_move.STATE.PROCESSED)
 
-        current_time.increment_turn()
+        turn.increment()
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
@@ -256,13 +248,14 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_regenerate_energy_on_move(self):
-        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.PRAY)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
         self.storage.process_turn(continue_steps_if_needed=False)
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
+
+        turn.increment()
+
         self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
@@ -270,22 +263,22 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_not_regenerate_energy_on_move_for_sacrifice(self):
-        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.action_move.state = self.action_move.STATE.CHOOSE_ROAD
 
         self.storage.process_turn(continue_steps_if_needed=False)
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
-        self.storage.process_turn(continue_steps_if_needed=False)
 
+        turn.increment()
+
+        self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertNotEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRegenerateEnergyPrototype.TYPE)
 
         self.storage._test_save()
 
     def test_regenerate_energy_after_battle_for_sacrifice(self):
-        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.action_move.state = self.action_move.STATE.BATTLE
 
@@ -307,12 +300,11 @@ class MoveToActionTest(BaseMoveToActionTest, ActionEventsTestsMixin):
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_inplace(self):
 
-        current_time = TimePrototype.get_current_time()
-
         self.storage.process_turn(continue_steps_if_needed=False)
         self.hero.position.percents = 1
 
-        current_time.increment_turn()
+        turn.increment()
+
         self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
@@ -437,11 +429,9 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
 
     def test_sequence_move(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while self.hero.actions.current_action != self.action_idl:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(self.hero.position.road.point_1_id, self.p2.id)
         self.assertEqual(self.hero.position.road.point_2_id, self.p3.id)
@@ -452,7 +442,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
         while self.hero.actions.current_action != self.action_idl:
             real_percents = self.hero.actions.current_action.percents
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(round(real_percents, 1), 0.9)
 
@@ -462,7 +452,7 @@ class MoveToActionWithBreaksTest(testcase.TestCase):
         prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.p2)
         while self.hero.position.place is None or self.hero.position.place.id != self.p2.id:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
         self.storage._test_save()

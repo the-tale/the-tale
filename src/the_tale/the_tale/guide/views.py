@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 import markdown
@@ -26,13 +26,12 @@ from the_tale.game.persons import relations as persons_relations
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp import abilities as pvp_abilities
 
-from the_tale.game.cards import effects as cards_effects
+from the_tale.game.cards import cards
 
 from the_tale.accounts.clans.conf import clans_settings
 from the_tale.accounts.conf import accounts_settings
 
 from the_tale.guide.conf import guide_settings
-
 
 
 class APIReference(object):
@@ -41,6 +40,7 @@ class APIReference(object):
         self.id = id_
         self.name = name
         self.documentation = markdown.markdown(method.__doc__)
+
 
 class TypeReference(object):
 
@@ -83,14 +83,17 @@ def get_api_methods():
             APIReference('login', 'Вход в игру', accounts_views.AuthResource.api_login),
             APIReference('logout', 'Выход из игры', accounts_views.AuthResource.api_logout),
             APIReference('account_info', 'Информация об игроке', accounts_views.api_show),
-            APIReference('new_messages_numner', 'Количество новых сообщений', personal_messages_views.api_new_messages),
+            APIReference('new_messages_number', 'Количество новых сообщений', personal_messages_views.api_new_messages),
             APIReference('game_info', 'Информация об игре/герое', game_views.api_info),
             APIReference('game_diary', 'Дневник героя', game_views.api_diary),
             APIReference('game_abilities', 'Использование способности', AbilitiesResource.use),
             APIReference('game_quests', 'Выбор в задании', QuestsResource.api_choose),
             APIReference('cards_get', 'Карты: взять', cards_views.api_get),
-            APIReference('cards_combine', 'Карты: объединить', cards_views.api_combine),
+            APIReference('cards_combine', 'Карты: превратить', cards_views.api_combine),
             APIReference('cards_use', 'Карты: использовать', cards_views.api_use),
+            APIReference('cards_load', 'Карты: перечень карт игрока', cards_views.api_get_cards),
+            APIReference('cards_move_to_storage', 'Карты: переместить в хранилище', cards_views.api_move_to_storage),
+            APIReference('cards_move_to_hand', 'Карты: переместить в руку', cards_views.api_move_to_hand),
             APIReference('places_list', 'Города: перечень всех городов', places_views.api_list),
             APIReference('places_show', 'Города: подробная информация о городе', places_views.api_show),
             APIReference('persons_show', 'Мастера: подробная информация о Мастере', persons_views.api_show),
@@ -106,7 +109,8 @@ def get_api_types():
     from the_tale.game.abilities.relations import ABILITY_TYPE as ANGEL_ABILITY_TYPE
     from the_tale.game.actions.relations import ACTION_TYPE
     from the_tale.game.quests.relations import ACTOR_TYPE
-    from the_tale.game.cards.relations import CARD_TYPE, RARITY as CARD_RARITY
+    from the_tale.game.cards.relations import RARITY as CARD_RARITY
+    from the_tale.game.cards.cards import CARD
     from the_tale.game.jobs import effects as job_effects
     from the_tale.game.places import modifiers as places_modifiers
     from the_tale.game.places import relations as places_relations
@@ -118,7 +122,7 @@ def get_api_types():
             TypeReference('equipment_slot', 'Артефакты: типы экипировки', EQUIPMENT_SLOT),
             TypeReference('artifact_effect', 'Артефакты: эффекты', ARTIFACT_EFFECT),
 
-            TypeReference('cards_types', 'Карты: типы', CARD_TYPE),
+            TypeReference('cards_types', 'Карты: типы', CARD),
             TypeReference('card_rarity', 'Карты: редкость', CARD_RARITY),
 
             TypeReference('action_type', 'Герои: тип действия', ACTION_TYPE),
@@ -295,6 +299,7 @@ class GuideResource(Resource):
     @handler('hero-preferences', method='get')
     def hero_preferences(self):
         return self.template('guide/hero-preferences.html', {'section': 'hero-preferences',
+                                                             'change_preferences_card': cards.CARD.CHANGE_PREFERENCE,
                                                              'PREFERENCE_TYPE': PREFERENCE_TYPE})
 
     @handler('referrals', method='get')
@@ -311,10 +316,10 @@ class GuideResource(Resource):
 
     @handler('hero-habits', method='get')
     def habits(self):
-        cards = sorted(iter(cards_effects.HABIT_POINTS_CARDS.values()), key=lambda x: (x.TYPE.rarity.value, x.TYPE.text))
+        habit_cards = sorted(cards.HABIT_POINTS_CARDS, key=lambda x: (x.rarity.value, x.text))
         return self.template('guide/hero-habits.html', {'section': 'hero-habits',
                                                         'HABIT_TYPE': game_relations.HABIT_TYPE,
-                                                        'HABIT_POINTS_CARDS': cards})
+                                                        'HABIT_POINTS_CARDS': habit_cards})
 
     @validate_argument('habit', lambda x: game_relations.HABIT_TYPE(int(x)), 'guide.hero_habit_info', 'Неверный тип черты')
     @handler('hero-habit-info', method='get')

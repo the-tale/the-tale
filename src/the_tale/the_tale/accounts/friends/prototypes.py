@@ -12,7 +12,7 @@ from the_tale.accounts.models import Account
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts import logic as accounts_logic
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 
 from the_tale.accounts.friends.models import Friendship
 
@@ -32,7 +32,7 @@ class FriendshipPrototype(BasePrototype):
         account_link='[url={}]{}[/url]'.format(full_url('http', 'accounts:show', self.friend_2.id), self.friend_2.nick_verbose)
         message = 'игрок {account_link} подтвердил, что вы являетесь друзьями'.format(account_link=account_link)
 
-        pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+        pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
                               recipients_ids=[self.friend_1.id],
                               body=message)
 
@@ -120,7 +120,7 @@ class FriendshipPrototype(BasePrototype):
 
         # send message from name of user, who request friendship
         # since many users try to respod to system user
-        pm_logic.send_message(sender_id=friend_1.id,
+        pm_tt_api.send_message(sender_id=friend_1.id,
                               recipients_ids=[friend_2.id],
                               body=message)
 
@@ -141,7 +141,7 @@ class FriendshipPrototype(BasePrototype):
         else:
             message = 'игрок {account_link} отказался добавить вас в список друзей'.format(account_link=account_link)
 
-        pm_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+        pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
                               recipients_ids=[friend.id],
                               body=message)
 

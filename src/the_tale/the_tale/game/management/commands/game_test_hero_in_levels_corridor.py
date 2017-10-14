@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 import uuid
 import traceback
@@ -8,13 +8,11 @@ from django.core.management.base import BaseCommand
 from the_tale.accounts.logic import register_user
 from the_tale.accounts.prototypes import AccountPrototype
 
-# from the_tale.linguistics.logic import fill_empty_keys_with_fake_phrases
-
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game.logic_storage import LogicStorage
 
 
@@ -94,8 +92,6 @@ class Command(BaseCommand):
 
         self.set_hero_companion()
 
-        current_time = TimePrototype.get_current_time()
-
         for level in range(1, 100):
             print()
             print('-----------------------------------------------------------------------')
@@ -103,7 +99,7 @@ class Command(BaseCommand):
 
             for i in range(f.turns_on_lvl(level)): # pylint: disable=W0612
                 self.storage.process_turn()
-                current_time.increment_turn()
+                turn.increment()
 
                 # simulate user behaviour on healing companion
                 if self.hero.companion.health < self.hero.companion.max_health / 2:

@@ -1,11 +1,10 @@
-# coding: utf-8
 
 from unittest import mock
 
 from the_tale.common.utils import testcase
 
-from the_tale.game.balance import constants as c, formulas as f
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game.balance import constants as c
+from the_tale.game import turn
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
@@ -90,7 +89,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
-        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.PRAY)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
 
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
@@ -105,7 +104,7 @@ class IdlenessActionTest(testcase.TestCase):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0
 
-        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 1)
@@ -117,11 +116,9 @@ class IdlenessActionTest(testcase.TestCase):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0
 
-        current_time = TimePrototype.get_current_time()
-
         for i in range(c.TURNS_TO_IDLE*self.hero.level):
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
             self.assertEqual(len(self.hero.actions.actions_list), 1)
             self.assertEqual(self.hero.actions.current_action, self.action_idl)
 

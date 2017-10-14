@@ -1,0 +1,47 @@
+
+{% macro render_artifact(artifact) %}
+  {% if artifact.rarity.is_NORMAL %}
+    {% set artifact_template = '%s <span class="physic-label">%d</span> <span class="magic-label">%d</span>' %}
+  {% elif artifact.rarity.is_RARE %}
+    {% set artifact_template = '<span class="rare-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>' %}
+  {% elif artifact.rarity.is_EPIC %}
+    {% set artifact_template = '<span class="epic-artifact-label">%s</span> <span class="physic-label">%d</span> <span class="magic-label">%d</span>' %}
+  {% endif %}
+  {% set artifact_text = artifact_template % (artifact.name, artifact.power.physic, artifact.power.magic ) %}
+  {{ artifact_text|safe }}
+{% endmacro %}
+
+
+{% macro preference_record(item, artifact) %}
+<td width="20px"><i class="game-ui-icon {{item.name.lower()}}"></i></td>
+<td class="hero-preference-choise">
+  {% if artifact %}
+  {{render_artifact(artifact)}}
+  {% else %}
+  —
+  {% endif %}
+</td>
+{% endmacro %}
+
+<p style="margin-top: -1em;">
+  {% if hero.preferences.favorite_item %}
+  Любимая экипировка героя: <strong>{{render_artifact(favorite_items.get(hero.preferences.favorite_item))}}</strong>
+  {% else %}
+  <strong>Сейчас у героя нет любимой вещи.</strong>
+  {% endif %}
+</p>
+
+<hr style="margin-bottom: 1em;"/>
+
+<p>
+  Со временем у каждого героя появляется любимая вещь. Это может быть как просто красивое кольцо, так и старый (но надёжный) меч, что не раз спасал владельцу жизнь. С такой вещью герой ни при каких обстоятельствах никогда и нигде не расстанется.
+</p>
+
+<table class="table table-striped table-condensed equip-record">
+  {% for slot in EQUIPMENT_SLOT.records %}
+  {% set artifact = favorite_items.get(slot) %}
+  <tr>
+    {{ preference_record(slot, artifact) }}
+  </tr>
+  {% endfor %}
+</table>

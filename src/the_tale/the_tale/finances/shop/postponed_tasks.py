@@ -1,21 +1,39 @@
-# coding: utf-8
 
 import rels
 from rels.django import DjangoEnum
 
 from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 from the_tale.common.utils.logic import random_value_by_priority
 
+from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+
+from the_tale.accounts import logic as accounts_logic
+
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
+
+from the_tale.game.cards import tt_api as cards_tt_api
+from the_tale.game.cards import logic as cards_logic
+
 from the_tale.finances.bank.transaction import Transaction
+from the_tale.finances.bank import relations as bank_relations
+from the_tale.finances.bank import prototypes as bank_prototypes
 
 from the_tale.amqp_environment import environment
 from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
 
-from the_tale.finances.shop import relations
-from the_tale.finances.shop.logic import transaction_logic
-from the_tale.finances.shop.conf import payments_settings
-from the_tale.finances.shop import exceptions
+from . import relations
+from . import conf
+from . import exceptions
+from . import tt_api
+from . import logic
+
+
+def good_bought_message(name, price):
+    from the_tale.portal import logic as portal_logic
+
+    template = 'Поздравляем! Кто-то купил карту «%(good)s», Вы получаете печеньки: %(price)d шт.'
+    return template % {'good': name,
+                       'price': price}
 
 
 class BASE_BUY_TASK_STATE(DjangoEnum):
@@ -26,7 +44,8 @@ class BASE_BUY_TASK_STATE(DjangoEnum):
                 ('SUCCESSED', 5, 'операция выполнена'),
                 ('ERROR_IN_FREEZING_TRANSACTION',6, 'неверное состояние транзакции при замарозке средств'),
                 ('ERROR_IN_CONFIRM_TRANSACTION', 7, 'неверное состояние транзакции при подтверждении траты'),
-                ('WRONG_TASK_STATE', 8, 'ошибка при обрабокте задачи — неверное состояние') )
+                ('WRONG_TASK_STATE', 8, 'ошибка при обрабокте задачи — неверное состояние'),
+                ('CANCELED', 9, 'операция отменена'), )
 
 
 
@@ -34,7 +53,7 @@ class BaseBuyTask(PostponedLogic):
     TYPE = None
     RELATION = BASE_BUY_TASK_STATE
 
-    def __init__(self, account_id, transaction, state=None):
+    def __init__(self, account_id, transaction, state=None, custom_error=None):
         super(BaseBuyTask, self).__init__()
 
         if state is None:
@@ -43,22 +62,28 @@ class BaseBuyTask(PostponedLogic):
         self.account_id = account_id
         self.state = state if isinstance(state, rels.Record) else self.RELATION.index_value[state]
         self.transaction = Transaction.deserialize(transaction) if isinstance(transaction, dict) else transaction
+        self.custom_error = custom_error
 
     def __eq__(self, other):
         return (self.state == other.state and
                 self.transaction == other.transaction and
-                self.account_id == other.account_id)
+                self.account_id == other.account_id and
+                self.custom_error == other.custom_error)
 
     def serialize(self):
         return { 'state': self.state.value,
                  'transaction': self.transaction.serialize(),
-                 'account_id': self.account_id }
+                 'account_id': self.account_id,
+                 'custom_error': self.custom_error }
 
     @property
     def uuid(self): return self.account_id
 
     @property
-    def error_message(self): return self.state.text
+    def error_message(self):
+        if self.custom_error:
+            return self.custom_error
+        return self.state.text
 
     @lazy_property
     def account(self): return AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
@@ -88,11 +113,15 @@ class BaseBuyTask(PostponedLogic):
         raise NotImplementedError
 
     def process_transaction_frozen(self, main_task, storage): # pylint: disable=W0613
-        self.on_process_transaction_frozen(storage=storage)
-        self.transaction.confirm()
+        if self.on_process_transaction_frozen(storage=storage):
+            self.transaction.confirm()
+            self.state = self.RELATION.WAIT_TRANSACTION_CONFIRMATION
+            return POSTPONED_TASK_LOGIC_RESULT.WAIT
 
-        self.state = self.RELATION.WAIT_TRANSACTION_CONFIRMATION
-        return POSTPONED_TASK_LOGIC_RESULT.WAIT
+        else:
+            self.transaction.cancel()
+            self.state = self.RELATION.CANCELED
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
     def process_transaction_confirmation(self, main_task):
         transaction_state = self.transaction.get_invoice_state()
@@ -139,11 +168,11 @@ class BaseBuyTask(PostponedLogic):
 
         owner = AccountPrototype.get_by_id(buyer.referral_of_id)
 
-        transaction_logic(account=owner,
-                          amount=-int(invoice.amount*payments_settings.REFERRAL_BONUS),
-                          description='Часть от потраченного вашим рефералом',
-                          uid='referral-bonus',
-                          force=True)
+        logic.transaction_logic(account=owner,
+                                amount=-int(invoice.amount*conf.payments_settings.REFERRAL_BONUS),
+                                description='Часть от потраченного вашим рефералом',
+                                uid='referral-bonus',
+                                force=True)
 
 
 class BaseLogicBuyTask(BaseBuyTask):
@@ -171,47 +200,7 @@ class BuyPremium(BaseBuyTask):
     def on_process_transaction_frozen(self, **kwargs):
         self.account.prolong_premium(days=self.days)
         self.account.save()
-
-
-class BaseBuyHeroMethod(BaseLogicBuyTask):
-    TYPE = None
-    ARGUMENTS = ()
-    METHOD = None
-
-    def __init__(self, **kwargs):
-        arguments = {name: value for name, value in kwargs.items() if name in self.ARGUMENTS}
-        for name in arguments:
-            del kwargs[name]
-
-        super(BaseBuyHeroMethod, self).__init__(**kwargs)
-
-        self.arguments = self.deserialize_arguments(arguments)
-
-    def __eq__(self, other):
-        return (super(BaseBuyHeroMethod, self).__eq__(other) and
-                self.arguments == other.arguments )
-
-    def serialize_arguments(self):
-        return self.arguments
-
-    @classmethod
-    def deserialize_arguments(cls, arguments):
-        return arguments
-
-    def serialize(self):
-        data = super(BaseBuyHeroMethod, self).serialize()
-        if set(data.keys()) & set(self.arguments.keys()):
-            raise exceptions.BuyHeroMethodSerializationError()
-        data.update(self.serialize_arguments())
-        return data
-
-    def on_process_transaction_frozen(self, storage, **kwargs):
-        hero = storage.accounts_to_heroes[self.account_id]
-        self.invoke_method(hero)
-        storage.save_bundle_data(hero.actions.current_action.bundle_id)
-
-    def invoke_method(self, hero):
-        getattr(hero, self.METHOD)(**self.arguments)
+        return True
 
 
 class BuyPermanentPurchase(BaseBuyTask):
@@ -233,38 +222,73 @@ class BuyPermanentPurchase(BaseBuyTask):
     def on_process_transaction_frozen(self, **kwargs):
         self.account.permanent_purchases.insert(self.purchase_type)
         self.account.save()
+        return True
 
 
-class BuyRandomPremiumChest(BaseBuyHeroMethod):
-    TYPE = 'purchase-random-premium-chest'
-    ARGUMENTS = ('message', )
-    METHOD = None
+class BuyMarketLot(BaseBuyTask):
+    TYPE = 'buy-market-lot'
 
-    MESSAGE = '''
-<strong>Поздравляем!</strong><br/>
+    def __init__(self, item_type, price, **kwargs):
+        super(BuyMarketLot, self).__init__(**kwargs)
+        self.item_type = item_type
+        self.price = price
 
-Благодаря Вам один из активных игроков получит подписку!<br/>
+    def __eq__(self, other):
+        return (super(BuyMarketLot, self).__eq__(other) and
+                self.item_type == other.item_type and
+                self.price == other.price )
 
-Вы получаете <strong>%(reward)s</strong><br/>
-'''
+    def serialize(self):
+        data = super(BuyMarketLot, self).serialize()
+        data['item_type'] = self.item_type
+        data['price'] = self.price
+        return data
 
-    def get_reward_type(self):
-        return random_value_by_priority([(record, record.priority)
-                                         for record in relations.RANDOM_PREMIUM_CHEST_REWARD.records])
+    def process_referrals(self):
+        pass # do nothing
 
-    def invoke_method(self, hero):
-        reward = self.get_reward_type()
+    def on_process_transaction_frozen(self, **kwargs):
+        lots = tt_api.close_lot(item_type=self.item_type,
+                                price=self.price,
+                                buyer_id=self.account_id)
+        if not lots:
+            self.custom_error = 'Не удалось купить карту: только что её купил другой игрок.'
+            return False
 
-        result = getattr(hero, reward.hero_method)(**reward.arguments)
+        cards_tt_api.change_cards_owner(old_owner_id=accounts_logic.get_system_user_id(),
+                                        new_owner_id=self.account_id,
+                                        operation_type='#close_sell_lots',
+                                        new_storage_id=0,
+                                        cards_ids=[lot.item_id for lot in lots])
 
-        if reward.is_NORMAL_ARTIFACT or reward.is_RARE_ARTIFACT or reward.is_EPIC_ARTIFACT:
-            message = self.MESSAGE % {'reward': result.html_label()}
-        else:
-            message = self.MESSAGE % {'reward': reward.description}
+        cards_info = cards_logic.get_cards_info_by_full_types()
 
-        self.arguments['message'] = message
+        lot = lots[0]
 
-        RandomPremiumRequestPrototype.create(hero.account_id, days=payments_settings.RANDOM_PREMIUM_DAYS)
+        lot_name = cards_info[lot.full_type]['name']
 
-    @property
-    def processed_data(self): return {'message': self.arguments['message'] }
+        # change receiver to lot owner
+
+        invoice = self.transaction.get_invoice()
+
+        invoice._model.recipient_type = bank_relations.ENTITY_TYPE.GAME_ACCOUNT
+        invoice._model.recipient_id = lot.owner_id
+        invoice._model.save()
+
+        bank_prototypes.InvoicePrototype.create(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                                                recipient_id=lot.owner_id,
+                                                sender_type=bank_relations.ENTITY_TYPE.GAME_LOGIC,
+                                                sender_id=0,
+                                                currency=bank_relations.CURRENCY_TYPE.PREMIUM,
+                                                amount=-logic.get_commission(self.price),
+                                                description_for_sender='Комиссия с продажи «{}»'.format(lot_name),
+                                                description_for_recipient='Комиссия с продажи «{}»'.format(lot_name),
+                                                operation_uid='{}-cards-hero-good'.format(conf.payments_settings.MARKET_COMMISSION_OPERATION_UID, lot.full_type),
+                                                force=True)
+
+        pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
+                               recipients_ids=[lot.owner_id],
+                               body=good_bought_message(name=lot_name, price=self.price - logic.get_commission(self.price)),
+                               async=True)
+
+        return True

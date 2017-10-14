@@ -38,6 +38,8 @@ accounts_settings = app_settings('ACCOUNTS',
 
                                  ACCOUNTS_ON_PAGE=25,
 
+                                 SHOW_SUBSCRIPTION_OFFER_AFTER=7*24*60*60,
+
                                  PREMIUM_EXPIRED_NOTIFICATION_IN=datetime.timedelta(days=3),
                                  PREMIUM_INFINIT_TIMEOUT=datetime.timedelta(days=100*365),
 

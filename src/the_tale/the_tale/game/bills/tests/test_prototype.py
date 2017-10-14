@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 import datetime
 
@@ -11,7 +11,7 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game.balance import constants as c
 
 from the_tale.game.heroes import logic as heroes_logic
@@ -40,7 +40,7 @@ class BillPrototypeTests(BaseTestPrototypes):
         if account is None:
             account = self.account1
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        return BillPrototype.create(account, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        return BillPrototype.create(account, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_accepted_bills_count(self):
         for state in relations.BILL_STATE.records:
@@ -105,6 +105,12 @@ class BillPrototypeTests(BaseTestPrototypes):
             self.assertTrue(bill.can_vote(self.hero))
 
 
+    def test_remove_duplicate_actors(self):
+        bill = self.create_bill()
+
+        with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place1, self.place3]):
+            self.assertEqual(bill.actors, [self.place1, self.place3])
+
 
 class TestPrototypeApply(BaseTestPrototypes):
 
@@ -112,7 +118,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         super(TestPrototypeApply, self).setUp()
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -154,9 +160,8 @@ class TestPrototypeApply(BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_not_enough_voices_percents(self):
 
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
-        current_time.increment_turn()
+        turn.increment()
+        turn.increment()
 
         VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
         VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
@@ -179,17 +184,16 @@ class TestPrototypeApply(BaseTestPrototypes):
 
             self.place1.refresh_attributes()
 
-        self.assertEqual(bill.applyed_at_turn, current_time.turn_number)
+        self.assertEqual(bill.applyed_at_turn, turn.number())
 
         self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_approved(self):
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
-        current_time.increment_turn()
-        current_time.increment_turn()
+        turn.increment()
+        turn.increment()
+        turn.increment()
 
         VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
         VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
@@ -228,7 +232,7 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.place1.refresh_attributes()
         self.assertTrue(self.place1.attrs.stability < 1.0)
 
-        self.assertEqual(bill.applyed_at_turn, current_time.turn_number)
+        self.assertEqual(bill.applyed_at_turn, turn.number())
 
         self.check_place(self.place1.id, 'new_name_1-нс,ед,им', self.bill.data.name_forms.forms)
 
@@ -266,7 +270,7 @@ class TestPrototypeStop(BaseTestPrototypes):
         super(TestPrototypeStop, self).setUp()
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -283,18 +287,17 @@ class TestPrototypeStop(BaseTestPrototypes):
         self.assertTrue(self.bill.state.is_STOPPED)
 
 
-
 class TestPrototypeEnd(BaseTestPrototypes):
 
     def setUp(self):
         super(TestPrototypeEnd, self).setUp()
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.state = relations.BILL_STATE.ACCEPTED
 
-        TimePrototype.get_current_time().increment_turn()
+        turn.increment()
 
     def test_not_accepted(self):
         for state in relations.BILL_STATE.records:
@@ -330,9 +333,9 @@ class GetApplicableBillsTest(BaseTestPrototypes):
         super(GetApplicableBillsTest, self).setUp()
 
         self.bill_data = PlaceDescripton(place_id=self.place1.id, description='description')
-        self.bill_1 = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-        self.bill_2 = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-        self.bill_3 = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_1 = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_2 = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_3 = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         BillPrototype._model_class.objects.all().update(updated_at=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME),
                                                         approved_by_moderator=True)
@@ -374,7 +377,7 @@ class TestActorPrototype(BaseTestPrototypes):
         super(TestActorPrototype, self).setUp()
 
         self.bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_actors_created(self):
         self.assertTrue(Actor.objects.all().exists())
@@ -386,7 +389,6 @@ class TestActorPrototype(BaseTestPrototypes):
 
         data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'caption': 'new-caption',
-                     'rationale': 'new-rationale',
                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
                      'place': self.place2.id})
 
@@ -407,7 +409,7 @@ class TestVotePrototype(BaseTestPrototypes):
         super(TestVotePrototype, self).setUp()
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.approved_by_moderator = True
         self.bill.save()

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import jinja2
 import datetime
 
@@ -12,20 +12,13 @@ from dext.common.utils.urls import url
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.game import names
-from the_tale.game.balance import constants as c
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.chronicle.prototypes import RecordPrototype as ChronicleRecordPrototype
 
-from the_tale.game.persons import logic as persons_logic
-from the_tale.game.persons import models as persons_models
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.places import modifiers as places_modifiers
-from the_tale.game.places import conf as places_conf
 from the_tale.game.places import logic as places_logic
 from the_tale.game.places import models as places_models
 from the_tale.game.places import storage as places_storage
@@ -112,7 +105,6 @@ class CellInfoTests(RequestsTestsBase):
         self.check_html_ok(self.request_html(url('game:map:cell-info', x=map_settings.WIDTH-1, y=map_settings.HEIGHT)), texts=[('outside_map', 1)])
 
 
-
 class RegionTests(RequestsTestsBase):
 
     def setUp(self):
@@ -128,15 +120,13 @@ class RegionTests(RequestsTestsBase):
 
 
     def test_region_for_turn(self):
-        current_time = TimePrototype.get_current_time()
-        current_time.increment_turn()
+        turn.increment()
 
-        self.check_ajax_error(self.request_ajax_json(logic.region_url(current_time.get_current_turn_number())), 'no_region_found')
+        self.check_ajax_error(self.request_ajax_json(logic.region_url(turn.number())), 'no_region_found')
 
         update_map(index=1)
 
-        self.check_ajax_ok(self.request_ajax_json(logic.region_url(current_time.get_current_turn_number())))
-
+        self.check_ajax_ok(self.request_ajax_json(logic.region_url(turn.number())))
 
 
 class RegionVersionsTests(RequestsTestsBase):
@@ -147,16 +137,14 @@ class RegionVersionsTests(RequestsTestsBase):
 
     def test_region_for_turn(self):
 
-        current_time = TimePrototype.get_current_time()
+        current_turn = turn.number()
 
-        turn = current_time.get_current_turn_number()
+        self.check_ajax_ok(self.request_ajax_json(logic.region_versions_url()), {'turns': [current_turn]})
 
-        self.check_ajax_ok(self.request_ajax_json(logic.region_versions_url()), {'turns': [turn]})
+        turn.increment()
 
-        current_time.increment_turn()
-
-        self.check_ajax_ok(self.request_ajax_json(logic.region_versions_url()), {'turns': [turn]})
+        self.check_ajax_ok(self.request_ajax_json(logic.region_versions_url()), {'turns': [current_turn]})
 
         update_map(index=1)
 
-        self.check_ajax_ok(self.request_ajax_json(logic.region_versions_url()), {'turns': [turn, turn+1]})
+        self.check_ajax_ok(self.request_ajax_json(logic.region_versions_url()), {'turns': [current_turn, current_turn+1]})

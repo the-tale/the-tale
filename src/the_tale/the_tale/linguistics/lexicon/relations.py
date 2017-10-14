@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from rels import Column
 from rels.django import DjangoEnum
@@ -12,6 +11,7 @@ from the_tale.linguistics import relations
 
 def preprocess_s(row):
     return [var if isinstance(var, tuple) else (var, '') for var in row]
+
 
 def s(*substitutions):
     return [preprocess_s(row[i:] + row[:i]) for i, row in enumerate(substitutions)]
@@ -50,7 +50,9 @@ class VARIABLE_VERIFICATOR(DjangoEnum):
                                                        ['человек', 'эльф', 'орк', 'гоблин', 'дварф'],
                                                        ['человек', 'эльф', 'орк', 'гоблин', 'дварф'])),
 
-                ('DATE', 8, 'дата в мире игры', WORD_TYPE.TEXT, s(['18 сухого месяца 183 года'])),)
+                ('DATE', 8, 'дата в мире игры', WORD_TYPE.TEXT, s(['18 сухого месяца 183 года'])),
+
+                ('TIME', 9, 'время в мире игры', WORD_TYPE.TEXT, s(['9:20'])),)
 
 
 _construct_utg_name_form = lambda v: (v.utg_name_form, v.linguistics_restrictions())
@@ -126,7 +128,15 @@ class VARIABLE_TYPE(DjangoEnum):
                 ('RACE', 9, 'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.RACE,
                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
 
-                ('DATE', 10, 'дата', VARIABLE_VERIFICATOR.DATE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.REAL_FEAST,)) )
+                ('DATE', 10, 'дата', VARIABLE_VERIFICATOR.DATE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.REAL_FEAST,
+                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.CALENDAR_DATE,
+                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.PHYSICS_DATE,
+                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.MONTH,
+                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.QUINT,
+                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.QUINT_DAY,
+                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.DAY_TYPE)),
+
+                ('TIME', 11, 'время', VARIABLE_VERIFICATOR.TIME, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.DAY_TIME,)) )
 
 
 class VARIABLE(DjangoEnum):
@@ -180,4 +190,5 @@ class VARIABLE(DjangoEnum):
                 ('COMPANION', 'companion', 'спутник', VARIABLE_TYPE.ACTOR),
                 ('COMPANION_OWNER', 'companion_owner', 'владелец спутника', VARIABLE_TYPE.ACTOR),
                 ('ATTACKER_DAMAGE', 'attacker_damage', 'урон по атакующему', VARIABLE_TYPE.NUMBER),
-                ('DATE', 'date', 'дата в мире игры', VARIABLE_TYPE.DATE), )
+                ('DATE', 'date', 'дата в мире игры', VARIABLE_TYPE.DATE),
+                ('TIME', 'time', 'время в мире игры', VARIABLE_TYPE.TIME), )

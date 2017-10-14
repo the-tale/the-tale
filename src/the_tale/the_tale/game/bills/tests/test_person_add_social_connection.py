@@ -1,9 +1,6 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
-
-from the_tale.game.prototypes import TimePrototype
 
 from the_tale.game.persons import logic as persons_logic
 from the_tale.game.persons import storage as persons_storage
@@ -29,7 +26,7 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
         self.bill_data = PersonAddSocialConnection(person_1_id=self.person_1_1.id,
                                                    person_2_id=self.person_2_1.id,
                                                    connection_type=persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.person_1_1.politic_power.change_power(self.person_1_1, hero_id=self.account.id, has_in_preferences=True, power=100)
 
@@ -54,7 +51,6 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
         self.person_2_2.politic_power.change_power(self.person_2_2, hero_id=self.account.id, has_in_preferences=True, power=100)
 
         data = {'caption': 'new-caption',
-                'rationale': 'new-rationale',
                 'chronicle_on_accepted': 'new-chronicle-on-accepted',
                 'person_1': self.person_2_2.id,
                 'person_2': self.person_3_1.id,
@@ -80,7 +76,6 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 1)
     def test_user_form_same_persons(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person_1': self.person_1_1.id,
                 'person_2': self.person_1_1.id,
@@ -95,7 +90,6 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
                                                person_1=self.person_1_1,
                                                person_2=self.person_2_1)
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person_1': self.person_1_1.id,
                 'person_2': self.person_2_1.id,
@@ -111,7 +105,6 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
                                                person_1=self.person_1_1,
                                                person_2=self.person_2_2)
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person_1': self.person_1_1.id,
                 'person_2': self.person_2_1.id,
@@ -127,7 +120,6 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
                                                person_1=self.person_2_1,
                                                person_2=self.person_2_2)
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person_1': self.person_1_1.id,
                 'person_2': self.person_2_1.id,
@@ -139,7 +131,6 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
 
     def test_user_form__not_in_inner_circle(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person_1': self.person_2_1.id,
                 'person_2': self.person_1_1.id,

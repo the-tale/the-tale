@@ -1,4 +1,3 @@
-# coding: utf-8
 import time
 import datetime
 
@@ -13,7 +12,7 @@ from the_tale.post_service.models import Message
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.accounts.prototypes import AccountPrototype
@@ -30,7 +29,7 @@ class AccountPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
         self.account = self.accounts_factory.create_account()
         self.fast_account = self.accounts_factory.create_account(is_fast=True)
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
     def test_create(self):
         self.assertTrue(self.account.active_end_at > datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - 60))
@@ -42,7 +41,6 @@ class AccountPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
             if achievement_type.source.is_NONE:
                 continue
             self.account.get_achievement_type_value(achievement_type)
-
 
     @mock.patch('the_tale.accounts.conf.accounts_settings.ACTIVE_STATE_REFRESH_PERIOD', 0)
     def test_update_active_state__expired(self):
@@ -259,7 +257,7 @@ class AccountPrototypeTests(testcase.TestCase, pm_helpers.Mixin):
                                         modifier_id=places_modifiers.CITY_MODIFIERS.TRADE_CENTER,
                                         modifier_name=places_modifiers.CITY_MODIFIERS.TRADE_CENTER.text,
                                        old_modifier_name=None)
-        bill = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', 'bill-1-rationale', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.account.update_actual_bills()
         self.assertEqual(self.account.actual_bills, [])

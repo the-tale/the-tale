@@ -112,48 +112,118 @@ class ContainerTests(testcase.TestCase):
 
     def test_modify_attribute(self):
         with mock.patch('the_tale.game.companions.abilities.effects.Base.modify_attribute', lambda self, abilities_levels, modifier, value: value * 2):
-            self.assertEqual(self.container_1.modify_attribute(100, {}, None, 1), 16)
-            self.assertEqual(self.container_1.modify_attribute(66, {}, None, 1), 16)
-            self.assertEqual(self.container_1.modify_attribute(50, {}, None, 1), 8)
-            self.assertEqual(self.container_1.modify_attribute(33, {}, None, 1), 8)
-            self.assertEqual(self.container_1.modify_attribute(32, {}, None, 1), 4)
-            self.assertEqual(self.container_1.modify_attribute(9, {}, None, 1), 4)
+            self.assertEqual(self.container_1.modify_attribute(100, {}, None, 1, is_dead=False), 16)
+            self.assertEqual(self.container_1.modify_attribute(66, {}, None, 1, is_dead=False), 16)
+            self.assertEqual(self.container_1.modify_attribute(50, {}, None, 1, is_dead=False), 8)
+            self.assertEqual(self.container_1.modify_attribute(33, {}, None, 1, is_dead=False), 8)
+            self.assertEqual(self.container_1.modify_attribute(32, {}, None, 1, is_dead=False), 4)
+            self.assertEqual(self.container_1.modify_attribute(9, {}, None, 1, is_dead=False), 4)
 
-            self.assertEqual(self.container_2.modify_attribute(100, {}, None, 1), 128)
-            self.assertEqual(self.container_2.modify_attribute(75, {}, None, 1), 128)
-            self.assertEqual(self.container_2.modify_attribute(50, {}, None, 1), 64)
-            self.assertEqual(self.container_2.modify_attribute(25, {}, None, 1), 32)
-            self.assertEqual(self.container_2.modify_attribute(24, {}, None, 1), 16)
-            self.assertEqual(self.container_2.modify_attribute(0, {}, None, 1), 16)
+            self.assertEqual(self.container_2.modify_attribute(100, {}, None, 1, is_dead=False), 128)
+            self.assertEqual(self.container_2.modify_attribute(75, {}, None, 1, is_dead=False), 128)
+            self.assertEqual(self.container_2.modify_attribute(50, {}, None, 1, is_dead=False), 64)
+            self.assertEqual(self.container_2.modify_attribute(25, {}, None, 1, is_dead=False), 32)
+            self.assertEqual(self.container_2.modify_attribute(24, {}, None, 1, is_dead=False), 16)
+            self.assertEqual(self.container_2.modify_attribute(0, {}, None, 1, is_dead=False), 16)
+
+            self.assertEqual(self.container_1.modify_attribute(100, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_1.modify_attribute(66, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_1.modify_attribute(50, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_1.modify_attribute(33, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_1.modify_attribute(32, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_1.modify_attribute(9, {}, None, 1, is_dead=True), 1)
+
+            self.assertEqual(self.container_2.modify_attribute(100, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_2.modify_attribute(75, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_2.modify_attribute(50, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_2.modify_attribute(25, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_2.modify_attribute(24, {}, None, 1, is_dead=True), 1)
+            self.assertEqual(self.container_2.modify_attribute(0, {}, None, 1, is_dead=True), 1)
 
 
-    def check_attribute(self):
+    def test_check_attribute(self):
         with mock.patch('the_tale.game.companions.abilities.effects.Base.check_attribute', lambda self, modifier: True):
-            self.assertEqual(self.container_1.modify_attribute(100, None), True)
-            self.assertEqual(self.container_1.modify_attribute(66, None), True)
-            self.assertEqual(self.container_1.modify_attribute(50, None), True)
-            self.assertEqual(self.container_1.modify_attribute(33, None), True)
-            self.assertEqual(self.container_1.modify_attribute(32, None), True)
-            self.assertEqual(self.container_1.modify_attribute(9, None), True)
+            self.assertEqual(self.container_1.check_attribute(100, None, is_dead=False), True)
+            self.assertEqual(self.container_1.check_attribute(66, None, is_dead=False), True)
+            self.assertEqual(self.container_1.check_attribute(50, None, is_dead=False), True)
+            self.assertEqual(self.container_1.check_attribute(33, None, is_dead=False), True)
+            self.assertEqual(self.container_1.check_attribute(32, None, is_dead=False), True)
+            self.assertEqual(self.container_1.check_attribute(9, None, is_dead=False), True)
 
-            self.assertEqual(self.container_2.modify_attribute(100, None), True)
-            self.assertEqual(self.container_2.modify_attribute(75, None), True)
-            self.assertEqual(self.container_2.modify_attribute(50, None), True)
-            self.assertEqual(self.container_2.modify_attribute(25, None), True)
-            self.assertEqual(self.container_2.modify_attribute(24, None), True)
-            self.assertEqual(self.container_2.modify_attribute(0, None), True)
+            self.assertEqual(self.container_2.check_attribute(100, None, is_dead=False), True)
+            self.assertEqual(self.container_2.check_attribute(75, None, is_dead=False), True)
+            self.assertEqual(self.container_2.check_attribute(50, None, is_dead=False), True)
+            self.assertEqual(self.container_2.check_attribute(25, None, is_dead=False), True)
+            self.assertEqual(self.container_2.check_attribute(24, None, is_dead=False), True)
+            self.assertEqual(self.container_2.check_attribute(0, None, is_dead=False), True)
 
-        with mock.patch('the_tale.game.companions.abilities.effects.Base.check_attribute', lambda self, coherence, modifier: False):
-            self.assertEqual(self.container_1.modify_attribute(100, None), False)
-            self.assertEqual(self.container_1.modify_attribute(66, None), False)
-            self.assertEqual(self.container_1.modify_attribute(50, None), False)
-            self.assertEqual(self.container_1.modify_attribute(33, None), False)
-            self.assertEqual(self.container_1.modify_attribute(32, None), False)
-            self.assertEqual(self.container_1.modify_attribute(9, None), False)
+            self.assertEqual(self.container_1.check_attribute(100, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(66, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(50, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(33, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(32, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(9, None, is_dead=True), False)
 
-            self.assertEqual(self.container_2.modify_attribute(100, None), False)
-            self.assertEqual(self.container_2.modify_attribute(75, None), False)
-            self.assertEqual(self.container_2.modify_attribute(50, None), False)
-            self.assertEqual(self.container_2.modify_attribute(25, None), False)
-            self.assertEqual(self.container_2.modify_attribute(24, None), False)
-            self.assertEqual(self.container_2.modify_attribute(0, None), False)
+            self.assertEqual(self.container_2.check_attribute(100, None, is_dead=True), False)
+            self.assertEqual(self.container_2.check_attribute(75, None, is_dead=True), False)
+            self.assertEqual(self.container_2.check_attribute(50, None, is_dead=True), False)
+            self.assertEqual(self.container_2.check_attribute(25, None, is_dead=True), False)
+            self.assertEqual(self.container_2.check_attribute(24, None, is_dead=True), False)
+            self.assertEqual(self.container_2.check_attribute(0, None, is_dead=True), False)
+
+        with mock.patch('the_tale.game.companions.abilities.effects.Base.check_attribute', lambda self, modifier: False):
+            self.assertEqual(self.container_1.check_attribute(100, None, is_dead=False), False)
+            self.assertEqual(self.container_1.check_attribute(66, None, is_dead=False), False)
+            self.assertEqual(self.container_1.check_attribute(50, None, is_dead=False), False)
+            self.assertEqual(self.container_1.check_attribute(33, None, is_dead=False), False)
+            self.assertEqual(self.container_1.check_attribute(32, None, is_dead=False), False)
+            self.assertEqual(self.container_1.check_attribute(9, None, is_dead=False), False)
+
+            self.assertEqual(self.container_2.check_attribute(100, None, is_dead=False), False)
+            self.assertEqual(self.container_2.check_attribute(75, None, is_dead=False), False)
+            self.assertEqual(self.container_2.check_attribute(50, None, is_dead=False), False)
+            self.assertEqual(self.container_2.check_attribute(25, None, is_dead=False), False)
+            self.assertEqual(self.container_2.check_attribute(24, None, is_dead=False), False)
+            self.assertEqual(self.container_2.check_attribute(0, None, is_dead=False), False)
+
+
+    def test_modify_attribute__allow_for_dead(self):
+        self.container_1.start = frozenset(self.container_1.start | set((effects.ABILITIES.TEMPORARY,)))
+
+        with mock.patch('the_tale.game.companions.abilities.effects.Base.modify_attribute', lambda self, abilities_levels, modifier, value: value * 2):
+            self.assertEqual(self.container_1.modify_attribute(100, {}, None, 1, is_dead=True), 2)
+            self.assertEqual(self.container_1.modify_attribute(66, {}, None, 1, is_dead=True), 2)
+            self.assertEqual(self.container_1.modify_attribute(50, {}, None, 1, is_dead=True), 2)
+            self.assertEqual(self.container_1.modify_attribute(33, {}, None, 1, is_dead=True), 2)
+            self.assertEqual(self.container_1.modify_attribute(32, {}, None, 1, is_dead=True), 2)
+            self.assertEqual(self.container_1.modify_attribute(9, {}, None, 1, is_dead=True), 2)
+
+
+    def test_check_attribute__allow_for_dead(self):
+        self.container_1.start = frozenset(self.container_1.start | set((effects.ABILITIES.TEMPORARY,)))
+        with mock.patch('the_tale.game.companions.abilities.effects.Base.check_attribute', lambda self, modifier: True):
+            self.assertEqual(self.container_1.check_attribute(100, None, is_dead=True), True)
+            self.assertEqual(self.container_1.check_attribute(66, None, is_dead=True), True)
+            self.assertEqual(self.container_1.check_attribute(50, None, is_dead=True), True)
+            self.assertEqual(self.container_1.check_attribute(33, None, is_dead=True), True)
+            self.assertEqual(self.container_1.check_attribute(32, None, is_dead=True), True)
+            self.assertEqual(self.container_1.check_attribute(9, None, is_dead=True), True)
+
+        with mock.patch('the_tale.game.companions.abilities.effects.Base.check_attribute', lambda self, modifier: False):
+            self.assertEqual(self.container_1.check_attribute(100, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(66, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(50, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(33, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(32, None, is_dead=True), False)
+            self.assertEqual(self.container_1.check_attribute(9, None, is_dead=True), False)
+
+
+    def test_can_be_freezed(self):
+        self.assertTrue(self.container_1.can_be_freezed())
+        self.assertTrue(self.container_2.can_be_freezed())
+
+
+    def test_can_be_freezed(self):
+        self.container_1.start = frozenset(self.container_1.start | set((effects.ABILITIES.TEMPORARY,)))
+
+        self.assertFalse(self.container_1.can_be_freezed())

@@ -75,19 +75,27 @@ class Container(object):
                 break
             yield ability
 
-    def modify_attribute(self, coherence, abilities_levels, modifier, value):
+    def modify_attribute(self, coherence, abilities_levels, modifier, value, is_dead):
         for ability in self.abilities_for_coherence(coherence):
+            if is_dead and not ability.work_when_dead:
+                continue
+
             value = ability.effect.modify_attribute(abilities_levels, modifier, value)
         return value
 
 
-    def check_attribute(self, coherence, modifier):
+    def check_attribute(self, coherence, modifier, is_dead):
         for ability in self.abilities_for_coherence(coherence):
+            if is_dead and not ability.work_when_dead:
+                continue
+
             if ability.effect.check_attribute(modifier):
                 return True
 
         return False
 
+    def can_be_freezed(self):
+        return all(ability.can_be_freezed for coherence, ability in self.all_abilities)
 
     def serialize(self):
         return {'common': [ability.value for ability in self.common],

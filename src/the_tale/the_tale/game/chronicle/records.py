@@ -1,10 +1,10 @@
-# coding: utf-8
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
 from the_tale.game.chronicle.exceptions import ChronicleException
 from the_tale.game.chronicle.prototypes import RecordPrototype, create_external_actor
+
 
 class RecordBase(object):
     TYPE = None
@@ -20,7 +20,7 @@ class RecordBase(object):
         if not self.IGNORE_ACTORS_CHECK and set(next(zip(*self.actors))) != set(self.ACTORS):
             raise ChronicleException('wrong actors for chronicle record %r versus %r' % (next(zip(*self.actors)), self.ACTORS))
 
-        self.created_at_turn = TimePrototype.get_current_turn_number()
+        self.created_at_turn = turn.number()
 
     def get_text(self):
         return self.text if self.text is not None else ''

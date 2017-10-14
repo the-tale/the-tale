@@ -1,10 +1,10 @@
-# coding: utf-8
+
 from unittest import mock
 
 from questgen.quests.base_quest import BaseQuest, RESULTS
 from questgen import facts
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype
 
@@ -18,18 +18,15 @@ def setup_quest(hero):
     logic.setup_quest_for_hero(hero, knowledge_base.serialize())
 
 
-
 class QuestTestsMixin(object):
 
     def turn_to_quest(self, storage, hero_id):
-
-        current_time = TimePrototype.get_current_time()
 
         hero = storage.heroes[hero_id]
 
         while hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE or not self.hero.quests.has_quests:
             storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
         storage.save_changed_data()
 

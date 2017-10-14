@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from dext.settings import settings
@@ -8,7 +8,7 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import get_system_user
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.game.logic import create_test_map
@@ -26,7 +26,7 @@ class DayStartedSignalTests(TestCase, pm_helpers.Mixin):
 
         self.account = self.accounts_factory.create_account()
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
 
     def test_day_started_signal(self):

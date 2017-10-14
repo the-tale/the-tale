@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -7,9 +7,7 @@ from the_tale.linguistics import logic as linguistics_logic
 
 from the_tale.game import names
 
-from the_tale.game.balance import constants as c
 from the_tale.game.relations import RACE
-from the_tale.game.prototypes import TimePrototype
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.persons import storage as persons_storage
@@ -19,8 +17,6 @@ from the_tale.game.map import logic as map_logic
 
 from .. import logic
 from .. import storage
-from .. import exceptions
-from .. import prototypes
 
 
 class PlacePowerTest(testcase.TestCase):

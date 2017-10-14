@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -9,13 +9,12 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions import prototypes
 from the_tale.game.abilities.deck.help import Help
 from the_tale.game.abilities.relations import HELP_CHOICES
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.abilities.tests.helpers import UseAbilityTaskMixin
 
@@ -130,12 +129,10 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         self.hero.companion.health = 1
 
-        current_time = TimePrototype.get_current_time()
-
         with self.check_increased(lambda: self.action_heal_companion.percents):
             with self.check_increased(lambda: self.hero.companion.health):
                 while self.action_heal_companion.state != self.action_heal_companion.STATE.PROCESSED:
-                    current_time.increment_turn()
+                    turn.increment()
 
                     ability = self.PROCESSOR()
 
@@ -146,12 +143,10 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_full(self):
         self.hero.companion.health = 1
 
-        current_time = TimePrototype.get_current_time()
-
         with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEALTH_PER_HEAL):
             while len(self.hero.actions.actions_list) != 1:
                 self.storage.process_turn(continue_steps_if_needed=False)
-                current_time.increment_turn()
+                turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 
@@ -164,11 +159,9 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
 
         with self.check_delta(lambda: self.hero.experience, c.COMPANIONS_EXP_PER_HEAL):
 
-            current_time = TimePrototype.get_current_time()
-
             while len(self.hero.actions.actions_list) != 1:
                 self.storage.process_turn(continue_steps_if_needed=False)
-                current_time.increment_turn()
+                turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 
@@ -181,11 +174,9 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_full__regeneration(self):
         self.hero.companion.health = 1
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.companion.health, 1+c.COMPANIONS_HEALTH_PER_HEAL+c.COMPANIONS_REGEN_ON_HEAL_AMOUNT)
@@ -196,22 +187,20 @@ class HealCompanionActionTest(UseAbilityTaskMixin, testcase.TestCase):
     @mock.patch('the_tale.common.utils.logic.randint_from_1', lambda v: v)
     def test_companion_healing_by_hero(self):
 
-        current_time = TimePrototype.get_current_time()
         self.hero.companion.health = 1
 
         with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEALTH_PER_HEAL+c.COMPANIONS_REGEN_BY_HERO):
             self.action_heal_companion.state = self.action_heal_companion.STATE.PROCESSED
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_heal_probability', 0)
     @mock.patch('the_tale.common.utils.logic.randint_from_1', lambda v: v)
     def test_companion_healing_by_hero__not_healed(self):
 
-        current_time = TimePrototype.get_current_time()
         self.hero.companion.health = 1
 
         with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEALTH_PER_HEAL):
             self.action_heal_companion.state = self.action_heal_companion.STATE.PROCESSED
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()

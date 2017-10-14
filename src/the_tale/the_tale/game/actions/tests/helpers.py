@@ -29,7 +29,7 @@ class ActionEventsTestsMixin(object):
     @mock.patch('the_tale.game.heroes.objects.Hero.habit_events', lambda hero: set())
     def test_habit_events__no_events(self):
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             self.action_event.do_events()
 
 
@@ -38,7 +38,7 @@ class ActionEventsTestsMixin(object):
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.choose_event_reward', lambda hero: relations.ACTION_EVENT_REWARD.NOTHING)
     def test_habit_events__nothing(self):
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.action_event.do_events()
 
 
@@ -49,7 +49,7 @@ class ActionEventsTestsMixin(object):
 
         old_money = self.hero.money
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.action_event.do_events()
 
         self.assertTrue(old_money < self.hero.money)
@@ -62,7 +62,7 @@ class ActionEventsTestsMixin(object):
 
         self.assertEqual(self.hero.bag.occupation, 0)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.action_event.do_events()
 
         self.assertEqual(self.hero.bag.occupation, 1)
@@ -78,7 +78,7 @@ class ActionEventsTestsMixin(object):
         old_experience = self.hero.experience
         old_level = self.hero.level
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.action_event.do_events()
 
         self.assertTrue(old_experience < self.hero.experience or old_level < self.hero.level)
@@ -88,5 +88,5 @@ class ActionEventsTestsMixin(object):
     @mock.patch('the_tale.game.heroes.objects.Hero.habit_events', lambda hero: set(relations.ACTION_EVENT.records))
     def test_habit_events__all_hero_events(self):
 
-        with self.check_calls_exists('the_tale.game.heroes.logic.push_message_to_diary'):
+        with self.check_calls_exists('the_tale.game.heroes.tt_api.push_message_to_diary'):
             self.action_event.do_events()

@@ -19,12 +19,6 @@ from the_tale.game.heroes import conf
 NAME_REGEX = re.compile(conf.heroes_settings.NAME_REGEX)
 
 
-class ChoosePreferencesForm(forms.Form):
-
-    preference_id = fields.CharField(max_length=32, required=False)
-    preference_type = fields.TypedChoiceField(choices=relations.PREFERENCE_TYPE.choices(), coerce=relations.PREFERENCE_TYPE.get_from_name)
-
-
 class EditNameForm(forms.Form):
 
     race = fields.TypedChoiceField(label='раса', choices=RACE.choices(), coerce=RACE.get_from_name)

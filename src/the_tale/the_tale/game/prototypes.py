@@ -1,117 +1,16 @@
-# coding: utf-8
-import datetime
-import collections
 
 from django.db import transaction
 
-import rels
-from rels.django import DjangoEnum
-
 from dext.settings import settings
-
-from utg import words as utg_words
-from utg.relations import WORD_TYPE
 
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.game.balance import formulas as f
 
 from the_tale.game.models import SupervisorTask, SupervisorTaskMember
 
 from the_tale.game.conf import game_settings
 from the_tale.game import relations
 from the_tale.game import exceptions
-
-
-class MONTHS(DjangoEnum):
-    date_text = rels.Column()
-
-    records = ( ('COLD',  1, 'холодный месяц', 'холодного месяца'),
-                ('CRUDE', 2, 'сырой месяц',    'сырого месяца'),
-                ('HOT',   3, 'жаркий месяц',   'жаркого месяца'),
-                ('DRY',   4, 'сухой месяц',    'сухого месяца') )
-
-
-class GameTime(collections.namedtuple('GameTimeTuple', ('year', 'month', 'day', 'hour', 'minute', 'second'))):
-
-    @classmethod
-    def create_from_turn(cls, turn_number):
-        return cls(*f.turns_to_game_time(turn_number))
-
-
-    @lazy_property
-    def verbose_date(self):
-        return '%(day)d %(month)s %(year)d года' % {'day': self.day,
-                                                    'month': MONTHS(self.month).date_text,
-                                                    'year': self.year}
-
-    @lazy_property
-    def verbose_date_short(self):
-        return '%d-%d-%d' % (self.day, self.month, self.year)
-
-
-    @lazy_property
-    def verbose_time(self):
-        return '%(hour).2d:%(minute).2d' % {'hour': self.hour, 'minute': self.minute}
-
-
-    def month_record(self): return MONTHS(self.month)
-
-
-    @lazy_property
-    def utg_name_form(self):
-        return utg_words.WordForm(utg_words.Word(type=WORD_TYPE.TEXT, forms=(self.verbose_date,)))
-
-
-    def linguistics_restrictions(self, now=None):
-        from the_tale.linguistics import storage
-        from the_tale.linguistics import relations as linguistics_relations
-
-        if now is None:
-            now = datetime.datetime.utcnow()
-
-        now = now.replace(year=datetime.MINYEAR)
-
-        for feast in relations.REAL_FEAST.records:
-            if feast.start_at <= now <= feast.end_at:
-                return (storage.restrictions_storage.get_restriction(linguistics_relations.TEMPLATE_RESTRICTION_GROUP.REAL_FEAST, feast.value).id, )
-
-        return ()
-
-
-
-class TimePrototype(object):
-
-    def __init__(self, turn_number):
-        self.turn_number = turn_number
-
-    @property
-    def game_time(self): return GameTime(*f.turns_to_game_time(self.turn_number))
-
-    @classmethod
-    def get_current_time(cls):
-        return cls(turn_number=cls.get_current_turn_number())
-
-    @classmethod
-    def get_current_turn_number(cls):
-        if 'turn number' not in settings:
-            settings['turn number'] = '0'
-        return int(settings['turn number'])
-
-    def increment_turn(self):
-        self.turn_number += 1
-        self.save()
-
-    def save(self):
-        settings['turn number'] = str(self.turn_number)
-
-    def ui_info(self):
-        game_time = self.game_time
-        return { 'number': self.turn_number,
-                 'verbose_date': game_time.verbose_date,
-                 'verbose_time': game_time.verbose_time }
-
 
 
 class SupervisorTaskPrototype(BasePrototype):

@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.settings.models import Setting
 from dext.settings import settings

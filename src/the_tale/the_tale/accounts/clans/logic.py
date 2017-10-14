@@ -14,17 +14,6 @@ class ClanInfo(object):
         self.account = account
 
     @lazy_property
-    def can_create_clan(self):
-        if not self.account.is_authenticated or self.account.is_fast or self.membership is not None:
-            return False
-
-        if PERMANENT_PURCHASE_TYPE.CLAN_OWNERSHIP_RIGHT in self.account.permanent_purchases:
-            return True
-
-        return self.account.might >= clans_settings.OWNER_MIGHT_REQUIRED
-
-
-    @lazy_property
     def membership(self):
         if self.account.is_authenticated:
             return MembershipPrototype.get_by_account_id(self.account.id)

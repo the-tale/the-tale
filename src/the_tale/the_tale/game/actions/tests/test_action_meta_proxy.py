@@ -1,17 +1,18 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game.actions.prototypes import ActionMetaProxyPrototype
 from the_tale.game.actions import meta_actions
 from the_tale.game.actions import relations
 
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
+
 
 class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
 
@@ -96,11 +97,9 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.assertNotEqual(self.action_proxy_2.percents, self.meta_action_battle.percents)
 
     def test_full_battle(self):
-        current_time = TimePrototype.get_current_time()
-
         while self.action_proxy_1.state != meta_actions.ArenaPvP1x1.STATE.PROCESSED:
             self.storage.process_turn(continue_steps_if_needed=False)
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertEqual(self.meta_action_battle.state, meta_actions.ArenaPvP1x1.STATE.PROCESSED)
         self.assertTrue(self.hero_1.is_alive and self.hero_2.is_alive)

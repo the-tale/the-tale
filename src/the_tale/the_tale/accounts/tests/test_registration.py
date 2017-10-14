@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -14,8 +13,6 @@ from the_tale.accounts import exceptions
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
 from the_tale.collections.prototypes import AccountItemsPrototype
-
-from the_tale.finances.market import models as market_models
 
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 from the_tale.game.heroes import logic as heroes_logic
@@ -79,7 +76,6 @@ class TestRegistration(testcase.TestCase):
 
         self.assertEqual(AccountAchievementsPrototype._db_count(), 1)
         self.assertEqual(AccountItemsPrototype._db_count(), 1)
-        self.assertEqual(market_models.Goods.objects.count(), 1)
 
 
     def test_successfull_result__referer(self):

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import math
 
 from the_tale.game.balance import constants as c
@@ -8,7 +8,7 @@ from the_tale.game.roads.storage import roads_storage
 
 from the_tale.game.map.storage import map_info_storage
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from . import storage
 
@@ -53,7 +53,7 @@ class Position(object):
 
     @classmethod
     def create(cls, place_id, road_id):
-        return cls(last_place_visited_turn=TimePrototype.get_current_turn_number(),
+        return cls(last_place_visited_turn=turn.number(),
                    moved_out_place=False,
                    place_id=place_id,
                    road_id=road_id,
@@ -70,7 +70,7 @@ class Position(object):
 
     def move_in_place(self):
         self.moved_out_place = False
-        self.last_place_visited_turn = TimePrototype.get_current_turn_number()
+        self.last_place_visited_turn = turn.number()
 
     def get_description(self):
         if self.place:

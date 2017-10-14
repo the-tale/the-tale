@@ -14,12 +14,6 @@ class ShopAccessorsMixin(object):
     def purchase_energy_bonus(self, energy):
         self.add_energy_bonus(energy)
 
-    def purchase_reset_abilities(self):
-        self.abilities.reset()
-
-    def purchase_rechooce_abilities_choices(self):
-        self.abilities.rechooce_choices()
-
     def purchase_experience(self, experience):
         self.add_experience(experience)
 
@@ -38,7 +32,3 @@ class ShopAccessorsMixin(object):
         self.actions.request_replane()
 
         return artifact
-
-    def purchase_card(self, card_type, count):
-        for i in range(count):
-            self.cards.add_card(cards_objects.Card(card_type, available_for_auction=True))

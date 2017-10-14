@@ -13,6 +13,7 @@ from django.db import models, transaction
 from dext.common.utils.urls import full_url
 from dext.common.utils import s11n
 
+from the_tale.game import relations as game_relations
 from the_tale.amqp_environment import environment
 
 from the_tale.common.utils import bbcode
@@ -48,7 +49,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                  'clan_id',
                  'referrals_number',
                  'might')
-    _bidirectional = ('is_fast', 'nick', 'email', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
+    _bidirectional = ('is_fast', 'nick', 'email', 'gender', 'last_news_remind_time', 'personal_messages_subscription', 'news_subscription', 'description')
     _get_by = ('id', 'email', 'nick')
 
     def cmd_update_hero(self):
@@ -70,11 +71,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         self.cmd_update_hero()
 
-
     @lazy_property
     def actual_bills(self):
         return s11n.from_json(self._model.actual_bills)
-
 
     @property
     def account_id(self): return self.id
@@ -115,11 +114,12 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def update_settings(self, form):
         self._model_class.objects.filter(id=self.id).update(personal_messages_subscription=form.c.personal_messages_subscription,
                                                             news_subscription=form.c.news_subscription,
-                                                            description=form.c.description)
+                                                            description=form.c.description,
+                                                            gender=form.c.gender)
         self._model.personal_messages_subscription = form.c.personal_messages_subscription
         self._model.news_subscription = form.c.news_subscription
         self.description = form.c.description
-
+        self._model.gender = form.c.gender
 
     def prolong_premium(self, days):
         self._model.premium_end_at = max(self.premium_end_at, datetime.datetime.now()) + datetime.timedelta(days=days)
@@ -130,6 +130,16 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     @property
     def can_affect_game(self): return self.is_premium and not self.is_ban_game
+
+    @property
+    def show_subscription_offer(self):
+        if self.is_fast:
+            return False
+
+        if self.is_premium:
+            return False
+
+        return accounts_settings.SHOW_SUBSCRIPTION_OFFER_AFTER < (datetime.datetime.now() - self.created_at).total_seconds()
 
     @property
     def premium_end_at(self):
@@ -175,7 +185,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self._model_class.objects.filter(id=self.id).update(ban_forum_end_at=end_time)
         self._model.ban_forum_end_at = end_time
 
-
     @classmethod
     def send_premium_expired_notifications(cls):
         current_time = datetime.datetime.now()
@@ -189,7 +198,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         accounts_query.update(premium_expired_notification_send_at=current_time)
 
     def notify_about_premium_expiration(self):
-        from the_tale.accounts.personal_messages import logic as pm_logic
+        from the_tale.accounts.personal_messages import tt_api as pm_tt_api
         from the_tale.accounts import logic
 
         current_time = datetime.datetime.now()
@@ -199,10 +208,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 Вы можете продлить подписку на странице нашего %(shop_link)s.
 ''' % {'verbose_timedelta': verbose_timedelta(self.premium_end_at - current_time),
-       'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:shop')}
+       'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:')}
 
-        pm_logic.send_message(logic.get_system_user_id(), [self.id], message, async=True)
-
+        pm_tt_api.send_message(logic.get_system_user_id(), [self.id], message, async=True)
 
     @lazy_property
     def bank_account(self):
@@ -263,8 +271,6 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                                                                             method_name=self.update_referrals_number.__name__,
                                                                             data={})
 
-
-
     ###########################################
     # Object operations
     ###########################################
@@ -318,9 +324,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)
 
-
     @classmethod
-    def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, action_id=None, is_bot=False):
+    def create(cls, nick, email, is_fast, password=None, referer=None, referral_of=None, action_id=None, is_bot=False, gender=game_relations.GENDER.MASCULINE):
         referer_domain = None
         if referer:
             referer_info = urlparse(referer)
@@ -335,11 +340,11 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
                                                                   referer=referer,
                                                                   referer_domain=referer_domain,
                                                                   referral_of=referral_of._model if referral_of else None,
-                                                                  action_id=action_id))
+                                                                  action_id=action_id,
+                                                                  gender=gender))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._model == other._model
-
 
 
 class ChangeCredentialsTaskPrototype(BasePrototype):
@@ -450,7 +455,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
 
             logger.error('Worker exception: %r' % self,
                          exc_info=exception_info,
-                         extra={} )
+                         extra={})
 
             self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
             self._model.comment = ('%s' % traceback_strings)[:self._model.MAX_COMMENT_LENGTH]
@@ -463,12 +468,11 @@ class AwardPrototype(BasePrototype):
     _bidirectional = ()
     _get_by = ('id',)
 
-
     @classmethod
     def create(cls, description, type, account): # pylint: disable=W0622
         return cls(model=Award.objects.create(description=description,
                                               type=type,
-                                              account=account._model) )
+                                              account=account._model))
 
 
 class ResetPasswordTaskPrototype(BasePrototype):
@@ -527,7 +531,6 @@ class RandomPremiumRequestPrototype(BasePrototype):
 Один из игроков подарил вам подписку на %(days)s дней!
 '''
 
-
     @classmethod
     def create(cls, initiator_id, days):
         model = cls._model_class.objects.create(initiator_id=initiator_id,
@@ -545,7 +548,7 @@ class RandomPremiumRequestPrototype(BasePrototype):
             return None
 
     def process(self):
-        from the_tale.accounts.personal_messages import logic as pm_logic
+        from the_tale.accounts.personal_messages import tt_api as pm_tt_api
         from the_tale.accounts import logic
 
         accounts_ids = AccountPrototype.live_query().filter(is_fast=False,
@@ -562,7 +565,7 @@ class RandomPremiumRequestPrototype(BasePrototype):
             account.prolong_premium(self.days)
             account.save()
 
-            pm_logic.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, async=True)
+            pm_tt_api.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, async=True)
 
             self.receiver_id = account.id
             self.state = relations.RANDOM_PREMIUM_REQUEST_STATE.PROCESSED

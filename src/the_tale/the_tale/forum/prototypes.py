@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import datetime
 
 import markdown
@@ -16,7 +16,7 @@ from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.common.utils.decorators import lazy_property
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.forum.conf import forum_settings
 from the_tale.forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo, Permission
@@ -185,7 +185,7 @@ class ThreadPrototype(BasePrototype):
                             markup_method=markup_method,
                             technical=technical,
                             text=text,
-                            created_at_turn=TimePrototype.get_current_turn_number(),
+                            created_at_turn=turn.number(),
                             state=POST_STATE.DEFAULT)
 
         prototype = cls(model=thread_model)
@@ -327,7 +327,7 @@ class PostPrototype(BasePrototype):
                                    text=text,
                                    technical=technical,
                                    markup_method=MARKUP_METHOD.POSTMARKUP,
-                                   created_at_turn=TimePrototype.get_current_turn_number(),
+                                   created_at_turn=turn.number(),
                                    state=POST_STATE.DEFAULT)
 
         thread.update()
@@ -362,7 +362,7 @@ class PostPrototype(BasePrototype):
     @transaction.atomic
     def update(self, text):
         self._model.text = text
-        self._model.updated_at_turn = TimePrototype.get_current_turn_number()
+        self._model.updated_at_turn = turn.number()
         self.save()
 
         self.thread.update()

@@ -58,6 +58,7 @@
           <div style="cursor: help; display: inline-block;" rel="tooltip" title="{{person.job.effect.description}}">
             {{person.job.name}}
           </div>
+          — эффект x {{c.JOB_NEGATIVE_POWER_MULTIPLIER}} в случае провала
         </td>
       </tr>
       <tr>
@@ -109,9 +110,9 @@
               {% endif %}
             </td>
             <td>
-              {{connected_person.name}}
+              <a href="{{url('game:persons:show', connected_person.id)}}">{{connected_person.name}}</a>
               из
-              <a href="{{url('game:places:show', person.place_id)}}">{{connected_person.place.utg_name.forms[1]}}</a> —
+              <a href="{{url('game:places:show', connected_person.place_id)}}">{{connected_person.place.utg_name.forms[1]}}</a> —
               {{ persons_macros.person_description(connected_person) }}
             </td>
           </tr>

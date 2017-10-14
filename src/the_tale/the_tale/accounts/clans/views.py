@@ -42,8 +42,6 @@ class ClansResource(Resource):
     @validator(code='clans.not_owner', message='Вы не являетесь владельцем гильдии')
     def validate_ownership(self, *args, **kwargs): return self.clan_info.is_owner_of(self.clan)
 
-    @validator(code='clans.can_not_create_clan', message='Вы не можете создать гильдию')
-    def validate_creation_rights(self, *args, **kwargs): return self.clan_info.can_create_clan
 
     @validate_argument('account', AccountPrototype.get_by_id, 'clans.account_clan', 'неверный идентификатор аккаунта')
     @handler('account-clan')
@@ -93,41 +91,6 @@ class ClansResource(Resource):
                               'index_filter': index_filter,
                               'leaders': leaders})
 
-
-    @login_required
-    @validate_fast_account()
-    @validate_ban_any()
-    @validate_creation_rights()
-    @handler('new')
-    def new(self):
-        return self.template('clans/new.html',
-                             {'form': ClanForm(),
-                              'page_id': PAGE_ID.NEW})
-
-    @login_required
-    @validate_fast_account()
-    @validate_ban_any()
-    @validate_creation_rights()
-    @handler('create', method='post')
-    def create(self):
-        form = ClanForm(self.request.POST)
-
-        if not form.is_valid():
-            return self.json_error('clans.create.form_errors', form.errors)
-
-        if ClanPrototype._db_filter(name=form.c.name).exists():
-            return self.json_error('clans.create.name_exists', 'Гильдия с таким названием уже существует')
-
-        if ClanPrototype._db_filter(abbr=form.c.abbr).exists():
-            return self.json_error('clans.create.abbr_exists', 'Гильдия с такой аббревиатурой уже существует')
-
-        clan = ClanPrototype.create(owner=self.account,
-                                    abbr=form.c.abbr,
-                                    name=form.c.name,
-                                    motto=form.c.motto,
-                                    description=form.c.description)
-
-        return self.json_ok(data={'next_url': url('accounts:clans:show', clan.id)})
 
     @handler('#clan', name='show')
     def show(self):

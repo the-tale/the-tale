@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -20,7 +19,7 @@ class PersonRemoveTests(BaseTestPrototypes):
         self.person2 = sorted(self.place2.persons, key=lambda p: -p.total_politic_power_fraction)[-1]
 
         self.bill_data = PersonRemove(person_id=self.person1.id, old_place_name_forms=self.place1.utg_name)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
 
     def test_create(self):

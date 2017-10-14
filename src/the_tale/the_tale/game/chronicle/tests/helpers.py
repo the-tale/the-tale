@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.game.chronicle.records import RecordBase
 

@@ -12,37 +12,19 @@
     <link rel="shortcut icon" href="{{ STATIC_CONTENT }}favicon.ico" />
     <title>{% block title%}{{settings.PAGE_TITLE}}{% endblock %}</title>
 
-    {% if settings.GA_CODE %}
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', '{{ settings.GA_CODE }}', '{{settings.SITE_URL}}');
-  ga('require', 'displayfeatures');
-  ga('send', 'pageview');
-
-</script>
-    {% endif %}
-
     <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}css/main.css" />
     <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}css/javascript.css" />
 
-    <script src="{{ STATIC_JQUERY_JS }}" type="text/javascript"></script>
-    <script src="{{ STATIC_JQUERY_UI_JS }}" type="text/javascript" charset="utf-8"></script>
+    <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery-1.7.2.min.js" type="text/javascript"></script>
+    <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js" type="text/javascript" charset="utf-8"></script>
 
     <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery.url.js" type="text/javascript"></script>
 
     <script src="{{ STATIC_CONTENT }}plugins/spin/spin.min.js" type="text/javascript"></script>
     <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery.spin.js" type="text/javascript"></script>
 
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_TWITTER_BOOTSTRAP }}css/bootstrap.min.css" />
-    <script src="{{ STATIC_TWITTER_BOOTSTRAP }}js/bootstrap.min.js" type="text/javascript"></script>
-
-    {% if settings.ADDTHIS %}
-    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid={{settings.ADDTHIS}}"></script>
-    {% endif %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}bootstrap/css/bootstrap.min.css" />
+    <script src="{{ STATIC_CONTENT }}bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
     <script src="{{ STATIC_CONTENT }}plugins/globalize/globalize.js"></script>
     <script src="{{ STATIC_CONTENT }}plugins/globalize/cultures/globalize.culture.ru.js"></script>
@@ -53,10 +35,6 @@
 
     {% if settings.DEBUG %}
     <script src="{{ STATIC_CONTENT }}common/debug.js" type="text/javascript"></script>
-    {% endif %}
-
-    {% if settings.SENTRY_JS_URL %}
-    <script src="{{settings.SENTRY_JS_URL}}"></script>
     {% endif %}
 
     <script type="text/javascript">
@@ -133,6 +111,7 @@ jQuery(document).ready(function() {
     jQuery('.modal-backdrop').live('mousewheel', StopScroll);
     jQuery('.modal').live('mousewheel', StopScroll);
 
+    {% if personal_messages_settings().REFRESH_MESSAGE_STATUS %}
     {% if resource.account.is_authenticated and not resource.account.is_fast %}
     (function NewMessagesWorker() {
         jQuery.get("{{new_messages_number_url()}}", function(data) {
@@ -140,8 +119,9 @@ jQuery(document).ready(function() {
                 jQuery(".pgf-new-messages-signalization").toggleClass("pgf-hidden", data.data.number == 0);
                 jQuery(".pgf-new-messages-number").text(data.data.number);
             }
-            setTimeout(NewMessagesWorker, 60*1000)
+            setTimeout(NewMessagesWorker, {{personal_messages_settings().REFRESH_MESSAGE_PERIOD}}*1000)
         })})();
+    {% endif %}
     {% endif %}
 
     ///////////////////////////
@@ -161,12 +141,6 @@ jQuery(document).ready(function() {
         InitializeBBFileds(dialog);
     });
     /////////////////////////
-
-    {% if settings.SENTRY_JS_URL %}
-    Raven.config('https://82de0ba6cd034a9c847022a526226689@sentry.io/135768',
-                 {whitelistUrls: [/the-tale\.org/, /static\.the-tale\.org/]}).install()
-    {% endif %}
-
 });
     </script>
 
@@ -233,16 +207,16 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("map", url("game:map:"), "<span class='game-link'>Карта</span>") }}
             <li><a href="{{ url('accounts:registration:fast') }}" class="pgf-fast-registration attention-link"><strong>Создать героя</strong></a></li>
             {% endif %}
-            {{ base_macros.main_menu_item("shop", url("shop:"), "Торговля") }}
+            {{ base_macros.main_menu_item("shop", url("shop:"), "Рынок") }}
 
           </ul>
 
           <ul class="nav pull-right">
             <li>
-              {% set game_time = resource.time.game_time %}
+              {% set game_time = game_datetime() %}
               <p id="time-block" class="navbar-text">
-                <span class="pgf-game-date">{{ game_time.verbose_date}}</span>
-                <span class="pgf-game-time">{{ game_time.verbose_time }}</span>
+                <span class="pgf-game-date">{{ game_time.date.verbose_full()}}</span>
+                <span class="pgf-game-time">{{ game_time.time.verbose() }}</span>
               </p>
             </li>
             <li class="divider-vertical"></li>
@@ -316,7 +290,7 @@ jQuery(document).ready(function() {
 
     <footer role="contentinfo" class="container">
       <div class="row">
-        <div class="span9">
+        <div class="span12">
           <ul class="unstyled">
             <li><a href="{{url('portal:search')}}">поиск по сайту</a></li>
             <li><a href="{{url('guide:user-agreement')}}">пользовательское соглашение</a></li>
@@ -329,33 +303,28 @@ jQuery(document).ready(function() {
             <li><a href="{{settings.SOCIAL_GITHUB_URL}}">исходный код на GitHub</a></li>
           </ul>
         </div>
-        <div class="span3">
-{% if settings.MAIL_RU %}
-          <!-- Rating@Mail.ru counter -->
-<script type="text/javascript">//<![CDATA[
-var _tmr = _tmr || [];
-_tmr.push({id: "2422333",  type: "pageView", start: (new Date()).getTime()});
-(function (d, w) {
-   var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true;
-   ts.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//top-fwz1.mail.ru/js/code.js";
-   var f = function () {var s = d.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ts, s);};
-   if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }
-})(document, window);
-//]]></script><noscript><div style="position:absolute;left:-10000px;">
-<img src="//top-fwz1.mail.ru/counter?id={{settings.MAIL_RU}};js=na" style="border:0;" height="1" width="1" alt="Рейтинг@Mail.ru" />
-</div></noscript>
-<!-- //Rating@Mail.ru counter -->
-<!-- Rating@Mail.ru logo -->
-<a target="_blank" href="http://top.mail.ru/jump?from=2422333">
-<img src="//top-fwz1.mail.ru/counter?id={{settings.MAIL_RU}};t=432;l=1"
-border="0" height="31" width="88" alt="Рейтинг@Mail.ru"></a>
-<!-- //Rating@Mail.ru logo -->
-<!-- begin of Top100 code -->
-{% endif %}
-        </div>
       </div>
+
     </footer>
 
     {% endblock %}
+
+    {% if settings.GA_CODE %}
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', '{{ settings.GA_CODE }}', '{{settings.SITE_URL}}');
+  ga('require', 'displayfeatures');
+  ga('send', 'pageview');
+
+</script>
+{% endif %}
+
+    {% if settings.ADDTHIS %}
+    <script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid={{settings.ADDTHIS}}"></script>
+    {% endif %}
   </body>
 </html>

@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.core.urlresolvers import reverse
 from django.conf import settings as project_settings
@@ -11,7 +10,7 @@ from the_tale.common.utils.prototypes import BasePrototype
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts.logic import get_system_user
 
-from the_tale.game import prototypes as game_prototypes
+from the_tale.game import turn
 
 from the_tale.forum.prototypes import ThreadPrototype as ForumThreadPrototype, PostPrototype as ForumPostPrototype
 from the_tale.forum.prototypes import SubCategoryPrototype as ForumSubCategoryPrototype
@@ -51,7 +50,7 @@ class PostPrototype(BasePrototype):
                                     caption=caption,
                                     text=text,
                                     state=relations.POST_STATE.ACCEPTED,
-                                    created_at_turn=game_prototypes.TimePrototype.get_current_turn_number(),
+                                    created_at_turn=turn.number(),
                                     votes=1)
 
         thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_uid(conf.settings.FORUM_CATEGORY_UID),

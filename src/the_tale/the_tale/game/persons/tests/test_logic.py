@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -7,22 +6,15 @@ from the_tale.common.utils import testcase
 from the_tale.game.balance import constants as c
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
-
-from the_tale.game.roads.storage import waymarks_storage
-
-from the_tale.game.persons import models
-from the_tale.game.persons import storage
-from the_tale.game.persons import conf
-from the_tale.game.persons import relations
-from the_tale.game.persons import logic
-from the_tale.game.persons import exceptions
+from the_tale.game import turn
 
 from the_tale.linguistics import logic as linguistics_logic
 
 from .. import logic
-from .. import exceptions
+from .. import models
 from .. import storage
+from .. import relations
+from .. import exceptions
 
 
 class LogicTests(testcase.TestCase):
@@ -84,18 +76,15 @@ class LogicTests(testcase.TestCase):
 
         self.assertEqual(person.moved_at_turn, 0)
 
-        game_time = TimePrototype.get_current_time()
-        game_time.increment_turn()
-        game_time.increment_turn()
-        game_time.increment_turn()
+        turn.increment()
+        turn.increment()
+        turn.increment()
 
         with self.check_changed(lambda: storage.persons.version):
             logic.move_person_to_place(person, self.place_3)
 
         self.assertEqual(person.moved_at_turn, 3)
         self.assertEqual(person.place.id, self.place_3.id)
-
-
 
 
 class PersonPowerTest(testcase.TestCase):
@@ -136,17 +125,17 @@ class PersonPowerTest(testcase.TestCase):
     @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 0.5)
     @mock.patch('the_tale.game.persons.objects.Person.has_building', True)
     def test_change_power__has_building(self):
-        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.25)
+        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.5)
 
         with mock.patch('the_tale.game.politic_power.PoliticPower.change_power') as change_power:
             self.assertEqual(self.person.politic_power.change_power(person=self.person,
                                                                     hero_id=None,
                                                                     has_in_preferences=False,
                                                                     power=1000),
-                             1250)
+                             1500)
 
         self.assertEqual(change_power.call_args,
                          mock.call(owner=self.person,
                                    hero_id=None,
                                    has_in_preferences=False,
-                                   power=625))
+                                   power=750))

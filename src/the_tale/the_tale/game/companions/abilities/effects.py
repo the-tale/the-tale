@@ -363,7 +363,7 @@ RARITY_BIGEST = 2.0
 RARITY_LEGENDARY = 666.0
 
 # abilities constructors
-def quest_money_reward(name, value, text, description, rarity_delta, border_left, border_right): #
+def quest_money_reward(name, value, text, description, rarity_delta, border_left, border_right, work_when_dead=False, can_be_freezed=True):
     QUEST_MONEY_REWARD_BORDERS = [0.5, 1.0, 2.0]
 
     if border_left < border_right:
@@ -378,9 +378,11 @@ def quest_money_reward(name, value, text, description, rarity_delta, border_left
             text,
             description,
             effect,
-            rarity_delta)
+            rarity_delta,
+            work_when_dead,
+            can_be_freezed)
 
-def huckster(name, value, text, description, rarity_delta):
+def huckster(name, value, text, description, rarity_delta, work_when_dead=False, can_be_freezed=True):
     effect = Huckster(buy_bonus_left=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2 / 5, buy_bonus_right=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2,
                       sell_bonus_left=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2 / 5, sell_bonus_right=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2)
     return (name,
@@ -388,7 +390,9 @@ def huckster(name, value, text, description, rarity_delta):
             text,
             (description + '(покупка от %.2f%% до %.2f%%; продажа от +%.2f%% до +%.2f%%)') % (effect.buy_bonus_left*100, effect.buy_bonus_right*100, effect.sell_bonus_left*100, effect.sell_bonus_right*100),
             effect,
-            rarity_delta)
+            rarity_delta,
+            work_when_dead,
+            can_be_freezed)
 
 
 
@@ -396,124 +400,126 @@ class ABILITIES(DjangoEnum):
     description = Column()
     effect = Column(single_type=False)
     rarity_delta = Column(unique=False)
+    work_when_dead = Column(unique=False)
+    can_be_freezed = Column(unique=False)
 
     records = (
-        ('OBSTINATE', 0, 'строптивый', 'слаженность растёт очень медленно', CoherenceSpeed(0.6), RARITY_LOWER),
-        ('STUBBORN', 1, 'упрямый', 'слаженность растёт медленнее обычного', CoherenceSpeed(0.8), RARITY_LOW),
-        ('BONA_FIDE', 2, 'добросовестный', 'слаженность растёт быстрее обычного', CoherenceSpeed(1.2), RARITY_BIG),
-        ('MANAGING', 3, 'исполнительный', 'слаженность растёт очень быстро', CoherenceSpeed(1.40), RARITY_BIGER),
+        ('OBSTINATE', 0, 'строптивый', 'слаженность растёт очень медленно', CoherenceSpeed(0.6), RARITY_LOWER, False, True),
+        ('STUBBORN', 1, 'упрямый', 'слаженность растёт медленнее обычного', CoherenceSpeed(0.8), RARITY_LOW, False, True),
+        ('BONA_FIDE', 2, 'добросовестный', 'слаженность растёт быстрее обычного', CoherenceSpeed(1.2), RARITY_BIG, False, True),
+        ('MANAGING', 3, 'исполнительный', 'слаженность растёт очень быстро', CoherenceSpeed(1.40), RARITY_BIGER, False, True),
 
         ('AGGRESSIVE', 4, 'агрессивный', 'увеличивает агрессивность героя',
-         ChangeHabits(habit_type=game_relations.HABIT_TYPE.PEACEFULNESS, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_AGGRESSIVE, )), RARITY_NEUTRAL),
+         ChangeHabits(habit_type=game_relations.HABIT_TYPE.PEACEFULNESS, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_AGGRESSIVE, )), RARITY_NEUTRAL, False, True),
         ('PEACEFUL', 5, 'миролюбивый', 'увеличивает миролюбие героя',
-         ChangeHabits(habit_type=game_relations.HABIT_TYPE.PEACEFULNESS, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_PEACEFULL,)), RARITY_NEUTRAL),
+         ChangeHabits(habit_type=game_relations.HABIT_TYPE.PEACEFULNESS, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_PEACEFULL,)), RARITY_NEUTRAL, False, True),
         ('RESERVED', 6, 'сдержанный', 'склоняет героя к балансу между агрессивностью и миролюбием',
          ChangeHabits(habit_type=game_relations.HABIT_TYPE.PEACEFULNESS, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_PEACEFULL_NEUTRAL_1,
-                                                                                        heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_PEACEFULL_NEUTRAL_2)), RARITY_NEUTRAL),
+                                                                                        heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_PEACEFULL_NEUTRAL_2)), RARITY_NEUTRAL, False, True),
         ('CANNY', 7, 'себе на уме', 'склоняет героя к балансу между честью и бесчестием',
          ChangeHabits(habit_type=game_relations.HABIT_TYPE.HONOR, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONOR_NEUTRAL_1,
-                                                                                 heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONOR_NEUTRAL_2)), RARITY_NEUTRAL),
+                                                                                 heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONOR_NEUTRAL_2)), RARITY_NEUTRAL, False, True),
         ('HONEST', 8, 'честный', 'увеличивает честь героя',
-         ChangeHabits(habit_type=game_relations.HABIT_TYPE.HONOR, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONORABLE,)), RARITY_NEUTRAL),
+         ChangeHabits(habit_type=game_relations.HABIT_TYPE.HONOR, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONORABLE,)), RARITY_NEUTRAL, False, True),
         ('SNEAKY', 9, 'подлый', 'уменьшает честь героя',
-         ChangeHabits(habit_type=game_relations.HABIT_TYPE.HONOR, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_DISHONORABLE,)), RARITY_NEUTRAL),
+         ChangeHabits(habit_type=game_relations.HABIT_TYPE.HONOR, habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_DISHONORABLE,)), RARITY_NEUTRAL, False, True),
 
         quest_money_reward('CHARMING', 10, 'очаровательный', 'очень симпатичен горожанам, герой получает крупный бонус к награде за задания', RARITY_BIGER, 1, 2),
         quest_money_reward('CUTE', 11, 'милый', 'симпатичен горожанам, герой получает небольшой бонус к награде за задания', RARITY_BIG, 0, 1),
         quest_money_reward('FRIGHTFUL', 12, 'страшный', 'пугает горожан, герой получает меньшие награды за задания', RARITY_LOW, 1, 0),
         quest_money_reward('TERRIBLE', 13, 'мороз по коже', 'сильно пугает горожан, герой получает значительно меньшие награды за задание', RARITY_LOWER, 2, 1),
 
-        ('PACK', 14, 'вьючный', '2 дополнительных места в рюкзаке', MaxBagSize(2), RARITY_BIG),
-        ('FREIGHT', 15, 'грузовой', '4 дополнительных места в рюкзаке', MaxBagSize(4), RARITY_BIGER),
-        ('DRAFT', 16, 'тягловой', '6 дополнительных мест в рюкзаке', MaxBagSize(6), RARITY_BIGEST),
+        ('PACK', 14, 'вьючный', '2 дополнительных места в рюкзаке', MaxBagSize(2), RARITY_BIG, False, True),
+        ('FREIGHT', 15, 'грузовой', '4 дополнительных места в рюкзаке', MaxBagSize(4), RARITY_BIGER, False, True),
+        ('DRAFT', 16, 'тягловой', '6 дополнительных мест в рюкзаке', MaxBagSize(6), RARITY_BIGEST, False, True),
 
-        ('PARAPHERNALIA', 55, 'личные вещи', 'забирает 2 места в рюкзаке для своих вещей', MaxBagSize(-2), RARITY_LOW),
-        ('SPARE_PARTS', 56, 'запчасти', 'забирает 4 места в рюкзаке для запчастей', MaxBagSize(-4), RARITY_LOWER),
+        ('PARAPHERNALIA', 55, 'личные вещи', 'забирает 2 места в рюкзаке для своих вещей', MaxBagSize(-2), RARITY_LOW, False, True),
+        ('SPARE_PARTS', 56, 'запчасти', 'забирает 4 места в рюкзаке для запчастей', MaxBagSize(-4), RARITY_LOWER, False, True),
 
         ('KNOWN', 17, 'известный', 'находит политически важную работу, задания героя оказывают большее влияние на мир (максимальный бонус к влиянию: 100%)',
-         PoliticsPower(0.5, 1.0), RARITY_BIGER),
+         PoliticsPower(0.5, 1.0), RARITY_BIGER, False, True),
         ('CAD', 18, 'хам', 'хамит горожанам, герою не доверяют политически важную работу, поэтому он оказывает меньшее влияние на мир (минимальный штраф к влиянию: -50%)',
-          PoliticsPower(-1.0, -0.5), RARITY_LOWER),
+          PoliticsPower(-1.0, -0.5), RARITY_LOWER, False, True),
 
-        ('FIT_OF_ENERGY', 19, 'прилив сил', 'даёт небольшой бонус к физическому урону героя', PhysicDamageBonus(1.05, 1.1), RARITY_BIGER),
-        ('PEP', 20, 'бодрость духа', 'даёт небольшой бонус к магическому урону героя', MagicDamageBonus(1.05, 1.1), RARITY_BIGER),
+        ('FIT_OF_ENERGY', 19, 'прилив сил', 'даёт небольшой бонус к физическому урону героя', PhysicDamageBonus(1.05, 1.1), RARITY_BIGER, False, True),
+        ('PEP', 20, 'бодрость духа', 'даёт небольшой бонус к магическому урону героя', MagicDamageBonus(1.05, 1.1), RARITY_BIGER, False, True),
 
-        ('SLOW', 22, 'медлительный', 'постоянный штраф к скорости героя', Speed(0.7, 0.85), RARITY_LOWER),
-        ('SEDATE', 68, 'степенный', 'постоянный небольшой штраф к скорости героя', Speed(0.8, 0.9), RARITY_LOW),
-        ('SLED', 21, 'ездовой', 'постоянный небольшой бонус к скорости героя', Speed(1.05, 1.10), RARITY_BIG),
-        ('RACER', 23, 'скакун', 'постоянный бонус к скорости героя', Speed(1.1, 1.15), RARITY_BIGER),
-        ('FLEET_FOOTED', 69, 'быстроногий', 'постоянный большой бонус к скорости героя', Speed(1.1, 1.2), RARITY_BIGEST),
+        ('SLOW', 22, 'медлительный', 'постоянный штраф к скорости героя', Speed(0.7, 0.85), RARITY_LOWER, False, True),
+        ('SEDATE', 68, 'степенный', 'постоянный небольшой штраф к скорости героя', Speed(0.8, 0.9), RARITY_LOW, False, True),
+        ('SLED', 21, 'ездовой', 'постоянный небольшой бонус к скорости героя', Speed(1.05, 1.10), RARITY_BIG, False, True),
+        ('RACER', 23, 'скакун', 'постоянный бонус к скорости героя', Speed(1.1, 1.15), RARITY_BIGER, False, True),
+        ('FLEET_FOOTED', 69, 'быстроногий', 'постоянный большой бонус к скорости героя', Speed(1.1, 1.2), RARITY_BIGEST, False, True),
 
-        ('FIGHTER', 24, 'боец', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityHit.ABILITY.NAME, BattleAbilityHit(), RARITY_BIGER),
-        ('RAM', 25, 'громила', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityStrongHit.ABILITY.NAME, BattleAbilityStrongHit(), RARITY_BIGER),
-        ('HOUSEBREAKER', 26, 'таран', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityRunUpPush.ABILITY.NAME, BattleAbilityRunUpPush(), RARITY_BIGER),
-        ('ARSONIST', 27, 'поджигатель', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityFireball.ABILITY.NAME, BattleAbilityFireball(), RARITY_BIGER),
-        ('POISONER', 28, 'отравитель', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityPoisonCloud.ABILITY.NAME, BattleAbilityPoisonCloud(), RARITY_BIGER),
-        ('FROST', 29, 'морозко', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityFreezing.ABILITY.NAME, BattleAbilityFreezing(), RARITY_BIGER),
+        ('FIGHTER', 24, 'боец', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityHit.ABILITY.NAME, BattleAbilityHit(), RARITY_BIGER, False, True),
+        ('RAM', 25, 'громила', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityStrongHit.ABILITY.NAME, BattleAbilityStrongHit(), RARITY_BIGER, False, True),
+        ('HOUSEBREAKER', 26, 'таран', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityRunUpPush.ABILITY.NAME, BattleAbilityRunUpPush(), RARITY_BIGER, False, True),
+        ('ARSONIST', 27, 'поджигатель', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityFireball.ABILITY.NAME, BattleAbilityFireball(), RARITY_BIGER, False, True),
+        ('POISONER', 28, 'отравитель', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityPoisonCloud.ABILITY.NAME, BattleAbilityPoisonCloud(), RARITY_BIGER, False, True),
+        ('FROST', 29, 'морозко', 'немного увеличивает инициативу героя, в бою может применить способность «%s»' % BattleAbilityFreezing.ABILITY.NAME, BattleAbilityFreezing(), RARITY_BIGER, False, True),
 
-        ('UNGAINLY', 30, 'неуклюжий', 'большой штраф к инициативе героя', Initiative(0.8, 0.875), RARITY_LOWER),
-        ('CLUMSY', 31, 'неповоротливый', 'малый штраф к инициативе героя', Initiative(0.89, 0.94), RARITY_LOW),
-        ('CLEVER', 32, 'ловкий', 'малый бонус к инициативе героя', Initiative(1.01, 1.06), RARITY_BIGER),
-        ('IMPETUOUS', 33, 'стремительный', 'большой бонус к инициативе героя', Initiative(1.05, 1.125), RARITY_BIGER),
+        ('UNGAINLY', 30, 'неуклюжий', 'большой штраф к инициативе героя', Initiative(0.8, 0.875), RARITY_LOWER, False, True),
+        ('CLUMSY', 31, 'неповоротливый', 'малый штраф к инициативе героя', Initiative(0.89, 0.94), RARITY_LOW, False, True),
+        ('CLEVER', 32, 'ловкий', 'малый бонус к инициативе героя', Initiative(1.01, 1.06), RARITY_BIGER, False, True),
+        ('IMPETUOUS', 33, 'стремительный', 'большой бонус к инициативе героя', Initiative(1.05, 1.125), RARITY_BIGER, False, True),
 
-        ('NOISY', 34, 'шумный', 'так сильно шумит, что привлекает внимание большего количества врагов', BattleProbability(0.2, 0.1), RARITY_LOWER),
-        ('SHARP_EYE', 36, 'острый глаз', 'издали высматривает врагов, снижая вероятность встречи с ними', BattleProbability(-0.05, -0.1), RARITY_BIGER),
+        ('NOISY', 34, 'шумный', 'так сильно шумит, что привлекает внимание большего количества врагов', BattleProbability(0.2, 0.1), RARITY_LOWER, False, True),
+        ('SHARP_EYE', 36, 'острый глаз', 'издали высматривает врагов, снижая вероятность встречи с ними', BattleProbability(-0.05, -0.1), RARITY_BIGER, False, True),
 
-        ('DEATHY', 35, 'смертельно страшный', 'распугивает всех, кого встречает, вероятность встретить врага стремится к нулю', Deathy(-1), RARITY_BIGEST),
+        ('DEATHY', 35, 'смертельно страшный', 'распугивает всех, кого встречает, вероятность встретить врага стремится к нулю', Deathy(-1), RARITY_BIGEST, False, True),
 
-        ('TORTURER', 37, 'терзатель', 'растерзывает врагов в бою так сильно, что уменьшается шанс найти уцелевшую в бою добычу', LootProbability(0.6, 0.8), RARITY_LOWER),
-        ('HUNTER', 38, 'охотник', 'помогает герою сражаться аккуратнее, благодаря чему увеличивает шанс найти уцелевшую в бою добычу', LootProbability(1.1, 1.2), RARITY_BIGER),
+        ('TORTURER', 37, 'терзатель', 'растерзывает врагов в бою так сильно, что уменьшается шанс найти уцелевшую в бою добычу', LootProbability(0.6, 0.8), RARITY_LOWER, False, True),
+        ('HUNTER', 38, 'охотник', 'помогает герою сражаться аккуратнее, благодаря чему увеличивает шанс найти уцелевшую в бою добычу', LootProbability(1.1, 1.2), RARITY_BIGER, False, True),
 
-        ('NOT_LIFER', 39, 'тщедушный', 'при ранении может получить дополнительный урон', CompanionDamage(c.COMPANIONS_DAMAGE_PER_WOUND), RARITY_LOWER),
-        ('PUNY', 40, 'не жилец', 'при ранении может получить большой дополнительный урон', CompanionDamage(2 * c.COMPANIONS_DAMAGE_PER_WOUND), RARITY_LOWEST),
+        ('NOT_LIFER', 39, 'тщедушный', 'при ранении может получить дополнительный урон', CompanionDamage(c.COMPANIONS_DAMAGE_PER_WOUND), RARITY_LOWER, False, True),
+        ('PUNY', 40, 'не жилец', 'при ранении может получить большой дополнительный урон', CompanionDamage(2 * c.COMPANIONS_DAMAGE_PER_WOUND), RARITY_LOWEST, False, True),
 
-        ('CAMOUFLAGE', 41, 'камуфляж', 'благодаря незаметности, реже получает урон в бою', CompanionDamageProbability(0.9, 0.8), RARITY_BIGER),
-        ('FLYING', 42, 'летающий', 'перемещаясь не только вокруг но и над противником, значительно реже получает урон в бою', CompanionDamageProbability(0.85, 0.7), RARITY_BIGEST),
+        ('CAMOUFLAGE', 41, 'камуфляж', 'благодаря незаметности, реже получает урон в бою', CompanionDamageProbability(0.9, 0.8), RARITY_BIGER, False, True),
+        ('FLYING', 42, 'летающий', 'перемещаясь не только вокруг но и над противником, значительно реже получает урон в бою', CompanionDamageProbability(0.85, 0.7), RARITY_BIGEST, False, True),
 
-        ('PICKPOCKET', 43, 'карманник', 'В каждом городе крадёт из карманов горожан немного денег', CompanionStealMoney(0.5, 3.0), RARITY_BIG),
-        ('ROBBER', 44, 'грабитель', 'В каждом городе крадёт у горожан что-нибудь полезное, возможно, даже экипировку', CompanionStealItem(1.05, 4.0), RARITY_BIGER),
+        ('PICKPOCKET', 43, 'карманник', 'В каждом городе крадёт из карманов горожан немного денег', CompanionStealMoney(0.5, 3.0), RARITY_BIG, False, True),
+        ('ROBBER', 44, 'грабитель', 'В каждом городе крадёт у горожан что-нибудь полезное, возможно, даже экипировку', CompanionStealItem(1.05, 4.0), RARITY_BIGER, False, True),
 
-        ('COSTLY', 45, 'дорогой', 'при потере спутника герой получает весьма дорогие запчасти, обращаемые в деньги.', CompanionSpareParts(), RARITY_BIG),
+        ('COSTLY', 45, 'дорогой', 'при потере спутника герой получает весьма дорогие запчасти, обращаемые в деньги.', CompanionSpareParts(), RARITY_BIG, False, True),
 
-        ('WISE', 46, 'мудрый', 'спутник иногда делится мудростью с героем, давая тому немного опыта.', CompanionSayWisdom(0.5, 1.0), RARITY_BIGER),
-        ('DIFFICULT', 47, 'сложный', 'ухаживая за спутником, герой может получить немного опыта', CompanionExpPerHeal(0.5, 1.0), RARITY_BIGER),
+        ('WISE', 46, 'мудрый', 'спутник иногда делится мудростью с героем, давая тому немного опыта.', CompanionSayWisdom(0.5, 1.0), RARITY_BIGER, False, True),
+        ('DIFFICULT', 47, 'сложный', 'ухаживая за спутником, герой может получить немного опыта', CompanionExpPerHeal(0.5, 1.0), RARITY_BIGER, False, True),
 
-        ('FAN', 48, 'поклонник', 'возносит хвалу Хранителю вместе с героем и с небольшой вероятностью даёт бонусную энергию', DoubleEnergyRegeneration(0.05, 0.1), RARITY_BIGER),
-        ('SAN', 49, 'сан', 'возносит хвалу Хранителю вместе с героем и с хорошей вероятностью даёт бонусную энергию', DoubleEnergyRegeneration(0.1, 0.2), RARITY_BIGEST),
+        ('FAN', 48, 'поклонник', 'возносит хвалу Хранителю вместе с героем и с небольшой вероятностью даёт бонусную энергию', DoubleEnergyRegeneration(0.05, 0.1), RARITY_BIGER, False, True),
+        ('SAN', 49, 'сан', 'возносит хвалу Хранителю вместе с героем и с хорошей вероятностью даёт бонусную энергию', DoubleEnergyRegeneration(0.1, 0.2), RARITY_BIGEST, False, True),
 
-        ('EAT_CORPSES', 50, 'пожиратель', 'после боя иногда ест труп врага, пополняя себе хиты. Не ест конструктов, нежить, демонов и стихийных существ.', CompanionEatCorpses(0.5, 1), RARITY_BIGER),
-        ('REGENERATE', 51, 'регенерация', 'во время отдыха может восстановить своё здоровье', CompanionRegenerate(0.5, 1.0), RARITY_BIGER),
+        ('EAT_CORPSES', 50, 'пожиратель', 'после боя иногда ест труп врага, пополняя себе здоровье. Не ест конструктов, нежить, демонов и стихийных существ.', CompanionEatCorpses(0.5, 1), RARITY_BIGER, False, True),
+        ('REGENERATE', 51, 'регенерация', 'во время отдыха может восстановить своё здоровье', CompanionRegenerate(0.5, 1.0), RARITY_BIGER, False, True),
 
-        ('EATER', 52, 'едок', 'при каждом посещении города герой тратит деньги на еду для спутника', CompanionEat(0.35, 0.25), RARITY_LOW),
-        ('GLUTTONOUS', 53, 'прожорливый', 'при каждом посещении города герой тратит много денег на еду для спутника', CompanionEat(0.7, 0.5), RARITY_LOWER),
-        ('INDEPENDENT', 54, 'самостоятельный', 'может кормиться сам, снижает стоимость кормёжки (способностей «едок» и «прожорливый»)', CompanionEatDiscount(0.9, 0.5), RARITY_BIG),
+        ('EATER', 52, 'едок', 'при каждом посещении города герой тратит деньги на еду для спутника', CompanionEat(0.35, 0.25), RARITY_LOW, False, True),
+        ('GLUTTONOUS', 53, 'прожорливый', 'при каждом посещении города герой тратит много денег на еду для спутника', CompanionEat(0.7, 0.5), RARITY_LOWER, False, True),
+        ('INDEPENDENT', 54, 'самостоятельный', 'может кормиться сам, снижает стоимость кормёжки (способностей «едок» и «прожорливый»)', CompanionEatDiscount(0.9, 0.5), RARITY_BIG, False, True),
 
-        ('DRINKER', 57, 'пьяница', 'спутник пропивает случайный предмет из рюкзака при посещении героем города', CompanionDrinkArtifact(0.95, 0.5), RARITY_BIG),
+        ('DRINKER', 57, 'пьяница', 'спутник пропивает случайный предмет из рюкзака при посещении героем города', CompanionDrinkArtifact(0.95, 0.5), RARITY_BIG, False, True),
 
-        ('EXORCIST', 58, 'экзорцист', 'спутник может изгнать встречного демона', CompanionExorcist(0.5, 1.0), RARITY_BIG),
+        ('EXORCIST', 58, 'экзорцист', 'спутник может изгнать встречного демона', CompanionExorcist(0.5, 1.0), RARITY_BIG, False, True),
 
-        ('HEALER', 59, 'лекарь', 'ускоряет лечение героя на отдыхе', RestLenght(0.9, 0.5), RARITY_BIGEST),
+        ('HEALER', 59, 'лекарь', 'ускоряет лечение героя на отдыхе', RestLenght(0.9, 0.5), RARITY_BIGEST, False, True),
 
-        ('INSPIRATION', 60, 'воодушевление', 'воодушевляет героя на подвиги, снижая время бездействия между заданиями', IDLELenght(0.9, 0.5), RARITY_BIG),
-        ('LAZY', 61, 'ленивый', 'ленится вместе с героем и увеличивает время бездействия между заданиями', IDLELenght(2.0, 1.5), RARITY_LOW),
+        ('INSPIRATION', 60, 'воодушевление', 'воодушевляет героя на подвиги, снижая время бездействия между заданиями', IDLELenght(0.9, 0.5), RARITY_BIG, False, True),
+        ('LAZY', 61, 'ленивый', 'ленится вместе с героем и увеличивает время бездействия между заданиями', IDLELenght(2.0, 1.5), RARITY_LOW, False, True),
 
-        ('COWARDLY', 62, 'трусливый', 'реже защищает героя в бою', CompanionBlockProbability(0.5, 0.75), RARITY_NEUTRAL),
-        ('BODYGUARD', 63, 'телохранитель', 'чаще защищает героя в бою', CompanionBlockProbability(1.1, 1.25), RARITY_NEUTRAL),
+        ('COWARDLY', 62, 'трусливый', 'реже защищает героя в бою', CompanionBlockProbability(0.5, 0.75), RARITY_NEUTRAL, False, True),
+        ('BODYGUARD', 63, 'телохранитель', 'чаще защищает героя в бою', CompanionBlockProbability(1.1, 1.25), RARITY_NEUTRAL, False, True),
 
         # TODO: increase rarity?
         huckster('HUCKSTER', 64, 'торгаш', 'помогает герою торговаться, увеличивая цены продажи и уменьшая цены покупки', RARITY_BIG),
 
-        ('CONTACT', 65, 'связной', 'служит маяком для Хранителя и увеличивает шанс критической помощи', EtherealMagnet(0.05, 0.1), RARITY_BIGEST),
+        ('CONTACT', 65, 'связной', 'служит маяком для Хранителя и увеличивает шанс критической помощи', EtherealMagnet(0.05, 0.1), RARITY_BIGEST, False, True),
 
-        ('TELEPORTATOR', 66, 'телепортатор', 'периодически переносит героя между городами или ключевыми точками задания', CompanionTeleport(0.05, 0.1), RARITY_BIGEST),
-        ('FLYER', 67, 'ездовой летун', 'часто  переносит героя на небольшое расстояние по воздуху', CompanionFly(0.05, 0.1), RARITY_BIGEST),
+        ('TELEPORTATOR', 66, 'телепортатор', 'периодически переносит героя между городами или ключевыми точками задания', CompanionTeleport(0.05, 0.1), RARITY_BIGEST, False, True),
+        ('FLYER', 67, 'ездовой летун', 'часто  переносит героя на небольшое расстояние по воздуху', CompanionFly(0.05, 0.1), RARITY_BIGEST, False, True),
 
-        ('UNCOMMON', 70, 'редкий', 'спутник встречается реже обычного', Rarity(), RARITY_BIGER),
-        ('RARE', 71, 'очень редкий', 'спутник встречается очень редко', Rarity(), RARITY_BIGEST),
-        ('SPECIAL', 72, 'особый', 'особый спутник, которого нельзя получить обычным способом', Rarity(), RARITY_LEGENDARY),
+        ('UNCOMMON', 70, 'редкий', 'спутник встречается реже обычного', Rarity(), RARITY_BIGER, False, True),
+        ('RARE', 71, 'очень редкий', 'спутник встречается очень редко', Rarity(), RARITY_BIGEST, False, True),
+        ('SPECIAL', 72, 'особый', 'особый спутник, которого нельзя получить обычным способом', Rarity(), RARITY_LEGENDARY, False, True),
 
-        ('TEMPORARY', 73, 'временный', 'спутник с небольшой вероятностью может покинуть героя при посещении города',
-         Unsociable(0.1 * c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST),
-        ('UNSOCIABLE', 74, 'нелюдимый', 'спутник может покинуть героя при посещении города',
-         Unsociable(c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST_2)
+        ('TEMPORARY', 73, 'временный', 'спутник с небольшой вероятностью может покинуть героя при посещении города и не может быть превращён в карту',
+         Unsociable(0.1 * c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST, True, False),
+        ('UNSOCIABLE', 74, 'нелюдимый', 'спутник может покинуть героя при посещении города и не может быть превращён в карту',
+         Unsociable(c.COMPANIONS_LEAVE_IN_PLACE), RARITY_LOWEST_2, True, False)
     )

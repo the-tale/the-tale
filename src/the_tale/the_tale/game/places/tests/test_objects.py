@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 from unittest import mock
@@ -137,7 +137,7 @@ class PlaceTests(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
-    @mock.patch('the_tale.game.balance.formulas.place_goods_production', lambda size: 100 if size < 5 else 1000)
+    @mock.patch('the_tale.game.places.objects.Place.nearest_cells', [(i, i) for i in range(100)])
     def test_refresh_attributes__production(self):
         self.p1.attrs.keepers_goods = 10000
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
@@ -148,9 +148,8 @@ class PlaceTests(testcase.TestCase):
 
         self.p1.refresh_attributes()
 
-        expected_production = (c.PLACE_GOODS_BONUS +
-                               1000 -
-                               100 +
+        expected_production = (0.66 * self.p1.attrs.power_economic * c.PLACE_GOODS_BONUS +
+                               0.34 * 9 * c.PLACE_GOODS_BONUS +
                                10 * len(self.p1.persons) +
                                self.p1.attrs.get_next_keepers_goods_spend_amount() -
                                relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount +

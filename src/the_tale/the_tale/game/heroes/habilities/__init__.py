@@ -25,20 +25,15 @@ __all__ = ['ABILITIES', 'ABILITY_LOGIC_TYPE', 'ABILITY_TYPE', 'ABILITY_AVAILABIL
 
 class AbilitiesPrototype(object):
 
-    __slots__ = ('abilities', 'reseted_at', 'destiny_points_spend', 'hero')
+    __slots__ = ('abilities', 'destiny_points_spend', 'hero')
 
     def __init__(self):
         self.abilities = {}
-        self.reseted_at = datetime.datetime.now()
         self.destiny_points_spend = 0
         self.hero = None
 
-    def set_reseted_at(self, reseted_at):
-        self.reseted_at = reseted_at
-
     def serialize(self):
         data = {'abilities': {},
-                'reseted_at': time.mktime(self.reseted_at.timetuple()),
                 'destiny_points_spend': self.destiny_points_spend}
         for ability_id, ability in self.abilities.items():
             data['abilities'][ability_id] = ability.serialize()
@@ -53,18 +48,12 @@ class AbilitiesPrototype(object):
             ability = ABILITIES[ability_id].deserialize(ability_data)
             abilities.abilities[ability_id] = ability
 
-        abilities.reseted_at = datetime.datetime.fromtimestamp(data.get('reseted_at', 0))
         abilities.destiny_points_spend = data.get('destiny_points_spend', 0)
 
         return abilities
 
-    @property
-    def can_reset(self):
-        return self.reseted_at + heroes_settings.ABILITIES_RESET_TIMEOUT < datetime.datetime.now()
-
     def reset(self):
         self.destiny_points_spend += 1
-        self.reseted_at = datetime.datetime.now()
         self.initialize()
 
         if self.hero:
@@ -72,10 +61,6 @@ class AbilitiesPrototype(object):
 
     def is_initial_state(self):
         return self.current_ability_points_number == 2
-
-    @property
-    def time_before_reset(self):
-        return max(datetime.timedelta(seconds=0), (self.reseted_at + heroes_settings.ABILITIES_RESET_TIMEOUT - datetime.datetime.now()))
 
     def initialize(self):
         hit = ABILITIES['hit'](level=1)

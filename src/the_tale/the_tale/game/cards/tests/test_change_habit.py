@@ -1,11 +1,12 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game import relations as game_relations
+
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 from the_tale.game.relations import HABIT_TYPE
@@ -15,7 +16,6 @@ from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 
 class ChangeHabitTestMixin(CardsTestMixin):
-    CARD = None
 
     def setUp(self):
         super(ChangeHabitTestMixin, self).setUp()
@@ -29,78 +29,57 @@ class ChangeHabitTestMixin(CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = self.CARD()
 
-    def habit_value(self):
-        if self.card.HABIT.is_HONOR:
+    def habit_value(self, habit):
+        if habit.is_HONOR:
             return self.hero.habit_honor.raw_value
 
-        if self.card.HABIT.is_PEACEFULNESS:
+        if habit.is_PEACEFULNESS:
             return self.hero.habit_peacefulness.raw_value
 
+
     def test_use(self):
-        self.hero.change_habits(HABIT_TYPE.HONOR, -c.HABITS_BORDER if self.CARD.POINTS > 0 else c.HABITS_BORDER)
-        self.hero.change_habits(HABIT_TYPE.PEACEFULNESS, -c.HABITS_BORDER if self.CARD.POINTS > 0 else c.HABITS_BORDER)
+        for habit in game_relations.HABIT_TYPE.records:
+            for direction in (-1, 1):
+                card = self.CARD.effect.create_card(type=self.CARD,
+                                                    available_for_auction=True,
+                                                    habit=habit,
+                                                    direction=direction)
 
-        with self.check_delta(self.habit_value, self.CARD.POINTS):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+                self.hero.change_habits(habit, 2 * (-c.HABITS_BORDER if direction > 0 else c.HABITS_BORDER))
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+                with self.check_delta(lambda: self.habit_value(habit), direction * self.CARD.effect.modificator):
+                    result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=card))
+
+                self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_no_effect(self):
-        self.hero.change_habits(HABIT_TYPE.HONOR, -c.HABITS_BORDER if self.CARD.POINTS < 0 else c.HABITS_BORDER)
-        self.hero.change_habits(HABIT_TYPE.PEACEFULNESS, -c.HABITS_BORDER if self.CARD.POINTS < 0 else c.HABITS_BORDER)
+        for habit in game_relations.HABIT_TYPE.records:
+            for direction in (-1, 1):
+                card = self.CARD.effect.create_card(type=self.CARD,
+                                                    available_for_auction=True,
+                                                    habit=habit,
+                                                    direction=direction)
 
-        with self.check_not_changed(self.habit_value):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+                self.hero.change_habits(habit, 2 * (-c.HABITS_BORDER if direction < 0 else c.HABITS_BORDER))
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+                with self.check_not_changed(lambda: self.habit_value(habit)):
+                    result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=card))
+
+                self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
-class ChangeHabitHonorPlusUncommonTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitHonorPlusUncommon
+class ChangeHabitCommonTests(ChangeHabitTestMixin, testcase.TestCase):
+    CARD = cards.CARD.CHANGE_HABIT_COMMON
 
-class ChangeHabitHonorMinusUncommonTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitHonorMinusUncommon
+class ChangeHabitUncommonTests(ChangeHabitTestMixin, testcase.TestCase):
+    CARD = cards.CARD.CHANGE_HABIT_UNCOMMON
 
-class ChangeHabitPeacefulnessPlusUncommonTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitPeacefulnessPlusUncommon
+class ChangeHabitRareTests(ChangeHabitTestMixin, testcase.TestCase):
+    CARD = cards.CARD.CHANGE_HABIT_RARE
 
-class ChangeHabitPeacefulnessMinusUncommonTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitPeacefulnessMinusUncommon
+class ChangeHabitEpicTests(ChangeHabitTestMixin, testcase.TestCase):
+    CARD = cards.CARD.CHANGE_HABIT_EPIC
 
-class ChangeHabitHonorPlusRareTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitHonorPlusRare
-
-class ChangeHabitHonorMinusRareTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitHonorMinusRare
-
-class ChangeHabitPeacefulnessPlusRareTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitPeacefulnessPlusRare
-
-class ChangeHabitPeacefulnessMinusRareTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitPeacefulnessMinusRare
-
-class ChangeHabitHonorPlusEpicTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitHonorPlusEpic
-
-class ChangeHabitHonorMinusEpicTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitHonorMinusEpic
-
-class ChangeHabitPeacefulnessPlusEpicTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitPeacefulnessPlusEpic
-
-class ChangeHabitPeacefulnessMinusEpicTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitPeacefulnessMinusEpic
-
-class ChangeHabitHonorPlusLegendaryTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitHonorPlusLegendary
-
-class ChangeHabitHonorMinusLegendaryTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitHonorMinusLegendary
-
-class ChangeHabitPeacefulnessPlusLegendaryTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitPeacefulnessPlusLegendary
-
-class ChangeHabitPeacefulnessMinusLegendaryTests(ChangeHabitTestMixin, testcase.TestCase):
-    CARD = effects.ChangeHabitPeacefulnessMinusLegendary
+class ChangeHabitLegendaryTests(ChangeHabitTestMixin, testcase.TestCase):
+    CARD = cards.CARD.CHANGE_HABIT_LEGENDARY

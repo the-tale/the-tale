@@ -347,12 +347,12 @@ class Recklessness(AdditionalAbilitiesBase):
 
 class Esprit(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.ESPRIT
-    DESCRIPTION = 'Задержка смены предпочтений уменьшается до 1 дня'
-    MULTIPLIER = int(60*60*24*1)
+    DESCRIPTION = 'Слаженность спутника растёт на 25% быстрее'
+    MULTIPLIER = 1.25
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        return min(value, cls.MULTIPLIER) if type_.is_PREFERENCES_CHANCE_DELAY else value
+        return value*cls.MULTIPLIER if type_.is_COHERENCE_EXPERIENCE else value
 
 
 class TerribleView(BaseEffect):

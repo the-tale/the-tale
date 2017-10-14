@@ -1,7 +1,6 @@
 
 from tt_protocol.protocol import personal_messages_pb2
 
-
 from . import objects
 
 

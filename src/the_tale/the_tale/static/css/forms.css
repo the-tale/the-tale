@@ -12,6 +12,17 @@ form .control-group input[type="checkbox"] {
 form .widget {
   margin-top: 0.5em;
 }
+form.form-inline .control-group {
+  display: inline-block;
+}
+form.form-inline label {
+  margin-right: 0.5em;
+}
+form.form-inline .widget {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 0;
+}
 .noun-forms-table td,
 .noun-forms-table th,
 .noun-forms-table input {

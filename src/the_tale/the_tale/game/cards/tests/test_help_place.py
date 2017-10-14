@@ -1,11 +1,10 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -27,29 +26,27 @@ class HelpPlaceMixin(CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = self.CARD()
-
 
     def test_use(self):
-        with self.check_delta(lambda: self.hero.places_history._get_places_statisitcs().get(self.place_1.id, 0), self.CARD.HELPS):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero, place_id=self.place_1.id))
+        with self.check_delta(lambda: self.hero.places_history._get_places_statisitcs().get(self.place_1.id, 0), self.CARD.effect.modificator):
+            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, value=self.place_1.id))
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_wrong_place(self):
         with self.check_not_changed(lambda: self.hero.places_history._get_places_statisitcs().get(self.place_1.id, 0)):
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero, place_id=666))
+            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, value=666))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
 class HelpPlaceUncommonTests(HelpPlaceMixin, testcase.TestCase):
-    CARD = effects.HelpPlaceUncommon
+    CARD = cards.CARD.MOST_COMMON_PLACES_UNCOMMON
 
 class HelpPlaceRareTests(HelpPlaceMixin, testcase.TestCase):
-    CARD = effects.HelpPlaceRare
+    CARD = cards.CARD.MOST_COMMON_PLACES_RARE
 
 class HelpPlaceEpicTests(HelpPlaceMixin, testcase.TestCase):
-    CARD = effects.HelpPlaceEpic
+    CARD = cards.CARD.MOST_COMMON_PLACES_EPIC
 
 class HelpPlaceLegendaryTests(HelpPlaceMixin, testcase.TestCase):
-    CARD = effects.HelpPlaceLegendary
+    CARD = cards.CARD.MOST_COMMON_PLACES_LEGENDARY

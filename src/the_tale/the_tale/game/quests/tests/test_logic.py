@@ -20,7 +20,7 @@ from the_tale.game.mobs.storage import mobs_storage
 
 from the_tale.game.roads.storage import waymarks_storage
 
-from the_tale.game.heroes.relations import EQUIPMENT_SLOT
+from the_tale.game.heroes import relations as heroes_relations
 
 from the_tale.game.quests import uids
 from the_tale.game.quests import logic
@@ -86,18 +86,18 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.hero.position.set_place(self.place_1)
 
         mob = mobs_storage.all()[0]
-        self.hero.preferences.set_mob(mob)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.MOB, mob)
 
         place = self.place_1
-        self.hero.preferences.set_place(place)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.PLACE, place)
 
         friend = self.place_2.persons[0]
-        self.hero.preferences.set_friend(friend)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.FRIEND, friend)
 
         enemy = self.place_2.persons[1]
-        self.hero.preferences.set_enemy(enemy)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENEMY, enemy)
 
-        self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.HELMET)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, heroes_relations.EQUIPMENT_SLOT.HELMET)
 
         interfered_person = self.place_3.persons[0]
 
@@ -219,7 +219,7 @@ class SetupPreferencesTest(LogicTestsBase):
 
     def test_mob(self):
         mob = mobs_storage.all()[0]
-        self.hero.preferences.set_mob(mob)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.MOB, mob)
 
         logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
@@ -229,7 +229,7 @@ class SetupPreferencesTest(LogicTestsBase):
 
     def test_place(self):
         place = self.place_1
-        self.hero.preferences.set_place(place)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.PLACE, place)
 
         f_place = logic.fact_place(place)
 
@@ -240,7 +240,7 @@ class SetupPreferencesTest(LogicTestsBase):
 
     def test_place__second_setup(self):
         place = self.place_1
-        self.hero.preferences.set_place(place)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.PLACE, place)
 
         f_place = logic.fact_place(place)
         self.knowledge_base += f_place
@@ -254,7 +254,7 @@ class SetupPreferencesTest(LogicTestsBase):
         place = self.place_2
         person = place.persons[0]
 
-        self.hero.preferences.set_friend(person)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.FRIEND, person)
 
         f_place = logic.fact_place(place)
         f_person = logic.fact_person(person)
@@ -270,7 +270,7 @@ class SetupPreferencesTest(LogicTestsBase):
         place = self.place_2
         person = place.persons[0]
 
-        self.hero.preferences.set_friend(person)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.FRIEND, person)
 
         f_place = logic.fact_place(place)
         f_person = logic.fact_person(person)
@@ -289,7 +289,7 @@ class SetupPreferencesTest(LogicTestsBase):
         place = self.place_2
         person = place.persons[0]
 
-        self.hero.preferences.set_enemy(person)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENEMY, person)
 
         f_place = logic.fact_place(place)
         f_person = logic.fact_person(person)
@@ -305,7 +305,7 @@ class SetupPreferencesTest(LogicTestsBase):
         place = self.place_2
         person = place.persons[0]
 
-        self.hero.preferences.set_enemy(person)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENEMY, person)
 
         f_place = logic.fact_place(place)
         f_person = logic.fact_person(person)
@@ -321,9 +321,9 @@ class SetupPreferencesTest(LogicTestsBase):
                          good_branches=[facts.ExceptGoodBranches(object=f_person.uid)])
 
     def test_equipment_slot(self):
-        slot = EQUIPMENT_SLOT.HELMET
+        slot = heroes_relations.EQUIPMENT_SLOT.HELMET
 
-        self.hero.preferences.set_equipment_slot(slot)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, slot)
 
         logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 

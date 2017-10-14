@@ -1,9 +1,8 @@
-# coding: utf-8
 
 from dext.common.utils import jinja2
 
 from the_tale.game import logic
-from the_tale.game.prototypes import GameTime
+from the_tale.game import turn
 
 
 @jinja2.jinjaglobal
@@ -18,8 +17,13 @@ def game_diary_url():
 
 
 @jinja2.jinjafilter
-def verbose_game_date(turn):
-    return GameTime.create_from_turn(turn).verbose_date
+def verbose_game_date(turn_number):
+    return turn.game_datetime(turn_number).date.verbose_full()
+
+
+@jinja2.jinjaglobal
+def game_datetime(turn_number=None):
+    return turn.game_datetime(turn_number)
 
 
 @jinja2.jinjaglobal

@@ -451,21 +451,37 @@ class VerificatorTests(testcase.TestCase):
 
     def test_get_verificators__without_old(self):
         groups = lexicon_logic.get_verificators_groups(key=keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP, old_groups={})
-        self.assertEqual(groups, {'date': (8, 0), 'hero': (0, 0), 'level': (1, 0)})
+        self.assertEqual(groups, {'date': (8, 0), 'time': (9, 0), 'hero': (0, 0), 'level': (1, 0)})
 
         verificators = prototypes.Verificator.get_verificators(key=self.key, groups=groups)
 
         self.assertEqual(len(verificators), 4)
 
-        self.assertEqual(verificators[0], prototypes.Verificator(text='', externals={'date': ('18 сухого месяца 183 года', ''), 'hero': ('герой', ''), 'level': (1, '')}))
-        self.assertEqual(verificators[1], prototypes.Verificator(text='', externals={'date': ('18 сухого месяца 183 года', ''), 'hero': ('привидение', ''), 'level': (2, '')}))
-        self.assertEqual(verificators[2], prototypes.Verificator(text='', externals={'date': ('18 сухого месяца 183 года', ''), 'hero': ('героиня', ''), 'level': (5, '')}))
-        self.assertEqual(verificators[3], prototypes.Verificator(text='', externals={'date': ('18 сухого месяца 183 года', ''), 'hero': ('рыцарь', 'мн'), 'level': (1, '')}))
+        self.assertEqual(verificators[0], prototypes.Verificator(text='',
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'hero': ('герой', ''),
+                                                                            'level': (1, '')}))
+        self.assertEqual(verificators[1], prototypes.Verificator(text='',
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'hero': ('привидение', ''),
+                                                                            'level': (2, '')}))
+        self.assertEqual(verificators[2], prototypes.Verificator(text='',
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'hero': ('героиня', ''),
+                                                                            'level': (5, '')}))
+        self.assertEqual(verificators[3], prototypes.Verificator(text='',
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'hero': ('рыцарь', 'мн'),
+                                                                            'level': (1, '')}))
 
 
     def test_get_verificators__with_old(self):
         groups = lexicon_logic.get_verificators_groups(key=keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP, old_groups={})
-        self.assertEqual(groups, {'date': (8, 0), 'hero': (0, 0), 'level': (1, 0)})
+        self.assertEqual(groups, {'date': (8, 0), 'time': (9, 0), 'hero': (0, 0), 'level': (1, 0)})
 
         old_verificators = [prototypes.Verificator(text='1', externals={'hero': ('привидение', ''), 'level': (1, '')}),
                             prototypes.Verificator(text='2', externals={'hero': ('героиня', ''), 'level': (1, '')}),
@@ -477,29 +493,60 @@ class VerificatorTests(testcase.TestCase):
 
         self.assertEqual(len(verificators), 4)
 
-        self.assertEqual(verificators[0], prototypes.Verificator(text='1', externals={'date': ('18 сухого месяца 183 года', ''), 'hero': ('привидение', ''), 'level': (1, '')}))
-        self.assertEqual(verificators[1], prototypes.Verificator(text='5', externals={'date': ('18 сухого месяца 183 года', ''), 'hero': ('герой', ''), 'level': (2, '')}))
-        self.assertEqual(verificators[2], prototypes.Verificator(text='', externals={'date': ('18 сухого месяца 183 года', ''), 'hero': ('героиня', ''), 'level': (5, '')}))
-        self.assertEqual(verificators[3], prototypes.Verificator(text='', externals={'date': ('18 сухого месяца 183 года', ''), 'hero': ('рыцарь', 'мн'), 'level': (1, '')}))
+        self.assertEqual(verificators[0], prototypes.Verificator(text='1',
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'hero': ('привидение', ''),
+                                                                            'level': (1, '')}))
+        self.assertEqual(verificators[1], prototypes.Verificator(text='5',
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'hero': ('герой', ''),
+                                                                            'level': (2, '')}))
+        self.assertEqual(verificators[2], prototypes.Verificator(text='',
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'hero': ('героиня', ''),
+                                                                            'level': (5, '')}))
+        self.assertEqual(verificators[3], prototypes.Verificator(text='',
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'hero': ('рыцарь', 'мн'),
+                                                                            'level': (1, '')}))
 
 
     def test_get_verificators__one_substitutions_type(self):
         groups = lexicon_logic.get_verificators_groups(key=keys.LEXICON_KEY.PVP_USE_ABILITY_BLOOD, old_groups={})
-        self.assertEqual(groups, {'date': (8, 0), 'duelist_1': (0, 0), 'duelist_2': (0, 1), 'effectiveness': (1, 0)})
+        self.assertEqual(groups, {'date': (8, 0), 'time': (9, 0), 'duelist_1': (0, 0), 'duelist_2': (0, 1), 'effectiveness': (1, 0)})
 
         verificators = prototypes.Verificator.get_verificators(key=self.key, groups=groups)
 
         self.assertEqual(len(verificators), 4)
 
         self.assertEqual(verificators[0], prototypes.Verificator(text='',
-                                                                 externals={'date': ('18 сухого месяца 183 года', ''), 'duelist_1': ('герой', ''), 'duelist_2': ('чудовище', ''), 'effectiveness': (1, '')}))
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'duelist_1': ('герой', ''),
+                                                                            'duelist_2': ('чудовище', ''),
+                                                                            'effectiveness': (1, '')}))
         self.assertEqual(verificators[1], prototypes.Verificator(text='',
-                                                                 externals={'date': ('18 сухого месяца 183 года', ''), 'duelist_1': ('привидение', ''), 'duelist_2': ('русалка', ''), 'effectiveness': (2, '')}))
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'duelist_1': ('привидение', ''),
+                                                                            'duelist_2': ('русалка', ''),
+                                                                            'effectiveness': (2, '')}))
         self.assertEqual(verificators[2], prototypes.Verificator(text='',
-                                                                 externals={'date': ('18 сухого месяца 183 года', ''), 'duelist_1': ('героиня', ''), 'duelist_2': ('боец', 'мн'),'effectiveness': (5, '')}))
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'duelist_1': ('героиня', ''),
+                                                                            'duelist_2': ('боец', 'мн'),
+                                                                            'effectiveness': (5, '')}))
         self.assertEqual(verificators[3], prototypes.Verificator(text='',
-                                                                 externals={'date': ('18 сухого месяца 183 года', ''), 'duelist_1': ('рыцарь', 'мн'), 'duelist_2': ('призрак', ''), 'effectiveness': (1, '')}))
-
+                                                                 externals={'date': ('18 сухого месяца 183 года', ''),
+                                                                            'time': ('9:20', ''),
+                                                                            'duelist_1': ('рыцарь', 'мн'),
+                                                                            'duelist_2': ('призрак', ''),
+                                                                            'effectiveness': (1, '')}))
 
 
 class ContributionTests(testcase.TestCase):

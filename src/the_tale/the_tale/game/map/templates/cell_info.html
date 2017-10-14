@@ -80,7 +80,7 @@
             <tr>
               <th>Мастер</th>
               <th>влияние</th>
-              <th>герои <i class="icon icon-info-sign" rel="tooltip" title="помогающие / мешающие" style="vertical-align: middle;"></i></th>
+              <th width="60px">герои <i class="icon icon-info-sign" rel="tooltip" title="помогающие / мешающие" style="vertical-align: middle;"></i></th>
             </tr>
           </thead>
           <tbody>
@@ -105,6 +105,7 @@
           <tbody>
             {{places_macros.attribute_record(place, 'size')}}
             {{places_macros.attribute_record(place, 'power_economic')}}
+            {{places_macros.attribute_record(place, 'area')}}
             {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
             {{places_macros.attribute_record(place, 'keepers_goods')}}
             {{places_macros.attribute_record(place, 'stability')}}
@@ -195,30 +196,20 @@
             <tr><th>возведено</th><td>{{building.created_at_turn|verbose_game_date}}</td></tr>
             <tr>
               <th>целостность</th>
-              <td><span class="pgf-building-integrity">{{building.integrity|percents(2)}}</span></td>
-            </tr>
-            <tr><th>скорость износа</th><td>-{{building.amortization_in_day|percents}} в день</td></tr>
-            <tr>
-              <th>рабочих для ремонта</th>
               <td>
-                <span class="pgf-building-workers">{{building.workers_to_full_repairing}}</span>
-
-                <a href="#"
-                   class="angel-ability pgf-ability-building_repair pgf-hidden"
-                   data-building-id="{{building.id}}"
-                   data-building-workers="{{building.workers_to_full_repairing}}">
-                  <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
-                  <i class="icon-ban-circle" rel="tooltip" title="Починка зданий разрешена только обладателям подписки"></i>
-                  <span rel="tooltip" title="<i>{{ABILITY_TYPE.BUILDING_REPAIR.cost}} энергии без учёта бонусов</i>">вызвать рабочего</span>
-                </a>
-                <span style="white-space: nowrap;">(+{{building.repair_delta|percents(points=2)}} за рабочего)</span>
+                <span class="pgf-building-integrity" style="vertical-align: middle;">
+                  {% if building.integrity <= 1 %}{{building.integrity|percents(2)}}
+                  {% else %}100% + {{(building.integrity-1)|percents(2)}} запаса
+                  {% endif %}
+                </span>
+                <i class="icon icon-info-sign" style="vertical-align: middle;" rel="tooltip" title="Отремонтировать здание можно с помощью карт судьбы"></i>
               </td>
             </tr>
+            <tr><th>скорость износа</th><td>-{{building.amortization_in_day|percents(2)}} в день</td></tr>
           </tbody>
         </table>
       </div>
       {% endif %}
-
 
       <div class="tab-pane" id="pgf-cell-map">
         <ul class="unstyled">

@@ -17,7 +17,7 @@ from the_tale.game.relations import GAME_STATE
 from the_tale.game.artifacts import relations as artifacts_relations
 from the_tale.game.artifacts.effects import EFFECTS
 from the_tale.game.cards import relations as cards_relations
-from the_tale.game.cards import effects as cards_effects
+from the_tale.game.cards import cards
 
 from the_tale.linguistics import logic as linguistics_logic
 from the_tale.linguistics.lexicon import keys as linguistics_keys
@@ -61,7 +61,7 @@ class Command(BaseCommand):
                                            'EFFECTS': EFFECTS,
                                            'ARTIFACT_RARITY': artifacts_relations.RARITY,
                                            'CARD_RARITY': cards_relations.RARITY,
-                                           'CARDS_EFFECTS': cards_effects.EFFECTS,
+                                           'CARD': cards.CARD,
                                            'ABILITY_TYPE': ABILITY_TYPE,
                                            'SPRITES': SPRITES,
                                            'CELL_SIZE': map_settings.CELL_SIZE,

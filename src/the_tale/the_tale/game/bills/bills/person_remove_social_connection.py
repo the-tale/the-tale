@@ -1,14 +1,9 @@
-# coding: utf-8
 
 from django.forms import ValidationError
 
 from dext.forms import fields
 
 from utg import words as utg_words
-
-from the_tale.game.prototypes import TimePrototype
-
-from the_tale.game.balance import constants as c
 
 from the_tale.game.persons import logic as persons_logic
 from the_tale.game.persons import objects as persons_objects

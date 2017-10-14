@@ -1,7 +1,9 @@
-# coding: utf-8
+
 import math
 import random
 import datetime
+
+import tt_calendar
 
 from the_tale import amqp_environment
 
@@ -11,14 +13,13 @@ from the_tale.common.utils import logic as utils_logic
 from the_tale.game import names
 
 from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
 
 from the_tale.game.jobs import logic as jobs_logic
 from the_tale.game.jobs import effects as jobs_effects
 
 from the_tale.game import effects
 
-from the_tale.game.prototypes import TimePrototype, GameTime
+from the_tale.game import turn
 
 from . import relations
 
@@ -105,7 +106,7 @@ class Place(names.ManageNameMixin2):
         self._modifier = modifier
 
     @property
-    def updated_at_game_time(self): return GameTime(*f.turns_to_game_time(self.updated_at_turn))
+    def updated_at_game_time(self): return tt_calendar.converter(self.updated_at_turn)
 
     @property
     def is_new(self):
@@ -205,7 +206,7 @@ class Place(names.ManageNameMixin2):
                       key=lambda p: p.total_politic_power_fraction,
                       reverse=True) # fix persons order
 
-    def mark_as_updated(self): self.updated_at_turn = TimePrototype.get_current_turn_number()
+    def mark_as_updated(self): self.updated_at_turn = turn.number()
 
     @property
     def terrains(self):
@@ -291,8 +292,18 @@ class Place(names.ManageNameMixin2):
                                      value=resource_2.amount * resource_2.direction)
 
         # economic
-        yield effects.Effect(name='экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=f.place_goods_production(self.attrs.power_economic))
-        yield effects.Effect(name='потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-f.place_goods_consumption(self.attrs.size))
+        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.AREA, value=len(self.nearest_cells))
+
+        # мы ожидаем, что радиус владений города сравним с его размером и домножаем на поправочный коэфициент
+        area_size_equivalent = ((math.sqrt(self.attrs.area) - 1) / 2) * 2
+
+        if self.is_frontier:
+            area_size_equivalent /= 2
+
+        yield effects.Effect(name='экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.66 * self.attrs.power_economic * c.PLACE_GOODS_BONUS)
+        yield effects.Effect(name='владения', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.34 * area_size_equivalent * c.PLACE_GOODS_BONUS)
+
+        yield effects.Effect(name='потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-self.attrs.size * c.PLACE_GOODS_BONUS)
         yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
 
         if self.attrs.get_next_keepers_goods_spend_amount():
@@ -326,7 +337,6 @@ class Place(names.ManageNameMixin2):
         for person in self.persons:
             for effect in person.place_effects():
                 yield effect
-
 
     def effects_generator(self, order):
         # TODO: do something with postchecks
@@ -552,20 +562,11 @@ class Building(names.ManageNameMixin2):
 
 
     @property
-    def workers_to_full_repairing(self):
-        return int(math.ceil((1.0 - self.integrity) * c.BUILDING_FULL_REPAIR_ENERGY_COST / c.BUILDING_WORKERS_ENERGY_COST))
-
-
-    @property
     def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
 
 
-    def repair(self):
-        self.integrity = min(1.0, self.integrity + self.repair_delta)
-
-
-    @property
-    def need_repair(self): return self.integrity < 0.9999
+    def repair(self, delta):
+        self.integrity += delta
 
 
     @property

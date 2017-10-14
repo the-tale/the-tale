@@ -120,7 +120,7 @@ class _CompanionHealBase(AbilityPrototype):
 
 
 def get_being_types(modifier):
-    return [t.text for t in game_relations.BEING_TYPE.records if t.companion_heal_modifier == modifier]
+    return [t.text for t in game_relations.BEING_TYPE.records if modifier in (t.companion_heal_modifier, t.companion_coherence_modifier)]
 
 class HEALING(_CompanionHealBase):
     NAME = 'Врачевание'

@@ -1,7 +1,7 @@
-# coding: utf-8
+
 import random
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from . import effects
 
@@ -23,7 +23,7 @@ class Job(object):
         effect =  random.choice([effect for effect in effects.EFFECT.records if effect.group.is_ON_HEROES])
 
         return cls(name=cls.create_name(effect),
-                   created_at_turn=TimePrototype.get_current_turn_number(),
+                   created_at_turn=turn.number(),
                    effect=effect,
                    positive_power=0,
                    negative_power=0,
@@ -36,7 +36,7 @@ class Job(object):
             self.negative_power = 0
 
         self.name = self.create_name(effect)
-        self.created_at_turn = TimePrototype.get_current_turn_number()
+        self.created_at_turn = turn.number()
         self.effect = effect
         self.power_required = normal_power * effect.power_modifier
 

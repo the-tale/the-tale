@@ -1,7 +1,7 @@
 
 
 {% macro chronicle_record(record) %}
-{{chronicle_record_3(record.game_time.verbose_date_short, record.game_time.verbose_date, record.text)}}
+{{chronicle_record_3(record.game_time.date.verbose_short(), record.game_time.time.verbose(), record.text)}}
 {% endmacro %}
 
 

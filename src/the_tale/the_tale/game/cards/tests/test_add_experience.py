@@ -1,4 +1,3 @@
-# coding: utf-8
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -6,7 +5,7 @@ from the_tale.common.utils import testcase
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 from the_tale.game.quests.tests import helpers as quests_helpers
@@ -31,8 +30,6 @@ class AddExperienceTestMixin(CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = self.CARD()
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', False)
     @mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', False)
@@ -48,38 +45,39 @@ class AddExperienceTestMixin(CardsTestMixin):
             with self.check_not_changed(lambda: self.hero.experience):
                 with self.check_not_changed(lambda: self.hero.level):
                     with self.check_not_changed(lambda: self.hero.quests.current_quest.current_info.experience):
-                        with self.check_delta(lambda: self.hero.quests.current_quest.current_info.experience_bonus, self.CARD.EXPERIENCE):
-                            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+                        with self.check_delta(lambda: self.hero.quests.current_quest.current_info.experience_bonus, self.CARD.effect.modificator):
+                            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
                             self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(mark_updated.call_count, 1)
 
         while self.hero.quests.has_quests:
-            self.assertEqual(self.hero.quests.current_quest.quests_stack[0].experience_bonus, self.CARD.EXPERIENCE)
-            self.assertEqual(self.hero.quests.current_quest.quests_stack[0].ui_info(self.hero)['experience'], old_ui_experience + self.CARD.EXPERIENCE)
+            self.assertEqual(self.hero.quests.current_quest.quests_stack[0].experience_bonus, self.CARD.effect.modificator)
+            self.assertEqual(self.hero.quests.current_quest.quests_stack[0].ui_info(self.hero)['experience'], old_ui_experience + self.CARD.effect.modificator)
             self.storage.process_turn()
 
     def test_no_quest(self):
         self.assertFalse(self.hero.quests.has_quests)
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
-class AddExperiencecommonTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = effects.AddExperienceCommon
+class AddExperienceCommonTests(AddExperienceTestMixin, testcase.TestCase):
+    CARD = cards.CARD.ADD_EXPERIENCE_COMMON
 
 
 class AddExperienceUncommonTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = effects.AddExperienceUncommon
+    CARD = cards.CARD.ADD_EXPERIENCE_UNCOMMON
 
 
 class AddExperienceRareTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = effects.AddExperienceRare
+    CARD = cards.CARD.ADD_EXPERIENCE_RARE
 
 
 class AddExperienceEpicTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = effects.AddExperienceEpic
+    CARD = cards.CARD.ADD_EXPERIENCE_EPIC
+
 
 class AddExperienceLegendaryTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = effects.AddExperienceLegendary
+    CARD = cards.CARD.ADD_EXPERIENCE_LEGENDARY

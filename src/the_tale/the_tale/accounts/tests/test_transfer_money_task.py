@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -8,7 +8,7 @@ from the_tale.finances.bank import relations as bank_relations
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.accounts import postponed_tasks
@@ -33,7 +33,7 @@ class TransferMoneyTaskTests(testcase.TestCase, pm_helpers.Mixin):
 
         self.main_task = mock.Mock(id=777)
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
     def test_initialization(self):
         self.assertTrue(self.task.state.is_UNPROCESSED)

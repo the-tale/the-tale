@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from utg import words as utg_words
 from utg import relations as utg_relations
 
@@ -9,7 +9,7 @@ from the_tale.common.utils import logic as utils_logic
 from the_tale.game import names
 from the_tale.game import effects
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
@@ -19,7 +19,6 @@ from the_tale.game.jobs import effects as jobs_effects
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import relations as places_relations
-
 
 from . import economic
 from . import relations
@@ -127,7 +126,7 @@ class Person(names.ManageNameMixin2):
 
     @property
     def seconds_before_next_move(self):
-        return (self.moved_at_turn + c.PERSON_MOVE_DELAY - TimePrototype.get_current_turn_number()) * c.TURN_DELTA
+        return (self.moved_at_turn + c.PERSON_MOVE_DELAY - turn.number()) * c.TURN_DELTA
 
 
     def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, power):
@@ -327,8 +326,6 @@ class Person(names.ManageNameMixin2):
             effect.apply_to(self.attrs)
 
 
-
-
 class SocialConnection(object):
     __slots__ = ('id', 'connection', 'person_1_id', 'person_2_id', 'created_at', 'created_at_turn')
 
@@ -348,4 +345,4 @@ class SocialConnection(object):
         return (storage.persons[self.person_1_id], storage.persons[self.person_2_id])
 
     def can_be_removed(self):
-        return TimePrototype.get_current_turn_number() >= self.created_at_turn + c.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME
+        return turn.number() >= self.created_at_turn + c.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME

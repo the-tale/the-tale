@@ -1,5 +1,8 @@
 # See /usr/share/postfix/main.cf.dist for a commented, more complete version
 
+myhostname = {{tt_domain}}
+mydomain = {{tt_domain}}
+
 smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
 biff = no
 

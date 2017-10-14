@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import datetime
 
@@ -12,7 +11,6 @@ from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestP
 from the_tale.accounts.conf import accounts_settings
 
 from the_tale.game.logic import create_test_map
-
 
 
 class AccountsManagerTest(testcase.TestCase):
@@ -44,14 +42,12 @@ class AccountsManagerTest(testcase.TestCase):
         self.account.reload()
         self.assertTrue(self.account.is_premium)
 
-
     def test_run_random_premium_requests_processing__no_requests(self):
 
         with mock.patch('the_tale.accounts.prototypes.RandomPremiumRequestPrototype.process') as process:
             self.worker.run_random_premium_requests_processing()
 
         self.assertEqual(process.call_count, 0)
-
 
     def test_run_random_premium_requests_processing__has_requests_can_not_process(self):
 

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 import datetime
 
@@ -13,7 +13,7 @@ from utg import relations as utg_relations
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game import relations as game_relations
 from the_tale.game import names
 
@@ -118,7 +118,7 @@ def save_place(place, new=False):
 
     arguments = { 'x': place.x,
                   'y': place.y,
-                  'updated_at_turn': TimePrototype.get_current_turn_number(),
+                  'updated_at_turn': turn.number(),
                   'updated_at': datetime.datetime.now(),
                   'is_frontier': place.is_frontier,
                   'description': place.description,
@@ -134,7 +134,7 @@ def save_place(place, new=False):
                   'persons_changed_at_turn': place.persons_changed_at_turn}
 
     if new:
-        place_model = models.Place.objects.create(created_at_turn=TimePrototype.get_current_turn_number(), **arguments)
+        place_model = models.Place.objects.create(created_at_turn=turn.number(), **arguments)
         place.id = place_model.id
         storage.places.add_item(place.id, place)
     else:
@@ -151,9 +151,9 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           x=x,
                           y=y,
                           updated_at=datetime.datetime.now(),
-                          updated_at_turn=TimePrototype.get_current_turn_number(),
+                          updated_at_turn=turn.number(),
                           created_at=datetime.datetime.now(),
-                          created_at_turn=TimePrototype.get_current_turn_number(),
+                          created_at_turn=turn.number(),
                           habit_honor=habits.Honor(raw_value=0),
                           habit_honor_positive=0,
                           habit_honor_negative=0,
@@ -163,7 +163,7 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           is_frontier=is_frontier,
                           description='',
                           race=race,
-                          persons_changed_at_turn=TimePrototype.get_current_turn_number(),
+                          persons_changed_at_turn=turn.number(),
                           politic_power=PlacePoliticPower.create(),
                           attrs=attributes.Attributes(size=size),
                           utg_name=utg_name,
@@ -263,9 +263,6 @@ def get_available_positions(center_x, center_y, building_position_radius=c.BUILD
 def create_building(person, utg_name, position=None):
     from the_tale.game.places import storage
 
-    from . import logic
-
-
     building = storage.buildings.get_by_person_id(person.id)
 
     if building:
@@ -284,7 +281,7 @@ def create_building(person, utg_name, position=None):
                                 y=y,
                                 type=person.type.building_type,
                                 integrity=1.0,
-                                created_at_turn=TimePrototype.get_current_turn_number(),
+                                created_at_turn=turn.number(),
                                 state=relations.BUILDING_STATE.WORKING,
                                 utg_name=utg_name,
                                 person_id=person.id)

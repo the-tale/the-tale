@@ -1,5 +1,4 @@
-# coding: utf-8
-import time
+
 import datetime
 
 import rels
@@ -33,34 +32,6 @@ class _PreferencesMetaclass(type):
 
         return getter
 
-    @classmethod
-    def create_preference_setter(cls, preference):
-
-        def setter(self, value, change_time=None):
-            return self._set(preference, value, change_time=change_time)
-        setter.__name__ = 'set_%s' % preference.base_name
-
-        return setter
-
-    @classmethod
-    def create_preference_reseter(cls, preference):
-
-        def reseter(self):
-            return self._reset(preference)
-        reseter.__name__ = 'reset_%s' % preference.base_name
-
-        return reseter
-
-
-    @classmethod
-    def create_preference_changed_at_getter(cls, preference):
-
-        def getter(self):
-            return self._get_changed_at(preference)
-        getter.__name__ = '%s_changed_at' % preference.base_name
-
-        return getter
-
 
     def __new__(mcs, name, bases, attributes):
 
@@ -68,20 +39,10 @@ class _PreferencesMetaclass(type):
             getter = mcs.create_preference_getter(preference)
             attributes[getter.__name__] = property(getter)
 
-            getter = mcs.create_preference_changed_at_getter(preference)
-            attributes[getter.__name__] = property(getter)
-
-            setter = mcs.create_preference_setter(preference)
-            attributes[setter.__name__] = setter
-
-            reseter = mcs.create_preference_reseter(preference)
-            attributes[reseter.__name__] = reseter
-
         return super(_PreferencesMetaclass, mcs).__new__(mcs, name, bases, attributes)
 
 
 class HeroPreferences(object, metaclass=_PreferencesMetaclass):
-
     __slots__ = ('data', 'hero')
 
     def __init__(self):
@@ -97,26 +58,6 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
         obj.data = data
         return obj
 
-    def can_update(self, preferences_type, current_time):
-        return self.time_before_update(preferences_type, current_time).total_seconds() == 0
-
-    def is_available(self, preference_type, account):
-        purchased = False
-        if hasattr(preference_type, 'purchase_type'):
-            if preference_type.purchase_type in account.permanent_purchases:
-                purchased = True
-
-        if not purchased and self.hero.level < preference_type.level_required:
-            return False
-
-        return True
-
-    def _time_before_update(self, changed_at, current_time):
-        return max(datetime.timedelta(seconds=0), (changed_at + datetime.timedelta(seconds=self.hero.preferences_change_delay) - current_time))
-
-    def time_before_update(self, preferences_type, current_time):
-        return self._time_before_update(self._get_changed_at(preferences_type), current_time)
-
     def value_to_set(self, value):
         if isinstance(value, BasePrototype):
             return value.id if value is not None else None
@@ -128,24 +69,20 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
             return value.value if value is not None else None
         return value
 
-    def _set(self, preferences_type, value, change_time=None):
-        if change_time is None:
-            change_time = datetime.datetime.now()
 
+    def set(self, preferences_type, value):
         value = self.value_to_set(value)
 
-        self.data[preferences_type.base_name] = {'value': value,
-                                                 'changed_at': time.mktime(change_time.timetuple())}
+        if preferences_type.base_name in self.data and value == self.data[preferences_type.base_name]['value']:
+            return False
+
+        self.data[preferences_type.base_name] = {'value': value}
         models.HeroPreferences.update(self.hero.id, preferences_type.base_name, value)
 
         self.hero.reset_accessors_cache()
 
-    def _reset(self, preferences_type):
-        self._set(preferences_type, None, change_time=datetime.datetime.fromtimestamp(0))
+        return True
 
-    def reset_change_time(self, preferences_type):
-        if preferences_type.base_name in self.data:
-            self.data[preferences_type.base_name]['changed_at'] = 0
 
     def _prepair_value(self, value):
         return value
@@ -154,7 +91,7 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
         mob = mobs_storage.get(mob_id)
 
         if mob and not mob.state.is_ENABLED:
-            self.set_mob(None, change_time=datetime.datetime.fromtimestamp(0))
+            self.set(relations.PREFERENCE_TYPE.MOB, None)
             return None
 
         return mob
@@ -193,11 +130,6 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
         value = self.data[preferences_type.base_name]['value']
 
         return getattr(self, preferences_type.prepair_method)(value)
-
-    def _get_changed_at(self, preferences_type, default=datetime.datetime.fromtimestamp(0)):
-        if preferences_type.base_name not in self.data:
-            return default
-        return datetime.datetime.fromtimestamp(self.data[preferences_type.base_name]['changed_at'])
 
     # helpers
 

@@ -16,6 +16,6 @@ setuptools.setup(
     license='BSD',
     packages=setuptools.find_packages(),
     install_requires=[],
-    entry_points={'console_scripts': ['tt_load_old_dump=tt_personal_messages.commands.tt_load_old_dump:main']},
+    entry_points={'console_scripts': []},
     include_package_data=True,
     test_suite = 'tests' )

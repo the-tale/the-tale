@@ -14,6 +14,8 @@ from the_tale import amqp_environment
 
 from the_tale.common.utils.password import generate_password
 
+from the_tale.game import relations as game_relations
+
 from the_tale.accounts.models import Account
 from the_tale.accounts.prototypes import AccountPrototype
 from the_tale.accounts import exceptions
@@ -22,7 +24,6 @@ from the_tale.accounts.conf import accounts_settings
 from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
 
 from the_tale.collections.prototypes import AccountItemsPrototype
-from the_tale.finances.market import logic as market_logic
 
 from the_tale.accounts import signals
 from the_tale.accounts import conf
@@ -70,7 +71,15 @@ def get_system_user():
     return account
 
 
-def register_user(nick, email=None, password=None, referer=None, referral_of_id=None, action_id=None, is_bot=False):
+def register_user(nick,
+                  email=None,
+                  password=None,
+                  referer=None,
+                  referral_of_id=None,
+                  action_id=None,
+                  is_bot=False,
+                  gender=game_relations.GENDER.MASCULINE,
+                  full_create=True):
     from the_tale.game.heroes import logic as heroes_logic
 
     if Account.objects.filter(nick=nick).exists():
@@ -102,14 +111,13 @@ def register_user(nick, email=None, password=None, referer=None, referral_of_id=
                                       password=password,
                                       referer=referer,
                                       referral_of=referral_of,
-                                      action_id=action_id)
+                                      action_id=action_id,
+                                      gender=gender)
 
     AccountAchievementsPrototype.create(account)
     AccountItemsPrototype.create(account)
 
-    market_logic.create_goods(account.id)
-
-    hero = heroes_logic.create_hero(account=account)
+    hero = heroes_logic.create_hero(account=account, full_create=full_create)
 
     return REGISTER_USER_RESULT.OK, account.id, hero.actions.current_action.bundle_id
 

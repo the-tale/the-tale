@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -13,6 +13,8 @@ class ModifiersTests(testcase.TestCase):
     def setUp(self):
         super(ModifiersTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
+
+        self.place_1.refresh_attributes()
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_trade_center(self):

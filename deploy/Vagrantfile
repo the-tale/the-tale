@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
     if cached_addresses[vm.name].nil?
         if hostname = (vm.ssh_info && vm.ssh_info[:host])
             vm.communicate.execute("/sbin/ifconfig %s | grep 'inet addr' | tail -n 1 | egrep -o '[0-9\.]+' | head -n 1 2>&1" % network_interface) do |type, contents|
-                    cached_addresses[vm.name] = contents.split("\n").first[/(\d+\.\d+\.\d+\.\d+)/, 1]
+                    cached_addresses[vm.name] = contents.split("\n").first
                 end
             end
         end

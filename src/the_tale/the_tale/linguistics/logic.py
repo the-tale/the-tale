@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import re
 import sys
 import logging
@@ -63,12 +63,16 @@ def get_word_restrictions(external, word_form):
 
 
 def _process_arguments(args):
-    from the_tale.game.prototypes import TimePrototype
+    from the_tale.game import turn
 
     externals = {}
     restrictions = set()
 
-    for k, v in itertools.chain(args.items(), ((VARIABLE.DATE.value, TimePrototype.get_current_time().game_time),)):
+    variables = itertools.chain(args.items(),
+                                ((VARIABLE.DATE.value, turn.linguistics_date()),
+                                 (VARIABLE.TIME.value, turn.linguistics_time()),))
+
+    for k, v in variables:
         word_form, variable_restrictions = VARIABLE(k).type.constructor(v)
         externals[k] = word_form
         restrictions.update((k, restriction_id) for restriction_id in variable_restrictions)

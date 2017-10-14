@@ -228,6 +228,9 @@
 .quest-icon.pilgrimage {
   background: url('../game/images/quests.png') no-repeat scroll -64px -320px transparent;
 }
+.quest-icon.question {
+  background: url('../game/images/quests.png') no-repeat scroll -64px 0px transparent;
+}
 .quest-record {
   min-height: 84px;
   cursor: default;

@@ -10,7 +10,7 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
@@ -30,8 +30,6 @@ class AddPlacePowerMixin(CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        self.card = self.CARD()
-
         environment.deinitialize()
         environment.initialize()
 
@@ -40,59 +38,54 @@ class AddPlacePowerMixin(CardsTestMixin):
 
 
     def test_use(self):
-        result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero, storage=self.storage, place_id=self.place_1.id))
+        for direction in (-1, 1):
+            card = self.CARD.effect.create_card(type=self.CARD,
+                                                available_for_auction=True,
+                                                direction=direction)
 
-        self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL))
-        self.assertEqual(len(postsave_actions), 1)
+            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(hero=self.hero, storage=self.storage, value=self.place_1.id, card=card))
 
-        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_logic_task') as highlevel_logic_task_counter:
-            postsave_actions[0]()
+            self.assertEqual((result, step), (ComplexChangeTask.RESULT.CONTINUE, ComplexChangeTask.STEP.HIGHLEVEL))
+            self.assertEqual(len(postsave_actions), 1)
 
-        self.assertEqual(highlevel_logic_task_counter.call_count, 1)
+            with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_logic_task') as highlevel_logic_task_counter:
+                postsave_actions[0]()
 
-        with mock.patch('the_tale.game.places.logic.PlacePoliticPower.change_power') as change_power:
-            result, step, postsave_actions = self.card.use(**self.use_attributes(hero=self.hero,
-                                                                                 step=step,
-                                                                                 highlevel=self.highlevel,
-                                                                                 place_id=self.place_1.id))
-        self.assertEqual(change_power.call_args_list,
-                         [mock.call(hero_id=self.hero.id, place=self.place_1, power=self.CARD.BONUS, has_in_preferences=True)])
+            self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+            with mock.patch('the_tale.game.places.logic.PlacePoliticPower.change_power') as change_power:
+                result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(hero=self.hero,
+                                                                                            step=step,
+                                                                                            highlevel=self.highlevel,
+                                                                                            value=self.place_1.id,
+                                                                                            card=card))
+            self.assertEqual(change_power.call_args_list,
+                             [mock.call(hero_id=self.hero.id, place=self.place_1, power=direction * self.CARD.effect.modificator, has_in_preferences=True)])
+
+            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
 
     def test_no_place(self):
-        self.assertEqual(self.card.use(**self.use_attributes(hero=self.hero, place_id=666, storage=self.storage)),
-                        (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+        for direction in (-1, 1):
+            card = self.CARD.effect.create_card(type=self.CARD,
+                                                available_for_auction=True,
+                                                direction=direction)
+
+            self.assertEqual(self.CARD.effect.use(**self.use_attributes(hero=self.hero, value=666, storage=self.storage, card=card)),
+                            (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
-class AddPlacePowerPositiveCommonTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerPositiveCommon
+class AddPlacePowerCommonTests(AddPlacePowerMixin, testcase.TestCase):
+    CARD = cards.CARD.ADD_PLACE_POWER_COMMON
 
-class AddPlacePowerPositiveUncommonTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerPositiveUncommon
+class AddPlacePowerUncommonTests(AddPlacePowerMixin, testcase.TestCase):
+    CARD = cards.CARD.ADD_PLACE_POWER_UNCOMMON
 
-class AddPlacePowerPositiveRareTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerPositiveRare
+class AddPlacePowerRareTests(AddPlacePowerMixin, testcase.TestCase):
+    CARD = cards.CARD.ADD_PLACE_POWER_RARE
 
-class AddPlacePowerPositiveEpicTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerPositiveEpic
+class AddPlacePowerEpicTests(AddPlacePowerMixin, testcase.TestCase):
+    CARD = cards.CARD.ADD_PLACE_POWER_EPIC
 
-class AddPlacePowerPositiveLegendaryTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerPositiveLegendary
-
-
-class AddPlacePowerNegativeCommonTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerNegativeCommon
-
-class AddPlacePowerNegativeUncommonTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerNegativeUncommon
-
-class AddPlacePowerNegativeRareTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerNegativeRare
-
-class AddPlacePowerNegativeEpicTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerNegativeEpic
-
-class AddPlacePowerNegativeLegendaryTests(AddPlacePowerMixin, testcase.TestCase):
-    CARD = effects.AddPlacePowerNegativeLegendary
+class AddPlacePowerLegendaryTests(AddPlacePowerMixin, testcase.TestCase):
+    CARD = cards.CARD.ADD_PLACE_POWER_LEGENDARY

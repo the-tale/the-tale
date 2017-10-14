@@ -60,6 +60,19 @@ class SafeSpoilerTag(postmarkup.TagBase):
         return '<br/>--------------'
 
 
+class YoutubeTag(postmarkup.TagBase):
+
+    def __init__(self, name, **kwargs):
+        super(YoutubeTag, self).__init__(name, inline=False, auto_close=True)
+        self.tag_key = 'YoutubeTag.nest_level'
+
+    def render_open(self, parser, node_index):
+        return '<iframe width="560" height="315" src="https://www.youtube.com/embed/{code}?rel=0" frameborder="0" allowfullscreen></iframe>'.format(code=self.params.strip())
+
+    def render_close(self, parser, node_index):
+        return ''
+
+
 class HRTag(postmarkup.TagBase):
 
     def __init__(self, name, **kwargs):
@@ -114,8 +127,6 @@ class RedLineTag(postmarkup.TagBase):
     def render_close(self, parser, node_index):
         return ''
 
-
-
 _renderer = postmarkup.create(use_pygments=False, annotate_links=False)
 _renderer.tag_factory.add_tag(LinkTag, 'url', annotate_links=False)
 _renderer.tag_factory.add_tag(LinkTag, 'link', annotate_links=False)
@@ -124,6 +135,7 @@ _renderer.tag_factory.add_tag(HRTag, 'hr')
 _renderer.tag_factory.add_tag(LeftSquareBracketTag, 'lsb')
 _renderer.tag_factory.add_tag(RightSquareBracketTag, 'rsb')
 _renderer.tag_factory.add_tag(RedLineTag, 'rl')
+_renderer.tag_factory.add_tag(YoutubeTag, 'youtube')
 
 
 def render(*argv, **kwargs):
@@ -169,6 +181,7 @@ class BBField(fields.TextField):
 <a class="pgf-bb-command" href="#" data-tag="lsb" data-single="true" rel="tooltip" title="[lsb] — «[» левая квадратная скобка">[lsb]</a>
 <a class="pgf-bb-command" href="#" data-tag="rsb" data-single="true" rel="tooltip" title="[rsb] — «]» правая квадратная скобка">[rsb]</a>
 <a class="pgf-bb-command" href="#" data-tag="rl" data-single="true" rel="tooltip" title="[rl] — красная строка (отступ)">[rl]</a>
+<a class="pgf-bb-command" href="#" data-tag="youtube=" data-single="true" rel="tooltip" title="[youtube=code] — видео с Youtube">[youtube]</a>
 </div>
 '''
 

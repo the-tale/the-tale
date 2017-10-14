@@ -123,5 +123,4 @@ def building_info(building):
              'position': {'x': building.x, 'y': building.y},
              'type': building.type.value,
              'integrity': building.integrity,
-             'created_at_turn': building.created_at_turn,
-             'repair_number': building.workers_to_full_repairing }
+             'created_at_turn': building.created_at_turn }

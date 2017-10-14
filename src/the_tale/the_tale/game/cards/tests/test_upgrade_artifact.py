@@ -1,11 +1,10 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.cards import effects
+from the_tale.game.cards import cards
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -14,7 +13,7 @@ from the_tale.game.artifacts import relations as artifacts_relations
 
 
 class UpgradeArtifactTests(CardsTestMixin, testcase.TestCase):
-    CARD = effects.UpgradeArtifact
+    CARD = cards.CARD.INCREMENT_ARTIFACT_RARITY
 
     def setUp(self):
         super(UpgradeArtifactTests, self).setUp()
@@ -30,8 +29,6 @@ class UpgradeArtifactTests(CardsTestMixin, testcase.TestCase):
 
         self.assertTrue(len(list(self.hero.equipment.values())) > 1)
 
-        self.card = self.CARD()
-
 
     def test_use(self):
 
@@ -39,7 +36,7 @@ class UpgradeArtifactTests(CardsTestMixin, testcase.TestCase):
             for artifact in list(self.hero.equipment.values()):
                 artifact.rarity = rarity
 
-            result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+            result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
             self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
             self.assertEqual(len([artifact for artifact in list(self.hero.equipment.values()) if artifact.rarity == rarity]), len(list(self.hero.equipment.values())) - 1)
@@ -51,7 +48,7 @@ class UpgradeArtifactTests(CardsTestMixin, testcase.TestCase):
         for artifact in list(self.hero.equipment.values()):
             artifact.rarity = rarity
 
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
         self.assertEqual(len([artifact for artifact in list(self.hero.equipment.values()) if artifact.rarity == rarity]), len(list(self.hero.equipment.values())))
@@ -59,5 +56,5 @@ class UpgradeArtifactTests(CardsTestMixin, testcase.TestCase):
 
     def test_no_artifacts(self):
         self.hero.equipment._remove_all()
-        result, step, postsave_actions = self.card.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))

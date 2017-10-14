@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import time
 
 from the_tale.common.utils import storage
@@ -8,7 +8,7 @@ from dext.settings import settings
 from the_tale.game.map.prototypes import MapInfoPrototype
 from the_tale.game.map import exceptions
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 
 class MapInfoStorage(storage.SingleStorage):
@@ -30,7 +30,7 @@ class MapInfoStorage(storage.SingleStorage):
         self._version = settings[self.SETTINGS_KEY]
 
     def _get_next_version(self):
-        return '%d-%f' % (TimePrototype.get_current_turn_number(), time.time())
+        return '%d-%f' % (turn.number(), time.time())
 
 
 map_info_storage = MapInfoStorage()

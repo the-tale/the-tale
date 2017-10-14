@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import time
 
 from dext.common.amqp_queues import exceptions as amqp_exceptions
@@ -17,6 +17,7 @@ from the_tale.game import prototypes
 from the_tale.game import relations
 from the_tale.game import models
 from the_tale.game import conf
+from the_tale.game import turn
 
 
 class SupervisorException(Exception): pass
@@ -45,19 +46,17 @@ class Worker(BaseWorker):
 
         self.gracefull_stop_required = False
 
-        self.time = prototypes.TimePrototype.get_current_time()
-
         PostponedTaskPrototype.reset_all()
 
         self.logic_workers = {worker.name: worker for worker in (environment.workers.logic_1, environment.workers.logic_2)}
 
         self.logger.info('initialize logic')
 
-        self.logic_multicast('initialize', arguments=dict(turn_number=self.time.turn_number), worker_id=True, wait_answer=True)
+        self.logic_multicast('initialize', arguments=dict(turn_number=turn.number()), worker_id=True, wait_answer=True)
 
         if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
             self.logger.info('initialize highlevel')
-            environment.workers.highlevel.cmd_initialize(turn_number=self.time.turn_number, worker_id='highlevel')
+            environment.workers.highlevel.cmd_initialize(turn_number=turn.number(), worker_id='highlevel')
             self.wait_answers_from('initialize', workers=['highlevel'])
         else:
             self.logger.info('skip initialization of highlevel')
@@ -221,14 +220,14 @@ class Worker(BaseWorker):
     def process_next_turn(self):
         self.wait_answer_from_next_turn()
 
-        self.time.increment_turn()
+        turn.increment()
 
-        self.logic_multicast('next_turn', arguments=dict(turn_number=self.time.turn_number))
+        self.logic_multicast('next_turn', arguments=dict(turn_number=turn.number()))
         self.wait_next_turn_answer = True
 
         try:
             if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
-                environment.workers.highlevel.cmd_next_turn(turn_number=self.time.turn_number)
+                environment.workers.highlevel.cmd_next_turn(turn_number=turn.number())
         except amqp_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from highlevel')
             self._force_stop()

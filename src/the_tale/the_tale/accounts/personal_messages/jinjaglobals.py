@@ -1,6 +1,7 @@
 
 from dext.common.utils import jinja2
 
+from . import conf
 from . import logic
 
 
@@ -14,3 +15,8 @@ def sorted_recipients(recipients_ids, accounts):
 @jinja2.jinjaglobal
 def new_messages_number_url():
     return logic.new_messages_number_url()
+
+
+@jinja2.jinjaglobal
+def personal_messages_settings():
+    return conf.settings

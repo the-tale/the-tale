@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
@@ -28,7 +27,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
                                                resource_1=self.resource_1,
                                                resource_2=self.resource_2)
 
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data,
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data,
                                          chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
@@ -61,7 +60,6 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',
-                                                         'rationale': 'new-rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted-2',
                                                          'place_1': self.place2.id,
                                                          'place_2': self.place1.id,
@@ -92,7 +90,6 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
     def test_form_validation__success(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
-                                                         'rationale': 'long rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place2.id,
@@ -102,7 +99,6 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
     def test_user_form_validation__not_connected(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
-                                                         'rationale': 'rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place3.id,
@@ -113,7 +109,6 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PLACE_MAX_BILLS_NUMBER', 0)
     def test_user_form_validation__maximum_exchanges_reached(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
-                                                         'rationale': 'rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place2.id,
@@ -123,7 +118,6 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
     def test_user_form_validation__equal_parameters(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
-                                                         'rationale': 'rationale',
                                                          'chronicle_on_accepted': 'chronicle-on-accepted',
                                                          'place_1': self.place1.id,
                                                          'place_2': self.place2.id,
@@ -137,7 +131,6 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
                 continue
 
             form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
-                                                             'rationale': 'rationale',
                                                              'chronicle_on_accepted': 'chronicle-on-accepted',
                                                              'place_1': self.place1.id,
                                                              'place_2': self.place2.id,
@@ -188,7 +181,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
         old_storage_version = places_storage.resource_exchanges._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
 
         self.bill.decline(decliner)
 
@@ -208,7 +201,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
 
         old_storage_version = places_storage.resource_exchanges._version
 
-        decliner = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
+        decliner = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted-2')
 
         self.bill.decline(decliner)
 
@@ -248,7 +241,7 @@ class PlaceResourceExchangeTests(BaseTestPrototypes):
                                           resource_1=self.resource_1,
                                           resource_2=self.resource_2)
 
-        bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', bill_data,
+        bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data,
                                     chronicle_on_accepted='chronicle-on-accepted')
 
         self.assertFalse(bill.has_meaning())

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import datetime
 import time
 import random
@@ -6,15 +6,18 @@ import copy
 
 from unittest import mock
 
+import tt_calendar
+
 from the_tale.common.utils import testcase
 
 from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype, GameState
+from the_tale.game.prototypes import GameState
+from the_tale.game import turn
 
 from the_tale.game.quests.relations import QUESTS
 
@@ -39,7 +42,7 @@ from the_tale.game.mobs.storage import mobs_storage
 from the_tale.game.bills import conf as bills_conf
 
 from ..habilities import ABILITY_TYPE, ABILITIES, battle, ABILITY_AVAILABILITY
-from ..conf import heroes_settings
+from .. import conf
 from .. import relations
 from .. import messages
 from .. import logic
@@ -67,14 +70,14 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
 
     def test_create(self):
         self.assertFalse(self.hero.force_save_required)
 
         self.assertTrue(self.hero.is_alive)
-        self.assertEqual(self.hero.created_at_turn, TimePrototype.get_current_time().turn_number)
+        self.assertEqual(self.hero.created_at_turn, turn.number())
         self.assertEqual(self.hero.abilities.get('hit').level, 1)
         self.assertEqual(self.hero.abilities.get('coherence').level, 1)
 
@@ -90,10 +93,10 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertTrue(self.hero.can_be_helped())
 
-        for i in range(heroes_settings.MAX_HELPS_IN_TURN-1):
+        for i in range(conf.heroes_settings.MAX_HELPS_IN_TURN-1):
             self.hero.on_help()
 
-        self.assertEqual(self.hero.helps_in_turn, heroes_settings.MAX_HELPS_IN_TURN-1)
+        self.assertEqual(self.hero.helps_in_turn, conf.heroes_settings.MAX_HELPS_IN_TURN-1)
 
         self.assertTrue(self.hero.can_be_helped())
 
@@ -101,14 +104,13 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertFalse(self.hero.can_be_helped())
 
-        current_turn = TimePrototype.get_current_time()
-        current_turn.increment_turn()
+        turn.increment()
 
         self.assertTrue(self.hero.can_be_helped())
 
         self.hero.on_help()
 
-        self.assertEqual(self.hero.last_help_on_turn, current_turn.turn_number)
+        self.assertEqual(self.hero.last_help_on_turn, turn.number())
         self.assertEqual(self.hero.helps_in_turn, 1)
 
 
@@ -128,17 +130,15 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         self.assertFalse(self.hero.is_active)
 
     def test_create_time(self):
-        game_time = TimePrototype.get_current_time()
-        game_time.increment_turn()
-        game_time.increment_turn()
-        game_time.increment_turn()
-        game_time.save()
+        turn.increment()
+        turn.increment()
+        turn.increment()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
         hero = logic.load_hero(account_id=account.id)
 
-        self.assertEqual(hero.created_at_turn, TimePrototype.get_current_time().turn_number)
+        self.assertEqual(hero.created_at_turn, turn.number())
 
         self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
 
@@ -164,10 +164,10 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
     def test_experience_modifier__risk_level(self):
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_HIGH)
         self.assertTrue(c.EXP_FOR_NORMAL_ACCOUNT < self.hero.experience_modifier)
 
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(c.EXP_FOR_NORMAL_ACCOUNT > self.hero.experience_modifier)
 
     def test_experience_modifier__active_inactive_state(self):
@@ -278,13 +278,13 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
     def test_reward_modifier__risk_level(self):
         self.assertEqual(self.hero.quest_money_reward_multiplier(), 1.0)
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_HIGH)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_HIGH)
         self.assertTrue(self.hero.quest_money_reward_multiplier() > 1.0)
-        self.hero.preferences.set_risk_level(relations.RISK_LEVEL.VERY_LOW)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(self.hero.quest_money_reward_multiplier() < 1.0)
 
     def test_push_message(self):
-        message = messages.MessageSurrogate(turn_number=TimePrototype.get_current_turn_number(),
+        message = messages.MessageSurrogate(turn_number=turn.number(),
                                             timestamp=time.time(),
                                             key=None,
                                             externals=None,
@@ -294,17 +294,17 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(len(self.hero.journal), 0)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             self.hero.push_message(message)
 
         self.assertEqual(len(self.hero.journal), 1)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.hero.push_message(message, diary=True)
 
         self.assertEqual(len(self.hero.journal), 2)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.hero.push_message(message, diary=True, journal=False)
 
         self.assertEqual(len(self.hero.journal), 2)
@@ -316,26 +316,26 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertTrue(self.hero.is_active)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_1')):
                 self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
 
         self.assertEqual(len(self.hero.journal), 1)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.is_active', False):
-            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
                 with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
 
             self.assertEqual(len(self.hero.journal), 2)
 
-            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
                 with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
 
             self.assertEqual(len(self.hero.journal), 0)
 
-            with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
                 with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True):
                         self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
@@ -354,18 +354,18 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         self.hero.add_energy_bonus(100)
 
         self.assertEqual(self.hero.energy, 6)
-        self.assertEqual(self.hero.energy_full, 106 + heroes_settings.START_ENERGY_BONUS)
+        self.assertEqual(self.hero.energy_full, 106 + conf.heroes_settings.START_ENERGY_BONUS)
 
     def test_change_energy__plus(self):
         self.hero.energy = 6
         self.hero.add_energy_bonus(100)
 
         self.assertEqual(self.hero.change_energy(self.hero.energy_maximum), self.hero.energy_maximum - 6)
-        self.assertEqual(self.hero.energy_bonus, 100 + heroes_settings.START_ENERGY_BONUS)
+        self.assertEqual(self.hero.energy_bonus, 100 + conf.heroes_settings.START_ENERGY_BONUS)
 
     def test_change_energy__minus(self):
         self.hero.energy = 6
-        self.hero.add_energy_bonus(100 - heroes_settings.START_ENERGY_BONUS)
+        self.hero.add_energy_bonus(100 - conf.heroes_settings.START_ENERGY_BONUS)
 
         self.assertEqual(self.hero.change_energy(-50), -50)
         self.assertEqual(self.hero.energy_bonus, 56)
@@ -376,7 +376,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
     @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 1)
     def test_change_energy__discount(self):
         self.hero.energy = 6
-        self.hero.add_energy_bonus(100 - heroes_settings.START_ENERGY_BONUS)
+        self.hero.add_energy_bonus(100 - conf.heroes_settings.START_ENERGY_BONUS)
 
         self.assertEqual(self.hero.change_energy(-50), -49)
         self.assertEqual(self.hero.energy_bonus, 57)
@@ -387,7 +387,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
     @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 100)
     def test_change_energy__discount__no_less_1(self):
         self.hero.energy = 6
-        self.hero.add_energy_bonus(-heroes_settings.START_ENERGY_BONUS)
+        self.hero.add_energy_bonus(-conf.heroes_settings.START_ENERGY_BONUS)
 
         self.assertEqual(self.hero.change_energy(-50), -1)
         self.assertEqual(self.hero.energy, 5)
@@ -397,7 +397,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         results = []
         for risk_level in relations.RISK_LEVEL.records:
             values = []
-            self.hero.preferences.set_risk_level(risk_level)
+            self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, risk_level)
             for health_percents in range(1, 100, 1):
                 self.hero.health = self.hero.max_health * float(health_percents) / 100
                 values.append(method(self.hero))
@@ -417,8 +417,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
     def test_process_rare_operations__interval_not_passed(self):
-        game_time = TimePrototype.get_current_time()
-        game_time.increment_turn()
+        turn.increment()
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.process_rare_operations()
@@ -428,9 +427,8 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
     @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
     def test_process_rare_operations__interval_passed(self):
-        game_time = TimePrototype.get_current_time()
-        game_time.increment_turn()
-        game_time.increment_turn()
+        turn.increment()
+        turn.increment()
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             with mock.patch('the_tale.game.quests.container.QuestsContainer.sync_interfered_persons') as sync_interfered_persons:
@@ -443,13 +441,12 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(sync_interfered_persons.call_args_list, [mock.call()])
 
-        self.assertEqual(self.hero.last_rare_operation_at_turn, game_time.turn_number)
+        self.assertEqual(self.hero.last_rare_operation_at_turn, turn.number())
 
 
     def test_process_rare_operations__companion_added(self):
-        game_time = TimePrototype.get_current_time()
-        game_time.turn_number += c.TURNS_IN_GAME_YEAR - 1
-        game_time.save()
+        turn.increment(max(conf.heroes_settings.RARE_OPERATIONS_INTERVAL,
+                           int(c.TURNS_IN_HOUR * c.COMPANIONS_GIVE_COMPANION_AFTER)))
 
         self.assertTrue(len(list(companions_storage.companions.enabled_companions())) > 1)
 
@@ -474,9 +471,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
 
     def test_process_rare_operations__age_changed(self):
-        game_time = TimePrototype.get_current_time()
-        game_time.turn_number += c.TURNS_IN_GAME_YEAR - 1
-        game_time.save()
+        turn.increment(tt_calendar.converter.old_converter.seconds_in_year // tt_calendar.converter.old_converter.SECONDS_IN_TURN - 1)
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.process_rare_operations()
@@ -488,7 +483,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.hero.last_rare_operation_at_turn = 0
 
-        game_time.increment_turn()
+        turn.increment()
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.process_rare_operations()
@@ -544,7 +539,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(self.hero.companion, None)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.hero.set_companion(companion)
 
         self.assertEqual(self.hero.companion.record.id, companion_record.id)
@@ -570,7 +565,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.hero.set_companion(companion_1)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 2):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 2):
             self.hero.set_companion(companion_2)
 
         self.assertEqual(self.hero.companion.record.id, companion_record_2.id)
@@ -623,7 +618,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.hero.set_companion(companion)
 
-        self.hero.preferences.set_companion_dedication(relations.COMPANION_DEDICATION.EVERY_MAN_FOR_HIMSELF)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_DEDICATION, relations.COMPANION_DEDICATION.EVERY_MAN_FOR_HIMSELF)
 
         for i in range(1000):
             self.hero.switch_spending()
@@ -633,7 +628,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         heal_companion_priorities = set()
 
         for dedication in relations.COMPANION_DEDICATION.records:
-            self.hero.preferences.set_companion_dedication(dedication)
+            self.hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_DEDICATION, dedication)
             heal_companion_priorities.add(self.hero.spending_priorities()[relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION])
 
         self.assertEqual(len(heal_companion_priorities), len(relations.COMPANION_DEDICATION.records))
@@ -668,7 +663,7 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
 
     def test_is_initial_state(self):
@@ -948,7 +943,7 @@ class HeroQuestsTest(testcase.TestCase):
     def test_character_quests__hometown(self):
         self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.preferences.set_place(self.place)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place)
         self.hero.position.set_place(self.place)
         self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
@@ -958,7 +953,7 @@ class HeroQuestsTest(testcase.TestCase):
     def test_character_quests__friend(self):
         self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.preferences.set_friend(self.person)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, self.person)
         self.hero.position.set_place(self.place)
         self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
@@ -968,7 +963,7 @@ class HeroQuestsTest(testcase.TestCase):
     def test_character_quests__enemy(self):
         self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.preferences.set_enemy(self.person)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, self.person)
         self.hero.position.set_place(self.place)
         self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
@@ -977,18 +972,18 @@ class HeroQuestsTest(testcase.TestCase):
 
     def test_character_quests__hunt(self):
         self.assertFalse(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
-        self.hero.preferences.set_mob(mobs_storage.all()[0])
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mobs_storage.all()[0])
         self.assertTrue(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment._remove_all()
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.PLATE)
         logic.save_hero(self.hero)
 
         self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_with_artifact(self):
-        self.hero.preferences.set_equipment_slot(relations.EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.PLATE)
         logic.save_hero(self.hero)
 
         self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE) is not None)
@@ -1028,8 +1023,8 @@ class HeroQuestsTest(testcase.TestCase):
         enemy.attrs.friends_quests_priority_bonus = enemy_priorities[0]
         enemy.attrs.enemies_quests_priority_bonus = enemy_priorities[1]
 
-        self.hero.preferences.set_friend(friend)
-        self.hero.preferences.set_enemy(enemy)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, friend)
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, enemy)
 
     def test_modify_quest_priority(self):
         self.prepair_quest_priority_preferences()
@@ -1073,7 +1068,7 @@ class HeroUiInfoTest(testcase.TestCase):
 
     def test_is_ui_caching_required(self):
         self.assertTrue(self.hero.is_ui_caching_required) # new hero must be cached, since player, who created him, is in game
-        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=conf.heroes_settings.UI_CACHING_TIME + 1)
         self.assertFalse(self.hero.is_ui_caching_required)
 
 
@@ -1083,7 +1078,7 @@ class HeroUiInfoTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes(self):
-        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=conf.heroes_settings.UI_CACHING_TIME + 1)
         logic.save_hero(self.hero)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
@@ -1164,7 +1159,7 @@ class HeroUiInfoTest(testcase.TestCase):
     ########################
     @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes__recache_not_required(self):
-        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=heroes_settings.UI_CACHING_TIME + 1)
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=conf.heroes_settings.UI_CACHING_TIME + 1)
         logic.save_hero(self.hero)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
@@ -1322,7 +1317,7 @@ class HeroUiInfoTest(testcase.TestCase):
         self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 0)
         self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 0)
 
-        TimePrototype(turn_number=666).save()
+        turn.set(666)
 
         self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 666)
         self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 0)
@@ -1335,10 +1330,10 @@ class HeroUiInfoTest(testcase.TestCase):
         self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 666)
 
     def test_ui_caching_timeout_greate_then_turn_delta(self):
-        self.assertTrue(heroes_settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)
+        self.assertTrue(conf.heroes_settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)
 
     def test_is_ui_continue_caching_required(self):
         self.assertTrue(objects.Hero.is_ui_continue_caching_required(0))
-        self.assertFalse(objects.Hero.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME - 1)))
-        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - (heroes_settings.UI_CACHING_TIME - heroes_settings.UI_CACHING_CONTINUE_TIME + 1)))
-        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - heroes_settings.UI_CACHING_TIME))
+        self.assertFalse(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.heroes_settings.UI_CACHING_TIME - conf.heroes_settings.UI_CACHING_CONTINUE_TIME - 1)))
+        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.heroes_settings.UI_CACHING_TIME - conf.heroes_settings.UI_CACHING_CONTINUE_TIME + 1)))
+        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - conf.heroes_settings.UI_CACHING_TIME))

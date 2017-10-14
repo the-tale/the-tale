@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate as django_authenticate
 
@@ -13,6 +13,7 @@ from the_tale.post_service.models import Message
 
 from the_tale.accounts.logic import login_page_url
 
+from the_tale.game import relations as game_relations
 from the_tale.game.logic import create_test_map
 
 from the_tale.accounts.models import ChangeCredentialsTask
@@ -59,7 +60,6 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
         self.request_login(self.account.email)
         response = self.client.get(reverse('accounts:profile:show'))
         self.assertEqual(response.status_code, 200)
-
 
     def test_refuse_third_party__profile_edited(self):
         self.request_third_party_token(account=self.account)
@@ -165,7 +165,6 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
         self.assertEqual(ChangeCredentialsTask.objects.all().count(), 0)
         self.assertEqual(Message.objects.all().count(), 0)
 
-
     def test_profile_confirm_email(self):
         self.request_login(self.account.email)
         self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
@@ -179,7 +178,6 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
         self.assertEqual(Message.objects.all().count(), 1)
 
-
     def test_refuse_third_party__confirm_email(self):
         self.request_login(self.account.email)
         self.client.post(reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick'})
@@ -188,7 +186,6 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
 
         self.request_third_party_token(account=self.account)
         self.check_ajax_error(self.client.get(reverse('accounts:profile:confirm-email')+'?uuid='+uuid), 'third_party.access_restricted')
-
 
     def test_fast_profile_confirm_email(self):
         self.client.post(reverse('accounts:registration:fast'))
@@ -206,7 +203,6 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
         self.assertEqual(ChangeCredentialsTask.objects.all()[0].state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)
 
         self.assertEqual(django_authenticate(nick='test_nick', password='123456'), None)
-
 
     def test_profile_confirm_email_for_unlogined(self):
         self.request_login(self.account.email)
@@ -254,10 +250,8 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
 
         self.check_html_ok(self.client.get(url('accounts:profile:confirm-email', uuid=task.uuid), texts=['pgf-change-credentials-error']))
 
-
     def test_update_last_news_reminder_time_unlogined(self):
         self.check_ajax_error(self.client.post(reverse('accounts:profile:update-last-news-reminder-time')), 'common.login_required')
-
 
     def test_update_last_news_reminder_time(self):
 
@@ -267,26 +261,30 @@ class ProfileRequestsTests(TestCase, third_party_helpers.ThirdPartyTestsMixin):
 
         self.assertTrue(self.account.last_news_remind_time < AccountPrototype.get_by_id(self.account.id).last_news_remind_time)
 
-
     def test_profile_update_settings__personal_messages(self):
         self.request_login(self.account.email)
         self.assertTrue(self.account.personal_messages_subscription)
-        response = self.client.post(reverse('accounts:profile:update-settings'), {'personal_messages_subscription': False})
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'personal_messages_subscription': False, 'gender': game_relations.GENDER.FEMININE})
         self.assertFalse(AccountPrototype.get_by_id(self.account.id).personal_messages_subscription)
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
-
 
     def test_profile_update_settings__bews(self):
         self.request_login(self.account.email)
         self.assertTrue(self.account.news_subscription)
-        response = self.client.post(reverse('accounts:profile:update-settings'), {'news_subscription': False})
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'news_subscription': False, 'gender': game_relations.GENDER.FEMININE})
         self.assertFalse(AccountPrototype.get_by_id(self.account.id).news_subscription)
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
-
 
     def test_profile_update_settings__description(self):
         self.request_login(self.account.email)
         self.assertEqual(self.account.description, '')
-        response = self.client.post(reverse('accounts:profile:update-settings'), {'description': 'new-description'})
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'description': 'new-description', 'gender': game_relations.GENDER.FEMININE})
         self.assertEqual(AccountPrototype.get_by_id(self.account.id).description, 'new-description')
+        self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})
+
+    def test_profile_update_settings__gender(self):
+        self.request_login(self.account.email)
+        self.assertTrue(self.account.gender.is_MASCULINE)
+        response = self.client.post(reverse('accounts:profile:update-settings'), {'gender': game_relations.GENDER.FEMININE})
+        self.assertTrue(AccountPrototype.get_by_id(self.account.id).gender.is_FEMININE)
         self.check_ajax_ok(response, data={'next_url': reverse('accounts:profile:edited')})

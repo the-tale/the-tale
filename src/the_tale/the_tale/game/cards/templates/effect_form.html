@@ -1,0 +1,11 @@
+<form class="pgf-use-card-form form-inline" method="post" action="{{ use_card_url(card.uid) }}">
+
+  {{ form.errors_container }}
+
+  {% if form.value is defined %}{{ form.value.widget }}{% endif %}
+
+  <div class="widget">
+    <input type="submit" accesskey="u" class="btn btn-success" value="Использовать"/>
+  </div>
+
+</form>

@@ -16,3 +16,7 @@ class UnkwnownAchievementTypeError(HeroError):
 
 class UnknownMoneySourceError(HeroError):
     MSG = 'unknown money source %(source)r'
+
+
+class HelpCountBelowZero(HeroError):
+    MSG = 'try decrease help count below zero (current_value: %(current_value)d, delta: %(delta)d)'

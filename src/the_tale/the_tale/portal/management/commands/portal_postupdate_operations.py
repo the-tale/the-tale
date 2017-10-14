@@ -42,10 +42,6 @@ class Command(BaseCommand):
         linguistics_logic.update_words_usage_info()
 
         print()
-        print('SYNC MARKET')
-        run_django_command(['market_sync_goods'])
-
-        print()
         print('SYNC ACTUAL BILLS')
 
         bills_logic.update_actual_bills_for_all_accounts()

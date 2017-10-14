@@ -1,0 +1,35 @@
+
+{% macro preference_record(item, choosen_id) %}
+<td class="hero-preference-choise {% if item == choosen_id %}choosen{% endif %}">
+  {% if item == choosen_id %}
+  <strong>{{ item.text }}</strong>
+  {% else %}
+  {{ item.text }}
+  {% endif %}
+</td>
+<td>
+  {{item.description}}
+</td>
+{% endmacro %}
+
+<p style="margin-top: -1em;">
+  Сейчас герой ведёт себя как <strong>{{hero.preferences.archetype.text}}</strong>.
+</p>
+
+<hr style="margin-bottom: 1em;"/>
+
+<p>
+  Чему герой доверяет больше: магии или верному мечу? Быть может он идёт по грани между силой и магией, умело используя преимущества обеих сторон? Вы можете выбрать архетип своего подопечного, определяющий предпочитаемую им экипировку.
+</p>
+
+<p>
+  Экипировка влияет на физическую и магическую силу героя и тем самым определяет тип наносимого урона. На работу способностей распределение физической и магической силы влияния не оказывает.
+</p>
+
+<table class="table table-bordered table-striped table-condensed">
+  {% for archetype in ARCHETYPE.records %}
+  <tr>
+    {{ preference_record(archetype, hero.preferences.archetype) }}
+  </tr>
+  {% endfor %}
+</table>

@@ -5,7 +5,7 @@ from django.conf import settings as project_settings
 
 from the_tale.common.utils import testcase
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 
 from the_tale.game.logic import create_test_map
 
@@ -23,7 +23,7 @@ class PersonalMessagesTests(testcase.TestCase):
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        pm_logic.send_message(self.account_1.id, [self.account_2.id], 'test text')
+        pm_tt_api.send_message(self.account_1.id, [self.account_2.id], 'test text')
 
         self.message = MessagePrototype.get_priority_message()
 
@@ -65,7 +65,7 @@ class PersonalMessagesTests(testcase.TestCase):
 
         Message.objects.all().delete()
 
-        pm_logic.send_message(self.account_1.id, [get_system_user().id], 'test text')
+        pm_tt_api.send_message(self.account_1.id, [get_system_user().id], 'test text')
 
         message = MessagePrototype.get_priority_message()
 

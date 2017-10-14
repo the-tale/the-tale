@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.game.bills import relations as bills_relations
 from the_tale.game.bills.tests.test_prototype import BaseTestPrototypes

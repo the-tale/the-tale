@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -8,7 +7,7 @@ from the_tale.common.utils.testcase import TestCase
 
 from the_tale.accounts.logic import login_page_url
 
-from the_tale.accounts.personal_messages import logic as pm_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from the_tale.game.logic import create_test_map
@@ -33,7 +32,7 @@ class BaseTestRequests(TestCase, ClansTestsMixin, pm_helpers.Mixin):
 
         self.account = self.accounts_factory.create_account()
 
-        pm_logic.debug_clear_service()
+        pm_tt_api.debug_clear_service()
 
 
 class TestAccountClanRequests(BaseTestRequests):
@@ -64,17 +63,6 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(url('accounts:clans:')),
                            texts=[('pgf-no-clans-message', 1)])
 
-    def test_create_button(self):
-        with mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', False):
-            self.check_html_ok(self.request_html(url('accounts:clans:')),
-                               texts=[('pgf-create-clan-button', 0),
-                                      ('pgf-create-clan-disabled-button', 1)])
-
-        with mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True):
-            self.check_html_ok(self.request_html(url('accounts:clans:')),
-                               texts=[('pgf-create-clan-button', 1),
-                                      ('pgf-create-clan-disabled-button', 0)])
-
     @mock.patch('the_tale.accounts.clans.conf.clans_settings.CLANS_ON_PAGE', 4)
     def test_clans_2_pages(self):
         for i in range(6):
@@ -87,102 +75,6 @@ class TestIndexRequests(BaseTestRequests):
                            texts=[('a-%d' % i, 1) for i in range(4, 6)] + [('pgf-no-clans-message', 0)])
 
         self.check_redirect(url('accounts:clans:', page=3), url('accounts:clans:', page=2, order_by=ORDER_BY.NAME.value))
-
-
-class TestNewRequests(BaseTestRequests):
-
-    def setUp(self):
-        super(TestNewRequests, self).setUp()
-        self.new_url = url('accounts:clans:new')
-
-    def test_login_required(self):
-        self.check_redirect(self.new_url, login_page_url(self.new_url))
-
-    def test_fast_account(self):
-        self.request_login(self.account.email)
-        self.account.is_fast = True
-        self.account.save()
-        self.check_html_ok(self.request_html(self.new_url), texts=['common.fast_account'])
-
-    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', False)
-    def test_creation_rights(self):
-        self.request_login(self.account.email)
-        self.check_html_ok(self.request_html(self.new_url), texts=['clans.can_not_create_clan'])
-
-    def test_banned(self):
-        self.request_login(self.account.email)
-        self.account.ban_forum(1)
-        self.check_html_ok(self.request_html(self.new_url), texts=['common.ban_any'])
-
-
-    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
-    def test_ok(self):
-        self.request_login(self.account.email)
-        self.check_html_ok(self.request_html(self.new_url), texts=[('clans.can_not_create_clan', 0)])
-
-
-class TestCreateRequests(BaseTestRequests):
-
-    def setUp(self):
-        super(TestCreateRequests, self).setUp()
-        self.create_url = url('accounts:clans:create')
-        self.request_login(self.account.email)
-
-    def create_data(self, name=None, abbr=None):
-        return {'name': 'clan-1' if name is None else name,
-                'abbr': 'CLN-1' if abbr is None else abbr,
-                'motto': 'Clan!',
-                'description': 'ARGH!'}
-
-    def test_login_required(self):
-        self.request_logout()
-        self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data()), 'common.login_required')
-        self.assertEqual(ClanPrototype._db_count(), 0)
-
-    def test_fast_account(self):
-        self.account.is_fast = True
-        self.account.save()
-        self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data()), 'common.fast_account')
-        self.assertEqual(ClanPrototype._db_count(), 0)
-
-    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', False)
-    def test_creation_rights(self):
-        self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data()), 'clans.can_not_create_clan')
-        self.assertEqual(ClanPrototype._db_count(), 0)
-
-    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
-    def test_form_errors(self):
-        self.check_ajax_error(self.post_ajax_json(self.create_url, {}), 'clans.create.form_errors')
-        self.assertEqual(ClanPrototype._db_count(), 0)
-
-    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
-    def test_name_exists(self):
-        account = self.accounts_factory.create_account()
-
-        clan = self.create_clan(account, 0)
-        self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data(name=clan.name)), 'clans.create.name_exists')
-        self.assertEqual(ClanPrototype._db_count(), 1)
-
-    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
-    def test_abbr_exists(self):
-        account = self.accounts_factory.create_account()
-
-        clan = self.create_clan(account, 0)
-        self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data(abbr=clan.abbr)), 'clans.create.abbr_exists')
-        self.assertEqual(ClanPrototype._db_count(), 1)
-
-    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
-    def test_ok(self):
-        self.assertEqual(ClanPrototype._db_count(), 0)
-        response = self.post_ajax_json(self.create_url, self.create_data())
-        self.assertEqual(ClanPrototype._db_count(), 1)
-        self.check_ajax_ok(response, data={'next_url': url('accounts:clans:show', ClanPrototype._db_get_object(0).id)})
-
-    @mock.patch('the_tale.accounts.clans.logic.ClanInfo.can_create_clan', True)
-    def test_banned(self):
-        self.request_login(self.account.email)
-        self.account.ban_forum(1)
-        self.check_ajax_error(self.post_ajax_json(self.create_url, self.create_data()), 'common.ban_any')
 
 
 class TestShowRequests(BaseTestRequests):

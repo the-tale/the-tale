@@ -1,9 +1,8 @@
-# coding: utf-8
 
 from unittest import mock
 import datetime
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.persons import storage as persons_storage
 
@@ -26,7 +25,7 @@ class PersonMoveTests(BaseTestPrototypes):
         self.person_2.politic_power.change_power(self.person_2, hero_id=self.account.id, has_in_preferences=True, power=200)
 
         self.bill_data = PersonMove(person_id=self.person_1.id, new_place_id=self.place2.id)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', 'bill-1-rationale', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
 
     def test_create(self):
@@ -44,7 +43,6 @@ class PersonMoveTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 0)
     def test_update(self):
         data = {'caption': 'new-caption',
-                'rationale': 'new-rationale',
                 'chronicle_on_accepted': 'new-chronicle-on-accepted',
                 'person': self.person_2.id,
                 'new_place': self.place3.id}
@@ -65,7 +63,6 @@ class PersonMoveTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 1)
     def test_user_form__move_delay(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person': self.person_2.id,
                 'new_place': self.place3.id}
@@ -73,7 +70,7 @@ class PersonMoveTests(BaseTestPrototypes):
         form = self.bill.data.get_user_form_update(post=data, owner_id=self.account.id)
         self.assertFalse(form.is_valid())
 
-        TimePrototype.get_current_time().increment_turn()
+        turn.increment()
 
         form = self.bill.data.get_user_form_update(post=data, owner_id=self.account.id)
 
@@ -84,7 +81,6 @@ class PersonMoveTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PLACE_MIN_PERSONS', 100)
     def test_user_form__min_barrier(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person': self.person_2.id,
                 'new_place': self.place3.id}
@@ -97,7 +93,6 @@ class PersonMoveTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PLACE_MAX_PERSONS', 1)
     def test_user_form__max_barrier(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person': self.person_2.id,
                 'new_place': self.place3.id}
@@ -108,7 +103,6 @@ class PersonMoveTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 0)
     def test_user_form__not_in_inner_circle(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person': self.person_3.id,
                 'new_place': self.place3.id}
@@ -119,7 +113,6 @@ class PersonMoveTests(BaseTestPrototypes):
     @mock.patch('the_tale.game.persons.objects.Person.has_building', True)
     def test_user_form__has_building(self):
         data = {'caption': 'caption-caption',
-                'rationale': 'rationale',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
                 'person': self.person_2.id,
                 'new_place': self.place3.id}
@@ -190,7 +183,7 @@ class PersonMoveTests(BaseTestPrototypes):
     def test_has_meaning__move_delay(self):
         self.assertFalse(self.bill.has_meaning())
 
-        TimePrototype.get_current_time().increment_turn()
+        turn.increment()
 
         self.assertTrue(self.bill.has_meaning())
 

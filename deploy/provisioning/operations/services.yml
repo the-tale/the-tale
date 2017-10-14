@@ -31,6 +31,28 @@
     collect_static: false
 
 
+- name: install TT Storage
+  include: ../tasks/tt_service.yml
+  vars:
+    name: TT Storage
+    user: tt_storage
+    packages: "{{tt_services['tt_storage']['packages']}}"
+    django_settings: tt_storage.settings
+    port: 10003
+    collect_static: false
+
+
+- name: install TT Market
+  include: ../tasks/tt_service.yml
+  vars:
+    name: TT Market
+    user: tt_market
+    packages: "{{tt_services['tt_market']['packages']}}"
+    django_settings: tt_market.settings
+    port: 10004
+    collect_static: false
+
+
 - name: The Tale postupdate operations
   hosts: all
   become: yes

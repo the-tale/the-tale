@@ -33,6 +33,7 @@ from the_tale.game.relations import HABIT_TYPE
 
 from the_tale.game.cards import effects as cards_effects
 from the_tale.game.cards import relations as cards_relations
+from the_tale.game.cards import cards
 
 from . import postponed_tasks
 from . import relations
@@ -123,11 +124,9 @@ class HeroResource(Resource):
                               'master_clan': master_clan,
                               'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
                               'PREFERENCE_TYPE': relations.PREFERENCE_TYPE,
-                              'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
                               'ABILITY_TYPE': habilities_relations.ABILITY_TYPE,
                               'HABIT_TYPE': HABIT_TYPE,
-                              'PREFERENCE_RESET_CARDS': cards_effects.PREFERENCE_RESET_CARDS,
-                              'CARD_TYPE': cards_relations.CARD_TYPE,
+                              'CARD_TYPE': cards.CARD,
                               'QUEST_OPTION_MARKERS': questgen_relations.OPTION_MARKERS,
                               'HABITS_BORDER': c.HABITS_BORDER} )
 
@@ -136,8 +135,29 @@ class HeroResource(Resource):
     @handler('#hero', 'choose-ability-dialog', method='get')
     def choose_ability_dialog(self):
         return self.template('heroes/choose_ability.html',
-                             {'CARD_TYPE': cards_relations.CARD_TYPE,
+                             {'CARD_TYPE': cards.CARD,
                               'hero': self.hero} )
+
+    @login_required
+    @validate_argument('preference', lambda value: relations.PREFERENCE_TYPE(int(value)), 'heroes', 'Неверный идентификатор предпочтения')
+    @handler('#hero', 'preference-info-dialog', method='get')
+    def preference_info_dialog(self, preference):
+        favorite_items = {slot: self.hero.equipment.get(slot)
+                          for slot in relations.EQUIPMENT_SLOT.records
+                          if self.hero.equipment.get(slot) is not None}
+
+        return self.template('heroes/preferences/dialog.html',
+                             {'hero': self.hero,
+                              'preference': preference,
+                              'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
+                              'RISK_LEVEL': relations.RISK_LEVEL,
+                              'COMPANION_DEDICATION': relations.COMPANION_DEDICATION,
+                              'COMPANION_EMPATHY': relations.COMPANION_EMPATHY,
+                              'ENERGY_REGENERATION': relations.ENERGY_REGENERATION,
+                              'ARCHETYPE': game_relations.ARCHETYPE,
+                              'favorite_items': favorite_items,
+                              'change_preferences_card': cards.CARD.CHANGE_PREFERENCE})
+
 
     @login_required
     @validate_ownership()
@@ -154,22 +174,6 @@ class HeroResource(Resource):
                                                      gender=edit_name_form.c.gender)
 
         task = PostponedTaskPrototype.create(change_task)
-
-        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
-
-        return self.json_processing(task.status_url)
-
-    @login_required
-    @validate_ownership()
-    @handler('#hero', 'reset-abilities', method='post')
-    def reset_abilities(self):
-
-        if not self.hero.abilities.can_reset:
-            return self.json_error('heroes.reset_abilities.reset_timeout', 'Сброс способностей пока не доступен')
-
-        reset_task = postponed_tasks.ResetHeroAbilitiesTask(hero_id=self.hero.id)
-
-        task = PostponedTaskPrototype.create(reset_task)
 
         environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
@@ -212,96 +216,3 @@ class HeroResource(Resource):
         environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
         return self.json_processing(task.status_url)
-
-    @login_required
-    @validate_ownership()
-    @validate_argument('type', lambda x: relations.PREFERENCE_TYPE(int(x)), 'heroes.choose_preferences_dialog', 'Неверный тип способности')
-    @handler('#hero', 'choose-preferences-dialog', method='get')
-    def choose_preferences_dialog(self, type): # pylint: disable=W0622
-
-        mobs = None
-        places = None
-        friends = None
-        enemies = None
-        equipment_slots = None
-        favorite_items = None
-
-        all_places = places_storage.places.all()
-        all_places.sort(key=lambda x: x.name)
-
-        if type.is_ENERGY_REGENERATION_TYPE:
-            pass
-
-        if type.is_MOB:
-            all_mobs = mobs_storage.get_available_mobs_list(level=self.hero.level)
-            all_mobs = sorted(all_mobs, key=lambda x: x.name)
-            mobs = split_list(all_mobs)
-
-        elif type.is_PLACE:
-            places = split_list(all_places)
-
-        elif type.is_FRIEND:
-            friends = sorted([person for person in persons_storage.persons.all()],
-                             key=lambda person: person.name)
-
-        elif type.is_ENEMY:
-            enemies = sorted([person for person in persons_storage.persons.all()],
-                             key=lambda person: person.name)
-
-        elif type.is_EQUIPMENT_SLOT:
-            equipment_slots = split_list(list(relations.EQUIPMENT_SLOT.records))
-
-        elif type.is_RISK_LEVEL:
-            pass
-
-        elif type.is_ARCHETYPE:
-            pass
-
-        elif type.is_COMPANION_DEDICATION:
-            pass
-
-        elif type.is_COMPANION_EMPATHY:
-            pass
-
-        elif type.is_FAVORITE_ITEM:
-            favorite_items = {slot: self.hero.equipment.get(slot)
-                              for slot in relations.EQUIPMENT_SLOT.records
-                              if self.hero.equipment.get(slot) is not None}
-
-        return self.template('heroes/choose_preferences.html',
-                             {'type': type,
-                              'mobs': mobs,
-                              'places': places,
-                              'all_places': places_storage.places.get_choices(),
-                              'places_powers': {place.id: place.total_politic_power_fraction for place in all_places},
-                              'friends': friends,
-                              'enemies': enemies,
-                              'equipment_slots': equipment_slots,
-                              'favorite_items': favorite_items,
-                              'PREFERENCES_CHANGE_DELAY': datetime.timedelta(seconds=c.PREFERENCES_CHANGE_DELAY),
-                              'EQUIPMENT_SLOT': relations.EQUIPMENT_SLOT,
-                              'RISK_LEVEL': relations.RISK_LEVEL,
-                              'COMPANION_DEDICATION': relations.COMPANION_DEDICATION,
-                              'COMPANION_EMPATHY': relations.COMPANION_EMPATHY,
-                              'ENERGY_REGENERATION': relations.ENERGY_REGENERATION,
-                              'ARCHETYPE': game_relations.ARCHETYPE} )
-
-    @login_required
-    @validate_ownership()
-    @handler('#hero', 'choose-preferences', method='post')
-    def choose_preferences(self):
-
-        choose_preferences_form = forms.ChoosePreferencesForm(self.request.POST)
-
-        if not choose_preferences_form.is_valid():
-            return self.json_error('heroes.choose_preferences.form_errors', choose_preferences_form.errors)
-
-        choose_task = postponed_tasks.ChoosePreferencesTask(hero_id=self.hero.id,
-                                            preference_type=choose_preferences_form.c.preference_type,
-                                            preference_id=choose_preferences_form.c.preference_id if choose_preferences_form.c.preference_id != '' else None)
-
-        task = PostponedTaskPrototype.create(choose_task)
-
-        environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
-
-        return self.json_processing(status_url=task.status_url)

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -19,7 +19,7 @@ from the_tale.game.artifacts.relations import RARITY
 from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import logic as heroes_logic
 
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 
 from the_tale.game.places import modifiers as places_modifiers
 from the_tale.game.places import storage as places_storage
@@ -261,7 +261,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
                 with mock.patch('the_tale.game.places.habits.Honor.interval', honor):
                     with mock.patch('the_tale.game.places.habits.Peacefulness.interval', peacefulness):
-                        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 1):
+                        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
                             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
 
@@ -273,7 +273,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
@@ -283,7 +283,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.position.update_previous_place()
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
@@ -296,7 +296,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_regenerate_energy_action_create(self):
-        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.PRAY)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.PRAY)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.storage.process_turn()
         self.assertEqual(len(self.hero.actions.actions_list), 3)
@@ -304,7 +304,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_regenerate_energy_action_not_create_for_sacrifice(self):
-        self.hero.preferences.set_energy_regeneration_type(heroes_relations.ENERGY_REGENERATION.SACRIFICE)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 1)
@@ -368,11 +368,9 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
     def test_full(self):
 
-        current_time = TimePrototype.get_current_time()
-
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn()
-            current_time.increment_turn()
+            turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 
@@ -606,7 +604,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         while not self.hero.next_spending.is_SHARPENING_ARTIFACT:
             self.hero.switch_spending()
 
-        self.hero.preferences.set_equipment_slot(heroes_relations.EQUIPMENT_SLOT.PLATE)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, heroes_relations.EQUIPMENT_SLOT.PLATE)
         self.hero.level = 666 # enshure that equipment power will be less than max allowerd _power
         heroes_logic.save_hero(self.hero)
 
@@ -828,18 +826,16 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     def test_buy_meal__from_moveto(self):
         prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
 
-        current_time = TimePrototype.get_current_time()
-
         with self.check_decreased(lambda: self.hero.money), \
              self.check_increased(lambda: self.hero.statistics.money_spend_for_companions):
             while self.hero.actions.current_action.TYPE != prototypes.ActionInPlacePrototype.TYPE:
-                current_time.increment_turn()
+                turn.increment()
                 self.storage.process_turn(continue_steps_if_needed=False)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 0.5)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat', lambda hero: True)
     def test_buy_meal(self):
-        self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number() - c.TURNS_IN_HOUR * 12
+        self.hero.position.last_place_visited_turn = turn.number() - c.TURNS_IN_HOUR * 12
         with self.check_decreased(lambda: self.hero.money), \
              self.check_increased(lambda: self.hero.statistics.money_spend_for_companions):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
@@ -852,13 +848,13 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 0.5)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat', lambda hero: True)
     def test_no_turns_since_last_visit(self):
-        self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number()
+        self.hero.position.last_place_visited_turn = turn.number()
         self.check_not_used()
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 66666666)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat', lambda hero: True)
     def test_not_enough_money(self):
-        self.hero.position.last_place_visited_turn = TimePrototype.get_current_turn_number() - 1000
+        self.hero.position.last_place_visited_turn = turn.number() - 1000
 
         with self.check_delta(lambda: self.hero.money, -self.hero.money), \
              self.check_delta(lambda: self.hero.statistics.money_spend_for_companions, self.hero.money ):
@@ -968,7 +964,7 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_leave_in_place_probability', 1.0)
     def test_leave(self):
-        with self.check_calls_exists('the_tale.game.heroes.logic.push_message_to_diary'):
+        with self.check_calls_exists('the_tale.game.heroes.tt_api.push_message_to_diary'):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.companion, None)
@@ -976,7 +972,7 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_leave_in_place_probability', 0.0)
     def test_not_leave(self):
-        with self.check_calls_count('the_tale.game.heroes.logic.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertNotEqual(self.hero.companion, None)

@@ -78,9 +78,9 @@ class PersonalMessageHandler(BaseMessageHandler):
     def uid(self): return 'personal-message-{}-{}'.format(self.account_id, self.message_id)
 
     def process(self):
-        from the_tale.accounts.personal_messages import logic as pm_logic
+        from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 
-        message = pm_logic.get_message(self.account_id, message_id=self.message_id)
+        message = pm_tt_api.get_message(self.account_id, message_id=self.message_id)
 
         if message is None:
             return True # message can be removed by admins or with removed thread

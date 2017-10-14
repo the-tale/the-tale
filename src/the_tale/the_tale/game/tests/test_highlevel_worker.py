@@ -1,7 +1,5 @@
-# coding: utf-8
-from unittest import mock
 
-from dext.settings import settings
+from unittest import mock
 
 from the_tale.amqp_environment import environment
 
@@ -19,7 +17,7 @@ from the_tale.game.places import storage as places_storage
 
 from the_tale.game.balance import constants as c
 from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import TimePrototype
+from the_tale.game import turn
 from the_tale.game.bills.conf import bills_settings
 from the_tale.game.logic_storage import LogicStorage
 
@@ -53,7 +51,7 @@ class HighlevelTest(testcase.TestCase):
         environment.initialize()
 
         self.worker = environment.workers.highlevel
-        self.worker.process_initialize(TimePrototype.get_current_turn_number(), 'highlevel')
+        self.worker.process_initialize(turn.number(), 'highlevel')
 
     def tearDown(self):
         pass
@@ -155,25 +153,22 @@ class HighlevelTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.MAP_SYNC_TIME', 10)
     def test_process_next_turn(self):
 
-        time = TimePrototype.get_current_time()
-        time.increment_turn()
-        time.save()
+        turn.increment()
 
-        self.assertEqual(time.turn_number, 1)
+        self.assertEqual(turn.number(), 1)
 
         for i in range(c.MAP_SYNC_TIME-1):
-            self.worker.process_next_turn(time.turn_number)
+            self.worker.process_next_turn(turn.number())
             self.assertFalse(hasattr(self.worker, '_data_synced'))
 
-            if time.turn_number < bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA:
+            if turn.number() < bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA:
                 self.assertFalse(hasattr(self.worker, '_bills_applied'))
             else:
-                self.assertEqual(self.worker._bills_applied, time.turn_number // (bills_settings.BILLS_PROCESS_INTERVAL // c.TURN_DELTA))
+                self.assertEqual(self.worker._bills_applied, turn.number() // (bills_settings.BILLS_PROCESS_INTERVAL // c.TURN_DELTA))
 
-            time.increment_turn()
-            time.save()
+            turn.increment()
 
-        self.worker.process_next_turn(time.turn_number)
+        self.worker.process_next_turn(turn.number())
         self.assertTrue(self.worker._data_synced)
 
 
@@ -190,12 +185,12 @@ class HighlevelTest(testcase.TestCase):
         new_name = names.generator().get_test_name('new-new-name')
 
         bill_data_1 = bills.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
-        bill_1 = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', 'bill-1-rationale', bill_data_1, chronicle_on_accepted='chronicle-on-accepted')
+        bill_1 = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', bill_data_1, chronicle_on_accepted='chronicle-on-accepted')
         bill_1.approved_by_moderator = True
         bill_1.save()
 
         bill_data_2 = bills.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
-        bill_2 = bills_prototypes.BillPrototype.create(self.account, 'bill-2-caption', 'bill-2-rationale', bill_data_2, chronicle_on_accepted='chronicle-on-accepted')
+        bill_2 = bills_prototypes.BillPrototype.create(self.account, 'bill-2-caption', bill_data_2, chronicle_on_accepted='chronicle-on-accepted')
         bill_2.approved_by_moderator = True
         bill_2.save()
 

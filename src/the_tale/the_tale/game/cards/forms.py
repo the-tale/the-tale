@@ -1,49 +1,60 @@
-# coding: utf-8
 
-from dext.forms import forms, fields
+from dext.forms import forms
+from dext.forms import fields
 
+from the_tale.accounts.clans import models as clan_models
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.persons import objects as persons_objects
 
 
-class EmptyForm(forms.Form):
-    TEMPLATE = None
+class Empty(forms.Form):
+
     def get_card_data(self):
         return {}
 
 
-class PersonForm(forms.Form):
-    TEMPLATE = 'cards/person_form.html'
-    person = fields.ChoiceField(label='Мастер')
+class Person(forms.Form):
+    value = fields.ChoiceField(label='Мастер')
 
     def __init__(self, *args, **kwargs):
-        super(PersonForm, self).__init__(*args, **kwargs)
-        self.fields['person'].choices = persons_objects.Person.form_choices()
+        super().__init__(*args, **kwargs)
+        self.fields['value'].choices = persons_objects.Person.form_choices()
 
     def get_card_data(self):
-        return {'person_id': int(self.c.person)}
+        return {'value': int(self.c.value)}
 
 
-class PlaceForm(forms.Form):
-    TEMPLATE = 'cards/place_form.html'
-    place = fields.ChoiceField(label='Город')
+class Place(forms.Form):
+    value = fields.ChoiceField(label='Город')
 
     def __init__(self, *args, **kwargs):
-        super(PlaceForm, self).__init__(*args, **kwargs)
-        self.fields['place'].choices = places_storage.places.get_choices()
+        super().__init__(*args, **kwargs)
+        self.fields['value'].choices = places_storage.places.get_choices()
 
     def get_card_data(self):
-        return {'place_id': int(self.c.place)}
+        return {'value': int(self.c.value)}
 
 
-class BuildingForm(forms.Form):
-    TEMPLATE = 'cards/building_form.html'
-    building = fields.ChoiceField(label='Строение')
+class Building(forms.Form):
+    value = fields.ChoiceField(label='Строение')
 
     def __init__(self, *args, **kwargs):
-        super(BuildingForm, self).__init__(*args, **kwargs)
-        self.fields['building'].choices = places_storage.buildings.get_choices()
+        super().__init__(*args, **kwargs)
+        self.fields['value'].choices = places_storage.buildings.get_choices()
 
     def get_card_data(self):
-        return {'building_id': int(self.c.building)}
+        return {'value': int(self.c.value)}
+
+
+class CreateClan(forms.Form):
+    name = fields.CharField(label='Название',
+                            max_length=clan_models.Clan.MAX_NAME_LENGTH,
+                            min_length=clan_models.Clan.MIN_NAME_LENGTH)
+    abbr = fields.CharField(label='Аббревиатура (до %d символов)' % clan_models.Clan.MAX_ABBR_LENGTH,
+                            max_length=clan_models.Clan.MAX_ABBR_LENGTH,
+                            min_length=clan_models.Clan.MIN_ABBR_LENGTH)
+
+    def get_card_data(self):
+        return {'name': self.c.name,
+                'abbr': self.c.abbr}

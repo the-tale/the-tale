@@ -131,24 +131,6 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE, 4)
 
-
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_MINUTE, 60)
-        self.assertEqual(c.GAME_MINUTES_IN_GAME_HOUR, 60)
-        self.assertEqual(c.GAME_HOURSE_IN_GAME_DAY, 24)
-        self.assertEqual(c.GAME_DAYS_IN_GAME_WEEK, 7)
-        self.assertEqual(c.GAME_WEEKS_IN_GAME_MONTH, 4)
-        self.assertEqual(c.GAME_MONTH_IN_GAME_YEAR, 4)
-
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_HOUR, 60*60)
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_DAY, 60*60*24)
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_WEEK, 60*60*24*7)
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_MONTH, 60*60*24*7*4)
-        self.assertEqual(c.GAME_SECONDS_IN_GAME_YEAR, 60*60*24*7*4*4)
-
-        self.assertEqual(c.TURNS_IN_GAME_MONTH, 20160)
-        self.assertEqual(c.TURNS_IN_GAME_YEAR, 20160 * 4)
-        self.assertEqual(c.GAME_SECONDS_IN_TURN, 120)
-
         self.assertEqual(c.MAP_CELL_LENGTH, 3.0)
         self.assertEqual(c.QUEST_AREA_RADIUS, 180)
         self.assertEqual(c.QUEST_AREA_SHORT_RADIUS, 90)
@@ -157,7 +139,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.MAP_SYNC_TIME_HOURS, 1)
         self.assertEqual(c.MAP_SYNC_TIME, 360)
 
-
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
 
@@ -165,7 +146,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PERSON_POWER_PER_QUEST_FRACTION, 0.33)
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
 
-        self.assertEqual(c.MINIMUM_CARD_POWER, 20)
+        self.assertEqual(c.MINIMUM_CARD_POWER, 100)
 
         self.assertEqual(c.NORMAL_JOB_LENGTH, 10)
 
@@ -173,8 +154,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.JOB_MAX_POWER, 2.0)
 
         self.assertEqual(c.JOB_HERO_REWARD_FRACTION, 0.1)
+        self.assertEqual(c.JOB_NEGATIVE_POWER_MULTIPLIER, 2.0)
 
-        self.assertEqual(c.PREFERENCES_CHANGE_DELAY, 2*7*24*60*60)
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
 
         self.assertEqual(c.ABILITIES_ACTIVE_MAXIMUM, 5)
@@ -317,18 +298,17 @@ class ConstantsTest(testcase.TestCase):
 
         self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_POWER_BONUS, 0.1)
 
-        self.assertEqual(c.BUILDING_MASTERY_BONUS, 0.15)
         self.assertEqual(c.BUILDING_POSITION_RADIUS, 2)
-        self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2*7*24)
-        self.assertTrue(0.0029 < c.BUILDING_AMORTIZATION_SPEED < 0.0030)
-        self.assertEqual(c.BUILDING_FULL_REPAIR_ENERGY_COST, 168.0)
+        self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2)
+        self.assertEqual(round(c.BUILDING_AMORTIZATION_SPEED, 5), 0.00069)
+        self.assertEqual(c.BUILDING_CARD_REPAIR_BASE, 0.25)
         self.assertEqual(c.BUILDING_AMORTIZATION_MODIFIER, 1.5)
-        self.assertEqual(c.BUILDING_WORKERS_ENERGY_COST, 3)
-        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.25)
+        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.5)
         self.assertEqual(c.BUILDING_TERRAIN_POWER_MULTIPLIER, 0.5)
 
-        self.assertEqual(c.CARDS_HELP_COUNT_TO_NEW_CARD, 18)
+        self.assertEqual(c.CARDS_HELP_COUNT_TO_NEW_CARD, 9)
         self.assertEqual(c.CARDS_COMBINE_TO_UP_RARITY, 3)
+        self.assertEqual(c.CARDS_LEVEL_MULTIPLIERS, [1, 3.5, 12, 42, 150])
 
         self.assertEqual(c.COMPANIONS_DEFENDS_IN_BATTLE, 1.5)
         self.assertEqual(c.COMPANIONS_HEAL_FRACTION, 0.05)

@@ -8,6 +8,8 @@ from the_tale.common.utils import testcase
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.jobs import job
@@ -172,24 +174,24 @@ class PlaceEffectTests(EffectsTestsBase):
                                     method_kwargs={'person_id': self.person.id,
                                                    'place_id': self.place.id,
                                                    'message_type': 'job_diary_y_%s_negative_friends' % effect.name.lower(),
-                                                   'job_power': self.job_power}),
+                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
                           mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
                                     method_kwargs={'person_id': self.person.id,
                                                    'place_id': self.place.id,
                                                    'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power}),
+                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
                           mock.call(method_name='job_message', account_id=self.account_3.id, hero_id=self.hero_3.id,
                                     method_kwargs={'person_id': self.person.id,
                                                    'place_id': self.place.id,
                                                    'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power})])
+                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
 
         applied_effect = self.place.effects.effects[0]
 
         self.assertEqual(applied_effect.name, self.actor_name)
         self.assertEqual(applied_effect.attribute, effect.logic.attribute)
 
-        self.assertEqual(applied_effect.value, -effect.logic.base_value*self.job_power)
+        self.assertEqual(applied_effect.value, -effect.logic.base_value*self.job_power*c.JOB_NEGATIVE_POWER_MULTIPLIER)
 
 
     def test_production__positive(self):
@@ -278,17 +280,17 @@ class HeroEffectTests(EffectsTestsBase):
                                     method_kwargs={'person_id': self.person.id,
                                                    'place_id': self.place.id,
                                                    'message_type': 'job_diary_y_%s_negative_friends' % effect.name.lower(),
-                                                   'job_power': self.job_power}),
+                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
                           mock.call(method_name=effect.logic.method_name, account_id=self.account_2.id, hero_id=self.hero_2.id,
                                     method_kwargs={'person_id': self.person.id,
                                                    'place_id': self.place.id,
                                                    'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power}),
+                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
                           mock.call(method_name=effect.logic.method_name, account_id=self.account_3.id, hero_id=self.hero_3.id,
                                     method_kwargs={'person_id': self.person.id,
                                                    'place_id': self.place.id,
                                                    'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power})])
+                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
 
 
     def test_money__positive(self):

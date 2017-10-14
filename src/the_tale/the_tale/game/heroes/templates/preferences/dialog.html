@@ -1,0 +1,19 @@
+<div class="modal hide hero-preference-info" style="text-align: justify;">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">{{preference.text|up_first}}</h3>
+  </div>
+
+  <div class="modal-body">
+
+    {% if change_preferences_card is defined %}
+    <p class="alert alert-info">
+      Изменить предпочтение героя можно использовав карту <strong>{{change_preferences_card.text}}</strong>.
+    </p>
+    {% endif %}
+
+    {% include "heroes/preferences/{}.html".format(preference.base_name) with context %}
+
+  </div>
+</div>
