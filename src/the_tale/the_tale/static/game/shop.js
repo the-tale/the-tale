@@ -466,8 +466,8 @@ pgf.game.OperationsDialog = function(shopCardsBrowser, cardType) {
         if (orderedPrices.length > 0) {
             jQuery('.pgf-min-buy-price', instance.dialog).text(orderedPrices[0][0]);
             jQuery('.pgf-close-sell-lots', instance.dialog).data('min-price', orderedPrices[0][0]);
-            jQuery('.pgf-account-balance').text(shopCardsBrowser.data.balance);
         }
+
         jQuery('.pgf-buy-block', instance.dialog).toggleClass('pgf-hidden', (jQuery.isEmptyObject(prices) || (orderedPrices[0][2] > 0) || !(shopCardsBrowser.data.balance > orderedPrices[0][0])));
         jQuery('.pgf-buy-block-has-card-error', instance.dialog).toggleClass('pgf-hidden', (jQuery.isEmptyObject(prices) || (orderedPrices[0][2] == 0)));
         jQuery('.pgf-buy-block-no-money-error', instance.dialog).toggleClass('pgf-hidden', ((orderedPrices.length == 0) || (shopCardsBrowser.data.balance > orderedPrices[0][0])))
@@ -582,6 +582,8 @@ pgf.game.OperationsDialog = function(shopCardsBrowser, cardType) {
 
         jQuery('.pgf-no-cards-to-sell-block', instance.dialog).toggleClass('pgf-hidden', (0 < card.inDeckToTrade));
         jQuery('.pgf-sell-cards-block', instance.dialog).toggleClass('pgf-hidden', !(0 < card.inDeckToTrade));
+
+        jQuery('.pgf-account-balance', instance.dialog).text(shopCardsBrowser.data.balance);
     }
 
     function Initialize() {
