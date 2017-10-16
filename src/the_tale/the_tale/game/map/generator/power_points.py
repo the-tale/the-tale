@@ -311,8 +311,8 @@ def get_power_points():
 
     points = []
 
-    points = [_default_temperature_points(delta={tt_calendar.MONTH.COLD: -0.1, tt_calendar.MONTH.HOT: 0.1}.get(game_datetime.month, 0)),
-              _default_wetness_points(delta={tt_calendar.MONTH.DRY: -0.1, tt_calendar.MONTH.CRUDE: 0.1}.get(game_datetime.month, 0)),
+    points = [_default_temperature_points(delta={tt_calendar.MONTH.COLD: -0.1, tt_calendar.MONTH.HOT: 0.1}.get(game_datetime.month_type, 0)),
+              _default_wetness_points(delta={tt_calendar.MONTH.DRY: -0.1, tt_calendar.MONTH.CRUDE: 0.1}.get(game_datetime.month_type, 0)),
               _default_vegetation_points(),
               _default_soil_points()]
 

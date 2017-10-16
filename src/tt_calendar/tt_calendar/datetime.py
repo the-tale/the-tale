@@ -26,7 +26,13 @@ class DateTime(object):
     def month(self): return self.date.month
 
     @property
+    def month_type(self): return self.date.month_type
+
+    @property
     def quint(self): return self.date.quint
+
+    @property
+    def quint_type(self): return self.date.quint_type
 
     @property
     def quint_day(self): return self.date.quint_day

@@ -536,7 +536,7 @@ class Building(names.ManageNameMixin2):
     @property
     def terrain_change_power(self):
         # +1 to prevent power == 0
-        power = self.place.attrs.terrain_radius * self.integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
+        power = self.place.attrs.terrain_radius * min(self.integrity, 1.0) * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
         return int(round(power))
 
 
