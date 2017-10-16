@@ -466,20 +466,6 @@ class RegistrationResource(BaseAccountsResource):
         return self.json_processing(task.status_url)
 
 
-    @handler('fast', method='get')
-    def fast_get(self):
-
-        if self.account.is_authenticated:
-            return self.error('accounts.registration.fast.already_registered', 'Вы уже зарегистрированы')
-
-        task = self.register_fast()
-
-        if task.state.is_processed:
-            return self.error('accounts.registration.fast.already_processed', 'Вы уже зарегистрированы, обновите страницу')
-
-        return self.redirect(task.wait_url)
-
-
 class AuthResource(BaseAccountsResource):
 
     @handler('login', name='page-login', method='get')
