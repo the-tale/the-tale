@@ -974,7 +974,11 @@ class GetCompanion(BaseEffect):
     def full_type_names(self, card_type):
         names = {}
 
-        for companion in self.get_available_companions():
+        # do not skip manual companions, since can be cards with them too
+        for companion in companions_storage.companions.enabled_companions():
+            if companion.rarity != self.rarity:
+                continue
+
             full_type = self._item_full_type(card_type, companion.id)
             names[full_type] = self._name_for_card(card_type, companion.id)
 
