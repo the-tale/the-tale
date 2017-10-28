@@ -13,7 +13,6 @@ from the_tale.accounts.clans.prototypes import ClanPrototype
 
 from the_tale.game.heroes import tt_api as heroes_tt_api
 from the_tale.game.heroes import views as heroes_views
-from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
 from the_tale.game.map.conf import map_settings
@@ -28,7 +27,6 @@ from the_tale.game.cards.cards import CARD
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
 
-
 ########################################
 # resource and global processors
 ########################################
@@ -40,6 +38,7 @@ resource.add_processor(heroes_views.CurrentHeroProcessor())
 ########################################
 # views
 ########################################
+
 
 @accounts_views.LoginRequiredProcessor()
 @resource('')
@@ -67,7 +66,8 @@ def game_page(context):
                                     'hero': context.account_hero,
                                     'ABILITY_TYPE': ABILITY_TYPE})
 
-@api.Processor(versions=(game_settings.INFO_API_VERSION, '1.6', '1.5', '1.4', '1.3', '1.2', '1.1', '1.0'))
+
+@api.Processor(versions=(game_settings.INFO_API_VERSION, '1.7', '1.6', '1.5', '1.4', '1.3', '1.2', '1.1', '1.0'))
 @dext_views.IntsArgumentProcessor(error_message='Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
 @accounts_views.AccountProcessor(error_message='Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
 @resource('api', 'info', name='api-info')
@@ -312,6 +312,9 @@ def api_info(context):
     data = game_logic.form_game_info(account=account,
                                      is_own=False if account is None else (context.account.id == account.id),
                                      client_turns=context.client_turns)
+
+    if context.api_version in ('1.7', '1.6', '1.5', '1.4', '1.3', '1.2', '1.1', '1.0'):
+        data = game_logic.game_info_from_1_8_to_1_7(data)
 
     if context.api_version in ('1.6', '1.5', '1.4', '1.3', '1.2', '1.1', '1.0'):
         data = game_logic.game_info_from_1_7_to_1_6(data)
