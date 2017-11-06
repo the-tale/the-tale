@@ -31,8 +31,6 @@ from the_tale.game.cards import cards
 from the_tale.accounts.clans.conf import clans_settings
 from the_tale.accounts.conf import accounts_settings
 
-from the_tale.guide.conf import guide_settings
-
 
 class APIReference(object):
 
@@ -62,43 +60,6 @@ class TypeReference(object):
             return records
         except Exception as e:
             print(e)
-
-
-def get_api_methods():
-    from the_tale.portal.views import PortalResource
-    from the_tale.accounts import views as accounts_views
-    from the_tale.accounts.personal_messages import views as personal_messages_views
-    from the_tale.game import views as game_views
-    from the_tale.game.abilities.views import AbilitiesResource
-    from the_tale.game.quests.views import QuestsResource
-    from the_tale.accounts.third_party.views import TokensResource
-    from the_tale.game.cards import views as cards_views
-    from the_tale.game.places import views as places_views
-    from the_tale.game.persons import views as persons_views
-    from the_tale.game.map import views as map_views
-
-    return [APIReference('portal_info', 'Базовая информация', PortalResource.api_info),
-            APIReference('authorization', 'Авторизация в игре', getattr(TokensResource, 'api_request_authorisation')),
-            APIReference('authorization_state', 'Состояние авторизации', getattr(TokensResource, 'api_authorisation_state')),
-            APIReference('login', 'Вход в игру', accounts_views.AuthResource.api_login),
-            APIReference('logout', 'Выход из игры', accounts_views.AuthResource.api_logout),
-            APIReference('account_info', 'Информация об игроке', accounts_views.api_show),
-            APIReference('new_messages_number', 'Количество новых сообщений', personal_messages_views.api_new_messages),
-            APIReference('game_info', 'Информация об игре/герое', game_views.api_info),
-            APIReference('game_diary', 'Дневник героя', game_views.api_diary),
-            APIReference('game_abilities', 'Использование способности', AbilitiesResource.use),
-            APIReference('game_quests', 'Выбор в задании', QuestsResource.api_choose),
-            APIReference('cards_get', 'Карты: взять', cards_views.api_get),
-            APIReference('cards_combine', 'Карты: превратить', cards_views.api_combine),
-            APIReference('cards_use', 'Карты: использовать', cards_views.api_use),
-            APIReference('cards_load', 'Карты: перечень карт игрока', cards_views.api_get_cards),
-            APIReference('cards_move_to_storage', 'Карты: переместить в хранилище', cards_views.api_move_to_storage),
-            APIReference('cards_move_to_hand', 'Карты: переместить в руку', cards_views.api_move_to_hand),
-            APIReference('places_list', 'Города: перечень всех городов', places_views.api_list),
-            APIReference('places_show', 'Города: подробная информация о городе', places_views.api_show),
-            APIReference('persons_show', 'Мастера: подробная информация о Мастере', persons_views.api_show),
-            APIReference('region', 'Карта: получить карту', map_views.region),
-            APIReference('region_versions', 'Карта: получить список версий карт', map_views.region_versions)]
 
 
 def get_api_types():
@@ -157,7 +118,6 @@ def get_api_types():
            ]
 
 
-API_METHODS = get_api_methods()
 API_TYPES = get_api_types()
 
 
@@ -252,8 +212,6 @@ class GuideResource(Resource):
     @handler('api', method='get')
     def api(self):
         return self.template('guide/api.html', {'section': 'api',
-                                                'api_forum_thread':  guide_settings.API_FORUM_THREAD,
-                                                'methods': API_METHODS,
                                                 'types': API_TYPES})
 
     @validate_argument('ability_type', lambda x: ABILITY_TYPE(int(x)), 'guide.hero_abilities', 'Неверный формат типа способности')

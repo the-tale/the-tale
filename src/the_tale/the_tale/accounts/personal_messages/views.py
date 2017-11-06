@@ -288,23 +288,4 @@ def delete_conversation(context):
 @api.Processor(versions=(conf.settings.NEW_MESSAGES_NUMNER_API_VERSION,))
 @resource('api', 'new-messages-number', name='api-new-messages-number')
 def api_new_messages(context):
-    '''
-Получить количество новых сообщений для игрока.
-
-- **адрес:** /accounts/messages/api/new-messages-number
-- **http-метод:** GET
-- **версии:** 0.1
-- **параметры:**
-    * нет
-- **возможные ошибки**:
-    * нет
-
-формат данных в ответе:
-
-    {
-      "number": <целое число> // количество новых сообщений
-    }
-
-    '''
-
     return dext_views.AjaxOk(content={'number': tt_api.new_messages_number(context.account.id)})

@@ -14,6 +14,7 @@ from the_tale.game.heroes import logic as heroes_logic
 
 def argument_to_ability(ability_type): return ABILITIES.get(ABILITY_TYPE(ability_type))
 
+
 class AbilitiesResource(Resource):
 
     @login_required
@@ -27,22 +28,6 @@ class AbilitiesResource(Resource):
     @validate_argument('battle', int, 'abilities', 'Неверный идентификатор сражения')
     @handler('#ability', 'api', 'use', method='post')
     def use(self, api_version, building=None, battle=None):
-        '''
-Использование одной из способностей игрока (список способностей см. в разделе типов)
-
-- **адрес:** /game/abilities/<идентификатор способности>/api/use
-- **http-метод:** POST
-- **версии:** 1.0
-- **параметры:**
-    * GET: building — идентификатор здания, если способность касается здания
-    * GET: battle — идентификатор pvp сражения, если способность касается операций с pvp сражением
-- **возможные ошибки**: нет
-
-Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
-
-Цена использования способностей возвращается при запросе базовой информации.
-        '''
-
         task = self.ability.activate(heroes_logic.load_hero(account_id=self.account.id),
                                      data={'building_id': building,
                                            'battle_id': battle})

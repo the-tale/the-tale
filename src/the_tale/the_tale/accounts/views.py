@@ -221,56 +221,7 @@ def show(context):
 @api.Processor(versions=('1.0', ))
 @accounts_resource('#account', 'api', 'show', name='api-show')
 def api_show(context):
-    '''
-Получить информацию об игроке
-
-- **адрес:** /accounts/&lt;account&gt;/api/show
-- **http-метод:** GET
-- **версии:** 1.0
-- **параметры:**
-* URL account — идентификатор игрока
-- **возможные ошибки**:
-* account.wrong_value — аккаунт с таким идентификатором не найден
-
-формат данных в ответе:
-
-    {
-      "id": <целое число>,           // идентификатор игрока
-      "registered": true|false,      // маркер завершения регистрации
-      "name": "строка",              // имя игрока
-      "hero_id": <целое число>,      // идентификатор героя
-      "places_history": [            // список истории помощи городам
-        "place": {                   // город
-          "id": <целое число>,       // идентификатор города
-          "name": "строка"           // название города
-        },
-        "count": <целое число>       // количество фактов помощи
-      ],
-      "might": <дробное число>,      // могущество
-      "achievements": <целое число>, // очки достижений
-      "collections": <целое число>,  // количество предметов в коллекции
-      "referrals": <целое число>,    // количество последователей (рефералов)
-      "ratings": {                                // рейтинги
-        "строка": {                               // идентификатор рейтинга:
-          "name": "строка",                       // название рейтинга: иинформация о рейтинге
-          "place": <целое число>,                 // место
-          "value": <целое число>|<дробное число>  // величина рейтингового значения
-        }
-      },
-      "permissions": {                // права на выполнение различных операций
-        "can_affect_game": true|false // оказывает ли влияние на игру
-      },
-      "description": "строка"         // описание игока, введённое им сами (в формате html)
-      "clan": null | {                // информация о гильдии, null, если в гильдии не состоит
-         "id": <целое>,               // идентификатор
-         "abbr": "строка",            // аббревиатура
-         "name": "строка"             // название
-      }
-    }
-    '''
-
     master_hero = heroes_logic.load_hero(account_id=context.master_account.id)
-
     return dext_views.AjaxOk(content=logic.get_account_info(context.master_account, master_hero))
 
 
@@ -481,35 +432,6 @@ class AuthResource(BaseAccountsResource):
     @api.handler(versions=('1.0',))
     @handler('api', 'login', name='api-login', method='post')
     def api_login(self, api_version, next_url='/'):
-        '''
-Вход в игру. Используйте этот метод только если разрабатываете приложение для себя и друзей. В остальных случаях пользуйтесь «авторизацией в игре».
-
-- **адрес:** /accounts/auth/api/login
-- **http-метод:** POST
-- **версии:** 1.0
-- **параметры:**
-    * GET: next_url — вернётся в ответе метода в случае успешного входа, по умолчанию равен "/"
-    * POST: email — email адрес пользователя
-    * POST: password — пароль пользователя
-    * POST: remember — если флаг указан, сессия игрока будет сохранена на длительное время
-- **возможные ошибки**:
-    * accounts.auth.login.wrong_credentials — неверный логин или пароль
-    * accounts.auth.login.form_errors — ошибка(-и) в заполнении полей
-
-формат данных в ответе:
-
-    {
-      "next_url": "относительный url", // адрес, переданный при вызове метода или "/"
-      "account_id": <целое число>,     // идентификатор аккаунта
-      "account_name": <строка>,        // имя игрока
-      "session_expire_at": <timestamp> // время окончания сессии пользователя
-    }
-
-При успешном выполнении запроса, будет установлено значение cookie с именем sessionid, которая и является идентификатором сессии пользователя.
-
-В случае, если от имени не вошедшего в игру пользователя будет произведён запрос функционала, доступного только авторизованным пользователям, API вернёт ошибку с кодом "common.login_required" (см. секцию с описанием общих ошибок).
-        '''
-
         login_form = forms.LoginForm(self.request.POST)
 
         if login_form.is_valid():
@@ -533,16 +455,6 @@ class AuthResource(BaseAccountsResource):
     @api.handler(versions=('1.0',))
     @handler('api', 'logout', name='api-logout', method=['post'])
     def api_logout(self, api_version):
-        '''
-Выйти из игры
-
-- **адрес:** /accounts/auth/api/logout
-- **http-метод:** POST
-- **версии:** 1.0
-- **параметры:** нет
-- **возможные ошибки**: нет
-        '''
-
         logic.logout_user(self.request)
         return self.ok()
 

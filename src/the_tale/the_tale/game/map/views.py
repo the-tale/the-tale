@@ -52,20 +52,6 @@ def index(context):
 @dext_views.IntArgumentProcessor(error_message='Неверный формат номера хода', get_name='turn', context_name='turn', default_value=None)
 @resource('api', 'region', name='api-region')
 def region(context):
-    '''
-Карта мира на указанный (или последний) ход. Версия карты есть не для каждого хода. Получить список ходов, для которых есть созхранённая карта, можно отдельным запросом.
-
-- **адрес:** /game/map/api/region
-- **http-метод:** GET
-- **версии:** 0.1
-- **параметры:**
-    * GET: turn - целое, номер хода, на который необходимо получить карту
-- **возможные ошибки**:
-    * no_region_found - для заданного хода нет сохранённых данных
-
-Стабильность формата данных в ответе не гарантируется.
-    '''
-
     if context.turn is None:
         region = models.MapRegion.objects.latest('created_at')
     else:
@@ -81,22 +67,6 @@ def region(context):
 @api.Processor(versions=(conf.map_settings.REGION_VERSIONS_API_VERSION,))
 @resource('api', 'region-versions', name='api-region-versions')
 def region_versions(context):
-    '''
-Список ходов, для которых есть соответствующая версия карты.
-
-- **адрес:** /game/map/api/region-versions
-- **http-метод:** GET
-- **версии:** 0.1
-- **параметры:**нет
-- **возможные ошибки**: нет
-
-Формат данных в ответе:
-
-    {
-        "turns": [<целое>, …] // номер хода, для которого есть карта
-    }
-    '''
-
     return dext_views.AjaxOk(content={'turns': list(models.MapRegion.objects.values_list('turn_number', flat=True))})
 
 

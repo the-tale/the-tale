@@ -24,7 +24,6 @@ from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import postponed_tasks as heroes_postponed_tasks
 
 from . import relations
-from . import effects
 from . import tt_api
 from . import logic
 from . import cards
@@ -143,23 +142,6 @@ def use_dialog(context):
 @api.Processor(versions=(conf.settings.USE_API_VERSION, ))
 @resource('api', 'use', name='api-use', method='POST')
 def api_use(context):
-    '''
-Использовать карту из колоды игрока.
-
-- **адрес:** /game/cards/api/use
-- **http-метод:** POST
-- **версии:** 2.0
-- **параметры:**
-    * GET: card — уникальный идентификатор карты в калоде
-    * POST: value — параметр использования карты, если у карты есть параметр, обычно это идентификатор объекта (Мастера, города, etc)
-    * POST: name — название гильдии для карты создания гильдии
-    * POST: abbr — аббревиатура гильдии для карты создания гильдии
-
-- **возможные ошибки**:
-    * cards.use.form_errors — ошибка в одном из POST параметров
-
-Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
-    '''
     form = context.account_card.get_form(data=context.django_request.POST, hero=context.account_hero)
 
     if not form.is_valid():
@@ -174,35 +156,6 @@ def api_use(context):
 @api.Processor(versions=(conf.settings.GET_API_VERSION, ))
 @resource('api', 'get', name='api-get', method='post')
 def api_get(context):
-    '''
-Взять новую карту в колоду игрока.
-
-- **адрес:** /game/cards/api/get
-- **http-метод:** POST
-- **версии:** 2.0
-- **параметры:** нет
-- **возможные ошибки**: нет
-
-Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
-
-При завершении операции возвращается дополнительная инфрмация:
-
-    {
-      "message": "строка",      // описание результата в формате html
-      "card": <card_info>       // описание полученной карты
-    }
-
-    <card_info> = {                              // информация о карте в колоде игрока
-        "name": "строка",                        // название
-        "type": <целое число>,                   // тип
-        "full_type": "строка",                   // полный тип карты (с учётом эффектов)
-        "rarity": <целое число>,                 // редкость карты
-        "uid": <целое число>,                    // уникальный идентификатор в колоде игрока
-        "auction": true|false,                   // может быть продана на рынке
-        "in_storage": true|false                 // находится ли карты в хранилище или в руке
-    }
-
-    '''
     choose_task = heroes_postponed_tasks.GetCardTask(hero_id=context.account_hero.id)
 
     task = PostponedTaskPrototype.create(choose_task)
@@ -218,24 +171,6 @@ def api_get(context):
 @api.Processor(versions=(conf.settings.COMBINE_API_VERSION, ))
 @resource('api', 'combine', name='api-combine', method='post')
 def api_combine(context):
-    '''
-Превратить карты из колоды игрока.
-
-- **адрес:** /game/cards/api/combine
-- **http-метод:** POST
-- **версии:** 2.0
-- **параметры:**
-    * POST: card — идентификатор карты, участвующей в трансформации, может быть несколько
-- **возможные ошибки**:
-    * cards.api-combine.wrong_cards — указанные карты нельзя превращать
-
-Формат данных в ответе:
-
-    {
-      "message": "строка",      // описание результата в формате html
-      "card": <card_info>       // описание полученной карты, формат см. в описании метода получения новой карты
-    }
-    '''
     card, result = logic.get_combined_card(allow_premium_cards=context.account.is_premium, combined_cards=context.cards)
 
     if not result.is_SUCCESS:
@@ -279,26 +214,6 @@ def api_combine(context):
 @api.Processor(versions=(conf.settings.GET_CARDS_API_VERSION, ))
 @resource('api', 'get-cards', name='api-get-cards', method='get')
 def api_get_cards(context):
-    '''
-Возвращает список всех карт игрока
-
-- **адрес:** /game/cards/api/get-cards
-- **http-метод:** GET
-- **версии:** 2.0
-- **параметры:** нет
-- **возможные ошибки**: нет
-
-Формат данных в ответе:
-
-    {
-      "cards": [
-          <card_info>,       // описание полученной карты, формат см. в описании метода получения новой карты
-          ...
-       ]
-    }
-
-    '''
-
     return dext_views.AjaxOk(content={'cards': [card.ui_info() for card in context.account_cards.values()]})
 
 
@@ -308,17 +223,6 @@ def api_get_cards(context):
 @api.Processor(versions=(conf.settings.MOVE_TO_STORAGE_API_VERSION, ))
 @resource('api', 'move-to-storage', name='api-move-to-storage', method='post')
 def api_move_to_storage(context):
-    '''
-Перемещает карты в хранилище.
-
-- **адрес:** /game/cards/api/move-to-storage
-- **http-метод:** POST
-- **версии:** 2.0
-- **параметры:**
-    * POST: card — идентификатор перемещаемой карты, может быть несколько
-- **возможные ошибки**:
-    * card.wrong_value — указанные карты нельзя превращать
-    '''
     tt_api.change_cards_storage(account_id=context.account.id,
                                 operation_type='move-to-storage',
                                 cards=context.cards,
@@ -334,17 +238,6 @@ def api_move_to_storage(context):
 @api.Processor(versions=(conf.settings.MOVE_TO_HAND_API_VERSION, ))
 @resource('api', 'move-to-hand', name='api-move-to-hand', method='post')
 def api_move_to_hand(context):
-    '''
-Перемещает карты в руку.
-
-- **адрес:** /game/cards/api/move-to-hand
-- **http-метод:** POST
-- **версии:** 2.0
-- **параметры:**
-    * POST: card — идентификатор перемещаемой карты, может быть несколько
-- **возможные ошибки**:
-    * card.wrong_value — указанные карты нельзя превращать
-    '''
     tt_api.change_cards_storage(account_id=context.account.id,
                                 operation_type='move-to-storage',
                                 cards=context.cards,

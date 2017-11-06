@@ -21,18 +21,6 @@ class QuestsResource(Resource):
     @api.handler(versions=('1.0',))
     @handler('api', 'choose', name='api-choose', method='post')
     def api_choose(self, option_uid, api_version):
-        '''
-Изменение пути выполнения задания героем
-
-- **адрес:** /game/quests/api/choose/
-- **http-метод:** POST
-- **версии:** 1.0
-- **параметры:**
-    * GET: option_uid — уникальный идентификатор выбора в задании (получается с информацией о состоянии игры)
-- **возможные ошибки**: нет
-
-Метод является «неблокирующей операцией» (см. документацию), формат ответа соответствует ответу для всех «неблокирующих операций».
-        '''
         choose_task = MakeChoiceTask(account_id=self.account.id, option_uid=option_uid)
 
         task = PostponedTaskPrototype.create(choose_task)
