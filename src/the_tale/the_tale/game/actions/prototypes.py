@@ -986,7 +986,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             percents = 1.0
             state = cls.STATE.PROCESSED
             hero.add_message('action_battlepve1x1_leave_battle_in_fear', hero=hero, mob=mob)
-        elif companions_is_exorcist and mob.mob_type.is_DEMON:
+        elif companions_is_exorcist and (mob.mob_type.is_DEMON or mob.mob_type.is_SUPERNATURAL):
             percents = 1.0
             state = cls.STATE.PROCESSED
             hero.add_message('action_battlepve1x1_companion_do_exorcims', hero=hero, mob=mob, companion=hero.companion)

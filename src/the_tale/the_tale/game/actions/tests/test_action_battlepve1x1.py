@@ -250,20 +250,26 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
-
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_do_exorcism', lambda hero: True)
     def test_companion_exorcims__demon(self):
+        self.check_companion_exorcims(game_relations.BEING_TYPE.DEMON)
 
-        self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_do_exorcism', lambda hero: True)
+    def test_companion_exorcims__supernatural(self):
+        self.check_companion_exorcims(game_relations.BEING_TYPE.SUPERNATURAL)
+
+    def check_companion_exorcims(self, mob_type):
+        self.companion_record = companions_logic.create_random_companion_record('exorcist',
+                                                                                state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
-        demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=game_relations.BEING_TYPE.DEMON)
-        demon = mobs_prototypes.MobPrototype(record_id=demon_record.id, level=self.hero.level, is_boss=False)
+        mob_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=mob_type)
+        mob = mobs_prototypes.MobPrototype(record_id=mob_record.id, level=self.hero.level, is_boss=False)
 
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=demon)
+            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -273,12 +279,14 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_do_exorcism', lambda hero: True)
-    def test_companion_exorcims__not_demon(self):
+    def test_companion_exorcims__not_demon_or_supernatural(self):
 
         self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
-        not_demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=game_relations.BEING_TYPE.random(exclude=(game_relations.BEING_TYPE.DEMON, )))
+        not_demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon',
+            type=game_relations.BEING_TYPE.random(exclude=(game_relations.BEING_TYPE.DEMON,
+            game_relations.BEING_TYPE.SUPERNATURAL, )))
         not_demon = mobs_prototypes.MobPrototype(record_id=not_demon_record.id, level=self.hero.level, is_boss=False)
 
         self.hero.actions.pop_action()
@@ -292,7 +300,6 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.storage.process_turn(continue_steps_if_needed=False)
 
         self.assertEqual(self.hero.actions.current_action, action_battle)
-
 
     @mock.patch('the_tale.game.balance.constants.PEACEFULL_BATTLE_PROBABILITY', 1.01)
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
