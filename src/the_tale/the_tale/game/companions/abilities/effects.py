@@ -496,7 +496,7 @@ class ABILITIES(DjangoEnum):
 
         ('DRINKER', 57, 'пьяница', 'спутник пропивает случайный предмет из рюкзака при посещении героем города', CompanionDrinkArtifact(0.95, 0.5), RARITY_BIG, False, True),
 
-        ('EXORCIST', 58, 'экзорцист', 'спутник может изгнать встречного демона', CompanionExorcist(0.5, 1.0), RARITY_BIG, False, True),
+        ('EXORCIST', 58, 'экзорцист', 'спутник может изгнать встречного демона или стихийное существо', CompanionExorcist(0.5, 1.0), RARITY_BIG, False, True),
 
         ('HEALER', 59, 'лекарь', 'ускоряет лечение героя на отдыхе', RestLenght(0.9, 0.5), RARITY_BIGEST, False, True),
 
