@@ -281,7 +281,7 @@ class GuideResource(Resource):
 
     @validate_argument('habit', lambda x: game_relations.HABIT_TYPE(int(x)), 'guide.hero_habit_info', 'Неверный тип черты')
     @handler('hero-habit-info', method='get')
-    def habit_info(self, habit):
+    def habit_info(self, habit=game_relations.HABIT_TYPE.HONOR):
         return self.template('guide/hero-habit-info.html', {'habit': habit,
                                                             'HABIT_TYPE': game_relations.HABIT_TYPE})
 
