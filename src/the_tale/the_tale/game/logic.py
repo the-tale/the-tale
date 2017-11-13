@@ -254,7 +254,8 @@ def _game_info_from_1_6_to_1_5__heroes(data):
 
 
 def _game_info_from_1_8_to_1_7__heroes(data):
-    data['cards']['cards'] = []
+    if 'cards' in data['cards']:
+        data['cards']['cards'] = []
 
 
 def game_info_from_1_1_to_1_0(data):
