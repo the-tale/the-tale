@@ -1,9 +1,6 @@
 
-from rels import Relation
 from rels import Column
 from rels.django import DjangoEnum
-
-from the_tale.game.cards import forms
 
 
 class RARITY(DjangoEnum):
@@ -28,4 +25,5 @@ class COMBINED_CARD_RESULT(DjangoEnum):
                ('DUPLICATE_IDS', 2, 'Попытка передать одну карту как две'),
                ('COMBINE_1_COMMON', 3, 'Нельзя превращать одну обычную карту'),
                ('COMBINE_3_LEGENDARY', 4, 'Нельзя превращать три легендарные карты'),
-               ('SUCCESS', 5, 'Карты превращены успешно'))
+               ('SUCCESS', 5, 'Карты превращены успешно'),
+               ('TOO_MANY_CARDS', 6, 'Вы пытаетесь объединить слишком много карт'))
