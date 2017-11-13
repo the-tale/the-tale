@@ -45,7 +45,7 @@ class CARD(Relation):
                 ('ADD_GOLD_UNCOMMON', 11, 'увесистый кошель', FOR_ALL, UNCOMMON, effects.AddGold(base=1000, level=2), [reactors.Simple3()]),
                 ('ADD_GOLD_RARE', 12, 'сундучок на счастье', FOR_ALL, RARE, effects.AddGold(base=1000, level=3), [reactors.Simple3()]),
 
-                ('CHANGE_ABILITIES_CHOICES', 39, 'альтернатива', FOR_ALL, UNCOMMON, effects.ChangeAbilitiesChoices(), []),
+                ('CHANGE_ABILITIES_CHOICES', 39, 'альтернатива', FOR_ALL, UNCOMMON, effects.ChangeAbilitiesChoices(), [reactors.Special3('RESET_ABILITIES')]),
 
                 ('REPAIR_RANDOM_ARTIFACT', 45, 'фея-мастерица', FOR_ALL, UNCOMMON, effects.RepairRandomArtifact(), [reactors.Special3('REPAIR_ALL_ARTIFACTS')]),
                 ('REPAIR_ALL_ARTIFACTS', 46, 'благословение Великого Творца', FOR_ALL, RARE, effects.RepairAllArtifacts(), []),
