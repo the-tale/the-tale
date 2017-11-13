@@ -56,7 +56,7 @@ class TERRAIN(DjangoEnum):
                 ('HILLS_GREENWOOD',       22, 'лиственный лес на холмах',       META_HEIGHT.HILLS, META_TERRAIN.NORMAL, META_VEGETATION.TREES),
                 ('HILLS_SWAMP_FOREST',    23, 'заболоченный лес на холмах',     META_HEIGHT.HILLS, META_TERRAIN.SWAMP, META_VEGETATION.TREES),
                 ('HILLS_JUNGLE',          24, 'джунгли на холмах',              META_HEIGHT.HILLS, META_TERRAIN.JUNGLE, META_VEGETATION.TREES),
-                ('HILLS_WITHERED_FOREST', 25, 'мёртвый лес на холмах',          META_HEIGHT.HILLS, META_TERRAIN.JUNGLE, META_VEGETATION.TREES)
+                ('HILLS_WITHERED_FOREST', 25, 'мёртвый лес на холмах',          META_HEIGHT.HILLS, META_TERRAIN.DESERT, META_VEGETATION.TREES)
               )
 
 
