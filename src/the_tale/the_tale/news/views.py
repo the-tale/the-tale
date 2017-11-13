@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import datetime
 
@@ -14,11 +13,11 @@ from the_tale.common.utils.pagination import Paginator
 from the_tale.accounts import views as accounts_views
 from the_tale.accounts import logic as accounts_logic
 
-from the_tale.cms.news import models
-from the_tale.cms.news import conf
-from the_tale.cms.news import logic
-from the_tale.cms.news import forms
-from the_tale.cms.news import relations
+from . import models
+from . import conf
+from . import logic
+from . import forms
+from . import relations
 
 from the_tale.forum import prototypes as forum_prototypes
 from the_tale.forum import relations as forum_relations
@@ -31,6 +30,7 @@ from the_tale.forum import relations as forum_relations
 class EditNewsProcessor(dext_views.PermissionProcessor):
     PERMISSION = 'news.edit_news'
     CONTEXT_NAME = 'news_can_edit'
+
 
 class EditorAccessProcessor(dext_views.AccessProcessor):
     ERROR_CODE = 'news.no_edit_rights'

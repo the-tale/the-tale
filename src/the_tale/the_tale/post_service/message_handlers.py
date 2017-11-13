@@ -302,7 +302,7 @@ class NewsHandler(BaseMessageHandler):
     def uid(self): return 'news-%d-message' % self.news_id
 
     def process(self):
-        from the_tale.cms.news import logic as news_logic
+        from the_tale.news import logic as news_logic
 
         news = news_logic.load_news(self.news_id)
 

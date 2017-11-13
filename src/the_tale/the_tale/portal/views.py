@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 from django.conf import settings as project_settings
@@ -17,8 +17,8 @@ from the_tale.accounts.clans.prototypes import ClanPrototype
 
 from the_tale.forum.prototypes import ThreadPrototype
 
-from the_tale.cms.news import logic as news_logic
-from the_tale.cms.news import models as news_models
+from the_tale.news import logic as news_logic
+from the_tale.news import models as news_models
 
 from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype

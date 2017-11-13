@@ -292,9 +292,13 @@ class GuideResource(Resource):
                              {'section': 'press-kit',
                               'mob': random.choice(mobs_storage.get_available_mobs_list(level=666))})
 
-    @handler('intro-comix')
-    def intro_comix(self):
-        return self.template('guide/intro_comix.html', {'section': 'intro-comix'})
+    @handler('world')
+    def world(self):
+        return self.template('guide/world.html', {'section': 'world'})
+
+    @handler('how-to-help')
+    def how_to_help(self):
+        return self.template('guide/how_to_help.html', {'section': 'how-to-help'})
 
     @handler('game-resources')
     def game_resources(self):

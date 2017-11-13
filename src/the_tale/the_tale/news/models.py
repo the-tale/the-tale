@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.db import models
 
@@ -6,7 +5,7 @@ from rels.django import RelationIntegerField
 
 from the_tale.forum.models import Thread
 
-from the_tale.cms.news import relations
+from . import relations
 
 
 class News(models.Model):

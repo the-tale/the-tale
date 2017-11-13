@@ -1,8 +1,7 @@
-# coding: utf-8
 
-from the_tale.cms.news import models
-from the_tale.cms.news import relations
-from the_tale.cms.news import objects
+from . import models
+from . import relations
+from . import objects
 
 
 def news_from_model(model):

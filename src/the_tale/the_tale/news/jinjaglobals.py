@@ -1,7 +1,7 @@
-# coding: utf-8
+
 from dext.common.utils import jinja2
 
-from the_tale.cms.news import logic
+from the_tale.news import logic
 
 
 @jinja2.jinjaglobal

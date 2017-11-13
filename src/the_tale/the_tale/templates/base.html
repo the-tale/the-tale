@@ -158,7 +158,8 @@ jQuery(document).ready(function() {
 
           <ul class="nav">
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
-            {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:game"), "Описание игры"),
+            {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:world"), "О мире"),
+                                                                         (url("guide:game"), "Описание игры"),
                                                                          (url("guide:keepers"), "Хранители"),
                                                                          (url("guide:hero-abilities"), "Способности героев"),
                                                                          (url("guide:hero-habits"), "Черты героев"),
@@ -174,10 +175,7 @@ jQuery(document).ready(function() {
                                                                          (url("guide:mobs:"), "Бестиарий"),
                                                                          (url("guide:artifacts:"), "Артефакты"),
                                                                          (url("guide:companions:"), "Спутники"),
-                                                                         (url("cms:world:"), get_cms_section_info("world").caption),
-                                                                         ('-', '<li class="divider"></li>'),
                                                                          (url("guide:account-types"), "Общее"),
-                                                                         (url("cms:development:"), get_cms_section_info("development").caption),
                                                                          (faq_url(), "FAQ"),
                                                                          (players_projects_url(), "Проекты игроков")]) }}
             {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),

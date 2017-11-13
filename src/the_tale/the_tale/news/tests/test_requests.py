@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import datetime
 
@@ -13,13 +12,12 @@ from the_tale.game.logic import create_test_map
 from the_tale.post_service import models as post_service_models
 from the_tale.post_service import prototypes as post_service_prototypes
 
-from the_tale.cms.news import models
-from the_tale.cms.news import conf
-from the_tale.cms.news import logic
-from the_tale.cms.news import relations
+from .. import models
+from .. import conf
+from .. import logic
+from .. import relations
 
 from the_tale.forum import models as forum_models
-
 
 
 class TestRequestsBase(testcase.TestCase):

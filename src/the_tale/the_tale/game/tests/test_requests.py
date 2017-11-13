@@ -18,7 +18,7 @@ from the_tale.game.logic import create_test_map, game_info_url, game_diary_url
 from the_tale.game.pvp.models import BATTLE_1X1_STATE
 from the_tale.game.pvp.tests.helpers import PvPTestsMixin
 
-from the_tale.cms.news import logic as news_logic
+from the_tale.news import logic as news_logic
 
 from the_tale.game.heroes import tt_api as heroes_tt_api
 from the_tale.game.heroes import messages as heroes_messages
