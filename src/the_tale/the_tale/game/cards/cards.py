@@ -4,10 +4,6 @@ from rels import Column
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.relations import HABIT_TYPE
-from the_tale.game.heroes.relations import PREFERENCE_TYPE
-from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE
-
 from the_tale.game.companions import relations as companions_relations
 
 from . import effects
@@ -143,7 +139,7 @@ class CARD(Relation):
                                                                                                                                                       reactors.SamePower3()]),
                 ('ADD_PLACE_POWER_LEGENDARY', 132, 'политический кризис', FOR_PREMIUMS, LEGENDARY, effects.AddPlacePower(base=c.MINIMUM_CARD_POWER, level=5), [reactors.SameEqual2()]),
 
-                ('CREATE_CLAN', 133, 'братство', FOR_ALL, UNCOMMON, effects.CreateClan(), []),
+                ('CREATE_CLAN', 133, 'братство', FOR_ALL, RARE, effects.CreateClan(), []),
 
                 ('REPAIR_BUILDING_COMMON', 134, 'должок мастеровых', FOR_PREMIUMS, COMMON, effects.RepairBuilding(base=c.BUILDING_CARD_REPAIR_BASE, level=1), [reactors.Simple3()]),
                 ('REPAIR_BUILDING_RARE', 135, 'домовой', FOR_PREMIUMS, RARE, effects.RepairBuilding(base=c.BUILDING_CARD_REPAIR_BASE, level=3), []),
