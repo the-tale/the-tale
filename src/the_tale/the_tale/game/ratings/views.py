@@ -19,7 +19,6 @@ from the_tale.game.ratings.prototypes import RatingValuesPrototype, RatingPlaces
 from the_tale.game.ratings.relations import RATING_TYPE
 
 
-
 class RatingResource(Resource):
 
     @validate_argument('rating_type', RATING_TYPE, 'ratings', 'Неверный тип рейтингов')
@@ -109,7 +108,10 @@ class RatingResource(Resource):
 
         ratings_count = ratings_query.count()
 
-        page = int(page) - 1
+        try:
+            page = int(page) - 1
+        except ValueError:
+            return self.redirect(reverse('game:ratings:show', args=[self.rating_type.value]), permanent=False)
 
         url_builder = UrlBuilder(reverse('game:ratings:show', args=[self.rating_type.value]), arguments={'page': page})
 
