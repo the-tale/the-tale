@@ -1089,7 +1089,7 @@ class UpgradeArtifact(BaseEffect):
     def get_form(self, card, hero, data):
         return forms.Empty(data)
 
-    DESCRIPTION = 'Заменяет случайный экипированный не эпический артефакт, на более редкий того же вида.'
+    DESCRIPTION = 'Заменяет случайный экипированный не эпический артефакт, на более редкий того же вида. Параметры нового артефакта могут быть ниже параметров старого.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
