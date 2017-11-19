@@ -50,10 +50,10 @@
     <span class="label">у произведения нет меток</spanb>
   {% else %}
     {% for tag in tags %}
-      <span style="cursor: default;" class="label label-success" rel="tooltip" title="{{tag.description}}">{{tag.name}}</span>
+      <span style="cursor: default;" class="label label-success" rel="tooltip" data-tooltip-placement="right" title="{{tag.description}}">{{tag.name}}</span>
     {% endfor %}
   {% endif %}
-  <i style="vertical-align: middle;" class="icon icon-info-sign" rel="tooltip" title="Метки устанавливает администрация по просьбе сообщества игроков. Чтобы установить метку произведению обратитесь в соответствующую тему на форуме."></i>
+  <i style="vertical-align: middle;" class="icon icon-info-sign" rel="tooltip" data-tooltip-placement="right" title="Метки устанавливает администрация по просьбе сообщества игроков. Чтобы установить метку произведению обратитесь в соответствующую тему на форуме."></i>
 </p>
 
 <div class="pagination">
