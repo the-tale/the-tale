@@ -233,7 +233,6 @@ class Place(names.ManageNameMixin2):
     def is_modifier_active(self):
         return getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0) >= c.PLACE_TYPE_ENOUGH_BORDER
 
-
     def is_wrong_race(self):
         return self.races.dominant_race and self.race != self.races.dominant_race
 
@@ -255,7 +254,6 @@ class Place(names.ManageNameMixin2):
             yield effects.Effect(name='расовая дискриминация',
                                  attribute=relations.ATTRIBUTE.STABILITY,
                                  value=c.PLACE_STABILITY_PENALTY_FOR_RACES * (dominant_race_power - current_race_power))
-
 
         yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
 
@@ -377,7 +375,6 @@ class Place(names.ManageNameMixin2):
         if relations.ATTRIBUTE.CULTURE.order == order:
             if culture < c.PLACE_MIN_CULTURE:
                 yield effects.Effect(name='бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
-
 
     def effects_for_attribute(self, attribute):
         for effect in self.effects_generator(attribute.order):

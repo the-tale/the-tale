@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from rels import Column
 from rels.django import DjangoEnum
@@ -82,26 +81,26 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                  description='Влияет на скорость производства товаров в городе. Зависит от общей суммы влияния, поступившего в город, в результате выполнения героями заданий за определённый период времени (примерное количество недель: %d). Влияние от задания может быть отрицательным. Чем больше суммарное влияние по сравнению с другими городами, тем больше размер экономики.' % c.PLACE_POWER_HISTORY_WEEKS),
 
                 # modifiers MUST be calculated before stability
-                attributes.attr('MODIFIER_TRADE_CENTER', 23, 'специализация «Торговый центр»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_TRADE_CENTER', 23, 'специализация «Торговый центр»', order=-2, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Торговый центр».'),
-                attributes.attr('MODIFIER_CRAFT_CENTER', 24, 'специализация «Город ремёсел»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_CRAFT_CENTER', 24, 'специализация «Город ремёсел»', order=-2, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Город мастеров».'),
-                attributes.attr('MODIFIER_FORT', 25, 'специализация «Форт»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_FORT', 25, 'специализация «Форт»', order=-2, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Форт».'),
-                attributes.attr('MODIFIER_POLITICAL_CENTER', 26, 'специализация «Политический центр»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_POLITICAL_CENTER', 26, 'специализация «Политический центр»', order=-2, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Политический центр».'),
-                attributes.attr('MODIFIER_POLIC', 27, 'специализация «Полис»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_POLIC', 27, 'специализация «Полис»', order=-2, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Полис».'),
-                attributes.attr('MODIFIER_RESORT', 28, 'специализация «Курорт»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_RESORT', 28, 'специализация «Курорт»', order=-2, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Курорт».'),
-                attributes.attr('MODIFIER_TRANSPORT_NODE', 29, 'специализация «Транспортный узел»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_TRANSPORT_NODE', 29, 'специализация «Транспортный узел»', order=-2, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Транспортный узел».'),
-                attributes.attr('MODIFIER_OUTLAWS', 30, 'специализация «Вольница»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_OUTLAWS', 30, 'специализация «Вольница»', order=-2, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Вольница».'),
-                attributes.attr('MODIFIER_HOLY_CITY', 31, 'специализация «Святой город»', order=-1, formatter=attributes.float_formatter,
+                attributes.attr('MODIFIER_HOLY_CITY', 31, 'специализация «Святой город»', order=-2, formatter=attributes.float_formatter,
                  description='Соответствие города специализации «Святой город».'),
 
-                attributes.attr('MODIFIER_MULTIPLIER', 32, 'сила специализаций', order=-1, default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                attributes.attr('MODIFIER_MULTIPLIER', 32, 'сила специализаций', order=-2, default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
                  description='Влияние города на соответствие специализациям.', formatter=attributes.float_formatter),
 
                 attributes.attr('CULTURE', 33, 'культура', verbose_units='%', formatter=attributes.percents_formatter,
@@ -110,7 +109,6 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                 attributes.attr('AREA', 34, 'площадь владений', order=0,
                  description='Площадь владений города. Чем больше у города владений, тем больше производство в нём. На Фронтире бонус к производству меньше.'),
        )
-
 
     EFFECTS_ORDER = sorted(set(record[5] for record in records))
 

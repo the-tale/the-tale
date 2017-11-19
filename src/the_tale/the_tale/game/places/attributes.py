@@ -1,5 +1,3 @@
-# coding: utf-8
-from . import relations
 
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
