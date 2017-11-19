@@ -56,7 +56,6 @@ class BuildingsStorage(dext_storage.CachedStorage):
     SETTINGS_KEY = 'buildings change time'
     EXCEPTION = exceptions.BuildingsStorageError
 
-
     def _construct_object(self, model):
         from . import logic
         return logic.load_building(building_model=model)
@@ -67,7 +66,6 @@ class BuildingsStorage(dext_storage.CachedStorage):
 
     def _get_all_query(self):
         return models.Building.objects.exclude(state=BUILDING_STATE.DESTROYED)
-
 
     def _reset_cache(self):
         self._persons_to_buildings = {}
@@ -94,7 +92,29 @@ class BuildingsStorage(dext_storage.CachedStorage):
 
     def get_choices(self):
         self.sync()
-        return [(building.id, building.name) for building in sorted(self.all(), key=lambda p: p.name)]
+
+        buildings = {}
+
+        for building in self.all():
+            place_id = building.person.place_id
+
+            if place_id not in buildings:
+                buildings[place_id] = []
+
+            buildings[place_id].append(building)
+
+        for place_buildings in buildings.values():
+            place_buildings.sort(key=lambda building: building.name)
+
+        choices = []
+
+        for place_id, buildings_list in buildings.items():
+            place_choices = [(building.id, building.name) for building in buildings_list]
+            choices.append((places[place_id].name, place_choices))
+
+        choices.sort()
+
+        return choices
 
 
 buildings = BuildingsStorage()
