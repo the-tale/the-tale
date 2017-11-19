@@ -1,4 +1,3 @@
-# coding: utf-8
 import datetime
 
 from django.db import models
@@ -28,7 +27,7 @@ class Hero(models.Model):
 
     account = models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True, on_delete=models.CASCADE)
 
-    is_fast = models.BooleanField(default=True, db_index=True) # copy from account.is_fast
+    is_fast = models.BooleanField(default=True, db_index=True)  # copy from account.is_fast
     is_bot = models.BooleanField(default=False)
 
     is_alive = models.BooleanField(default=True)
@@ -40,7 +39,7 @@ class Hero(models.Model):
     # time when ui caching and model saving has started
     ui_caching_started_at = models.DateTimeField(auto_now_add=True)
 
-    #base
+    # base
     gender = RelationIntegerField(relation=GENDER, relation_column='value')
     race = RelationIntegerField(relation=RACE, relation_column='value')
 
@@ -58,8 +57,6 @@ class Hero(models.Model):
 
     abilities = models.TextField(null=False, default='', blank=True)
 
-    cards = models.TextField(null=False, default='{}')
-
     actions = models.TextField(null=False, default='{}')
 
     quest_created_time = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
@@ -74,7 +71,7 @@ class Hero(models.Model):
 
     might = models.FloatField(null=False, default=0.0)
 
-    #position
+    # position
     pos_previous_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
     pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
