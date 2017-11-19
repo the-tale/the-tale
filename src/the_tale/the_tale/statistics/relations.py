@@ -102,20 +102,20 @@ class RECORD_TYPE(DjangoEnum):
                 ('ACTIVE_OLDER_6_MONTH', 80, 'старше 6-ого месяца', VALUE_TYPE.INT, 'активны и зарегистрировались в течение 6 месяцев'),
                 ('ACTIVE_OLDER_YEAR', 81, 'старше 1-ого года', VALUE_TYPE.INT, 'активны и зарегистрировались в течение года'),
 
-                ('INCOME_FROM_FORUM_PERCENTS', 82, '% дохода от форумчан', VALUE_TYPE.INT, '% дохода от форумчан за последний месяц'),
-                ('INCOME_FROM_SILENT_PERCENTS', 83, '% дохода от молчунов', VALUE_TYPE.INT, '% дохода от молчунов за последний месяц'),
-                ('INCOME_FROM_GUILD_MEMBERS_PERCENTS', 84, '% дохода от гильдейцев', VALUE_TYPE.INT, '% дохода от гильдейцев за последний месяц'),
-                ('INCOME_FROM_SINGLES_PERCENTS', 85, '% дохода от одиночек', VALUE_TYPE.INT, '% дохода от одиночек за последний месяц'),
+                ('INCOME_FROM_FORUM_PERCENTS', 82, '% дохода от форумчан', VALUE_TYPE.FLOAT, '% дохода от форумчан за последний месяц'),
+                ('INCOME_FROM_SILENT_PERCENTS', 83, '% дохода от молчунов', VALUE_TYPE.FLOAT, '% дохода от молчунов за последний месяц'),
+                ('INCOME_FROM_GUILD_MEMBERS_PERCENTS', 84, '% дохода от гильдейцев', VALUE_TYPE.FLOAT, '% дохода от гильдейцев за последний месяц'),
+                ('INCOME_FROM_SINGLES_PERCENTS', 85, '% дохода от одиночек', VALUE_TYPE.FLOAT, '% дохода от одиночек за последний месяц'),
 
-                ('INCOME_FROM_GOODS_PREMIUM_PERCENTS', 86, '% дохода от подписок', VALUE_TYPE.INT, '% дохода от подписок за день'),
-                ('INCOME_FROM_GOODS_ENERGY_PERCENTS', 87, '% дохода от энергии', VALUE_TYPE.INT, '% дохода от энергии за день'),
-                ('INCOME_FROM_GOODS_CHEST_PERCENTS', 88, '% дохода от сундуков', VALUE_TYPE.INT, '% дохода от сундуков за день'),
-                ('INCOME_FROM_GOODS_PREFERENCES_PERCENTS', 89, '% дохода от предпочтений', VALUE_TYPE.INT, '% дохода от предпочтений за день'),
-                ('INCOME_FROM_GOODS_PREFERENCES_RESET_PERCENTS', 90, '% дохода от сброса предпочтений', VALUE_TYPE.INT, '% дохода от сброса предпочтений за день'),
-                ('INCOME_FROM_GOODS_HABITS_PERCENTS', 91, '% дохода от черт', VALUE_TYPE.INT, '% дохода от черт за день'),
-                ('INCOME_FROM_GOODS_ABILITIES_PERCENTS', 92, '% дохода от способностей', VALUE_TYPE.INT, '% дохода от способностей за день'),
-                ('INCOME_FROM_GOODS_CLANS_PERCENTS', 93, '% дохода от гильдий', VALUE_TYPE.INT, '% дохода от гильдий за день'),
-                ('INCOME_FROM_GOODS_OTHER_PERCENTS', 94, '% дохода от остального', VALUE_TYPE.INT, '% дохода от остального за день'),
+                ('INCOME_FROM_GOODS_PREMIUM_PERCENTS', 86, '% дохода от подписок', VALUE_TYPE.FLOAT, '% дохода от подписок за день'),
+                ('INCOME_FROM_GOODS_ENERGY_PERCENTS', 87, '% дохода от энергии', VALUE_TYPE.FLOAT, '% дохода от энергии за день'),
+                ('INCOME_FROM_GOODS_CHEST_PERCENTS', 88, '% дохода от сундуков', VALUE_TYPE.FLOAT, '% дохода от сундуков за день'),
+                ('INCOME_FROM_GOODS_PREFERENCES_PERCENTS', 89, '% дохода от предпочтений', VALUE_TYPE.FLOAT, '% дохода от предпочтений за день'),
+                ('INCOME_FROM_GOODS_PREFERENCES_RESET_PERCENTS', 90, '% дохода от сброса предпочтений', VALUE_TYPE.FLOAT, '% дохода от сброса предпочтений за день'),
+                ('INCOME_FROM_GOODS_HABITS_PERCENTS', 91, '% дохода от черт', VALUE_TYPE.FLOAT, '% дохода от черт за день'),
+                ('INCOME_FROM_GOODS_ABILITIES_PERCENTS', 92, '% дохода от способностей', VALUE_TYPE.FLOAT, '% дохода от способностей за день'),
+                ('INCOME_FROM_GOODS_CLANS_PERCENTS', 93, '% дохода от гильдий', VALUE_TYPE.FLOAT, '% дохода от гильдий за день'),
+                ('INCOME_FROM_GOODS_OTHER_PERCENTS', 94, '% дохода от остального', VALUE_TYPE.FLOAT, '% дохода от остального за день'),
 
                 ('REVENUE', 95, 'Доход (за предыдущий месяц)', VALUE_TYPE.INT, 'доход за предыдущий месяц'),
 
@@ -131,12 +131,12 @@ class RECORD_TYPE(DjangoEnum):
                 ('REFERRALS_IN_MONTH', 103, 'рефералы в месяц', VALUE_TYPE.INT, 'завершённые рефералы (в месяц)'),
 
                 ('INCOME_FROM_GOODS_MARKET_COMMISSION', 104, 'доход от комиссии на рынке', VALUE_TYPE.INT, 'доход от комиссии на рынке'),
-                ('INCOME_FROM_GOODS_MARKET_COMMISSION_PERCENTS', 105, '% дохода от комиссии на рынке', VALUE_TYPE.INT, '% дохода от комиссии на рынке за день'),
+                ('INCOME_FROM_GOODS_MARKET_COMMISSION_PERCENTS', 105, '% дохода от комиссии на рынке', VALUE_TYPE.FLOAT, '% дохода от комиссии на рынке за день'),
 
                 ('INFINIT_PREMIUMS', 106, 'количество вечных подписчиков', VALUE_TYPE.INT, 'количество вечных подписчиков'),
 
                 ('INCOME_FROM_TRANSFER_MONEY_COMMISSION', 107, 'доход от комиссии за перечисление печенек', VALUE_TYPE.INT, 'доход от комиссии за перечисление печенек'),
-                ('INCOME_FROM_TRANSFER_MONEY_COMMISSION_PERCENTS', 108, '% дохода за перечисления печенек', VALUE_TYPE.INT, '% дохода за перечисления печенек'),
+                ('INCOME_FROM_TRANSFER_MONEY_COMMISSION_PERCENTS', 108, '% дохода за перечисления печенек', VALUE_TYPE.FLOAT, '% дохода за перечисления печенек'),
 
                 ('FORUM_POSTS', 109, 'сообщений на форуме в день', VALUE_TYPE.INT, 'сообщений на форуме в день'),
                 ('FORUM_POSTS_IN_MONTH', 110, 'сообщений на форуме в месяц', VALUE_TYPE.INT, 'сообщений на форуме в месяц'),
