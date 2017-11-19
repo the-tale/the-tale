@@ -1,3 +1,5 @@
+{% import 'accounts/macros.html' as accounts_macros with context %}
+
 {% macro pages_links(thread) %}
 
   {% set paginator = thread.paginator %}
@@ -52,27 +54,16 @@
   {{ pages_links(thread) }}
 </td>
 {% if not subscription %}
-<td class="author">
-  <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick_verbose }}</a>
-  {% if thread.author.clan %}
-    <a href="{{url('accounts:clans:show', thread.author.clan.id)}}">[{{thread.author.clan.abbr}}]</a>
-  {% endif %}
-</td>
+<td class="author">{{accounts_macros.account_link(thread.author, thread.author.clan)}}</td>
 {% endif  %}
 <td class="posts-count">{{ thread.posts_count }}</td>
 
 {% if not subscription %}
 <td class="last-poster">
   {% if thread.last_poster %}
-    <a href="{{url('accounts:show', thread.last_poster.id)}}">{{ thread.last_poster.nick_verbose }}</a>
-    {% if thread.last_poster.clan %}
-      <a href="{{url('accounts:clans:show', thread.last_poster.clan.id)}}">[{{thread.last_poster.clan.abbr}}]</a>
-    {% endif %}
+    {{accounts_macros.account_link(thread.last_poster, thread.last_poster.clan)}}
   {% else %}
-    <a href="{{url('accounts:show', thread.author.id)}}">{{ thread.author.nick_verbose }}</a>
-    {% if thread.author.clan %}
-      <a href="{{url('accounts:clans:show', thread.author.clan.id)}}">[{{thread.author.clan.abbr}}]</a>
-    {% endif %}
+    {{accounts_macros.account_link(thread.author, thread.author.clan)}}
   {% endif %}
 </td>
 {% endif %}
@@ -115,10 +106,7 @@
   <span class="updated-at pgf-format-datetime" data-timestamp="{{ subcategory.last_thread.updated_at|timestamp }}"></span>
   <span class="">
     {% if subcategory.last_thread.last_poster %}
-      <a href="{{url('accounts:show', subcategory.last_poster.id)}}">{{ subcategory.last_poster.nick_verbose|truncate(30) }}</a>
-      {% if subcategory.last_poster.clan %}
-        <a href="{{url('accounts:clans:show', subcategory.last_poster.clan.id)}}">[{{subcategory.last_poster.clan.abbr}}]</a>
-      {% endif %}
+      {{accounts_macros.account_link(subcategory.last_poster, subcategory.last_poster.clan)}}
     {% else %}
     —
     {% endif %}
