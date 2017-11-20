@@ -189,9 +189,7 @@ jQuery(document).ready(function() {
                                                                            (settings.SOCIAL_FACEBOOK_GROUP_URL, "Facebook"),
                                                                            (settings.SOCIAL_TWITTER_GROUP_URL, "Twitter"),
                                                                            ('-', '<li class="divider"></li>'),
-                                                                           (settings.SOCIAL_WIKI_URL, "Wiki"),
-                                                                           (settings.SOCIAL_CHROME_URL, "Расширение для Chrome"),
-                                                                           (settings.SOCIAL_DARK_THEME_URL, "Тёмная тема")]) }}
+                                                                           ('-', "<li style='padding-left: 15px;'>Проекты игроков</li>")]+settings.COMMUNITY_PROJECTS) }}
 
             {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Книга Судеб"),
                                                                 (url("linguistics:"), "Лингвистика"),
