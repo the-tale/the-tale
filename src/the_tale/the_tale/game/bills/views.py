@@ -216,16 +216,12 @@ class BillResource(Resource):
 
         return self.json_error('bills.create.form_errors', user_form.errors)
 
-
     @handler('#bill', name='show', method='get')
     def show(self):
         from the_tale.forum.views import ThreadPageData
-        from the_tale.blogs import meta_relations as blogs_meta_relations
 
         thread_data = ThreadPageData()
         thread_data.initialize(account=self.account, thread=self.bill.forum_thread, page=1, inline=True)
-
-        meta_bill = meta_relations.Bill.create_from_object(self.bill)
 
         return self.template('bills/show.html', {'bill': self.bill,
                                                  'thread_data': thread_data,

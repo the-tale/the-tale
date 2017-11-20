@@ -5,6 +5,10 @@
 {% macro forum_paginator_line(thread_data, delete_thread_button=false, edit_thread_button=false) %}
   <div class="pagination pull-left">
     <ul>
+      {% if thread_data.inline %}
+      <li><a href="{{ url('forum:threads:show', thread_data.thread.id) }}">на форум</a></li>
+      {% endif %}
+
       {% if thread_data.can_subscribe %}
       <li>
         {% if not thread_data.has_subscription %}
