@@ -108,6 +108,12 @@ jQuery(document).ready(function(){
             <a href="{{ url('accounts:messages:conversation', contact=message.sender_id) }}">к переписке</a><br/>
           </td>
           {% endif %}
+          {% else %}
+          {% if page!="contacts" %}
+          <td style="width: 6em;">
+            <a href="{{ url('accounts:messages:conversation', contact=message.recipients_ids[0]) }}">к переписке</a><br/>
+          </td>
+          {% endif %}
           {% endif %}
 
           <td style="width: 4em;">

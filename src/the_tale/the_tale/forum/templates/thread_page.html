@@ -219,10 +219,7 @@ jQuery(document).ready( function(e) {
     <thead>
       <tr>
         <td width="200px" class="info-head">
-          <a href="{{url('accounts:show', author.id)}}">{{ author.nick_verbose }}</a>
-          {% if author.clan %}
-            <a href="{{url('accounts:clans:show', author.clan.id)}}">[{{author.clan.abbr}}]</a>
-          {% endif %}
+          {{accounts_macros.account_link(author, author.clan)}}
         </td>
         <td class="head">
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 import sys
 import uuid
 import datetime
@@ -8,7 +7,7 @@ import random
 from urllib.parse import urlparse
 
 from django.contrib.auth.hashers import make_password
-from django.db import models, transaction
+from django.db import transaction
 
 from dext.common.utils.urls import full_url
 from dext.common.utils import s11n

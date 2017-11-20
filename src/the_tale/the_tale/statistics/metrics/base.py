@@ -120,7 +120,7 @@ class BaseCombination(BaseMetric):
 
         for source in self.SOURCES:
             data = RecordPrototype._db_filter(type=source,
-                                              date__gt=self.last_date).order_by('date').values_list('date', 'value_int')
+                                              date__gt=self.last_date).order_by('date').values_list('date', 'value_float')
             sources.append(data)
 
         for source_record in zip(*sources):

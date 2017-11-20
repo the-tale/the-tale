@@ -65,6 +65,7 @@ class TEMPLATE_STATE(DjangoEnum):
                ('IN_GAME', 1, 'в игре'),
                ('REMOVED', 2, 'удалена'))
 
+
 class TEMPLATE_ERRORS_STATUS(DjangoEnum):
     records = (('NO_ERRORS', 0, 'нет ошибок'),
                ('HAS_ERRORS', 1, 'есть ошибки'))
@@ -77,9 +78,11 @@ class CONTRIBUTION_STATE(DjangoEnum):
     records = (('ON_REVIEW', 0, 'на рассмотрении', TEMPLATE_STATE.ON_REVIEW, WORD_STATE.ON_REVIEW),
                ('IN_GAME', 1, 'в игре', TEMPLATE_STATE.IN_GAME, WORD_STATE.IN_GAME))
 
+
 class CONTRIBUTION_TYPE(DjangoEnum):
     records = (('WORD', 0, 'слово'),
                ('TEMPLATE', 1, 'фраза'))
+
 
 class CONTRIBUTION_SOURCE(DjangoEnum):
     records = (('PLAYER', 0, 'игрок'),
@@ -98,62 +101,60 @@ class WORD_HAS_PLURAL_FORM(DjangoEnum):
 
 class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
     static_relation = Column(unique=False, single_type=False)
+    sort = Column(unique=False)
 
-    records = (('GENDER', 0, 'пол', game_relations.GENDER),
-               ('RACE', 1, 'раса', game_relations.RACE),
-               ('CITY_MODIFIER', 2, 'специализация города', places_modifiers.CITY_MODIFIERS),
-               ('HABIT_HONOR', 3, 'честь', game_relations.HABIT_HONOR_INTERVAL),
-               ('HABIT_PEACEFULNESS', 4, 'миролюбие', game_relations.HABIT_PEACEFULNESS_INTERVAL),
-               ('PERSON_TYPE', 5, 'профессия', persons_relations.PERSON_TYPE),
+    records = (('GENDER', 0, 'пол', game_relations.GENDER, True),
+               ('RACE', 1, 'раса', game_relations.RACE, True),
+               ('CITY_MODIFIER', 2, 'специализация города', places_modifiers.CITY_MODIFIERS, True),
+               ('HABIT_HONOR', 3, 'честь', game_relations.HABIT_HONOR_INTERVAL, True),
+               ('HABIT_PEACEFULNESS', 4, 'миролюбие', game_relations.HABIT_PEACEFULNESS_INTERVAL, True),
+               ('PERSON_TYPE', 5, 'профессия', persons_relations.PERSON_TYPE, True),
 
-               ('ARTIFACT_TYPE', 6, 'тип экипировки', artifacts_relations.ARTIFACT_TYPE),
-               ('ARTIFACT_POWER_TYPE', 7, 'тип силы', artifacts_relations.ARTIFACT_POWER_TYPE),
-               ('ARTIFACT_RARITY', 8, 'редкость артефакта', artifacts_relations.RARITY),
-               ('ARTIFACT_EFFECT', 9, 'эффект артефакта', artifacts_relations.ARTIFACT_EFFECT),
+               ('ARTIFACT_TYPE', 6, 'тип экипировки', artifacts_relations.ARTIFACT_TYPE, True),
+               ('ARTIFACT_POWER_TYPE', 7, 'тип силы', artifacts_relations.ARTIFACT_POWER_TYPE, True),
+               ('ARTIFACT_RARITY', 8, 'редкость артефакта', artifacts_relations.RARITY, True),
+               ('ARTIFACT_EFFECT', 9, 'эффект артефакта', artifacts_relations.ARTIFACT_EFFECT, True),
 
-               ('MOB_TYPE', 10, 'тип существа', game_relations.BEING_TYPE),
+               ('MOB_TYPE', 10, 'тип существа', game_relations.BEING_TYPE, True),
 
-               ('ARTIFACT', 11, 'артефакт', None),
-               ('MOB', 12, 'монстр', None),
-               ('COMPANION', 13, 'спутник', None),
+               ('ARTIFACT', 11, 'артефакт', None, True),
+               ('MOB', 12, 'монстр', None, True),
+               ('COMPANION', 13, 'спутник', None, True),
 
-               # ('COMPANION_TYPE', 14, u'тип спутника', companions_relations.TYPE),
-               ('COMPANION_DEDICATION', 15, 'тип самоотверженности спутника', companions_relations.DEDICATION),
-               # ('COMPANION_RARITY', 16, u'редкость спутника', companions_relations.RARITY),
+               ('COMPANION_DEDICATION', 15, 'тип самоотверженности спутника', companions_relations.DEDICATION, True),
 
-               ('ARCHETYPE', 17, 'архетип', game_relations.ARCHETYPE),
-               ('TERRAIN', 18, 'тип местности', map_relations.TERRAIN),
-               ('BUILDING_TYPE', 19, 'тип здания', places_relations.BUILDING_TYPE),
+               ('ARCHETYPE', 17, 'архетип', game_relations.ARCHETYPE, True),
+               ('TERRAIN', 18, 'тип местности', map_relations.TERRAIN, True),
+               ('BUILDING_TYPE', 19, 'тип здания', places_relations.BUILDING_TYPE, True),
 
-               ('ACTION_TYPE', 20, 'тип действия героя', actions_relations.ACTION_TYPE),
+               ('ACTION_TYPE', 20, 'тип действия героя', actions_relations.ACTION_TYPE, True),
 
-               ('META_TERRAIN', 21, 'мета тип местности', map_relations.META_TERRAIN),
-               ('META_HEIGHT', 22, 'мета тип высоты', map_relations.META_HEIGHT),
-               ('META_VEGETATION', 23, 'мета тип растительности', map_relations.META_VEGETATION),
+               ('META_TERRAIN', 21, 'мета тип местности', map_relations.META_TERRAIN, True),
+               ('META_HEIGHT', 22, 'мета тип высоты', map_relations.META_HEIGHT, True),
+               ('META_VEGETATION', 23, 'мета тип растительности', map_relations.META_VEGETATION, True),
 
-               ('COMMUNICATION_VERBAL', 24, 'вербальная коммуникация', game_relations.COMMUNICATION_VERBAL),
-               ('COMMUNICATION_GESTURES', 25, 'невербальная коммуникация', game_relations.COMMUNICATION_GESTURES),
-               ('COMMUNICATION_TELEPATHIC', 26, 'телепатия', game_relations.COMMUNICATION_TELEPATHIC),
+               ('COMMUNICATION_VERBAL', 24, 'вербальная коммуникация', game_relations.COMMUNICATION_VERBAL, True),
+               ('COMMUNICATION_GESTURES', 25, 'невербальная коммуникация', game_relations.COMMUNICATION_GESTURES, True),
+               ('COMMUNICATION_TELEPATHIC', 26, 'телепатия', game_relations.COMMUNICATION_TELEPATHIC, True),
 
-               ('INTELLECT_LEVEL', 27, 'уровень интеллекта', game_relations.INTELLECT_LEVEL),
+               ('INTELLECT_LEVEL', 27, 'уровень интеллекта', game_relations.INTELLECT_LEVEL, True),
 
-               ('ACTOR', 28, 'мета-тип существа', game_relations.ACTOR),
+               ('ACTOR', 28, 'мета-тип существа', game_relations.ACTOR, True),
 
-               ('PLURAL_FORM', 29, 'есть множественное число', WORD_HAS_PLURAL_FORM),
+               ('PLURAL_FORM', 29, 'есть множественное число', WORD_HAS_PLURAL_FORM, True),
 
-               ('PERSON_PERSONALITY_COSMETIC', 30, 'косметическая особенность характера', persons_relations.PERSONALITY_COSMETIC),
-               ('PERSON_PERSONALITY_PRACTICAL', 31, 'практическая особенность характера', persons_relations.PERSONALITY_PRACTICAL),
+               ('PERSON_PERSONALITY_COSMETIC', 30, 'косметическая особенность характера', persons_relations.PERSONALITY_COSMETIC, True),
+               ('PERSON_PERSONALITY_PRACTICAL', 31, 'практическая особенность характера', persons_relations.PERSONALITY_PRACTICAL, True),
 
-               ('COMPANION_ABILITY', 32, 'особенность', companion_effects.ABILITIES),
+               ('COMPANION_ABILITY', 32, 'особенность', companion_effects.ABILITIES, True),
 
-               ('COMPANION_EXISTENCE', 33, 'наличие спутника', companions_relations.COMPANION_EXISTENCE),
+               ('COMPANION_EXISTENCE', 33, 'наличие спутника', companions_relations.COMPANION_EXISTENCE, True),
 
-               ('REAL_FEAST', 34, 'праздники из реального мира', tt_calendar.REAL_FEAST),
-               ('CALENDAR_DATE', 35, 'важные даты календаря', tt_calendar.DATE),
-               ('PHYSICS_DATE', 36, 'важные даты для физического мира', tt_calendar.PHYSICS_DATE),
-               ('DAY_TIME', 37, 'время дня', tt_calendar.DAY_TIME),
-               ('MONTH', 38, 'месяц', tt_calendar.MONTH),
-               ('QUINT', 39, 'квинт', tt_calendar.QUINT),
-               ('QUINT_DAY', 40, 'день квинта', tt_calendar.QUINT_DAY),
-               ('DAY_TYPE', 41, 'тип дня', tt_calendar.DAY_TYPE)
-              )
+               ('REAL_FEAST', 34, 'праздники из реального мира', tt_calendar.REAL_FEAST, True),
+               ('CALENDAR_DATE', 35, 'важные даты календаря', tt_calendar.DATE, True),
+               ('PHYSICS_DATE', 36, 'важные даты для физического мира', tt_calendar.PHYSICS_DATE, False),
+               ('DAY_TIME', 37, 'время дня', tt_calendar.DAY_TIME, False),
+               ('MONTH', 38, 'месяц', tt_calendar.MONTH, False),
+               ('QUINT', 39, 'квинт', tt_calendar.QUINT, False),
+               ('QUINT_DAY', 40, 'день квинта', tt_calendar.QUINT_DAY, False),
+               ('DAY_TYPE', 41, 'тип дня', tt_calendar.DAY_TYPE, True))

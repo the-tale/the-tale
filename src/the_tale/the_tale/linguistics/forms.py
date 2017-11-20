@@ -1,5 +1,3 @@
-# coding: utf-8
-
 import copy
 
 from django import forms as django_forms
@@ -46,7 +44,6 @@ def get_fields(word_type):
         form_fields['%s_%s' % (WORD_FIELD_PREFIX, static_property.__name__)] = field
 
     return form_fields
-
 
 
 def decompress_word(word_type, value):
@@ -231,8 +228,18 @@ class TemplateForm(forms.Form):
         for variable in self.key.variables:
             for restrictions_group in variable.type.restrictions:
                 field_name = 'restriction_%s_%d' % (variable.value, restrictions_group.value)
+
                 restrictions = storage.restrictions_storage.get_restrictions(restrictions_group)
-                choices = [('', 'нет')] + sorted([(restriction.id, restriction.name) for restriction in restrictions], key=lambda r: r[1])
+
+                restrictions_choices = [(restriction.id, restriction.name) for restriction in restrictions]
+
+                choices = [('', 'нет')]
+
+                if restrictions_group.sort:
+                    choices += sorted(restrictions_choices, key=lambda r: r[1])
+                else:
+                    choices += restrictions_choices
+
                 self.fields[field_name] = fields.ChoiceField(label=restrictions_group.text, required=False, choices=choices)
 
     def verificators_fields(self):
@@ -265,7 +272,6 @@ class TemplateForm(forms.Form):
                 restrictions.append((variable.value, int(restriction_id)))
 
         return frozenset(restrictions)
-
 
     def clean_template(self):
         data = self.cleaned_data['template'].strip()
@@ -308,6 +314,7 @@ for group in groups_relations.LEXICON_GROUP.records:
         keys.append((key, key.text))
     keys.sort(key=lambda x: x[1])
     KEY_CHOICES.append((group.text, keys))
+
 
 class TemplateKeyForm(forms.Form):
     key = django_forms.TypedChoiceField(label='Тип фразы', choices=KEY_CHOICES, coerce=lexicon_keys.LEXICON_KEY.get_from_name)
