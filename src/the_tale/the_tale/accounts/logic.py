@@ -174,12 +174,18 @@ def thin_out_accounts(number, prolong_active_to):
     from . import models
 
     from the_tale.game.bills import models as bills_models
+    from the_tale.blogs import models as blogs_models
+    from the_tale.forum import models as forum_models
 
     restricted_accounts = set()
     restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('initiator', flat=True))
     restricted_accounts |= set(models.RandomPremiumRequest.objects.values_list('receiver', flat=True))
     restricted_accounts |= set(Account.objects.exclude(clan_id=None).values_list('id', flat=True))
     restricted_accounts |= set(bills_models.Bill.objects.values_list('owner_id', flat=True))
+    restricted_accounts |= set(blogs_models.Post.objects.values_list('author_id', flat=True))
+    restricted_accounts |= set(blogs_models.Post.objects.values_list('moderator_id', flat=True))
+    restricted_accounts |= set(forum_models.Post.objects.values_list('author_id', flat=True))
+    restricted_accounts |= set(forum_models.Thread.objects.values_list('author_id', flat=True))
 
     for account_model in Account.objects.all().order_by('created_at')[number:]:
         if account_model.id not in restricted_accounts:
