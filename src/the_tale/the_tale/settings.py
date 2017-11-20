@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import os
 import sys
 import time
@@ -226,7 +226,6 @@ INSTALLED_APPS = [
     'the_tale.linguistics',
 
     'the_tale.finances.shop',
-    'the_tale.finances.market',
     'the_tale.finances.bank',
     'the_tale.finances.xsolla',
 
