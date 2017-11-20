@@ -115,8 +115,8 @@ pgf.base.TooltipPlacement = function (tip, element) {
     }
 
     if (!placement) {
-        var height = jQuery(document).outerHeight();
-        var width = jQuery(document).outerWidth();
+        var height = Math.min(jQuery(document).outerHeight(), jQuery(window).height());
+        var width = Math.min(jQuery(document).outerWidth(), jQuery(window).width());
         var vert = 0.5 * height - offset.top;
         var vertPlacement = vert > 0 ? 'bottom' : 'top';
         var horiz = 0.5 * width - offset.left;
