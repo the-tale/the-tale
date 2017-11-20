@@ -107,6 +107,7 @@ def load_heroes_by_account_ids(account_ids):
     heroes_models = models.Hero.objects.filter(account_id__in=account_ids)
     return [load_hero(hero_model=model) for model in heroes_models]
 
+
 def load_hero(hero_id=None, account_id=None, hero_model=None):
 
     # TODO: get values instead model
@@ -121,10 +122,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
     except models.Hero.DoesNotExist:
         return None
 
-    if isinstance(hero_model.data, str):
-        data = s11n.from_json(hero_model.data)
-    else:
-        data = hero_model.data
+    data = hero_model.data
 
     companion_data = data.get('companion')
     companion = companions_objects.Companion.deserialize(companion_data) if companion_data else None
@@ -184,12 +182,12 @@ def save_hero(hero, new=False):
 
     arguments = dict(saved_at_turn=turn.number(),
                      saved_at=datetime.datetime.now(),
-                     data=s11n.to_json(data),
+                     data=data,
                      abilities=s11n.to_json(hero.abilities.serialize()),
                      actions=s11n.to_json(hero.actions.serialize()),
                      raw_power_physic=hero.power.physic,
                      raw_power_magic=hero.power.magic,
-                     quest_created_time = hero.quests.min_quest_created_time,
+                     quest_created_time=hero.quests.min_quest_created_time,
                      preferences=s11n.to_json(hero.preferences.serialize()),
                      stat_politics_multiplier=hero.politics_power_multiplier() if hero.can_change_all_powers() else 0,
 
