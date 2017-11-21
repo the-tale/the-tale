@@ -55,6 +55,7 @@ COMMUNITY_PROJECTS = []
 SOCIAL_GITHUB_URL = 'https://github.com/the-tale'
 SOCIAL_DOCUMENTATION = 'http://docs.the-tale.org'
 
+CARDS_TUTORIAL = None
 YOUTUBE_TUTORIAL = None
 
 X_FRAME_OPTIONS = 'DENY'
