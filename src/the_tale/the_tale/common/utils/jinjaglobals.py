@@ -1,5 +1,5 @@
-# coding: utf-8
 
+from dext.common.utils import s11n
 from dext.common.utils import jinja2
 
 from . import logic
@@ -24,3 +24,8 @@ def bb(value):
 @jinja2.jinjafilter
 def bb_safe(value):
     return jinja2.Markup(bbcode.safe_render(value))
+
+
+@jinja2.jinjafilter
+def json(value):
+    return jinja2.Markup(s11n.to_json(value))

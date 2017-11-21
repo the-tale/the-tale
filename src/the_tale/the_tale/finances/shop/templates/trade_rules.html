@@ -1,6 +1,22 @@
+
+{% macro card_rarity_price_record(rarity) %}
+<span class="{{rarity.name.lower()}}-card-label" style="cursor: pointer;">{{rarity.text}}</span>:
+{{CARDS_MIN_PRICES[rarity]}}
+<img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle; display: inline-block;"></img>
+{% endmacro %}
+
 <ol>
   <li>Продавать и покупать карты может любой зарегистрированный игрок.</li>
   <li>Продавать можно только карты, полученные подписчиками.</li>
   <li>Комиссия рынка составляет {{shop_settings().MARKET_COMISSION|percents()}}.</li>
-  <li>Цена продажи должна быть не меньше {{shop_settings().MINIMUM_MARKET_PRICE}} печенек.</li>
 </ol>
+
+<p>Минимальная цена продажи карт.</p>
+
+<ul>
+  <li>{{card_rarity_price_record(CARD_RARITY.COMMON)}}</li>
+  <li>{{card_rarity_price_record(CARD_RARITY.UNCOMMON)}}</li>
+  <li>{{card_rarity_price_record(CARD_RARITY.RARE)}}</li>
+  <li>{{card_rarity_price_record(CARD_RARITY.EPIC)}}</li>
+  <li>{{card_rarity_price_record(CARD_RARITY.LEGENDARY)}}</li>
+</ul>

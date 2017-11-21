@@ -44,7 +44,7 @@
       cardsList = new pgf.game.ShopCardsBrowser({container: jQuery('.pgf-cards-browser'),
                                                  marketInfoUrl: "",
                                                  userCards: userCards,
-                                                 minSellPrice: {{shop_settings().MINIMUM_MARKET_PRICE}},
+                                                 minSellPrice: {{ JS_CARDS_MIN_PRICES|json }},
                                                  sellComission: {{shop_settings().MARKET_COMISSION}},
                                                  createSellLotUrl: "{{create_sell_lot_url()}}",
                                                  closeSellLotUrl: "{{close_sell_lot_url()}}",

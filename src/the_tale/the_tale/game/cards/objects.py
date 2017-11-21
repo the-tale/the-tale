@@ -1,5 +1,4 @@
 
-from the_tale.game.cards import relations
 
 from . import cards
 

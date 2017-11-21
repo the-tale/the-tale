@@ -22,8 +22,8 @@ from the_tale.finances.bank import relations as bank_relations
 
 from ..price_list import PURCHASES_BY_UID
 from ..conf import payments_settings
-from ..relations import PERMANENT_PURCHASE_TYPE
-from ..goods import PermanentPurchase
+from .. import relations
+from .. import goods
 from .. import logic
 from .. import tt_api
 from .. import objects
@@ -107,7 +107,7 @@ class ShopRequestesTests(RequestesTestsBase, PageRequestsMixin, BankTestsMixin):
 
     def test_purchasable_items(self):
         for purchase in list(PURCHASES_BY_UID.values()):
-            if not isinstance(purchase, PermanentPurchase):
+            if not isinstance(purchase, goods.PermanentPurchase):
                 continue
 
             self.account.permanent_purchases.insert(purchase.purchase_type)
@@ -175,7 +175,7 @@ class HistoryRequestesTests(RequestesTestsBase, BankTestsMixin, PageRequestsMixi
 
         texts = []
 
-        for record in PERMANENT_PURCHASE_TYPE.records:
+        for record in relations.PERMANENT_PURCHASE_TYPE.records:
             self.account.permanent_purchases.insert(record)
             texts.append(record.description)
             texts.append(record.text)
@@ -251,7 +251,7 @@ class CreateSellLotTests(RequestesTestsBase, BankTestsMixin):
 
     def test_no_cards_in_storage(self):
         cards_tt_api.change_cards(self.account.id, operation_type='#test', to_remove=[self.cards[0]])
-        response = self.post_ajax_json(logic.create_sell_lot_url(), {'cards': [self.cards[0].uid, self.cards[1].uid], 'price': 100})
+        response = self.post_ajax_json(logic.create_sell_lot_url(), {'cards': [self.cards[0].uid, self.cards[1].uid], 'price': 100500})
         self.check_ajax_error(response, 'card.not_specified')
 
 
@@ -261,8 +261,9 @@ class CreateSellLotTests(RequestesTestsBase, BankTestsMixin):
 
 
     def test_wrong_price(self):
-        response = self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[0].uid, self.cards[1].uid], 'price': payments_settings.MINIMUM_MARKET_PRICE-1})
-        self.check_ajax_error(response, 'price.wrong_value')
+        response = self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[0].uid, self.cards[1].uid],
+                                                                     'price': relations.CARDS_MIN_PRICES[self.cards[0].type.rarity]-1})
+        self.check_ajax_error(response, 'too_small_price')
 
 
     def test_not_tradable_card(self):
@@ -322,8 +323,8 @@ class ItemTypePricesTests(RequestesTestsBase, BankTestsMixin):
 
         cards_tt_api.change_cards(self.account.id, operation_type='#test', to_add=self.cards)
 
-        self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[0].uid, self.cards[2].uid], 'price': 10})
-        self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[1].uid], 'price': 100})
+        self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[0].uid, self.cards[2].uid], 'price': 100})
+        self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[1].uid], 'price': 100500})
 
 
     def test_no_item_type(self):
@@ -335,11 +336,10 @@ class ItemTypePricesTests(RequestesTestsBase, BankTestsMixin):
         response = self.request_ajax_json(logic.item_type_prices_url()+'?item_type={}'.format(self.cards[0].item_full_type))
         data = self.check_ajax_ok(response)
 
-        self.assertEqual(data, {'prices': {'10': 1, '100': 1}, 'owner_prices': {'10': 1, '100': 1}})
+        self.assertEqual(data, {'prices': {'100': 1, '100500': 1}, 'owner_prices': {'100': 1, '100500': 1}})
 
 
     def test_success__no_owner(self):
-
         self.request_logout()
 
         account_2 = self.accounts_factory.create_account()
@@ -349,7 +349,7 @@ class ItemTypePricesTests(RequestesTestsBase, BankTestsMixin):
         response = self.request_ajax_json(logic.item_type_prices_url()+'?item_type={}'.format(self.cards[0].item_full_type))
         data = self.check_ajax_ok(response)
 
-        self.assertEqual(data, {'prices': {'10': 1, '100': 1}, 'owner_prices': {}})
+        self.assertEqual(data, {'prices': {'100': 1, '100500': 1}, 'owner_prices': {}})
 
 
 class GiveMoneyRequestesTests(RequestesTestsBase):
@@ -449,9 +449,9 @@ class CloseSellLotTests(RequestesTestsBase, BankTestsMixin):
         self.check_ajax_error(response, 'item_type.not_specified')
 
     def test_wrong_price(self):
-        response = self.post_ajax_json(logic.close_sell_lot_url(), {'item_type': self.card.item_full_type, 'price': payments_settings.MINIMUM_MARKET_PRICE-1})
-        self.check_ajax_error(response, 'price.wrong_value')
-
+        response = self.post_ajax_json(logic.close_sell_lot_url(), {'item_type': self.card.item_full_type,
+                                                                    'price': 'wrong_price'})
+        self.check_ajax_error(response, 'price.wrong_format')
 
     def test_no_money(self):
         response = self.post_ajax_json(logic.close_sell_lot_url(), {'item_type': self.card.item_full_type, 'price': 10000})
@@ -540,8 +540,9 @@ class CancelSellLotTests(RequestesTestsBase, BankTestsMixin):
         self.assertNotIn(self.card.uid, cards_tt_api.load_cards(self.account.id))
 
     def test_wrong_price(self):
-        response = self.post_ajax_json(logic.cancel_sell_lot_url(), {'item_type': self.card.item_full_type, 'price': payments_settings.MINIMUM_MARKET_PRICE-1})
-        self.check_ajax_error(response, 'price.wrong_value')
+        response = self.post_ajax_json(logic.cancel_sell_lot_url(), {'item_type': self.card.item_full_type,
+                                                                     'price': 'wrong_price'})
+        self.check_ajax_error(response, 'price.wrong_format')
 
         self.assertEqual(tt_api.info(), [self.item_info])
         self.assertNotIn(self.card.uid, cards_tt_api.load_cards(self.account.id))

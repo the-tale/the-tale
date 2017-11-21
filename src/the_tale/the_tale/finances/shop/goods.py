@@ -4,20 +4,18 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.finances.shop import postponed_tasks
 from the_tale.finances.shop import exceptions
 from the_tale.finances.shop.logic import transaction_logic
-from the_tale.finances.shop.conf import payments_settings
 
 
 class PurchaseItem(object):
 
     def __init__(self, uid, cost, name, description, transaction_description, full_name=None, tooltip=None):
         self.uid = uid
-        self.cost = int(cost * payments_settings.GLOBAL_COST_MULTIPLIER)
+        self.cost = cost
         self.name = name
         self.full_name = full_name if full_name is not None else name
         self.description = description
         self.transaction_description = transaction_description
         self.tooltip = tooltip
-
 
     def is_purchasable(self, account, hero):
         return True
