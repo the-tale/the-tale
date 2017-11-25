@@ -239,7 +239,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         if (!data) return;
 
-        var heroPageUrl = pgf.urls['game:heroes:show'](data.id);
+        var heroPageUrl = '/game/heroes/'+data.id;
 
         jQuery('.pgf-level', widget).text(data.base.level);
         jQuery('.pgf-destiny-points', widget).text(data.base.destiny_points);
@@ -1420,7 +1420,13 @@ pgf.game.widgets.Abilities = function() {
         var battleId = element.data('battle-id');
         var redirectOnSuccess = element.data('redirect-on-success');
 
-        pgf.forms.Post({action: pgf.urls['game:abilities:use'](ability.type, battleId),
+        var url = '/game/abilities/'+ability.type+'/api/use?api_version=1.0&api_client='+API_CLIENT;
+
+        if (battleId != undefined) {
+            url = url + '&battle=' + battleId;
+        }
+
+        pgf.forms.Post({action: url,
                         wait: false,
                         OnError: function() {
                             ChangeAbilityWaitingState(ability.type, false);

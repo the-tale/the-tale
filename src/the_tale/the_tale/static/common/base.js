@@ -217,21 +217,24 @@ pgf.base.AutoFormatTime = function() {
     jQuery('.pgf-format-datetime').each(function(i, v){
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
-        var text = Globalize.format( new Date(timestamp), "d" ) + ' ' + Globalize.format( new Date(timestamp), "t" );
+        var date = new Date(timestamp)
+        var text = date.getDate() + '.' + (date.getMonth()+1) + '.' + date.getFullYear() + ' ' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
         el.text(text);
     });
 
     jQuery('.pgf-format-date').each(function(i, v){
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
-        var text = Globalize.format( new Date(timestamp), "d" );
+        var date = new Date(timestamp)
+        var text = date.getDate() + '.' + (date.getMonth()+1) + '.' + date.getFullYear();
         el.text(text);
     });
 
     jQuery('.pgf-format-time').each(function(i, v){
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
-        var text = Globalize.format( new Date(timestamp), "t" );
+        var date = new Date(timestamp)
+        var text = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
         el.text(text);
     });
 };

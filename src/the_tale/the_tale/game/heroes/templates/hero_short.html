@@ -9,7 +9,7 @@ jQuery(document).ready(function(e) {
     jQuery('.pgf-companion-info-link').click(function(e){
         e.preventDefault();
         var target = jQuery(e.currentTarget);
-        var url = pgf.urls['guide:companions:info'](target.data('companion-id'));
+        var url = '/guide/companions/'+target.data('companion-id')+'/info';
         pgf.ui.dialog.Create({ fromUrl: url});
     });
 
