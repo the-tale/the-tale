@@ -91,7 +91,7 @@ class CONTRIBUTION_SOURCE(DjangoEnum):
 
 class INDEX_ORDER_BY(DjangoEnum):
     records = (('TEXT', 0, 'по тексту'),
-               ('UPDATED_AT', 1, 'по дате') )
+               ('UPDATED_AT', 1, 'по дате'))
 
 
 class WORD_HAS_PLURAL_FORM(DjangoEnum):
@@ -157,4 +157,6 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                ('MONTH', 38, 'месяц', tt_calendar.MONTH, False),
                ('QUINT', 39, 'квинт', tt_calendar.QUINT, False),
                ('QUINT_DAY', 40, 'день квинта', tt_calendar.QUINT_DAY, False),
-               ('DAY_TYPE', 41, 'тип дня', tt_calendar.DAY_TYPE, True))
+               ('DAY_TYPE', 41, 'тип дня', tt_calendar.DAY_TYPE, True),
+
+               ('COINS_AMOUNT', 42, 'величина суммы монет', game_relations.COINS_AMOUNT, True))

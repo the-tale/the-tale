@@ -1,16 +1,22 @@
-# coding: utf-8
-
 import numbers
 
 from unittest import mock
 
+from utg import constructors as utg_constructors
+
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.linguistics.lexicon import logic
-from the_tale.linguistics.lexicon import keys
-from the_tale.linguistics.lexicon import relations
-from the_tale.linguistics.lexicon import exceptions
-from the_tale.linguistics.lexicon import dictionary
+from the_tale.game import relations as game_relations
+
+from .. import storage
+from .. import logic as linguistics_logic
+from .. import relations as linguistics_relations
+
+from ..lexicon import logic
+from ..lexicon import keys
+from ..lexicon import relations
+from ..lexicon import exceptions
+from ..lexicon import dictionary
 
 
 class LexiconLogicTests(TestCase):
@@ -28,12 +34,12 @@ class LexiconLogicTests(TestCase):
                          {'date': (8, 0),
                           'time': (9, 0),
                           'artifact': (4, 0),
-                          'coins': (1, 0),
+                          'coins': (10, 0),
                           'hero': (0, 0),
                           'receiver': (0, 1),
                           'receiver_position': (2, 0),
-                          'sell_price': (1, 1),
-                          'unequipped': (4, 1)} )
+                          'sell_price': (10, 1),
+                          'unequipped': (4, 1)})
 
     def test_get_verificators_groups__existed_substitutions(self):
         old_groups = {'coins': (1, 1),
@@ -49,8 +55,8 @@ class LexiconLogicTests(TestCase):
                           'hero': (0, 2),
                           'receiver': (0, 0),
                           'receiver_position': (2, 0),
-                          'sell_price': (1, 0),
-                          'unequipped': (4, 3)} )
+                          'sell_price': (10, 0),
+                          'unequipped': (4, 3)})
 
     @mock.patch('the_tale.linguistics.lexicon.relations.VARIABLE_VERIFICATOR.ITEM.substitutions', relations.VARIABLE_VERIFICATOR.ITEM.substitutions[:1])
     def test_get_verificators_groups__no_free_substitution(self):
@@ -75,8 +81,19 @@ class LexiconLogicTests(TestCase):
         for key in keys.LEXICON_KEY.records:
             self.assertEqual(key.value // 10000, key.group.index_group // 10000 * 2)
 
-
     def test_all_keys_variables_in_groups(self):
         for key in keys.LEXICON_KEY.records:
             for variable in key.variables:
                 self.assertIn(variable, key.group.variables)
+
+    def test_construct_coins(self):
+        linguistics_logic.sync_static_restrictions()
+
+        def expected(value, record):
+            return (utg_constructors.construct_integer(value),
+                    [storage.restrictions_storage.get_restriction(linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COINS_AMOUNT,
+                                                                  record.value).id])
+
+        self.assertEqual(relations._construct_coins(0), expected(0, game_relations.COINS_AMOUNT.NO_MONEY))
+        self.assertEqual(relations._construct_coins(100), expected(100, game_relations.COINS_AMOUNT.SILVER_1))
+        self.assertEqual(relations._construct_coins(10000000), expected(10000000, game_relations.COINS_AMOUNT.GOLD_1000))
