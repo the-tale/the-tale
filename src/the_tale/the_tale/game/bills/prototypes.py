@@ -44,13 +44,19 @@ class BillPrototype(BasePrototype):
     _bidirectional = ('approved_by_moderator', 'state', 'is_declined', 'applyed_at_turn')
     _get_by = ('id', )
 
-
     @classmethod
     def accepted_bills_count(cls, account_id):
         return cls._model_class.objects.filter(owner_id=account_id, state=BILL_STATE.ACCEPTED).count()
 
     @lazy_property
     def declined_by(self): return BillPrototype.get_by_id(self._model.declined_by_id)
+
+    @lazy_property
+    def depends_on(self):
+        if not self._model.depends_on_id:
+            return None
+
+        return BillPrototype.get_by_id(self._model.depends_on_id)
 
     @property
     def data(self):
@@ -80,6 +86,7 @@ class BillPrototype(BasePrototype):
     def user_form_initials(self):
         special_initials = self.data.user_form_initials()
         special_initials.update({'caption': self.caption,
+                                 'depends_on': self._model.depends_on_id,
                                  'chronicle_on_accepted': self.chronicle_on_accepted})
         return special_initials
 
@@ -137,7 +144,6 @@ class BillPrototype(BasePrototype):
 
         return actors
 
-
     def can_vote(self, hero):
         allowed_places_ids = hero.places_history.get_allowed_places_ids(bills_settings.PLACES__TO_ACCESS_VOTING)
 
@@ -160,6 +166,9 @@ class BillPrototype(BasePrototype):
         return True
 
     def has_meaning(self):
+        if self.depends_on and self.depends_on.state.break_dependent_bills:
+            return False
+
         return self.data.has_meaning()
 
     def stop(self):
@@ -182,7 +191,6 @@ class BillPrototype(BasePrototype):
                                  technical=True)
 
             signals.bill_stopped.send(self.__class__, bill=self)
-
 
     def apply(self):
         if not self.state.is_VOTING:
@@ -294,7 +302,6 @@ class BillPrototype(BasePrototype):
 
         return rendered_text
 
-
     def _initialize_with_form(self, form, is_updated=True):
         self.data.initialize_with_form(form)
 
@@ -302,9 +309,9 @@ class BillPrototype(BasePrototype):
             self._model.updated_at = datetime.datetime.now()
 
         self._model.caption = form.c.caption
+        self._model.depends_on_id = form.c.depends_on
         self._model.approved_by_moderator = False
         self._model.chronicle_on_accepted = form.c.chronicle_on_accepted
-
 
     @transaction.atomic
     def update(self, form):
@@ -343,10 +350,9 @@ class BillPrototype(BasePrototype):
 
         signals.bill_moderated.send(self.__class__, bill=self)
 
-
     @classmethod
     @transaction.atomic
-    def create(cls, owner, caption, bill, chronicle_on_accepted):
+    def create(cls, owner, caption, bill, chronicle_on_accepted, depends_on_id=None):
 
         model = Bill.objects.create(owner=owner._model,
                                     type=bill.type,
@@ -354,6 +360,7 @@ class BillPrototype(BasePrototype):
                                     created_at_turn=turn.number(),
                                     technical_data=s11n.to_json(bill.serialize()),
                                     state=BILL_STATE.VOTING,
+                                    depends_on_id=depends_on_id,
                                     chronicle_on_accepted=chronicle_on_accepted,
                                     votes_for=1) # author always wote for bill
 
@@ -389,7 +396,6 @@ class BillPrototype(BasePrototype):
 
         return bills_count >= c.FREE_ACCOUNT_MAX_ACTIVE_BILLS
 
-
     def save(self):
         self._model.technical_data = s11n.to_json(self.data.serialize())
         self._model.save()
@@ -413,13 +419,18 @@ class BillPrototype(BasePrototype):
 
     @classmethod
     def get_applicable_bills_ids(cls):
+        time_barrier = datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME)
         return cls._model_class.objects.filter(state=BILL_STATE.VOTING,
                                                approved_by_moderator=True,
-                                               updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME)).order_by('updated_at').values_list('id', flat=True)
+                                               updated_at__lt=time_barrier).order_by('updated_at').values_list('id', flat=True)
 
     @classmethod
     def get_active_bills_ids(cls):
         return cls._model_class.objects.filter(state=BILL_STATE.VOTING).values_list('id', flat=True)
+
+    @property
+    def is_delayed(self):
+        return self.depends_on and self.depends_on.state.is_VOTING
 
 
 class ActorPrototype(BasePrototype):
@@ -446,7 +457,6 @@ class ActorPrototype(BasePrototype):
         for actor in actors:
             cls.create(bill,
                        place=actor if isinstance(actor, places_objects.Place) else None)
-
 
     def save(self):
         self._model.save()

@@ -4,6 +4,12 @@
 
 {{ form.chronicle_on_accepted.widget }}
 
+<p>
+  Если указать зависимость этой записи от другой (ещё не принятой), то текущая запись будет принята только в случае принятия записи, от которой она зависит.
+</p>
+
+{{ form.depends_on.widget }}
+
 {% include bill_class.user_form_template() with context %}
 
 <p>

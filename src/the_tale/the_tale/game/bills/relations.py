@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import datetime
 
@@ -9,11 +8,13 @@ from the_tale.game.balance import constants as c
 
 
 class BILL_STATE(DjangoEnum):
-    records = (('VOTING', 1, 'на голосовании'),
-               ('ACCEPTED', 2, 'принята'),
-               ('REJECTED', 3, 'отклонена'),
-               ('REMOVED', 4, 'удалена'),
-               ('STOPPED', 5, 'потеряла смысл'))
+    break_dependent_bills = rels.Column(unique=False)
+
+    records = (('VOTING', 1, 'на голосовании', False),
+               ('ACCEPTED', 2, 'принята', False),
+               ('REJECTED', 3, 'отклонена', True),
+               ('REMOVED', 4, 'удалена', True),
+               ('STOPPED', 5, 'потеряла смысл', True))
 
 
 class BILL_TYPE(DjangoEnum):

@@ -102,8 +102,8 @@ class TestIndexRequests(BaseTestRequests):
 
     def test_bill_creation_unlocked_message(self):
         self.check_html_ok(self.request_html(reverse('game:bills:')), texts=(('pgf-active-bills-limit-reached', 0),
-                                                                           ('pgf-create-new-bill-buttons', 1),
-                                                                           ('pgf-can-not-participate-in-politics', 0)))
+                                                                             ('pgf-create-new-bill-buttons', 1),
+                                                                             ('pgf-can-not-participate-in-politics', 0)))
 
     @mock.patch('the_tale.game.bills.views.BillResource.can_participate_in_politics', False)
     def test_can_not_participate_in_politics(self):
@@ -507,12 +507,13 @@ class TestShowRequests(BaseTestRequests):
 
 class TestCreateRequests(BaseTestRequests):
 
-    def get_post_data(self):
+    def get_post_data(self, depends_on_id=None):
         new_name = names.generator().get_test_name('new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'bill-caption',
                      'chronicle_on_accepted': 'chronicle-on-accepted',
+                     'depends_on': depends_on_id,
                      'place': self.place1.id})
         return data
 
@@ -570,6 +571,21 @@ class TestCreateRequests(BaseTestRequests):
             self.check_ajax_error(self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data()),
                                   'bills.create.too_young_owner')
 
+    def test_success__with_dependency(self):
+        self.account1.prolong_premium(30)
+        self.account1.save()
+
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data())
+
+        base_bill = Bill.objects.all().order_by('created_at')[0]
+
+        response = self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data(depends_on_id=base_bill.id))
+
+        depended_bill = Bill.objects.all().order_by('created_at')[1]
+
+        self.assertEqual(depended_bill.depends_on_id, base_bill.id)
+
+        self.check_ajax_ok(response, data={'next_url': reverse('game:bills:show', args=[depended_bill.id])})
 
 
 class TestVoteRequests(BaseTestRequests):
@@ -722,7 +738,6 @@ class TestEditRequests(BaseTestRequests):
     def test_success(self):
         self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=['chronicle-on-accepted'])
 
-
     def test_edit_place_renaming(self):
         texts = [('>'+place.name+'<', 1) for place in places_storage.places.all()]
         self.check_html_ok(self.request_html(reverse('game:bills:edit', args=[self.bill.id])), texts=texts)
@@ -740,16 +755,16 @@ class TestUpdateRequests(BaseTestRequests):
                      'chronicle_on_accepted': 'chronicle-on-accepted',
                      'place': self.place1.id})
 
-
         self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), data)
         self.bill = BillPrototype(Bill.objects.all()[0])
 
-    def get_post_data(self):
+    def get_post_data(self, depends_on_id=None):
         new_name = names.generator().get_test_name('new-new-name')
 
         data = linguistics_helpers.get_word_post_data(new_name, prefix='name')
         data.update({'caption': 'new-caption',
                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
+                     'depends_on': depends_on_id,
                      'place': self.place2.id})
         return data
 
@@ -807,6 +822,29 @@ class TestUpdateRequests(BaseTestRequests):
 
         self.bill._model.delete()
 
+    def test_update_success__setup_depends_on(self):
+
+        self.account1.prolong_premium(30)
+        self.account1.save()
+
+        self.client.post(reverse('game:bills:create') + ('?bill_type=%s' % PlaceRenaming.type.value), self.get_post_data())
+
+        base_bill_id = Bill.objects.all().order_by('created_at')[1].id
+
+        self.assertIsNone(self.bill.depends_on)
+        self.assertEqual(Post.objects.all().count(), 2)
+
+        self.check_ajax_ok(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data(depends_on_id=base_bill_id)))
+
+        bill = BillPrototype.get_by_id(self.bill.id)
+        self.assertEqual(bill.depends_on.id, base_bill_id)
+
+        self.assertEqual(Post.objects.all().count(), 3)
+
+    def test_update_success__recursive(self):
+        self.check_ajax_error(self.client.post(reverse('game:bills:update', args=[self.bill.id]), self.get_post_data(depends_on_id=self.bill.id)),
+                              'bills.update.form_errors')
+
 
 class TestModerationPageRequests(BaseTestRequests):
 
@@ -828,7 +866,6 @@ class TestModerationPageRequests(BaseTestRequests):
 
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
         group.user_set.add(self.account2._model)
-
 
     def test_unlogined(self):
         self.request_logout()
@@ -882,13 +919,11 @@ class TestModerateRequests(BaseTestRequests):
         group = sync_group('bills moderators group', ['bills.moderate_bill'])
         group.user_set.add(self.account2._model)
 
-
     def get_post_data(self):
         data = self.bill.user_form_initials
         data.update(linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name'))
         data['approved'] = True
         return data
-
 
     def test_unlogined(self):
         self.request_logout()

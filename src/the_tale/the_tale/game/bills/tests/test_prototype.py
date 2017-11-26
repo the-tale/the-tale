@@ -35,12 +35,15 @@ class BillPrototypeTests(BaseTestPrototypes):
 
         self.hero = heroes_logic.load_hero(account_id=self.account2.id)
 
-
-    def create_bill(self, account=None):
+    def create_bill(self, account=None, depends_on_id=None):
         if account is None:
             account = self.account1
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        return BillPrototype.create(account, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        return BillPrototype.create(account,
+                                    'bill-1-caption',
+                                    bill_data,
+                                    chronicle_on_accepted='chronicle-on-accepted',
+                                    depends_on_id=depends_on_id)
 
     def test_accepted_bills_count(self):
         for state in relations.BILL_STATE.records:
@@ -57,14 +60,12 @@ class BillPrototypeTests(BaseTestPrototypes):
         self.assertEqual(BillPrototype.accepted_bills_count(self.account2.id), 1)
         self.assertEqual(BillPrototype.accepted_bills_count(self.account3.id), 0)
 
-
     def test_is_active_bills_limit_reached__free_accounts(self):
         for i in range(c.FREE_ACCOUNT_MAX_ACTIVE_BILLS):
             self.assertFalse(BillPrototype.is_active_bills_limit_reached(self.account1))
             self.create_bill()
 
         self.assertTrue(BillPrototype.is_active_bills_limit_reached(self.account1))
-
 
     def test_is_active_bills_limit_reached__premiun_accounts(self):
         self.account1.prolong_premium(30)
@@ -75,7 +76,6 @@ class BillPrototypeTests(BaseTestPrototypes):
             self.create_bill()
 
         self.assertTrue(BillPrototype.is_active_bills_limit_reached(self.account1))
-
 
     @mock.patch('the_tale.game.places.objects.Place.is_new', False)
     def test_can_vote__places_restrictions__no_places(self):
@@ -104,12 +104,33 @@ class BillPrototypeTests(BaseTestPrototypes):
         with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
             self.assertTrue(bill.can_vote(self.hero))
 
-
     def test_remove_duplicate_actors(self):
         bill = self.create_bill()
 
         with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place1, self.place3]):
             self.assertEqual(bill.actors, [self.place1, self.place3])
+
+    def test_is_delayed__no_dependencies(self):
+        bill = self.create_bill()
+        self.assertFalse(bill.is_delayed)
+
+    def test_is_delayed__has_dependencies(self):
+        base_bill = self.create_bill()
+        child_bill = self.create_bill(depends_on_id=base_bill.id)
+
+        self.assertTrue(child_bill.is_delayed)
+
+    def test_has_meaning_with_dependency_state(self):
+        base_bill = self.create_bill()
+        child_bill = self.create_bill(depends_on_id=base_bill.id)
+
+        for state in relations.BILL_STATE.records:
+            base_bill.state = state
+            base_bill.save()
+
+            child_bill.reload()
+
+            self.assertEqual(not state.break_dependent_bills, child_bill.has_meaning())
 
 
 class TestPrototypeApply(BaseTestPrototypes):
@@ -126,7 +147,6 @@ class TestPrototypeApply(BaseTestPrototypes):
     def check_place(self, place_id, name, name_forms):
         self.assertEqual(places_storage.places[place_id].name, name)
         self.assertEqual(places_storage.places[place_id].utg_name.forms, name_forms)
-
 
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', lambda x: datetime.timedelta(seconds=0))
     def test_wrong_state(self):
@@ -325,8 +345,6 @@ class TestPrototypeEnd(BaseTestPrototypes):
         self.assertEqual(end.call_count, 1)
 
 
-
-
 class GetApplicableBillsTest(BaseTestPrototypes):
 
     def setUp(self):
@@ -368,7 +386,6 @@ class GetApplicableBillsTest(BaseTestPrototypes):
         self.bill_3._model.updated_at = datetime.datetime.now()
         self.bill_3.save()
         self.assertEqual(set(BillPrototype.get_applicable_bills_ids()), set((self.bill_1.id, self.bill_2.id)))
-
 
 
 class TestActorPrototype(BaseTestPrototypes):

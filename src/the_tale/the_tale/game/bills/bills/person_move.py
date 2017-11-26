@@ -112,15 +112,15 @@ class PersonMove(BasePersonBill):
         return cls.UserForm(None, owner_id, post) #pylint: disable=E1102
 
 
-    def get_user_form_update(self, post=None, initial=None, owner_id=None):
+    def get_user_form_update(self, post=None, initial=None, owner_id=None, original_bill_id=None):
         if initial:
-            return self.UserForm(self.person_id, owner_id, initial=initial) #pylint: disable=E1102
-        return  self.UserForm(self.person_id, owner_id, post) #pylint: disable=E1102
+            return self.UserForm(self.person_id, owner_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
+        return  self.UserForm(self.person_id, owner_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
 
-    def get_moderator_form_update(self, post=None, initial=None):
+    def get_moderator_form_update(self, post=None, initial=None, original_bill_id=None):
         if initial:
-            return self.ModeratorForm(self.person_id, initial=initial) #pylint: disable=E1102
-        return  self.ModeratorForm(self.person_id, post) #pylint: disable=E1102
+            return self.ModeratorForm(self.person_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
+        return  self.ModeratorForm(self.person_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
 
 
     def user_form_initials(self):

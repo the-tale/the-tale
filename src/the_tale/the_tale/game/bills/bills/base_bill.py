@@ -1,4 +1,3 @@
-# coding: utf-8
 
 
 class BaseBill(object):
@@ -19,17 +18,17 @@ class BaseBill(object):
 
     @classmethod
     def get_user_form_create(cls, post=None, **kwargs):
-        return cls.UserForm(post)
+        return cls.UserForm(post, original_bill_id=None)
 
-    def get_user_form_update(self, post=None, initial=None, **kwargs):
+    def get_user_form_update(self, post=None, initial=None, original_bill_id=None, **kwargs):
         if initial:
-            return self.UserForm(initial=initial)
-        return self.UserForm(post)
+            return self.UserForm(initial=initial, original_bill_id=original_bill_id)
+        return self.UserForm(post, original_bill_id=original_bill_id)
 
-    def get_moderator_form_update(self, post=None, initial=None, **kwargs):
+    def get_moderator_form_update(self, post=None, initial=None, original_bill_id=None, **kwargs):
         if initial:
-            return self.ModeratorForm(initial=initial)
-        return self.ModeratorForm(post)
+            return self.ModeratorForm(initial=initial, original_bill_id=original_bill_id)
+        return self.ModeratorForm(post, original_bill_id=original_bill_id)
 
     def apply(self, bill=None):
         raise NotImplementedError

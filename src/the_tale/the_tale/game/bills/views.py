@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import datetime
 
 from django.core.urlresolvers import reverse
@@ -210,6 +210,7 @@ class BillResource(Resource):
             bill_data.initialize_with_form(user_form)
             bill = BillPrototype.create(owner=self.account,
                                         caption=user_form.c.caption,
+                                        depends_on_id=user_form.c.depends_on,
                                         chronicle_on_accepted=user_form.c.chronicle_on_accepted,
                                         bill=bill_data)
             return self.json_ok(data={'next_url': reverse('game:bills:show', args=[bill.id])})
@@ -239,7 +240,9 @@ class BillResource(Resource):
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
     @handler('#bill', 'edit', name='edit', method='get')
     def edit(self):
-        user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials, owner_id=self.account.id)
+        user_form = self.bill.data.get_user_form_update(initial=self.bill.user_form_initials,
+                                                        owner_id=self.account.id,
+                                                        original_bill_id=self.bill.id)
         return self.template('bills/edit.html', {'bill': self.bill,
                                                  'bill_class': self.bill.data,
                                                  'page_type': 'edit',
@@ -253,7 +256,9 @@ class BillResource(Resource):
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
     @handler('#bill', 'update', name='update', method='post')
     def update(self):
-        user_form = self.bill.data.get_user_form_update(post=self.request.POST, owner_id=self.account.id)
+        user_form = self.bill.data.get_user_form_update(post=self.request.POST,
+                                                        owner_id=self.account.id,
+                                                        original_bill_id=self.bill.id)
 
         if user_form.is_valid():
             self.bill.update(user_form)
@@ -275,7 +280,8 @@ class BillResource(Resource):
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
     @handler('#bill', 'moderate', name='moderate', method='get')
     def moderation_page(self):
-        moderation_form = self.bill.data.get_moderator_form_update(initial=self.bill.moderator_form_initials)
+        moderation_form = self.bill.data.get_moderator_form_update(initial=self.bill.moderator_form_initials,
+                                                                   original_bill_id=self.bill.id)
         return self.template('bills/moderate.html', {'bill': self.bill,
                                                      'page_type': 'moderate',
                                                      'form': moderation_form} )
@@ -286,7 +292,8 @@ class BillResource(Resource):
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
     @handler('#bill', 'moderate', name='moderate', method='post')
     def moderate(self):
-        moderator_form = self.bill.data.get_moderator_form_update(post=self.request.POST)
+        moderator_form = self.bill.data.get_moderator_form_update(post=self.request.POST,
+                                                                  original_bill_id=self.bill.id)
 
         if moderator_form.is_valid():
             self.bill.update_by_moderator(moderator_form)
