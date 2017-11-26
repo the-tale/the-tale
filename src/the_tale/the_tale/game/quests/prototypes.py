@@ -512,7 +512,6 @@ class QuestPrototype(object):
 
         return scale
 
-
     def give_energy_on_reward(self):
         for person in self.positive_results_persons():
             self.hero.add_energy_bonus(person.attrs.on_profite_energy)
@@ -538,7 +537,7 @@ class QuestPrototype(object):
                                                                           better=False,
                                                                           prefered_slot=False,
                                                                           prefered_item=False,
-                                                                          archetype=False,
+                                                                          archetype=True,
                                                                           level_delta=level_delta)
 
             if artifact is not None:

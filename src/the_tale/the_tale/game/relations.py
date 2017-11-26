@@ -100,15 +100,15 @@ class ARCHETYPE(DjangoEnum):
     description = Column()
     allowed_power_types = Column(no_index=True, unique=False)
 
-    records = ( ('MAGICAL', 0, 'маг', PowerDistribution(0.25, 0.75), 'герой предпочитает магию грубой силе', [ARTIFACT_POWER_TYPE.MOST_MAGICAL,
-                                                                                                                 ARTIFACT_POWER_TYPE.MAGICAL,
-                                                                                                                 ARTIFACT_POWER_TYPE.NEUTRAL]),
-                ('NEUTRAL', 1, 'авантюрист', PowerDistribution(0.5, 0.5), 'герой соблюдает баланс между мечом и магией', [ARTIFACT_POWER_TYPE.MAGICAL,
-                                                                                                                             ARTIFACT_POWER_TYPE.NEUTRAL,
-                                                                                                                             ARTIFACT_POWER_TYPE.PHYSICAL]),
-                ('PHYSICAL', 2, 'воин', PowerDistribution(0.75, 0.25), 'герой полагается на воинские умения', [ARTIFACT_POWER_TYPE.NEUTRAL,
-                                                                                                                  ARTIFACT_POWER_TYPE.PHYSICAL,
-                                                                                                                  ARTIFACT_POWER_TYPE.MOST_PHYSICAL]) )
+    records = (('MAGICAL', 0, 'маг', PowerDistribution(0.25, 0.75), 'герой предпочитает магию грубой силе', [ARTIFACT_POWER_TYPE.MOST_MAGICAL,
+                                                                                                             ARTIFACT_POWER_TYPE.MAGICAL,
+                                                                                                             ARTIFACT_POWER_TYPE.NEUTRAL]),
+               ('NEUTRAL', 1, 'авантюрист', PowerDistribution(0.5, 0.5), 'герой соблюдает баланс между мечом и магией', [ARTIFACT_POWER_TYPE.MAGICAL,
+                                                                                                                         ARTIFACT_POWER_TYPE.NEUTRAL,
+                                                                                                                         ARTIFACT_POWER_TYPE.PHYSICAL]),
+               ('PHYSICAL', 2, 'воин', PowerDistribution(0.75, 0.25), 'герой полагается на воинские умения', [ARTIFACT_POWER_TYPE.NEUTRAL,
+                                                                                                              ARTIFACT_POWER_TYPE.PHYSICAL,
+                                                                                                              ARTIFACT_POWER_TYPE.MOST_PHYSICAL]))
 
 
 class SUPERVISOR_TASK_TYPE(DjangoEnum):

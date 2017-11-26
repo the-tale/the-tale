@@ -26,7 +26,6 @@ class EquipmentMethodsMixin(object):
     def pop_loot(self, artifact):
         self.bag.pop_artifact(artifact)
 
-
     def get_allowed_artifact_types(self, slots, archetype):
         return [artifact
                 for artifact in artifacts_storage.artifacts_for_type(types=[slot.artifact_type for slot in slots])
@@ -67,10 +66,6 @@ class EquipmentMethodsMixin(object):
 
         return result_choices
 
-
-    def _receive_artifacts_choices(self, **kwargs):
-        return self.receive_artifacts_choices(**kwargs)
-
     def receive_artifacts_choices(self, better, prefered_slot, prefered_item, archetype):
         slot_choices = self.receive_artifacts_slots_choices(better=better, prefered_slot=prefered_slot, prefered_item=prefered_item)
 
@@ -88,10 +83,10 @@ class EquipmentMethodsMixin(object):
             else:
                 return []
 
-            return self._receive_artifacts_choices(better=better,
-                                                   prefered_slot=prefered_slot,
-                                                   prefered_item=prefered_item,
-                                                   archetype=archetype)
+            return self.receive_artifacts_choices(better=better,
+                                                  prefered_slot=prefered_slot,
+                                                  prefered_item=prefered_item,
+                                                  archetype=archetype)
 
         return artifacts_choices
 
@@ -186,7 +181,6 @@ class EquipmentMethodsMixin(object):
 
             artifact.damage_integrity(delta)
 
-
     def artifacts_to_break(self, from_all=False):
         if from_all:
             artifacts = list(self.equipment.values())
@@ -221,7 +215,6 @@ class EquipmentMethodsMixin(object):
         artifact.repair_it()
 
         return artifact
-
 
     def get_equip_candidates(self):
 
@@ -268,14 +261,12 @@ class EquipmentMethodsMixin(object):
 
         self.reset_accessors_cache()
 
-
     def increment_equipment_rarity(self, artifact):
         artifact.rarity = artifacts_relations.RARITY(artifact.rarity.value+1)
         artifact.power = Power.artifact_power_randomized(distribution=artifact.record.power_type.distribution,
                                                          level=self.level)
         artifact.max_integrity = int(artifact.rarity.max_integrity * random.uniform(1-c.ARTIFACT_MAX_INTEGRITY_DELTA, 1+c.ARTIFACT_MAX_INTEGRITY_DELTA))
         self.reset_accessors_cache()
-
 
     def randomize_equip(self):
         for slot in relations.EQUIPMENT_SLOT.records:
@@ -291,7 +282,6 @@ class EquipmentMethodsMixin(object):
             artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level, rarity=artifacts_relations.RARITY.NORMAL)
 
             self.equipment.equip(slot, artifact)
-
 
     def process_removed_artifacts(self):
         for artifact in list(self.bag.values()):

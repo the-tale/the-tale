@@ -521,9 +521,9 @@ class GetArtifact(BaseEffect):
         description = Column()
 
         records = (('LOOT', 0, 'лут', artifacts_relations.RARITY.NORMAL, 'Герой получает случайный бесполезный предмет.'),
-                   ('COMMON', 1, 'обычные', artifacts_relations.RARITY.NORMAL, 'Герой получает случайный артефакт лучше экипированного.'),
-                   ('RARE', 2, 'редкие', artifacts_relations.RARITY.RARE, 'Герой получает случайный редкий артефакт лучше экипированного.'),
-                   ('EPIC', 3, 'эпические', artifacts_relations.RARITY.EPIC, 'Герой получает случайный эпический артефакт лучше экипированного.'))
+                   ('COMMON', 1, 'обычные', artifacts_relations.RARITY.NORMAL, 'Герой получает случайный артефакт лучше экипированного, близкий архетипу героя.'),
+                   ('RARE', 2, 'редкие', artifacts_relations.RARITY.RARE, 'Герой получает случайный редкий артефакт лучше экипированного, близкий архетипу героя.'),
+                   ('EPIC', 3, 'эпические', artifacts_relations.RARITY.EPIC, 'Герой получает случайный эпический артефакт лучше экипированного, близкий архетипу героя.'))
 
     def __init__(self, type):
         super().__init__()
@@ -532,7 +532,6 @@ class GetArtifact(BaseEffect):
     @property
     def DESCRIPTION(self):
         return self.ARTIFACT_TYPE_CHOICES(self.type).description
-
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         artifact_type = self.ARTIFACT_TYPE_CHOICES(self.type)
@@ -547,7 +546,7 @@ class GetArtifact(BaseEffect):
                                                                           better=True,
                                                                           prefered_slot=False,
                                                                           prefered_item=True,
-                                                                          archetype=False,
+                                                                          archetype=True,
                                                                           rarity_type=artifact_type.rarity)
 
         task.hero.actions.request_replane()
