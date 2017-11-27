@@ -23,6 +23,9 @@ from the_tale.game.actions.fake import FakeActor
 from the_tale.game.actions.contexts.battle import Damage
 
 from the_tale.game.heroes.fake import FakeMessenger
+from the_tale.game.heroes import bag
+from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts.relations import RARITY
 
 from the_tale.game.heroes.habilities import battle as battle_abilities
 from the_tale.game.heroes.habilities import modifiers as modifiers_abilities
@@ -151,6 +154,12 @@ class HabilitiesTest(TestCase):
         self.attacker = FakeActor(name='attacker')
         self.defender = FakeActor(name='defender')
 
+        create_test_map()
+        account = self.accounts_factory.create_account()
+        self.storage = LogicStorage()
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
+
     def tearDown(self):
         pass
 
@@ -168,6 +177,21 @@ class HabilitiesTest(TestCase):
         battle_abilities.HIT().use(self.messenger, self.attacker, self.defender)
         self.assertTrue(self.defender.health < self.defender.max_health)
         self.assertEqual(self.messenger.messages, ['hero_ability_hit'])
+
+    def test_charge(self):
+        battle_abilities.CHARGE().use(self.messenger, self.attacker, self.defender)
+        self.assertTrue(self.defender.health < self.defender.max_health)
+        self.assertEqual(self.messenger.messages, ['hero_ability_charge_hit_only'])
+
+        self.defender.bag = bag.Bag()
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1,
+                                                                 rarity=RARITY.NORMAL)
+        self.defender.bag.put_artifact(artifact)
+        charge = battle_abilities.CHARGE()
+        charge.STAFF_DESTROY_CHANCE = 1
+        charge.use(self.messenger, self.attacker, self.defender)
+        self.assertIn('hero_ability_charge_hit_and_destroy', self.messenger.messages)
+        self.assertTrue(self.defender.bag.is_empty)
 
     def test_magic_mushroom(self):
         battle_abilities.MAGIC_MUSHROOM().use(self.messenger, self.attacker, self.defender)

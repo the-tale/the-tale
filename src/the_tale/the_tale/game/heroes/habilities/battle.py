@@ -36,6 +36,52 @@ class HIT(AbilityPrototype):
         messenger.add_message('hero_ability_hit_miss', attacker=actor, defender=enemy)
 
 
+class CHARGE(AbilityPrototype):
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
+    AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_MONSTERS
+    PRIORITY = [10]
+    MAX_LEVEL = 1
+    HAS_DAMAGE = True
+    NAME = 'Заряд'
+    normalized_name = NAME
+    DESCRIPTION = 'Заряд наносит повреждения и может сломать случайную вещь из рюкзака'
+    DAMAGE_MODIFIER = [1.00]
+    STAFF_DESTROY_CHANCE = 0.5
+
+    @property
+    def damage_modifier(self):
+        return self.DAMAGE_MODIFIER[self.level - 1]
+
+    def pop_random_item_from_bag(self, messenger, actor, enemy):
+        if enemy.has_bag:
+            hero_bag = enemy.bag
+            if not hero_bag.is_empty:
+                destroyed_artifact = random.choice(list(hero_bag.values()))
+                hero_bag.pop_artifact(destroyed_artifact)
+                return destroyed_artifact
+        return
+
+    def use(self, messenger, actor, enemy):
+        damage = actor.basic_damage * self.damage_modifier
+        damage = actor.context.modify_outcoming_damage(damage)
+        damage = enemy.context.modify_incoming_damage(damage)
+        enemy.change_health(-damage.total)
+
+        if self.STAFF_DESTROY_CHANCE >= random.random():
+            artifact = self.pop_random_item_from_bag(messenger, actor, enemy)
+            if artifact:
+                messenger.add_message('hero_ability_charge_hit_and_destroy',
+                                      attacker=actor, defender=enemy,
+                                      damage=damage.total, artifact=artifact)
+                return
+        messenger.add_message('hero_ability_charge_hit_only',
+                              attacker=actor, defender=enemy, damage=damage.total)
+
+    def on_miss(self, messenger, actor, enemy):
+        messenger.add_message('hero_ability_charge_miss', attacker=actor, defender=enemy)
+
 class STRONG_HIT(AbilityPrototype):
 
     TYPE = relations.ABILITY_TYPE.BATTLE
