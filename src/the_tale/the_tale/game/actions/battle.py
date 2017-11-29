@@ -69,12 +69,8 @@ class Actor(object):
     def mob_type(self): return self.actor.mob_type
 
     @property
-    def has_bag(self):
-        return getattr(self.actor, 'bag', None) is not None
-
-    @property
     def bag(self):
-        return self.actor.bag
+        return getattr(self.actor, 'bag', None)
 
     def change_health(self, value):
         # TODO: change for heal & kick methods?

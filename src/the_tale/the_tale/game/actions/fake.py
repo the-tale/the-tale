@@ -30,7 +30,3 @@ class FakeActor(object):
 
     def choose_ability(self):
         raise NotImplementedError
-
-    @property
-    def has_bag(self):
-        return self.bag is not None

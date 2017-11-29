@@ -178,19 +178,29 @@ class HabilitiesTest(TestCase):
         self.assertTrue(self.defender.health < self.defender.max_health)
         self.assertEqual(self.messenger.messages, ['hero_ability_hit'])
 
-    def test_charge(self):
+    def test_charge_enemy_without_bag(self):
         battle_abilities.CHARGE().use(self.messenger, self.attacker, self.defender)
         self.assertTrue(self.defender.health < self.defender.max_health)
         self.assertEqual(self.messenger.messages, ['hero_ability_charge_hit_only'])
 
+    def test_charge_enemy_with_empty_bag(self):
         self.defender.bag = bag.Bag()
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1,
+        battle_abilities.CHARGE().use(self.messenger, self.attacker, self.defender)
+        self.assertTrue(self.defender.health < self.defender.max_health)
+        self.assertEqual(self.messenger.messages, ['hero_ability_charge_hit_only'])
+
+    @mock.patch('the_tale.game.heroes.habilities.battle.CHARGE.STAFF_DESTROY_CHANCE', 1)
+    def test_charge_enemy_with_not_empty_bag(self):
+        self.defender.bag = bag.Bag()
+        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts,
+                                                                 1,
                                                                  rarity=RARITY.NORMAL)
+
         self.defender.bag.put_artifact(artifact)
         charge = battle_abilities.CHARGE()
-        charge.STAFF_DESTROY_CHANCE = 1
+        #charge.STAFF_DESTROY_CHANCE = 1
         charge.use(self.messenger, self.attacker, self.defender)
-        self.assertIn('hero_ability_charge_hit_and_destroy', self.messenger.messages)
+        self.assertEqual(self.messenger.messages, ['hero_ability_charge_hit_and_destroy'])
         self.assertTrue(self.defender.bag.is_empty)
 
     def test_magic_mushroom(self):

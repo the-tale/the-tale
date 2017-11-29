@@ -46,22 +46,18 @@ class CHARGE(AbilityPrototype):
     HAS_DAMAGE = True
     NAME = 'Заряд'
     normalized_name = NAME
-    DESCRIPTION = 'Заряд наносит повреждения и может сломать случайную вещь из рюкзака'
+    DESCRIPTION = 'Боец создаёт электрический разряд, который может повредить не только противника, но и его вещи (не экипировку).'
     DAMAGE_MODIFIER = [1.00]
-    STAFF_DESTROY_CHANCE = 0.5
+    STAFF_DESTROY_CHANCE = 0.85
 
     @property
     def damage_modifier(self):
         return self.DAMAGE_MODIFIER[self.level - 1]
 
-    def pop_random_item_from_bag(self, messenger, actor, enemy):
-        if enemy.has_bag:
-            hero_bag = enemy.bag
-            if not hero_bag.is_empty:
-                destroyed_artifact = random.choice(list(hero_bag.values()))
-                hero_bag.pop_artifact(destroyed_artifact)
-                return destroyed_artifact
-        return
+    def pop_random_item_from_bag(self, enemy):
+        if enemy.bag is None:
+            return None
+        return enemy.bag.pop_random_artifact()
 
     def use(self, messenger, actor, enemy):
         damage = actor.basic_damage * self.damage_modifier
@@ -70,14 +66,19 @@ class CHARGE(AbilityPrototype):
         enemy.change_health(-damage.total)
 
         if self.STAFF_DESTROY_CHANCE >= random.random():
-            artifact = self.pop_random_item_from_bag(messenger, actor, enemy)
+            artifact = self.pop_random_item_from_bag(enemy)
             if artifact:
                 messenger.add_message('hero_ability_charge_hit_and_destroy',
-                                      attacker=actor, defender=enemy,
-                                      damage=damage.total, artifact=artifact)
+                                      attacker=actor,
+                                      defender=enemy,
+                                      damage=damage.total,
+                                      artifact=artifact)
                 return
+
         messenger.add_message('hero_ability_charge_hit_only',
-                              attacker=actor, defender=enemy, damage=damage.total)
+                              attacker=actor,
+                              defender=enemy,
+                              damage=damage.total)
 
     def on_miss(self, messenger, actor, enemy):
         messenger.add_message('hero_ability_charge_miss', attacker=actor, defender=enemy)
