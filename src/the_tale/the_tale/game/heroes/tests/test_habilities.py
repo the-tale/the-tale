@@ -155,10 +155,6 @@ class HabilitiesTest(TestCase):
         self.defender = FakeActor(name='defender')
 
         create_test_map()
-        account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
-        self.storage.load_account_data(account)
-        self.hero = self.storage.accounts_to_heroes[account.id]
 
     def tearDown(self):
         pass
@@ -198,7 +194,6 @@ class HabilitiesTest(TestCase):
 
         self.defender.bag.put_artifact(artifact)
         charge = battle_abilities.CHARGE()
-        #charge.STAFF_DESTROY_CHANCE = 1
         charge.use(self.messenger, self.attacker, self.defender)
         self.assertEqual(self.messenger.messages, ['hero_ability_charge_hit_and_destroy'])
         self.assertTrue(self.defender.bag.is_empty)
