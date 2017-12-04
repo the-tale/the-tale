@@ -201,10 +201,15 @@ jQuery(document).ready(function() {
           </ul>
 
           <ul class="nav pull-right">
-            <li>
-              {% set game_time = game_datetime() %}
-              <p id="time-block" class="navbar-text">
-                <span class="pgf-game-date">{{ game_time.date.verbose_full()}}</span>
+            {% set game_time = game_datetime() %}
+            <li class="visible-desktop">
+              <p id="time-block" class="navbar-text" rel="tooltip" title="{{game_time.date.verbose_full()}}">
+                <span class="pgf-game-date">{{game_time.date.verbose_full()}}</span>
+              </p>
+            </li>
+            <li class="hidden-desktop">
+              <p id="time-block" class="navbar-text" rel="tooltip" title="{{game_time.date.verbose_full()}}">
+                <i class="icon-time icon-white" style="opacity: 0.5;"></i>
               </p>
             </li>
             <li class="divider-vertical"></li>
