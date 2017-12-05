@@ -82,11 +82,11 @@ KEYS = [('HERO_ABILITY_FIREBALL', 280000, 'Журнал: Пиромания', LE
         'Атакующий промахнулся при использовании способности «Безрассудная атака»',
         [V.DATE, V.TIME, V.ATTACKER, V.DEFENDER], None),
 
-        ('HERO_ABILITY_CHARGE_HIT_AND_DESTROY', 280020, 'Журнал: Заряд', LEXICON_GROUP.HERO_ABILITY,
+        ('HERO_ABILITY_CHARGE_HIT_AND_DESTROY', 280020, 'Журнал: Заряд (урон по герою и разрушение вещи)', LEXICON_GROUP.HERO_ABILITY,
         'Атакующий провел удар-заряд, и сломал одну вещь в рюкзаке',
         [V.DATE, V.TIME, V.ATTACKER, V.DEFENDER, V.ARTIFACT], None),
 
-        ('HERO_ABILITY_CHARGE_HIT_ONLY', 280021, 'Журнал: Заряд (частичный промах)', LEXICON_GROUP.HERO_ABILITY,
+        ('HERO_ABILITY_CHARGE_HIT_ONLY', 280021, 'Журнал: Заряд (только урон по герою)', LEXICON_GROUP.HERO_ABILITY,
         'Атакующий провел удар-заряд, нанес урон, но не попал по рюкзаку',
         [V.DATE, V.TIME, V.ATTACKER, V.DEFENDER], None),
 

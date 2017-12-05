@@ -41,14 +41,25 @@ class CHARGE(AbilityPrototype):
     ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
     LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
     AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_MONSTERS
-    PRIORITY = [10]
     MAX_LEVEL = 1
     HAS_DAMAGE = True
     NAME = 'Заряд'
     normalized_name = NAME
     DESCRIPTION = 'Боец создаёт электрический разряд, который может повредить не только противника, но и его вещи (не экипировку).'
     DAMAGE_MODIFIER = [1.00]
-    STAFF_DESTROY_CHANCE = 0.85
+
+    # Расчет коэффициента PRIORITY производился эмпирически, исходя из
+    # следующих предположений, и требования на примерно одно срабатывание за бой:
+    # 1. средняя длительность боя 16 ходов (задано в константах)
+    # 2. среднее количество абилок у моба - 4
+    # 3. средний приоритет абилок, за исключением HIT - 10
+    # 4. вероятность уничтожения предмета за ход должна находится в пределах 30-50%, выбрано 40%
+    #
+    # при приоритете 30 шанс выпадения абилки за ход = 30/(100+10+10+30) =  0,2
+    # при 16 ходах заряд сработает примерно 3 раза, что даст шанс на уничтожение вещи примерно 1.2
+
+    PRIORITY = [30]
+    STAFF_DESTROY_CHANCE = 0.4
 
     @property
     def damage_modifier(self):
