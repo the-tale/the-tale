@@ -1,4 +1,5 @@
 # coding: utf-8
+import random
 
 from the_tale.game.balance.power import Power
 
@@ -53,6 +54,13 @@ class Bag(object):
     def pop_artifact(self, artifact):
         self.mark_updated()
         del self.bag[artifact.bag_uuid]
+
+    def pop_random_artifact(self):
+        if self.is_empty:
+            return None
+        artifact = random.choice(list(self.values()))
+        self.pop_artifact(artifact)
+        return artifact
 
     def get(self, artifact_id):
         return self.bag.get(artifact_id, None)

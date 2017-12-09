@@ -36,6 +36,61 @@ class HIT(AbilityPrototype):
         messenger.add_message('hero_ability_hit_miss', attacker=actor, defender=enemy)
 
 
+class CHARGE(AbilityPrototype):
+    TYPE = relations.ABILITY_TYPE.BATTLE
+    ACTIVATION_TYPE = relations.ABILITY_ACTIVATION_TYPE.ACTIVE
+    LOGIC_TYPE = relations.ABILITY_LOGIC_TYPE.WITH_CONTACT
+    AVAILABILITY = relations.ABILITY_AVAILABILITY.FOR_MONSTERS
+    MAX_LEVEL = 1
+    HAS_DAMAGE = True
+    NAME = 'Заряд'
+    normalized_name = NAME
+    DESCRIPTION = 'Боец создаёт электрический разряд, который может повредить не только противника, но и его вещи (не экипировку).'
+    DAMAGE_MODIFIER = [1.00]
+
+    # расчитываем приоритет так, чтобы математическое ожидание вероятности поломки предмета в бою было равно 1
+    # (STRIKES_NUMBER * PRIORITY / MEDIUM_ABILITIES_PRIORITY) * STAFF_DESTROY_CHANCE = 1
+    # PRIORITY = 1 / (STRIKES_NUMBER / MEDIUM_ABILITIES_PRIORITY * STAFF_DESTROY_CHANCE)
+
+    STRIKES_NUMBER = c.BATTLE_LENGTH / 2  # один ход - один удар, т.е. один противник в среднем атакует в 2 раза меньше
+    MEDIUM_ABILITIES_PRIORITY = HIT.PRIORITY[0] + 10 * 2.5 # средний суммарный приоритет: приоритет удара + приоритет среднего колличества способностей у монстров
+    STAFF_DESTROY_CHANCE = 0.5  # подобран чтобы способность имела разумный приоритет
+
+    PRIORITY = [int(MEDIUM_ABILITIES_PRIORITY / (STRIKES_NUMBER * STAFF_DESTROY_CHANCE))]
+
+    @property
+    def damage_modifier(self):
+        return self.DAMAGE_MODIFIER[self.level - 1]
+
+    def pop_random_item_from_bag(self, enemy):
+        if enemy.bag is None:
+            return None
+        return enemy.bag.pop_random_artifact()
+
+    def use(self, messenger, actor, enemy):
+        damage = actor.basic_damage * self.damage_modifier
+        damage = actor.context.modify_outcoming_damage(damage)
+        damage = enemy.context.modify_incoming_damage(damage)
+        enemy.change_health(-damage.total)
+
+        if self.STAFF_DESTROY_CHANCE >= random.random():
+            artifact = self.pop_random_item_from_bag(enemy)
+            if artifact:
+                messenger.add_message('hero_ability_charge_hit_and_destroy',
+                                      attacker=actor,
+                                      defender=enemy,
+                                      damage=damage.total,
+                                      artifact=artifact)
+                return
+
+        messenger.add_message('hero_ability_charge_hit_only',
+                              attacker=actor,
+                              defender=enemy,
+                              damage=damage.total)
+
+    def on_miss(self, messenger, actor, enemy):
+        messenger.add_message('hero_ability_charge_miss', attacker=actor, defender=enemy)
+
 class STRONG_HIT(AbilityPrototype):
 
     TYPE = relations.ABILITY_TYPE.BATTLE

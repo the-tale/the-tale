@@ -75,6 +75,19 @@ class BagTests(TestCase):
 
         self.assertEqual(self.bag.bag, {})
 
+    def test_pop_random_artifact_empty_bag(self):
+        popped_artifact = self.bag.pop_random_artifact()
+        self.assertEqual(self.bag.bag, {})
+        self.assertIsNone(popped_artifact)
+
+    def test_pop_random_artifact(self):
+        for i in range(3):
+            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
+            self.bag.put_artifact(artifact)
+        for i in range(3):
+            popped_artifact = self.bag.pop_random_artifact()
+            self.assertIsNotNone(popped_artifact)
+        self.assertEqual(self.bag.bag, {})
 
     def test_ui_info_cache(self):
         artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
