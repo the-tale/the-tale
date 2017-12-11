@@ -33,6 +33,7 @@ from the_tale.game.quests import uids
 
 E = 0.001
 
+
 class QuestInfo(object):
     __slots__ = ('type', 'uid', 'name', 'action', 'choice', 'choice_alternatives', 'experience', 'power', 'experience_bonus', 'power_bonus', 'actors', 'used_markers')
 
@@ -206,7 +207,6 @@ class QuestInfo(object):
         return scale
 
 
-
 NO_QUEST_INFO__IN_PLACE = QuestInfo(type='no-quest',
                                     uid='no-quest',
                                     name='безделье',
@@ -319,7 +319,6 @@ class QuestPrototype(object):
 
         ActionMoveToPrototype.create(hero=self.hero, destination=destination, break_at=break_at)
 
-
     def _move_hero_near(self, destination, terrains=None, back=False):
         from the_tale.game.actions.prototypes import ActionMoveNearPlacePrototype
 
@@ -327,7 +326,6 @@ class QuestPrototype(object):
             destination = self.hero.position.get_nearest_dominant_place()
 
         ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=back, terrains=terrains)
-
 
     def _move_hero_on_road(self, place_from, place_to, percents):
 
@@ -367,8 +365,7 @@ class QuestPrototype(object):
             return 0
 
         power = hero.modify_politics_power(power, person=person)
-
-        power += ( 1 if power > 0 else -1) * self.current_info.power_bonus
+        power += (1 if power > 0 else -1) * self.current_info.power_bonus
 
         person_uid = uids.person(person.id)
         has_profession_marker = [marker for marker in self.knowledge_base.filter(facts.ProfessionMarker) if marker.person == person_uid]
@@ -376,7 +373,7 @@ class QuestPrototype(object):
         if has_profession_marker:
             power /= len(PERSON_TYPE.records)
 
-        has_person_in_preferences=hero.preferences.has_person_in_preferences(person)
+        has_person_in_preferences = hero.preferences.has_person_in_preferences(person)
 
         person.cmd_change_power(hero_id=hero.id,
                                 has_place_in_preferences=hero.preferences.has_place_in_preferences(person.place),
@@ -398,7 +395,6 @@ class QuestPrototype(object):
 
         return power
 
-
     def _give_place_power(self, hero, place, power):
         power = self.get_current_power(power)
 
@@ -409,6 +405,7 @@ class QuestPrototype(object):
             return 0
 
         power = hero.modify_politics_power(power, place=place)
+        power += (1 if power > 0 else -1) * self.current_info.power_bonus
 
         place.cmd_change_power(hero_id=hero.id,
                                has_place_in_preferences=hero.preferences.has_place_in_preferences(place),
@@ -428,9 +425,7 @@ class QuestPrototype(object):
             if mob is None:
                 mobs_storage.get_random_mob(self.hero, is_boss=True)
 
-
         ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
-
 
     def _finish_quest(self, finish, hero):
 
