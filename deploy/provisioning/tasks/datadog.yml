@@ -30,6 +30,9 @@
   vars:
     datadog_api_key: "{{tt_datadog_api_key}}"
 
+    datadog_config:
+      use_curl_http_client: 'yes'
+
     datadog_checks:
       nginx:
         init_config:
