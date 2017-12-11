@@ -135,7 +135,7 @@ class PrototypeTests(PrototypeTestsBase):
 
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
-    def test_give_person_power__politic_power_bonus(self):
+    def test_give_person_power__power_bonus(self):
 
         person = persons_storage.persons.all()[0]
 
@@ -207,7 +207,16 @@ class PrototypeTests(PrototypeTestsBase):
             self.quest._give_person_power(self.hero, person, 1)
 
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    def test_give_place_power__power_bonus(self):
+
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        self.assertEqual(self.quest._give_place_power(self.hero, self.place_1, 3.0), 31)
+
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
     def test_give_place_power__places_help_history(self):
 
         for person in self.place_1.persons:
