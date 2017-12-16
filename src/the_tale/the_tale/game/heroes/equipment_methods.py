@@ -66,6 +66,9 @@ class EquipmentMethodsMixin(object):
 
         return result_choices
 
+    def _receive_artifacts_choices(self, **kwargs):
+        return self.receive_artifacts_choices(**kwargs)
+
     def receive_artifacts_choices(self, better, prefered_slot, prefered_item, archetype):
         slot_choices = self.receive_artifacts_slots_choices(better=better, prefered_slot=prefered_slot, prefered_item=prefered_item)
 
@@ -83,10 +86,10 @@ class EquipmentMethodsMixin(object):
             else:
                 return []
 
-            return self.receive_artifacts_choices(better=better,
-                                                  prefered_slot=prefered_slot,
-                                                  prefered_item=prefered_item,
-                                                  archetype=archetype)
+            return self._receive_artifacts_choices(better=better,
+                                                   prefered_slot=prefered_slot,
+                                                   prefered_item=prefered_item,
+                                                   archetype=archetype)
 
         return artifacts_choices
 

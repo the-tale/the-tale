@@ -71,7 +71,7 @@ jQuery(document).ready(function(e) {
           style="max-height: 310px; overflow-y: auto; font-size: 10pt; z-index: 1011; text-align: left;">
 
           <li class="pgf-get-card-statistics" style="text-align: center;">
-            помощи до новой карты <br/>
+            очки судьбы<br/>
 
             <div class="progress progress-info" style="margin: 0.25em; height: 18px; position: relative;">
               <div class="bar pgf-new-card-progress"></div>
@@ -119,18 +119,37 @@ jQuery(document).ready(function(e) {
     <a href="#" class="angel-ability pgf-ability-help pgf-hidden" style="display: inline-block; width: 30%;">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
       <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
-      <span rel="tooltip" title="Помочь герою<br/><i>{{ABILITY_TYPE.HELP.cost}} энергии без учёта бонусов</i>">помочь</span>
+      <span rel="tooltip"
+            title="Помочь герою. В зависимости от ситуации и везения может:
+                   <ul style='text-align: left;'>
+                     <li>Велечить героя</li>
+                     <li>Дать герою опыт</li>
+                     <li>Воскресить героя</li>
+                     <li>Дать герою деньги</li>
+                     <li>Подлечить спутника</li>
+                     <li>Телепортировать героя</li>
+                     <li>Нанести урон противнику</li>
+                     <li>Дать вам бонусную энергию</li>
+                     <li>Заставить героя взять задание</li>
+                   </ul>
+                   Даёт 1 очко судьбы</br>
+                   Помощь во время боя уменьшает миролюбие героя.<br/>
+                   Помощь в любое другое время — увеличивает.
+                   <hr/>
+                   <i>{{ABILITY_TYPE.HELP.cost}} энергии без учёта бонусов</i>">
+        помочь
+      </span>
     </a>
 
     <a href="#" class="angel-ability pgf-ability-arena_pvp_1x1 pgf-hidden" style="display: inline-block; width: 30%; font-size: 11pt;">
       <i class="icon-tint" rel="tooltip" title="недостаточно энергии"></i>
       <i class="icon-ban-circle" rel="tooltip" title="необходимо завершить регистрацию"></i>
-      <span rel="tooltip" title="Отправить героя на арену<br/><i>{{ABILITY_TYPE.ARENA_PVP_1x1.cost}} энергии без учёта бонусов</i>">на арену</span>
+      <span rel="tooltip" title="Отправить героя на арену<br/><hr/><i>{{ABILITY_TYPE.ARENA_PVP_1x1.cost}} энергии без учёта бонусов</i>">на арену</span>
     </a>
 
     <span class="pgf-in-pvp-queue-message pgf-hidden" style="vertical-align: middle; font-size: 11pt;">
       <a href="#" class="angel-ability pgf-ability-arena_pvp_1x1_leave_queue">
-        <i class="icon-remove" rel="tooltip" title="выйти из очереди<br/><i>{{ABILITY_TYPE.ARENA_PVP_1x1_LEAVE_QUEUE.cost}} энергии без учёта бонусов</i>" style="vertical-align: middle;"></i>
+        <i class="icon-remove" rel="tooltip" title="выйти из очереди<br/><hr/><i>{{ABILITY_TYPE.ARENA_PVP_1x1_LEAVE_QUEUE.cost}} энергии без учёта бонусов</i>" style="vertical-align: middle;"></i>
       </a>
       <span rel="tooltip" title="идёт поиск противника для битвы на арене">
         в очереди…

@@ -215,6 +215,7 @@ pgf.game.widgets.Cards = function (params) {
     this.GetCard = function() {
         pgf.forms.Post({ action: params.getCard,
                          OnSuccess: function(data){
+                             jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED); // refresh card points counter, can be removed after point moved from hero model
                              jQuery(document).trigger(pgf.game.events.CARDS_REFRESHED);
 
                              instance.GetCards();

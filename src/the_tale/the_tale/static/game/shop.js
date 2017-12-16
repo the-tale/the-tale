@@ -245,14 +245,18 @@ pgf.game.ShopCardsBrowser = function(params) {
         var inDeckToTrade = 0;
         var inDeckTotal = 0;
         var inTradeTotal = 0;
+        var inTradeOfPlayer = 0;
+
         for (var i in cards) {
             inDeckToTrade += cards[i].inDeckToTrade;
             inDeckTotal += cards[i].inDeckTotal;
             inTradeTotal += cards[i].inTrade;
+            inTradeOfPlayer += cards[i].ownerSellNumber;
         }
         jQuery('.pgf-cards-number-in-deck-to-trade', container).text(inDeckToTrade);
         jQuery('.pgf-cards-number-in-deck-total', container).text(inDeckTotal);
         jQuery('.pgf-cards-number-in-trade', container).text(inTradeTotal);
+        jQuery('.pgf-player-cards-number-in-trade', container).text(inTradeOfPlayer);
     };
 
     function RefreshResetButton() {
