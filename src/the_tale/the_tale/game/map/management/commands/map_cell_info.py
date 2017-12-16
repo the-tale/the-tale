@@ -1,7 +1,7 @@
 # coding: utf-8
 from django.core.management.base import BaseCommand
 
-from the_tale.game.map.relations import TERRAIN
+from tt_logic.map.relations import TERRAIN
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.prototypes import WorldInfoPrototype
 from the_tale.game.map.generator.biomes import Biom

@@ -6,7 +6,7 @@ from deworld.layers import VEGETATION_TYPE
 from the_tale.common.utils import xls
 
 from the_tale.game.map.conf import map_settings
-from the_tale.game.map.relations import TERRAIN
+from tt_logic.map.relations import TERRAIN
 
 
 _xls_attributes = {'filename': map_settings.TERRAIN_PRIORITIES_FIXTURE,

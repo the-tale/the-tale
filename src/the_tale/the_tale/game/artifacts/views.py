@@ -10,7 +10,7 @@ from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
 
-from the_tale.game.map.relations import TERRAIN
+from tt_logic.map.relations import TERRAIN
 
 from . import relations
 from . import effects

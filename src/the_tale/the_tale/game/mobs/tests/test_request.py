@@ -16,7 +16,7 @@ from the_tale.game.logic import create_test_map
 
 from the_tale.game import relations as game_relations
 
-from the_tale.game.map.relations import TERRAIN
+from tt_logic.map.relations import TERRAIN
 
 from the_tale.linguistics.tests import helpers as linguistics_helpers
 

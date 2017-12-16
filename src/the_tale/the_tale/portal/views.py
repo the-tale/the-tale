@@ -29,8 +29,8 @@ from the_tale.game.balance import constants as c
 from the_tale.game.abilities.relations import ABILITY_TYPE
 
 from the_tale.game.map.storage import map_info_storage
-from the_tale.game.map.relations import TERRAIN, MAP_STATISTICS
-
+from the_tale.game.map.relations import MAP_STATISTICS
+from tt_logic.map.relations import TERRAIN
 from the_tale.game.chronicle.prototypes import RecordPrototype as ChronicleRecordPrototype
 from the_tale.game.chronicle.prototypes import RecordToActorPrototype
 
