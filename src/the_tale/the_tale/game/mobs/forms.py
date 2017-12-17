@@ -10,7 +10,7 @@ from the_tale.common.utils import bbcode
 
 from the_tale.linguistics.forms import WordField
 
-from the_tale.game.map.relations import TERRAIN
+from tt_logic.map.relations import TERRAIN
 
 from the_tale.game import relations as game_relations
 

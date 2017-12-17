@@ -12,7 +12,7 @@ from the_tale.game.artifacts import relations as artifacts_relations
 from the_tale.game.persons import relations as persons_relations
 from the_tale.game.places import relations as places_relations
 from the_tale.game.places import modifiers as places_modifiers
-from the_tale.game.map import relations as map_relations
+from tt_logic.map import relations as map_relations
 from the_tale.game.companions import relations as companions_relations
 from the_tale.game.companions.abilities import effects as companion_effects
 

@@ -10,7 +10,7 @@ from the_tale.game import names
 from the_tale.game.logic import create_test_map
 from the_tale.game import relations as game_relations
 
-from the_tale.game.map import relations as map_relations
+from tt_logic.map import relations as map_relations
 from the_tale.game.actions import relations as actions_relations
 
 from the_tale.game.heroes import logic as heroes_logic

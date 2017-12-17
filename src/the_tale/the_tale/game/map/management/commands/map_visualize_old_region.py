@@ -10,7 +10,8 @@ from the_tale.game.relations import RACE
 
 from the_tale.game.places.relations import BUILDING_TYPE
 
-from the_tale.game.map.relations import TERRAIN, SPRITES
+from the_tale.game.map.relations import SPRITES
+from tt_logic.map.relations import TERRAIN
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.conf import map_settings
 

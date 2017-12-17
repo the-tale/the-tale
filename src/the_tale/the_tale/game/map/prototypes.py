@@ -23,7 +23,8 @@ from the_tale.game.roads.storage import roads_storage
 
 from the_tale.game.map.models import MapInfo, WorldInfo
 from the_tale.game.map.utils import get_person_race_percents, get_race_percents
-from the_tale.game.map.relations import MAP_STATISTICS, TERRAIN
+from the_tale.game.map.relations import MAP_STATISTICS
+from tt_logic.map.relations import TERRAIN
 
 from the_tale.game.map import conf
 

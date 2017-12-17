@@ -200,7 +200,7 @@ class DevelopersInfoResource(Resource):
     def mobs_and_artifacts(self): # pylint: disable=R0914
         from the_tale.game.mobs.storage import mobs_storage
         from the_tale.game.artifacts.storage import artifacts_storage
-        from the_tale.game.map.relations import TERRAIN
+        from tt_logic.map.relations import TERRAIN
         from the_tale.game.heroes import relations as heroes_relations
 
         mobs_without_loot = []

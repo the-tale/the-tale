@@ -17,7 +17,7 @@ from the_tale.game.heroes.habilities import AbilitiesPrototype
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance.power import Damage
 
-from the_tale.game.map import relations as map_relations
+from tt_logic.map import relations as map_relations
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes.relations import MODIFIERS as HERO_MODIFIERS

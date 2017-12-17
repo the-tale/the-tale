@@ -11,7 +11,7 @@ from the_tale.game.map.generator.power_points import get_power_points
 from the_tale.game.map.generator.drawer import get_draw_info
 from the_tale.game.places import storage as places_storage
 from the_tale.game.roads.storage import roads_storage
-from the_tale.game.map.relations import TERRAIN
+from tt_logic.map.relations import TERRAIN
 from the_tale.game.map import models
 
 

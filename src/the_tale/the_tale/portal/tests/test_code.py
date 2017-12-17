@@ -73,7 +73,8 @@ class CodeTests(testcase.TestCase):
                                                'urllib',
                                                'unittest',
                                                'tt_protocol',
-                                               'tt_diary']))
+                                               'tt_diary',
+                                               'tt_logic']))
 
     def test_only_absolute_imports__import(self):
 
