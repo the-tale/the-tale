@@ -447,6 +447,7 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(self.hero.companion.is_dead)
         self.assertEqual(reset_accessors_cache.call_count, 1)
 
+
     @mock.patch('the_tale.game.companions.objects.Companion.defend_in_battle_probability', 1.0)
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     @mock.patch('the_tale.game.heroes.messages.JournalContainer.MESSAGES_LOG_LENGTH', 10000)
