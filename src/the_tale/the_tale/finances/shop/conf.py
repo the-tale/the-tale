@@ -44,6 +44,7 @@ payments_settings = app_settings('PAYMENTS',
                                  XSOLLA_LOCAL='ru',
                                  XSOLLA_DESCRIPTION='покупка печенек',
                                  XSOLLA_ID_THEME='id_theme',
+                                 XSOLLA_SUPPORT='https://www.xsolla.com/modules/support/',
 
                                  XSOLLA_DIALOG_WIDTH=900,
                                  XSOLLA_DIALOG_HEIGHT=800,

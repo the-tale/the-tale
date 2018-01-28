@@ -88,6 +88,14 @@ resource.add_processor(XsollaEnabledProcessor())
 
 @resource('', method='get')
 def index(context):
+
+    payment_successed = False
+    payment_failed = False
+
+    if 'status' in context.django_request.GET:
+        payment_successed = context.django_request.GET.get('status') == 'done'
+        payment_failed = context.django_request.GET.get('status') != 'done'
+
     hero = heroes_logic.load_hero(account_id=context.account.id)
 
     return dext_views.Page('shop/shop.html',
@@ -99,7 +107,9 @@ def index(context):
                                     'payments_settings': conf.payments_settings,
                                     'account': context.account,
                                     'page_type': 'shop',
-                                    'resource': context.resource})
+                                    'resource': context.resource,
+                                    'payment_successed': payment_successed,
+                                    'payment_failed': payment_failed})
 
 
 @resource('history', method='get')
