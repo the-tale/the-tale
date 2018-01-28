@@ -537,7 +537,10 @@ class ProfileResource(BaseAccountsResource):
         return self.json_ok(data={'next_url': reverse('accounts:profile:confirm-email-request')})
 
     @handler('confirm-email', method='get')
-    def confirm_email(self, uuid): # pylint: disable=W0621
+    def confirm_email(self, uuid=None): # pylint: disable=W0621
+
+        if uuid is None:
+            return self.auto_error('accounts.profile.confirm_email.no_uid', 'Вы неверно скопировали url. Пожалуйста, внимательно прочтите письмо ещё раз.')
 
         task = ChangeCredentialsTaskPrototype.get_by_uuid(uuid)
 
