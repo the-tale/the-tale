@@ -1,21 +1,24 @@
-# coding: utf-8
 
 import datetime
 import collections
 
 from the_tale.common.utils import testcase
 
-from the_tale.common.utils.logic import (random_value_by_priority,
-                                         shuffle_values_by_priority,
-                                         verbose_timedelta,
-                                         get_or_create,
-                                         split_into_table,
-                                         days_range,
-                                         randint_from_1,
-                                         absolutize_urls)
+from ..logic import random_value_by_priority
+from ..logic import shuffle_values_by_priority
+from ..logic import verbose_timedelta
+from ..logic import get_or_create
+from ..logic import split_into_table
+from ..logic import days_range
+from ..logic import randint_from_1
+from ..logic import absolutize_urls
+from ..logic import log_diminishing_sequence
+
 from the_tale.common.utils.decorators import lazy_property
 
+
 _get_or_create_state = None # for get_or_create tests
+
 
 class LogicTest(testcase.TestCase):
 
@@ -38,7 +41,6 @@ class LogicTest(testcase.TestCase):
         self.assertTrue(counter['c'])
 
         self.assertTrue(counter['0'] < counter['a'] < counter['b'] < counter['c'])
-
 
     def test_shuffle_values_by_priority(self):
         counter = collections.Counter()
@@ -100,19 +102,16 @@ class LogicTest(testcase.TestCase):
         x.test
         self.assertEqual(x.count, 1)
 
-
     def test_get_or_create__by_get(self):
         def get(x, y): return x + y
 
         self.assertEqual(get_or_create(get_method=get, create_method=None, exception=None, kwargs={'x': 222, 'y': 444}), 666)
-
 
     def test_get_or_create__by_create(self):
         def get(x, y): return None
         def create(x, y): return x + y
 
         self.assertEqual(get_or_create(get_method=get, create_method=create, exception=None, kwargs={'x': 222, 'y': 444}), 666)
-
 
     def test_get_or_create__by_second_get(self):
         global _get_or_create_state
@@ -129,7 +128,6 @@ class LogicTest(testcase.TestCase):
 
         self.assertEqual(get_or_create(get_method=get, create_method=create, exception=Exception, kwargs={'x': 222, 'y': 444}), 666)
 
-
     def test_split_into_table(self):
         self.assertEqual(split_into_table([], 3), [])
         self.assertEqual(split_into_table([1], 3), [(1, None, None)])
@@ -139,7 +137,6 @@ class LogicTest(testcase.TestCase):
         self.assertEqual(split_into_table([1, 2, 3, 4, 5], 3), [(1, 3, 5), (2, 4, None)])
         self.assertEqual(split_into_table([1, 2, 3, 4, 5, 6], 3), [(1, 3, 5), (2, 4, 6)])
         self.assertEqual(split_into_table([1, 2, 3, 4, 5, 6, 7], 3), [(1, 4, 6), (2, 5, 7), (3, None, None)])
-
 
     def test_days_range__inverted(self):
         self.assertEqual(list(days_range(datetime.date(666, 6, 6), datetime.date(666, 6, 5))),
@@ -182,3 +179,28 @@ class LogicTest(testcase.TestCase):
         text = '<a href=""></a> <a href="/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>'
         self.assertEqual(absolutize_urls(text),
                          '<a href=""></a> <a href="http://local.the-tale:8000/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>')
+
+    def test_log_diminishing_sequence(self):
+        self.assertEqual(log_diminishing_sequence(n=0, m=2), [])
+        self.assertEqual(log_diminishing_sequence(n=1, m=2), [2])
+        self.assertEqual(log_diminishing_sequence(n=2, m=2), [2, 4])
+        self.assertEqual(log_diminishing_sequence(n=3, m=2), [2, 4, 4])
+        self.assertEqual(log_diminishing_sequence(n=4, m=2), [2, 4, 4, 8])
+        self.assertEqual(log_diminishing_sequence(n=5, m=2), [2, 4, 4, 8, 8])
+        self.assertEqual(log_diminishing_sequence(n=6, m=2), [2, 4, 4, 8, 8, 8])
+        self.assertEqual(log_diminishing_sequence(n=7, m=2), [2, 4, 4, 8, 8, 8, 8])
+        self.assertEqual(log_diminishing_sequence(n=8, m=2), [2, 4, 4, 8, 8, 8, 8, 16])
+        self.assertEqual(log_diminishing_sequence(n=9, m=2), [2, 4, 4, 8, 8, 8, 8, 16, 16])
+        self.assertEqual(log_diminishing_sequence(n=10, m=2), [2, 4, 4, 8, 8, 8, 8, 16, 16, 16])
+
+        self.assertEqual(log_diminishing_sequence(n=0, m=3), [])
+        self.assertEqual(log_diminishing_sequence(n=1, m=3), [3])
+        self.assertEqual(log_diminishing_sequence(n=2, m=3), [3, 9])
+        self.assertEqual(log_diminishing_sequence(n=3, m=3), [3, 9, 9])
+        self.assertEqual(log_diminishing_sequence(n=4, m=3), [3, 9, 9, 9])
+        self.assertEqual(log_diminishing_sequence(n=5, m=3), [3, 9, 9, 9, 9])
+        self.assertEqual(log_diminishing_sequence(n=6, m=3), [3, 9, 9, 9, 9, 9])
+        self.assertEqual(log_diminishing_sequence(n=7, m=3), [3, 9, 9, 9, 9, 9, 9])
+        self.assertEqual(log_diminishing_sequence(n=8, m=3), [3, 9, 9, 9, 9, 9, 9, 27])
+        self.assertEqual(log_diminishing_sequence(n=9, m=3), [3, 9, 9, 9, 9, 9, 9, 27, 27])
+        self.assertEqual(log_diminishing_sequence(n=10, m=3), [3, 9, 9, 9, 9, 9, 9, 27, 27, 27])

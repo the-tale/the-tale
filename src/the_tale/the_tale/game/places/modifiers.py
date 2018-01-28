@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from rels import Column
 from rels.django import DjangoEnum
 
@@ -35,7 +35,7 @@ class CITY_MODIFIERS(DjangoEnum):
     quest_type = Column(unique=False)
     utg_name_form = Column()
     linguistics_restrictions = Column()
-    effects = Column()
+    effects = Column(no_index=True, unique=False)
     description = Column()
     points_attribute = Column(unique=False, single_type=False)
 

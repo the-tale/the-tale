@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import math
 import random
 import datetime
@@ -123,7 +123,6 @@ def split_into_table(sequence, columns):
     return table
 
 
-
 def get_or_create(get_method, create_method, exception, kwargs):
     obj = get_method(**kwargs)
 
@@ -144,3 +143,12 @@ def days_range(date_from, date_to):
 
 def absolutize_urls(text):
     return text.replace('href="/', 'href="http://%s/' % project_settings.SITE_URL).replace('href=\'/', 'href=\'http://%s/' % project_settings.SITE_URL)
+
+
+def log_diminishing_sequence(n, m):
+    sequence = []
+
+    for i in range(n):
+        sequence.append(m ** math.ceil(math.log(i+m)/math.log(m)))
+
+    return sequence

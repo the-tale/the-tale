@@ -133,7 +133,6 @@ class PlaceTests(testcase.TestCase):
                                          resource_2=relations.RESOURCE_EXCHANGE_TYPE.NONE,
                                          bill=None)
 
-
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
@@ -157,7 +156,6 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.production - expected_production < 0.001)
 
-
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 0.03)
@@ -176,7 +174,6 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.safety - expected_safety < 0.001)
 
-
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__safety__min_value(self):
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.SAFETY, value=-1000))
@@ -187,7 +184,6 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.safety - c.PLACE_MIN_SAFETY < 0.001)
 
-
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__safety__max_value(self):
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.SAFETY, value=1000))
@@ -197,7 +193,6 @@ class PlaceTests(testcase.TestCase):
         self.p1.refresh_attributes()
 
         self.assertTrue(-0.001 < self.p1.attrs.safety - 1 < 0.001)
-
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
@@ -220,7 +215,6 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.transport - expected_transport < 0.001)
 
-
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__transport__min_value(self):
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.TRANSPORT, value=-1000))
@@ -230,7 +224,6 @@ class PlaceTests(testcase.TestCase):
         self.p1.refresh_attributes()
 
         self.assertTrue(-0.001 < self.p1.attrs.transport - c.PLACE_MIN_TRANSPORT < 0.001)
-
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__culture__min_value(self):
@@ -242,7 +235,6 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.culture - c.PLACE_MIN_CULTURE < 0.001)
 
-
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__tax(self):
 
@@ -253,7 +245,6 @@ class PlaceTests(testcase.TestCase):
         self.p1.refresh_attributes()
 
         self.assertEqual(self.p1.attrs.tax, 0.05)
-
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
@@ -268,7 +259,6 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.freedom - (1000 + 100 * len(self.p1.persons) + 1.0 + 0.1) < 0.001)
 
-
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)
@@ -280,7 +270,6 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.stability - (1.0 - 0.5 + 0.25 - 0.05 * len(self.p1.persons)) < 0.001)
 
-
     def test_refresh_attributes__stability__minimum(self):
 
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=-0.6))
@@ -290,7 +279,6 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.stability - c.PLACE_MIN_STABILITY < 0.001)
 
-
     def test_refresh_attributes__stability_maximum(self):
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=0.6))
         self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=0.55))
@@ -298,7 +286,6 @@ class PlaceTests(testcase.TestCase):
         self.p1.refresh_attributes()
 
         self.assertEqual(self.p1.attrs.stability, 1.0)
-
 
     @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
     def test_refresh_attributes__stability_penalty_for_masters_number(self):
@@ -318,7 +305,6 @@ class PlaceTests(testcase.TestCase):
 
             self.p1.refresh_attributes()
 
-
     @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
     def test_refresh_attributes__stability_penalty_for_race_discrimination(self):
         self.p1.race = self.p1.races.dominant_race
@@ -337,7 +323,6 @@ class PlaceTests(testcase.TestCase):
             self.p1.races._races[self.p1.race] -= 0.1
             self.p1.refresh_attributes()
 
-
     @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
     def test_refresh_attributes__stability_penalty_for_wrong_specialization(self):
         self.p1.refresh_attributes()
@@ -351,7 +336,6 @@ class PlaceTests(testcase.TestCase):
             self.p1.attrs.modifier_trade_center = 0
             self.p1.effects.clear()
             self.p1.refresh_attributes()
-
 
     @mock.patch('the_tale.game.places.races.Races.dominant_race', RACE.ELF)
     @mock.patch('the_tale.game.places.objects.Place.race', RACE.ELF)
@@ -370,10 +354,9 @@ class PlaceTests(testcase.TestCase):
 
         for effect in self.p1.effects.effects:
             if effect.name == 'x':
-                self.assertEqual(effect.value, -0.5 + c.PLACE_STABILITY_RECOVER_SPEED / 2)
+                self.assertEqual(effect.value, -0.5 + c.PLACE_STABILITY_RECOVER_SPEED * (3/4))
             else:
-                self.assertEqual(effect.value, 0.25 - c.PLACE_STABILITY_RECOVER_SPEED / 2)
-
+                self.assertEqual(effect.value, 0.25 - c.PLACE_STABILITY_RECOVER_SPEED * (1/4))
 
     def test_stability__parameters_removed(self):
         self.p1.attrs.stability_renewing_speed = 0.25
@@ -385,14 +368,16 @@ class PlaceTests(testcase.TestCase):
         self.assertEqual(len(self.p1.effects.effects), 2)
 
         self.p1.effects_update_step()
+        self.assertEqual(len(self.p1.effects.effects), 2)
+
+        self.p1.effects_update_step()
         self.assertEqual(len(self.p1.effects.effects), 1)
 
-        self.assertEqual(self.p1.effects.effects[0].name, 'x')
-        self.assertEqual(self.p1.effects.effects[0].value, -0.25)
+        self.assertEqual(self.p1.effects.effects[0].name, 'y')
+        self.assertEqual(self.p1.effects.effects[0].value, 0.0625)
 
         self.p1.effects_update_step()
         self.assertEqual(len(self.p1.effects.effects), 0)
-
 
     def test_refresh_attributes__stability__parameters_descreased(self):
 
@@ -406,7 +391,6 @@ class PlaceTests(testcase.TestCase):
                 with self.check_decreased(lambda: self.p1.attrs.transport):
                     with self.check_decreased(lambda: self.p1.attrs.safety):
                         self.p1.refresh_attributes()
-
 
     def test_habit_change_speed(self):
         self.assertEqual(objects.Place._habit_change_speed(0, 100, 100), 0)
@@ -422,12 +406,10 @@ class PlaceTests(testcase.TestCase):
         self.assertEqual(objects.Place._habit_change_speed(0, 1, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
         self.assertEqual(objects.Place._habit_change_speed(0, -1, 100), -c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM)
 
-
     def test_habit_change_speed__penaltuy(self):
         self.assertEqual(objects.Place._habit_change_speed(0, 0, 0), 0)
         self.assertEqual(objects.Place._habit_change_speed(500, 0, 0), -5)
         self.assertEqual(objects.Place._habit_change_speed(-500, 0, 0), 5)
-
 
     def test_get_next_keepers_goods_spend_amount__0(self):
         self.assertEqual(self.p1.attrs.keepers_goods, 0)
@@ -453,7 +435,6 @@ class PlaceJobsTests(testcase.TestCase):
         super(PlaceJobsTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-
     def test_job_effects_priorities(self):
         self.assertEqual(self.place_1.job_effects_priorities(),
                          {effect: 1 for effect in jobs_effects.EFFECT.records})
@@ -461,7 +442,6 @@ class PlaceJobsTests(testcase.TestCase):
     @mock.patch('the_tale.game.places.objects.Place.total_politic_power_fraction', 0.5)
     def test_get_job_power(self):
         self.assertEqual(self.place_1.get_job_power(), 0.875)
-
 
     def test_update_job(self):
 
@@ -480,13 +460,11 @@ class PlaceJobsTests(testcase.TestCase):
         self.assertEqual(apply_to_heroes.call_count, 1)
 
 
-
 class BuildingTests(testcase.TestCase):
 
     def setUp(self):
         super(BuildingTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
-
 
     def test_create(self):
         self.assertEqual(models.Building.objects.all().count(), 0)
@@ -546,7 +524,6 @@ class BuildingTests(testcase.TestCase):
         self.assertEqual(building.integrity, 0)
         self.assertTrue(building.state.is_WORKING)
 
-
     def test_amortization_grows(self):
         building = logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
 
@@ -571,14 +548,12 @@ class BuildingTests(testcase.TestCase):
         with self.check_decreased(lambda: building.amortization_delta(1000)):
             person.attrs.building_amortization_speed = 0.5
 
-
     def test_save__update_storage(self):
         building = logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
 
         old_version = storage.buildings.version
         logic.save_building(building)
         self.assertNotEqual(old_version, storage.buildings.version)
-
 
     def test_destroy__update_storage(self):
         building = logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))

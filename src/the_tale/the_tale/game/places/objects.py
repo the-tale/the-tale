@@ -404,12 +404,24 @@ class Place(names.ManageNameMixin2):
         self.attrs.sync()
 
     def effects_update_step(self):
-        stability_delta = 0
         stability_effects = [effect for effect in self.effects.effects if effect.attribute.is_STABILITY]
-        if stability_effects:
-            stability_delta = self.attrs.stability_renewing_speed / len(stability_effects)
 
-        self.effects.update_step(deltas={relations.ATTRIBUTE.STABILITY: stability_delta})
+        if stability_effects:
+            speed = self.attrs.stability_renewing_speed
+
+            dividers = utils_logic.log_diminishing_sequence(n=len(stability_effects), m=2)
+
+            speed_sum = 0
+
+            for effect, divider in zip(stability_effects, dividers):
+                delta = speed / divider
+
+                effect.delta = delta
+                speed_sum += delta
+
+            stability_effects[0].delta += (speed - speed_sum)
+
+        self.effects.update_step()
 
     def set_modifier(self, modifier):
         self._modifier = modifier
