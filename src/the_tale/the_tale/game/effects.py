@@ -1,5 +1,6 @@
-# coding: utf-8
+
 import numbers
+
 
 class Effect(object):
     __slots__ = ('name', 'attribute', 'value', 'delta', 'remove_required')
@@ -10,7 +11,6 @@ class Effect(object):
         self.value = value
         self.delta = delta
         self.remove_required = False
-
 
     def serialize(self):
         return {'name': self.name,

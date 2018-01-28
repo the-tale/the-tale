@@ -1,21 +1,30 @@
 
 import uuid
+
+from unittest import mock
+
 from dext.common.utils.urls import url
+
+from django.conf import settings as project_settings
+
+from tt_protocol.protocol import timers_pb2
+
+from tt_logic.cards import constants as logic_cards_constants
 
 from the_tale.common.utils import testcase
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
+
+from the_tale.accounts import tt_api as accounts_tt_api
+from the_tale.accounts import relations as accounts_relations
 
 from the_tale.game.logic import create_test_map
 from the_tale.game import names
 
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game.heroes import logic as heroes_logic
-
 from the_tale.game.places import logic as places_logic
 
 from .. import relations
-from .. import effects
 from .. import objects
 from .. import tt_api
 from .. import logic
@@ -56,7 +65,6 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
         self.request_login(self.account.email)
         self.check_html_ok(self.request_ajax_html(url('game:cards:use-dialog', card=self.card.uid)))
 
-
     def test_every_card(self):
         self.request_login(self.account.email)
 
@@ -73,7 +81,6 @@ class UseDialogRequestTests(CardsRequestsTestsBase):
             self.check_html_ok(self.request_ajax_html(url('game:cards:use-dialog', card=self.card.uid)))
 
 
-
 class UseRequestTests(CardsRequestsTestsBase):
 
     def test_unlogined(self):
@@ -83,14 +90,12 @@ class UseRequestTests(CardsRequestsTestsBase):
         self.request_login(self.account.email)
         self.check_ajax_error(self.post_ajax_json(logic.use_card_url(uuid.uuid4().hex)), 'card.wrong_value')
 
-
     def test_form_invalid(self):
         self.request_login(self.account.email)
 
         tt_api.change_cards(self.hero.account_id, operation_type='#test', to_add=[self.card])
 
         self.check_ajax_error(self.post_ajax_json(logic.use_card_url(self.card.uid), {'value': 6666666}), 'form_errors')
-
 
     def test_success(self):
         self.request_login(self.account.email)
@@ -131,24 +136,40 @@ class GetCardRequestsTests(CardsRequestsTestsBase):
         super(GetCardRequestsTests, self).setUp()
 
     def test_unlogined(self):
-        self.check_ajax_error(self.post_ajax_json(logic.get_card_url()), 'common.login_required')
+        self.check_ajax_error(self.post_ajax_json(logic.receive_cards_url()), 'common.login_required')
 
-    def test_created(self):
+    def test_no_new_cards(self):
         self.request_login(self.account.email)
 
-        with self.check_delta(PostponedTaskPrototype._db_count, 1):
-            response = self.post_ajax_json(logic.get_card_url())
+        response = self.post_ajax_json(logic.receive_cards_url())
 
-        task = PostponedTaskPrototype._db_get_object(0)
+        data = self.check_ajax_ok(response)
+        self.assertEqual(data['cards'], [])
 
-        self.check_ajax_processing(response, task.status_url)
+    def test_has_new_cards(self):
+        self.request_login(self.account.email)
+
+        cards = [logic.create_card(allow_premium_cards=True, available_for_auction=True),
+                 logic.create_card(allow_premium_cards=True, available_for_auction=True)]
+
+        tt_api.change_cards(account_id=self.account.id,
+                            operation_type='#test',
+                            storage=relations.STORAGE.NEW,
+                            to_add=cards)
+
+        response = self.post_ajax_json(logic.receive_cards_url())
+
+        data = self.check_ajax_ok(response)
+        self.assertEqual(len(data['cards']), 2)
+
+        self.assertEqual({card.uid.hex for card in cards},
+                         {card['uid'] for card in data['cards']})
 
 
 class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
     def test_unlogined(self):
         self.check_ajax_error(self.post_ajax_json(logic.combine_cards_url()), 'common.login_required')
-
 
     def test_created(self):
         self.request_login(self.account.email)
@@ -170,7 +191,6 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
         self.assertEqual(data['card'], new_card.ui_info())
 
-
     def test_wrong_cards(self):
         self.request_login(self.account.email)
 
@@ -179,12 +199,10 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
                                   'card.wrong_value')
 
 
-
 class MoveToStorageRequestsTests(CardsRequestsTestsBase):
 
     def test_unlogined(self):
         self.check_ajax_error(self.post_ajax_json(logic.move_to_storage_url()), 'common.login_required')
-
 
     def test_move(self):
         self.request_login(self.account.email)
@@ -207,7 +225,6 @@ class MoveToStorageRequestsTests(CardsRequestsTestsBase):
             else:
                 self.assertFalse(card['in_storage'])
 
-
     def test_already_moved(self):
         self.request_login(self.account.email)
         card = objects.Card(cards.CARD.ADD_GOLD_COMMON, uid=uuid.uuid4())
@@ -219,11 +236,9 @@ class MoveToStorageRequestsTests(CardsRequestsTestsBase):
         data = self.check_ajax_ok(self.request_json(logic.get_cards_url()))
         self.assertTrue(data['cards'][0]['in_storage'])
 
-
     def test_no_card(self):
         self.request_login(self.account.email)
         self.check_ajax_error(self.post_ajax_json(logic.move_to_storage_url(), {'card': [uuid.uuid4().hex]}), 'card.wrong_value')
-
 
     def test_no_card__in_list(self):
         self.request_login(self.account.email)
@@ -237,7 +252,6 @@ class MoveToHandRequestsTests(CardsRequestsTestsBase):
 
     def test_unlogined(self):
         self.check_ajax_error(self.post_ajax_json(logic.move_to_hand_url()), 'common.login_required')
-
 
     def test_move(self):
         self.request_login(self.account.email)
@@ -261,7 +275,6 @@ class MoveToHandRequestsTests(CardsRequestsTestsBase):
             else:
                 self.assertTrue(card['in_storage'])
 
-
     def test_already_moved(self):
         self.request_login(self.account.email)
         card = objects.Card(cards.CARD.ADD_GOLD_COMMON, uid=uuid.uuid4())
@@ -272,11 +285,9 @@ class MoveToHandRequestsTests(CardsRequestsTestsBase):
         data = self.check_ajax_ok(self.request_json(logic.get_cards_url()))
         self.assertFalse(data['cards'][0]['in_storage'])
 
-
     def test_no_card(self):
         self.request_login(self.account.email)
         self.check_ajax_error(self.post_ajax_json(logic.move_to_hand_url(), {'card': [uuid.uuid4().hex]}), 'card.wrong_value')
-
 
     def test_no_card__in_list(self):
         self.request_login(self.account.email)
@@ -284,3 +295,155 @@ class MoveToHandRequestsTests(CardsRequestsTestsBase):
         tt_api.change_cards(self.hero.account_id, operation_type='#test', to_add=[card])
 
         self.check_ajax_error(self.post_ajax_json(logic.move_to_hand_url(), {'card': [card.uid.hex, uuid.uuid4().hex]}), 'card.wrong_value')
+
+
+class TakeCardCallbackTests(CardsRequestsTestsBase):
+
+    def create_data(self, secret):
+        timers = accounts_tt_api.get_owner_timers(self.account.id)
+
+        for timer in timers:
+            if timer.type.is_CARDS_MINER:
+                new_card_timer = timer
+                break
+
+        return timers_pb2.CallbackBody(timer=timers_pb2.Timer(owner_id=self.account.id,
+                                                              entity_id=0,
+                                                              type=0,
+                                                              speed=new_card_timer.speed),
+                                       callback_data='xy',
+                                       secret=secret).SerializeToString()
+
+    def test_no_post_data(self):
+        self.check_ajax_error(self.post_ajax_json(url('game:cards:tt-take-card-callback')), 'common.wrong_tt_post_data', status_code=500)
+
+        cards = tt_api.load_cards(self.account.id)
+        self.assertEqual(cards, {})
+
+    def test_wrong_secret_key(self):
+        data = self.create_data(secret='wrong.secret')
+        self.check_ajax_error(self.post_ajax_binary(url('game:cards:tt-take-card-callback'), data), 'common.wrong_tt_secret', status_code=500)
+
+        cards = tt_api.load_cards(self.account.id)
+        self.assertEqual(cards, {})
+
+    @mock.patch('tt_logic.common.checkers.is_player_participate_in_game', mock.Mock(return_value=False))
+    def test_does_not_participate_in_game(self):
+        data = self.create_data(secret=project_settings.TT_SECRET)
+        self.check_ajax_error(self.post_ajax_binary(url('game:cards:tt-take-card-callback'), data), 'common.player_does_not_participate_in_game')
+
+        cards = tt_api.load_cards(self.account.id)
+        self.assertEqual(cards, {})
+
+    def check_cards_timer_speed(self, speed):
+        timers = accounts_tt_api.get_owner_timers(self.account.id)
+
+        for timer in timers:
+            if timer.type.is_CARDS_MINER:
+                new_card_timer = timer
+                break
+
+        self.assertEqual(new_card_timer.speed, speed)
+
+    def test_premium(self):
+
+        self.check_cards_timer_speed(logic_cards_constants.NORMAL_PLAYER_SPEED)
+
+        self.account.prolong_premium(30)
+        self.account.save()
+
+        data = self.create_data(secret=project_settings.TT_SECRET)
+        self.check_ajax_ok(self.post_ajax_binary(url('game:cards:tt-take-card-callback'), data))
+
+        cards = tt_api.load_cards(self.account.id)
+        self.assertEqual(len(cards), 1)
+        self.assertTrue(list(cards.values())[0].storage.is_NEW)
+        self.assertTrue(list(cards.values())[0].available_for_auction)
+
+        self.check_cards_timer_speed(logic_cards_constants.PREMIUM_PLAYER_SPEED)
+
+    def test_not_premium(self):
+
+        accounts_tt_api.change_cards_timer_speed(account_id=self.account.id,
+                                                 speed=logic_cards_constants.PREMIUM_PLAYER_SPEED)
+
+        self.check_cards_timer_speed(logic_cards_constants.PREMIUM_PLAYER_SPEED)
+
+        data = self.create_data(secret=project_settings.TT_SECRET)
+        self.check_ajax_ok(self.post_ajax_binary(url('game:cards:tt-take-card-callback'), data))
+
+        cards = tt_api.load_cards(self.account.id)
+        self.assertEqual(len(cards), 1)
+        self.assertTrue(list(cards.values())[0].storage.is_NEW)
+        self.assertFalse(list(cards.values())[0].available_for_auction)
+
+        self.check_cards_timer_speed(logic_cards_constants.NORMAL_PLAYER_SPEED)
+
+
+class GetCardsTests(CardsRequestsTestsBase):
+
+    def test_unlogined(self):
+        self.check_ajax_error(self.request_ajax_json(logic.get_cards_url()), 'common.login_required')
+
+    def test_no_cards(self):
+        self.request_login(self.account.email)
+
+        response = self.request_ajax_json(logic.get_cards_url())
+
+        data = self.check_ajax_ok(response)
+        self.assertEqual(data['cards'], [])
+        self.assertEqual(data['new_cards'], 0)
+        self.assertEqual(data['new_card_timer'], {'border': logic_cards_constants.RECEIVE_TIME,
+                                                  'finish_at': data['new_card_timer']['finish_at'],
+                                                  'id': data['new_card_timer']['id'],
+                                                  'owner_id': self.account.id,
+                                                  'resources': 0.0,
+                                                  'resources_at': data['new_card_timer']['resources_at'],
+                                                  'speed': 1.0,
+                                                  'type': accounts_relations.PLAYER_TIMERS_TYPES.CARDS_MINER.value})
+
+    def test_has_cards(self):
+        self.request_login(self.account.email)
+
+        cards = [logic.create_card(allow_premium_cards=True, available_for_auction=True),
+                 logic.create_card(allow_premium_cards=True, available_for_auction=True)]
+
+        tt_api.change_cards(account_id=self.account.id,
+                            operation_type='#test',
+                            storage=relations.STORAGE.FAST,
+                            to_add=cards)
+
+        response = self.request_ajax_json(logic.get_cards_url())
+
+        data = self.check_ajax_ok(response)
+        self.assertEqual(len(data['cards']), 2)
+
+        self.assertEqual({card.uid.hex for card in cards},
+                         {card['uid'] for card in data['cards']})
+
+    def test_has_not_received_cards(self):
+        self.request_login(self.account.email)
+
+        cards = [logic.create_card(allow_premium_cards=True, available_for_auction=True),
+                 logic.create_card(allow_premium_cards=True, available_for_auction=True)]
+
+        tt_api.change_cards(account_id=self.account.id,
+                            operation_type='#test',
+                            storage=relations.STORAGE.NEW,
+                            to_add=cards)
+
+        visible_card = logic.create_card(allow_premium_cards=True, available_for_auction=True)
+
+        tt_api.change_cards(account_id=self.account.id,
+                            operation_type='#test',
+                            storage=relations.STORAGE.FAST,
+                            to_add=[visible_card])
+
+        response = self.request_ajax_json(logic.get_cards_url())
+
+        data = self.check_ajax_ok(response)
+
+        self.assertEqual(data['new_cards'], 2)
+        self.assertEqual(len(data['cards']), 1)
+
+        self.assertEqual(visible_card.uid.hex, data['cards'][0]['uid'])

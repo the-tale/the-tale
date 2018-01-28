@@ -33,7 +33,8 @@ class ComplexChangeTasksTests(TestCase):
 
         self.task = UseAbilityTask(processor_id=ABILITY_TYPE.HELP.value,
                                    hero_id=self.hero.id,
-                                   data={'hero_id': self.hero.id})
+                                   data={'hero_id': self.hero.id,
+                                         'transaction_id': None})
 
     def test_create(self):
         self.assertTrue(issubclass(UseAbilityTask, ComplexChangeTask))

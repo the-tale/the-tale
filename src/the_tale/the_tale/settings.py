@@ -82,6 +82,8 @@ USE_L10N = True
 
 SECRET_KEY = 'test secret key, must be replaced'
 
+TT_SECRET = 'test.secret'
+
 GA_CODE = None
 ADDTHIS = None
 MAIL_RU = None

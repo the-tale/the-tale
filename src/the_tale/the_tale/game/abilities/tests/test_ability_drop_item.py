@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -39,13 +38,11 @@ class DropItemAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_no_items(self):
         self.assertEqual(self.hero.bag.occupation, 0)
         self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
-        self.assertEqual(self.hero.energy, self.hero.energy_maximum)
 
     def test_success(self):
         self.hero.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
 
         with self.check_delta(lambda: self.hero.bag.occupation, -1):
-            with self.check_delta(lambda: self.hero.cards.help_count, 1):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
     @mock.patch('the_tale.game.heroes.objects.Hero.might_crit_chance', 1)

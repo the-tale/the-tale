@@ -1,52 +1,52 @@
 
 import rels
+
 from rels.django import DjangoEnum
 
+from tt_logic.cards import constants as logic_cards_constants
+
 from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.accounts import logic as accounts_logic
 
+from the_tale.accounts import tt_api as accounts_tt_api
 from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 
 from the_tale.game.cards import tt_api as cards_tt_api
 from the_tale.game.cards import logic as cards_logic
+from the_tale.game.cards import relations as cards_relations
 
 from the_tale.finances.bank.transaction import Transaction
 from the_tale.finances.bank import relations as bank_relations
 from the_tale.finances.bank import prototypes as bank_prototypes
 
 from the_tale.amqp_environment import environment
-from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
+from the_tale.accounts.prototypes import AccountPrototype
 
 from . import relations
-from . import conf
-from . import exceptions
 from . import tt_api
 from . import logic
+from . import conf
 
 
 def good_bought_message(name, price):
-    from the_tale.portal import logic as portal_logic
-
     template = 'Поздравляем! Кто-то купил карту «%(good)s», Вы получаете печеньки: %(price)d шт.'
     return template % {'good': name,
                        'price': price}
 
 
 class BASE_BUY_TASK_STATE(DjangoEnum):
-    records = ( ('TRANSACTION_REQUESTED', 1, 'запрошены средства'),
-                ('TRANSACTION_REJECTED', 2, 'недостаточно средств'),
-                ('TRANSACTION_FROZEN', 3, 'средства выделены'),
-                ('WAIT_TRANSACTION_CONFIRMATION', 4, 'ожидает подтверждение платежа'),
-                ('SUCCESSED', 5, 'операция выполнена'),
-                ('ERROR_IN_FREEZING_TRANSACTION',6, 'неверное состояние транзакции при замарозке средств'),
-                ('ERROR_IN_CONFIRM_TRANSACTION', 7, 'неверное состояние транзакции при подтверждении траты'),
-                ('WRONG_TASK_STATE', 8, 'ошибка при обрабокте задачи — неверное состояние'),
-                ('CANCELED', 9, 'операция отменена'), )
-
+    records = (('TRANSACTION_REQUESTED', 1, 'запрошены средства'),
+               ('TRANSACTION_REJECTED', 2, 'недостаточно средств'),
+               ('TRANSACTION_FROZEN', 3, 'средства выделены'),
+               ('WAIT_TRANSACTION_CONFIRMATION', 4, 'ожидает подтверждение платежа'),
+               ('SUCCESSED', 5, 'операция выполнена'),
+               ('ERROR_IN_FREEZING_TRANSACTION',6, 'неверное состояние транзакции при замарозке средств'),
+               ('ERROR_IN_CONFIRM_TRANSACTION', 7, 'неверное состояние транзакции при подтверждении траты'),
+               ('WRONG_TASK_STATE', 8, 'ошибка при обрабокте задачи — неверное состояние'),
+               ('CANCELED', 9, 'операция отменена'), )
 
 
 class BaseBuyTask(PostponedLogic):
@@ -137,7 +137,6 @@ class BaseBuyTask(PostponedLogic):
             main_task.comment = 'wrong invoice %d state %r on confirmation step' % (self.transaction.invoice_id, transaction_state)
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-
     def process(self, main_task, storage=None): # pylint: disable=W0613
 
         if self.state.is_TRANSACTION_REQUESTED:
@@ -153,7 +152,6 @@ class BaseBuyTask(PostponedLogic):
             main_task.comment = 'wrong task state %r' % self.state
             self.state = self.RELATION.WRONG_TASK_STATE
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
 
     def process_referrals(self):
         invoice = self.transaction.get_invoice()
@@ -200,6 +198,10 @@ class BuyPremium(BaseBuyTask):
     def on_process_transaction_frozen(self, **kwargs):
         self.account.prolong_premium(days=self.days)
         self.account.save()
+
+        accounts_tt_api.change_cards_timer_speed(account_id=self.account.id,
+                                                 speed=logic_cards_constants.PREMIUM_PLAYER_SPEED)
+
         return True
 
 
@@ -258,7 +260,7 @@ class BuyMarketLot(BaseBuyTask):
         cards_tt_api.change_cards_owner(old_owner_id=accounts_logic.get_system_user_id(),
                                         new_owner_id=self.account_id,
                                         operation_type='#close_sell_lots',
-                                        new_storage_id=0,
+                                        new_storage=cards_relations.STORAGE.FAST,
                                         cards_ids=[lot.item_id for lot in lots])
 
         cards_info = cards_logic.get_cards_info_by_full_types()

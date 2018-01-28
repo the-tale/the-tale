@@ -4,8 +4,6 @@ import time
 
 from tt_protocol.protocol import market_pb2
 
-from tt_web import s11n
-
 from . import objects
 from . import relations
 

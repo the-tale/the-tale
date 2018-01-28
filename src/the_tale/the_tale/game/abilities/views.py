@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.views import handler, validate_argument
 
@@ -24,12 +23,13 @@ class AbilitiesResource(Resource):
         self.ability = ability()
 
     @api.handler(versions=('1.0',))
-    @validate_argument('building', int, 'abilities', 'Неверный идентификатор здания')
     @validate_argument('battle', int, 'abilities', 'Неверный идентификатор сражения')
     @handler('#ability', 'api', 'use', method='post')
-    def use(self, api_version, building=None, battle=None):
+    def use(self, api_version, battle=None):
         task = self.ability.activate(heroes_logic.load_hero(account_id=self.account.id),
-                                     data={'building_id': building,
-                                           'battle_id': battle})
+                                     data={'battle_id': battle})
+
+        if task is None:
+            return self.error('game.abilities.use.no_enough_energy', 'Недостаточно энергии')
 
         return self.processing(task.status_url)

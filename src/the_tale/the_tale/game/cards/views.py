@@ -3,8 +3,16 @@ import uuid
 
 from rels.django import DjangoEnum
 
+from django.views.decorators import csrf
+from django.conf import settings as project_settings
+
 from dext.common.utils import views as dext_views
 from dext.common.utils.urls import UrlBuilder, url
+
+from tt_protocol.protocol import timers_pb2
+
+from tt_logic.common import checkers as logic_checkers
+from tt_logic.cards import constants as logic_cards_constants
 
 from the_tale import amqp_environment
 
@@ -13,9 +21,12 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 from the_tale.common.utils import api
 from the_tale.common.utils import list_filter
 from the_tale.common.utils import views as utils_views
+from the_tale.common.utils import tt_api as common_tt_api
 from the_tale.common.utils import exceptions as utils_exceptions
 
 from the_tale.accounts import views as accounts_views
+from the_tale.accounts import tt_api as accounts_tt_api
+from the_tale.accounts import prototypes as accounts_prototypes
 
 from the_tale.game import relations as game_relations
 
@@ -87,13 +98,16 @@ guide_resource = dext_views.Resource(name='cards')
 guide_resource.add_processor(accounts_views.CurrentAccountProcessor())
 guide_resource.add_processor(utils_views.FakeResourceProcessor())
 
+technical_resource = dext_views.Resource(name='cards')
+
 ########################################
 # filters
 ########################################
 
+
 class INDEX_ORDER(DjangoEnum):
-    records = ( ('RARITY', 0, 'по редкости'),
-                ('NAME', 1, 'по имени') )
+    records = (('RARITY', 0, 'по редкости'),
+               ('NAME', 1, 'по имени'))
 
 CARDS_FILTER = [list_filter.reset_element(),
                 list_filter.choice_element('редкость:', attribute='rarity', choices=[(None, 'все')] + list(relations.RARITY.select('value', 'text'))),
@@ -103,14 +117,14 @@ CARDS_FILTER = [list_filter.reset_element(),
                                            choices=list(INDEX_ORDER.select('value', 'text')),
                                            default_value=INDEX_ORDER.RARITY.value)]
 
+
 class CardsFilter(list_filter.ListFilter):
     ELEMENTS = CARDS_FILTER
-
-
 
 ########################################
 # views
 ########################################
+
 
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
@@ -136,6 +150,7 @@ def use_dialog(context):
                                     'ARCHETYPE': game_relations.ARCHETYPE,
                                     'favorite_items': favorite_items} )
 
+
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardProcessor()
@@ -153,16 +168,20 @@ def api_use(context):
 
 
 @accounts_views.LoginRequiredProcessor()
-@api.Processor(versions=(conf.settings.GET_API_VERSION, ))
-@resource('api', 'get', name='api-get', method='post')
-def api_get(context):
-    choose_task = heroes_postponed_tasks.GetCardTask(hero_id=context.account_hero.id)
+@api.Processor(versions=(conf.settings.RECEIVE_API_VERSION,))
+@resource('api', 'receive', name='api-receive-cards', method='post')
+def api_receive(context):
+    cards = tt_api.load_cards(account_id=context.account.id)
 
-    task = PostponedTaskPrototype.create(choose_task)
+    new_cards = [card for card in cards.values() if card.storage.is_NEW]
 
-    amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
+    tt_api.change_cards_storage(account_id=context.account.id,
+                                operation_type='activate-new-cards',
+                                cards=new_cards,
+                                old_storage=relations.STORAGE.NEW,
+                                new_storage=relations.STORAGE.FAST)
 
-    return dext_views.AjaxProcessing(task.status_url)
+    return dext_views.AjaxOk(content={'cards': [card.ui_info() for card in new_cards]})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -214,7 +233,23 @@ def api_combine(context):
 @api.Processor(versions=(conf.settings.GET_CARDS_API_VERSION, ))
 @resource('api', 'get-cards', name='api-get-cards', method='get')
 def api_get_cards(context):
-    return dext_views.AjaxOk(content={'cards': [card.ui_info() for card in context.account_cards.values()]})
+
+    timers = accounts_tt_api.get_owner_timers(context.account.id)
+
+    if not timers and (project_settings.RUNSERVER_RUNNING or project_settings.TESTS_RUNNING):
+        accounts_tt_api.create_cards_timer(account_id=context.account.id)
+        timers = accounts_tt_api.get_owner_timers(context.account.id)
+
+    for timer in timers:
+        if timer.type.is_CARDS_MINER:
+            new_card_timer = timer
+            break
+
+    return dext_views.AjaxOk(content={'cards': [card.ui_info()
+                                                for card in context.account_cards.values()
+                                                if not card.storage.is_NEW],
+                                      'new_cards': sum(1 for card in context.account_cards.values() if card.storage.is_NEW),
+                                      'new_card_timer': new_card_timer.ui_info()})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -226,8 +261,8 @@ def api_move_to_storage(context):
     tt_api.change_cards_storage(account_id=context.account.id,
                                 operation_type='move-to-storage',
                                 cards=context.cards,
-                                old_storage_id=conf.FAST_STORAGE,
-                                new_storage_id=conf.ARCHIVE_STORAGE)
+                                old_storage=relations.STORAGE.FAST,
+                                new_storage=relations.STORAGE.ARCHIVE)
 
     return dext_views.AjaxOk()
 
@@ -241,8 +276,8 @@ def api_move_to_hand(context):
     tt_api.change_cards_storage(account_id=context.account.id,
                                 operation_type='move-to-storage',
                                 cards=context.cards,
-                                old_storage_id=conf.ARCHIVE_STORAGE,
-                                new_storage_id=conf.FAST_STORAGE)
+                                old_storage=relations.STORAGE.ARCHIVE,
+                                new_storage=relations.STORAGE.FAST)
 
     return dext_views.AjaxOk()
 
@@ -274,18 +309,46 @@ def index(context):
     elif context.cards_order_by.is_NAME:
         all_cards = sorted(all_cards, key=lambda c: (c.text, c.rarity.value))
 
-    url_builder = UrlBuilder(url('guide:cards:'), arguments={ 'rarity': context.cards_rarity.value if context.cards_rarity else None,
-                                                              'availability': context.cards_availability.value if context.cards_availability else None,
-                                                              'order_by': context.cards_order_by.value})
+    url_builder = UrlBuilder(url('guide:cards:'), arguments={'rarity': context.cards_rarity.value if context.cards_rarity else None,
+                                                             'availability': context.cards_availability.value if context.cards_availability else None,
+                                                             'order_by': context.cards_order_by.value})
 
     index_filter = CardsFilter(url_builder=url_builder, values={'rarity': context.cards_rarity.value if context.cards_rarity else None,
                                                                 'availability': context.cards_availability.value if context.cards_availability else None,
                                                                 'order_by': context.cards_order_by.value if context.cards_order_by else None})
-
-
     return dext_views.Page('cards/index.html',
                            content={'section': 'cards',
                                     'CARDS': all_cards,
                                     'index_filter': index_filter,
                                     'CARD_RARITY': RARITY,
                                     'resource': context.resource})
+
+
+@common_tt_api.RequestProcessor(request_class=timers_pb2.CallbackBody)
+@common_tt_api.SecretProcessor(secret=project_settings.TT_SECRET)
+@technical_resource('tt', 'take-card-callback', name='tt-take-card-callback', method='post')
+@csrf.csrf_exempt
+def take_card_callback(context):
+
+    account = accounts_prototypes.AccountPrototype.get_by_id(context.tt_request.timer.owner_id)
+
+    if not logic_checkers.is_player_participate_in_game(is_banned=account.is_ban_game,
+                                                        active_end_at=account.active_end_at,
+                                                        is_premium=account.is_premium):
+        raise dext_views.ViewError(code='common.player_does_not_participate_in_game', message='игрок не активен, карты ему не выдаются')
+
+    expected_speed = logic_cards_constants.NORMAL_PLAYER_SPEED
+
+    if account.is_premium:
+        expected_speed = logic_cards_constants.PREMIUM_PLAYER_SPEED
+
+    if context.tt_request.timer.speed != expected_speed:
+        accounts_tt_api.change_cards_timer_speed(account_id=account.id,
+                                                 speed=expected_speed)
+
+    logic.give_new_card(account_id=account.id,
+                        operation_type='give-card',
+                        allow_premium_cards=account.is_premium,
+                        available_for_auction=account.is_premium)
+
+    return dext_views.AjaxOk()

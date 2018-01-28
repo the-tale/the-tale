@@ -1,11 +1,16 @@
+
+import time
 from unittest import mock
+
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionRegenerateEnergyPrototype
+
 from the_tale.game import turn
+from the_tale.game import tt_api as game_tt_api
 
 
 class RegenerateEnergyActionTest(testcase.TestCase):
@@ -40,14 +45,35 @@ class RegenerateEnergyActionTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_double_energy', False)
     def test_full(self):
-        self.hero.change_energy(-self.hero.energy)
 
-        while len(self.hero.actions.actions_list) != 1:
-            self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+        with self.check_delta(lambda: game_tt_api.energy_balance(self.hero.account_id),
+                              self.hero.preferences.energy_regeneration_type.amount):
+
+            while len(self.hero.actions.actions_list) != 1:
+                self.storage.process_turn(continue_steps_if_needed=False)
+                turn.increment()
+
+            time.sleep(0.1)
 
         self.assertTrue(self.action_idl.leader)
-        self.assertEqual(self.hero.energy, self.hero.preferences.energy_regeneration_type.amount)
+        self.assertEqual(self.hero.need_regenerate_energy, False)
+        self.assertEqual(self.hero.last_energy_regeneration_at_turn, turn.number()-1)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_double_energy', False)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_energy', False)
+    def test_full__regeneration_restricted(self):
+
+        with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+
+            while len(self.hero.actions.actions_list) != 1:
+                self.storage.process_turn(continue_steps_if_needed=False)
+                turn.increment()
+
+            time.sleep(0.1)
+
+        self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.need_regenerate_energy, False)
         self.assertEqual(self.hero.last_energy_regeneration_at_turn, turn.number()-1)
 
@@ -55,14 +81,16 @@ class RegenerateEnergyActionTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_double_energy', True)
     def test_full__double_energy(self):
-        self.hero.change_energy(-self.hero.energy)
+        with self.check_delta(lambda: game_tt_api.energy_balance(self.hero.account_id),
+                              self.hero.preferences.energy_regeneration_type.amount * 2):
 
-        while len(self.hero.actions.actions_list) != 1:
-            self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+            while len(self.hero.actions.actions_list) != 1:
+                self.storage.process_turn(continue_steps_if_needed=False)
+                turn.increment()
+
+            time.sleep(0.1)
 
         self.assertTrue(self.action_idl.leader)
-        self.assertEqual(self.hero.energy, self.hero.preferences.energy_regeneration_type.amount * 2)
         self.assertEqual(self.hero.need_regenerate_energy, False)
         self.assertEqual(self.hero.last_energy_regeneration_at_turn, turn.number()-1)
 

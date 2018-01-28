@@ -15,6 +15,7 @@ if (!pgf.game.events) {
 }
 
 pgf.game.events.CARDS_REFRESHED = 'pgs-cards-refreshed';
+pgf.game.events.CARDS_TIMER_DATA = 'pgs-cards-timer-data';
 
 
 pgf.game.widgets.CreateCardTooltip = function (data, cssClass) {
@@ -121,6 +122,61 @@ pgf.game.widgets.PrepairCardsRenderSequence = function(cardInfos) {
 };
 
 
+pgf.game.widgets.CardsProgress = function (params) {
+    var instance = this;
+
+    instance.data = null;
+    instance.requestCounter = 0;
+
+    function Refresh() {
+        if (instance.data == null) {
+            return
+        }
+
+        var now = (new Date()).getTime() / 1000;
+
+        var timer = instance.data.newCardTimer;
+
+        var resources = Math.min(timer.resources + timer.speed * (now - timer.resources_at), timer.border);
+
+        var finishAfter = timer.finish_at - now;
+
+        if (finishAfter < 0) {
+            var counter = Math.log(-finishAfter);
+
+            if (instance.requestCounter < counter) {
+                instance.requestCounter = counter + 1;
+                params.cards.GetCards();
+            }
+
+            finishAfter = 0;
+        }
+        else {
+            instance.requestCounter = 0;
+        }
+
+        jQuery('.pgf-new-card-progress', params.container).width((resources / timer.border)*100+'%');
+        jQuery('.pgf-new-cards-timer', params.container).text(pgf.base.FormatTimeDelta(finishAfter));
+
+        jQuery('.pgf-get-card-button', params.container).toggleClass('pgf-hidden', instance.data.newCardsNumber == 0);
+        jQuery('.pgf-new-cards-number', params.container).text(instance.data.newCardsNumber);
+
+        jQuery('.pgf-new-card-icon').toggleClass('pgf-hidden', instance.data.newCardsNumber == 0);
+
+    }
+
+    instance.Update = function(newCardsNumber, timer) {
+        jQuery('.pgf-cards-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
+    }
+
+    jQuery(document).bind(pgf.game.events.CARDS_TIMER_DATA, function(e, timerData){
+        instance.data = timerData;
+    });
+
+    var refreshTimer = setInterval(Refresh, 1000);
+}
+
+
 pgf.game.widgets.Cards = function (params) {
 
     var instance = this;
@@ -198,6 +254,9 @@ pgf.game.widgets.Cards = function (params) {
                     instance.data.cards[card.uid] = card;
                 }
 
+                jQuery(document).trigger(pgf.game.events.CARDS_TIMER_DATA, {newCardsNumber: data.data.new_cards,
+                                                                            newCardTimer: data.data.new_card_timer});
+
                 if (cardsChanged || firstRequest) {
                     Refresh();
                     jQuery(document).trigger(pgf.game.events.CARDS_REFRESHED);
@@ -215,15 +274,8 @@ pgf.game.widgets.Cards = function (params) {
     this.GetCard = function() {
         pgf.forms.Post({ action: params.getCard,
                          OnSuccess: function(data){
-                             jQuery(document).trigger(pgf.game.events.DATA_REFRESH_NEEDED); // refresh card points counter, can be removed after point moved from hero model
-                             jQuery(document).trigger(pgf.game.events.CARDS_REFRESHED);
-
                              instance.GetCards();
-
-                             pgf.ui.dialog.Alert({message: data.data.message,
-                                                  title: 'Вы получаете новую карту!',
-                                                  OnOk: function(e){}});
-                             return;
+                             instance.OpenNewCardsDialog(data.data.cards);
                          }
                        });
     };
@@ -262,6 +314,14 @@ pgf.game.widgets.Cards = function (params) {
 
         return true;
     }
+
+    this.OpenNewCardsDialog = function(newCards) {
+        pgf.ui.dialog.Create({ fromString: pgf.game.widgets.NEW_CARDS_DIALOG,
+                               OnOpen: function(dialog) {
+                                   pgf.game.NewCardsDialog(dialog, newCards);
+                               }
+                             });
+    };
 
     this.OpenStorageDialog = function() {
         pgf.ui.dialog.Create({ fromString: pgf.game.widgets.CARDS_STORAGE_DIALOG,
@@ -459,6 +519,24 @@ pgf.game.widgets.Cards = function (params) {
 };
 
 
+pgf.game.NewCardsDialog = function(dialog, newCards) {
+
+    var instance = this;
+
+    var widget = jQuery('.pgf-cards', dialog);
+
+    function Initialize() {
+        var cards = pgf.game.widgets.PrepairCardsRenderSequence(newCards);
+        pgf.base.RenderTemplateList(widget, cards, pgf.game.widgets.RenderCard, {});
+
+        jQuery('.pgf-no-cards', dialog).toggleClass('pgf-hidden', newCards.length > 0);
+    }
+
+    Initialize();
+};
+
+
+
 pgf.game.CardsStorageDialog = function(dialog, cardsWidget) {
 
     var instance = this;
@@ -598,6 +676,36 @@ pgf.game.CardsTransformatorDialog = function(dialog, cardsWidget) {
 
     Initialize();
 };
+
+
+pgf.game.widgets.NEW_CARDS_DIALOG = `
+<div class="modal hide">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">Новые карты</h3>
+  </div>
+
+  <div class="modal-body">
+
+    <p class="pgf-no-cards pgf-hidden">Вы уже забрали все карты.</p>
+
+    <ul class="pgf-cards pgf-scrollable unstyled" style="max-height: 200px; overflow-y: auto;">
+      <li class="pgf-template">
+        <a href="#"
+           class="pgf-card-link"
+           style="font-size: 10pt;">
+          <span class="pgf-number" style="color: black;">1</span> x <span class="pgf-card-record"></span>
+        </a>
+      </li>
+    </ul>
+
+    <a href="#" class="btn btn-success" data-dismiss="modal">Забрать</a>
+
+  </div>
+
+</div>
+`
 
 
 pgf.game.widgets.CARDS_STORAGE_DIALOG = `

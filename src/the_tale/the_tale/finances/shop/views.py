@@ -177,7 +177,7 @@ def create_sell_lot(context):
     cards_tt_api.change_cards_owner(old_owner_id=context.account.id,
                                     new_owner_id=accounts_logic.get_system_user_id(),
                                     operation_type='#create_sell_lots',
-                                    new_storage_id=0,
+                                    new_storage=cards_relations.STORAGE.FAST,
                                     cards_ids=[card.uid for card in context.cards])
 
     tt_api.place_sell_lots(lots)
@@ -217,7 +217,7 @@ def cancel_sell_lot(context):
     cards_tt_api.change_cards_owner(old_owner_id=accounts_logic.get_system_user_id(),
                                     new_owner_id=context.account.id,
                                     operation_type='#cancel_sell_lots',
-                                    new_storage_id=0,
+                                    new_storage=cards_relations.STORAGE.FAST,
                                     cards_ids=[lot.item_id for lot in lots])
 
     return dext_views.AjaxOk()

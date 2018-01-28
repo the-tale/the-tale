@@ -1,9 +1,11 @@
-# coding: utf-8
+
+import time
 
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
+from the_tale.game import tt_api as game_tt_api
 
 from the_tale.game.cards import cards
 
@@ -26,10 +28,10 @@ class AddBonusEnergyTestMixin(CardsTestMixin):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-
     def test_use(self):
-        with self.check_delta(lambda: self.hero.energy_bonus, self.CARD.effect.modificator):
+        with self.check_delta(lambda: game_tt_api.energy_balance(self.account_1.id), self.CARD.effect.modificator):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
+            time.sleep(0.1)
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
@@ -37,14 +39,18 @@ class AddBonusEnergyTestMixin(CardsTestMixin):
 class AddBonusEnergyCommonTests(AddBonusEnergyTestMixin, testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_COMMON
 
+
 class AddBonusEnergyUncommonTests(AddBonusEnergyTestMixin, testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_UNCOMMON
+
 
 class AddBonusEnergyRareTests(AddBonusEnergyTestMixin, testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_RARE
 
+
 class AddBonusEnergyEpicTests(AddBonusEnergyTestMixin, testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_EPIC
+
 
 class AddBonusEnergyLegendaryTests(AddBonusEnergyTestMixin, testcase.TestCase):
     CARD = cards.CARD.ADD_BONUS_ENERGY_LEGENDARY

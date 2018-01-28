@@ -35,7 +35,6 @@ class Word(models.Model):
         permissions = (("moderate_word", "Может модерировать слова"), )
 
 
-
 class Template(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=False)
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
@@ -68,9 +67,10 @@ class Contribution(models.Model):
     # if entity_id < 0 it is id of old phrase_candidate entity
     entity_id = models.BigIntegerField(db_index=True)
 
+    reward_given = models.BooleanField(default=False)
+
     class Meta:
         unique_together = (('type', 'account', 'entity_id'),)
-
 
 
 class Restriction(models.Model):

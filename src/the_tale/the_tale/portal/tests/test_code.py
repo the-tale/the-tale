@@ -73,7 +73,8 @@ class CodeTests(testcase.TestCase):
                                                'urllib',
                                                'unittest',
                                                'tt_protocol',
-                                               'tt_diary']))
+                                               'tt_diary',
+                                               'tt_logic']))
 
     def test_only_absolute_imports__import(self):
 
@@ -86,7 +87,7 @@ class CodeTests(testcase.TestCase):
                                                  'jinja2', 'math', 'uuid', 'postmarkup', 'functools', 'urllib2', 'xlrd', 'copy', 'gv', 'string', 'traceback',
                                                  'markdown', 'md5', 'mock', 'pymorphy', 'numbers', 'gc', 'numpy', 'matplotlib', 'contextlib', 'pynames', 'json', 'PIL', 'deworld',
                                                  'urllib', 'socket', 'types', 'csv', 'getpass', 'logging', 'operator', 'hashlib', 'psutil', 'tt_protocol', 'tt_diary', 'queue',
-                                                 'threading', 'site', 'tt_calendar']))
+                                                 'threading', 'site', 'tt_calendar', 'importlib']))
 
     def test_api_urls_not_changed(self):
         self.assertEqual(url('portal:api-info'), '/api/info')

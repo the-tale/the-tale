@@ -142,20 +142,6 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
 
-    def test_convert_experience_to_energy__no_experience(self):
-        with self.check_not_changed(lambda: self.hero.experience):
-            with self.check_not_changed(lambda: self.hero.energy_bonus):
-                self.hero.convert_experience_to_energy(10)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.experience_modifier', 1.0)
-    def test_convert_experience_to_energy(self):
-        self.hero.add_experience(41)
-        self.assertEqual(self.hero.experience, 41)
-
-        with self.check_delta(lambda: self.hero.experience, -41):
-            with self.check_delta(lambda: self.hero.energy_bonus, 5):
-                self.hero.convert_experience_to_energy(10)
-
     def test_experience_modifier__banned(self):
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
         self.hero.ban_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
@@ -341,57 +327,6 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
                         self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
 
             self.assertEqual(len(self.hero.journal), 1)
-
-
-    def test_energy_maximum(self):
-        maximum_without_premium = self.hero.energy_maximum
-        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(days=1)
-        maximum_with_premium = self.hero.energy_maximum
-        self.assertTrue(maximum_without_premium < maximum_with_premium)
-
-    def test_energy(self):
-        self.hero.energy = 6
-        self.hero.add_energy_bonus(100)
-
-        self.assertEqual(self.hero.energy, 6)
-        self.assertEqual(self.hero.energy_full, 106 + conf.heroes_settings.START_ENERGY_BONUS)
-
-    def test_change_energy__plus(self):
-        self.hero.energy = 6
-        self.hero.add_energy_bonus(100)
-
-        self.assertEqual(self.hero.change_energy(self.hero.energy_maximum), self.hero.energy_maximum - 6)
-        self.assertEqual(self.hero.energy_bonus, 100 + conf.heroes_settings.START_ENERGY_BONUS)
-
-    def test_change_energy__minus(self):
-        self.hero.energy = 6
-        self.hero.add_energy_bonus(100 - conf.heroes_settings.START_ENERGY_BONUS)
-
-        self.assertEqual(self.hero.change_energy(-50), -50)
-        self.assertEqual(self.hero.energy_bonus, 56)
-
-        self.assertEqual(self.hero.change_energy(-100), -56)
-        self.assertEqual(self.hero.energy_bonus, 0)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 1)
-    def test_change_energy__discount(self):
-        self.hero.energy = 6
-        self.hero.add_energy_bonus(100 - conf.heroes_settings.START_ENERGY_BONUS)
-
-        self.assertEqual(self.hero.change_energy(-50), -49)
-        self.assertEqual(self.hero.energy_bonus, 57)
-
-        self.assertEqual(self.hero.change_energy(-100), -57)
-        self.assertEqual(self.hero.energy_bonus, 0)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 100)
-    def test_change_energy__discount__no_less_1(self):
-        self.hero.energy = 6
-        self.hero.add_energy_bonus(-conf.heroes_settings.START_ENERGY_BONUS)
-
-        self.assertEqual(self.hero.change_energy(-50), -1)
-        self.assertEqual(self.hero.energy, 5)
-
 
     def check_rests_from_risk(self, method):
         results = []

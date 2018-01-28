@@ -5,6 +5,8 @@ import random
 from rels import Column
 from rels.django import DjangoEnum
 
+from tt_logic.cards import constants as logic_cards_constants
+
 from the_tale.amqp_environment import environment
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
@@ -19,6 +21,7 @@ from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.balance import constants as c
 from the_tale.game import relations as game_relations
+from the_tale.game import tt_api as game_tt_api
 
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts import relations as artifacts_relations
@@ -117,7 +120,7 @@ class ModificatorBase(BaseEffect):
 
     @property
     def modificator(self):
-        return self.base*c.CARDS_LEVEL_MULTIPLIERS[self.level-1]
+        return self.base * logic_cards_constants.LEVEL_MULTIPLIERS[self.level-1]
 
 
 class LevelUp(BaseEffect):
@@ -179,10 +182,14 @@ class AddBonusEnergy(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Вы получаете %(energy)d единиц дополнительной энергии.' % {'energy': self.modificator}
+        return 'Вы получаете %(energy)d единиц энергии.' % {'energy': self.modificator}
 
-    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
-        task.hero.add_energy_bonus(self.modificator)
+    def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
+        game_tt_api.change_energy_balance(account_id=task.hero.account_id,
+                                          type='card',
+                                          energy=int(self.modificator),
+                                          async=True,
+                                          autocommit=True)
         return task.logic_result()
 
 
@@ -852,31 +859,6 @@ class LongTeleport(BaseEffect):
         return task.logic_result()
 
 
-class ExperienceToEnergy(BaseEffect):
-    __slots__ = ('conversion',)
-
-    def get_form(self, card, hero, data):
-        return forms.Empty(data)
-
-    def __init__(self, conversion, **kwargs):
-        super().__init__(**kwargs)
-        self.conversion = conversion
-
-
-    @property
-    def DESCRIPTION(self):
-        return 'Преобразует опыт героя на текущем уровне в дополнительную энергию по курсу %(conversion)s опыта за 1 энергии.' % {'conversion': self.conversion}
-
-    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
-
-        if task.hero.experience == 0:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='У героя нет свободного опыта.')
-
-        energy = task.hero.convert_experience_to_energy(self.conversion)
-
-        return task.logic_result(message='Герой потерял весь накопленный опыт. Вы получили %(energy)d энергии.' % {'energy': energy})
-
-
 class SharpRandomArtifact(BaseEffect):
     __slots__ = ()
 
@@ -888,7 +870,7 @@ class SharpRandomArtifact(BaseEffect):
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         artifact = random.choice(list(task.hero.equipment.values()))
 
-        distribution=task.hero.preferences.archetype.power_distribution
+        distribution = task.hero.preferences.archetype.power_distribution
         min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
 
         artifact.sharp(distribution=distribution,
@@ -896,7 +878,6 @@ class SharpRandomArtifact(BaseEffect):
                        force=True)
 
         return task.logic_result(message='Улучшена экипировка героя: %(artifact)s.' % {'artifact': artifact.html_label()})
-
 
 
 class SharpAllArtifacts(BaseEffect):
@@ -910,7 +891,7 @@ class SharpAllArtifacts(BaseEffect):
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         for artifact in list(task.hero.equipment.values()):
-            distribution=task.hero.preferences.archetype.power_distribution
+            distribution = task.hero.preferences.archetype.power_distribution
             min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
 
             artifact.sharp(distribution=distribution,

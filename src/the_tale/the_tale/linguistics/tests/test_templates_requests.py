@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -13,8 +12,10 @@ from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.logic import login_page_url
 
-from the_tale.game.logic import create_test_map
 from the_tale.game import relations as game_relations
+from the_tale.game.logic import create_test_map
+
+from the_tale.game.cards import tt_api as cards_tt_api
 
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import storage
@@ -1375,9 +1376,10 @@ class InGameRequestsTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        with self.check_not_changed(prototypes.ContributionPrototype._db_count):
-            with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
-                self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.template.author_id))):
+            with self.check_not_changed(prototypes.ContributionPrototype._db_count):
+                with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
+                    self.check_ajax_ok(self.client.post(self.requested_url))
 
 
     def test_in_game(self):
@@ -1385,10 +1387,11 @@ class InGameRequestsTests(BaseRequestsTests):
 
         self.assertTrue(self.template.state.is_ON_REVIEW)
 
-        with self.check_not_changed(prototypes.ContributionPrototype._db_count):
-            with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.ON_REVIEW).count, -1):
-                with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.IN_GAME).count, 1):
-                    self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_delta(lambda: len(cards_tt_api.load_cards(self.template.author_id)), 1):
+            with self.check_not_changed(prototypes.ContributionPrototype._db_count):
+                with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.ON_REVIEW).count, -1):
+                    with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.IN_GAME).count, 1):
+                        self.check_ajax_ok(self.client.post(self.requested_url))
 
         self.template.reload()
         self.assertTrue(self.template.state.is_IN_GAME)

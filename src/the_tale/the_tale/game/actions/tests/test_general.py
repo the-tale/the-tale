@@ -150,24 +150,6 @@ class GeneralTest(testcase.TestCase):
         self.hero.companion.health = 1
         self.check_heal_companion_in_choices(True)
 
-
-    def check_stock_up_energy_in_choices(self, result):
-        stock_found = False
-        for i in range(1000):
-            stock_found = stock_found or (self.action_idl.get_help_choice() == HELP_CHOICES.STOCK_UP_ENERGY)
-
-        self.assertEqual(stock_found, result)
-
-    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
-    def test_help_choice_has_stock_up_energy__can_stock(self):
-        self.hero.energy_bonus = 0
-        self.check_stock_up_energy_in_choices(True)
-
-    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((HELP_CHOICES.STOCK_UP_ENERGY, HELP_CHOICES.MONEY)))
-    def test_help_choice_has_stock_up_energy__can_not_stock(self):
-        self.hero.energy_bonus = c.ANGEL_FREE_ENERGY_MAXIMUM
-        self.check_stock_up_energy_in_choices(False)
-
     def test_percents_consistency(self):
         # just test that quest will be ended
         while not self.action_idl.leader:

@@ -1,16 +1,10 @@
 
 import time
-import uuid
-
-import asyncio
 
 from aiohttp import test_utils
 
-from tt_protocol.protocol import base_pb2
 from tt_protocol.protocol import market_pb2
 
-from tt_web import utils
-from tt_web import exceptions
 from tt_web import postgresql as db
 
 from .. import objects
@@ -51,7 +45,7 @@ class PlaceSellLotTests(helpers.BaseTests):
         await self.check_success(request, market_pb2.PlaceSellLotResponse)
 
         request = await self.client.post('/place-sell-lot', data=market_pb2.PlaceSellLotRequest(lots=[protobuf.from_sell_lot(lot)]).SerializeToString())
-        data = await self.check_error(request, error='market.apply.sell_lot_for_item_already_created')
+        await self.check_error(request, error='market.apply.sell_lot_for_item_already_created')
 
         result = await db.sql('SELECT * FROM log_records')
 

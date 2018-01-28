@@ -1,4 +1,6 @@
-# coding: utf-8
+
+from unittest import mock
+
 from django.test import client
 
 from the_tale.common.utils.testcase import TestCase
@@ -28,3 +30,9 @@ class AbilityRequests(TestCase):
         response = self.client.post(use_ability_url(ABILITY_TYPE.HELP))
         task = PostponedTaskPrototype._db_get_object(0)
         self.check_ajax_processing(response, task.status_url)
+
+    @mock.patch('the_tale.game.abilities.relations.ABILITY_TYPE.HELP.cost', 100500)
+    def test_activate_ability__no_energy(self):
+        self.request_login(self.account.email)
+        self.check_ajax_error(self.client.post(use_ability_url(ABILITY_TYPE.HELP)), 'game.abilities.use.no_enough_energy')
+        self.assertEqual(PostponedTaskPrototype._db_count(), 0)

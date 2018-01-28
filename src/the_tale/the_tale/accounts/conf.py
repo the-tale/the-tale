@@ -1,4 +1,3 @@
-# coding: utf-8
 import os
 import datetime
 
@@ -31,7 +30,7 @@ accounts_settings = app_settings('ACCOUNTS',
                                  RESET_PASSWORD_LENGTH=8,
                                  RESET_PASSWORD_TASK_LIVE_TIME=60*60,
                                  CHANGE_EMAIL_TIMEOUT=2*24*60*60,
-                                 ACTIVE_STATE_TIMEOUT = 3*24*60*60,
+                                 ACTIVE_STATE_TIMEOUT=3*24*60*60,
                                  ACTIVE_STATE_REFRESH_PERIOD=3*60*60,
                                  SYSTEM_USER_NICK='Смотритель',
                                  DEVELOPERS_IDS=[1, 1022],
@@ -77,4 +76,9 @@ accounts_settings = app_settings('ACCOUNTS',
 
                                  MINIMUM_SEND_MONEY=10,
                                  MONEY_SEND_COMMISSION=0.05,
-                                 COMMISION_TRANSACTION_UID='transfer-money-between-accounts-commission')
+                                 COMMISION_TRANSACTION_UID='transfer-money-between-accounts-commission',
+
+                                 TT_PLAYERS_TIMERS_CREATE_TIMER='http://localhost:10006/create-timer',
+                                 TT_PLAYERS_TIMERS_CHANGE_SPEED='http://localhost:10006/change-speed',
+                                 TT_PLAYERS_TIMERS_GET_OWNER_TIMERS='http://localhost:10006/get-owner-timers',
+                                 TT_PLAYERS_TIMERS_DEBUG_CLEAR_SERVICE_URL='http://localhost:10006/debug-clear-service')

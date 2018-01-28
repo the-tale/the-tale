@@ -1,6 +1,3 @@
-# coding: utf-8
-
-import datetime
 
 from django.core.urlresolvers import reverse
 
@@ -22,17 +19,9 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game import relations as game_relations
 
-from the_tale.game.mobs.storage import mobs_storage
-
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.persons import storage as persons_storage
-
 from the_tale.game import names
 from the_tale.game.relations import HABIT_TYPE
 
-from the_tale.game.cards import effects as cards_effects
-from the_tale.game.cards import relations as cards_relations
 from the_tale.game.cards import cards
 
 from . import postponed_tasks
@@ -93,7 +82,6 @@ class HeroResource(Resource):
     def my_hero(self):
         hero = logic.load_hero(account_id=self.account.id)
         return self.redirect(reverse('game:heroes:show', args=[hero.id]))
-
 
     @handler('#hero', name='show', method='get')
     def hero_page(self):
@@ -158,7 +146,6 @@ class HeroResource(Resource):
                               'favorite_items': favorite_items,
                               'change_preferences_card': cards.CARD.CHANGE_PREFERENCE})
 
-
     @login_required
     @validate_ownership()
     @handler('#hero', 'change-hero', method='post')
@@ -179,7 +166,6 @@ class HeroResource(Resource):
 
         return self.json_processing(task.status_url)
 
-
     @login_required
     @validate_moderator_rights()
     @handler('#hero', 'reset-name', method='post')
@@ -195,14 +181,12 @@ class HeroResource(Resource):
 
         return self.json_processing(task.status_url)
 
-
     @login_required
     @validate_moderator_rights()
     @handler('#hero', 'force-save', method='post')
     def force_save(self):
         environment.workers.supervisor.cmd_force_save(account_id=self.hero.account_id)
         return self.json_ok()
-
 
     @login_required
     @validate_ownership()

@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import logging
 import uuid
 
@@ -28,12 +28,13 @@ from the_tale.accounts.clans.prototypes import ClanPrototype
 from the_tale.accounts.third_party import decorators
 
 from .prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
-from . import postponed_tasks
-from . import relations
-from . import forms
+
 from . import conf
 from . import logic
+from . import forms
+from . import relations
 from . import meta_relations
+from . import postponed_tasks
 
 
 ###############################

@@ -4,8 +4,6 @@ from django.db import models
 
 from django.contrib.postgres.fields import JSONField
 
-from dext.common.utils import s11n
-
 from rels.django import RelationIntegerField
 
 from the_tale.game.relations import GENDER, RACE

@@ -4,8 +4,6 @@ from aiohttp import web
 from tt_web import log
 from tt_web import postgresql
 
-from . import operations
-
 
 async def on_startup(app):
     await postgresql.initialize(app['config']['database'], loop=app.loop)

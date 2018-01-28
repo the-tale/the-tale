@@ -16,13 +16,11 @@ class Lock:
         self.loop = loop
         self.timeout = timeout
 
-
     async def acquire(self):
         try:
             await asyncio.wait_for(self._lock.acquire(), timeout=self.timeout, loop=self.loop)
         except asyncio.TimeoutError:
             raise exceptions.SyncPointTimeoutError(key=self.key, timeout=self.timeout)
-
 
     def release(self):
         if not self._lock._waiters:
@@ -30,15 +28,12 @@ class Lock:
 
         self._lock.release()
 
-
     async def __aenter__(self):
         await self.acquire()
         return self
 
-
     async def __aexit__(self, exc_type, exc_value, traceback):
         self.release()
-
 
 
 class SyncPoint:
@@ -46,7 +41,6 @@ class SyncPoint:
 
     def __init__(self):
         self._locks = {}
-
 
     def lock(self, key, loop=None, timeout=None):
         if key not in self._locks:

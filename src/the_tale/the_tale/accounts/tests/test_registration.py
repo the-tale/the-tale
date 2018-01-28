@@ -18,16 +18,24 @@ from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.heroes import models as heroes_models
 from the_tale.game.logic import create_test_map
+from the_tale.game import tt_api as game_tt_api
+from the_tale.game.balance import constants as c
+
+from .. import tt_api
+
 
 def raise_exception(*argv, **kwargs): raise Exception('unknown error')
+
 
 class TestRegistration(testcase.TestCase):
 
     def setUp(self):
         super(TestRegistration, self).setUp()
         create_test_map()
+        tt_api.debug_clear_service()
 
     def test_successfull_result(self):
+        game_tt_api.debug_clear_service()
 
         self.assertEqual(AccountAchievementsPrototype._db_count(), 0)
         self.assertEqual(AccountItemsPrototype._db_count(), 0)
@@ -37,7 +45,6 @@ class TestRegistration(testcase.TestCase):
         # test result
         self.assertEqual(result, REGISTER_USER_RESULT.OK)
         self.assertTrue(bundle_id is not None)
-
 
         #test basic structure
         account = AccountPrototype.get_by_id(account_id)
@@ -77,6 +84,15 @@ class TestRegistration(testcase.TestCase):
         self.assertEqual(AccountAchievementsPrototype._db_count(), 1)
         self.assertEqual(AccountItemsPrototype._db_count(), 1)
 
+        self.assertEqual(game_tt_api.energy_balance(account.id), c.INITIAL_ENERGY_AMOUNT)
+
+        self.assertEqual(game_tt_api.energy_balance(account.id), c.INITIAL_ENERGY_AMOUNT)
+
+        timers = tt_api.get_owner_timers(account_id=account.id)
+
+        self.assertEqual(len(timers), 1)
+
+
 
     def test_successfull_result__referer(self):
         referer = 'http://example.com/forum/post/1/'
@@ -112,7 +128,6 @@ class TestRegistration(testcase.TestCase):
         account = AccountPrototype.get_by_id(account_id)
 
         self.assertEqual(account.referral_of_id, None)
-
 
     def test_successfull_result__action(self):
         _, account_id, _ = register_user('test_user_2', 'test_user_2@test.com', '111111', action_id='action')

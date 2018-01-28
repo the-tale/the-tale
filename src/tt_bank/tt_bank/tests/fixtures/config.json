@@ -1,0 +1,12 @@
+{
+    "database": {"name": "<replace>",
+                 "user": "<replace>",
+                 "password": "<replace>",
+                 "host": "localhost",
+                 "port": 5432,
+                 "minsize": 1,
+                 "maxsize": 2,
+                 "timeout": 10 },
+
+    "log": {"level": "critical"}
+}

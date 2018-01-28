@@ -60,13 +60,11 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_none(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: None):
             with self.check_not_changed(lambda: self.hero.statistics.help_count):
-                with self.check_not_changed(lambda: self.hero.cards.help_count):
                     self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
     def test_success(self):
         with mock.patch('the_tale.game.heroes.objects.Hero.on_help') as on_help:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                with self.check_delta(lambda: self.hero.cards.help_count, 1):
                     self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(on_help.call_count, 1)
@@ -75,7 +73,6 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_be_helped', lambda hero: False)
     def test_help_restricted(self):
         with self.check_not_changed(lambda: self.hero.statistics.help_count):
-            with self.check_not_changed(lambda: self.hero.cards.help_count):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
@@ -114,13 +111,6 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(old_experience < self.hero.experience)
-
-    def test_stock_up_energy(self):
-
-        with self.check_changed(lambda: self.hero.energy_bonus):
-            with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.STOCK_UP_ENERGY):
-                with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                    self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_money(self):
         old_hero_money = self.hero.money
@@ -227,7 +217,6 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertEqual(process_turn__single_hero.call_args_list, [mock.call(hero=self.hero,
                                                                               logger=None,
                                                                               continue_steps_if_needed=True)])
-
 
     def test_resurrect__two_times(self):
         self.hero.kill()

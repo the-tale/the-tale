@@ -8,11 +8,8 @@ from the_tale.common.utils import testcase
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
-from .. import relations
-from .. import effects
 from .. import objects
 from .. import tt_api
-from .. import logic
 from .. import cards
 
 

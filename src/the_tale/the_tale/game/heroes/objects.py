@@ -1,5 +1,4 @@
 
-import math
 import time
 import random
 
@@ -28,14 +27,12 @@ from . import messages
 from . import exceptions
 from . import conf
 from . import logic_accessors
-from . import shop_accessors
 from . import equipment_methods
 from . import jobs_methods
 
 
 # TODO: merge classes instead subclassing
 class Hero(logic_accessors.LogicAccessorsMixin,
-           shop_accessors.ShopAccessorsMixin,
            equipment_methods.EquipmentMethodsMixin,
            jobs_methods.JobsMethodsMixin,
            names.ManageNameMixin2):
@@ -65,8 +62,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'helps_in_turn',
                  'level',
                  'experience',
-                 'energy',
-                 'energy_bonus',
                  'money',
                  'next_spending',
                  'habit_honor',
@@ -80,7 +75,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'health',
                  'quests',
                  'places_history',
-                 'cards',
                  'abilities',
                  'bag',
                  'equipment',
@@ -92,7 +86,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  '_utg_name_form__lazy',
                  '_name__lazy')
 
-
     _bidirectional = ()
 
     def __init__(self,
@@ -100,8 +93,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  account_id,
                  level,
                  experience,
-                 energy,
-                 energy_bonus,
                  money,
                  next_spending,
                  habit_honor,
@@ -115,7 +106,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  health,
                  quests,
                  places_history,
-                 cards,
                  abilities,
                  bag,
                  equipment,
@@ -151,9 +141,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.level = level
         self.experience = experience
 
-        self.energy = energy
-        self.energy_bonus = energy_bonus
-
         self.money = money
         self.next_spending = next_spending
 
@@ -184,9 +171,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.quests.initialize(hero=self)
 
         self.places_history = places_history
-
-        self.cards = cards
-        self.cards._hero = self
 
         self.abilities = abilities
         self.abilities.hero = self
@@ -244,12 +228,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
             self.increment_level(send_message=True)
 
         return real_experience
-
-    def convert_experience_to_energy(self, energy_cost):
-        bonus = int(math.ceil(float(self.experience) / energy_cost))
-        self.energy_bonus += bonus
-        self.experience = 0
-        return bonus
 
     def reset_level(self):
         self.level = 1
@@ -334,38 +312,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                 quests.append(QUESTS.PILGRIMAGE)
 
         return [(quest, self.modify_quest_priority(quest)) for quest in quests]
-
-    ##########################
-    # energy
-    ##########################
-
-    @property
-    def energy_full(self):
-        return self.energy + self.energy_bonus
-
-    def add_energy_bonus(self, energy):
-        self.energy_bonus += energy
-
-    def change_energy(self, value):
-        old_energy = self.energy_full
-
-        if value < -1:
-            value = min(-1, value + self.energy_discount)
-
-        self.energy += value
-
-        if self.energy < 0:
-            self.energy_bonus += self.energy
-            self.energy = 0
-
-        elif self.energy > self.energy_maximum:
-            self.energy = self.energy_maximum
-
-        if self.energy_bonus < 0:
-            self.energy_bonus = 0
-
-        return self.energy_full - old_energy
-
 
     ##########################
     # habits
@@ -593,42 +539,36 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                     'position': self.position.ui_info(),
                     'bag': self.bag.ui_info(self),
                     'equipment': self.equipment.ui_info(self),
-                    'cards': self.cards.ui_info(),
-                    'might': { 'value': self.might,
-                               'crit_chance': self.might_crit_chance,
-                               'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus,
-                               'politics_power': self.politics_power_might },
-                    'permissions': { 'can_participate_in_pvp': self.can_participate_in_pvp,
-                                     'can_repair_building': self.can_repair_building },
-                    'energy': { 'max': self.energy_maximum,
-                                'value': self.energy,
-                                'bonus': self.energy_bonus,
-                                'discount': self.energy_discount},
+                    'might': {'value': self.might,
+                              'crit_chance': self.might_crit_chance,
+                              'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus,
+                              'politics_power': self.politics_power_might },
+                    'permissions': {'can_participate_in_pvp': self.can_participate_in_pvp,
+                                    'can_repair_building': self.can_repair_building},
                     'action': self.actions.current_action.ui_info(),
                     'companion': self.companion.ui_info() if self.companion else None,
-                    'base': { 'name': self.name,
-                              'level': self.level,
-                              'destiny_points': self.abilities.destiny_points,
-                              'health': int(self.health),
-                              'max_health': int(self.max_health),
-                              'experience': int(self.experience),
-                              'experience_to_level': int(self.experience_to_next_level),
-                              'gender': self.gender.value,
-                              'race': self.race.value,
-                              'money': self.money,
-                              'alive': self.is_alive},
-                    'secondary': { 'power': self.power.ui_info(),
-                                   'move_speed': float(self.move_speed),
-                                   'initiative': self.initiative,
-                                   'max_bag_size': self.max_bag_size,
-                                   'loot_items_count': self.bag.occupation},
-                    'habits': { game_relations.HABIT_TYPE.HONOR.verbose_value: {'verbose': self.habit_honor.verbose_value,
-                                                                                'raw': self.habit_honor.raw_value},
-                                game_relations.HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,
-                                                                                       'raw': self.habit_peacefulness.raw_value}},
+                    'base': {'name': self.name,
+                             'level': self.level,
+                             'destiny_points': self.abilities.destiny_points,
+                             'health': int(self.health),
+                             'max_health': int(self.max_health),
+                             'experience': int(self.experience),
+                             'experience_to_level': int(self.experience_to_next_level),
+                             'gender': self.gender.value,
+                             'race': self.race.value,
+                             'money': self.money,
+                             'alive': self.is_alive},
+                    'secondary': {'power': self.power.ui_info(),
+                                  'move_speed': float(self.move_speed),
+                                  'initiative': self.initiative,
+                                  'max_bag_size': self.max_bag_size,
+                                  'loot_items_count': self.bag.occupation},
+                    'habits': {game_relations.HABIT_TYPE.HONOR.verbose_value: {'verbose': self.habit_honor.verbose_value,
+                                                                               'raw': self.habit_honor.raw_value},
+                               game_relations.HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,
+                                                                                      'raw': self.habit_peacefulness.raw_value}},
                     'quests': self.quests.ui_info(self),
-                    'sprite': get_hero_sprite(self).value,
-                   }
+                    'sprite': get_hero_sprite(self).value}
 
         changed_fields = ['changed_fields', 'actual_on_turn', 'patch_turn']
 
@@ -691,7 +631,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         del data['changed_fields']
 
         return data
-
 
     def new_cards_combined(self, number):
         self.statistics.change_cards_combined(number)

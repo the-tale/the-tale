@@ -1,14 +1,14 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
+from the_tale.game import tt_api as game_tt_api
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.heroes import logic as heroes_logic
+from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
 
 from the_tale.game.abilities.relations import ABILITY_TYPE
 from the_tale.game.abilities.deck import ABILITIES
@@ -31,87 +31,47 @@ class PrototypesTests(TestCase):
 
         self.task_data = {}
 
-    def test_process_no_energy(self):
-        self.hero.energy = 0
-        self.hero.energy_bonus = 0
-        heroes_logic.save_hero(self.hero)
-        self.assertFalse(self.ability.check_hero_conditions(self.hero, self.task_data))
+    def test_activate__no_energy(self):
+        energy = game_tt_api.energy_balance(self.account.id)
+        game_tt_api.change_energy_balance(account_id=self.account.id,
+                                          type='test',
+                                          energy=-energy,
+                                          autocommit=True)
+
+        task = self.ability.activate(self.hero, self.task_data)
+        self.assertEqual(task, None)
+
+    def test_activate__has_energy(self):
+        task = self.ability.activate(self.hero, self.task_data)
+        self.assertNotEqual(task.internal_logic.data['transaction_id'], None)
 
     @mock.patch('the_tale.game.abilities.relations.ABILITY_TYPE.HELP.cost', 0)
-    def test_process_no_energy__no_cost(self):
-        self.hero.energy = 0
-        self.hero.energy_bonus = 0
-        heroes_logic.save_hero(self.hero)
-        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
+    def test_activate_and_complete__zero_cost(self):
+        energy = game_tt_api.energy_balance(self.account.id)
+        game_tt_api.change_energy_balance(account_id=self.account.id,
+                                          type='test',
+                                          energy=-energy,
+                                          autocommit=True)
 
+        task = self.ability.activate(self.hero, self.task_data)
+        self.assertEqual(task.internal_logic.data['transaction_id'], None)
 
-    @mock.patch('the_tale.game.abilities.relations.ABILITY_TYPE.HELP.cost', 0)
-    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 1)
-    def test_process_no_energy__no_cost__discount(self):
-        self.hero.energy = 0
-        self.hero.energy_bonus = 0
-        heroes_logic.save_hero(self.hero)
-        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
+        task.process(FakePostpondTaskPrototype(), storage=self.storage)
 
+        self.assertTrue(task.state.is_processed)
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 1)
-    def test_process_energy_discount(self):
-        self.hero.energy = ABILITY_TYPE.HELP.cost - 1
-        self.hero.energy_bonus = 0
-        heroes_logic.save_hero(self.hero)
-        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
+        self.assertEqual(game_tt_api.energy_balance(self.account.id), 0)
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 1)
-    def test_process_energy_discount__no_energy(self):
-        self.hero.energy = ABILITY_TYPE.HELP.cost - 2
-        self.hero.energy_bonus = 0
-        heroes_logic.save_hero(self.hero)
+    def test_activate_and_complete(self):
+        energy = game_tt_api.energy_balance(self.account.id)
 
-        self.assertFalse(self.ability.check_hero_conditions(self.hero, self.task_data))
+        task = self.ability.activate(self.hero, self.task_data)
+        self.assertNotEqual(task.internal_logic.data['transaction_id'], None)
 
+        self.assertEqual(game_tt_api.energy_balance(self.account.id), energy - self.ability.TYPE.cost)
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', ABILITY_TYPE.HELP.cost + 1)
-    def test_process_energy_discount__no_less_1(self):
-        self.hero.energy =  0
-        self.hero.energy_bonus = 0
-        heroes_logic.save_hero(self.hero)
+        task.process(FakePostpondTaskPrototype(), storage=self.storage)
 
-        self.assertFalse(self.ability.check_hero_conditions(self.hero, self.task_data))
+        self.assertTrue(task.state.is_processed)
 
-        self.hero.energy =  1
-        self.hero.energy_bonus = 0
-        heroes_logic.save_hero(self.hero)
-
-        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
-
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.energy_discount', 100)
-    def test_process_energy_discount__limit_1(self):
-        self.hero.energy = 2
-        self.hero.energy_bonus = 0
-        heroes_logic.save_hero(self.hero)
-
-        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
-
-        self.ability.hero_actions(self.hero, self.task_data)
-
-        self.assertEqual(self.hero.energy, 1)
-
-
-    def test_process_bonus_energy(self):
-        self.hero.energy = 0
-        self.hero.add_energy_bonus(100)
-        heroes_logic.save_hero(self.hero)
-
-        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
-
-
-    def test_process_energy(self):
-        self.hero.energy = self.hero.energy_maximum
-        heroes_logic.save_hero(self.hero)
-
-        self.assertTrue(self.ability.check_hero_conditions(self.hero, self.task_data))
-
-        self.ability.hero_actions(self.hero, self.task_data)
-
-        self.assertTrue(self.hero.energy < self.hero.energy_maximum)
+        self.assertEqual(game_tt_api.energy_balance(self.account.id), energy - self.ability.TYPE.cost)

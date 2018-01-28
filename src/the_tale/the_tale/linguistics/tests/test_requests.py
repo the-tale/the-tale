@@ -19,7 +19,6 @@ class BaseRequestsTests(TestCase):
         self.account_1 = self.accounts_factory.create_account()
 
 
-
 class IndexRequestsTests(BaseRequestsTests):
 
     def test_success(self):

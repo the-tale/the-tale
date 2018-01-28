@@ -42,8 +42,8 @@ from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import tt_api as heroes_tt_api
 from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.heroes import objects as heroes_objects
-from the_tale.game.heroes import cards_info as heroes_cards_info
 
+from . import tt_api
 from . import relations
 
 
@@ -113,30 +113,26 @@ def remove_game_data(account):
 
 
 def _form_game_account_info(turn_number, account, in_pvp_queue, is_own, client_turns=None):
-    data = { 'id': account.id,
-             'last_visit': time.mktime((account.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)).timetuple()),
-             'is_own': is_own,
-             'is_old': False,
-             'hero': None,
-             'in_pvp_queue': in_pvp_queue }
+    data = {'id': account.id,
+            'last_visit': time.mktime((account.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)).timetuple()),
+            'is_own': is_own,
+            'is_old': False,
+            'hero': None,
+            'in_pvp_queue': in_pvp_queue}
 
     hero_data = heroes_objects.Hero.cached_ui_info_for_hero(account_id=account.id,
-                                                      recache_if_required=is_own,
-                                                      patch_turns=client_turns,
-                                                      for_last_turn=(not is_own))
+                                                            recache_if_required=is_own,
+                                                            patch_turns=client_turns,
+                                                            for_last_turn=(not is_own))
     data['hero'] = hero_data
     data['hero']['diary'] = heroes_tt_api.diary_version(account.id)
 
     data['is_old'] = (data['hero']['actual_on_turn'] < turn_number)
 
-    if not is_own:
-        if 'cards' in hero_data:
-            hero_data['cards'] = heroes_cards_info.CardsInfo.ui_info_null()
-        if 'energy' in hero_data:
-            hero_data['energy']['max'] = 0
-            hero_data['energy']['value'] = 0
-            hero_data['energy']['bonus'] = 0
-            hero_data['energy']['discount'] = 0
+    if is_own:
+        data['energy'] = tt_api.energy_balance(account.id)
+    else:
+        data['energy'] = None
 
     return data
 
@@ -194,7 +190,6 @@ def game_diary_url():
     return url('game:api-diary', **arguments)
 
 
-
 def _game_info_from_1_1_to_1_0__heroes(data):
     data['secondary']['power'] = sum(data['secondary']['power'])
 
@@ -243,19 +238,29 @@ def _game_info_from_1_5_to_1_4__heroes(data):
 
 
 def _game_info_from_1_6_to_1_5__heroes(data):
-    data['pvp'] = {"advantage": 0,
-                   "effectiveness": 0,
-                   "probabilities": {"ice": 0,
-                                     "blood": 0,
-                                     "flame": 0 },
-                    "energy": 0,
-                    "energy_speed": 0}
+    data['pvp'] = {'advantage': 0,
+                   'effectiveness': 0,
+                   'probabilities': {'ice': 0,
+                                     'blood': 0,
+                                     'flame': 0 },
+                    'energy': 0,
+                    'energy_speed': 0}
     data['diary'] = []
 
 
 def _game_info_from_1_8_to_1_7__heroes(data):
     if 'cards' in data['cards']:
         data['cards']['cards'] = []
+
+
+def _game_info_from_1_9_to_1_8__heroes(data):
+    data['energy'] = {'bonus': 0,
+                      'max': 0,
+                      'value': 0,
+                      'discount': 0}
+
+    data['cards'] = {'help_count': 0,
+                     'help_barrier': 0}
 
 
 def game_info_from_1_1_to_1_0(data):
@@ -307,6 +312,7 @@ def game_info_from_1_5_to_1_4(data):
 
     return data
 
+
 def game_info_from_1_6_to_1_5(data):
     if data['account'] is not None:
         _game_info_from_1_6_to_1_5__heroes(data['account']['hero'])
@@ -336,6 +342,15 @@ def game_info_from_1_8_to_1_7(data):
 
     return data
 
+
+def game_info_from_1_9_to_1_8(data):
+    if data['account'] is not None:
+        _game_info_from_1_9_to_1_8__heroes(data['account']['hero'])
+
+    if data['enemy'] is not None:
+        _game_info_from_1_9_to_1_8__heroes(data['enemy']['hero'])
+
+    return data
 
 
 def accounts_info(accounts_ids):

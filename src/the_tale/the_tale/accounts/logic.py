@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import time
 import math
 import datetime
@@ -25,8 +25,9 @@ from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototy
 
 from the_tale.collections.prototypes import AccountItemsPrototype
 
-from the_tale.accounts import signals
-from the_tale.accounts import conf
+from . import conf
+from . import tt_api
+from . import signals
 
 
 class REGISTER_USER_RESULT:
@@ -38,8 +39,10 @@ class REGISTER_USER_RESULT:
 def login_url(target_url='/'):
     return url('accounts:auth:api-login', api_version='1.0', api_client=project_settings.API_CLIENT, next_url=target_url.encode('utf-8'))
 
+
 def login_page_url(target_url='/'):
     return url('accounts:auth:page-login', next_url=target_url.encode('utf-8'))
+
 
 def logout_url():
     return url('accounts:auth:api-logout', api_version='1.0', api_client=project_settings.API_CLIENT)
@@ -58,7 +61,9 @@ def get_system_user_id():
 
 def get_system_user():
     account = AccountPrototype.get_by_nick(accounts_settings.SYSTEM_USER_NICK)
-    if account: return account
+
+    if account:
+        return account
 
     register_result, account_id, bundle_id = register_user(accounts_settings.SYSTEM_USER_NICK, # pylint: disable=W0612
                                                            email=project_settings.EMAIL_NOREPLY,
@@ -80,7 +85,9 @@ def register_user(nick,
                   is_bot=False,
                   gender=game_relations.GENDER.MASCULINE,
                   full_create=True):
+    from the_tale.game import tt_api as game_tt_api
     from the_tale.game.heroes import logic as heroes_logic
+    from the_tale.game.balance import constants as c
 
     if Account.objects.filter(nick=nick).exists():
         return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
@@ -118,6 +125,15 @@ def register_user(nick,
     AccountItemsPrototype.create(account)
 
     hero = heroes_logic.create_hero(account=account, full_create=full_create)
+
+    if full_create:
+        game_tt_api.change_energy_balance(account_id=account.id,
+                                          type='initial_contribution',
+                                          energy=c.INITIAL_ENERGY_AMOUNT,
+                                          async=False,
+                                          autocommit=True)
+
+        tt_api.create_cards_timer(account_id=account.id)
 
     return REGISTER_USER_RESULT.OK, account.id, hero.actions.current_action.bundle_id
 

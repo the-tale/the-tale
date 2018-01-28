@@ -239,6 +239,22 @@ pgf.base.AutoFormatTime = function() {
     });
 };
 
+pgf.base.FormatTimeDelta = function(delta) {
+    var hours = parseInt(Math.floor(delta / (60*60)));
+    var minutes = parseInt(Math.floor((delta-hours*60*60) / 60))
+    var seconds = parseInt(Math.floor((delta-hours*60*60-minutes*60)));
+
+    var result = '';
+
+    if (hours>0) {
+        result += hours + ':'
+    }
+
+    result += ('0' + minutes).slice(-2) + ':' + ('0' + seconds).slice(-2);
+
+    return result;
+}
+
 pgf.base.AddPreview = function(blockSelector, contentSourceSelector, previewUrl) {
 
     var block = jQuery(blockSelector);

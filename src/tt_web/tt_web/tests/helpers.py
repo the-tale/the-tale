@@ -15,7 +15,6 @@ class BaseTests(test_utils.AioHTTPTestCase):
         super().setUp()
         asyncio.set_event_loop(self.loop)
 
-
     def get_app(self, loop):
         application = self.create_application()
 
@@ -23,7 +22,6 @@ class BaseTests(test_utils.AioHTTPTestCase):
         application.on_cleanup.insert(0, self.clean_environment)
 
         return application
-
 
     async def check_answer(self, request, Data=None, api_status=base_pb2.ApiResponse.SUCCESS, error=None):
         self.assertEqual(request.status, 200)

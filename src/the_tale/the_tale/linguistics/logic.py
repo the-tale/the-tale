@@ -11,10 +11,16 @@ from django.db import transaction
 from django.conf import settings as project_settings
 
 from dext.common.utils import decorators as dext_decorators
+from dext.common.utils.urls import full_url
 
 from utg import exceptions as utg_exceptions
 from utg import dictionary as utg_dictionary
 from utg import relations as utg_relations
+
+from the_tale.accounts import logic as accounts_logic
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
+
+from the_tale.game.cards import logic as cards_logic
 
 from the_tale.linguistics import relations
 from the_tale.linguistics import prototypes
@@ -100,12 +106,14 @@ def prepair_get_text(key, args, quiet=False):
 def fake_text(lexicon_key, externals):
     return str(lexicon_key) + ': ' + ' '.join('%s=%s' % (k, v.form) for k, v in externals.items())
 
+
 @dext_decorators.retry_on_exception(max_retries=conf.linguistics_settings.MAX_RENDER_TEXT_RETRIES, exceptions=[utg_exceptions.UtgError])
 def _render_utg_text(lexicon_key, restrictions, externals):
     # dictionary & lexicon can be changed unexpectedly in any time
     # and some rendered data can be obsolete
     template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
     return template.substitute(externals, game_dictionary.item)
+
 
 def render_text(lexicon_key, externals, quiet=False, restrictions=frozenset()):
     if lexicon_key is None:
@@ -153,6 +161,7 @@ def update_words_usage_info():
         word.update_used_in_status( used_in_ingame_templates = sum((in_game_words.get(form, 0) for form in set(word.utg_word.forms)), 0),
                                     used_in_onreview_templates = sum((on_review_words.get(form, 0) for form in set(word.utg_word.forms)), 0),
                                     force_update=True)
+
 
 def update_templates_errors():
     from the_tale.linguistics import storage
@@ -260,6 +269,7 @@ RE_ENERGY_DOWN = re.compile(r'\-(\w+)#EN')
 RE_EFFECTIVENESS_UP = re.compile(r'\+(\w+)#EF')
 RE_EFFECTIVENESS_DOWN = re.compile(r'\-(\w+)#EF')
 
+
 def ui_format(text):
     '''
     (+|-){variable}#{type}
@@ -283,3 +293,32 @@ def ui_format(text):
     # text = RE_EFFECTIVENESS_DOWN(u'<span class="log-short log-short-effectiveness-down" rel="tooltip" title="полученный урон">-!\\1!⚡</span>', text)
 
     return text
+
+
+def give_reward_for_template(template):
+
+    if template.author_id is None:
+        print(1)
+        return
+
+    updated = prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                          entity_id=template.id,
+                                                          account=template.author_id,
+                                                          reward_given=False).update(reward_given=True)
+
+    if not updated:
+        return
+
+    cards_logic.give_new_card(account_id=template.author_id,
+                              operation_type='give-card-for-linguistic-template',
+                              allow_premium_cards=True,
+                              available_for_auction=True)
+
+    message = '''Поздравляем! Ваша [url={template}]фраза[/url] добавлена в игру!\n\nВ награду вы можете получить дополнительную карту судьбы (на странице игры). Карту можно будет продать на рынке.'''
+
+    message = message.format(template=full_url('http', 'linguistics:templates:show', template.id))
+
+    pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
+                           recipients_ids=[template.author_id],
+                           body=message,
+                           async=False)

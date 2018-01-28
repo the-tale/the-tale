@@ -27,3 +27,9 @@ class COMBINED_CARD_RESULT(DjangoEnum):
                ('COMBINE_3_LEGENDARY', 4, 'Нельзя превращать три легендарные карты'),
                ('SUCCESS', 5, 'Карты превращены успешно'),
                ('TOO_MANY_CARDS', 6, 'Вы пытаетесь объединить слишком много карт'))
+
+
+class STORAGE(DjangoEnum):
+    records = (('FAST', 0, 'колода быстрого доступа'),
+               ('ARCHIVE', 1, 'хранилище редко используемых карт'),
+               ('NEW', 2, 'новые карты'))

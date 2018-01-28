@@ -1,13 +1,10 @@
 import uuid
-import time
-import asyncio
 import datetime
 
 from unittest import mock
 
 from aiohttp import test_utils
 
-from tt_web import utils
 from tt_web import postgresql as db
 
 from .. import objects

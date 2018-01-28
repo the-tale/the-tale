@@ -411,7 +411,6 @@ class Place(names.ManageNameMixin2):
 
         self.effects.update_step(deltas={relations.ATTRIBUTE.STABILITY: stability_delta})
 
-
     def set_modifier(self, modifier):
         self._modifier = modifier
         self.refresh_attributes()

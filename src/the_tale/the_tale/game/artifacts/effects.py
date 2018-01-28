@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.common.utils import discovering
 
@@ -82,16 +81,6 @@ class PersonPower(BaseEffect):
         return value + cls.MODIFIER if type_.is_POWER else value
 
 
-class Energy(BaseEffect):
-    TYPE = relations.ARTIFACT_EFFECT.ENERGY
-    DESCRIPTION = 'Немного увеличивает максимум энергии Хранителя'
-    MODIFIER = 3
-
-    @classmethod
-    def modify_attribute(cls, type_, value):
-        return value + cls.MODIFIER if type_.is_MAX_ENERGY else value
-
-
 class Speed(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.SPEED
     DESCRIPTION = 'Немного увеличивает скорость движения героя'
@@ -173,16 +162,6 @@ class GreatPersonPower(BaseEffect):
         return value + cls.MODIFIER if type_.is_POWER else value
 
 
-class GreatEnergy(BaseEffect):
-    TYPE = relations.ARTIFACT_EFFECT.GREAT_ENERGY
-    DESCRIPTION = 'Сильно увеличивает максимум энергии Хранителя'
-    MODIFIER = 6
-
-    @classmethod
-    def modify_attribute(cls, type_, value):
-        return value + cls.MODIFIER if type_.is_MAX_ENERGY else value
-
-
 class GreatSpeed(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.GREAT_SPEED
     DESCRIPTION = 'Сильно увеличивает скорость движения героя'
@@ -253,23 +232,26 @@ class Charm(BaseEffect):
         return value + cls.BONUS if type_.is_SELL_PRICE else value
 
 
-class SpiritualConnection(BaseEffect):
-    TYPE = relations.ARTIFACT_EFFECT.SPIRITUAL_CONNECTION
-    DESCRIPTION = 'Все затраты энергии уменьшаются на 1, но не меньше 1. Эффекты этого типа не суммируются.'
-    MULTIPLIER = 1
-
-    @classmethod
-    def modify_attribute(cls, type_, value):
-        return max(value, cls.MULTIPLIER) if type_.is_ENERGY_DISCOUNT else value
-
-class PeaceOfMind(BaseEffect):
-    TYPE = relations.ARTIFACT_EFFECT.PEACE_OF_MIND
-    DESCRIPTION = 'Хранитель иногда получает в два раза больше энергии от героя'
-    MULTIPLIER = 0.2
+class DoubleEnergy(BaseEffect):
+    TYPE = None
+    DESCRIPTION = NotImplemented
+    MULTIPLIER = NotImplemented
 
     @classmethod
     def modify_attribute(cls, type_, value):
         return value + cls.MULTIPLIER if type_.is_DOUBLE_ENERGY_REGENERATION else value
+
+
+class PeaceOfMind(DoubleEnergy):
+    TYPE = relations.ARTIFACT_EFFECT.PEACE_OF_MIND
+    DESCRIPTION = 'Хранитель иногда получает в два раза больше энергии от героя'
+    MULTIPLIER = 0.2
+
+
+class Concentration(DoubleEnergy):
+    TYPE = relations.ARTIFACT_EFFECT.CONCENTRATION
+    DESCRIPTION = 'Хранитель в редких случаях получает в два раза больше энергии от героя'
+    MULTIPLIER = 0.05
 
 
 class SpecialAura(BaseEffect):
@@ -423,6 +405,7 @@ class Unbreakable(BaseEffect):
     @classmethod
     def modify_attribute(cls, type_, value):
         return value + cls.MULTIPLIER if type_.is_SAFE_INTEGRITY else value
+
 
 class NoEffect(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.NO_EFFECT

@@ -15,7 +15,6 @@ def notify_post_service(answer, recipients_ids):
         MessagePrototype.create(PersonalMessageHandler(message_id=answer.message_id, account_id=recipient_id))
 
 
-
 def new_messages_number_url():
     arguments = {'api_version': conf.settings.NEW_MESSAGES_NUMNER_API_VERSION,
                  'api_client': project_settings.API_CLIENT}

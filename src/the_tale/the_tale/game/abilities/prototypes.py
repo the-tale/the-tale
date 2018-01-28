@@ -1,8 +1,9 @@
-# coding: utf-8
 
 from the_tale.amqp_environment import environment
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
+
+from the_tale.game import tt_api as game_tt_api
 
 
 class AbilityPrototype(object):
@@ -10,6 +11,21 @@ class AbilityPrototype(object):
 
     def activate(self, hero, data):
         from the_tale.game.abilities.postponed_tasks import UseAbilityTask
+
+        data['transaction_id'] = None
+
+        if self.TYPE.cost > 0:
+
+            status, transaction_id = game_tt_api.change_energy_balance(account_id=hero.account_id,
+                                                                       type='help-{}'.format(self.TYPE.value),
+                                                                       energy=-self.TYPE.cost,
+                                                                       async=False,
+                                                                       autocommit=False)
+
+            if not status:
+                return None
+
+            data['transaction_id'] = transaction_id
 
         data['hero_id'] = hero.id
         data['account_id'] = hero.account_id
@@ -27,13 +43,9 @@ class AbilityPrototype(object):
     def use(self, *argv, **kwargs):
         raise NotImplementedError
 
-
     def check_hero_conditions(self, hero, data):
-        if self.TYPE.cost == 0:
-            return True
-
-        return hero.energy_full >= max(1, self.TYPE.cost - hero.energy_discount)
-
+        return True
 
     def hero_actions(self, hero, data):
-        hero.change_energy(-self.TYPE.cost)
+        if data['transaction_id']:
+            game_tt_api.commit_transaction(data['transaction_id'])

@@ -17,7 +17,6 @@ from the_tale.game.heroes import models as heroes_models
 from the_tale.game.heroes import logic as heroes_logic
 
 
-
 class LogicTests(testcase.TestCase):
 
     def setUp(self):
@@ -34,7 +33,6 @@ class LogicTests(testcase.TestCase):
         remove_game_data(self.account)
 
         self.assertEqual(heroes_models.Hero.objects.count(), 0)
-
 
 
 class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
@@ -119,12 +117,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
                 'action': {'data': {'pvp__actual':'actual',
                                     'pvp__last_turn':'last_turn'}},
                 'ui_caching_started_at': 0,
-                'cards': 'fake',
-                'changed_fields': [],
-                'energy': {'max': 'fake',
-                           'value': 'fake',
-                           'bonus': 'fake',
-                           'discount': 'fake'}}
+                'changed_fields': []}
 
     def test_not_own_hero_get_cached_data__not_cached(self):
         hero = heroes_logic.load_hero(account_id=self.account_1.id)
@@ -152,11 +145,7 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertFalse('pvp__actual' in data['account']['hero']['action']['data']['pvp'])
         self.assertFalse('pvp__last_turn' in data['account']['hero']['action']['data']['pvp'])
 
-        self.assertNotEqual(data['account']['hero']['cards'], 'fake')
-        self.assertEqual(data['account']['hero']['energy']['max'], 0)
-        self.assertEqual(data['account']['hero']['energy']['value'], 0)
-        self.assertEqual(data['account']['hero']['energy']['bonus'], 0)
-        self.assertEqual(data['account']['hero']['energy']['discount'], 0)
+        self.assertEqual(data['account']['energy'], None)
 
         self.assertEqual(ui_info.call_count, 1)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
@@ -270,8 +259,4 @@ class FormGameInfoTests(testcase.TestCase, PvPTestsMixin):
         self.assertFalse('pvp__actual' in data['enemy']['hero']['action']['data']['pvp'])
         self.assertFalse('pvp__last_turn' in data['enemy']['hero']['action']['data']['pvp'])
 
-        self.assertNotEqual(data['enemy']['hero']['cards'], 'fake')
-        self.assertEqual(data['enemy']['hero']['energy']['max'], 0)
-        self.assertEqual(data['enemy']['hero']['energy']['value'], 0)
-        self.assertEqual(data['enemy']['hero']['energy']['bonus'], 0)
-        self.assertEqual(data['enemy']['hero']['energy']['discount'], 0)
+        self.assertEqual(data['enemy']['energy'], None)

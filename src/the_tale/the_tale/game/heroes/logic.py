@@ -12,7 +12,6 @@ from the_tale.game import turn
 from the_tale.game import relations as game_relations
 from the_tale.game import names
 
-from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import power
 
@@ -35,9 +34,7 @@ from . import messages
 from . import places_help_statistics
 from . import habilities
 from . import bag
-from . import conf
 from . import habits
-from . import cards_info
 
 
 def live_query():
@@ -132,8 +129,6 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         health=hero_model.health,
                         level=hero_model.level,
                         experience=hero_model.experience,
-                        energy=hero_model.energy,
-                        energy_bonus=hero_model.energy_bonus,
                         money=hero_model.money,
                         next_spending=hero_model.next_spending,
                         habit_honor=habits.Honor(raw_value=hero_model.habit_honor),
@@ -146,7 +141,6 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         journal=messages.JournalContainer(), # we are not storrings journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
                         places_history=places_help_statistics.PlacesHelpStatistics.deserialize(data['places_history']),
-                        cards=cards_info.CardsInfo.deserialize(data.get('cards', {})),
                         abilities=habilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
                         bag=bag.Bag.deserialize(data['bag']),
                         equipment=bag.Equipment.deserialize(data['equipment']),
@@ -177,8 +171,7 @@ def save_hero(hero, new=False):
             'places_history': hero.places_history.serialize(),
             'equipment': hero.equipment.serialize(),
             'bag': hero.bag.serialize(),
-            'actual_bills': hero.actual_bills,
-            'cards': hero.cards.serialize()}
+            'actual_bills': hero.actual_bills}
 
     arguments = dict(saved_at_turn=turn.number(),
                      saved_at=datetime.datetime.now(),
@@ -243,8 +236,6 @@ def save_hero(hero, new=False):
                      health=hero.health,
                      level=hero.level,
                      experience=hero.experience,
-                     energy=hero.energy,
-                     energy_bonus=hero.energy_bonus,
                      money=hero.money,
                      next_spending=hero.next_spending,
                      habit_honor=hero.habit_honor.raw_value,
@@ -347,8 +338,6 @@ def create_hero(account, full_create=True):
                         health=f.hp_on_lvl(1),
                         level=1,
                         experience=0,
-                        energy=c.ANGEL_ENERGY_FREE_MAX,
-                        energy_bonus=conf.heroes_settings.START_ENERGY_BONUS,
                         money=0,
                         next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
                         habit_honor=habits.Honor(raw_value=0),
@@ -361,7 +350,6 @@ def create_hero(account, full_create=True):
                         journal=messages.JournalContainer(),
                         quests=quests_container.QuestsContainer(),
                         places_history=places_help_statistics.PlacesHelpStatistics(),
-                        cards=cards_info.CardsInfo(),
                         abilities=habilities.AbilitiesPrototype.create(),
                         bag=bag.Bag(),
                         equipment=bag.Equipment(),

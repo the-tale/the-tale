@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -82,7 +82,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         self.assertEqual(self.hero.companion_max_coherence, 60)
 
     def test_healing(self):
-        self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.COMPANION_LIVING_HEAL, 0), 0.05787037037037038)
+        self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.COMPANION_LIVING_HEAL, 0), 0.10416666666666669)
         self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_LIVING_HEAL,)), 0), 0)
 
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -91,10 +91,10 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', game_relations.BEING_TYPE.ANIMAL):
             self.assertEqual(self.hero.companion_heal_probability, 0)
             self.hero.abilities.add(companions.HEALING.get_id(), 3)
-            self.assertEqual(self.hero.companion_heal_probability, 0.1736111111111111)
+            self.assertEqual(self.hero.companion_heal_probability, 0.3125)
 
     def test_mage_mechanincs(self):
-        self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.COMPANION_CONSTRUCT_HEAL, 0), 0.05787037037037038)
+        self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.COMPANION_CONSTRUCT_HEAL, 0), 0.10416666666666669)
         self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_CONSTRUCT_HEAL,)), 0), 0)
 
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -103,10 +103,10 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', game_relations.BEING_TYPE.MECHANICAL):
             self.assertEqual(self.hero.companion_heal_probability, 0)
             self.hero.abilities.add(companions.MAGE_MECHANICS.get_id(), 3)
-            self.assertEqual(self.hero.companion_heal_probability, 0.1736111111111111)
+            self.assertEqual(self.hero.companion_heal_probability, 0.3125)
 
     def test_witchcraft(self):
-        self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.COMPANION_UNUSUAL_HEAL, 0), 0.05787037037037038)
+        self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.COMPANION_UNUSUAL_HEAL, 0), 0.10416666666666669)
         self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_UNUSUAL_HEAL,)), 0), 0)
 
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -115,7 +115,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.type', game_relations.BEING_TYPE.SUPERNATURAL):
             self.assertEqual(self.hero.companion_heal_probability, 0)
             self.hero.abilities.add(companions.WITCHCRAFT.get_id(), 3)
-            self.assertEqual(self.hero.companion_heal_probability, 0.1736111111111111)
+            self.assertEqual(self.hero.companion_heal_probability, 0.3125)
 
     def test_sociability(self):
         self.assertEqual(companions.SOCIABILITY().modify_attribute(MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED, 1), 1.2)

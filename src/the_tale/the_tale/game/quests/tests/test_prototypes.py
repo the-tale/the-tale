@@ -1,6 +1,7 @@
 
-import datetime
+import time
 import random
+import datetime
 import collections
 
 from unittest import mock
@@ -20,6 +21,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game import turn
+from the_tale.game import tt_api as game_tt_api
 
 from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
 
@@ -454,22 +456,39 @@ class PrototypeTests(PrototypeTestsBase):
 
             self.assertTrue(self.quest.modify_reward_scale(1) > 1)
 
-
     def test_give_energy_on_reward(self):
         self.complete_quest(positive_results=True)
+
+        time.sleep(0.1)
 
         with mock.patch('the_tale.game.quests.prototypes.QuestPrototype.get_state_by_jump_pointer', lambda qp: self.quest.knowledge_base[self.quest.machine.pointer.state]):
             for person in persons_storage.persons.all():
                 person.attrs.on_profite_energy = 0
 
-            with self.check_not_changed(lambda: self.hero.energy_bonus):
+            with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
                 self.quest.give_energy_on_reward()
+                time.sleep(0.1)
 
             for person in persons_storage.persons.all():
                 person.attrs.on_profite_energy = 1
 
-            with self.check_increased(lambda: self.hero.energy_bonus):
+            with self.check_increased(lambda: game_tt_api.energy_balance(self.hero.account_id)):
                 self.quest.give_energy_on_reward()
+                time.sleep(0.1)
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_energy', False)
+    def test_give_energy_on_reward__energy_regeneration_restricted(self):
+        self.complete_quest(positive_results=True)
+
+        time.sleep(0.1)
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype.get_state_by_jump_pointer', lambda qp: self.quest.knowledge_base[self.quest.machine.pointer.state]):
+            for person in persons_storage.persons.all():
+                person.attrs.on_profite_energy = 1
+
+            with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+                self.quest.give_energy_on_reward()
+                time.sleep(0.1)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.ARTIFACT_POWER_DELTA', 0.0)

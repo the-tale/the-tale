@@ -1,23 +1,23 @@
-# coding: utf-8
 
 from django.core.urlresolvers import reverse
 from django.db import transaction, models
 
 from dext.views import handler, validate_argument, validator
-from dext.common.utils.urls import UrlBuilder, url
+from dext.common.utils.urls import UrlBuilder
+from dext.common.utils.urls import url
 
 from utg import relations as utg_relations
 from utg import templates as utg_templates
 
 from the_tale.common.utils import list_filter
 
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.clans.prototypes import ClanPrototype
-from the_tale.accounts.views import validate_fast_account, validate_ban_forum
-
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.decorators import login_required, superuser_required
+
+from the_tale.accounts.prototypes import AccountPrototype
+from the_tale.accounts.clans.prototypes import ClanPrototype
+from the_tale.accounts.views import validate_fast_account, validate_ban_forum
 
 from the_tale.linguistics import relations
 from the_tale.linguistics.conf import linguistics_settings
@@ -51,7 +51,6 @@ class TemplatesIndexFilter(list_filter.ListFilter):
                                            default_value=relations.INDEX_ORDER_BY.UPDATED_AT.value),
                 list_filter.static_element('количество:', attribute='count', default_value=0),
                 list_filter.choice_element('ограничение:', attribute='restriction', choices=storage.restrictions_storage.get_form_choices) ]
-
 
 
 def get_contributors(entity_id, author_id, type):
@@ -168,7 +167,6 @@ class WordResource(Resource):
         authors = {account.id: account for account in AccountPrototype.from_query(AccountPrototype.get_list_by_id([word.author_id for word in words]))}
         clans = {clan.id: clan for clan in ClanPrototype.from_query(ClanPrototype.get_list_by_id([author.clan_id for author in authors.values()]))}
 
-
         return self.template('linguistics/words/index.html',
                              {'words': words,
                               'page_type': 'dictionary',
@@ -177,7 +175,6 @@ class WordResource(Resource):
                               'clans': clans,
                               'ALLOWED_WORD_TYPE': relations.ALLOWED_WORD_TYPE,
                               'index_filter': index_filter} )
-
 
     @login_required
     @validate_fast_account()
@@ -210,7 +207,6 @@ class WordResource(Resource):
                               'type': type,
                               'page_type': 'dictionary',
                               'parent': parent} )
-
 
     @login_required
     @validate_fast_account()
@@ -271,7 +267,6 @@ class WordResource(Resource):
 
         return self.json_ok(data={'next_url': url('linguistics:words:show', word.id)})
 
-
     @handler('#word', name='show', method='get')
     def show(self):
         word_parent = self.word.get_parent()
@@ -294,7 +289,6 @@ class WordResource(Resource):
                               'child_word': self.word.get_child(),
                               'drawer': word_drawer.ShowDrawer(word=self.word.utg_word,
                                                                other_version=other_version)} )
-
 
     @login_required
     @moderation_word_rights()
@@ -337,7 +331,6 @@ class WordResource(Resource):
 
             prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
                                                         entity_id=self.word.id).update(state=self.word.state.contribution_state)
-
 
         return self.json_ok()
 
@@ -444,7 +437,6 @@ class TemplateResource(Resource):
         if filter:
             templates_query = templates_query.filter(raw_template__icontains=filter)
 
-
         if order_by.is_UPDATED_AT:
             templates_query = templates_query.order_by('-updated_at')
         elif order_by.is_TEXT:
@@ -454,13 +446,13 @@ class TemplateResource(Resource):
 
         templates_count = templates_query.count()
 
-        url_builder = UrlBuilder(reverse('linguistics:templates:'), arguments={ 'state': state.value if state else None,
-                                                                                'errors_status': errors_status.value if errors_status else None,
-                                                                                'contributor': contributor.id if contributor else None,
-                                                                                'order_by': order_by.value,
-                                                                                'filter': filter,
-                                                                                'restriction': restriction.id if restriction is not None else None,
-                                                                                'key': key.value if key is not None else None})
+        url_builder = UrlBuilder(reverse('linguistics:templates:'), arguments={'state': state.value if state else None,
+                                                                               'errors_status': errors_status.value if errors_status else None,
+                                                                               'contributor': contributor.id if contributor else None,
+                                                                               'order_by': order_by.value,
+                                                                               'filter': filter,
+                                                                               'restriction': restriction.id if restriction is not None else None,
+                                                                               'key': key.value if key is not None else None})
 
         index_filter = TemplatesIndexFilter(url_builder=url_builder, values={'state': state.value if state else None,
                                                                              'errors_status': errors_status.value if errors_status else None,
@@ -470,7 +462,6 @@ class TemplateResource(Resource):
                                                                              'restriction': restriction.id if restriction is not None else None,
                                                                              'key': key.value if key is not None else None,
                                                                              'count': templates_query.count()})
-
 
         paginator = Paginator(page, templates_count, linguistics_settings.TEMPLATES_ON_PAGE, url_builder)
 
@@ -508,8 +499,7 @@ class TemplateResource(Resource):
                               'form': form,
                               'page_type': 'keys',
                               'linguistics_settings': linguistics_settings,
-                              'LEXICON_KEY': keys.LEXICON_KEY} )
-
+                              'LEXICON_KEY': keys.LEXICON_KEY})
 
     @login_required
     @validate_fast_account()
@@ -543,7 +533,6 @@ class TemplateResource(Resource):
 
         return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
 
-
     @handler('#template', name='show', method='get')
     def show(self):
         template_parent = self._template.get_parent()
@@ -563,7 +552,6 @@ class TemplateResource(Resource):
                               'page_type': 'keys',
                               'errors': errors} )
 
-
     @login_required
     @validate_fast_account()
     @validate_ban_forum()
@@ -577,7 +565,6 @@ class TemplateResource(Resource):
         if self._template.get_child():
             return self.auto_error('linguistics.templates.edit.template_has_child',
                                    'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
-
 
         verificators = self._template.get_all_verificatos()
 
@@ -593,7 +580,6 @@ class TemplateResource(Resource):
                               'copy_will_be_created': not (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW),
                               'LEXICON_KEY': keys.LEXICON_KEY} )
 
-
     @login_required
     @validate_fast_account()
     @validate_ban_forum()
@@ -607,7 +593,6 @@ class TemplateResource(Resource):
         if self._template.get_child():
             return self.auto_error('linguistics.templates.update.template_has_child',
                                    'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
-
 
         form = forms.TemplateForm(self._template.key,
                                   self._template.get_all_verificatos(),
@@ -624,7 +609,6 @@ class TemplateResource(Resource):
             form.get_restrictions() == self._template.raw_restrictions):
             return self.json_error('linguistics.templates.update.full_copy_restricted', 'Вы пытаетесь создать полную копию шаблона, в этом нет необходимости.')
 
-
         if self.can_edit_templates or (self._template.author_id == self.account.id and self._template.state.is_ON_REVIEW):
             self._template.update(raw_template=form.c.template,
                                   utg_template=utg_template,
@@ -640,7 +624,6 @@ class TemplateResource(Resource):
 
             return self.json_ok(data={'next_url': url('linguistics:templates:show', self._template.id)})
 
-
         template = prototypes.TemplatePrototype.create(key=self._template.key,
                                                        raw_template=form.c.template,
                                                        utg_template=utg_template,
@@ -655,9 +638,7 @@ class TemplateResource(Resource):
                                                            source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_edit_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
                                                            state=template.state.contribution_state)
 
-
         return self.json_ok(data={'next_url': url('linguistics:templates:show', template.id)})
-
 
     @login_required
     @moderation_template_rights()
@@ -700,11 +681,7 @@ class TemplateResource(Resource):
             prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                         entity_id=self._template.id).update(state=self._template.state.contribution_state)
 
-
-
-
         return self.json_ok()
-
 
     @login_required
     @edition_template_rights()
@@ -717,7 +694,6 @@ class TemplateResource(Resource):
         self._template.save()
 
         return self.json_ok()
-
 
     @login_required
     @moderation_template_rights()
@@ -738,8 +714,9 @@ class TemplateResource(Resource):
             prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                         entity_id=self._template.id).update(state=self._template.state.contribution_state)
 
-        return self.json_ok()
+        logic.give_reward_for_template(self._template)
 
+        return self.json_ok()
 
     @login_required
     @moderation_template_rights()
@@ -754,7 +731,6 @@ class TemplateResource(Resource):
 
         return self.json_ok()
 
-
     @login_required
     @handler('#template', 'remove', method='post')
     def remove(self):
@@ -762,7 +738,6 @@ class TemplateResource(Resource):
         if self._template.get_child():
             return self.auto_error('linguistics.templates.remove.template_has_child',
                                    'У этой фразы есть копия, необходимо разорвать связь между ними.')
-
 
         if self._template.get_parent():
             return self.auto_error('linguistics.templates.remove.template_has_parent',
@@ -783,7 +758,6 @@ class TemplateResource(Resource):
 
         return self.json_ok()
 
-
     @login_required
     @moderation_template_rights()
     @handler('#template', 'restore', method='post')
@@ -793,12 +767,10 @@ class TemplateResource(Resource):
             self._template.save()
         return self.json_ok()
 
-
     @handler('specification', method='get')
     def specification(self):
         return self.template('linguistics/templates/specification.html',
                              {'page_type': 'templates-specification'})
-
 
     @login_required
     @handler('#template', 'edit-key', method='get')

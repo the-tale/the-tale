@@ -14,6 +14,8 @@ from questgen import relations as questgen_relations
 
 from the_tale.game import turn
 
+from the_tale.game import tt_api as game_tt_api
+
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
@@ -499,8 +501,6 @@ class QuestPrototype(object):
 
             yield persons_storage.persons[person_id]
 
-
-
     def modify_reward_scale(self, scale):
         for person in self.positive_results_persons():
             scale += person.attrs.on_profite_reward_bonus
@@ -508,8 +508,20 @@ class QuestPrototype(object):
         return scale
 
     def give_energy_on_reward(self):
-        for person in self.positive_results_persons():
-            self.hero.add_energy_bonus(person.attrs.on_profite_energy)
+        if not self.hero.can_regenerate_energy:
+            return
+
+        energy = sum(person.attrs.on_profite_energy
+                     for person in self.positive_results_persons())
+
+        if energy == 0:
+            return
+
+        game_tt_api.change_energy_balance(account_id=self.hero.account_id,
+                                          type='for_quest',
+                                          energy=energy,
+                                          async=True,
+                                          autocommit=True)
 
     def _give_reward(self, hero, reward_type, scale):
 

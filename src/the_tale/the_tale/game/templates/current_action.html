@@ -11,11 +11,14 @@ jQuery(document).ready(function(e) {
     widgets.abilities = new pgf.game.widgets.Abilities();
 
     widgets.cards = new pgf.game.widgets.Cards({getItems: "{{get_cards_url()}}",
-                                                getCard: "{{get_card_url()}}",
+                                                getCard: "{{receive_cards_url()}}",
                                                 transformItems: "{{transform_cards_url()}}",
                                                 moveToStorage: "{{move_to_storage_url()}}",
                                                 moveToHand: "{{move_to_hand_url()}}",
                                                 useCardDialog: "{{url('game:cards:use-dialog')}}"})
+
+    widgets.cardsProgress = new pgf.game.widgets.CardsProgress({container: jQuery(".pgf-cards-choices"),
+                                                                cards: widgets.cards});
 
 });
 </script>
@@ -64,19 +67,28 @@ jQuery(document).ready(function(e) {
   <div id="abilities-block">
 
     <div class="dropdown" style="display: inline-block;  width: 30%; font-size: 11pt;">
-      <i class="icon-gift pgf-new-card-icon" style="margin-top: 1px;" rel="tooltip" title="Вы можете получить новую карту!"></i>
+      <i class="icon-gift pgf-new-card-icon pgf-hidden" style="margin-top: 1px;" rel="tooltip" title="Вы можете получить новую карту!"></i>
       <a href="#" class="dropdown-toggle pgf-cards-for-use-dropdown" data-toggle="dropdown">карты<b class="caret"></b></a>
       <ul class="pgf-scrollable dropdown-menu pgf-cards-choices"
           role="menu"
           style="max-height: 310px; overflow-y: auto; font-size: 10pt; z-index: 1011; text-align: left;">
 
-          <li class="pgf-get-card-statistics" style="text-align: center;">
-            очки судьбы<br/>
+        <li class="pgf-get-card-statistics"
+            style="text-align: center;"
+            rel="tooltip"
+            title="<ul style='text-align: left;'>
+                   <li>Игроки получают карту каждые {{value('tt_logic.cards.constants', 'NORMAL_RECEIVE_TIME')}} часов.</li>
+                   <li>Подписчики получают карту каждые {{(value('tt_logic.cards.constants', 'NORMAL_RECEIVE_TIME') / value('tt_logic.cards.constants', 'PREMIUM_PLAYER_SPEED'))|int}} часов.</li>
+                   <li>Подписчики могут получить особые типы карт, недоступные другим игрокам.</li>
+                   <li>Карты, получаемые подписчиками, можно продавать на рынке.</li>
+                   <li>Заработать дополнительные карты можно в разделе лингвистики. Автор каждой принятой в игру фразы получает случайную карту, которую можно продать на рынке.</li>
+                   </ul>">
+            до следующей карты<br/>
 
             <div class="progress progress-info" style="margin: 0.25em; height: 18px; position: relative;">
               <div class="bar pgf-new-card-progress"></div>
               <div class="" style="width: 100%; position: absolute; top: 0;">
-                <span class="pgf-helps-count-to-new-card"></span> / {{c.CARDS_HELP_COUNT_TO_NEW_CARD}}
+                <span class="pgf-new-cards-timer"></span>
               </div>
             </div>
 
@@ -129,10 +141,8 @@ jQuery(document).ready(function(e) {
                      <li>Подлечить спутника</li>
                      <li>Телепортировать героя</li>
                      <li>Нанести урон противнику</li>
-                     <li>Дать вам бонусную энергию</li>
                      <li>Заставить героя взять задание</li>
                    </ul>
-                   Даёт 1 очко судьбы</br>
                    Помощь во время боя уменьшает миролюбие героя.<br/>
                    Помощь в любое другое время — увеличивает.
                    <hr/>

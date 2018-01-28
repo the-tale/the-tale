@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from rels import Column
 from rels.django import DjangoEnum
 
@@ -39,14 +39,17 @@ class Base(object):
 class NoEffect(Base):
     TYPE = None
 
+
 class Checker(Base):
     MODIFIER = None
 
     def _check_attribute(self, modifier):
         return modifier == self.MODIFIER
 
+
 def aprox(left, right, level):
     return left + float(right - left) / 5 * level
+
 
 class Multiplier(Base):
     MODIFIER = None
@@ -100,7 +103,6 @@ class Summand(Base):
         return value
 
 
-
 class CoherenceSpeed(Multiplier):
     TYPE = relations.EFFECT.COHERENCE_SPEED
     MODIFIER = heroes_relations.MODIFIERS.COHERENCE_EXPERIENCE
@@ -143,9 +145,11 @@ class MagicDamageBonus(Multiplier):
     TYPE = relations.EFFECT.MAGIC_DAMAGE_BONUS
     MODIFIER = heroes_relations.MODIFIERS.MAGIC_DAMAGE
 
+
 class PhysicDamageBonus(Multiplier):
     TYPE = relations.EFFECT.PHYSIC_DAMAGE_BONUS
     MODIFIER = heroes_relations.MODIFIERS.PHYSIC_DAMAGE
+
 
 class Speed(Multiplier):
     TYPE = relations.EFFECT.SPEED
@@ -166,25 +170,31 @@ class BaseBattleAbility(Base):
             return value
         return value
 
+
 class BattleAbilityHit(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_HIT
     ABILITY = battle_abilities.HIT(1)
+
 
 class BattleAbilityStrongHit(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_STRONG_HIT
     ABILITY = battle_abilities.STRONG_HIT(5)
 
+
 class BattleAbilityRunUpPush(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_RUN_UP_PUSH
     ABILITY = battle_abilities.RUN_UP_PUSH(5)
+
 
 class BattleAbilityFireball(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_FIREBALL
     ABILITY = ability=battle_abilities.FIREBALL(5)
 
+
 class BattleAbilityPoisonCloud(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_POSION_CLOUD
     ABILITY = battle_abilities.POISON_CLOUD(5)
+
 
 class BattleAbilityFreezing(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_FREEZING
@@ -199,6 +209,7 @@ class Initiative(Multiplier):
 class BattleProbability(Summand):
     TYPE = relations.EFFECT.BATTLE_PROBABILITY
     MODIFIER = heroes_relations.MODIFIERS.BATTLES_PER_TURN
+
 
 class Deathy(BattleProbability):
     TYPE = relations.EFFECT.DEATHY
@@ -219,6 +230,7 @@ class CompanionDamage(Summand):
     TYPE = relations.EFFECT.COMPANION_DAMAGE
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_DAMAGE
 
+
 class CompanionDamageProbability(Multiplier):
     TYPE = relations.EFFECT.COMPANION_DAMAGE_PROBABILITY
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_DAMAGE_PROBABILITY
@@ -228,6 +240,7 @@ class CompanionStealMoney(MultiplierChecker):
     TYPE = relations.EFFECT.COMPANION_STEAL_MONEY
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_STEAL_MONEY_MULTIPLIER
     CHECK_MODIFIER = heroes_relations.MODIFIERS.COMPANION_STEAL_MONEY
+
 
 class CompanionStealItem(MultiplierChecker):
     TYPE = relations.EFFECT.COMPANION_STEAL_ITEM
@@ -262,6 +275,7 @@ class CompanionEatCorpses(MultiplierChecker):
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_EAT_CORPSES_PROBABILITY
     CHECK_MODIFIER = heroes_relations.MODIFIERS.COMPANION_EAT_CORPSES
 
+
 class CompanionRegenerate(MultiplierChecker):
     TYPE = relations.EFFECT.COMPANION_REGENERATION
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_REGENERATE_PROBABILITY
@@ -274,6 +288,7 @@ class CompanionEat(Multiplier):
 
     def _check_attribute(self, modifier):
         return modifier == self.MODIFIER
+
 
 class CompanionEatDiscount(CompanionEat):
     TYPE = relations.EFFECT.COMPANION_EAT_DISCOUNT
@@ -340,6 +355,7 @@ class CompanionTeleport(Summand):
     TYPE = relations.EFFECT.COMPANION_TELEPORTATION
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_TELEPORTATOR
 
+
 class CompanionFly(Summand):
     TYPE = relations.EFFECT.COMPANION_TELEPORTATION
     MODIFIER = heroes_relations.MODIFIERS.COMPANION_FLYER
@@ -382,6 +398,7 @@ def quest_money_reward(name, value, text, description, rarity_delta, border_left
             work_when_dead,
             can_be_freezed)
 
+
 def huckster(name, value, text, description, rarity_delta, work_when_dead=False, can_be_freezed=True):
     effect = Huckster(buy_bonus_left=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2 / 5, buy_bonus_right=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2,
                       sell_bonus_left=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2 / 5, sell_bonus_right=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2)
@@ -393,7 +410,6 @@ def huckster(name, value, text, description, rarity_delta, work_when_dead=False,
             rarity_delta,
             work_when_dead,
             can_be_freezed)
-
 
 
 class ABILITIES(DjangoEnum):

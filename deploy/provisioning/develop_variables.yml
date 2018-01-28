@@ -19,6 +19,7 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/pynames/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/utg/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/questgen/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_logic/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_calendar/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/the_tale/"}
@@ -43,6 +44,26 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_market/"}
+  tt_soft_currency:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_bank/"}
+  tt_players_timers:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_timers/"}
+    custom:
+        secret: test.secret
+        sleep_if_no_timers_interval: 0.1
+        delay_before_callback_retry: 31536000  # do not spam test site (it can be stopped at all)
+                                               # if timer processing required - restart service
+        types:
+          0:
+            url: http://localhost:8000/game/cards/tt/take-card-callback
+            postprocess_type: restart
+
 
 tt_RAM: 4096
 tt_postgresql_maintenance_work_mem: 32MB # 256MB

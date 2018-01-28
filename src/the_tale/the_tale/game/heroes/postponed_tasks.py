@@ -1,5 +1,3 @@
-# coding: utf-8
-import datetime
 
 import rels
 from rels.django import DjangoEnum
@@ -8,32 +6,24 @@ from utg import words as utg_words
 
 from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
-from the_tale.accounts.prototypes import AccountPrototype
-
 from the_tale.game.relations import GENDER, RACE
 from the_tale.game.balance import constants as c
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game import relations as game_relations
 
 from the_tale.game.cards import tt_api as cards_tt_api
 from the_tale.game.cards import logic as cards_logic
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
-from the_tale.game.heroes import relations
 
 
 class CHOOSE_HERO_ABILITY_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 0, 'в очереди'),
-                ('PROCESSED', 1, 'обработана'),
-                ('WRONG_ID', 2, 'неверный идентификатор способности'),
-                ('NOT_IN_CHOICE_LIST', 3, 'способность недоступна для выбора'),
-                ('NOT_FOR_PLAYERS', 4, 'способность не для игроков'),
-                ('MAXIMUM_ABILITY_POINTS_NUMBER', 5, 'все доступные способности выбраны'),
-                ('ALREADY_MAX_LEVEL', 6, 'способность уже имеет максимальный уровень') )
+    records = (('UNPROCESSED', 0, 'в очереди'),
+               ('PROCESSED', 1, 'обработана'),
+               ('WRONG_ID', 2, 'неверный идентификатор способности'),
+               ('NOT_IN_CHOICE_LIST', 3, 'способность недоступна для выбора'),
+               ('NOT_FOR_PLAYERS', 4, 'способность не для игроков'),
+               ('MAXIMUM_ABILITY_POINTS_NUMBER', 5, 'все доступные способности выбраны'),
+               ('ALREADY_MAX_LEVEL', 6, 'способность уже имеет максимальный уровень'))
+
 
 class ChooseHeroAbilityTask(PostponedLogic):
 
@@ -99,8 +89,9 @@ class ChooseHeroAbilityTask(PostponedLogic):
 
 
 class CHANGE_HERO_TASK_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 0, 'в очереди'),
-                ('PROCESSED', 1, 'обработана') )
+    records = (('UNPROCESSED', 0, 'в очереди'),
+               ('PROCESSED', 1, 'обработана'))
+
 
 class ChangeHeroTask(PostponedLogic):
 
@@ -142,82 +133,14 @@ class ChangeHeroTask(PostponedLogic):
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
-class GET_CARD_TASK_STATE(DjangoEnum):
-   records = ( ('UNPROCESSED', 0, 'в очереди'),
-               ('PROCESSED', 1, 'обработана'),
-               ('CAN_NOT_GET', 2, 'Вы пока не можете взять новую карту'))
-
-class GetCardTask(PostponedLogic):
-
-    TYPE = 'get-card'
-
-    MESSAGE = '''
-<span class="%(rarity)s-card-label">%(name)s</span><br/><br/>
-
-<blockquote>%(description)s</blockquote>
-'''
-
-
-    def __init__(self, hero_id, state=GET_CARD_TASK_STATE.UNPROCESSED, message=None, card_ui_info=None):
-        super(GetCardTask, self).__init__()
-        self.hero_id = hero_id
-        self.state = state if isinstance(state, rels.Record) else GET_CARD_TASK_STATE(state)
-        self.message = message
-        self.card_ui_info = card_ui_info
-
-    def serialize(self):
-        return { 'hero_id': self.hero_id,
-                 'state': self.state.value,
-                 'message': self.message,
-                 'card_ui_info': self.card_ui_info}
-
-    @property
-    def error_message(self): return self.state.text
-
-    def create_message(self, card):
-        return self.MESSAGE % {'name': card.name[0].upper() + card.name[1:],
-                               'description': card.effect.DESCRIPTION,
-                               'rarity': card.type.rarity.name.lower()}
-    @property
-    def processed_data(self):
-        return {'message': self.message,
-                'card': self.card_ui_info }
-
-    def process(self, main_task, storage):
-
-        hero = storage.heroes[self.hero_id]
-
-        if hero.cards.help_count < c.CARDS_HELP_COUNT_TO_NEW_CARD:
-            main_task.comment = 'can not get new card'
-            self.state = GET_CARD_TASK_STATE.CAN_NOT_GET
-            return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
-        card = cards_logic.create_card(allow_premium_cards=hero.is_premium,
-                                       available_for_auction=hero.cards.is_next_card_premium())
-
-        cards_tt_api.change_cards(account_id=hero.account_id,
-                                  operation_type='get-card',
-                                  to_add=[card])
-
-        self.message = self.create_message(card)
-
-        hero.cards.change_help_count(-c.CARDS_HELP_COUNT_TO_NEW_CARD)
-
-        self.card_ui_info = card.ui_info()
-
-        self.state = GET_CARD_TASK_STATE.PROCESSED
-
-        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
-
-
 class InvokeHeroMethodTask(PostponedLogic):
 
     TYPE = 'invoke-hero-method'
 
     class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 0, 'в очереди'),
-                    ('PROCESSED', 1, 'обработана'),
-                    ('METHOD_NOT_FOUND', 2, 'метод не обнаружен'))
+        records = (('UNPROCESSED', 0, 'в очереди'),
+                   ('PROCESSED', 1, 'обработана'),
+                   ('METHOD_NOT_FOUND', 2, 'метод не обнаружен'))
 
     def __init__(self, hero_id, method_name, method_kwargs, state=STATE.UNPROCESSED):
         super(InvokeHeroMethodTask, self).__init__()
@@ -227,10 +150,10 @@ class InvokeHeroMethodTask(PostponedLogic):
         self.method_kwargs = method_kwargs
 
     def serialize(self):
-        return { 'hero_id': self.hero_id,
-                 'state': self.state.value,
-                 'method_name': self.method_name,
-                 'method_kwargs': self.method_kwargs}
+        return {'hero_id': self.hero_id,
+                'state': self.state.value,
+                'method_name': self.method_name,
+                'method_kwargs': self.method_kwargs}
 
     @property
     def error_message(self): return self.state.text

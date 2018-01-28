@@ -1,28 +1,14 @@
-# coding: utf-8
-import random
-
-from unittest import mock
+import time
 
 from the_tale.common.utils import testcase
 
+from the_tale.game import tt_api as game_tt_api
+
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import Power
 from the_tale.game.logic_storage import LogicStorage
 
-from the_tale.game import relations as game_relations
-
 from the_tale.game.places import storage as places_storage
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.heroes import relations
-
-from .. import logic
 
 
 class JobsMethodsTests(testcase.TestCase):
@@ -41,11 +27,9 @@ class JobsMethodsTests(testcase.TestCase):
         self.place = places_storage.places.all()[0]
         self.person = self.place.persons[0]
 
-
     def check_job_message(self, place_id, person_id):
         with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             self.hero.job_message(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_money_positive_enemies', job_power=None)
-
 
     def check_job_money(self, place_id, person_id):
         old_money = self.hero.money
@@ -62,7 +46,6 @@ class JobsMethodsTests(testcase.TestCase):
 
         self.assertTrue(middle_money - old_money < self.hero.money - middle_money)
 
-
     def check_job_artifact(self, place_id, person_id):
         with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
             with self.check_delta(lambda: self.hero.bag.occupation, 1):
@@ -78,7 +61,6 @@ class JobsMethodsTests(testcase.TestCase):
                     self.hero.job_artifact(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_artifact_positive_enemies', job_power=2)
 
         self.assertTrue(rating, list(self.hero.bag.values())[0].preference_rating(self.hero.preferences.archetype.power_distribution))
-
 
     def check_job_experience(self, place_id, person_id):
         self.hero.level = 100
@@ -97,22 +79,22 @@ class JobsMethodsTests(testcase.TestCase):
 
         self.assertTrue(middle_experience - old_experience < self.hero.experience - middle_experience)
 
-
     def check_job_energy(self, place_id, person_id):
-        old_energy = self.hero.energy_bonus
+        old_energy = game_tt_api.energy_balance(self.hero.account_id)
 
         with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
-            with self.check_increased(lambda: self.hero.energy_bonus):
+            with self.check_increased(lambda: game_tt_api.energy_balance(self.hero.account_id)):
                 self.hero.job_energy(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_energy_positive_enemies', job_power=1)
+                time.sleep(0.1)
 
-        middle_energy = self.hero.energy_bonus
+        middle_energy = game_tt_api.energy_balance(self.hero.account_id)
 
         with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
-            with self.check_increased(lambda: self.hero.energy_bonus):
+            with self.check_increased(lambda: game_tt_api.energy_balance(self.hero.account_id)):
                 self.hero.job_energy(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_energy_positive_enemies', job_power=2)
+                time.sleep(0.1)
 
-        self.assertTrue(middle_energy - old_energy < self.hero.energy_bonus - middle_energy)
-
+        self.assertTrue(middle_energy - old_energy < game_tt_api.energy_balance(self.hero.account_id) - middle_energy)
 
     def test_job_message(self):
         self.check_job_message(place_id=self.place.id, person_id=self.person.id)
@@ -133,7 +115,6 @@ class JobsMethodsTests(testcase.TestCase):
     def test_job_energy(self):
         self.check_job_energy(place_id=self.place.id, person_id=self.person.id)
         self.check_job_energy(place_id=self.place.id, person_id=None)
-
 
     def test_job_artifact__better_then_equipped(self):
         self.hero.level = 100
