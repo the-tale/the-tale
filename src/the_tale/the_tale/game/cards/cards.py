@@ -153,7 +153,12 @@ class CARD(Relation):
                ('ADD_COMPANION_EXPERIENCE_UNCOMMON', 140, 'совместная тренировка', FOR_ALL, UNCOMMON, effects.AddCompanionExpirence(base=10, level=2), [reactors.Simple3()]),
                ('ADD_COMPANION_EXPERIENCE_RARE', 141, 'товарищество', FOR_ALL, RARE, effects.AddCompanionExpirence(base=10, level=3), [reactors.Simple3()]),
                ('ADD_COMPANION_EXPERIENCE_EPIC', 142, 'единство', FOR_ALL, EPIC, effects.AddCompanionExpirence(base=10, level=4), [reactors.Simple3()]),
-               ('ADD_COMPANION_EXPERIENCE_LEGENDARY', 143, 'синхронизация', FOR_ALL, LEGENDARY, effects.AddCompanionExpirence(base=10, level=5), [])
+               ('ADD_COMPANION_EXPERIENCE_LEGENDARY', 143, 'синхронизация', FOR_ALL, LEGENDARY, effects.AddCompanionExpirence(base=10, level=5), []),
+
+               ('GIVE_COMMON_CARDS_UNCOMMON', 144, 'удачный поворот', FOR_ALL, UNCOMMON, effects.GiveCommonCards(base=1, level=2), [reactors.Simple3()]),
+               ('GIVE_COMMON_CARDS_RARE', 145, 'колесо фортуны', FOR_ALL, RARE, effects.GiveCommonCards(base=1, level=3), [reactors.Simple3()]),
+               ('GIVE_COMMON_CARDS_EPIC', 146, 'белая полоса', FOR_ALL, EPIC, effects.GiveCommonCards(base=1, level=4), [reactors.Simple3()]),
+               ('GIVE_COMMON_CARDS_LEGENDARY', 147, 'прядь Кайроса', FOR_ALL, LEGENDARY, effects.GiveCommonCards(base=1, level=5), []),
             )
 
 
@@ -164,4 +169,5 @@ for card in CARD.records:
 
 HABIT_POINTS_CARDS = {card
                       for card in CARD.records
+
                       if isinstance(card.effect, effects.ChangeHabit)}

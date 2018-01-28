@@ -346,9 +346,9 @@ def take_card_callback(context):
         accounts_tt_api.change_cards_timer_speed(account_id=account.id,
                                                  speed=expected_speed)
 
-    logic.give_new_card(account_id=account.id,
-                        operation_type='give-card',
-                        allow_premium_cards=account.is_premium,
-                        available_for_auction=account.is_premium)
+    logic.give_new_cards(account_id=account.id,
+                         operation_type='give-card',
+                         allow_premium_cards=account.is_premium,
+                         available_for_auction=account.is_premium)
 
     return dext_views.AjaxOk()

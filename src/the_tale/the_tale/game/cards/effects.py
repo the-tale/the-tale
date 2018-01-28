@@ -32,6 +32,7 @@ from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
 
 from . import postponed_tasks
+from . import relations
 from . import objects
 from . import tt_api
 from . import forms
@@ -110,6 +111,10 @@ class ModificatorBase(BaseEffect):
     @property
     def modificator(self):
         return self.base * logic_cards_constants.LEVEL_MULTIPLIERS[self.level-1]
+
+    @property
+    def upper_modificator(self):
+        return int(math.ceil(self.modificator))
 
 
 class LevelUp(BaseEffect):
@@ -1060,6 +1065,31 @@ class HealCompanion(ModificatorBase):
         health = task.hero.companion.heal(self.modificator)
 
         return task.logic_result(message='Спутник вылечен на %(health)s HP.' % {'health': health})
+
+
+class GiveCommonCards(ModificatorBase):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Empty(data)
+
+    @property
+    def DESCRIPTION(self):
+        return 'Даёт карты обычной редкости (%(number)d шт.). Возможность продавать карты определяется возможностью продать текущую. Получить карты можно будет на странице игры.' % {'number': self.upper_modificator}
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        from . import logic
+
+        used_card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
+
+        logic.give_new_cards(account_id=task.hero.account_id,
+                             operation_type='give-common-cards-card',
+                             allow_premium_cards=used_card.available_for_auction,
+                             available_for_auction=used_card.available_for_auction,
+                             rarity=relations.RARITY.COMMON,
+                             number=self.upper_modificator)
+
+        return task.logic_result(message='Вы получили {number} новых карт. Можете забрать их на странице игры.'.format(number=self.upper_modificator))
 
 
 class UpgradeArtifact(BaseEffect):

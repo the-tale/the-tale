@@ -508,7 +508,7 @@ pgf.game.widgets.Cards = function (params) {
                                                                          if (data.data.message) {
                                                                              pgf.ui.dialog.Alert({message: data.data.message,
                                                                                                   title: 'Карта использована',
-                                                                                                  OnOk: function(e){}});
+                                                                                                  OnOk: function(e){instance.GetCards();}});
                                                                          }
                                                                      }});
                                }

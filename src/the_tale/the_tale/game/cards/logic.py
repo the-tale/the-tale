@@ -140,11 +140,16 @@ def get_cards_info_by_full_types():
     return cards_info
 
 
-def give_new_card(account_id, operation_type, allow_premium_cards, available_for_auction):
-    card = create_card(allow_premium_cards=allow_premium_cards,
-                       available_for_auction=available_for_auction)
+def give_new_cards(account_id, operation_type, allow_premium_cards, available_for_auction, rarity=None, number=1):
+
+    cards = []
+
+    for i in range(number):
+        cards.append(create_card(rarity=rarity,
+                                 allow_premium_cards=allow_premium_cards,
+                                 available_for_auction=available_for_auction))
 
     tt_api.change_cards(account_id=account_id,
                         operation_type=operation_type,
                         storage=relations.STORAGE.NEW,
-                        to_add=[card])
+                        to_add=cards)

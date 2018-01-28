@@ -309,10 +309,10 @@ def give_reward_for_template(template):
     if not updated:
         return
 
-    cards_logic.give_new_card(account_id=template.author_id,
-                              operation_type='give-card-for-linguistic-template',
-                              allow_premium_cards=True,
-                              available_for_auction=True)
+    cards_logic.give_new_cards(account_id=template.author_id,
+                               operation_type='give-card-for-linguistic-template',
+                               allow_premium_cards=True,
+                               available_for_auction=True)
 
     message = '''Поздравляем! Ваша [url={template}]фраза[/url] добавлена в игру!\n\nВ награду вы можете получить дополнительную карту судьбы (на странице игры). Карту можно будет продать на рынке.'''
 
