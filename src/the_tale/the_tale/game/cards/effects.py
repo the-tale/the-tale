@@ -19,7 +19,6 @@ from the_tale.game.places import logic as places_logic
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import logic as persons_logic
 
-from the_tale.game.balance import constants as c
 from the_tale.game import relations as game_relations
 from the_tale.game import tt_api as game_tt_api
 
@@ -46,10 +45,8 @@ class BaseEffect:
     def __init__(self):
         pass
 
-
     def get_form(self, card, hero, data):
         return forms.Empty(data)
-
 
     def activate(self, hero, card, data):
         data['hero_id'] = hero.id
@@ -67,14 +64,11 @@ class BaseEffect:
 
         return task
 
-
     def use(self, *argv, **kwargs):
         raise NotImplementedError()
 
-
     def check_hero_conditions(self, hero, data):
         return tt_api.has_cards(account_id=hero.account_id, cards_ids=[uuid.UUID(data['card']['id'])])
-
 
     def hero_actions(self, hero, data):
         card = objects.Card.deserialize(uuid.UUID(data['card']['id']), data['card']['data'])
@@ -85,24 +79,19 @@ class BaseEffect:
 
         hero.statistics.change_cards_used(1)
 
-
     def create_card(self, type, available_for_auction, uid=None):
         return objects.Card(type=type,
                             available_for_auction=available_for_auction,
                             uid=uid if uid else uuid.uuid4())
 
-
     def name_for_card(self, card):
         return card.type.text
-
 
     def available(self, card):
         return True
 
-
     def item_full_type(self, card):
         return '{}'.format(card.type.value)
-
 
     def full_type_names(self, card_type):
         return {'{}'.format(card_type.value): card_type.text}
@@ -153,6 +142,23 @@ class AddExperience(ModificatorBase):
 
         task.hero.quests.current_quest.current_info.experience_bonus += self.modificator
         task.hero.quests.mark_updated()
+
+        return task.logic_result()
+
+
+class AddCompanionExpirence(ModificatorBase):
+    __slots__ = ()
+
+    @property
+    def DESCRIPTION(self):
+        return 'Увеличивает опыт спутника на %(experience)d единиц.' % {'experience': self.modificator}
+
+    def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
+
+        if task.hero.companion is None:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='У героя сейчас нет спутника.')
+
+        task.hero.companion.add_experience(self.modificator, force=True)
 
         return task.logic_result()
 
@@ -915,7 +921,6 @@ class GetCompanion(BaseEffect):
     def DESCRIPTION(self):
         return 'Герой получает спутника, указанного в названии карты. Если у героя уже есть спутник, он покинет героя.'
 
-
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
 
@@ -925,13 +930,11 @@ class GetCompanion(BaseEffect):
 
         return task.logic_result(message='Поздравляем! Ваш герой получил нового спутника.')
 
-
     def get_available_companions(self):
         available_companions = [companion
                                 for companion in companions_storage.companions.enabled_companions()
                                 if companion.rarity == self.rarity and companion.mode.is_AUTOMATIC]
         return available_companions
-
 
     def create_card(self, type, available_for_auction, companion=None, uid=None):
         if companion is None:
@@ -946,10 +949,8 @@ class GetCompanion(BaseEffect):
     def _item_full_type(self, type, companion_id):
         return '{}-{}'.format(type.value, companion_id)
 
-
     def item_full_type(self, card):
         return self._item_full_type(card.type, card.data['companion_id'])
-
 
     def full_type_names(self, card_type):
         names = {}
@@ -964,10 +965,8 @@ class GetCompanion(BaseEffect):
 
         return names
 
-
     def available(self, card):
         return bool(self.get_available_companions())
-
 
     def _name_for_card(self, type, companion_id):
         return type.text + ': ' + companions_storage.companions[companion_id].name

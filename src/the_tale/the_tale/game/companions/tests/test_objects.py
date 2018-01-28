@@ -1,4 +1,3 @@
-# coding: utf-8
 import random
 
 from unittest import mock
@@ -77,7 +76,6 @@ class CompanionTests(testcase.TestCase):
         with self.check_not_changed(lambda: self.companion.experience_to_next_level):
             self.companion.coherence = c.COMPANIONS_MAX_COHERENCE
 
-
     def test_add_experience__coherence_speed(self):
         self.companion.coherence = 95
 
@@ -87,7 +85,6 @@ class CompanionTests(testcase.TestCase):
         with mock.patch('the_tale.game.heroes.objects.Hero.companion_coherence_speed', 2):
             with self.check_delta(lambda: self.companion.experience, 20):
                 self.companion.add_experience(10)
-
 
     def test_add_experience__level_not_changed(self):
         self.companion.coherence = 5
@@ -128,12 +125,19 @@ class CompanionTests(testcase.TestCase):
         self.assertEqual(self.companion.coherence, c.COMPANIONS_MAX_COHERENCE)
         self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
 
-
     def test_add_experience__max_level__not_changed(self):
         self.companion.coherence = c.COMPANIONS_MAX_COHERENCE
 
         with self.check_not_changed(lambda: self.companion.coherence):
             self.companion.add_experience(66666666666)
+
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
+
+    def test_add_experience__max_level__not_changed__force(self):
+        self.companion.coherence = c.COMPANIONS_MAX_COHERENCE
+
+        with self.check_not_changed(lambda: self.companion.coherence):
+            self.companion.add_experience(66666666666, force=True)
 
         self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
 
@@ -146,6 +150,14 @@ class CompanionTests(testcase.TestCase):
         self.assertEqual(self.companion.coherence, c.COMPANIONS_MAX_COHERENCE / 2)
         self.assertEqual(self.companion.experience, self.companion.experience_to_next_level - 1)
 
+    @mock.patch('the_tale.game.companions.objects.Companion.max_coherence', c.COMPANIONS_MAX_COHERENCE / 2)
+    def test_add_experience__max_level_restricted__force(self):
+        self.companion.coherence = 1
+
+        self.companion.add_experience(66666666666, force=True)
+
+        self.assertEqual(self.companion.coherence, c.COMPANIONS_MAX_COHERENCE)
+        self.assertEqual(self.companion.experience, self.companion.experience_to_next_level)
 
     def test_max_health(self):
 
@@ -155,7 +167,6 @@ class CompanionTests(testcase.TestCase):
             with mock.patch('the_tale.game.heroes.objects.Hero.companion_max_health_multiplier', 1.5):
                 max_health = self.companion.max_health
 
-
     def test_on_accessors_cache_changed(self):
         self.companion.health = 1
         self.companion.on_accessors_cache_changed()
@@ -164,7 +175,6 @@ class CompanionTests(testcase.TestCase):
         self.companion.health = self.companion.max_health + 1
         self.companion.on_accessors_cache_changed()
         self.assertEqual(self.companion.health, self.companion.max_health)
-
 
     def test_max_coherence(self):
 
@@ -223,7 +233,6 @@ class CompanionTests(testcase.TestCase):
         with mock.patch('the_tale.game.companions.objects.Companion.max_coherence', 70):
             self.assertEqual(self.companion.actual_coherence, 50)
 
-
     def test_modification_coherence(self):
         self.companion.coherence = 50
 
@@ -234,7 +243,6 @@ class CompanionTests(testcase.TestCase):
         with mock.patch('the_tale.game.companions.objects.Companion.max_coherence', 70):
             self.assertEqual(self.companion.modification_coherence(heroes_relations.MODIFIERS.COMPANION_MAX_COHERENCE), 50)
             self.assertEqual(self.companion.modification_coherence(heroes_relations.MODIFIERS.random(exclude=(heroes_relations.MODIFIERS.COMPANION_MAX_COHERENCE,))), 50)
-
 
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_HEALS_IN_HOUR', 1)
     def test_need_heal(self):
@@ -247,7 +255,6 @@ class CompanionTests(testcase.TestCase):
 
         self.assertTrue(self.companion.need_heal)
 
-
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_HEALS_IN_HOUR', 1)
     def test_need_heal__no_time(self):
         self.companion.healed_at_turn -= c.TURNS_IN_HOUR / 2
@@ -259,23 +266,19 @@ class CompanionTests(testcase.TestCase):
 
         self.assertFalse(self.companion.need_heal)
 
-
     def test_heal__less_then_zero(self):
         with self.assertRaises(exceptions.HealCompanionForNegativeValueError):
             self.companion.heal(-1)
-
 
     def test_heal(self):
         self.companion.health = 1
         self.assertEqual(self.companion.heal(5), 5)
         self.assertEqual(self.companion.health, 6)
 
-
     def test_heal__overheal(self):
         self.companion.health = self.companion.max_health - 2
         self.assertEqual(self.companion.heal(5), 2)
         self.assertEqual(self.companion.health, self.companion.max_health)
-
 
     def test_heal__resurrect(self):
         self.companion.health = 0
@@ -285,7 +288,6 @@ class CompanionTests(testcase.TestCase):
 
         self.assertEqual(self.companion.health, 5)
         self.assertEqual(reset_accessors_cache.call_count, 1)
-
 
     def test_defend_in_battle_probability__hero_dedication(self):
         self.hero.set_companion(self.companion)
@@ -299,7 +301,6 @@ class CompanionTests(testcase.TestCase):
         with self.check_decreased(lambda: self.hero.companion.defend_in_battle_probability):
             self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.COMPANION_DEDICATION, heroes_relations.COMPANION_DEDICATION.ALTRUISM)
 
-
     def test_defend_in_battle_probability__companion_dedication(self):
         self.companion_record.dedication = relations.DEDICATION.records[0]
         self.hero.set_companion(self.companion)
@@ -308,20 +309,17 @@ class CompanionTests(testcase.TestCase):
             with self.check_increased(lambda: self.hero.companion.defend_in_battle_probability):
                 self.companion_record.dedication = dedication
 
-
     def test_defend_in_battle_probability__coherence(self):
         self.hero.set_companion(self.companion)
 
         with self.check_increased(lambda: self.hero.companion.defend_in_battle_probability):
             self.hero.companion.coherence = 100
 
-
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage', 3)
     def test_hit(self):
         self.assertEqual(self.companion.hit(), 3)
         self.assertEqual(self.companion.health, self.companion.max_health - 3)
         self.assertFalse(self.companion.is_dead)
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage', 10000)
     def test_hit__health_lower_zero(self):

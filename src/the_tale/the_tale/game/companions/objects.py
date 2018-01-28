@@ -142,8 +142,7 @@ class Companion(object):
         self._heals_count += 1
 
     def _damage_from_heal_probability(self):
-        return ( c.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL /
-                 ( c.BATTLES_PER_HOUR * (c.BATTLE_LENGTH / 2) * self.defend_in_battle_probability ) )
+        return (c.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL / (c.BATTLES_PER_HOUR * (c.BATTLE_LENGTH / 2) * self.defend_in_battle_probability))
 
     @property
     def damage_from_heal_probability(self):
@@ -166,9 +165,10 @@ class Companion(object):
     @property
     def is_dead(self): return self.health <= 0
 
+    def add_experience(self, value, force=False):
 
-    def add_experience(self, value):
-        value = value * self._hero.companion_coherence_experience * self._hero.companion_coherence_speed
+        if not force:
+            value = value * self._hero.companion_coherence_experience * self._hero.companion_coherence_speed
 
         self.experience += int(value)
 
@@ -178,9 +178,14 @@ class Companion(object):
                 if self.coherence >= c.COMPANIONS_MAX_COHERENCE:
                     # полностью заплняем шкалу опыта, когда он на максимуме
                     self.experience = self.experience_to_next_level
-                else:
+                    break
+
+                elif not force:
                     self.experience = min(self.experience, self.experience_to_next_level - 1)
-                return
+                    break
+
+                else:
+                    pass
 
             self.experience -= self.experience_to_next_level
             self.coherence += 1

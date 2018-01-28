@@ -1,5 +1,4 @@
 
-import uuid
 import random
 
 from unittest import mock
@@ -51,7 +50,6 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
 
         return card
 
-
     def check_freeze(self, expected_rarity):
 
         self.assertEqual(self.hero.companion, None)
@@ -66,7 +64,6 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
 
         self.assertEqual(card.type.rarity, expected_rarity.card_rarity)
 
-
     def test_use__has_companion__available_for_auction(self):
         expected_rarity = companions_relations.RARITY.random()
 
@@ -79,7 +76,6 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
         self.check_freeze(expected_rarity)
 
         self.assertTrue(card.available_for_auction)
-
 
     def test_use__has_companion__not_available_for_auction(self):
         expected_rarity = companions_relations.RARITY.random()
@@ -94,7 +90,6 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
 
         self.assertFalse(card.available_for_auction)
 
-
     def test_use__has_companion__can_not_be_freezed(self):
         expected_rarity = companions_relations.RARITY.random()
 
@@ -106,7 +101,6 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
 
         self.assertNotEqual(self.hero.companion, None)
         self.assertEqual(tt_api.load_cards(self.account_1.id), {})
-
 
     def test_use__no_companion_exists(self):
 
