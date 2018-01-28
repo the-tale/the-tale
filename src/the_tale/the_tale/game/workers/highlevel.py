@@ -133,7 +133,6 @@ class Worker(BaseWorker):
         self.stop_required = True
         self.logger.info('HIGHLEVEL STOPPED')
 
-
     def sync_sizes(self, places, hours, max_economic):
         if not places:
             return
@@ -144,7 +143,6 @@ class Worker(BaseWorker):
         for i, place in enumerate(places):
             place.attrs.set_power_economic(int(max_economic * float(i) / places_number) + 1)
             place.attrs.sync_size(hours)
-
 
     @places_storage.places.postpone_version_update
     @places_storage.buildings.postpone_version_update
@@ -164,7 +162,6 @@ class Worker(BaseWorker):
 
                 for place in places_storage.places.all():
                     place.politic_power.sync_power()
-
 
             for power_info in self.persons_politic_power:
                 person = persons_storage.persons[power_info.person_id]

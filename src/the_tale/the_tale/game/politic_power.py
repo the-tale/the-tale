@@ -1,8 +1,6 @@
-# coding: utf-8
 
 
 from the_tale.game.balance import constants as c
-
 
 
 class PoliticPower(object):
@@ -88,10 +86,8 @@ class PoliticPower(object):
 
         owner.job.give_power(power)
 
-
     def job_effect_kwargs(self, owner):
         raise NotImplementedError()
-
 
     def sync_power(self):
         remove_candidates = set()
@@ -111,14 +107,12 @@ class PoliticPower(object):
 
         self.reset_cache()
 
-
     def is_in_inner_circle(self, hero_id):
 
         if self._inner_positive_heroes is None:
             self.update_inner_heroes()
 
         return hero_id in self._inner_positive_heroes or hero_id in self._inner_negative_heroes
-
 
     # TODO: can be optimized by used memory
     def update_inner_heroes(self):
@@ -165,9 +159,7 @@ class PoliticPower(object):
 
         return ((self.outer_power - minimum_power) / total_power) if total_power else 0
 
-
     def total_politic_power_fraction(self, all_powers):
         return (self.inner_power_fraction(all_powers) + self.outer_power_fraction(all_powers)) / 2
-
 
     def __str__(self): return '{}, {}'.format(self.outer_power, self.inner_power)

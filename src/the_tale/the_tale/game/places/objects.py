@@ -483,8 +483,6 @@ class Place(names.ManageNameMixin2):
                 'size': self.attrs.size}
 
 
-
-
 class Building(names.ManageNameMixin2):
     __slots__ = ('id',
                  'x',
@@ -500,7 +498,6 @@ class Building(names.ManageNameMixin2):
                  '_utg_name_form__lazy',
                  '_name__lazy')
 
-
     def __init__(self, id, x, y, type, integrity, created_at_turn, state, utg_name, person_id):
         self.id = id
         self.x = x
@@ -512,29 +509,28 @@ class Building(names.ManageNameMixin2):
         self.utg_name = utg_name
         self.person_id = person_id
 
-
     def shift(self, dx, dy):
         self.x += dx
         self.y += dy
-
 
     @property
     def person(self):
         from the_tale.game.persons import storage as persons_storage
         return persons_storage.persons[self.person_id]
 
-
     @property
     def place(self):
         return self.person.place
 
+    @property
+    def logical_integrity(self):
+        return min(self.integrity, 1.0)
 
     @property
     def terrain_change_power(self):
         # +1 to prevent power == 0
-        power = self.place.attrs.terrain_radius * min(self.integrity, 1.0) * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
+        power = self.place.attrs.terrain_radius * self.logical_integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
         return int(round(power))
-
 
     def amortization_delta(self, turns_number):
         from the_tale.game.places import storage
@@ -545,25 +541,20 @@ class Building(names.ManageNameMixin2):
         per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED * self.person.attrs.building_amortization_speed
         return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number-1)
 
-
     @property
     def amortization_in_day(self):
         return self.amortization_delta(c.TURNS_IN_HOUR*24)
-
 
     def amortize(self, turns_number):
         self.integrity -= self.amortization_delta(turns_number)
         if self.integrity <= 0.0001:
             self.integrity = 0
 
-
     @property
     def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
 
-
     def repair(self, delta):
         self.integrity += delta
-
 
     @property
     def terrain(self):
@@ -571,13 +562,11 @@ class Building(names.ManageNameMixin2):
         map_info = map_info_storage.item
         return map_info.terrain[self.y][self.x]
 
-
     def linguistics_restrictions(self):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
 
         return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value)]
-
 
     def map_info(self):
         return {'id': self.id,

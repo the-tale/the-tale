@@ -36,7 +36,7 @@ class PersonPoliticPower(politic_power.PoliticPower):
         power_multiplier = 1
 
         if person.has_building:
-            power_multiplier += c.BUILDING_PERSON_POWER_BONUS
+            power_multiplier += c.BUILDING_PERSON_POWER_BONUS * person.building.logical_integrity
 
         # this power will go to person and to place
         place_power = power * power_multiplier
