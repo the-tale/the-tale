@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from rels import Column
 from rels.django import DjangoEnum
 
@@ -12,21 +12,17 @@ from the_tale.game.balance import constants as c
 from the_tale.game.places import relations as places_relations
 
 
-
 class BaseEffect(object):
     __slots__ = ()
 
     def __init__(self):
         pass
 
-
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         raise NotImplementedError()
 
-
     def apply_negative(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         raise NotImplementedError()
-
 
     def apply_to_heroes(self, actor_type, effect, method_names, method_kwargs, positive_heroes, negative_heroes, direction):
         from the_tale.game.heroes import logic as heroes_logic
@@ -39,7 +35,7 @@ class BaseEffect(object):
 
         for hero_id in positive_heroes:
             if hero_id not in heroes_to_accounts:
-                continue # skip removed fast accounts
+                continue  # skip removed fast accounts
 
             operation = self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
                                                 hero_id=hero_id,
@@ -51,7 +47,7 @@ class BaseEffect(object):
 
         for hero_id in negative_heroes:
             if hero_id not in heroes_to_accounts:
-                continue # skip removed fast accounts
+                continue  # skip removed fast accounts
 
             operation = self.invoke_hero_method(account_id=heroes_to_accounts[hero_id],
                                                 hero_id=hero_id,
@@ -60,7 +56,6 @@ class BaseEffect(object):
             after_update_operations.append(operation)
 
         return after_update_operations
-
 
     def invoke_hero_method(self, account_id, hero_id, method_name, method_kwargs):
         from the_tale.game.heroes import postponed_tasks as heroes_postponed_tasks
@@ -73,12 +68,12 @@ class BaseEffect(object):
 
         return lambda: environment.workers.supervisor.cmd_logic_task(account_id=account_id, task_id=task.id)
 
-
     def message_type(self, actor, effect, direction, group):
         return 'job_diary_{actor}_{effect}_{direction}_{group}'.format(actor=actor,
                                                                        effect=effect.name.lower(),
                                                                        direction=direction,
                                                                        group=group)
+
 
 class ChangePlaceAttribute(BaseEffect):
     __slots__ = ('attribute', 'base_value')
@@ -87,7 +82,6 @@ class ChangePlaceAttribute(BaseEffect):
         super(ChangePlaceAttribute, self).__init__(**kwargs_view)
         self.attribute = attribute
         self.base_value = base_value
-
 
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         effect_value = self.base_value*job_power
@@ -101,7 +95,6 @@ class ChangePlaceAttribute(BaseEffect):
                                     positive_heroes=positive_heroes,
                                     negative_heroes=negative_heroes,
                                     direction='positive')
-
 
     def apply_negative(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         job_power *= c.JOB_NEGATIVE_POWER_MULTIPLIER
@@ -127,7 +120,6 @@ class HeroMethod(BaseEffect):
         self.effect_name = effect_name
         self.method_name = method_name
 
-
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
         return self.apply_to_heroes(actor_type=actor_type,
                                     effect=getattr(EFFECT, self.effect_name),
@@ -147,7 +139,6 @@ class HeroMethod(BaseEffect):
                                     positive_heroes=positive_heroes,
                                     negative_heroes=negative_heroes,
                                     direction='negative')
-
 
 
 def place_attribute(id, attribute_name, base_value, attribute_text):
@@ -183,15 +174,15 @@ class EFFECT(DjangoEnum):
     power_modifier = Column(single_type=False, unique=False)
     description = Column()
 
-    records = ( place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS, attribute_text='производство'),
-                place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS, attribute_text='безопасность'),
-                place_attribute(3, 'TRANSPORT', base_value=c.JOB_TRANSPORT_BONUS, attribute_text='транспорт'),
-                place_attribute(4, 'FREEDOM', base_value=c.JOB_FREEDOM_BONUS, attribute_text='свободу'),
-                place_attribute(5, 'STABILITY', base_value=c.JOB_STABILITY_BONUS, attribute_text='стабильность'),
+    records = (place_attribute(1, 'PRODUCTION', base_value=c.JOB_PRODUCTION_BONUS, attribute_text='производство'),
+               place_attribute(2, 'SAFETY', base_value=c.JOB_SAFETY_BONUS, attribute_text='безопасность'),
+               place_attribute(3, 'TRANSPORT', base_value=c.JOB_TRANSPORT_BONUS, attribute_text='транспорт'),
+               place_attribute(4, 'FREEDOM', base_value=c.JOB_FREEDOM_BONUS, attribute_text='свободу'),
+               place_attribute(5, 'STABILITY', base_value=c.JOB_STABILITY_BONUS, attribute_text='стабильность'),
 
-                hero_profit(6, 'MONEY', 'золото ближнему кругу', 0.5, 'В случае удачного завершения проекта, высылает деньги помогающим героям из ближнего круга. В случае неудачи деньги достаются мешающим героям.'),
-                hero_profit(7, 'ARTIFACT', 'артефакт ближнему кругу', 1.5, 'В случае удачного завершения проекта, высылает по артефакту помогающим героям из ближнего круга. В случае неудачи артефакты достаются мешающим героям.'),
-                hero_profit(8, 'EXPERIENCE', 'опыт ближнему кругу', 2.0, 'В случае удачного завершения проекта, помогающие герои из ближнего круга получают немного опыта. В случае неудачи опыт достаётся мешающим героям.'),
-                hero_profit(9, 'ENERGY', 'энергию ближнему кругу', 1.0, 'В случае удачного завершения проекта, Хранители помогающих героев из ближнего круга получают немного энергии. В случае неудачи энергия достаётся Хранителям мешающих героев.'),
+               hero_profit(6, 'MONEY', 'золото ближнему кругу', 0.5, 'В случае удачного завершения проекта, высылает деньги помогающим героям из ближнего круга. В случае неудачи деньги достаются мешающим героям.'),
+               hero_profit(7, 'ARTIFACT', 'артефакт ближнему кругу', 1.5, 'В случае удачного завершения проекта, высылает по артефакту помогающим героям из ближнего круга. В случае неудачи артефакты достаются мешающим героям.'),
+               hero_profit(8, 'EXPERIENCE', 'опыт ближнему кругу', 2.0, 'В случае удачного завершения проекта, помогающие герои из ближнего круга получают немного опыта. В случае неудачи опыт достаётся мешающим героям.'),
+               hero_profit(9, 'ENERGY', 'энергию ближнему кругу', 1.0, 'В случае удачного завершения проекта, Хранители помогающих героев из ближнего круга получают немного энергии. В случае неудачи энергия достаётся Хранителям мешающих героев.'),
 
-                place_attribute(10, 'CULTURE', base_value=c.JOB_STABILITY_BONUS, attribute_text='культуру'))
+               place_attribute(10, 'CULTURE', base_value=c.JOB_STABILITY_BONUS, attribute_text='культуру'))

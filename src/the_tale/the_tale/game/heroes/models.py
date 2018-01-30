@@ -46,8 +46,8 @@ class Hero(models.Model):
 
     health = models.IntegerField(null=False, default=0.0)
 
-    raw_power_magic = models.BigIntegerField(null=False, default=0) # special field for ratings
-    raw_power_physic = models.BigIntegerField(null=False, default=0) # special field for ratings
+    raw_power_magic = models.BigIntegerField(null=False, default=0)  # special field for ratings
+    raw_power_physic = models.BigIntegerField(null=False, default=0)  # special field for ratings
 
     money = models.BigIntegerField(null=False, default=0)
 
@@ -125,8 +125,7 @@ class Hero(models.Model):
 
     stat_gifts_returned = models.BigIntegerField(default=0, null=False)
 
-    stat_politics_multiplier = models.FloatField(default=0, null=False) # for ratings
-
+    stat_politics_multiplier = models.FloatField(default=0, null=False)  # for ratings
 
     def __str__(self): return 'hero[%s] — %s' % (self.id, self.data['name']['forms'][0])
 

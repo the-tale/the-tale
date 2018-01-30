@@ -91,6 +91,9 @@ def create_container(ATTRIBUTES_RELATION):
         def clear(self):
             self.effects = []
 
+        def __len__(self):
+            return len(self.effects)
+
         def __eq__(self, other):
             return (self.__class__ == other.__class__ and
                     self.effects == other.effects)

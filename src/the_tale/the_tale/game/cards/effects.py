@@ -11,8 +11,11 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
+from the_tale.accounts import prototypes as accounts_prototypes
+
 from the_tale.game.balance.power import Power
 
+from the_tale.game.places import relations as places_relations
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import logic as places_logic
 
@@ -21,6 +24,7 @@ from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game import relations as game_relations
 from the_tale.game import tt_api as game_tt_api
+from the_tale.game import effects
 
 from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts import relations as artifacts_relations
@@ -590,7 +594,6 @@ class InstantMonsterKill(BaseEffect):
         return task.logic_result()
 
 
-
 class KeepersGoods(ModificatorBase):
     __slots__ = ()
 
@@ -615,6 +618,43 @@ class KeepersGoods(ModificatorBase):
             place = places_storage.places[place_id]
 
             place.attrs.keepers_goods += self.modificator
+            place.refresh_attributes()
+
+            places_logic.save_place(place)
+
+            places_storage.places.update_version()
+
+            return task.logic_result()
+
+
+class GiveStability(ModificatorBase):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Place(data)
+
+    @property
+    def DESCRIPTION(self):
+        return 'Увеличивает стабильность в указанном городе на {0:.1f}%. Бонус будет уменьшаться по стандартным правилам изменения стабильности.'.format(self.modificator*100)
+
+    def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
+
+        place_id = task.data.get('value')
+
+        if place_id not in places_storage.places:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
+
+        if task.step.is_LOGIC:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.HIGHLEVEL)
+
+        elif task.step.is_HIGHLEVEL:
+            place = places_storage.places[place_id]
+
+            place.effects.add(effects.Effect(name='Хранитель {}'.format(accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).nick),
+                                             attribute=places_relations.ATTRIBUTE.STABILITY,
+                                             value=self.modificator,
+                                             delta=place.attrs.stability_renewing_speed))
+
             place.refresh_attributes()
 
             places_logic.save_place(place)
@@ -1125,7 +1165,6 @@ class CreateClan(BaseEffect):
     DESCRIPTION = 'Создаёт новую гильдию и делает игрока её лидером.'
 
     def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
-        from the_tale.accounts import prototypes as accounts_prototypes
         from the_tale.accounts.clans import models as clans_models
         from the_tale.accounts.clans import prototypes as clans_prototypes
 
