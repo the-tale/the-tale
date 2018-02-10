@@ -70,6 +70,10 @@ class GiveStabilityMixin(CardsTestMixin):
                              (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
+class GiveStabilityUncommonTests(GiveStabilityMixin, testcase.TestCase):
+    CARD = cards.CARD.GIVE_STABILITY_UNCOMMON
+
+
 class GiveStabilityRareTests(GiveStabilityMixin, testcase.TestCase):
     CARD = cards.CARD.GIVE_STABILITY_RARE
 

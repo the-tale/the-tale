@@ -160,9 +160,10 @@ class CARD(Relation):
                ('GIVE_COMMON_CARDS_EPIC', 146, 'белая полоса', FOR_ALL, EPIC, effects.GiveCommonCards(base=1, level=4), [reactors.Simple3()]),
                ('GIVE_COMMON_CARDS_LEGENDARY', 147, 'прядь Кайроса', FOR_ALL, LEGENDARY, effects.GiveCommonCards(base=1, level=5), []),
 
-               ('GIVE_STABILITY_RARE', 148, 'спокойствие', FOR_PREMIUMS, RARE, effects.GiveStability(base=0.01, level=1), [reactors.Simple3()]),
-               ('GIVE_STABILITY_EPIC', 149, 'проповедь', FOR_PREMIUMS, EPIC, effects.GiveStability(base=0.01, level=2), [reactors.Simple3()]),
-               ('GIVE_STABILITY_LEGENDARY', 150, 'Adeptus Arbites', FOR_PREMIUMS, LEGENDARY, effects.GiveStability(base=0.01, level=3), []),
+               ('GIVE_STABILITY_UNCOMMON', 148, 'тишина', FOR_PREMIUMS, UNCOMMON, effects.GiveStability(base=0.01, level=1), [reactors.Simple3()]),
+               ('GIVE_STABILITY_RARE', 149, 'спокойствие', FOR_PREMIUMS, RARE, effects.GiveStability(base=0.01, level=2), [reactors.Simple3()]),
+               ('GIVE_STABILITY_EPIC', 150, 'проповедь', FOR_PREMIUMS, EPIC, effects.GiveStability(base=0.01, level=3), [reactors.Simple3()]),
+               ('GIVE_STABILITY_LEGENDARY', 151, 'Adeptus Arbites', FOR_PREMIUMS, LEGENDARY, effects.GiveStability(base=0.01, level=4), []),
             )
 
 
