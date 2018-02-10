@@ -14,7 +14,16 @@
 
   <h2>
     {% if not place.modifier.is_NONE %}
-      <span {%if not place.is_modifier_active()%}style="color: orange; cursor: default;" rel="tooltip" title="Город не соответствует требованиям специализации"{% endif %}>
+    <span
+       rel="tooltip"
+
+       {%if not place.is_modifier_active()%}
+       style="color: orange; cursor: default;"
+       title="Город не соответствует требованиям специализации, поэтому лишается бонусов от неё и получает штраф к стабильности."
+       {% else %}
+       style="color: green; cursor: default;"
+       title="{{place.modifier.description}}"
+       {% endif %}>
         {{place.modifier.text}}
       </span>
     {% endif %}

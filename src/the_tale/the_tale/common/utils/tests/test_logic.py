@@ -73,7 +73,10 @@ class LogicTest(testcase.TestCase):
         self.assertEqual('4 часа', verbose_timedelta(datetime.timedelta(seconds=4*60*60)))
         self.assertEqual('5 часов', verbose_timedelta(datetime.timedelta(seconds=5*60*60)))
 
+        self.assertEqual('меньше минуты', verbose_timedelta(datetime.timedelta(seconds=59)))
         self.assertEqual('1 минута', verbose_timedelta(datetime.timedelta(seconds=60)))
+        self.assertEqual('1 минута', verbose_timedelta(datetime.timedelta(seconds=61)))
+
         self.assertEqual('2 минуты', verbose_timedelta(datetime.timedelta(seconds=2*60)))
         self.assertEqual('23 минуты', verbose_timedelta(datetime.timedelta(seconds=23*60)))
         self.assertEqual('4 минуты', verbose_timedelta(datetime.timedelta(seconds=4*60)))

@@ -183,5 +183,5 @@ jQuery(document).ready(function(e){
   {{hero.gender.text}}-{{hero.race.text}}
   <a href="{{url('game:heroes:show', account_short_info.id)}}">{{hero.name}}</a>
   {{ hero.level }} уровня,
-  покровитель: {{accounts_macros.account_link(account_short_info, account_short_info.clan)}}
+  хранитель: {{accounts_macros.account_link(account_short_info, account_short_info.clan)}}
 {% endmacro %}
