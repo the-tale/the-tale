@@ -170,7 +170,8 @@ jQuery(document).ready(function() {
                                                                          (url("guide:companions:"), "Спутники"),
                                                                          (url("guide:account-types"), "Общее"),
                                                                          (faq_url(), "FAQ"),
-                                                                         (players_projects_url(), "Проекты игроков")]) }}
+                                                                         (settings.SOCIAL_DOCUMENTATION, "Документация по API и игре"),
+                                                                         (players_projects_url(), "Проекты игроков"),]) }}
             {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
                                                                            (url("accounts:clans:"), "Гильдии"),
                                                                            (url("game:ratings:"), "Рейтинги"),
@@ -294,6 +295,7 @@ jQuery(document).ready(function() {
             <li>версия {{settings.META_CONFIG.version}}</li>
             <li><a href="{{url('statistics:')}}">статистика игры</a></li>
             <li><a href="{{settings.SOCIAL_GITHUB_URL}}">исходный код на GitHub</a></li>
+            <li><a href="{{settings.SOCIAL_DOCUMENTATION}}">документация по API и игре</a></li>
           </ul>
         </div>
       </div>
