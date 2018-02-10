@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import os
 
 from dext.common.utils.app_settings import app_settings
@@ -44,10 +44,4 @@ game_settings = app_settings('GAME',
                              TT_ENERGY_START_TRANSACTION='http://localhost:10005/transactions/start',
                              TT_ENERGY_COMMIT_TRANSACTION='http://localhost:10005/transactions/commit',
                              TT_ENERGY_ROLLBACK_TRANSACTION='http://localhost:10005/transactions/rollback',
-                             TT_ENERGY_DEBUG_CLEAR_SERVICE_URL='http://localhost:10005/debug-clear-service',
-
-                             TEXTGEN_SOURCES_DIR=os.path.join(APP_DIR, 'fixtures', 'textgen', 'texts_src'),
-                             TEXTGEN_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'vocabulary.json'),
-                             TEXTGEN_STORAGE_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'storage', 'vocabulary.json'),
-                             TEXTGEN_STORAGE_DICTIONARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'storage', 'dictionary.json'),
-                             TEXTGEN_STORAGE_PHRASES_TYPES=os.path.join(APP_DIR, 'fixtures', 'textgen', 'storage', 'phrases_types.json'))
+                             TT_ENERGY_DEBUG_CLEAR_SERVICE_URL='http://localhost:10005/debug-clear-service')

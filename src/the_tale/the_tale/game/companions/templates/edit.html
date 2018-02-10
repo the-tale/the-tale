@@ -22,7 +22,7 @@ jQuery(document).ready( function(e) {
 
 {% include "companions/editor_help.html" %}
 
-<form id="pgf-edit-companion-form" method="post" action="{{ url('game:companions:update', companion.id) }}">
+<form id="pgf-edit-companion-form" class="companions-edit-form" method="post" action="{{ url('game:companions:update', companion.id) }}">
 
   {{ form.errors_container }}
 
@@ -42,6 +42,25 @@ jQuery(document).ready( function(e) {
   {{ form.communication_telepathic.widget }}
 
   {{ form.abilities.widget }}
+
+  {{ form.structure.widget }}
+
+  <div class="features">
+    {{ form.features.widget }}
+  </div>
+
+  {{ form.movement.widget }}
+  {{ form.body.widget }}
+  {{ form.size.widget }}
+  {{ form.weapon_1.widget }}
+  {{ form.material_1.widget }}
+  {{ form.power_type_1.widget }}
+  {{ form.weapon_2.widget }}
+  {{ form.material_2.widget }}
+  {{ form.power_type_2.widget }}
+  {{ form.weapon_3.widget }}
+  {{ form.material_3.widget }}
+  {{ form.power_type_3.widget }}
 
   {{ form.description.widget }}
 

@@ -1,19 +1,27 @@
-# coding: utf-8
+
 import random
 
-from the_tale.common.utils import storage
+from dext.common.utils import storage
+
+from tt_logic.beings import relations as beings_relations
+
 from the_tale.common.utils.logic import random_value_by_priority
 
-from the_tale.game import relations as game_relations
-
-from the_tale.game.mobs import exceptions
-from the_tale.game.mobs.prototypes import MobPrototype, MobRecordPrototype
+from . import logic
+from . import models
+from . import objects
+from . import exceptions
 
 
 class MobsStorage(storage.CachedStorage):
     SETTINGS_KEY = 'mob records change time'
     EXCEPTION = exceptions.MobsStorageError
-    PROTOTYPE = MobRecordPrototype
+
+    def _construct_object(self, model):
+        return logic.construct_from_model(model)
+
+    def _get_all_query(self):
+        return models.MobRecord.objects.all()
 
     def _update_cached_data(self, item):
         self._mobs_by_uuids[item.uuid] = item
@@ -22,7 +30,7 @@ class MobsStorage(storage.CachedStorage):
 
     def _reset_cache(self):
         self._mobs_by_uuids = {}
-        self._types_count = {mob_type: 0 for mob_type in game_relations.BEING_TYPE.records}
+        self._types_count = {mob_type: 0 for mob_type in beings_relations.TYPE.records}
         self.mobs_number = 0
 
     def get_by_uuid(self, uuid):
@@ -47,7 +55,6 @@ class MobsStorage(storage.CachedStorage):
 
         return list(mobs)
 
-
     def choose_mob(self, mobs_choices):
         global_actions_mobs = []
         normal_mobs = []
@@ -65,7 +72,6 @@ class MobsStorage(storage.CachedStorage):
 
         return random_value_by_priority((mob, mob.global_action_probability) for mob in global_actions_mobs)
 
-
     def get_random_mob(self, hero, mercenary=None, is_boss=False):
         self.sync()
 
@@ -76,10 +82,14 @@ class MobsStorage(storage.CachedStorage):
 
         mob_record = self.choose_mob(choices)
 
-        return MobPrototype(record_id=mob_record.id, level=hero.level, is_boss=is_boss, action_type=hero.actions.current_action.ui_type, terrain=hero.position.get_terrain())
+        return objects.Mob(record_id=mob_record.id,
+                           level=hero.level,
+                           is_boss=is_boss,
+                           action_type=hero.actions.current_action.ui_type,
+                           terrain=hero.position.get_terrain())
 
     def create_mob_for_hero(self, hero):
         return self.get_random_mob(hero)
 
 
-mobs_storage = MobsStorage()
+mobs = MobsStorage()

@@ -1,6 +1,5 @@
 
 import time
-import datetime
 
 from unittest import mock
 
@@ -26,7 +25,6 @@ from the_tale.game.companions import relations as companions_relations
 from the_tale.game.companions.abilities import effects as companions_effects
 from the_tale.game.companions.abilities import container as companions_abilities_container
 
-from .. import conf
 from .. import logic
 
 
@@ -123,12 +121,12 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertEqual(peacefulness.update_context.call_count, 1)
 
     def test_prefered_mob_loot_multiplier(self):
-        from the_tale.game.mobs.storage import mobs_storage
+        from the_tale.game.mobs import storage as mobs_storage
 
         self.hero.level = relations.PREFERENCE_TYPE.MOB.level_required
         logic.save_hero(self.hero)
 
-        self.mob = mobs_storage.get_available_mobs_list(level=self.hero.level)[0].create_mob(self.hero)
+        self.mob = mobs_storage.mobs.get_available_mobs_list(level=self.hero.level)[0].create_mob(self.hero)
 
         self.assertEqual(self.hero.preferences.mob, None)
 

@@ -26,7 +26,7 @@ from the_tale.game import relations as game_relations
 from the_tale.game import tt_api as game_tt_api
 from the_tale.game import effects
 
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage as artifacts_storage
 from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.heroes import relations as heroes_relations
@@ -559,9 +559,9 @@ class GetArtifact(BaseEffect):
         artifact_type = self.ARTIFACT_TYPE_CHOICES(self.type)
 
         if artifact_type.is_LOOT:
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot,
-                                                                     task.hero.level,
-                                                                     rarity=artifact_type.rarity)
+            artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot,
+                                                                               task.hero.level,
+                                                                               rarity=artifact_type.rarity)
             task.hero.put_loot(artifact, force=True)
         else:
             artifact, unequipped, sell_price = task.hero.receive_artifact(equip=False,

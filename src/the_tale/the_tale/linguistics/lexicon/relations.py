@@ -21,42 +21,42 @@ class VARIABLE_VERIFICATOR(DjangoEnum):
     utg_type = Column(unique=False, no_index=True, single_type=False)
     substitutions = Column(unique=False, no_index=True)
 
-    records = ( ('PERSON', 0, 'любой персонаж', WORD_TYPE.NOUN, s(['герой', 'привидение', 'героиня', ('рыцарь', 'мн')],
-                                                                  ['призрак', 'чудовище', 'русалка', ('боец', 'мн')],
-                                                                  ['жираф', 'чучело', 'зебра', ('слон', 'мн')],
-                                                                  ['гусь', 'пугало', 'свинья', ('волк', 'мн')]  )),
+    records = (('PERSON', 0, 'любой персонаж', WORD_TYPE.NOUN, s(['герой', 'привидение', 'героиня', ('рыцарь', 'мн')],
+                                                                 ['призрак', 'чудовище', 'русалка', ('боец', 'мн')],
+                                                                 ['жираф', 'чучело', 'зебра', ('слон', 'мн')],
+                                                                 ['гусь', 'пугало', 'свинья', ('волк', 'мн')]  )),
 
-                ('NUMBER', 1, 'число', WORD_TYPE.INTEGER, s([1, 2, 5],
+               ('NUMBER', 1, 'число', WORD_TYPE.INTEGER, s([1, 2, 5],
+                                                           [21, 23, 25],
+                                                           [1001, 1054, 1013])),
+
+               ('PLACE', 2, 'место', WORD_TYPE.NOUN, s(['Минск', 'Простоквашино', 'Вилейка', 'Барановичи'],
+                                                       ['Тагил', 'Чугуево', 'Рига', 'Афины'],
+                                                       ['Магадан', 'Бородино', 'Уфа', 'Чебоксары'])),
+
+               # TODO: во время следующей большой переделки добавить одушевлённый артефакт в каждый набор слов (скорее всего мужского рода)
+               ('ITEM', 4, 'любой предмет', WORD_TYPE.NOUN, s(['нож', 'ядро', 'пепельница', 'ножницы'],
+                                                              ['кинжал', 'окно', 'мечта', 'макароны'],
+                                                              ['меч', 'варенье', 'чашка', 'дрова'])),
+
+               ('TEXT', 5, 'любой текст', WORD_TYPE.TEXT, s(['любой текст'],
+                                                            ['текст текст текст'],
+                                                            ['какой-то текст'])),
+
+               ('MODIFIER', 6, 'модификатор города', WORD_TYPE.NOUN, s(['форт', 'захолустье', 'святыня', ('мемориал', 'мн')],
+                                                                       ['замок', 'пристанище', 'земля', ('колония', 'мн')])),
+
+               ('RACE', 7, 'раса', WORD_TYPE.NOUN, s(['человек', 'эльф', 'орк', 'гоблин', 'дварф'],
+                                                     ['человек', 'эльф', 'орк', 'гоблин', 'дварф'],
+                                                     ['человек', 'эльф', 'орк', 'гоблин', 'дварф'])),
+
+               ('DATE', 8, 'дата в мире игры', WORD_TYPE.TEXT, s(['18 сухого месяца 183 года'])),
+
+               ('TIME', 9, 'время в мире игры', WORD_TYPE.TEXT, s(['9:20'])),
+
+               ('COINS', 10, 'монеты', WORD_TYPE.INTEGER, s([1, 2, 5],
                                                             [21, 23, 25],
-                                                            [1001, 1054, 1013])),
-
-                ('PLACE', 2, 'место', WORD_TYPE.NOUN, s(['Минск', 'Простоквашино', 'Вилейка', 'Барановичи'],
-                                                        ['Тагил', 'Чугуево', 'Рига', 'Афины'],
-                                                        ['Магадан', 'Бородино', 'Уфа', 'Чебоксары'])),
-
-                # TODO: во время следующей большой переделки добавить одушевлённый артефакт в каждый набор слов (скорее всего мужского рода)
-                ('ITEM', 4, 'любой предмет', WORD_TYPE.NOUN, s(['нож', 'ядро', 'пепельница', 'ножницы'],
-                                                               ['кинжал', 'окно', 'мечта', 'макароны'],
-                                                               ['меч', 'варенье', 'чашка', 'дрова'])),
-
-                ('TEXT', 5, 'любой текст', WORD_TYPE.TEXT, s(['любой текст'],
-                                                             ['текст текст текст'],
-                                                             ['какой-то текст'])),
-
-                ('MODIFIER', 6, 'модификатор города', WORD_TYPE.NOUN, s(['форт', 'захолустье', 'святыня', ('мемориал', 'мн')],
-                                                                        ['замок', 'пристанище', 'земля', ('колония', 'мн')])),
-
-                ('RACE', 7, 'раса', WORD_TYPE.NOUN, s(['человек', 'эльф', 'орк', 'гоблин', 'дварф'],
-                                                      ['человек', 'эльф', 'орк', 'гоблин', 'дварф'],
-                                                      ['человек', 'эльф', 'орк', 'гоблин', 'дварф'])),
-
-                ('DATE', 8, 'дата в мире игры', WORD_TYPE.TEXT, s(['18 сухого месяца 183 года'])),
-
-                ('TIME', 9, 'время в мире игры', WORD_TYPE.TEXT, s(['9:20'])),
-
-                ('COINS', 10, 'монеты', WORD_TYPE.INTEGER, s([1, 2, 5],
-                                                             [21, 23, 25],
-                                                             [1001, 1054, 1013])),)
+                                                            [1001, 1054, 1013])),)
 
 
 def _construct_utg_name_form(value):
@@ -90,8 +90,9 @@ class VARIABLE_TYPE(DjangoEnum):
     verificator = Column(unique=False, no_index=True)
     constructor = Column(unique=False, no_index=True)
     restrictions = Column(unique=False, no_index=True)
+    attributes = Column(unique=False, no_index=True)
 
-    records = (('NUMBER', 1, 'число', VARIABLE_VERIFICATOR.NUMBER, _construct_number, ()),
+    records = (('NUMBER', 1, 'число', VARIABLE_VERIFICATOR.NUMBER, _construct_number, (), ()),
                ('PLACE', 2, 'город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,
@@ -101,19 +102,22 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.META_VEGETATION,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.BUILDING_TYPE,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.RACE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM), ()),
                ('PERSON', 3, 'NPC', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.PERSON_TYPE,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.RACE,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.PERSON_PERSONALITY_COSMETIC,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PERSON_PERSONALITY_PRACTICAL)),
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PERSON_PERSONALITY_PRACTICAL), ()),
                ('ARTIFACT', 4, 'артефакт', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_TYPE,
                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_POWER_TYPE,
                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_RARITY,
                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_EFFECT,
                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT,
-                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
+                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
+                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.WEAPON_TYPE,
+                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.DAMAGE_TYPE,
+                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.MATERIAL), ()),
                ('MOB', 5, 'монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.MOB,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
@@ -122,8 +126,13 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
-               ('TEXT', 6, 'текст', VARIABLE_VERIFICATOR.TEXT, _construct_text, ()),
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE,
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE,
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT,
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_BODY,
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_SIZE), ('weapon',)),
+               ('TEXT', 6, 'текст', VARIABLE_VERIFICATOR.TEXT, _construct_text, (), ()),
 
                ('ACTOR', 7, 'герой, монстр или спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.RACE,
@@ -146,13 +155,18 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.ACTOR,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE)),
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE,
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE,
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE,
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT,
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_BODY,
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_SIZE), ('weapon',)),
 
                ('MODIFIER', 8, 'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
-                                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
+                                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM), ()),
 
                ('RACE', 9, 'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.RACE,
-                                                                                         relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM)),
+                                                                                         relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM), ()),
 
                ('DATE', 10, 'дата', VARIABLE_VERIFICATOR.DATE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.REAL_FEAST,
                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.CALENDAR_DATE,
@@ -160,11 +174,11 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.MONTH,
                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.QUINT,
                                                                                           relations.TEMPLATE_RESTRICTION_GROUP.QUINT_DAY,
-                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.DAY_TYPE)),
+                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.DAY_TYPE), ()),
 
-               ('TIME', 11, 'время', VARIABLE_VERIFICATOR.TIME, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.DAY_TIME,)),
+               ('TIME', 11, 'время', VARIABLE_VERIFICATOR.TIME, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.DAY_TIME,), ()),
 
-               ('COINS', 12, 'монеты', VARIABLE_VERIFICATOR.COINS, _construct_coins, (relations.TEMPLATE_RESTRICTION_GROUP.COINS_AMOUNT,)),)
+               ('COINS', 12, 'монеты', VARIABLE_VERIFICATOR.COINS, _construct_coins, (relations.TEMPLATE_RESTRICTION_GROUP.COINS_AMOUNT,), ()),)
 
 
 class VARIABLE(DjangoEnum):
@@ -219,4 +233,17 @@ class VARIABLE(DjangoEnum):
                ('COMPANION_OWNER', 'companion_owner', 'владелец спутника', VARIABLE_TYPE.ACTOR),
                ('ATTACKER_DAMAGE', 'attacker_damage', 'урон по атакующему', VARIABLE_TYPE.NUMBER),
                ('DATE', 'date', 'дата в мире игры', VARIABLE_TYPE.DATE),
-               ('TIME', 'time', 'время в мире игры', VARIABLE_TYPE.TIME), )
+               ('TIME', 'time', 'время в мире игры', VARIABLE_TYPE.TIME),
+
+               ('HERO__WEAPON', 'hero.weapon', 'оружие героя', VARIABLE_TYPE.ARTIFACT),
+               ('KILLER__WEAPON', 'killer.weapon', 'оружие победителя в pvp', VARIABLE_TYPE.ARTIFACT),
+               ('VICTIM__WEAPON', 'victim.weapon', 'оружие проигравшего в pvp', VARIABLE_TYPE.ARTIFACT),
+               ('DUELIST_1__WEAPON', 'duelist_1.weapon', 'оружие 1 участника pvp', VARIABLE_TYPE.ARTIFACT),
+               ('DUELIST_2__WEAPON', 'duelist_2.weapon', 'оружие 2 участника pvp', VARIABLE_TYPE.ARTIFACT),
+               ('MOB__WEAPON', 'mob.weapon', 'оружие монстра', VARIABLE_TYPE.ARTIFACT),
+               ('ATTACKER__WEAPON', 'attacker.weapon', 'оружие атакующего', VARIABLE_TYPE.ARTIFACT),
+               ('DEFENDER__WEAPON', 'defender.weapon', 'оружие защитника', VARIABLE_TYPE.ARTIFACT),
+               ('ACTOR__WEAPON', 'actor.weapon', 'оружия актора (героя или монстра)', VARIABLE_TYPE.ARTIFACT),
+               ('COMPANION__WEAPON', 'companion.weapon', 'оружие спутника', VARIABLE_TYPE.ARTIFACT),
+               ('COMPANION_OWNER__WEAPON', 'companion_owner.weapon', 'оружие владелеца спутника', VARIABLE_TYPE.ARTIFACT),
+               )

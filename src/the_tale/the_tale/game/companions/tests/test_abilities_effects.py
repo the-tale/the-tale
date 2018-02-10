@@ -1,7 +1,10 @@
-# coding: utf-8
+
 import random
 
 from unittest import mock
+
+from tt_logic.beings import relations as beings_relations
+from tt_logic.artifacts import relations as tt_artifacts_relations
 
 from the_tale.common.utils import testcase
 
@@ -14,7 +17,10 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game import relations as game_relations
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
+
+from the_tale.game.artifacts import objects as artifacts_objects
+from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.heroes import relations as heroes_relations
 
@@ -42,16 +48,24 @@ class BaseEffectsTests(testcase.TestCase):
 
         self.companion_record = logic.create_companion_record(utg_name=names.generator().get_test_name(),
                                                               description='description',
-                                                              type=game_relations.BEING_TYPE.random(),
+                                                              type=beings_relations.TYPE.random(),
                                                               max_health=10,
                                                               dedication=relations.DEDICATION.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
                                                               abilities=abilities_container.Container(),
-                                                              communication_verbal=game_relations.COMMUNICATION_VERBAL.random(),
-                                                              communication_gestures=game_relations.COMMUNICATION_GESTURES.random(),
-                                                              communication_telepathic=game_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                              intellect_level=game_relations.INTELLECT_LEVEL.random(),
+                                                              communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
+                                                              communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
+                                                              communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                              intellect_level=beings_relations.INTELLECT_LEVEL.random(),
+                                                              structure=beings_relations.STRUCTURE.random(),
+                                                              features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
+                                                              movement=beings_relations.MOVEMENT.random(),
+                                                              body=beings_relations.BODY.random(),
+                                                              size=beings_relations.SIZE.random(),
+                                                              weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
+                                                                                                material= tt_artifacts_relations.MATERIAL.random(),
+                                                                                                power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                               state=relations.STATE.ENABLED)
         self.hero.set_companion(logic.create_companion(self.companion_record))
 
@@ -347,7 +361,6 @@ class InitiativeTests(BaseEffectsTests):
             self.apply_ability(ability)
 
 
-
 class BattleProbabilityTests(BaseEffectsTests):
 
     def test_effect(self):
@@ -372,9 +385,8 @@ class LootProbabilityTests(BaseEffectsTests):
     def test_in_game(self):
         ability = self.get_ability(effects.LootProbability)
 
-        with self.check_changed(lambda: self.hero.loot_probability(mobs_storage.all()[0])):
+        with self.check_changed(lambda: self.hero.loot_probability(mobs_storage.mobs.all()[0])):
             self.apply_ability(ability)
-
 
 
 class CompanionDamageTests(BaseEffectsTests):

@@ -1,13 +1,11 @@
-# coding: utf-8
+
+from tt_logic.beings import relations as beings_relations
 
 from the_tale.common.utils import testcase
 
 from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
-
-from the_tale.game.mobs.prototypes import MobPrototype
-from the_tale.game import relations as game_relations
 
 from the_tale.game.heroes.habilities import attributes
 
@@ -86,6 +84,9 @@ class AttributeAbiliesForMobTest(testcase.TestCase):
 
     def setUp(self):
         super(AttributeAbiliesForMobTest, self).setUp()
+
+        create_test_map()
+
         self.mob1 = self.construct_mob_with_abilities(abilities=[attributes.EXTRA_SLOW.get_id(), attributes.EXTRA_THIN.get_id(), attributes.EXTRA_WEAK.get_id()], index=1)
         self.mob2 = self.construct_mob_with_abilities(abilities=[attributes.SLOW.get_id(), attributes.THIN.get_id(), attributes.WEAK.get_id()], index=2)
         self.mob3 = self.construct_mob_with_abilities(abilities=[attributes.FAST.get_id(), attributes.THICK.get_id(), attributes.STRONG.get_id()], index=3)
@@ -93,19 +94,20 @@ class AttributeAbiliesForMobTest(testcase.TestCase):
 
     @staticmethod
     def construct_mob_with_abilities(abilities, index):
-        from the_tale.game.mobs.prototypes import MobRecordPrototype
-        from the_tale.game.mobs.relations import MOB_RECORD_STATE
+        from the_tale.game.mobs import logic as mobs_logic
+        from the_tale.game.mobs import objects as mobs_objects
+        from the_tale.game.mobs import relations as mobs_relations
 
         uuid = 'test_mob %d' % index
-        mob_record =  MobRecordPrototype.create(uuid,
-                                                level=1,
-                                                utg_name=names.generator().get_test_name(uuid),
-                                                description='',
-                                                abilities=abilities,
-                                                terrains=[],
-                                                type=game_relations.BEING_TYPE.CIVILIZED,
-                                                state=MOB_RECORD_STATE.ENABLED)
-        return MobPrototype(level=1, record_id=mob_record.id)
+        mob_record =  mobs_logic.create_random_mob_record(uuid,
+                                                          level=1,
+                                                          utg_name=names.generator().get_test_name(uuid),
+                                                          description='',
+                                                          abilities=abilities,
+                                                          terrains=[],
+                                                          type=beings_relations.TYPE.CIVILIZED,
+                                                          state=mobs_relations.MOB_RECORD_STATE.ENABLED)
+        return mobs_objects.Mob(level=1, record_id=mob_record.id)
 
     def tearDown(self):
         pass

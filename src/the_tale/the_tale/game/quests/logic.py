@@ -268,7 +268,7 @@ def setup_preferences(kb, hero_info):
     hero_uid = uids.hero(hero_info.id)
 
     if hero_info.preferences_mob_id is not None:
-        f_mob = fact_mob(mobs_storage.mobs_storage[hero_info.preferences_mob_id])
+        f_mob = fact_mob(mobs_storage.mobs[hero_info.preferences_mob_id])
         if f_mob.uid not in kb:
             kb += f_mob
         kb += facts.PreferenceMob(object=hero_uid, mob=f_mob.uid)

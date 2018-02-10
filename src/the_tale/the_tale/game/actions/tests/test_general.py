@@ -7,12 +7,11 @@ from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game.logic import create_test_map
 from the_tale.game import turn
-from the_tale.game.balance import constants as c
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
 
 from the_tale.game.abilities.relations import HELP_CHOICES
 
@@ -185,7 +184,7 @@ class GeneralTest(testcase.TestCase):
         self.assertEqual(default_action, deserialized_action)
 
     def test_action_full_serialization(self):
-        mob = mobs_storage.create_mob_for_hero(self.hero)
+        mob = mobs_storage.mobs.create_mob_for_hero(self.hero)
 
         account_2 = self.accounts_factory.create_account()
 

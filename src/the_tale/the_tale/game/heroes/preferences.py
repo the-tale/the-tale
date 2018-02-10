@@ -7,7 +7,8 @@ from django.db import models as django_models
 
 from the_tale.common.utils.prototypes import BasePrototype
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import objects as mobs_objects
+from the_tale.game.mobs import storage as mobs_storage
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import objects as places_objects
@@ -61,6 +62,8 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
     def value_to_set(self, value):
         if isinstance(value, BasePrototype):
             return value.id if value is not None else None
+        if isinstance(value, mobs_objects.MobRecord):
+            return value.id if value is not None else None
         if isinstance(value, places_objects.Place):
             return value.id if value is not None else None
         if isinstance(value, persons_objects.Person):
@@ -68,7 +71,6 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
         if isinstance(value, rels.Record):
             return value.value if value is not None else None
         return value
-
 
     def set(self, preferences_type, value):
         value = self.value_to_set(value)
@@ -83,12 +85,11 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
 
         return True
 
-
     def _prepair_value(self, value):
         return value
 
     def _prepair_mob(self, mob_id):
-        mob = mobs_storage.get(mob_id)
+        mob = mobs_storage.mobs.get(mob_id)
 
         if mob and not mob.state.is_ENABLED:
             self.set(relations.PREFERENCE_TYPE.MOB, None)

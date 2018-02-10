@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.test import client
 from django.core.urlresolvers import reverse
@@ -9,6 +8,7 @@ from the_tale.common.utils.testcase import TestCase
 from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map
+
 
 class TestRequestsBase(TestCase):
 
@@ -39,6 +39,7 @@ class TestIndexRequests(TestRequestsBase):
         self.request_login(self.account_2.email)
         self.check_html_ok(self.request_html(reverse('portal:developers-info:')))
 
+
 class TestMobsAndArtifactsRequests(TestRequestsBase):
 
     def test_login_required(self):
@@ -56,29 +57,28 @@ class TestMobsAndArtifactsRequests(TestRequestsBase):
     def test_mobs_without_artifacts(self):
         self.request_login(self.account_2.email)
 
-        from the_tale.game.mobs.prototypes import MobRecordPrototype
-        from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
+        from the_tale.game.mobs import logic as mobs_logic
+        from the_tale.game.artifacts import logic as artifacts_logic
 
-        mob_without_loot = MobRecordPrototype.create_random('no_loot')
-        mob_without_artifact = MobRecordPrototype.create_random('no_artifact')
-        mob_without_loot_on_first_level = MobRecordPrototype.create_random('no_loot_on_1_level')
-        mob_without_artifact_on_firs_level = MobRecordPrototype.create_random('no_artifact_on_1_level')
+        mob_without_loot = mobs_logic.create_random_mob_record('no_loot')
+        mob_without_artifact = mobs_logic.create_random_mob_record('no_artifact')
+        mob_without_loot_on_first_level = mobs_logic.create_random_mob_record('no_loot_on_1_level')
+        mob_without_artifact_on_firs_level = mobs_logic.create_random_mob_record('no_artifact_on_1_level')
 
-        ArtifactRecordPrototype.create_random('not_first_loot', mob=mob_without_loot_on_first_level, level=mob_without_loot_on_first_level.level+1)
-        ArtifactRecordPrototype.create_random('not_first_artifact', mob=mob_without_artifact_on_firs_level, level=mob_without_artifact_on_firs_level.level+1)
+        artifacts_logic.create_random_artifact_record('not_first_loot', mob=mob_without_loot_on_first_level, level=mob_without_loot_on_first_level.level+1)
+        artifacts_logic.create_random_artifact_record('not_first_artifact', mob=mob_without_artifact_on_firs_level, level=mob_without_artifact_on_firs_level.level+1)
 
         self.check_html_ok(self.request_html(reverse('portal:developers-info:mobs-and-artifacts')), texts=[mob_without_loot.name,
                                                                                                          mob_without_artifact.name,
                                                                                                          mob_without_loot_on_first_level.name,
                                                                                                          mob_without_artifact_on_firs_level.name])
 
-
     def test_artifacts_without_mobs(self):
         self.request_login(self.account_2.email)
 
-        from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
+        from the_tale.game.artifacts import logic as artifacts_logic
 
-        no_mob_loot = ArtifactRecordPrototype.create_random('no_mob_loot', level=1)
-        no_mob_artifact = ArtifactRecordPrototype.create_random('no_mob_artifact', level=1)
+        no_mob_loot = artifacts_logic.create_random_artifact_record('no_mob_loot', level=1)
+        no_mob_artifact = artifacts_logic.create_random_artifact_record('no_mob_artifact', level=1)
 
         self.check_html_ok(self.request_html(reverse('portal:developers-info:mobs-and-artifacts')), texts=[no_mob_loot.name, no_mob_artifact.name])

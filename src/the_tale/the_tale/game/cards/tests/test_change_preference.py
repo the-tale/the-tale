@@ -1,8 +1,6 @@
 
 import random
-import datetime
 
-from unittest import mock
 
 from the_tale.common.utils import testcase
 
@@ -64,9 +62,8 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
 
         self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
-
     def test_mob(self):
-        mob = mobs_storage.mobs_storage.all()[0]
+        mob = mobs_storage.mobs.all()[0]
 
         self.assertEqual(self.hero.preferences.mob, None)
 
@@ -77,7 +74,6 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
         self.use_card(heroes_relations.PREFERENCE_TYPE.MOB, None)
 
         self.assertEqual(self.hero.preferences.mob, None)
-
 
     def test_place(self):
         place = places_storage.places.all()[0]
@@ -92,7 +88,6 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
 
         self.assertEqual(self.hero.preferences.place, None)
 
-
     def test_friend(self):
         friend = persons_storage.persons.all()[0]
 
@@ -105,7 +100,6 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
         self.use_card(heroes_relations.PREFERENCE_TYPE.FRIEND, None)
 
         self.assertEqual(self.hero.preferences.friend, None)
-
 
     def test_enemy(self):
         enemy = persons_storage.persons.all()[0]
@@ -120,7 +114,6 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
 
         self.assertEqual(self.hero.preferences.enemy, None)
 
-
     def test_energy_regeneration_type(self):
         self.hero.preferences.set(preferences_type=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE,
                                   value=heroes_relations.ENERGY_REGENERATION.PRAY)
@@ -128,7 +121,6 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
         self.use_card(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
 
         self.assertTrue(self.hero.preferences.energy_regeneration_type.is_SACRIFICE)
-
 
     def test_equipment_slot(self):
         slot = heroes_relations.EQUIPMENT_SLOT.random()
@@ -142,7 +134,6 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
         self.use_card(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, None)
 
         self.assertEqual(self.hero.preferences.equipment_slot, None)
-
 
     def test_favorite_item(self):
         choices = [heroes_relations.EQUIPMENT_SLOT(slot_id) for slot_id in self.hero.equipment.equipment.keys()]
@@ -159,14 +150,12 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
 
         self.assertEqual(self.hero.preferences.favorite_item, None)
 
-
     def test_risk_level(self):
         self.assertTrue(self.hero.preferences.risk_level.is_NORMAL)
 
         self.use_card(heroes_relations.PREFERENCE_TYPE.RISK_LEVEL, heroes_relations.RISK_LEVEL.LOW)
 
         self.assertTrue(self.hero.preferences.risk_level.is_LOW)
-
 
     def test_architype(self):
         self.assertTrue(self.hero.preferences.archetype.is_NEUTRAL)
@@ -175,14 +164,12 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
 
         self.assertTrue(self.hero.preferences.archetype.is_MAGICAL)
 
-
     def test_companion_dedication(self):
         self.assertTrue(self.hero.preferences.companion_dedication.is_NORMAL)
 
         self.use_card(heroes_relations.PREFERENCE_TYPE.COMPANION_DEDICATION, heroes_relations.COMPANION_DEDICATION.EGOISM)
 
         self.assertTrue(self.hero.preferences.companion_dedication.is_EGOISM)
-
 
     def test_companion_empathy(self):
         self.assertTrue(self.hero.preferences.companion_empathy.is_ORDINAL)

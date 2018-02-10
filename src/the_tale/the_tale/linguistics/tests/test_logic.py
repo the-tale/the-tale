@@ -100,6 +100,52 @@ class LogicTests(testcase.TestCase):
                 else:
                     self.assertEqual(keys_count[key], 0)
 
+    def test_get_text__linguistics_variables(self):
+
+        key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        dictionary = storage.game_dictionary.item
+
+        word_1 = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix='w-3-', only_required=True)
+        word_1.forms[3] = 'дубль'
+        self.assertEqual(word_1.form(utg_relations.CASE.ACCUSATIVE), 'дубль')
+
+        dictionary.add_word(word_1)
+
+        TEXT = '[hero|загл] [level] [дубль|hero|дт]'
+
+        template = utg_templates.Template()
+
+        template.parse(TEXT, externals=['hero', 'level'])
+
+        prototypes.TemplatePrototype.create(key=key,
+                                            raw_template=TEXT,
+                                            utg_template=template,
+                                            verificators=[],
+                                            author=None)
+
+        # update template errors_status and state to enshure, that it will be loaded in game lexicon
+        prototypes.TemplatePrototype._db_all().update(errors_status=relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS,
+                                                      state=relations.TEMPLATE_STATE.IN_GAME)
+        storage.game_lexicon.refresh()
+
+        weapon_restrictions = [storage.restrictions_storage.all()[0].id,
+                               storage.restrictions_storage.all()[100].id]
+
+        weapon_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('меч'),
+                                linguistics_restrictions=lambda: weapon_restrictions)
+
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'),
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [('weapon', weapon_mock)])
+
+        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name, args={'hero': hero_mock, 'level': 1})
+
+        self.assertEqual(externals['hero.weapon'], lexicon_dictinonary.DICTIONARY.get_word('меч'))
+
+        self.assertIn(('hero.weapon', weapon_restrictions[0]), restrictions)
+        self.assertIn(('hero.weapon', weapon_restrictions[1]), restrictions)
+
     def test_get_text__real(self):
 
         key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
@@ -129,15 +175,16 @@ class LogicTests(testcase.TestCase):
                                                       state=relations.TEMPLATE_STATE.IN_GAME)
         storage.game_lexicon.refresh()
 
-        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'), linguistics_restrictions=lambda: [])
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'),
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
 
-        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
+        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name, args={'hero': hero_mock, 'level': 1})
 
         self.assertIn('date', externals)
 
         self.assertEqual(logic.render_text(lexicon_key, externals, restrictions),
                          'Герой 1 w-3-нс,ед,дт')
-
 
         word_2 = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix='w-2-', only_required=True)
         word_2.forms[1] = 'дубль'
@@ -176,21 +223,30 @@ class LogicTests(testcase.TestCase):
         plural_noun = utg_words.WordForm(utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix='w-1-', only_required=True,
                                                                          properties=utg_words.Properties(utg_relations.NUMBER.PLURAL)))
 
-        hero_mock = mock.Mock(utg_name_form=normal_noun, linguistics_restrictions=lambda: [])
+        hero_mock = mock.Mock(utg_name_form=normal_noun,
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
         lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
         self.assertIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                             relations.WORD_HAS_PLURAL_FORM.HAS.value).id), restrictions)
         self.assertNotIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                                relations.WORD_HAS_PLURAL_FORM.HAS_NO.value).id), restrictions)
 
-        hero_mock = mock.Mock(utg_name_form=singular_noun, linguistics_restrictions=lambda: [])
-        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
+        hero_mock = mock.Mock(utg_name_form=singular_noun,
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
+        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name, args={'hero': hero_mock, 'level': 1})
         self.assertNotIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                                relations.WORD_HAS_PLURAL_FORM.HAS.value).id), restrictions)
         self.assertIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                             relations.WORD_HAS_PLURAL_FORM.HAS_NO.value).id), restrictions)
 
-        hero_mock = mock.Mock(utg_name_form=plural_noun, linguistics_restrictions=lambda: [])
+        hero_mock = mock.Mock(utg_name_form=plural_noun,
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
         lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
         self.assertIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                             relations.WORD_HAS_PLURAL_FORM.HAS.value).id), restrictions)
@@ -481,13 +537,20 @@ class LogicTests(testcase.TestCase):
         self.assertTrue(prototypes.ContributionPrototype._db_filter(id=contribution_2.id).exists())
 
     def test_get_text__no_key(self):
-        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'), linguistics_restrictions=lambda: [])
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'),
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
         self.assertRaises(exceptions.NoLexiconKeyError, logic.get_text, 'wrong_key', args={'hero': hero_mock, 'level': 1}, quiet=False)
         self.assertEqual(logic.get_text('wrong_key', args={'hero': hero_mock, 'level': 1}, quiet=True), None)
 
     def test_get_text__no_templates(self):
         key = random.choice(keys.LEXICON_KEY.records)
-        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'), linguistics_restrictions=lambda: [])
+
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'),
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
         args = {'hero': hero_mock, 'level': 1}
 
         self.assertEqual(logic.get_text(key.name, args=args),

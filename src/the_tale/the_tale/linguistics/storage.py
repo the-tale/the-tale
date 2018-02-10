@@ -77,10 +77,8 @@ class GameLexiconDictionaryStorage(storage.SingleStorage):
         return '%f' % time.time()
 
 
-
 game_dictionary = GameDictionaryStorage()
 game_lexicon = GameLexiconDictionaryStorage()
-
 
 
 class RestrictionsStorage(dext_storage.Storage):
@@ -121,7 +119,6 @@ class RestrictionsStorage(dext_storage.Storage):
         for restriction_group in relations.TEMPLATE_RESTRICTION_GROUP.records:
             restrictions = [(r.id, r.name) for r in sorted(self.get_restrictions(restriction_group), key=lambda r: r.name)]
             choices.append((restriction_group.text, restrictions))
-
 
         return choices
 

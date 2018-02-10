@@ -102,6 +102,7 @@ class ManageNameMixin2(object):
 
 _generator = None
 
+
 def generator():
     global _generator
 

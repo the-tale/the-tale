@@ -1,11 +1,11 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.artifacts import forms
-from the_tale.game.artifacts import prototypes
+from .. import forms
+from .. import logic
+
 
 from the_tale.linguistics.tests import helpers as linguistics_helpers
 
@@ -17,7 +17,7 @@ class ArtifactFormsTests(testcase.TestCase):
         create_test_map()
 
     def get_form_data(self):
-        artifact = prototypes.ArtifactRecordPrototype.create_random(uuid='sword')
+        artifact = logic.create_random_artifact_record(uuid='sword')
 
         data = linguistics_helpers.get_word_post_data(artifact.utg_name, prefix='name')
 
@@ -29,6 +29,8 @@ class ArtifactFormsTests(testcase.TestCase):
                 'epic_effect': 'ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE',
                 'special_effect': 'ARTIFACT_EFFECT.NO_EFFECT',
                 'description': 'artifact description',
+                'weapon_type': 'WEAPON_TYPE.TYPE_1',
+                'material': 'MATERIAL.MATERIAL_3',
                 'uuid': 'some-uuid',
                 'mob':  ''})
 

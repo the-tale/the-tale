@@ -1,14 +1,13 @@
-# coding: utf-8
+
+from tt_logic.beings import relations as beings_relations
 
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.mobs.forms import MobRecordForm
-from the_tale.game.mobs import relations
-from the_tale.game.mobs import prototypes
-
-from the_tale.game import relations as game_relations
+from .. import logic
+from .. import forms
+from .. import relations
 
 from the_tale.linguistics.tests import helpers as linguistics_helpers
 
@@ -20,56 +19,69 @@ class MobsFormsTests(testcase.TestCase):
         create_test_map()
 
     def get_form_data(self):
-        mob = prototypes.MobRecordPrototype.create_random(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
+        mob = logic.create_random_mob_record(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
 
         data = linguistics_helpers.get_word_post_data(mob.utg_name, prefix='name')
 
-        data.update( { 'level': str(mob.level),
-                       'global_action_probability': '0.25',
-                       'terrains': ['TERRAIN.PLANE_GRASS', 'TERRAIN.HILLS_GRASS'],
-                       'abilities': ['hit', 'strong_hit', 'sidestep'],
-                       'type': 'BEING_TYPE.CIVILIZED',
-                       'archetype': 'ARCHETYPE.NEUTRAL',
-                       'description': mob.description,
-                       'communication_verbal': game_relations.COMMUNICATION_VERBAL.CAN,
-                       'communication_gestures': game_relations.COMMUNICATION_GESTURES.CAN,
-                       'communication_telepathic': game_relations.COMMUNICATION_TELEPATHIC.CAN,
-                       'intellect_level': game_relations.INTELLECT_LEVEL.NORMAL} )
+        data.update({'level': str(mob.level),
+                     'global_action_probability': '0.25',
+                     'terrains': ['TERRAIN.PLANE_GRASS', 'TERRAIN.HILLS_GRASS'],
+                     'abilities': ['hit', 'strong_hit', 'sidestep'],
+                     'type': 'TYPE.CIVILIZED',
+                     'archetype': 'ARCHETYPE.NEUTRAL',
+                     'description': mob.description,
+                     'communication_verbal': beings_relations.COMMUNICATION_VERBAL.CAN,
+                     'communication_gestures': beings_relations.COMMUNICATION_GESTURES.CAN,
+                     'communication_telepathic': beings_relations.COMMUNICATION_TELEPATHIC.CAN,
+                     'intellect_level': beings_relations.INTELLECT_LEVEL.NORMAL,
+
+                     'structure': 'STRUCTURE.STRUCTURE_1',
+                     'features': ['FEATURE.FEATURE_1', 'FEATURE.FEATURE_7'],
+                     'movement': 'MOVEMENT.MOVEMENT_2',
+                     'body': 'BODY.BODY_3',
+                     'size': 'SIZE.SIZE_4',
+                     'weapon_1': 'STANDARD_WEAPON.WEAPON_1',
+                     'material_1': 'MATERIAL.MATERIAL_1',
+                     'power_type_1': 'ARTIFACT_POWER_TYPE.NEUTRAL',
+                     'weapon_2': 'STANDARD_WEAPON.WEAPON_10',
+                     'material_2': 'MATERIAL.MATERIAL_10',
+                     'power_type_2': 'ARTIFACT_POWER_TYPE.MOST_PHYSICAL',})
 
         return data
 
     def test_no_abilities_choosen(self):
         data = self.get_form_data()
         data['abilities'] = []
-        form = MobRecordForm(data)
+        form = forms.MobRecordForm(data)
         self.assertFalse(form.is_valid())
 
     def test_wrong_ability_id(self):
         data = self.get_form_data()
         data['abilities'] = ['bla-ability']
-        form = MobRecordForm(data)
+        form = forms.MobRecordForm(data)
         self.assertFalse(form.is_valid())
 
     def test_no_terrains_choosen(self):
         data = self.get_form_data()
         data['terrains'] = []
-        form = MobRecordForm(data)
+        form = forms.MobRecordForm(data)
         self.assertFalse(form.is_valid())
 
     def test_wrong_terrain_id(self):
         data = self.get_form_data()
         data['terrains'] = ['lba']
-        form = MobRecordForm(data)
+        form = forms.MobRecordForm(data)
         self.assertFalse(form.is_valid())
 
     def test_success_mob_record_form(self):
         data = self.get_form_data()
-        form = MobRecordForm(data)
+        form = forms.MobRecordForm(data)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.c.abilities.__class__, frozenset)
         self.assertEqual(form.c.terrains.__class__, frozenset)
 
     def test_success_moderate_mob_record_form(self):
         data = self.get_form_data()
-        form = MobRecordForm(data)
+        form = forms.MobRecordForm(data)
+        form.is_valid()
         self.assertTrue(form.is_valid())

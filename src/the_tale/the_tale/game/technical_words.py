@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.linguistics.lexicon.dictionary import noun
 

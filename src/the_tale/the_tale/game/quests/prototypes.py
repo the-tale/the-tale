@@ -19,7 +19,7 @@ from the_tale.game import tt_api as game_tt_api
 from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
 
 from the_tale.game.places import storage as places_storage
 
@@ -420,12 +420,12 @@ class QuestPrototype(object):
         from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
 
         if action.mob is not None:
-            mob = mobs_storage[self.knowledge_base[action.mob].externals['id']].create_mob(self.hero, is_boss=True)
+            mob = mobs_storage.mobs[self.knowledge_base[action.mob].externals['id']].create_mob(self.hero, is_boss=True)
         else:
-            mob = mobs_storage.get_random_mob(self.hero, mercenary=action.mercenary, is_boss=True)
+            mob = mobs_storage.mobs.get_random_mob(self.hero, mercenary=action.mercenary, is_boss=True)
 
             if mob is None:
-                mobs_storage.get_random_mob(self.hero, is_boss=True)
+                mobs_storage.mobs.get_random_mob(self.hero, is_boss=True)
 
         ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 

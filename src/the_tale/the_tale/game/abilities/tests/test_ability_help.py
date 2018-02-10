@@ -21,9 +21,9 @@ from the_tale.game.companions import logic as companions_logic
 from the_tale.game.companions.abilities import container as companions_container
 from the_tale.game.companions.abilities import effects as companions_effects
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
 
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage as artifacts_storage
 from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.abilities.deck.help import Help
@@ -161,7 +161,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action.TYPE, actions_prototypes.ActionInPlacePrototype.TYPE)
 
     def test_lighting(self):
-        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
+        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
         turn.increment()
         self.storage.process_turn()
@@ -180,7 +180,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertTrue(old_percents < action_battle.percents)
 
     def test_lighting_when_mob_killed(self):
-        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
+        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
         turn.increment()
         self.storage.process_turn()
@@ -252,7 +252,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.artifacts.effects.Health.REMOVE_ON_HELP', True)
     def test_return_child_gifts(self):
-        not_child_gift, child_gift, removed_artifact = artifacts_storage.all()[:3]
+        not_child_gift, child_gift, removed_artifact = artifacts_storage.artifacts.all()[:3]
 
         child_gift.special_effect = artifacts_relations.ARTIFACT_EFFECT.CHILD_GIFT
         removed_artifact.rare_effect = artifacts_relations.ARTIFACT_EFFECT.HEALTH

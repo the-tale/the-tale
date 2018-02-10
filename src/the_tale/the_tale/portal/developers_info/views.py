@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import itertools
 import datetime
 import collections
@@ -198,8 +198,8 @@ class DevelopersInfoResource(Resource):
 
     @handler('mobs-and-artifacts', method='get')
     def mobs_and_artifacts(self): # pylint: disable=R0914
-        from the_tale.game.mobs.storage import mobs_storage
-        from the_tale.game.artifacts.storage import artifacts_storage
+        from the_tale.game.mobs import storage as mobs_storage
+        from the_tale.game.artifacts import storage as artifacts_storage
         from the_tale.game.map.relations import TERRAIN
         from the_tale.game.heroes import relations as heroes_relations
 
@@ -208,7 +208,7 @@ class DevelopersInfoResource(Resource):
         mobs_without_loot_on_first_level = []
         mobs_without_artifacts_on_first_level = []
 
-        for mob in mobs_storage.get_available_mobs_list(level=999999):
+        for mob in mobs_storage.mobs.get_available_mobs_list(level=999999):
             if not mob.loot:
                 mobs_without_loot.append(mob)
             elif not any(loot.level == mob.level for loot in mob.loot):
@@ -221,9 +221,9 @@ class DevelopersInfoResource(Resource):
 
         territory_levels_checks = [1, 2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100]
 
-        mobs_by_territory = { terrain.name:[0]*len(territory_levels_checks) for terrain in TERRAIN.records }
+        mobs_by_territory = {terrain.name:[0]*len(territory_levels_checks) for terrain in TERRAIN.records}
 
-        for mob in mobs_storage.get_available_mobs_list(level=999999):
+        for mob in mobs_storage.mobs.get_available_mobs_list(level=999999):
             for terrain in mob.terrains:
                 for i, level in enumerate(territory_levels_checks):
                     if level >= mob.level:
@@ -234,10 +234,9 @@ class DevelopersInfoResource(Resource):
 
         mobs_by_territory = sorted(list(mobs_by_territory.items()), key=lambda x: x[1][-1])
 
-
         artifacts_without_mobs = []
 
-        for artifact in itertools.chain(artifacts_storage.artifacts, artifacts_storage.loot):
+        for artifact in itertools.chain(artifacts_storage.artifacts.artifacts, artifacts_storage.artifacts.loot):
             if artifact.uuid not in heroes_relations.EQUIPMENT_SLOT.index_default and artifact.mob is None:
                 artifacts_without_mobs.append(artifact)
 

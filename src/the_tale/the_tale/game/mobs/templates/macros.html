@@ -10,7 +10,7 @@
 
   <table class="table table-condensed table-striped table-bordered table-no-highlighting">
     <tbody>
-      <tr><th>уровень</th><td>{{mob.level}}</td></tr>
+      <tr><th width="175px">уровень</th><td>{{mob.level}}</td></tr>
       <tr><th>тип</th><td>{{mob.type.text}}</td></tr>
       <tr><th>архетип</th><td>{{mob.archetype.text}}</td></tr>
       <tr><th>интеллект</th><td>{{mob.intellect_level.text}}</td></tr>
@@ -45,20 +45,60 @@
           </ul>
         </td>
       </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> структура тела</th>
+        <td>{{mob.structure.text}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> особенности</th>
+        <td>{{mob.features_verbose()}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> способ передвижения</th>
+        <td>{{mob.movement.text}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> тип тела</th>
+        <td>{{mob.body.text}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> размер тела</th>
+        <td>{{mob.size.text}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> оружие</th>
+        <td>
+          <ul>
+            {% for record in mob.weapons_verbose() %}
+            <li>{{record}}</li>
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
+
+      <tr>
+        <th>наёмник</th>
+        <td>{% if mob.is_mercenary %} да {% else %} нет {% endif %}</td>
+      </tr>
+
+      <tr>
+        <th>съедобный</th>
+        <td>{% if mob.is_eatable %} да {% else %} нет {% endif %}</td>
+      </tr>
+
       {% if for_moderator %}
       <tr>
         <th>участие в событии</th>
         <td>{{mob.global_action_probability}}</td>
       </tr>
-      <tr>
-        <th>наёмник</th>
-        <td>{% if mob.is_mercenary %} да {% else %} нет {% endif %}</td>
-      </tr>
-      <tr>
-        <th>съедобный</th>
-        <td>{% if mob.is_eatable %} да {% else %} нет {% endif %}</td>
-      </tr>
       {% endif %}
+
     </tbody>
   </table>
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import random
 
@@ -35,6 +34,9 @@ class Actor(object):
 
     @property
     def utg_name_form(self): return self.actor.utg_name_form
+
+    def linguistics_variables(self):
+        return self.actor.linguistics_variables()
 
     def linguistics_restrictions(self): return self.actor.linguistics_restrictions()
 

@@ -390,7 +390,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         if diary:
             tt_api.push_message_to_diary(self.id, message, self.is_premium)
 
-
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
         from the_tale.linguistics import logic
 

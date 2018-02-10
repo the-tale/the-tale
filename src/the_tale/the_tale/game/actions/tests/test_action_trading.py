@@ -7,8 +7,8 @@ from the_tale.game import turn
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionTradingPrototype
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import RARITY
+from the_tale.game.artifacts import storage as artifacts_storage
+from the_tale.game.artifacts import relations as artifacts_relations
 
 
 class TradingActionTest(testcase.TestCase):
@@ -48,7 +48,9 @@ class TradingActionTest(testcase.TestCase):
         old_money_statistics = self.hero.statistics.money_earned
         old_money = self.hero.money
 
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                           self.hero.level,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.bag.put_artifact(artifact)
 
         self.action_trade.percents_barier = 1
@@ -64,10 +66,14 @@ class TradingActionTest(testcase.TestCase):
     def test_sell_and_continue(self):
         old_money = self.hero.money
 
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                           self.hero.level,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.bag.put_artifact(artifact)
 
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                           self.hero.level,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.bag.put_artifact(artifact)
 
         self.assertEqual(self.hero.bag.occupation, 2)
@@ -100,10 +106,14 @@ class TradingActionTest(testcase.TestCase):
 
         self.assertFalse(self.action_trade.replane_required)
 
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                           self.hero.level,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.bag.put_artifact(artifact)
 
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                           self.hero.level,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.bag.put_artifact(artifact)
 
         self.action_trade.percents_barier = 2

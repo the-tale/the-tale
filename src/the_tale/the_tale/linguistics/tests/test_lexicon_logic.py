@@ -26,7 +26,7 @@ class LexiconLogicTests(TestCase):
 
     def test_get_verificators_groups__first_substitution(self):
         groups = logic.get_verificators_groups(key=keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP, old_groups={})
-        self.assertEqual(groups, {'date': (8, 0), 'time': (9, 0), 'hero': (0, 0), 'level': (1, 0)})
+        self.assertEqual(groups, {'date': (8, 0), 'time': (9, 0), 'hero': (0, 0), 'hero.weapon': (4, 0), 'level': (1, 0)})
 
     def test_get_verificators_groups__first_substitution__multiple(self):
         groups = logic.get_verificators_groups(key=keys.LEXICON_KEY.QUEST_SEARCH_SMITH_DIARY_UPGRADE__BUY_AND_CHANGE, old_groups={})
@@ -36,10 +36,11 @@ class LexiconLogicTests(TestCase):
                           'artifact': (4, 0),
                           'coins': (10, 0),
                           'hero': (0, 0),
+                          'hero.weapon': (4, 1),
                           'receiver': (0, 1),
                           'receiver_position': (2, 0),
                           'sell_price': (10, 1),
-                          'unequipped': (4, 1)})
+                          'unequipped': (4, 2)})
 
     def test_get_verificators_groups__existed_substitutions(self):
         old_groups = {'coins': (1, 1),
@@ -53,6 +54,7 @@ class LexiconLogicTests(TestCase):
                           'artifact': (4, 0),
                           'coins': (1, 1),
                           'hero': (0, 2),
+                          'hero.weapon': (4, 1),
                           'receiver': (0, 0),
                           'receiver_position': (2, 0),
                           'sell_price': (10, 0),

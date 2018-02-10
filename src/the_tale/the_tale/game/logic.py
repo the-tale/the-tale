@@ -17,12 +17,12 @@ from the_tale.game import turn
 
 from the_tale.game.persons import storage as persons_storage
 
-from the_tale.game.mobs.prototypes import MobRecordPrototype
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import logic as mobs_logic
+from the_tale.game.mobs import storage as mobs_storage
 
-from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+from the_tale.game.artifacts import logic as artifacts_logic
+from the_tale.game.artifacts import storage as artifacts_storage
+from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map import logic as map_logic
@@ -52,8 +52,8 @@ from . import relations
 @persons_storage.persons.postpone_version_update
 @waymarks_storage.postpone_version_update
 @roads_storage.postpone_version_update
-@mobs_storage.postpone_version_update
-@artifacts_storage.postpone_version_update
+@mobs_storage.mobs.postpone_version_update
+@artifacts_storage.artifacts.postpone_version_update
 def create_test_map():
     linguistics_logic.sync_static_restrictions()
 
@@ -74,21 +74,21 @@ def create_test_map():
 
     nearest_cells.update_nearest_cells()
 
-    mob_1 = MobRecordPrototype.create_random('mob_1')
-    mob_2 = MobRecordPrototype.create_random('mob_2')
-    mob_3 = MobRecordPrototype.create_random('mob_3')
+    mob_1 = mobs_logic.create_random_mob_record('mob_1')
+    mob_2 = mobs_logic.create_random_mob_record('mob_2')
+    mob_3 = mobs_logic.create_random_mob_record('mob_3')
 
-    ArtifactRecordPrototype.create_random('loot_1', mob=mob_1)
-    ArtifactRecordPrototype.create_random('loot_2', mob=mob_2)
-    ArtifactRecordPrototype.create_random('loot_3', mob=mob_3)
+    artifacts_logic.create_random_artifact_record('loot_1', mob=mob_1)
+    artifacts_logic.create_random_artifact_record('loot_2', mob=mob_2)
+    artifacts_logic.create_random_artifact_record('loot_3', mob=mob_3)
 
-    ArtifactRecordPrototype.create_random('helmet_1', type_=ARTIFACT_TYPE.HELMET, mob=mob_1)
-    ArtifactRecordPrototype.create_random('plate_1', type_=ARTIFACT_TYPE.PLATE, mob=mob_2)
-    ArtifactRecordPrototype.create_random('boots_1', type_=ARTIFACT_TYPE.BOOTS, mob=mob_3)
+    artifacts_logic.create_random_artifact_record('helmet_1', type=artifacts_relations.ARTIFACT_TYPE.HELMET, mob=mob_1)
+    artifacts_logic.create_random_artifact_record('plate_1', type=artifacts_relations.ARTIFACT_TYPE.PLATE, mob=mob_2)
+    artifacts_logic.create_random_artifact_record('boots_1', type=artifacts_relations.ARTIFACT_TYPE.BOOTS, mob=mob_3)
 
     for equipment_slot in heroes_relations.EQUIPMENT_SLOT.records:
         if equipment_slot.default:
-            ArtifactRecordPrototype.create_random(equipment_slot.default, type_=equipment_slot.artifact_type)
+            artifacts_logic.create_random_artifact_record(equipment_slot.default, type=equipment_slot.artifact_type)
 
     companions_logic.create_random_companion_record('companion_1', dedication=companions_relations.DEDICATION.HEROIC, state=companions_relations.STATE.ENABLED)
     companions_logic.create_random_companion_record('companion_2', dedication=companions_relations.DEDICATION.BOLD, state=companions_relations.STATE.ENABLED)

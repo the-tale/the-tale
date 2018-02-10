@@ -1,9 +1,10 @@
-# coding: utf-8
 
 from django.test import client
 from django.core.urlresolvers import reverse
 
 from dext.common.utils.urls import url
+
+from tt_logic.artifacts import relations as tt_artifacts_relations
 
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
@@ -14,14 +15,14 @@ from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
 
 from the_tale.game.heroes import relations as heroes_relations
 
-from ..models import ArtifactRecord
-from ..storage import artifacts_storage
+from .. import logic
+from .. import models
+from .. import storage
 from .. import relations
-from ..prototypes import ArtifactRecordPrototype
 from .. import meta_relations
 
 from the_tale.linguistics.tests import helpers as linguistics_helpers
@@ -39,6 +40,8 @@ class PostMixin(object):
                 'rare_effect': relations.ARTIFACT_EFFECT.POISON,
                 'epic_effect': relations.ARTIFACT_EFFECT.GREAT_PHYSICAL_DAMAGE,
                 'special_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
+                'weapon_type': tt_artifacts_relations.WEAPON_TYPE.TYPE_1,
+                'material': tt_artifacts_relations.MATERIAL.MATERIAL_3,
                 'description': 'artifact description',
                 'mob':  '' if mob is None else mob.id})
 
@@ -61,18 +64,19 @@ class PostMixin(object):
                 'rare_effect': relations.ARTIFACT_EFFECT.NO_EFFECT,
                 'epic_effect': relations.ARTIFACT_EFFECT.POISON,
                 'special_effect': relations.ARTIFACT_EFFECT.CHILD_GIFT,
+                'weapon_type': tt_artifacts_relations.WEAPON_TYPE.TYPE_5,
+                'material': tt_artifacts_relations.MATERIAL.MATERIAL_7,
                 'description': 'new artifact description',
                 'mob': '' if mob is None else mob.id})
 
         return data
 
 
-
 class BaseTestRequests(TestCase):
 
     def setUp(self):
         super(BaseTestRequests, self).setUp()
-        artifacts_storage.sync(force=True)
+        storage.artifacts.sync(force=True)
 
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
@@ -97,8 +101,8 @@ class TestIndexRequests(BaseTestRequests):
         super(TestIndexRequests, self).setUp()
 
     def test_no_artifacts(self):
-        ArtifactRecord.objects.all().delete()
-        artifacts_storage.clear()
+        models.ArtifactRecord.objects.all().delete()
+        storage.artifacts.clear()
         self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=(('pgf-no-artifacts-message', 1),))
 
     def test_simple(self):
@@ -120,7 +124,7 @@ class TestIndexRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=[('pgf-filter-state', 1)])
 
     def test_disabled_artifacts(self):
-        ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
+        logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
         texts = ['loot_1', 'loot_2', 'plate_1', ('bandit_loot', 0)]
         self.check_html_ok(self.request_html(reverse('guide:artifacts:')), texts=texts)
 
@@ -170,7 +174,7 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
         self.request_logout()
         self.request_login(self.account_2.email)
 
-        self.mob = mobs_storage.all()[0]
+        self.mob = mobs_storage.mobs.all()[0]
 
     def test_unlogined(self):
         self.request_logout()
@@ -186,10 +190,10 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
 
     def test_simple(self):
 
-        with self.check_delta(ArtifactRecordPrototype._db_count, 1):
+        with self.check_delta(models.ArtifactRecord.objects.count, 1):
             response = self.client.post(reverse('game:artifacts:create'), self.get_create_data())
 
-        artifact_record = ArtifactRecordPrototype(ArtifactRecord.objects.all().order_by('-created_at')[0])
+        artifact_record = logic.construct_from_model(models.ArtifactRecord.objects.all().order_by('-created_at')[0])
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
@@ -200,6 +204,8 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
         self.assertTrue(artifact_record.state.is_DISABLED)
         self.assertTrue(artifact_record.rare_effect.is_POISON)
         self.assertTrue(artifact_record.epic_effect.is_GREAT_PHYSICAL_DAMAGE)
+        self.assertTrue(artifact_record.weapon_type.is_TYPE_1)
+        self.assertTrue(artifact_record.material.is_MATERIAL_3)
         self.assertEqual(artifact_record.editor_id, self.account_2.id)
         self.assertEqual(artifact_record.mob, None)
 
@@ -216,23 +222,23 @@ class TestShowRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[666])), texts=[('artifacts.artifact.not_found', 1)], status_code=404)
 
     def test_disabled_artifact_declined(self):
-        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
+        artifact = logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('artifacts.artifact_disabled', 1)], status_code=404)
 
     def test_disabled_artifact_accepted_for_create_rights(self):
         self.request_logout()
         self.request_login(self.account_2.email)
-        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
+        artifact = logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[artifact.name.capitalize()])
 
     def test_disabled_artifact_accepted_for_add_rights(self):
         self.request_logout()
         self.request_login(self.account_3.email)
-        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
+        artifact = logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[artifact.name.capitalize()])
 
     def test_simple(self):
-        artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+        artifact = logic.construct_from_model(models.ArtifactRecord.objects.all()[0])
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[(artifact.name.capitalize(), 5),
                                                                                                         ('pgf-no-description', 0),
                                                                                                         ('pgf-moderate-button', 0),
@@ -244,7 +250,7 @@ class TestShowRequests(BaseTestRequests):
 
         blogs_helpers.prepair_forum()
 
-        artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+        artifact = logic.construct_from_model(models.ArtifactRecord.objects.all()[0])
 
         blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Artifact.create_from_object(artifact))
         blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Artifact.create_from_object(artifact))
@@ -254,24 +260,25 @@ class TestShowRequests(BaseTestRequests):
                                                                                                           'folclor-2-caption'])
 
     def test_no_description(self):
-        artifact = artifacts_storage.all()[0]
+        artifact = storage.artifacts.all()[0]
         artifact.description = ''
-        artifact.save()
+        logic.save_artifact_record(artifact)
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-no-description', 1)])
 
     def test_edit_button(self):
         self.request_logout()
         self.request_login(self.account_2.email)
-        artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+        artifact = logic.construct_from_model(models.ArtifactRecord.objects.all()[0])
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-moderate-button', 0),
                                                                                                         ('pgf-edit-button', 1)])
 
     def test_moderate_button(self):
         self.request_logout()
         self.request_login(self.account_3.email)
-        artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+        artifact = logic.construct_from_model(models.ArtifactRecord.objects.all()[0])
         self.check_html_ok(self.request_html(reverse('guide:artifacts:show', args=[artifact.id])), texts=[('pgf-moderate-button', 1),
                                                                                                         ('pgf-edit-button', 0)])
+
 
 class TestInfoRequests(BaseTestRequests):
 
@@ -285,23 +292,23 @@ class TestInfoRequests(BaseTestRequests):
         self.check_html_ok(self.request_html(url('guide:artifacts:info', 666)), texts=[('artifacts.artifact.not_found', 1)], status_code=404)
 
     def test_disabled_artifact_disabled(self):
-        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
+        artifact = logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[('artifacts.artifact_disabled', 1)], status_code=404)
 
     def test_disabled_artifact_accepted_for_create_rights(self):
         self.request_logout()
         self.request_login(self.account_2.email)
-        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
+        artifact = logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[artifact.name.capitalize()])
 
     def test_disabled_artifact_accepted_for_add_rights(self):
         self.request_logout()
         self.request_login(self.account_3.email)
-        artifact = ArtifactRecordPrototype.create_random(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
+        artifact = logic.create_random_artifact_record(uuid='bandit_loot', state=relations.ARTIFACT_RECORD_STATE.DISABLED)
         self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[artifact.name.capitalize()])
 
     def test_simple(self):
-        artifact = ArtifactRecordPrototype._db_get_object(0)
+        artifact = models.ArtifactRecord.objects.all()[0]
         self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[(artifact.name.capitalize(), 1),
                                                                                                ('pgf-no-description', 0),
                                                                                                ('pgf-moderate-button', 0),
@@ -313,7 +320,7 @@ class TestInfoRequests(BaseTestRequests):
 
         blogs_helpers.prepair_forum()
 
-        artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all()[0])
+        artifact = logic.construct_from_model(models.ArtifactRecord.objects.all()[0])
 
         blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Artifact.create_from_object(artifact))
         blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Artifact.create_from_object(artifact))
@@ -322,13 +329,11 @@ class TestInfoRequests(BaseTestRequests):
                                                                                                'folclor-1-caption',
                                                                                                'folclor-2-caption'])
 
-
     def test_no_description(self):
-        artifact = artifacts_storage.all()[0]
+        artifact = storage.artifacts.all()[0]
         artifact.description = ''
-        artifact.save()
+        logic.save_artifact_record(artifact)
         self.check_html_ok(self.request_html(url('guide:artifacts:info', artifact.id)), texts=[('pgf-no-description', 1)])
-
 
 
 class TestEditRequests(BaseTestRequests):
@@ -336,9 +341,9 @@ class TestEditRequests(BaseTestRequests):
     def setUp(self):
         super(TestEditRequests, self).setUp()
 
-        self.artifact = artifacts_storage.all()[0]
+        self.artifact = storage.artifacts.all()[0]
         self.artifact.state = relations.ARTIFACT_RECORD_STATE.DISABLED
-        self.artifact.save()
+        logic.save_artifact_record(self.artifact)
 
     def test_unlogined(self):
         self.request_logout()
@@ -347,7 +352,7 @@ class TestEditRequests(BaseTestRequests):
 
     def test_enabled_state(self):
         self.artifact.state = relations.ARTIFACT_RECORD_STATE.ENABLED
-        self.artifact.save()
+        logic.save_artifact_record(self.artifact)
         self.check_html_ok(self.request_html(reverse('game:artifacts:edit', args=[self.artifact.id])), texts=[('artifacts.disabled_state_required', 1),
                                                                                                             ('pgf-edit-artifact-form', 0)])
 
@@ -363,7 +368,6 @@ class TestEditRequests(BaseTestRequests):
                                                                                                             (self.artifact.description, 1) ])
 
 
-
 class TestUpdateRequests(BaseTestRequests, PostMixin):
 
     def setUp(self):
@@ -373,9 +377,9 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
         self.request_login(self.account_2.email)
 
         self.check_ajax_ok(self.client.post(reverse('game:artifacts:create'), self.get_create_data()))
-        self.artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all().order_by('-created_at')[0])
+        self.artifact = logic.construct_from_model(models.ArtifactRecord.objects.all().order_by('-created_at')[0])
 
-        self.mob = mobs_storage.all()[0]
+        self.mob = mobs_storage.mobs.all()[0]
 
     def check_artifact(self, artifact, data):
         self.assertEqual(artifact.name, data['name_0'])
@@ -383,6 +387,8 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
         self.assertEqual(artifact.type, data['type'])
         self.assertEqual(artifact.rare_effect, data['rare_effect'])
         self.assertEqual(artifact.epic_effect, data['epic_effect'])
+        self.assertEqual(artifact.weapon_type, data['weapon_type'])
+        self.assertEqual(artifact.material, data['material'])
         self.assertEqual(artifact.power_type, data['power_type'])
         self.assertEqual(artifact.description, data['description'])
 
@@ -402,16 +408,16 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
         self.request_logout()
         self.request_login(self.account_1.email)
         self.check_ajax_error(self.client.post(reverse('game:artifacts:update', args=[self.artifact.id]), self.get_update_data()), 'artifacts.create_artifact_rights_required')
-        self.check_artifact(ArtifactRecordPrototype.get_by_id(self.artifact.id), self.get_create_data())
+        self.check_artifact(logic.load_by_id(self.artifact.id), self.get_create_data())
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('game:artifacts:update', args=[self.artifact.id]), {}), 'artifacts.update.form_errors')
-        self.check_artifact(ArtifactRecordPrototype.get_by_id(self.artifact.id), self.get_create_data())
+        self.check_artifact(logic.load_by_id(self.artifact.id), self.get_create_data())
 
     def test_simple(self):
         response = self.client.post(reverse('game:artifacts:update', args=[self.artifact.id]), self.get_update_data())
 
-        artifact_record = ArtifactRecordPrototype.get_by_id(self.artifact.id)
+        artifact_record = logic.load_by_id(self.artifact.id)
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
@@ -423,9 +429,9 @@ class TestModerationPageRequests(BaseTestRequests):
     def setUp(self):
         super(TestModerationPageRequests, self).setUp()
 
-        self.artifact = artifacts_storage.all()[0]
+        self.artifact = storage.artifacts.all()[0]
         self.artifact.state = relations.ARTIFACT_RECORD_STATE.DISABLED
-        self.artifact.save()
+        logic.save_artifact_record(self.artifact)
 
     def test_unlogined(self):
         self.request_logout()
@@ -452,10 +458,10 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
         self.request_logout()
         self.request_login(self.account_2.email)
 
-        self.mob = mobs_storage.all()[0]
+        self.mob = mobs_storage.mobs.all()[0]
 
         self.check_ajax_ok(self.client.post(reverse('game:artifacts:create'), self.get_create_data()))
-        self.artifact = ArtifactRecordPrototype(ArtifactRecord.objects.all().order_by('-created_at')[0])
+        self.artifact = logic.construct_from_model(models.ArtifactRecord.objects.all().order_by('-created_at')[0])
 
         self.name = names.generator().get_test_name(name='new name')
 
@@ -470,16 +476,16 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
         self.request_logout()
         self.request_login(self.account_1.email)
         self.check_ajax_error(self.client.post(reverse('game:artifacts:moderate', args=[self.artifact.id]), self.get_moderate_data()), 'artifacts.moderate_artifact_rights_required')
-        self.assertEqual(ArtifactRecordPrototype.get_by_id(self.artifact.id).uuid, self.artifact.uuid)
+        self.assertEqual(logic.load_by_id(self.artifact.id).uuid, self.artifact.uuid)
 
     def test_form_errors(self):
         self.check_ajax_error(self.client.post(reverse('game:artifacts:moderate', args=[self.artifact.id]), {}), 'artifacts.moderate.form_errors')
-        self.assertEqual(ArtifactRecordPrototype.get_by_id(self.artifact.id).uuid, self.artifact.uuid)
+        self.assertEqual(logic.load_by_id(self.artifact.id).uuid, self.artifact.uuid)
 
     def test_simple(self):
         response = self.client.post(reverse('game:artifacts:moderate', args=[self.artifact.id]), self.get_moderate_data())
 
-        artifact_record = ArtifactRecordPrototype.get_by_id(self.artifact.id)
+        artifact_record = logic.load_by_id(self.artifact.id)
 
         self.check_ajax_ok(response, data={'next_url': reverse('guide:artifacts:show', args=[artifact_record.id])})
 
@@ -498,6 +504,6 @@ class TestModerateRequests(BaseTestRequests, PostMixin):
     def test_simple_not_approved(self):
         self.check_ajax_ok(self.client.post(reverse('game:artifacts:moderate', args=[self.artifact.id]), self.get_moderate_data(approved=False)))
 
-        artifact_record = ArtifactRecordPrototype.get_by_id(self.artifact.id)
+        artifact_record = logic.load_by_id(self.artifact.id)
 
         self.assertTrue(artifact_record.state.is_DISABLED)

@@ -28,7 +28,6 @@ class InstantMonsterKillTests(CardsTestMixin, testcase.TestCase):
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-
     def test_no_battle(self):
         self.assertFalse(self.hero.actions.current_action.TYPE.is_BATTLE_PVE_1X1)
 
@@ -37,10 +36,10 @@ class InstantMonsterKillTests(CardsTestMixin, testcase.TestCase):
 
     def test_use(self):
         from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
-        from the_tale.game.mobs.storage import mobs_storage
+        from the_tale.game.mobs import storage as mobs_storage
 
         with mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 0):
-            ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
+            ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
         self.assertTrue(self.hero.actions.current_action.TYPE.is_BATTLE_PVE_1X1)
         self.assertTrue(self.hero.actions.current_action.mob.health > 0)

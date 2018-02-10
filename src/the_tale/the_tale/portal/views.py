@@ -103,13 +103,13 @@ class PortalResource(Resource):
     @handler('landing')
     def landing(self, type="normal"):
         from the_tale.game.map.storage import map_info_storage
-        from the_tale.game.mobs.storage import mobs_storage
+        from the_tale.game.mobs import storage as mobs_storage
 
         if self.account.is_authenticated:
             return self.redirect(url('portal:'))
 
         mobs = [mob
-                for mob in mobs_storage.get_available_mobs_list(level=666)
+                for mob in mobs_storage.mobs.get_available_mobs_list(level=666)
                 if len(mob.description) < portal_settings.LANDING_MOB_DESCRIPTION_MAX_LENGTH]
 
         return self.template('portal/landing.html',

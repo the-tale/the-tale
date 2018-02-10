@@ -6,6 +6,9 @@ from utg import relations as utg_relations
 
 import tt_calendar
 
+from tt_logic.artifacts import relations as tt_artifacts_relations
+from tt_logic.beings import relations as beings_relations
+
 from the_tale.game import relations as game_relations
 from the_tale.game.actions import relations as actions_relations
 from the_tale.game.artifacts import relations as artifacts_relations
@@ -115,7 +118,7 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                ('ARTIFACT_RARITY', 8, 'редкость артефакта', artifacts_relations.RARITY, True),
                ('ARTIFACT_EFFECT', 9, 'эффект артефакта', artifacts_relations.ARTIFACT_EFFECT, True),
 
-               ('MOB_TYPE', 10, 'тип существа', game_relations.BEING_TYPE, True),
+               ('MOB_TYPE', 10, 'тип существа', beings_relations.TYPE, True),
 
                ('ARTIFACT', 11, 'артефакт', None, True),
                ('MOB', 12, 'монстр', None, True),
@@ -133,11 +136,11 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                ('META_HEIGHT', 22, 'мета тип высоты', map_relations.META_HEIGHT, True),
                ('META_VEGETATION', 23, 'мета тип растительности', map_relations.META_VEGETATION, True),
 
-               ('COMMUNICATION_VERBAL', 24, 'вербальная коммуникация', game_relations.COMMUNICATION_VERBAL, True),
-               ('COMMUNICATION_GESTURES', 25, 'невербальная коммуникация', game_relations.COMMUNICATION_GESTURES, True),
-               ('COMMUNICATION_TELEPATHIC', 26, 'телепатия', game_relations.COMMUNICATION_TELEPATHIC, True),
+               ('COMMUNICATION_VERBAL', 24, 'вербальная коммуникация', beings_relations.COMMUNICATION_VERBAL, True),
+               ('COMMUNICATION_GESTURES', 25, 'невербальная коммуникация', beings_relations.COMMUNICATION_GESTURES, True),
+               ('COMMUNICATION_TELEPATHIC', 26, 'телепатия', beings_relations.COMMUNICATION_TELEPATHIC, True),
 
-               ('INTELLECT_LEVEL', 27, 'уровень интеллекта', game_relations.INTELLECT_LEVEL, True),
+               ('INTELLECT_LEVEL', 27, 'уровень интеллекта', beings_relations.INTELLECT_LEVEL, True),
 
                ('ACTOR', 28, 'мета-тип существа', game_relations.ACTOR, True),
 
@@ -146,7 +149,7 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                ('PERSON_PERSONALITY_COSMETIC', 30, 'косметическая особенность характера', persons_relations.PERSONALITY_COSMETIC, True),
                ('PERSON_PERSONALITY_PRACTICAL', 31, 'практическая особенность характера', persons_relations.PERSONALITY_PRACTICAL, True),
 
-               ('COMPANION_ABILITY', 32, 'особенность', companion_effects.ABILITIES, True),
+               ('COMPANION_ABILITY', 32, 'особенность спутника', companion_effects.ABILITIES, True),
 
                ('COMPANION_EXISTENCE', 33, 'наличие спутника', companions_relations.COMPANION_EXISTENCE, True),
 
@@ -159,4 +162,14 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                ('QUINT_DAY', 40, 'день квинта', tt_calendar.QUINT_DAY, False),
                ('DAY_TYPE', 41, 'тип дня', tt_calendar.DAY_TYPE, True),
 
-               ('COINS_AMOUNT', 42, 'величина суммы монет', game_relations.COINS_AMOUNT, True))
+               ('COINS_AMOUNT', 42, 'величина суммы монет', game_relations.COINS_AMOUNT, True),
+
+               ('WEAPON_TYPE', 43, 'тип оружия', tt_artifacts_relations.WEAPON_TYPE, True),
+               ('DAMAGE_TYPE', 44, 'тип нанесения урона', tt_artifacts_relations.DAMAGE_TYPE, True),
+               ('MATERIAL', 45, 'основной материал', tt_artifacts_relations.MATERIAL, True),
+
+               ('BEING_STRUCTURE', 46, 'структура', beings_relations.STRUCTURE, True),
+               ('BEING_FEATURE', 47, 'особенность существа', beings_relations.FEATURE, True),
+               ('BEING_MOVEMENT', 48, 'способ передвижения', beings_relations.MOVEMENT, True),
+               ('BEING_BODY', 49, 'телосложение', beings_relations.BODY, True),
+               ('BEING_SIZE', 50, 'размер', beings_relations.SIZE, True))

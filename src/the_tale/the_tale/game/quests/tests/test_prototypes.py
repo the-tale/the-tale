@@ -35,9 +35,9 @@ from the_tale.game.balance import formulas as f
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype
 
-from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import relations as artifacts_relations
+from the_tale.game.artifacts import storage as artifacts_storage
+from the_tale.game.artifacts import logic as artifacts_logic
 
 from the_tale.game.quests import logic
 from the_tale.game.quests.prototypes import QuestPrototype
@@ -497,15 +497,15 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(self.hero.bag.occupation, 0)
 
-        ArtifactRecordPrototype.create_random('just_ring', type_=ARTIFACT_TYPE.RING)
-        ArtifactRecordPrototype.create_random('just_amulet', type_=ARTIFACT_TYPE.AMULET)
+        artifacts_logic.create_random_artifact_record('just_ring', type=artifacts_relations.ARTIFACT_TYPE.RING)
+        artifacts_logic.create_random_artifact_record('just_amulet', type=artifacts_relations.ARTIFACT_TYPE.AMULET)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.receive_artifacts_choices',
-                        lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.RING])):
+                        lambda *argv, **kwargs: artifacts_storage.artifacts.artifacts_for_type([artifacts_relations.ARTIFACT_TYPE.RING])):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.0)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.receive_artifacts_choices',
-                        lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.AMULET])):
+                        lambda *argv, **kwargs: artifacts_storage.artifacts.artifacts_for_type([artifacts_relations.ARTIFACT_TYPE.AMULET])):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
 
         self.assertEqual(self.hero.bag.occupation, 2)

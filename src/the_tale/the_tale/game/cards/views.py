@@ -332,6 +332,9 @@ def take_card_callback(context):
 
     account = accounts_prototypes.AccountPrototype.get_by_id(context.tt_request.timer.owner_id)
 
+    if account is None:
+        return dext_views.AjaxOk()
+
     if not logic_checkers.is_player_participate_in_game(is_banned=account.is_ban_game,
                                                         active_end_at=account.active_end_at,
                                                         is_premium=account.is_premium):

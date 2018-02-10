@@ -21,10 +21,10 @@ from the_tale.game.balance import power as p
 
 from the_tale.game.quests import logic as quests_logic
 
-from the_tale.game.mobs.prototypes import MobPrototype
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import objects as mobs_objects
+from the_tale.game.mobs import storage as mobs_storage
 
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage as artifacts_storage
 
 from the_tale.game.roads.storage import waymarks_storage
 from the_tale.game.places import storage as places_storage
@@ -134,7 +134,7 @@ class ActionBase(object):
 
         self.mob = None
         if mob:
-            self.mob = mob if isinstance(mob, MobPrototype) else MobPrototype.deserialize(mob)
+            self.mob = mob if isinstance(mob, mobs_objects.Mob) else mobs_objects.Mob.deserialize(mob)
 
         self.data = data
         self.break_at = break_at
@@ -875,7 +875,7 @@ class ActionMoveToPrototype(ActionBase):
             self.state = self.STATE.REGENERATE_ENERGY
 
         elif self.hero.is_battle_start_needed():
-            mob = mobs_storage.create_mob_for_hero(self.hero)
+            mob = mobs_storage.mobs.create_mob_for_hero(self.hero)
             ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
             self.state = self.STATE.BATTLE
 
@@ -1050,7 +1050,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         if not hero_alive:
             return
 
-        loot = artifacts_storage.generate_loot(self.hero, self.mob)
+        loot = artifacts_storage.artifacts.generate_loot(self.hero, self.mob)
 
         if loot is not None:
             bag_uuid = self.hero.put_loot(loot)
@@ -1504,7 +1504,7 @@ class ActionInPlacePrototype(ActionBase):
             self.hero.add_message('action_inplace_companion_steal_money', hero=self.hero, place=self.hero.position.place, companion=self.hero.companion, coins=money)
 
         if self.hero.can_companion_steal_item() and not self.hero.bag_is_full:
-            loot = artifacts_storage.generate_any_artifact(self.hero, artifact_probability_multiplier=self.hero.companion_steal_artifact_probability_multiplier)
+            loot = artifacts_storage.artifacts.generate_any_artifact(self.hero, artifact_probability_multiplier=self.hero.companion_steal_artifact_probability_multiplier)
 
             self.hero.put_loot(loot)
 
@@ -1791,16 +1791,14 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
         self.state = self.STATE.MOVING
 
-
     def process_moving(self):
-
 
         if self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
             ActionRegenerateEnergyPrototype.create(hero=self.hero)
             self.state = self.STATE.REGENERATE_ENERGY
 
         elif self.hero.is_battle_start_needed():
-            mob = mobs_storage.create_mob_for_hero(self.hero)
+            mob = mobs_storage.mobs.create_mob_for_hero(self.hero)
             ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
             self.state = self.STATE.BATTLE
 

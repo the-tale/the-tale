@@ -16,8 +16,9 @@ from the_tale.game.companions import relations as companions_relations
 from the_tale.game.actions import prototypes
 from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
 
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import RARITY
+from the_tale.game.artifacts import logic as artifacts_logic
+from the_tale.game.artifacts import storage as artifacts_storage
+from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import logic as heroes_logic
@@ -339,7 +340,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
     def test_trade_action_create(self):
 
         for i in range(int(c.MAX_BAG_SIZE * c.BAG_SIZE_TO_SELL_LOOT_FRACTION) + 1):
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
+            artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1, rarity=artifacts_relations.RARITY.NORMAL)
             self.hero.bag.put_artifact(artifact)
 
         self.storage.process_turn()
@@ -349,7 +350,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_equip_action_create(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
         artifact.power = Power(666, 666)
         self.hero.bag.put_artifact(artifact)
 
@@ -471,36 +472,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money)
         self.storage._test_save()
 
-
-    def test_buying_artifact_with_hero_preferences(self):
-        while not self.hero.next_spending.is_BUYING_ARTIFACT:
-            self.hero.switch_spending()
-
-        money = self.hero.spend_amount
-
-        self.assertEqual(self.hero.statistics.money_spend, 0)
-        self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
-        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
-
-        #unequip all arefact
-        self.hero.equipment._remove_all()
-        # self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
-        heroes_logic.save_hero(self.hero)
-
-        #buy artifact
-        self.hero.money = money
-        self.storage.process_turn()
-        self.assertTrue(self.hero.money < 1)
-        self.assertEqual(len(list(self.hero.bag.items())), 0)
-
-        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
-        self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
-        self.assertEqual(self.hero.statistics.artifacts_had, 1)
-
-        # # hero must not buy artifact in preferences slot, he has special quest for this
-        # self.assertEqual(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE), None)
-        # self.storage._test_save()
-
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_buying_artifact_without_change(self):
         while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
@@ -511,11 +483,15 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
         self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
 
-        #unequip all arefact
-        self.hero.equipment._remove_all()
+        # set prefered slot to guaranty that empty slot will be choosen
+        self.assertEqual(self.hero.equipment.get(heroes_relations.EQUIPMENT_SLOT.AMULET), None)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, heroes_relations.EQUIPMENT_SLOT.AMULET)
+
+        artifacts_logic.create_random_artifact_record('test_amulet', type=artifacts_relations.ARTIFACT_TYPE.AMULET)
+
         heroes_logic.save_hero(self.hero)
 
-        #buy artifact
+        # buy artifact
         self.hero.money = money
 
         self.storage.process_turn()
@@ -525,6 +501,9 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
+
+        self.assertNotEqual(self.hero.equipment.get(heroes_relations.EQUIPMENT_SLOT.AMULET), None)
+
         self.storage._test_save()
 
     def test_buying_artifact_with_change(self):
@@ -532,11 +511,11 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
             self.hero.switch_spending()
 
         # fill all slots with artifacts
-        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
+        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL))
 
         money = self.hero.spend_amount
 
-        #buy artifact
+        # buy artifact
         self.hero.money = money
 
         self.assertEqual(self.hero.statistics.money_spend, 0)
@@ -558,12 +537,12 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
             self.hero.switch_spending()
 
         # fill all slots with artifacts
-        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
+        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL))
 
         money = self.hero.spend_amount
         self.hero.money = money
 
-        self.hero.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 666, rarity=RARITY.EPIC))
+        self.hero.bag.put_artifact(artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 666, rarity=artifacts_relations.RARITY.EPIC))
 
         with self.check_not_changed(lambda: self.hero.statistics.money_spend):
             with self.check_not_changed(lambda: self.hero.statistics.money_spend_for_artifacts):
@@ -881,7 +860,7 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
         self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
-        self.artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
+        self.artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1, rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.put_loot(self.artifact)
 
         self.assertEqual(self.hero.bag.occupation, 1)
@@ -937,7 +916,7 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
         self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
-        self.artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
+        self.artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1, rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.put_loot(self.artifact)
 
         self.assertEqual(self.hero.bag.occupation, 1)

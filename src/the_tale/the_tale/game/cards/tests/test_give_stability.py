@@ -58,7 +58,7 @@ class GiveStabilityMixin(CardsTestMixin):
                                                                                         highlevel=self.highlevel,
                                                                                         value=self.place_1.id))
 
-        self.assertEqual(self.place_1.effects.effects[0].name, self.account_1.nick)
+        self.assertEqual(self.place_1.effects.effects[0].name, 'Хранитель {}'.format(self.account_1.nick))
         self.assertTrue(self.place_1.effects.effects[0].attribute.is_STABILITY)
         self.assertTrue(self.place_1.effects.effects[0].value, self.CARD.effect.modificator)
 

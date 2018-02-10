@@ -74,7 +74,17 @@ def _process_arguments(args):
     externals = {}
     restrictions = set()
 
+    additional_args = {}
+
+    for name, object in args.items():
+        if not hasattr(object, 'linguistics_variables'):
+            continue
+
+        additional_args.update({'{}.{}'.format(name, subname): subvariable
+                                for subname, subvariable in object.linguistics_variables()})
+
     variables = itertools.chain(args.items(),
+                                additional_args.items(),
                                 ((VARIABLE.DATE.value, turn.linguistics_date()),
                                  (VARIABLE.TIME.value, turn.linguistics_time()),))
 

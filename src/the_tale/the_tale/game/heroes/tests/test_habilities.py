@@ -1,6 +1,5 @@
-# coding: utf-8
+
 import random
-import datetime
 
 from unittest import mock
 
@@ -24,19 +23,19 @@ from the_tale.game.actions.contexts.battle import Damage
 
 from the_tale.game.heroes.fake import FakeMessenger
 from the_tale.game.heroes import bag
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import RARITY
+from the_tale.game.artifacts import storage as artifacts_storage
+from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.heroes.habilities import battle as battle_abilities
 from the_tale.game.heroes.habilities import modifiers as modifiers_abilities
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 from the_tale.game.heroes.postponed_tasks import ChooseHeroAbilityTask, CHOOSE_HERO_ABILITY_STATE
-from the_tale.game.heroes.conf import heroes_settings
 
 from .. import logic
 
 
 E = 0.0001
+
 
 class HabilitiesContainerTest(TestCase):
 
@@ -188,9 +187,9 @@ class HabilitiesTest(TestCase):
     @mock.patch('the_tale.game.heroes.habilities.battle.CHARGE.STAFF_DESTROY_CHANCE', 1)
     def test_charge_enemy_with_not_empty_bag(self):
         self.defender.bag = bag.Bag()
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts,
-                                                                 1,
-                                                                 rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                           1,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
 
         self.defender.bag.put_artifact(artifact)
         charge = battle_abilities.CHARGE()

@@ -19,7 +19,7 @@ from the_tale.game.actions import container as actions_container
 from the_tale.game.quests import container as quests_container
 
 
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage as artifacts_storage
 from the_tale.game.places import storage as places_storage
 
 from the_tale.game.companions import objects as companions_objects
@@ -269,7 +269,8 @@ def save_hero(hero, new=False):
 def dress_new_hero(hero):
     for equipment_slot in relations.EQUIPMENT_SLOT.records:
         if equipment_slot.default:
-            hero.equipment.equip(equipment_slot, artifacts_storage.get_by_uuid(equipment_slot.default).create_artifact(level=1, power=power.Power(1, 1)))
+            hero.equipment.equip(equipment_slot, artifacts_storage.artifacts.get_by_uuid(equipment_slot.default).create_artifact(level=1, power=power.Power(1, 1)))
+
 
 def preferences_for_new_hero(hero):
     if hero.preferences.energy_regeneration_type is None:

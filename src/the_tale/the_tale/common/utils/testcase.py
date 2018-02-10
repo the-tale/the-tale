@@ -16,9 +16,9 @@ def setUp(self):
 
     from the_tale.game.prototypes import GameState
     from the_tale.game.persons import storage as persons_storage
-    from the_tale.game.mobs.storage import mobs_storage
+    from the_tale.game.mobs import storage as mobs_storage
     from the_tale.game.companions import storage as companions_storage
-    from the_tale.game.artifacts.storage import artifacts_storage
+    from the_tale.game.artifacts import storage as artifacts_storage
     from the_tale.game.heroes import storage as heroes_storage
     from the_tale.game.map.storage import map_info_storage
     from the_tale.game.places import storage as places_storage
@@ -36,9 +36,9 @@ def setUp(self):
     persons_storage.social_connections.clear()
     waymarks_storage.clear()
     roads_storage.clear()
-    mobs_storage.clear()
+    mobs_storage.mobs.clear()
     companions_storage.companions.clear()
-    artifacts_storage.clear()
+    artifacts_storage.artifacts.clear()
     map_info_storage.clear()
     places_storage.resource_exchanges.clear()
     collections_storage.clear()

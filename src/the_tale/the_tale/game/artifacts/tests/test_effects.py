@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
@@ -8,7 +7,7 @@ from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.artifacts import relations
 from the_tale.game.artifacts import effects
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage
 
 
 class EffectsTests(testcase.TestCase):
@@ -21,7 +20,7 @@ class EffectsTests(testcase.TestCase):
         account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=account.id)
 
-        artifacts_storage.sync(force=True)
+        storage.artifacts.sync(force=True)
 
         self.artifact = list(self.hero.equipment.values())[0]
         self.artifact_2 = list(self.hero.equipment.values())[1]

@@ -37,7 +37,7 @@ from the_tale.game.companions.abilities import container as companions_abilities
 
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places.modifiers import CITY_MODIFIERS
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
 
 from the_tale.game.bills import conf as bills_conf
 
@@ -907,7 +907,7 @@ class HeroQuestsTest(testcase.TestCase):
 
     def test_character_quests__hunt(self):
         self.assertFalse(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mobs_storage.all()[0])
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mobs_storage.mobs.all()[0])
         self.assertTrue(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_without_artifact(self):

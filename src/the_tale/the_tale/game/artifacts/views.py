@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import uuid
 
 from django.core.urlresolvers import reverse
@@ -15,8 +15,8 @@ from the_tale.game.map.relations import TERRAIN
 from . import relations
 from . import effects
 from . import meta_relations
-from .prototypes import ArtifactRecordPrototype
-from .storage import artifacts_storage
+from . import logic
+from . import storage
 from .forms import ArtifactRecordForm, ModerateArtifactRecordForm
 
 
@@ -38,14 +38,17 @@ MODERATOR_INDEX_FILTERS.append(list_filter.choice_element('состояние:',
                                                           choices=list(relations.ARTIFACT_RECORD_STATE.select('value', 'text')),
                                                           default_value=relations.ARTIFACT_RECORD_STATE.ENABLED.value))
 
+
 class BaseIndexFilter(list_filter.ListFilter):
     ELEMENTS = BASE_INDEX_FILTERS
+
 
 class ModeratorIndexFilter(list_filter.ListFilter):
     ELEMENTS = MODERATOR_INDEX_FILTERS
 
+
 def argument_to_artifact_type(value): return relations.ARTIFACT_TYPE(int(value))
-def argument_to_artifact(value): return artifacts_storage.get(int(value), None)
+def argument_to_artifact(value): return storage.artifacts.get(int(value), None)
 def argument_to_effect_type(value): return relations.ARTIFACT_EFFECT(int(value))
 def argument_to_power_type(value): return relations.ARTIFACT_POWER_TYPE(int(value))
 
@@ -63,11 +66,9 @@ class ArtifactResourceBase(Resource):
 
 class GuideArtifactResource(ArtifactResourceBase):
 
-
     @validator(code='artifacts.artifact_disabled', message='артефакт находится вне игры', status_code=404)
     def validate_artifact_disabled(self, *args, **kwargs):
         return not self.artifact.state.is_DISABLED or self.can_create_artifact or self.can_moderate_artifact
-
 
     @validate_argument('state', lambda v: relations.ARTIFACT_RECORD_STATE.index_value[int(v)], 'artifacts', 'неверное состояние записи об артефакте')
     @validate_argument('type', argument_to_artifact_type, 'artifacts', 'неверный тип слота экипировки')
@@ -82,7 +83,7 @@ class GuideArtifactResource(ArtifactResourceBase):
               power_type=None, # pylint: disable=W0622
               order_by=relations.INDEX_ORDER_TYPE.BY_NAME):
 
-        artifacts = artifacts_storage.all()
+        artifacts = storage.artifacts.all()
 
         if not self.can_create_artifact and not self.can_moderate_artifact:
             artifacts = [artifact for artifact in artifacts if artifact.state.is_ENABLED] # pylint: disable=W0110
@@ -179,20 +180,22 @@ class GameArtifactResource(ArtifactResourceBase):
         if not form.is_valid():
             return self.json_error('artifacts.create.form_errors', form.errors)
 
-        artifact = ArtifactRecordPrototype.create(uuid=uuid.uuid4().hex,
-                                                  level=form.c.level,
-                                                  utg_name=form.c.name,
-                                                  description=form.c.description,
-                                                  type_=form.c.type,
-                                                  editor=self.account,
-                                                  state=relations.ARTIFACT_RECORD_STATE.DISABLED,
-                                                  power_type=form.c.power_type,
-                                                  rare_effect=form.c.rare_effect,
-                                                  epic_effect=form.c.epic_effect,
-                                                  special_effect=form.c.special_effect,
-                                                  mob=form.c.mob)
-        return self.json_ok(data={'next_url': reverse('guide:artifacts:show', args=[artifact.id])})
+        artifact = logic.create_artifact_record(uuid=uuid.uuid4().hex,
+                                                level=form.c.level,
+                                                utg_name=form.c.name,
+                                                description=form.c.description,
+                                                type=form.c.type,
+                                                editor=self.account,
+                                                state=relations.ARTIFACT_RECORD_STATE.DISABLED,
+                                                power_type=form.c.power_type,
+                                                rare_effect=form.c.rare_effect,
+                                                epic_effect=form.c.epic_effect,
+                                                special_effect=form.c.special_effect,
+                                                weapon_type=form.c.weapon_type,
+                                                material=form.c.material,
+                                                mob=form.c.mob)
 
+        return self.json_ok(data={'next_url': reverse('guide:artifacts:show', args=[artifact.id])})
 
     @login_required
     @validate_disabled_state()
@@ -215,7 +218,7 @@ class GameArtifactResource(ArtifactResourceBase):
         if not form.is_valid():
             return self.json_error('artifacts.update.form_errors', form.errors)
 
-        self.artifact.update_by_creator(form, editor=self.account)
+        logic.update_by_creator(self.artifact, form, editor=self.account)
 
         return self.json_ok(data={'next_url': reverse('guide:artifacts:show', args=[self.artifact.id])})
 
@@ -237,6 +240,6 @@ class GameArtifactResource(ArtifactResourceBase):
         if not form.is_valid():
             return self.json_error('artifacts.moderate.form_errors', form.errors)
 
-        self.artifact.update_by_moderator(form, editor=self.account)
+        logic.update_by_moderator(self.artifact, form, editor=self.account)
 
         return self.json_ok(data={'next_url': reverse('guide:artifacts:show', args=[self.artifact.id])})

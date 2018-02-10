@@ -1,6 +1,11 @@
 
 import random
+
 from dext.common.utils import s11n
+
+from utg import words as utg_words
+
+from tt_logic.beings import relations as beings_relations
 
 from the_tale.common.utils import bbcode
 
@@ -66,6 +71,9 @@ class Companion(object):
     @property
     def utg_name_form(self): return self.record.utg_name_form
 
+    def linguistics_variables(self):
+        return [('weapon', random.choice(self.record.weapons))]
+
     def linguistics_restrictions(self):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
@@ -79,7 +87,14 @@ class Companion(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE, relations.COMPANION_EXISTENCE.HAS_NO.value).id ]
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE, relations.COMPANION_EXISTENCE.HAS_NO.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE, self.record.structure.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT, self.record.movement.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_BODY, self.record.body.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.record.size.value).id]
+
+        for feature in self.record.features:
+            restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE, feature.value).id)
 
         if self._hero:
             terrain = self._hero.position.get_terrain()
@@ -227,7 +242,6 @@ class Companion(object):
         raw_damage = f.expected_damage_to_mob_per_hit(self._hero.level)
         return p.Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
 
-
     def ui_info(self):
         return {'type': self.record.id,
                 'name': self.name[0].upper() + self.name[1:],
@@ -239,10 +253,9 @@ class Companion(object):
                 'real_coherence': self.coherence}
 
 
-class CompanionRecord(names.ManageNameMixin):
+class CompanionRecord(names.ManageNameMixin2):
     __slots__ = ('id',
                  'state',
-                 'data',
                  'type',
                  'max_health',
                  'dedication',
@@ -252,12 +265,25 @@ class CompanionRecord(names.ManageNameMixin):
                  'communication_verbal',
                  'communication_gestures',
                  'communication_telepathic',
-                 'intellect_level')
+                 'intellect_level',
+
+                 'structure',
+                 'features',
+                 'movement',
+                 'body',
+                 'size',
+                 'weapons',
+
+                 'description',
+                 'utg_name',
+
+                 # mames mixin
+                 '_utg_name_form__lazy',
+                 '_name__lazy')
 
     def __init__(self,
                  id,
                  state,
-                 data,
                  type,
                  max_health,
                  dedication,
@@ -266,7 +292,19 @@ class CompanionRecord(names.ManageNameMixin):
                  communication_verbal,
                  communication_gestures,
                  communication_telepathic,
-                 intellect_level):
+                 intellect_level,
+
+                 structure,
+                 features,
+                 movement,
+                 body,
+                 size,
+                 weapons,
+
+                 abilities,
+
+                 description,
+                 utg_name):
         self.id = id
         self.state = state
         self.type = type
@@ -280,11 +318,32 @@ class CompanionRecord(names.ManageNameMixin):
         self.communication_telepathic = communication_telepathic
         self.intellect_level = intellect_level
 
-        self.data = data
+        self.structure = structure
+        self.features = features
+        self.movement = movement
+        self.body = body
+        self.size = size
+        self.weapons = weapons
 
-        self.description = self.data['description']
-        self.abilities = abilities_container.Container.deserialize(self.data.get('abilities', {}))
+        self.utg_name = utg_name
 
+        self.description = description
+        self.abilities = abilities
+
+    def features_verbose(self):
+        features = [feature.verbose_text for feature in self.features]
+        features.sort()
+        return ', '.join(features)
+
+    def weapons_verbose(self):
+        weapons = []
+
+        for weapon in self.weapons:
+            weapons.append(weapon.verbose())
+
+        weapons.sort()
+
+        return weapons
 
     def rarity_points(self):
         points = [('здоровье', float(self.max_health - c.COMPANIONS_MEDIUM_HEALTH) / (c.COMPANIONS_MEDIUM_HEALTH - c.COMPANIONS_MIN_HEALTH) * 1)]
@@ -306,9 +365,15 @@ class CompanionRecord(names.ManageNameMixin):
 
     @classmethod
     def from_model(cls, model):
+        from the_tale.game.artifacts import objects as artifacts_objects
+
+        data = s11n.from_json(model.data)
+
+        weapons = [artifacts_objects.Weapon.deserialize(weapon_data)
+                   for weapon_data in data.get('weapons', ())]
+
         return cls(id=model.id,
                    state=model.state,
-                   data=s11n.from_json(model.data),
                    type=model.type,
                    max_health=model.max_health,
                    dedication=model.dedication,
@@ -317,11 +382,24 @@ class CompanionRecord(names.ManageNameMixin):
                    communication_verbal=model.communication_verbal,
                    communication_gestures=model.communication_gestures,
                    communication_telepathic=model.communication_telepathic,
-                   intellect_level=model.intellect_level)
+                   intellect_level=model.intellect_level,
+
+                   abilities=abilities_container.Container.deserialize(data.get('abilities', {})),
+
+                   utg_name=utg_words.Word.deserialize(data['name']),
+                   description=data['description'],
+
+                   structure=beings_relations.STRUCTURE(data.get('structure', 0)),
+                   features=frozenset(beings_relations.FEATURE(feature) for feature in data.get('features', ())),
+                   movement=beings_relations.MOVEMENT(data.get('movement', 0)),
+                   body=beings_relations.BODY(data.get('body', 0)),
+                   size=beings_relations.SIZE(data.get('size', 0)),
+                   weapons=weapons)
 
     @property
     def description_html(self): return bbcode.render(self.description)
 
     def __eq__(self, other):
-        return all(getattr(self, field) == getattr(other, field)
-                   for field in self.__slots__)
+        return all(getattr(self, field, None) == getattr(other, field, None)
+                   for field in self.__slots__
+                   if field not in ('_utg_name_form__lazy', '_name__lazy'))

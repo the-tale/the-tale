@@ -41,14 +41,13 @@ def form(preference):
 
             return value
 
-
     return Preference
 
 
 class Mob(form(heroes_relations.PREFERENCE_TYPE.MOB)):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        mobs = mobs_storage.mobs_storage.get_available_mobs_list(level=self.hero.level, terrain=None, mercenary=None)
+        mobs = mobs_storage.mobs.get_available_mobs_list(level=self.hero.level, terrain=None, mercenary=None)
         self.fields['value'].choices = [(None, 'забыть предпочтение')] + [(mob.id, mob.name) for mob in mobs]
 
 

@@ -1,31 +1,39 @@
-# coding: utf-8
+
 import random
 import itertools
 
-from the_tale.common.utils import storage
+from dext.common.utils import storage
+
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game.balance.power import Power
 
-from the_tale.game.artifacts import exceptions
-from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts import relations
+from . import logic
+from . import models
+from . import relations
+from . import exceptions
 
 
 class ArtifactsStorage(storage.CachedStorage):
     SETTINGS_KEY = 'artifacts records change time'
     EXCEPTION = exceptions.ArtifactsStorageError
-    PROTOTYPE = ArtifactRecordPrototype
+
+    def _construct_object(self, model):
+        return logic.construct_from_model(model)
+
+    def _get_all_query(self):
+        return models.ArtifactRecord.objects.all()
 
     def _reset_cache(self):
         self._artifacts_by_uuids = {}
         self.artifacts = []
         self.loot = []
-        self._artifacts_by_types = { artifact_type: [] for artifact_type in relations.ARTIFACT_TYPE.records}
+        self._artifacts_by_types = {artifact_type: [] for artifact_type in relations.ARTIFACT_TYPE.records}
         self._mob_artifacts = {}
         self._mob_loot = {}
 
     def _update_cached_data(self, item):
+
         self._artifacts_by_uuids[item.uuid] = item
 
         if not item.state.is_ENABLED:
@@ -75,7 +83,6 @@ class ArtifactsStorage(storage.CachedStorage):
                                                power=power,
                                                rarity=rarity)
 
-
     def get_mob_artifacts(self, mob_id):
         self.sync()
 
@@ -91,9 +98,9 @@ class ArtifactsStorage(storage.CachedStorage):
         return self._mob_loot[mob_id]
 
     def get_rarity_type(self, hero):
-        choices = ( (relations.RARITY.NORMAL, relations.RARITY.NORMAL.probability),
-                    (relations.RARITY.RARE, relations.RARITY.RARE.probability * hero.rare_artifact_probability_multiplier),
-                    (relations.RARITY.EPIC, relations.RARITY.EPIC.probability * hero.epic_artifact_probability_multiplier))
+        choices = ((relations.RARITY.NORMAL, relations.RARITY.NORMAL.probability),
+                   (relations.RARITY.RARE, relations.RARITY.RARE.probability * hero.rare_artifact_probability_multiplier),
+                   (relations.RARITY.EPIC, relations.RARITY.EPIC.probability * hero.epic_artifact_probability_multiplier))
         return random_value_by_priority(choices)
 
     def generate_loot(self, hero, mob):
@@ -116,5 +123,4 @@ class ArtifactsStorage(storage.CachedStorage):
         return self.generate_artifact_from_list(self.loot, artifact_level, rarity=relations.RARITY.NORMAL)
 
 
-
-artifacts_storage = ArtifactsStorage()
+artifacts = ArtifactsStorage()
