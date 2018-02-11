@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.common.utils import urls
 
@@ -26,7 +25,7 @@ class Mob(meta_relations.MetaType):
 
     @classmethod
     def create_from_id(cls, id):
-        mob = storage.mobs_storage.get(id)
+        mob = storage.mobs.get(id)
         if mob is None:
             return None
 

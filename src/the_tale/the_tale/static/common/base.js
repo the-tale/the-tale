@@ -211,6 +211,10 @@ pgf.base.RenderTemplateList = function(selector, data, newElementCallback, param
     }
 };
 
+function _PrependZero(text) {
+    return ('0' + text).slice(-2);
+}
+
 pgf.base.AutoFormatTime = function() {
     var date = new Date();
 
@@ -218,7 +222,7 @@ pgf.base.AutoFormatTime = function() {
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
         var date = new Date(timestamp)
-        var text = date.getDate() + '.' + (date.getMonth()+1) + '.' + date.getFullYear() + ' ' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+        var text = _PrependZero(date.getDate()) + '.' + _PrependZero(date.getMonth()+1) + '.' + date.getFullYear() + ' ' + _PrependZero(date.getHours()) + ':' + _PrependZero(date.getMinutes());
         el.text(text);
     });
 
@@ -226,7 +230,7 @@ pgf.base.AutoFormatTime = function() {
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
         var date = new Date(timestamp)
-        var text = date.getDate() + '.' + (date.getMonth()+1) + '.' + date.getFullYear();
+        var text = _PrependZero(date.getDate()) + '.' + _PrependZero(date.getMonth()+1) + '.' + date.getFullYear();
         el.text(text);
     });
 
@@ -234,7 +238,7 @@ pgf.base.AutoFormatTime = function() {
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
         var date = new Date(timestamp)
-        var text = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
+        var text = _PrependZero(date.getHours()) + ':' + _PrependZero(date.getMinutes());
         el.text(text);
     });
 };

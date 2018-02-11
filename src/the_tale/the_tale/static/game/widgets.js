@@ -275,6 +275,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-might-politics-power-bonus', widget).text(Math.round(data.might.politics_power*10000)/100.0);
 
         jQuery('.pgf-energy', content).text(account.energy);
+        jQuery('.pgf-diary-block-energy').text(account.energy);
 
         // companion data
         jQuery('.pgf-companion', widget).toggleClass('pgf-hidden', !!(data.companion == null));
