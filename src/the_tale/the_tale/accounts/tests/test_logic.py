@@ -28,7 +28,6 @@ class TestLogic(testcase.TestCase):
         super(TestLogic, self).setUp()
         create_test_map()
 
-
     def test_block_expired_accounts(self):
         task = RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id=None)
         self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
@@ -74,7 +73,6 @@ class TestLogic(testcase.TestCase):
         self.assertEqual(task.internal_logic.comment, 'some comment')
         self.assertEqual(task.internal_logic.amount, int(1000 * (1 - conf.accounts_settings.MONEY_SEND_COMMISSION)))
         self.assertEqual(task.internal_logic.commission, 1000 * conf.accounts_settings.MONEY_SEND_COMMISSION)
-
 
 
 class TestGetAccountInfoLogic(testcase.TestCase):

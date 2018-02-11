@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import os
 import sys
 import time
@@ -51,11 +51,11 @@ SOCIAL_VK_GROUP_URL = None
 SOCIAL_TWITTER_GROUP_URL = None
 SOCIAL_FACEBOOK_GROUP_URL = None
 
-SOCIAL_WIKI_URL = None
-SOCIAL_CHROME_URL = None
-SOCIAL_DARK_THEME_URL = None
-SOCIAL_GITHUB_URL = 'https://github.com/Tiendil/the-tale'
+COMMUNITY_PROJECTS = []
+SOCIAL_GITHUB_URL = 'https://github.com/the-tale'
+SOCIAL_DOCUMENTATION = 'http://docs.the-tale.org'
 
+CARDS_TUTORIAL = None
 YOUTUBE_TUTORIAL = None
 
 X_FRAME_OPTIONS = 'DENY'
@@ -81,6 +81,8 @@ USE_I18N = True
 USE_L10N = True
 
 SECRET_KEY = 'test secret key, must be replaced'
+
+TT_SECRET = 'test.secret'
 
 GA_CODE = None
 ADDTHIS = None
@@ -109,7 +111,6 @@ EMAIL_FILE_PATH = '/tmp/emails'
 ################################
 
 APPEND_SLASH = True
-#PREPEND_WWW = True
 
 TEMPLATES = [ {'BACKEND': 'dext.common.utils.jinja2.Engine',
                'OPTIONS': {
@@ -123,7 +124,9 @@ TEMPLATES = [ {'BACKEND': 'dext.common.utils.jinja2.Engine',
                                           'the_tale.portal.context_processors.cdn_paths',
                                           'the_tale.game.balance.context_processors.balance',
                                           'the_tale.game.bills.context_processors.bills_context',
-                                          'the_tale.linguistics.context_processors.linguistics_context'
+                                          'the_tale.linguistics.context_processors.linguistics_context',
+                                          'the_tale.guide.context_processors.guide_context',
+                                          'the_tale.blogs.context_processors.blogs_context'
                                         ),
                    'directories': (os.path.join(PROJECT_DIR, 'templates'),),
                    'auto_reload': False,
@@ -197,7 +200,7 @@ INSTALLED_APPS = [
     'the_tale.portal',
     'the_tale.portal.developers_info',
 
-    'the_tale.game.chronicle', # MUST be before game, since the same bug like with the_tale.accounts.third_party
+    'the_tale.game.chronicle',  # MUST be before game, since the same bug like with the_tale.accounts.third_party
     'the_tale.game',
     'the_tale.game.jobs',
     'the_tale.game.abilities',
@@ -218,7 +221,7 @@ INSTALLED_APPS = [
     'the_tale.game.cards',
 
     'the_tale.cms',
-    'the_tale.cms.news',
+    'the_tale.news',
 
     'the_tale.forum',
     'the_tale.blogs',
@@ -226,7 +229,6 @@ INSTALLED_APPS = [
     'the_tale.linguistics',
 
     'the_tale.finances.shop',
-    'the_tale.finances.market',
     'the_tale.finances.bank',
     'the_tale.finances.xsolla',
 

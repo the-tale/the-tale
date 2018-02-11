@@ -13,8 +13,6 @@ from the_tale.game.actions.prototypes import ActionQuestPrototype
 
 from the_tale.game.cards.tests.helpers import CardsTestMixin
 
-from the_tale.game.quests import relations as quests_relations
-
 
 class AddExperienceTestMixin(CardsTestMixin):
     CARD = None

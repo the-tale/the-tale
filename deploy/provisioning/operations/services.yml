@@ -53,6 +53,32 @@
     collect_static: false
 
 
+- name: install TT soft currency
+  include: ../tasks/tt_service.yml
+  vars:
+    name: TT soft currency
+    user: tt_soft_currency
+    packages: "{{tt_services['tt_soft_currency']['packages']}}"
+    django_settings: tt_bank.settings
+    port: 10005
+    collect_static: false
+
+
+- name: install TT players timers
+  include: ../tasks/tt_service.yml
+  vars:
+    name: TT players timers
+    user: tt_players_timers
+    packages: "{{tt_services['tt_players_timers']['packages']}}"
+    django_settings: tt_timers.settings
+    port: 10006
+    collect_static: false
+
+
+- name: install services cron files
+  include: ../tasks/tt_cron.yml
+
+
 - name: The Tale postupdate operations
   hosts: all
   become: yes

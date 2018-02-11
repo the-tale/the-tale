@@ -1,10 +1,11 @@
-# coding: utf-8
 
 import random
 
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
 
-from the_tale.game.mobs.storage import mobs_storage
+from tt_logic.beings import relations as beings_relations
+
+from the_tale.game.mobs import storage as mobs_storage
 
 from the_tale.game.balance import constants as c
 
@@ -99,10 +100,10 @@ class Honor(Habit):
 
     def update_context(self, actor, enemy):
         if (self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3) and enemy.mob_type is not None and enemy.mob_type.is_CIVILIZED:
-            actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE / mobs_storage.mob_type_fraction(enemy.mob_type))
+            actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE / mobs_storage.mobs.mob_type_fraction(enemy.mob_type))
 
         if (self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3) and enemy.mob_type is not None and enemy.mob_type.is_MONSTER:
-            actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE / mobs_storage.mob_type_fraction(enemy.mob_type))
+            actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE / mobs_storage.mobs.mob_type_fraction(enemy.mob_type))
 
 
 
@@ -150,16 +151,14 @@ class Peacefulness(Habit):
             value.add(ACTION_EVENT.AGGRESSIVE)
             return value
 
-
         return value
-
 
     def check_attribute(self, modifier):
         if modifier.is_EXP_FOR_KILL and self._real_interval.is_LEFT_3:
             return random.uniform(0, 1) < c.EXP_FOR_KILL_PROBABILITY
 
         if modifier.is_PEACEFULL_BATTLE and self._real_interval.is_RIGHT_3:
-            return random.uniform(0, 1) < c.PEACEFULL_BATTLE_PROBABILITY / mobs_storage.mob_type_fraction(game_relations.BEING_TYPE.CIVILIZED)
+            return random.uniform(0, 1) < c.PEACEFULL_BATTLE_PROBABILITY / mobs_storage.mobs.mob_type_fraction(beings_relations.TYPE.CIVILIZED)
 
         return False
 

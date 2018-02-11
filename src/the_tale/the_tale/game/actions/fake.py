@@ -7,7 +7,7 @@ from the_tale.game.actions.contexts.battle import BattleContext
 
 class FakeActor(object):
 
-    def __init__(self, name='fake_actor', damage=None, max_health=100, context=None, level=7, mob_type=None):
+    def __init__(self, name='fake_actor', damage=None, max_health=100, context=None, level=7, mob_type=None, bag=None):
         self.name = name
         self.basic_damage = damage if damage is not None else Damage(10, 10)
         self.max_health = max_health
@@ -15,6 +15,7 @@ class FakeActor(object):
         self.level = level
         self.context = context if context else BattleContext()
         self.mob_type = mob_type
+        self.bag = bag
 
     @property
     def initiative(self): return 1

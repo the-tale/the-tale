@@ -1,0 +1,58 @@
+syntax = "proto3";
+package timers;
+
+
+message Timer {
+  uint64 id = 1;
+  uint64 owner_id = 2;
+  uint64 entity_id = 3;
+  uint32 type = 4;
+  double speed = 5;
+  double border = 6;
+  double resources = 7;
+  double resources_at = 8;
+  double finish_at = 9;
+}
+
+message CreateTimerRequest {
+  uint64 owner_id = 1;
+  uint64 entity_id = 2;
+  uint32 type = 3;
+  double speed = 4;
+  double border = 5;
+  string callback_data = 6;
+  double resources = 7;
+}
+
+message CreateTimerResponse {
+  Timer timer = 1;
+}
+
+message ChangeSpeedRequest {
+  uint64 owner_id = 1;
+  uint64 entity_id = 2;
+  uint32 type = 3;
+  double speed = 4;
+}
+
+message ChangeSpeedResponse {
+  Timer timer = 1;
+}
+
+message GetOwnerTimersRequest {
+  uint64 owner_id = 1;
+}
+
+message GetOwnerTimersResponse {
+  repeated Timer timers = 1;
+}
+
+
+message CallbackBody {
+  Timer timer = 1;
+  string callback_data = 2;
+  string secret = 3;
+}
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

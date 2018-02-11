@@ -7,6 +7,9 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.logic import create_test_map
 from the_tale.game import turn
+from the_tale.game import names
+
+from the_tale.game.places import logic as places_logic
 
 from the_tale.linguistics import logic as linguistics_logic
 
@@ -24,7 +27,6 @@ class LogicTests(testcase.TestCase):
 
         self.place_1, self.place_2, self.place_3 = create_test_map()
 
-
     def test_create_social_connection(self):
         connection_type = relations.SOCIAL_CONNECTION_TYPE.random()
         person_1 = self.place_1.persons[0]
@@ -41,7 +43,6 @@ class LogicTests(testcase.TestCase):
 
         self.assertIn(connection.id, storage.social_connections)
 
-
     def test_create_social_connection__uniqueness(self):
         connection = relations.SOCIAL_CONNECTION_TYPE.random()
         person_1 = self.place_1.persons[0]
@@ -56,7 +57,6 @@ class LogicTests(testcase.TestCase):
         self.assertRaises(exceptions.PersonsAlreadyConnectedError, logic.create_social_connection, connection_type=relations.SOCIAL_CONNECTION_TYPE.random(exclude=(connection,)),
                           person_1=person_2, person_2=person_1)
 
-
     def test_remove_social_connection(self):
         connection_type = relations.SOCIAL_CONNECTION_TYPE.random()
         person_1 = self.place_1.persons[0]
@@ -69,7 +69,6 @@ class LogicTests(testcase.TestCase):
         logic.remove_connection(connection)
 
         self.assertNotIn(connection.id, storage.social_connections)
-
 
     def test_move_person_to_place(self):
         person = self.place_1.persons[0]
@@ -97,14 +96,11 @@ class PersonPowerTest(testcase.TestCase):
 
         self.person = self.place_1.persons[0]
 
-
     def test_inner_circle_size(self):
         self.assertEqual(self.person.politic_power.INNER_CIRCLE_SIZE, 3)
 
-
     def test_initialization(self):
         self.assertEqual(self.person.total_politic_power_fraction, 0)
-
 
     @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 0.5)
     def test_change_power(self):
@@ -121,11 +117,11 @@ class PersonPowerTest(testcase.TestCase):
                                    has_in_preferences=False,
                                    power=500))
 
-
     @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 0.5)
-    @mock.patch('the_tale.game.persons.objects.Person.has_building', True)
     def test_change_power__has_building(self):
         self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.5)
+
+        places_logic.create_building(self.person, utg_name=names.generator().get_test_name('building-name'))
 
         with mock.patch('the_tale.game.politic_power.PoliticPower.change_power') as change_power:
             self.assertEqual(self.person.politic_power.change_power(person=self.person,
@@ -139,3 +135,15 @@ class PersonPowerTest(testcase.TestCase):
                                    hero_id=None,
                                    has_in_preferences=False,
                                    power=750))
+
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 0.5)
+    def test_change_power__has_building__amortization(self):
+        self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.5)
+
+        places_logic.create_building(self.person, utg_name=names.generator().get_test_name('building-name'))
+
+        with self.check_decreased(lambda: self.person.politic_power.change_power(person=self.person,
+                                                                                 hero_id=None,
+                                                                                 has_in_preferences=False,
+                                                                                 power=1000)):
+            self.person.building.amortize(1000)

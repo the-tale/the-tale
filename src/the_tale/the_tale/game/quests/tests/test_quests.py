@@ -23,7 +23,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.persons.relations import PERSON_TYPE
 from the_tale.game.persons import logic as persons_logic
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
 
 from the_tale.game.logic import create_test_map
 from the_tale.game import turn
@@ -61,7 +61,7 @@ class QuestsTestBase(testcase.TestCase):
         self.action_idl = self.hero.actions.current_action
 
         self.hero.money += 1
-        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.MOB, mobs_storage.all()[0])
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.MOB, mobs_storage.mobs.all()[0])
         self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.PLACE, self.p1)
         self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.FRIEND, self.p1.persons[0])
         self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENEMY, self.p2.persons[0])

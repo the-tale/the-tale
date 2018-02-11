@@ -66,6 +66,29 @@
           {% endif %}
         </td>
       </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> основной материал</th>
+        <td>
+          {% if not artifact.material.is_UNKNOWN %}
+            {{ artifact.material.text }}
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> тип оружия</th>
+        <td>
+          {% if not artifact.weapon_type.is_NONE %}
+          {{ artifact.weapon_type.text }} (урон: {{ artifact.damage_types_verbose() }})
+          {% else %}
+            —
+          {% endif %}
+        </td>
+      </tr>
+
     </tbody>
   </table>
 

@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.common.utils.testcase import TestCase as DextTestCase, TransactionTestCase as DextTransactionTestCase
 from dext.common.utils.urls import url
@@ -9,19 +8,23 @@ from the_tale.common.utils.decorators import lazy_property
 
 
 def setUp(self):
+    from the_tale.accounts import tt_api as accounts_tt_api
+
     from the_tale.accounts.achievements.storage import achievements_storage
     from the_tale.collections.storage import collections_storage, kits_storage, items_storage
     from the_tale.linguistics.storage import game_dictionary, game_lexicon, restrictions_storage
 
     from the_tale.game.prototypes import GameState
     from the_tale.game.persons import storage as persons_storage
-    from the_tale.game.mobs.storage import mobs_storage
+    from the_tale.game.mobs import storage as mobs_storage
     from the_tale.game.companions import storage as companions_storage
-    from the_tale.game.artifacts.storage import artifacts_storage
+    from the_tale.game.artifacts import storage as artifacts_storage
     from the_tale.game.heroes import storage as heroes_storage
     from the_tale.game.map.storage import map_info_storage
     from the_tale.game.places import storage as places_storage
     from the_tale.game.roads.storage import roads_storage, waymarks_storage
+
+    accounts_tt_api.debug_clear_service()
 
     settings.refresh(force=True)
 
@@ -33,9 +36,9 @@ def setUp(self):
     persons_storage.social_connections.clear()
     waymarks_storage.clear()
     roads_storage.clear()
-    mobs_storage.clear()
+    mobs_storage.mobs.clear()
     companions_storage.companions.clear()
-    artifacts_storage.clear()
+    artifacts_storage.artifacts.clear()
     map_info_storage.clear()
     places_storage.resource_exchanges.clear()
     collections_storage.clear()
@@ -53,7 +56,6 @@ def setUp(self):
 
     for tag_id in blogs_conf.settings.DEFAULT_TAGS:
         blogs_models.Tag.objects.create(id=tag_id, name='{}'.format(tag_id), description='{}'.format(tag_id))
-
 
 
 class TestAccountsFactory(object):
@@ -102,7 +104,6 @@ class TestCaseMixin(object):
     @lazy_property
     def accounts_factory(self):
         return TestAccountsFactory()
-
 
 
 class TestCase(DextTestCase, TestCaseMixin):

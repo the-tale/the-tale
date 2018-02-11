@@ -65,8 +65,7 @@ class Command(BaseCommand):
         print('SYNC GROUPS AND PERMISSIONS')
         print()
 
-        sync_group('content group', ['cms.add_page', 'cms.change_page', 'cms.delete_page',
-                                    'news.add_news', 'news.change_news', 'news.delete_news'])
+        sync_group('content group', ['news.add_news', 'news.change_news', 'news.delete_news'])
 
         sync_group(forum_settings.MODERATOR_GROUP_NAME, ['forum.moderate_thread', 'forum.moderate_post'])
 

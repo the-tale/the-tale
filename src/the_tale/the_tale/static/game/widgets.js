@@ -230,6 +230,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
     var content = jQuery(selector);
 
     var data = undefined;
+    var account = undefined;
 
     var tooltipArgs = jQuery.extend(true, {}, pgf.base.tooltipsArgs, {title: function(){return jQuery('.pgf-might-tooltip', content).html();},
                                                                       placement: "bottom"});
@@ -239,7 +240,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
 
         if (!data) return;
 
-        var heroPageUrl = pgf.urls['game:heroes:show'](data.id);
+        var heroPageUrl = '/game/heroes/'+data.id;
 
         jQuery('.pgf-level', widget).text(data.base.level);
         jQuery('.pgf-destiny-points', widget).text(data.base.destiny_points);
@@ -273,14 +274,7 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
         jQuery('.pgf-might-pvp-effectiveness-bonus', widget).text(Math.round(data.might.pvp_effectiveness_bonus*10000)/100.0);
         jQuery('.pgf-might-politics-power-bonus', widget).text(Math.round(data.might.politics_power*10000)/100.0);
 
-        jQuery('.pgf-energy', content).text(data.energy.value);
-        jQuery('.pgf-max-energy', content).text(data.energy.max);
-        jQuery('.pgf-energy-bonus', content).text(data.energy.bonus);
-        jQuery('.pgf-energy-percents', content).width( (100 * data.energy.value / data.energy.max) + '%');
-
-        jQuery('.pgf-diary-block-energy').text(data.energy.value);
-        jQuery('.pgf-diary-block-max-energy').text(data.energy.max);
-        jQuery('.pgf-diary-block-energy-bonus').text(data.energy.bonus);
+        jQuery('.pgf-energy', content).text(account.energy);
 
         // companion data
         jQuery('.pgf-companion', widget).toggleClass('pgf-hidden', !!(data.companion == null));
@@ -312,8 +306,11 @@ pgf.game.widgets.Hero = function(selector, updater, widgets, params) {
     };
 
     this.Refresh = function(game_data) {
+        account = game_data.account;
         data = game_data.account.hero;
+
         if (params.dataMode == 'pvp_enemy') {
+            account = game_data.enemy;
             data = game_data.enemy.hero;
         }
     };
@@ -662,6 +659,8 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
     var cardsListContainer = jQuery('.pgf-cards-container', widget)
 
+    var dropdownCountrol = jQuery('.pgf-cards-for-use-dropdown', widget);
+
     var data = {};
 
     function RenderAction() {
@@ -680,17 +679,11 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             .attr('href', action.info_link);
     }
 
+    function RenderCardProgress() {
+    }
+
     function RenderCards() {
-        jQuery('.pgf-helps-count-to-new-card', widget).text(data.cardsHelpCount);
-        jQuery('.pgf-new-card-progress', widget).width((data.cardsHelpCount / data.cardsHelpBarrier)*100+'%');
-
         jQuery('.pgf-cards-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
-
-        jQuery('.pgf-new-card-icon', widget).toggleClass('pgf-hidden', data.cardsHelpCount < data.cardsHelpBarrier)
-        jQuery('.pgf-get-card-statistics', widget).toggleClass('pgf-hidden', data.cardsHelpCount >= data.cardsHelpBarrier);
-        jQuery('.pgf-get-card-button', widget).toggleClass('pgf-hidden', data.cardsHelpCount < data.cardsHelpBarrier);
-
-        jQuery('.pgf-new-cards-number', widget).text(parseInt(data.cardsHelpCount / data.cardsHelpBarrier));
 
         if (widgets.cards) {
             jQuery('.pgf-cards-choices .pgf-no-cards', widget).toggleClass('pgf-hidden', widgets.cards.HasCardsInHand());
@@ -710,6 +703,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             if (widgets.cards) {
                 widgets.cards.GetCard();
             }
+            dropdownCountrol.dropdown('toggle');
         });
 
         jQuery('.pgf-storage-card-button', widget).off().click(function(e){
@@ -718,6 +712,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             if (widgets.cards) {
                 widgets.cards.OpenStorageDialog();
             }
+            dropdownCountrol.dropdown('toggle');
         });
 
         jQuery('.pgf-transformator-card-button').off().click(function(e){
@@ -726,6 +721,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             if (widgets.cards) {
                 widgets.cards.OpenTransformatorDialog();
             }
+            dropdownCountrol.dropdown('toggle');
         });
     }
 
@@ -736,19 +732,8 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
         data.action = [];
 
-        newData.cardsHelpCount = game_data.account.hero.cards.help_count;
-        newData.cardsHelpBarrier = game_data.account.hero.cards.help_barrier;
-
         if (game_data.account.hero) {
             data.action = game_data.account.hero.action;
-        }
-
-        if (data.cardsHelpCount != newData.cardsHelpCount ||
-            data.cardsHelpBarrier != newData.cardsHelpBarrier) {
-
-            data.cardsHelpCount = newData.cardsHelpCount;
-            data.cardsHelpBarrier = newData.cardsHelpBarrier;
-            return true;
         }
 
         return false
@@ -1420,7 +1405,13 @@ pgf.game.widgets.Abilities = function() {
         var battleId = element.data('battle-id');
         var redirectOnSuccess = element.data('redirect-on-success');
 
-        pgf.forms.Post({action: pgf.urls['game:abilities:use'](ability.type, battleId),
+        var url = '/game/abilities/'+ability.type+'/api/use?api_version=1.0&api_client='+API_CLIENT;
+
+        if (battleId != undefined) {
+            url = url + '&battle=' + battleId;
+        }
+
+        pgf.forms.Post({action: url,
                         wait: false,
                         OnError: function() {
                             ChangeAbilityWaitingState(ability.type, false);
@@ -1483,15 +1474,10 @@ pgf.game.widgets.Abilities = function() {
     function Refresh(game_data) {
         turn = game_data.turn;
 
+        var account = game_data.account;
         var hero = game_data.account.hero;
 
-        // total energy with discount bonus
-        angelEnergy = hero.energy.value + hero.energy.bonus;
-
-        // energy discount can not decrease ability cost below 1
-        if (angelEnergy >= 1) {
-            angelEnergy += hero.energy.discount;
-        }
+        angelEnergy = account.energy;
 
         pvpWaiting = game_data.account.in_pvp_queue;
         canParticipateInPvp = hero.permissions.can_participate_in_pvp;

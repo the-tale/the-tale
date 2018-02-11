@@ -1,3 +1,4 @@
+{% import 'accounts/macros.html' as accounts_macros with context %}
 {% import 'persons/macros.html' as persons_macros with context %}
 
 {% macro _voting_results(bill) %}
@@ -30,14 +31,7 @@
   <tbody>
     <tr>
       <th style="width: 150px;">автор</th>
-      <td style="width: 150px;">
-        <a href="{{ url('accounts:show', bill.owner.id) }}">
-          {{ bill.owner.nick_verbose }}
-          {% if bill.owner.clan %}
-            <a href="{{url('accounts:clans:show', bill.owner.clan.id)}}">[{{bill.owner.clan.abbr}}]</a>
-          {% endif %}
-        </a>
-      </td>
+      <td style="width: 150px;">{{accounts_macros.account_link(bill.owner, bill.owner.clan)}}</td>
 
       <th>состояние</th>
       <td>
@@ -60,13 +54,13 @@
           {% endif %}
 
         {% elif bill.state.is_REJECTED %}
-          отклонён
+          отклонена
           <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
           ({{bill.applyed_at_turn|verbose_game_date}})
         {% elif bill.state.is_REMOVED %}
-          удалён
+          удалёна
         {% elif bill.state.is_STOPPED %}
-          потерял смысл
+          потеряла смысл
         {% endif %}
       </td>
     </tr>
@@ -99,6 +93,17 @@
       <th>результаты</th>
       <td>{{ _voting_results(bill) }}</td>
     </tr>
+
+    {% if bill.depends_on %}
+    <tr>
+      <th>зависит от</th>
+      <td colspan="3">
+        <a target="_blank" href="{{url('game:bills:show', bill.depends_on.id)}}">«{{bill.depends_on.caption}}»</a>
+        {{bill.depends_on.state.text}}
+      </td>
+    </tr>
+    {% endif %}
+
   </tbody>
 </table>
 

@@ -10,5 +10,7 @@
 
     "log": {"level": "{{tt_log_level}}"},
 
-    "service": {"port": {{port}}}
+    "service": {"port": {{port}}},
+
+    "custom": {{tt_services[user].get('custom')|to_nice_json}}
 }

@@ -79,15 +79,15 @@ class BasePersonBill(BaseBill):
     def get_user_form_create(cls, post=None, **kwargs):
         return cls.UserForm(None, post) #pylint: disable=E1102
 
-    def get_user_form_update(self, post=None, initial=None, **kwargs):
+    def get_user_form_update(self, post=None, initial=None, original_bill_id=None, **kwargs):
         if initial:
-            return self.UserForm(self.person_id, initial=initial) #pylint: disable=E1102
-        return  self.UserForm(self.person_id, post) #pylint: disable=E1102
+            return self.UserForm(self.person_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
+        return self.UserForm(self.person_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
 
-    def get_moderator_form_update(self, post=None, initial=None, **kwargs):
+    def get_moderator_form_update(self, post=None, initial=None, original_bill_id=None, **kwargs):
         if initial:
-            return self.ModeratorForm(self.person_id, initial=initial) #pylint: disable=E1102
-        return self.ModeratorForm(self.person_id, post) #pylint: disable=E1102
+            return self.ModeratorForm(self.person_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
+        return self.ModeratorForm(self.person_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
 
     def apply(self, bill=None):
         raise NotImplementedError

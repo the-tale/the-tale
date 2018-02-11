@@ -1,8 +1,9 @@
-# coding: utf-8
 
 from django.db import models
 
 from rels.django import RelationIntegerField
+
+from tt_logic.beings import relations as beings_relations
 
 from the_tale.game import relations as game_relations
 
@@ -20,7 +21,7 @@ class MobRecord(models.Model):
     editor = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
 
     state = RelationIntegerField(relation=relations.MOB_RECORD_STATE, db_index=True)
-    type = RelationIntegerField(relation=game_relations.BEING_TYPE, db_index=True)
+    type = RelationIntegerField(relation=beings_relations.TYPE, db_index=True)
 
     is_mercenary = models.BooleanField(default=False)
     is_eatable = models.BooleanField(default=False)
@@ -41,11 +42,11 @@ class MobRecord(models.Model):
 
     data = models.TextField(null=False, default='{}')
 
-    communication_verbal = RelationIntegerField(relation=game_relations.COMMUNICATION_VERBAL, db_index=True)
-    communication_gestures = RelationIntegerField(relation=game_relations.COMMUNICATION_GESTURES, db_index=True)
-    communication_telepathic = RelationIntegerField(relation=game_relations.COMMUNICATION_TELEPATHIC, db_index=True)
+    communication_verbal = RelationIntegerField(relation=beings_relations.COMMUNICATION_VERBAL, db_index=True)
+    communication_gestures = RelationIntegerField(relation=beings_relations.COMMUNICATION_GESTURES, db_index=True)
+    communication_telepathic = RelationIntegerField(relation=beings_relations.COMMUNICATION_TELEPATHIC, db_index=True)
 
-    intellect_level = RelationIntegerField(relation=game_relations.INTELLECT_LEVEL, db_index=True)
+    intellect_level = RelationIntegerField(relation=beings_relations.INTELLECT_LEVEL, db_index=True)
 
     class Meta:
         permissions = (("create_mobrecord", "Может предлагать мобов"),

@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from rels import Column
 from rels.django import DjangoEnum
@@ -91,7 +90,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
 
 
 class PERSONALITY(DjangoEnum):
-    effect = Column()
+    effect = Column(no_index=True, unique=False)
     male_text = Column()
     female_text = Column()
     description = Column()

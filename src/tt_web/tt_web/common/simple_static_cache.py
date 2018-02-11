@@ -12,7 +12,6 @@ class BaseCache:
         self._sync_future = None
         self.initialized = False
 
-
     def live_time(self):
         raise NotImplementedError()
 

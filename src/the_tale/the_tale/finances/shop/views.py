@@ -1,9 +1,7 @@
-import functools
 
 from django.core.urlresolvers import reverse
 
 from dext.common.utils import views as dext_views
-from dext.common.utils.urls import url
 from dext.common.utils.urls import UrlBuilder
 from dext.settings import settings
 
@@ -24,13 +22,13 @@ from the_tale.game.cards import tt_api as cards_tt_api
 from the_tale.game.cards import logic as cards_logic
 from the_tale.game.cards import relations as cards_relations
 
-from . import price_list
-from . import forms
 from . import conf
+from . import forms
 from . import logic
-from . import relations
 from . import tt_api
 from . import objects
+from . import relations
+from . import price_list
 
 
 ########################################
@@ -60,18 +58,10 @@ class PurchaseProcessor(dext_views.ArgumentProcessor):
         return price_list.PURCHASES_BY_UID.get(id)
 
 
-class LotPriceProcessor(dext_views.ArgumentProcessor):
+class LotPriceProcessor(dext_views.IntArgumentProcessor):
     CONTEXT_NAME = 'price'
     ERROR_MESSAGE = 'Неверная цена лота'
     POST_NAME = 'price'
-
-    def parse(self, context, raw_value):
-        price = int(raw_value)
-
-        if price < conf.payments_settings.MINIMUM_MARKET_PRICE:
-            self.raise_wrong_value()
-
-        return price
 
 
 class ItemTypeProcessor(dext_views.ArgumentProcessor):
@@ -95,18 +85,31 @@ resource.add_processor(accounts_views.BanGameProcessor())
 resource.add_processor(third_party_views.RefuseThirdPartyProcessor())
 resource.add_processor(XsollaEnabledProcessor())
 
+
 @resource('', method='get')
 def index(context):
+
+    payment_successed = False
+    payment_failed = False
+
+    if 'status' in context.django_request.GET:
+        payment_successed = context.django_request.GET.get('status') == 'done'
+        payment_failed = context.django_request.GET.get('status') != 'done'
+
     hero = heroes_logic.load_hero(account_id=context.account.id)
 
     return dext_views.Page('shop/shop.html',
                            content={'SUBSCRIPTIONS': price_list.SUBSCRIPTIONS,
                                     'CARD_RARITY': cards_relations.RARITY,
+                                    'CARDS_MIN_PRICES': relations.CARDS_MIN_PRICES,
+                                    'JS_CARDS_MIN_PRICES': {rarity.value: price for rarity, price in relations.CARDS_MIN_PRICES.items()},
                                     'hero': hero,
                                     'payments_settings': conf.payments_settings,
                                     'account': context.account,
                                     'page_type': 'shop',
-                                    'resource': context.resource})
+                                    'resource': context.resource,
+                                    'payment_successed': payment_successed,
+                                    'payment_failed': payment_failed})
 
 
 @resource('history', method='get')
@@ -153,6 +156,7 @@ def market_history(context):
                                     'paginator': history_paginator,
                                     'cards_info': cards_info})
 
+
 @PurchaseProcessor()
 @resource('buy', method='post')
 def buy(context):
@@ -169,6 +173,10 @@ def create_sell_lot(context):
     if not all(card.available_for_auction for card in context.cards):
         raise dext_views.ViewError(code='not_available_for_auction', message='Как минимум одна из карт не может быть продана на аукционе')
 
+    for card in context.cards:
+        if context.price < relations.CARDS_MIN_PRICES[card.type.rarity]:
+            raise dext_views.ViewError(code='too_small_price', message='Цена продажи меньше чем минимально разрешённая цена продажи как минимум одной карты')
+
     lots = []
     for card in context.cards:
         lots.append(objects.Lot(owner_id=context.account.id,
@@ -179,7 +187,7 @@ def create_sell_lot(context):
     cards_tt_api.change_cards_owner(old_owner_id=context.account.id,
                                     new_owner_id=accounts_logic.get_system_user_id(),
                                     operation_type='#create_sell_lots',
-                                    new_storage_id=0,
+                                    new_storage=cards_relations.STORAGE.FAST,
                                     cards_ids=[card.uid for card in context.cards])
 
     tt_api.place_sell_lots(lots)
@@ -219,7 +227,7 @@ def cancel_sell_lot(context):
     cards_tt_api.change_cards_owner(old_owner_id=accounts_logic.get_system_user_id(),
                                     new_owner_id=context.account.id,
                                     operation_type='#cancel_sell_lots',
-                                    new_storage_id=0,
+                                    new_storage=cards_relations.STORAGE.FAST,
                                     cards_ids=[lot.item_id for lot in lots])
 
     return dext_views.AjaxOk()

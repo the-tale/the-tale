@@ -1,36 +1,24 @@
-# coding: utf-8
-from unittest import mock
+
 import datetime
 
-from django.test import client
-from django.core.urlresolvers import reverse
-
 from the_tale.common.utils.testcase import TestCase
-from the_tale.common.postponed_tasks.models import PostponedTask
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
-from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
-
-from the_tale.accounts.logic import login_page_url
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import logic as mobs_logic
+from the_tale.game.mobs import storage as mobs_storage
 from the_tale.game.mobs import relations as mobs_relations
-
-from the_tale.game.places.models import Place
 
 from the_tale.game.logic_storage import LogicStorage
 
 from the_tale.game import relations as game_relations
 
-from the_tale.game.persons.models import Person
 from the_tale.game.persons import storage as persons_storage
 
 from the_tale.game.heroes import relations
 from the_tale.game.heroes.preferences import HeroPreferences
 
 from .. import logic
-from .. import models
 
 
 class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
@@ -77,29 +65,29 @@ class HeroPreferencesMobTest(TestCase):
         self.hero.level = relations.PREFERENCE_TYPE.MOB.level_required
         logic.save_hero(self.hero)
 
-        self.mob_uuid = mobs_storage.get_available_mobs_list(level=self.hero.level)[0].uuid
-        self.mob_2_uuid = mobs_storage.get_available_mobs_list(level=self.hero.level)[1].uuid
+        self.mob_uuid = mobs_storage.mobs.get_available_mobs_list(level=self.hero.level)[0].uuid
+        self.mob_2_uuid = mobs_storage.mobs.get_available_mobs_list(level=self.hero.level)[1].uuid
 
     def test_preferences_serialization(self):
-        self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mobs_storage.all()[0])
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mobs_storage.mobs.all()[0])
         data = self.hero.preferences.serialize()
         self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
-        mob = mobs_storage.all()[0]
+        mob = mobs_storage.mobs.all()[0]
         self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mob)
         logic.save_hero(self.hero)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.mob.id, mob.id)
 
     def test_reset_mob_when_it_disabled(self):
-        mob_record = mobs_storage.all()[0]
+        mob_record = mobs_storage.mobs.all()[0]
         self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mob_record)
 
         self.assertEqual(self.hero.preferences.mob, mob_record)
 
         mob_record.state = mobs_relations.MOB_RECORD_STATE.DISABLED
-        mob_record.save()
+        mobs_logic.save_mob_record(mob_record)
 
         self.assertEqual(self.hero.preferences.mob, None)
 

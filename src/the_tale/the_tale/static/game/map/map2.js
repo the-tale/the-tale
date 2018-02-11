@@ -265,7 +265,7 @@ pgf.game.map.Map = function(selector, params) {
 
         var cellData = mapManager.GetCellData(x, y);
 
-        pgf.ui.dialog.Create({ fromUrl: pgf.urls['game:map:cell_info'](x, y),
+        pgf.ui.dialog.Create({ fromUrl: '/game/map/cell-info?x='+x+'&y='+y,
                                OnOpened: function(dialog) {
                                    pgf.base.InitializeTabs('game-map-cell-info', 'map',
                                                            [[jQuery('.pgf-cell-description-button', dialog), 'description'],

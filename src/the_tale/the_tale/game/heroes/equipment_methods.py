@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import random
 
@@ -9,7 +8,7 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.heroes import relations
 
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage as artifacts_storage
 from the_tale.game.artifacts import relations as artifacts_relations
 
 
@@ -26,15 +25,14 @@ class EquipmentMethodsMixin(object):
     def pop_loot(self, artifact):
         self.bag.pop_artifact(artifact)
 
-
     def get_allowed_artifact_types(self, slots, archetype):
         return [artifact
-                for artifact in artifacts_storage.artifacts_for_type(types=[slot.artifact_type for slot in slots])
+                for artifact in artifacts_storage.artifacts.artifacts_for_type(types=[slot.artifact_type for slot in slots])
                 if ((artifact.level <= self.level) and
                     ( not archetype or (artifact.power_type in self.preferences.archetype.allowed_power_types)))]
 
     def receive_artifacts_slots_choices(self, better, prefered_slot, prefered_item):
-        from the_tale.game.artifacts.prototypes import ArtifactPrototype
+        from the_tale.game.artifacts import objects as artifacts_objects
 
         allowed_slots = list(relations.EQUIPMENT_SLOT.records)
         slot_choices = list(allowed_slots)
@@ -57,7 +55,7 @@ class EquipmentMethodsMixin(object):
                     distribution = self.preferences.archetype.power_distribution
                     min_power, max_power = Power.artifact_power_interval(distribution, self.level) # pylint: disable=W0612
 
-                    if artifact.preference_rating(distribution) >= ArtifactPrototype._preference_rating(artifact.rarity, max_power, distribution):
+                    if artifact.preference_rating(distribution) >= artifacts_objects.Artifact._preference_rating(artifact.rarity, max_power, distribution):
                         continue
 
                 result_choices.append(slot)
@@ -66,7 +64,6 @@ class EquipmentMethodsMixin(object):
             result_choices = slot_choices
 
         return result_choices
-
 
     def _receive_artifacts_choices(self, **kwargs):
         return self.receive_artifacts_choices(**kwargs)
@@ -100,9 +97,9 @@ class EquipmentMethodsMixin(object):
         artifact_choices = self.receive_artifacts_choices(better=better, prefered_slot=prefered_slot, prefered_item=prefered_item, archetype=archetype)
 
         if rarity_type is None:
-            rarity_type = artifacts_storage.get_rarity_type(self)
+            rarity_type = artifacts_storage.artifacts.get_rarity_type(self)
 
-        artifact = artifacts_storage.generate_artifact_from_list(artifact_choices, max(1, self.level + level_delta), rarity_type)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifact_choices, max(1, self.level + level_delta), rarity_type)
 
         artifact.power += Power(int(artifact.power.physic * power_bonus),
                                 int(artifact.power.magic * power_bonus))
@@ -186,7 +183,6 @@ class EquipmentMethodsMixin(object):
 
             artifact.damage_integrity(delta)
 
-
     def artifacts_to_break(self, from_all=False):
         if from_all:
             artifacts = list(self.equipment.values())
@@ -221,7 +217,6 @@ class EquipmentMethodsMixin(object):
         artifact.repair_it()
 
         return artifact
-
 
     def get_equip_candidates(self):
 
@@ -268,14 +263,12 @@ class EquipmentMethodsMixin(object):
 
         self.reset_accessors_cache()
 
-
     def increment_equipment_rarity(self, artifact):
         artifact.rarity = artifacts_relations.RARITY(artifact.rarity.value+1)
         artifact.power = Power.artifact_power_randomized(distribution=artifact.record.power_type.distribution,
                                                          level=self.level)
         artifact.max_integrity = int(artifact.rarity.max_integrity * random.uniform(1-c.ARTIFACT_MAX_INTEGRITY_DELTA, 1+c.ARTIFACT_MAX_INTEGRITY_DELTA))
         self.reset_accessors_cache()
-
 
     def randomize_equip(self):
         for slot in relations.EQUIPMENT_SLOT.records:
@@ -288,10 +281,9 @@ class EquipmentMethodsMixin(object):
             if not artifacts_list:
                 continue
 
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_list, self.level, rarity=artifacts_relations.RARITY.NORMAL)
+            artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_list, self.level, rarity=artifacts_relations.RARITY.NORMAL)
 
             self.equipment.equip(slot, artifact)
-
 
     def process_removed_artifacts(self):
         for artifact in list(self.bag.values()):

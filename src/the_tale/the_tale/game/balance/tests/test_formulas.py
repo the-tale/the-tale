@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from the_tale.common.utils import testcase
 
 from the_tale.game.balance import formulas as f, constants as c
@@ -25,20 +25,18 @@ class FormulasTest(testcase.TestCase):
         self.assertEqual(round(f.companions_defend_in_battle_probability(75), 5), 0.20625)
         self.assertEqual(round(f.companions_defend_in_battle_probability(100), 5), 0.225)
 
-
     def test_companions_heal_length(self):
-        self.assertEqual(f.companions_heal_length(0, 30), 18)
-        self.assertEqual(f.companions_heal_length(15, 30), 12)
-        self.assertEqual(f.companions_heal_length(30, 30), 6)
+        self.assertEqual(f.companions_heal_length(0, 30), 27)
+        self.assertEqual(f.companions_heal_length(15, 30), 18)
+        self.assertEqual(f.companions_heal_length(30, 30), 9)
 
-        self.assertEqual(f.companions_heal_length(0, 50), 18)
-        self.assertEqual(f.companions_heal_length(25, 50), 12)
-        self.assertEqual(f.companions_heal_length(50, 50), 6)
+        self.assertEqual(f.companions_heal_length(0, 50), 27)
+        self.assertEqual(f.companions_heal_length(25, 50), 18)
+        self.assertEqual(f.companions_heal_length(50, 50), 9)
 
-        self.assertEqual(f.companions_heal_length(0, 70), 18)
-        self.assertEqual(f.companions_heal_length(35, 70), 12)
-        self.assertEqual(f.companions_heal_length(70, 70), 6)
-
+        self.assertEqual(f.companions_heal_length(0, 70), 27)
+        self.assertEqual(f.companions_heal_length(35, 70), 18)
+        self.assertEqual(f.companions_heal_length(70, 70), 9)
 
     def test_gold_in_path(self):
         self.assertEqual(f.gold_in_path(10, 100), 555)
@@ -76,7 +74,6 @@ class AchievementsBarriers(testcase.TestCase):
         self.check_money(12.8, 1000000)
         self.check_money(27.4, 2500000)
 
-
     def mobs_after_months(self, months):
         return int(c.BATTLES_PER_HOUR * months * 30 * 24)
 
@@ -93,7 +90,6 @@ class AchievementsBarriers(testcase.TestCase):
         self.check_mobs(13.55, 150000)
         self.check_mobs(22.65, 250000)
         self.check_mobs(36.25, 400000)
-
 
     def artifacts_after_months(self, months):
         MAGIC = 1.5 # magic cooficient, to spend money events and abilities

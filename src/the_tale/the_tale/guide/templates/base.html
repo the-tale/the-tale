@@ -11,7 +11,8 @@
         <h3 class="game-navigation-caption" style="padding-left: 2px;">ПУТЕВОДИТЕЛЬ</h3>
         <ul class="game-navigation nav nav-list" style="padding-left: 2px;">
           <li class="nav-header {% if section=='' %}active{% endif %}">Игра</li>
-          <li class="nav-element {% if section=='game' %}active{% endif %}"><a href="{{ url('guide:game') }}">Описание</a></li>
+          <li class="nav-element {% if section=='world' %}active{% endif %}"><a href="{{ url('guide:world') }}">О мире</a></li>
+          <li class="nav-element {% if section=='game' %}active{% endif %}"><a href="{{ url('guide:game') }}">Описание игры</a></li>
           <li class="nav-element {% if section=='keepers' %}active{% endif %}"><a href="{{ url('guide:keepers') }}">Хранители</a></li>
           <li class="nav-element {% if section=='hero-abilities' %}active{% endif %}"><a href="{{ url('guide:hero-abilities') }}">Способности героев</a></li>
           <li class="nav-element {% if section=='hero-habits' %}active{% endif %}"><a href="{{ url('guide:hero-habits') }}">Черты героев</a></li>
@@ -28,14 +29,6 @@
           <li class="nav-element {% if section=='artifacts' %}active{% endif %}"><a href="{{ url('guide:artifacts:') }}">Артефакты</a></li>
           <li class="nav-element {% if section=='companions' %}active{% endif %}"><a href="{{ url('guide:companions:') }}">Спутники</a></li>
 
-          <li class="nav-header {% if section=='' %}active{% endif %}">{{get_cms_section_info("world").caption}}</li>
-          <li class="nav-element {% if section=='intro-comix' %}active{% endif %}"><a href="{{ url('guide:intro-comix') }}">Комикс-предыстория</a></li>
-          {% for menu_page in get_cms_section_pages('world') %}
-          <li class="nav-element {% if resource.page is not undefined and menu_page.id==resource.page.id %}active{% endif %}">
-            <a href="{{ url('cms:world:page', menu_page.slug) }}">{{menu_page.caption}}</a>
-          </li>
-          {% endfor %}
-
           <li class="nav-header {% if section=='' %}active{% endif %}">Общее</li>
           <li class="nav-element {% if section=='zpg' %}active{% endif %}"><a href="{{ url('guide:zpg') }}">Zero Player Game</a></li>
           <li class="nav-element {% if section=='registration' %}active{% endif %}"><a href="{{ url('guide:registration') }}">Регистрация</a></li>
@@ -44,15 +37,8 @@
           <li class="nav-element {% if section=='behavior-rules' %}active{% endif %}"><a href="{{ url('guide:behavior-rules') }}">Правила поведения</a></li>
           <li class="nav-element {% if section=='user-agreement' %}active{% endif %}"><a href="{{ url('guide:user-agreement') }}">Пользовательское соглашение</a></li>
           <li class="nav-element {% if section=='payments' %}active{% endif %}"><a href="{{ url('guide:payments') }}">Частые вопросы по платежам</a></li>
-
-          <li class="nav-header {% if section=='' %}active{% endif %}">{{get_cms_section_info("development").caption}}</li>
-          {% for menu_page in get_cms_section_pages('development') %}
-          <li class="nav-element {% if resource.page is not undefined and menu_page.id==resource.page.id %}active{% endif %}">
-            <a href="{{ url('cms:development:page', menu_page.slug) }}">{{menu_page.caption}}</a>
-          </li>
-          {% endfor %}
-          <li class="nav-element {% if section=='api' %}active{% endif %}"><a href="{{ url('guide:api') }}">API</a></li>
-          <li class="nav-element {% if section=='game-resources' %}active{% endif %}"><a href="{{ url('guide:game-resources') }}">Ресурсы игры</a></li>
+          <li class="nav-element"><a href="{{guide_settings.DEVELOPMENT_PLANS_URL}}">Планы разработки</a></li>
+          <li class="nav-element {% if section=='how-to-help' %}active{% endif %}"><a href="{{ url('guide:how-to-help') }}">Как помочь?</a></li>
           <li class="nav-element {% if section=='press-kit' %}active{% endif %}"><a href="{{ url('guide:press-kit') }}">Для прессы</a></li>
         </ul>
       {% endblock %}

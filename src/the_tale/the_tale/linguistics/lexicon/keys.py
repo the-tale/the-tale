@@ -1,9 +1,12 @@
-# coding: utf-8
+
 import os
+import copy
 
 import rels
 
 from dext.common.utils import discovering
+
+from . import relations
 
 
 def get_key_records():
@@ -13,7 +16,19 @@ def get_key_records():
     keys = []
 
     for module in discovering.discover_modules_in_directory(GROUPS_DIR, 'the_tale.linguistics.lexicon.groups'):
-        keys.extend(getattr(module, 'KEYS', ()))
+
+        for key in getattr(module, 'KEYS', ()):
+            key = copy.deepcopy(key)
+
+            additional_variables = []
+
+            for variable in key[5]:
+                for attribute in variable.type.attributes:
+                    additional_variables.append(relations.VARIABLE('{}.{}'.format(variable.value, attribute)))
+
+            key[5].extend(additional_variables)
+
+            keys.append(key)
 
     return keys
 

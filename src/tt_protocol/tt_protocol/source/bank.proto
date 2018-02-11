@@ -1,0 +1,73 @@
+syntax = "proto3";
+package bank;
+
+
+message Operation {
+  uint32 account_id = 1;
+  int32 currency = 2;
+  int32 amount = 3;
+  string type = 4;
+  string description = 5;
+}
+
+message HistoryRecord {
+  double created_at = 1;
+  int32 currency = 2;
+  int32 amount = 3;
+  string description = 4;
+}
+
+
+message AccountBalanceRequest {
+  uint32 account_id = 1;
+}
+
+
+message AccountBalanceResponse {
+  map<int32, uint32> balance = 1;
+}
+
+
+message AccountHistoryRequest {
+  uint32 account_id = 1;
+}
+
+
+message AccountHistoryResponse {
+  repeated HistoryRecord history = 1;
+}
+
+
+
+message StartTransactionRequest {
+  repeated Operation operations = 1;
+  double lifetime = 2;
+  bool autocommit = 3;
+}
+
+
+message StartTransactionResponse {
+  uint64 transaction_id = 1;
+}
+
+
+message CommitTransactionRequest {
+  uint64 transaction_id = 1;
+}
+
+
+message CommitTransactionResponse {
+}
+
+
+message RollbackTransactionRequest {
+  uint64 transaction_id = 1;
+}
+
+
+message RollbackTransactionResponse {
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

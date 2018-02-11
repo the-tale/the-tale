@@ -1,22 +1,20 @@
-import uuid
 
 from django.conf import settings as project_settings
 
 from dext.common.utils.urls import url
-from dext.common.utils import s11n
 
-from the_tale.common.utils import tt_api
 from the_tale.common.utils.logic import random_value_by_priority
 
 from the_tale.game.cards import conf
 
 from . import cards
-from . import objects
+from . import tt_api
 from . import relations
 
 
-def get_card_url():
-    return url('game:cards:api-get', api_version=conf.settings.GET_API_VERSION, api_client=project_settings.API_CLIENT)
+def receive_cards_url():
+    return url('game:cards:api-receive-cards', api_version=conf.settings.RECEIVE_API_VERSION, api_client=project_settings.API_CLIENT)
+
 
 def combine_cards_url():
     return url('game:cards:api-combine', api_version=conf.settings.COMBINE_API_VERSION, api_client=project_settings.API_CLIENT)
@@ -43,8 +41,6 @@ def transform_cards_url():
 
 
 def create_card(allow_premium_cards, rarity=None, exclude=(), available_for_auction=False):
-    from the_tale.game.cards import effects
-
     cards_types = list(cards.CARD.records)
 
     if not allow_premium_cards:
@@ -115,7 +111,6 @@ def get_combined_card_2(combined_cards, allow_premium_cards, available_for_aucti
     return card, relations.COMBINED_CARD_RESULT.SUCCESS
 
 
-
 def get_combined_card_3(combined_cards, allow_premium_cards, available_for_auction):
 
     for reactor in combined_cards[0].type.combiners:
@@ -143,3 +138,18 @@ def get_cards_info_by_full_types():
             cards_info[full_type] = {'name': name, 'card': card}
 
     return cards_info
+
+
+def give_new_cards(account_id, operation_type, allow_premium_cards, available_for_auction, rarity=None, number=1):
+
+    cards = []
+
+    for i in range(number):
+        cards.append(create_card(rarity=rarity,
+                                 allow_premium_cards=allow_premium_cards,
+                                 available_for_auction=available_for_auction))
+
+    tt_api.change_cards(account_id=account_id,
+                        operation_type=operation_type,
+                        storage=relations.STORAGE.NEW,
+                        to_add=cards)

@@ -245,14 +245,18 @@ pgf.game.ShopCardsBrowser = function(params) {
         var inDeckToTrade = 0;
         var inDeckTotal = 0;
         var inTradeTotal = 0;
+        var inTradeOfPlayer = 0;
+
         for (var i in cards) {
             inDeckToTrade += cards[i].inDeckToTrade;
             inDeckTotal += cards[i].inDeckTotal;
             inTradeTotal += cards[i].inTrade;
+            inTradeOfPlayer += cards[i].ownerSellNumber;
         }
         jQuery('.pgf-cards-number-in-deck-to-trade', container).text(inDeckToTrade);
         jQuery('.pgf-cards-number-in-deck-total', container).text(inDeckTotal);
         jQuery('.pgf-cards-number-in-trade', container).text(inTradeTotal);
+        jQuery('.pgf-player-cards-number-in-trade', container).text(inTradeOfPlayer);
     };
 
     function RefreshResetButton() {
@@ -577,7 +581,7 @@ pgf.game.OperationsDialog = function(shopCardsBrowser, cardType) {
         var card = shopCardsBrowser.GetCardByType(cardType);
 
         jQuery('#pgf_id_cards_number', instance.dialog).attr('max', card.inDeckToTrade);
-        jQuery('.pgf-card-min-price', instance.dialog).text(shopCardsBrowser.params.minSellPrice);
+        jQuery('.pgf-card-min-price', instance.dialog).text(shopCardsBrowser.params.minSellPrice[card.rarity]);
         jQuery('.pgf-max-cards-to-sell', instance.dialog).text(card.inDeckToTrade);
 
         jQuery('.pgf-no-cards-to-sell-block', instance.dialog).toggleClass('pgf-hidden', (0 < card.inDeckToTrade));
@@ -599,11 +603,12 @@ pgf.game.OperationsDialog = function(shopCardsBrowser, cardType) {
 
         jQuery('.pgf-cookies-image', instance.dialog).attr("src", shopCardsBrowser.params.cookiesImage);
 
-        jQuery('#pgf_id_cards_price', instance.dialog).attr('min', shopCardsBrowser.params.minSellPrice);
+        jQuery('#pgf_id_cards_price', instance.dialog).attr('min', shopCardsBrowser.params.minSellPrice[card.rarity]);
+        jQuery('#pgf_id_cards_price', instance.dialog).val(shopCardsBrowser.params.minSellPrice[card.rarity]);
 
         jQuery('.pgf-market-commission', instance.dialog).text(Math.ceil(shopCardsBrowser.params.sellComission*100));
 
-        UpdateCalculations(shopCardsBrowser.params.minSellPrice, shopCardsBrowser.params.sellComission);
+        UpdateCalculations(shopCardsBrowser.params.minSellPrice[card.rarity], shopCardsBrowser.params.sellComission);
 
         jQuery('#pgf_id_cards_price', instance.dialog).on('input', function(e){
             var value = jQuery(e.currentTarget).val();

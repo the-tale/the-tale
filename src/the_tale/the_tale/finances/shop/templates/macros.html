@@ -35,7 +35,7 @@
   jQuery(document).ready(function(e){
 
       userCards = new pgf.game.widgets.Cards({getItems: "{{get_cards_url()}}",
-                                              getCard: "{{get_card_url()}}",
+                                              getCard: "{{receive_cards_url()}}",
                                               transformItems: "{{transform_cards_url()}}",
                                               moveToStorage: "{{move_to_storage_url()}}",
                                               moveToHand: "{{move_to_hand_url()}}",
@@ -44,7 +44,7 @@
       cardsList = new pgf.game.ShopCardsBrowser({container: jQuery('.pgf-cards-browser'),
                                                  marketInfoUrl: "",
                                                  userCards: userCards,
-                                                 minSellPrice: {{shop_settings().MINIMUM_MARKET_PRICE}},
+                                                 minSellPrice: {{ JS_CARDS_MIN_PRICES|json }},
                                                  sellComission: {{shop_settings().MARKET_COMISSION}},
                                                  createSellLotUrl: "{{create_sell_lot_url()}}",
                                                  closeSellLotUrl: "{{close_sell_lot_url()}}",
@@ -76,8 +76,9 @@
 
     <div class="btn-group pgf-filter-count">
       <a class="btn disabled" href="javascript:void(0)" >
-        в магазине: <span class="pgf-cards-number-in-trade"></span>,
-        в колоде: <span class="pgf-cards-number-in-deck-to-trade"></span> / <span class="pgf-cards-number-in-deck-total"></span>
+        в колоде: <span class="pgf-cards-number-in-deck-to-trade"></span> / <span class="pgf-cards-number-in-deck-total"></span>,
+        вы продаёте: <span class="pgf-player-cards-number-in-trade"></span>,
+        всего в магазине: <span class="pgf-cards-number-in-trade"></span>
       </a>
     </div>
 

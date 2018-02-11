@@ -104,8 +104,11 @@ class TestRequests(TestCase):
         for habit in HABIT_TYPE.records:
             self.check_html_ok(self.client.get(url('guide:hero-habit-info', habit=habit.value)))
 
-    def test_intro_comix(self):
-        self.check_html_ok(self.request_html(url('guide:intro-comix')))
+    def test_world(self):
+        self.check_html_ok(self.request_html(url('guide:world')))
+
+    def test_how_to_help(self):
+        self.check_html_ok(self.request_html(url('guide:how-to-help')))
 
     def test_game_resources(self):
         self.check_html_ok(self.request_html(url('guide:game-resources')))

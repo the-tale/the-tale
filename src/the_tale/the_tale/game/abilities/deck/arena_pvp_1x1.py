@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.game.heroes.relations import HABIT_CHANGE_SOURCE
 
@@ -20,7 +19,7 @@ class ArenaPvP1x1(AbilityPrototype):
             if not task.hero.can_participate_in_pvp:
                 return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
 
-            task.hero.add_message('angel_ability_arena_pvp_1x1', hero=task.hero)
+            task.hero.add_message('angel_ability_arena_pvp_1x1', hero=task.hero, energy=self.TYPE.cost)
 
             task.hero.update_habits(HABIT_CHANGE_SOURCE.ARENA_SEND)
 

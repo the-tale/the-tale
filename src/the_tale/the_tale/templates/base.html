@@ -13,12 +13,9 @@
     <title>{% block title%}{{settings.PAGE_TITLE}}{% endblock %}</title>
 
     <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}css/main.css" />
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}css/javascript.css" />
 
     <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery-1.7.2.min.js" type="text/javascript"></script>
     <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery-ui-1.8.9/js/jquery-ui-1.8.9.custom.min.js" type="text/javascript" charset="utf-8"></script>
-
-    <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery.url.js" type="text/javascript"></script>
 
     <script src="{{ STATIC_CONTENT }}plugins/spin/spin.min.js" type="text/javascript"></script>
     <script src="{{ STATIC_CONTENT }}plugins/jquery/jquery.spin.js" type="text/javascript"></script>
@@ -26,12 +23,9 @@
     <link rel="stylesheet" type="text/css" href="{{ STATIC_CONTENT }}bootstrap/css/bootstrap.min.css" />
     <script src="{{ STATIC_CONTENT }}bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-    <script src="{{ STATIC_CONTENT }}plugins/globalize/globalize.js"></script>
-    <script src="{{ STATIC_CONTENT }}plugins/globalize/cultures/globalize.culture.ru.js"></script>
     <script src="{{ STATIC_CONTENT }}common/base.js" type="text/javascript"></script>
     <script src="{{ STATIC_CONTENT }}common/dialog.js" type="text/javascript"></script>
     <script src="{{ STATIC_CONTENT }}common/forms.js" type="text/javascript"></script>
-    <script src="{{ STATIC_CONTENT }}common/urls.js" type="text/javascript"></script>
 
     {% if settings.DEBUG %}
     <script src="{{ STATIC_CONTENT }}common/debug.js" type="text/javascript"></script>
@@ -49,7 +43,6 @@ API_CLIENT = "{{settings.API_CLIENT}}";
 
 jQuery(document).ready(function() {
 
-    Globalize.culture('ru');
     pgf.base.AutoFormatTime();
 
     jQuery.ajaxSetup({
@@ -158,7 +151,8 @@ jQuery(document).ready(function() {
 
           <ul class="nav">
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
-            {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:game"), "Описание игры"),
+            {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:world"), "О мире"),
+                                                                         (url("guide:game"), "Описание игры"),
                                                                          (url("guide:keepers"), "Хранители"),
                                                                          (url("guide:hero-abilities"), "Способности героев"),
                                                                          (url("guide:hero-habits"), "Черты героев"),
@@ -174,12 +168,10 @@ jQuery(document).ready(function() {
                                                                          (url("guide:mobs:"), "Бестиарий"),
                                                                          (url("guide:artifacts:"), "Артефакты"),
                                                                          (url("guide:companions:"), "Спутники"),
-                                                                         (url("cms:world:"), get_cms_section_info("world").caption),
-                                                                         ('-', '<li class="divider"></li>'),
                                                                          (url("guide:account-types"), "Общее"),
-                                                                         (url("cms:development:"), get_cms_section_info("development").caption),
                                                                          (faq_url(), "FAQ"),
-                                                                         (players_projects_url(), "Проекты игроков")]) }}
+                                                                         (settings.SOCIAL_DOCUMENTATION, "Документация по API и игре"),
+                                                                         (players_projects_url(), "Проекты игроков"),]) }}
             {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
                                                                            (url("accounts:clans:"), "Гильдии"),
                                                                            (url("game:ratings:"), "Рейтинги"),
@@ -191,9 +183,7 @@ jQuery(document).ready(function() {
                                                                            (settings.SOCIAL_FACEBOOK_GROUP_URL, "Facebook"),
                                                                            (settings.SOCIAL_TWITTER_GROUP_URL, "Twitter"),
                                                                            ('-', '<li class="divider"></li>'),
-                                                                           (settings.SOCIAL_WIKI_URL, "Wiki"),
-                                                                           (settings.SOCIAL_CHROME_URL, "Расширение для Chrome"),
-                                                                           (settings.SOCIAL_DARK_THEME_URL, "Тёмная тема")]) }}
+                                                                           ('-', "<li style='padding-left: 15px;'>Проекты игроков</li>")]+settings.COMMUNITY_PROJECTS) }}
 
             {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Книга Судеб"),
                                                                 (url("linguistics:"), "Лингвистика"),
@@ -212,10 +202,15 @@ jQuery(document).ready(function() {
           </ul>
 
           <ul class="nav pull-right">
-            <li>
-              {% set game_time = game_datetime() %}
-              <p id="time-block" class="navbar-text">
-                <span class="pgf-game-date">{{ game_time.date.verbose_full()}}</span>
+            {% set game_time = game_datetime() %}
+            <li class="visible-desktop">
+              <p id="time-block" class="navbar-text" rel="tooltip" title="{{game_time.date.verbose_full()}}">
+                <span class="pgf-game-date">{{game_time.date.verbose_full()}}</span>
+              </p>
+            </li>
+            <li class="hidden-desktop">
+              <p id="time-block" class="navbar-text" rel="tooltip" title="{{game_time.date.verbose_full()}}">
+                <i class="icon-time icon-white" style="opacity: 0.5;"></i>
               </p>
             </li>
             <li class="divider-vertical"></li>
@@ -300,6 +295,7 @@ jQuery(document).ready(function() {
             <li>версия {{settings.META_CONFIG.version}}</li>
             <li><a href="{{url('statistics:')}}">статистика игры</a></li>
             <li><a href="{{settings.SOCIAL_GITHUB_URL}}">исходный код на GitHub</a></li>
+            <li><a href="{{settings.SOCIAL_DOCUMENTATION}}">документация по API и игре</a></li>
           </ul>
         </div>
       </div>

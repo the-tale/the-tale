@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import math
 import random
 import datetime
@@ -61,6 +61,7 @@ def pluralize_word(real_number, word_1, word_2_4, word_other):
     else:
         return '%d %s' % (real_number, word_other)
 
+
 def verbose_timedelta(value):
 
     if isinstance(value, numbers.Number):
@@ -71,10 +72,10 @@ def verbose_timedelta(value):
 
     elif value.days == 0:
         if value.seconds >= 60*60:
-            return pluralize_word(value.seconds / (60*60) , 'час', 'часа', 'часов')
+            return pluralize_word(value.seconds // (60*60) , 'час', 'часа', 'часов')
 
         if value.seconds >= 60:
-            return pluralize_word(value.seconds / 60 , 'минута', 'минуты', 'минут')
+            return pluralize_word(value.seconds // 60 , 'минута', 'минуты', 'минут')
 
     return 'меньше минуты'
 
@@ -123,7 +124,6 @@ def split_into_table(sequence, columns):
     return table
 
 
-
 def get_or_create(get_method, create_method, exception, kwargs):
     obj = get_method(**kwargs)
 
@@ -144,3 +144,12 @@ def days_range(date_from, date_to):
 
 def absolutize_urls(text):
     return text.replace('href="/', 'href="http://%s/' % project_settings.SITE_URL).replace('href=\'/', 'href=\'http://%s/' % project_settings.SITE_URL)
+
+
+def log_diminishing_sequence(n, m):
+    sequence = []
+
+    for i in range(n):
+        sequence.append(m ** math.ceil(math.log(i+m)/math.log(m)))
+
+    return sequence

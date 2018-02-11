@@ -21,9 +21,9 @@ from the_tale.game.companions import logic as companions_logic
 from the_tale.game.companions.abilities import container as companions_container
 from the_tale.game.companions.abilities import effects as companions_effects
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
 
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage as artifacts_storage
 from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.abilities.deck.help import Help
@@ -60,13 +60,11 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     def test_none(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: None):
             with self.check_not_changed(lambda: self.hero.statistics.help_count):
-                with self.check_not_changed(lambda: self.hero.cards.help_count):
                     self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
     def test_success(self):
         with mock.patch('the_tale.game.heroes.objects.Hero.on_help') as on_help:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                with self.check_delta(lambda: self.hero.cards.help_count, 1):
                     self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(on_help.call_count, 1)
@@ -75,7 +73,6 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_be_helped', lambda hero: False)
     def test_help_restricted(self):
         with self.check_not_changed(lambda: self.hero.statistics.help_count):
-            with self.check_not_changed(lambda: self.hero.cards.help_count):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
 
 
@@ -114,13 +111,6 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
                 self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(old_experience < self.hero.experience)
-
-    def test_stock_up_energy(self):
-
-        with self.check_changed(lambda: self.hero.energy_bonus):
-            with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: HELP_CHOICES.STOCK_UP_ENERGY):
-                with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                    self.assertEqual(self.ability.use(**self.use_attributes), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_money(self):
         old_hero_money = self.hero.money
@@ -171,7 +161,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action.TYPE, actions_prototypes.ActionInPlacePrototype.TYPE)
 
     def test_lighting(self):
-        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
+        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
         turn.increment()
         self.storage.process_turn()
@@ -190,7 +180,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
         self.assertTrue(old_percents < action_battle.percents)
 
     def test_lighting_when_mob_killed(self):
-        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
+        action_battle = actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
         turn.increment()
         self.storage.process_turn()
@@ -228,7 +218,6 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
                                                                               logger=None,
                                                                               continue_steps_if_needed=True)])
 
-
     def test_resurrect__two_times(self):
         self.hero.kill()
         actions_prototypes.ActionResurrectPrototype.create(hero=self.hero)
@@ -263,7 +252,7 @@ class HelpAbilityTest(UseAbilityTaskMixin, testcase.TestCase):
 
     @mock.patch('the_tale.game.artifacts.effects.Health.REMOVE_ON_HELP', True)
     def test_return_child_gifts(self):
-        not_child_gift, child_gift, removed_artifact = artifacts_storage.all()[:3]
+        not_child_gift, child_gift, removed_artifact = artifacts_storage.artifacts.all()[:3]
 
         child_gift.special_effect = artifacts_relations.ARTIFACT_EFFECT.CHILD_GIFT
         removed_artifact.rare_effect = artifacts_relations.ARTIFACT_EFFECT.HEALTH

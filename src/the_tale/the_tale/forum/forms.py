@@ -21,7 +21,7 @@ class EditThreadForm(forms.Form):
 
     def __init__(self, subcategories, *args, **kwargs):
         super(EditThreadForm, self).__init__(*args, **kwargs)
-        self.fields['subcategory'].choices = [ (subcategory.id, subcategory.caption) for subcategory in subcategories]
+        self.fields['subcategory'].choices = sorted([(subcategory.id, subcategory.caption) for subcategory in subcategories], key=lambda x: x[1])
 
 
 class EditThreadModeratorForm(EditThreadForm):

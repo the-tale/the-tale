@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.common.utils import testcase
 
@@ -8,7 +7,7 @@ from the_tale.game.heroes import logic as heroes_logic
 
 from the_tale.game.artifacts import relations
 from the_tale.game.artifacts import effects
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage
 
 
 class EffectsTests(testcase.TestCase):
@@ -21,7 +20,7 @@ class EffectsTests(testcase.TestCase):
         account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=account.id)
 
-        artifacts_storage.sync(force=True)
+        storage.artifacts.sync(force=True)
 
         self.artifact = list(self.hero.equipment.values())[0]
         self.artifact_2 = list(self.hero.equipment.values())[1]
@@ -143,18 +142,13 @@ class EffectsTests(testcase.TestCase):
         with self.check_increased(self.hero.sell_price):
             self._set_effect(relations.ARTIFACT_EFFECT.CHARM)
 
-    def test_spiritual_connection(self):
-        with self.check_increased(lambda: self.hero.energy_discount):
-            self._set_effect(relations.ARTIFACT_EFFECT.SPIRITUAL_CONNECTION)
-
-    def test_spiritual_connection__not_summurize(self):
-        with self.check_delta(lambda: self.hero.energy_discount, 1):
-            self._set_effect(relations.ARTIFACT_EFFECT.SPIRITUAL_CONNECTION)
-            self._set_effect_2(relations.ARTIFACT_EFFECT.SPIRITUAL_CONNECTION)
-
     def test_peace_of_mind(self):
         with self.check_increased(lambda: self.hero.regenerate_double_energy_probability):
             self._set_effect(relations.ARTIFACT_EFFECT.PEACE_OF_MIND)
+
+    def test_Concentration(self):
+        with self.check_increased(lambda: self.hero.regenerate_double_energy_probability):
+            self._set_effect(relations.ARTIFACT_EFFECT.CONCENTRATION)
 
     def test_special_aura(self):
         with self.check_increased(lambda: self.hero.bonus_artifact_power.total()):

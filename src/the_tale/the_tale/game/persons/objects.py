@@ -32,7 +32,6 @@ BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_FROM
                        places_relations.ATTRIBUTE.STABILITY: c.PLACE_STABILITY_FROM_BEST_PERSON}
 
 
-
 class Person(names.ManageNameMixin2):
     __slots__ = ('id',
                  'created_at_turn',
@@ -92,7 +91,6 @@ class Person(names.ManageNameMixin2):
         self.personality_practical = personality_practical
         self.updated_at = updated_at
 
-
     @property
     def place(self):
         return places_storage.places[self.place_id]
@@ -105,7 +103,6 @@ class Person(names.ManageNameMixin2):
     def url(self):
         from dext.common.utils.urls import url
         return url('game:persons:show', self.id)
-
 
     def name_from(self, with_url=True):
         if with_url:
@@ -127,7 +124,6 @@ class Person(names.ManageNameMixin2):
     @property
     def seconds_before_next_move(self):
         return (self.moved_at_turn + c.PERSON_MOVE_DELAY - turn.number()) * c.TURN_DELTA
-
 
     def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, power):
         if amqp_environment.environment.workers.highlevel is None:

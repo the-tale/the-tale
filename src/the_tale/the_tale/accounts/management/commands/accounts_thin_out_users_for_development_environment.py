@@ -6,9 +6,10 @@ import psutil
 
 from the_tale.accounts import logic
 
+
 class Command(BaseCommand):
 
-    help = 'Remove most of users from database, reatain only specified amount + all clan users. Also actualize their active states.'
+    help = 'Remove most of users from database, reatain only specified amount + all clan, forumm, folclor users. Also actualize their active states.'
 
     requires_model_validation = False
 

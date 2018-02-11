@@ -1,0 +1,21 @@
+- name: "preinstall {{name}}"
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+    - name: TT soft currency rollback cron
+      cron:
+        name: soft currency rollback
+        cron_file: tt_soft_currency_rollback
+        minute: 0
+        user: tt_soft_currency
+        job: /home/tt_soft_currency/current/venv/bin/tt_bank_rollback_hanged_transactions -c /etc/tt_soft_currency/config.json
+
+
+    - name: TT soft currency remove old transactions
+      cron:
+        name: soft currency rollback
+        cron_file: tt_soft_currency_remove_old
+        minute: 0
+        user: tt_soft_currency
+        job: /home/tt_soft_currency/current/venv/bin/tt_bank_remove_old_transactions -c /etc/tt_soft_currency/config.json -t 86400

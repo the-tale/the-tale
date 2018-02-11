@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import rels
 from rels.django import DjangoEnum
@@ -114,7 +113,6 @@ class ComplexChangeTask(PostponedLogic):
                                                                 storage=storage,
                                                                 pvp_balancer=pvp_balancer,
                                                                 highlevel=highlevel)
-
             main_task.extend_postsave_actions(postsave_actions)
 
             if result.is_IGNORE:

@@ -1,23 +1,23 @@
-# coding: utf-8
 import collections
 
 from unittest import mock
+
+from tt_logic.beings import relations as beings_relations
 
 from the_tale.common.utils import testcase
 
 from the_tale.game import names
 
 from the_tale.game.logic import create_test_map
-from the_tale.game import relations as game_relations
 
 from the_tale.game.map import relations as map_relations
 from the_tale.game.actions import relations as actions_relations
 
 from the_tale.game.heroes import logic as heroes_logic
 
-from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.mobs.relations import MOB_RECORD_STATE
-from the_tale.game.mobs.prototypes import MobRecordPrototype
+from .. import logic
+from .. import storage
+from .. import relations
 
 
 class MobsStorageTests(testcase.TestCase):
@@ -26,72 +26,71 @@ class MobsStorageTests(testcase.TestCase):
         super(MobsStorageTests, self).setUp()
         create_test_map()
 
-        self.mob_1, self.mob_2, self.mob_3 = mobs_storage.all()
+        self.mob_1, self.mob_2, self.mob_3 = storage.mobs.all()
 
-        self.mob_1.type = game_relations.BEING_TYPE.CIVILIZED
-        self.mob_1.save()
+        self.mob_1.type = beings_relations.TYPE.CIVILIZED
+        logic.save_mob_record(self.mob_1)
 
-        self.mob_2.type = game_relations.BEING_TYPE.CIVILIZED
+        self.mob_2.type = beings_relations.TYPE.CIVILIZED
         self.mob_2.is_mercenary = False
-        self.mob_2.save()
+        logic.save_mob_record(self.mob_2)
 
-        self.mob_3.type = game_relations.BEING_TYPE.CIVILIZED
-        self.mob_3.save()
+        self.mob_3.type = beings_relations.TYPE.CIVILIZED
+        logic.save_mob_record(self.mob_3)
 
-        self.bandit = MobRecordPrototype.create(uuid='bandit',
-                                                level=1,
-                                                utg_name=names.generator().get_test_name(name='bandint'),
-                                                description='description',
-                                                abilities=['hit'],
-                                                terrains=[map_relations.TERRAIN.PLANE_SAND],
-                                                type=game_relations.BEING_TYPE.CIVILIZED,
-                                                state=MOB_RECORD_STATE.ENABLED)
-        self.bandint_wrong = MobRecordPrototype.create(uuid='bandit_wrong',
-                                                       level=1,
-                                                       utg_name=names.generator().get_test_name(name='bandit_wrong'),
-                                                       description='bandit_wrong description',
-                                                       abilities=['hit'],
-                                                       terrains=[map_relations.TERRAIN.PLANE_SAND],
-                                                       type=game_relations.BEING_TYPE.CIVILIZED,
-                                                       state=MOB_RECORD_STATE.DISABLED)
-
+        self.bandit = logic.create_random_mob_record(uuid='bandit',
+                                                     level=1,
+                                                     utg_name=names.generator().get_test_name(name='bandint'),
+                                                     description='description',
+                                                     abilities=['hit'],
+                                                     terrains=[map_relations.TERRAIN.PLANE_SAND],
+                                                     type=beings_relations.TYPE.CIVILIZED,
+                                                     state=relations.MOB_RECORD_STATE.ENABLED)
+        self.bandint_wrong = logic.create_random_mob_record(uuid='bandit_wrong',
+                                                            level=1,
+                                                            utg_name=names.generator().get_test_name(name='bandit_wrong'),
+                                                            description='bandit_wrong description',
+                                                            abilities=['hit'],
+                                                            terrains=[map_relations.TERRAIN.PLANE_SAND],
+                                                            type=beings_relations.TYPE.CIVILIZED,
+                                                            state=relations.MOB_RECORD_STATE.DISABLED)
 
     def test_initialize(self):
-        self.assertEqual(len(mobs_storage.all()), 5)
-        self.assertEqual(mobs_storage.mobs_number, 5)
-        self.assertEqual(sum(mobs_storage._types_count.values()), 5)
-        self.assertTrue(mobs_storage.mob_type_fraction(game_relations.BEING_TYPE.CIVILIZED) > 2.0 / 5)
+        self.assertEqual(len(storage.mobs.all()), 5)
+        self.assertEqual(storage.mobs.mobs_number, 5)
+        self.assertEqual(sum(storage.mobs._types_count.values()), 5)
+        self.assertTrue(storage.mobs.mob_type_fraction(beings_relations.TYPE.CIVILIZED) > 2.0 / 5)
 
     def test_get_available_mobs_list(self):
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND)]
+        mobs_in_forest = [mob.uuid for mob in storage.mobs.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_1.uuid, self.mob_2.uuid, self.mob_3.uuid, self.bandit.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_GRASS)]
+        mobs_in_forest = [mob.uuid for mob in storage.mobs.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_GRASS)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_1.uuid, self.mob_2.uuid, self.mob_3.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, map_relations.TERRAIN.PLANE_SAND)]
+        mobs_in_forest = [mob.uuid for mob in storage.mobs.get_available_mobs_list(0, map_relations.TERRAIN.PLANE_SAND)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset())
 
     def test_get_available_mobs_list__mercenary__true(self):
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND, mercenary=True)]
+        mobs_in_forest = [mob.uuid for mob in storage.mobs.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND, mercenary=True)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_1.uuid, self.mob_3.uuid, self.bandit.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_GRASS, mercenary=True)]
+        mobs_in_forest = [mob.uuid for mob in storage.mobs.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_GRASS, mercenary=True)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_1.uuid, self.mob_3.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, map_relations.TERRAIN.PLANE_SAND, mercenary=True)]
+        mobs_in_forest = [mob.uuid for mob in storage.mobs.get_available_mobs_list(0, map_relations.TERRAIN.PLANE_SAND, mercenary=True)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset())
 
 
     def test_get_available_mobs_list__mercenary__false(self):
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND, mercenary=False)]
+        mobs_in_forest = [mob.uuid for mob in storage.mobs.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_SAND, mercenary=False)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_2.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_GRASS, mercenary=False)]
+        mobs_in_forest = [mob.uuid for mob in storage.mobs.get_available_mobs_list(1, map_relations.TERRAIN.PLANE_GRASS, mercenary=False)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset([self.mob_2.uuid]))
 
-        mobs_in_forest = [mob.uuid for mob in mobs_storage.get_available_mobs_list(0, map_relations.TERRAIN.PLANE_SAND, mercenary=False)]
+        mobs_in_forest = [mob.uuid for mob in storage.mobs.get_available_mobs_list(0, map_relations.TERRAIN.PLANE_SAND, mercenary=False)]
         self.assertEqual(frozenset(mobs_in_forest), frozenset())
 
     @mock.patch('the_tale.game.mobs.storage.MobsStorage.get_available_mobs_list', mock.Mock(return_value=[]))
@@ -99,14 +98,14 @@ class MobsStorageTests(testcase.TestCase):
         account = self.accounts_factory.create_account()
         hero = heroes_logic.load_hero(account_id=account.id)
 
-        self.assertEqual(mobs_storage.get_random_mob(hero), None)
+        self.assertEqual(storage.mobs.get_random_mob(hero), None)
 
 
     def test_get_random_mob__boss(self):
         account = self.accounts_factory.create_account()
         hero = heroes_logic.load_hero(account_id=account.id)
 
-        boss = mobs_storage.get_random_mob(hero, is_boss=True)
+        boss = storage.mobs.get_random_mob(hero, is_boss=True)
 
         self.assertTrue(boss.is_boss)
 
@@ -123,7 +122,7 @@ class MobsStorageTests(testcase.TestCase):
         action_type = actions_relations.ACTION_TYPE.random()
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.ui_type', action_type):
-            mob = mobs_storage.get_random_mob(hero)
+            mob = storage.mobs.get_random_mob(hero)
 
         self.assertEqual(mob.action_type, action_type)
 
@@ -134,7 +133,7 @@ class MobsStorageTests(testcase.TestCase):
         terrain = map_relations.TERRAIN.random()
 
         with mock.patch('the_tale.game.heroes.position.Position.get_terrain', lambda h: terrain):
-            mob = mobs_storage.get_random_mob(hero)
+            mob = storage.mobs.get_random_mob(hero)
 
         self.assertEqual(mob.terrain, terrain)
 
@@ -142,24 +141,23 @@ class MobsStorageTests(testcase.TestCase):
         account = self.accounts_factory.create_account()
         hero = heroes_logic.load_hero(account_id=account.id)
 
-        MobRecordPrototype.create_random('action_1', global_action_probability=0.25)
-        MobRecordPrototype.create_random('action_2', global_action_probability=0.10)
+        logic.create_random_mob_record('action_1', global_action_probability=0.25)
+        logic.create_random_mob_record('action_2', global_action_probability=0.10)
 
-        counter = collections.Counter([mobs_storage.get_random_mob(hero).id for i in range(1000)])
+        counter = collections.Counter([storage.mobs.get_random_mob(hero).id for i in range(1000)])
 
         non_actions_count = sum(count for uuid, count in counter.items() if uuid not in ('action_1', 'action_2'))
 
         self.assertTrue(counter['action_2'] < counter['action_1'] < non_actions_count)
 
-
     def test_choose_mob__when_actions__total_actions(self):
         account = self.accounts_factory.create_account()
         hero = heroes_logic.load_hero(account_id=account.id)
 
-        MobRecordPrototype.create_random('action_1', global_action_probability=0.66)
-        MobRecordPrototype.create_random('action_2', global_action_probability=0.66)
+        logic.create_random_mob_record('action_1', global_action_probability=0.66)
+        logic.create_random_mob_record('action_2', global_action_probability=0.66)
 
-        counter = collections.Counter([mobs_storage.get_random_mob(hero).id for i in range(10000)])
+        counter = collections.Counter([storage.mobs.get_random_mob(hero).id for i in range(10000)])
 
         self.assertEqual(sum([count for uuid, count in counter.items() if uuid not in ('action_1', 'action_2')], 0), 0)
 

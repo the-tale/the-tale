@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -13,8 +12,10 @@ from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.logic import login_page_url
 
-from the_tale.game.logic import create_test_map
 from the_tale.game import relations as game_relations
+from the_tale.game.logic import create_test_map
+
+from the_tale.game.cards import tt_api as cards_tt_api
 
 from the_tale.linguistics import prototypes
 from the_tale.linguistics import storage
@@ -172,21 +173,25 @@ class CreateRequestsTests(BaseRequestsTests):
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('герой', ''),
+                                                                                     'hero.weapon': ('нож', ''),
                                                                                      'level': (1, '')}))
         self.assertEqual(template.verificators[1], prototypes.Verificator(text='Привидение 13',
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('привидение', ''),
+                                                                                     'hero.weapon': ('ядро', ''),
                                                                                      'level': (2, '')}))
         self.assertEqual(template.verificators[2], prototypes.Verificator(text='',
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('героиня', ''),
+                                                                                     'hero.weapon': ('пепельница', ''),
                                                                                      'level': (5, '')}))
         self.assertEqual(template.verificators[3], prototypes.Verificator(text='',
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('рыцарь', 'мн'),
+                                                                                     'hero.weapon': ('ножницы', ''),
                                                                                      'level': (1, '')}))
         self.assertEqual(template.author_id, self.account_1.id)
         self.assertEqual(template.parent_id, None)
@@ -624,18 +629,26 @@ class UpdateRequestsTests(BaseRequestsTests):
         self.assertEqual(self.template.verificators[0], prototypes.Verificator(text='verificatorx-1',
                                                                                externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                           'time': ('9:20', ''),
-                                                                                          'hero': ('рыцарь', 'мн'), 'level': (5, '')}))
+                                                                                          'hero': ('рыцарь', 'мн'),
+                                                                                          'level': (5, ''),
+                                                                                          'hero.weapon': ('нож', '')}))
         self.assertEqual(self.template.verificators[1], prototypes.Verificator(text='verificatorx-2',
                                                                                externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                           'time': ('9:20', ''),
-                                                                                          'hero': ('герой', ''), 'level': (2, '')}))
+                                                                                          'hero': ('герой', ''),
+                                                                                          'hero.weapon': ('ядро', ''),
+                                                                                          'level': (2, '')}))
         self.assertEqual(self.template.verificators[2], prototypes.Verificator(text='verificatorx-3',
                                                                                externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                           'time': ('9:20', ''),
-                                                                                          'hero': ('привидение', ''), 'level': (1, '')}))
+                                                                                          'hero': ('привидение', ''),
+                                                                                          'hero.weapon': ('пепельница', ''),
+                                                                                          'level': (1, '')}))
         self.assertEqual(self.template.verificators[3], prototypes.Verificator(text='', externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                                    'time': ('9:20', ''),
-                                                                                                   'hero': ('героиня', ''), 'level': (1, '')}))
+                                                                                                   'hero': ('героиня', ''),
+                                                                                                   'hero.weapon': ('ножницы', ''),
+                                                                                                   'level': (1, '')}))
 
         self.assertEqual(self.template.author_id, self.account_1.id)
         self.assertEqual(self.template.parent_id, None)
@@ -675,20 +688,24 @@ class UpdateRequestsTests(BaseRequestsTests):
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('рыцарь', 'мн'),
+                                                                                     'hero.weapon': ('нож', ''),
                                                                                      'level': (5, '')}))
         self.assertEqual(template.verificators[1], prototypes.Verificator(text='verificatorx-2',
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('герой', ''),
+                                                                                     'hero.weapon': ('ядро', ''),
                                                                                      'level': (2, '')}))
         self.assertEqual(template.verificators[2], prototypes.Verificator(text='verificatorx-3',
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('привидение', ''),
+                                                                                     'hero.weapon': ('пепельница', ''),
                                                                                      'level': (1, '')}))
         self.assertEqual(template.verificators[3], prototypes.Verificator(text='', externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                               'time': ('9:20', ''),
                                                                                               'hero': ('героиня', ''),
+                                                                                              'hero.weapon': ('ножницы', ''),
                                                                                               'level': (1, '')}))
 
         self.assertEqual(template.author_id, self.account_1.id)
@@ -736,21 +753,25 @@ class UpdateRequestsTests(BaseRequestsTests):
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('рыцарь', 'мн'),
+                                                                                     'hero.weapon': ('нож', ''),
                                                                                      'level': (5, '')}))
         self.assertEqual(template.verificators[1], prototypes.Verificator(text='verificatorx-2',
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('герой', ''),
+                                                                                     'hero.weapon': ('ядро', ''),
                                                                                      'level': (2, '')}))
         self.assertEqual(template.verificators[2], prototypes.Verificator(text='verificatorx-3',
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('привидение', ''),
+                                                                                     'hero.weapon': ('пепельница', ''),
                                                                                      'level': (1, '')}))
         self.assertEqual(template.verificators[3], prototypes.Verificator(text='',
                                                                           externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                      'time': ('9:20', ''),
                                                                                      'hero': ('героиня', ''),
+                                                                                     'hero.weapon': ('ножницы', ''),
                                                                                      'level': (1, '')}))
 
         self.assertEqual(template.author_id, self.account_1.id)
@@ -796,21 +817,25 @@ class UpdateRequestsTests(BaseRequestsTests):
                                                                                externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                           'time': ('9:20', ''),
                                                                                           'hero': ('рыцарь', 'мн'),
+                                                                                          'hero.weapon': ('нож', ''),
                                                                                           'level': (5, '')}))
         self.assertEqual(self.template.verificators[1], prototypes.Verificator(text='verificatorx-2',
                                                                                externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                           'time': ('9:20', ''),
                                                                                           'hero': ('герой', ''),
+                                                                                          'hero.weapon': ('ядро', ''),
                                                                                           'level': (2, '')}))
         self.assertEqual(self.template.verificators[2], prototypes.Verificator(text='verificatorx-3',
                                                                                externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                           'time': ('9:20', ''),
                                                                                           'hero': ('привидение', ''),
+                                                                                          'hero.weapon': ('пепельница', ''),
                                                                                           'level': (1, '')}))
         self.assertEqual(self.template.verificators[3], prototypes.Verificator(text='',
                                                                                externals={'date': ('18 сухого месяца 183 года', ''),
                                                                                           'time': ('9:20', ''),
                                                                                           'hero': ('героиня', ''),
+                                                                                          'hero.weapon': ('ножницы', ''),
                                                                                           'level': (1, '')}))
 
         self.assertEqual(self.template.author_id, self.account_1.id)
@@ -1375,9 +1400,10 @@ class InGameRequestsTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        with self.check_not_changed(prototypes.ContributionPrototype._db_count):
-            with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
-                self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.template.author_id))):
+            with self.check_not_changed(prototypes.ContributionPrototype._db_count):
+                with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
+                    self.check_ajax_ok(self.client.post(self.requested_url))
 
 
     def test_in_game(self):
@@ -1385,10 +1411,11 @@ class InGameRequestsTests(BaseRequestsTests):
 
         self.assertTrue(self.template.state.is_ON_REVIEW)
 
-        with self.check_not_changed(prototypes.ContributionPrototype._db_count):
-            with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.ON_REVIEW).count, -1):
-                with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.IN_GAME).count, 1):
-                    self.check_ajax_ok(self.client.post(self.requested_url))
+        with self.check_delta(lambda: len(cards_tt_api.load_cards(self.template.author_id)), 1):
+            with self.check_not_changed(prototypes.ContributionPrototype._db_count):
+                with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.ON_REVIEW).count, -1):
+                    with self.check_delta(prototypes.ContributionPrototype._db_filter(state=relations.CONTRIBUTION_STATE.IN_GAME).count, 1):
+                        self.check_ajax_ok(self.client.post(self.requested_url))
 
         self.template.reload()
         self.assertTrue(self.template.state.is_IN_GAME)

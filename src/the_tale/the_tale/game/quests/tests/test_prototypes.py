@@ -1,6 +1,7 @@
 
-import datetime
+import time
 import random
+import datetime
 import collections
 
 from unittest import mock
@@ -20,6 +21,7 @@ from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
 from the_tale.game import turn
+from the_tale.game import tt_api as game_tt_api
 
 from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
 
@@ -33,9 +35,9 @@ from the_tale.game.balance import formulas as f
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype
 
-from the_tale.game.artifacts.prototypes import ArtifactRecordPrototype
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import relations as artifacts_relations
+from the_tale.game.artifacts import storage as artifacts_storage
+from the_tale.game.artifacts import logic as artifacts_logic
 
 from the_tale.game.quests import logic
 from the_tale.game.quests.prototypes import QuestPrototype
@@ -454,22 +456,39 @@ class PrototypeTests(PrototypeTestsBase):
 
             self.assertTrue(self.quest.modify_reward_scale(1) > 1)
 
-
     def test_give_energy_on_reward(self):
         self.complete_quest(positive_results=True)
+
+        time.sleep(0.1)
 
         with mock.patch('the_tale.game.quests.prototypes.QuestPrototype.get_state_by_jump_pointer', lambda qp: self.quest.knowledge_base[self.quest.machine.pointer.state]):
             for person in persons_storage.persons.all():
                 person.attrs.on_profite_energy = 0
 
-            with self.check_not_changed(lambda: self.hero.energy_bonus):
+            with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
                 self.quest.give_energy_on_reward()
+                time.sleep(0.1)
 
             for person in persons_storage.persons.all():
                 person.attrs.on_profite_energy = 1
 
-            with self.check_increased(lambda: self.hero.energy_bonus):
+            with self.check_increased(lambda: game_tt_api.energy_balance(self.hero.account_id)):
                 self.quest.give_energy_on_reward()
+                time.sleep(0.1)
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_energy', False)
+    def test_give_energy_on_reward__energy_regeneration_restricted(self):
+        self.complete_quest(positive_results=True)
+
+        time.sleep(0.1)
+
+        with mock.patch('the_tale.game.quests.prototypes.QuestPrototype.get_state_by_jump_pointer', lambda qp: self.quest.knowledge_base[self.quest.machine.pointer.state]):
+            for person in persons_storage.persons.all():
+                person.attrs.on_profite_energy = 1
+
+            with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+                self.quest.give_energy_on_reward()
+                time.sleep(0.1)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.ARTIFACT_POWER_DELTA', 0.0)
@@ -478,15 +497,15 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(self.hero.bag.occupation, 0)
 
-        ArtifactRecordPrototype.create_random('just_ring', type_=ARTIFACT_TYPE.RING)
-        ArtifactRecordPrototype.create_random('just_amulet', type_=ARTIFACT_TYPE.AMULET)
+        artifacts_logic.create_random_artifact_record('just_ring', type=artifacts_relations.ARTIFACT_TYPE.RING)
+        artifacts_logic.create_random_artifact_record('just_amulet', type=artifacts_relations.ARTIFACT_TYPE.AMULET)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.receive_artifacts_choices',
-                        lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.RING])):
+                        lambda *argv, **kwargs: artifacts_storage.artifacts.artifacts_for_type([artifacts_relations.ARTIFACT_TYPE.RING])):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.0)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.receive_artifacts_choices',
-                        lambda *argv, **kwargs: artifacts_storage.artifacts_for_type([ARTIFACT_TYPE.AMULET])):
+                        lambda *argv, **kwargs: artifacts_storage.artifacts.artifacts_for_type([artifacts_relations.ARTIFACT_TYPE.AMULET])):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
 
         self.assertEqual(self.hero.bag.occupation, 2)

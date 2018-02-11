@@ -1,16 +1,15 @@
-# coding: utf-8
 
 from rels.django import DjangoEnum
 
 from dext.common.utils import views as dext_views
 from dext.common.utils.urls import UrlBuilder, url
 
+from tt_logic.beings import relations as beings_relations
+
 from the_tale.common.utils import list_filter
 from the_tale.common.utils import views as utils_views
 
 from the_tale.accounts import views as accounts_views
-
-from the_tale.game import relations as game_relations
 
 from . import relations
 from . import forms
@@ -24,6 +23,7 @@ from .abilities import relations as abilities_relations
 ########################################
 # processors definition
 ########################################
+
 
 class CreateCompanionProcessor(dext_views.PermissionProcessor):
     PERMISSION = 'companions.create_companionrecord'
@@ -79,13 +79,15 @@ resource.add_processor(ModerateCompanionProcessor())
 # filters
 ########################################
 
-INDEX_TYPE = list_filter.filter_relation(game_relations.BEING_TYPE)
+INDEX_TYPE = list_filter.filter_relation(beings_relations.TYPE)
 INDEX_DEDICATION = list_filter.filter_relation(relations.DEDICATION)
 INDEX_ABILITIES = list_filter.filter_relation(abilities_effects.ABILITIES, sort_key=lambda r: r.text)
 
+
 class INDEX_ORDER(DjangoEnum):
-    records = ( ('RARITY', 0, 'по редкости'),
-                ('NAME', 1, 'по имени') )
+    records = (('RARITY', 0, 'по редкости'),
+               ('NAME', 1, 'по имени'))
+
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
                       list_filter.choice_element('тип:',
@@ -246,7 +248,13 @@ def create(context):
                                                      communication_verbal=context.form.c.communication_verbal,
                                                      communication_gestures=context.form.c.communication_gestures,
                                                      communication_telepathic=context.form.c.communication_telepathic,
-                                                     intellect_level=context.form.c.intellect_level)
+                                                     intellect_level=context.form.c.intellect_level,
+                                                     structure=context.form.c.structure,
+                                                     features=context.form.c.features,
+                                                     movement=context.form.c.movement,
+                                                     body=context.form.c.body,
+                                                     size=context.form.c.size,
+                                                     weapons=context.form.get_weapons())
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', companion_record.id)})
 
 
@@ -282,7 +290,13 @@ def update(context):
                                   communication_verbal=context.form.c.communication_verbal,
                                   communication_gestures=context.form.c.communication_gestures,
                                   communication_telepathic=context.form.c.communication_telepathic,
-                                  intellect_level=context.form.c.intellect_level)
+                                  intellect_level=context.form.c.intellect_level,
+                                  structure=context.form.c.structure,
+                                  features=context.form.c.features,
+                                  movement=context.form.c.movement,
+                                  body=context.form.c.body,
+                                  size=context.form.c.size,
+                                  weapons=context.form.get_weapons())
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})
 
 

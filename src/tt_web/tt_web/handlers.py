@@ -25,7 +25,7 @@ def api(ExpectedMessage):
                 except Exception as e:
                     raise exceptions.ApiError(code='api.wrong_request_message', message='request message has unexpected format')
 
-                response_message = await handler(request_message)
+                response_message = await handler(request_message, config=request.app['config'])
 
                 data = any_pb2.Any()
                 data.Pack(response_message)

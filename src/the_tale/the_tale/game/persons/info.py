@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import time
 
@@ -20,6 +19,10 @@ def person_info(person):
     data = {'id': person.id,
             'name': person.name,
             'updated_at': time.mktime(person.updated_at.timetuple()),
+
+            'profession': person.type.value,
+            'race': person.race.value,
+            'gender': person.gender.value,
 
             'place': {
                 'id': person.place.id,

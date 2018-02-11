@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import random
 
@@ -36,6 +35,9 @@ class Actor(object):
     @property
     def utg_name_form(self): return self.actor.utg_name_form
 
+    def linguistics_variables(self):
+        return self.actor.linguistics_variables()
+
     def linguistics_restrictions(self): return self.actor.linguistics_restrictions()
 
     @property
@@ -67,6 +69,10 @@ class Actor(object):
 
     @property
     def mob_type(self): return self.actor.mob_type
+
+    @property
+    def bag(self):
+        return getattr(self.actor, 'bag', None)
 
     def change_health(self, value):
         # TODO: change for heal & kick methods?

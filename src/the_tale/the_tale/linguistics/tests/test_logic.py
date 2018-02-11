@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 from unittest import mock
@@ -11,7 +11,11 @@ from utg import relations as utg_relations
 
 from the_tale.common.utils import testcase
 
+from the_tale.accounts.personal_messages import tt_api as pm_tt_api
+
 from the_tale.game.logic import create_test_map
+
+from the_tale.game.cards import tt_api as cards_tt_api
 
 from .. import prototypes
 from .. import relations
@@ -23,7 +27,6 @@ from .. import exceptions
 
 from ..lexicon import dictionary as lexicon_dictinonary
 from ..lexicon import keys
-
 
 from the_tale.linguistics.lexicon.groups import relations as groups_relations
 
@@ -39,7 +42,6 @@ class LogicTests(testcase.TestCase):
         storage.game_lexicon.refresh()
 
         self.external_id = random.randint(1, 999)
-
 
     def test_get_templates_count(self):
         key_1 = random.choice(keys.LEXICON_KEY.records)
@@ -83,7 +85,6 @@ class LogicTests(testcase.TestCase):
                 else:
                     self.assertEqual(groups_count[group], 0)
 
-
         if key_1 == key_2:
             for key in keys.LEXICON_KEY.records:
                 if key == key_1:
@@ -99,6 +100,51 @@ class LogicTests(testcase.TestCase):
                 else:
                     self.assertEqual(keys_count[key], 0)
 
+    def test_get_text__linguistics_variables(self):
+
+        key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
+
+        dictionary = storage.game_dictionary.item
+
+        word_1 = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix='w-3-', only_required=True)
+        word_1.forms[3] = 'дубль'
+        self.assertEqual(word_1.form(utg_relations.CASE.ACCUSATIVE), 'дубль')
+
+        dictionary.add_word(word_1)
+
+        TEXT = '[hero|загл] [level] [дубль|hero|дт]'
+
+        template = utg_templates.Template()
+
+        template.parse(TEXT, externals=['hero', 'level'])
+
+        prototypes.TemplatePrototype.create(key=key,
+                                            raw_template=TEXT,
+                                            utg_template=template,
+                                            verificators=[],
+                                            author=None)
+
+        # update template errors_status and state to enshure, that it will be loaded in game lexicon
+        prototypes.TemplatePrototype._db_all().update(errors_status=relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS,
+                                                      state=relations.TEMPLATE_STATE.IN_GAME)
+        storage.game_lexicon.refresh()
+
+        weapon_restrictions = [storage.restrictions_storage.all()[0].id,
+                               storage.restrictions_storage.all()[100].id]
+
+        weapon_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('меч'),
+                                linguistics_restrictions=lambda: weapon_restrictions)
+
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'),
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [('weapon', weapon_mock)])
+
+        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name, args={'hero': hero_mock, 'level': 1})
+
+        self.assertEqual(externals['hero.weapon'], lexicon_dictinonary.DICTIONARY.get_word('меч'))
+
+        self.assertIn(('hero.weapon', weapon_restrictions[0]), restrictions)
+        self.assertIn(('hero.weapon', weapon_restrictions[1]), restrictions)
 
     def test_get_text__real(self):
 
@@ -129,15 +175,16 @@ class LogicTests(testcase.TestCase):
                                                       state=relations.TEMPLATE_STATE.IN_GAME)
         storage.game_lexicon.refresh()
 
-        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'), linguistics_restrictions=lambda: [])
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'),
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
 
-        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
+        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name, args={'hero': hero_mock, 'level': 1})
 
         self.assertIn('date', externals)
 
         self.assertEqual(logic.render_text(lexicon_key, externals, restrictions),
                          'Герой 1 w-3-нс,ед,дт')
-
 
         word_2 = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix='w-2-', only_required=True)
         word_2.forms[1] = 'дубль'
@@ -148,7 +195,6 @@ class LogicTests(testcase.TestCase):
 
         self.assertEqual(logic.render_text(lexicon_key, externals, restrictions),
                          'Герой 1 w-2-нс,ед,дт')
-
 
     def test_add_word_restrictions_into_variable_restrictions(self):
 
@@ -177,27 +223,35 @@ class LogicTests(testcase.TestCase):
         plural_noun = utg_words.WordForm(utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix='w-1-', only_required=True,
                                                                          properties=utg_words.Properties(utg_relations.NUMBER.PLURAL)))
 
-        hero_mock = mock.Mock(utg_name_form=normal_noun, linguistics_restrictions=lambda: [])
+        hero_mock = mock.Mock(utg_name_form=normal_noun,
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
         lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
         self.assertIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                             relations.WORD_HAS_PLURAL_FORM.HAS.value).id), restrictions)
         self.assertNotIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                                relations.WORD_HAS_PLURAL_FORM.HAS_NO.value).id), restrictions)
 
-        hero_mock = mock.Mock(utg_name_form=singular_noun, linguistics_restrictions=lambda: [])
-        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
+        hero_mock = mock.Mock(utg_name_form=singular_noun,
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
+        lexicon_key, externals, restrictions = logic.prepair_get_text(key.name, args={'hero': hero_mock, 'level': 1})
         self.assertNotIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                                relations.WORD_HAS_PLURAL_FORM.HAS.value).id), restrictions)
         self.assertIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                             relations.WORD_HAS_PLURAL_FORM.HAS_NO.value).id), restrictions)
 
-        hero_mock = mock.Mock(utg_name_form=plural_noun, linguistics_restrictions=lambda: [])
+        hero_mock = mock.Mock(utg_name_form=plural_noun,
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
         lexicon_key, externals, restrictions = logic.prepair_get_text(key.name,  args={'hero': hero_mock, 'level': 1})
         self.assertIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                             relations.WORD_HAS_PLURAL_FORM.HAS.value).id), restrictions)
         self.assertNotIn(('hero', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                                relations.WORD_HAS_PLURAL_FORM.HAS_NO.value).id), restrictions)
-
 
     def test_update_words_usage_info(self):
         word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix='w-1-', only_required=True))
@@ -242,7 +296,6 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(word_3.used_in_ingame_templates, 0)
         self.assertEqual(word_3.used_in_onreview_templates, 0)
         self.assertTrue(word_3.used_in_status.is_NOT_USED)
-
 
     def test_update_words_usage_info__ignore_duplicates(self):
         word_1 = prototypes.WordPrototype.create(utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix='w-1-', only_required=True))
@@ -291,9 +344,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(word_3.used_in_onreview_templates, 0)
         self.assertTrue(word_3.used_in_status.is_NOT_USED)
 
-
-
-    def update_templates_errors(self):
+    def test_update_templates_errors(self):
         key = keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
 
         TEXT = '[hero|загл] [level] [неизвестное слово|hero|вн]'
@@ -302,10 +353,10 @@ class LogicTests(testcase.TestCase):
 
         template.parse(TEXT, externals=['hero'])
 
-        verificator_1 = prototypes.Verificator(text='Героиня 1 w-1-ед,вн,жр,од,пол', externals={'hero': ('героиня', ''), 'level': (1, '')})
-        verificator_2 = prototypes.Verificator(text='Рыцари 5 w-1-мн,вн,од,пол', externals={'hero': ('рыцарь', 'мн'), 'level': (5, '')})
-        verificator_3 = prototypes.Verificator(text='Герой 2 w-1-ед,вн,мр,од,пол', externals={'hero': ('герой', ''), 'level': (2, '')})
-        verificator_4 = prototypes.Verificator(text='Привидение 5 w-1-ед,вн,ср,од,пол', externals={'hero': ('привидение', ''), 'level': (5, '')})
+        verificator_1 = prototypes.Verificator(text='Героиня 1 w-1-полнприл,пол,од,ед,вн,жр', externals={'hero': ('героиня', ''), 'level': (1, '')})
+        verificator_2 = prototypes.Verificator(text='Рыцари 5 w-1-полнприл,пол,од,мн,вн', externals={'hero': ('рыцарь', 'мн'), 'level': (5, '')})
+        verificator_3 = prototypes.Verificator(text='Герой 2 w-1-полнприл,пол,од,ед,вн,мр', externals={'hero': ('герой', ''), 'level': (2, '')})
+        verificator_4 = prototypes.Verificator(text='Привидение 5 w-1-полнприл,пол,од,ед,вн,ср', externals={'hero': ('привидение', ''), 'level': (5, '')})
 
         dictionary = storage.game_dictionary.item
 
@@ -315,16 +366,16 @@ class LogicTests(testcase.TestCase):
         dictionary.add_word(word)
 
         prototype_1 = prototypes.TemplatePrototype.create(key=key,
-                                                        raw_template=TEXT,
-                                                        utg_template=template,
-                                                        verificators=[verificator_1, verificator_2, verificator_3, verificator_4],
-                                                        author=self.account_1)
+                                                          raw_template=TEXT,
+                                                          utg_template=template,
+                                                          verificators=[verificator_1, verificator_2, verificator_3, verificator_4],
+                                                          author=None)
 
         prototype_2 = prototypes.TemplatePrototype.create(key=key,
-                                                        raw_template=TEXT,
-                                                        utg_template=template,
-                                                        verificators=[],
-                                                        author=self.account_1)
+                                                          raw_template=TEXT,
+                                                          utg_template=template,
+                                                          verificators=[],
+                                                          author=None)
 
         prototypes.TemplatePrototype._db_filter(id=prototype_1.id).update(errors_status=relations.TEMPLATE_ERRORS_STATUS.HAS_ERRORS)
         prototypes.TemplatePrototype._db_filter(id=prototype_2.id).update(errors_status=relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS)
@@ -342,7 +393,6 @@ class LogicTests(testcase.TestCase):
 
         self.assertTrue(prototype_1.errors_status.is_NO_ERRORS)
         self.assertTrue(prototype_2.errors_status.is_HAS_ERRORS)
-
 
     def test_create_restriction(self):
 
@@ -365,7 +415,6 @@ class LogicTests(testcase.TestCase):
 
         self.assertEqual(loaded_restriction, restriction)
 
-
     def test_create_restriction__duplicate(self):
 
         group = random.choice(relations.TEMPLATE_RESTRICTION_GROUP.records)
@@ -379,7 +428,6 @@ class LogicTests(testcase.TestCase):
                         self.assertRaises(IntegrityError, logic.create_restriction, group=group,
                                           external_id=self.external_id, name='bla-bla-name')
 
-
     def test_sync_static_restrictions(self):
         models.Restriction.objects.all().delete()
         storage.restrictions_storage.refresh()
@@ -392,7 +440,6 @@ class LogicTests(testcase.TestCase):
             for record in restrictions_group.static_relation.records:
                 self.assertEqual(storage.restrictions_storage.get_restriction(restrictions_group, record.value), None)
 
-
         logic.sync_static_restrictions()
 
         for restrictions_group in relations.TEMPLATE_RESTRICTION_GROUP.records:
@@ -402,7 +449,6 @@ class LogicTests(testcase.TestCase):
 
             for record in restrictions_group.static_relation.records:
                 self.assertNotEqual(storage.restrictions_storage.get_restriction(restrictions_group, record.value), None)
-
 
     def test_sync_restriction__not_exists(self):
         storage.restrictions_storage._get_all_query().delete()
@@ -426,7 +472,6 @@ class LogicTests(testcase.TestCase):
         loaded_restriction = objects.Restriction.from_model(model)
 
         self.assertEqual(loaded_restriction, restriction)
-
 
     def test_sync_restriction__exists(self):
         group = random.choice(relations.TEMPLATE_RESTRICTION_GROUP.records)
@@ -468,7 +513,6 @@ class LogicTests(testcase.TestCase):
 
         self.assertEqual(prototypes.TemplatePrototype.get_by_id(template.id), None)
 
-
     def test_remove_contributions(self):
         create_test_map()
 
@@ -492,21 +536,25 @@ class LogicTests(testcase.TestCase):
         self.assertFalse(prototypes.ContributionPrototype._db_filter(id=contribution_1.id).exists())
         self.assertTrue(prototypes.ContributionPrototype._db_filter(id=contribution_2.id).exists())
 
-
     def test_get_text__no_key(self):
-        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'), linguistics_restrictions=lambda: [])
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'),
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
         self.assertRaises(exceptions.NoLexiconKeyError, logic.get_text, 'wrong_key', args={'hero': hero_mock, 'level': 1}, quiet=False)
         self.assertEqual(logic.get_text('wrong_key', args={'hero': hero_mock, 'level': 1}, quiet=True), None)
 
-
     def test_get_text__no_templates(self):
         key = random.choice(keys.LEXICON_KEY.records)
-        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'), linguistics_restrictions=lambda: [])
+
+        hero_mock = mock.Mock(utg_name_form=lexicon_dictinonary.DICTIONARY.get_word('герой'),
+                              linguistics_restrictions=lambda: [],
+                              linguistics_variables=lambda: [])
+
         args = {'hero': hero_mock, 'level': 1}
 
         self.assertEqual(logic.get_text(key.name, args=args),
                          logic.fake_text(key.name, logic.prepair_get_text(key.name, args)[1]))
-
 
     def test_get_word_restrictions(self):
 
@@ -522,3 +570,98 @@ class LogicTests(testcase.TestCase):
                                                                                                                               relations.WORD_HAS_PLURAL_FORM.HAS_NO.value).id),))
         self.assertEqual(logic.get_word_restrictions('x', plural_noun), (('x', storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
                                                                                                                             relations.WORD_HAS_PLURAL_FORM.HAS.value).id),))
+
+
+class GiveRewardForTemplateTests(testcase.TestCase):
+
+    def setUp(self):
+        super(GiveRewardForTemplateTests, self).setUp()
+
+        create_test_map()
+
+        self.account_1 = self.accounts_factory.create_account()
+        self.account_2 = self.accounts_factory.create_account()
+        self.account_3 = self.accounts_factory.create_account()
+        self.account_4 = self.accounts_factory.create_account()
+
+        cards_tt_api.debug_clear_service()
+        pm_tt_api.debug_clear_service()
+
+        logic.sync_static_restrictions()
+
+        storage.game_dictionary.refresh()
+        storage.game_lexicon.refresh()
+
+        TEXT = '[hero|загл] [level] [дубль|hero|дт]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(TEXT, externals=['hero', 'level'])
+
+        self.template_1 = prototypes.TemplatePrototype.create(key=keys.LEXICON_KEY.random(),
+                                                              raw_template=TEXT,
+                                                              utg_template=utg_template,
+                                                              verificators=[],
+                                                              author=None,
+                                                              state=relations.TEMPLATE_STATE.REMOVED)
+
+        self.template_2 = prototypes.TemplatePrototype.create(key=keys.LEXICON_KEY.random(),
+                                                              raw_template=TEXT,
+                                                              utg_template=utg_template,
+                                                              verificators=[],
+                                                              author=self.account_2,
+                                                              state=relations.TEMPLATE_STATE.REMOVED)
+
+        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                account_id=self.account_2.id,
+                                                entity_id=self.template_2.id,
+                                                source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                state=relations.CONTRIBUTION_STATE.IN_GAME)
+
+        self.template_3 = prototypes.TemplatePrototype.create(key=keys.LEXICON_KEY.random(),
+                                                              raw_template=TEXT,
+                                                              utg_template=utg_template,
+                                                              verificators=[],
+                                                              author=self.account_3,
+                                                              state=relations.TEMPLATE_STATE.REMOVED)
+
+        prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                account_id=self.account_3.id,
+                                                entity_id=self.template_3.id,
+                                                source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                state=relations.CONTRIBUTION_STATE.IN_GAME)
+
+        self.non_author_contribution = prototypes.ContributionPrototype.create(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
+                                                                               account_id=self.account_4.id,
+                                                                               entity_id=self.template_2.id,
+                                                                               source=relations.CONTRIBUTION_SOURCE.PLAYER,
+                                                                               state=relations.CONTRIBUTION_STATE.IN_GAME)
+
+    def test_give_cards(self):
+        with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_1.id))):
+            with self.check_delta(lambda: len(cards_tt_api.load_cards(self.account_2.id)), 1):
+                with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_3.id))):
+                    with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_4.id))):
+                        logic.give_reward_for_template(self.template_2)
+
+        card = list(cards_tt_api.load_cards(self.account_2.id).values())[0]
+
+        self.assertTrue(card.available_for_auction)
+
+    def test_give_message(self):
+        with self.check_not_changed(lambda: pm_tt_api.new_messages_number(self.account_1.id)):
+            with self.check_delta(lambda: pm_tt_api.new_messages_number(self.account_2.id), 1):
+                with self.check_not_changed(lambda: pm_tt_api.new_messages_number(self.account_3.id)):
+                    with self.check_not_changed(lambda: pm_tt_api.new_messages_number(self.account_4.id)):
+                        logic.give_reward_for_template(self.template_2)
+
+    def test_already_given(self):
+        with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_1.id))):
+            with self.check_delta(lambda: len(cards_tt_api.load_cards(self.account_2.id)), 1):
+                with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_3.id))):
+                    with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_4.id))):
+                        logic.give_reward_for_template(self.template_2)
+
+        with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_1.id))):
+            with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_2.id))):
+                with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_3.id))):
+                    with self.check_not_changed(lambda: len(cards_tt_api.load_cards(self.account_4.id))):
+                        logic.give_reward_for_template(self.template_2)

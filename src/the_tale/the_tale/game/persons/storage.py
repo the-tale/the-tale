@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.common.utils import storage as dext_storage
 
@@ -6,7 +5,6 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.persons import models
 from the_tale.game.persons import exceptions
-from the_tale.game.persons import relations
 
 
 class PersonsStorage(dext_storage.Storage):
@@ -26,7 +24,6 @@ class PersonsStorage(dext_storage.Storage):
 
 
 persons = PersonsStorage()
-
 
 
 class SocialConnectionsStorage(dext_storage.CachedStorage):

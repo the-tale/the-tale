@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 from unittest import mock
@@ -16,7 +16,7 @@ from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import relations as persons_relations
 from the_tale.game.persons import logic as persons_logic
 
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
 
 from the_tale.game.roads.storage import waymarks_storage
 
@@ -85,7 +85,7 @@ class HeroQuestInfoTests(LogicTestsBase):
 
         self.hero.position.set_place(self.place_1)
 
-        mob = mobs_storage.all()[0]
+        mob = mobs_storage.mobs.all()[0]
         self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.MOB, mob)
 
         place = self.place_1
@@ -218,7 +218,7 @@ class SetupPreferencesTest(LogicTestsBase):
         self.check_facts()
 
     def test_mob(self):
-        mob = mobs_storage.all()[0]
+        mob = mobs_storage.mobs.all()[0]
         self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.MOB, mob)
 
         logic.setup_preferences(self.knowledge_base, self.get_hero_info())

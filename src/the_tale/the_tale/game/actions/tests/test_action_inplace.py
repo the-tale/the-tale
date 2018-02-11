@@ -1,10 +1,13 @@
 
+import time
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
+from the_tale.game import tt_api as game_tt_api
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
@@ -13,8 +16,9 @@ from the_tale.game.companions import relations as companions_relations
 from the_tale.game.actions import prototypes
 from the_tale.game.actions.tests.helpers import ActionEventsTestsMixin
 
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import RARITY
+from the_tale.game.artifacts import logic as artifacts_logic
+from the_tale.game.artifacts import storage as artifacts_storage
+from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.heroes import relations as heroes_relations
 from the_tale.game.heroes import logic as heroes_logic
@@ -101,7 +105,6 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_companion_heal_in_resort__damaged_companion(self):
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -118,67 +121,58 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.storage._test_save()
 
-
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_instant_energy_regen_in_holy_city(self):
-        self.hero.energy = 0
         self.hero.position.previous_place_id = None
-
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
-
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
-        self.assertEqual(self.hero.energy, c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
+        with self.check_delta(lambda: game_tt_api.energy_balance(self.hero.account_id),
+                              c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE):
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
+            time.sleep(0.1)
 
         self.storage._test_save()
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
-    def test_instant_energy_regen_in_holy_city__maximum_energy(self):
-        self.hero.energy = self.hero.energy_maximum
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_energy', False)
+    def test_instant_energy_regen_in_holy_city__regen_disabled(self):
         self.hero.position.previous_place_id = None
-
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
-
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
-        self.assertEqual(self.hero.energy, self.hero.energy_maximum)
+        with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
+            time.sleep(0.1)
 
         self.storage._test_save()
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_instant_energy_regen_in_holy_city__no_regen(self):
-        self.hero.energy = 0
         self.hero.position.previous_place_id = None
 
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.NONE)
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
-        self.assertEqual(self.hero.energy, 0)
+        with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+            prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_instant_energy_regen_in_holy_city__place_not_changed(self):
-        self.hero.energy = 0
+
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
         self.hero.position.update_previous_place()
 
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_not_changed(lambda: len(self.hero.journal.messages)):
-            prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
-        self.assertEqual(self.hero.energy, 0)
+        with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+            with self.check_not_changed(lambda: len(self.hero.journal.messages)):
+                prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
-
 
     def test_tax(self):
         for place in places_storage.places.all():
@@ -346,7 +340,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
     def test_trade_action_create(self):
 
         for i in range(int(c.MAX_BAG_SIZE * c.BAG_SIZE_TO_SELL_LOOT_FRACTION) + 1):
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
+            artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1, rarity=artifacts_relations.RARITY.NORMAL)
             self.hero.bag.put_artifact(artifact)
 
         self.storage.process_turn()
@@ -356,7 +350,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.storage._test_save()
 
     def test_equip_action_create(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
         artifact.power = Power(666, 666)
         self.hero.bag.put_artifact(artifact)
 
@@ -391,7 +385,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.action_idl = self.hero.actions.current_action
 
         self.action_inplace = prototypes.ActionInPlacePrototype.create(hero=self.hero)
-
 
     def test_no_money(self):
 
@@ -479,37 +472,7 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_heal, money)
         self.storage._test_save()
 
-
-    def test_buying_artifact_with_hero_preferences(self):
-        while not self.hero.next_spending.is_BUYING_ARTIFACT:
-            self.hero.switch_spending()
-
-        money = self.hero.spend_amount
-
-        self.assertEqual(self.hero.statistics.money_spend, 0)
-        self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
-        self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
-
-        #unequip all arefact
-        self.hero.equipment._remove_all()
-        # self.hero.preferences.set_equipment_slot(EQUIPMENT_SLOT.PLATE)
-        heroes_logic.save_hero(self.hero)
-
-        #buy artifact
-        self.hero.money = money
-        self.storage.process_turn()
-        self.assertTrue(self.hero.money < 1)
-        self.assertEqual(len(list(self.hero.bag.items())), 0)
-
-        self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
-        self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
-        self.assertEqual(self.hero.statistics.artifacts_had, 1)
-
-        # # hero must not buy artifact in preferences slot, he has special quest for this
-        # self.assertEqual(self.hero.equipment.get(EQUIPMENT_SLOT.PLATE), None)
-        # self.storage._test_save()
-
-
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_upgrade_prefered_slot', True)
     def test_buying_artifact_without_change(self):
         while not self.hero.next_spending.is_BUYING_ARTIFACT:
             self.hero.switch_spending()
@@ -520,11 +483,15 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, 0)
         self.assertEqual(self.hero.statistics.money_earned_from_artifacts, 0)
 
-        #unequip all arefact
-        self.hero.equipment._remove_all()
+        # set prefered slot to guaranty that empty slot will be choosen
+        self.assertEqual(self.hero.equipment.get(heroes_relations.EQUIPMENT_SLOT.AMULET), None)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, heroes_relations.EQUIPMENT_SLOT.AMULET)
+
+        artifacts_logic.create_random_artifact_record('test_amulet', type=artifacts_relations.ARTIFACT_TYPE.AMULET)
+
         heroes_logic.save_hero(self.hero)
 
-        #buy artifact
+        # buy artifact
         self.hero.money = money
 
         self.storage.process_turn()
@@ -534,6 +501,9 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_artifacts, money - self.hero.money)
         self.assertEqual(self.hero.statistics.artifacts_had, 1)
+
+        self.assertNotEqual(self.hero.equipment.get(heroes_relations.EQUIPMENT_SLOT.AMULET), None)
+
         self.storage._test_save()
 
     def test_buying_artifact_with_change(self):
@@ -541,11 +511,11 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
             self.hero.switch_spending()
 
         # fill all slots with artifacts
-        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
+        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL))
 
         money = self.hero.spend_amount
 
-        #buy artifact
+        # buy artifact
         self.hero.money = money
 
         self.assertEqual(self.hero.statistics.money_spend, 0)
@@ -567,12 +537,12 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
             self.hero.switch_spending()
 
         # fill all slots with artifacts
-        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, self.hero.level, rarity=RARITY.NORMAL))
+        self.hero.equipment.test_equip_in_all_slots(artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, self.hero.level, rarity=artifacts_relations.RARITY.NORMAL))
 
         money = self.hero.spend_amount
         self.hero.money = money
 
-        self.hero.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 666, rarity=RARITY.EPIC))
+        self.hero.bag.put_artifact(artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 666, rarity=artifacts_relations.RARITY.EPIC))
 
         with self.check_not_changed(lambda: self.hero.statistics.money_spend):
             with self.check_not_changed(lambda: self.hero.statistics.money_spend_for_artifacts):
@@ -622,7 +592,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend, money - self.hero.money)
         self.assertEqual(self.hero.statistics.money_spend_for_sharpening, money - self.hero.money)
         self.storage._test_save()
-
 
     def test_repair_artifact(self):
         for artifact in list(self.hero.equipment.values()):
@@ -710,7 +679,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_experience, money - self.hero.money)
         self.storage._test_save()
 
-
     def test_heal_companion(self):
         self.companion_record = companions_logic.create_random_companion_record('companion', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
@@ -732,7 +700,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_companions, money)
 
         self.storage._test_save()
-
 
     def test_heal_companion__swich_spending_on_full_health(self):
         self.companion_record = companions_logic.create_random_companion_record('companion', state=companions_relations.STATE.ENABLED)
@@ -759,7 +726,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
 
         self.storage._test_save()
 
-
     def test_healed_companion(self):
         self.companion_record = companions_logic.create_random_companion_record('companion', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
@@ -779,7 +745,6 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
                     self.storage.process_turn()
 
         self.storage._test_save()
-
 
     def test_heal_companion__no_companion(self):
         self.assertEqual(self.hero.companion, None)
@@ -866,7 +831,6 @@ class InPlaceActionCompanionBuyMealTests(testcase.TestCase):
         self.hero.money = 0
         self.check_not_used()
 
-
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 0.5)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat', lambda hero: False)
     def test_companion_does_not_eat(self):
@@ -896,7 +860,7 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
         self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
-        self.artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
+        self.artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1, rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.put_loot(self.artifact)
 
         self.assertEqual(self.hero.bag.occupation, 1)
@@ -909,7 +873,6 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_INPLACE_COMPANION_DRINK_ARTIFACT)
-
 
     def check_not_used(self):
         with self.check_not_changed(lambda: self.hero.bag.occupation):
@@ -928,7 +891,6 @@ class InPlaceActionCompanionDrinkArtifactTests(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_drink_artifact', lambda hero: False)
     def test_companion_does_not_eat(self):
         self.check_not_used()
-
 
 
 class InPlaceActionCompanionLeaveTests(testcase.TestCase):
@@ -954,13 +916,12 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
         self.hero.position.update_previous_place()
         self.hero.position.set_place(self.place_2)
 
-        self.artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot, 1, rarity=RARITY.NORMAL)
+        self.artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot, 1, rarity=artifacts_relations.RARITY.NORMAL)
         self.hero.put_loot(self.artifact)
 
         self.assertEqual(self.hero.bag.occupation, 1)
 
         self.hero.position.move_out_place()
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_leave_in_place_probability', 1.0)
     def test_leave(self):
@@ -968,7 +929,6 @@ class InPlaceActionCompanionLeaveTests(testcase.TestCase):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.assertEqual(self.hero.companion, None)
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_leave_in_place_probability', 0.0)
     def test_not_leave(self):
@@ -993,14 +953,12 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
 
         self.action_idl = self.hero.actions.current_action
 
-
         self.action_inplace = prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.action_inplace.state = self.action_inplace.STATE.PROCESSED
 
         self.companion_record = companions_logic.create_random_companion_record('thief', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_money', lambda self: True)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
@@ -1039,7 +997,6 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
              self.check_increased(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
 
-
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_money', lambda self: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
     @mock.patch('the_tale.game.heroes.objects.Hero.artifacts_probability', lambda self, mob: 0)
@@ -1051,7 +1008,6 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
              self.check_delta(lambda: self.hero.statistics.loot_had, 1), \
              self.check_increased(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_money', lambda self: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
@@ -1065,8 +1021,6 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
              self.check_increased(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
 
-
-
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_money', lambda self: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)
     @mock.patch('the_tale.game.heroes.objects.Hero.bag_is_full', True)
@@ -1078,7 +1032,6 @@ class InPlaceActionCompanionStealingTest(testcase.TestCase):
              self.check_not_changed(lambda: self.hero.statistics.loot_had), \
              self.check_not_changed(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_money', lambda self: True)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_steal_item', lambda self: True)

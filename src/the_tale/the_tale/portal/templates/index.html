@@ -52,7 +52,7 @@ jQuery(document).ready(function(e){
         <li><strong>уровень:</strong> {{ hero_of_the_day.level}}</li>
         <li><strong>физическая сила:</strong> {{ hero_of_the_day.power.physic }}</li>
         <li><strong>магическая сила:</strong> {{ hero_of_the_day.power.magic }}</li>
-        <li><strong>покровитель:</strong> <a href="{{ url('accounts:show', account_of_the_day.id) }}">{{ account_of_the_day.nick_verbose}}</a></li>
+        <li><strong>хранитель:</strong> <a href="{{ url('accounts:show', account_of_the_day.id) }}">{{ account_of_the_day.nick_verbose}}</a></li>
         <li><strong>могущество:</strong> {{ hero_of_the_day.might }}</li>
         {% if clan_of_the_day %}
         <li><strong>гильдия:</strong> <a href="{{url('accounts:clans:show', clan_of_the_day.id)}}">{{clan_of_the_day.name}}</a></li>

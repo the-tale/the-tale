@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.db import transaction
 
@@ -134,7 +133,6 @@ class Worker(BaseWorker):
         self.stop_required = True
         self.logger.info('HIGHLEVEL STOPPED')
 
-
     def sync_sizes(self, places, hours, max_economic):
         if not places:
             return
@@ -145,7 +143,6 @@ class Worker(BaseWorker):
         for i, place in enumerate(places):
             place.attrs.set_power_economic(int(max_economic * float(i) / places_number) + 1)
             place.attrs.sync_size(hours)
-
 
     @places_storage.places.postpone_version_update
     @places_storage.buildings.postpone_version_update
@@ -165,7 +162,6 @@ class Worker(BaseWorker):
 
                 for place in places_storage.places.all():
                     place.politic_power.sync_power()
-
 
             for power_info in self.persons_politic_power:
                 person = persons_storage.persons[power_info.person_id]
@@ -232,21 +228,29 @@ class Worker(BaseWorker):
 
         self.logger.info('sync data completed')
 
+    def validate_bills(self):
+        for active_bill_id in bill_prototypes.BillPrototype.get_active_bills_ids():
+            bill = bill_prototypes.BillPrototype.get_by_id(active_bill_id)
+            if not bill.has_meaning():
+                bill.stop()
 
     def apply_bills(self):
         self.logger.info('apply bills')
+
+        self.validate_bills()
 
         applied = False
 
         for applied_bill_id in bill_prototypes.BillPrototype.get_applicable_bills_ids():
             bill = bill_prototypes.BillPrototype.get_by_id(applied_bill_id)
+
+            if bill.is_delayed:
+                continue
+
             if bill.state.is_VOTING:
                 applied = bill.apply() or applied
 
-            for active_bill_id in bill_prototypes.BillPrototype.get_active_bills_ids():
-                bill = bill_prototypes.BillPrototype.get_by_id(active_bill_id)
-                if not bill.has_meaning():
-                    bill.stop()
+            self.validate_bills()
 
         self.logger.info('apply bills completed')
 
@@ -256,7 +260,6 @@ class Worker(BaseWorker):
         power_good, power_bad = storage.get(id_, (0, 0))
         storage[id_] = (power_good + (power_delta if power_delta > 0 else 0),
                         power_bad + (power_delta if power_delta < 0 else 0))
-
 
     def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, person_id, place_id, power_delta):
         self.send_cmd('change_power', {'hero_id': hero_id,

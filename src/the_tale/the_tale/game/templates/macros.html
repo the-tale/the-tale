@@ -1,3 +1,4 @@
+{% import 'accounts/macros.html' as accounts_macros with context %}
 
 {% macro quest_record_body(choices_list) -%}
 
@@ -182,9 +183,5 @@ jQuery(document).ready(function(e){
   {{hero.gender.text}}-{{hero.race.text}}
   <a href="{{url('game:heroes:show', account_short_info.id)}}">{{hero.name}}</a>
   {{ hero.level }} уровня,
-  покровитель:
-  <a href="{{ url('accounts:show', account_short_info.id) }}">{{account_short_info.name}}</a>
-  {% if account_short_info.clan is not none %}
-    <a href="{{url('accounts:clans:show', account_short_info.clan.id)}}">[{{account_short_info.clan.abbr}}]</a>
-  {% endif %}
+  хранитель: {{accounts_macros.account_link(account_short_info, account_short_info.clan)}}
 {% endmacro %}

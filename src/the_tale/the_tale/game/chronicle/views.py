@@ -11,6 +11,9 @@ from the_tale.common.utils.pagination import Paginator
 
 from the_tale.game.places import storage as places_storage
 
+from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import objects as persons_objects
+
 from the_tale.game.chronicle.models import Record
 from the_tale.game.chronicle.conf import chronicle_settings
 from the_tale.game.chronicle.prototypes import RecordPrototype
@@ -18,7 +21,8 @@ from the_tale.game.chronicle.prototypes import RecordPrototype
 
 class IndexFilter(list_filter.ListFilter):
     ELEMENTS = [list_filter.reset_element(),
-                list_filter.choice_element('город:', attribute='place', choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()) ]
+                list_filter.choice_element('город:', attribute='place', choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()),
+                list_filter.choice_element('мастер:', attribute='person', choices=lambda x: [(None, 'все')] + persons_objects.Person.form_choices()) ]
 
 
 class ChronicleResource(Resource):
@@ -28,23 +32,30 @@ class ChronicleResource(Resource):
 
     @validate_argument('page', int, 'chronicle', 'неверная страница')
     @validate_argument('place', lambda value: places_storage.places[int(value)], 'chronicle', 'неверный идентификатор города')
+    @validate_argument('person', lambda value: persons_storage.persons[int(value)], 'chronicle', 'неверный идентификатор Мастера')
     @handler('', method='get')
-    def index(self, page=None, place=None):
+    def index(self, page=None, place=None, person=None):
 
         records_query = Record.objects.all()
 
         if place is not None:
             records_query = records_query.filter(actors__place_id=place.id)
 
-        url_builder = UrlBuilder(reverse('game:chronicle:'), arguments={'place': place.id if place else None})
+        if person is not None:
+            records_query = records_query.filter(actors__person_id=person.id)
 
-        index_filter = IndexFilter(url_builder=url_builder, values={'place': place.id if place else None})
+        url_builder = UrlBuilder(reverse('game:chronicle:'), arguments={'place': place.id if place else None,
+                                                                        'person': person.id if person else None})
+
+        index_filter = IndexFilter(url_builder=url_builder, values={'place': place.id if place else None,
+                                                                    'person': person.id if person else None})
 
         records_count = records_query.count()
 
         if page is None:
             page = Paginator.get_page_numbers(records_count, chronicle_settings.RECORDS_ON_PAGE)
             if page == 0: page = 1
+
         page = int(page) - 1
 
         paginator = Paginator(page, records_count, chronicle_settings.RECORDS_ON_PAGE, url_builder, inverse=True)

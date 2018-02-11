@@ -1,10 +1,11 @@
-# coding: utf-8
 import uuid
 
 from django.core.urlresolvers import reverse
 
 from dext.views import handler, validator, validate_argument
 from dext.common.utils.urls import UrlBuilder
+
+from tt_logic.beings import relations as beings_relations
 
 from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
@@ -15,37 +16,38 @@ from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game import relations as game_relations
 
-from .relations import MOB_RECORD_STATE, INDEX_ORDER_TYPE
-from .prototypes import MobRecordPrototype
-from .storage import mobs_storage
-from .forms import MobRecordForm, ModerateMobRecordForm
+from . import forms
+from . import logic
+from . import storage
+from . import relations
 from . import meta_relations
 
 
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
-                      list_filter.choice_element('тип:', attribute='type', choices=[(None, 'все')] + sorted(list(game_relations.BEING_TYPE.select('value', 'text')), key=lambda x: x[1])),
+                      list_filter.choice_element('тип:', attribute='type', choices=[(None, 'все')] + sorted(list(beings_relations.TYPE.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element('архетип:', attribute='archetype', choices=[(None, 'все')] + sorted(list(game_relations.ARCHETYPE.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element('территория:', attribute='terrain', choices=[(None, 'все')] + sorted(list(TERRAIN.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element('сортировка:',
                                                  attribute='order_by',
-                                                 choices=INDEX_ORDER_TYPE.select('value', 'text'),
-                                                 default_value=INDEX_ORDER_TYPE.BY_NAME.value) ]
+                                                 choices=relations.INDEX_ORDER_TYPE.select('value', 'text'),
+                                                 default_value=relations.INDEX_ORDER_TYPE.BY_NAME.value) ]
 
 MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element('состояние:',
                                                                            attribute='state',
-                                                                           default_value=MOB_RECORD_STATE.ENABLED.value,
-                                                                           choices=MOB_RECORD_STATE.select('value', 'text'))]
+                                                                           default_value=relations.MOB_RECORD_STATE.ENABLED.value,
+                                                                           choices=relations.MOB_RECORD_STATE.select('value', 'text'))]
 
 
 class UnloginedIndexFilter(list_filter.ListFilter):
     ELEMENTS = BASE_INDEX_FILTERS
 
+
 class ModeratorIndexFilter(list_filter.ListFilter):
     ELEMENTS = MODERATOR_INDEX_FILTERS
 
 
+def argument_to_mob(value): return storage.mobs.get(int(value), None)
 
-def argument_to_mob(value): return mobs_storage.get(int(value), None)
 
 class MobResourceBase(Resource):
 
@@ -58,11 +60,16 @@ class MobResourceBase(Resource):
         self.can_moderate_mob = self.account.has_perm('mobs.moderate_mobrecord')
 
 
-def argument_to_mob_state(value): return MOB_RECORD_STATE(int(value))
+def argument_to_mob_state(value):
+    return relations.MOB_RECORD_STATE(int(value))
 
-def argument_to_mob_type(value): return game_relations.BEING_TYPE(int(value))
 
-def argument_to_archetype(value): return game_relations.ARCHETYPE(int(value))
+def argument_to_mob_type(value):
+    return beings_relations.TYPE(int(value))
+
+
+def argument_to_archetype(value):
+    return game_relations.ARCHETYPE(int(value))
 
 
 class GuideMobResource(MobResourceBase):
@@ -73,13 +80,13 @@ class GuideMobResource(MobResourceBase):
 
     @validate_argument('state', argument_to_mob_state, 'mobs', 'неверное состояние записи о монстре')
     @validate_argument('terrain', lambda value: TERRAIN(int(value)), 'mobs', 'неверный тип территории')
-    @validate_argument('order_by', INDEX_ORDER_TYPE, 'mobs', 'неверный тип сортировки')
+    @validate_argument('order_by', relations.INDEX_ORDER_TYPE, 'mobs', 'неверный тип сортировки')
     @validate_argument('archetype', argument_to_archetype, 'mobs', 'неверный архетип монстра')
     @validate_argument('type', argument_to_mob_type, 'mobs', 'неверный тип монстра')
     @handler('', method='get')
-    def index(self, state=MOB_RECORD_STATE.ENABLED, terrain=None, order_by=INDEX_ORDER_TYPE.BY_NAME, type=None, archetype=None):
+    def index(self, state=relations.MOB_RECORD_STATE.ENABLED, terrain=None, order_by=relations.INDEX_ORDER_TYPE.BY_NAME, type=None, archetype=None):
 
-        mobs = mobs_storage.all()
+        mobs = storage.mobs.all()
 
         if not self.can_create_mob and not self.can_moderate_mob:
             mobs = [mob for mob in mobs if mob.state.is_ENABLED] # pylint: disable=W0110
@@ -119,16 +126,15 @@ class GuideMobResource(MobResourceBase):
                                                                     'archetype': archetype.value if archetype is not None else None,
                                                                     'order_by': order_by.value})
 
-
         return self.template('mobs/index.html',
                              {'mobs': mobs,
                               'is_filtering': is_filtering,
-                              'MOB_RECORD_STATE': MOB_RECORD_STATE,
+                              'relations.MOB_RECORD_STATE': relations.MOB_RECORD_STATE,
                               'TERRAIN': TERRAIN,
                               'state': state,
                               'terrain': terrain,
                               'order_by': order_by,
-                              'INDEX_ORDER_TYPE': INDEX_ORDER_TYPE,
+                              'relations.INDEX_ORDER_TYPE': relations.INDEX_ORDER_TYPE,
                               'url_builder': url_builder,
                               'index_filter': index_filter,
                               'section': 'mobs'} )
@@ -162,7 +168,7 @@ class GameMobResource(MobResourceBase):
     @validate_create_rights()
     @handler('new', method='get')
     def new(self):
-        form = MobRecordForm()
+        form = forms.MobRecordForm()
         return self.template('mobs/new.html', {'form': form})
 
     @login_required
@@ -170,40 +176,47 @@ class GameMobResource(MobResourceBase):
     @handler('create', method='post')
     def create(self):
 
-        form = MobRecordForm(self.request.POST)
+        form = forms.MobRecordForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('mobs.create.form_errors', form.errors)
 
-        if [mob for mob in mobs_storage.all() if mob.name == form.c.name.normal_form()]:
+        if [mob for mob in storage.mobs.all() if mob.name == form.c.name.normal_form()]:
             return self.json_error('mobs.create.duplicate_name', 'Монстр с таким названием уже создан')
 
-        mob = MobRecordPrototype.create(uuid=uuid.uuid4().hex,
-                                        level=form.c.level,
-                                        utg_name=form.c.name,
-                                        type=form.c.type,
-                                        archetype=form.c.archetype,
-                                        description=form.c.description,
-                                        abilities=form.c.abilities,
-                                        terrains=form.c.terrains,
-                                        editor=self.account,
-                                        global_action_probability=form.c.global_action_probability,
-                                        state=MOB_RECORD_STATE.DISABLED,
-                                        communication_verbal=form.c.communication_verbal,
-                                        communication_gestures=form.c.communication_gestures,
-                                        communication_telepathic=form.c.communication_telepathic,
-                                        intellect_level=form.c.intellect_level,
-                                        is_mercenary=form.c.is_mercenary,
-                                        is_eatable=form.c.is_eatable)
-        return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[mob.id])})
+        mob = logic.create_mob_record(uuid=uuid.uuid4().hex,
+                                      level=form.c.level,
+                                      utg_name=form.c.name,
+                                      type=form.c.type,
+                                      archetype=form.c.archetype,
+                                      description=form.c.description,
+                                      abilities=form.c.abilities,
+                                      terrains=form.c.terrains,
+                                      editor=self.account,
+                                      global_action_probability=form.c.global_action_probability,
+                                      state=relations.MOB_RECORD_STATE.DISABLED,
+                                      communication_verbal=form.c.communication_verbal,
+                                      communication_gestures=form.c.communication_gestures,
+                                      communication_telepathic=form.c.communication_telepathic,
+                                      intellect_level=form.c.intellect_level,
+                                      is_mercenary=form.c.is_mercenary,
 
+                                      structure=form.c.structure,
+                                      features=form.c.features,
+                                      movement=form.c.movement,
+                                      body=form.c.body,
+                                      size=form.c.size,
+                                      weapons=form.get_weapons(),
+
+                                      is_eatable=form.c.is_eatable)
+        return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[mob.id])})
 
     @login_required
     @validate_disabled_state()
     @validate_create_rights()
     @handler('#mob', 'edit', name='edit', method='get')
     def edit(self):
-        form = MobRecordForm(initial=MobRecordForm.get_initials(self.mob))
+        form = forms.MobRecordForm(initial=forms.MobRecordForm.get_initials(self.mob))
 
         return self.template('mobs/edit.html', {'mob': self.mob,
                                                 'form': form} )
@@ -214,15 +227,15 @@ class GameMobResource(MobResourceBase):
     @handler('#mob', 'update', name='update', method='post')
     def update(self):
 
-        form = MobRecordForm(self.request.POST)
+        form = forms.MobRecordForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('mobs.update.form_errors', form.errors)
 
-        if [mob for mob in mobs_storage.all() if mob.name == form.c.name.normal_form() and mob.id != self.mob.id]:
+        if [mob for mob in storage.mobs.all() if mob.name == form.c.name.normal_form() and mob.id != self.mob.id]:
             return self.json_error('mobs.update.duplicate_name', 'Монстр с таким названием уже создан')
 
-        self.mob.update_by_creator(form, editor=self.account)
+        logic.update_by_creator(self.mob, form, editor=self.account)
 
         return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[self.mob.id])})
 
@@ -230,7 +243,7 @@ class GameMobResource(MobResourceBase):
     @validate_moderate_rights()
     @handler('#mob', 'moderate', name='moderate', method='get')
     def moderation_page(self):
-        form = ModerateMobRecordForm(initial=ModerateMobRecordForm.get_initials(self.mob))
+        form = forms.ModerateMobRecordForm(initial=forms.ModerateMobRecordForm.get_initials(self.mob))
 
         return self.template('mobs/moderate.html', {'mob': self.mob,
                                                     'form': form} )
@@ -239,11 +252,11 @@ class GameMobResource(MobResourceBase):
     @validate_moderate_rights()
     @handler('#mob', 'moderate', name='moderate', method='post')
     def moderate(self):
-        form = ModerateMobRecordForm(self.request.POST)
+        form = forms.ModerateMobRecordForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('mobs.moderate.form_errors', form.errors)
 
-        self.mob.update_by_moderator(form, editor=self.account)
+        logic.update_by_moderator(self.mob, form, editor=self.account)
 
         return self.json_ok(data={'next_url': reverse('guide:mobs:show', args=[self.mob.id])})

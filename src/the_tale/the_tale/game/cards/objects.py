@@ -1,19 +1,19 @@
 
-from the_tale.game.cards import relations
 
 from . import cards
+from . import relations
 
 
 class Card(object):
 
-    __slots__ = ('uid', 'type', 'available_for_auction', 'data', 'in_storage')
+    __slots__ = ('uid', 'type', 'available_for_auction', 'data', 'storage')
 
-    def __init__(self, type, available_for_auction=False, uid=None, data=None, in_storage=False):
+    def __init__(self, type, available_for_auction=False, uid=None, data=None, storage=relations.STORAGE.FAST):
         self.uid = uid
         self.type = type
         self.available_for_auction = available_for_auction
         self.data = data
-        self.in_storage = in_storage
+        self.storage = storage
 
     @property
     def name(self):
@@ -25,12 +25,12 @@ class Card(object):
                 'data': self.data}
 
     @classmethod
-    def deserialize(cls, uid, data, in_storage=False):
+    def deserialize(cls, uid, data, storage=relations.STORAGE.FAST):
         return cls(uid=uid,
                    type=cards.CARD(data['type']),
                    available_for_auction=data['auction'],
                    data=data.get('data'),
-                   in_storage=in_storage)
+                   storage=storage)
 
     @property
     def effect(self):
@@ -45,7 +45,7 @@ class Card(object):
                 'full_type': self.item_full_type,
                 'rarity': self.type.rarity.value,
                 'uid': self.uid.hex,
-                'in_storage': self.in_storage,
+                'in_storage': self.storage.is_ARCHIVE,
                 'auction': self.available_for_auction}
 
     @property

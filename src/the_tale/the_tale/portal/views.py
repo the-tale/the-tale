@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 from django.conf import settings as project_settings
@@ -17,8 +17,8 @@ from the_tale.accounts.clans.prototypes import ClanPrototype
 
 from the_tale.forum.prototypes import ThreadPrototype
 
-from the_tale.cms.news import logic as news_logic
-from the_tale.cms.news import models as news_models
+from the_tale.news import logic as news_logic
+from the_tale.news import models as news_models
 
 from the_tale.blogs.models import Post as BlogPost, POST_STATE as BLOG_POST_STATE
 from the_tale.blogs.prototypes import PostPrototype as BlogPostPrototype
@@ -103,13 +103,13 @@ class PortalResource(Resource):
     @handler('landing')
     def landing(self, type="normal"):
         from the_tale.game.map.storage import map_info_storage
-        from the_tale.game.mobs.storage import mobs_storage
+        from the_tale.game.mobs import storage as mobs_storage
 
         if self.account.is_authenticated:
             return self.redirect(url('portal:'))
 
         mobs = [mob
-                for mob in mobs_storage.get_available_mobs_list(level=666)
+                for mob in mobs_storage.mobs.get_available_mobs_list(level=666)
                 if len(mob.description) < portal_settings.LANDING_MOB_DESCRIPTION_MAX_LENGTH]
 
         return self.template('portal/landing.html',
@@ -147,31 +147,6 @@ class PortalResource(Resource):
     @api.handler(versions=('1.0',))
     @handler('api', 'info', name='api-info', method='get')
     def api_info(self, api_version):
-        '''
-Получение базовой информации о текущих параметрах игры и некоторых других данных.
-
-- **адрес:** /api/info/
-- **http-метод:** GET
-- **версии:** 1.0
-- **параметры:** нет
-- **возможные ошибки**: нет
-
-формат данных в ответе:
-
-    {
-      "static_content": "абсолютный url",    // базовый абсолютный путь к статическим игровым данным (например, картинкам)
-      "game_version": "текущая.версия.игры", // текущая версия игры
-      "turn_delta": <целое>,                 // задержка между ходами в секундах
-      "account_id": <целое>|null             // идентификатор аккаунта, если пользователь вошёл в игру, иначе null
-      "account_name": <строка>|null          // имя пользователя, если он вошёл в игру, иначе null
-      "abilities_cost": {                    // цена использования способностей игрока
-        <идентификатор способности>: <целое число>
-      }
-    }
-
-Абсолютные адреса возвращаются без указания протокола: <code>//path/to/entity</code>
-        '''
-
         cdn_paths = portal_logic.cdn_paths()
 
         return self.ok(data={'static_content': cdn_paths['STATIC_CONTENT'],

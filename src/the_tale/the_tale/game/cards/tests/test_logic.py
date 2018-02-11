@@ -1,4 +1,4 @@
-import copy
+
 import uuid
 import collections
 
@@ -7,7 +7,6 @@ from unittest import mock
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
 from the_tale.game import relations as game_relations
 
 from the_tale.game.companions import models as companions_models
@@ -18,9 +17,7 @@ from the_tale.game.companions.tests import helpers as companions_helpers
 
 from the_tale.game.heroes import relations as heroes_relations
 
-from .. import exceptions
 from .. import relations
-from .. import objects
 from .. import logic
 from .. import cards
 
@@ -154,7 +151,6 @@ class GetCombinedCardTests(testcase.TestCase):
         super().setUp()
         create_test_map()
 
-
     def create_card(self, type, available_for_auction=True, uid=None):
         return type.effect.create_card(type=type,
                                        uid=uid,
@@ -166,14 +162,12 @@ class GetCombinedCardTests(testcase.TestCase):
         self.assertEqual(card, None)
         self.assertTrue(result.is_NO_CARDS)
 
-
     def test_equal_rarity_required(self):
         card, result = logic.get_combined_card(allow_premium_cards=True,
                                                combined_cards=(self.create_card(cards.CARD.ADD_POWER_COMMON),
                                                                self.create_card(cards.CARD.ADD_POWER_UNCOMMON)))
         self.assertEqual(card, None)
         self.assertTrue(result.is_EQUAL_RARITY_REQUIRED)
-
 
     def test_duplicate_ids(self):
         uid = uuid.uuid4()
@@ -183,23 +177,19 @@ class GetCombinedCardTests(testcase.TestCase):
         self.assertEqual(card, None)
         self.assertTrue(result.is_EQUAL_RARITY_REQUIRED)
 
-
     def test_combine_1_common(self):
         card, result = logic.get_combined_card(allow_premium_cards=True,
                                                combined_cards=(self.create_card(cards.CARD.ADD_POWER_COMMON),))
         self.assertEqual(card, None)
         self.assertTrue(result.is_COMBINE_1_COMMON)
 
-
     def test_combine_1(self):
         card, result = logic.get_combined_card(allow_premium_cards=True,
                                                combined_cards=(self.create_card(cards.CARD.ADD_POWER_UNCOMMON)
                                                                ,))
-
         self.assertNotEqual(card, None)
         self.assertTrue(card.type.rarity.is_COMMON)
         self.assertTrue(result.is_SUCCESS)
-
 
     def test_combine_2_reactor(self):
         combined_card_1 = self.create_card(cards.CARD.CHANGE_HABIT_EPIC)
@@ -214,14 +204,12 @@ class GetCombinedCardTests(testcase.TestCase):
         self.assertNotEqual(combined_card_1.data, card.data)
         self.assertNotEqual(combined_card_2.data, card.data)
 
-
     def test_combine_2_random(self):
         card, result = logic.get_combined_card(allow_premium_cards=True,
                                                combined_cards=(self.create_card(cards.CARD.CHANGE_HABIT_EPIC),
                                                                self.create_card(cards.CARD.ADD_EXPERIENCE_EPIC)))
         self.assertNotEqual(card, None)
         self.assertTrue(result.is_SUCCESS)
-
 
     def test_get_combined_card_3_reactor(self):
         combined_card_1 = self.create_card(cards.CARD.CHANGE_HABIT_EPIC)
@@ -239,7 +227,6 @@ class GetCombinedCardTests(testcase.TestCase):
         self.assertEqual(card.type, cards.CARD.CHANGE_HABIT_LEGENDARY)
         self.assertEqual(combined_card_1.data, card.data)
 
-
     def test_get_combined_card_3__random(self):
         card, result = logic.get_combined_card(allow_premium_cards=True,
                                                combined_cards=(self.create_card(cards.CARD.CHANGE_HABIT_EPIC),
@@ -249,7 +236,6 @@ class GetCombinedCardTests(testcase.TestCase):
         self.assertTrue(card.type.rarity.is_LEGENDARY)
         self.assertTrue(result.is_SUCCESS)
 
-
     def test_combine_3_legendary(self):
         card, result = logic.get_combined_card(allow_premium_cards=True,
                                                combined_cards=(self.create_card(cards.CARD.CHANGE_HABIT_LEGENDARY),
@@ -258,6 +244,14 @@ class GetCombinedCardTests(testcase.TestCase):
         self.assertEqual(card, None)
         self.assertTrue(result.is_COMBINE_3_LEGENDARY)
 
+    def test_combine_too_many_cards(self):
+        card, result = logic.get_combined_card(allow_premium_cards=True,
+                                               combined_cards=(self.create_card(cards.CARD.CHANGE_HABIT_EPIC),
+                                                               self.create_card(cards.CARD.CHANGE_HABIT_EPIC),
+                                                               self.create_card(cards.CARD.CHANGE_HABIT_EPIC),
+                                                               self.create_card(cards.CARD.CHANGE_HABIT_EPIC)))
+        self.assertEqual(card, None)
+        self.assertTrue(result.is_TOO_MANY_CARDS)
 
     def test_allow_premium_cards__allowed(self):
         availability = set()
@@ -271,7 +265,6 @@ class GetCombinedCardTests(testcase.TestCase):
 
         self.assertEqual(availability, set(relations.AVAILABILITY.records))
 
-
     def test_allow_premium_cards__not_allowed(self):
         availability = set()
 
@@ -284,14 +277,12 @@ class GetCombinedCardTests(testcase.TestCase):
 
         self.assertEqual(availability, {relations.AVAILABILITY.FOR_ALL})
 
-
     def test_available_for_auction__available(self):
         card, result = logic.get_combined_card(allow_premium_cards=True,
                                                combined_cards=(self.create_card(cards.CARD.CHANGE_HABIT_EPIC),
                                                                self.create_card(cards.CARD.CHANGE_HABIT_EPIC),
                                                                self.create_card(cards.CARD.ADD_EXPERIENCE_EPIC)))
         self.assertTrue(card.available_for_auction)
-
 
     def test_available_for_auction__not_available(self):
         card, result = logic.get_combined_card(allow_premium_cards=True,

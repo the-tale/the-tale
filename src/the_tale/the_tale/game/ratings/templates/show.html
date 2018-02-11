@@ -1,6 +1,7 @@
 {% extends "ratings/base.html" %}
 
 {% import 'macros.html' as base_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
 
 {% block title %} {{ rating_type.text }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Рейтинг игроков: {{ rating_type.text }}{% endblock %}
@@ -46,13 +47,7 @@
 
     <tr {% if resource.account.is_authenticated and resource.account.id == rating.account.id %}style="font-weight: bold; font-size: 12pt;"{% endif %}>
       <td>{{ place_getter(rating) }}</td>
-      <td>
-        <a href="{{url('accounts:show', rating.account_id)}}">{{ rating.account.nick_verbose }}</a>
-        {% set clan = clans.get(rating.account.clan_id) %}
-        {% if clan is not none %}
-        <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
-        {% endif %}
-      </td>
+      <td>{{accounts_macros.account_link(rating.account, rating.account.clan)}}</td>
       <td>{{ hero.race_verbose }} <a href="{{url('game:heroes:show', hero.id)}}">{{ hero.name }}</a></td>
       <td>{{ value_getter(values[rating.account_id]) }}</td>
     </tr>

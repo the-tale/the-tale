@@ -1,4 +1,3 @@
-# coding: utf-8
 import datetime
 
 from django.db import IntegrityError, transaction
@@ -44,7 +43,6 @@ class WordPrototype(BasePrototype):
 
     def has_parent(self): return bool(self.get_parent())
     def has_child(self): return bool(self.get_child())
-
 
     @classmethod
     def create(cls, utg_word, parent=None, author=None, state=relations.WORD_STATE.ON_REVIEW):
@@ -98,7 +96,6 @@ class WordPrototype(BasePrototype):
             self._db_filter(id=self.id).update(used_in_status=self.used_in_status,
                                                used_in_ingame_templates=self.used_in_ingame_templates,
                                                used_in_onreview_templates=self.used_in_onreview_templates)
-
 
 
 class TemplatePrototype(BasePrototype):

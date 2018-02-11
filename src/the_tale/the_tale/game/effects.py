@@ -1,5 +1,6 @@
-# coding: utf-8
+
 import numbers
+
 
 class Effect(object):
     __slots__ = ('name', 'attribute', 'value', 'delta', 'remove_required')
@@ -10,7 +11,6 @@ class Effect(object):
         self.value = value
         self.delta = delta
         self.remove_required = False
-
 
     def serialize(self):
         return {'name': self.name,
@@ -48,6 +48,17 @@ class Effect(object):
         if old_value * self.value <= 0:
             self.remove_required = True
 
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                self.name == other.name and
+                self.attribute == other.attribute and
+                self.value == other.value and
+                self.delta == other.delta and
+                self.remove_required == other.remove_required)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 def create_container(ATTRIBUTES_RELATION):
 
@@ -71,14 +82,23 @@ def create_container(ATTRIBUTES_RELATION):
         def add(self, effect):
             self.effects.append(effect)
 
-        def update_step(self, deltas):
+        def update_step(self, deltas=None):
             for effect in self.effects:
-                effect.step(delta=deltas.get(effect.attribute))
+                effect.step(delta=deltas.get(effect.attribute) if deltas else None)
 
             self.effects = [effect for effect in self.effects if not effect.remove_required]
 
         def clear(self):
             self.effects = []
 
+        def __len__(self):
+            return len(self.effects)
+
+        def __eq__(self, other):
+            return (self.__class__ == other.__class__ and
+                    self.effects == other.effects)
+
+        def __ne__(self, other):
+            return not self.__eq__(other)
 
     return Container

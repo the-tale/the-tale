@@ -5,22 +5,28 @@ import random
 from rels import Column
 from rels.django import DjangoEnum
 
+from tt_logic.cards import constants as logic_cards_constants
+
 from the_tale.amqp_environment import environment
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
+from the_tale.accounts import prototypes as accounts_prototypes
+
 from the_tale.game.balance.power import Power
 
+from the_tale.game.places import relations as places_relations
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import logic as places_logic
 
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import logic as persons_logic
 
-from the_tale.game.balance import constants as c
 from the_tale.game import relations as game_relations
+from the_tale.game import tt_api as game_tt_api
+from the_tale.game import effects
 
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage as artifacts_storage
 from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.heroes import relations as heroes_relations
@@ -30,6 +36,7 @@ from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
 
 from . import postponed_tasks
+from . import relations
 from . import objects
 from . import tt_api
 from . import forms
@@ -43,10 +50,8 @@ class BaseEffect:
     def __init__(self):
         pass
 
-
     def get_form(self, card, hero, data):
         return forms.Empty(data)
-
 
     def activate(self, hero, card, data):
         data['hero_id'] = hero.id
@@ -64,14 +69,11 @@ class BaseEffect:
 
         return task
 
-
     def use(self, *argv, **kwargs):
         raise NotImplementedError()
 
-
     def check_hero_conditions(self, hero, data):
         return tt_api.has_cards(account_id=hero.account_id, cards_ids=[uuid.UUID(data['card']['id'])])
-
 
     def hero_actions(self, hero, data):
         card = objects.Card.deserialize(uuid.UUID(data['card']['id']), data['card']['data'])
@@ -82,24 +84,19 @@ class BaseEffect:
 
         hero.statistics.change_cards_used(1)
 
-
     def create_card(self, type, available_for_auction, uid=None):
         return objects.Card(type=type,
                             available_for_auction=available_for_auction,
                             uid=uid if uid else uuid.uuid4())
 
-
     def name_for_card(self, card):
         return card.type.text
-
 
     def available(self, card):
         return True
 
-
     def item_full_type(self, card):
         return '{}'.format(card.type.value)
-
 
     def full_type_names(self, card_type):
         return {'{}'.format(card_type.value): card_type.text}
@@ -117,7 +114,11 @@ class ModificatorBase(BaseEffect):
 
     @property
     def modificator(self):
-        return self.base*c.CARDS_LEVEL_MULTIPLIERS[self.level-1]
+        return self.base * logic_cards_constants.LEVEL_MULTIPLIERS[self.level-1]
+
+    @property
+    def upper_modificator(self):
+        return int(math.ceil(self.modificator))
 
 
 class LevelUp(BaseEffect):
@@ -154,6 +155,23 @@ class AddExperience(ModificatorBase):
         return task.logic_result()
 
 
+class AddCompanionExpirence(ModificatorBase):
+    __slots__ = ()
+
+    @property
+    def DESCRIPTION(self):
+        return 'Увеличивает опыт спутника на %(experience)d единиц.' % {'experience': self.modificator}
+
+    def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
+
+        if task.hero.companion is None:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='У героя сейчас нет спутника.')
+
+        task.hero.companion.add_experience(self.modificator, force=True)
+
+        return task.logic_result()
+
+
 class AddPoliticPower(ModificatorBase):
     __slots__ = ()
 
@@ -179,10 +197,14 @@ class AddBonusEnergy(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Вы получаете %(energy)d единиц дополнительной энергии.' % {'energy': self.modificator}
+        return 'Вы получаете %(energy)d единиц энергии.' % {'energy': self.modificator}
 
-    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
-        task.hero.add_energy_bonus(self.modificator)
+    def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
+        game_tt_api.change_energy_balance(account_id=task.hero.account_id,
+                                          type='card',
+                                          energy=int(self.modificator),
+                                          async=True,
+                                          autocommit=True)
         return task.logic_result()
 
 
@@ -521,9 +543,9 @@ class GetArtifact(BaseEffect):
         description = Column()
 
         records = (('LOOT', 0, 'лут', artifacts_relations.RARITY.NORMAL, 'Герой получает случайный бесполезный предмет.'),
-                   ('COMMON', 1, 'обычные', artifacts_relations.RARITY.NORMAL, 'Герой получает случайный артефакт лучше экипированного.'),
-                   ('RARE', 2, 'редкие', artifacts_relations.RARITY.RARE, 'Герой получает случайный редкий артефакт лучше экипированного.'),
-                   ('EPIC', 3, 'эпические', artifacts_relations.RARITY.EPIC, 'Герой получает случайный эпический артефакт лучше экипированного.'))
+                   ('COMMON', 1, 'обычные', artifacts_relations.RARITY.NORMAL, 'Герой получает случайный артефакт лучше экипированного, близкий архетипу героя.'),
+                   ('RARE', 2, 'редкие', artifacts_relations.RARITY.RARE, 'Герой получает случайный редкий артефакт лучше экипированного, близкий архетипу героя.'),
+                   ('EPIC', 3, 'эпические', artifacts_relations.RARITY.EPIC, 'Герой получает случайный эпический артефакт лучше экипированного, близкий архетипу героя.'))
 
     def __init__(self, type):
         super().__init__()
@@ -533,21 +555,20 @@ class GetArtifact(BaseEffect):
     def DESCRIPTION(self):
         return self.ARTIFACT_TYPE_CHOICES(self.type).description
 
-
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         artifact_type = self.ARTIFACT_TYPE_CHOICES(self.type)
 
         if artifact_type.is_LOOT:
-            artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.loot,
-                                                                     task.hero.level,
-                                                                     rarity=artifact_type.rarity)
+            artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot,
+                                                                               task.hero.level,
+                                                                               rarity=artifact_type.rarity)
             task.hero.put_loot(artifact, force=True)
         else:
             artifact, unequipped, sell_price = task.hero.receive_artifact(equip=False,
                                                                           better=True,
                                                                           prefered_slot=False,
                                                                           prefered_item=True,
-                                                                          archetype=False,
+                                                                          archetype=True,
                                                                           rarity_type=artifact_type.rarity)
 
         task.hero.actions.request_replane()
@@ -571,7 +592,6 @@ class InstantMonsterKill(BaseEffect):
         task.hero.actions.current_action.bit_mob(task.hero.actions.current_action.mob.max_health)
 
         return task.logic_result()
-
 
 
 class KeepersGoods(ModificatorBase):
@@ -598,6 +618,43 @@ class KeepersGoods(ModificatorBase):
             place = places_storage.places[place_id]
 
             place.attrs.keepers_goods += self.modificator
+            place.refresh_attributes()
+
+            places_logic.save_place(place)
+
+            places_storage.places.update_version()
+
+            return task.logic_result()
+
+
+class GiveStability(ModificatorBase):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Place(data)
+
+    @property
+    def DESCRIPTION(self):
+        return 'Увеличивает стабильность в указанном городе на {0:.1f}%. Бонус будет уменьшаться по стандартным правилам изменения стабильности.'.format(self.modificator*100)
+
+    def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
+
+        place_id = task.data.get('value')
+
+        if place_id not in places_storage.places:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
+
+        if task.step.is_LOGIC:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.HIGHLEVEL)
+
+        elif task.step.is_HIGHLEVEL:
+            place = places_storage.places[place_id]
+
+            place.effects.add(effects.Effect(name='Хранитель {}'.format(accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).nick),
+                                             attribute=places_relations.ATTRIBUTE.STABILITY,
+                                             value=self.modificator,
+                                             delta=place.attrs.stability_renewing_speed))
+
             place.refresh_attributes()
 
             places_logic.save_place(place)
@@ -853,31 +910,6 @@ class LongTeleport(BaseEffect):
         return task.logic_result()
 
 
-class ExperienceToEnergy(BaseEffect):
-    __slots__ = ('conversion',)
-
-    def get_form(self, card, hero, data):
-        return forms.Empty(data)
-
-    def __init__(self, conversion, **kwargs):
-        super().__init__(**kwargs)
-        self.conversion = conversion
-
-
-    @property
-    def DESCRIPTION(self):
-        return 'Преобразует опыт героя на текущем уровне в дополнительную энергию по курсу %(conversion)s опыта за 1 энергии.' % {'conversion': self.conversion}
-
-    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
-
-        if task.hero.experience == 0:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='У героя нет свободного опыта.')
-
-        energy = task.hero.convert_experience_to_energy(self.conversion)
-
-        return task.logic_result(message='Герой потерял весь накопленный опыт. Вы получили %(energy)d энергии.' % {'energy': energy})
-
-
 class SharpRandomArtifact(BaseEffect):
     __slots__ = ()
 
@@ -889,7 +921,7 @@ class SharpRandomArtifact(BaseEffect):
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         artifact = random.choice(list(task.hero.equipment.values()))
 
-        distribution=task.hero.preferences.archetype.power_distribution
+        distribution = task.hero.preferences.archetype.power_distribution
         min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
 
         artifact.sharp(distribution=distribution,
@@ -897,7 +929,6 @@ class SharpRandomArtifact(BaseEffect):
                        force=True)
 
         return task.logic_result(message='Улучшена экипировка героя: %(artifact)s.' % {'artifact': artifact.html_label()})
-
 
 
 class SharpAllArtifacts(BaseEffect):
@@ -911,7 +942,7 @@ class SharpAllArtifacts(BaseEffect):
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
         for artifact in list(task.hero.equipment.values()):
-            distribution=task.hero.preferences.archetype.power_distribution
+            distribution = task.hero.preferences.archetype.power_distribution
             min_power, max_power = Power.artifact_power_interval(distribution, task.hero.level)
 
             artifact.sharp(distribution=distribution,
@@ -935,7 +966,6 @@ class GetCompanion(BaseEffect):
     def DESCRIPTION(self):
         return 'Герой получает спутника, указанного в названии карты. Если у героя уже есть спутник, он покинет героя.'
 
-
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
         card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
 
@@ -945,13 +975,11 @@ class GetCompanion(BaseEffect):
 
         return task.logic_result(message='Поздравляем! Ваш герой получил нового спутника.')
 
-
     def get_available_companions(self):
         available_companions = [companion
                                 for companion in companions_storage.companions.enabled_companions()
                                 if companion.rarity == self.rarity and companion.mode.is_AUTOMATIC]
         return available_companions
-
 
     def create_card(self, type, available_for_auction, companion=None, uid=None):
         if companion is None:
@@ -966,10 +994,8 @@ class GetCompanion(BaseEffect):
     def _item_full_type(self, type, companion_id):
         return '{}-{}'.format(type.value, companion_id)
 
-
     def item_full_type(self, card):
         return self._item_full_type(card.type, card.data['companion_id'])
-
 
     def full_type_names(self, card_type):
         names = {}
@@ -984,10 +1010,8 @@ class GetCompanion(BaseEffect):
 
         return names
 
-
     def available(self, card):
         return bool(self.get_available_companions())
-
 
     def _name_for_card(self, type, companion_id):
         return type.text + ': ' + companions_storage.companions[companion_id].name
@@ -1083,13 +1107,38 @@ class HealCompanion(ModificatorBase):
         return task.logic_result(message='Спутник вылечен на %(health)s HP.' % {'health': health})
 
 
+class GiveCommonCards(ModificatorBase):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Empty(data)
+
+    @property
+    def DESCRIPTION(self):
+        return 'Даёт карты обычной редкости (%(number)d шт.). Возможность продавать карты определяется возможностью продать текущую. Получить карты можно будет на странице игры.' % {'number': self.upper_modificator}
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        from . import logic
+
+        used_card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
+
+        logic.give_new_cards(account_id=task.hero.account_id,
+                             operation_type='give-common-cards-card',
+                             allow_premium_cards=used_card.available_for_auction,
+                             available_for_auction=used_card.available_for_auction,
+                             rarity=relations.RARITY.COMMON,
+                             number=self.upper_modificator)
+
+        return task.logic_result(message='Вы получили {number} новых карт. Можете забрать их на странице игры.'.format(number=self.upper_modificator))
+
+
 class UpgradeArtifact(BaseEffect):
     __slots__ = ()
 
     def get_form(self, card, hero, data):
         return forms.Empty(data)
 
-    DESCRIPTION = 'Заменяет случайный экипированный не эпический артефакт, на более редкий того же вида.'
+    DESCRIPTION = 'Заменяет случайный экипированный не эпический артефакт, на более редкий того же вида. Параметры нового артефакта могут быть ниже параметров старого.'
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
@@ -1116,7 +1165,6 @@ class CreateClan(BaseEffect):
     DESCRIPTION = 'Создаёт новую гильдию и делает игрока её лидером.'
 
     def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
-        from the_tale.accounts import prototypes as accounts_prototypes
         from the_tale.accounts.clans import models as clans_models
         from the_tale.accounts.clans import prototypes as clans_prototypes
 

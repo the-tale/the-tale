@@ -115,8 +115,8 @@ pgf.base.TooltipPlacement = function (tip, element) {
     }
 
     if (!placement) {
-        var height = jQuery(document).outerHeight();
-        var width = jQuery(document).outerWidth();
+        var height = Math.min(jQuery(document).outerHeight(), jQuery(window).height());
+        var width = Math.min(jQuery(document).outerWidth(), jQuery(window).width());
         var vert = 0.5 * height - offset.top;
         var vertPlacement = vert > 0 ? 'bottom' : 'top';
         var horiz = 0.5 * width - offset.left;
@@ -217,24 +217,43 @@ pgf.base.AutoFormatTime = function() {
     jQuery('.pgf-format-datetime').each(function(i, v){
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
-        var text = Globalize.format( new Date(timestamp), "d" ) + ' ' + Globalize.format( new Date(timestamp), "t" );
+        var date = new Date(timestamp)
+        var text = date.getDate() + '.' + (date.getMonth()+1) + '.' + date.getFullYear() + ' ' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
         el.text(text);
     });
 
     jQuery('.pgf-format-date').each(function(i, v){
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
-        var text = Globalize.format( new Date(timestamp), "d" );
+        var date = new Date(timestamp)
+        var text = date.getDate() + '.' + (date.getMonth()+1) + '.' + date.getFullYear();
         el.text(text);
     });
 
     jQuery('.pgf-format-time').each(function(i, v){
         var el = jQuery(v);
         var timestamp = parseInt(el.data('timestamp'), 10) * 1000;
-        var text = Globalize.format( new Date(timestamp), "t" );
+        var date = new Date(timestamp)
+        var text = ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2);
         el.text(text);
     });
 };
+
+pgf.base.FormatTimeDelta = function(delta) {
+    var hours = parseInt(Math.floor(delta / (60*60)));
+    var minutes = parseInt(Math.floor((delta-hours*60*60) / 60))
+    var seconds = parseInt(Math.floor((delta-hours*60*60-minutes*60)));
+
+    var result = '';
+
+    if (hours>0) {
+        result += hours + ':'
+    }
+
+    result += ('0' + minutes).slice(-2) + ':' + ('0' + seconds).slice(-2);
+
+    return result;
+}
 
 pgf.base.AddPreview = function(blockSelector, contentSourceSelector, previewUrl) {
 

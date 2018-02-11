@@ -101,10 +101,10 @@ class DAY_TIME(rels.EnumWithText):
     records = (('DARK_TIME', 0, 'тёмное время'),
                ('LIGHT_TIME', 1, 'светлое время'),
                ('NIGHT', 2, 'ночь'),
+               ('DAWN', 6, 'рассвет'),
                ('MORNING', 3, 'утро'),
                ('DAY', 4, 'день'),
                ('EVENING', 5, 'вечер'),
-               ('DAWN', 6, 'рассвет'),
                ('SUNSET', 7, 'закат'))
 
 

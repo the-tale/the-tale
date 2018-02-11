@@ -1,4 +1,5 @@
 
+import uuid
 import logging
 
 
@@ -11,3 +12,30 @@ def initilize(config):
     root.setLevel(getattr(logging, config['level'].upper()))
 
     logging.basicConfig(format=LOG_FORMAT)
+
+    logging.info('logging initialize with log level: %s', config['level'])
+
+
+class ContextLogger(object):
+    __slots__ = ('context_uid',)
+
+    def __init__(self):
+        self.context_uid = uuid.uuid4().hex
+
+    def debug(self, *args, **kwargs):
+        self._log(logging.debug, *args, **kwargs)
+
+    def info(self, *args, **kwargs):
+        self._log(logging.info, *args, **kwargs)
+
+    def warning(self, *args, **kwargs):
+        self._log(logging.warning, *args, **kwargs)
+
+    def error(self, *args, **kwargs):
+        self._log(logging.error, *args, **kwargs)
+
+    def critical(self, *args, **kwargs):
+        self._log(logging.critical, *args, **kwargs)
+
+    def _log(self, callback, message, *args, **kwargs):
+        callback('<{}> {}'.format(self.context_uid, message), *args, **kwargs)

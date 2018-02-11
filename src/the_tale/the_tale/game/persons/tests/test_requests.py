@@ -1,8 +1,3 @@
-# coding: utf-8
-import datetime
-import jinja2
-
-from unittest import mock
 
 from dext.common.utils.urls import url
 
@@ -10,12 +5,8 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.heroes import logic as heroes_logic
-
 from .. import logic
-from .. import conf
 from .. import meta_relations
-
 
 
 class APIShowTests(testcase.TestCase):

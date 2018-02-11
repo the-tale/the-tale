@@ -5,6 +5,9 @@ import datetime
 
 from django.conf import settings as project_settings
 
+from tt_logic.common import checkers as logic_checkers
+from tt_logic.beings import relations as beings_relations
+
 from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
 from the_tale.linguistics.storage import restrictions_storage
 
@@ -35,7 +38,6 @@ class LogicAccessorsMixin(object):
 
         if self.companion:
             self.companion.on_accessors_cache_changed()
-
 
     def attribute_modifier(self, modifier):
 
@@ -76,7 +78,6 @@ class LogicAccessorsMixin(object):
 
         self.habit_honor.update_context(hero_actor, enemy)
         self.habit_peacefulness.update_context(hero_actor, enemy)
-
 
     ################################
     # modifiers
@@ -121,7 +122,6 @@ class LogicAccessorsMixin(object):
 
         return random.uniform(0, 1) <=  battles_per_turn
 
-
     def can_be_healed(self, strict=False):
         if strict:
             return self.is_alive and self.max_health > self.health
@@ -147,6 +147,11 @@ class LogicAccessorsMixin(object):
     def need_regenerate_energy(self):
         return turn.number() > self.last_energy_regeneration_at_turn + self.preferences.energy_regeneration_type.period
 
+    @property
+    def can_regenerate_energy(self):
+        return logic_checkers.is_player_participate_in_game(is_banned=self.is_banned,
+                                                            active_end_at=self.active_state_end_at,
+                                                            is_premium=self.is_premium)
 
     def can_change_all_powers(self):
         if self.is_banned:
@@ -272,7 +277,7 @@ class LogicAccessorsMixin(object):
 
     @property
     def can_regenerate_double_energy(self):
-         return random.uniform(0, 1) < self.regenerate_double_energy_probability
+        return random.uniform(0, 1) < self.regenerate_double_energy_probability
 
     def can_leave_battle_in_fear(self):
         return random.uniform(0, 1) < self.attribute_modifier(relations.MODIFIERS.FEAR)
@@ -403,21 +408,8 @@ class LogicAccessorsMixin(object):
         return int(self.level * c.TURNS_TO_IDLE * self.attribute_modifier(relations.MODIFIERS.IDLE_LENGTH))
 
     @property
-    def energy_maximum(self):
-        if self.is_premium:
-            maximum = c.ANGEL_ENERGY_PREMIUM_MAX
-        else:
-            maximum = c.ANGEL_ENERGY_FREE_MAX
-
-        return maximum + self.attribute_modifier(relations.MODIFIERS.MAX_ENERGY)
-
-    @property
     def spend_amount(self):
         return int(f.normal_action_price(self.level) * self.next_spending.price_fraction)
-
-    @property
-    def energy_discount(self):
-        return self.attribute_modifier(relations.MODIFIERS.ENERGY_DISCOUNT)
 
     @property
     def might_pvp_effectiveness_bonus(self): return f.might_pvp_effectiveness_bonus(self.might)
@@ -659,7 +651,6 @@ class LogicAccessorsMixin(object):
 
         return max(0, modifier)
 
-
     def modify_politics_power(self, power, person=None, place=None):
 
         is_friend = person and self.preferences.friend and person.id == self.preferences.friend.id
@@ -670,21 +661,31 @@ class LogicAccessorsMixin(object):
 
         return int(power * multiplier)
 
-    mob_type = game_relations.BEING_TYPE.CIVILIZED
-    intellect_level = game_relations.INTELLECT_LEVEL.NORMAL
-    communication_verbal = game_relations.COMMUNICATION_VERBAL.CAN
-    communication_gestures = game_relations.COMMUNICATION_GESTURES.CAN
+    mob_type = beings_relations.TYPE.CIVILIZED
+    intellect_level = beings_relations.INTELLECT_LEVEL.NORMAL
+    communication_verbal = beings_relations.COMMUNICATION_VERBAL.CAN
+    communication_gestures = beings_relations.COMMUNICATION_GESTURES.CAN
+
+    structure = beings_relations.STRUCTURE.STRUCTURE_5
+    movement = beings_relations.MOVEMENT.MOVEMENT_2
+    body = beings_relations.BODY.BODY_1
+
+    @property
+    def size(self):
+        return self.race.size
 
     @property
     def communication_telepathic(self):
         if self.power.physic < self.power.magic:
-            return game_relations.COMMUNICATION_GESTURES.CAN
-        return game_relations.COMMUNICATION_GESTURES.CAN_NOT
-
+            return beings_relations.COMMUNICATION_GESTURES.CAN
+        return beings_relations.COMMUNICATION_GESTURES.CAN_NOT
 
     ##########################
     # linguistics restrictions
     ##########################
+
+    def linguistics_variables(self):
+        return [('weapon', self.equipment._get(relations.EQUIPMENT_SLOT.HAND_PRIMARY))]
 
     def linguistics_restrictions_constants(self):
         if not hasattr(self, '_cached_modifiers'):
@@ -703,7 +704,12 @@ class LogicAccessorsMixin(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.communication_telepathic.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.intellect_level.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.HERO.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.mob_type.value).id,)
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.mob_type.value).id,
+
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE, self.structure.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT, self.movement.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_BODY, self.body.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.size.value).id,)
 
         self._cached_modifiers['#linguistics_restrictions'] = restrictions
 

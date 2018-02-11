@@ -1,5 +1,3 @@
-# coding: utf-8
-
 from django.core.urlresolvers import reverse
 from django.db import transaction
 
@@ -49,7 +47,6 @@ class PostResource(Resource):
     @validator(code='blogs.posts.post_declined', message='Произведение не прошло проверку модератора и отклонено')
     def validate_declined_state(self, *args, **kwargs): return not self.post.state.is_DECLINED
 
-
     @handler('', method='get')
     def index(self, page=1, author_id=None, order_by=ORDER_BY.CREATED_AT, tag_id=None):
 
@@ -60,7 +57,12 @@ class PostResource(Resource):
         author_account = None
 
         if author_id is not None:
-            author_id = int(author_id)
+
+            try:
+                author_id = int(author_id)
+            except ValueError:
+                return self.redirect(reverse('blogs:posts:'), permanent=False)
+
             author_account = AccountPrototype.get_by_id(author_id)
             if author_account:
                 posts_query = posts_query.filter(author_id=author_account.id)

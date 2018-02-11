@@ -233,7 +233,6 @@ class Place(names.ManageNameMixin2):
     def is_modifier_active(self):
         return getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0) >= c.PLACE_TYPE_ENOUGH_BORDER
 
-
     def is_wrong_race(self):
         return self.races.dominant_race and self.race != self.races.dominant_race
 
@@ -255,7 +254,6 @@ class Place(names.ManageNameMixin2):
             yield effects.Effect(name='расовая дискриминация',
                                  attribute=relations.ATTRIBUTE.STABILITY,
                                  value=c.PLACE_STABILITY_PENALTY_FOR_RACES * (dominant_race_power - current_race_power))
-
 
         yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
 
@@ -378,7 +376,6 @@ class Place(names.ManageNameMixin2):
             if culture < c.PLACE_MIN_CULTURE:
                 yield effects.Effect(name='бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
 
-
     def effects_for_attribute(self, attribute):
         for effect in self.effects_generator(attribute.order):
             if effect.attribute == attribute:
@@ -407,13 +404,24 @@ class Place(names.ManageNameMixin2):
         self.attrs.sync()
 
     def effects_update_step(self):
-        stability_delta = 0
         stability_effects = [effect for effect in self.effects.effects if effect.attribute.is_STABILITY]
+
         if stability_effects:
-            stability_delta = self.attrs.stability_renewing_speed / len(stability_effects)
+            speed = self.attrs.stability_renewing_speed
 
-        self.effects.update_step(deltas={relations.ATTRIBUTE.STABILITY: stability_delta})
+            dividers = utils_logic.log_diminishing_sequence(n=len(stability_effects), m=2)
 
+            speed_sum = 0
+
+            for effect, divider in zip(stability_effects, dividers):
+                delta = speed / divider
+
+                effect.delta = delta
+                speed_sum += delta
+
+            stability_effects[0].delta += (speed - speed_sum)
+
+        self.effects.update_step()
 
     def set_modifier(self, modifier):
         self._modifier = modifier
@@ -487,8 +495,6 @@ class Place(names.ManageNameMixin2):
                 'size': self.attrs.size}
 
 
-
-
 class Building(names.ManageNameMixin2):
     __slots__ = ('id',
                  'x',
@@ -504,7 +510,6 @@ class Building(names.ManageNameMixin2):
                  '_utg_name_form__lazy',
                  '_name__lazy')
 
-
     def __init__(self, id, x, y, type, integrity, created_at_turn, state, utg_name, person_id):
         self.id = id
         self.x = x
@@ -516,29 +521,28 @@ class Building(names.ManageNameMixin2):
         self.utg_name = utg_name
         self.person_id = person_id
 
-
     def shift(self, dx, dy):
         self.x += dx
         self.y += dy
-
 
     @property
     def person(self):
         from the_tale.game.persons import storage as persons_storage
         return persons_storage.persons[self.person_id]
 
-
     @property
     def place(self):
         return self.person.place
 
+    @property
+    def logical_integrity(self):
+        return min(self.integrity, 1.0)
 
     @property
     def terrain_change_power(self):
         # +1 to prevent power == 0
-        power = self.place.attrs.terrain_radius * min(self.integrity, 1.0) * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
+        power = self.place.attrs.terrain_radius * self.logical_integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
         return int(round(power))
-
 
     def amortization_delta(self, turns_number):
         from the_tale.game.places import storage
@@ -549,25 +553,20 @@ class Building(names.ManageNameMixin2):
         per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED * self.person.attrs.building_amortization_speed
         return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number-1)
 
-
     @property
     def amortization_in_day(self):
         return self.amortization_delta(c.TURNS_IN_HOUR*24)
-
 
     def amortize(self, turns_number):
         self.integrity -= self.amortization_delta(turns_number)
         if self.integrity <= 0.0001:
             self.integrity = 0
 
-
     @property
     def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
 
-
     def repair(self, delta):
         self.integrity += delta
-
 
     @property
     def terrain(self):
@@ -575,13 +574,11 @@ class Building(names.ManageNameMixin2):
         map_info = map_info_storage.item
         return map_info.terrain[self.y][self.x]
 
-
     def linguistics_restrictions(self):
         from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
         from the_tale.linguistics.storage import restrictions_storage
 
         return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value)]
-
 
     def map_info(self):
         return {'id': self.id,

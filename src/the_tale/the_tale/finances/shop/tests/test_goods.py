@@ -39,7 +39,7 @@ class PremiumDaysTests(testcase.TestCase):
         self.purchase = PremiumDays(uid='premium-days-uid',
                                     name='premium-days-name',
                                     description='premium-days-description',
-                                    cost=int(self.cost / payments_settings.GLOBAL_COST_MULTIPLIER),
+                                    cost=self.cost,
                                     days=self.days,
                                     transaction_description='premium-days-transaction-description')
 
@@ -120,7 +120,7 @@ class PermanentPurchaseTests(testcase.TestCase):
         self.purchase = PermanentPurchase(uid='infinit-subscription',
                                           name=self.PURCHASE_TYPE.text,
                                           description=self.PURCHASE_TYPE.description,
-                                          cost=int(self.cost / payments_settings.GLOBAL_COST_MULTIPLIER),
+                                          cost=self.cost,
                                           purchase_type=self.PURCHASE_TYPE,
                                           transaction_description='infinit-subscription')
 

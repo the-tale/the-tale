@@ -3,6 +3,8 @@ from unittest import mock
 
 import random
 
+from tt_logic.beings import relations as beings_relations
+
 from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
@@ -18,8 +20,9 @@ from the_tale.game.balance import constants as c
 from the_tale.game.balance.power import Power
 from the_tale.game import relations as game_relations
 
-from the_tale.game.mobs.storage import mobs_storage
-from the_tale.game.mobs import prototypes as mobs_prototypes
+from the_tale.game.mobs import storage as mobs_storage
+from the_tale.game.mobs import objects as mobs_objects
+from the_tale.game.mobs import logic as mobs_logic
 
 from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
@@ -54,7 +57,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.action_idl = self.hero.actions.current_action
 
         with mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 0):
-            self.action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
+            self.action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
     def tearDown(self):
         pass
@@ -163,7 +166,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 0.0)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_WOUNDS_IN_HOUR_FROM_HEAL', 0.0)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_EATEN_CORPSES_PER_BATTLE', 1.0)
-    @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.mob_type', game_relations.BEING_TYPE.ANIMAL)
+    @mock.patch('the_tale.game.mobs.objects.Mob.mob_type', beings_relations.TYPE.ANIMAL)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat_corpses', lambda hero: True)
     def test_full_battle__with_companion__eat_corpse(self):
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -241,7 +244,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
+            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -250,20 +253,26 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
-
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_do_exorcism', lambda hero: True)
     def test_companion_exorcims__demon(self):
+        self.check_companion_exorcims(beings_relations.TYPE.DEMON)
 
-        self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_do_exorcism', lambda hero: True)
+    def test_companion_exorcims__supernatural(self):
+        self.check_companion_exorcims(beings_relations.TYPE.SUPERNATURAL)
+
+    def check_companion_exorcims(self, mob_type):
+        self.companion_record = companions_logic.create_random_companion_record('exorcist',
+                                                                                state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
-        demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=game_relations.BEING_TYPE.DEMON)
-        demon = mobs_prototypes.MobPrototype(record_id=demon_record.id, level=self.hero.level, is_boss=False)
+        mob_record = mobs_logic.create_random_mob_record('demon', type=mob_type)
+        mob = mobs_objects.Mob(record_id=mob_record.id, level=self.hero.level, is_boss=False)
 
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=demon)
+            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -273,13 +282,15 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action, self.action_idl)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_do_exorcism', lambda hero: True)
-    def test_companion_exorcims__not_demon(self):
+    def test_companion_exorcims__not_demon_or_supernatural(self):
 
         self.companion_record = companions_logic.create_random_companion_record('exorcist', state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(self.companion_record))
 
-        not_demon_record = mobs_prototypes.MobRecordPrototype.create_random('demon', type=game_relations.BEING_TYPE.random(exclude=(game_relations.BEING_TYPE.DEMON, )))
-        not_demon = mobs_prototypes.MobPrototype(record_id=not_demon_record.id, level=self.hero.level, is_boss=False)
+        not_demon_record = mobs_logic.create_random_mob_record('demon',
+            type=beings_relations.TYPE.random(exclude=(beings_relations.TYPE.DEMON,
+            beings_relations.TYPE.SUPERNATURAL, )))
+        not_demon = mobs_objects.Mob(record_id=not_demon_record.id, level=self.hero.level, is_boss=False)
 
         self.hero.actions.pop_action()
 
@@ -293,7 +304,6 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action, action_battle)
 
-
     @mock.patch('the_tale.game.balance.constants.PEACEFULL_BATTLE_PROBABILITY', 1.01)
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
     def test_peacefull_battle(self):
@@ -301,7 +311,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.hero.actions.pop_action()
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
-            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.create_mob_for_hero(self.hero))
+            action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mobs_storage.mobs.create_mob_for_hero(self.hero))
 
         self.assertEqual(action_battle.percents, 1.0)
         self.assertEqual(action_battle.state, self.action_battle.STATE.PROCESSED)
@@ -315,7 +325,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
         self.hero.actions.pop_action()
 
-        mob = next((m for m in mobs_storage.all() if m.type.is_CIVILIZED))
+        mob = next((m for m in mobs_storage.mobs.all() if m.type.is_CIVILIZED))
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 0):
             action_battle = ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob.create_mob(self.hero, is_boss=False))
@@ -332,7 +342,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.EXP_FOR_KILL_DELTA', 0)
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
     def test_experience_for_kill(self):
-        mob = mobs_storage.create_mob_for_hero(self.hero)
+        mob = mobs_storage.mobs.create_mob_for_hero(self.hero)
         mob.health = 0
 
         with self.check_delta(lambda: self.hero.statistics.pve_kills, 1):
@@ -348,7 +358,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
 
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
-    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: True)
+    @mock.patch('the_tale.game.artifacts.objects.Artifact.can_be_broken', lambda self: True)
     def test_process_artifact_breaking__no_equipment(self):
         self.hero.equipment._remove_all()
         old_power = self.hero.power.clone()
@@ -356,7 +366,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(old_power, self.hero.power)
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
-    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: True)
+    @mock.patch('the_tale.game.artifacts.objects.Artifact.can_be_broken', lambda self: True)
     def test_process_artifact_breaking__broken(self):
         for artifact in list(self.hero.equipment.values()):
             artifact.power = Power(100, 100)
@@ -366,7 +376,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertTrue(old_power > self.hero.power.total())
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
-    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: False)
+    @mock.patch('the_tale.game.artifacts.objects.Artifact.can_be_broken', lambda self: False)
     def test_process_artifact_breaking__not_broken(self):
         for artifact in list(self.hero.equipment.values()):
             artifact.power = Power(100, 100)
@@ -376,7 +386,7 @@ class BattlePvE1x1ActionTest(testcase.TestCase):
         self.assertEqual(old_power, self.hero.power.total())
 
     @mock.patch('the_tale.game.balance.constants.ARTIFACTS_BREAKS_PER_BATTLE', 1.0)
-    @mock.patch('the_tale.game.artifacts.prototypes.ArtifactPrototype.can_be_broken', lambda self: False)
+    @mock.patch('the_tale.game.artifacts.objects.Artifact.can_be_broken', lambda self: False)
     def test_process_artifact_breaking__break_only_mostly_damaged(self):
         for artifact in list(self.hero.equipment.values()):
             artifact.power = Power(100, 100)

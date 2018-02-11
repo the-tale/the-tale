@@ -1,10 +1,11 @@
-# coding: utf-8
 
 import contextlib
 
 from unittest import mock
 
 from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
+
+from tt_logic.beings import relations as beings_relations
 
 from the_tale.common.utils import testcase
 
@@ -255,9 +256,9 @@ class UpdateHabitsTest(BaseHabitTest):
 
 @mock.patch('the_tale.game.balance.constants.KILL_BEFORE_BATTLE_PROBABILITY', 1.01)
 @mock.patch('the_tale.game.balance.constants.PICKED_UP_IN_ROAD_PROBABILITY', 1.01)
-@mock.patch('the_tale.game.mobs.storage.mobs_storage.mob_type_fraction', lambda mob_type: {game_relations.BEING_TYPE.PLANT: 0.1,
-                                                                                           game_relations.BEING_TYPE.CIVILIZED: 0.4,
-                                                                                           game_relations.BEING_TYPE.MONSTER: 0.5}.get(mob_type, 0))
+@mock.patch('the_tale.game.mobs.storage.mobs.mob_type_fraction', lambda mob_type: {beings_relations.TYPE.PLANT: 0.1,
+                                                                                   beings_relations.TYPE.CIVILIZED: 0.4,
+                                                                                   beings_relations.TYPE.MONSTER: 0.5}.get(mob_type, 0))
 class HonorHabitModifiersTest(BaseHabitTest):
 
     def setUp(self):
@@ -265,10 +266,10 @@ class HonorHabitModifiersTest(BaseHabitTest):
 
         self.actor_hero = FakeActor(name='attacker')
 
-        self.mob_neutral = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.PLANT)
+        self.mob_neutral = FakeActor(name='defender', mob_type=beings_relations.TYPE.PLANT)
 
-        self.mob_civilized = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.CIVILIZED)
-        self.mob_monster = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.MONSTER)
+        self.mob_civilized = FakeActor(name='defender', mob_type=beings_relations.TYPE.CIVILIZED)
+        self.mob_monster = FakeActor(name='defender', mob_type=beings_relations.TYPE.MONSTER)
 
     @mock.patch('the_tale.game.heroes.habits.Honor.interval', game_relations.HABIT_HONOR_INTERVAL.LEFT_3)
     def test_left_3(self):
@@ -401,10 +402,10 @@ class PeacefulnessHabitModifiersTest(BaseHabitTest):
 
         self.actor_hero = FakeActor(name='attacker')
 
-        self.mob_neutral = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.PLANT)
+        self.mob_neutral = FakeActor(name='defender', mob_type=beings_relations.TYPE.PLANT)
 
-        self.mob_civilized = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.CIVILIZED)
-        self.mob_monster = FakeActor(name='defender', mob_type=game_relations.BEING_TYPE.MONSTER)
+        self.mob_civilized = FakeActor(name='defender', mob_type=beings_relations.TYPE.CIVILIZED)
+        self.mob_monster = FakeActor(name='defender', mob_type=beings_relations.TYPE.MONSTER)
 
 
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_3)

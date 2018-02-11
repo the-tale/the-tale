@@ -1,5 +1,3 @@
-# coding: utf-8
-import datetime
 
 import jinja2
 from unittest import mock
@@ -25,7 +23,6 @@ from the_tale.blogs.tests import helpers as blogs_helpers
 
 from the_tale.game import names
 
-from .. import relations
 from .. import meta_relations
 from .. import logic
 
@@ -76,7 +73,6 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)),
                            texts=(('pgf-health-percents', 2),
                                   ('pgf-experience-percents', 2),
-                                  ('pgf-energy-percents', 1),
                                   ('pgf-physic-power value', 1),
                                   ('pgf-magic-power value', 1),
                                   ('pgf-money', 1),
@@ -90,11 +86,9 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('pgf-moderation-container', 0),
                                   'pgf-no-folclor'))
 
-
     def test_other_hero_page(self):
         texts = (('pgf-health-percents', 2),
                  ('pgf-experience-percents', 0),
-                 ('pgf-energy-percents', 0),
                  ('pgf-physic-power value', 1),
                  ('pgf-magic-power value', 1),
                  ('pgf-money', 1),

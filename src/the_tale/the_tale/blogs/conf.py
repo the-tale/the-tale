@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.common.utils.app_settings import app_settings
 
@@ -8,4 +7,5 @@ settings = app_settings('BLOGS',
                         POSTS_ON_PAGE=15,
                         FORUM_TAGS_THREAD=4437,
                         DEFAULT_TAGS=[1],
-                        IS_ABOUT_MAXIMUM=100)
+                        IS_ABOUT_MAXIMUM=100,
+                        CANON_TAG=3)

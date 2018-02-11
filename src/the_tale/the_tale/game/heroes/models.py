@@ -1,11 +1,8 @@
-# coding: utf-8
 import datetime
 
 from django.db import models
 
 from django.contrib.postgres.fields import JSONField
-
-from dext.common.utils import s11n
 
 from rels.django import RelationIntegerField
 
@@ -28,7 +25,7 @@ class Hero(models.Model):
 
     account = models.ForeignKey('accounts.Account', related_name='heroes', default=None, null=True, blank=True, on_delete=models.CASCADE)
 
-    is_fast = models.BooleanField(default=True, db_index=True) # copy from account.is_fast
+    is_fast = models.BooleanField(default=True, db_index=True)  # copy from account.is_fast
     is_bot = models.BooleanField(default=False)
 
     is_alive = models.BooleanField(default=True)
@@ -40,7 +37,7 @@ class Hero(models.Model):
     # time when ui caching and model saving has started
     ui_caching_started_at = models.DateTimeField(auto_now_add=True)
 
-    #base
+    # base
     gender = RelationIntegerField(relation=GENDER, relation_column='value')
     race = RelationIntegerField(relation=RACE, relation_column='value')
 
@@ -49,16 +46,14 @@ class Hero(models.Model):
 
     health = models.IntegerField(null=False, default=0.0)
 
-    raw_power_magic = models.BigIntegerField(null=False, default=0) # special field for ratings
-    raw_power_physic = models.BigIntegerField(null=False, default=0) # special field for ratings
+    raw_power_magic = models.BigIntegerField(null=False, default=0)  # special field for ratings
+    raw_power_physic = models.BigIntegerField(null=False, default=0)  # special field for ratings
 
     money = models.BigIntegerField(null=False, default=0)
 
     data = JSONField(default='{}')
 
     abilities = models.TextField(null=False, default='', blank=True)
-
-    cards = models.TextField(null=False, default='{}')
 
     actions = models.TextField(null=False, default='{}')
 
@@ -74,7 +69,7 @@ class Hero(models.Model):
 
     might = models.FloatField(null=False, default=0.0)
 
-    #position
+    # position
     pos_previous_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
     pos_place = models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
     pos_road = models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True, on_delete=models.PROTECT)
@@ -130,10 +125,9 @@ class Hero(models.Model):
 
     stat_gifts_returned = models.BigIntegerField(default=0, null=False)
 
-    stat_politics_multiplier = models.FloatField(default=0, null=False) # for ratings
+    stat_politics_multiplier = models.FloatField(default=0, null=False)  # for ratings
 
-
-    def __str__(self): return 'hero[%s] — %s' % (self.id, s11n.from_json(self.data)['name']['forms'][0])
+    def __str__(self): return 'hero[%s] — %s' % (self.id, self.data['name']['forms'][0])
 
 
 # just copy for collection statistics

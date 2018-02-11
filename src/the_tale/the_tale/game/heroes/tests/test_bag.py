@@ -1,12 +1,12 @@
-# coding: utf-8
+
 from unittest import mock
 
 from the_tale.common.utils.testcase import TestCase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.artifacts.storage import artifacts_storage
-from the_tale.game.artifacts.relations import RARITY
+from the_tale.game.artifacts import storage as artifacts_storage
+from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.logic_storage import LogicStorage
 
@@ -30,22 +30,19 @@ class BagTests(TestCase):
 
         self.bag = bag.Bag()
 
-
     def test_create(self):
         self.assertEqual(self.bag.next_uuid, 0)
         self.assertEqual(self.bag.bag, {})
         self.assertEqual(self.bag._ui_info, None)
 
-
     def test_serialize(self):
-        self.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL))
-        self.bag.put_artifact(artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL))
+        self.bag.put_artifact(artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL))
+        self.bag.put_artifact(artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL))
 
         self.assertEqual(self.bag.serialize(), bag.Bag.deserialize(self.bag.serialize()).serialize())
 
-
     def test_put_artifact(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
 
         self.assertEqual(artifact.bag_uuid, None)
 
@@ -62,7 +59,7 @@ class BagTests(TestCase):
         self.assertEqual(list(self.bag.bag.values())[0], artifact)
 
     def test_pop_artifact(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
 
         self.bag.put_artifact(artifact)
 
@@ -75,9 +72,22 @@ class BagTests(TestCase):
 
         self.assertEqual(self.bag.bag, {})
 
+    def test_pop_random_artifact_empty_bag(self):
+        popped_artifact = self.bag.pop_random_artifact()
+        self.assertEqual(self.bag.bag, {})
+        self.assertIsNone(popped_artifact)
+
+    def test_pop_random_artifact(self):
+        for i in range(3):
+            artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
+            self.bag.put_artifact(artifact)
+        for i in range(3):
+            popped_artifact = self.bag.pop_random_artifact()
+            self.assertIsNotNone(popped_artifact)
+        self.assertEqual(self.bag.bag, {})
 
     def test_ui_info_cache(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
 
         self.bag.put_artifact(artifact)
 
@@ -88,7 +98,6 @@ class BagTests(TestCase):
         self.bag.mark_updated()
 
         self.assertEqual(self.bag._ui_info, None)
-
 
     def test_mark_updated(self):
         self.bag._ui_info = 'fake ui info'
@@ -115,21 +124,18 @@ class EquipmentTests(TestCase):
         self.equipment = bag.Equipment()
         self.equipment.hero = self.hero
 
-
     def test_create(self):
         self.assertEqual(self.equipment.equipment, {})
         self.assertEqual(self.equipment._ui_info, None)
 
-
     def test_serialize(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
         self.equipment.equip(artifact.type.equipment_slot, artifact)
 
         self.assertEqual(self.equipment.serialize(), bag.Equipment.deserialize(self.equipment.serialize()).serialize())
 
-
     def test_ui_info_cache(self):
-        artifact = artifacts_storage.generate_artifact_from_list(artifacts_storage.artifacts, 1, rarity=RARITY.NORMAL)
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts, 1, rarity=artifacts_relations.RARITY.NORMAL)
         self.equipment.equip(artifact.type.equipment_slot, artifact)
 
         ui_info = self.equipment.ui_info(self.hero)
@@ -153,13 +159,11 @@ class EquipmentTests(TestCase):
 
         self.assertEqual(mark_updated.call_count, 1)
 
-
     def test_values__mark_updated_called(self):
         with mock.patch('the_tale.game.heroes.bag.Equipment.mark_updated') as mark_updated:
             list(self.equipment.values())
 
         self.assertEqual(mark_updated.call_count, 1)
-
 
     def test_quests_cache_reseted(self):
         with mock.patch('the_tale.game.quests.container.QuestsContainer.mark_updated') as mark_updated:

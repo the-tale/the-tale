@@ -1,13 +1,15 @@
-# coding: utf-8
+
+import random
 
 from the_tale.game.balance.power import Power
 
-from the_tale.game.artifacts.prototypes import ArtifactPrototype
+from the_tale.game.artifacts import objects as artifacts_objects
 
 from the_tale.game.heroes.relations import EQUIPMENT_SLOT
 
 
 class EquipmentException(Exception): pass
+
 
 class Bag(object):
 
@@ -25,7 +27,7 @@ class Bag(object):
         obj.next_uuid = data.get('next_uuid', 0)
         obj.bag = {}
         for uuid, artifact_data in data.get('bag', {}).items():
-            artifact = ArtifactPrototype.deserialize(artifact_data)
+            artifact = artifacts_objects.Artifact.deserialize(artifact_data)
             obj.bag[int(uuid)] = artifact
 
         return obj
@@ -53,6 +55,13 @@ class Bag(object):
     def pop_artifact(self, artifact):
         self.mark_updated()
         del self.bag[artifact.bag_uuid]
+
+    def pop_random_artifact(self):
+        if self.is_empty:
+            return None
+        artifact = random.choice(list(self.values()))
+        self.pop_artifact(artifact)
+        return artifact
 
     def get(self, artifact_id):
         return self.bag.get(artifact_id, None)
@@ -146,7 +155,8 @@ class Equipment(object):
     @classmethod
     def deserialize(cls, data):
         obj = cls()
-        obj.equipment = dict( (int(slot), ArtifactPrototype.deserialize(artifact_data)) for slot, artifact_data in data.items() if  artifact_data)
+        obj.equipment = dict((int(slot), artifacts_objects.Artifact.deserialize(artifact_data))
+                             for slot, artifact_data in data.items() if  artifact_data)
         return obj
 
     def unequip(self, slot):

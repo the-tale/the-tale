@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.statistics import relations
 
@@ -8,7 +7,6 @@ class Plot(object):
     def __init__(self, type, y_axis):
         self.type = type
         self.y_axis = y_axis
-
 
 
 class PlotsGroup(object):
@@ -24,7 +22,6 @@ class PlotsGroup(object):
         self.y2_value_range = y2_value_range
         self.fill_graph = fill_graph
         self.roll_period = roll_period
-
 
 
 PLOTS_GROUPS = [

@@ -10,3 +10,21 @@
 .mobs-edit-form .terrain-and-abilities .abilities select option {
   color: #b44343;
 }
+.mobs-edit-form .features {
+  display: inline-block;
+}
+.mobs-edit-form .features select {
+  height: 200px;
+}
+.mobs-edit-form .features select option {
+  color: #b44343;
+}
+.companions-edit-form .features {
+  display: inline-block;
+}
+.companions-edit-form .features select {
+  height: 200px;
+}
+.companions-edit-form .features select option {
+  color: #b44343;
+}

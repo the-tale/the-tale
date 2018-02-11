@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import random
 
 from unittest import mock
@@ -17,7 +17,7 @@ from the_tale.game.actions import battle
 from the_tale.game.actions.contexts import BattleContext
 
 from the_tale.game.heroes.habilities.battle import RUN_UP_PUSH, HIT, VAMPIRE_STRIKE
-from the_tale.game.mobs.storage import mobs_storage
+from the_tale.game.mobs import storage as mobs_storage
 from the_tale.game.logic_storage import LogicStorage
 
 
@@ -35,7 +35,7 @@ class TestsBase(testcase.TestCase):
         self.hero = self.storage.accounts_to_heroes[account.id]
 
     def get_actors(self):
-        mob = mobs_storage.get_random_mob(self.hero)
+        mob = mobs_storage.mobs.get_random_mob(self.hero)
         actor_1 = battle.Actor(self.hero, BattleContext())
         actor_2 = battle.Actor(mob, BattleContext())
 
@@ -157,9 +157,9 @@ class BattleTests(TestsBase):
         actor.context.use_initiative([2])
         self.assertEqual(actor.initiative, self.hero.initiative*2)
 
-    @mock.patch('the_tale.game.mobs.prototypes.MobPrototype.additional_abilities', [VAMPIRE_STRIKE(level=1)])
+    @mock.patch('the_tale.game.mobs.objects.Mob.additional_abilities', [VAMPIRE_STRIKE(level=1)])
     def test_mob_actor(self):
-        mob = mobs_storage.get_random_mob(self.hero)
+        mob = mobs_storage.mobs.get_random_mob(self.hero)
         mob.health = 10
         mob.abilities.add(RUN_UP_PUSH.get_id())
 
@@ -448,7 +448,7 @@ class TryCompanionBlockTests(TestsBase):
         self.assertEqual(reset_accessors_cache.call_count, 1)
 
 
-    @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
+    @mock.patch('the_tale.game.companions.objects.Companion.defend_in_battle_probability', 1.0)
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     @mock.patch('the_tale.game.heroes.messages.JournalContainer.MESSAGES_LOG_LENGTH', 10000)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_broke_to_spare_parts', lambda self: True)

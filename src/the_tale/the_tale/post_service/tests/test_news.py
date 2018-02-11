@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.core import mail
 from django.conf import settings as project_settings
@@ -12,7 +11,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.post_service.models import Message
 from the_tale.post_service.prototypes import MessagePrototype
 
-from the_tale.cms.news import logic as news_logic
+from the_tale.news import logic as news_logic
 
 
 class NewNewsTests(testcase.TestCase):

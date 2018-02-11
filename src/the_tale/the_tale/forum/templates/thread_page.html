@@ -5,6 +5,10 @@
 {% macro forum_paginator_line(thread_data, delete_thread_button=false, edit_thread_button=false) %}
   <div class="pagination pull-left">
     <ul>
+      {% if thread_data.inline %}
+      <li><a href="{{ url('forum:threads:show', thread_data.thread.id) }}">на форум</a></li>
+      {% endif %}
+
       {% if thread_data.can_subscribe %}
       <li>
         {% if not thread_data.has_subscription %}
@@ -219,10 +223,7 @@ jQuery(document).ready( function(e) {
     <thead>
       <tr>
         <td width="200px" class="info-head">
-          <a href="{{url('accounts:show', author.id)}}">{{ author.nick_verbose }}</a>
-          {% if author.clan %}
-            <a href="{{url('accounts:clans:show', author.clan.id)}}">[{{author.clan.abbr}}]</a>
-          {% endif %}
+          {{accounts_macros.account_link(author, author.clan)}}
         </td>
         <td class="head">
 

@@ -12,7 +12,6 @@ from the_tale.game import turn
 from the_tale.game import relations as game_relations
 from the_tale.game import names
 
-from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import power
 
@@ -20,7 +19,7 @@ from the_tale.game.actions import container as actions_container
 from the_tale.game.quests import container as quests_container
 
 
-from the_tale.game.artifacts.storage import artifacts_storage
+from the_tale.game.artifacts import storage as artifacts_storage
 from the_tale.game.places import storage as places_storage
 
 from the_tale.game.companions import objects as companions_objects
@@ -35,9 +34,7 @@ from . import messages
 from . import places_help_statistics
 from . import habilities
 from . import bag
-from . import conf
 from . import habits
-from . import cards_info
 
 
 def live_query():
@@ -107,6 +104,7 @@ def load_heroes_by_account_ids(account_ids):
     heroes_models = models.Hero.objects.filter(account_id__in=account_ids)
     return [load_hero(hero_model=model) for model in heroes_models]
 
+
 def load_hero(hero_id=None, account_id=None, hero_model=None):
 
     # TODO: get values instead model
@@ -121,10 +119,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
     except models.Hero.DoesNotExist:
         return None
 
-    if isinstance(hero_model.data, str):
-        data = s11n.from_json(hero_model.data)
-    else:
-        data = hero_model.data
+    data = hero_model.data
 
     companion_data = data.get('companion')
     companion = companions_objects.Companion.deserialize(companion_data) if companion_data else None
@@ -134,8 +129,6 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         health=hero_model.health,
                         level=hero_model.level,
                         experience=hero_model.experience,
-                        energy=hero_model.energy,
-                        energy_bonus=hero_model.energy_bonus,
                         money=hero_model.money,
                         next_spending=hero_model.next_spending,
                         habit_honor=habits.Honor(raw_value=hero_model.habit_honor),
@@ -148,7 +141,6 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         journal=messages.JournalContainer(), # we are not storrings journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
                         places_history=places_help_statistics.PlacesHelpStatistics.deserialize(data['places_history']),
-                        cards=cards_info.CardsInfo.deserialize(data.get('cards', {})),
                         abilities=habilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
                         bag=bag.Bag.deserialize(data['bag']),
                         equipment=bag.Equipment.deserialize(data['equipment']),
@@ -179,17 +171,16 @@ def save_hero(hero, new=False):
             'places_history': hero.places_history.serialize(),
             'equipment': hero.equipment.serialize(),
             'bag': hero.bag.serialize(),
-            'actual_bills': hero.actual_bills,
-            'cards': hero.cards.serialize()}
+            'actual_bills': hero.actual_bills}
 
     arguments = dict(saved_at_turn=turn.number(),
                      saved_at=datetime.datetime.now(),
-                     data=s11n.to_json(data),
+                     data=data,
                      abilities=s11n.to_json(hero.abilities.serialize()),
                      actions=s11n.to_json(hero.actions.serialize()),
                      raw_power_physic=hero.power.physic,
                      raw_power_magic=hero.power.magic,
-                     quest_created_time = hero.quests.min_quest_created_time,
+                     quest_created_time=hero.quests.min_quest_created_time,
                      preferences=s11n.to_json(hero.preferences.serialize()),
                      stat_politics_multiplier=hero.politics_power_multiplier() if hero.can_change_all_powers() else 0,
 
@@ -245,8 +236,6 @@ def save_hero(hero, new=False):
                      health=hero.health,
                      level=hero.level,
                      experience=hero.experience,
-                     energy=hero.energy,
-                     energy_bonus=hero.energy_bonus,
                      money=hero.money,
                      next_spending=hero.next_spending,
                      habit_honor=hero.habit_honor.raw_value,
@@ -280,7 +269,8 @@ def save_hero(hero, new=False):
 def dress_new_hero(hero):
     for equipment_slot in relations.EQUIPMENT_SLOT.records:
         if equipment_slot.default:
-            hero.equipment.equip(equipment_slot, artifacts_storage.get_by_uuid(equipment_slot.default).create_artifact(level=1, power=power.Power(1, 1)))
+            hero.equipment.equip(equipment_slot, artifacts_storage.artifacts.get_by_uuid(equipment_slot.default).create_artifact(level=1, power=power.Power(1, 1)))
+
 
 def preferences_for_new_hero(hero):
     if hero.preferences.energy_regeneration_type is None:
@@ -349,8 +339,6 @@ def create_hero(account, full_create=True):
                         health=f.hp_on_lvl(1),
                         level=1,
                         experience=0,
-                        energy=c.ANGEL_ENERGY_FREE_MAX,
-                        energy_bonus=conf.heroes_settings.START_ENERGY_BONUS,
                         money=0,
                         next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
                         habit_honor=habits.Honor(raw_value=0),
@@ -363,7 +351,6 @@ def create_hero(account, full_create=True):
                         journal=messages.JournalContainer(),
                         quests=quests_container.QuestsContainer(),
                         places_history=places_help_statistics.PlacesHelpStatistics(),
-                        cards=cards_info.CardsInfo(),
                         abilities=habilities.AbilitiesPrototype.create(),
                         bag=bag.Bag(),
                         equipment=bag.Equipment(),

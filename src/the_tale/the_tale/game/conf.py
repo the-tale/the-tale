@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import os
 
 from dext.common.utils.app_settings import app_settings
@@ -19,10 +19,10 @@ game_settings = app_settings('GAME',
 
                              ENABLE_DATA_REFRESH=True,
 
-                             PROCESS_TURN_WAIT_LOGIC_TIMEOUT = 5*60,
-                             PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT = 10*60,
+                             PROCESS_TURN_WAIT_LOGIC_TIMEOUT=5*60,
+                             PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT=10*60,
 
-                             STOP_WAIT_TIMEOUT = 20 * 60,
+                             STOP_WAIT_TIMEOUT=20 * 60,
 
                              SAVED_UNCACHED_HEROES_FRACTION=0.00025,
 
@@ -34,13 +34,14 @@ game_settings = app_settings('GAME',
 
                              GAME_STATE_KEY='game state',
 
-                             INFO_API_VERSION='1.8',
+                             INFO_API_VERSION='1.9',
                              DIARY_API_VERSION='1.0',
 
                              SAVE_ON_EXCEPTION_TIMEOUT=60*60, # seconds
 
-                             TEXTGEN_SOURCES_DIR=os.path.join(APP_DIR, 'fixtures', 'textgen', 'texts_src'),
-                             TEXTGEN_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'vocabulary.json'),
-                             TEXTGEN_STORAGE_VOCABULARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'storage', 'vocabulary.json'),
-                             TEXTGEN_STORAGE_DICTIONARY=os.path.join(APP_DIR, 'fixtures', 'textgen', 'storage', 'dictionary.json'),
-                             TEXTGEN_STORAGE_PHRASES_TYPES=os.path.join(APP_DIR, 'fixtures', 'textgen', 'storage', 'phrases_types.json')    )
+                             ENERGY_TRANSACTION_LIFETIME=24*60*60,
+                             TT_ENERGY_BALANCE='http://localhost:10005/accounts/balance',
+                             TT_ENERGY_START_TRANSACTION='http://localhost:10005/transactions/start',
+                             TT_ENERGY_COMMIT_TRANSACTION='http://localhost:10005/transactions/commit',
+                             TT_ENERGY_ROLLBACK_TRANSACTION='http://localhost:10005/transactions/rollback',
+                             TT_ENERGY_DEBUG_CLEAR_SERVICE_URL='http://localhost:10005/debug-clear-service')

@@ -37,6 +37,44 @@
           </ul>
         </td>
       </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> структура тела</th>
+        <td>{{companion.structure.text}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> особенности</th>
+        <td>{{companion.features_verbose()}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> способ передвижения</th>
+        <td>{{companion.movement.text}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> тип тела</th>
+        <td>{{companion.body.text}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> размер тела</th>
+        <td>{{companion.size.text}}</td>
+      </tr>
+
+      <tr>
+        <th><i class="icon-book" style="vertical-align: middle" rel="tooltip" title="используется только для генерации текста"></i> оружие</th>
+        <td>
+          <ul>
+            {% for record in companion.weapons_verbose() %}
+            <li>{{record}}</li>
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
+
+
     </tbody>
   </table>
 

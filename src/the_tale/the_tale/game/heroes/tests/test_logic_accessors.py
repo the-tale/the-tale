@@ -1,5 +1,6 @@
-# coding: utf-8
+
 import time
+
 from unittest import mock
 
 from the_tale.common.utils import testcase
@@ -12,7 +13,6 @@ from the_tale.game.balance import power
 from the_tale.game import relations as game_relations
 
 from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.artifacts.storage import artifacts_storage
 from the_tale.game.artifacts import relations as artifacts_relations
 
 from the_tale.game.heroes.conf import heroes_settings
@@ -59,7 +59,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
              mock.patch('the_tale.game.actions.container.ActionsContainer.number', 1 if idle else 2):
             self.assertEqual(self.hero.can_process_turn(turn_number), expected_result)
 
-
     def test_can_process_turn__banned(self):
         self.check_can_process_turn(True, banned=True)
         self.check_can_process_turn(False, banned=True, idle=True)
@@ -68,7 +67,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.check_can_process_turn(True, single=False)
         self.check_can_process_turn(True, sinchronized_turn=True)
         self.check_can_process_turn(False, sinchronized_turn=False)
-
 
     def test_prefered_quest_markers__no_markers(self):
         self.assertTrue(self.hero.habit_honor.interval.is_NEUTRAL)
@@ -80,7 +78,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
             markers |= self.hero.prefered_quest_markers()
 
         self.assertEqual(markers, set())
-
 
     def test_prefered_quest_markers__has_markers(self):
         from questgen.relations import OPTION_MARKERS
@@ -123,21 +120,19 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertEqual(honor.update_context.call_count, 1)
         self.assertEqual(peacefulness.update_context.call_count, 1)
 
-
     def test_prefered_mob_loot_multiplier(self):
-        from the_tale.game.mobs.storage import mobs_storage
+        from the_tale.game.mobs import storage as mobs_storage
 
         self.hero.level = relations.PREFERENCE_TYPE.MOB.level_required
         logic.save_hero(self.hero)
 
-        self.mob = mobs_storage.get_available_mobs_list(level=self.hero.level)[0].create_mob(self.hero)
+        self.mob = mobs_storage.mobs.get_available_mobs_list(level=self.hero.level)[0].create_mob(self.hero)
 
         self.assertEqual(self.hero.preferences.mob, None)
 
         with self.check_increased(lambda: self.hero.loot_probability(self.mob)):
             with self.check_increased(lambda: self.hero.artifacts_probability(self.mob)):
                 self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, self.mob.record)
-
 
     def test_companion_damage__bonus_damage(self):
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -150,7 +145,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
                     for i in range(1000):
                         self.assertEqual(self.hero.companion_damage, c.COMPANIONS_DAMAGE_PER_WOUND + 666)
 
-
     def test_companion_damage__bonus_damage__damage_from_heal(self):
         companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
@@ -161,7 +155,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
                 with mock.patch('the_tale.game.heroes.objects.Hero.attribute_modifier', lambda s, t: 666 if t.is_COMPANION_DAMAGE else t.default()):
                     for i in range(1000):
                         self.assertEqual(self.hero.companion_damage, c.COMPANIONS_DAMAGE_PER_WOUND)
-
 
     def test_companion_damage_probability(self):
         self.assertEqual(self.hero.companion_damage_probability, c.COMPANIONS_WOUND_ON_DEFEND_PROBABILITY_FROM_WOUNDS)
@@ -188,7 +181,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         with mock.patch('the_tale.game.heroes.objects.Hero.power', power.Power(1, 1)):
             self.assertTrue(self.hero.communication_telepathic.is_CAN_NOT)
 
-
     def test_modify_attribute(self):
         companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
@@ -200,7 +192,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
             self.hero.modify_attribute(relations.MODIFIERS.POWER_TO_ENEMY, 1)
 
         self.assertTrue(modify_attribute.call_count >= 1)
-
 
     def test_check_attribute(self):
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -214,10 +205,8 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
         self.assertTrue(check_attribute.call_count >= 1)
 
-
     def test_companion_coherence_speed__no_companion(self):
         self.assertEqual(self.hero.companion_coherence_speed, 0)
-
 
     def test_companion_coherence_speed__companion_alive(self):
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -228,7 +217,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
 
         self.assertGreater(self.hero.companion_coherence_speed, 0)
 
-
     def test_companion_coherence_speed__companion_dead(self):
         companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
@@ -238,7 +226,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertTrue(self.hero.companion.is_dead)
 
         self.assertEqual(self.hero.companion_coherence_speed, 0)
-
 
     def test_keep_dead_companion(self):
         with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', False):
@@ -257,7 +244,6 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
         self.assertTrue(self.hero.politics_power_multiplier() > normal_power_modifier)
         self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, relations.RISK_LEVEL.VERY_LOW)
         self.assertTrue(self.hero.politics_power_multiplier() < normal_power_modifier)
-
 
     def test_modify_power(self):
         friend = self.place_1.persons[0]
@@ -301,7 +287,6 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
             self.assertEqual(place_power, self.hero.modify_politics_power(place=self.place_1, power=100))
             self.assertTrue(enemy_power < self.hero.modify_politics_power(person=enemy, power=100))
             self.assertEqual(friend_power, self.hero.modify_politics_power(person=friend, power=100))
-
 
     def test_modify_power__friend(self):
         friend = self.place_1.persons[0]
