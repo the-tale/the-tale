@@ -60,7 +60,8 @@ YOUTUBE_TUTORIAL = None
 
 X_FRAME_OPTIONS = 'DENY'
 
-ALLOWED_HOSTS = ['the-tale.org',
+ALLOWED_HOSTS = ['localhost',
+                 'the-tale.org',
                  '.the-tale.org',
                  'local.the-tale',
                  '.local.the-tale']

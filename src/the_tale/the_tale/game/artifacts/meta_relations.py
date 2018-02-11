@@ -26,7 +26,7 @@ class Artifact(meta_relations.MetaType):
 
     @classmethod
     def create_from_id(cls, id):
-        artifact = storage.artifacts_storage.get(id)
+        artifact = storage.artifacts.get(id)
         if artifact is None:
             return None
 

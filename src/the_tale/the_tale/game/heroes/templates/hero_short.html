@@ -61,13 +61,15 @@ jQuery(document).ready(function(e) {
       <span class="pgf-money"></span>
     </div>
 
+    {% if is_owner %}
     <div class="attribute-record"
          rel="tooltip"
-         title="запас энергии (примерно +{{ (c.ANGEL_ENERGY_REGENERATION_AMAUNT/c.ANGEL_ENERGY_REGENERATION_TIME)|int}} в час)<hr/>получить дополнительную энергию можно с помощью карты судьбы: взяв её за помощь или купив на рынке"
+         title="запас энергии (примерно +{{ (c.ANGEL_ENERGY_REGENERATION_AMAUNT/c.ANGEL_ENERGY_REGENERATION_TIME)|int}} в час)<hr/>получить дополнительную энергию можно с помощью карты судьбы"
          data-tooltip-placement="bottom">
       <i class="game-ui-icon energy"></i>
       <span class="pgf-energy"></span>
     </div>
+    {% endif %}
 
     <br/>
 
