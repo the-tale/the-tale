@@ -409,15 +409,16 @@ class Place(names.ManageNameMixin2):
         if stability_effects:
             speed = self.attrs.stability_renewing_speed
 
-            dividers = utils_logic.log_diminishing_sequence(n=len(stability_effects), m=2)
-
+            divider = 2
             speed_sum = 0
 
-            for effect, divider in zip(stability_effects, dividers):
+            for effect in stability_effects:
                 delta = speed / divider
 
                 effect.delta = delta
                 speed_sum += delta
+
+                divider *= 2
 
             stability_effects[0].delta += (speed - speed_sum)
 

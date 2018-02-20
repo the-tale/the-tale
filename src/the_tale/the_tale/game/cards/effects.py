@@ -1001,10 +1001,8 @@ class GetCompanion(BaseEffect):
         names = {}
 
         # do not skip manual companions, since can be cards with them too
+        # map every card rarity to every companions, since companions can change their rarity
         for companion in companions_storage.companions.enabled_companions():
-            if companion.rarity != self.rarity:
-                continue
-
             full_type = self._item_full_type(card_type, companion.id)
             names[full_type] = self._name_for_card(card_type, companion.id)
 

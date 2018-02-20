@@ -358,6 +358,34 @@ class PlaceTests(testcase.TestCase):
             else:
                 self.assertEqual(effect.value, 0.25 - c.PLACE_STABILITY_RECOVER_SPEED * (1/4))
 
+    def test_stability__stability_deltas_sum_equal_to_stability_renewing_speed(self):
+        self.p1.attrs.stability_renewing_speed = 0.25
+
+        self.p1.effects.add(effects.Effect(name='x', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
+        self.p1.effects.add(effects.Effect(name='y', attribute=relations.ATTRIBUTE.STABILITY, value=0.25))
+        self.p1.effects.add(effects.Effect(name='z', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
+
+        self.p1.effects_update_step()
+
+        for i in range(len(self.p1.effects)-1):
+            self.assertTrue(self.p1.effects.effects[i].delta >= self.p1.effects.effects[i+1].delta)
+
+        self.assertEqual(self.p1.attrs.stability_renewing_speed, sum(effect.delta for effect in self.p1.effects.effects))
+
+    def test_stability__stability_deltas_sum_equal_to_stability_renewing_speed__a_lot_of_effects(self):
+        self.p1.attrs.stability_renewing_speed = 0.25
+
+        for i in range(10):
+            self.p1.effects.add(effects.Effect(name=str(i), attribute=relations.ATTRIBUTE.STABILITY, value=100 * random.choice([-1, 1])))
+
+        self.p1.effects_update_step()
+
+        for i in range(len(self.p1.effects)-1):
+            self.assertTrue(self.p1.effects.effects[i].delta >= self.p1.effects.effects[i+1].delta)
+
+        self.assertEqual(self.p1.attrs.stability_renewing_speed, sum(effect.delta for effect in self.p1.effects.effects))
+        self.assertEqual(self.p1.attrs.stability_renewing_speed, sum(abs(effect.delta) for effect in self.p1.effects.effects))
+
     def test_stability__parameters_removed(self):
         self.p1.attrs.stability_renewing_speed = 0.25
 

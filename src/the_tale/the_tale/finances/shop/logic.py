@@ -67,7 +67,6 @@ def transaction_gm(account, amount, description, game_master):
                               force=True)
 
 
-
 class PermanentRelationsStorage(PermanentRelationsStorage):
     RELATION = PERMANENT_PURCHASE_TYPE
     VALUE_COLUMN = 'value'
@@ -96,6 +95,7 @@ def close_lot(item_type, price, buyer_id):
                                         price=price,
                                         item_type=item_type,
                                         transaction=transaction)
+
 
 def get_commission(price):
     commission = int(math.floor(price*conf.payments_settings.MARKET_COMISSION))
