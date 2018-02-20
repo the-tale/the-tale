@@ -182,28 +182,3 @@ class LogicTest(testcase.TestCase):
         text = '<a href=""></a> <a href="/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>'
         self.assertEqual(absolutize_urls(text),
                          '<a href=""></a> <a href="http://local.the-tale:8000/">!</a> <a href=\'#\'></a> <a href="http://the-tale.org">!</a>')
-
-    def test_log_diminishing_sequence(self):
-        self.assertEqual(log_diminishing_sequence(n=0, m=2), [])
-        self.assertEqual(log_diminishing_sequence(n=1, m=2), [2])
-        self.assertEqual(log_diminishing_sequence(n=2, m=2), [2, 4])
-        self.assertEqual(log_diminishing_sequence(n=3, m=2), [2, 4, 4])
-        self.assertEqual(log_diminishing_sequence(n=4, m=2), [2, 4, 4, 8])
-        self.assertEqual(log_diminishing_sequence(n=5, m=2), [2, 4, 4, 8, 8])
-        self.assertEqual(log_diminishing_sequence(n=6, m=2), [2, 4, 4, 8, 8, 8])
-        self.assertEqual(log_diminishing_sequence(n=7, m=2), [2, 4, 4, 8, 8, 8, 8])
-        self.assertEqual(log_diminishing_sequence(n=8, m=2), [2, 4, 4, 8, 8, 8, 8, 16])
-        self.assertEqual(log_diminishing_sequence(n=9, m=2), [2, 4, 4, 8, 8, 8, 8, 16, 16])
-        self.assertEqual(log_diminishing_sequence(n=10, m=2), [2, 4, 4, 8, 8, 8, 8, 16, 16, 16])
-
-        self.assertEqual(log_diminishing_sequence(n=0, m=3), [])
-        self.assertEqual(log_diminishing_sequence(n=1, m=3), [3])
-        self.assertEqual(log_diminishing_sequence(n=2, m=3), [3, 9])
-        self.assertEqual(log_diminishing_sequence(n=3, m=3), [3, 9, 9])
-        self.assertEqual(log_diminishing_sequence(n=4, m=3), [3, 9, 9, 9])
-        self.assertEqual(log_diminishing_sequence(n=5, m=3), [3, 9, 9, 9, 9])
-        self.assertEqual(log_diminishing_sequence(n=6, m=3), [3, 9, 9, 9, 9, 9])
-        self.assertEqual(log_diminishing_sequence(n=7, m=3), [3, 9, 9, 9, 9, 9, 9])
-        self.assertEqual(log_diminishing_sequence(n=8, m=3), [3, 9, 9, 9, 9, 9, 9, 27])
-        self.assertEqual(log_diminishing_sequence(n=9, m=3), [3, 9, 9, 9, 9, 9, 9, 27, 27])
-        self.assertEqual(log_diminishing_sequence(n=10, m=3), [3, 9, 9, 9, 9, 9, 9, 27, 27, 27])
