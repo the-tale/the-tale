@@ -6,8 +6,6 @@ from pynames.relations import GENDER as PYNAMES_GENDER
 
 from utg import relations as utg_relations
 
-from tt_logic.beings import relations as beings_relations
-
 from the_tale.game.balance.power import PowerDistribution
 from the_tale.game.artifacts.relations import ARTIFACT_POWER_TYPE
 
@@ -41,18 +39,17 @@ class RACE(DjangoEnum):
     utg_name_form = Column()
     linguistics_restrictions = Column()
     energy_regeneration = Column(related_name='base_race')
-    size = Column()
 
     records = (('HUMAN', 0, 'человек', 'люди', 'мужчина', 'женщина',
-                technical_words.RACE_HUMANS, _race_linguistics_restrictions('HUMAN'), heroes_relations.ENERGY_REGENERATION.PRAY, beings_relations.SIZE.SIZE_11),
+                technical_words.RACE_HUMANS, _race_linguistics_restrictions('HUMAN'), heroes_relations.ENERGY_REGENERATION.PRAY),
                ('ELF', 1, 'эльф', 'эльфы', 'эльф', 'эльфийка',
-                technical_words.RACE_ELFS, _race_linguistics_restrictions('ELF'), heroes_relations.ENERGY_REGENERATION.INCENSE, beings_relations.SIZE.SIZE_12),
+                technical_words.RACE_ELFS, _race_linguistics_restrictions('ELF'), heroes_relations.ENERGY_REGENERATION.INCENSE),
                ('ORC', 2, 'орк',  'орки', 'орк', 'оркесса',
-                technical_words.RACE_ORCS, _race_linguistics_restrictions('ORC'), heroes_relations.ENERGY_REGENERATION.SACRIFICE, beings_relations.SIZE.SIZE_14),
+                technical_words.RACE_ORCS, _race_linguistics_restrictions('ORC'), heroes_relations.ENERGY_REGENERATION.SACRIFICE),
                ('GOBLIN', 3, 'гоблин', 'гоблины', 'гоблин', 'гоблинша',
-                technical_words.RACE_GOBLINS, _race_linguistics_restrictions('GOBLIN'), heroes_relations.ENERGY_REGENERATION.MEDITATION, beings_relations.SIZE.SIZE_7),
+                technical_words.RACE_GOBLINS, _race_linguistics_restrictions('GOBLIN'), heroes_relations.ENERGY_REGENERATION.MEDITATION),
                ('DWARF', 4, 'дварф', 'дварфы', 'дварф', 'дварфийка',
-                technical_words.RACE_DWARFS, _race_linguistics_restrictions('DWARF'), heroes_relations.ENERGY_REGENERATION.SYMBOLS, beings_relations.SIZE.SIZE_13))
+                technical_words.RACE_DWARFS, _race_linguistics_restrictions('DWARF'), heroes_relations.ENERGY_REGENERATION.SYMBOLS))
 
 
 class GAME_STATE(DjangoEnum):

@@ -62,6 +62,7 @@ class CompanionTests(testcase.TestCase):
                                                               movement=beings_relations.MOVEMENT.random(),
                                                               body=beings_relations.BODY.random(),
                                                               size=beings_relations.SIZE.random(),
+                                                              orientation=beings_relations.ORIENTATION.random(),
                                                               weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],

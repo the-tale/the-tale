@@ -133,7 +133,8 @@ class Mob(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE, self.record.structure.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT, self.record.movement.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_BODY, self.record.body.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.record.size.value).id]
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.record.size.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION, self.record.orientation.value).id]
 
         for feature in self.record.features:
             restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE, feature.value).id)
@@ -226,6 +227,7 @@ class MobRecord(names.ManageNameMixin2):
                  'movement',
                  'body',
                  'size',
+                 'orientation',
                  'weapons',
 
                  # mames mixin
@@ -256,6 +258,7 @@ class MobRecord(names.ManageNameMixin2):
                  movement,
                  body,
                  size,
+                 orientation,
                  weapons,
 
                  utg_name):
@@ -282,6 +285,7 @@ class MobRecord(names.ManageNameMixin2):
         self.movement = movement
         self.body = body
         self.size = size
+        self.orientation = orientation
         self.weapons = weapons
 
         self.utg_name = utg_name

@@ -47,6 +47,7 @@ def create_mob_record(uuid,
                       movement,
                       body,
                       size,
+                      orientation,
                       weapons,
                       is_mercenary,
                       is_eatable):
@@ -60,6 +61,7 @@ def create_mob_record(uuid,
             'movement': movement.value,
             'body': body.value,
             'size': size.value,
+            'orientation': orientation.value,
             'weapons': [weapon.serialize() for weapon in weapons]}
 
     model = models.MobRecord.objects.create(uuid=uuid,
@@ -111,7 +113,8 @@ def create_random_mob_record(uuid,
                              features=frozenset((beings_relations.FEATURE.FEATURE_1, beings_relations.FEATURE.FEATURE_3)),
                              movement=beings_relations.MOVEMENT.MOVEMENT_4,
                              body=beings_relations.BODY.BODY_5,
-                             size=beings_relations.SIZE.SIZE_6,
+                             size=beings_relations.SIZE.SIZE_3,
+                             orientation=beings_relations.ORIENTATION.VERTICAL,
                              weapons=None,
                              is_mercenary=True,
                              is_eatable=True,
@@ -128,7 +131,6 @@ def create_random_mob_record(uuid,
                    artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.WEAPON_3,
                                             material=tt_artifacts_relations.MATERIAL.MATERIAL_3,
                                             power_type=artifacts_relations.ARTIFACT_POWER_TYPE.MAGICAL)]
-
 
     name = uuid.lower()
 
@@ -158,6 +160,7 @@ def create_random_mob_record(uuid,
                              movement=movement,
                              body=body,
                              size=size,
+                             orientation=orientation,
                              weapons=weapons,
                              is_mercenary=is_mercenary,
                              is_eatable=is_eatable,
@@ -167,8 +170,6 @@ def create_random_mob_record(uuid,
                              communication_gestures=communication_gestures,
                              communication_telepathic=communication_telepathic,
                              intellect_level=intellect_level)
-
-
 
 
 def update_by_creator(mob, form, editor):
@@ -195,6 +196,7 @@ def update_by_creator(mob, form, editor):
     mob.movement = form.c.movement
     mob.body = form.c.body
     mob.size = form.c.size
+    mob.orientation = form.c.orientation
     mob.weapons = form.get_weapons()
 
     save_mob_record(mob)
@@ -225,6 +227,7 @@ def update_by_moderator(mob, form, editor=None):
     mob.movement = form.c.movement
     mob.body = form.c.body
     mob.size = form.c.size
+    mob.orientation = form.c.orientation
     mob.weapons = form.get_weapons()
 
     save_mob_record(mob)
@@ -263,6 +266,7 @@ def construct_from_model(model):
                             movement=beings_relations.MOVEMENT(data.get('movement', 0)),
                             body=beings_relations.BODY(data.get('body', 0)),
                             size=beings_relations.SIZE(data.get('size', 0)),
+                            orientation=beings_relations.ORIENTATION(data.get('orientation', 0)),
                             weapons=weapons,
                             utg_name=utg_words.Word.deserialize(data['name']))
     return mob
@@ -281,6 +285,7 @@ def save_mob_record(mob):
             'movement': mob.movement.value,
             'body': mob.body.value,
             'size': mob.size.value,
+            'orientation': mob.orientation.value,
             'weapons': [weapon.serialize() for weapon in mob.weapons]}
 
     arguments = {'data': s11n.to_json(data),

@@ -91,7 +91,8 @@ class Companion(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE, self.record.structure.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT, self.record.movement.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_BODY, self.record.body.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.record.size.value).id]
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.record.size.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION, self.record.orientation.value).id]
 
         for feature in self.record.features:
             restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE, feature.value).id)
@@ -272,6 +273,7 @@ class CompanionRecord(names.ManageNameMixin2):
                  'movement',
                  'body',
                  'size',
+                 'orientation',
                  'weapons',
 
                  'description',
@@ -299,6 +301,7 @@ class CompanionRecord(names.ManageNameMixin2):
                  movement,
                  body,
                  size,
+                 orientation,
                  weapons,
 
                  abilities,
@@ -323,6 +326,7 @@ class CompanionRecord(names.ManageNameMixin2):
         self.movement = movement
         self.body = body
         self.size = size
+        self.orientation = orientation
         self.weapons = weapons
 
         self.utg_name = utg_name
@@ -394,6 +398,7 @@ class CompanionRecord(names.ManageNameMixin2):
                    movement=beings_relations.MOVEMENT(data.get('movement', 0)),
                    body=beings_relations.BODY(data.get('body', 0)),
                    size=beings_relations.SIZE(data.get('size', 0)),
+                   orientation=beings_relations.ORIENTATION(data.get('orientation', 0)),
                    weapons=weapons)
 
     @property

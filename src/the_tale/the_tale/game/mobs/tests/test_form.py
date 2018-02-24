@@ -40,6 +40,7 @@ class MobsFormsTests(testcase.TestCase):
                      'movement': 'MOVEMENT.MOVEMENT_2',
                      'body': 'BODY.BODY_3',
                      'size': 'SIZE.SIZE_4',
+                     'orientation': 'ORIENTATION.HORIZONTAL',
                      'weapon_1': 'STANDARD_WEAPON.WEAPON_1',
                      'material_1': 'MATERIAL.MATERIAL_1',
                      'power_type_1': 'ARTIFACT_POWER_TYPE.NEUTRAL',
