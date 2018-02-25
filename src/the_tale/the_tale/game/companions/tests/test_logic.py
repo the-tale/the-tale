@@ -66,7 +66,8 @@ class LogicTests(testcase.TestCase):
                                                                      features=frozenset((beings_relations.FEATURE.FEATURE_1, beings_relations.FEATURE.FEATURE_3)),
                                                                      movement=beings_relations.MOVEMENT.MOVEMENT_4,
                                                                      body=beings_relations.BODY.BODY_5,
-                                                                     size=beings_relations.SIZE.SIZE_6,
+                                                                     size=beings_relations.SIZE.SIZE_1,
+                                                                     orientation=beings_relations.ORIENTATION.HORIZONTAL,
                                                                      weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.WEAPON_1,
                                                                                                        material=tt_artifacts_relations.MATERIAL.MATERIAL_1,
                                                                                                        power_type=artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL),
@@ -94,7 +95,8 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.features, frozenset((beings_relations.FEATURE.FEATURE_1, beings_relations.FEATURE.FEATURE_3)))
         self.assertTrue(companion_record.movement.is_MOVEMENT_4)
         self.assertTrue(companion_record.body.is_BODY_5)
-        self.assertTrue(companion_record.size.is_SIZE_6)
+        self.assertTrue(companion_record.size.is_SIZE_1)
+        self.assertTrue(companion_record.orientation.is_HORIZONTAL)
         self.assertEqual(companion_record.weapons, [artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.WEAPON_1,
                                                                              material=tt_artifacts_relations.MATERIAL.MATERIAL_1,
                                                                              power_type=artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL),
@@ -126,6 +128,7 @@ class LogicTests(testcase.TestCase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -151,7 +154,8 @@ class LogicTests(testcase.TestCase):
                                                             features=frozenset((beings_relations.FEATURE.FEATURE_1, beings_relations.FEATURE.FEATURE_3)),
                                                             movement=beings_relations.MOVEMENT.MOVEMENT_4,
                                                             body=beings_relations.BODY.BODY_5,
-                                                            size=beings_relations.SIZE.SIZE_6,
+                                                            size=beings_relations.SIZE.SIZE_1,
+                                                            orientation=beings_relations.ORIENTATION.random(),
                                                             weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.WEAPON_1,
                                                                                               material=tt_artifacts_relations.MATERIAL.MATERIAL_1,
                                                                                               power_type=artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL),
@@ -183,6 +187,7 @@ class LogicTests(testcase.TestCase):
         movement = beings_relations.MOVEMENT.random()
         body = beings_relations.BODY.random()
         size = beings_relations.SIZE.random()
+        orientation = beings_relations.ORIENTATION.random()
         weapons = [artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                             material=tt_artifacts_relations.MATERIAL.random(),
                                             power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())]
@@ -204,6 +209,7 @@ class LogicTests(testcase.TestCase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())])
@@ -231,6 +237,7 @@ class LogicTests(testcase.TestCase):
                                                           movement=movement,
                                                           body=body,
                                                           size=size,
+                                                          orientation=orientation,
                                                           weapons=weapons)
 
         self.assertEqual(companion_record.name, new_name.normal_form())
@@ -250,6 +257,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.movement, movement)
         self.assertEqual(companion_record.body, body)
         self.assertEqual(companion_record.size, size)
+        self.assertEqual(companion_record.orientation, orientation)
         self.assertEqual(companion_record.weapons, weapons)
 
         storage.companions.refresh()
@@ -273,6 +281,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.movement, movement)
         self.assertEqual(companion_record.body, body)
         self.assertEqual(companion_record.size, size)
+        self.assertEqual(companion_record.orientation, orientation)
         self.assertEqual(companion_record.weapons, weapons)
 
     def test_enable_companion_record(self):
@@ -292,6 +301,7 @@ class LogicTests(testcase.TestCase):
         movement = beings_relations.MOVEMENT.random()
         body = beings_relations.BODY.random()
         size = beings_relations.SIZE.random()
+        orientation = beings_relations.ORIENTATION.random()
         weapons = [artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                             material=tt_artifacts_relations.MATERIAL.random(),
                                             power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())]
@@ -313,6 +323,7 @@ class LogicTests(testcase.TestCase):
                                                          movement=movement,
                                                          body=body,
                                                          size=size,
+                                                         orientation=orientation,
                                                          weapons=weapons)
 
         with self.check_increased(lambda: models.CompanionRecord.objects.get(id=companion_record.id).updated_at):
@@ -339,6 +350,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.movement, movement)
         self.assertEqual(companion_record.body, body)
         self.assertEqual(companion_record.size, size)
+        self.assertEqual(companion_record.orientation, orientation)
         self.assertEqual(companion_record.weapons, weapons)
 
         storage.companions.refresh()
@@ -362,6 +374,7 @@ class LogicTests(testcase.TestCase):
         self.assertEqual(companion_record.movement, movement)
         self.assertEqual(companion_record.body, body)
         self.assertEqual(companion_record.size, size)
+        self.assertEqual(companion_record.orientation, orientation)
         self.assertEqual(companion_record.weapons, weapons)
 
     def test_update_companion_record__linguistics_restrictions(self):
@@ -385,6 +398,7 @@ class LogicTests(testcase.TestCase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())])
@@ -408,6 +422,7 @@ class LogicTests(testcase.TestCase):
                                           movement=beings_relations.MOVEMENT.random(),
                                           body=beings_relations.BODY.random(),
                                           size=beings_relations.SIZE.random(),
+                                          orientation=beings_relations.ORIENTATION.random(),
                                           weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                             material=tt_artifacts_relations.MATERIAL.random(),
                                                                             power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())])
@@ -434,6 +449,7 @@ class LogicTests(testcase.TestCase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],

@@ -669,10 +669,8 @@ class LogicAccessorsMixin(object):
     structure = beings_relations.STRUCTURE.STRUCTURE_5
     movement = beings_relations.MOVEMENT.MOVEMENT_2
     body = beings_relations.BODY.BODY_1
-
-    @property
-    def size(self):
-        return self.race.size
+    size = beings_relations.SIZE.SIZE_2
+    orientation = beings_relations.ORIENTATION.VERTICAL
 
     @property
     def communication_telepathic(self):
@@ -709,12 +707,12 @@ class LogicAccessorsMixin(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE, self.structure.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT, self.movement.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_BODY, self.body.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.size.value).id,)
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.size.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION, self.orientation.value).id,)
 
         self._cached_modifiers['#linguistics_restrictions'] = restrictions
 
         return restrictions
-
 
     def linguistics_restrictions(self):
         from the_tale.game.companions import relations as companion_relations

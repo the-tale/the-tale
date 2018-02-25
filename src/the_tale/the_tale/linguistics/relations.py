@@ -172,4 +172,5 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                ('BEING_FEATURE', 47, 'особенность существа', beings_relations.FEATURE, True),
                ('BEING_MOVEMENT', 48, 'способ передвижения', beings_relations.MOVEMENT, True),
                ('BEING_BODY', 49, 'телосложение', beings_relations.BODY, True),
-               ('BEING_SIZE', 50, 'размер', beings_relations.SIZE, True))
+               ('BEING_SIZE', 50, 'размер', beings_relations.SIZE, True),
+               ('BEING_ORIENTATION', 51, 'положение тела', beings_relations.ORIENTATION, True))

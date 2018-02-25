@@ -131,7 +131,8 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT,
                                                                                             relations.TEMPLATE_RESTRICTION_GROUP.BEING_BODY,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_SIZE), ('weapon',)),
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_SIZE,
+                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION), ('weapon',)),
                ('TEXT', 6, 'текст', VARIABLE_VERIFICATOR.TEXT, _construct_text, (), ()),
 
                ('ACTOR', 7, 'герой, монстр или спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
@@ -160,7 +161,8 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.BEING_BODY,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_SIZE), ('weapon',)),
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_SIZE,
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION), ('weapon',)),
 
                ('MODIFIER', 8, 'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
                                                                                                                relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM), ()),

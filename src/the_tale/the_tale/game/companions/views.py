@@ -254,6 +254,7 @@ def create(context):
                                                      movement=context.form.c.movement,
                                                      body=context.form.c.body,
                                                      size=context.form.c.size,
+                                                     orientation=context.form.c.orientation,
                                                      weapons=context.form.get_weapons())
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', companion_record.id)})
 
@@ -296,6 +297,7 @@ def update(context):
                                   movement=context.form.c.movement,
                                   body=context.form.c.body,
                                   size=context.form.c.size,
+                                  orientation=context.form.c.orientation,
                                   weapons=context.form.get_weapons())
     return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})
 
