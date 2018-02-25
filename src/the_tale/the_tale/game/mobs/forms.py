@@ -64,8 +64,9 @@ class MobRecordBaseForm(forms.Form):
     structure = fields.RelationField(label='структура', relation=beings_relations.STRUCTURE)
     features = fields.TypedMultipleChoiceField(label='особенности', choices=beings_relations.FEATURE.choices(), coerce=beings_relations.FEATURE.get_from_name)
     movement = fields.RelationField(label='способ передвижения', relation=beings_relations.MOVEMENT)
-    body = fields.RelationField(label='телосложение', relation=beings_relations.BODY)
-    size = fields.RelationField(label='размер', relation=beings_relations.SIZE)
+    body = fields.RelationField(label='форма тела', relation=beings_relations.BODY)
+    size = fields.RelationField(label='размер тела', relation=beings_relations.SIZE)
+    orientation = fields.RelationField(label='положение тела', relation=beings_relations.ORIENTATION)
 
     weapon_1 = fields.RelationField(label='оружие 1', relation=artifacts_relations.STANDARD_WEAPON)
     material_1 = fields.RelationField(label='материал оружия 1', relation=tt_artifacts_relations.MATERIAL)
@@ -143,6 +144,7 @@ class MobRecordBaseForm(forms.Form):
                     'movement': mob.movement,
                     'body': mob.body,
                     'size': mob.size,
+                    'orientation': mob.orientation,
                     'is_mercenary': mob.is_mercenary,
                     'is_eatable': mob.is_eatable}
 

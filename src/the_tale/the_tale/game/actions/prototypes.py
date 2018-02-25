@@ -640,7 +640,6 @@ class ActionMoveToPrototype(ActionBase):
 
         return choices
 
-
     class STATE(ActionBase.STATE):
         CHOOSE_ROAD = 'choose_road'
         MOVING = 'moving'
@@ -660,7 +659,6 @@ class ActionMoveToPrototype(ActionBase):
     ###########################################
     # Object operations
     ###########################################
-
 
     @classmethod
     def _create(cls, hero, bundle_id, destination, break_at=None):
@@ -804,7 +802,6 @@ class ActionMoveToPrototype(ActionBase):
 
         return length
 
-
     def process_choose_road(self):
         if self.hero.position.place_id:
             length = self.process_choose_road__in_place()
@@ -813,11 +810,6 @@ class ActionMoveToPrototype(ActionBase):
 
         if self.length is None:
             self.length = length
-
-        if self.hero.companion and self.state == self.STATE.MOVING and random.random() < self.hero.companion_teleport_probability:
-            self.hero.add_message('companions_teleport', companion_owner=self.hero, companion=self.hero.companion, destination=self.current_destination)
-            self.teleport_to_place(create_inplace_action=True)
-            return
 
     def normal_move(self):
 
@@ -865,8 +857,6 @@ class ActionMoveToPrototype(ActionBase):
                                    hero=self.hero,
                                    destination=self.destination,
                                    current_destination=current_destination)
-
-
 
     def process_moving(self):
 
@@ -930,6 +920,10 @@ class ActionMoveToPrototype(ActionBase):
 
         if self.state == self.STATE.CHOOSE_ROAD:
             self.process_choose_road()
+
+            if self.hero.companion and self.state == self.STATE.MOVING and random.random() < self.hero.companion_teleport_probability:
+                self.hero.add_message('companions_teleport', companion_owner=self.hero, companion=self.hero.companion, destination=self.current_destination)
+                self.teleport_to_place(create_inplace_action=True)
 
         if self.state == self.STATE.MOVING:
             self.process_moving()

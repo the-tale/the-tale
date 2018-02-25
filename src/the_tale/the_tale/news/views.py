@@ -13,11 +13,12 @@ from the_tale.common.utils.pagination import Paginator
 from the_tale.accounts import views as accounts_views
 from the_tale.accounts import logic as accounts_logic
 
-from . import models
 from . import conf
 from . import logic
 from . import forms
+from . import models
 from . import relations
+from . import meta_relations
 
 from the_tale.forum import prototypes as forum_prototypes
 from the_tale.forum import relations as forum_relations
@@ -148,7 +149,8 @@ def show(context):
     return dext_views.Page('news/show.html',
                            content={'news': context.news,
                                     'thread_data': thread_data,
-                                    'resource': context.resource} )
+                                    'news_meta_object': meta_relations.News.create_from_object(context.news),
+                                    'resource': context.resource})
 
 
 @accounts_views.LoginRequiredProcessor()

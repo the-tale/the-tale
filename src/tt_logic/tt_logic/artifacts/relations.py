@@ -48,7 +48,14 @@ class WEAPON_TYPE(DjangoEnum):
                ('TYPE_28', 28, 'полэкс', (DAMAGE_TYPE.TYPE_6, DAMAGE_TYPE.TYPE_2)),
                ('TYPE_29', 29, 'жало', (DAMAGE_TYPE.TYPE_2,)),
                ('TYPE_30', 30, 'касание энергетическое', (DAMAGE_TYPE.TYPE_8,)),
-               ('TYPE_31', 31, 'хватательная лапа', (DAMAGE_TYPE.TYPE_7, DAMAGE_TYPE.TYPE_4)))
+               ('TYPE_31', 31, 'хватательная лапа', (DAMAGE_TYPE.TYPE_7, DAMAGE_TYPE.TYPE_4)),
+               ('TYPE_32', 32, 'копыто', (DAMAGE_TYPE.TYPE_7,)),
+               ('TYPE_33', 33, 'нога', (DAMAGE_TYPE.TYPE_7,)),
+               ('TYPE_34', 34, 'серп', (DAMAGE_TYPE.TYPE_5,)),
+               ('TYPE_35', 35, 'праща', (DAMAGE_TYPE.TYPE_7,)),
+               ('TYPE_36', 36, 'лук', (DAMAGE_TYPE.TYPE_2,)),
+               ('TYPE_37', 37, 'арбалет', (DAMAGE_TYPE.TYPE_2,)),
+               ('TYPE_38', 38, 'молот', (DAMAGE_TYPE.TYPE_7,)))
 
 
 class MATERIAL(DjangoEnum):
@@ -60,6 +67,7 @@ class MATERIAL(DjangoEnum):
                ('MATERIAL_5', 5, 'хитин'),
                ('MATERIAL_6', 6, 'кристалл'),
                ('MATERIAL_7', 7, 'экзотика'),
-               ('MATERIAL_8', 8, 'ороговевшая кожа'),
+               ('MATERIAL_8', 8, 'роговое образование'),
                ('MATERIAL_9', 9, 'зуб'),
-               ('MATERIAL_10', 10, 'кожа'))
+               ('MATERIAL_10', 10, 'кожа'),
+               ('MATERIAL_11', 11, 'бумага'))

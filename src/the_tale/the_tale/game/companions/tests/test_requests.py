@@ -74,6 +74,7 @@ class IndexRequestsTests(RequestsTestsBase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -96,6 +97,7 @@ class IndexRequestsTests(RequestsTestsBase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -215,6 +217,7 @@ class CreateRequestsTests(RequestsTestsBase):
                 'movement': beings_relations.MOVEMENT.MOVEMENT_3,
                 'body': beings_relations.BODY.BODY_4,
                 'size': beings_relations.SIZE.SIZE_5,
+                'orientation': beings_relations.ORIENTATION.HORIZONTAL,
                 'weapon_1': artifacts_relations.STANDARD_WEAPON.WEAPON_1,
                 'material_1': tt_artifacts_relations.MATERIAL.MATERIAL_1,
                 'power_type_1': artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL,
@@ -268,6 +271,7 @@ class CreateRequestsTests(RequestsTestsBase):
         self.assertTrue(new_companion.movement.is_MOVEMENT_3)
         self.assertTrue(new_companion.body.is_BODY_4)
         self.assertTrue(new_companion.size.is_SIZE_5)
+        self.assertTrue(new_companion.orientation.is_HORIZONTAL)
         self.assertEqual(new_companion.weapons, [artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.WEAPON_1,
                                                                           material=tt_artifacts_relations.MATERIAL.MATERIAL_1,
                                                                           power_type=artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL),
@@ -311,6 +315,7 @@ class ShowRequestsTests(RequestsTestsBase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -333,6 +338,7 @@ class ShowRequestsTests(RequestsTestsBase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -441,6 +447,7 @@ class InfoRequestsTests(RequestsTestsBase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -463,6 +470,7 @@ class InfoRequestsTests(RequestsTestsBase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -554,6 +562,7 @@ class EditRequestsTests(RequestsTestsBase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -603,6 +612,7 @@ class UpdateRequestsTests(RequestsTestsBase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -631,7 +641,8 @@ class UpdateRequestsTests(RequestsTestsBase):
                 'features': [beings_relations.FEATURE.FEATURE_3, beings_relations.FEATURE.FEATURE_4],
                 'movement': beings_relations.MOVEMENT.MOVEMENT_5,
                 'body': beings_relations.BODY.BODY_6,
-                'size': beings_relations.SIZE.SIZE_7,
+                'size': beings_relations.SIZE.SIZE_1,
+                'orientation': beings_relations.ORIENTATION.VERTICAL,
                 'weapon_1': artifacts_relations.STANDARD_WEAPON.WEAPON_4,
                 'material_1': tt_artifacts_relations.MATERIAL.MATERIAL_4,
                 'power_type_1': artifacts_relations.ARTIFACT_POWER_TYPE.MOST_MAGICAL,
@@ -681,7 +692,8 @@ class UpdateRequestsTests(RequestsTestsBase):
         self.assertEqual(companion.features, frozenset((beings_relations.FEATURE.FEATURE_3, beings_relations.FEATURE.FEATURE_4)))
         self.assertTrue(companion.movement.is_MOVEMENT_5)
         self.assertTrue(companion.body.is_BODY_6)
-        self.assertTrue(companion.size.is_SIZE_7)
+        self.assertTrue(companion.size.is_SIZE_1)
+        self.assertTrue(companion.orientation.is_VERTICAL)
         self.assertEqual(companion.weapons, [artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.WEAPON_4,
                                                                       material=tt_artifacts_relations.MATERIAL.MATERIAL_4,
                                                                       power_type=artifacts_relations.ARTIFACT_POWER_TYPE.MOST_MAGICAL),
@@ -725,6 +737,7 @@ class EnableRequestsTests(RequestsTestsBase):
                                                          movement=beings_relations.MOVEMENT.random(),
                                                          body=beings_relations.BODY.random(),
                                                          size=beings_relations.SIZE.random(),
+                                                         orientation=beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],

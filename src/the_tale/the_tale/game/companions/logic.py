@@ -43,6 +43,7 @@ def create_companion_record(utg_name,
                             movement,
                             body,
                             size,
+                            orientation,
                             weapons,
                             state=relations.STATE.DISABLED):
 
@@ -54,6 +55,7 @@ def create_companion_record(utg_name,
             'movement': movement.value,
             'body': body.value,
             'size': size.value,
+            'orientation': orientation.value,
             'weapons': [weapon.serialize() for weapon in weapons]}
 
     model = models.CompanionRecord.objects.create(state=state,
@@ -96,7 +98,8 @@ def create_random_companion_record(name,
                                    features=frozenset((beings_relations.FEATURE.FEATURE_1, beings_relations.FEATURE.FEATURE_3)),
                                    movement=beings_relations.MOVEMENT.MOVEMENT_4,
                                    body=beings_relations.BODY.BODY_5,
-                                   size=beings_relations.SIZE.SIZE_6,
+                                   size=beings_relations.SIZE.SIZE_3,
+                                   orientation=beings_relations.ORIENTATION.VERTICAL,
                                    weapons=None):
     if weapons is None:
         weapons = [artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.WEAPON_1,
@@ -124,6 +127,7 @@ def create_random_companion_record(name,
                                    movement=movement,
                                    body=body,
                                    size=size,
+                                   orientation=orientation,
                                    weapons=weapons)
 
 
@@ -145,6 +149,7 @@ def update_companion_record(companion,
                             movement,
                             body,
                             size,
+                            orientation,
                             weapons):
 
     companion.set_utg_name(utg_name)
@@ -165,6 +170,7 @@ def update_companion_record(companion,
     companion.movement = movement
     companion.body = body
     companion.size = size
+    companion.orientation = orientation
     companion.weapons = weapons
 
     data = {'description': description,
@@ -175,6 +181,7 @@ def update_companion_record(companion,
             'movement': movement.value,
             'body': body.value,
             'size': size.value,
+            'orientation': orientation.value,
             'weapons': [weapon.serialize() for weapon in weapons]}
 
     models.CompanionRecord.objects.filter(id=companion.id).update(state=companion.state,

@@ -23,6 +23,8 @@ from the_tale.game.companions import exceptions
 
 from the_tale.game.companions.abilities import container as abilities_container
 
+from . import exceptions
+
 
 class Companion(object):
     __slots__ = ('record_id', 'health', 'coherence', 'experience', 'healed_at_turn', '_hero', '_heals_count', '_heals_wounds_count')
@@ -91,7 +93,8 @@ class Companion(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE, self.record.structure.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT, self.record.movement.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_BODY, self.record.body.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.record.size.value).id]
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.record.size.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION, self.record.orientation.value).id]
 
         for feature in self.record.features:
             restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE, feature.value).id)
@@ -272,6 +275,7 @@ class CompanionRecord(names.ManageNameMixin2):
                  'movement',
                  'body',
                  'size',
+                 'orientation',
                  'weapons',
 
                  'description',
@@ -299,6 +303,7 @@ class CompanionRecord(names.ManageNameMixin2):
                  movement,
                  body,
                  size,
+                 orientation,
                  weapons,
 
                  abilities,
@@ -323,12 +328,16 @@ class CompanionRecord(names.ManageNameMixin2):
         self.movement = movement
         self.body = body
         self.size = size
+        self.orientation = orientation
         self.weapons = weapons
 
         self.utg_name = utg_name
 
         self.description = description
         self.abilities = abilities
+
+        if not self.weapons:
+            raise exceptions.NoWeaponsError(companion_id=self.id)
 
     def features_verbose(self):
         features = [feature.verbose_text for feature in self.features]
@@ -394,6 +403,7 @@ class CompanionRecord(names.ManageNameMixin2):
                    movement=beings_relations.MOVEMENT(data.get('movement', 0)),
                    body=beings_relations.BODY(data.get('body', 0)),
                    size=beings_relations.SIZE(data.get('size', 0)),
+                   orientation=beings_relations.ORIENTATION(data.get('orientation', 0)),
                    weapons=weapons)
 
     @property

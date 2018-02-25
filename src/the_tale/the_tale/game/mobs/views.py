@@ -206,6 +206,7 @@ class GameMobResource(MobResourceBase):
                                       movement=form.c.movement,
                                       body=form.c.body,
                                       size=form.c.size,
+                                      orientation=form.c.orientation,
                                       weapons=form.get_weapons(),
 
                                       is_eatable=form.c.is_eatable)
@@ -219,7 +220,7 @@ class GameMobResource(MobResourceBase):
         form = forms.MobRecordForm(initial=forms.MobRecordForm.get_initials(self.mob))
 
         return self.template('mobs/edit.html', {'mob': self.mob,
-                                                'form': form} )
+                                                'form': form})
 
     @login_required
     @validate_disabled_state()

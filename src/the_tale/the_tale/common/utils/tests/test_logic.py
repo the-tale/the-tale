@@ -12,12 +12,11 @@ from ..logic import split_into_table
 from ..logic import days_range
 from ..logic import randint_from_1
 from ..logic import absolutize_urls
-from ..logic import log_diminishing_sequence
 
 from the_tale.common.utils.decorators import lazy_property
 
 
-_get_or_create_state = None # for get_or_create tests
+_get_or_create_state = None  # for get_or_create tests
 
 
 class LogicTest(testcase.TestCase):

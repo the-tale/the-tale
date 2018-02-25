@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 import re
 
 from django.forms import ValidationError
@@ -12,7 +12,6 @@ from the_tale.linguistics.forms import WordField
 from the_tale.game.relations import GENDER, RACE
 
 from the_tale.game.heroes import models
-from the_tale.game.heroes import relations
 from the_tale.game.heroes import conf
 
 
@@ -44,7 +43,6 @@ class EditNameForm(forms.Form):
             name.properties = name.properties.clone(cleaned_data['gender'].utg_id)
 
         return cleaned_data
-
 
     @classmethod
     def get_initials(cls, hero):
