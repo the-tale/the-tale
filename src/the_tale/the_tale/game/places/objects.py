@@ -413,7 +413,10 @@ class Place(names.ManageNameMixin2):
             speed_sum = 0
 
             for effect in stability_effects:
-                delta = speed / divider
+                delta = 0
+
+                if divider < 1000:
+                    delta = speed / divider
 
                 effect.delta = delta
                 speed_sum += delta
