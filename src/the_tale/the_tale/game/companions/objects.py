@@ -23,6 +23,8 @@ from the_tale.game.companions import exceptions
 
 from the_tale.game.companions.abilities import container as abilities_container
 
+from . import exceptions
+
 
 class Companion(object):
     __slots__ = ('record_id', 'health', 'coherence', 'experience', 'healed_at_turn', '_hero', '_heals_count', '_heals_wounds_count')
@@ -333,6 +335,9 @@ class CompanionRecord(names.ManageNameMixin2):
 
         self.description = description
         self.abilities = abilities
+
+        if not self.weapons:
+            raise exceptions.NoWeaponsError(companion_id=self.id)
 
     def features_verbose(self):
         features = [feature.verbose_text for feature in self.features]

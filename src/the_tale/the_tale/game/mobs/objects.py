@@ -21,6 +21,8 @@ from the_tale.game.actions import relations as actions_relations
 
 from the_tale.game.artifacts import storage as artifacts_storage
 
+from . import exceptions
+
 
 class Mob(object):
     __slots__ = ('record_id',
@@ -289,6 +291,9 @@ class MobRecord(names.ManageNameMixin2):
         self.weapons = weapons
 
         self.utg_name = utg_name
+
+        if not self.weapons:
+            raise exceptions.NoWeaponsError(mob_id=self.id)
 
     @property
     def description_html(self): return bbcode.render(self.description)
