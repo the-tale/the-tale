@@ -2,13 +2,17 @@
 
 {% import 'macros.html' as base_macros with context %}
 {% import 'forum/thread_page.html' as thread_page with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
 
 {% block title %}{{ news.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Новость: «{{news.caption}}».{% endblock %}
 
 {% block news_content %}
 
-  <h2>{{news.caption}}</h2>
+  <h2>
+    {{news.caption}}
+    {{ base_macros.magnet(news_meta_object) }}
+  </h2>
 
   <div class="pagination">
     <ul>
@@ -58,6 +62,13 @@
   </div>
 
   {{ news.html_content|safe }}
+
+  {% set folclor_objects = posts_about(news_meta_object) %}
+
+  {% if folclor_objects %}
+  <h3>Произведения о новости</h3>
+  {{ blogs_macros.meta_posts_list(folclor_objects) }}
+  {% endif %}
 
   {% if thread_data %}
   {{ thread_page.thread_page(thread_data) }}
