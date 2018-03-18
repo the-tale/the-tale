@@ -342,6 +342,7 @@ class Place(names.ManageNameMixin2):
         transport = 0
         stability = 0
         culture = 0
+        freedom = 0
 
         for effect in self._effects_generator():
             if effect.attribute.order != order:
@@ -354,6 +355,8 @@ class Place(names.ManageNameMixin2):
                 stability += effect.value
             if effect.attribute.is_CULTURE:
                 culture += effect.value
+            if effect.attribute.is_FREEDOM:
+                freedom += effect.value
             yield effect
 
         if relations.ATTRIBUTE.SAFETY.order == order:
@@ -375,6 +378,10 @@ class Place(names.ManageNameMixin2):
         if relations.ATTRIBUTE.CULTURE.order == order:
             if culture < c.PLACE_MIN_CULTURE:
                 yield effects.Effect(name='бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
+
+        if relations.ATTRIBUTE.FREEDOM.order == order:
+            if freedom < c.PLACE_MIN_FREEDOM:
+                yield effects.Effect(name='Пять звёзд', attribute=relations.ATTRIBUTE.FREEDOM, value=c.PLACE_MIN_FREEDOM - freedom)
 
     def effects_for_attribute(self, attribute):
         for effect in self.effects_generator(attribute.order):
