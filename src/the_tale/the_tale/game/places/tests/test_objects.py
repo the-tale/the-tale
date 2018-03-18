@@ -259,6 +259,15 @@ class PlaceTests(testcase.TestCase):
 
         self.assertTrue(-0.001 < self.p1.attrs.freedom - (1000 + 100 * len(self.p1.persons) + 1.0 + 0.1) < 0.001)
 
+    def test_refresh_attributes__freedom__min_value(self):
+        self.p1.effects.add(effects.Effect(name='test', attribute=relations.ATTRIBUTE.FREEDOM, value=-1000))
+
+        self._create_test_exchanges()
+
+        self.p1.refresh_attributes()
+
+        self.assertTrue(-0.001 < self.p1.attrs.freedom - c.PLACE_MIN_FREEDOM < 0.001)
+
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)
