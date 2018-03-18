@@ -11,7 +11,9 @@ class DAMAGE_TYPE(DjangoEnum):
                ('TYPE_5', 5, 'режущий'),
                ('TYPE_6', 6, 'рубящий'),
                ('TYPE_7', 7, 'ударный'),
-               ('TYPE_8', 8, 'энергетический'))
+               ('TYPE_8', 8, 'энергетический'),
+               ('TYPE_9', 9, 'стрелковый колющий'),
+               ('TYPE_10', 10, 'стрелковый ударный'),)
 
 
 class WEAPON_TYPE(DjangoEnum):
@@ -52,10 +54,11 @@ class WEAPON_TYPE(DjangoEnum):
                ('TYPE_32', 32, 'копыто', (DAMAGE_TYPE.TYPE_7,)),
                ('TYPE_33', 33, 'нога', (DAMAGE_TYPE.TYPE_7,)),
                ('TYPE_34', 34, 'серп', (DAMAGE_TYPE.TYPE_5,)),
-               ('TYPE_35', 35, 'праща', (DAMAGE_TYPE.TYPE_7,)),
-               ('TYPE_36', 36, 'лук', (DAMAGE_TYPE.TYPE_2,)),
-               ('TYPE_37', 37, 'арбалет', (DAMAGE_TYPE.TYPE_2,)),
-               ('TYPE_38', 38, 'молот', (DAMAGE_TYPE.TYPE_7,)))
+               ('TYPE_35', 35, 'праща', (DAMAGE_TYPE.TYPE_10,)),
+               ('TYPE_36', 36, 'лук', (DAMAGE_TYPE.TYPE_9,)),
+               ('TYPE_37', 37, 'арбалет', (DAMAGE_TYPE.TYPE_9,)),
+               ('TYPE_38', 38, 'молот', (DAMAGE_TYPE.TYPE_7,)),
+               ('TYPE_39', 39, 'шипастый хвост', (DAMAGE_TYPE.TYPE_7, DAMAGE_TYPE.TYPE_2)))
 
 
 class MATERIAL(DjangoEnum):
@@ -70,4 +73,18 @@ class MATERIAL(DjangoEnum):
                ('MATERIAL_8', 8, 'роговое образование'),
                ('MATERIAL_9', 9, 'зуб'),
                ('MATERIAL_10', 10, 'кожа'),
-               ('MATERIAL_11', 11, 'бумага'))
+               ('MATERIAL_11', 11, 'бумага'),
+               ('MATERIAL_12', 12, 'глина'),
+               ('MATERIAL_13', 13, 'жилы'),
+               ('MATERIAL_14', 14, 'лыко'),
+               ('MATERIAL_15', 15, 'плоть'),
+               ('MATERIAL_16', 16, 'перья'),
+               ('MATERIAL_17', 17, 'песок'),
+               ('MATERIAL_18', 18, 'стекло'),
+               ('MATERIAL_19', 19, 'ткань'),
+               ('MATERIAL_20', 20, 'уголь'),
+               ('MATERIAL_21', 21, 'чешуя'),
+               ('MATERIAL_22', 22, 'шерсть'),
+               ('MATERIAL_23', 23, 'шкура'),
+               ('MATERIAL_24', 24, 'энергия'),
+               ('MATERIAL_25', 25, 'янтарь'))
