@@ -30,7 +30,7 @@ Vagrant.configure("2") do |config|
         mgs_vm.vm.provider "virtualbox" do |vb|
             vb.name = "the_tale"
             vb.customize ["modifyvm", :id, "--memory", "4096"]
-            vb.customize ["modifyvm", :id, "--cpus", "2"]
+            vb.customize ["modifyvm", :id, "--cpus", "1"]
             vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
             vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
             vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
