@@ -193,7 +193,6 @@ class GameMobResource(MobResourceBase):
                                       abilities=form.c.abilities,
                                       terrains=form.c.terrains,
                                       editor=self.account,
-                                      global_action_probability=form.c.global_action_probability,
                                       state=relations.MOB_RECORD_STATE.DISABLED,
                                       communication_verbal=form.c.communication_verbal,
                                       communication_gestures=form.c.communication_gestures,

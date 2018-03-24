@@ -290,7 +290,7 @@ class GuideResource(Resource):
         from the_tale.game.mobs import storage as mobs_storage
         return self.template('guide/press_kit.html',
                              {'section': 'press-kit',
-                              'mob': random.choice(mobs_storage.mobs.get_available_mobs_list(level=666))})
+                              'mob': random.choice(mobs_storage.mobs.get_all_mobs_for_level(level=666))})
 
     @handler('world')
     def world(self):

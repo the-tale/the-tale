@@ -65,8 +65,8 @@ class HeroPreferencesMobTest(TestCase):
         self.hero.level = relations.PREFERENCE_TYPE.MOB.level_required
         logic.save_hero(self.hero)
 
-        self.mob_uuid = mobs_storage.mobs.get_available_mobs_list(level=self.hero.level)[0].uuid
-        self.mob_2_uuid = mobs_storage.mobs.get_available_mobs_list(level=self.hero.level)[1].uuid
+        self.mob_uuid = mobs_storage.mobs.get_all_mobs_for_level(level=self.hero.level)[0].uuid
+        self.mob_2_uuid = mobs_storage.mobs.get_all_mobs_for_level(level=self.hero.level)[1].uuid
 
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mobs_storage.mobs.all()[0])

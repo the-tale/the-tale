@@ -1,15 +1,14 @@
 
-import random
-
 from dext.common.utils import storage
 
 from tt_logic.beings import relations as beings_relations
 
-from the_tale.common.utils.logic import random_value_by_priority
+from the_tale.common.utils import logic as common_logic
 
 from . import logic
 from . import models
 from . import objects
+from . import filters
 from . import exceptions
 
 
@@ -43,44 +42,38 @@ class MobsStorage(storage.CachedStorage):
 
     def mob_type_fraction(self, mob_type): return self._types_count[mob_type] / float(self.mobs_number)
 
-    def get_available_mobs_list(self, level, terrain=None, mercenary=None):
+    def get_all_mobs_for_level(self, level):
+        self.sync()
+        return [mob for mob in self.all() if mob.state.is_ENABLED and mob.level <= level]
+
+    def _get_mobs_choices(self, level, terrain, mercenary):
         self.sync()
 
-        mobs = (record
-                for record in self.all()
-                if record.state.is_ENABLED and record.level <= level and (terrain is None or terrain in record.terrains))
+        mobs = ((mob, 1) for mob in self.all() if mob.state.is_ENABLED)
+
+        mobs = filters.restrict_level(mobs, level=level)
+
+        mobs = filters.restrict_terrain(mobs, terrain)
 
         if mercenary is not None:
-            mobs = (record for record in mobs if record.is_mercenary == mercenary)
+            mobs = filters.restrict_mercenary(mobs, mercenary)
 
-        return list(mobs)
+        # first april joke
+        # mobs = filters.change_type_priority(mobs, types=(beings_relations.TYPE.UNDEAD,), delta=7)
 
-    def choose_mob(self, mobs_choices):
-        global_actions_mobs = []
-        normal_mobs = []
-
-        for mob in mobs_choices:
-            if mob.global_action_probability > 0:
-                global_actions_mobs.append(mob)
-            else:
-                normal_mobs.append(mob)
-
-        action_probability = sum(mob.global_action_probability for mob in global_actions_mobs if mob.global_action_probability)
-
-        if random.random() > action_probability:
-            return random.choice(normal_mobs)
-
-        return random_value_by_priority((mob, mob.global_action_probability) for mob in global_actions_mobs)
+        return mobs
 
     def get_random_mob(self, hero, mercenary=None, is_boss=False):
         self.sync()
 
-        choices = self.get_available_mobs_list(level=hero.level, terrain=hero.position.get_terrain(), mercenary=mercenary)
+        mobs = self._get_mobs_choices(level=hero.level,
+                                      terrain=hero.position.get_terrain(),
+                                      mercenary=mercenary)
 
-        if not choices:
+        if not mobs:
             return None
 
-        mob_record = self.choose_mob(choices)
+        mob_record = common_logic.random_value_by_priority(mobs)
 
         return objects.Mob(record_id=mob_record.id,
                            level=hero.level,

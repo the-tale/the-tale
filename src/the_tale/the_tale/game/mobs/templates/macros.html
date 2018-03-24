@@ -97,13 +97,6 @@
         <td>{% if mob.is_eatable %} да {% else %} нет {% endif %}</td>
       </tr>
 
-      {% if for_moderator %}
-      <tr>
-        <th>участие в событии</th>
-        <td>{{mob.global_action_probability}}</td>
-      </tr>
-      {% endif %}
-
     </tbody>
   </table>
 

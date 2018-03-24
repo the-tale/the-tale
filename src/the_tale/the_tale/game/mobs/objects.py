@@ -175,7 +175,7 @@ class Mob(object):
         level = data['level']
 
         if record is None or record.state.is_DISABLED:
-            record = random.choice(storage.mobs.get_available_mobs_list(level))
+            record = random.choice(storage.mobs.get_all_mobs_for_level(level))
 
         abilities = cls._produce_abilities(record, level)
 
@@ -219,7 +219,6 @@ class MobRecord(names.ManageNameMixin2):
                  'intellect_level',
                  'is_mercenary',
                  'is_eatable',
-                 'global_action_probability',
                  'abilities',
                  'terrains',
                  'utg_name',
@@ -251,7 +250,6 @@ class MobRecord(names.ManageNameMixin2):
                  intellect_level,
                  is_mercenary,
                  is_eatable,
-                 global_action_probability,
                  abilities,
                  terrains,
 
@@ -278,7 +276,6 @@ class MobRecord(names.ManageNameMixin2):
         self.intellect_level = intellect_level
         self.is_mercenary = is_mercenary
         self.is_eatable = is_eatable
-        self.global_action_probability = global_action_probability
         self.abilities = abilities
         self.terrains = terrains
 

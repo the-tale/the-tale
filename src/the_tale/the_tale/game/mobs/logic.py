@@ -37,7 +37,6 @@ def create_mob_record(uuid,
                       archetype,
                       editor,
                       state,
-                      global_action_probability,
                       communication_verbal,
                       communication_gestures,
                       communication_telepathic,
@@ -55,7 +54,6 @@ def create_mob_record(uuid,
     from the_tale.game.mobs import storage
 
     data = {'name': utg_name.serialize(),
-            'global_action_probability': global_action_probability,
             'structure': structure.value,
             'features': [feature.value for feature in features],
             'movement': movement.value,
@@ -108,7 +106,6 @@ def create_random_mob_record(uuid,
                              abilities_number=3,
                              terrains=map_relations.TERRAIN.records,
                              state=relations.MOB_RECORD_STATE.ENABLED,
-                             global_action_probability=0,
                              structure=beings_relations.STRUCTURE.STRUCTURE_2,
                              features=frozenset((beings_relations.FEATURE.FEATURE_1, beings_relations.FEATURE.FEATURE_3)),
                              movement=beings_relations.MOVEMENT.MOVEMENT_4,
@@ -154,7 +151,6 @@ def create_random_mob_record(uuid,
                              abilities=abilities,
                              terrains=terrains,
                              state=state,
-                             global_action_probability=global_action_probability,
                              structure=structure,
                              features=features,
                              movement=movement,
@@ -181,7 +177,6 @@ def update_by_creator(mob, form, editor):
     mob.abilities = form.c.abilities
     mob.type = form.c.type
     mob.archetype = form.c.archetype
-    mob.global_action_probability = form.c.global_action_probability
     mob.editor_id = editor.id if editor else None
     mob.is_mercenary = form.c.is_mercenary
     mob.is_eatable = form.c.is_eatable
@@ -212,7 +207,6 @@ def update_by_moderator(mob, form, editor=None):
     mob.state = relations.MOB_RECORD_STATE.ENABLED if form.c.approved else relations.MOB_RECORD_STATE.DISABLED
     mob.type = form.c.type
     mob.archetype = form.c.archetype
-    mob.global_action_probability = form.c.global_action_probability
     mob.editor_id = editor.id if editor is not None else None
     mob.is_mercenary = form.c.is_mercenary
     mob.is_eatable = form.c.is_eatable
@@ -258,7 +252,6 @@ def construct_from_model(model):
                             intellect_level=model.intellect_level,
                             is_mercenary=model.is_mercenary,
                             is_eatable=model.is_eatable,
-                            global_action_probability=data.get('global_action_probability', 0),
                             abilities=abilities,
                             terrains=terrains,
                             structure=beings_relations.STRUCTURE(data.get('structure', 0)),
@@ -278,8 +271,7 @@ def save_mob_record(mob):
     if id(mob) != id(storage.mobs[mob.id]):
         raise exceptions.SaveNotRegisteredMobError(mob=mob.id)
 
-    data = {'global_action_probability': mob.global_action_probability,
-            'name': mob.utg_name.serialize(),
+    data = {'name': mob.utg_name.serialize(),
             'structure': mob.structure.value,
             'features': [feature.value for feature in mob.features],
             'movement': mob.movement.value,
