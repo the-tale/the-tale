@@ -21,7 +21,7 @@
 
       {% if not thread_data.inline %}
       <li>
-        {{ base_macros.addthis_short("Форум: "+ thread_data.thread.caption, '', url=full_url('http', 'forum:threads:show', thread_data.thread.id)) }}
+        {{ base_macros.addthis_short("Форум: "+ thread_data.thread.caption, '', url=full_url('https', 'forum:threads:show', thread_data.thread.id)) }}
       </li>
       {% endif %}
 

@@ -216,7 +216,7 @@ jQuery(document).ready(function(){
                     <li style="margin: 0.5em;">
                       bb-код:<br/>
                       <code style="display: block;">
-                        [url={{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id} )}}]<br/>
+                        [url={{full_url('https', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id} )}}]<br/>
                         [img]{{informer_link}}[/img]<br/>
                         [/url]
                       </code>
@@ -224,7 +224,7 @@ jQuery(document).ready(function(){
                     <li style="margin: 0.5em;">
                       html-код:<br/>
                       <code style="display: block;">
-                        &lt;a href="{{full_url('http', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id})}}"&gt;<br/>
+                        &lt;a href="{{full_url('https', 'accounts:show', master_account.id, **{accounts_settings.REFERRAL_URL_ARGUMENT: master_account.id})}}"&gt;<br/>
                         &lt;img width="{{accounts_settings.INFORMER_WIDTH}}px" height="{{accounts_settings.INFORMER_HEIGHT}}px" src="{{informer_link}}"&gt;&lt;/src&gt;<br/>
                         &lt;/a&gt;
                       </code>
