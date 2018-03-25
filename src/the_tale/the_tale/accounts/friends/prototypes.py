@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.db import models
 
@@ -29,7 +28,7 @@ class FriendshipPrototype(BasePrototype):
         self._model.is_confirmed = True
         self.save()
 
-        account_link='[url={}]{}[/url]'.format(full_url('http', 'accounts:show', self.friend_2.id), self.friend_2.nick_verbose)
+        account_link='[url={}]{}[/url]'.format(full_url('https', 'accounts:show', self.friend_2.id), self.friend_2.nick_verbose)
         message = 'игрок {account_link} подтвердил, что вы являетесь друзьями'.format(account_link=account_link)
 
         pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
@@ -114,9 +113,9 @@ class FriendshipPrototype(BasePrototype):
 
 ----------
 принять или отклонить предложение вы можете на этой странице: %(friends_link)s
-''' % {'account_link': '[url="%s"]%s[/url]' % (full_url('http', 'accounts:show', friend_1.id), friend_1.nick_verbose),
+''' % {'account_link': '[url="%s"]%s[/url]' % (full_url('https', 'accounts:show', friend_1.id), friend_1.nick_verbose),
        'text': text,
-       'friends_link': '[url="%s"]предложения дружбы[/url]' % full_url('http', 'accounts:friends:candidates')}
+       'friends_link': '[url="%s"]предложения дружбы[/url]' % full_url('https', 'accounts:friends:candidates')}
 
         # send message from name of user, who request friendship
         # since many users try to respod to system user
@@ -134,7 +133,7 @@ class FriendshipPrototype(BasePrototype):
         if request is None:
             return
 
-        account_link = '[url="{}"]{}[/url]'.format(full_url('http', 'accounts:show', initiator.id), initiator.nick_verbose)
+        account_link = '[url="{}"]{}[/url]'.format(full_url('https', 'accounts:show', initiator.id), initiator.nick_verbose)
 
         if request.is_confirmed:
             message = 'игрок {account_link} удалил вас из списка друзей'.format(account_link=account_link)

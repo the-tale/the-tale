@@ -17,7 +17,7 @@
 <div class="pagination">
   <ul>
     <li>
-      {{ base_macros.addthis_short("Запись «%s»" % bill.caption, "Запись «%s»" % bill.caption, url=full_url('http', 'game:bills:show', bill.id)) }}
+      {{ base_macros.addthis_short("Запись «%s»" % bill.caption, "Запись «%s»" % bill.caption, url=full_url('https', 'game:bills:show', bill.id)) }}
     </li>
 
     {% if bill.state.is_VOTING %}

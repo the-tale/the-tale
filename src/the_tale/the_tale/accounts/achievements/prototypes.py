@@ -141,14 +141,14 @@ class AccountAchievementsPrototype(BasePrototype):
         if approved_rewards:
             reward_texts = []
             for item in approved_rewards:
-                reward_texts.append( '[url=%s#k%d]%s[/url]' % (full_url('http', 'collections:collections:show', item.kit.collection.id),
+                reward_texts.append( '[url=%s#k%d]%s[/url]' % (full_url('https', 'collections:collections:show', item.kit.collection.id),
                                                                 item.kit.id,
                                                                 item.caption))
             rewards_message = 'Награды: %s' % ', '.join(reward_texts)
 
 
         message = ('Вы заработали достижение «%(achievement)s» — %(description)s. %(rewards_message)s' %
-                   {'achievement': '[url=%s#a%d]%s[/url]' % (full_url('http', 'accounts:achievements:group', achievement.group.slug),
+                   {'achievement': '[url=%s#a%d]%s[/url]' % (full_url('https', 'accounts:achievements:group', achievement.group.slug),
                                                               achievement.id,
                                                               achievement.caption),
                     'description': achievement.description,

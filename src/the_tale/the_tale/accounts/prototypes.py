@@ -207,7 +207,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
 Вы можете продлить подписку на странице нашего %(shop_link)s.
 ''' % {'verbose_timedelta': verbose_timedelta(self.premium_end_at - current_time),
-       'shop_link': '[url="%s"]магазина[/url]' % full_url('http', 'shop:')}
+       'shop_link': '[url="%s"]магазина[/url]' % full_url('https', 'shop:')}
 
         pm_tt_api.send_message(logic.get_system_user_id(), [self.id], message, async=True)
 

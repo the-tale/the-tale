@@ -326,7 +326,7 @@ def give_reward_for_template(template):
 
     message = '''Поздравляем! Ваша [url={template}]фраза[/url] добавлена в игру!\n\nВ награду вы можете получить дополнительную карту судьбы (на странице игры). Карту можно будет продать на рынке.'''
 
-    message = message.format(template=full_url('http', 'linguistics:templates:show', template.id))
+    message = message.format(template=full_url('https', 'linguistics:templates:show', template.id))
 
     pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
                            recipients_ids=[template.author_id],

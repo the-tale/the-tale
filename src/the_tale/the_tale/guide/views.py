@@ -265,7 +265,7 @@ class GuideResource(Resource):
         return self.template('guide/referrals.html', {'section': 'referrals',
                                                       'account': self.account,
                                                       'accounts_settings': accounts_settings,
-                                                      'referral_link': full_url('http', 'portal:',
+                                                      'referral_link': full_url('https', 'portal:',
                                                                                 **{accounts_settings.REFERRAL_URL_ARGUMENT: self.account.id if self.account else None})})
 
     @handler('zero-player-game', name='zpg', method='get')
