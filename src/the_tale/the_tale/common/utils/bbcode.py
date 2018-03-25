@@ -172,8 +172,8 @@ class BBField(fields.TextField):
 <a class="pgf-bb-command" href="#" data-tag="u" rel="tooltip" title="<u>подчёркнутый</u>">[u]</a>
 <a class="pgf-bb-command" href="#" data-tag="s" rel="tooltip" title="<strike>зачёркнутый</strike>">[s]</a>
 <a class="pgf-bb-command" href="#" data-tag="quote" rel="tooltip" title="<blockquote>цитата</blockquote>">[quote]</a>
-<a class="pgf-bb-command" href="#" data-tag="img" rel="tooltip" title="[img]http://адрес картинки[/img]">[img]</a>
-<a class="pgf-bb-command" href="#" data-tag="url" rel="tooltip" title=\'[url="http://адрес"]текст[/url]\'>[url]</a>
+<a class="pgf-bb-command" href="#" data-tag="img" rel="tooltip" title="[img]https://адрес картинки[/img]">[img]</a>
+<a class="pgf-bb-command" href="#" data-tag="url" rel="tooltip" title=\'[url="https://адрес"]текст[/url]\'>[url]</a>
 <a class="pgf-bb-command" href="#" data-tag="spoiler" rel="tooltip" title=\'[spoiler="опциональный текст"]скрытое содержимое[/spoiler]\'>[spoiler]</a>
 <a class="pgf-bb-command" href="#" data-tag="list" rel="tooltip" title="[list]список[/list]">[list]</a>
 <a class="pgf-bb-command" href="#" data-tag="*" data-single="true" rel="tooltip" title="[*]элемент списка">[*]</a>

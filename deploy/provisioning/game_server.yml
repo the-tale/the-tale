@@ -1,4 +1,4 @@
 
-- include: operations/infrastructure.yml
+- import_playbook: operations/infrastructure.yml
 
-- include: operations/services.yml
+- import_playbook: operations/services.yml

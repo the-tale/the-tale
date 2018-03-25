@@ -1,5 +1,5 @@
 - name: install The Tale
-  include: ../tasks/tt_service.yml
+  import_playbook: ../tasks/tt_service.yml
   vars:
     name: The Tale
     user: the_tale
@@ -10,7 +10,7 @@
 
 
 - name: install TT Diary
-  include: ../tasks/tt_service.yml
+  import_playbook: ../tasks/tt_service.yml
   vars:
     name: TT Diary
     user: tt_diary
@@ -21,7 +21,7 @@
 
 
 - name: install TT Personal Messages
-  include: ../tasks/tt_service.yml
+  import_playbook: ../tasks/tt_service.yml
   vars:
     name: TT Personal Messages
     user: tt_personal_messages
@@ -32,7 +32,7 @@
 
 
 - name: install TT Storage
-  include: ../tasks/tt_service.yml
+  import_playbook: ../tasks/tt_service.yml
   vars:
     name: TT Storage
     user: tt_storage
@@ -43,7 +43,7 @@
 
 
 - name: install TT Market
-  include: ../tasks/tt_service.yml
+  import_playbook: ../tasks/tt_service.yml
   vars:
     name: TT Market
     user: tt_market
@@ -54,7 +54,7 @@
 
 
 - name: install TT soft currency
-  include: ../tasks/tt_service.yml
+  import_playbook: ../tasks/tt_service.yml
   vars:
     name: TT soft currency
     user: tt_soft_currency
@@ -65,7 +65,7 @@
 
 
 - name: install TT players timers
-  include: ../tasks/tt_service.yml
+  import_playbook: ../tasks/tt_service.yml
   vars:
     name: TT players timers
     user: tt_players_timers
@@ -76,7 +76,7 @@
 
 
 - name: install services cron files
-  include: ../tasks/tt_cron.yml
+  import_playbook: ../tasks/tt_cron.yml
 
 
 - name: The Tale postupdate operations

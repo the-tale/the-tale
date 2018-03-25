@@ -126,7 +126,7 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.hero.level = relations.PREFERENCE_TYPE.MOB.level_required
         logic.save_hero(self.hero)
 
-        self.mob = mobs_storage.mobs.get_available_mobs_list(level=self.hero.level)[0].create_mob(self.hero)
+        self.mob = mobs_storage.mobs.get_all_mobs_for_level(level=self.hero.level)[0].create_mob(self.hero)
 
         self.assertEqual(self.hero.preferences.mob, None)
 

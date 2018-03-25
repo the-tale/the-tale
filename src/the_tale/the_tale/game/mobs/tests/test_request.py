@@ -42,7 +42,6 @@ class PostMixin(object):
                      'abilities': ['hit', 'strong_hit', 'sidestep'],
                      'type': beings_relations.TYPE.CIVILIZED,
                      'archetype': game_relations.ARCHETYPE.NEUTRAL,
-                     'global_action_probability': 0.5,
                      'description': 'mob description',
                      'communication_verbal': beings_relations.COMMUNICATION_VERBAL.CAN,
                      'communication_gestures': beings_relations.COMMUNICATION_GESTURES.CAN,
@@ -74,7 +73,6 @@ class PostMixin(object):
                      'abilities': ['hit', 'speedup'],
                      'type': beings_relations.TYPE.ANIMAL,
                      'archetype': game_relations.ARCHETYPE.MAGICAL,
-                     'global_action_probability': 0.1,
                      'description': 'new description',
                      'communication_verbal': beings_relations.COMMUNICATION_VERBAL.CAN_NOT,
                      'communication_gestures': beings_relations.COMMUNICATION_GESTURES.CAN_NOT,
@@ -249,7 +247,6 @@ class TestCreateRequests(BaseTestRequests, PostMixin):
         self.assertTrue(mob_record.state.is_DISABLED)
         self.assertTrue(mob_record.type.is_CIVILIZED)
         self.assertTrue(mob_record.archetype.is_NEUTRAL)
-        self.assertEqual(mob_record.global_action_probability, 0.5)
         self.assertTrue(mob_record.editor_id, self.account_2.id)
         self.assertTrue(mob_record.communication_verbal.is_CAN)
         self.assertTrue(mob_record.communication_gestures.is_CAN)
@@ -442,7 +439,6 @@ class TestUpdateRequests(BaseTestRequests, PostMixin):
         self.assertTrue(mob.state.is_DISABLED)
         self.assertEqual(mob.type, data['type'])
         self.assertEqual(mob.archetype, data['archetype'])
-        self.assertEqual(mob.global_action_probability, data['global_action_probability'])
         self.assertEqual(mob.editor_id, self.account_2.id)
         self.assertEqual(mob.communication_verbal, data['communication_verbal'])
         self.assertEqual(mob.communication_gestures, data['communication_gestures'])

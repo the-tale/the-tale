@@ -208,7 +208,7 @@ class DevelopersInfoResource(Resource):
         mobs_without_loot_on_first_level = []
         mobs_without_artifacts_on_first_level = []
 
-        for mob in mobs_storage.mobs.get_available_mobs_list(level=999999):
+        for mob in mobs_storage.mobs.get_all_mobs_for_level(level=999999):
             if not mob.loot:
                 mobs_without_loot.append(mob)
             elif not any(loot.level == mob.level for loot in mob.loot):
@@ -223,7 +223,7 @@ class DevelopersInfoResource(Resource):
 
         mobs_by_territory = {terrain.name:[0]*len(territory_levels_checks) for terrain in TERRAIN.records}
 
-        for mob in mobs_storage.mobs.get_available_mobs_list(level=999999):
+        for mob in mobs_storage.mobs.get_all_mobs_for_level(level=999999):
             for terrain in mob.terrains:
                 for i, level in enumerate(territory_levels_checks):
                     if level >= mob.level:

@@ -44,8 +44,6 @@ class MobRecordBaseForm(forms.Form):
     type = fields.TypedChoiceField(label='тип', choices=MOB_TYPE_CHOICES, coerce=beings_relations.TYPE.get_from_name)
     archetype = fields.TypedChoiceField(label='тип', choices=game_relations.ARCHETYPE.choices(), coerce=game_relations.ARCHETYPE.get_from_name)
 
-    global_action_probability = fields.FloatField(label='вероятность встретить монстра, если идёт его набег (от 0 до 1, 0 — нет набега)')
-
     terrains = fields.TypedMultipleChoiceField(label='места обитания', choices=TERRAIN.choices(), coerce=TERRAIN.get_from_name)
 
     abilities = fields.MultipleChoiceField(label='способности', choices=ABILITY_CHOICES)
@@ -132,7 +130,6 @@ class MobRecordBaseForm(forms.Form):
                     'name': mob.utg_name,
                     'archetype': mob.archetype,
                     'level': mob.level,
-                    'global_action_probability': mob.global_action_probability,
                     'terrains': mob.terrains,
                     'abilities': mob.abilities,
                     'communication_verbal': mob.communication_verbal,

@@ -6,3 +6,4 @@
 - src: Stouts.backup
 - src: ANXS.postgresql
 - src: Datadog.datadog
+- src: geerlingguy.certbot

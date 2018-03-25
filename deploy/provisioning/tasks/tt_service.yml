@@ -58,7 +58,7 @@
         virtualenv_python: python3.5
       with_items:
         - {name: django-test-without-migrations}
-      when: "{{tt_test_enviroment}}"
+      when: tt_test_enviroment
 
     - name: install settings.py
       template:
@@ -68,14 +68,14 @@
         owner: "{{user}}"
         group: "{{user}}"
 
-      when: "{{tt_services[user].get('settings_local') is not none}}"
+      when: tt_services[user].get('settings_local') is not none
 
     - name: run migrations
       raw: "cd /home/{{user}}/current && . /home/{{user}}/current/venv/bin/activate && django-admin migrate --settings {{django_settings}}"
 
     - name: collect {{name}} static files
       raw: "cd /home/{{user}}/current && . /home/{{user}}/current/venv/bin/activate && django-admin collectstatic --noinput --settings {{django_settings}}"
-      when: "{{collect_static|bool}}"
+      when: collect_static|bool
 
 
 - name: "postinstall {{name}}"
