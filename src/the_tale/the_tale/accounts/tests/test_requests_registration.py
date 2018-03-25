@@ -7,6 +7,7 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTask, PostponedT
 
 from the_tale.game.logic import create_test_map
 
+
 class RequestsRegistrationTests(TestCase):
 
     def setUp(self):
@@ -24,7 +25,7 @@ class RequestsRegistrationTests(TestCase):
         self.assertEqual(task.internal_logic.referer, None)
 
     def test_fast_registration_processing__with_referer(self):
-        referer = 'http://example.com/forum/post/1/'
+        referer = 'https://example.com/forum/post/1/'
         response = self.client.post(reverse('accounts:registration:fast'), HTTP_REFERER=referer)
         self.assertEqual(response.status_code, 200)
         task = PostponedTaskPrototype(model=PostponedTask.objects.all()[0])

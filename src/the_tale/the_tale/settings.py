@@ -40,12 +40,16 @@ TIME_ZONE = 'UTC'
 
 LANGUAGE_CODE = 'ru'
 
-CSRF_COOKIE_HTTPONLY = True
 CSRF_FAILURE_VIEW = 'the_tale.urls.handlerCSRF'
+
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
+
 SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = True
 
 SITE_ID = 1
-SITE_URL = 'local.the-tale:8000'
+SITE_URL = 'local.the-tale'
 
 SOCIAL_VK_GROUP_URL = None
 SOCIAL_TWITTER_GROUP_URL = None
@@ -53,7 +57,7 @@ SOCIAL_FACEBOOK_GROUP_URL = None
 
 COMMUNITY_PROJECTS = []
 SOCIAL_GITHUB_URL = 'https://github.com/the-tale'
-SOCIAL_DOCUMENTATION = 'http://docs.the-tale.org'
+SOCIAL_DOCUMENTATION = 'https://docs.the-tale.org'
 
 CARDS_TUTORIAL = None
 YOUTUBE_TUTORIAL = None
@@ -336,11 +340,11 @@ CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
 
 CDNS = ( ('STATIC_TWITTER_BOOTSTRAP',
           '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
-          'http:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
+          'https:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
 
          ('STATIC_CONTENT',
           STATIC_URL, STATIC_CDN,
-          lambda: 'http:%simages/rss.png?_=%f' % (STATIC_CDN, time.time())), # prevent url from caching for cases, when portal closed to 503
+          lambda: 'https:%simages/rss.png?_=%f' % (STATIC_CDN, time.time())), # prevent url from caching for cases, when portal closed to 503
     )
 
 

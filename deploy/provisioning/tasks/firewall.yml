@@ -9,6 +9,7 @@
       - "22"   # ssh
       - "25"   # postfix (incoming mail)
       - "80"   # http
+      - "443"  # https
       - "2222" # ssh for vagrant
       - "8000" # test server port
     firewall_allowed_udp_ports: []

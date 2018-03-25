@@ -51,3 +51,16 @@
 
 
     - service: name=nginx state=restarted
+
+- name: Add cron job to automaticaly reload apache configs (to accept updated certificates)
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+
+    - cron:
+        name: nginx auto config reload
+        job: systemctl reload nginx
+        minute: 0
+        hour: 0
+        user: root

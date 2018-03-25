@@ -143,4 +143,4 @@ def days_range(date_from, date_to):
 
 
 def absolutize_urls(text):
-    return text.replace('href="/', 'href="http://%s/' % project_settings.SITE_URL).replace('href=\'/', 'href=\'http://%s/' % project_settings.SITE_URL)
+    return text.replace('href="/', 'href="https://%s/' % project_settings.SITE_URL).replace('href=\'/', 'href=\'https://%s/' % project_settings.SITE_URL)

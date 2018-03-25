@@ -93,9 +93,8 @@ class TestRegistration(testcase.TestCase):
         self.assertEqual(len(timers), 1)
 
 
-
     def test_successfull_result__referer(self):
-        referer = 'http://example.com/forum/post/1/'
+        referer = 'https://example.com/forum/post/1/'
 
         _, account_id, _ = register_user('test_user', 'test_user@test.com', '111111', referer=referer)
 
@@ -189,7 +188,7 @@ class TestRegistrationTask(testcase.TestCase):
         self.assertEqual(Account.objects.all().count(), 1)
 
     def test_process_success__with_referer(self):
-        referer = 'http://example.com/forum/post/1/'
+        referer = 'https://example.com/forum/post/1/'
         task = RegistrationTask(account_id=None, referer=referer, referral_of_id=None, action_id=None)
         self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(task.state, REGISTRATION_TASK_STATE.PROCESSED)

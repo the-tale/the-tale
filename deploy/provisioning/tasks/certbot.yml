@@ -1,0 +1,26 @@
+
+- name: configure domain certificates
+  hosts: all
+  become: yes
+  become_user: root
+
+  vars:
+    certbot_install_from_source: no
+    certbot_create_if_missing: yes
+    certbot_create_method: standalone
+    certbot_admin_email: a.eletsky@gmail.com
+    certbot_certs:
+      - domains:
+          - the-tale.org
+      - domains:
+          - docs.the-tale.org
+      - domains:
+          - temp-informer.the-tale.org
+    certbot_create_standalone_stop_services:
+      - nginx
+    certbot_auto_renew_user: root
+    certbot_auto_renew_minute: 20
+    certbot_auto_renew_hour: 5
+
+  roles:
+    - geerlingguy.certbot

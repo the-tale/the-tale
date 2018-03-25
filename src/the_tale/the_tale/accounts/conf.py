@@ -48,7 +48,7 @@ accounts_settings = app_settings('ACCOUNTS',
                                  PREMIUM_EXPIRED_NOTIFICATION_RUN_TIME=3, # UTC time
 
                                  INFORMER_SHOW=True,
-                                 INFORMER_LINK='http://informer.the-tale.org/?id=%(account_id)d&type=4',
+                                 INFORMER_LINK='https://informer.the-tale.org/?id=%(account_id)d&type=4',
                                  INFORMER_CREATOR_ID=2557,
                                  INFORMER_CREATOR_NAME='Yashko',
                                  INFORMER_WIDTH=400,
