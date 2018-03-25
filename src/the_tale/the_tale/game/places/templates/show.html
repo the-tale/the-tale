@@ -16,6 +16,7 @@
     {% if not place.modifier.is_NONE %}
     <span
        rel="tooltip"
+       data-tooltip-placement="bottom"
 
        {%if not place.is_modifier_active()%}
        style="color: orange; cursor: default;"
