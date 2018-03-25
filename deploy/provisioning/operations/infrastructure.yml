@@ -14,11 +14,11 @@
 - import_playbook: ../tasks/redis.yml
 - import_playbook: ../tasks/rabbitmq.yml
 
-- import_playbook: ../tasks/nginx.yml
-  when: tt_install_nginx
-
 - import_playbook: ../tasks/certbot.yml
   when: not tt_test_enviroment
+
+- import_playbook: ../tasks/nginx.yml
+  when: tt_install_nginx
 
 - import_playbook: ../tasks/postfix.yml
   when: tt_install_postfix

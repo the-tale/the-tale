@@ -19,6 +19,13 @@
         regexp: 'dd-agent'
         line: 'dd-agent ALL=(root) NOPASSWD: /usr/bin/find'
 
+    - name: create required directories
+      file:
+        path: /etc/datadog-agent/conf.d
+        state: directory
+        mode: 0755
+        owner: 'dd-agent'
+
 
 - hosts: all
   become: yes
