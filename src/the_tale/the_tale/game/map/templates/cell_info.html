@@ -19,6 +19,8 @@
 
         {% if hero and hero.preferences.place and hero.preferences.place.id == place.id %}<span class="badge badge-success">родной город</span>{% endif %}
 
+        <small class="pull-right" style="margin-right: 1em;">квадрат {{x}}x{{y}}</small>
+
         <br/>
         <small>{{places_macros.place_description(place)}}</small>
 
@@ -27,9 +29,12 @@
       {% elif building %}
       <span>
         {{ building.name }}
+
+        <small class="pull-right" style="margin-right: 1em;">квадрат {{x}}x{{y}}</small>
       </span>
       {% else %}
-      Квадрат {{x}}x{{y}}
+        {{terrain.text|up_first}}
+        <small class="pull-right" style="margin-right: 1em;">квадрат {{x}}x{{y}}</small>
       {% endif %}
     </h3>
   </div>
