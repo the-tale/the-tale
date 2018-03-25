@@ -14,7 +14,7 @@ from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.decorators import login_required, lazy_property
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.views import validate_fast_account, validate_ban_game
+from the_tale.accounts.views import validate_fast_account, validate_ban_any
 
 from the_tale.game.places import storage as places_storage
 
@@ -171,7 +171,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.new', 'неверный тип записи')
     @handler('new', method='get')
@@ -186,7 +186,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.create', 'неверный тип записи')
     @handler('create', method='post')
@@ -234,7 +234,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
@@ -250,7 +250,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
@@ -303,7 +303,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_can_vote()
     @validate_voting_state(message='На данной стадии за запись нельзя голосовать')
