@@ -176,19 +176,7 @@
             Последние события, связаные с Мастером.
           </p>
 
-          <table class="table">
-            <thead>
-              <tr>
-                <th>дата</th>
-                <th>событие</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for date_short, date_long, text in master_chronicle %}
-                {{ chronicle_macros.chronicle_record_3(date_short, date_long, text) }}
-              {% endfor %}
-            </tbody>
-          </table>
+          {{ chronicle_macros.records_list(master_chronicle) }}
 
         <p>
           <a class="btn btn-info" href="{{ url('game:chronicle:', person=person.id) }}">Все события</a>

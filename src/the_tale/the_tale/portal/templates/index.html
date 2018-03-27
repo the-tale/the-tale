@@ -2,6 +2,7 @@
 
 {% import 'news/macros.html' as news_macros with context %}
 {% import 'portal/macros.html' as portal_macros with context %}
+{% import 'chronicle/macros.html' as chronicle_macros with context %}
 
 {% block title %}{{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}{{super()}}{% endblock %}
@@ -137,23 +138,7 @@ jQuery(document).ready(function(e){
             </div>
 
             <div class="tab-pane active" id="pgf-newspaper-chronicle">
-              <ul class="unstyled">
-                {% for record in chronicle_records %}
-                  <li class="newspaper-link-list">
-                    <span class="newspaper-link-time">
-                      {{record.game_time.date.verbose_full()}}:
-                      {% for actor in chronicle_actors[record.id] %}
-                        {%- if loop.index > 1 -%},{% endif %}
-                        {% if actor.type.is_BILL %}<a href="{{url('game:bills:show', actor.bill_id)}}">{{actor.name}}</a>{% endif -%}
-                        {% if actor.type.is_PLACE %}<a href="{{url('game:places:show', actor.place_id)}}">{{actor.name}}</a>{% endif -%}
-                        {% if actor.type.is_PERSON %}<a href="{{url('game:persons:show', actor.person_id)}}">{{actor.name}}</a>{% endif -%}
-                      {% endfor %}
-                    </span>
-                    <br/>
-                    <span>{{ record.text }}</span>
-                  </li>
-                {% endfor %}
-              </ul>
+              {{ chronicle_macros.records_list(chronicle_records) }}
 
               <div>
                 <a href="{{ url('game:chronicle:') }}">ВСЕ СОБЫТИЯ…</a>

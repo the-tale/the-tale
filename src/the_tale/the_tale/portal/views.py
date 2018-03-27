@@ -32,7 +32,6 @@ from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.relations import TERRAIN, MAP_STATISTICS
 
 from the_tale.game.chronicle.prototypes import RecordPrototype as ChronicleRecordPrototype
-from the_tale.game.chronicle.prototypes import RecordToActorPrototype
 
 from the_tale.game.bills.prototypes import BillPrototype
 
@@ -78,8 +77,6 @@ class PortalResource(Resource):
 
         chronicle_records = ChronicleRecordPrototype.get_last_records(portal_settings.CHRONICLE_RECORDS_ON_INDEX)
 
-        chronicle_actors = RecordToActorPrototype.get_actors_for_records(chronicle_records)
-
         return self.template('portal/index.html',
                              {'news': news,
                               'forum_threads': forum_threads,
@@ -92,7 +89,6 @@ class PortalResource(Resource):
                               'TERRAIN': TERRAIN,
                               'MAP_STATISTICS': MAP_STATISTICS,
                               'chronicle_records': chronicle_records,
-                              'chronicle_actors': chronicle_actors,
                               'RACE': RACE})
 
     @handler('search')

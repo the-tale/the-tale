@@ -12,6 +12,7 @@ from the_tale.game.chronicle.conf import chronicle_settings
 from the_tale.game.chronicle.tests.helpers import FakeRecord
 from the_tale.game.chronicle.prototypes import ExternalPlace
 
+
 class IndexRequestsTest(TestCase):
 
     def setUp(self):

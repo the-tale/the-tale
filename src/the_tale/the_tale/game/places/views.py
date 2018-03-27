@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.common.utils import views as dext_views
 
@@ -80,7 +79,8 @@ def show(context):
     return dext_views.Page('places/show.html',
                            content={'place': context.place,
                                     'place_bills': info.place_info_bills(context.place),
-                                    'place_chronicle': chronicle_prototypes.chronicle_info(context.place, conf.settings.CHRONICLE_RECORDS_NUMBER),
+                                    'place_chronicle': chronicle_prototypes.RecordPrototype.get_last_actor_records(context.place,
+                                                                                                                   conf.settings.CHRONICLE_RECORDS_NUMBER),
                                     'accounts_short_infos': accounts_short_infos,
                                     'HABIT_TYPE': game_relations.HABIT_TYPE,
                                     'place_meta_object': meta_relations.Place.create_from_object(context.place),

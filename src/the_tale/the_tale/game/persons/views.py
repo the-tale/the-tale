@@ -61,5 +61,5 @@ def show(context):
                                     'accounts_short_infos': accounts_short_infos,
                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
                                     'social_connections': storage.social_connections.get_connected_persons(context.person),
-                                    'master_chronicle': chronicle_prototypes.chronicle_info(context.person, conf.settings.CHRONICLE_RECORDS_NUMBER),
+                                    'master_chronicle': chronicle_prototypes.RecordPrototype.get_last_actor_records(context.person, conf.settings.CHRONICLE_RECORDS_NUMBER),
                                     'resource': context.resource})

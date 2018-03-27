@@ -14,8 +14,18 @@ def verbose_timedelta(value):
 
 
 @jinja2.jinjafilter
+def verbose_datetime(value):
+    return value.strftime('%d.%m.%Y %H:%M')
+
+
+@jinja2.jinjafilter
 def absolutize_urls(value):
     return logic.absolutize_urls(value)
+
+
+@jinja2.jinjafilter
+def make_paragraphs(value):
+    return jinja2.Markup(value.strip().replace('\n', '<br/>'))
 
 
 @jinja2.jinjafilter
