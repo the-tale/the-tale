@@ -113,33 +113,37 @@ def prepair_get_text(key, args, quiet=False):
     return lexicon_key, externals, restrictions
 
 
-def fake_text(lexicon_key, externals):
+def _fake_text(lexicon_key, externals):
     return str(lexicon_key) + ': ' + ' '.join('%s=%s' % (k, v.form) for k, v in externals.items())
 
 
 @dext_decorators.retry_on_exception(max_retries=conf.linguistics_settings.MAX_RENDER_TEXT_RETRIES, exceptions=[utg_exceptions.UtgError])
-def _render_utg_text(lexicon_key, restrictions, externals):
+def _render_utg_text(lexicon_key, restrictions, externals, with_nearest_distance=False):
     # dictionary & lexicon can be changed unexpectedly in any time
     # and some rendered data can be obsolete
-    template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
+    if with_nearest_distance:
+        template = game_lexicon.item.get_random_nearest_template(lexicon_key, restrictions=restrictions)
+    else:
+        template = game_lexicon.item.get_random_template(lexicon_key, restrictions=restrictions)
+
     return template.substitute(externals, game_dictionary.item)
 
 
-def render_text(lexicon_key, externals, quiet=False, restrictions=frozenset()):
+def render_text(lexicon_key, externals, quiet=False, restrictions=frozenset(), with_nearest_distance=False, fake_text=_fake_text):
     if lexicon_key is None:
         return fake_text(lexicon_key, externals)
 
     try:
-        return _render_utg_text(lexicon_key, restrictions, externals)
+        return _render_utg_text(lexicon_key, restrictions, externals, with_nearest_distance=with_nearest_distance)
     except utg_exceptions.UtgError as e:
         if not quiet and not project_settings.TESTS_RUNNING:
             logger.error('Exception in linguistics; key=%s, args=%r, message: "%s"' % (lexicon_key, externals, e),
                          exc_info=sys.exc_info(),
-                         extra={} )
+                         extra={})
         return fake_text(lexicon_key, externals)
 
 
-def get_text(key, args, quiet=False):
+def get_text(key, args, quiet=False, fake_text=_fake_text):
     lexicon_key, externals, restrictions = prepair_get_text(key, args, quiet)
 
     if lexicon_key is None:
@@ -308,7 +312,6 @@ def ui_format(text):
 def give_reward_for_template(template):
 
     if template.author_id is None:
-        print(1)
         return
 
     updated = prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,

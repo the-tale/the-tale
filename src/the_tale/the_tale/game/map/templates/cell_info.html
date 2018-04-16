@@ -161,19 +161,11 @@
           Последние события, связаные с городом.
         </p>
 
-        <table class="table">
-          <thead>
-            <tr>
-              <th>дата</th>
-              <th>событие</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for date_short, date_long, text in place_chronicle %}
-            {{ chronicle_macros.chronicle_record_3(date_short, date_long, text) }}
-            {% endfor %}
-          </tbody>
-        </table>
+        {{ chronicle_macros.records_list(place_chronicle) }}
+
+        <p>
+          <a class="btn btn-info" href="{{ url('game:chronicle:', place=place.id) }}">Все события</a>
+        </p>
 
       </div>
 

@@ -173,4 +173,8 @@ class TEMPLATE_RESTRICTION_GROUP(DjangoEnum):
                ('BEING_MOVEMENT', 48, 'способ передвижения', beings_relations.MOVEMENT, True),
                ('BEING_BODY', 49, 'телосложение', beings_relations.BODY, True),
                ('BEING_SIZE', 50, 'размер', beings_relations.SIZE, True),
-               ('BEING_ORIENTATION', 51, 'положение тела', beings_relations.ORIENTATION, True))
+               ('BEING_ORIENTATION', 51, 'положение тела', beings_relations.ORIENTATION, True),
+
+               ('UPBRINGING', 52, 'воспитание', beings_relations.UPBRINGING, True),
+               ('FIRST_DEATH', 53, 'первая смерть', beings_relations.FIRST_DEATH, True),
+               ('AGE', 54, 'возраст в котором умер', beings_relations.AGE, False))

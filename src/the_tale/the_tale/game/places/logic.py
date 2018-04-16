@@ -183,7 +183,7 @@ def add_person_to_place(place):
 
     race = game_relations.RACE.random()
 
-    gender = game_relations.GENDER.random(exclude=(game_relations.GENDER.NEUTER,))
+    gender = game_relations.GENDER.random()
 
     new_person = persons_logic.create_person(place=place,
                                              race=race,

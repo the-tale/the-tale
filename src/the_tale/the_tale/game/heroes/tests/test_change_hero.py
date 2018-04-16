@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from unittest import mock
 
 from utg import relations as utg_relations
@@ -30,10 +30,10 @@ class ChangeHeroTest(TestCase):
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.hero.utg_name.properties = self.hero.utg_name.properties.clone(self.hero.gender.utg_id)
 
-        self.noun = names.generator().get_test_name(name='test_name', gender=GENDER.NEUTER)
-
         self.race = RACE.ELF if RACE.ELF != self.hero.race else RACE.HUMAN
-        self.gender = GENDER.NEUTER if not self.hero.gender.is_NEUTER else GENDER.FEMININE
+        self.gender = GENDER.MALE if not self.hero.gender.is_MALE else GENDER.FEMALE
+
+        self.noun = names.generator().get_test_name(name='test_name', gender=self.gender)
 
     def tearDown(self):
         pass

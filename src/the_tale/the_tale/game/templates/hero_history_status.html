@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Статус генератора истории героев | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Статус генератора истории героев{% endblock %}
+
+
+{% block content %}
+
+<ul>
+  <li>Дество — не хватает фраз ~ {{misses[0]|length}} (полностью уникальных)</li>
+  <li>Взросление — не хватает фраз ~ {{misses[1]|length}} (полностью уникальных)</li>
+  <li>Смерть — не хватает фраз ~ {{misses[2]|length}} (полностью уникальных)</li>
+</ul>
+
+{% macro list_properties(properties) %}
+<ul>
+  {% for properties_vector in properties %}
+  <li>{{properties_vector}}</li>
+  {% endfor %}
+</ul>
+{% endmacro %}
+
+<div class="tabbable">
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#pgf-hero-history-0" class="pgf-hero-history-0" data-toggle="tab">Детство</a></li>
+    <li><a href="#pgf-hero-history-1" class="pgf-hero-history-1" data-toggle="tab">Взросление</a></li>
+    <li><a href="#pgf-hero-history-2" class="pgf-hero-history-2" data-toggle="tab">Смерть</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane active" id="pgf-hero-history-0">
+      {{list_properties(misses[0])}}
+    </div>
+
+    <div class="tab-pane" id="pgf-hero-history-1">
+      {{list_properties(misses[1])}}
+    </div>
+
+    <div class="tab-pane" id="pgf-hero-history-2">
+      {{list_properties(misses[2])}}
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

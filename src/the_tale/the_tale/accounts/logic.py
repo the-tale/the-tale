@@ -83,7 +83,7 @@ def register_user(nick,
                   referral_of_id=None,
                   action_id=None,
                   is_bot=False,
-                  gender=game_relations.GENDER.MASCULINE,
+                  gender=game_relations.GENDER.MALE,
                   full_create=True):
     from the_tale.game import tt_api as game_tt_api
     from the_tale.game.heroes import logic as heroes_logic

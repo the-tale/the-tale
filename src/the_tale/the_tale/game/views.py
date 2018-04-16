@@ -1,7 +1,10 @@
-# coding: utf-8
+
+import itertools
 
 from dext.common.utils import views as dext_views
 from dext.common.utils.urls import url
+
+from tt_logic.beings import relations as beings_relations
 
 from the_tale.amqp_environment import environment
 
@@ -25,6 +28,27 @@ from the_tale.game import logic as game_logic
 from the_tale.game.cards.cards import CARD
 
 from the_tale.game.abilities.relations import ABILITY_TYPE
+
+from . import names
+from . import relations
+
+
+class NameProcessor(dext_views.ArgumentProcessor):
+    CONTEXT_NAME = 'name_forms'
+    ERROR_MESSAGE = 'Ошибка при передаче имени героя'
+    POST_NAME = 'name'
+
+    def parse(self, context, raw_value):
+        raw_value = raw_value.split(',')
+
+        if len(raw_value) != 6:
+            self.raise_wrong_format()
+
+        for value in raw_value:
+            if not isinstance(value, str):
+                self.raise_wrong_format()
+
+        return raw_value
 
 
 ########################################
@@ -130,6 +154,79 @@ def api_diary(context):
                                  'position': pb_message.position})
 
     return dext_views.AjaxOk(content=data)
+
+
+@api.Processor(versions=(game_settings.NAMES_API_VERSION,))
+@dext_views.IntArgumentProcessor(error_message='Неверное количество имён', get_name='number', context_name='names_number', default_value=None)
+@resource('api', 'names', name='api-names')
+def api_names(context):
+
+    if context.names_number < 0 or 100 < context.names_number:
+        raise dext_views.ViewError(code='wrong_number', message='Нельзя сгенерировать такое колдичесво имён')
+
+    result_names = names.get_names_set(number=context.names_number)
+
+    return dext_views.AjaxOk(content={'names': result_names})
+
+
+@dext_views.RelationArgumentProcessor(relation=relations.GENDER, error_message='Неверно указан пол героя',
+                                      context_name='gender', post_name='gender')
+@dext_views.RelationArgumentProcessor(relation=relations.RACE, error_message='Неверно указана раса героя',
+                                      context_name='race', post_name='race')
+@dext_views.RelationArgumentProcessor(relation=relations.ARCHETYPE, error_message='Неверно указана архетип героя',
+                                      context_name='archetype', post_name='archetype')
+@dext_views.RelationArgumentProcessor(relation=relations.HABIT_HONOR_INTERVAL, error_message='Неверно указана честь героя',
+                                      context_name='honor', post_name='honor')
+@dext_views.RelationArgumentProcessor(relation=relations.HABIT_PEACEFULNESS_INTERVAL, error_message='Неверно указано миролюбие героя',
+                                      context_name='peacefulness', post_name='peacefulness')
+@dext_views.RelationArgumentProcessor(relation=beings_relations.UPBRINGING, error_message='Неверно указано происхождение героя',
+                                      context_name='upbringing', post_name='upbringing')
+@dext_views.RelationArgumentProcessor(relation=beings_relations.FIRST_DEATH, error_message='Неверно указана первая смерть героя',
+                                      context_name='first_death', post_name='first_death')
+@dext_views.RelationArgumentProcessor(relation=beings_relations.AGE, error_message='Неверно указан возраст первой смерти героя',
+                                      context_name='age', post_name='age')
+@NameProcessor()
+@api.Processor(versions=(game_settings.HERO_HISTORY_API_VERSION,))
+@resource('api', 'hero-history', method='POST', name='api-hero-history')
+def api_hero_history(context):
+    texts = game_logic.generate_history(name_forms=context.name_forms,
+                                        gender=context.gender,
+                                        race=context.race,
+                                        honor=context.honor,
+                                        peacefulness=context.peacefulness,
+                                        archetype=context.archetype,
+                                        upbringing=context.upbringing,
+                                        first_death=context.first_death,
+                                        age=context.age)
+
+    return dext_views.AjaxOk(content={'story': texts})
+
+
+@accounts_views.LoginRequiredProcessor()
+@resource('hero-history-status')
+def hero_history_status(context):
+
+    properties = itertools.product(relations.GENDER.records,
+                                   relations.RACE.records,
+                                   [relations.HABIT_HONOR_INTERVAL.LEFT_1, relations.HABIT_HONOR_INTERVAL.RIGHT_1],
+                                   [relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_1, relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_1],
+                                   relations.ARCHETYPE.records,
+                                   beings_relations.UPBRINGING.records,
+                                   beings_relations.FIRST_DEATH.records,
+                                   beings_relations.AGE.records)
+
+    misses = [[], [], []]
+
+    for property_vector in properties:
+        texts = game_logic.generate_history(['test']*6, *property_vector)
+
+        for i, text in enumerate(texts):
+            if text is None:
+                misses[i].append(', '.join([property.text for property in property_vector]))
+
+    return dext_views.Page('game/hero_history_status.html',
+                           content={'resource': context.resource,
+                                    'misses': misses})
 
 
 @dext_views.DebugProcessor()

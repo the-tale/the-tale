@@ -2,6 +2,8 @@
 from dext.forms import forms
 from dext.forms import fields
 
+from tt_logic.beings import relations as beings_relations
+
 from the_tale.accounts.clans import models as clan_models
 
 from the_tale.game.places import storage as places_storage
@@ -58,3 +60,24 @@ class CreateClan(forms.Form):
     def get_card_data(self):
         return {'name': self.c.name,
                 'abbr': self.c.abbr}
+
+
+class Upbringing(forms.Form):
+    value = fields.RelationField(label='происхождение', relation=beings_relations.UPBRINGING)
+
+    def get_card_data(self):
+        return {'value': int(self.c.value.value)}
+
+
+class DeathAge(forms.Form):
+    value = fields.RelationField(label='возраст смерти', relation=beings_relations.AGE)
+
+    def get_card_data(self):
+        return {'value': int(self.c.value.value)}
+
+
+class DeathType(forms.Form):
+    value = fields.RelationField(label='способ первой смерти', relation=beings_relations.FIRST_DEATH)
+
+    def get_card_data(self):
+        return {'value': int(self.c.value.value)}

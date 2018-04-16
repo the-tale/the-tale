@@ -164,6 +164,8 @@ class CARD(Relation):
                ('GIVE_STABILITY_RARE', 149, 'спокойствие', FOR_PREMIUMS, RARE, effects.GiveStability(base=0.01, level=2), [reactors.Simple3()]),
                ('GIVE_STABILITY_EPIC', 150, 'проповедь', FOR_PREMIUMS, EPIC, effects.GiveStability(base=0.01, level=3), [reactors.Simple3()]),
                ('GIVE_STABILITY_LEGENDARY', 151, 'Adeptus Arbites', FOR_PREMIUMS, LEGENDARY, effects.GiveStability(base=0.01, level=4), []),
+
+               ('CHANGE_HISTORY', 152, 'взмах бабочки', FOR_ALL, COMMON, effects.ChangeHistory(), [reactors.Same2()]),
             )
 
 

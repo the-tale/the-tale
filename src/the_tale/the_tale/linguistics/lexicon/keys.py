@@ -26,7 +26,11 @@ def get_key_records():
                 for attribute in variable.type.attributes:
                     additional_variables.append(relations.VARIABLE('{}.{}'.format(variable.value, attribute)))
 
-            key[5].extend(additional_variables)
+            for variable in additional_variables:
+                if variable not in key[3].variables:
+                    continue
+
+                key[5].append(variable)
 
             keys.append(key)
 

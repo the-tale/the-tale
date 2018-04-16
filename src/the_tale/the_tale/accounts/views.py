@@ -33,6 +33,7 @@ from . import conf
 from . import logic
 from . import forms
 from . import relations
+from . import create_hero
 from . import meta_relations
 from . import postponed_tasks
 
@@ -153,6 +154,10 @@ accounts_resource.add_processor(ModerateAccountProcessor())
 
 resource.add_child(accounts_resource)
 
+registration_resource = dext_views.Resource(name='registration')
+
+resource.add_child(registration_resource)
+
 
 @utils_views.TextFilterProcessor(context_name='prefix', get_name='prefix', default_value=None)
 @utils_views.PageNumberProcessor()
@@ -194,7 +199,7 @@ def index(context):
                                     'clans': clans,
                                     'resource': context.resource,
                                     'current_page_number': context.page,
-                                    'paginator': paginator  } )
+                                    'paginator': paginator})
 
 
 @accounts_resource('#account', name='show')
@@ -288,6 +293,7 @@ def ban(context):
 
     return dext_views.AjaxOk()
 
+
 @LoginRequiredProcessor()
 @ModerateAccessProcessor()
 @accounts_resource('#account', 'reset-bans', method='post')
@@ -315,7 +321,7 @@ def transfer_money_dialog(context):
 
     return dext_views.Page('accounts/transfer_money.html',
                            content={'commission': conf.accounts_settings.MONEY_SEND_COMMISSION,
-                                    'form': forms.SendMoneyForm()} )
+                                    'form': forms.SendMoneyForm()})
 
 @LoginRequiredProcessor()
 @FullAccountProcessor()
@@ -336,6 +342,70 @@ def transfer_money(context):
                                          amount=context.form.c.money,
                                          comment=context.form.c.comment)
     return dext_views.AjaxProcessing(task.status_url)
+
+
+def create_registration_task(session):
+    if conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in session:
+
+        task_id = session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
+        task = PostponedTaskPrototype.get_by_id(task_id)
+
+        if task is not None and (task.state.is_processed or task.state.is_waiting):
+            return task
+
+    referer = None
+    if conf.accounts_settings.SESSION_REGISTRATION_REFERER_KEY in session:
+        referer = session[conf.accounts_settings.SESSION_REGISTRATION_REFERER_KEY]
+
+    referral_of_id = None
+    if conf.accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY in session:
+        referral_of_id = session[conf.accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY]
+
+    action_id = None
+    if conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY in session:
+        action_id = session[conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY]
+
+    registration_task = postponed_tasks.RegistrationTask(account_id=None,
+                                                         referer=referer,
+                                                         referral_of_id=referral_of_id,
+                                                         action_id=action_id)
+
+    task = PostponedTaskPrototype.create(registration_task,
+                                         live_time=conf.accounts_settings.REGISTRATION_TIMEOUT)
+
+    session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY] = task.id
+
+    environment.workers.registration.cmd_task(task.id)
+
+    return task
+
+
+@registration_resource('fast', method='POST')
+def fast_post(context):
+
+    if context.account.is_authenticated:
+        raise dext_views.ViewError(code='accounts.registration.fast.already_registered',
+                                   message='Вы уже зарегистрированы')
+
+    task = create_registration_task(context.django_request.session)
+
+    if task.state.is_processed:
+        raise dext_views.ViewError(code='accounts.registration.fast.already_processed',
+                                   message='Вы уже зарегистрированы, обновите страницу')
+
+    return dext_views.AjaxProcessing(task.status_url)
+
+
+@registration_resource('create-hero', method='GET')
+def create_hero_view(context):
+
+    # if context.account.is_authenticated:
+    #     raise dext_views.ViewError(code='accounts.create_hero.already_registered',
+    #                                message='Вы уже зарегистрированы')
+
+    return dext_views.Page('accounts/create_hero.html',
+                           content={'resource': context.resource,
+                                    'create_hero': create_hero})
 
 
 ###############################
@@ -365,57 +435,6 @@ class BaseAccountsResource(Resource):
 
     def initialize(self, *argv, **kwargs):
         super(BaseAccountsResource, self).initialize(*argv, **kwargs)
-
-
-class RegistrationResource(BaseAccountsResource):
-
-    def register_fast(self):
-        if conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in self.request.session:
-
-            task_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
-            task = PostponedTaskPrototype.get_by_id(task_id)
-
-            if task is not None and (task.state.is_processed or task.state.is_waiting):
-                return task
-
-        referer = None
-        if conf.accounts_settings.SESSION_REGISTRATION_REFERER_KEY in self.request.session:
-            referer = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_REFERER_KEY]
-
-        referral_of_id = None
-        if conf.accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY in self.request.session:
-            referral_of_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY]
-
-        action_id = None
-        if conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY in self.request.session:
-            action_id = self.request.session[conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY]
-
-        registration_task = postponed_tasks.RegistrationTask(account_id=None,
-                                                             referer=referer,
-                                                             referral_of_id=referral_of_id,
-                                                             action_id=action_id)
-
-        task = PostponedTaskPrototype.create(registration_task,
-                                             live_time=conf.accounts_settings.REGISTRATION_TIMEOUT)
-
-        self.request.session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY] = task.id
-
-        environment.workers.registration.cmd_task(task.id)
-
-        return task
-
-    @handler('fast', method='post')
-    def fast_post(self):
-
-        if self.account.is_authenticated:
-            return self.json_error('accounts.registration.fast.already_registered', 'Вы уже зарегистрированы')
-
-        task = self.register_fast()
-
-        if task.state.is_processed:
-            return self.json_error('accounts.registration.fast.already_processed', 'Вы уже зарегистрированы, обновите страницу')
-
-        return self.json_processing(task.status_url)
 
 
 class AuthResource(BaseAccountsResource):

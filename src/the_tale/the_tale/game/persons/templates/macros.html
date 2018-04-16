@@ -5,29 +5,29 @@
        rel="tooltip"
        title="{{person.personality_practical.description}}">
 
-       {% if person.gender.is_MASCULINE %}
+       {% if person.gender.is_MALE %}
          {{person.personality_practical.male_text}}
        {% endif %}
 
-       {% if person.gender.is_FEMININE %}
+       {% if person.gender.is_FEMALE %}
          {{person.personality_practical.female_text}}
        {% endif %}
 
   </div>
 
-  {% if person.gender.is_MASCULINE %}
+  {% if person.gender.is_MALE %}
     {{person.race.male_text}},
   {% endif %}
 
-  {% if person.gender.is_FEMININE %}
+  {% if person.gender.is_FEMALE %}
     {{person.race.female_text}},
   {% endif %}
 
-  {% if person.gender.is_MASCULINE %}
+  {% if person.gender.is_MALE %}
     {{person.type.male_text}}
   {% endif %}
 
-  {% if person.gender.is_FEMININE %}
+  {% if person.gender.is_FEMALE %}
     {{person.type.female_text}}
   {% endif %}
 
@@ -37,11 +37,11 @@
        rel="tooltip"
        title="{{person.personality_cosmetic.description}}">
 
-       {% if person.gender.is_MASCULINE %}
+       {% if person.gender.is_MALE %}
          {{person.personality_cosmetic.male_text}}
        {% endif %}
 
-       {% if person.gender.is_FEMININE %}
+       {% if person.gender.is_FEMALE %}
          {{person.personality_cosmetic.female_text}}
        {% endif %}
 

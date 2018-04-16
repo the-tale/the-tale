@@ -4,6 +4,8 @@ from unittest import mock
 
 from django.test import client
 
+from utg import relations as utg_relations
+
 from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
@@ -142,7 +144,7 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         logic.save_hero(self.hero)
         self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=[('pgf-settings-approved-warning', 0)])
 
-    def get_post_data(self, name='новое имя', gender=GENDER.MASCULINE, race=RACE.DWARF):
+    def get_post_data(self, name='новое имя', gender=GENDER.MALE, race=RACE.DWARF):
         data = {'gender': gender,
                 'race': race}
         data.update(linguistics_helpers.get_word_post_data(names.generator().get_test_name(name=name), prefix='name'))
@@ -159,7 +161,6 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         self.check_ajax_error(self.client.post(url('game:heroes:change-hero', self.hero.id), {}),
                               'heroes.change_name.form_errors')
 
-
     def test_change_hero(self):
         self.assertEqual(PostponedTask.objects.all().count(), 0)
         response = self.client.post(url('game:heroes:change-hero', self.hero.id), self.get_post_data())
@@ -169,8 +170,8 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
         self.check_ajax_processing(response, task.status_url)
 
-        self.assertEqual(task.internal_logic.name, names.generator().get_test_name(name='новое имя'))
-        self.assertEqual(task.internal_logic.gender, GENDER.MASCULINE)
+        self.assertEqual(task.internal_logic.name, names.generator().get_test_name(name='новое имя', properties=[utg_relations.NUMBER.SINGULAR]))
+        self.assertEqual(task.internal_logic.gender, GENDER.MALE)
         self.assertEqual(task.internal_logic.race, RACE.DWARF)
 
 

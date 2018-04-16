@@ -307,7 +307,7 @@ class LogicAccessorsMixin(object):
 
     @property
     def race_verbose(self):
-        if self.gender.is_FEMININE:
+        if self.gender.is_FEMALE:
             return self.race.female_text
 
         return self.race.male_text
@@ -695,7 +695,7 @@ class LogicAccessorsMixin(object):
         restrictions = (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.GENDER, self.gender.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, self.habit_honor.interval.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_peacefulness.interval.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.preferences.archetype.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL, self.communication_verbal.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.communication_gestures.value).id,
@@ -708,7 +708,11 @@ class LogicAccessorsMixin(object):
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT, self.movement.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_BODY, self.body.value).id,
                         restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.size.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION, self.orientation.value).id,)
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION, self.orientation.value).id,
+
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.UPBRINGING, self.upbringing.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.FIRST_DEATH, self.first_death.value).id,
+                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.AGE, self.death_age.value).id,)
 
         self._cached_modifiers['#linguistics_restrictions'] = restrictions
 

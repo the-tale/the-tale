@@ -1,10 +1,6 @@
-# coding: utf-8
 
 from dext.common.utils import views as dext_views
 from dext.common.utils.urls import UrlBuilder, url
-
-from the_tale import amqp_environment
-
 
 from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils import list_filter
@@ -16,10 +12,8 @@ from the_tale.accounts import views as accounts_views
 from the_tale.accounts import models as accounts_models
 from the_tale.accounts import logic as accounts_logic
 
-
 from . import conf
 from . import tt_api
-from . import logic
 from . import forms
 
 

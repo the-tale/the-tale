@@ -162,7 +162,10 @@ class VARIABLE_TYPE(DjangoEnum):
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.BEING_BODY,
                                                                                                                  relations.TEMPLATE_RESTRICTION_GROUP.BEING_SIZE,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION), ('weapon',)),
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION,
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.UPBRINGING,
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.FIRST_DEATH,
+                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.AGE), ('weapon',)),
 
                ('MODIFIER', 8, 'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
                                                                                                                relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM), ()),

@@ -73,7 +73,6 @@ class LinguisticsResource(Resource):
     def initialize(self, *args, **kwargs):
         super(LinguisticsResource, self).initialize(*args, **kwargs)
 
-
     @handler('', method='get')
     def index(self):
         groups_count, keys_count = logic.get_templates_count()

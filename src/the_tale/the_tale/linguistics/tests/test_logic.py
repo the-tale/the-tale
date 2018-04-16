@@ -554,7 +554,7 @@ class LogicTests(testcase.TestCase):
         args = {'hero': hero_mock, 'level': 1}
 
         self.assertEqual(logic.get_text(key.name, args=args),
-                         logic.fake_text(key.name, logic.prepair_get_text(key.name, args)[1]))
+                         logic._fake_text(key.name, logic.prepair_get_text(key.name, args)[1]))
 
     def test_get_word_restrictions(self):
 

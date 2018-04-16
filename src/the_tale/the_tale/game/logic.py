@@ -190,6 +190,20 @@ def game_diary_url():
     return url('game:api-diary', **arguments)
 
 
+def game_names_url():
+    arguments = {'api_version': conf.game_settings.NAMES_API_VERSION,
+                 'api_client': project_settings.API_CLIENT}
+
+    return url('game:api-names', **arguments)
+
+
+def game_hero_history_url():
+    arguments = {'api_version': conf.game_settings.HERO_HISTORY_API_VERSION,
+                 'api_client': project_settings.API_CLIENT}
+
+    return url('game:api-hero-history', **arguments)
+
+
 def _game_info_from_1_1_to_1_0__heroes(data):
     data['secondary']['power'] = sum(data['secondary']['power'])
 
@@ -388,3 +402,43 @@ def clans_info(accounts_data):
                       'abbr': clan.abbr,
                       'name': clan.name}
             for clan in clans_prototypes.ClanPrototype.get_list_by_id(list(clans_ids))}
+
+
+def generate_history(name_forms, gender, race, honor, peacefulness, archetype, upbringing, first_death, age):
+    from the_tale.linguistics import logic as linguistics_logic
+    from the_tale.linguistics.lexicon.dictionary import noun
+    from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
+    from the_tale.linguistics.storage import restrictions_storage
+    from the_tale.linguistics import objects as linguistics_objects
+
+    name = noun(name_forms+['']*6, 'мр,од,ед' if gender.is_MALE else 'жр,од,ед')
+
+    restrictions = (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.GENDER, gender.value).id,
+                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, race.value).id,
+                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, honor.value).id,
+                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, peacefulness.value).id,
+                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, archetype.value).id,
+                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.UPBRINGING, upbringing.value).id,
+                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.FIRST_DEATH, first_death.value).id,
+                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.AGE, age.value).id)
+
+    hero_variable = linguistics_objects.UTGVariable(word=name, restrictions=restrictions)
+
+    types = ['hero_history_birth',
+             'hero_history_childhood',
+             'hero_history_death']
+
+    texts = []
+
+    for type in types:
+        lexicon_key, externals, restrictions = linguistics_logic.prepair_get_text(type, {'hero': hero_variable})
+
+        text = linguistics_logic.render_text(lexicon_key=lexicon_key,
+                                             externals=externals,
+                                             restrictions=restrictions,
+                                             quiet=True,
+                                             with_nearest_distance=True,
+                                             fake_text=lambda *argv, **kwargs: None)
+        texts.append(text)
+
+    return texts

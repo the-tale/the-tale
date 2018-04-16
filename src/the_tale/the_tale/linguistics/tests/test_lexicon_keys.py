@@ -23,5 +23,8 @@ class LexiconKeysTests(TestCase):
                        (relations.VARIABLE.COMPANION_OWNER, relations.VARIABLE.COMPANION_OWNER__WEAPON)]
 
         for key in keys.LEXICON_KEY.records:
+            if key.group.is_HERO_HISTORY:
+                continue
+
             for variable, weapon in check_pairs:
                 self.assertEqual(variable in key.variables, weapon in key.variables)

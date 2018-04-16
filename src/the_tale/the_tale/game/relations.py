@@ -19,9 +19,8 @@ class GENDER(DjangoEnum):
     utg_id = Column()
     pynames_id = Column(unique=False)
 
-    records = (('MASCULINE', 0, 'мужчина', utg_relations.GENDER.MASCULINE, PYNAMES_GENDER.MALE),
-               ('FEMININE', 1, 'женщина', utg_relations.GENDER.FEMININE, PYNAMES_GENDER.FEMALE),
-               ('NEUTER', 2, 'оно', utg_relations.GENDER.NEUTER, PYNAMES_GENDER.MALE))
+    records = (('MALE', 0, 'мужчина', utg_relations.GENDER.MASCULINE, PYNAMES_GENDER.MALE),
+               ('FEMALE', 1, 'женщина', utg_relations.GENDER.FEMININE, PYNAMES_GENDER.FEMALE))
 
 
 def _race_linguistics_restrictions(race):

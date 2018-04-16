@@ -46,17 +46,17 @@ class NamesGenerators(object):
 
         return name
 
-    def get_fast_name(self, name, gender=relations.GENDER.MASCULINE):
+    def get_fast_name(self, name, gender=relations.GENDER.MALE):
         word = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN,
                                                properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE, gender.utg_id))
         word.forms = [name] * len(word.forms)
 
         return word
 
-    def get_test_name(self, name='', gender=relations.GENDER.MASCULINE):
+    def get_test_name(self, name='', gender=relations.GENDER.MALE, properties=()):
         name = utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN,
                                                prefix=('%s-' % name) if name else 't-',
-                                               properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE, gender.utg_id))
+                                               properties=utg_words.Properties(utg_relations.ANIMALITY.ANIMATE, gender.utg_id, *properties))
 
         return name
 
@@ -110,3 +110,22 @@ def generator():
         _generator = NamesGenerators()
 
     return _generator
+
+
+def get_names_set(number):
+    result_names = {}
+
+    for race in relations.RACE.records:
+        race_slug = race.name.lower()
+
+        result_names[race_slug] = {}
+
+        for gender in [relations.GENDER.MALE, relations.GENDER.FEMALE]:
+            gender_slug = 'male' if gender.is_MALE else 'female'
+            result_names[race_slug][gender_slug] = []
+
+            for i in range(number):
+                name_forms = list(generator().get_name(race=race, gender=gender).forms[:6])
+                result_names[race_slug][gender_slug].append(name_forms)
+
+    return result_names

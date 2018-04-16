@@ -57,7 +57,7 @@ class BasePersonBill(BaseBill):
 
     @property
     def person_race_verbose(self):
-        if self.person_gender.is_FEMININE:
+        if self.person_gender.is_FEMALE:
             return self.person_race.female_text
 
         return self.person_race.male_text

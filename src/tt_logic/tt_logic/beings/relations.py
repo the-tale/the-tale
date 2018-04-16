@@ -171,3 +171,25 @@ class SIZE(DjangoEnum):
 class ORIENTATION(DjangoEnum):
     records = (('VERTICAL', 0, 'вертикальное'),
                ('HORIZONTAL', 1, 'горизонтальное'))
+
+
+class AGE(DjangoEnum):
+    records = (('YOUNG', 0, 'молодой'),
+               ('MATURE', 1, 'зрелый'),
+               ('OLD', 2, 'престарелый'))
+
+
+class UPBRINGING(DjangoEnum):
+    records = (('VULGAR', 0, 'уличное'),
+               ('RURAL', 1, 'сельское'),
+               ('PHILISTINE', 2, 'городское'),
+               ('ARISTOCRATIC', 3, 'аристократическое'),
+               ('PRIESTLY', 4, 'духовное'))
+
+
+class FIRST_DEATH(DjangoEnum):
+    records = (('ON_THE_SCAFFOLD', 0, 'на эшафоте'),
+               ('IN_A_DRUNKEN_BRAWL', 1, 'в пьяной драке'),
+               ('FROM_THE_MONSTER_FANGS', 2, 'от клыков монстра'),
+               ('FROM_THE_DISEASE', 3, 'от болезни'),
+               ('IN_A_SKIRMISH_WITH_THE_ROBBERS', 4, 'в стычке с разбойниками'))

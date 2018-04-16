@@ -36,6 +36,8 @@ game_settings = app_settings('GAME',
 
                              INFO_API_VERSION='1.9',
                              DIARY_API_VERSION='1.0',
+                             NAMES_API_VERSION='1.0',
+                             HERO_HISTORY_API_VERSION='1.0',
 
                              SAVE_ON_EXCEPTION_TIMEOUT=60*60, # seconds
 

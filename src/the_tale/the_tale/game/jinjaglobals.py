@@ -16,6 +16,16 @@ def game_diary_url():
     return jinja2.Markup(logic.game_diary_url())
 
 
+@jinja2.jinjaglobal
+def game_names_url():
+    return jinja2.Markup(logic.game_names_url())
+
+
+@jinja2.jinjaglobal
+def game_hero_history_url():
+    return jinja2.Markup(logic.game_hero_history_url())
+
+
 @jinja2.jinjafilter
 def verbose_game_date(turn_number):
     return turn.game_datetime(turn_number).date.verbose_full()

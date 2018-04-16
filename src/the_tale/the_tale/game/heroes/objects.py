@@ -6,7 +6,6 @@ from dext.common.utils import cache
 
 from the_tale import amqp_environment
 
-from the_tale.accounts import prototypes as accounts_prototypes
 from the_tale.accounts import logic as accounts_logic
 from the_tale.accounts.personal_messages import tt_api as pm_tt_api
 
@@ -80,6 +79,10 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'equipment',
                  'actual_bills',
 
+                 'upbringing',
+                 'death_age',
+                 'first_death',
+
                  'utg_name',
 
                  # mames mixin
@@ -126,7 +129,10 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  last_rare_operation_at_turn,
                  settings_approved,
                  actual_bills,
-                 utg_name):
+                 utg_name,
+                 upbringing,
+                 death_age,
+                 first_death):
 
         self.id = id
         self.account_id = account_id
@@ -199,6 +205,10 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.last_rare_operation_at_turn = last_rare_operation_at_turn
         self.settings_approved = settings_approved
 
+        self.upbringing = upbringing
+        self.death_age = death_age
+        self.first_death = first_death
+
         self.utg_name = utg_name
 
     ##########################
@@ -213,7 +223,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.force_save_required = True
 
         if send_message: # TODO: move out logic
-            account = accounts_prototypes.AccountPrototype.get_by_id(self.account_id)
             pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
                                   recipients_ids=[self.account_id],
                                   body='Поздравляем, Ваш герой получил {} уровень!'.format(self.level),
@@ -373,13 +382,11 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         while self.next_spending.is_HEAL_COMPANION:
             self.switch_spending()
 
-
     ##########################
     # messages
     ##########################
 
     def push_message(self, message, diary=False, journal=True):
-        from . import logic
 
         if journal:
             self.journal.push_message(message)
@@ -394,7 +401,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         from the_tale.linguistics import logic
 
         if not diary and not self.is_active and not self.is_premium:
-            # do not process journal messages for inactive heroes (and clear it if needed)
+            # do not process journal messages for inactive heroes (and clear them if needed)
             self.journal.clear()
             return
 

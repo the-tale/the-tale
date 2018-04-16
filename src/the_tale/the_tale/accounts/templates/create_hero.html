@@ -1,0 +1,492 @@
+{% extends "accounts/base.html" %}
+
+
+{% macro form_select(id, label, options, comment='') %}
+<div class="control-group">
+  <label class="control-label" for="pgf-create-hero-{{id}}">{{label}}</label>
+  <div class="controls">
+    <select type="text" id="pgf-create-hero-{{id}}">
+      {% for option in options %}
+      <option>{{option}}</option>
+      {% endfor %}
+    </select>
+    {% if comment %}
+    <span class="help-inline">{{comment}}</span>
+    {% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% block head %}
+{{ super() }}
+
+<style>
+  .hero-property-choice {
+    cursor: pointer;
+    font-size: 12pt;
+  }
+</style>
+
+<script>
+
+{% set hero_model = value("the_tale.game.heroes.models", "Hero") %}
+{% set hero_settings = value("the_tale.game.heroes.conf", "heroes_settings") %}
+
+
+MALE_TEXTS = {{create_hero.MALE_TEXTS|json|safe}};
+FEMALE_TEXTS = {{create_hero.FEMALE_TEXTS|json|safe}};
+TECHNICAL_IDS = {{create_hero.TECHNICAL_IDS|json|safe}};
+
+function RenderDescription(widget, attributes, mapping) {
+    for (attribute in attributes) {
+        var value = attributes[attribute];
+        var description = null;
+
+        if (attribute == 'name') {
+            description = value[0];
+        }
+        else {
+            description = mapping[attribute][value];
+        }
+
+        jQuery('.pgf-hero-property-'+attribute, widget).text(description);
+    }
+}
+
+function UpdateNameForm(name) {
+    for (var i in name) {
+        jQuery('#pgf-create-hero-name-'+i).val(name[i]);
+    }
+}
+
+function UpdateChoiceTabs(attributes) {
+    for (attribute in attributes) {
+        if (attribute == 'gender') continue;
+        if (attribute == 'name') continue;
+
+        var value = attributes[attribute];
+
+        jQuery('.pgf-hero-choose-'+attribute+'-'+value).tab('show');
+    }
+
+    UpdateNameForm(attributes.name);
+}
+
+function RefreshChoiceTexts(texts) {
+    for (var attribute in texts) {
+        if (attribute == 'race') continue;
+        if (attribute == 'gender') continue;
+        if (attribute == 'name') continue;
+
+        for (var value in texts[attribute]) {
+            jQuery('.pgf-hero-choose-attribute-text-'+attribute+'-'+value).text(texts[attribute][value]);
+        }
+    }
+}
+
+function UpdateDescriptions(attributes) {
+    var femaleWidget = jQuery('.pgf-hero-description-short-female');
+    var maleWidget = jQuery('.pgf-hero-description-short-male');
+
+    femaleWidget.toggleClass('pgf-hidden', attributes.gender!='female');
+    maleWidget.toggleClass('pgf-hidden', attributes.gender!='male');
+
+    RenderDescription(femaleWidget, attributes, FEMALE_TEXTS);
+    RenderDescription(maleWidget, attributes, MALE_TEXTS);
+
+    jQuery('.pgf-hero-name-1').text(attributes.name[1]);
+    jQuery('.pgf-hero-name-3').text(attributes.name[3]);
+
+    UpdateChoiceTabs(attributes);
+
+    if (attributes.gender == 'male') {
+        RefreshChoiceTexts(MALE_TEXTS);
+        jQuery('.pgf-male-text').toggleClass('pgf-hidden', false);
+        jQuery('.pgf-female-text').toggleClass('pgf-hidden', true);
+    }
+    else {
+        RefreshChoiceTexts(FEMALE_TEXTS);
+        jQuery('.pgf-male-text').toggleClass('pgf-hidden', true);
+        jQuery('.pgf-female-text').toggleClass('pgf-hidden', false);
+    }
+}
+
+function ShowChoiceDialogue(attribute) {
+    jQuery('.pgf-hero-description').toggleClass('pgf-hidden', true);
+    jQuery('.pgf-hero-choose-property').toggleClass('pgf-hidden', true);
+    jQuery('.pgf-hero-choose-'+attribute).toggleClass('pgf-hidden', false);
+}
+
+function ShowDescription() {
+    jQuery('.pgf-hero-description').toggleClass('pgf-hidden', false);
+    jQuery('.pgf-hero-choose-property').toggleClass('pgf-hidden', true);
+}
+
+function NamesManager(params) {
+    var names = params.names;
+
+    var instance = this;
+
+    var refreshDelay = 1000.0;
+
+    instance.GetName = function(race, gender) {
+        var result = names[race][gender].shift();
+        names[race][gender].push(result);
+        return result;
+    };
+
+    function RefreshNames() {
+        jQuery.ajax({
+            dataType: 'json',
+            type: 'get',
+            url: params.url,
+            data: {'number': 25},
+            success: function(data, request, status) {
+                if (data.status == 'error') {
+                    setTimeout(RefreshNames, refreshDelay);
+                    return;
+                }
+
+                names = data.data.names;
+            },
+            error: function() {
+                setTimeout(RefreshNames, refreshDelay);
+            }
+        });
+    };
+
+    RefreshNames();
+}
+
+function StoryManager(params) {
+    var instance = this;
+
+    var widget = jQuery('.pgf-hero-story');
+    var widgetDummy = jQuery('.pgf-hero-story-dummy');
+
+    var refreshDelay = 1000.0;
+
+    instance.refreshes = 0;
+
+    instance.Refresh = function(attributes) {
+        instance.refreshes += 1;
+
+        var currentRefresh = instance.refreshes;
+
+        data = new FormData();
+
+        data.append('name', attributes.name);
+        data.append('gender', TECHNICAL_IDS.gender[attributes.gender]);
+        data.append('race', TECHNICAL_IDS.race[attributes.race]);
+        data.append('archetype', TECHNICAL_IDS.archetype[attributes.archetype]);
+        data.append('honor', TECHNICAL_IDS.honor[attributes.honor]);
+        data.append('peacefulness', TECHNICAL_IDS.peacefulness[attributes.peacefulness]);
+        data.append('upbringing', TECHNICAL_IDS.upbringing[attributes.upbringing]);
+        data.append('first_death', TECHNICAL_IDS.death[attributes.death]);
+        data.append('age', TECHNICAL_IDS.age[attributes.age]);
+
+        widget.toggleClass('pgf-hidden', true);
+        widgetDummy.toggleClass('pgf-hidden', false);
+
+        jQuery.ajax({
+            dataType: 'json',
+            type: 'post',
+            url: params.url,
+            data: data,
+            contentType: false,
+            processData: false,
+            success: function(data, request, status) {
+                if (data.status == 'error') {
+                    if (currentRefresh != instance.refreshes) {
+                        return;
+                    }
+                    setTimeout(function(){instance.Refresh(attributes);}, refreshDelay);
+                    return;
+                }
+
+                var story = '';
+
+                for (var i in data.data.story) {
+                    story += '<p>&nbsp;&nbsp;&nbsp;&nbsp;' + data.data.story[i] + '</p>';
+                }
+
+                widget.html(story);
+                widget.toggleClass('pgf-hidden', false);
+                widgetDummy.toggleClass('pgf-hidden', true);
+            },
+            error: function() {
+                if (currentRefresh != instance.refreshes) {
+                    return;
+                }
+                setTimeout(function(){instance.Refresh(attributes);}, refreshDelay);
+            }
+        });
+
+    };
+}
+
+jQuery(document).ready(function(e){
+
+    var namesManager = new NamesManager({url: "{{game_names_url()}}",
+                                         names: {{create_hero.initial_names()|json|safe}}});
+
+    var storyManager = new StoryManager({url: "{{game_hero_history_url()}}"})
+
+    var gender = pgf.base.RandomItem(['male', 'female']);
+    var race = pgf.base.RandomItem(['elf', 'human', 'dwarf', 'orc', 'goblin']);
+    var lastRandomName = namesManager.GetName(race, gender);
+
+    var ATTRIBUTES = {gender: gender,
+                      race: race,
+                      name: lastRandomName.slice(),
+                      upbringing: pgf.base.RandomItem(['vulgar', 'rural', 'philistine', 'aristocratic', 'priestly']),
+                      peacefulness: pgf.base.RandomItem(['bully', 'friendly']),
+                      honor: pgf.base.RandomItem(['truthful', 'liar']),
+                      archetype: pgf.base.RandomItem(['adventurer', 'mage', 'warrior']),
+                      age: pgf.base.RandomItem(['young', 'mature', 'old']),
+                      death: pgf.base.RandomItem(['on_the_scaffold', 'in_a_drunken_brawl', 'from_the_monster_fangs', 'from_the_disease', 'in_a_skirmish_with_the_robbers'])};
+
+    UpdateDescriptions(ATTRIBUTES);
+    storyManager.Refresh(ATTRIBUTES);
+
+    jQuery('.hero-property-choice').click(function(e){
+        e.preventDefault();
+
+        ShowChoiceDialogue(jQuery(e.target).data('attribute'));
+    });
+
+    jQuery('.pgf-hero-choose-attribute').click(function(e){
+        e.preventDefault();
+
+        var newAttributes = jQuery(e.target).data('attributes').split(',');
+        var resetName = false;
+        for (var i in newAttributes) {
+            var attribute = newAttributes[i].split(':');
+            ATTRIBUTES[attribute[0]] = attribute[1];
+
+            if (attribute[0] == 'race' || attribute[0] == 'gender') {
+                resetName = true;
+            }
+        }
+
+        if (resetName && pgf.base.CompareObjects(lastRandomName, ATTRIBUTES.name)) {
+            lastRandomName = namesManager.GetName(ATTRIBUTES.race, ATTRIBUTES.gender);
+            ATTRIBUTES.name = lastRandomName.slice();
+        }
+
+        UpdateDescriptions(ATTRIBUTES);
+        ShowDescription();
+
+        storyManager.Refresh(ATTRIBUTES);
+    });
+
+    jQuery('.pgf-hero-choose-name-button').click(function(e){
+        e.preventDefault();
+
+        var name = [jQuery('#pgf-create-hero-name-0').val(),
+                    jQuery('#pgf-create-hero-name-1').val(),
+                    jQuery('#pgf-create-hero-name-2').val(),
+                    jQuery('#pgf-create-hero-name-3').val(),
+                    jQuery('#pgf-create-hero-name-4').val(),
+                    jQuery('#pgf-create-hero-name-5').val()];
+
+        for (var i in name) {
+            var nameForm = name[i];
+
+            if (nameForm.length < {{hero_settings.NAME_MIN_LENGHT}}) {
+                pgf.ui.dialog.Error({ message: 'Длина имени не может быть меньше {{hero_settings.NAME_MIN_LENGHT}} символов'});
+                return;
+            }
+
+            if (nameForm.length > {{hero_model.MAX_NAME_LENGTH}}) {
+                pgf.ui.dialog.Error({ message: 'Длина имени не может быть больше {{hero_model.MAX_NAME_LENGTH}} символов'});
+                return;
+            }
+
+            var regex = /{{hero_settings.NAME_REGEX|safe}}/;
+            if (!regex.test(nameForm)) {
+                pgf.ui.dialog.Error({ message: 'Имя может состоять только из следующих символов: {{hero_settings.NAME_SYMBOLS_DESCRITION}}'});
+                return;
+            }
+        }
+
+        ATTRIBUTES.name = name;
+
+        UpdateDescriptions(ATTRIBUTES);
+        ShowDescription();
+
+        storyManager.Refresh(ATTRIBUTES);
+    });
+
+    jQuery('.pgf-refresh-name').click(function(e){
+        e.preventDefault();
+
+        lastRandomName = namesManager.GetName(ATTRIBUTES.race, ATTRIBUTES.gender)
+
+        UpdateNameForm(lastRandomName.slice());
+
+    });
+
+    jQuery('.pgf-hero-choose-attribute-back').click(function(e){
+        e.preventDefault();
+        UpdateDescriptions(ATTRIBUTES);
+        ShowDescription();
+    });
+});
+
+</script>
+
+
+{% endblock %}
+
+{%- macro prop(attribute, tooltip) -%}
+<a class="hero-property-choice pgf-hero-property-{{attribute}}" data-attribute="{{attribute}}" rel="tooltip" title="{{tooltip}}"></a>
+{%- endmacro -%}
+
+{% macro choose_attr(text, attribute, classes="") %}
+<a class="btn btn-success pgf-hero-choose-attribute {{classes}}" data-attributes="{{attribute}}">{{text}}</a>
+{% endmacro %}
+
+{% macro render_choice(choice) %}
+<div class="pgf-hero-choose-property pgf-hero-choose-{{choice.attribute}} block pgf-hidden tabbable tabs-left">
+  <h3 class="pgf-male-text pgf-hidden">{{choice.title_male}}</h3>
+  <h3 class="pgf-female-text pgf-hidden">{{choice.title_female}}</h3>
+
+  <ul class="nav nav-tabs nav-stacked" id="pgf-hero-choose-race-tabs">
+    {% for tab in choice.tabs %}
+      <li>
+        <a href="#pgf-hero-choose-{{choice.attribute}}-{{tab.value}}"
+           class="pgf-hero-choose-{{choice.attribute}}-{{tab.value}}"
+           data-toggle="tab">
+           <span class="pgf-male-text pgf-hidden">{{tab.title_male}}</span>
+           <span class="pgf-female-text pgf-hidden">{{tab.title_female}}</span>
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div class="tab-content" style="text-align: justify;">
+    {% for tab in choice.tabs %}
+    <div class="tab-pane" id="pgf-hero-choose-{{choice.attribute}}-{{tab.value}}">
+      <p>{{tab.body|safe}}</p>
+      {% for button in tab.buttons %}
+        {{ choose_attr(button.text, button.value) }}
+      {% endfor %}
+
+      <a class="btn btn-info pgf-hero-choose-attribute-back">Назад</a>
+
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}
+
+
+{% block content %}
+
+<div class="row">
+  <div class="span6">
+    <div class="easy-block">
+      <h2>Хранитель, найди своего героя!</h2>
+      <p>
+        Вы — бесмертное существо, которое заботится об этом мире (как сочтёт нужным).
+      </p>
+
+      <p>
+        Хранители являют свою волю через посредников, прозванных героями.
+      </p>
+
+      <p>
+        Герой обретает бессмертие в обмен на установление сильной связи с Хранителем.
+      </p>
+
+      <p>
+        По традиции, выбрать героя можно только после его естественной смерти — завершения самостоятельного жизненного пути.
+      </p>
+
+      <div class="alert alert-success pgf-hero-description" style="color: black;">
+
+        <h3>Итак</h3>
+
+        <p class="pgf-hero-description-short-female">
+          Ваш герой — {{ prop("race", "Изменить расу и пол героя") }} по имени {{ prop("name", "Изменить имя героя") }}.</br>
+          Она {{ prop("peacefulness", "Изменить миролюбивость героя") }} и {{ prop("honor", "Изменить честь героя") }} {{ prop("upbringing", "изменить происхождение героя") }}.<br/>
+          Будучи в душе {{ prop("archetype", "Изменить архетип героя") }} погибла {{ prop("age", "Изменить возраст первой смерти героя") }} {{ prop("death", "Изменить тип смерти героя") }}.
+        </p>
+
+        <p class="pgf-hero-description-short-male">
+          Ваш герой — {{ prop("race", "Изменить расу героя") }} по имени {{ prop("name", "Изменить имя героя") }}.</br>
+          Он {{ prop("peacefulness", "Изменить миролюбивость героя") }} и {{ prop("honor", "Изменить честь героя") }} {{ prop("upbringing", "изменить происхождение героя") }}.<br/>
+          Будучи в душе {{ prop("archetype", "Изменить архетип героя") }} погиб {{ prop("age", "Изменить возраст первой смерти героя") }} {{ prop("death", "Изменить тип смерти героя") }}.
+        </p>
+
+        <a href="#" class="btn btn-success" style="font-size: 14pt; padding: 0.5em;">Воскресить <span class="pgf-hero-name-3"></span></a>
+      </div>
+
+      {% for choice in create_hero.ATTRIBUTE_CHOICES %}
+      {{render_choice(choice)}}
+      {% endfor %}
+
+      <div class="pgf-hero-choose-property pgf-hero-choose-name block pgf-hidden tabbable tabs-left">
+        <h3 class="pgf-male-text pgf-hidden">Имя героя <a href="" class="icon icon-refresh pgf-refresh-name" style="vertical-align: middle;" rel="tooltip" title="случайно имя"></a></h3>
+        <h3 class="pgf-female-text pgf-hidden">Имя героини <a href="" class="icon icon-refresh pgf-refresh-name" style="vertical-align: middle;" rel="tooltip" title="случайно имя"></a></h3>
+
+        {% macro name_field(label, index) %}
+          <div class="control-group">
+            <label class="control-label" for="pgf-create-hero-name-{{index}}">{{label}}</label>
+            <div class="controls">
+              <input id="pgf-create-hero-name-{{index}}"
+                     maxlength="{{hero_model.MAX_NAME_LENGTH}}"
+                     type="text"
+                     value=""/>
+            </div>
+          </div>
+          {% endmacro %}
+
+        {% set hero_model = value("the_tale.game.heroes.models", "Hero") %}
+        {% set hero_settings = value("the_tale.game.heroes.conf", "heroes_settings") %}
+
+        <p>
+          Минимальная длина имени: {{hero_settings.NAME_MIN_LENGHT}} символа</br>
+          Максимальная длина имени: {{hero_model.MAX_NAME_LENGTH}} символа</br>
+          Допустимые символы: {{hero_settings.NAME_SYMBOLS_DESCRITION}}
+        </p>
+
+        <form class="form-horizontal">
+          {{ name_field('кто/что?', 0) }}
+          {{ name_field('кого/чего?', 1) }}
+          {{ name_field('кому/чему?', 2) }}
+          {{ name_field('кого/что?', 3) }}
+          {{ name_field('кем/чем?', 4) }}
+          {{ name_field('(о) ком/(о) чём?', 5) }}
+        </form>
+
+        <a class="btn btn-success pgf-hero-choose-name-button">Выбрать имя</a>
+
+        <a class="btn btn-info pgf-hero-choose-attribute-back">Назад</a>
+
+      </div>
+
+
+      <p style="font-style: italic;">
+        После создания героя любое его свойство можно изменить с помощью <a href="{{ url('guide:cards:') }}" target="_blank">карт судьбы</a>.
+      </p>
+
+    </div>
+  </div>
+
+  <div class="span6">
+    <div class="alert alert-info" style="color: black;">
+
+      <h3>История <span class="pgf-hero-name-1"></span></h3>
+
+      <div class="pgf-hero-story-dummy" style="font-size: 12pt; font-style: italic;">
+        Собираем информацию о герое…
+      </div>
+
+      <div class="pgf-hero-story pgf-hidden"></div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

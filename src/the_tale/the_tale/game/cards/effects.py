@@ -5,6 +5,7 @@ import random
 from rels import Column
 from rels.django import DjangoEnum
 
+from tt_logic.beings import relations as beings_relations
 from tt_logic.cards import constants as logic_cards_constants
 
 from the_tale.amqp_environment import environment
@@ -298,10 +299,10 @@ class ChangeHabit(ModificatorBase):
         return self._name_for_card(card.type, card.data['habit_id'], card.data['direction'])
 
 
-
-
 class ChangePreference(BaseEffect):
     __slots__ = ()
+
+    DESCRIPTION = 'Позволяет изменить указанное в названии предпочтение героя.'
 
     def get_form(self, card, hero, data):
         from . import preferences_forms
@@ -310,16 +311,9 @@ class ChangePreference(BaseEffect):
 
         return preferences_forms.FORMS[preference](data, hero=hero)
 
-
     def get_dialog_info(self, card, hero):
         preference = heroes_relations.PREFERENCE_TYPE(card.data['preference_id'])
         return 'heroes/preferences/{}.html'.format(preference.base_name)
-
-
-    @property
-    def DESCRIPTION(self):
-        return 'Позволяет изменить указанное в названии предпочтение героя.'
-
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
@@ -335,10 +329,8 @@ class ChangePreference(BaseEffect):
 
         return task.logic_result()
 
-
     def allowed_preferences(self):
         return heroes_relations.PREFERENCE_TYPE.records
-
 
     def create_card(self, type, available_for_auction, preference=None, uid=None):
         if preference is None:
@@ -352,10 +344,8 @@ class ChangePreference(BaseEffect):
     def _item_full_type(self, type, preference_id):
         return '{}-{}'.format(type.value, preference_id)
 
-
     def item_full_type(self, card):
         return self._item_full_type(card.type, card.data['preference_id'])
-
 
     def full_type_names(self, card_type):
         names = {}
@@ -366,13 +356,11 @@ class ChangePreference(BaseEffect):
 
         return names
 
-
     def _name_for_card(self, type, preference_id):
         return type.text + ': ' + heroes_relations.PREFERENCE_TYPE(preference_id).text
 
     def name_for_card(self, card):
         return self._name_for_card(card.type, card.data['preference_id'])
-
 
 
 class ChangeAbilitiesChoices(BaseEffect):
@@ -1185,3 +1173,114 @@ class CreateClan(BaseEffect):
                                               description='')
 
         return task.logic_result(message='Поздравляем, гильдмастер! Ваша гильдия ждёт Вас! Задайте девиз и описание гильдии на её странице.')
+
+
+class ChangeHistory(BaseEffect):
+    __slots__ = ()
+
+    class HISTORY_TYPE(DjangoEnum):
+        choices = Column(single_type=False)
+        form_class = Column(single_type=False)
+
+        records = (('UPBRINGING', 0, 'воспитание', beings_relations.UPBRINGING, forms.Upbringing),
+                   ('DEATH_AGE', 1, 'возраст смерти', beings_relations.AGE, forms.DeathAge),
+                   ('FIRST_DEATH', 2, 'способ смерти', beings_relations.FIRST_DEATH, forms.DeathType))
+
+    DESCRIPTION = 'Позволяет изменить часть истории героя, указанную в названии карты.'
+
+    def get_form(self, card, hero, data):
+        return self.HISTORY_TYPE(card.data['history_id']).form_class(data)
+
+    def change_upbringing(self, storage, hero, value):
+        upbringing = beings_relations.UPBRINGING(value)
+
+        if upbringing == hero.upbringing:
+            return False
+
+        hero.upbringing = upbringing
+
+        storage.save_bundle_data(bundle_id=hero.actions.current_action.bundle_id)
+
+        return True
+
+    def change_death_age(self, storage, hero, value):
+        age = beings_relations.AGE(value)
+
+        if age == hero.death_age:
+            return False
+
+        hero.death_age = age
+
+        storage.save_bundle_data(bundle_id=hero.actions.current_action.bundle_id)
+
+        return True
+
+    def change_first_death(self, storage, hero, value):
+        first_death = beings_relations.FIRST_DEATH(value)
+
+        if first_death == hero.first_death:
+            return False
+
+        hero.first_death = first_death
+
+        storage.save_bundle_data(bundle_id=hero.actions.current_action.bundle_id)
+
+        return True
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
+
+        history_type = self.HISTORY_TYPE(card.data['history_id'])
+
+        if history_type.is_UPBRINGING:
+            if not self.change_upbringing(storage, task.hero, task.data.get('value')):
+                return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                         message='Герой уже имеет выбранное воспитание.')
+            return task.logic_result(message='Воспитание героя изменено.')
+
+        elif history_type.is_DEATH_AGE:
+            if not self.change_death_age(storage, task.hero, task.data.get('value')):
+                return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                         message='Герой уже имеет выбранный возраст смерти.')
+            return task.logic_result(message='Возраст смерти героя изменён.')
+
+        elif history_type.is_FIRST_DEATH:
+            if not self.change_first_death(storage, task.hero, task.data.get('value')):
+                return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                         message='Герой уже имеет выбранный способ первой смерти.')
+            return task.logic_result(message='Способ первой смерти героя изменён.')
+
+        raise NotImplementedError
+
+    def allowed_history(self):
+        return self.HISTORY_TYPE.records
+
+    def create_card(self, type, available_for_auction, history=None, uid=None):
+        if history is None:
+            history = random.choice(self.allowed_history())
+
+        return objects.Card(type=type,
+                            available_for_auction=available_for_auction,
+                            data={'history_id': history.value},
+                            uid=uid if uid else uuid.uuid4())
+
+    def _item_full_type(self, type, history_id):
+        return '{}-{}'.format(type.value, history_id)
+
+    def item_full_type(self, card):
+        return self._item_full_type(card.type, card.data['history_id'])
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for history in self.allowed_history():
+            full_type = self._item_full_type(card_type, history.value)
+            names[full_type] = self._name_for_card(card_type, history.value)
+
+        return names
+
+    def _name_for_card(self, type, history_id):
+        return '{}: {}'.format(type.text, self.HISTORY_TYPE(history_id).text)
+
+    def name_for_card(self, card):
+        return self._name_for_card(card.type, card.data['history_id'])

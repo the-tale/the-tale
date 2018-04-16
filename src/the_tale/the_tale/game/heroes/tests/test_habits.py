@@ -156,7 +156,7 @@ class HabitTest(BaseHabitTest):
             self.hero.gender = gender
             values.add(self.hero.habit_honor.verbose_value)
 
-        self.assertEqual(len(values), 3)
+        self.assertEqual(len(values), 2)
 
         self.hero.habit_honor.change(600)
 
@@ -164,7 +164,7 @@ class HabitTest(BaseHabitTest):
             self.hero.gender = gender
             values.add(self.hero.habit_honor.verbose_value)
 
-        self.assertEqual(len(values), 6)
+        self.assertEqual(len(values), 4)
 
 
     def test_interval_and_change(self):
