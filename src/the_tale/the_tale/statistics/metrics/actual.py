@@ -19,8 +19,6 @@ from the_tale.statistics import relations
 from the_tale.statistics.conf import statistics_settings
 
 
-
-
 class ActiveBase(BaseMetric):
     TYPE = None
 
@@ -41,7 +39,12 @@ class Premiums(ActiveBase):
     TYPE = relations.RECORD_TYPE.PREMIUMS
 
     def get_actual_value(self, date):
-        return AccountPrototype._db_filter(self.db_date_gte('premium_end_at', date=date)).count()
+        premiums_ids = set(AccountPrototype._db_filter(self.db_date_gte('premium_end_at', date=date)).values_list('id', flat=True))
+        infinit_ids = set(InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
+                                                      operation_uid__contains='infinit',
+                                                      sender_type=ENTITY_TYPE.GAME_LOGIC,
+                                                      currency=CURRENCY_TYPE.PREMIUM).values_list('recipient_id', flat=True))
+        return len(premiums_ids | infinit_ids)
 
     def get_invoice_intervals_count(self, days, date):
         starts = list(InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
@@ -50,7 +53,7 @@ class Premiums(ActiveBase):
                                                   currency=CURRENCY_TYPE.PREMIUM).values_list('created_at', flat=True))
         return len([True
                     for created_at in starts
-                    if created_at <= datetime.datetime.combine(date, datetime.time()) < created_at + datetime.timedelta(days=days)] )
+                    if created_at <= datetime.datetime.combine(date, datetime.time()) < created_at + datetime.timedelta(days=days)])
 
     def get_invoice_infinit_intervals_count(self, date):
         return InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED),
@@ -70,13 +73,13 @@ class Premiums(ActiveBase):
         if statistics_settings.PAYMENTS_START_DATE.date() > date:
             return 0
 
-        return ( portal_conf.portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY +
-                 self.get_chest_intervals_count(date) +
-                 self.get_invoice_intervals_count(7, date) +
-                 self.get_invoice_intervals_count(15, date) +
-                 self.get_invoice_intervals_count(30, date) +
-                 self.get_invoice_intervals_count(90, date) +
-                 self.get_invoice_infinit_intervals_count(date))
+        return (portal_conf.portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY +
+                self.get_chest_intervals_count(date) +
+                self.get_invoice_intervals_count(7, date) +
+                self.get_invoice_intervals_count(15, date) +
+                self.get_invoice_intervals_count(30, date) +
+                self.get_invoice_intervals_count(90, date) +
+                self.get_invoice_infinit_intervals_count(date))
 
 
 class PremiumPercents(BasePercentsCombination):
