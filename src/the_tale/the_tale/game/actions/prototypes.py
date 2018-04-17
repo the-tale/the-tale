@@ -1311,10 +1311,10 @@ class ActionInPlacePrototype(ActionBase):
                 hero.add_message('action_inplace_companion_drink_artifact', hero=hero, place=hero.position.place, artifact=artifact, companion=hero.companion)
 
             if random.random() < hero.companion_leave_in_place_probability:
-                hero.add_message('action_inplace_companion_leave', diary=True, hero=hero, place=hero.position.place, companion=hero.companion)
+                hero.add_message('companions_left', diary=True, companion_owner=hero, companion=hero.companion)
                 hero.remove_companion()
 
-        hero.position.move_in_place() # <- must be last method
+        hero.position.move_in_place()  # <- must be last method
 
         return prototype
 
