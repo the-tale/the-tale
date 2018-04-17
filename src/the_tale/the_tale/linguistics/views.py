@@ -47,10 +47,10 @@ class TemplatesIndexFilter(list_filter.ListFilter):
                 list_filter.filter_element('поиск:', attribute='filter', default_value=None),
                 list_filter.choice_element('состояние:', attribute='state', choices=[(None, 'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
                 list_filter.choice_element('наличие ошибок:', attribute='errors_status', choices=[(None, 'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
+                list_filter.choice_element('ограничение:', attribute='restriction', choices=storage.restrictions_storage.get_form_choices),
                 list_filter.choice_element('сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
                                            default_value=relations.INDEX_ORDER_BY.UPDATED_AT.value),
-                list_filter.static_element('количество:', attribute='count', default_value=0),
-                list_filter.choice_element('ограничение:', attribute='restriction', choices=storage.restrictions_storage.get_form_choices) ]
+                list_filter.static_element('количество:', attribute='count', default_value=0)]
 
 
 def get_contributors(entity_id, author_id, type):
