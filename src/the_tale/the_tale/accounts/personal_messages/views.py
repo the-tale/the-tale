@@ -246,8 +246,8 @@ def create(context):
     check_recipients(context.form)
 
     tt_api.send_message(sender_id=context.account.id,
-                       recipients_ids=context.form.c.recipients,
-                       body=context.form.c.text)
+                        recipients_ids=context.form.c.recipients,
+                        body=context.form.c.text)
 
     return dext_views.AjaxOk()
 

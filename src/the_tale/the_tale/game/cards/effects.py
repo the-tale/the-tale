@@ -1022,7 +1022,7 @@ class ReleaseCompanion(BaseEffect):
         task.hero.add_message('companions_left', diary=True, companion_owner=task.hero, companion=task.hero.companion)
         task.hero.remove_companion()
 
-        return task.logic_result(message='Поздравляем! Ваш герой получил нового спутника.')
+        return task.logic_result(message='Спутник покинул героя.')
 
 
 class FreezeCompanion(BaseEffect):
