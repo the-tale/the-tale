@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.forms import ValidationError, HiddenInput
 
@@ -20,7 +19,6 @@ class RecipientsForm(forms.Form):
             raise ValidationError('Неверный идентификатор получателя')
 
         return recipients
-
 
 
 class NewMessageForm(RecipientsForm):
