@@ -32,7 +32,12 @@ from the_tale.game.map.storage import map_info_storage
 
 from the_tale.game.abilities.relations import HELP_CHOICES
 
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game.politic_power import logic as politic_power_logic
+
+from the_tale.game import tt_api_energy
+from the_tale.game import tt_api_impacts
+
+from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.actions import battle
 from the_tale.game.actions import contexts
@@ -1266,11 +1271,11 @@ class ActionInPlacePrototype(ActionBase):
         if (hero.can_regenerate_energy and
             random.random() < hero.position.place.attrs.energy_regen_chance):
 
-            game_tt_api.change_energy_balance(account_id=hero.account_id,
-                                              type='inplace_regen',
-                                              energy=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
-                                              async=True,
-                                              autocommit=True)
+            tt_api_energy.change_energy_balance(account_id=hero.account_id,
+                                                type='inplace_regen',
+                                                energy=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
+                                                async=True,
+                                                autocommit=True)
 
             hero.add_message('action_inplace_instant_energy_regen',
                              hero=hero,
@@ -1399,36 +1404,42 @@ class ActionInPlacePrototype(ActionBase):
 
     def spend_money__impact(self):
         coins = self.try_to_spend_money()
-        if coins is not None:
 
-            choices = []
+        if coins is None:
+            return
 
-            if self.hero.preferences.friend is not None and self.hero.preferences.friend.place.id == self.hero.position.place.id:
-                choices.append((True, self.hero.preferences.friend))
+        choices = []
 
-            if self.hero.preferences.enemy is not None and self.hero.preferences.enemy.place.id == self.hero.position.place.id:
-                choices.append((False, self.hero.preferences.enemy))
+        if self.hero.preferences.friend is not None and self.hero.preferences.friend.place.id == self.hero.position.place.id:
+            choices.append((True, self.hero.preferences.friend))
 
-            if not choices:
-                choices.append((random.choice([True, False]), random.choice(self.hero.position.place.persons)))
+        if self.hero.preferences.enemy is not None and self.hero.preferences.enemy.place.id == self.hero.position.place.id:
+            choices.append((False, self.hero.preferences.enemy))
 
-            impact_type, person = random.choice(choices)
+        if not choices:
+            choices.append((random.choice([True, False]), random.choice(self.hero.position.place.persons)))
 
-            if impact_type:
-                power_direction = 1
-                self.hero.add_message('action_inplace_diary_impact_good', diary=True, hero=self.hero, coins=coins, person=person)
-            else:
-                power_direction = -1
-                self.hero.add_message('action_inplace_diary_impact_bad', diary=True, hero=self.hero, coins=coins, person=person)
+        impact_type, person = random.choice(choices)
 
-            if not self.hero.can_change_person_power(person):
-                return
+        if impact_type:
+            power_direction = 1
+            self.hero.add_message('action_inplace_diary_impact_good', diary=True, hero=self.hero, coins=coins, person=person)
+        else:
+            power_direction = -1
+            self.hero.add_message('action_inplace_diary_impact_bad', diary=True, hero=self.hero, coins=coins, person=person)
 
-            power = self.hero.modify_politics_power(power_direction*f.person_power_for_quest(c.QUEST_AREA_RADIUS), person=person)
-            person.cmd_change_power(hero_id=self.hero.id,
-                                    has_place_in_preferences=self.hero.preferences.has_place_in_preferences(person.place),
-                                    has_person_in_preferences=self.hero.preferences.has_place_in_preferences(person),
-                                    power=power)
+        if not self.hero.can_change_person_power(person):
+            return
+
+        power = self.hero.modify_politics_power(power_direction*f.person_power_for_quest(c.QUEST_AREA_RADIUS), person=person)
+
+        impacts = list(persons_logic.tt_power_impacts(person_inner_circle=self.hero.preferences.has_place_in_preferences(person),
+                                                      place_inner_circle=self.hero.preferences.has_place_in_preferences(person.place),
+                                                      actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                      actor_id=self.hero.id,
+                                                      person=person,
+                                                      amount=power))
+        politic_power_logic.add_power_impacts(impacts)
 
     def spend_money__experience(self):
         coins = self.try_to_spend_money()
@@ -1437,7 +1448,6 @@ class ActionInPlacePrototype(ActionBase):
             experience = int(c.BASE_EXPERIENCE_FOR_MONEY_SPEND * (1.0 + random.uniform(-c.EXPERIENCE_DELTA_FOR_MONEY_SPEND, c.EXPERIENCE_DELTA_FOR_MONEY_SPEND)) + 1)
             self.hero.add_experience(experience)
             self.hero.add_message('action_inplace_diary_experience', diary=True, hero=self.hero, coins=coins, experience=experience)
-
 
     def spend_money__heal_companion(self):
         if self.hero.companion is None:
@@ -1917,11 +1927,11 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
                     energy_delta = self.regeneration_type.amount * multiplier
 
-                    game_tt_api.change_energy_balance(account_id=self.hero.account_id,
-                                                      type='energy_regeneration',
-                                                      energy=energy_delta,
-                                                      async=True,
-                                                      autocommit=True)
+                    tt_api_energy.change_energy_balance(account_id=self.hero.account_id,
+                                                        type='energy_regeneration',
+                                                        energy=energy_delta,
+                                                        async=True,
+                                                        autocommit=True)
 
                     self.hero.add_message('%s_energy_received' % self.textgen_id, hero=self.hero, energy=energy_delta)
                 else:

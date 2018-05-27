@@ -124,7 +124,9 @@ class HeroMethod(BaseEffect):
         return self.apply_to_heroes(actor_type=actor_type,
                                     effect=getattr(EFFECT, self.effect_name),
                                     method_names=(self.method_name, 'job_message'),
-                                    method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
+                                    method_kwargs={'place_id': place.id,
+                                                   'person_id': person.id if person else None,
+                                                   'job_power': job_power},
                                     positive_heroes=positive_heroes,
                                     negative_heroes=negative_heroes,
                                     direction='positive')
@@ -135,7 +137,9 @@ class HeroMethod(BaseEffect):
         return self.apply_to_heroes(actor_type=actor_type,
                                     effect=getattr(EFFECT, self.effect_name),
                                     method_names=('job_message', self.method_name),
-                                    method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
+                                    method_kwargs={'place_id': place.id,
+                                                   'person_id': person.id if person else None,
+                                                   'job_power': job_power},
                                     positive_heroes=positive_heroes,
                                     negative_heroes=negative_heroes,
                                     direction='negative')
@@ -164,8 +168,8 @@ def hero_profit(id, profit_name, text, power_modifier, description):
 
 
 class EFFECT_GROUP(DjangoEnum):
-    records = ( ('ON_PLACE', 0, 'на город'),
-                ('ON_HEROES', 1, 'на героев') )
+    records = (('ON_PLACE', 0, 'на город'),
+               ('ON_HEROES', 1, 'на героев'))
 
 
 class EFFECT(DjangoEnum):

@@ -3,8 +3,12 @@ from unittest import mock
 import datetime
 
 from the_tale.game import turn
+from the_tale.game import tt_api_impacts
+
+from the_tale.game.politic_power import logic as politic_power_logic
 
 from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.bills import relations
 from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
@@ -21,12 +25,22 @@ class PersonMoveTests(BaseTestPrototypes):
 
         self.account = self.accounts_factory.create_account()
 
-        self.person_1.politic_power.change_power(self.person_1, hero_id=self.account.id, has_in_preferences=True, power=100)
-        self.person_2.politic_power.change_power(self.person_2, hero_id=self.account.id, has_in_preferences=True, power=200)
+        politic_power_logic.add_power_impacts(persons_logic.tt_power_impacts(person_inner_circle=True,
+                                                                             place_inner_circle=True,
+                                                                             actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                             actor_id=self.account.id,
+                                                                             person=self.person_1,
+                                                                             amount=100))
+
+        politic_power_logic.add_power_impacts(persons_logic.tt_power_impacts(person_inner_circle=True,
+                                                                             place_inner_circle=True,
+                                                                             actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                             actor_id=self.account.id,
+                                                                             person=self.person_2,
+                                                                             amount=100))
 
         self.bill_data = PersonMove(person_id=self.person_1.id, new_place_id=self.place2.id)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-
 
     def test_create(self):
         self.assertEqual(self.bill.data.person_id, self.person_1.id)
@@ -34,11 +48,9 @@ class PersonMoveTests(BaseTestPrototypes):
         self.assertEqual(self.bill.data.new_place_id, self.place2.id)
         self.assertEqual(self.bill.data.new_place_name_forms, self.place2.utg_name)
 
-
     def test_actors(self):
         self.assertEqual(set([id(a) for a in self.bill_data.actors]),
                          set([id(self.place1), id(self.place2), id(self.person_1)]))
-
 
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 0)
     def test_update(self):
@@ -48,6 +60,7 @@ class PersonMoveTests(BaseTestPrototypes):
                 'new_place': self.place3.id}
 
         form = self.bill.data.get_user_form_update(post=data, owner_id=self.account.id)
+        form.is_valid()
 
         self.assertTrue(form.is_valid())
 
@@ -58,7 +71,6 @@ class PersonMoveTests(BaseTestPrototypes):
         self.assertEqual(self.bill.data.person_id, self.person_2.id)
         self.assertEqual(self.bill.data.new_place_id, self.place3.id)
         self.assertEqual(self.bill.data.new_place_name_forms, self.place3.utg_name)
-
 
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 1)
     def test_user_form__move_delay(self):
@@ -76,7 +88,6 @@ class PersonMoveTests(BaseTestPrototypes):
 
         self.assertTrue(form.is_valid())
 
-
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 0)
     @mock.patch('the_tale.game.balance.constants.PLACE_MIN_PERSONS', 100)
     def test_user_form__min_barrier(self):
@@ -87,7 +98,6 @@ class PersonMoveTests(BaseTestPrototypes):
 
         form = self.bill.data.get_user_form_update(post=data, owner_id=self.account.id)
         self.assertFalse(form.is_valid())
-
 
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 0)
     @mock.patch('the_tale.game.balance.constants.PLACE_MAX_PERSONS', 1)
@@ -168,16 +178,13 @@ class PersonMoveTests(BaseTestPrototypes):
 
         self.assertFalse(bill.has_meaning())
 
-
     @mock.patch('the_tale.game.balance.constants.PLACE_MIN_PERSONS', 100)
     def test_has_meaning__min_barrier(self):
         self.assertFalse(self.bill.has_meaning())
 
-
     @mock.patch('the_tale.game.balance.constants.PLACE_MAX_PERSONS', 1)
     def test_has_meaning__max_barrier(self):
         self.assertFalse(self.bill.has_meaning())
-
 
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 1)
     def test_has_meaning__move_delay(self):
@@ -186,7 +193,6 @@ class PersonMoveTests(BaseTestPrototypes):
         turn.increment()
 
         self.assertTrue(self.bill.has_meaning())
-
 
     @mock.patch('the_tale.game.persons.objects.Person.has_building', True)
     def test_has_meaning__has_building(self):

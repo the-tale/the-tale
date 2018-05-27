@@ -11,9 +11,13 @@ from the_tale.game.relations import RACE
 from the_tale.game.logic import create_test_map
 from the_tale.game.balance import constants as c
 
-from the_tale.game.jobs import effects as jobs_effects
+from the_tale.game.jobs import objects as jobs_objects
+from the_tale.game.jobs import logic as jobs_logic
+
+from the_tale.game.politic_power import logic as politic_power_logic
 
 from the_tale.game import effects
+from the_tale.game import tt_api_impacts
 from the_tale.game import relations as game_relations
 
 from the_tale.game.persons import storage as persons_storage
@@ -27,6 +31,9 @@ from .. import storage
 from .. import objects
 from .. import models
 from .. import logic
+
+
+TEST_FREEDOM = 3
 
 
 class PlaceTests(testcase.TestCase):
@@ -464,37 +471,6 @@ class PlaceTests(testcase.TestCase):
     def test_get_next_keepers_goods_spend_amount__greater_then_production(self):
         self.p1.attrs.keepers_goods = int((c.PLACE_GOODS_BONUS + 1) / c.PLACE_KEEPERS_GOODS_SPENDING)
         self.assertEqual(self.p1.attrs.get_next_keepers_goods_spend_amount(), c.PLACE_GOODS_BONUS + 1)
-
-
-class PlaceJobsTests(testcase.TestCase):
-
-    def setUp(self):
-        super(PlaceJobsTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
-
-    def test_job_effects_priorities(self):
-        self.assertEqual(self.place_1.job_effects_priorities(),
-                         {effect: 1 for effect in jobs_effects.EFFECT.records})
-
-    @mock.patch('the_tale.game.places.objects.Place.total_politic_power_fraction', 0.5)
-    def test_get_job_power(self):
-        self.assertEqual(self.place_1.get_job_power(), 0.875)
-
-    def test_update_job(self):
-
-        with self.check_not_changed(lambda: self.place_1.job.effect):
-            with mock.patch('the_tale.game.jobs.effects.BaseEffect.apply_to_heroes') as apply_to_heroes:
-                self.place_1.job.give_power(1)
-                self.assertEqual(self.place_1.update_job(), ())
-
-        self.assertEqual(apply_to_heroes.call_count, 0)
-
-        with self.check_changed(lambda: self.place_1.job.effect):
-            with mock.patch('the_tale.game.jobs.effects.BaseEffect.apply_to_heroes', mock.Mock(return_value=(1, 2))) as apply_to_heroes:
-                self.place_1.job.give_power(1000000000)
-                self.assertEqual(self.place_1.update_job(), (1, 2))
-
-        self.assertEqual(apply_to_heroes.call_count, 1)
 
 
 class BuildingTests(testcase.TestCase):

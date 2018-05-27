@@ -21,10 +21,12 @@ from the_tale.game.places import storage as places_storage
 from the_tale.game.places import logic as places_logic
 
 from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import logic as persons_logic
+
+from the_tale.game.politic_power import logic as politic_power_logic
 
 from the_tale.game import relations as game_relations
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game import tt_api_impacts
+from the_tale.game import tt_api_energy
 from the_tale.game import effects
 
 from the_tale.game.artifacts import storage as artifacts_storage
@@ -201,11 +203,11 @@ class AddBonusEnergy(ModificatorBase):
         return 'Вы получаете %(energy)d единиц энергии.' % {'energy': self.modificator}
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
-        game_tt_api.change_energy_balance(account_id=task.hero.account_id,
-                                          type='card',
-                                          energy=int(self.modificator),
-                                          async=True,
-                                          autocommit=True)
+        tt_api_energy.change_energy_balance(account_id=task.hero.account_id,
+                                            type='card',
+                                            energy=int(self.modificator),
+                                            async=True,
+                                            autocommit=True)
         return task.logic_result()
 
 
@@ -681,7 +683,6 @@ class RepairBuilding(ModificatorBase):
             return task.logic_result()
 
 
-
 class AddPersonPower(ModificatorBase):
     __slots__ = ()
 
@@ -703,22 +704,14 @@ class AddPersonPower(ModificatorBase):
         if person_id not in persons_storage.persons:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Мастер не найден.')
 
-        person = persons_storage.persons[person_id]
+        impacts = [tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
+                                                            hero_id=task.hero.id,
+                                                            person_id=person_id,
+                                                            amount=delta)]
 
-        if task.step.is_LOGIC:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.HIGHLEVEL)
+        politic_power_logic.add_power_impacts(impacts)
 
-        elif task.step.is_HIGHLEVEL:
-
-            person.politic_power.change_power(person=person,
-                                              hero_id=task.hero_id,
-                                              has_in_preferences=True,
-                                              power=delta)
-            persons_logic.save_person(person)
-            persons_storage.persons.update_version()
-
-            return task.logic_result(message='Влияние Мастера изменено')
-
+        return task.logic_result(message='Влияние Мастера изменено')
 
     def allowed_directions(self):
         return (-1, 1)
@@ -732,13 +725,11 @@ class AddPersonPower(ModificatorBase):
                             data={'direction': direction},
                             uid=uid if uid else uuid.uuid4())
 
-
     def _item_full_type(self, type, direction):
         return '{}-{:+d}'.format(type.value, direction)
 
     def item_full_type(self, card):
         return self._item_full_type(card.type, card.data['direction'])
-
 
     def full_type_names(self, card_type):
         names = {}
@@ -748,7 +739,6 @@ class AddPersonPower(ModificatorBase):
             names[full_type] = self._name_for_card(card_type, direction)
 
         return names
-
 
     def _name_for_card(self, type, direction):
         return '{}: {:+d}'.format(type.text, int(self.modificator * direction))
@@ -767,7 +757,6 @@ class AddPlacePower(ModificatorBase):
     def DESCRIPTION(self):
         return 'Моментально изменяет влияние города на {} единиц в указанную в названии сторону. Влияние засчитывается так, как если бы герой имел город в предпочтении.'.format(int(self.modificator))
 
-
     def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
         card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
@@ -779,22 +768,14 @@ class AddPlacePower(ModificatorBase):
         if place_id not in places_storage.places:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
 
-        if task.step.is_LOGIC:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.HIGHLEVEL)
+        impacts = [tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
+                                                           hero_id=task.hero.id,
+                                                           place_id=place_id,
+                                                           amount=delta)]
 
-        elif task.step.is_HIGHLEVEL:
-            place = places_storage.places[place_id]
+        politic_power_logic.add_power_impacts(impacts)
 
-            place.politic_power.change_power(place=place,
-                                             hero_id=task.hero_id,
-                                             has_in_preferences=True,
-                                             power=delta)
-
-            places_logic.save_place(place)
-            places_storage.places.update_version()
-
-            return task.logic_result(message='Влияние города изменено.')
-
+        return task.logic_result(message='Влияние города изменено.')
 
     def allowed_directions(self):
         return (-1, 1)
@@ -814,7 +795,6 @@ class AddPlacePower(ModificatorBase):
     def item_full_type(self, card):
         return self._item_full_type(card.type, card.data['direction'])
 
-
     def full_type_names(self, card_type):
         names = {}
 
@@ -823,7 +803,6 @@ class AddPlacePower(ModificatorBase):
             names[full_type] = self._name_for_card(card_type, direction)
 
         return names
-
 
     def _name_for_card(self, type, direction):
         return '{}: {:+d}'.format(type.text, int(self.modificator * direction))

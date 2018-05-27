@@ -1,9 +1,13 @@
-# coding: utf-8
 
 from dext.forms import fields
 
 from the_tale.game.persons import objects as persons_objects
 from the_tale.game.persons import storage as persons_storage
+from the_tale.game.persons import logic as persons_logic
+
+from the_tale.game.politic_power import logic as politic_power_logic
+
+from the_tale.game import tt_api_impacts
 
 from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
@@ -50,11 +54,14 @@ class PersonChronicle(BasePersonBill):
         if self.power_bonus.bonus == 0:
             return
 
-        self.person.cmd_change_power(hero_id=None,
-                                     has_place_in_preferences=False,
-                                     has_person_in_preferences=False,
-                                     power=self.power_bonus.bonus)
+        impacts = list(persons_logic.tt_power_impacts(person_inner_circle=False,
+                                                      place_inner_circle=False,
+                                                      actor_type=tt_api_impacts.OBJECT_TYPE.BILL,
+                                                      actor_id=bill.id,
+                                                      person=self.person,
+                                                      amount=self.power_bonus.bonus))
 
+        politic_power_logic.add_power_impacts(impacts)
 
     def user_form_initials(self):
         initials = super(PersonChronicle, self).user_form_initials()

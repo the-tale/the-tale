@@ -73,3 +73,12 @@ def lazy_property(func):
             delattr(self, lazy_name)
 
     return property(fget=wrapper, fdel=deleter)
+
+
+def generator_to_list(generator):
+
+    @functools.wraps(generator)
+    def wrapper(*argv, **kwargs):
+        return list(generator(*argv, **kwargs))
+
+    return wrapper

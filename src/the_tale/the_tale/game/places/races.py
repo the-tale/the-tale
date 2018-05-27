@@ -1,4 +1,3 @@
-# coding: utf-8
 
 import copy
 import collections
@@ -7,6 +6,7 @@ from the_tale.game.relations import RACE
 
 from the_tale.game.balance import constants as c
 from the_tale.game.map.utils import get_person_race_percents
+from the_tale.game.politic_power import storage as politic_power_storage
 
 E = 0.001
 
@@ -23,7 +23,6 @@ class Races(object):
 
         self._races = races
 
-
     def serialize(self):
         return {race.value: percents for race, percents in self._races.items()}
 
@@ -34,12 +33,11 @@ class Races(object):
     def get_race_percents(self, race):
         return self._races.get(race, 0)
 
-
     def get_next_races(self, persons):
         trends = {race: 0.0 for race in RACE.records}
 
         for person in persons:
-            trends[person.race] += person.total_politic_power_fraction * person.attrs.demographics_pressure
+            trends[person.race] += politic_power_storage.persons.total_power_fraction(person.id) * person.attrs.demographics_pressure
 
         # normalize trends
         normalizer = sum(trends.values())
@@ -58,10 +56,8 @@ class Races(object):
 
         return new_races
 
-
     def update(self, persons):
         self._races = self.get_next_races(persons)
-
 
     @property
     def dominant_race(self):
@@ -69,12 +65,10 @@ class Races(object):
             return max(self._races.items(), key=lambda x: x[1])[0]
         return None
 
-
     def get_next_delta(self, persons):
         next_races = self.get_next_races(persons)
 
         return {race: next_races[race] - self._races[race] for race in RACE.records}
-
 
     def demographics(self, persons):
         races = []

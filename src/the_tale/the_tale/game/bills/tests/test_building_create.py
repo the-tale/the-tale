@@ -8,6 +8,8 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game import names
 
+from the_tale.game.politic_power import storage as politic_power_storage
+
 from the_tale.game.places.models import Building
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import logic as places_logic
@@ -23,8 +25,8 @@ class BuildingCreateTests(BaseTestPrototypes):
     def setUp(self):
         super(BuildingCreateTests, self).setUp()
 
-        self.person_1 = sorted(self.place1.persons, key=lambda p: -p.total_politic_power_fraction)[0]
-        self.person_2 = sorted(self.place2.persons, key=lambda p: -p.total_politic_power_fraction)[-1]
+        self.person_1 = sorted(self.place1.persons, key=lambda person: -politic_power_storage.persons.total_power_fraction(person.id))[0]
+        self.person_2 = sorted(self.place2.persons, key=lambda person: -politic_power_storage.persons.total_power_fraction(person.id))[-1]
 
         self.accepted_position_1 = random.choice(list(places_logic.get_available_positions(center_x=self.person_1.place.x, center_y=self.person_1.place.y)))
         self.accepted_position_2 = random.choice(list(places_logic.get_available_positions(center_x=self.person_2.place.x, center_y=self.person_2.place.y)))
@@ -36,16 +38,13 @@ class BuildingCreateTests(BaseTestPrototypes):
                                         y=self.accepted_position_1[1])
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
-
     def test_create(self):
         self.assertEqual(self.bill.data.person_id, self.person_1.id)
         self.assertEqual(self.bill.data.x, self.accepted_position_1[0])
         self.assertEqual(self.bill.data.y, self.accepted_position_1[1])
 
-
     def test_actors(self):
         self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
-
 
     def test_update(self):
         data = linguistics_helpers.get_word_post_data(names.generator().get_test_name('new-building-name'), prefix='name')
@@ -74,7 +73,6 @@ class BuildingCreateTests(BaseTestPrototypes):
             else:
                 self.assertFalse(person.id in persons_ids)
 
-
     def test_user_form_choices(self):
 
         places_logic.create_building(self.place2.persons[0], utg_name=names.generator().get_test_name('r-building-name'))
@@ -91,7 +89,6 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.check_persons_from_place_in_choices(self.place1, persons_ids)
         self.check_persons_from_place_in_choices(self.place2, persons_ids)
         self.check_persons_from_place_in_choices(self.place3, persons_ids)
-
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
@@ -125,7 +122,6 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.assertEqual(building.x, self.accepted_position_1[0])
         self.assertEqual(building.y, self.accepted_position_1[1])
         self.assertEqual(building.utg_name, noun)
-
 
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
@@ -172,7 +168,6 @@ class BuildingCreateTests(BaseTestPrototypes):
         self.assertEqual(building.utg_name, noun)
         self.assertNotEqual(building.utg_name, dup_noun)
 
-
     @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_has_meaning__duplicate(self):
@@ -199,7 +194,6 @@ class BuildingCreateTests(BaseTestPrototypes):
         bill.save()
 
         self.assertFalse(bill.has_meaning())
-
 
     def test_has_meaning__wrong_position(self):
         self.bill.data.x = 1000

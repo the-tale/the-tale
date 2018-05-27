@@ -22,7 +22,8 @@ def main():
              'storage.proto',
              'market.proto',
              'bank.proto',
-             'timers.proto')
+             'timers.proto',
+             'impacts.proto')
 
     files = [os.path.join(SOURCE_DIR, filename) for filename in files]
 

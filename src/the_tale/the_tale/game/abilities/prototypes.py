@@ -3,7 +3,7 @@ from the_tale.amqp_environment import environment
 
 from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game import tt_api_energy
 
 
 class AbilityPrototype(object):
@@ -16,11 +16,11 @@ class AbilityPrototype(object):
 
         if self.TYPE.cost > 0:
 
-            status, transaction_id = game_tt_api.change_energy_balance(account_id=hero.account_id,
-                                                                       type='help-{}'.format(self.TYPE.value),
-                                                                       energy=-self.TYPE.cost,
-                                                                       async=False,
-                                                                       autocommit=False)
+            status, transaction_id = tt_api_energy.change_energy_balance(account_id=hero.account_id,
+                                                                         type='help-{}'.format(self.TYPE.value),
+                                                                         energy=-self.TYPE.cost,
+                                                                         async=False,
+                                                                         autocommit=False)
 
             if not status:
                 return None
@@ -48,4 +48,4 @@ class AbilityPrototype(object):
 
     def hero_actions(self, hero, data):
         if data['transaction_id']:
-            game_tt_api.commit_transaction(data['transaction_id'])
+            tt_api_energy.commit_transaction(data['transaction_id'])

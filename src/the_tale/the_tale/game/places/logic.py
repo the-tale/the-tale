@@ -14,11 +14,16 @@ from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
 from the_tale.game import turn
-from the_tale.game import relations as game_relations
-from the_tale.game import names
+from the_tale.game import tt_api_impacts
 
-from the_tale.game.jobs import job
-from the_tale.game import politic_power
+from the_tale.game.jobs import objects as jobs_objects
+from the_tale.game.jobs import effects as jobs_effects
+from the_tale.game.jobs import logic as jobs_logic
+
+from the_tale.game.politic_power import conf as politic_power_conf
+from the_tale.game.politic_power import logic as politic_power_logic
+from the_tale.game.politic_power import storage as politic_power_storage
+
 from the_tale.game import effects
 
 from . import races
@@ -34,30 +39,76 @@ from . import relations
 EffectsContainer = effects.create_container(relations.ATTRIBUTE)
 
 
-class PlaceJob(job.Job):
+class PlaceJob(jobs_objects.Job):
     ACTOR = 'place'
 
+    ACTOR_TYPE = tt_api_impacts.OBJECT_TYPE.PLACE
+    POSITIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE
+    NEGATIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE
 
-class PlacePoliticPower(politic_power.PoliticPower):
-    INNER_CIRCLE_SIZE = 7
+    # умножаем на 2, так как кажая остановка в городе, по сути, даёт влияние в 2-кратном размере
+    # Город получит влияние и от задания, которое герой выполнил и от того, которое возьмёт
+    NORMAL_POWER = f.normal_job_power(politic_power_conf.settings.PLACE_INNER_CIRCLE_SIZE) * 2
 
-    def change_power(self, place, hero_id, has_in_preferences, power):
-        power *= place.attrs.freedom
-        super(PlacePoliticPower, self).change_power(owner=place, hero_id=hero_id, has_in_preferences=has_in_preferences, power=power)
+    def load_power(self, actor_id):
+        return politic_power_logic.get_job_power(place_id=actor_id)
 
-    def job_effect_kwargs(self, place):
-        return {'actor_type': 'place',
-                'actor_name': 'Проект города {name}'.format(name=place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))),
-                'person': None,
-                'place': place,
-                'positive_heroes': self.inner_positive_heroes,
-                'negative_heroes': self.inner_negative_heroes,
-                'job_power': place.get_job_power() }
+    def load_inner_circle(self, actor_id):
+        return politic_power_logic.get_inner_circle(place_id=actor_id)
+
+    def get_job_power(self, actor_id):
+        from the_tale.game.places import storage
+
+        current_place = storage.places[actor_id]
+
+        return jobs_logic.job_power(power=politic_power_storage.places.total_power_fraction(current_place.id),
+                                    powers=[politic_power_storage.places.total_power_fraction(place.id)
+                                            for place in current_place.get_same_places()])
+
+    def get_project_name(self, actor_id):
+        from the_tale.game.places import storage
+        name = storage.places[actor_id].utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
+        return 'Проект города {name}'.format(name=name)
+
+    def get_objects(self, actor_id):
+        from the_tale.game.places import storage
+
+        return {'person': None,
+                'place': storage.places[actor_id]}
+
+    def get_effects_priorities(self, actor_id):
+        return {effect: 1 for effect in jobs_effects.EFFECT.records}
 
 
-# умножаем на 2, так как кажая остановка в городе, по сути, даёт влияние в 2-кратном размере
-# Город получит влияние и от задания, которое герой выполнил и от того, которое возьмёт
-NORMAL_PLACE_JOB_POWER = f.normal_job_power(PlacePoliticPower.INNER_CIRCLE_SIZE) * 2
+def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount):
+    amount *= place.attrs.freedom
+
+    impact_type = tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE
+
+    if inner_circle:
+        impact_type = tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE
+
+    yield tt_api_impacts.PowerImpact(type=impact_type,
+                                     actor_type=actor_type,
+                                     actor_id=actor_id,
+                                     target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                     target_id=place.id,
+                                     amount=amount)
+
+    if not inner_circle:
+        return
+
+    target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE
+
+    if amount < 0:
+        target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE
+
+    yield tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
+                                     actor_type=actor_type,
+                                     actor_id=actor_id,
+                                     target_type=target_type,
+                                     target_id=place.id,
+                                     amount=abs(amount))
 
 
 def load_place(place_id=None, place_model=None):
@@ -91,13 +142,12 @@ def load_place(place_id=None, place_model=None):
                           description=place_model.description,
                           race=place_model.race,
                           persons_changed_at_turn=place_model.persons_changed_at_turn,
-                          politic_power=PlacePoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PlacePoliticPower.create(),
                           utg_name=utg_words.Word.deserialize(data['name']),
                           attrs=attributes.Attributes.deserialize(data.get('attributes', {})),
                           races=races.Races.deserialize(data['races']),
                           nearest_cells=data.get('nearest_cells', []),
                           effects=EffectsContainer.deserialize(data.get('effects')),
-                          job=PlaceJob.deserialize(data['job']) if 'job' in data else PlaceJob.create(normal_power=NORMAL_PLACE_JOB_POWER),
+                          job=PlaceJob.deserialize(data['job']),
                           modifier=place_model.modifier)
 
     place.attrs.sync()
@@ -113,25 +163,24 @@ def save_place(place, new=False):
             'races': place.races.serialize(),
             'nearest_cells': place.nearest_cells,
             'effects': place.effects.serialize(),
-            'job': place.job.serialize(),
-            'politic_power': place.politic_power.serialize()}
+            'job': place.job.serialize()}
 
-    arguments = { 'x': place.x,
-                  'y': place.y,
-                  'updated_at_turn': turn.number(),
-                  'updated_at': datetime.datetime.now(),
-                  'is_frontier': place.is_frontier,
-                  'description': place.description,
-                  'data': s11n.to_json(data),
-                  'habit_honor_positive': place.habit_honor_positive,
-                  'habit_honor_negative': place.habit_honor_negative,
-                  'habit_peacefulness_positive': place.habit_peacefulness_positive,
-                  'habit_peacefulness_negative': place.habit_peacefulness_negative,
-                  'habit_honor': place.habit_honor.raw_value,
-                  'habit_peacefulness': place.habit_peacefulness.raw_value,
-                  'modifier': place._modifier,
-                  'race': place.race,
-                  'persons_changed_at_turn': place.persons_changed_at_turn}
+    arguments = {'x': place.x,
+                 'y': place.y,
+                 'updated_at_turn': turn.number(),
+                 'updated_at': datetime.datetime.now(),
+                 'is_frontier': place.is_frontier,
+                 'description': place.description,
+                 'data': s11n.to_json(data),
+                 'habit_honor_positive': place.habit_honor_positive,
+                 'habit_honor_negative': place.habit_honor_negative,
+                 'habit_peacefulness_positive': place.habit_peacefulness_positive,
+                 'habit_peacefulness_negative': place.habit_peacefulness_negative,
+                 'habit_honor': place.habit_honor.raw_value,
+                 'habit_peacefulness': place.habit_peacefulness.raw_value,
+                 'modifier': place._modifier,
+                 'race': place.race,
+                 'persons_changed_at_turn': place.persons_changed_at_turn}
 
     if new:
         place_model = models.Place.objects.create(created_at_turn=turn.number(), **arguments)
@@ -143,7 +192,6 @@ def save_place(place, new=False):
     storage.places.update_version()
 
     place.updated_at = datetime.datetime.now()
-
 
 
 def create_place(x, y, size, utg_name, race, is_frontier=False):
@@ -164,37 +212,16 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           description='',
                           race=race,
                           persons_changed_at_turn=turn.number(),
-                          politic_power=PlacePoliticPower.create(),
                           attrs=attributes.Attributes(size=size),
                           utg_name=utg_name,
                           races=races.Races(),
                           nearest_cells=[],
                           effects=EffectsContainer(),
-                          job=PlaceJob.create(normal_power=NORMAL_PLACE_JOB_POWER),
+                          job=jobs_logic.create_job(PlaceJob),
                           modifier=modifiers.CITY_MODIFIERS.NONE)
     place.refresh_attributes()
     save_place(place, new=True)
     return place
-
-
-def add_person_to_place(place):
-    from the_tale.game.persons import relations as persons_relations
-    from the_tale.game.persons import logic as persons_logic
-
-    race = game_relations.RACE.random()
-
-    gender = game_relations.GENDER.random()
-
-    new_person = persons_logic.create_person(place=place,
-                                             race=race,
-                                             gender=gender,
-                                             type=persons_relations.PERSON_TYPE.random(),
-                                             utg_name=names.generator().get_name(race, gender))
-
-    place.refresh_attributes()
-
-    return new_person
-
 
 
 def api_list_url():
@@ -340,7 +367,6 @@ def load_building(building_id=None, building_model=None):
     return building
 
 
-
 def destroy_building(building):
     from the_tale.game.places import storage
 
@@ -349,3 +375,15 @@ def destroy_building(building):
 
     storage.buildings.update_version()
     storage.buildings.refresh()
+
+
+def sync_sizes(places, hours, max_economic):
+    if not places:
+        return
+
+    places = sorted(places, key=lambda place: politic_power_storage.places.total_power_fraction(place.id))
+    places_number = len(places)
+
+    for i, place in enumerate(places):
+        place.attrs.set_power_economic(int(max_economic * float(i) / places_number) + 1)
+        place.attrs.sync_size(hours)

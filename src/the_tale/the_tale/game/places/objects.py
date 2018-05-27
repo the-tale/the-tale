@@ -5,20 +5,15 @@ import datetime
 
 import tt_calendar
 
-from the_tale import amqp_environment
-
 from the_tale.common.utils import bbcode
-from the_tale.common.utils import logic as utils_logic
 
 from the_tale.game import names
 
 from the_tale.game.balance import constants as c
 
-from the_tale.game.jobs import logic as jobs_logic
-from the_tale.game.jobs import effects as jobs_effects
+from the_tale.game.politic_power import storage as politic_power_storage
 
 from the_tale.game import effects
-
 from the_tale.game import turn
 
 from . import relations
@@ -41,7 +36,6 @@ class Place(names.ManageNameMixin2):
                  'description',
                  'race',
                  'persons_changed_at_turn',
-                 'politic_power',
                  'attrs',
                  'utg_name',
                  'races',
@@ -71,7 +65,6 @@ class Place(names.ManageNameMixin2):
                  description,
                  race,
                  persons_changed_at_turn,
-                 politic_power,
                  attrs,
                  utg_name,
                  races,
@@ -96,7 +89,6 @@ class Place(names.ManageNameMixin2):
         self.description = description
         self.race = race
         self.persons_changed_at_turn = persons_changed_at_turn
-        self.politic_power = politic_power
         self.attrs = attrs
         self.utg_name = utg_name
         self.races = races
@@ -192,19 +184,18 @@ class Place(names.ManageNameMixin2):
 
         return self.name
 
-
     @property
     def persons(self):
         from the_tale.game.persons import storage as persons_storage
         return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id),
-                      key=lambda p: p.created_at_turn) # fix persons order
+                      key=lambda p: p.created_at_turn)  # fix persons order
 
     @property
     def persons_by_power(self):
         from the_tale.game.persons import storage as persons_storage
         return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id),
-                      key=lambda p: p.total_politic_power_fraction,
-                      reverse=True) # fix persons order
+                      key=lambda p: politic_power_storage.persons.total_power_fraction(p.id),
+                      reverse=True)  # fix persons order
 
     def mark_as_updated(self): self.updated_at_turn = turn.number()
 
@@ -445,58 +436,6 @@ class Place(names.ManageNameMixin2):
     def get_same_places(self):
         from . import storage
         return [place for place in storage.places.all() if self.is_frontier == place.is_frontier]
-
-    @property
-    def total_politic_power_fraction(self):
-        return self.politic_power.total_politic_power_fraction([place.politic_power for place in self.get_same_places()])
-
-    @property
-    def inner_politic_power_fraction(self):
-        return self.politic_power.inner_power_fraction([place.politic_power for place in self.get_same_places()])
-
-    @property
-    def outer_politic_power_fraction(self):
-        return self.politic_power.outer_power_fraction([place.politic_power for place in self.get_same_places()])
-
-    def get_job_power(self):
-        return jobs_logic.job_power(power=self.total_politic_power_fraction,
-                                    powers=[place.total_politic_power_fraction for place in self.get_same_places()])
-
-
-    def update_job(self):
-        from . import logic
-
-        if not self.job.is_completed():
-            return ()
-
-        job_effect = self.job.get_apply_effect_method()
-
-        after_update_operations = job_effect(**self.politic_power.job_effect_kwargs(self))
-
-        job_effects_priorities = self.job_effects_priorities()
-        if self.job.effect in job_effects_priorities:
-            del job_effects_priorities[self.job.effect]
-
-        new_effect = utils_logic.random_value_by_priority(job_effects_priorities.items())
-
-        self.job.new_job(new_effect, normal_power=logic.NORMAL_PLACE_JOB_POWER)
-
-        return after_update_operations
-
-
-    def job_effects_priorities(self):
-        return {effect: 1 for effect in jobs_effects.EFFECT.records}
-
-
-    def cmd_change_power(self, hero_id, has_place_in_preferences, has_person_in_preferences, power):
-        if amqp_environment.environment.workers.highlevel is None:
-            return
-        amqp_environment.environment.workers.highlevel.cmd_change_power(hero_id=hero_id,
-                                                                        has_place_in_preferences=has_place_in_preferences,
-                                                                        has_person_in_preferences=has_person_in_preferences,
-                                                                        power_delta=power,
-                                                                        person_id=None,
-                                                                        place_id=self.id)
 
     def map_info(self):
         return {'id': self.id,

@@ -11,6 +11,7 @@ from dext.common.utils.urls import UrlBuilder, full_url
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import lazy_property
 
+from the_tale.game.politic_power import conf as politic_power_conf
 from the_tale.game import relations as game_relations
 from the_tale.game.jobs import effects as jobs_effects
 
@@ -19,9 +20,7 @@ from the_tale.game.heroes.conf import heroes_settings
 from the_tale.game.heroes.relations import PREFERENCE_TYPE
 
 from the_tale.game.places import conf as places_conf
-from the_tale.game.places import logic as places_logic
 from the_tale.game.persons import conf as persons_conf
-from the_tale.game.persons import logic as persons_logic
 from the_tale.game.persons import relations as persons_relations
 from the_tale.game.pvp.conf import pvp_settings
 from the_tale.game.pvp import abilities as pvp_abilities
@@ -77,7 +76,6 @@ def get_api_types():
     from the_tale.game.places import relations as places_relations
     from the_tale.accounts.third_party.relations import AUTHORISATION_STATE
 
-
     return [TypeReference('artifact_rarity', 'Артефакты: редкость', ARTIFACT_RARITY),
             TypeReference('artifact_type', 'Артефакты: типы', ARTIFACT_TYPE),
             TypeReference('equipment_slot', 'Артефакты: типы экипировки', EQUIPMENT_SLOT),
@@ -114,8 +112,7 @@ def get_api_types():
             TypeReference('person_personality_cosmetic', 'Мастер: косметические особенности характера', persons_relations.PERSONALITY_COSMETIC),
             TypeReference('person_personality_practival', 'Мастер: практические особенности характера', persons_relations.PERSONALITY_PRACTICAL),
 
-            TypeReference('job_effect', 'Проекты: типы эфектов', job_effects.EFFECT)
-           ]
+            TypeReference('job_effect', 'Проекты: типы эфектов', job_effects.EFFECT)]
 
 
 API_TYPES = get_api_types()
@@ -168,7 +165,7 @@ class GuideResource(Resource):
         return self.template('guide/persons.html', {'section': 'persons',
                                                     'persons_settings': persons_conf.settings,
                                                     'BASE_ATTRIBUTES': economic.BASE_ATTRIBUTES,
-                                                    'INNER_CIRCLE_SIZE': persons_logic.PersonPoliticPower.INNER_CIRCLE_SIZE,
+                                                    'INNER_CIRCLE_SIZE': politic_power_conf.settings.PERSON_INNER_CIRCLE_SIZE,
                                                     'JOBS_EFFECTS': jobs_effects.EFFECT,
                                                     'PERSON_TYPES': sorted(persons_relations.PERSON_TYPE.records, key=lambda r: r.text),
                                                     'PERSONALITY_COSMETIC': sorted(persons_relations.PERSONALITY_COSMETIC.records, key=lambda r: r.text),
@@ -180,7 +177,7 @@ class GuideResource(Resource):
         from the_tale.game.places.relations import ATTRIBUTE
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_conf.settings,
-                                                   'INNER_CIRCLE_SIZE': places_logic.PlacePoliticPower.INNER_CIRCLE_SIZE,
+                                                   'INNER_CIRCLE_SIZE': politic_power_conf.settings.PLACE_INNER_CIRCLE_SIZE,
                                                    'ATTRIBUTES': sorted(ATTRIBUTE.records, key=lambda modifier: modifier.text),
                                                    'MODIFIERS': sorted(CITY_MODIFIERS.records, key=lambda modifier: modifier.text) })
 

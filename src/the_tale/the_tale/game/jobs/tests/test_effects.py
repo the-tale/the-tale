@@ -1,6 +1,3 @@
-# coding: utf-8
-
-import random
 
 from unittest import mock
 
@@ -10,16 +7,24 @@ from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
 
 from the_tale.game.balance import constants as c
 
+from the_tale.game import tt_api_impacts
+
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.jobs import job
+from the_tale.game.jobs import objects
 from the_tale.game.jobs import effects
 
 from the_tale.game.heroes import logic as heroes_logic
 
 
-class FakeJob(job.Job):
-    ACTOR = random.choice(('person', 'place'))
+class FakeJob(objects.Job):
+    ACTOR = 'person'
+
+    ACTOR_TYPE = tt_api_impacts.OBJECT_TYPE.PERSON
+    POSITIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE
+    NEGATIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE
+
+    NORMAL_POWER = 1000
 
 
 class BaseEffectsTests(testcase.TestCase):
@@ -39,7 +44,6 @@ class BaseEffectsTests(testcase.TestCase):
         self.hero_3 = heroes_logic.load_hero(account_id=self.account_3.id)
 
         self.effect = effects.EFFECT.PLACE_SAFETY
-
 
     def test_apply_to_heroes(self):
         with mock.patch('the_tale.game.jobs.effects.BaseEffect.invoke_hero_method') as invoke_hero_method:
@@ -73,7 +77,6 @@ class BaseEffectsTests(testcase.TestCase):
                           mock.call(method_name='neg2', account_id=self.account_2.id,
                                     method_kwargs={'x': 'y', 'message_type': 'job_diary_place_place_safety_negative_enemies'}, hero_id=self.hero_2.id)])
 
-
     def test_invoke_hero_method(self):
 
         with self.check_delta(PostponedTaskPrototype._db_count, 1):
@@ -91,11 +94,9 @@ class BaseEffectsTests(testcase.TestCase):
         self.assertEqual(task.internal_logic.method_name, 'method_x')
         self.assertEqual(task.internal_logic.method_kwargs, {'x': 'y'})
 
-
     def test_message_type(self):
         self.assertEqual(self.effect.logic.message_type(actor='x', effect=self.effect, direction='a', group='z'),
                          'job_diary_x_place_safety_a_z')
-
 
 
 class EffectsTestsBase(testcase.TestCase):
@@ -156,7 +157,6 @@ class PlaceEffectTests(EffectsTestsBase):
         self.assertEqual(applied_effect.attribute, effect.logic.attribute)
         self.assertEqual(applied_effect.value, effect.logic.base_value*self.job_power)
 
-
     def check_apply_negative(self, effect):
         with mock.patch('the_tale.game.jobs.effects.BaseEffect.invoke_hero_method') as invoke_hero_method:
             effect.logic.apply_negative(actor_type='y',
@@ -193,7 +193,6 @@ class PlaceEffectTests(EffectsTestsBase):
 
         self.assertEqual(applied_effect.value, -effect.logic.base_value*self.job_power*c.JOB_NEGATIVE_POWER_MULTIPLIER)
 
-
     def test_production__positive(self):
         self.check_apply_positive(effects.EFFECT.PLACE_PRODUCTION)
 
@@ -206,13 +205,11 @@ class PlaceEffectTests(EffectsTestsBase):
     def test_safety__negative(self):
         self.check_apply_negative(effects.EFFECT.PLACE_SAFETY)
 
-
     def test_transport__positive(self):
         self.check_apply_positive(effects.EFFECT.PLACE_TRANSPORT)
 
     def test_transport__negative(self):
         self.check_apply_negative(effects.EFFECT.PLACE_TRANSPORT)
-
 
     def test_freedom__positive(self):
         self.check_apply_positive(effects.EFFECT.PLACE_FREEDOM)
@@ -220,20 +217,17 @@ class PlaceEffectTests(EffectsTestsBase):
     def test_freedom__negative(self):
         self.check_apply_negative(effects.EFFECT.PLACE_FREEDOM)
 
-
     def test_stability__positive(self):
         self.check_apply_positive(effects.EFFECT.PLACE_STABILITY)
 
     def test_stability__negative(self):
         self.check_apply_negative(effects.EFFECT.PLACE_STABILITY)
 
-
     def test_culture__positive(self):
         self.check_apply_positive(effects.EFFECT.PLACE_CULTURE)
 
     def test_culture__negative(self):
         self.check_apply_negative(effects.EFFECT.PLACE_CULTURE)
-
 
 
 class HeroEffectTests(EffectsTestsBase):
@@ -292,13 +286,11 @@ class HeroEffectTests(EffectsTestsBase):
                                                    'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
                                                    'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
 
-
     def test_money__positive(self):
         self.check_apply_positive(effects.EFFECT.HERO_MONEY)
 
     def test_money__negative(self):
         self.check_apply_negative(effects.EFFECT.HERO_MONEY)
-
 
     def test_artifact__positive(self):
         self.check_apply_positive(effects.EFFECT.HERO_ARTIFACT)
@@ -306,13 +298,11 @@ class HeroEffectTests(EffectsTestsBase):
     def test_artifact__negative(self):
         self.check_apply_negative(effects.EFFECT.HERO_ARTIFACT)
 
-
     def test_experience__positive(self):
         self.check_apply_positive(effects.EFFECT.HERO_EXPERIENCE)
 
     def test_experience__negative(self):
         self.check_apply_negative(effects.EFFECT.HERO_EXPERIENCE)
-
 
     def test_energy__positive(self):
         self.check_apply_positive(effects.EFFECT.HERO_ENERGY)

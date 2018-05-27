@@ -1,4 +1,14 @@
 
+{% macro profession(person) %}
+  {% if person.gender.is_MALE %}
+    {{person.type.male_text}}
+  {% endif %}
+
+  {% if person.gender.is_FEMALE %}
+    {{person.type.female_text}}
+  {% endif %}
+{% endmacro %}
+
 {% macro person_description(person) %}
   <div class="underline-on-hover"
        style="cursor: default; display: inline-block;"
@@ -23,13 +33,7 @@
     {{person.race.female_text}},
   {% endif %}
 
-  {% if person.gender.is_MALE %}
-    {{person.type.male_text}}
-  {% endif %}
-
-  {% if person.gender.is_FEMALE %}
-    {{person.type.female_text}}
-  {% endif %}
+  {{ profession(person) }}
 
   и
   <div class="underline-on-hover"

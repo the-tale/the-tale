@@ -1,18 +1,11 @@
 
-from unittest import mock
-
 from the_tale.common.utils import testcase
-
-from the_tale.game import names
-
-from the_tale.game.jobs import effects as jobs_effects
 
 from the_tale.game import turn
 from the_tale.game.logic import create_test_map
 
 from the_tale.game.heroes import logic as heroes_logic
 
-from the_tale.game.places import logic as places_logic
 from the_tale.game.places import relations as places_relations
 
 from the_tale.game.persons.tests.helpers import create_person
@@ -43,35 +36,10 @@ class PersonTests(testcase.TestCase):
 
         turn.increment()
 
-
     def test_initialize(self):
         self.assertEqual(self.person.place.persons_changed_at_turn, self.persons_changed_at_turn)
 
         self.assertEqual(self.person.created_at_turn, turn.number() - 1)
-
-    def test_power_from_building(self):
-
-        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
-            self.person.cmd_change_power(hero_id=666, has_place_in_preferences=False, has_person_in_preferences=False, power=100)
-
-        self.assertEqual(change_person_power_call.call_args, mock.call(hero_id=666,
-                                                                       has_place_in_preferences=False,
-                                                                       has_person_in_preferences=False,
-                                                                       person_id=self.person.id,
-                                                                       power_delta=100,
-                                                                       place_id=None))
-
-        places_logic.create_building(self.person, utg_name=names.generator().get_test_name('building-name'))
-
-        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as change_person_power_call:
-            self.person.cmd_change_power(hero_id=666, has_place_in_preferences=False, has_person_in_preferences=False, power=-100)
-
-        self.assertEqual(change_person_power_call.call_args, mock.call(hero_id=666,
-                                                                       has_place_in_preferences=False,
-                                                                       has_person_in_preferences=False,
-                                                                       person_id=self.person.id,
-                                                                       power_delta=-100,
-                                                                       place_id=None))
 
     def test_place_effects__economic_and_specialization(self):
         self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.TRUTH_SEEKER
@@ -98,7 +66,6 @@ class PersonTests(testcase.TestCase):
                               places_relations.ATTRIBUTE.MODIFIER_POLIC,
                               places_relations.ATTRIBUTE.MODIFIER_RESORT)))
 
-
     def test_place_effects__terrain_radius_bonus(self):
         self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.FIDGET
         self.person.personality_practical = relations.PERSONALITY_PRACTICAL.MULTIWISE
@@ -107,7 +74,6 @@ class PersonTests(testcase.TestCase):
         place_attributes = set(effect.attribute for effect in self.person.place_effects())
 
         self.assertIn(places_relations.ATTRIBUTE.TERRAIN_RADIUS, place_attributes)
-
 
     def test_place_effects__politic_radius_bonus(self):
         self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.TRUTH_SEEKER
@@ -118,7 +84,6 @@ class PersonTests(testcase.TestCase):
 
         self.assertIn(places_relations.ATTRIBUTE.POLITIC_RADIUS, place_attributes)
 
-
     def test_place_effects__stability_renewing_bonus(self):
         self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.TRUTH_SEEKER
         self.person.personality_practical = relations.PERSONALITY_PRACTICAL.RELIABLE
@@ -127,78 +92,3 @@ class PersonTests(testcase.TestCase):
         place_attributes = set(effect.attribute for effect in self.person.place_effects())
 
         self.assertIn(places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, place_attributes)
-
-
-FAKE_ECONOMIC = {places_relations.ATTRIBUTE.PRODUCTION: 1.0,
-                 places_relations.ATTRIBUTE.FREEDOM: 0,
-                 places_relations.ATTRIBUTE.SAFETY: 0.6,
-                 places_relations.ATTRIBUTE.TRANSPORT: -0.4,
-                 places_relations.ATTRIBUTE.STABILITY: 0.2,
-                 places_relations.ATTRIBUTE.CULTURE: 0.7}
-
-
-class PersonJobsTests(testcase.TestCase):
-
-    def setUp(self):
-        super(PersonJobsTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
-
-        self.person = create_person(self.place_1)
-
-
-    @mock.patch('the_tale.game.persons.objects.Person.economic_attributes', FAKE_ECONOMIC)
-    def test_job_effects_priorities(self):
-        self.person.attrs.job_group_priority = {}
-        self.assertEqual(self.person.job_effects_priorities(),
-                         {jobs_effects.EFFECT.PLACE_PRODUCTION: 1.0,
-                          jobs_effects.EFFECT.PLACE_SAFETY: 0.6,
-                          jobs_effects.EFFECT.PLACE_CULTURE: 0.7,
-                          jobs_effects.EFFECT.PLACE_STABILITY: 0.2,
-                          jobs_effects.EFFECT.HERO_MONEY: 0.3,
-                          jobs_effects.EFFECT.HERO_ARTIFACT: 0.3,
-                          jobs_effects.EFFECT.HERO_EXPERIENCE: 0.3,
-                          jobs_effects.EFFECT.HERO_ENERGY: 0.3})
-
-    @mock.patch('the_tale.game.persons.objects.Person.economic_attributes', FAKE_ECONOMIC)
-    def test_job_effects_priorities__job_group_priorities(self):
-        self.person.attrs.job_group_priority = {jobs_effects.EFFECT_GROUP.ON_PLACE: 0.5,
-                                                jobs_effects.EFFECT_GROUP.ON_HEROES: 1.5}
-        self.assertEqual(self.person.job_effects_priorities(),
-                         {jobs_effects.EFFECT.PLACE_PRODUCTION: 1.5,
-                          jobs_effects.EFFECT.PLACE_SAFETY: 1.1,
-                          jobs_effects.EFFECT.PLACE_CULTURE: 1.2,
-                          jobs_effects.EFFECT.PLACE_STABILITY: 0.7,
-                          jobs_effects.EFFECT.PLACE_TRANSPORT: 0.09999999999999998,
-                          jobs_effects.EFFECT.PLACE_FREEDOM: 0.5,
-                          jobs_effects.EFFECT.HERO_MONEY: 1.8,
-                          jobs_effects.EFFECT.HERO_ARTIFACT: 1.8,
-                          jobs_effects.EFFECT.HERO_EXPERIENCE: 1.8,
-                          jobs_effects.EFFECT.HERO_ENERGY: 1.8})
-
-
-    @mock.patch('the_tale.game.persons.objects.Person.total_politic_power_fraction', 0.5)
-    def test_get_job_power(self):
-        self.person.attrs.job_power_bonus = 0
-        self.assertEqual(self.person.get_job_power(), 0.8)
-
-    @mock.patch('the_tale.game.persons.objects.Person.total_politic_power_fraction', 0.5)
-    def test_get_job_power__power_bonus(self):
-        self.person.attrs.job_power_bonus = 10
-        self.assertEqual(self.person.get_job_power(), 10.8)
-
-
-    def test_give_job_power(self):
-
-        with self.check_not_changed(lambda: self.person.job.effect):
-            with mock.patch('the_tale.game.jobs.effects.BaseEffect.apply_to_heroes') as apply_to_heroes:
-                self.person.job.give_power(1)
-                self.assertEqual(self.person.update_job(), ())
-
-        self.assertEqual(apply_to_heroes.call_count, 0)
-
-        with self.check_changed(lambda: self.person.job.effect):
-            with mock.patch('the_tale.game.jobs.effects.BaseEffect.apply_to_heroes', mock.Mock(return_value=(1, 2))) as apply_to_heroes:
-                self.person.job.give_power(1000000000)
-                self.assertEqual(self.person.update_job(), (1, 2))
-
-        self.assertEqual(apply_to_heroes.call_count, 1)

@@ -25,33 +25,52 @@ from the_tale.game.persons import logic as persons_logic
 
 from the_tale.game.mobs import storage as mobs_storage
 
-from the_tale.game.logic import create_test_map
+from the_tale.game.politic_power import storage as politic_power_storage
+
 from the_tale.game import turn
+from the_tale.game import names
+from the_tale.game import logic as game_logic
+from the_tale.game import relations as game_relations
 
 from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
 
 from the_tale.game.places import modifiers as places_modifiers
 from the_tale.game.places import logic as places_logic
 
+from the_tale.game.persons import relations as persons_relations
+
 from the_tale.game.quests.writers import Writer
 from the_tale.game.quests.prototypes import QuestPrototype
 from the_tale.game.quests.relations import DONOTHING_TYPE, QUESTS
 
 
-
 class QuestsTestBase(testcase.TestCase):
+
+    def add_person_to_place(self, place):
+        persons_logic.create_person(place=place,
+                                    race=game_relations.RACE.random(),
+                                    gender=game_relations.GENDER.random(),
+                                    type=persons_relations.PERSON_TYPE.random(),
+                                    utg_name=names.generator().get_test_name())
 
     def setUp(self):
         super(QuestsTestBase, self).setUp()
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
         # add more persons, to lower conflicts
-        places_logic.add_person_to_place(self.p1)
-        places_logic.add_person_to_place(self.p1)
-        places_logic.add_person_to_place(self.p2)
-        places_logic.add_person_to_place(self.p2)
-        places_logic.add_person_to_place(self.p3)
-        places_logic.add_person_to_place(self.p3)
+        self.add_person_to_place(self.p1)
+        self.add_person_to_place(self.p1)
+        self.add_person_to_place(self.p2)
+        self.add_person_to_place(self.p2)
+        self.add_person_to_place(self.p3)
+        self.add_person_to_place(self.p3)
+
+        politic_power_storage.places.reset()
+        politic_power_storage.persons.reset()
+
+        self.p1.refresh_attributes()
+        self.p2.refresh_attributes()
+        self.p3.refresh_attributes()
 
         account = self.accounts_factory.create_account(is_fast=True)
 

@@ -15,13 +15,14 @@ from dext.common.utils import s11n
 
 from the_tale.common.utils import testcase
 
-from the_tale.common.utils.fake import FakeWorkerCommand
-
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
 
+from the_tale.game.politic_power import logic as politic_power_logic
+
 from the_tale.game import turn
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game import tt_api_energy
+from the_tale.game import tt_api_impacts
 
 from the_tale.game.actions.prototypes import ActionMoveToPrototype, ActionMoveNearPlacePrototype
 
@@ -39,15 +40,18 @@ from the_tale.game.artifacts import relations as artifacts_relations
 from the_tale.game.artifacts import storage as artifacts_storage
 from the_tale.game.artifacts import logic as artifacts_logic
 
-from the_tale.game.quests import logic
-from the_tale.game.quests.prototypes import QuestPrototype
-from the_tale.game.quests import exceptions
-from the_tale.game.quests import uids
-from the_tale.game.quests import relations
-
 from the_tale.game.heroes import relations as heroes_relations
 
-from the_tale.game.quests.tests import helpers
+from .. import logic
+from ..prototypes import QuestPrototype
+from .. import exceptions
+from .. import uids
+from .. import relations
+
+from . import helpers
+
+
+TEST_FREEDOM = float(666)
 
 
 class PrototypeTestsBase(testcase.TestCase):
@@ -122,20 +126,19 @@ class PrototypeTests(PrototypeTestsBase):
         self.complete_quest(self.check_ui_info, positive_results=False)
         self.assertNotEqual(self.hero.quests.interfered_persons, {})
 
-
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
     def test_give_person_power__profession(self):
 
         person = persons_storage.persons.all()[0]
 
-        power_without_profession = self.quest._give_person_power(self.hero, person, 1.0)
+        power_without_profession = sum(impact.amount for impact in self.quest._give_person_power(self.hero, person, 1.0))
 
         self.quest.knowledge_base += facts.ProfessionMarker(person=uids.person(person.id), profession=666)
-        power_with_profession = self.quest._give_person_power(self.hero, person, 1.0)
+        power_with_profession = sum(impact.amount for impact in self.quest._give_person_power(self.hero, person, 1.0))
 
         self.assertTrue(power_with_profession < power_without_profession)
 
-
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', TEST_FREEDOM)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
     def test_give_person_power__power_bonus(self):
 
@@ -144,9 +147,9 @@ class PrototypeTests(PrototypeTestsBase):
         self.quest.current_info.power = 10
         self.quest.current_info.power_bonus = 1
 
-        self.assertEqual(self.quest._give_person_power(self.hero, person, 3.0), 31)
+        self.assertTrue(all(impact.amount == 31 * TEST_FREEDOM for impact in self.quest._give_person_power(self.hero, person, 3.0)))
 
-
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', TEST_FREEDOM)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
     def test_give_person_power__social_power__inside_circle(self):
         person, concurrent, partner = persons_storage.persons.all()[0:3]
@@ -162,17 +165,39 @@ class PrototypeTests(PrototypeTestsBase):
         persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person, concurrent)
         persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person, partner)
 
-        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as cmd_change_power:
-            self.quest._give_person_power(self.hero, person, 3.0)
+        impacts = self.quest._give_person_power(self.hero, person, 3.0)
 
-        self.assertEqual(sorted(cmd_change_power.call_args_list, key=lambda x: x[1]['power_delta']),
-                         [mock.call(power_delta=-3.1, place_id=None, has_person_in_preferences=True, person_id=concurrent.id, has_place_in_preferences=False, hero_id=self.hero.id),
-                          mock.call(power_delta=3.1, place_id=None, has_person_in_preferences=True, person_id=partner.id, has_place_in_preferences=False, hero_id=self.hero.id),
-                          mock.call(power_delta=31, place_id=None, has_person_in_preferences=True, person_id=person.id, has_place_in_preferences=False, hero_id=self.hero.id)])
+        self.assertCountEqual([impact for impact in impacts if impact.type.is_INNER_CIRCLE or impact.type.is_OUTER_CIRCLE],
+                              [tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
+                                                                        hero_id=self.hero.id,
+                                                                        person_id=concurrent.id,
+                                                                        amount=-3.1*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                       hero_id=self.hero.id,
+                                                                       place_id=concurrent.place.id,
+                                                                       amount=-3.1*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
+                                                                        hero_id=self.hero.id,
+                                                                        person_id=partner.id,
+                                                                        amount=3.1*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                       hero_id=self.hero.id,
+                                                                       place_id=partner.place.id,
+                                                                       amount=3.1*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
+                                                                        hero_id=self.hero.id,
+                                                                        person_id=person.id,
+                                                                        amount=31*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                       hero_id=self.hero.id,
+                                                                       place_id=person.place.id,
+                                                                       amount=31*TEST_FREEDOM)])
 
-
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', TEST_FREEDOM)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
     def test_give_person_power__social_power__outside_circle(self):
+        tt_api_impacts.debug_clear_service()
+
         person, concurrent, partner = persons_storage.persons.all()[0:3]
 
         person.attrs.social_relations_partners_power_modifier = 0.1
@@ -184,14 +209,33 @@ class PrototypeTests(PrototypeTestsBase):
         persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, person, concurrent)
         persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.PARTNER, person, partner)
 
-        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as cmd_change_power:
-            self.quest._give_person_power(self.hero, person, 3.0)
+        impacts = self.quest._give_person_power(self.hero, person, 3.0)
 
-        self.assertEqual(sorted(cmd_change_power.call_args_list, key=lambda x: x[1]['power_delta']),
-                         [mock.call(power_delta=-3.1, place_id=None, has_person_in_preferences=False, person_id=concurrent.id, has_place_in_preferences=False, hero_id=self.hero.id),
-                          mock.call(power_delta=3.1, place_id=None, has_person_in_preferences=False, person_id=partner.id, has_place_in_preferences=False, hero_id=self.hero.id),
-                          mock.call(power_delta=31, place_id=None, has_person_in_preferences=False, person_id=person.id, has_place_in_preferences=False, hero_id=self.hero.id)])
-
+        self.assertCountEqual(impacts,
+                              [tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                        hero_id=self.hero.id,
+                                                                        person_id=concurrent.id,
+                                                                        amount=-3.1*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                       hero_id=self.hero.id,
+                                                                       place_id=concurrent.place.id,
+                                                                       amount=-3.1*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                        hero_id=self.hero.id,
+                                                                        person_id=partner.id,
+                                                                        amount=3.1*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                       hero_id=self.hero.id,
+                                                                       place_id=partner.place.id,
+                                                                       amount=3.1*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                        hero_id=self.hero.id,
+                                                                        person_id=person.id,
+                                                                        amount=31*TEST_FREEDOM),
+                               tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                       hero_id=self.hero.id,
+                                                                       place_id=person.place.id,
+                                                                       amount=31*TEST_FREEDOM)])
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True)
     def test_give_person_power__places_help_history(self):
@@ -208,15 +252,14 @@ class PrototypeTests(PrototypeTestsBase):
         with self.check_delta(lambda: self.hero.places_history._get_places_statisitcs()[person.place_id], 2):
             self.quest._give_person_power(self.hero, person, 1)
 
-
+    @mock.patch('the_tale.game.places.attributes.Attributes.freedom', TEST_FREEDOM)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
     def test_give_place_power__power_bonus(self):
 
         self.quest.current_info.power = 10
         self.quest.current_info.power_bonus = 1
 
-        self.assertEqual(self.quest._give_place_power(self.hero, self.place_1, 3.0), 31)
-
+        self.assertEqual(sum(impact.amount for impact in self.quest._give_place_power(self.hero, self.place_1, 3.0)), 31*TEST_FREEDOM)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
     def test_give_place_power__places_help_history(self):
@@ -233,49 +276,53 @@ class PrototypeTests(PrototypeTestsBase):
         with self.check_delta(lambda: self.hero.places_history._get_places_statisitcs()[person.place_id], 1):
             self.quest._give_place_power(self.hero, self.place_1, 2)
 
-
-
     def test_power_on_end_quest_for_fast_account_hero(self):
-        fake_cmd = FakeWorkerCommand()
+        tt_api_impacts.debug_clear_service()
 
         self.assertEqual(self.hero.places_history.history, collections.deque())
 
-        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power', fake_cmd):
-            self.complete_quest()
+        self.complete_quest()
 
         self.assertTrue(len(self.hero.places_history.history) > 0)
 
-        self.assertFalse(fake_cmd.commands)
+        impacts = politic_power_logic.get_last_power_impacts(limit=100)
+
+        self.assertTrue(len(impacts) == 0)
 
     def test_power_on_end_quest_for_premium_account_hero(self):
+
+        tt_api_impacts.debug_clear_service()
 
         self.hero.is_fast = False
         self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
 
         self.assertEqual(self.hero.places_history.history, collections.deque())
 
-        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
-            self.complete_quest()
+        self.complete_quest()
 
         self.assertTrue(len(self.hero.places_history.history) > 0)
 
-        self.assertTrue(fake_cmd.call_count > 0)
+        impacts = politic_power_logic.get_last_power_impacts(limit=100)
+
+        self.assertTrue(len(impacts) > 0)
 
     def test_power_on_end_quest_for_normal_account_hero(self):
+        tt_api_impacts.debug_clear_service()
 
         self.hero.is_fast = False
 
         self.assertEqual(self.hero.places_history.history, collections.deque())
 
-        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
-            self.complete_quest()
+        self.complete_quest()
 
         self.assertTrue(len(self.hero.places_history.history) > 0)
 
-        self.assertEqual(fake_cmd.call_count, 0)
+        impacts = politic_power_logic.get_last_power_impacts(limit=100)
 
+        self.assertTrue(len(impacts) == 0)
 
     def test_power_on_end_quest_for_normal_account_hero__in_frontier(self):
+        tt_api_impacts.debug_clear_service()
 
         for place in places_storage.places.all():
             place.is_frontier = True
@@ -284,19 +331,18 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertEqual(self.hero.places_history.history, collections.deque())
 
-        with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_change_power') as fake_cmd:
-            self.complete_quest()
+        self.complete_quest()
 
         self.assertTrue(len(self.hero.places_history.history) > 0)
 
-        self.assertTrue(fake_cmd.call_count > 0)
+        impacts = politic_power_logic.get_last_power_impacts(limit=100)
 
+        self.assertTrue(len(impacts) > 0)
 
     def test_get_expirience_for_quest(self):
         self.assertEqual(self.hero.experience, 0)
         self.complete_quest()
         self.assertTrue(self.hero.experience > 0)
-
 
     @mock.patch('the_tale.game.balance.formulas.experience_for_quest', lambda x: 100)
     @mock.patch('the_tale.game.heroes.statistics.Statistics.quests_done', 1)
@@ -312,7 +358,6 @@ class PrototypeTests(PrototypeTestsBase):
             place.attrs.experience_bonus = 1.0
 
         self.assertTrue(self.quest.get_expirience_for_quest(self.quest.current_info.uid, self.hero) > 100)
-
 
     @mock.patch('the_tale.game.balance.formulas.experience_for_quest', lambda x: 100)
     @mock.patch('the_tale.game.heroes.statistics.Statistics.quests_done', 1)
@@ -441,7 +486,6 @@ class PrototypeTests(PrototypeTestsBase):
 
         self.assertTrue(self.hero.money > 0)
 
-
     def test_modify_reward_scale(self):
         self.complete_quest(positive_results=True)
 
@@ -465,14 +509,14 @@ class PrototypeTests(PrototypeTestsBase):
             for person in persons_storage.persons.all():
                 person.attrs.on_profite_energy = 0
 
-            with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+            with self.check_not_changed(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
                 self.quest.give_energy_on_reward()
                 time.sleep(0.1)
 
             for person in persons_storage.persons.all():
                 person.attrs.on_profite_energy = 1
 
-            with self.check_increased(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+            with self.check_increased(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
                 self.quest.give_energy_on_reward()
                 time.sleep(0.1)
 
@@ -486,7 +530,7 @@ class PrototypeTests(PrototypeTestsBase):
             for person in persons_storage.persons.all():
                 person.attrs.on_profite_energy = 1
 
-            with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+            with self.check_not_changed(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
                 self.quest.give_energy_on_reward()
                 time.sleep(0.1)
 
@@ -535,7 +579,6 @@ class PrototypeTests(PrototypeTestsBase):
 
         with self.check_delta(lambda: self.hero.money, 1):
             self.quest._give_reward(self.hero, 'bla-bla', scale=1.5)
-
 
     def test_finish_quest__person_personality(self):
         result = random.choice([QUEST_RESULTS.SUCCESSED, QUEST_RESULTS.FAILED])

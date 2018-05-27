@@ -7,25 +7,38 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.relations import RACE
 
-from the_tale.game.logic import create_test_map
+from the_tale.game import logic as game_logic
+from the_tale.game.politic_power import logic as politic_power_logic
+from the_tale.game.politic_power import storage as politic_power_storage
+
 from the_tale.game.persons import storage as persons_storage
+
+from the_tale.game import tt_api_impacts
 
 from .. import races
 
 
 E = 0.001
 
+
 class RacesTests(testcase.TestCase):
 
-    @mock.patch('the_tale.game.jobs.job.Job.give_power', lambda obj, power: None)
     def setUp(self):
         super(RacesTests, self).setUp()
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
         for person in persons_storage.persons.all():
-            person.politic_power.change_power(person, hero_id=666, has_in_preferences=False, power=1000)
-            person.politic_power.change_power(person, hero_id=777, has_in_preferences=True, power=2000)
+            politic_power_logic.add_power_impacts([tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                                            hero_id=666,
+                                                                                            person_id=person.id,
+                                                                                            amount=1000),
+                                                   tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
+                                                                                            hero_id=777,
+                                                                                            person_id=person.id,
+                                                                                            amount=2000)])
             person.attrs.demographics_pressure = 1
+
+        politic_power_storage.persons.reset()
 
     def test_initialize(self):
         for race in RACE.records:
@@ -36,7 +49,6 @@ class RacesTests(testcase.TestCase):
             self.p1.races._races[race] = i
 
         self.assertEqual(self.p1.races.serialize(), races.Races.deserialize(self.p1.races.serialize()).serialize())
-
 
     def test_get_next_races__no_trends(self):
         self.assertEqual(self.p1.races.get_next_races([]), self.p1.races._races)
@@ -60,25 +72,25 @@ class RacesTests(testcase.TestCase):
 
         self.assertTrue(1 - E < sum(self.p1.races._races.values()) < 1 + E )
 
-    @mock.patch('the_tale.game.jobs.job.Job.give_power', lambda obj, power: None)
+    # @mock.patch('the_tale.game.jobs.job.Job.give_power', lambda obj, power: None)
     def test_get_next_races__cup(self):
         self.assertEqual(len(self.p1.persons), 3)
 
+        fractions = {self.p1.persons[0].id: 0.75,
+                     self.p1.persons[1].id: 0.25,
+                     self.p1.persons[2].id: 0.00}
+
         self.p1.persons[0].race = RACE.ORC
-        self.p1.persons[0].politic_power.outer_power = 1000
-        self.p1.persons[0].politic_power.inner_power = 3000
         self.p1.persons[1].race = RACE.ELF
-        self.p1.persons[1].politic_power.outer_power = 500
-        self.p1.persons[1].politic_power.inner_power = 1500
         self.p1.persons[2].race = RACE.GOBLIN
-        self.p1.persons[2].politic_power.outer_power = 0
-        self.p1.persons[2].politic_power.inner_power = 0
 
-        for i in range(10000):
-            self.p1.races.update(self.p1.persons)
+        with mock.patch('the_tale.game.politic_power.storage.PowerStorage.total_power_fraction',
+                        lambda self, person_id: fractions.get(person_id, 0)):
+            for i in range(10000):
+                self.p1.races.update(self.p1.persons)
 
-        self.assertTrue(0.66 < self.p1.races.get_race_percents(RACE.ORC) < 0.67)
-        self.assertTrue(0.33 < self.p1.races.get_race_percents(RACE.ELF) < 0.34)
+        self.assertTrue(0.74 < self.p1.races.get_race_percents(RACE.ORC) < 0.76)
+        self.assertTrue(0.24 < self.p1.races.get_race_percents(RACE.ELF) < 0.26)
         self.assertTrue(0.0 < self.p1.races.get_race_percents(RACE.GOBLIN) < 0.01)
 
     def test_get_next_races__no_less_then_zero(self):
@@ -92,7 +104,6 @@ class RacesTests(testcase.TestCase):
 
         for percents in list(next_races.values()):
             self.assertTrue(percents >= 0)
-
 
     def test_get_next_races__demographics_pressure(self):
         person_1 = self.p1.persons[0]
@@ -114,7 +125,6 @@ class RacesTests(testcase.TestCase):
         self.assertTrue(old_next_races[person_2.race] > new_next_races[person_2.race])
 
         self.assertTrue(1 - E < sum(new_next_races.values()) < 1 + E )
-
 
     def test_update(self):
         next_races = self.p1.races.get_next_races(self.p1.persons)

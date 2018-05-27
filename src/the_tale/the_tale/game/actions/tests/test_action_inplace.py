@@ -7,7 +7,10 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game.politic_power import logic as politic_power_logic
+
+from the_tale.game import tt_api_energy
+from the_tale.game import tt_api_impacts
 
 from the_tale.game.companions import storage as companions_storage
 from the_tale.game.companions import logic as companions_logic
@@ -66,7 +69,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
     def test_instant_heal_in_resort(self):
         self.hero.health = 1
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.RESORT)
-        old_messages_len = len (self.hero.journal.messages)
+
         prototypes.ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.storage._test_save()
@@ -75,7 +78,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
     def test_no_instant_heal_in_resort(self):
         self.hero.health = self.hero.max_health
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.RESORT)
-        old_messages_len = len (self.hero.journal.messages)
+
         prototypes.ActionInPlacePrototype.create(hero=self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.storage._test_save()
@@ -127,7 +130,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_delta(lambda: game_tt_api.energy_balance(self.hero.account_id),
+        with self.check_delta(lambda: tt_api_energy.energy_balance(self.hero.account_id),
                               c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
             time.sleep(0.1)
@@ -141,7 +144,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
         self.hero.position.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+        with self.check_not_changed(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
             time.sleep(0.1)
 
@@ -155,7 +158,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+        with self.check_not_changed(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
             prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
@@ -168,7 +171,7 @@ class InPlaceActionTest(testcase.TestCase, ActionEventsTestsMixin):
 
         self.assertEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+        with self.check_not_changed(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
             with self.check_not_changed(lambda: len(self.hero.journal.messages)):
                 prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
@@ -628,18 +631,20 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.assertEqual(self.hero.statistics.money_spend_for_useless, money - self.hero.money)
         self.storage._test_save()
 
-
     def test_impact(self):
+        tt_api_impacts.debug_clear_service()
+
         while not self.hero.next_spending.is_IMPACT:
             self.hero.switch_spending()
 
         money = self.hero.spend_amount
         self.hero.money = money
 
-        with mock.patch('the_tale.game.persons.objects.Person.cmd_change_power') as cmd_change_power:
-            self.storage.process_turn()
+        self.storage.process_turn()
 
-        self.assertEqual(cmd_change_power.call_count, 0)
+        impacts = politic_power_logic.get_last_power_impacts(limit=100)
+
+        self.assertTrue(len(impacts) == 0)
 
         self.assertEqual(self.hero.money, 0)
 
@@ -648,6 +653,8 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_impact__can_change_power(self):
+        tt_api_impacts.debug_clear_service()
+
         while not self.hero.next_spending.is_IMPACT:
             self.hero.switch_spending()
 
@@ -655,10 +662,11 @@ class InPlaceActionSpendMoneyTest(testcase.TestCase):
         self.hero.money = money
 
         with mock.patch('the_tale.game.heroes.objects.Hero.can_change_person_power', lambda self, person: True):
-            with mock.patch('the_tale.game.persons.objects.Person.cmd_change_power') as cmd_change_power:
-                self.storage.process_turn()
+            self.storage.process_turn()
 
-        self.assertEqual(cmd_change_power.call_count, 1)
+        impacts = politic_power_logic.get_last_power_impacts(limit=100)
+
+        self.assertTrue(len(impacts) == 2)
 
         self.assertEqual(self.hero.money, 0)
 

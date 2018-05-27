@@ -75,6 +75,39 @@
     collect_static: false
 
 
+- name: install TT personal impacts
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT personal impacts
+    user: tt_personal_impacts
+    packages: "{{tt_services['tt_personal_impacts']['packages']}}"
+    django_settings: tt_impacts.settings
+    port: 10007
+    collect_static: false
+
+
+- name: install TT crowd impacts
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT crowd impacts
+    user: tt_crowd_impacts
+    packages: "{{tt_services['tt_crowd_impacts']['packages']}}"
+    django_settings: tt_impacts.settings
+    port: 10008
+    collect_static: false
+
+
+- name: install TT job impacts
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT job impacts
+    user: tt_job_impacts
+    packages: "{{tt_services['tt_job_impacts']['packages']}}"
+    django_settings: tt_impacts.settings
+    port: 10009
+    collect_static: false
+
+
 - name: install services cron files
   import_playbook: ../tasks/tt_cron.yml
 

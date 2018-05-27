@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.db import models
 
@@ -29,7 +28,6 @@ class Person(models.Model):
     data = models.TextField(null=False, default='{}')
 
     def __str__(self): return '%s from %s' % (s11n.from_json(self.data)['name']['forms'][0], self.place)
-
 
 
 class SocialConnection(models.Model):

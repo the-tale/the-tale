@@ -3,7 +3,7 @@ import math
 
 from the_tale.common.utils import logic as utils_logic
 
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game import tt_api_energy
 
 from the_tale.game.balance import formulas as f
 from the_tale.game.balance import constants as c
@@ -57,10 +57,10 @@ class JobsMethodsMixin(object):
     def job_energy(self, place_id, person_id, message_type, job_power):
         energy = max(1, int(math.ceil(c.ANGEL_ENERGY_IN_DAY * job_power * c.NORMAL_JOB_LENGTH * c.JOB_HERO_REWARD_FRACTION)))
 
-        game_tt_api.change_energy_balance(account_id=self.account_id,
-                                          type='job_energy',
-                                          energy=energy,
-                                          async=True,
-                                          autocommit=True)
+        tt_api_energy.change_energy_balance(account_id=self.account_id,
+                                            type='job_energy',
+                                            energy=energy,
+                                            async=True,
+                                            autocommit=True)
 
         self.add_message(message_type, diary=True, hero=self, energy=energy, **self.get_job_variables(place_id, person_id))

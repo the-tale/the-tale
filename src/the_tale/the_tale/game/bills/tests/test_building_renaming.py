@@ -16,7 +16,6 @@ from ..bills import BuildingRenaming
 from .helpers import BaseTestPrototypes
 
 
-
 class BuildingRenamingTests(BaseTestPrototypes):
 
     def setUp(self):

@@ -1,10 +1,12 @@
-# coding: utf-8
 
 import time
 
 from the_tale.game import relations as game_relations
 
 from the_tale.game.chronicle import prototypes as chronicle_prototypes
+
+from the_tale.game.politic_power import logic as politic_power_logic
+from the_tale.game.politic_power import storage as politic_power_storage
 
 from the_tale.game import attributes
 from the_tale.game import logic as game_logic
@@ -27,9 +29,9 @@ def place_info_persons_data(place, full_building_info):
                        'type': person.type.value,
                        'building': None,
                        'next_move_available_in': person.seconds_before_next_move,
-                       'politic_power_fraction': person.total_politic_power_fraction,
-                       'personality': { 'cosmetic': person.personality_cosmetic.value,
-                                        'practical': person.personality_practical.value } }
+                       'politic_power_fraction': politic_power_storage.persons.total_power_fraction(person.id),
+                       'personality': {'cosmetic': person.personality_cosmetic.value,
+                                       'practical': person.personality_practical.value}}
 
         if building:
             person_data['building'] = building_info(building) if full_building_info else building.id
@@ -86,8 +88,10 @@ def place_info_habits(place):
                                                            'negative_points': place.habit_peacefulness_negative} }
 
 
-
 def place_info(place, full_building_info):
+
+    inner_circle = politic_power_logic.get_inner_circle(place_id=place.id)
+
     data = {'id': place.id,
             'name': place.name,
             'frontier': place.is_frontier,
@@ -95,7 +99,8 @@ def place_info(place, full_building_info):
             'description': place.description_html,
             'updated_at': time.mktime(place.updated_at.timetuple()),
             'position': {'x': place.x, 'y': place.y},
-            'politic_power': place.politic_power.ui_info([p.politic_power for p in place.get_same_places()]),
+            'politic_power': {'heroes': inner_circle.ui_info(),
+                              'power': politic_power_storage.places.ui_info(place.id)},
             'persons': place_info_persons_data(place, full_building_info=full_building_info),
             'attributes': attributes.attributes_info(effects=place.all_effects(),
                                                      attrs=place.attrs,

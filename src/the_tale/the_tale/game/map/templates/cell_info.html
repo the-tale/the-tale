@@ -92,8 +92,10 @@
             {% for person in place.persons_by_power %}
               <tr>
                 <td>{{persons_macros.person_verbose(person, hero)}}</td>
-                <td>{{person.total_politic_power_fraction|percents(2)}}</td>
-                <td>{{person.politic_power.positive_heroes_number}} / {{person.politic_power.negative_heroes_number}}</td>
+                <td>{{persons_power_storage.total_power_fraction(person.id)|percents(2)}}</td>
+                <td>
+                  {{persons_inner_circles[person.id].positive_heroes_number}} / {{persons_inner_circles[person.id].negative_heroes_number}}
+                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -122,7 +124,7 @@
             {{places_macros.attribute_record(place, 'tax')}}
             <tr>
               <th>герои</th>
-              <td>{{place.politic_power.positive_heroes_number}} / {{place.politic_power.negative_heroes_number}}</td>
+              <td>{{place_inner_circle.positive_heroes_number}} / {{place_inner_circle.negative_heroes_number}}</td>
               <td><a href="javascript:void(0)" class="info-link" rel="tooltip" title="помогающие / мешающие">подробнее</a></td>
             </tr>
           </tbody>

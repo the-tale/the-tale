@@ -12,6 +12,8 @@ from the_tale.game.persons import relations as persons_relations
 
 from the_tale.game.places import storage as places_storage
 
+from the_tale.game.politic_power import logic as politic_power_logic
+
 from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 from the_tale.game.bills.bills.base_bill import BaseBill
@@ -30,7 +32,6 @@ class BaseForm(BaseUserForm):
 
     def person_filter(self, place, person):
         return persons_storage.social_connections.has_connections(person)
-
 
     def clean(self):
         cleaned_data = super(BaseForm, self).clean()
@@ -61,7 +62,6 @@ class UserForm(BaseForm):
         super(UserForm, self).__init__(person_1_id, person_2_id, *args, **kwargs)
         self.owner_id = owner_id
 
-
     def clean(self):
         cleaned_data = super(UserForm, self).clean()
 
@@ -71,8 +71,8 @@ class UserForm(BaseForm):
         person_1 = persons_storage.persons[int(cleaned_data['person_1'])]
         person_2 = persons_storage.persons[int(cleaned_data['person_2'])]
 
-        if (not person_1.politic_power.is_in_inner_circle(self.owner_id) and
-            not person_2.politic_power.is_in_inner_circle(self.owner_id)):
+        if (not politic_power_logic.get_inner_circle(person_id=person_1.id).in_circle(self.owner_id) and
+            not politic_power_logic.get_inner_circle(person_id=person_2.id).in_circle(self.owner_id)):
             raise ValidationError('Вы не состоите в ближнем круге ни одного из Мастеров')
 
         return cleaned_data

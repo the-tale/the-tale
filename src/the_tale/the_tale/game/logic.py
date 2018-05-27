@@ -31,6 +31,9 @@ from the_tale.game.places import storage as places_storage
 from the_tale.game.places import logic as places_logic
 from the_tale.game.places import nearest_cells
 
+from the_tale.game.persons import logic as persons_logic
+from the_tale.game.persons import relations as persons_relations
+
 from the_tale.game.roads.storage import roads_storage, waymarks_storage
 from the_tale.game.roads.prototypes import RoadPrototype
 from the_tale.game.roads.logic import update_waymarks
@@ -43,7 +46,10 @@ from the_tale.game.heroes import tt_api as heroes_tt_api
 from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.heroes import objects as heroes_objects
 
-from . import tt_api
+from the_tale.game.politic_power import storage as politic_power_storage
+
+from . import tt_api_energy
+from . import tt_api_impacts
 from . import relations
 
 
@@ -57,15 +63,27 @@ from . import relations
 def create_test_map():
     linguistics_logic.sync_static_restrictions()
 
+    politic_power_storage.places.reset()
+    politic_power_storage.persons.reset()
+
+    tt_api_impacts.debug_clear_service()
+
     map_logic.create_test_map_info()
 
-    p1 = places_logic.create_place( x=1, y=1, size=1, utg_name=names.generator().get_test_name(name='1x1'), race=relations.RACE.HUMAN)
-    p2 = places_logic.create_place( x=3, y=3, size=3, utg_name=names.generator().get_test_name(name='10x10'), race=relations.RACE.HUMAN)
-    p3 = places_logic.create_place( x=1, y=3, size=3, utg_name=names.generator().get_test_name(name='1x10'), race=relations.RACE.HUMAN)
+    p1 = places_logic.create_place(x=1, y=1, size=1, utg_name=names.generator().get_test_name(name='1x1'), race=relations.RACE.HUMAN)
+    p2 = places_logic.create_place(x=3, y=3, size=3, utg_name=names.generator().get_test_name(name='10x10'), race=relations.RACE.HUMAN)
+    p3 = places_logic.create_place(x=1, y=3, size=3, utg_name=names.generator().get_test_name(name='1x10'), race=relations.RACE.HUMAN)
 
     for place in places_storage.places.all():
         for i in range(3):
-            places_logic.add_person_to_place(place)
+            persons_logic.create_person(place=place,
+                                        race=relations.RACE.random(),
+                                        gender=relations.GENDER.random(),
+                                        type=persons_relations.PERSON_TYPE.random(),
+                                        utg_name=names.generator().get_test_name())
+
+    for place in places_storage.places.all():
+        place.refresh_attributes()
 
     RoadPrototype.create(point_1=p1, point_2=p2).update()
     RoadPrototype.create(point_1=p2, point_2=p3).update()
@@ -130,7 +148,7 @@ def _form_game_account_info(turn_number, account, in_pvp_queue, is_own, client_t
     data['is_old'] = (data['hero']['actual_on_turn'] < turn_number)
 
     if is_own:
-        data['energy'] = tt_api.energy_balance(account.id)
+        data['energy'] = tt_api_energy.energy_balance(account.id)
     else:
         data['energy'] = None
 

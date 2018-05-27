@@ -39,14 +39,18 @@ BASE_INDEX_FILTERS = [list_filter.reset_element(),
 
 LOGINED_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element('голосование:', attribute='voted', choices=[(None, 'все')] + list(VOTED_TYPE.select('value', 'text'))),]
 
+
 class UnloginedIndexFilter(list_filter.ListFilter):
     ELEMENTS = BASE_INDEX_FILTERS
+
 
 class LoginedIndexFilter(list_filter.ListFilter):
     ELEMENTS = LOGINED_INDEX_FILTERS
 
 
 def argument_to_bill_type(value): return BILL_TYPE(int(value))
+
+
 def argument_to_bill_state(value): return BILL_STATE(int(value))
 
 
@@ -154,7 +158,7 @@ class BillResource(Resource):
 
         bill_from, bill_to = paginator.page_borders(page)
 
-        bills = [ BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
+        bills = [BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
 
         votes = {}
         if self.account.is_authenticated:
@@ -167,7 +171,7 @@ class BillResource(Resource):
                               'page_type': 'index',
                               'BILLS_BY_ID': BILLS_BY_ID,
                               'paginator': paginator,
-                              'index_filter': index_filter} )
+                              'index_filter': index_filter})
 
     @login_required
     @validate_fast_account()

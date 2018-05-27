@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from unittest import mock
 
@@ -6,8 +5,6 @@ import collections
 
 from questgen import facts as questgen_facts
 from questgen import knowledge_base as questgen_knowlege_base
-
-from the_tale import amqp_environment
 
 from the_tale.common.utils import testcase
 

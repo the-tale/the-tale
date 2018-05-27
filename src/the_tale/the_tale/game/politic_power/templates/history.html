@@ -1,0 +1,90 @@
+{% extends "politic_power/base.html" %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+{% import 'accounts/macros.html' as accounts_macros with context %}
+{% import 'heroes/macros.html' as heroes_macros with context %}
+{% import 'persons/macros.html' as persons_macros with context %}
+
+
+{% block title %} Влияние | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Влияние{% endblock %}
+
+{% macro render_object(type, id) %}
+
+{% if type.is_ACCOUNT %}
+{{accounts_macros.account_link(accounts[id], accounts[id].clan)}} (герой: {{heroes_macros.hero_link(heroes[id])}})
+{% elif type.is_HERO %}
+{{heroes_macros.hero_link(heroes[id])}} (Хранитель: {{accounts_macros.account_link(accounts[id], accounts[id].clan)}})
+{% elif type.is_PERSON %}
+{{persons_macros.profession(persons_storage[id])}}
+<a href="{{url('game:persons:show', id)}}">{{persons_storage[id].name}}</a>
+из
+<a href="{{url('game:places:show', persons_storage[id].place.id)}}">{{persons_storage[id].place.utg_name.forms[1]}}</a>
+{% elif type.is_PLACE %}
+город <a href="{{url('game:places:show', id)}}">{{places_storage[id].name}}</a>
+{% elif type.is_BILL %}
+запись <a href="{{url('game:bills:show', id)}}">{{bills[id].caption}}</a>
+{% else %}
+неизвестно
+{% endif %}
+
+{% endmacro %}
+
+{% block power_content %}
+
+<h2>История изменений влияния</h2>
+
+<p>
+  Влияние — топливо для всех процессов, происходящих в Пандоре. Оно влияет не только на параметры городов, но и на ладшафт.
+</p>
+
+<p>
+  Задания, выполняемые героями, изменяют влиятельноть городов и Мастеров. На этой странице можно посмотреть историю последних изменений влияния (до {{limit}} последних событий, подпадающих под фильтр).
+</p>
+
+{{ list_filter_macros.html_filter(filter) }}
+
+{% if error %}
+<p class="alert alert-danger {{error_code}}">{{error}}</p>
+{% elif not impacts %}
+<p class="alert alert-info pgf-no-impacts">Недавних изменений влияния не зарегистрировано.</p>
+{% else %}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>дата</th>
+      <th>источник</th>
+      <th>получатель</th>
+      <th>тип начисления</th>
+      <th>количество</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for impact in impacts %}
+    <tr>
+      <td>
+        <span class="pgf-format-datetime"
+              data-timestamp="{{ impact.time|timestamp}}"
+              style="cursor: default;"
+              rel="tooltip"
+              title="{{impact.turn|verbose_game_date}}">
+        </span>
+      </td>
+      <td>{{render_object(impact.actor_type, impact.actor_id)}}</td>
+      <td>{{render_object(impact.target_type, impact.target_id)}}</td>
+      <td>{{impact.type.text}}</td>
+      <td>
+        <span style="color:{%if impact.amount>1%}green{%elif impact.amount<-1%}red{%else%}black{%endif%};">
+          {{ impact.amount }}
+        </span>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endif %}
+
+
+
+{% endblock %}

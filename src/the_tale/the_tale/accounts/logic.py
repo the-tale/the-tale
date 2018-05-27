@@ -85,7 +85,7 @@ def register_user(nick,
                   is_bot=False,
                   gender=game_relations.GENDER.MALE,
                   full_create=True):
-    from the_tale.game import tt_api as game_tt_api
+    from the_tale.game import tt_api_energy
     from the_tale.game.heroes import logic as heroes_logic
     from the_tale.game.balance import constants as c
 
@@ -127,11 +127,11 @@ def register_user(nick,
     hero = heroes_logic.create_hero(account=account, full_create=full_create)
 
     if full_create:
-        game_tt_api.change_energy_balance(account_id=account.id,
-                                          type='initial_contribution',
-                                          energy=c.INITIAL_ENERGY_AMOUNT,
-                                          async=False,
-                                          autocommit=True)
+        tt_api_energy.change_energy_balance(account_id=account.id,
+                                            type='initial_contribution',
+                                            energy=c.INITIAL_ENERGY_AMOUNT,
+                                            async=False,
+                                            autocommit=True)
 
         tt_api.create_cards_timer(account_id=account.id)
 

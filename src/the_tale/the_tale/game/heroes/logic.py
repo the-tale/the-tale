@@ -141,7 +141,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         preferences=preferences.HeroPreferences.deserialize(data=s11n.from_json(hero_model.preferences)),
                         actions=actions_container.ActionsContainer.deserialize(s11n.from_json(hero_model.actions)),
                         companion=companion,
-                        journal=messages.JournalContainer(), # we are not storrings journal in database, since messages in it replaced very fast
+                        journal=messages.JournalContainer(),  # we are not storrings journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
                         places_history=places_help_statistics.PlacesHelpStatistics.deserialize(data['places_history']),
                         abilities=habilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
