@@ -34,7 +34,7 @@ BASE_INDEX_FILTERS = [list_filter.reset_element(),
                                                                                             (BILL_STATE.VOTING.value, 'голосование'),
                                                                                             (BILL_STATE.ACCEPTED.value, 'принятые'),
                                                                                             (BILL_STATE.REJECTED.value, 'отклонённые') ]),
-                      list_filter.choice_element('тип:', attribute='bill_type', choices=[(None, 'все')] + list(BILL_TYPE.select('value', 'text'))),
+                      list_filter.choice_element('тип:', attribute='bill_type', choices=[(None, 'все')] + sorted((BILL_TYPE.select('value', 'text')), key=lambda element: element[1])),
                       list_filter.choice_element('город:', attribute='place', choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()) ]
 
 LOGINED_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element('голосование:', attribute='voted', choices=[(None, 'все')] + list(VOTED_TYPE.select('value', 'text'))),]
