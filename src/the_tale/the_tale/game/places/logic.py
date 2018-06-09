@@ -80,8 +80,8 @@ class PlaceJob(jobs_objects.Job):
         return {effect: 1 for effect in jobs_effects.EFFECT.records}
 
 
-def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount):
-    amount *= place.attrs.freedom
+def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
+    amount = round(amount * place.attrs.freedom)
 
     impact_type = tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE
 
@@ -94,6 +94,14 @@ def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount):
                                      target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                      target_id=place.id,
                                      amount=amount)
+
+    if actor_type.is_HERO and 0 < fame:
+        yield tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.FAME,
+                                         actor_type=actor_type,
+                                         actor_id=actor_id,
+                                         target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                         target_id=place.id,
+                                         amount=fame)
 
     if not inner_circle:
         return
@@ -109,6 +117,21 @@ def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount):
                                      target_type=target_type,
                                      target_id=place.id,
                                      amount=abs(amount))
+
+
+def impacts_from_hero(hero, place, power, impacts_generator=tt_power_impacts):
+    place_power = 0
+
+    can_change_power = hero.can_change_place_power(place)
+
+    place_power = hero.modify_politics_power(power, place=place)
+
+    yield from impacts_generator(inner_circle=hero.preferences.has_place_in_preferences(place),
+                                 actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                 actor_id=hero.id,
+                                 place=place,
+                                 amount=place_power if can_change_power else 0,
+                                 fame=c.HERO_FAME_PER_HELP if 0 < place_power else 0)
 
 
 def load_place(place_id=None, place_model=None):
@@ -387,3 +410,30 @@ def sync_sizes(places, hours, max_economic):
     for i, place in enumerate(places):
         place.attrs.set_power_economic(int(max_economic * float(i) / places_number) + 1)
         place.attrs.sync_size(hours)
+
+
+def get_hero_popularity(hero_id):
+    impacts = tt_api_impacts.fame_impacts.cmd_get_actor_impacts(actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                actor_id=hero_id,
+                                                                target_types=[tt_api_impacts.OBJECT_TYPE.PLACE])
+
+    return objects.Popularity({impact.target_id: impact.amount for impact in impacts})
+
+
+def add_fame(hero_id, fames):
+    impacts = []
+
+    for place_id, fame in fames:
+        impacts.append(tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.FAME,
+                                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                  actor_id=hero_id,
+                                                  target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                  target_id=place_id,
+                                                  amount=fame))
+
+    politic_power_logic.add_power_impacts(impacts)
+
+
+def sync_fame():
+    tt_api_impacts.fame_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PLACE],
+                                                  scale=c.PLACE_FAME_REDUCE_FRACTION)

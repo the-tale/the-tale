@@ -536,3 +536,37 @@ class Building(names.ManageNameMixin2):
                 'person': self.person.id,
                 'place': self.place.id,
                 'type': self.type.value}
+
+
+class Popularity:
+    __slots__ = ('_places_fame', )
+
+    def __init__(self, places_fame):
+        self._places_fame = [(place_id, fame) for place_id, fame in places_fame.items()]
+        self._places_fame.sort(key=lambda x: x[1], reverse=True)
+
+    def places_rating(self):
+        return self._places_fame
+
+    def get_allowed_places_ids(self, number):
+        number -= 1
+
+        if number >= len(self._places_fame):
+            number = len(self._places_fame) - 1
+
+        if number < 0:
+            return set()
+
+        min_fame = self._places_fame[number][1]
+
+        return {place_id for place_id, fame in self._places_fame if fame >= min_fame}
+
+    def has_popularity(self):
+        return bool(self._places_fame)
+
+    def get_fame(self, place_id, default=0):
+        for checked_place_id, fame in self._places_fame:
+            if checked_place_id == place_id:
+                return fame
+
+        return default

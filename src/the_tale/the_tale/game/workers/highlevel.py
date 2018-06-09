@@ -109,6 +109,7 @@ class Worker(BaseWorker):
 
             if sheduled:
                 politic_power_logic.sync_power()
+                places_logic.sync_fame()
 
                 # обрабатывает работы только во время запланированного обновления
                 # поскольку при остановке игры нельзя будет обработать команды для героев

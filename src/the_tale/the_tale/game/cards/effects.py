@@ -811,9 +811,7 @@ class AddPlacePower(ModificatorBase):
         return self._name_for_card(card.type, card.data['direction'])
 
 
-
-
-class HelpPlace(ModificatorBase):
+class PlaceFame(ModificatorBase):
     __slots__ = ()
 
     def get_form(self, card, hero, data):
@@ -821,21 +819,19 @@ class HelpPlace(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Увеличивает известность героя в городе на {0:.1f}'.format(self.modificator)
+        return 'Увеличивает известность героя в городе на {}'.format(int(self.modificator))
 
     @property
     def success_message(self):
-        return 'Известность героя увеличена на {0:.1f}'.format(self.modificator)
+        return 'Известность героя увеличена на {}'.format(int(self.modificator))
 
-    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+    def use(self, task, storage, **kwargs):
         place_id = task.data.get('value')
 
         if place_id not in places_storage.places:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
 
-        task.hero.places_history.add_place(place_id, value=self.modificator)
-
-        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
+        places_logic.add_fame(hero_id=task.hero_id, fames=[(place_id, self.modificator)])
 
         return task.logic_result(message=self.success_message)
 

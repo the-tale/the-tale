@@ -50,6 +50,26 @@ class TTImpactsAPITests(testcase.TestCase):
 
         self.api.cmd_add_power_impacts(impacts=self.impacts[2:])
 
+        # add excluded impacts
+        self.api.cmd_add_power_impacts(impacts=[tt_api_impacts.PowerImpact.hero_2_place(type=self.api.impact_type,
+                                                                                        hero_id=888,
+                                                                                        place_id=2,
+                                                                                        amount=-0.5,
+                                                                                        turn=3,
+                                                                                        transaction=self.transaction_2),
+                                                tt_api_impacts.PowerImpact.hero_2_place(type=self.api.impact_type,
+                                                                                        hero_id=888,
+                                                                                        place_id=2,
+                                                                                        amount=0.5,
+                                                                                        turn=3,
+                                                                                        transaction=self.transaction_2),
+                                                tt_api_impacts.PowerImpact.hero_2_place(type=self.api.impact_type,
+                                                                                        hero_id=888,
+                                                                                        place_id=2,
+                                                                                        amount=0,
+                                                                                        turn=3,
+                                                                                        transaction=self.transaction_2)])
+
         impacts = self.api.cmd_get_last_power_impacts(limit=100)
 
         for impact in impacts:
@@ -139,6 +159,27 @@ class TTImpactsAPITests(testcase.TestCase):
                                                           target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                           target_id=2,
                                                           amount=-400)])
+
+    def test_get_actor_impacts(self):
+        self.api.cmd_add_power_impacts(impacts=self.impacts)
+
+        impacts = self.api.cmd_get_actor_impacts(actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                 actor_id=777,
+                                                 target_types=[tt_api_impacts.OBJECT_TYPE.PERSON])
+
+        self.assertCountEqual(impacts,
+                              [tt_api_impacts.PowerImpact(type=self.api.impact_type,
+                                                          actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                          actor_id=777,
+                                                          target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
+                                                          target_id=2,
+                                                          amount=-200),
+                               tt_api_impacts.PowerImpact(type=self.api.impact_type,
+                                                          actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                          actor_id=777,
+                                                          target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
+                                                          target_id=1,
+                                                          amount=300)])
 
     def test_get_impacters_ratings(self):
         self.api.cmd_add_power_impacts(impacts=self.impacts)

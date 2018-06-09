@@ -1,5 +1,6 @@
 
 import datetime
+
 from django.conf import settings as project_settings
 
 from utg import words as utg_words
@@ -91,7 +92,7 @@ class PersonJob(jobs_objects.Job):
                 if effects_priorities.get(effect, 0) > 0}
 
 
-def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_id, person, amount):
+def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_id, person, amount, fame):
     power_multiplier = 1
 
     if person.has_building:
@@ -101,7 +102,7 @@ def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_
     place_power = amount * power_multiplier
 
     # this power, only to person
-    person_power = amount * power_multiplier * person.place.attrs.freedom
+    person_power = round(amount * power_multiplier * person.place.attrs.freedom)
 
     impact_type = tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE
 
@@ -119,7 +120,8 @@ def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_
                                              actor_type=actor_type,
                                              actor_id=actor_id,
                                              place=person.place,
-                                             amount=place_power)
+                                             amount=place_power,
+                                             fame=fame * person.attrs.places_help_amount)
 
     if not person_inner_circle:
         return
@@ -135,6 +137,47 @@ def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_
                                      target_type=target_type,
                                      target_id=person.id,
                                      amount=abs(person_power))
+
+
+def impacts_from_hero(hero, person, power, impacts_generator=tt_power_impacts):
+    person_power = 0
+    partner_power = 0
+    concurrent_power = 0
+
+    partner_fame = c.HERO_FAME_PER_HELP * person.attrs.social_relations_partners_power_modifier
+    concurrent_fame = c.HERO_FAME_PER_HELP * person.attrs.social_relations_concurrents_power_modifier
+
+    can_change_power = hero.can_change_person_power(person)
+
+    person_power = hero.modify_politics_power(power, person=person)
+
+    partner_power = person_power * person.attrs.social_relations_partners_power_modifier
+    concurrent_power = -person_power * person.attrs.social_relations_concurrents_power_modifier
+
+    has_person_in_preferences = hero.preferences.has_person_in_preferences(person)
+    has_place_in_preferences = hero.preferences.has_place_in_preferences(person.place)
+
+    yield from impacts_generator(person_inner_circle=has_person_in_preferences,
+                                 place_inner_circle=has_place_in_preferences,
+                                 actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                 actor_id=hero.id,
+                                 person=person,
+                                 amount=person_power if can_change_power else 0,
+                                 fame=c.HERO_FAME_PER_HELP if 0 < power else 0)
+
+    for social_connection_type, connected_person_id in storage.social_connections.get_person_connections(person):
+        connected_person = storage.persons[connected_person_id]
+
+        connected_power = partner_power if social_connection_type.is_PARTNER else concurrent_power
+        connected_fame = partner_fame if social_connection_type.is_PARTNER else concurrent_fame
+
+        yield from impacts_generator(person_inner_circle=has_person_in_preferences,
+                                     place_inner_circle=has_place_in_preferences,
+                                     actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                     actor_id=hero.id,
+                                     person=connected_person,
+                                     amount=connected_power if can_change_power else 0,
+                                     fame=connected_fame if 0 < connected_power else 0)
 
 
 def save_person(person, new=False):

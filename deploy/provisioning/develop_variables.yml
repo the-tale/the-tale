@@ -78,6 +78,11 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_impacts/"}
+  tt_fame_impacts:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_impacts/"}
 
 tt_RAM: 4096
 tt_postgresql_maintenance_work_mem: 32MB # 256MB

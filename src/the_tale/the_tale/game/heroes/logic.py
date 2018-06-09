@@ -33,7 +33,6 @@ from . import statistics
 from . import preferences
 from . import relations
 from . import messages
-from . import places_help_statistics
 from . import habilities
 from . import bag
 from . import habits
@@ -143,7 +142,6 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         companion=companion,
                         journal=messages.JournalContainer(),  # we are not storrings journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
-                        places_history=places_help_statistics.PlacesHelpStatistics.deserialize(data['places_history']),
                         abilities=habilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
                         bag=bag.Bag.deserialize(data['bag']),
                         equipment=bag.Equipment.deserialize(data['equipment']),
@@ -174,7 +172,6 @@ def save_hero(hero, new=False):
     data = {'companion': hero.companion.serialize() if hero.companion else None,
             'name': hero.utg_name.serialize(),
             'quests': hero.quests.serialize(),
-            'places_history': hero.places_history.serialize(),
             'equipment': hero.equipment.serialize(),
             'bag': hero.bag.serialize(),
             'actual_bills': hero.actual_bills,
@@ -359,7 +356,6 @@ def create_hero(account, full_create=True):
                         companion=None,
                         journal=messages.JournalContainer(),
                         quests=quests_container.QuestsContainer(),
-                        places_history=places_help_statistics.PlacesHelpStatistics(),
                         abilities=habilities.AbilitiesPrototype.create(),
                         bag=bag.Bag(),
                         equipment=bag.Equipment(),

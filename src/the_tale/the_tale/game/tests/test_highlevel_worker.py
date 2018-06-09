@@ -150,23 +150,27 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(refresh_attributes.call_count, places_number)
         self.assertEqual(mark_as_updated.call_count, places_number)
 
-    def give_power_to_person(self, person, power):
+    def give_power_to_person(self, person, power, fame):
         impacts = persons_logic.tt_power_impacts(person_inner_circle=False,
                                                  place_inner_circle=False,
                                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                                  actor_id=666,
                                                  person=person,
-                                                 amount=power)
+                                                 amount=power,
+                                                 fame=fame)
+
         politic_power_logic.add_power_impacts(impacts)
 
-    def give_power_to_place(self, place, power):
+    def give_power_to_place(self, place, power, fame):
         impacts = places_logic.tt_power_impacts(inner_circle=False,
                                                 actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                                 actor_id=666,
                                                 place=place,
-                                                amount=power)
+                                                amount=power,
+                                                fame=fame)
         politic_power_logic.add_power_impacts(impacts)
 
+    @mock.patch('the_tale.game.persons.attributes.Attributes.places_help_amount', 1)
     @mock.patch('the_tale.game.places.attributes.Attributes.freedom', 1)
     @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 0.9)
     @mock.patch('the_tale.game.places.objects.Place.refresh_attributes', mock.Mock())
@@ -185,17 +189,21 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 3)
         self.assertEqual(len(persons_storage.persons.all()), 9)
 
-        person_1_1 = self.p1.persons[0]
-        person_2_1 = self.p2.persons[0]
-        person_2_2 = self.p2.persons[1]
-        person_3_1 = self.p3.persons[0]
-        person_3_2 = self.p3.persons[1]
+        popularity = places_logic.get_hero_popularity(666)
 
-        self.give_power_to_person(person=person_1_1, power=1)
-        self.give_power_to_person(person=person_2_1, power=100)
-        self.give_power_to_person(person=person_2_2, power=1000)
-        self.give_power_to_person(person=person_3_1, power=10000)
-        self.give_power_to_person(person=person_3_2, power=100000)
+        self.assertEqual(popularity.get_fame(self.p1.id), 0)
+        self.assertEqual(popularity.get_fame(self.p2.id), 0)
+        self.assertEqual(popularity.get_fame(self.p3.id), 0)
+
+        person_1_1 = self.p1.persons[0]
+        person_2_1, person_2_2 = self.p2.persons[0:2]
+        person_3_1, person_3_2 = self.p3.persons[0:2]
+
+        self.give_power_to_person(person=person_1_1, power=1, fame=2)
+        self.give_power_to_person(person=person_2_1, power=100, fame=200)
+        self.give_power_to_person(person=person_2_2, power=1000, fame=2000)
+        self.give_power_to_person(person=person_3_1, power=10000, fame=20000)
+        self.give_power_to_person(person=person_3_2, power=100000, fame=200000)
 
         with self.check_changed(lambda: persons_storage.persons._version):
             with self.check_changed(lambda: places_storage.places._version):
@@ -215,11 +223,17 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(politic_power_storage.places.outer_power(self.p2.id), 990)
         self.assertEqual(politic_power_storage.places.outer_power(self.p3.id), 99000)
 
-        self.give_power_to_place(place=self.p1, power=-10)
-        self.give_power_to_place(place=self.p2, power=-1)
-        self.give_power_to_place(place=self.p2, power=+10000000)
-        self.give_power_to_place(place=self.p3, power=-2)
-        self.give_power_to_place(place=self.p3, power=+20)
+        popularity = places_logic.get_hero_popularity(666)
+
+        self.assertEqual(popularity.get_fame(self.p1.id), 1)
+        self.assertEqual(popularity.get_fame(self.p2.id), 2189)
+        self.assertEqual(popularity.get_fame(self.p3.id), 218997)
+
+        self.give_power_to_place(place=self.p1, power=-10, fame=-20)
+        self.give_power_to_place(place=self.p2, power=-1, fame=-2)
+        self.give_power_to_place(place=self.p2, power=+10000000, fame=20000000)
+        self.give_power_to_place(place=self.p3, power=-2, fame=-40)
+        self.give_power_to_place(place=self.p3, power=+20, fame=40)
 
         with self.check_changed(lambda: persons_storage.persons._version):
             with self.check_changed(lambda: places_storage.places._version):
@@ -232,3 +246,9 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(politic_power_storage.places.outer_power(self.p1.id), -9)
         self.assertEqual(politic_power_storage.places.outer_power(self.p2.id), 9000890)
         self.assertEqual(politic_power_storage.places.outer_power(self.p3.id), 89116)
+
+        popularity = places_logic.get_hero_popularity(666)
+
+        self.assertEqual(popularity.get_fame(self.p1.id), 0)
+        self.assertEqual(popularity.get_fame(self.p2.id), 19911015)
+        self.assertEqual(popularity.get_fame(self.p3.id), 218038)

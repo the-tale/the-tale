@@ -1,5 +1,4 @@
 
-import collections
 import datetime
 
 from unittest import mock
@@ -24,8 +23,10 @@ from the_tale.linguistics.tests import helpers as linguistics_helpers
 
 from the_tale.game.heroes import logic as heroes_logic
 
-
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
+
+from the_tale.game import tt_api_impacts
 
 from ..models import Bill, Vote
 from ..relations import VOTE_TYPE, BILL_STATE, BILL_TYPE
@@ -62,6 +63,8 @@ class BaseTestRequests(TestCase):
         SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',
                                    uid=bills_settings.FORUM_CATEGORY_UID,
                                    category=forum_category)
+
+        tt_api_impacts.debug_clear_service()
 
     def create_bills(self, number, owner, caption_template, bill_data):
         return [BillPrototype.create(owner, caption_template % i, bill_data, chronicle_on_accepted='chronicle-on-accepted-%d' % i) for i in range(number) ]
@@ -319,11 +322,10 @@ class TestShowRequests(BaseTestRequests):
         super(TestShowRequests, self).setUp()
 
         self.hero = heroes_logic.load_hero(account_id=self.account2.id)
-        self.hero.places_history.add_place(self.place1.id)
-        self.hero.places_history.add_place(self.place2.id)
-        self.hero.places_history.add_place(self.place3.id)
-        heroes_logic.save_hero(self.hero)
 
+        places_logic.add_fame(hero_id=self.hero.id, fames=[(self.place1.id, 1000),
+                                                           (self.place2.id, 1000),
+                                                           (self.place3.id, 1000)])
 
     def test_unlogined(self):
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
@@ -365,7 +367,8 @@ class TestShowRequests(BaseTestRequests):
 
     @mock.patch('the_tale.game.places.objects.Place.is_new', False)
     def test_can_not_vote(self):
-        self.hero.places_history._reset()
+        tt_api_impacts.debug_clear_service()
+
         heroes_logic.save_hero(self.hero)
 
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
@@ -379,7 +382,7 @@ class TestShowRequests(BaseTestRequests):
 
     @mock.patch('the_tale.game.places.objects.Place.is_new', False)
     def test_can_not_voted(self):
-        self.assertEqual(heroes_logic.load_hero(account_id=self.account1.id).places_history.history, collections.deque([], maxlen=200))
+        tt_api_impacts.debug_clear_service()
 
         # one vote automaticaly created for bill author
         bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
@@ -597,9 +600,10 @@ class TestVoteRequests(BaseTestRequests):
         self.account2.save()
 
         self.hero = heroes_logic.load_hero(account_id=self.account2.id)
-        self.hero.places_history.add_place(self.place1.id)
-        self.hero.places_history.add_place(self.place2.id)
-        self.hero.places_history.add_place(self.place3.id)
+
+        places_logic.add_fame(hero_id=self.hero.id, fames=[(self.place1.id, 1000),
+                                                           (self.place2.id, 1000),
+                                                           (self.place3.id, 1000)])
 
         heroes_logic.save_hero(self.hero)
 
@@ -665,7 +669,8 @@ class TestVoteRequests(BaseTestRequests):
 
     @mock.patch('the_tale.game.places.objects.Place.is_new', False)
     def test_can_not_vote(self):
-        self.hero.places_history._reset()
+        tt_api_impacts.debug_clear_service()
+
         heroes_logic.save_hero(self.hero)
 
         self.check_ajax_error(self.client.post(url('game:bills:vote', self.bill.id, type=VOTE_TYPE.FOR.value), {}), 'bills.vote.can_not_vote')

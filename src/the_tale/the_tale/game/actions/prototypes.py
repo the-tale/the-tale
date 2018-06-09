@@ -1431,14 +1431,10 @@ class ActionInPlacePrototype(ActionBase):
         if not self.hero.can_change_person_power(person):
             return
 
-        power = self.hero.modify_politics_power(power_direction*f.person_power_for_quest(c.QUEST_AREA_RADIUS), person=person)
+        power = power_direction * f.person_power_for_quest(c.QUEST_AREA_RADIUS)
 
-        impacts = list(persons_logic.tt_power_impacts(person_inner_circle=self.hero.preferences.has_place_in_preferences(person),
-                                                      place_inner_circle=self.hero.preferences.has_place_in_preferences(person.place),
-                                                      actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                                      actor_id=self.hero.id,
-                                                      person=person,
-                                                      amount=power))
+        impacts = list(persons_logic.impacts_from_hero(self.hero, person, power))
+
         politic_power_logic.add_power_impacts(impacts)
 
     def spend_money__experience(self):

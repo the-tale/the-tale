@@ -76,6 +76,17 @@ message GetTargetsImpactsResponse {
 }
 
 
+message GetActorImpactsRequest {
+  Object actor = 1;
+  repeated int32 target_types = 2;
+}
+
+
+message GetActorImpactsResponse {
+  repeated TargetImpact impacts = 1;
+}
+
+
 message GetImpactersRatingsRequest {
   repeated Object targets = 1;
   repeated int32 actor_types = 2;

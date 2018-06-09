@@ -231,6 +231,74 @@ class GetTargetsImpactsTests(helpers.BaseTests):
                                                     time=all_impacts[-4].time)])
 
 
+class GetActorImpactsTests(helpers.BaseTests):
+
+    async def prepair_data(self):
+        all_impacts = [helpers.test_impact(actor_type=100, actor_id=1000, target_type=1, target_id=10),
+                       helpers.test_impact(actor_type=100, actor_id=2000, target_type=1, target_id=20),
+                       helpers.test_impact(actor_type=200, actor_id=1000, target_type=2, target_id=10),
+                       helpers.test_impact(actor_type=100, actor_id=1000, target_type=2, target_id=30),
+                       helpers.test_impact(actor_type=100, actor_id=1000, target_type=1, target_id=10),
+                       helpers.test_impact(actor_type=200, actor_id=2000, target_type=1, target_id=20)]
+
+        request_impacts = [protobuf.from_impact(impact) for impact in all_impacts]
+
+        for impact in request_impacts:
+            request = await self.client.post('/add-impacts', data=impacts_pb2.AddImpactsRequest(impacts=[impact]).SerializeToString())
+            await self.check_success(request, impacts_pb2.AddImpactsResponse)
+
+        return await operations.last_impacts(limit=100)
+
+    @test_utils.unittest_run_loop
+    async def test_no_impacts(self):
+        await self.prepair_data()
+
+        data = impacts_pb2.GetActorImpactsRequest(actor=impacts_pb2.Object(type=666, id=1000),
+                                                  target_types=[1, 2]).SerializeToString()
+
+        request = await self.client.post('/get-actor-impacts', data=data)
+        answer = await self.check_success(request, impacts_pb2.GetActorImpactsResponse)
+
+        self.assertCountEqual([protobuf.to_target_impact(impact) for impact in answer.impacts],
+                              [])
+
+    @test_utils.unittest_run_loop
+    async def test_has_impacts(self):
+        all_impacts = await self.prepair_data()
+
+        data = impacts_pb2.GetActorImpactsRequest(actor=impacts_pb2.Object(type=100, id=1000),
+                                                  target_types=[1, 2]).SerializeToString()
+
+        request = await self.client.post('/get-actor-impacts', data=data)
+        answer = await self.check_success(request, impacts_pb2.GetActorImpactsResponse)
+
+        self.assertCountEqual([protobuf.to_target_impact(impact) for impact in answer.impacts],
+                              [objects.TargetImpact(target=objects.Object(1,10),
+                                                    amount=all_impacts[-1].amount+all_impacts[-5].amount,
+                                                    turn=max(all_impacts[-1].turn, all_impacts[-5].turn),
+                                                    time=max(all_impacts[-1].time, all_impacts[-5].time)),
+                               objects.TargetImpact(target=objects.Object(2, 30),
+                                                    amount=all_impacts[-4].amount,
+                                                    turn=all_impacts[-4].turn,
+                                                    time=all_impacts[-4].time)])
+
+    @test_utils.unittest_run_loop
+    async def test_has_impacts__filter_target_types(self):
+        all_impacts = await self.prepair_data()
+
+        data = impacts_pb2.GetActorImpactsRequest(actor=impacts_pb2.Object(type=100, id=1000),
+                                                  target_types=[2]).SerializeToString()
+
+        request = await self.client.post('/get-actor-impacts', data=data)
+        answer = await self.check_success(request, impacts_pb2.GetActorImpactsResponse)
+
+        self.assertCountEqual([protobuf.to_target_impact(impact) for impact in answer.impacts],
+                              [objects.TargetImpact(target=objects.Object(2, 30),
+                                                    amount=all_impacts[-4].amount,
+                                                    turn=all_impacts[-4].turn,
+                                                    time=all_impacts[-4].time)])
+
+
 class GetImpactersRatingsTests(helpers.BaseTests):
 
     async def prepere_data(self):

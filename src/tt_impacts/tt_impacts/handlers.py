@@ -42,6 +42,12 @@ async def get_targets_impacts(message, config, **kwargs):
     return impacts_pb2.GetTargetsImpactsResponse(impacts=[protobuf.from_target_impact(impact) for impact in impacts])
 
 
+@handlers.api(impacts_pb2.GetActorImpactsRequest)
+async def get_actor_impacts(message, config, **kwargs):
+    impacts = await operations.get_actor_impacts(protobuf.to_object(message.actor), message.target_types)
+    return impacts_pb2.GetActorImpactsResponse(impacts=[protobuf.from_target_impact(impact) for impact in impacts])
+
+
 @handlers.api(impacts_pb2.GetImpactersRatingsRequest)
 async def get_impacters_ratings(message, config, **kwargs):
     ratings = await operations.get_impacters_ratings(targets=[protobuf.to_object(target) for target in message.targets],

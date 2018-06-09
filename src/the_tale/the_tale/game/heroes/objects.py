@@ -73,7 +73,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'journal',
                  'health',
                  'quests',
-                 'places_history',
                  'abilities',
                  'bag',
                  'equipment',
@@ -108,7 +107,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  journal,
                  health,
                  quests,
-                 places_history,
                  abilities,
                  bag,
                  equipment,
@@ -175,8 +173,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         self.quests = quests
         self.quests.initialize(hero=self)
-
-        self.places_history = places_history
 
         self.abilities = abilities
         self.abilities.hero = self

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='impacts.proto',
   package='impacts',
   syntax='proto3',
-  serialized_pb=_b('\n\rimpacts.proto\x12\x07impacts\"\"\n\x06Object\x12\x0c\n\x04type\x18\x01 \x01(\r\x12\n\n\x02id\x18\x02 \x01(\x04\"\x8a\x01\n\x06Impact\x12\x13\n\x0btransaction\x18\x01 \x01(\t\x12\x1e\n\x05\x61\x63tor\x18\x02 \x01(\x0b\x32\x0f.impacts.Object\x12\x1f\n\x06target\x18\x03 \x01(\x0b\x32\x0f.impacts.Object\x12\x0e\n\x06\x61mount\x18\x04 \x01(\x03\x12\x0c\n\x04turn\x18\x05 \x01(\x04\x12\x0c\n\x04time\x18\x06 \x01(\x01\"[\n\x0cTargetImpact\x12\x1f\n\x06target\x18\x01 \x01(\x0b\x32\x0f.impacts.Object\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\x12\x0c\n\x04turn\x18\x03 \x01(\x04\x12\x0c\n\x04time\x18\x04 \x01(\x01\">\n\x0cRatingRecord\x12\x1e\n\x05\x61\x63tor\x18\x01 \x01(\x0b\x32\x0f.impacts.Object\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\"Q\n\x06Rating\x12\x1f\n\x06target\x18\x01 \x01(\x0b\x32\x0f.impacts.Object\x12&\n\x07records\x18\x02 \x03(\x0b\x32\x15.impacts.RatingRecord\"5\n\x11\x41\x64\x64ImpactsRequest\x12 \n\x07impacts\x18\x01 \x03(\x0b\x32\x0f.impacts.Impact\"\x14\n\x12\x41\x64\x64ImpactsResponse\"\xeb\x01\n\x18GetImpactsHistoryRequest\x12<\n\x06\x66ilter\x18\x01 \x01(\x0e\x32,.impacts.GetImpactsHistoryRequest.FilterType\x12\x1e\n\x05\x61\x63tor\x18\x02 \x01(\x0b\x32\x0f.impacts.Object\x12\x1f\n\x06target\x18\x03 \x01(\x0b\x32\x0f.impacts.Object\x12\r\n\x05limit\x18\x04 \x01(\r\"A\n\nFilterType\x12\x08\n\x04NONE\x10\x00\x12\x0e\n\nONLY_ACTOR\x10\x01\x12\x0f\n\x0bONLY_TARGET\x10\x02\x12\x08\n\x04\x42OTH\x10\x03\"=\n\x19GetImpactsHistoryResponse\x12 \n\x07impacts\x18\x01 \x03(\x0b\x32\x0f.impacts.Impact\"<\n\x18GetTargetsImpactsRequest\x12 \n\x07targets\x18\x01 \x03(\x0b\x32\x0f.impacts.Object\"C\n\x19GetTargetsImpactsResponse\x12&\n\x07impacts\x18\x01 \x03(\x0b\x32\x15.impacts.TargetImpact\"b\n\x1aGetImpactersRatingsRequest\x12 \n\x07targets\x18\x01 \x03(\x0b\x32\x0f.impacts.Object\x12\x13\n\x0b\x61\x63tor_types\x18\x02 \x03(\x05\x12\r\n\x05limit\x18\x03 \x01(\r\"?\n\x1bGetImpactersRatingsResponse\x12 \n\x07ratings\x18\x01 \x03(\x0b\x32\x0f.impacts.Rating\":\n\x13ScaleImpactsRequest\x12\x14\n\x0ctarget_types\x18\x01 \x03(\x05\x12\r\n\x05scale\x18\x02 \x01(\x01\"\x16\n\x14ScaleImpactsResponse\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
+  serialized_pb=_b('\n\rimpacts.proto\x12\x07impacts\"\"\n\x06Object\x12\x0c\n\x04type\x18\x01 \x01(\r\x12\n\n\x02id\x18\x02 \x01(\x04\"\x8a\x01\n\x06Impact\x12\x13\n\x0btransaction\x18\x01 \x01(\t\x12\x1e\n\x05\x61\x63tor\x18\x02 \x01(\x0b\x32\x0f.impacts.Object\x12\x1f\n\x06target\x18\x03 \x01(\x0b\x32\x0f.impacts.Object\x12\x0e\n\x06\x61mount\x18\x04 \x01(\x03\x12\x0c\n\x04turn\x18\x05 \x01(\x04\x12\x0c\n\x04time\x18\x06 \x01(\x01\"[\n\x0cTargetImpact\x12\x1f\n\x06target\x18\x01 \x01(\x0b\x32\x0f.impacts.Object\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\x12\x0c\n\x04turn\x18\x03 \x01(\x04\x12\x0c\n\x04time\x18\x04 \x01(\x01\">\n\x0cRatingRecord\x12\x1e\n\x05\x61\x63tor\x18\x01 \x01(\x0b\x32\x0f.impacts.Object\x12\x0e\n\x06\x61mount\x18\x02 \x01(\x03\"Q\n\x06Rating\x12\x1f\n\x06target\x18\x01 \x01(\x0b\x32\x0f.impacts.Object\x12&\n\x07records\x18\x02 \x03(\x0b\x32\x15.impacts.RatingRecord\"5\n\x11\x41\x64\x64ImpactsRequest\x12 \n\x07impacts\x18\x01 \x03(\x0b\x32\x0f.impacts.Impact\"\x14\n\x12\x41\x64\x64ImpactsResponse\"\xeb\x01\n\x18GetImpactsHistoryRequest\x12<\n\x06\x66ilter\x18\x01 \x01(\x0e\x32,.impacts.GetImpactsHistoryRequest.FilterType\x12\x1e\n\x05\x61\x63tor\x18\x02 \x01(\x0b\x32\x0f.impacts.Object\x12\x1f\n\x06target\x18\x03 \x01(\x0b\x32\x0f.impacts.Object\x12\r\n\x05limit\x18\x04 \x01(\r\"A\n\nFilterType\x12\x08\n\x04NONE\x10\x00\x12\x0e\n\nONLY_ACTOR\x10\x01\x12\x0f\n\x0bONLY_TARGET\x10\x02\x12\x08\n\x04\x42OTH\x10\x03\"=\n\x19GetImpactsHistoryResponse\x12 \n\x07impacts\x18\x01 \x03(\x0b\x32\x0f.impacts.Impact\"<\n\x18GetTargetsImpactsRequest\x12 \n\x07targets\x18\x01 \x03(\x0b\x32\x0f.impacts.Object\"C\n\x19GetTargetsImpactsResponse\x12&\n\x07impacts\x18\x01 \x03(\x0b\x32\x15.impacts.TargetImpact\"N\n\x16GetActorImpactsRequest\x12\x1e\n\x05\x61\x63tor\x18\x01 \x01(\x0b\x32\x0f.impacts.Object\x12\x14\n\x0ctarget_types\x18\x02 \x03(\x05\"A\n\x17GetActorImpactsResponse\x12&\n\x07impacts\x18\x01 \x03(\x0b\x32\x15.impacts.TargetImpact\"b\n\x1aGetImpactersRatingsRequest\x12 \n\x07targets\x18\x01 \x03(\x0b\x32\x0f.impacts.Object\x12\x13\n\x0b\x61\x63tor_types\x18\x02 \x03(\x05\x12\r\n\x05limit\x18\x03 \x01(\r\"?\n\x1bGetImpactersRatingsResponse\x12 \n\x07ratings\x18\x01 \x03(\x0b\x32\x0f.impacts.Rating\":\n\x13ScaleImpactsRequest\x12\x14\n\x0ctarget_types\x18\x01 \x03(\x05\x12\r\n\x05scale\x18\x02 \x01(\x01\"\x16\n\x14ScaleImpactsResponse\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -489,6 +489,75 @@ _GETTARGETSIMPACTSRESPONSE = _descriptor.Descriptor(
 )
 
 
+_GETACTORIMPACTSREQUEST = _descriptor.Descriptor(
+  name='GetActorImpactsRequest',
+  full_name='impacts.GetActorImpactsRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='actor', full_name='impacts.GetActorImpactsRequest.actor', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='target_types', full_name='impacts.GetActorImpactsRequest.target_types', index=1,
+      number=2, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=952,
+  serialized_end=1030,
+)
+
+
+_GETACTORIMPACTSRESPONSE = _descriptor.Descriptor(
+  name='GetActorImpactsResponse',
+  full_name='impacts.GetActorImpactsResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='impacts', full_name='impacts.GetActorImpactsResponse.impacts', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1032,
+  serialized_end=1097,
+)
+
+
 _GETIMPACTERSRATINGSREQUEST = _descriptor.Descriptor(
   name='GetImpactersRatingsRequest',
   full_name='impacts.GetImpactersRatingsRequest',
@@ -529,8 +598,8 @@ _GETIMPACTERSRATINGSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=952,
-  serialized_end=1050,
+  serialized_start=1099,
+  serialized_end=1197,
 )
 
 
@@ -560,8 +629,8 @@ _GETIMPACTERSRATINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1052,
-  serialized_end=1115,
+  serialized_start=1199,
+  serialized_end=1262,
 )
 
 
@@ -598,8 +667,8 @@ _SCALEIMPACTSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1117,
-  serialized_end=1175,
+  serialized_start=1264,
+  serialized_end=1322,
 )
 
 
@@ -622,8 +691,8 @@ _SCALEIMPACTSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1177,
-  serialized_end=1199,
+  serialized_start=1324,
+  serialized_end=1346,
 )
 
 
@@ -646,8 +715,8 @@ _DEBUGCLEARSERVICEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1201,
-  serialized_end=1227,
+  serialized_start=1348,
+  serialized_end=1374,
 )
 
 
@@ -670,8 +739,8 @@ _DEBUGCLEARSERVICERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1229,
-  serialized_end=1256,
+  serialized_start=1376,
+  serialized_end=1403,
 )
 
 _IMPACT.fields_by_name['actor'].message_type = _OBJECT
@@ -688,6 +757,8 @@ _GETIMPACTSHISTORYREQUEST_FILTERTYPE.containing_type = _GETIMPACTSHISTORYREQUEST
 _GETIMPACTSHISTORYRESPONSE.fields_by_name['impacts'].message_type = _IMPACT
 _GETTARGETSIMPACTSREQUEST.fields_by_name['targets'].message_type = _OBJECT
 _GETTARGETSIMPACTSRESPONSE.fields_by_name['impacts'].message_type = _TARGETIMPACT
+_GETACTORIMPACTSREQUEST.fields_by_name['actor'].message_type = _OBJECT
+_GETACTORIMPACTSRESPONSE.fields_by_name['impacts'].message_type = _TARGETIMPACT
 _GETIMPACTERSRATINGSREQUEST.fields_by_name['targets'].message_type = _OBJECT
 _GETIMPACTERSRATINGSRESPONSE.fields_by_name['ratings'].message_type = _RATING
 DESCRIPTOR.message_types_by_name['Object'] = _OBJECT
@@ -701,6 +772,8 @@ DESCRIPTOR.message_types_by_name['GetImpactsHistoryRequest'] = _GETIMPACTSHISTOR
 DESCRIPTOR.message_types_by_name['GetImpactsHistoryResponse'] = _GETIMPACTSHISTORYRESPONSE
 DESCRIPTOR.message_types_by_name['GetTargetsImpactsRequest'] = _GETTARGETSIMPACTSREQUEST
 DESCRIPTOR.message_types_by_name['GetTargetsImpactsResponse'] = _GETTARGETSIMPACTSRESPONSE
+DESCRIPTOR.message_types_by_name['GetActorImpactsRequest'] = _GETACTORIMPACTSREQUEST
+DESCRIPTOR.message_types_by_name['GetActorImpactsResponse'] = _GETACTORIMPACTSRESPONSE
 DESCRIPTOR.message_types_by_name['GetImpactersRatingsRequest'] = _GETIMPACTERSRATINGSREQUEST
 DESCRIPTOR.message_types_by_name['GetImpactersRatingsResponse'] = _GETIMPACTERSRATINGSRESPONSE
 DESCRIPTOR.message_types_by_name['ScaleImpactsRequest'] = _SCALEIMPACTSREQUEST
@@ -784,6 +857,20 @@ GetTargetsImpactsResponse = _reflection.GeneratedProtocolMessageType('GetTargets
   # @@protoc_insertion_point(class_scope:impacts.GetTargetsImpactsResponse)
   ))
 _sym_db.RegisterMessage(GetTargetsImpactsResponse)
+
+GetActorImpactsRequest = _reflection.GeneratedProtocolMessageType('GetActorImpactsRequest', (_message.Message,), dict(
+  DESCRIPTOR = _GETACTORIMPACTSREQUEST,
+  __module__ = 'impacts_pb2'
+  # @@protoc_insertion_point(class_scope:impacts.GetActorImpactsRequest)
+  ))
+_sym_db.RegisterMessage(GetActorImpactsRequest)
+
+GetActorImpactsResponse = _reflection.GeneratedProtocolMessageType('GetActorImpactsResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GETACTORIMPACTSRESPONSE,
+  __module__ = 'impacts_pb2'
+  # @@protoc_insertion_point(class_scope:impacts.GetActorImpactsResponse)
+  ))
+_sym_db.RegisterMessage(GetActorImpactsResponse)
 
 GetImpactersRatingsRequest = _reflection.GeneratedProtocolMessageType('GetImpactersRatingsRequest', (_message.Message,), dict(
   DESCRIPTOR = _GETIMPACTERSRATINGSREQUEST,

@@ -95,6 +95,7 @@ def add_power_impacts(impacts):
     inner_circle = []
     outer_circle = []
     jobs = []
+    fame = []
 
     for impact in impacts:
         impact.transaction = transaction
@@ -106,6 +107,8 @@ def add_power_impacts(impacts):
             outer_circle.append(impact)
         elif impact.type.is_JOB:
             jobs.append(impact)
+        elif impact.type.is_FAME:
+            fame.append(impact)
         else:
             raise NotImplementedError
 
@@ -117,6 +120,9 @@ def add_power_impacts(impacts):
 
     if jobs:
         tt_api_impacts.job_impacts.cmd_add_power_impacts(jobs)
+
+    if fame:
+        tt_api_impacts.fame_impacts.cmd_add_power_impacts(fame)
 
 
 def get_last_power_impacts(limit,

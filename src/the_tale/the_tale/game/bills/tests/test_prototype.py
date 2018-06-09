@@ -16,6 +16,7 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game.heroes import logic as heroes_logic
 
+from the_tale.game import tt_api_impacts
 
 from the_tale.game.bills.models import Actor
 from the_tale.game.bills import relations
@@ -26,6 +27,7 @@ from the_tale.game.bills import exceptions
 from the_tale.game.bills.tests.helpers import BaseTestPrototypes
 
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
 
 
 class BillPrototypeTests(BaseTestPrototypes):
@@ -34,6 +36,8 @@ class BillPrototypeTests(BaseTestPrototypes):
         super(BillPrototypeTests, self).setUp()
 
         self.hero = heroes_logic.load_hero(account_id=self.account2.id)
+
+        tt_api_impacts.debug_clear_service()
 
     def create_bill(self, account=None, depends_on_id=None):
         if account is None:
@@ -99,7 +103,7 @@ class BillPrototypeTests(BaseTestPrototypes):
     def test_can_vote__places_restrictions__allowed_place(self):
         bill = self.create_bill()
 
-        self.hero.places_history.add_place(self.place2.id)
+        places_logic.add_fame(self.hero.id, fames=[(self.place2.id, 1000)])
 
         with mock.patch('the_tale.game.bills.bills.place_renaming.PlaceRenaming.actors', [self.place1, self.place2, self.place3]):
             self.assertTrue(bill.can_vote(self.hero))

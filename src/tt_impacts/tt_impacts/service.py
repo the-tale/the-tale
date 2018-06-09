@@ -19,6 +19,7 @@ def register_routers(app):
     app.router.add_post('/add-impacts', handlers.add_impacts)
     app.router.add_post('/get-impacts-history', handlers.get_impacts_history)
     app.router.add_post('/get-targets-impacts', handlers.get_targets_impacts)
+    app.router.add_post('/get-actor-impacts', handlers.get_actor_impacts)
     app.router.add_post('/get-impacters-ratings', handlers.get_impacters_ratings)
     app.router.add_post('/scale-impacts', handlers.scale_impacts)
 

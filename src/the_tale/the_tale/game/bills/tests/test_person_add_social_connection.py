@@ -33,13 +33,15 @@ class PersonAddSocialConnectionTests(BaseTestPrototypes):
                                                                              actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                                                              actor_id=self.account.id,
                                                                              person=self.person_1_1,
-                                                                             amount=100))
+                                                                             amount=100,
+                                                                             fame=0))
         politic_power_logic.add_power_impacts(persons_logic.tt_power_impacts(person_inner_circle=True,
                                                                              place_inner_circle=True,
                                                                              actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                                                              actor_id=self.account.id,
                                                                              person=self.person_2_2,
-                                                                             amount=100))
+                                                                             amount=100,
+                                                                             fame=0))
 
         self.bill_data = PersonAddSocialConnection(person_1_id=self.person_1_1.id,
                                                    person_2_id=self.person_2_1.id,

@@ -167,6 +167,19 @@ async def get_impacters_ratings(targets, actor_types, limit):
     return dict(task.result() for task in done)
 
 
+async def get_actor_impacts(actor, target_types):
+    sql = '''SELECT * FROM actors_impacts
+             WHERE actor_type = %(actor_type)s AND
+                   actor = %(actor_id)s AND
+                   target_type IN %(target_types)s'''
+
+    results = await db.sql(sql, {'actor_type': actor.type,
+                                 'actor_id': actor.id,
+                                 'target_types': tuple(target_types)})
+
+    return [target_impact_from_row(row) for row in results]
+
+
 async def get_impacters_target_ratings(target, actor_types, limit):
     sql = '''SELECT * FROM actors_impacts
              WHERE actor_type IN %(actor_types)s AND

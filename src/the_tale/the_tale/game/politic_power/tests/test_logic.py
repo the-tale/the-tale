@@ -242,7 +242,18 @@ class AddPowerImpactsTests(testcase.TestCase):
         for impact in loaded_impacts:
             impact.time = None
 
-        self.assertCountEqual(impacts, loaded_impacts)
+        self.assertCountEqual([impact for impact in impacts if not impact.type.is_FAME], loaded_impacts)
+
+        fame_impacts = tt_api_impacts.fame_impacts.cmd_get_last_power_impacts(limit=100,
+                                                                              actor_type=None,
+                                                                              actor_id=None,
+                                                                              target_type=None,
+                                                                              target_id=None)
+
+        for impact in fame_impacts:
+            impact.time = None
+
+        self.assertCountEqual([impact for impact in impacts if impact.type.is_FAME], fame_impacts)
 
 
 class GetLastPowerImpactsTests(testcase.TestCase):
@@ -274,7 +285,7 @@ class GetLastPowerImpactsTests(testcase.TestCase):
         for impact in loaded_impacts:
             impact.time = None
 
-        self.assertCountEqual([impact for impact in self.impacts if not impact.type.is_JOB],
+        self.assertCountEqual([impact for impact in self.impacts if not impact.type.is_JOB and not impact.type.is_FAME],
                               loaded_impacts)
 
     def test_limit(self):
@@ -285,5 +296,5 @@ class GetLastPowerImpactsTests(testcase.TestCase):
 
         self.impacts.sort(key=lambda impact: (impact.turn, impact.time), reverse=True)
 
-        self.assertEqual([impact for impact in self.impacts if not impact.type.is_JOB][:3],
+        self.assertEqual([impact for impact in self.impacts if not impact.type.is_JOB and not impact.type.is_FAME][:3],
                           loaded_impacts)

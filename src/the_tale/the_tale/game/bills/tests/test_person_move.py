@@ -30,14 +30,16 @@ class PersonMoveTests(BaseTestPrototypes):
                                                                              actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                                                              actor_id=self.account.id,
                                                                              person=self.person_1,
-                                                                             amount=100))
+                                                                             amount=100,
+                                                                             fame=0))
 
         politic_power_logic.add_power_impacts(persons_logic.tt_power_impacts(person_inner_circle=True,
                                                                              place_inner_circle=True,
                                                                              actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                                                              actor_id=self.account.id,
                                                                              person=self.person_2,
-                                                                             amount=100))
+                                                                             amount=100,
+                                                                             fame=0))
 
         self.bill_data = PersonMove(person_id=self.person_1.id, new_place_id=self.place2.id)
         self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')

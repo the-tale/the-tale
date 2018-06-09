@@ -108,24 +108,19 @@
     collect_static: false
 
 
+- name: install TT fame impacts
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT fame impacts
+    user: tt_fame_impacts
+    packages: "{{tt_services['tt_fame_impacts']['packages']}}"
+    django_settings: tt_impacts.settings
+    port: 10010
+    collect_static: false
+
+
 - name: install services cron files
   import_playbook: ../tasks/tt_cron.yml
-
-
-- name: The Tale postupdate operations
-  hosts: all
-  become: yes
-  become_user: the_tale
-  tasks:
-
-    - name: create world
-      raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin game_create_world --settings the_tale.settings
-
-    - name: create superuser
-      raw: "cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin accounts_create_superuser --settings the_tale.settings"
-
-    - name: sync data
-      raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin portal_postupdate_operations --settings the_tale.settings
 
 
 - name: host postupdate operations
@@ -145,3 +140,29 @@
         user: root
         key: "{{item}}"
       with_items: "{{tt_authorized_keys}}"
+
+
+- name: start TT services
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+
+    - name: start services
+      raw: "supervisorctl start service:"
+
+
+- name: The Tale postupdate operations
+  hosts: all
+  become: yes
+  become_user: the_tale
+  tasks:
+
+    - name: create world
+      raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin game_create_world --settings the_tale.settings
+
+    - name: create superuser
+      raw: "cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin accounts_create_superuser --settings the_tale.settings"
+
+    - name: sync data
+      raw: cd /home/the_tale/current && . /home/the_tale/current/venv/bin/activate && django-admin portal_postupdate_operations --settings the_tale.settings

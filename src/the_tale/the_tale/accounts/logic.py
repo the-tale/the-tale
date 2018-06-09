@@ -227,6 +227,8 @@ def is_first_time_visit(request):
 def get_account_info(account, hero):
     from the_tale.game.ratings import prototypes as ratings_prototypes
     from the_tale.game.ratings import relations as ratings_relations
+    from the_tale.game.places import storage as places_storage
+    from the_tale.game.places import logic as places_logic
 
     ratings = {}
 
@@ -240,7 +242,11 @@ def get_account_info(account, hero):
                                      'place': getattr(rating_places, '%s_place' % rating.field, None),
                                      'value': getattr(rating_values, rating.field, None)}
 
-    places_history = [{'place': {'id': place.id, 'name': place.name}, 'count': help_count} for place, help_count in hero.places_history.get_most_common_places()]
+    popularity = places_logic.get_hero_popularity(hero.id)
+
+    places_history = [{'place': {'id': place_id,
+                                 'name': places_storage.places[place_id].name},
+                       'count': help_count} for place_id, help_count in popularity.places_rating()]
 
     clan_info = None
 
@@ -274,6 +280,7 @@ def get_transfer_commission(money):
         commission = 1
 
     return commission
+
 
 def initiate_transfer_money(sender_id, recipient_id, amount, comment):
     from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype

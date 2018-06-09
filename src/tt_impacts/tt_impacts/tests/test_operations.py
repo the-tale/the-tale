@@ -386,6 +386,60 @@ class GetTargetsImpactsTests(helpers.BaseTests):
                                                     time=all_impacts[-4].time)])
 
 
+class GetActorImpactsTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_no_impacts(self):
+        await operations.add_impacts([helpers.test_impact(target_type=-1)])
+        impacts = await operations.get_actor_impacts(objects.Object(1, 2), target_types=[1, 2, 3])
+        self.assertEqual(impacts, [])
+
+    async def prepair_data(self):
+        all_impacts = [helpers.test_impact(actor_type=100, actor_id=1000, target_type=1, target_id=10),
+                       helpers.test_impact(actor_type=100, actor_id=2000, target_type=1, target_id=20),
+                       helpers.test_impact(actor_type=200, actor_id=1000, target_type=2, target_id=10),
+                       helpers.test_impact(actor_type=100, actor_id=1000, target_type=2, target_id=30),
+                       helpers.test_impact(actor_type=100, actor_id=1000, target_type=1, target_id=10),
+                       helpers.test_impact(actor_type=200, actor_id=2000, target_type=1, target_id=20)]
+
+        for impact in all_impacts:
+            await operations.add_impacts([impact])
+
+        all_impacts = await operations.last_impacts(limit=100)
+
+        await operations.add_impacts([helpers.test_impact(target_type=-1)])
+
+        return all_impacts
+
+    @test_utils.unittest_run_loop
+    async def test_has_impacts(self):
+        all_impacts = await self.prepair_data()
+
+        impacts = await operations.get_actor_impacts(objects.Object(100, 1000), target_types=[1, 2])
+
+        self.assertCountEqual(impacts,
+                              [objects.TargetImpact(target=objects.Object(1, 10),
+                                                    amount=all_impacts[-1].amount+all_impacts[-5].amount,
+                                                    turn=max(all_impacts[-1].turn, all_impacts[-5].turn),
+                                                    time=max(all_impacts[-1].time, all_impacts[-5].time)),
+                               objects.TargetImpact(target=objects.Object(2, 30),
+                                                    amount=all_impacts[-4].amount,
+                                                    turn=all_impacts[-4].turn,
+                                                    time=all_impacts[-4].time)])
+
+    @test_utils.unittest_run_loop
+    async def test_filter_impacts(self):
+        all_impacts = await self.prepair_data()
+
+        impacts = await operations.get_actor_impacts(objects.Object(100, 1000), target_types=[2])
+
+        self.assertCountEqual(impacts,
+                              [objects.TargetImpact(target=objects.Object(2, 30),
+                                                    amount=all_impacts[-4].amount,
+                                                    turn=all_impacts[-4].turn,
+                                                    time=all_impacts[-4].time)])
+
+
 class GetImpactersTargetRatingsTests(helpers.BaseTests):
 
     @test_utils.unittest_run_loop

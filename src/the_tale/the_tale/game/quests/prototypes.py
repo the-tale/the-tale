@@ -12,8 +12,6 @@ from questgen import transformators
 from questgen.quests.base_quest import ROLES, RESULTS as QUEST_RESULTS
 from questgen import relations as questgen_relations
 
-from the_tale.common.utils import decorators
-
 from the_tale.game import turn
 
 from the_tale.game.balance import constants as c
@@ -33,7 +31,6 @@ from the_tale.game.heroes.relations import ITEMS_OF_EXPENDITURE, MONEY_SOURCE, H
 from the_tale.game.politic_power import logic as politic_power_logic
 
 from the_tale.game import tt_api_energy
-from the_tale.game import tt_api_impacts
 
 from the_tale.game.quests import exceptions
 from the_tale.game.quests import writers
@@ -364,17 +361,7 @@ class QuestPrototype(object):
     def get_current_power(self, power):
         return power * self.current_info.power
 
-    @decorators.generator_to_list
-    def _give_person_power(self, hero, person, power):
-        power = self.get_current_power(power)
-
-        if power > 0:
-            hero.places_history.add_place(person.place_id, value=person.attrs.places_help_amount)
-
-        if not hero.can_change_person_power(person):
-            return
-
-        power = hero.modify_politics_power(power, person=person)
+    def modify_person_power(self, power, person):
         power += (1 if power > 0 else -1) * self.current_info.power_bonus
 
         person_uid = uids.person(person.id)
@@ -383,48 +370,7 @@ class QuestPrototype(object):
         if has_profession_marker:
             power /= len(PERSON_TYPE.records)
 
-        has_person_in_preferences = hero.preferences.has_person_in_preferences(person)
-
-        yield from persons_logic.tt_power_impacts(person_inner_circle=has_person_in_preferences,
-                                                  place_inner_circle=hero.preferences.has_place_in_preferences(person.place),
-                                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                                  actor_id=hero.id,
-                                                  person=person,
-                                                  amount=power)
-
-        for social_connection_type, connected_person_id in persons_storage.social_connections.get_person_connections(person):
-            connected_person = persons_storage.persons[connected_person_id]
-
-            if social_connection_type.is_PARTNER:
-                connected_power = power * person.attrs.social_relations_partners_power_modifier
-            else:
-                connected_power = -power * person.attrs.social_relations_concurrents_power_modifier
-
-            yield from persons_logic.tt_power_impacts(person_inner_circle=has_person_in_preferences,
-                                                      place_inner_circle=hero.preferences.has_place_in_preferences(connected_person.place),
-                                                      actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                                      actor_id=hero.id,
-                                                      person=connected_person,
-                                                      amount=connected_power)
-
-    @decorators.generator_to_list
-    def _give_place_power(self, hero, place, power):
-        power = self.get_current_power(power)
-
-        if power > 0:
-            hero.places_history.add_place(place.id, value=1)
-
-        if not hero.can_change_place_power(place):
-            return
-
-        power = hero.modify_politics_power(power, place=place)
-        power += (1 if power > 0 else -1) * self.current_info.power_bonus
-
-        yield from places_logic.tt_power_impacts(inner_circle=hero.preferences.has_place_in_preferences(place),
-                                                 actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                                 actor_id=hero.id,
-                                                 place=place,
-                                                 amount=power)
+        return power
 
     def _fight(self, action):
         from the_tale.game.actions.prototypes import ActionBattlePvE1x1Prototype
@@ -455,12 +401,6 @@ class QuestPrototype(object):
         power_impacts = []
 
         for object_uid, result in finish.results.items():
-            if result == QUEST_RESULTS.SUCCESSED:
-                object_politic_power = 1
-            elif result == QUEST_RESULTS.FAILED:
-                object_politic_power = -1
-            else:
-                object_politic_power = 0
 
             object_fact = self.knowledge_base[object_uid]
 
@@ -475,14 +415,18 @@ class QuestPrototype(object):
                 if person_habits_change_source:
                     self.hero.update_habits(person_habits_change_source)
 
-                power_impacts.extend(self._give_person_power(self.hero,
-                                                             persons_storage.persons[person_id],
-                                                             object_politic_power))
+                power = self.finish_quest_person_power(result, object_uid)
+
+                power_impacts.extend(persons_logic.impacts_from_hero(self.hero,
+                                                                     persons_storage.persons[person_id],
+                                                                     power))
 
             elif isinstance(object_fact, facts.Place):
-                power_impacts.extend(self._give_place_power(self.hero,
-                                                            places_storage.places[object_fact.externals['id']],
-                                                            object_politic_power))
+                power = self.finish_quest_place_power(result, object_uid)
+
+                power_impacts.extend(places_logic.impacts_from_hero(self.hero,
+                                                                    places_storage.places[object_fact.externals['id']],
+                                                                    power))
 
             else:
                 raise exceptions.UnknownPowerRecipientError(recipient=object_fact)
@@ -495,6 +439,39 @@ class QuestPrototype(object):
                     self.hero.update_habits(change_source)
 
         self.quests_stack.pop()
+
+    def finish_quest_power(self, result):
+        if result == QUEST_RESULTS.SUCCESSED:
+            object_politic_power = 1
+        elif result == QUEST_RESULTS.FAILED:
+            object_politic_power = -1
+        else:
+            object_politic_power = 0
+
+        object_politic_power = self.get_current_power(object_politic_power)
+
+        power_bonus = 0
+
+        if result != QUEST_RESULTS.NEUTRAL:
+            power_bonus = (1 if object_politic_power > 0 else -1) * self.current_info.power_bonus
+
+        return object_politic_power, power_bonus
+
+    def finish_quest_person_power(self, result, object_uid):
+        object_politic_power, power_bonus = self.finish_quest_power(result)
+
+        has_profession_marker = [marker
+                                 for marker in self.knowledge_base.filter(facts.ProfessionMarker)
+                                 if marker.person == object_uid]
+
+        if has_profession_marker:
+            object_politic_power /= len(PERSON_TYPE.records)
+
+        return object_politic_power + power_bonus
+
+    def finish_quest_place_power(self, result, object_uid):
+        object_politic_power, power_bonus = self.finish_quest_power(result)
+        return object_politic_power + power_bonus
 
     def get_state_by_jump_pointer(self):
         return self.knowledge_base[self.knowledge_base[self.machine.pointer.jump].state_to]

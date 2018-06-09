@@ -30,7 +30,8 @@ class OBJECT_TYPE(DjangoEnum):
 class IMPACT_TYPE(DjangoEnum):
     records = (('INNER_CIRCLE', 0, 'от ближнего круга'),
                ('OUTER_CIRCLE', 1, 'от народа'),
-               ('JOB', 2, 'проекты'))
+               ('JOB', 2, 'проекты'),
+               ('FAME', 3, 'известность'))
 
 
 class _Impact:
@@ -123,9 +124,16 @@ class TTImpacts:
         self.impact_type = impact_type
 
     def cmd_add_power_impacts(self, impacts):
+        impacts = [impact.tt_object()
+                   for impact in impacts
+                   if impact.amount <= -1 or 1 <= impact.amount]
+
+        if not impacts:
+            return
+
         api_request = tt_api.sync_request if project_settings.TESTS_RUNNING else tt_api.async_request
         api_request(url=self.entry_point + 'add-impacts',
-                    data=impacts_pb2.AddImpactsRequest(impacts=[impact.tt_object() for impact in impacts]))
+                    data=impacts_pb2.AddImpactsRequest(impacts=impacts))
 
     def cmd_get_last_power_impacts(self,
                                    limit,
@@ -168,6 +176,22 @@ class TTImpacts:
         return [PowerImpact(type=self.impact_type,
                             actor_type=None,
                             actor_id=None,
+                            target_type=OBJECT_TYPE(impact.target.type),
+                            target_id=impact.target.id,
+                            amount=impact.amount)
+                for impact in answer.impacts]
+
+    def cmd_get_actor_impacts(self, actor_type, actor_id, target_types):
+        data = impacts_pb2.GetActorImpactsRequest(actor=impacts_pb2.Object(type=actor_type.value, id=actor_id),
+                                                  target_types=[target_type.value for target_type in target_types])
+
+        answer = tt_api.sync_request(url=self.entry_point + 'get-actor-impacts',
+                                     data=data,
+                                     AnswerType=impacts_pb2.GetActorImpactsResponse)
+
+        return [PowerImpact(type=self.impact_type,
+                            actor_type=actor_type,
+                            actor_id=actor_id,
                             target_type=OBJECT_TYPE(impact.target.type),
                             target_id=impact.target.id,
                             amount=impact.amount)
@@ -219,6 +243,7 @@ class TTImpacts:
 personal_impacts = TTImpacts(entry_point=conf.game_settings.TT_IMPACTS_PERSONAL, impact_type=IMPACT_TYPE.INNER_CIRCLE)
 crowd_impacts = TTImpacts(entry_point=conf.game_settings.TT_IMPACTS_CROWD, impact_type=IMPACT_TYPE.OUTER_CIRCLE)
 job_impacts = TTImpacts(entry_point=conf.game_settings.TT_IMPACTS_JOB, impact_type=IMPACT_TYPE.JOB)
+fame_impacts = TTImpacts(entry_point=conf.game_settings.TT_IMPACTS_FAME, impact_type=IMPACT_TYPE.FAME)
 
 
 def debug_clear_service():
@@ -228,3 +253,4 @@ def debug_clear_service():
     personal_impacts.cmd_debug_clear_service()
     crowd_impacts.cmd_debug_clear_service()
     job_impacts.cmd_debug_clear_service()
+    fame_impacts.cmd_debug_clear_service()

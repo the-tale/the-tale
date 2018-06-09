@@ -59,7 +59,8 @@ class PersonChronicle(BasePersonBill):
                                                       actor_type=tt_api_impacts.OBJECT_TYPE.BILL,
                                                       actor_id=bill.id,
                                                       person=self.person,
-                                                      amount=self.power_bonus.bonus))
+                                                      amount=self.power_bonus.bonus,
+                                                      fame=0))
 
         politic_power_logic.add_power_impacts(impacts)
 

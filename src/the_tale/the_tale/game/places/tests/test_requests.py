@@ -1,7 +1,4 @@
 
-import datetime
-import jinja2
-
 from unittest import mock
 
 from dext.common.utils.urls import url
@@ -10,13 +7,10 @@ from the_tale.common.utils import testcase
 
 from the_tale.game.logic import create_test_map
 
-from the_tale.game.heroes import logic as heroes_logic
 
 from .. import logic
-from .. import conf
 from .. import meta_relations
 from .. import modifiers
-
 
 
 class APIListRequestTests(testcase.TestCase):
@@ -24,7 +18,6 @@ class APIListRequestTests(testcase.TestCase):
     def setUp(self):
         super(APIListRequestTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = create_test_map()
-
 
     def test_success(self):
         data = self.check_ajax_ok(self.request_ajax_json(logic.api_list_url()))
