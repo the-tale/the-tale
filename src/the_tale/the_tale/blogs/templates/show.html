@@ -113,7 +113,13 @@
           {% for object in is_about_objects %}
             <tr>
               <td width="75px">{{object.TYPE_CAPTION}}</td>
-              <td><a href="{{object.url}}" target="_blank">{{object.caption}}</a></td>
+              <td>
+                {% if object.is_unknown %}
+                <a href="{{object.url}}" target="_blank">{{object.caption}}</a>
+                {% else %}
+                {{object.caption}}
+                {% endif %}
+              </td>
             </tr>
           {% endfor %}
         </tbody>

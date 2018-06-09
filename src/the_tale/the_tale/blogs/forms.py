@@ -34,7 +34,12 @@ class PostForm(forms.Form):
             slugs.add(slug)
 
             try:
-                objects.append(meta_relations_logic.get_object_by_uid(slug))
+                object = meta_relations_logic.get_object_by_uid(slug)
+
+                if object.is_unknown:
+                    raise ValidationError('Объект не найден: %s' % slug)
+
+                objects.append(object)
             except (meta_relations_exceptions.WrongTypeError,
                     meta_relations_exceptions.WrongObjectError,
                     meta_relations_exceptions.WrongUIDFormatError):

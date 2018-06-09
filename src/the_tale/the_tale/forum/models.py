@@ -1,4 +1,4 @@
-# coding: utf-8
+
 from django.db import models
 from django.core.urlresolvers import reverse
 
@@ -31,7 +31,7 @@ class SubCategory(models.Model):
     uid = models.CharField(max_length=16, blank=True, null=True, default=None, db_index=True)
 
     updated_at = models.DateTimeField(auto_now_add=True, null=False)
-    last_thread_created_at = models.DateTimeField(auto_now_add=True, null=False)
+    last_thread_created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     threads_count = models.IntegerField(default=0, null=False)
 

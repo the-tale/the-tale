@@ -25,10 +25,14 @@ class Clan(meta_relations.MetaType):
         return cls(id=clan.id, caption=clan.name)
 
     @classmethod
+    def create_removed(cls):
+        return cls(id=None, caption='неизвестная гильдия')
+
+    @classmethod
     def create_from_id(cls, id):
         clan = prototypes.ClanPrototype.get_by_id(id)
         if clan is None:
-            return None
+            return cls.create_removed()
 
         return cls.create_from_object(clan)
 

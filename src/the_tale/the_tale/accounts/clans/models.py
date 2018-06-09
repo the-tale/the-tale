@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.db import models
 
@@ -27,9 +26,12 @@ class Clan(models.Model):
 
     members_number = models.IntegerField()
 
-    forum_subcategory = models.ForeignKey('forum.SubCategory', on_delete=models.PROTECT)
+    forum_subcategory = models.ForeignKey('forum.SubCategory', null=True, on_delete=models.SET_NULL)
 
     def __str__(self): return '[%s] %s' % (self.abbr, self.name)
+
+    class Meta:
+        permissions = (("moderate_clan", "Может редактировать кланы и т.п."), )
 
 
 class Membership(models.Model):

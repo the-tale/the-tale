@@ -27,6 +27,7 @@ class SubcategoryPrototypeTests(testcase.TestCase):
 
         create_test_map()
 
+        self.account = self.accounts_factory.create_account()
 
     def test_subcategories_visible_to_account_with_permissions(self):
         granted_account = self.accounts_factory.create_account()
@@ -49,6 +50,24 @@ class SubcategoryPrototypeTests(testcase.TestCase):
 
         self.assertEqual([s.id for s in SubCategoryPrototype.subcategories_visible_to_account(account=wrong_account)],
                          [subcategory_1.id])
+
+    def test_delete(self):
+        category = CategoryPrototype.create(caption='cat-caption', slug='cat-slug', order=0)
+
+        subcategory_1 = SubCategoryPrototype.create(category=category, caption='subcat-1-caption', order=2)
+        subcategory_2 = SubCategoryPrototype.create(category=category, caption='subcat-2-caption', order=1)
+
+        thread_1_1 = ThreadPrototype.create(subcategory_1, 'thread-1_1-caption', self.account, 'thread-1_1-text')
+        thread_1_2 = ThreadPrototype.create(subcategory_1, 'thread-1_2-caption', self.account, 'thread-1_2-text')
+        thread_2_1 = ThreadPrototype.create(subcategory_2, 'thread-2_1-caption', self.account, 'thread-2_1-text')
+
+        subcategory_1.delete()
+
+        self.assertFalse(ThreadPrototype._db_filter(id__in=(thread_1_1.id, thread_1_2.id)).exists())
+        self.assertTrue(ThreadPrototype._db_filter(id=thread_2_1.id).exists())
+
+        self.assertFalse(SubCategoryPrototype._db_filter(id=subcategory_1.id).exists())
+        self.assertTrue(SubCategoryPrototype._db_filter(id=subcategory_2.id).exists())
 
 
 class SubcategoryPrototypeUpdateTests(testcase.TestCase):
