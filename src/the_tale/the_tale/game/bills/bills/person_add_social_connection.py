@@ -5,6 +5,8 @@ from dext.forms import fields
 
 from utg import words as utg_words
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.persons import logic as persons_logic
 from the_tale.game.persons import objects as persons_objects
 from the_tale.game.persons import storage as persons_storage
@@ -82,7 +84,7 @@ class PersonAddSocialConnection(BaseBill):
     ModeratorForm = ModeratorForm
 
     CAPTION = 'Добавить социальную связь'
-    DESCRIPTION = 'Мастера склонны конкурировать между собой, равно как и заключать партнёрские соглашения. Подобные социальные связи между ними влияют на распределение влияния между Мастерами и вероятность получить задание с парой связанных Мастеров. Создать запись может только Хранитель героя из ближнего круга первого Мастера. Герой должен быть в ближнем круге на момент создания записи и/или её редактирования.'
+    DESCRIPTION = 'Мастера склонны конкурировать между собой, равно как и заключать партнёрские соглашения. Подобные социальные связи между ними влияют на распределение влияния между Мастерами и вероятность получить задание с парой связанных Мастеров. Создать запись может только Хранитель героя из ближнего круга одного из Мастеров. Герой должен быть в ближнем круге на момент создания записи и/или её редактирования. У каждого Мастера может быть не более {max_connections} связей: партнёров и/или конкурентов.'.format(max_connections=c.PERSON_SOCIAL_CONNECTIONS_LIMIT)
 
     def __init__(self,
                  person_1_id=None,

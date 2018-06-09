@@ -224,7 +224,7 @@ class WordResource(Resource):
 
         if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id and not self.can_moderate_words:
             return self.auto_error('linguistics.words.create.can_not_edit_anothers_word',
-                                   'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите, пока его проверит модератор.')
 
         form = forms.WORD_FORMS[type](self.request.POST)
 
@@ -559,7 +559,7 @@ class TemplateResource(Resource):
 
         if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit.can_not_edit_anothers_template',
-                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите, пока его проверит модератор.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.edit.template_has_child',
@@ -587,7 +587,7 @@ class TemplateResource(Resource):
 
         if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.update.can_not_edit_anothers_template',
-                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите, пока его проверит модератор.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.update.template_has_child',

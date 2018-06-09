@@ -250,5 +250,5 @@ class VARIABLE(DjangoEnum):
                ('DEFENDER__WEAPON', 'defender.weapon', 'оружие защитника', VARIABLE_TYPE.ARTIFACT),
                ('ACTOR__WEAPON', 'actor.weapon', 'оружия актора (героя или монстра)', VARIABLE_TYPE.ARTIFACT),
                ('COMPANION__WEAPON', 'companion.weapon', 'оружие спутника', VARIABLE_TYPE.ARTIFACT),
-               ('COMPANION_OWNER__WEAPON', 'companion_owner.weapon', 'оружие владелеца спутника', VARIABLE_TYPE.ARTIFACT),
+               ('COMPANION_OWNER__WEAPON', 'companion_owner.weapon', 'оружие владельца спутника', VARIABLE_TYPE.ARTIFACT),
                )

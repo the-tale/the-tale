@@ -94,7 +94,7 @@ class LoginRequiredProcessor(dext_views.BaseViewProcessor):
 
 class FullAccountProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_CODE = 'common.fast_account'
-    ERROR_MESSAGE = 'Вы не закончили регистрацию и данная функция вам не доступна'
+    ERROR_MESSAGE = 'Вы не закончили регистрацию, данная функция вам недоступна'
     ARGUMENT = 'account'
 
     def validate(self, argument): return not argument.is_fast

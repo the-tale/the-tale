@@ -45,7 +45,7 @@ class BuildingRenaming(BasePersonBill):
     ModeratorForm = ModeratorForm
 
     CAPTION = 'Переименование постройки'
-    DESCRIPTION = 'Изменяет название постройки, принадлежащей выбранному горожанину.'
+    DESCRIPTION = 'Изменяет название постройки, принадлежащей выбранному Мастеру.'
 
     def __init__(self, old_building_name_forms=None, new_building_name_forms=None, **kwargs):
         super(BuildingRenaming, self).__init__(**kwargs)
