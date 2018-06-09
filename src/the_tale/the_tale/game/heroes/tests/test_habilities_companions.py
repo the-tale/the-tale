@@ -82,7 +82,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
         self.assertEqual(self.hero.companion_max_coherence, 60)
 
     def test_healing(self):
-        self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.COMPANION_LIVING_HEAL, 0), 0.10416666666666669)
+        self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.COMPANION_LIVING_HEAL, 0), 0.11574074074074076)
         self.assertEqual(companions.HEALING().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_LIVING_HEAL,)), 0), 0)
 
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -94,7 +94,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
             self.assertEqual(self.hero.companion_heal_probability, 0.3125)
 
     def test_mage_mechanincs(self):
-        self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.COMPANION_CONSTRUCT_HEAL, 0), 0.10416666666666669)
+        self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.COMPANION_CONSTRUCT_HEAL, 0), 0.11574074074074076)
         self.assertEqual(companions.MAGE_MECHANICS().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_CONSTRUCT_HEAL,)), 0), 0)
 
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -106,7 +106,7 @@ class HabilitiesCompanionsTest(testcase.TestCase):
             self.assertEqual(self.hero.companion_heal_probability, 0.3125)
 
     def test_witchcraft(self):
-        self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.COMPANION_UNUSUAL_HEAL, 0), 0.10416666666666669)
+        self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.COMPANION_UNUSUAL_HEAL, 0), 0.11574074074074076)
         self.assertEqual(companions.WITCHCRAFT().modify_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_UNUSUAL_HEAL,)), 0), 0)
 
         companion_record = next(companions_storage.companions.enabled_companions())
