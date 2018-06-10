@@ -1,6 +1,4 @@
 
-import datetime
-
 from dext.settings import settings
 
 from utg import words as utg_words

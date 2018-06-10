@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.forms import fields
 
@@ -6,6 +5,10 @@ from the_tale.game.bills import relations
 from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
 
 from the_tale.game.places import storage as places_storage
+from the_tale.game.places import logic as places_logic
+
+from the_tale.game.politic_power import logic as politic_power_logic
+from the_tale.game import tt_api_impacts
 
 from . import base_place_bill
 
@@ -59,10 +62,14 @@ class PlaceChronicle(base_place_bill.BasePlaceBill):
         if self.power_bonus.bonus == 0:
             return
 
-        self.place.cmd_change_power(hero_id=None,
-                                    has_place_in_preferences=False,
-                                    has_person_in_preferences=False,
-                                    power=self.power_bonus.bonus)
+        impacts = list(places_logic.tt_power_impacts(inner_circle=False,
+                                                     actor_type=tt_api_impacts.OBJECT_TYPE.BILL,
+                                                     actor_id=bill.id,
+                                                     place=self.place,
+                                                     amount=self.power_bonus.bonus,
+                                                     fame=0))
+
+        politic_power_logic.add_power_impacts(impacts)
 
     def serialize(self):
         data = super(PlaceChronicle, self).serialize()

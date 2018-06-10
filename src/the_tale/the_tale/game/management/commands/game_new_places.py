@@ -35,7 +35,7 @@ class Command(BaseCommand):
 
         persons_logic.create_person(place=place,
                                     race=relations.RACE.ELF,
-                                    gender=relations.GENDER.FEMININE,
+                                    gender=relations.GENDER.FEMALE,
                                     type=persons_relations.PERSON_TYPE.MAGICIAN,
                                     personality_cosmetic=persons_relations.PERSONALITY_COSMETIC.GUARANTOR,
                                     personality_practical=persons_relations.PERSONALITY_PRACTICAL.RELIABLE,

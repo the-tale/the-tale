@@ -29,7 +29,6 @@ class IndexFilter(list_filter.ListFilter):
                 list_filter.choice_element('сортировать по:', attribute='order_by', choices=ORDER_BY.select('value', 'text'), default_value=ORDER_BY.NAME.value) ]
 
 
-
 class ClansResource(Resource):
 
     @validate_argument('clan', ClanPrototype.get_by_id, 'clans', 'неверный идентификатор гильдии')
@@ -37,6 +36,8 @@ class ClansResource(Resource):
         super(ClansResource, self).initialize(*args, **kwargs)
         self.clan = clan
         self.clan_info = ClanInfo(account=self.account)
+
+        self.can_moderate_clans = self.request.user.has_perm('clans.moderate_clan')
 
 
     @validator(code='clans.not_owner', message='Вы не являетесь владельцем гильдии')
@@ -76,7 +77,7 @@ class ClansResource(Resource):
 
         clans_from, clans_to = paginator.page_borders(page)
 
-        clans = [ ClanPrototype(clan_model) for clan_model in clans_query[clans_from:clans_to]]
+        clans = [ClanPrototype(clan_model) for clan_model in clans_query[clans_from:clans_to]]
 
         memberships = [MembershipPrototype(membership_model) for membership_model in MembershipPrototype._db_filter(clan__in=[clan.id for clan in clans],
                                                                                                                     role=MEMBER_ROLE.LEADER)]
@@ -90,7 +91,6 @@ class ClansResource(Resource):
                               'paginator': paginator,
                               'index_filter': index_filter,
                               'leaders': leaders})
-
 
     @handler('#clan', name='show')
     def show(self):
@@ -150,20 +150,23 @@ class ClansResource(Resource):
 
         return self.json_ok()
 
-
     @login_required
-    @validate_ownership()
     @handler('#clan', 'remove', method='post')
     def remove(self):
 
-        if self.clan.members_number > 1:
-            return self.json_error('clans.remove.not_empty_clan', 'Можно удалить только «пустую» гильдию (сначала удалите всех членов кроме себя)')
+        if not self.can_moderate_clans:
+
+            if not self.clan_info.is_owner_of(self.clan):
+                return self.json_error('clans.not_owner',
+                                       'Вы не являетесь владельцем гильдии')
+
+            if self.clan.members_number > 1:
+                return self.json_error('clans.remove.not_empty_clan',
+                                       'Можно удалить только «пустую» гильдию (сначала удалите всех членов кроме себя)')
 
         self.clan.remove()
 
         return self.json_ok()
-
-
 
 
 class MembershipResource(Resource):

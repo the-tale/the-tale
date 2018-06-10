@@ -7,6 +7,8 @@ from utg import templates as utg_templates
 from utg import words as utg_words
 from utg import relations as utg_relations
 
+from tt_logic.beings import relations as beings_relations
+
 from the_tale.common.utils.testcase import TestCase
 from the_tale.common.utils.permissions import sync_group
 
@@ -206,6 +208,59 @@ class CreateRequestsTests(BaseRequestsTests):
         self.assertEqual(last_contribution.account_id, template.author_id)
         self.assertEqual(last_contribution.entity_id, template.id)
 
+    def test_create__history_restrictions__success(self):
+
+        requested_url = url('linguistics:templates:create', key=keys.LEXICON_KEY.HERO_HISTORY_BIRTH.value)
+
+        race_restriction = storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.RACE,
+                                                                        game_relations.RACE.ELF.value)
+
+        data = {'template': '[hero]',
+                'verificator_0': '',
+                'verificator_1': '',
+                'verificator_2': '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.GENDER.value: '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.RACE.value:  race_restriction.id}
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, 1):
+            with self.check_delta(prototypes.ContributionPrototype._db_count, 1):
+                response = self.client.post(requested_url, data)
+
+    def test_create__history_restrictions__wrong_restriction(self):
+
+        requested_url = url('linguistics:templates:create', key=keys.LEXICON_KEY.HERO_HISTORY_BIRTH.value)
+
+        restriction = storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE,
+                                                                   beings_relations.STRUCTURE.STRUCTURE_0.value)
+
+        data = {'template': '[hero]',
+                'verificator_0': '',
+                'verificator_1': '',
+                'verificator_2': '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.GENDER.value: '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE.value: restriction.id}
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, 0):
+            with self.check_delta(prototypes.ContributionPrototype._db_count, 0):
+                response = self.client.post(requested_url, data)
+
+    def test_create__history_restrictions__wrong_restriction_value(self):
+
+        requested_url = url('linguistics:templates:create', key=keys.LEXICON_KEY.HERO_HISTORY_BIRTH.value)
+
+        restriction = storage.restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
+                                                                   game_relations.HABIT_HONOR_INTERVAL.RIGHT_3.value)
+
+        data = {'template': '[hero]',
+                'verificator_0': '',
+                'verificator_1': '',
+                'verificator_2': '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.GENDER.value: '',
+                'restriction_hero_%d' % relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR.value: restriction.id}
+
+        with self.check_delta(prototypes.TemplatePrototype._db_count, 0):
+            with self.check_delta(prototypes.ContributionPrototype._db_count, 0):
+                response = self.client.post(requested_url, data)
 
     def test_create_by_moderator(self):
         self.request_login(self.moderator.email)

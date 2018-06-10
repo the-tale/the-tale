@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from the_tale.game import names
 
@@ -31,3 +30,14 @@ class Restriction(names.ManageNameMixin):
                 self.group == other.group and
                 self.external_id == other.external_id and
                 self.name == other.name)
+
+
+class UTGVariable(object):
+    __slots__ = ('utg_name_form', 'restrictions')
+
+    def __init__(self, word, restrictions):
+        self.utg_name_form = word
+        self.restrictions = restrictions
+
+    def linguistics_restrictions(self):
+        return self.restrictions

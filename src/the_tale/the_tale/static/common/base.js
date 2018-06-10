@@ -469,3 +469,8 @@ pgf.base.UpdateElementTooltip = function(element, tooltip, tooltipClass, tooltip
         }
     }
 };
+
+
+pgf.base.RandomItem = function(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}

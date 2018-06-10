@@ -16,6 +16,7 @@
     {% if not place.modifier.is_NONE %}
     <span
        rel="tooltip"
+       data-tooltip-placement="bottom"
 
        {%if not place.is_modifier_active()%}
        style="color: orange; cursor: default;"
@@ -68,23 +69,27 @@
       {{places_macros.attribute_record(place, 'tax')}}
     </tbody>
   </table>
- </div>
+</div>
+
 
 <div style="display: inline-block;">
-  <h3>Влияние</h3>
+  <h3>
+    Влияние
+    <small><a href="{{url('game:politic-power:history', place=place.id)}}" target="_blank">история</a></small>
+  </h3>
   <table class="table table-condensed">
     <tbody>
       <tr>
         <th>влияние среди городов</th>
-        <td>{{place.total_politic_power_fraction|percents(2)}}</td>
+        <td>{{places_power_storage.total_power_fraction(place.id)|percents(2)}}</td>
       </tr>
       <tr>
         <th>влияние от ближнего круга</th>
-        <td>{{place.inner_politic_power_fraction|percents(2)}} — {{place.politic_power.inner_power|int}}</td>
+        <td>{{places_power_storage.inner_power_fraction(place.id)|percents(2)}} — {{places_power_storage.inner_power(place.id)|int}}</td>
       </tr>
       <tr>
         <th>влияние от народа</th>
-        <td>{{place.outer_politic_power_fraction|percents(2)}} — {{place.politic_power.outer_power|int}}</td>
+        <td>{{places_power_storage.outer_power_fraction(place.id)|percents(2)}} — {{places_power_storage.outer_power(place.id)|int}}</td>
       </tr>
       <tr>
         <th>проект</th>
@@ -98,11 +103,11 @@
       <tr>
         <th>размер проекта</th>
         <td>
-          {{place.get_job_power()|percents(2)}}
+          {{place.job.get_job_power(place.id)|percents(2)}}
           <i class="icon-info-sign" rel="tooltip" title="Размер проекта зависит от влияния города относительно других городов Пандоры. Фронтир и Центральный регион считаются отдельно."></i>
         </td>
       </tr>
-      {% if place.job.is_completed() %}
+      {% if place.job.is_completed(job_power) %}
         <tr>
           <th>проект завершён</th>
           <td width="250px">Эффект проекта будет применён в ближайшее время. Влияние, начисленное сверх необходимого, будет засчитано в следующем проекте.</td>
@@ -111,15 +116,15 @@
         <tr>
           <th>помощь в проекте от соратников</th>
           <td>
-            <span style="color:green;">{{(place.job.positive_power/place.job.power_required)|percents(2)}}</span>
-            осталось влияния: {{(place.job.power_required - place.job.positive_power)|round(0)|int}}
+            <span style="color:green;">{{(job_power.positive/place.job.power_required)|percents(2)}}</span>
+            осталось влияния: {{(place.job.power_required - job_power.positive)|round(0)|int}}
           </td>
         </tr>
         <tr>
           <th>вред в проекте от противников</th>
           <td>
-            <span style="color:red;">{{(place.job.negative_power/place.job.power_required)|percents(2)}}</span>
-            осталось влияния: {{(place.job.power_required - place.job.negative_power)|round(0)|int}}
+            <span style="color:red;">{{(job_power.negative/place.job.power_required)|percents(2)}}</span>
+            осталось влияния: {{(place.job.power_required - job_power.negative)|round(0)|int}}
           </td>
         </tr>
       {% endif %}
@@ -140,12 +145,12 @@
   <tbody>
     {% for person in place.persons_by_power %}
       <tr>
-        <td>{{person.total_politic_power_fraction|percents(2)}}</td>
+        <td>{{persons_power_storage.total_power_fraction(person.id)|percents(2)}}</td>
         <td>
           {{persons_macros.person_verbose(person, hero)}}
         </td>
         <td>
-          {{person.politic_power.positive_heroes_number}} / {{person.politic_power.negative_heroes_number}}
+          {{persons_inner_circles[person.id].positive_heroes_number}} / {{persons_inner_circles[person.id].negative_heroes_number}}
         </td>
       </tr>
     {% endfor %}
@@ -182,7 +187,7 @@
                 {% set delta = race_info.delta*24 %}
                 <td style="text-align: left; color:{%if race_info.delta > 0.0001 %}green{%elif race_info.delta < -0.0001%}red{%else%}black{%endif%};">
                     {% if race_info.delta > 0.00001%}+{% elif race_info.delta < -0.00001%}-{% else %}&nbsp;{%endif%} {{delta|abs|percents(2)}}
-                                                                                </td>
+               </td>
                 <td>
                   {{race_info.persons_percents|percents(2)}}
                 </td>
@@ -378,19 +383,7 @@
           Последние события, связаные с городом.
         </p>
 
-        <table class="table">
-          <thead>
-            <tr>
-              <th>дата</th>
-              <th>событие</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for date_short, date_long, text in place_chronicle %}
-            {{ chronicle_macros.chronicle_record_3(date_short, date_long, text) }}
-            {% endfor %}
-          </tbody>
-        </table>
+        {{ chronicle_macros.records_list(place_chronicle) }}
 
         <p>
           <a class="btn btn-info" href="{{ url('game:chronicle:', place=place.id) }}">Все события</a>
@@ -405,11 +398,11 @@
 <h3>Герои</h3>
 
 <ul>
-  <li>Всего героев помогает: {{place.politic_power.positive_heroes_number}}</li>
-  <li>Всего героев мешает: {{place.politic_power.negative_heroes_number}}</li>
+  <li>Всего героев помогает: {{inner_circle.positive_heroes_number}}</li>
+  <li>Всего героев мешает: {{inner_circle.negative_heroes_number}}</li>
 </ul>
 
-{{game_macros.inner_circle_heroes(place.politic_power, hero.account_id if hero else none)}}
+{{game_macros.inner_circle_heroes(inner_circle, hero.account_id if hero else none)}}
 
 
 {% set folclor_objects = posts_about(place_meta_object) %}

@@ -1,9 +1,15 @@
-# coding: utf-8
 
 from dext.common.utils import jinja2
 
-from the_tale.game.places import storage as places_storage
+from . import storage
+from . import logic
+
 
 @jinja2.jinjaglobal
 def all_places():
-    return sorted(places_storage.places.all(), key=lambda p: p.name)
+    return sorted(storage.places.all(), key=lambda p: p.name)
+
+
+@jinja2.jinjaglobal
+def hero_popularity(hero_id):
+    return logic.get_hero_popularity(hero_id)

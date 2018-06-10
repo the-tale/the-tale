@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import re
 
 from django.forms import ValidationError
@@ -7,7 +7,7 @@ from dext.forms import forms, fields
 
 from utg import relations as utg_relations
 
-from the_tale.linguistics.forms import WordField
+from the_tale.linguistics import forms as word_forms
 
 from the_tale.game.relations import GENDER, RACE
 
@@ -22,7 +22,11 @@ class EditNameForm(forms.Form):
 
     race = fields.TypedChoiceField(label='раса', choices=RACE.choices(), coerce=RACE.get_from_name)
     gender = fields.TypedChoiceField(label='пол', choices=GENDER.choices(), coerce=GENDER.get_from_name)
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='имя', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,), show_properties=False)
+    name = word_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
+                                widget_class=word_forms.SimpleNounWidget,
+                                label='имя',
+                                skip_markers=(utg_relations.NOUN_FORM.COUNTABLE, utg_relations.NUMBER.PLURAL),
+                                show_properties=False)
 
     def clean(self):
         cleaned_data = super(EditNameForm, self).clean()
@@ -40,7 +44,8 @@ class EditNameForm(forms.Form):
                 if NAME_REGEX.match(name_form) is None:
                     raise ValidationError('Имя героя может содержать только следующие символы: %s' % conf.heroes_settings.NAME_SYMBOLS_DESCRITION)
 
-            name.properties = name.properties.clone(cleaned_data['gender'].utg_id)
+            name.properties = name.properties.clone(cleaned_data['gender'].utg_id,
+                                                    utg_relations.NUMBER.SINGULAR)
 
         return cleaned_data
 

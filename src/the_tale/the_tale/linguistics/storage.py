@@ -1,4 +1,4 @@
-# coding: utf-8
+
 import time
 
 from dext.common.utils import s11n
@@ -61,8 +61,6 @@ class GameLexiconDictionaryStorage(storage.SingleStorage):
         return utg_lexicon.Lexicon()
 
     def refresh(self):
-        from the_tale.linguistics.lexicon.keys import LEXICON_KEY
-
         self.clear()
 
         for key, data in self._templates_query().iterator():

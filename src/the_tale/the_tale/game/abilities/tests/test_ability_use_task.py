@@ -10,7 +10,7 @@ from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskProtot
 
 from the_tale.game.logic_storage import LogicStorage
 from the_tale.game.logic import create_test_map
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game import tt_api_energy
 
 from the_tale.game.postponed_tasks import ComplexChangeTask
 
@@ -63,21 +63,21 @@ class UseAbilityTasksTests(TestCase):
         self.assertEqual(self.task.state, ComplexChangeTask.STATE.PROCESSED)
 
     def test_process_success__has_transaction(self):
-        energy = game_tt_api.energy_balance(self.account.id)
+        energy = tt_api_energy.energy_balance(self.account.id)
 
-        status, transaction_id = game_tt_api.change_energy_balance(account_id=self.account.id,
+        status, transaction_id = tt_api_energy.change_energy_balance(account_id=self.account.id,
                                                                    type='test',
                                                                    energy=1) # test, that changes will be applied on commit (but not on start)
         self.task.data['transaction_id'] = transaction_id
 
-        self.assertEqual(game_tt_api.energy_balance(self.account.id), energy)
+        self.assertEqual(tt_api_energy.energy_balance(self.account.id), energy)
 
         self.assertEqual(self.task.process(FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
         self.assertEqual(self.task.state, ComplexChangeTask.STATE.PROCESSED)
 
         time.sleep(0.1)
 
-        self.assertEqual(game_tt_api.energy_balance(self.account.id), energy + 1)
+        self.assertEqual(tt_api_energy.energy_balance(self.account.id), energy + 1)
 
     def test_process_second_step_success(self):
 

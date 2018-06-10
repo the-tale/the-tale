@@ -1,0 +1,14 @@
+{% import 'linguistics/words/macros.html' as words_macros with context %}
+
+
+{% set structure = drawer.get_structure(drawer.type) %}
+
+{% if drawer.show_properties %}
+  {% for property in drawer.type.properties %}
+    {{drawer.get_property(property)}}
+  {% endfor %}
+{% endif %}
+
+<h3>{{ drawer.get_header(leaf.get_header_properties())|up_first }}</h3>
+
+{{ words_macros.C(leaf, drawer) }}

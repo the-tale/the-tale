@@ -22,6 +22,7 @@ from the_tale.game.balance import constants as c
 
 from the_tale.game import effects
 
+from the_tale.game.places import logic as places_logic
 from the_tale.game.places import objects as places_objects
 from the_tale.game.places import relations as places_relations
 
@@ -145,7 +146,7 @@ class BillPrototype(BasePrototype):
         return actors
 
     def can_vote(self, hero):
-        allowed_places_ids = hero.places_history.get_allowed_places_ids(bills_settings.PLACES__TO_ACCESS_VOTING)
+        allowed_places_ids = places_logic.get_hero_popularity(hero.id).get_allowed_places_ids(bills_settings.PLACES__TO_ACCESS_VOTING)
 
         place_found = False
         place_allowed = False

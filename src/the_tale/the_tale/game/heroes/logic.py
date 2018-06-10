@@ -8,6 +8,8 @@ from django.db import models as django_models
 
 from dext.common.utils import s11n
 
+from tt_logic.beings import relations as beings_relations
+
 from the_tale.game import turn
 from the_tale.game import relations as game_relations
 from the_tale.game import names
@@ -31,7 +33,6 @@ from . import statistics
 from . import preferences
 from . import relations
 from . import messages
-from . import places_help_statistics
 from . import habilities
 from . import bag
 from . import habits
@@ -58,6 +59,7 @@ def hero_position_from_model(hero_model):
                              from_y=hero_model.pos_from_y,
                              to_x=hero_model.pos_to_x,
                              to_y=hero_model.pos_to_y)
+
 
 def hero_statistics_from_model(hero_model):
     return statistics.Statistics(pve_deaths=hero_model.stat_pve_deaths,
@@ -138,9 +140,8 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         preferences=preferences.HeroPreferences.deserialize(data=s11n.from_json(hero_model.preferences)),
                         actions=actions_container.ActionsContainer.deserialize(s11n.from_json(hero_model.actions)),
                         companion=companion,
-                        journal=messages.JournalContainer(), # we are not storrings journal in database, since messages in it replaced very fast
+                        journal=messages.JournalContainer(),  # we are not storrings journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
-                        places_history=places_help_statistics.PlacesHelpStatistics.deserialize(data['places_history']),
                         abilities=habilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
                         bag=bag.Bag.deserialize(data['bag']),
                         equipment=bag.Equipment.deserialize(data['equipment']),
@@ -161,6 +162,9 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         last_rare_operation_at_turn=hero_model.last_rare_operation_at_turn,
                         settings_approved=hero_model.settings_approved,
                         actual_bills=data['actual_bills'],
+                        upbringing=beings_relations.UPBRINGING(data.get('upbringing', beings_relations.UPBRINGING.PHILISTINE.value)),
+                        death_age=beings_relations.AGE(data.get('death_age', beings_relations.AGE.MATURE.value)),
+                        first_death=beings_relations.FIRST_DEATH(data.get('first_death', beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS.value)),
                         utg_name=utg_words.Word.deserialize(data['name']))
 
 
@@ -168,10 +172,12 @@ def save_hero(hero, new=False):
     data = {'companion': hero.companion.serialize() if hero.companion else None,
             'name': hero.utg_name.serialize(),
             'quests': hero.quests.serialize(),
-            'places_history': hero.places_history.serialize(),
             'equipment': hero.equipment.serialize(),
             'bag': hero.bag.serialize(),
-            'actual_bills': hero.actual_bills}
+            'actual_bills': hero.actual_bills,
+            'death_age': hero.death_age.value,
+            'upbringing': hero.upbringing.value,
+            'first_death': hero.first_death.value}
 
     arguments = dict(saved_at_turn=turn.number(),
                      saved_at=datetime.datetime.now(),
@@ -326,7 +332,7 @@ def create_hero(account, full_create=True):
 
     race = random.choice(RACE.records)
 
-    gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
+    gender = random.choice((GENDER.MALE, GENDER.FEMALE))
 
     current_turn_number = turn.number()
 
@@ -350,7 +356,6 @@ def create_hero(account, full_create=True):
                         companion=None,
                         journal=messages.JournalContainer(),
                         quests=quests_container.QuestsContainer(),
-                        places_history=places_help_statistics.PlacesHelpStatistics(),
                         abilities=habilities.AbilitiesPrototype.create(),
                         bag=bag.Bag(),
                         equipment=bag.Equipment(),
@@ -371,6 +376,9 @@ def create_hero(account, full_create=True):
                         last_rare_operation_at_turn=turn.number(),
                         settings_approved=False,
                         actual_bills=[],
+                        upbringing=beings_relations.UPBRINGING.PHILISTINE,
+                        death_age=beings_relations.AGE.MATURE,
+                        first_death=beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS,
                         utg_name=utg_name)
 
     dress_new_hero(hero)

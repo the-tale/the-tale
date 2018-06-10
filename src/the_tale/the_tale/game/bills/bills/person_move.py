@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.forms import ValidationError
 
@@ -12,6 +11,8 @@ from the_tale.game.places import storage as places_storage
 from the_tale.game.persons import objects as persons_objects
 from the_tale.game.persons import logic as persons_logic
 from the_tale.game.persons import storage as persons_storage
+
+from the_tale.game.politic_power import logic as politic_power_logic
 
 from the_tale.game.bills.relations import BILL_TYPE
 from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
@@ -53,10 +54,18 @@ class BaseForm(BaseUserForm):
 
 
 class UserForm(BaseForm):
+
     def __init__(self, choosen_person_id, owner_id, *args, **kwargs):
         super(UserForm, self).__init__(choosen_person_id, *args, **kwargs)
-        self.fields['person'].choices = persons_objects.Person.form_choices(choosen_person=persons_storage.persons.get(choosen_person_id),
-                                                                            predicate=lambda place, person: person.politic_power.is_in_inner_circle(owner_id))
+        self.owner_id = owner_id
+
+    def clean_person(self):
+        person_id = super().clean_person()
+
+        if not politic_power_logic.get_inner_circle(person_id=person_id).in_circle(self.owner_id):
+            raise ValidationError('Ваш герой должен быть в ближнем круге Мастера')
+
+        return person_id
 
 
 class ModeratorForm(BaseForm, ModeratorFormMixin):
@@ -111,29 +120,25 @@ class PersonMove(BasePersonBill):
     def get_user_form_create(cls, post=None, owner_id=None):
         return cls.UserForm(None, owner_id, post) #pylint: disable=E1102
 
-
     def get_user_form_update(self, post=None, initial=None, owner_id=None, original_bill_id=None):
         if initial:
             return self.UserForm(self.person_id, owner_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
-        return  self.UserForm(self.person_id, owner_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
+        return self.UserForm(self.person_id, owner_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
 
     def get_moderator_form_update(self, post=None, initial=None, original_bill_id=None):
         if initial:
             return self.ModeratorForm(self.person_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
-        return  self.ModeratorForm(self.person_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
-
+        return self.ModeratorForm(self.person_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
 
     def user_form_initials(self):
         initials = super(PersonMove, self).user_form_initials()
         initials['new_place'] = self.new_place_id
         return initials
 
-
     def initialize_with_form(self, user_form):
         super(PersonMove, self).initialize_with_form(user_form)
         self.new_place_id = int(user_form.c.new_place)
         self.new_place_name_forms = self.new_place.utg_name
-
 
     def serialize(self):
         data = super(PersonMove, self).serialize()

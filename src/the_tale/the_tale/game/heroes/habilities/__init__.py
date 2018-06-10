@@ -1,11 +1,7 @@
-# coding: utf-8
+
 import random
-import time
-import datetime
 
 from the_tale.game.balance import constants as c, formulas as f
-
-from the_tale.game.heroes.conf import heroes_settings
 
 from the_tale.game.heroes.habilities.relations import ABILITY_TYPE, ABILITY_AVAILABILITY, ABILITY_ACTIVATION_TYPE, ABILITY_LOGIC_TYPE
 from the_tale.game.heroes.habilities.battle import ABILITIES as BATTLE_ABILITIES
@@ -21,7 +17,9 @@ ABILITIES.update(**MODIFIERS_ABILITIES)
 ABILITIES.update(**NONBATTLE_ABILITIES)
 ABILITIES.update(**COMPANIONS_ABILITIES)
 
+
 __all__ = ['ABILITIES', 'ABILITY_LOGIC_TYPE', 'ABILITY_TYPE', 'ABILITY_AVAILABILITY', 'ABILITY_ACTIVATION_TYPE']
+
 
 class AbilitiesPrototype(object):
 

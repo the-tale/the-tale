@@ -1,0 +1,113 @@
+syntax = "proto3";
+package impacts;
+
+
+message Object {
+  uint32 type = 1;
+  uint64 id = 2;
+}
+
+message Impact {
+  string transaction = 1;
+  Object actor = 2;
+  Object target = 3;
+  int64 amount = 4;
+  uint64 turn = 5;
+  double time = 6;
+}
+
+
+message TargetImpact {
+  Object target = 1;
+  int64 amount = 2;
+  uint64 turn = 3;
+  double time = 4;
+}
+
+
+message RatingRecord {
+  Object actor = 1;
+  int64 amount = 2;
+}
+
+
+message Rating {
+    Object target = 1;
+    repeated RatingRecord records = 2;
+}
+
+
+message AddImpactsRequest {
+  repeated Impact impacts = 1;
+}
+
+
+message AddImpactsResponse {
+}
+
+
+message GetImpactsHistoryRequest {
+  enum FilterType {
+    NONE = 0;
+    ONLY_ACTOR = 1;
+    ONLY_TARGET = 2;
+    BOTH = 3;
+  }
+
+  FilterType filter = 1;
+  Object actor = 2;
+  Object target = 3;
+  uint32 limit = 4;
+}
+
+
+message GetImpactsHistoryResponse {
+  repeated Impact impacts = 1;
+}
+
+
+message GetTargetsImpactsRequest {
+  repeated Object targets = 1;
+}
+
+
+message GetTargetsImpactsResponse {
+  repeated TargetImpact impacts = 1;
+}
+
+
+message GetActorImpactsRequest {
+  Object actor = 1;
+  repeated int32 target_types = 2;
+}
+
+
+message GetActorImpactsResponse {
+  repeated TargetImpact impacts = 1;
+}
+
+
+message GetImpactersRatingsRequest {
+  repeated Object targets = 1;
+  repeated int32 actor_types = 2;
+  uint32 limit = 3;
+}
+
+
+message GetImpactersRatingsResponse {
+  repeated Rating ratings = 1;
+}
+
+
+message ScaleImpactsRequest {
+  repeated int32 target_types = 1;
+  double scale = 2;
+}
+
+
+message ScaleImpactsResponse {
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

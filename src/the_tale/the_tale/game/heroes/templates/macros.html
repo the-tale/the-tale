@@ -75,3 +75,7 @@
 </tr>
 
 {%- endmacro %}
+
+{% macro hero_link(hero) %}
+<a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
+{% endmacro %}

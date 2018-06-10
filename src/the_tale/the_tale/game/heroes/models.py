@@ -63,9 +63,7 @@ class Hero(models.Model):
 
     next_spending = RelationIntegerField(relation=relations.ITEMS_OF_EXPENDITURE, relation_column='value')
 
-    energy = models.IntegerField(null=False, default=0)
     last_energy_regeneration_at_turn = models.IntegerField(null=False, default=0)
-    energy_bonus = models.BigIntegerField(default=0)
 
     might = models.FloatField(null=False, default=0.0)
 

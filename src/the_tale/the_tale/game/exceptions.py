@@ -39,9 +39,5 @@ class HighlevelError(GameError):
     MSG = 'highlevel error'
 
 
-class ChangePowerError(HighlevelError):
-    MSG = "we can change power for place or person, but not both (and persons automatically add power to it's place); place: %(place_id)s, person: %(person_id)s"
-
-
 class WrongHighlevelTurnNumber(HighlevelError):
     MSG = 'desinchonization: workers turn number %(expected_turn_number)d not equal to command turn number %(new_turn_number)d'

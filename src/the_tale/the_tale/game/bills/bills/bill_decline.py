@@ -45,7 +45,7 @@ class BillDecline(BaseBill):
     ModeratorForm = ModeratorForm
 
     CAPTION = 'Отмена действующей записи Книги Судеб'
-    DESCRIPTION = 'Отменяет действующую в текущий момент запись Книги Судеб'
+    DESCRIPTION = 'Отменяет действующую в текущий момент запись Книги Судеб.'
 
     def __init__(self, declined_bill_id=None):
         super(BillDecline, self).__init__()

@@ -29,9 +29,9 @@ class Habit(HabitBase):
 
     @property
     def verbose_value(self):
-        if self.owner.gender.is_MASCULINE:
+        if self.owner.gender.is_MALE:
             return self.interval.text
-        if self.owner.gender.is_FEMININE:
+        if self.owner.gender.is_FEMALE:
             return self.interval.female_text
         return self.interval.neuter_text
 

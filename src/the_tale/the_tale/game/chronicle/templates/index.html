@@ -21,19 +21,7 @@
 
 {{ base_macros.render_paginator(paginator) }}
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>дата</th>
-      <th>событие</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for record in records %}
-    {{ chronicle_macros.chronicle_record(record) }}
-    {% endfor %}
-  </tbody>
-</table>
+{{ chronicle_macros.records_list(records) }}
 
 {{ base_macros.render_paginator(paginator) }}
 

@@ -7,7 +7,7 @@ from utg.dictionary import Dictionary
 from the_tale.linguistics.lexicon import exceptions
 
 
-def noun(forms, properties, countable=None):
+def noun(forms, properties):
 
     if (len(forms) == 12):
         forms = forms + forms[6:]

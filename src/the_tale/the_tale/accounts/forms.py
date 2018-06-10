@@ -35,10 +35,10 @@ class SettingsForm(forms.Form):
 
     gender = fields.TypedChoiceField(required=True,
                                      label='Пол (необходим для корректного создания фраз, в которых упоминается игрок)',
-                                     choices=((game_relations.GENDER.MASCULINE, game_relations.GENDER.MASCULINE.text),
-                                              (game_relations.GENDER.FEMININE, game_relations.GENDER.FEMININE.text)),
+                                     choices=((game_relations.GENDER.MALE, game_relations.GENDER.MALE.text),
+                                              (game_relations.GENDER.FEMALE, game_relations.GENDER.FEMALE.text)),
                                      coerce=game_relations.GENDER.get_from_name,
-                                     initial=game_relations.GENDER.MASCULINE)
+                                     initial=game_relations.GENDER.MALE)
 
 class LoginForm(forms.Form):
 

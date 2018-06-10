@@ -1,6 +1,9 @@
 <div class="easy-block">
 
-  <h2>Влияние на политику</h2>
+  <h2>
+    Влияние на политику
+    <small><a href="{{url('game:politic-power:history', account=resource.hero.id)}}" target="_blank">история</a></small>
+  </h2>
 
   <h3>Влиятельность</h3>
 
@@ -48,9 +51,9 @@
 
   <p>Известность героя в городах Пандоры. Чем чаще герой помогает городу, тем больше его известность.</p>
 
-  {% set places_history = resource.hero.places_history.get_most_common_places() %}
+  {% set popularity = hero_popularity(resource.hero.id) %}
 
-  {% if places_history %}
+  {% if popularity.has_popularity() %}
     <div class="pgf-scrollable" style="overflow-y: auto; max-height: {{1+27*(1+12)}}px;">
 
       <table class="table table-condensed table-striped table-bordered">
@@ -60,11 +63,12 @@
             <th >город</th>
             <th width="100px">известность</th>
           </tr>
-          {% for place, count in places_history %}
+          {% set places = value('the_tale.game.places.storage', 'places') %}
+          {% for place_id, fame in popularity.places_rating() %}
             <tr>
               <td>{{loop.index}}</td>
-              <td><a href="{{url('game:places:show', place.id)}}">{{place.name}}</a></td>
-              <td>{{count|float|round(1)}}</td>
+              <td><a href="{{url('game:places:show', place_id)}}">{{places[place_id].name}}</a></td>
+              <td>{{fame}}</td>
             </tr>
           {% endfor %}
         </tbody>

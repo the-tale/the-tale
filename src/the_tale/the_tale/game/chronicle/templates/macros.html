@@ -1,15 +1,31 @@
 
 
-{% macro chronicle_record(record) %}
-{{chronicle_record_3(record.game_time.date.verbose_short(), record.game_time.time.verbose(), record.text)}}
-{% endmacro %}
+{% macro records_list(records) %}
 
+{% set chronicle_actors = chronicle_actors(records) %}
 
-{% macro chronicle_record_3(date_short, date_long, text) %}
+<ul class="unstyled">
+  {% for record in records %}
+  <li class="newspaper-link-list">
+    <span class="newspaper-link-time">
+      <span style="cursor: default;"
+            rel="tooltip"
+            title="<div style='text-align: left; white-space: nowrap;'>
+                   {{record.game_time.date.verbose_full()}} {{record.game_time.time.verbose()}}</br>
+                   В реальности: {{record.created_at|verbose_datetime}}
+                   </div>">
+        {{record.game_time.date.verbose_full()}}
+      </span>:
 
-<tr>
-  <td width="75px" rel="tooltip" title="{{ date_long }}">{{ date_short }}</td>
-  <td>{{ text }}</td>
-</tr>
-
+      {% for actor in chronicle_actors.get(record.id, ()) %}
+        {%- if loop.index > 1 -%},{% endif %}
+        {% if actor.type.is_BILL %}<a href="{{url('game:bills:show', actor.bill_id)}}">{{actor.name}}</a>{% endif -%}
+        {% if actor.type.is_PLACE %}<a href="{{url('game:places:show', actor.place_id)}}">{{actor.name}}</a>{% endif -%}
+        {% if actor.type.is_PERSON %}<a href="{{url('game:persons:show', actor.person_id)}}">{{actor.name}}</a>{% endif -%}
+      {% endfor %}
+    </span>
+    <br/>
+    <span>{{ record.text|make_paragraphs }}</span>
+  </li>
+  {% endfor %}
 {% endmacro %}

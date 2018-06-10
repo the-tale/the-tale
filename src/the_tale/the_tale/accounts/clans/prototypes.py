@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.db import models, IntegrityError, transaction
 
@@ -16,10 +15,13 @@ from the_tale.accounts.clans.relations import MEMBER_ROLE, MEMBERSHIP_REQUEST_TY
 from the_tale.accounts.clans import exceptions
 from the_tale.accounts.clans.conf import clans_settings
 
-from the_tale.forum.prototypes import CategoryPrototype, SubCategoryPrototype, PermissionPrototype as ForumPermissionPrototype
+from the_tale.forum.prototypes import CategoryPrototype
+from the_tale.forum.prototypes import SubCategoryPrototype
+from the_tale.forum.prototypes import PermissionPrototype as ForumPermissionPrototype
+from the_tale.forum.prototypes import ThreadPrototype
 
 
-class ClanPrototype(BasePrototype): #pylint: disable=R0904
+class ClanPrototype(BasePrototype):
     _model_class = Clan
     _readonly = ('id',
                  'created_at',
@@ -31,7 +33,7 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
 
     @property
     def description_html(self):
-         return bbcode.render(self.description)
+        return bbcode.render(self.description)
 
     @classmethod
     def get_forum_subcategory_caption(cls, clan_name):
@@ -53,7 +55,6 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
                                                         caption=cls.get_forum_subcategory_caption(name),
                                                         order=subcategory_order,
                                                         restricted=True)
-
 
         clan_model = cls._model_class.objects.create(name=name,
                                                      abbr=abbr,
@@ -82,7 +83,6 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
         forum_subcateogry.save()
 
         self.save()
-
 
     @transaction.atomic
     def add_member(self, account):
@@ -133,14 +133,16 @@ class ClanPrototype(BasePrototype): #pylint: disable=R0904
         for membership_model in MembershipPrototype._db_filter(clan_id=self.id):
             membership = MembershipPrototype(model=membership_model)
             membership.remove()
+
+        SubCategoryPrototype.get_by_id(self.forum_subcategory_id).delete()
+
         self._model.delete()
 
     def get_leader(self):
         return AccountPrototype.get_by_id(MembershipPrototype._model_class.objects.get(clan_id=self.id, role=MEMBER_ROLE.LEADER).account_id)
 
 
-
-class MembershipPrototype(BasePrototype): #pylint: disable=R0904
+class MembershipPrototype(BasePrototype):
     _model_class = Membership
     _readonly = ('id',
                  'created_at',
@@ -245,7 +247,6 @@ class MembershipRequestPrototype(BasePrototype): #pylint: disable=R0904
         pm_tt_api.send_message(sender_id=initiator.id,
                               recipients_ids=[self.account.id],
                               body=message)
-
 
     @classmethod
     @transaction.atomic

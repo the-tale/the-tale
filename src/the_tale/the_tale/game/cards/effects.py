@@ -5,6 +5,7 @@ import random
 from rels import Column
 from rels.django import DjangoEnum
 
+from tt_logic.beings import relations as beings_relations
 from tt_logic.cards import constants as logic_cards_constants
 
 from the_tale.amqp_environment import environment
@@ -20,10 +21,12 @@ from the_tale.game.places import storage as places_storage
 from the_tale.game.places import logic as places_logic
 
 from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import logic as persons_logic
+
+from the_tale.game.politic_power import logic as politic_power_logic
 
 from the_tale.game import relations as game_relations
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game import tt_api_impacts
+from the_tale.game import tt_api_energy
 from the_tale.game import effects
 
 from the_tale.game.artifacts import storage as artifacts_storage
@@ -200,11 +203,11 @@ class AddBonusEnergy(ModificatorBase):
         return 'Вы получаете %(energy)d единиц энергии.' % {'energy': self.modificator}
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
-        game_tt_api.change_energy_balance(account_id=task.hero.account_id,
-                                          type='card',
-                                          energy=int(self.modificator),
-                                          async=True,
-                                          autocommit=True)
+        tt_api_energy.change_energy_balance(account_id=task.hero.account_id,
+                                            type='card',
+                                            energy=int(self.modificator),
+                                            async=True,
+                                            autocommit=True)
         return task.logic_result()
 
 
@@ -298,10 +301,10 @@ class ChangeHabit(ModificatorBase):
         return self._name_for_card(card.type, card.data['habit_id'], card.data['direction'])
 
 
-
-
 class ChangePreference(BaseEffect):
     __slots__ = ()
+
+    DESCRIPTION = 'Позволяет изменить указанное в названии предпочтение героя.'
 
     def get_form(self, card, hero, data):
         from . import preferences_forms
@@ -310,16 +313,9 @@ class ChangePreference(BaseEffect):
 
         return preferences_forms.FORMS[preference](data, hero=hero)
 
-
     def get_dialog_info(self, card, hero):
         preference = heroes_relations.PREFERENCE_TYPE(card.data['preference_id'])
         return 'heroes/preferences/{}.html'.format(preference.base_name)
-
-
-    @property
-    def DESCRIPTION(self):
-        return 'Позволяет изменить указанное в названии предпочтение героя.'
-
 
     def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
 
@@ -335,10 +331,8 @@ class ChangePreference(BaseEffect):
 
         return task.logic_result()
 
-
     def allowed_preferences(self):
         return heroes_relations.PREFERENCE_TYPE.records
-
 
     def create_card(self, type, available_for_auction, preference=None, uid=None):
         if preference is None:
@@ -352,10 +346,8 @@ class ChangePreference(BaseEffect):
     def _item_full_type(self, type, preference_id):
         return '{}-{}'.format(type.value, preference_id)
 
-
     def item_full_type(self, card):
         return self._item_full_type(card.type, card.data['preference_id'])
-
 
     def full_type_names(self, card_type):
         names = {}
@@ -366,13 +358,11 @@ class ChangePreference(BaseEffect):
 
         return names
 
-
     def _name_for_card(self, type, preference_id):
         return type.text + ': ' + heroes_relations.PREFERENCE_TYPE(preference_id).text
 
     def name_for_card(self, card):
         return self._name_for_card(card.type, card.data['preference_id'])
-
 
 
 class ChangeAbilitiesChoices(BaseEffect):
@@ -693,7 +683,6 @@ class RepairBuilding(ModificatorBase):
             return task.logic_result()
 
 
-
 class AddPersonPower(ModificatorBase):
     __slots__ = ()
 
@@ -715,22 +704,14 @@ class AddPersonPower(ModificatorBase):
         if person_id not in persons_storage.persons:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Мастер не найден.')
 
-        person = persons_storage.persons[person_id]
+        impacts = [tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
+                                                            hero_id=task.hero.id,
+                                                            person_id=person_id,
+                                                            amount=delta)]
 
-        if task.step.is_LOGIC:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.HIGHLEVEL)
+        politic_power_logic.add_power_impacts(impacts)
 
-        elif task.step.is_HIGHLEVEL:
-
-            person.politic_power.change_power(person=person,
-                                              hero_id=task.hero_id,
-                                              has_in_preferences=True,
-                                              power=delta)
-            persons_logic.save_person(person)
-            persons_storage.persons.update_version()
-
-            return task.logic_result(message='Влияние Мастера изменено')
-
+        return task.logic_result(message='Влияние Мастера изменено')
 
     def allowed_directions(self):
         return (-1, 1)
@@ -744,13 +725,11 @@ class AddPersonPower(ModificatorBase):
                             data={'direction': direction},
                             uid=uid if uid else uuid.uuid4())
 
-
     def _item_full_type(self, type, direction):
         return '{}-{:+d}'.format(type.value, direction)
 
     def item_full_type(self, card):
         return self._item_full_type(card.type, card.data['direction'])
-
 
     def full_type_names(self, card_type):
         names = {}
@@ -760,7 +739,6 @@ class AddPersonPower(ModificatorBase):
             names[full_type] = self._name_for_card(card_type, direction)
 
         return names
-
 
     def _name_for_card(self, type, direction):
         return '{}: {:+d}'.format(type.text, int(self.modificator * direction))
@@ -779,7 +757,6 @@ class AddPlacePower(ModificatorBase):
     def DESCRIPTION(self):
         return 'Моментально изменяет влияние города на {} единиц в указанную в названии сторону. Влияние засчитывается так, как если бы герой имел город в предпочтении.'.format(int(self.modificator))
 
-
     def use(self, task, storage, highlevel=None, **kwargs): # pylint: disable=R0911,W0613
 
         card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
@@ -791,22 +768,14 @@ class AddPlacePower(ModificatorBase):
         if place_id not in places_storage.places:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
 
-        if task.step.is_LOGIC:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.HIGHLEVEL)
+        impacts = [tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
+                                                           hero_id=task.hero.id,
+                                                           place_id=place_id,
+                                                           amount=delta)]
 
-        elif task.step.is_HIGHLEVEL:
-            place = places_storage.places[place_id]
+        politic_power_logic.add_power_impacts(impacts)
 
-            place.politic_power.change_power(place=place,
-                                             hero_id=task.hero_id,
-                                             has_in_preferences=True,
-                                             power=delta)
-
-            places_logic.save_place(place)
-            places_storage.places.update_version()
-
-            return task.logic_result(message='Влияние города изменено.')
-
+        return task.logic_result(message='Влияние города изменено.')
 
     def allowed_directions(self):
         return (-1, 1)
@@ -826,7 +795,6 @@ class AddPlacePower(ModificatorBase):
     def item_full_type(self, card):
         return self._item_full_type(card.type, card.data['direction'])
 
-
     def full_type_names(self, card_type):
         names = {}
 
@@ -836,7 +804,6 @@ class AddPlacePower(ModificatorBase):
 
         return names
 
-
     def _name_for_card(self, type, direction):
         return '{}: {:+d}'.format(type.text, int(self.modificator * direction))
 
@@ -844,9 +811,7 @@ class AddPlacePower(ModificatorBase):
         return self._name_for_card(card.type, card.data['direction'])
 
 
-
-
-class HelpPlace(ModificatorBase):
+class PlaceFame(ModificatorBase):
     __slots__ = ()
 
     def get_form(self, card, hero, data):
@@ -854,21 +819,19 @@ class HelpPlace(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Увеличивает известность героя в городе на {0:.1f}'.format(self.modificator)
+        return 'Увеличивает известность героя в городе на {}'.format(int(self.modificator))
 
     @property
     def success_message(self):
-        return 'Известность героя увеличена на {0:.1f}'.format(self.modificator)
+        return 'Известность героя увеличена на {}'.format(int(self.modificator))
 
-    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+    def use(self, task, storage, **kwargs):
         place_id = task.data.get('value')
 
         if place_id not in places_storage.places:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
 
-        task.hero.places_history.add_place(place_id, value=self.modificator)
-
-        storage.save_bundle_data(bundle_id=task.hero.actions.current_action.bundle_id)
+        places_logic.add_fame(hero_id=task.hero_id, fames=[(place_id, self.modificator)])
 
         return task.logic_result(message=self.success_message)
 
@@ -1034,7 +997,7 @@ class ReleaseCompanion(BaseEffect):
         task.hero.add_message('companions_left', diary=True, companion_owner=task.hero, companion=task.hero.companion)
         task.hero.remove_companion()
 
-        return task.logic_result(message='Поздравляем! Ваш герой получил нового спутника.')
+        return task.logic_result(message='Спутник покинул героя.')
 
 
 class FreezeCompanion(BaseEffect):
@@ -1185,3 +1148,114 @@ class CreateClan(BaseEffect):
                                               description='')
 
         return task.logic_result(message='Поздравляем, гильдмастер! Ваша гильдия ждёт Вас! Задайте девиз и описание гильдии на её странице.')
+
+
+class ChangeHistory(BaseEffect):
+    __slots__ = ()
+
+    class HISTORY_TYPE(DjangoEnum):
+        choices = Column(single_type=False)
+        form_class = Column(single_type=False)
+
+        records = (('UPBRINGING', 0, 'воспитание', beings_relations.UPBRINGING, forms.Upbringing),
+                   ('DEATH_AGE', 1, 'возраст смерти', beings_relations.AGE, forms.DeathAge),
+                   ('FIRST_DEATH', 2, 'способ смерти', beings_relations.FIRST_DEATH, forms.DeathType))
+
+    DESCRIPTION = 'Позволяет изменить часть истории героя, указанную в названии карты.'
+
+    def get_form(self, card, hero, data):
+        return self.HISTORY_TYPE(card.data['history_id']).form_class(data)
+
+    def change_upbringing(self, storage, hero, value):
+        upbringing = beings_relations.UPBRINGING(value)
+
+        if upbringing == hero.upbringing:
+            return False
+
+        hero.upbringing = upbringing
+
+        storage.save_bundle_data(bundle_id=hero.actions.current_action.bundle_id)
+
+        return True
+
+    def change_death_age(self, storage, hero, value):
+        age = beings_relations.AGE(value)
+
+        if age == hero.death_age:
+            return False
+
+        hero.death_age = age
+
+        storage.save_bundle_data(bundle_id=hero.actions.current_action.bundle_id)
+
+        return True
+
+    def change_first_death(self, storage, hero, value):
+        first_death = beings_relations.FIRST_DEATH(value)
+
+        if first_death == hero.first_death:
+            return False
+
+        hero.first_death = first_death
+
+        storage.save_bundle_data(bundle_id=hero.actions.current_action.bundle_id)
+
+        return True
+
+    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+        card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
+
+        history_type = self.HISTORY_TYPE(card.data['history_id'])
+
+        if history_type.is_UPBRINGING:
+            if not self.change_upbringing(storage, task.hero, task.data.get('value')):
+                return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                         message='Герой уже имеет выбранное воспитание.')
+            return task.logic_result(message='Воспитание героя изменено.')
+
+        elif history_type.is_DEATH_AGE:
+            if not self.change_death_age(storage, task.hero, task.data.get('value')):
+                return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                         message='Герой уже имеет выбранный возраст смерти.')
+            return task.logic_result(message='Возраст смерти героя изменён.')
+
+        elif history_type.is_FIRST_DEATH:
+            if not self.change_first_death(storage, task.hero, task.data.get('value')):
+                return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                         message='Герой уже имеет выбранный способ первой смерти.')
+            return task.logic_result(message='Способ первой смерти героя изменён.')
+
+        raise NotImplementedError
+
+    def allowed_history(self):
+        return self.HISTORY_TYPE.records
+
+    def create_card(self, type, available_for_auction, history=None, uid=None):
+        if history is None:
+            history = random.choice(self.allowed_history())
+
+        return objects.Card(type=type,
+                            available_for_auction=available_for_auction,
+                            data={'history_id': history.value},
+                            uid=uid if uid else uuid.uuid4())
+
+    def _item_full_type(self, type, history_id):
+        return '{}-{}'.format(type.value, history_id)
+
+    def item_full_type(self, card):
+        return self._item_full_type(card.type, card.data['history_id'])
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for history in self.allowed_history():
+            full_type = self._item_full_type(card_type, history.value)
+            names[full_type] = self._name_for_card(card_type, history.value)
+
+        return names
+
+    def _name_for_card(self, type, history_id):
+        return '{}: {}'.format(type.text, self.HISTORY_TYPE(history_id).text)
+
+    def name_for_card(self, card):
+        return self._name_for_card(card.type, card.data['history_id'])

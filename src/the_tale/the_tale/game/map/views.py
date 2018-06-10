@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from dext.common.utils import views as dext_views
 
@@ -16,10 +15,15 @@ from the_tale.game.heroes import logic as heroes_logic
 from the_tale.game.map.storage import map_info_storage
 from the_tale.game.map.conf import map_settings
 
+from the_tale.game.politic_power import storage as politic_power_storage
+from the_tale.game.politic_power import logic as politic_power_logic
+
 from the_tale.game.places import storage as places_storage
 from the_tale.game.places import info as places_info
 
 from the_tale.game.abilities.relations import ABILITY_TYPE
+
+from the_tale.game import politic_power
 
 from . import conf
 from . import models
@@ -99,11 +103,24 @@ def cell_info(context):
 
     building = places_storage.buildings.get_by_coordinates(x, y)
 
+    place_inner_circle = None
+    persons_inner_circles = None
+
+    if place:
+        place_inner_circle = politic_power_logic.get_inner_circle(place_id=place.id)
+        persons_inner_circles = {person.id: politic_power_logic.get_inner_circle(person_id=person.id)
+                                 for person in place.persons}
+
     return dext_views.Page('map/cell_info.html',
                            content={'place': place,
                                     'building': building,
+                                    'places_power_storage': politic_power_storage.places,
+                                    'persons_power_storage': politic_power_storage.persons,
+                                    'persons_inner_circles': persons_inner_circles,
+                                    'place_inner_circle': place_inner_circle,
                                     'place_bills': places_info.place_info_bills(place) if place else None,
-                                    'place_chronicle': chronicle_prototypes.chronicle_info(place, conf.map_settings.CHRONICLE_RECORDS_NUMBER) if place else None,
+                                    'place_chronicle': chronicle_prototypes.RecordPrototype.get_last_actor_records(place,
+                                                                                                                   conf.map_settings.CHRONICLE_RECORDS_NUMBER) if place else None,
                                     'exchanges': exchanges,
                                     'cell': cell,
                                     'terrain': terrain,

@@ -47,6 +47,16 @@ class CurrentHeroProcessor(dext_views.BaseViewProcessor):
         context.account_hero = logic.load_hero(account_id=context.account.id)
 
 
+class HeroProcessor(dext_views.ArgumentProcessor):
+    def parse(self, context, raw_value):
+        try:
+            hero_id = int(raw_value)
+        except ValueError:
+            self.raise_wrong_format()
+
+        return logic.load_hero(account_id=hero_id)
+
+
 def split_list(items):
     half = (len(items)+1)//2
     left = items[:half]

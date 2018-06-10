@@ -16,10 +16,15 @@ from utg import data as utg_data
 from utg import templates as utg_templates
 from utg import exceptions as utg_exceptions
 
+from tt_logic.beings import relations as beings_relations
+from the_tale.game import relations as game_relations
 
 from . import models
 from . import storage
+from . import relations
+from . import prototypes
 from .lexicon import keys as lexicon_keys
+from .lexicon import relations as lexicon_relations
 from .lexicon.groups import relations as groups_relations
 
 
@@ -98,11 +103,33 @@ class WordWidget(django_forms.MultiWidget):
         return jinja2.Markup(dext_jinja2.render('linguistics/words/field.html', context={'drawer': drawer}))
 
 
+class SimpleNounWidget(WordWidget):
+
+    def format_output(self, rendered_widgets):
+        from the_tale.linguistics.relations import WORD_BLOCK_BASE
+        from the_tale.linguistics.word_drawer import Leaf
+        from the_tale.linguistics.word_drawer import FormFieldDrawer
+
+        fields = get_fields(self.word_type)
+        keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
+
+        leaf = Leaf(type=self.word_type,
+                    base=WORD_BLOCK_BASE.C,
+                    key={utg_relations.NUMBER: utg_relations.NUMBER.SINGULAR,
+                         utg_relations.NOUN_FORM: utg_relations.NOUN_FORM.NORMAL})
+
+        widgets = {key: rendered_widgets[keys[key]] for key in keys}
+
+        drawer = FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
+        return jinja2.Markup(dext_jinja2.render('linguistics/words/simple_noun_field.html', context={'drawer': drawer,
+                                                                                                     'leaf': leaf}))
+
+
 @fields.pgf
 class WordField(django_forms.MultiValueField):
     LABEL_SUFFIX = ''
 
-    def __init__(self, word_type, show_properties=True, skip_markers=(), **kwargs):
+    def __init__(self, word_type, show_properties=True, skip_markers=(), widget_class=WordWidget, **kwargs):
         fields = get_fields(word_type)
         keys = sorted(fields.keys())
 
@@ -114,9 +141,9 @@ class WordField(django_forms.MultiValueField):
             kwargs['label'] = label
 
         super(WordField, self).__init__(fields=[fields[key] for key in keys],
-                                                     widget=WordWidget(word_type=word_type, skip_markers=skip_markers, show_properties=show_properties),
-                                                     required=False,
-                                                     **kwargs)
+                                        widget=widget_class(word_type=word_type, skip_markers=skip_markers, show_properties=show_properties),
+                                        required=False,
+                                        **kwargs)
         self.word_type = word_type
 
 
@@ -255,7 +282,48 @@ class TemplateForm(forms.Form):
         for i, verificator in enumerate(self.verificators):
             verificator.text = cleaned_data['verificator_%d' % i]
 
+        if self.key.group.is_HERO_HISTORY:
+            self.check_hero_history_restrictions()
+
         return cleaned_data
+
+    def check_hero_history_restrictions(self):
+        current_restrictions = self.get_restrictions()
+
+        allowed_reistrictions = {
+            lexicon_relations.VARIABLE.HERO.value: {
+                relations.TEMPLATE_RESTRICTION_GROUP.GENDER: [record.value for record in game_relations.GENDER.records],
+                relations.TEMPLATE_RESTRICTION_GROUP.RACE: [record.value for record in game_relations.RACE.records],
+                relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR: [game_relations.HABIT_HONOR_INTERVAL.LEFT_1.value,
+                                                                   game_relations.HABIT_HONOR_INTERVAL.RIGHT_1.value],
+                relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS: [game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_1.value,
+                                                                          game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_1.value],
+                relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE: [record.value for record in game_relations.ARCHETYPE.records],
+                relations.TEMPLATE_RESTRICTION_GROUP.UPBRINGING: [record.value for record in beings_relations.UPBRINGING.records],
+                relations.TEMPLATE_RESTRICTION_GROUP.FIRST_DEATH: [record.value for record in beings_relations.FIRST_DEATH.records],
+                relations.TEMPLATE_RESTRICTION_GROUP.AGE: [record.value for record in beings_relations.AGE.records]}}
+
+        for variable_value, restriction_id in current_restrictions:
+            if variable_value not in allowed_reistrictions:
+                raise django_forms.ValidationError('Ограничения для переменной «{}» нельзя использовать в этой фразе'.format(variable_value))
+
+            restriction = storage.restrictions_storage[restriction_id]
+
+            if restriction.group not in allowed_reistrictions[variable_value]:
+                field_name = 'restriction_%s_%d' % (variable_value, restriction.group.value)
+                message_template = 'Тип ограничений «{}» для переменной «{}» нельзя использовать в этой фразе'
+                raise django_forms.ValidationError({field_name: message_template.format(restriction.group.text, variable_value)})
+
+            if restriction.external_id not in allowed_reistrictions[variable_value][restriction.group]:
+                field_name = 'restriction_%s_%d' % (variable_value, restriction.group.value)
+                message_template = 'Текущие занчения типа  ограничений «{}» для переменной «{}» нельзя использовать в этой фразе'
+                raise django_forms.ValidationError({field_name: message_template.format(restriction.group.text, variable_value)})
+
+        for template_model in models.Template.objects.filter(key=self.key).iterator():
+            template = prototypes.TemplatePrototype(template_model)
+            if template.raw_restrictions == frozenset(current_restrictions):
+                message_template = 'Фраза с такими ограничениями уже есть, её идентификатор: {}. Не может быть двух фраз истории с одинаковыми ограничениями.'
+                raise django_forms.ValidationError(message_template.format(template.id))
 
     def get_restrictions(self):
         restrictions = []

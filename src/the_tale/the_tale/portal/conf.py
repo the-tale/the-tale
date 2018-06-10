@@ -7,26 +7,25 @@ from django.core.urlresolvers import reverse_lazy
 
 from dext.common.utils.app_settings import app_settings
 
-
-SITE_SECTIONS = ( (re.compile(r'^/$'), 'index'),
-                  (re.compile(r'^/news.*$'), 'news'),
-                  (re.compile(r'^/forum.*$'), 'forum'),
-                  (re.compile(r'^/chat.*$'), 'chat'),
-                  (re.compile(r'^/shop.*$'), 'shop'),
-                  (re.compile(r'^/linguistics.*$'), 'world'),
-                  (re.compile(r'^/accounts/auth.*$'), 'auth'),
-                  (re.compile(r'^/accounts/profile.*$'), 'profile'),
-                  (re.compile(r'^/accounts/messages.*$'), 'personal_messages'),
-                  (re.compile(r'^/accounts/.*$'), 'community'),
-                  (re.compile(r'^/game/heroes.*$'), 'hero'),
-                  (re.compile(r'^/game/bills.*$'), 'world'),
-                  (re.compile(r'^/game/chronicle.*$'), 'world'),
-                  (re.compile(r'^/game/ratings.*$'), 'community'),
-                  (re.compile(r'^/game/pvp/calls.*$'), 'world'),
-                  (re.compile(r'^/game/map/'), 'map'),
-                  (re.compile(r'^/game/map.*$'), None),
-                  (re.compile(r'^/game.*$'), 'game'),
-                  (re.compile(r'^/guide.*$'), 'guide') )
+SITE_SECTIONS = ((re.compile(r'^/$'), 'index'),
+                 (re.compile(r'^/news.*$'), 'news'),
+                 (re.compile(r'^/forum.*$'), 'forum'),
+                 (re.compile(r'^/chat.*$'), 'chat'),
+                 (re.compile(r'^/shop.*$'), 'shop'),
+                 (re.compile(r'^/linguistics.*$'), 'world'),
+                 (re.compile(r'^/accounts/auth.*$'), 'auth'),
+                 (re.compile(r'^/accounts/profile.*$'), 'profile'),
+                 (re.compile(r'^/accounts/messages.*$'), 'personal_messages'),
+                 (re.compile(r'^/accounts/.*$'), 'community'),
+                 (re.compile(r'^/game/heroes.*$'), 'hero'),
+                 (re.compile(r'^/game/bills.*$'), 'world'),
+                 (re.compile(r'^/game/chronicle.*$'), 'world'),
+                 (re.compile(r'^/game/ratings.*$'), 'community'),
+                 (re.compile(r'^/game/pvp/calls.*$'), 'world'),
+                 (re.compile(r'^/game/map/'), 'map'),
+                 (re.compile(r'^/game/map.*$'), None),
+                 (re.compile(r'^/game.*$'), 'game'),
+                 (re.compile(r'^/guide.*$'), 'guide'))
 
 
 portal_settings = app_settings('PORTAL',

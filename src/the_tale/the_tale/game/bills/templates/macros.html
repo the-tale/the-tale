@@ -45,12 +45,22 @@
           , осталось: {{ bill.time_before_voting_end|verbose_timedelta }}
         {% elif bill.state.is_ACCEPTED %}
 
+          принята
+          <span class="pgf-format-datetime"
+                data-timestamp="{{ bill.voting_end_at|timestamp }}"
+                style="cursor: default;"
+                rel="tooltip"
+                title="{{bill.applyed_at_turn|verbose_game_date}}"></span>
+
           {% if bill.is_declined %}
-            отменена запись <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
-          {% else %}
-            принята
-            <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
-            ({{bill.applyed_at_turn|verbose_game_date}})
+            <br/>
+            отменена записью
+            <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
+            <span class="pgf-format-datetime"
+                  data-timestamp="{{ bill.declined_by.voting_end_at|timestamp }}"
+                  style="cursor: default;"
+                  rel="tooltip"
+                  title="{{bill.declined_by.applyed_at_turn|verbose_game_date}}"></span>
           {% endif %}
 
         {% elif bill.state.is_REJECTED %}

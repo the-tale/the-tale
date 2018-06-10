@@ -160,7 +160,8 @@ class PostResource(Resource):
 
         meta_post = meta_relations.Post.create_from_object(self.post)
 
-        is_about_objects = [obj for relation, obj in meta_relations_logic.get_objects_related_from(relation=meta_relations.IsAbout, meta_object=meta_post)]
+        is_about_objects = [obj for relation, obj in meta_relations_logic.get_objects_related_from(relation=meta_relations.IsAbout,
+                                                                                                   meta_object=meta_post)]
 
         is_about_objects.sort(key=lambda obj: (obj.TYPE_CAPTION, obj.caption))
 

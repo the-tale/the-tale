@@ -78,6 +78,14 @@ accounts_settings = app_settings('ACCOUNTS',
                                  MONEY_SEND_COMMISSION=0.05,
                                  COMMISION_TRANSACTION_UID='transfer-money-between-accounts-commission',
 
+                                 LORE_GOBLINS='https://the-tale.org/folklore/posts/506',
+                                 LORE_ELFS='https://the-tale.org/folklore/posts/503',
+                                 LORE_ORCS='https://the-tale.org/folklore/posts/504',
+                                 LORE_DWARFS='https://the-tale.org/folklore/posts/505',
+                                 LORE_HUMANS='https://the-tale.org/folklore/posts/502',
+
+                                 GUIDE_HABITS='https://the-tale.org/guide/hero-habits',
+
                                  TT_PLAYERS_TIMERS_CREATE_TIMER='http://localhost:10006/create-timer',
                                  TT_PLAYERS_TIMERS_CHANGE_SPEED='http://localhost:10006/change-speed',
                                  TT_PLAYERS_TIMERS_GET_OWNER_TIMERS='http://localhost:10006/get-owner-timers',

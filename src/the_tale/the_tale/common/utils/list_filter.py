@@ -1,5 +1,5 @@
+
 import collections
-# coding: utf-8
 
 
 class ListFilter(object):
@@ -30,7 +30,6 @@ class BaseElement(object):
     def default_arguments(self): return {}
 
 
-
 def filter_relation(base_relation, sort_key=lambda r: r.value):
     from rels import Column
     from rels.django import DjangoEnum
@@ -47,7 +46,8 @@ def filter_relation(base_relation, sort_key=lambda r: r.value):
 
     return FILTER_RELATION
 
-def reset_element(caption='сбросить фильтрацию'):
+
+def reset_element(caption='сбросить'):
     class ResetElement(BaseElement):
         TYPE = 'reset'
         CAPTION = caption
@@ -68,7 +68,6 @@ def reset_element(caption='сбросить фильтрацию'):
                     del arguments[key]
 
             return url_builder(**arguments)
-
 
     return ResetElement
 

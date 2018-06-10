@@ -83,6 +83,8 @@ class Command(BaseCommand):
 
         sync_group('accounts moderators group', ['accounts.moderate_account'])
 
+        sync_group('clans moderators group', ['clans.moderate_clan'])
+
         sync_group('collections editors group', ['collections.edit_collection',
                                                  'collections.edit_kit',
                                                  'collections.edit_item'])

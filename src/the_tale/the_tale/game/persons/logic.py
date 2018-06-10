@@ -1,5 +1,6 @@
 
 import datetime
+
 from django.conf import settings as project_settings
 
 from utg import words as utg_words
@@ -12,9 +13,18 @@ from the_tale.game.balance import constants as c
 from the_tale.game.balance import formulas as f
 
 from the_tale.game import turn
+from the_tale.game import tt_api_impacts
 
-from the_tale.game.jobs import job
-from the_tale.game import politic_power
+from the_tale.game.jobs import objects as jobs_objects
+from the_tale.game.jobs import effects as jobs_effects
+from the_tale.game.jobs import logic as jobs_logic
+
+from the_tale.game.politic_power import conf as politic_power_conf
+from the_tale.game.politic_power import logic as politic_power_logic
+from the_tale.game.politic_power import storage as politic_power_storage
+
+from the_tale.game.places import logic as places_logic
+from the_tale.game.places import relations as places_relations
 
 from . import models
 from . import objects
@@ -25,47 +35,155 @@ from . import exceptions
 from . import attributes
 
 
-class PersonJob(job.Job):
+class PersonJob(jobs_objects.Job):
     ACTOR = 'person'
 
+    ACTOR_TYPE = tt_api_impacts.OBJECT_TYPE.PERSON
+    POSITIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE
+    NEGATIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE
 
-class PersonPoliticPower(politic_power.PoliticPower):
-    INNER_CIRCLE_SIZE = 3
+    NORMAL_POWER = f.normal_job_power(politic_power_conf.settings.PERSON_INNER_CIRCLE_SIZE)
 
-    def change_power(self, person, hero_id, has_in_preferences, power):
-        power_multiplier = 1
+    def load_power(self, actor_id):
+        return politic_power_logic.get_job_power(person_id=actor_id)
 
-        if person.has_building:
-            power_multiplier += c.BUILDING_PERSON_POWER_BONUS * person.building.logical_integrity
+    def load_inner_circle(self, actor_id):
+        return politic_power_logic.get_inner_circle(person_id=actor_id)
 
-        # this power will go to person and to place
-        place_power = power * power_multiplier
+    def get_job_power(self, actor_id):
+        current_person = storage.persons[actor_id]
 
-        # this power, only to person
-        person_power = power * power_multiplier * person.place.attrs.freedom
+        return jobs_logic.job_power(power=politic_power_storage.persons.total_power_fraction(current_person.id),
+                                    powers=[politic_power_storage.persons.total_power_fraction(person.id)
+                                            for person in current_person.place.persons]) + current_person.attrs.job_power_bonus
 
-        super(PersonPoliticPower, self).change_power(owner=person, hero_id=hero_id, has_in_preferences=has_in_preferences, power=person_power)
+    def get_project_name(self, actor_id):
+        person = storage.persons[actor_id]
+        name = person.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
+        return 'Проект Мастера {name}'.format(name=name)
 
-        return place_power
+    def get_objects(self, actor_id):
+        person = storage.persons[actor_id]
+        return {'person': person,
+                'place': person.place}
 
-    def job_effect_kwargs(self, person):
-        return {'actor_type': 'person',
-                'actor_name': 'Проект Мастера {name}'.format(name=person.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))),
-                'person': person,
-                'place': person.place,
-                'positive_heroes': self.inner_positive_heroes,
-                'negative_heroes': self.inner_negative_heroes,
-                'job_power': person.get_job_power() }
+    def get_effects_priorities(self, actor_id):
+        person = storage.persons[actor_id]
+
+        effects_priorities = {}
+
+        for effect in jobs_effects.EFFECT.records:
+            effects_priorities[effect] = person.attrs.job_group_priority.get(effect.group, 0)
+
+            if not effect.group.is_ON_PLACE:
+                # 0.3 - примерное значение чуть выше средних показателей влияния мастера на базовые аттрибуты города
+                # чтобы занятия для героев и для города имели примерно одинаковый приоритет
+                # но даже 0.3 сдвигает приоритет в сторону геройских занятий
+                effects_priorities[effect] += 0.3
+
+        for attribute in places_relations.ATTRIBUTE.records:
+            effect_name = 'PLACE_{}'.format(attribute.name)
+            effect = getattr(jobs_effects.EFFECT, effect_name, None)
+            if effect:
+                effects_priorities[effect] += person.economic_attributes[attribute]
+
+        return {effect: effects_priorities[effect]
+                for effect in jobs_effects.EFFECT.records
+                if effects_priorities.get(effect, 0) > 0}
 
 
-NORMAL_PERSON_JOB_POWER = f.normal_job_power(PersonPoliticPower.INNER_CIRCLE_SIZE)
+def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_id, person, amount, fame):
+    power_multiplier = 1
+
+    if person.has_building:
+        power_multiplier += c.BUILDING_PERSON_POWER_BONUS * person.building.logical_integrity
+
+    # this power will go to person and to place
+    place_power = amount * power_multiplier
+
+    # this power, only to person
+    person_power = round(amount * power_multiplier * person.place.attrs.freedom)
+
+    impact_type = tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE
+
+    if person_inner_circle:
+        impact_type = tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE
+
+    yield tt_api_impacts.PowerImpact(type=impact_type,
+                                     actor_type=actor_type,
+                                     actor_id=actor_id,
+                                     target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
+                                     target_id=person.id,
+                                     amount=person_power)
+
+    yield from places_logic.tt_power_impacts(inner_circle=place_inner_circle,
+                                             actor_type=actor_type,
+                                             actor_id=actor_id,
+                                             place=person.place,
+                                             amount=place_power,
+                                             fame=fame * person.attrs.places_help_amount)
+
+    if not person_inner_circle:
+        return
+
+    target_type = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE
+
+    if amount < 0:
+        target_type = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE
+
+    yield tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
+                                     actor_type=actor_type,
+                                     actor_id=actor_id,
+                                     target_type=target_type,
+                                     target_id=person.id,
+                                     amount=abs(person_power))
+
+
+def impacts_from_hero(hero, person, power, impacts_generator=tt_power_impacts):
+    person_power = 0
+    partner_power = 0
+    concurrent_power = 0
+
+    partner_fame = c.HERO_FAME_PER_HELP * person.attrs.social_relations_partners_power_modifier
+    concurrent_fame = c.HERO_FAME_PER_HELP * person.attrs.social_relations_concurrents_power_modifier
+
+    can_change_power = hero.can_change_person_power(person)
+
+    person_power = hero.modify_politics_power(power, person=person)
+
+    partner_power = person_power * person.attrs.social_relations_partners_power_modifier
+    concurrent_power = -person_power * person.attrs.social_relations_concurrents_power_modifier
+
+    has_person_in_preferences = hero.preferences.has_person_in_preferences(person)
+    has_place_in_preferences = hero.preferences.has_place_in_preferences(person.place)
+
+    yield from impacts_generator(person_inner_circle=has_person_in_preferences,
+                                 place_inner_circle=has_place_in_preferences,
+                                 actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                 actor_id=hero.id,
+                                 person=person,
+                                 amount=person_power if can_change_power else 0,
+                                 fame=c.HERO_FAME_PER_HELP if 0 < power else 0)
+
+    for social_connection_type, connected_person_id in storage.social_connections.get_person_connections(person):
+        connected_person = storage.persons[connected_person_id]
+
+        connected_power = partner_power if social_connection_type.is_PARTNER else concurrent_power
+        connected_fame = partner_fame if social_connection_type.is_PARTNER else concurrent_fame
+
+        yield from impacts_generator(person_inner_circle=has_person_in_preferences,
+                                     place_inner_circle=has_place_in_preferences,
+                                     actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                     actor_id=hero.id,
+                                     person=connected_person,
+                                     amount=connected_power if can_change_power else 0,
+                                     fame=connected_fame if 0 < connected_power else 0)
 
 
 def save_person(person, new=False):
 
     data = {'name': person.utg_name.serialize(),
             'job': person.job.serialize(),
-            'politic_power': person.politic_power.serialize(),
             'moved_at_turn': person.moved_at_turn,
             'attributes': person.attrs.serialize(),
             'personality': {'cosmetic': person.personality_cosmetic.value,
@@ -113,12 +231,10 @@ def create_person(place, race, type, utg_name, gender, personality_cosmetic=None
                             attrs=attributes.Attributes(),
                             personality_cosmetic=personality_cosmetic,
                             personality_practical=personality_practical,
-                            politic_power=PersonPoliticPower.create(),
                             utg_name=utg_name,
-                            job=PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER),
+                            job=jobs_logic.create_job(PersonJob),
                             moved_at_turn=turn.number())
     person.refresh_attributes()
-    place.refresh_attributes()
     save_person(person, new=True)
     return person
 
@@ -144,9 +260,8 @@ def load_person(person_id=None, person_model=None):
                           race=person_model.race,
                           type=person_model.type,
                           attrs=attributes.Attributes.deserialize(data.get('attributes', {})),
-                          politic_power=PersonPoliticPower.deserialize(data['politic_power']) if 'politic_power'in data else PersonPoliticPower.create(),
                           utg_name=utg_words.Word.deserialize(data['name']),
-                          job=PersonJob.deserialize(data['job']) if 'job' in data else PersonJob.create(normal_power=NORMAL_PERSON_JOB_POWER),
+                          job=PersonJob.deserialize(data['job']),
                           personality_cosmetic=relations.PERSONALITY_COSMETIC(data['personality']['cosmetic']),
                           personality_practical=relations.PERSONALITY_PRACTICAL(data['personality']['practical']),
                           moved_at_turn=data.get('moved_at_turn', 0),

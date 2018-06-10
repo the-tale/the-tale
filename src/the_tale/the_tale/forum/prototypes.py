@@ -67,7 +67,7 @@ class SubCategoryPrototype(BasePrototype):
 
         try:
             last_post = PostPrototype(model=PostPrototype._db_filter(thread__subcategory__id=self.id, state=POST_STATE.DEFAULT).latest('created_at'))
-        except PostPrototype._model_class.DoesNotExists:
+        except PostPrototype._model_class.DoesNotExist:
             last_post = None
 
         if last_post is None:
@@ -106,6 +106,14 @@ class SubCategoryPrototype(BasePrototype):
     def subcategories_visible_to_account(cls, account):
         return cls.from_query(cls.subcategories_visible_to_account_query(account=account).order_by('order', 'id'))
 
+    @transaction.atomic
+    def delete(self):
+        threads_query = ThreadPrototype._db_filter(subcategory=self._model)
+
+        for thread in ThreadPrototype.from_query(threads_query):
+            thread.delete()
+
+        self._model.delete()
 
 
 class ThreadPrototype(BasePrototype):

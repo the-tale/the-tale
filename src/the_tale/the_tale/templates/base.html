@@ -189,7 +189,8 @@ jQuery(document).ready(function() {
                                                                 (url("linguistics:"), "Лингвистика"),
                                                                 (url("blogs:posts:"), "Фольклор"),
                                                                 (url("game:chronicle:"), "Летопись"),
-                                                                (url("game:pvp:calls"), "Арена"), ] ) }}
+                                                                (url("game:pvp:calls"), "Арена"),
+                                                                (url("game:politic-power:history"), "История влияния"), ] ) }}
 
             {% if resource.account.is_authenticated %}
             {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}
@@ -205,7 +206,7 @@ jQuery(document).ready(function() {
             {% set game_time = game_datetime() %}
             <li class="visible-desktop">
               <p id="time-block" class="navbar-text" rel="tooltip" title="{{game_time.date.verbose_full()}}">
-                <span class="pgf-game-date">{{game_time.date.verbose_full()}}</span>
+                <span class="pgf-game-date" style="font-size: 8pt;">{{game_time.date.verbose_full()}}</span>
               </p>
             </li>
             <li class="hidden-desktop">

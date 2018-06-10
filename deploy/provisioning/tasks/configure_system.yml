@@ -11,3 +11,7 @@
         name: vm.swappiness
         value: 10
         state: present
+
+    - name: set timezone to UTC
+      timezone:
+        name: UTC

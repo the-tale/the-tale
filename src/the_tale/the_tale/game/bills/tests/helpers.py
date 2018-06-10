@@ -5,8 +5,6 @@ from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
 
 from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.prototypes import AccountPrototype
-
 from the_tale.game.logic import create_test_map
 from the_tale.game.bills.conf import bills_settings
 

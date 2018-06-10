@@ -18,7 +18,6 @@ from the_tale.finances.bank import relations as bank_relations
 
 from the_tale.accounts.friends.prototypes import FriendshipPrototype
 
-from the_tale.accounts.personal_messages import logic as pm_logic
 from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
 
 from ..models import Award

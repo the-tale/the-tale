@@ -4,6 +4,7 @@ from unittest import mock
 from dext.common.utils.urls import url
 
 from the_tale.common.utils.testcase import TestCase
+from the_tale.common.utils.permissions import sync_group
 
 from the_tale.accounts.logic import login_page_url
 
@@ -90,7 +91,8 @@ class TestShowRequests(BaseTestRequests):
                                                                     self.clan.name,
                                                                     self.clan.motto,
                                                                     self.clan.description_html,
-                                                                    (self.clan.description, 0)])
+                                                                    (self.clan.description, 0),
+                                                                    ('pgf-admin-block', 0)])
 
     def test_folclor(self):
         from the_tale.blogs.tests import helpers as blogs_helpers
@@ -105,6 +107,16 @@ class TestShowRequests(BaseTestRequests):
                                                    meta_relations.Clan.create_from_object(self.clan))
 
         self.check_html_ok(self.request_html(self.show_url), texts=[('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', ('folclor-3-caption', 0)])
+
+    def test_moderator_block(self):
+        account = self.accounts_factory.create_account()
+
+        group = sync_group('clans moderator group', ['clans.moderate_clan'])
+        group.user_set.add(account._model)
+
+        self.request_login(account.email)
+
+        self.check_html_ok(self.request_html(self.show_url), texts=['pgf-admin-block'])
 
 
 class TestEditRequests(BaseTestRequests):
@@ -239,11 +251,20 @@ class TestRemoveRequests(BaseTestRequests):
         self.clan.reload()
         self.assertEqual(self.clan.members_number, 2)
 
-
     def test_ok(self):
         self.check_ajax_ok(self.post_ajax_json(self.remove_url, ))
         self.assertEqual(ClanPrototype._db_count(), 0)
 
+    def test_moderator(self):
+        account = self.accounts_factory.create_account()
+
+        group = sync_group('clans moderator group', ['clans.moderate_clan'])
+        group.user_set.add(account._model)
+
+        self.request_login(account.email)
+
+        self.check_ajax_ok(self.post_ajax_json(self.remove_url, ))
+        self.assertEqual(ClanPrototype._db_count(), 0)
 
 
 class BaseMembershipRequestsTests(BaseTestRequests):

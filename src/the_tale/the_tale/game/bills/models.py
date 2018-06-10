@@ -10,7 +10,7 @@ from . import relations
 
 class Bill(models.Model):
 
-    CAPTION_MIN_LENGTH = 10
+    CAPTION_MIN_LENGTH = 6
     CAPTION_MAX_LENGTH = 256
 
     created_at = models.DateTimeField(auto_now_add=True, null=False)

@@ -44,7 +44,7 @@ class MobRecordBaseForm(forms.Form):
     type = fields.TypedChoiceField(label='тип', choices=MOB_TYPE_CHOICES, coerce=beings_relations.TYPE.get_from_name)
     archetype = fields.TypedChoiceField(label='тип', choices=game_relations.ARCHETYPE.choices(), coerce=game_relations.ARCHETYPE.get_from_name)
 
-    terrains = fields.TypedMultipleChoiceField(label='места обитания', choices=TERRAIN.choices(), coerce=TERRAIN.get_from_name)
+    terrains = fields.TypedMultipleChoiceField(label='места обитания', choices=sorted(TERRAIN.choices(), key=lambda choice: choice[1]), coerce=TERRAIN.get_from_name)
 
     abilities = fields.MultipleChoiceField(label='способности', choices=ABILITY_CHOICES)
 
@@ -59,23 +59,25 @@ class MobRecordBaseForm(forms.Form):
 
     intellect_level = fields.RelationField(label='уровень интеллекта', relation=beings_relations.INTELLECT_LEVEL)
 
-    structure = fields.RelationField(label='структура', relation=beings_relations.STRUCTURE)
-    features = fields.TypedMultipleChoiceField(label='особенности', choices=beings_relations.FEATURE.choices(), coerce=beings_relations.FEATURE.get_from_name)
+    structure = fields.RelationField(label='структура', relation=beings_relations.STRUCTURE, sort_key=lambda choice: choice[1])
+    features = fields.TypedMultipleChoiceField(label='особенности',
+                                               choices=sorted(beings_relations.FEATURE.choices(), key=lambda choice: choice[1]),
+                                               coerce=beings_relations.FEATURE.get_from_name)
     movement = fields.RelationField(label='способ передвижения', relation=beings_relations.MOVEMENT)
-    body = fields.RelationField(label='форма тела', relation=beings_relations.BODY)
+    body = fields.RelationField(label='форма тела', relation=beings_relations.BODY, sort_key=lambda choice: choice[1])
     size = fields.RelationField(label='размер тела', relation=beings_relations.SIZE)
     orientation = fields.RelationField(label='положение тела', relation=beings_relations.ORIENTATION)
 
-    weapon_1 = fields.RelationField(label='оружие 1', relation=artifacts_relations.STANDARD_WEAPON)
-    material_1 = fields.RelationField(label='материал оружия 1', relation=tt_artifacts_relations.MATERIAL)
+    weapon_1 = fields.RelationField(label='оружие 1', relation=artifacts_relations.STANDARD_WEAPON, sort_key=lambda choice: choice[1])
+    material_1 = fields.RelationField(label='материал оружия 1', relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
     power_type_1 = fields.RelationField(label='тип силы оружия 1', relation=artifacts_relations.ARTIFACT_POWER_TYPE)
 
-    weapon_2 = fields.RelationField(label='оружие 2', required=False, relation=artifacts_relations.STANDARD_WEAPON)
-    material_2 = fields.RelationField(label='материал оружия 2', required=False, relation=tt_artifacts_relations.MATERIAL)
+    weapon_2 = fields.RelationField(label='оружие 2', required=False, relation=artifacts_relations.STANDARD_WEAPON, sort_key=lambda choice: choice[1])
+    material_2 = fields.RelationField(label='материал оружия 2', required=False, relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
     power_type_2 = fields.RelationField(label='тип силы оружия 2', required=False, relation=artifacts_relations.ARTIFACT_POWER_TYPE)
 
-    weapon_3 = fields.RelationField(label='оружие 3', required=False, relation=artifacts_relations.STANDARD_WEAPON)
-    material_3 = fields.RelationField(label='материал оружия 3', required=False, relation=tt_artifacts_relations.MATERIAL)
+    weapon_3 = fields.RelationField(label='оружие 3', required=False, relation=artifacts_relations.STANDARD_WEAPON, sort_key=lambda choice: choice[1])
+    material_3 = fields.RelationField(label='материал оружия 3', required=False, relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
     power_type_3 = fields.RelationField(label='тип силы оружия 3', required=False, relation=artifacts_relations.ARTIFACT_POWER_TYPE)
 
     def clean_abilities(self):

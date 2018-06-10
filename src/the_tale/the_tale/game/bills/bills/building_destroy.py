@@ -43,7 +43,7 @@ class BuildingDestroy(BasePersonBill):
     ModeratorForm = ModeratorForm
 
     CAPTION = 'Разрушение постройки'
-    DESCRIPTION = 'Разрушает здание, принадлежащее выбранному жителю.'
+    DESCRIPTION = 'Разрушает здание, принадлежащее выбранному Мастеру.'
 
     def __init__(self, building_name_forms=None, **kwargs):
         super(BuildingDestroy, self).__init__(**kwargs)

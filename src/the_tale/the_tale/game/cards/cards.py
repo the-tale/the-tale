@@ -63,10 +63,14 @@ class CARD(Relation):
 
                ('REPAIR_BUILDING_UNCOMMON', 57, 'волшебный инструмент', FOR_PREMIUMS, UNCOMMON, effects.RepairBuilding(base=c.BUILDING_CARD_REPAIR_BASE, level=2), [reactors.Simple3()]),
 
-               ('MOST_COMMON_PLACES_UNCOMMON', 70, 'ошибка в архивах', FOR_ALL, UNCOMMON, effects.HelpPlace(base=1, level=1), [reactors.Simple3()]),
-               ('MOST_COMMON_PLACES_RARE', 71, 'фальшивые рекомендации', FOR_ALL, RARE, effects.HelpPlace(base=1, level=2), [reactors.Simple3()]),
-               ('MOST_COMMON_PLACES_EPIC', 72, 'застолье в Совете', FOR_ALL, EPIC, effects.HelpPlace(base=1, level=3), [reactors.Simple3()]),
-               ('MOST_COMMON_PLACES_LEGENDARY', 73, 'интриги', FOR_ALL, LEGENDARY, effects.HelpPlace(base=1, level=4), []),
+               ('MOST_COMMON_PLACES_UNCOMMON', 70, 'ошибка в архивах', FOR_ALL, UNCOMMON,
+                effects.PlaceFame(base=c.HERO_FAME_PER_HELP, level=1), [reactors.Simple3()]),
+               ('MOST_COMMON_PLACES_RARE', 71, 'фальшивые рекомендации', FOR_ALL, RARE,
+                effects.PlaceFame(base=c.HERO_FAME_PER_HELP, level=2), [reactors.Simple3()]),
+               ('MOST_COMMON_PLACES_EPIC', 72, 'застолье в Совете', FOR_ALL, EPIC,
+                effects.PlaceFame(base=c.HERO_FAME_PER_HELP, level=3), [reactors.Simple3()]),
+               ('MOST_COMMON_PLACES_LEGENDARY', 73, 'интриги', FOR_ALL, LEGENDARY,
+                effects.PlaceFame(base=c.HERO_FAME_PER_HELP, level=4), []),
 
                ('ADD_EXPERIENCE_COMMON', 74, 'удачная мысль', FOR_ALL, COMMON, effects.AddExperience(base=50, level=1), [reactors.Simple3()]),
                ('ADD_EXPERIENCE_UNCOMMON', 75, 'чистый разум', FOR_ALL, UNCOMMON, effects.AddExperience(base=50, level=2), [reactors.Simple3()]),
@@ -164,6 +168,8 @@ class CARD(Relation):
                ('GIVE_STABILITY_RARE', 149, 'спокойствие', FOR_PREMIUMS, RARE, effects.GiveStability(base=0.01, level=2), [reactors.Simple3()]),
                ('GIVE_STABILITY_EPIC', 150, 'проповедь', FOR_PREMIUMS, EPIC, effects.GiveStability(base=0.01, level=3), [reactors.Simple3()]),
                ('GIVE_STABILITY_LEGENDARY', 151, 'Adeptus Arbites', FOR_PREMIUMS, LEGENDARY, effects.GiveStability(base=0.01, level=4), []),
+
+               ('CHANGE_HISTORY', 152, 'взмах бабочки', FOR_ALL, COMMON, effects.ChangeHistory(), [reactors.Same2()]),
             )
 
 

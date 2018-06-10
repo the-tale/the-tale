@@ -51,7 +51,7 @@ class ClanPrototypeTests(testcase.TestCase):
         self.clan.remove()
         self.assertEqual(ClanPrototype._db_count(), 0)
         self.assertEqual(MembershipPrototype._db_count(), 0)
-        self.assertEqual(SubCategoryPrototype._db_count(), 1)
+        self.assertEqual(SubCategoryPrototype._db_count(), 0)
         self.assertEqual(ForumPermissionPrototype._db_count(), 0)
         self.assertEqual(ForumPermissionPrototype.get_for(self.account.id, self.clan.forum_subcategory_id), None)
 
@@ -66,7 +66,7 @@ class ClanPrototypeTests(testcase.TestCase):
 
         clan_2.remove()
 
-        self.assertEqual(SubCategoryPrototype._db_count(), 2)
+        self.assertEqual(SubCategoryPrototype._db_count(), 1)
         self.assertEqual(ForumPermissionPrototype._db_count(), 1)
 
         self.assertNotEqual(ForumPermissionPrototype.get_for(self.account.id, self.clan.forum_subcategory_id), None)

@@ -12,7 +12,7 @@ from the_tale.game.persons.relations import PERSON_TYPE
 
 def create_person(place):
     race = random.choice(RACE.records)
-    gender = random.choice((GENDER.MASCULINE, GENDER.FEMININE))
+    gender = random.choice((GENDER.MALE, GENDER.FEMALE))
     return logic.create_person(place,
                                race=race,
                                type=random.choice(PERSON_TYPE.records),

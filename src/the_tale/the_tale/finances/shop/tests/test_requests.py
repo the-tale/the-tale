@@ -42,7 +42,6 @@ class PageRequestsMixin(object):
         self.request_third_party_token(account=self.account)
         self.check_html_ok(self.request_html(url('accounts:profile:show')), texts=['third_party.access_restricted'])
 
-
     def test_unlogined(self):
         self.request_logout()
         self.check_redirect(self.page_url, login_page_url(self.page_url))

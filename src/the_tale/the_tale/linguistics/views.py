@@ -47,10 +47,10 @@ class TemplatesIndexFilter(list_filter.ListFilter):
                 list_filter.filter_element('поиск:', attribute='filter', default_value=None),
                 list_filter.choice_element('состояние:', attribute='state', choices=[(None, 'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
                 list_filter.choice_element('наличие ошибок:', attribute='errors_status', choices=[(None, 'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
+                list_filter.choice_element('ограничение:', attribute='restriction', choices=storage.restrictions_storage.get_form_choices),
                 list_filter.choice_element('сортировать:', attribute='order_by', choices=relations.INDEX_ORDER_BY.select('value', 'text'),
                                            default_value=relations.INDEX_ORDER_BY.UPDATED_AT.value),
-                list_filter.static_element('количество:', attribute='count', default_value=0),
-                list_filter.choice_element('ограничение:', attribute='restriction', choices=storage.restrictions_storage.get_form_choices) ]
+                list_filter.static_element('количество:', attribute='count', default_value=0)]
 
 
 def get_contributors(entity_id, author_id, type):
@@ -72,7 +72,6 @@ class LinguisticsResource(Resource):
 
     def initialize(self, *args, **kwargs):
         super(LinguisticsResource, self).initialize(*args, **kwargs)
-
 
     @handler('', method='get')
     def index(self):
@@ -225,7 +224,7 @@ class WordResource(Resource):
 
         if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id and not self.can_moderate_words:
             return self.auto_error('linguistics.words.create.can_not_edit_anothers_word',
-                                   'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант слова, созданный другим игроком. Подождите, пока его проверит модератор.')
 
         form = forms.WORD_FORMS[type](self.request.POST)
 
@@ -560,7 +559,7 @@ class TemplateResource(Resource):
 
         if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit.can_not_edit_anothers_template',
-                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите, пока его проверит модератор.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.edit.template_has_child',
@@ -588,7 +587,7 @@ class TemplateResource(Resource):
 
         if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.update.can_not_edit_anothers_template',
-                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите пока его проверит модератор.')
+                                   'Вы не можете редактировать вариант фразы, созданный другим игроком. Подождите, пока его проверит модератор.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.update.template_has_child',

@@ -1,4 +1,3 @@
-# coding: utf-8
 
 from django.forms import ValidationError
 
@@ -6,10 +5,14 @@ from dext.forms import fields
 
 from utg import words as utg_words
 
+from the_tale.game.balance import constants as c
+
 from the_tale.game.persons import logic as persons_logic
 from the_tale.game.persons import objects as persons_objects
 from the_tale.game.persons import storage as persons_storage
 from the_tale.game.persons import relations as persons_relations
+
+from the_tale.game.politic_power import logic as politic_power_logic
 
 from the_tale.game.places import storage as places_storage
 
@@ -33,7 +36,6 @@ class BaseForm(BaseUserForm):
     def person_filter(self, place, person):
         return not persons_storage.social_connections.connections_limit_reached(person)
 
-
     def clean(self):
         cleaned_data = super(BaseForm, self).clean()
 
@@ -56,14 +58,19 @@ class BaseForm(BaseUserForm):
         return cleaned_data
 
 
-
 class UserForm(BaseForm):
 
     def __init__(self, person_1_id, person_2_id, owner_id, *args, **kwargs):
         super(UserForm, self).__init__(person_1_id, person_2_id, *args, **kwargs)
-        def predicate(place, person):
-            return (person.politic_power.is_in_inner_circle(owner_id) and self.person_filter(place, person))
-        self.fields['person_1'].choices = persons_objects.Person.form_choices(choosen_person=persons_storage.persons.get(person_1_id), predicate=predicate)
+        self.owner_id = owner_id
+
+    def clean_person_1(self):
+        person_id = person_id = int(self.cleaned_data['person_1'])
+
+        if not politic_power_logic.get_inner_circle(person_id=person_id).in_circle(self.owner_id):
+            raise ValidationError('Ваш герой должен быть в ближнем круге первого Мастера')
+
+        return person_id
 
 
 class ModeratorForm(BaseForm, ModeratorFormMixin):
@@ -77,7 +84,7 @@ class PersonAddSocialConnection(BaseBill):
     ModeratorForm = ModeratorForm
 
     CAPTION = 'Добавить социальную связь'
-    DESCRIPTION = 'Мастера склонны конкурировать между собой, равно как и заключать партнёрские соглашения. Подобные социальные связи между ними влияют на распределение влияния между Мастерами и вероятность получить задание с парой связанных Мастеров. Создать запись может только Хранитель героя из ближнего круга первого Мастера. Герой должен быть в ближнем круге на момент создания записи и/или её редактирования.'
+    DESCRIPTION = 'Мастера склонны конкурировать между собой, равно как и заключать партнёрские соглашения. Подобные социальные связи между ними влияют на распределение влияния между Мастерами и вероятность получить задание с парой связанных Мастеров. Создать запись может только Хранитель героя из ближнего круга одного из Мастеров. Герой должен быть в ближнем круге на момент создания записи и/или её редактирования. У каждого Мастера может быть не более {max_connections} связей: партнёров и/или конкурентов.'.format(max_connections=c.PERSON_SOCIAL_CONNECTIONS_LIMIT)
 
     def __init__(self,
                  person_1_id=None,

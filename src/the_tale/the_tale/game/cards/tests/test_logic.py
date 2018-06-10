@@ -17,9 +17,10 @@ from the_tale.game.companions.tests import helpers as companions_helpers
 
 from the_tale.game.heroes import relations as heroes_relations
 
-from .. import relations
 from .. import logic
 from .. import cards
+from .. import effects
+from .. import relations
 
 
 class CreateCardTest(testcase.TestCase):
@@ -28,11 +29,9 @@ class CreateCardTest(testcase.TestCase):
         super().setUp()
         create_test_map()
 
-
     def test_single_card(self):
         card = logic.create_card(allow_premium_cards=False)
         self.assertTrue(card.uid)
-
 
     def test_simple(self):
 
@@ -48,7 +47,6 @@ class CreateCardTest(testcase.TestCase):
                                                             abilities=rarity_abilities,
                                                             state=companions_relations.STATE.ENABLED)
 
-
         for i in range(len(cards.CARD.records)*10):
             card = logic.create_card(allow_premium_cards=True)
             created_cards.add(card.type)
@@ -57,17 +55,14 @@ class CreateCardTest(testcase.TestCase):
         self.assertTrue(len(cards.CARD.records) > len(created_cards) / 2)
         self.assertEqual(rarities, set(relations.RARITY.records))
 
-
     def test_not_premium(self):
         for i in range(len(cards.CARD.records)*10):
             card = logic.create_card(allow_premium_cards=False)
             self.assertFalse(card.type.availability.is_FOR_PREMIUMS)
 
-
     def test_auction_availability_not_specified_not_premium(self):
         self.assertFalse(logic.create_card(allow_premium_cards=True, available_for_auction=False).available_for_auction)
         self.assertTrue(logic.create_card(allow_premium_cards=True, available_for_auction=True).available_for_auction)
-
 
     def test_priority(self):
         rarities = collections.Counter(logic.create_card(allow_premium_cards=True).type.rarity
@@ -79,13 +74,11 @@ class CreateCardTest(testcase.TestCase):
             self.assertTrue(last_rarity_count >= rarities[rarity])
             last_rarity_count = rarities[rarity]
 
-
     def test_rarity(self):
         for rarity in relations.RARITY.records:
             for i in range(100):
                 card = logic.create_card(allow_premium_cards=True, rarity=rarity)
                 self.assertEqual(card.type.rarity, rarity)
-
 
     @mock.patch('the_tale.game.cards.effects.ChangePreference.allowed_preferences', lambda self: [heroes_relations.PREFERENCE_TYPE.records[0]])
     @mock.patch('the_tale.game.cards.effects.ChangeItemOfExpenditure.allowed_items', lambda self: [heroes_relations.ITEMS_OF_EXPENDITURE.records[0]])
@@ -93,6 +86,7 @@ class CreateCardTest(testcase.TestCase):
     @mock.patch('the_tale.game.cards.effects.ChangeHabit.allowed_directions', lambda self: [1])
     @mock.patch('the_tale.game.cards.effects.AddPersonPower.allowed_directions', lambda self: [1])
     @mock.patch('the_tale.game.cards.effects.AddPlacePower.allowed_directions', lambda self: [1])
+    @mock.patch('the_tale.game.cards.effects.ChangeHistory.allowed_history', lambda self: [effects.ChangeHistory.HISTORY_TYPE.records[0]])
     def test_exclude(self):
         created_cards = []
 
@@ -113,13 +107,13 @@ class CreateCardTest(testcase.TestCase):
 
         self.assertEqual(set(card.type for card in created_cards), set(card_type for card_type in cards.CARD.records))
 
-
     @mock.patch('the_tale.game.cards.effects.ChangePreference.allowed_preferences', lambda self: [heroes_relations.PREFERENCE_TYPE.records[0]])
     @mock.patch('the_tale.game.cards.effects.ChangeItemOfExpenditure.allowed_items', lambda self: [heroes_relations.ITEMS_OF_EXPENDITURE.records[0]])
     @mock.patch('the_tale.game.cards.effects.ChangeHabit.allowed_habits', lambda self: [game_relations.HABIT_TYPE.records[0]])
     @mock.patch('the_tale.game.cards.effects.ChangeHabit.allowed_directions', lambda self: [1])
     @mock.patch('the_tale.game.cards.effects.AddPersonPower.allowed_directions', lambda self: [1])
     @mock.patch('the_tale.game.cards.effects.AddPlacePower.allowed_directions', lambda self: [1])
+    @mock.patch('the_tale.game.cards.effects.ChangeHistory.allowed_history', lambda self: [effects.ChangeHistory.HISTORY_TYPE.records[0]])
     def test_exclude__different_data(self):
         created_cards = []
 
@@ -131,7 +125,6 @@ class CreateCardTest(testcase.TestCase):
                                                             mode=companions_relations.MODE.AUTOMATIC,
                                                             abilities=rarity_abilities,
                                                             state=companions_relations.STATE.ENABLED)
-
 
         for i in range(len([card_type for card_type in cards.CARD.records])):
             card = logic.create_card(allow_premium_cards=True, exclude=created_cards)

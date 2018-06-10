@@ -91,16 +91,16 @@ class SPRITES(DjangoEnum):
 
     records = (
         # Heroes (neutral gender equal to male)
-        sprite('HERO_HUMAN_MASCULINE',  x=0, y=8),
-        sprite('HERO_HUMAN_FEMININE',   x=1, y=8),
-        sprite('HERO_DWARF_MASCULINE',  x=2, y=8),
-        sprite('HERO_DWARF_FEMININE',   x=3, y=8),
-        sprite('HERO_ELF_MASCULINE',    x=4, y=8),
-        sprite('HERO_ELF_FEMININE',     x=5, y=8),
-        sprite('HERO_GOBLIN_MASCULINE', x=6, y=8),
-        sprite('HERO_GOBLIN_FEMININE',  x=7, y=8),
-        sprite('HERO_ORC_MASCULINE',    x=8, y=8),
-        sprite('HERO_ORC_FEMININE',     x=9, y=8),
+        sprite('HERO_HUMAN_MALE',       x=0, y=8),
+        sprite('HERO_HUMAN_FEMALE',     x=1, y=8),
+        sprite('HERO_DWARF_MALE',       x=2, y=8),
+        sprite('HERO_DWARF_FEMALE',     x=3, y=8),
+        sprite('HERO_ELF_MALE',         x=4, y=8),
+        sprite('HERO_ELF_FEMALE',       x=5, y=8),
+        sprite('HERO_GOBLIN_MALE',      x=6, y=8),
+        sprite('HERO_GOBLIN_FEMALE',    x=7, y=8),
+        sprite('HERO_ORC_MALE',         x=8, y=8),
+        sprite('HERO_ORC_FEMALE',       x=9, y=8),
 
         sprite('HERO_HUMAN_NEUTER',     x=0, y=8),
         sprite('HERO_DWARF_NEUTER',     x=2, y=8),

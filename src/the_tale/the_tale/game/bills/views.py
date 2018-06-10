@@ -14,7 +14,7 @@ from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils.decorators import login_required, lazy_property
 
 from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.views import validate_fast_account, validate_ban_game
+from the_tale.accounts.views import validate_fast_account, validate_ban_any
 
 from the_tale.game.places import storage as places_storage
 
@@ -34,19 +34,23 @@ BASE_INDEX_FILTERS = [list_filter.reset_element(),
                                                                                             (BILL_STATE.VOTING.value, 'голосование'),
                                                                                             (BILL_STATE.ACCEPTED.value, 'принятые'),
                                                                                             (BILL_STATE.REJECTED.value, 'отклонённые') ]),
-                      list_filter.choice_element('тип:', attribute='bill_type', choices=[(None, 'все')] + list(BILL_TYPE.select('value', 'text'))),
+                      list_filter.choice_element('тип:', attribute='bill_type', choices=[(None, 'все')] + sorted((BILL_TYPE.select('value', 'text')), key=lambda element: element[1])),
                       list_filter.choice_element('город:', attribute='place', choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()) ]
 
 LOGINED_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element('голосование:', attribute='voted', choices=[(None, 'все')] + list(VOTED_TYPE.select('value', 'text'))),]
 
+
 class UnloginedIndexFilter(list_filter.ListFilter):
     ELEMENTS = BASE_INDEX_FILTERS
+
 
 class LoginedIndexFilter(list_filter.ListFilter):
     ELEMENTS = LOGINED_INDEX_FILTERS
 
 
 def argument_to_bill_type(value): return BILL_TYPE(int(value))
+
+
 def argument_to_bill_state(value): return BILL_STATE(int(value))
 
 
@@ -154,7 +158,7 @@ class BillResource(Resource):
 
         bill_from, bill_to = paginator.page_borders(page)
 
-        bills = [ BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
+        bills = [BillPrototype(bill) for bill in bills_query.select_related().order_by('-updated_at')[bill_from:bill_to]]
 
         votes = {}
         if self.account.is_authenticated:
@@ -167,11 +171,11 @@ class BillResource(Resource):
                               'page_type': 'index',
                               'BILLS_BY_ID': BILLS_BY_ID,
                               'paginator': paginator,
-                              'index_filter': index_filter} )
+                              'index_filter': index_filter})
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.new', 'неверный тип записи')
     @handler('new', method='get')
@@ -186,7 +190,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_argument('bill_type', argument_to_bill_type, 'bills.create', 'неверный тип записи')
     @handler('create', method='post')
@@ -234,7 +238,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
@@ -250,7 +254,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_ownership()
     @validate_voting_state(message='Можно редактировать только записи, находящиеся в стадии голосования')
@@ -303,7 +307,7 @@ class BillResource(Resource):
 
     @login_required
     @validate_fast_account()
-    @validate_ban_game()
+    @validate_ban_any()
     @validate_participate_in_politics()
     @validate_can_vote()
     @validate_voting_state(message='На данной стадии за запись нельзя голосовать')

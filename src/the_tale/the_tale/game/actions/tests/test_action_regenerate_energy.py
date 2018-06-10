@@ -10,7 +10,7 @@ from the_tale.game.logic import create_test_map
 from the_tale.game.actions.prototypes import ActionRegenerateEnergyPrototype
 
 from the_tale.game import turn
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game import tt_api_energy
 
 
 class RegenerateEnergyActionTest(testcase.TestCase):
@@ -46,7 +46,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_double_energy', False)
     def test_full(self):
 
-        with self.check_delta(lambda: game_tt_api.energy_balance(self.hero.account_id),
+        with self.check_delta(lambda: tt_api_energy.energy_balance(self.hero.account_id),
                               self.hero.preferences.energy_regeneration_type.amount):
 
             while len(self.hero.actions.actions_list) != 1:
@@ -65,7 +65,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_energy', False)
     def test_full__regeneration_restricted(self):
 
-        with self.check_not_changed(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+        with self.check_not_changed(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
 
             while len(self.hero.actions.actions_list) != 1:
                 self.storage.process_turn(continue_steps_if_needed=False)
@@ -81,7 +81,7 @@ class RegenerateEnergyActionTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_regenerate_double_energy', True)
     def test_full__double_energy(self):
-        with self.check_delta(lambda: game_tt_api.energy_balance(self.hero.account_id),
+        with self.check_delta(lambda: tt_api_energy.energy_balance(self.hero.account_id),
                               self.hero.preferences.energy_regeneration_type.amount * 2):
 
             while len(self.hero.actions.actions_list) != 1:

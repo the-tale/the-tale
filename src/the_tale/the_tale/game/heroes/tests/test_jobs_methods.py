@@ -2,7 +2,7 @@ import time
 
 from the_tale.common.utils import testcase
 
-from the_tale.game import tt_api as game_tt_api
+from the_tale.game import tt_api_energy
 
 from the_tale.game.logic import create_test_map
 
@@ -80,21 +80,21 @@ class JobsMethodsTests(testcase.TestCase):
         self.assertTrue(middle_experience - old_experience < self.hero.experience - middle_experience)
 
     def check_job_energy(self, place_id, person_id):
-        old_energy = game_tt_api.energy_balance(self.hero.account_id)
+        old_energy = tt_api_energy.energy_balance(self.hero.account_id)
 
         with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
-            with self.check_increased(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+            with self.check_increased(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
                 self.hero.job_energy(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_energy_positive_enemies', job_power=1)
                 time.sleep(0.1)
 
-        middle_energy = game_tt_api.energy_balance(self.hero.account_id)
+        middle_energy = tt_api_energy.energy_balance(self.hero.account_id)
 
         with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
-            with self.check_increased(lambda: game_tt_api.energy_balance(self.hero.account_id)):
+            with self.check_increased(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
                 self.hero.job_energy(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_energy_positive_enemies', job_power=2)
                 time.sleep(0.1)
 
-        self.assertTrue(middle_energy - old_energy < game_tt_api.energy_balance(self.hero.account_id) - middle_energy)
+        self.assertTrue(middle_energy - old_energy < tt_api_energy.energy_balance(self.hero.account_id) - middle_energy)
 
     def test_job_message(self):
         self.check_job_message(place_id=self.place.id, person_id=self.person.id)

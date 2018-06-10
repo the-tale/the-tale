@@ -21,28 +21,29 @@ class BILL_TYPE(DjangoEnum):
     stability = rels.Column(unique=False, single_type=False)
     enabled = rels.Column(unique=False)
 
-    records = ( ('PLACE_RENAMING', 0, 'переименование города',                      1.5 * c.PLACE_STABILITY_UNIT, True),
-                ('PERSON_REMOVE', 1, 'исключить горожанина из Совета',              None, False),
-                ('PLACE_DESCRIPTION', 2, 'изменить описание города',                0.4 * c.PLACE_STABILITY_UNIT, True),
-                ('PLACE_CHANGE_MODIFIER', 3, 'изменить специализацию города',       0.4 * c.PLACE_STABILITY_UNIT, True),
-                ('BUILDING_CREATE', 4, 'возвести постройку',                        0.4 * c.PLACE_STABILITY_UNIT, True),
-                ('BUILDING_DESTROY', 5, 'разрушить постройку',                      1.0 * c.PLACE_STABILITY_UNIT, True),
-                ('BUILDING_RENAMING', 6, 'переименовать постройку',                 0.2 * c.PLACE_STABILITY_UNIT, True),
-                ('PLACE_RESOURCE_EXCHANGE', 7, 'обмен ресурсами',                   0.8 * c.PLACE_STABILITY_UNIT, True),
-                ('BILL_DECLINE', 8, 'отмена записи в Книге Судеб',                  0.4 * c.PLACE_STABILITY_UNIT, True),
-                ('PLACE_RESOURCE_CONVERSION', 9, 'изменение параметров города',     0.8 * c.PLACE_STABILITY_UNIT, True),
-                ('PERSON_CHRONICLE', 10, 'запись в летописи о Мастере'  ,           0.2 * c.PLACE_STABILITY_UNIT, True),
-                ('PLACE_CHRONICLE', 11, 'запись в летописи о городе',               0.2 * c.PLACE_STABILITY_UNIT, True),
-                ('PERSON_MOVE', 12, 'переезд Мастера',                              2.0 * c.PLACE_STABILITY_UNIT, True),
-                ('PLACE_CHANGE_RACE', 13, 'изменить расу города',                   0.4 * c.PLACE_STABILITY_UNIT, True),
-                ('PERSON_ADD_SOCIAL_CONNECTION', 14, 'добавить социальную связь',   0.6 * c.PLACE_STABILITY_UNIT, True),
-                ('PERSON_REMOVE_SOCIAL_CONNECTION', 15, 'удалить социальную связь', 0.6 * c.PLACE_STABILITY_UNIT, True) )
+    records = (('PLACE_RENAMING', 0, 'переименование города',                      1.5 * c.PLACE_STABILITY_UNIT, True),
+               ('PERSON_REMOVE', 1, 'исключить горожанина из Совета',              None, False),
+               ('PLACE_DESCRIPTION', 2, 'изменить описание города',                0.4 * c.PLACE_STABILITY_UNIT, True),
+               ('PLACE_CHANGE_MODIFIER', 3, 'изменить специализацию города',       0.4 * c.PLACE_STABILITY_UNIT, True),
+               ('BUILDING_CREATE', 4, 'возвести постройку',                        0.4 * c.PLACE_STABILITY_UNIT, True),
+               ('BUILDING_DESTROY', 5, 'разрушить постройку',                      1.0 * c.PLACE_STABILITY_UNIT, True),
+               ('BUILDING_RENAMING', 6, 'переименовать постройку',                 0.2 * c.PLACE_STABILITY_UNIT, True),
+               ('PLACE_RESOURCE_EXCHANGE', 7, 'обмен ресурсами',                   0.8 * c.PLACE_STABILITY_UNIT, True),
+               ('BILL_DECLINE', 8, 'отмена записи в Книге Судеб',                  0.4 * c.PLACE_STABILITY_UNIT, True),
+               ('PLACE_RESOURCE_CONVERSION', 9, 'изменение параметров города',     0.8 * c.PLACE_STABILITY_UNIT, True),
+               ('PERSON_CHRONICLE', 10, 'запись в летописи о Мастере'  ,           0.2 * c.PLACE_STABILITY_UNIT, True),
+               ('PLACE_CHRONICLE', 11, 'запись в летописи о городе',               0.2 * c.PLACE_STABILITY_UNIT, True),
+               ('PERSON_MOVE', 12, 'переезд Мастера',                              2.0 * c.PLACE_STABILITY_UNIT, True),
+               ('PLACE_CHANGE_RACE', 13, 'изменить расу города',                   0.4 * c.PLACE_STABILITY_UNIT, True),
+               ('PERSON_ADD_SOCIAL_CONNECTION', 14, 'добавить социальную связь',   0.6 * c.PLACE_STABILITY_UNIT, True),
+               ('PERSON_REMOVE_SOCIAL_CONNECTION', 15, 'удалить социальную связь', 0.6 * c.PLACE_STABILITY_UNIT, True))
 
 
 class VOTE_TYPE(DjangoEnum):
     records = (('REFRAINED', 0, 'воздержался'),
                ('FOR', 1, '«за»'),
                ('AGAINST', 2, '«против»'))
+
 
 class VOTED_TYPE(DjangoEnum):
     vote_type = rels.Column(unique=False, single_type=False)
@@ -64,6 +65,6 @@ class POWER_BONUS_CHANGES(DjangoEnum):
 
     BONUS = c.HERO_POWER_PER_DAY*4*4*4 # like 4-th grade power card
 
-    records = ( ('DOWN', 0, 'уменьшить на %d' % BONUS, -BONUS),
-                ('NOT_CHANGE', 1, 'не изменять', 0),
-                ('UP', 2, 'увеличить на %d' % BONUS, BONUS) )
+    records = (('DOWN', 0, 'уменьшить на %d' % BONUS, -BONUS),
+               ('NOT_CHANGE', 1, 'не изменять', 0),
+               ('UP', 2, 'увеличить на %d' % BONUS, BONUS))

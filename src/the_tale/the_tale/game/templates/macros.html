@@ -137,8 +137,8 @@ jQuery(document).ready(function(e){
 
 {% endmacro %}
 
-{% macro inner_circle_heroes(politic_power, player_account_id) %}
-  {% if politic_power.inner_circle %}
+{% macro inner_circle_heroes(inner_circle, player_account_id) %}
+  {% if inner_circle.rating %}
   <table class="table table-condensed">
     <thead>
       <tr>
@@ -148,14 +148,14 @@ jQuery(document).ready(function(e){
       </tr>
     </thead>
     <tbody>
-      {% for account_id, power in politic_power.inner_circle_rating() %}
+      {% for account_id, power in inner_circle.rating %}
         {% if account_id not in	accounts_short_infos %}{% continue %}{%	endif %}
         <tr {% if player_account_id == account_id %}style="font-weight: bold;"{% endif %}>
           <td>
-            {% if account_id in politic_power.inner_positive_heroes %}
+            {% if account_id in inner_circle.positive_heroes %}
               <span class="label label-success">помогает</span>
             {% endif %}
-            {% if account_id in politic_power.inner_negative_heroes %}
+            {% if account_id in inner_circle.negative_heroes %}
               <span class="label label-important">мешает</span>
             {% endif %}
           </td>

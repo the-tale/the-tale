@@ -11,10 +11,11 @@ from the_tale.common.utils import list_filter
 from the_tale.common.utils.resources import Resource
 from the_tale.common.utils.decorators import login_required
 
-
 from the_tale.game.map.relations import TERRAIN
 
 from the_tale.game import relations as game_relations
+
+from the_tale.game.heroes import habilities
 
 from . import forms
 from . import logic
@@ -23,10 +24,14 @@ from . import relations
 from . import meta_relations
 
 
+ABILITIES_CHOICES = sorted([(key, ability.NAME) for key, ability in habilities.ABILITIES.items()], key=lambda x: x[1])
+
+
 BASE_INDEX_FILTERS = [list_filter.reset_element(),
                       list_filter.choice_element('тип:', attribute='type', choices=[(None, 'все')] + sorted(list(beings_relations.TYPE.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element('архетип:', attribute='archetype', choices=[(None, 'все')] + sorted(list(game_relations.ARCHETYPE.select('value', 'text')), key=lambda x: x[1])),
                       list_filter.choice_element('территория:', attribute='terrain', choices=[(None, 'все')] + sorted(list(TERRAIN.select('value', 'text')), key=lambda x: x[1])),
+                      list_filter.choice_element('способность:', attribute='ability', choices=[(None, 'все')] + ABILITIES_CHOICES),
                       list_filter.choice_element('сортировка:',
                                                  attribute='order_by',
                                                  choices=relations.INDEX_ORDER_TYPE.select('value', 'text'),
@@ -72,6 +77,10 @@ def argument_to_archetype(value):
     return game_relations.ARCHETYPE(int(value))
 
 
+def argument_to_ability(value):
+    return value
+
+
 class GuideMobResource(MobResourceBase):
 
     @validator(code='mobs.mob_disabled', message='монстр находится вне игры', status_code=404)
@@ -82,9 +91,16 @@ class GuideMobResource(MobResourceBase):
     @validate_argument('terrain', lambda value: TERRAIN(int(value)), 'mobs', 'неверный тип территории')
     @validate_argument('order_by', relations.INDEX_ORDER_TYPE, 'mobs', 'неверный тип сортировки')
     @validate_argument('archetype', argument_to_archetype, 'mobs', 'неверный архетип монстра')
+    @validate_argument('ability', argument_to_ability, 'mobs', 'неверная способность монстра')
     @validate_argument('type', argument_to_mob_type, 'mobs', 'неверный тип монстра')
     @handler('', method='get')
-    def index(self, state=relations.MOB_RECORD_STATE.ENABLED, terrain=None, order_by=relations.INDEX_ORDER_TYPE.BY_NAME, type=None, archetype=None):
+    def index(self,
+              state=relations.MOB_RECORD_STATE.ENABLED,
+              terrain=None,
+              order_by=relations.INDEX_ORDER_TYPE.BY_NAME,
+              type=None,
+              archetype=None,
+              ability=None):
 
         mobs = storage.mobs.all()
 
@@ -112,10 +128,14 @@ class GuideMobResource(MobResourceBase):
         if archetype is not None:
             mobs = [mob for mob in mobs if mob.archetype == archetype] # pylint: disable=W0110
 
+        if ability is not None:
+            mobs = [mob for mob in mobs if ability in mob.abilities]
+
         url_builder = UrlBuilder(reverse('guide:mobs:'), arguments={ 'state': state.value if state is not None else None,
                                                                      'terrain': terrain.value if terrain is not None else None,
                                                                      'type': type.value if type is not None else None,
                                                                      'archetype': archetype.value if archetype is not None else None,
+                                                                     'ability': ability if ability is not None else None,
                                                                      'order_by': order_by.value})
 
         IndexFilter = ModeratorIndexFilter if self.can_create_mob or self.can_moderate_mob else UnloginedIndexFilter #pylint: disable=C0103
@@ -124,6 +144,7 @@ class GuideMobResource(MobResourceBase):
                                                                     'terrain': terrain.value if terrain is not None else None,
                                                                     'type': type.value if type is not None else None,
                                                                     'archetype': archetype.value if archetype is not None else None,
+                                                                    'ability': ability if ability is not None else None,
                                                                     'order_by': order_by.value})
 
         return self.template('mobs/index.html',
@@ -133,11 +154,12 @@ class GuideMobResource(MobResourceBase):
                               'TERRAIN': TERRAIN,
                               'state': state,
                               'terrain': terrain,
+                              'ability': ability,
                               'order_by': order_by,
                               'relations.INDEX_ORDER_TYPE': relations.INDEX_ORDER_TYPE,
                               'url_builder': url_builder,
                               'index_filter': index_filter,
-                              'section': 'mobs'} )
+                              'section': 'mobs'})
 
     @validate_mob_disabled()
     @handler('#mob', name='show', method='get')

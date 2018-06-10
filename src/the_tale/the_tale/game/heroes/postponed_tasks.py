@@ -7,10 +7,6 @@ from utg import words as utg_words
 from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
 
 from the_tale.game.relations import GENDER, RACE
-from the_tale.game.balance import constants as c
-
-from the_tale.game.cards import tt_api as cards_tt_api
-from the_tale.game.cards import logic as cards_logic
 
 from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
 
@@ -36,9 +32,9 @@ class ChooseHeroAbilityTask(PostponedLogic):
         self.state = state if isinstance(state, rels.Record) else CHOOSE_HERO_ABILITY_STATE(state)
 
     def serialize(self):
-        return { 'hero_id': self.hero_id,
-                 'ability_id': self.ability_id,
-                 'state': self.state.value}
+        return {'hero_id': self.hero_id,
+                'ability_id': self.ability_id,
+                'state': self.state.value}
 
     @property
     def error_message(self): return self.state.text
@@ -106,11 +102,11 @@ class ChangeHeroTask(PostponedLogic):
         self.state = state if isinstance(state, rels.Record) else CHANGE_HERO_TASK_STATE(state)
 
     def serialize(self):
-        return { 'hero_id': self.hero_id,
-                 'name': self.name.serialize(),
-                 'race': self.race.value,
-                 'gender': self.gender.value,
-                 'state': self.state.value}
+        return {'hero_id': self.hero_id,
+                'name': self.name.serialize(),
+                'race': self.race.value,
+                'gender': self.gender.value,
+                'state': self.state.value}
 
     @property
     def error_message(self): return self.state.text

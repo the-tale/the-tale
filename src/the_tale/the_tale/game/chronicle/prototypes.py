@@ -12,7 +12,7 @@ from the_tale.game.chronicle import relations
 
 class RecordPrototype(BasePrototype):
     _model_class = Record
-    _readonly = ('id', 'text')
+    _readonly = ('id', 'text', 'created_at')
 
     @property
     def game_time(self):

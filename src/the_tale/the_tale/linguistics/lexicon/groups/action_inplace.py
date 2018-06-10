@@ -138,10 +138,6 @@ KEYS = [('ACTION_INPLACE_DESCRIPTION', 80000, 'Описание', LEXICON_GROUP.
         'Спутник пропивает предмет из рюкзака героя. Особенность «пьяница».',
         [V.DATE, V.TIME, V.HERO, V.PLACE, V.COMPANION, V.ARTIFACT], None),
 
-        ('ACTION_INPLACE_COMPANION_LEAVE', 80034, 'Дневник: Спутник покинул героя из-за способности «нелюдимый»', LEXICON_GROUP.ACTION_INPLACE,
-        'Спутник покинул героя из-за способности «нелюдимый».',
-        [V.DATE, V.TIME, V.HERO, V.PLACE, V.COMPANION], None),
-
         ('ACTION_INPLACE_DIARY_HEAL_COMPANION_HEALED', 80035, 'Дневник: Лечение спутника', LEXICON_GROUP.ACTION_INPLACE,
         'Герой восстановил спутнику немного здоровья, потратив деньги.',
         [V.DATE, V.TIME, V.HERO, V.PLACE, V.COMPANION, V.COINS, V.HEALTH], 'hero#N -coins#G companion#N +health#HP'),

@@ -1,10 +1,6 @@
-# coding: utf-8
 
 from dext.common.utils import views as dext_views
 from dext.common.utils.urls import UrlBuilder, url
-
-from the_tale import amqp_environment
-
 
 from the_tale.common.utils.pagination import Paginator
 from the_tale.common.utils import list_filter
@@ -16,10 +12,8 @@ from the_tale.accounts import views as accounts_views
 from the_tale.accounts import models as accounts_models
 from the_tale.accounts import logic as accounts_logic
 
-
 from . import conf
 from . import tt_api
-from . import logic
 from . import forms
 
 
@@ -210,9 +204,11 @@ def conversation(context):
                                      'resource': context.resource})
 
 
-
-def check_recipients(recipients_form):
+def check_recipients(current_user, recipients_form):
     system_user = accounts_logic.get_system_user()
+
+    if current_user.id in recipients_form.c.recipients and len(recipients_form.c.recipients) == 1:
+        raise dext_views.ViewError(code='current_user', message='Нельзя отправить сообщение самому себе')
 
     if system_user.id in recipients_form.c.recipients:
         raise dext_views.ViewError(code='system_user', message='Нельзя отправить сообщение системному пользователю')
@@ -222,6 +218,8 @@ def check_recipients(recipients_form):
 
     if accounts_models.Account.objects.filter(id__in=recipients_form.c.recipients).count() != len(recipients_form.c.recipients):
         raise dext_views.ViewError(code='unexisted_account', message='Вы пытаетесь отправить сообщение несуществующему пользователю')
+
+    return [recipient_id for recipient_id in recipients_form.c.recipients if recipient_id != current_user.id]
 
 
 @accounts_views.BanForumProcessor()
@@ -234,13 +232,13 @@ def new(context):
     if context.answer_to:
         text = '[quote]\n%s\n[/quote]\n' % context.answer_to.body
 
-    check_recipients(context.form)
+    recipients = check_recipients(context.account, context.form)
 
     form = forms.NewMessageForm(initial={'text': text,
-                                         'recipients': ','.join(str(recipient_id) for recipient_id in context.form.c.recipients)})
+                                         'recipients': ','.join(str(recipient_id) for recipient_id in recipients)})
 
     return dext_views.Page('personal_messages/new.html',
-                           content={'recipients': accounts_prototypes.AccountPrototype.get_list_by_id(context.form.c.recipients),
+                           content={'recipients': accounts_prototypes.AccountPrototype.get_list_by_id(recipients),
                                     'form': form,
                                     'resource': context.resource})
 
@@ -249,11 +247,11 @@ def new(context):
 @dext_views.FormProcessor(form_class=forms.NewMessageForm)
 @resource('create', method='POST')
 def create(context):
-    check_recipients(context.form)
+    recipients = check_recipients(context.account, context.form)
 
     tt_api.send_message(sender_id=context.account.id,
-                       recipients_ids=context.form.c.recipients,
-                       body=context.form.c.text)
+                        recipients_ids=recipients,
+                        body=context.form.c.text)
 
     return dext_views.AjaxOk()
 
