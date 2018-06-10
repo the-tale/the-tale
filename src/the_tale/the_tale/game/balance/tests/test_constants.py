@@ -144,6 +144,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
 
         self.assertEqual(c.MINIMUM_CARD_POWER, 100)
+        self.assertEqual(c.CARD_BONUS_FOR_QUEST, 40)
 
         self.assertEqual(c.NORMAL_JOB_LENGTH, 10)
 

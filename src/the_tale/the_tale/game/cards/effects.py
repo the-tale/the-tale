@@ -180,9 +180,9 @@ class AddPoliticPower(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Увеличивает влияние, которое окажет герой после выполнения текущего задания, на %(power)d единиц.' % {'power': self.modificator}
+        return 'Увеличивает влияние текущего задания, на %(power)d единиц (учтите, что итоговое влияние задания зависит и от влиятельности вашего героя).' % {'power': self.modificator}
 
-    def use(self, task, storage, **kwargs): # pylint: disable=R0911,W0613
+    def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
         if not task.hero.quests.has_quests:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='У героя нет задания.')
 

@@ -403,6 +403,7 @@ def remove_hero(hero_id=None, account_id=None):
     if hero_id is not None:
         models.Hero.objects.filter(id=hero_id).delete()
     else:
+        print(account_id)
         models.Hero.objects.filter(account_id=account_id).delete()
 
 
