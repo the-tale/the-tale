@@ -262,6 +262,10 @@ PERSON_POWER_FOR_RANDOM_SPEND = int(200)
 
 MINIMUM_CARD_POWER = int(HERO_POWER_PER_DAY)
 
+# в 2 раза больше, так как карту надо применять к конкретному квесту, а не сразу к мастеру
+# в 5 раз меньше, так как на эффект кеста действуе политический бонус героя, считаем его в среднем равным 500%
+CARD_BONUS_FOR_QUEST = int(2 * MINIMUM_CARD_POWER / 5)
+
 NORMAL_JOB_LENGTH = int(10)  # средняя длительность занятия мастера в днях
 
 JOB_MIN_POWER = float(0.5)
