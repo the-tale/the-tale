@@ -569,7 +569,8 @@ class TemplateResource(Resource):
 
         form = forms.TemplateForm(self._template.key,
                                   verificators=verificators,
-                                  initial=forms.TemplateForm.get_initials(self._template, verificators))
+                                  initial=forms.TemplateForm.get_initials(self._template, verificators),
+                                  template_id=self._template.id)
 
         return self.template('linguistics/templates/edit.html',
                              {'template': self._template,
@@ -595,7 +596,8 @@ class TemplateResource(Resource):
 
         form = forms.TemplateForm(self._template.key,
                                   self._template.get_all_verificatos(),
-                                  self.request.POST)
+                                  self.request.POST,
+                                  template_id=self._template.id)
 
         if not form.is_valid():
             return self.json_error('linguistics.templates.update.form_errors', form.errors)

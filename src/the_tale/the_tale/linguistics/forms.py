@@ -245,6 +245,8 @@ class TemplateForm(forms.Form):
     template = fields.TextField(label='Шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
 
     def __init__(self, key, verificators, *args, **kwargs):
+        self.template_id = kwargs.pop('template_id', None)
+
         super(TemplateForm, self).__init__(*args, **kwargs)
         self.key = key
         self.verificators = copy.deepcopy(verificators)
@@ -321,6 +323,10 @@ class TemplateForm(forms.Form):
 
         for template_model in models.Template.objects.filter(key=self.key).iterator():
             template = prototypes.TemplatePrototype(template_model)
+
+            if template.id == self.template_id:
+                continue
+
             if template.raw_restrictions == frozenset(current_restrictions):
                 message_template = 'Фраза с такими ограничениями уже есть, её идентификатор: {}. Не может быть двух фраз истории с одинаковыми ограничениями.'
                 raise django_forms.ValidationError(message_template.format(template.id))
