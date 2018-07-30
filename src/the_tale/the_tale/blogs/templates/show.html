@@ -114,7 +114,7 @@
             <tr>
               <td width="75px">{{object.TYPE_CAPTION}}</td>
               <td>
-                {% if object.is_unknown %}
+                {% if not object.is_unknown %}
                 <a href="{{object.url}}" target="_blank">{{object.caption}}</a>
                 {% else %}
                 {{object.caption}}
