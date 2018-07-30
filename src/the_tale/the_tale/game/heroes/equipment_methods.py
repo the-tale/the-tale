@@ -68,10 +68,13 @@ class EquipmentMethodsMixin(object):
             # remove restrictions
             if prefered_slot:
                 prefered_slot = False
-            elif archetype:
-                archetype = False
+            # флаг better обнуляется перед archetype, так как:
+            # 1. маловероятно, что архетип влияет на глобальную доступность артефактов (обычно если они доступны, то есть разных архетипов)
+            # 2. сбрасывание архетипа конфликтует с характером героя, поэтому приоритетно его сохранять
             elif better:
                 better = False
+            elif archetype:
+                archetype = False
             else:
                 return []
 
