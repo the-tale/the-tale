@@ -1071,14 +1071,21 @@ class CreateClan(BaseEffect):
         name = task.data.get('name')
         abbr = task.data.get('abbr')
 
+        if accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).is_fast:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Вы должны закончить регистрацию, прежде чем создать гильдию.')
+
         if clans_models.Membership.objects.filter(account=task.hero_id).exists():
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Вы уже состоите в гильдии.')
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Вы уже состоите в гильдии.')
 
         if clans_models.Clan.objects.filter(name=name).exists():
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Гильдия с таким названием уже существует.')
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Гильдия с таким названием уже существует.')
 
         if clans_models.Clan.objects.filter(abbr=abbr).exists():
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Гильдия с такой аббревиатурой уже существует.')
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Гильдия с такой аббревиатурой уже существует.')
 
         clans_prototypes.ClanPrototype.create(owner=accounts_prototypes.AccountPrototype.get_by_id(task.hero_id),
                                               abbr=abbr,

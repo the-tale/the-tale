@@ -46,6 +46,19 @@ class CreateClanTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.assertEqual(membership.account.id, self.account_1.id)
         self.assertTrue(membership.role.is_LEADER)
 
+    def test_fast_account(self):
+        self.account_1.is_fast = True
+        self.account_1.save()
+
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(hero=self.hero,
+                                                                                    storage=self.storage,
+                                                                                    extra_data={'name': 'xxx',
+                                                                                                'abbr': 'yyy'}))
+
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
+
+        self.assertEqual(clans_models.Clan.objects.count(), 0)
+
     def test_already_in_clan(self):
         clans_prototypes.ClanPrototype.create(owner=self.account_1,
                                               abbr='aaa',
