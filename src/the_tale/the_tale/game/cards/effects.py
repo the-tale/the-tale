@@ -1020,7 +1020,7 @@ class GiveCommonCards(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Даёт карты обычной редкости (%(number)d шт.). Возможность продавать карты определяется возможностью продать текущую. Получить карты можно будет на странице игры.' % {'number': self.upper_modificator}
+        return 'Даёт карты обычной редкости (%(number)d шт.). Если эту карту можно продавать, то: полученные карты можно будет продавать, могут быть получены карты, доступные только подписчикам.' % {'number': self.upper_modificator}
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
         used_card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
