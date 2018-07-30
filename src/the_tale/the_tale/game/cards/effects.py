@@ -456,7 +456,7 @@ class CancelQuest(BaseEffect):
     def get_form(self, card, hero, data):
         return forms.Empty(data)
 
-    DESCRIPTION = 'Отменяет текущее задание героя.'
+    DESCRIPTION = 'Отменяет текущее задание героя. Если герой выполняет цепочку заданий, отменяется вся цепочка.'
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
         if not task.hero.quests.has_quests:
