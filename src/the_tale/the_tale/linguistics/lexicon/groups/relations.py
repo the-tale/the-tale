@@ -1,14 +1,15 @@
+import smart_imports
 
-from rels import Column
-from rels.django import DjangoEnum
-
-from the_tale.linguistics.lexicon.relations import VARIABLE as V
+smart_imports.all()
 
 
-class LEXICON_GROUP(DjangoEnum):
-    index_group = Column()
-    description = Column(unique=False)
-    variables = Column(unique=False, no_index=True)
+V = lexicon_relations.VARIABLE
+
+
+class LEXICON_GROUP(rels_django.DjangoEnum):
+    index_group = rels.Column()
+    description = rels.Column(unique=False)
+    variables = rels.Column(unique=False, no_index=True)
 
     records = (('ACTION_BATTLEPVE1X1', 0, 'Действие: сражение с монстром', 0,
                 'Описание событий, происходящих при сражении с монстрами.',

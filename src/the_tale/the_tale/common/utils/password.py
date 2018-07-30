@@ -1,16 +1,23 @@
-# coding: utf-8
-import string # pylint: disable=W0402
-import random
+
+import smart_imports
+
+smart_imports.all()
+
 
 TECHNICAL_SYMBOLS = '!@#$%^&*()-_=+'
+
 
 def generate_password(len_=8, upper=True, lower=True, digits=True, special=False):
 
     sources = 0
-    if upper: sources += 1
-    if lower: sources += 1
-    if digits: sources += 1
-    if special: sources += 1
+    if upper:
+        sources += 1
+    if lower:
+        sources += 1
+    if digits:
+        sources += 1
+    if special:
+        sources += 1
 
     sample_size = len_ // sources
 
@@ -25,9 +32,12 @@ def generate_password(len_=8, upper=True, lower=True, digits=True, special=False
     delta = len_ - sample_size * sources
     if delta:
         default_source = TECHNICAL_SYMBOLS
-        if digits: default_source = string.digits
-        if upper: default_source = string.ascii_uppercase
-        if lower: default_source = string.ascii_lowercase
+        if digits:
+            default_source = string.digits
+        if upper:
+            default_source = string.ascii_uppercase
+        if lower:
+            default_source = string.ascii_lowercase
         password += random.sample(default_source, delta)
 
     random.shuffle(password)

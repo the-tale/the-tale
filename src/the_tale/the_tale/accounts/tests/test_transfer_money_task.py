@@ -1,26 +1,14 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
-
-from the_tale.finances.bank import relations as bank_relations
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
-
-from the_tale.accounts import postponed_tasks
-from the_tale.accounts import logic
+smart_imports.all()
 
 
-
-class TransferMoneyTaskTests(testcase.TestCase, pm_helpers.Mixin):
+class TransferMoneyTaskTests(utils_testcase.TestCase, personal_messages_helpers.Mixin):
 
     def setUp(self):
         super(TransferMoneyTaskTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.sender = self.accounts_factory.create_account()
         self.recipient = self.accounts_factory.create_account()
@@ -33,7 +21,7 @@ class TransferMoneyTaskTests(testcase.TestCase, pm_helpers.Mixin):
 
         self.main_task = mock.Mock(id=777)
 
-        pm_tt_api.debug_clear_service()
+        personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
 
     def test_initialization(self):
         self.assertTrue(self.task.state.is_UNPROCESSED)
@@ -113,7 +101,6 @@ class TransferMoneyTaskTests(testcase.TestCase, pm_helpers.Mixin):
                     func()
 
         self.assertEqual(cmd_wait_task.call_count, 1)
-
 
     def test_wait__transfer_not_frozen_yet(self):
         self.assertEqual(self.task.process(self.main_task), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)

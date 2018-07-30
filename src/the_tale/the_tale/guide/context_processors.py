@@ -1,5 +1,7 @@
 
-from . import conf
+import smart_imports
+
+smart_imports.all()
 
 
 def guide_context(request):

@@ -1,21 +1,26 @@
 
-from the_tale.linguistics.lexicon.relations import VARIABLE as V
-from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
+import smart_imports
 
-KEYS = [('ACTION_RESURRECT_DESCRIPTION', 200000, 'Описание', LEXICON_GROUP.ACTION_RESURRECT,
-        'Краткая декларация того, что делает герой.',
-        [V.DATE, V.TIME, V.HERO], None),
+smart_imports.all()
 
-        ('ACTION_RESURRECT_FINISH', 200001, 'Журнал: Воскрешение закончено', LEXICON_GROUP.ACTION_RESURRECT,
-        'Герой закончил воскресать.',
-        [V.DATE, V.TIME, V.HERO], None),
 
-        ('ACTION_RESURRECT_RESURRECTING', 200002, 'Журнал: Идёт воскрешение', LEXICON_GROUP.ACTION_RESURRECT,
-        'Хранитель приводит героя в чувства.',
-        [V.DATE, V.TIME, V.HERO], None),
+V = lexicon_relations.VARIABLE
 
-        ('ACTION_RESURRECT_START', 200003, 'Журнал: Начало воскрешения', LEXICON_GROUP.ACTION_RESURRECT,
-        'Герой только что умер и начинается его воскрешение.',
-        [V.DATE, V.TIME, V.HERO], None),
+
+KEYS = [('ACTION_RESURRECT_DESCRIPTION', 200000, 'Описание', relations.LEXICON_GROUP.ACTION_RESURRECT,
+         'Краткая декларация того, что делает герой.',
+         [V.DATE, V.TIME, V.HERO], None),
+
+        ('ACTION_RESURRECT_FINISH', 200001, 'Журнал: Воскрешение закончено', relations.LEXICON_GROUP.ACTION_RESURRECT,
+         'Герой закончил воскресать.',
+         [V.DATE, V.TIME, V.HERO], None),
+
+        ('ACTION_RESURRECT_RESURRECTING', 200002, 'Журнал: Идёт воскрешение', relations.LEXICON_GROUP.ACTION_RESURRECT,
+         'Хранитель приводит героя в чувства.',
+         [V.DATE, V.TIME, V.HERO], None),
+
+        ('ACTION_RESURRECT_START', 200003, 'Журнал: Начало воскрешения', relations.LEXICON_GROUP.ACTION_RESURRECT,
+         'Герой только что умер и начинается его воскрешение.',
+         [V.DATE, V.TIME, V.HERO], None),
 
         ]

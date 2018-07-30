@@ -1,16 +1,7 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from the_tale.game import relations as game_relations
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes.habilities import nonbattle as nonbatle_abilities
-from the_tale.game.heroes.habilities import battle as battle_abilities
-
-from the_tale.game.companions.abilities import relations
+smart_imports.all()
 
 
 class Base(object):
@@ -173,32 +164,32 @@ class BaseBattleAbility(Base):
 
 class BattleAbilityHit(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_HIT
-    ABILITY = battle_abilities.HIT(1)
+    ABILITY = heroes_abilities_battle.HIT(1)
 
 
 class BattleAbilityStrongHit(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_STRONG_HIT
-    ABILITY = battle_abilities.STRONG_HIT(5)
+    ABILITY = heroes_abilities_battle.STRONG_HIT(5)
 
 
 class BattleAbilityRunUpPush(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_RUN_UP_PUSH
-    ABILITY = battle_abilities.RUN_UP_PUSH(5)
+    ABILITY = heroes_abilities_battle.RUN_UP_PUSH(5)
 
 
 class BattleAbilityFireball(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_FIREBALL
-    ABILITY = ability=battle_abilities.FIREBALL(5)
+    ABILITY = heroes_abilities_battle.FIREBALL(5)
 
 
 class BattleAbilityPoisonCloud(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_POSION_CLOUD
-    ABILITY = battle_abilities.POISON_CLOUD(5)
+    ABILITY = heroes_abilities_battle.POISON_CLOUD(5)
 
 
 class BattleAbilityFreezing(BaseBattleAbility):
     TYPE = relations.EFFECT.BATTLE_ABILITY_FREEZING
-    ABILITY = battle_abilities.FREEZING(5)
+    ABILITY = heroes_abilities_battle.FREEZING(5)
 
 
 class Initiative(Multiplier):
@@ -379,14 +370,16 @@ RARITY_BIGEST = 2.0
 RARITY_LEGENDARY = 666.0
 
 # abilities constructors
+
+
 def quest_money_reward(name, value, text, description, rarity_delta, border_left, border_right, work_when_dead=False, can_be_freezed=True):
     QUEST_MONEY_REWARD_BORDERS = [0.5, 1.0, 2.0]
 
     if border_left < border_right:
-        description = (description + ' (от +%d%% до +%d%%)') % (QUEST_MONEY_REWARD_BORDERS[border_left]*100, QUEST_MONEY_REWARD_BORDERS[border_right]*100)
+        description = (description + ' (от +%d%% до +%d%%)') % (QUEST_MONEY_REWARD_BORDERS[border_left] * 100, QUEST_MONEY_REWARD_BORDERS[border_right] * 100)
         effect = QuestMoneyReward(QUEST_MONEY_REWARD_BORDERS[border_left], QUEST_MONEY_REWARD_BORDERS[border_right])
     else:
-        description = (description + ' (от -%d%% до -%d%%)') % (QUEST_MONEY_REWARD_BORDERS[border_left]*100, QUEST_MONEY_REWARD_BORDERS[border_right]*100)
+        description = (description + ' (от -%d%% до -%d%%)') % (QUEST_MONEY_REWARD_BORDERS[border_left] * 100, QUEST_MONEY_REWARD_BORDERS[border_right] * 100)
         effect = QuestMoneyReward(-QUEST_MONEY_REWARD_BORDERS[border_left], -QUEST_MONEY_REWARD_BORDERS[border_right])
 
     return (name,
@@ -400,24 +393,24 @@ def quest_money_reward(name, value, text, description, rarity_delta, border_left
 
 
 def huckster(name, value, text, description, rarity_delta, work_when_dead=False, can_be_freezed=True):
-    effect = Huckster(buy_bonus_left=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2 / 5, buy_bonus_right=nonbatle_abilities.HUCKSTER.BUY_BONUS[-1] / 2,
-                      sell_bonus_left=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2 / 5, sell_bonus_right=nonbatle_abilities.HUCKSTER._sell_bonus(5) / 2)
+    effect = Huckster(buy_bonus_left=heroes_abilities_nonbattle.HUCKSTER.BUY_BONUS[-1] / 2 / 5, buy_bonus_right=heroes_abilities_nonbattle.HUCKSTER.BUY_BONUS[-1] / 2,
+                      sell_bonus_left=heroes_abilities_nonbattle.HUCKSTER._sell_bonus(5) / 2 / 5, sell_bonus_right=heroes_abilities_nonbattle.HUCKSTER._sell_bonus(5) / 2)
     return (name,
             value,
             text,
-            (description + '(покупка от %.2f%% до %.2f%%; продажа от +%.2f%% до +%.2f%%)') % (effect.buy_bonus_left*100, effect.buy_bonus_right*100, effect.sell_bonus_left*100, effect.sell_bonus_right*100),
+            (description + '(покупка от %.2f%% до %.2f%%; продажа от +%.2f%% до +%.2f%%)') % (effect.buy_bonus_left * 100, effect.buy_bonus_right * 100, effect.sell_bonus_left * 100, effect.sell_bonus_right * 100),
             effect,
             rarity_delta,
             work_when_dead,
             can_be_freezed)
 
 
-class ABILITIES(DjangoEnum):
-    description = Column()
-    effect = Column(single_type=False)
-    rarity_delta = Column(unique=False)
-    work_when_dead = Column(unique=False)
-    can_be_freezed = Column(unique=False)
+class ABILITIES(rels_django.DjangoEnum):
+    description = rels.Column()
+    effect = rels.Column(single_type=False)
+    rarity_delta = rels.Column(unique=False)
+    work_when_dead = rels.Column(unique=False)
+    can_be_freezed = rels.Column(unique=False)
 
     records = (
         ('OBSTINATE', 0, 'строптивый', 'слаженность растёт очень медленно', CoherenceSpeed(0.6), RARITY_LOWER, False, True),
@@ -455,7 +448,7 @@ class ABILITIES(DjangoEnum):
         ('KNOWN', 17, 'известный', 'находит политически важную работу, задания героя оказывают большее влияние на мир (максимальный бонус к влиянию: 100%)',
          PoliticsPower(0.5, 1.0), RARITY_BIGER, False, True),
         ('CAD', 18, 'хам', 'хамит горожанам, герою не доверяют политически важную работу, поэтому он оказывает меньшее влияние на мир (минимальный штраф к влиянию: -50%)',
-          PoliticsPower(-1.0, -0.5), RARITY_LOWER, False, True),
+         PoliticsPower(-1.0, -0.5), RARITY_LOWER, False, True),
 
         ('FIT_OF_ENERGY', 19, 'прилив сил', 'даёт небольшой бонус к физическому урону героя', PhysicDamageBonus(1.05, 1.1), RARITY_BIGER, False, True),
         ('PEP', 20, 'бодрость духа', 'даёт небольшой бонус к магическому урону героя', MagicDamageBonus(1.05, 1.1), RARITY_BIGER, False, True),

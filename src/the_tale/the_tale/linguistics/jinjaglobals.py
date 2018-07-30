@@ -1,11 +1,9 @@
-# coding: utf-8
 
-from dext.common.utils import jinja2
+import smart_imports
 
-from the_tale.linguistics import prototypes
-from the_tale.linguistics import relations
+smart_imports.all()
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def has_broken_ingame_template():
     return prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).exclude(errors_status=relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS).exists()

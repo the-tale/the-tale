@@ -1,11 +1,10 @@
 
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from .. import objects
+smart_imports.all()
 
 
-class InnerCircleTests(testcase.TestCase):
+class InnerCircleTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()

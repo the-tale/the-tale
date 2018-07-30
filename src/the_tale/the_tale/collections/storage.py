@@ -1,41 +1,38 @@
-# coding: utf-8
+
+import smart_imports
+
+smart_imports.all()
 
 
-from the_tale.common.utils import storage
-
-from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype
-from the_tale.collections import exceptions
-
-
-class CollectionsStorage(storage.Storage):
+class CollectionsStorage(utils_storage.Storage):
     SETTINGS_KEY = 'collections change time'
     EXCEPTION = exceptions.CollectionsError
-    PROTOTYPE = CollectionPrototype
+    PROTOTYPE = prototypes.CollectionPrototype
 
     def get_form_choices(self):
-        return [('', '----')] +  [(c.id, c.caption) for c in self.all()]
+        return [('', '----')] + [(c.id, c.caption) for c in self.all()]
 
 
-class KitsStorage(storage.Storage):
+class KitsStorage(utils_storage.Storage):
     SETTINGS_KEY = 'kits change time'
     EXCEPTION = exceptions.CollectionsError
-    PROTOTYPE = KitPrototype
+    PROTOTYPE = prototypes.KitPrototype
 
     def get_form_choices(self):
-        return [('', '----')] +  [(k.id, k.caption) for k in self.all()]
+        return [('', '----')] + [(k.id, k.caption) for k in self.all()]
 
 
-class ItemsStorage(storage.Storage):
+class ItemsStorage(utils_storage.Storage):
     SETTINGS_KEY = 'items change time'
     EXCEPTION = exceptions.CollectionsError
-    PROTOTYPE = ItemPrototype
+    PROTOTYPE = prototypes.ItemPrototype
 
     def form_choices(self):
         self.sync()
 
         choices = []
 
-        for kit in kits_storage.all():
+        for kit in kits.all():
             items = []
 
             for item in self.all():
@@ -47,6 +44,6 @@ class ItemsStorage(storage.Storage):
         return sorted(choices)
 
 
-collections_storage = CollectionsStorage()
-kits_storage = KitsStorage()
-items_storage = ItemsStorage()
+collections = CollectionsStorage()
+kits = KitsStorage()
+items = ItemsStorage()

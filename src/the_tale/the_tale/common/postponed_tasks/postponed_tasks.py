@@ -1,13 +1,15 @@
-# coding: utf-8
 
-from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+import smart_imports
+
+smart_imports.all()
+
 
 class FakePostponedInternalTask(PostponedLogic):
 
     TYPE = 'fake-task'
     INITIAL_STATE = 666
 
-    def __init__(self, state=888, result_state=POSTPONED_TASK_LOGIC_RESULT.SUCCESS):# pylint: disable=W0231
+    def __init__(self, state=888, result_state=POSTPONED_TASK_LOGIC_RESULT.SUCCESS):
         self.state = state
         self.result_state = result_state
 

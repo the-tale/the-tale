@@ -1,41 +1,36 @@
 
-from django.db import models
+import smart_imports
 
-from rels.django import RelationIntegerField
-
-from dext.common.utils import s11n
-
-from the_tale.game.relations import GENDER, RACE
-from the_tale.game.persons import relations
+smart_imports.all()
 
 
-class Person(models.Model):
+class Person(django_models.Model):
     MAX_NAME_LENGTH = 100
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    created_at_turn = models.IntegerField(null=False, default=0)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
+    created_at_turn = django_models.IntegerField(null=False, default=0)
 
-    updated_at_turn = models.BigIntegerField(default=0)
-    updated_at = models.DateTimeField(auto_now=True, null=False)
+    updated_at_turn = django_models.BigIntegerField(default=0)
+    updated_at = django_models.DateTimeField(auto_now=True, null=False)
 
-    place = models.ForeignKey('places.Place', related_name='persons', on_delete=models.PROTECT)
+    place = django_models.ForeignKey('places.Place', related_name='persons', on_delete=django_models.PROTECT)
 
-    gender = RelationIntegerField(relation=GENDER, relation_column='value')
-    race = RelationIntegerField(relation=RACE, relation_column='value')
+    gender = rels_django.RelationIntegerField(relation=game_relations.GENDER, relation_column='value')
+    race = rels_django.RelationIntegerField(relation=game_relations.RACE, relation_column='value')
 
-    type = RelationIntegerField(relation=relations.PERSON_TYPE, relation_column='value')
+    type = rels_django.RelationIntegerField(relation=relations.PERSON_TYPE, relation_column='value')
 
-    data = models.TextField(null=False, default='{}')
+    data = django_models.TextField(null=False, default='{}')
 
     def __str__(self): return '%s from %s' % (s11n.from_json(self.data)['name']['forms'][0], self.place)
 
 
-class SocialConnection(models.Model):
+class SocialConnection(django_models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    created_at_turn = models.BigIntegerField()
+    created_at = django_models.DateTimeField(auto_now_add=True)
+    created_at_turn = django_models.BigIntegerField()
 
-    person_1 = models.ForeignKey(Person, related_name='+', on_delete=models.CASCADE)
-    person_2 = models.ForeignKey(Person, related_name='+', on_delete=models.CASCADE)
+    person_1 = django_models.ForeignKey(Person, related_name='+', on_delete=django_models.CASCADE)
+    person_2 = django_models.ForeignKey(Person, related_name='+', on_delete=django_models.CASCADE)
 
-    connection = RelationIntegerField(relation=relations.SOCIAL_CONNECTION_TYPE)
+    connection = rels_django.RelationIntegerField(relation=relations.SOCIAL_CONNECTION_TYPE)

@@ -1,9 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import storage
+import smart_imports
+
+smart_imports.all()
 
 
-class Storage(storage.Storage):
+class Storage(dext_storage.Storage):
     SETTINGS_KEY = None
     EXCEPTION = None
     PROTOTYPE = None
@@ -17,7 +18,7 @@ class Storage(storage.Storage):
     def _get_all_query(self): return self.PROTOTYPE._db_all()
 
 
-class CachedStorage(storage.CachedStorage):
+class CachedStorage(dext_storage.CachedStorage):
     SETTINGS_KEY = None
     EXCEPTION = None
     PROTOTYPE = None
@@ -31,6 +32,6 @@ class CachedStorage(storage.CachedStorage):
     def _get_all_query(self): return self.PROTOTYPE._db_all()
 
 
-class SingleStorage(storage.SingleStorage):
+class SingleStorage(dext_storage.SingleStorage):
     SETTINGS_KEY = None
     EXCEPTION = None

@@ -1,6 +1,7 @@
-# coding: utf-8
 
-import time
+import smart_imports
+
+smart_imports.all()
 
 
 class AchievementsContainer(object):
@@ -28,7 +29,6 @@ class AchievementsContainer(object):
         self.updated = True
         self.achievements[achievement.id] = time.time()
 
-
     def remove_achievement(self, achievement):
 
         if achievement.id not in self.achievements:
@@ -36,7 +36,6 @@ class AchievementsContainer(object):
 
         self.updated = True
         del self.achievements[achievement.id]
-
 
     def has_achievement(self, achievement):
         return achievement.id in self.achievements
@@ -47,19 +46,17 @@ class AchievementsContainer(object):
     def achievements_ids(self): return self.achievements.keys()
 
     def __len__(self):
-         return len(self.achievements)
+        return len(self.achievements)
 
     def get_points(self):
-        from the_tale.accounts.achievements.storage import achievements_storage
-        return sum(achievements_storage[achievement_id].points for achievement_id in self.achievements.keys())
+        return sum(storage.achievements[achievement_id].points for achievement_id in self.achievements.keys())
 
     def last_achievements(self, number):
-        from the_tale.accounts.achievements.storage import achievements_storage
         achievements_ids = list(zip(*sorted((-achievement_time, achievement_id)
-                                       for achievement_id, achievement_time in self.achievements.items())))
+                                            for achievement_id, achievement_time in self.achievements.items())))
         if achievements_ids:
             achievements_ids = achievements_ids[1]
 
-        return [achievements_storage[achievement_id]
+        return [storage.achievements[achievement_id]
                 for achievement_id in achievements_ids
-                if achievements_storage[achievement_id].approved][:number]
+                if storage.achievements[achievement_id].approved][:number]

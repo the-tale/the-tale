@@ -1,37 +1,19 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.actions import prototypes
-from the_tale.game import turn
-
-from the_tale.game.map.relations import TERRAIN
-from the_tale.game.map.storage import map_info_storage
-
-from the_tale.game.places import logic as places_logic
+smart_imports.all()
 
 
-class MoveNearActionTest(testcase.TestCase):
+class MoveNearActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(MoveNearActionTest, self).setUp()
 
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
@@ -40,10 +22,8 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.action_move = prototypes.ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.p1, back=False)
 
-
     def tearDown(self):
         pass
-
 
     def test_create(self):
         self.assertEqual(self.action_idl.leader, False)
@@ -52,50 +32,48 @@ class MoveNearActionTest(testcase.TestCase):
         self.storage._test_save()
 
     def test_get_destination_coordinates(self):
-        self.assertTrue(len(self.p1.nearest_cells) > 3) # two coordinates will be in coordinates set, other will not
+        self.assertTrue(len(self.p1.nearest_cells) > 3)  # two coordinates will be in coordinates set, other will not
 
         x_1, y_1 = self.p1.nearest_cells[0]
-        map_info_storage.item.terrain[y_1][x_1] = TERRAIN.WATER_DEEP
+        map_storage.map_info.item.terrain[y_1][x_1] = map_relations.TERRAIN.WATER_DEEP
 
         x_2, y_2 = self.p1.nearest_cells[1]
-        map_info_storage.item.terrain[y_2][x_2] = TERRAIN.WATER_DEEP
+        map_storage.map_info.item.terrain[y_2][x_2] = map_relations.TERRAIN.WATER_DEEP
 
         coordinates = set()
 
         for i in range(100):
-            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
+            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(map_relations.TERRAIN.WATER_DEEP,)))
 
         self.assertEqual(coordinates, set([(x_1, y_1), (x_2, y_2)]))
 
-
     def test_get_destination_coordinates__no_terrains(self):
 
-        self.assertTrue(len(self.p1.nearest_cells) > 3) # two coordinates will be in coordinates set, other will not
+        self.assertTrue(len(self.p1.nearest_cells) > 3)  # two coordinates will be in coordinates set, other will not
 
         coordinates = set()
 
         for i in range(100):
-            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
+            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=False, place=self.p1, terrains=(map_relations.TERRAIN.WATER_DEEP,)))
 
         self.assertEqual(coordinates, set(self.p1.nearest_cells))
 
     def test_get_destination_coordinates__back(self):
 
-        self.assertTrue(len(self.p1.nearest_cells) > 3) # two coordinates will be in coordinates set, other will not
+        self.assertTrue(len(self.p1.nearest_cells) > 3)  # two coordinates will be in coordinates set, other will not
 
         x_1, y_1 = self.p1.nearest_cells[0]
-        map_info_storage.item.terrain[y_1][x_1] = TERRAIN.WATER_DEEP
+        map_storage.map_info.item.terrain[y_1][x_1] = map_relations.TERRAIN.WATER_DEEP
 
         x_2, y_2 = self.p1.nearest_cells[1]
-        map_info_storage.item.terrain[y_2][x_2] = TERRAIN.WATER_DEEP
+        map_storage.map_info.item.terrain[y_2][x_2] = map_relations.TERRAIN.WATER_DEEP
 
         coordinates = set()
 
         for i in range(100):
-            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=True, place=self.p1, terrains=(TERRAIN.WATER_DEEP,)))
+            coordinates.add(prototypes.ActionMoveNearPlacePrototype._get_destination_coordinates(back=True, place=self.p1, terrains=(map_relations.TERRAIN.WATER_DEEP,)))
 
         self.assertEqual(coordinates, set([(self.p1.x, self.p1.y)]))
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_processed(self):
@@ -105,7 +83,7 @@ class MoveNearActionTest(testcase.TestCase):
         x, y = self.action_move.get_destination()
         self.hero.position.set_coordinates(x, y, x, y, percents=1)
 
-        turn.increment()
+        game_turn.increment()
 
         self.storage.process_turn(continue_steps_if_needed=False)
 
@@ -115,13 +93,12 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_not_ready(self):
         self.storage.process_turn(continue_steps_if_needed=False)
         self.assertEqual(len(self.hero.actions.actions_list), 2)
         self.assertEqual(self.hero.actions.current_action, self.action_move)
-        self.assertTrue(self.hero.position.is_walking or self.hero.position.place) # can end in start place
+        self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
         self.storage._test_save()
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
@@ -138,7 +115,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+            game_turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionIdlenessPrototype.TYPE)
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
@@ -146,7 +123,7 @@ class MoveNearActionTest(testcase.TestCase):
         prototypes.ActionMoveNearPlacePrototype.create(hero=self.hero, place=self.p1, back=True)
         while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:
             self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+            game_turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
         self.assertTrue(not self.hero.position.is_walking)
@@ -156,7 +133,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+            game_turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionIdlenessPrototype.TYPE)
         self.assertTrue(self.hero.position.is_walking or self.hero.position.place)  # can end in start place
@@ -168,7 +145,7 @@ class MoveNearActionTest(testcase.TestCase):
 
         while self.hero.position.place is None or self.hero.position.place.id != self.p1.id:
             self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+            game_turn.increment()
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionInPlacePrototype.TYPE)
         self.assertTrue(not self.hero.position.is_walking)
@@ -178,12 +155,11 @@ class MoveNearActionTest(testcase.TestCase):
 
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+            game_turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 
         self.storage._test_save()
-
 
     def test_full__start_equal_to_finish(self):
 
@@ -192,12 +168,11 @@ class MoveNearActionTest(testcase.TestCase):
 
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+            game_turn.increment()
 
         self.assertTrue(self.action_idl.leader)
 
         self.storage._test_save()
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: True)
     def test_battle(self):
@@ -227,7 +202,6 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-
     def test_regenerate_energy_after_battle_for_sacrifice(self):
         self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, heroes_relations.ENERGY_REGENERATION.SACRIFICE)
         self.hero.last_energy_regeneration_at_turn -= max(next(zip(*heroes_relations.ENERGY_REGENERATION.select('period'))))
@@ -239,7 +213,6 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-
     def test_rest(self):
         self.hero.health = 1
         self.action_move.state = self.action_move.STATE.BATTLE
@@ -247,7 +220,6 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionRestPrototype.TYPE)
         self.storage._test_save()
-
 
     @mock.patch('the_tale.game.companions.objects.Companion.need_heal', True)
     def test_heal_companion(self):
@@ -267,7 +239,6 @@ class MoveNearActionTest(testcase.TestCase):
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveNearPlacePrototype.TYPE)
         self.assertEqual(self.hero.actions.current_action.state, prototypes.ActionMoveNearPlacePrototype.STATE.HEALING_COMPANION)
 
-
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_say_wisdom', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_EXP_PER_MOVE_PROBABILITY', 1.0)
@@ -286,7 +257,6 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.storage._test_save()
 
-
     def test_resurrect(self):
         self.hero.kill()
         self.action_move.state = self.action_move.STATE.BATTLE
@@ -294,7 +264,6 @@ class MoveNearActionTest(testcase.TestCase):
 
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionResurrectPrototype.TYPE)
         self.storage._test_save()
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_stop_when_quest_required_replane(self):

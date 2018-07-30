@@ -1,12 +1,10 @@
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import storage
+smart_imports.all()
 
 
-class Person(meta_relations.MetaType):
+class Person(utils_meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 10
     TYPE_CAPTION = 'Мастер'
@@ -17,7 +15,7 @@ class Person(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('game:persons:show', self.id)
+        return dext_urls.url('game:persons:show', self.id)
 
     @classmethod
     def create_from_object(cls, person):
@@ -25,6 +23,7 @@ class Person(meta_relations.MetaType):
 
     @classmethod
     def create_from_id(cls, id):
+        from . import storage
         person = storage.persons.get(id)
 
         if person is None:

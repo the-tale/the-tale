@@ -1,80 +1,66 @@
-import math
 
-from dext.common.utils.urls import url
+import smart_imports
 
-from the_tale.common.utils.permanent_storage import PermanentRelationsStorage
-
-from the_tale.game.cards import logic as cards_logic
-
-from the_tale.finances.bank import transaction as bank_transaction
-from the_tale.finances.bank import prototypes as bank_prototypes
-from the_tale.finances.bank import relations as bank_relations
-
-from the_tale.finances.shop.conf import payments_settings
-from the_tale.finances.shop.relations import PERMANENT_PURCHASE_TYPE
-
-from . import conf
+smart_imports.all()
 
 
 def create_sell_lot_url():
-    return url('shop:create-sell-lot')
+    return dext_urls.url('shop:create-sell-lot')
 
 
 def close_sell_lot_url():
-    return url('shop:close-sell-lot')
+    return dext_urls.url('shop:close-sell-lot')
 
 
 def cancel_sell_lot_url():
-    return url('shop:cancel-sell-lot')
+    return dext_urls.url('shop:cancel-sell-lot')
 
 
 def info_url():
-    return url('shop:info')
+    return dext_urls.url('shop:info')
 
 
 def item_type_prices_url():
-    return url('shop:item-type-prices')
+    return dext_urls.url('shop:item-type-prices')
 
 
 def real_amount_to_game(amount):
-    return int(math.ceil(amount * payments_settings.PREMIUM_CURRENCY_FOR_DOLLAR))
+    return int(math.ceil(amount * conf.settings.PREMIUM_CURRENCY_FOR_DOLLAR))
 
 
 def transaction_logic(account, amount, description, uid, force=False):
     return bank_transaction.Transaction.create(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
-                              recipient_id=account.id,
-                              sender_type=bank_relations.ENTITY_TYPE.GAME_LOGIC,
-                              sender_id=0,
-                              currency=bank_relations.CURRENCY_TYPE.PREMIUM,
-                              amount=amount,
-                              description_for_sender=description,
-                              description_for_recipient=description,
-                              operation_uid=uid,
-                              force=force)
+                                               recipient_id=account.id,
+                                               sender_type=bank_relations.ENTITY_TYPE.GAME_LOGIC,
+                                               sender_id=0,
+                                               currency=bank_relations.CURRENCY_TYPE.PREMIUM,
+                                               amount=amount,
+                                               description_for_sender=description,
+                                               description_for_recipient=description,
+                                               operation_uid=uid,
+                                               force=force)
 
 
 def transaction_gm(account, amount, description, game_master):
 
     return bank_transaction.Transaction.create(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
-                              recipient_id=account.id,
-                              sender_type=bank_relations.ENTITY_TYPE.GAME_MASTER,
-                              sender_id=game_master.id,
-                              currency=bank_relations.CURRENCY_TYPE.PREMIUM,
-                              amount=amount,
-                              description_for_sender=description,
-                              description_for_recipient=description,
-                              operation_uid='game-master-gift',
-                              force=True)
+                                               recipient_id=account.id,
+                                               sender_type=bank_relations.ENTITY_TYPE.GAME_MASTER,
+                                               sender_id=game_master.id,
+                                               currency=bank_relations.CURRENCY_TYPE.PREMIUM,
+                                               amount=amount,
+                                               description_for_sender=description,
+                                               description_for_recipient=description,
+                                               operation_uid='game-master-gift',
+                                               force=True)
 
 
-class PermanentRelationsStorage(PermanentRelationsStorage):
-    RELATION = PERMANENT_PURCHASE_TYPE
+class PermanentRelationsStorage(utils_permanent_storage.PermanentRelationsStorage):
+    RELATION = relations.PERMANENT_PURCHASE_TYPE
     VALUE_COLUMN = 'value'
 
 
 def close_lot(item_type, price, buyer_id):
-    from . import postponed_tasks
-
     cards_info = cards_logic.get_cards_info_by_full_types()
 
     name = cards_info[item_type]['name']
@@ -98,7 +84,7 @@ def close_lot(item_type, price, buyer_id):
 
 
 def get_commission(price):
-    commission = int(math.floor(price*conf.payments_settings.MARKET_COMISSION))
+    commission = int(math.floor(price * conf.settings.MARKET_COMISSION))
 
     if commission == 0:
         commission = 1

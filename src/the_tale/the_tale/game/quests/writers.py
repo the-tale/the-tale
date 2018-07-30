@@ -1,7 +1,8 @@
-# coding: utf-8
-import logging
 
-from the_tale.game.heroes import messages
+import smart_imports
+
+smart_imports.all()
+
 
 logger = logging.getLogger('the-tale.workers.game_logic')
 
@@ -51,26 +52,23 @@ class Writer(object):
         return self.get_message(self.current_choice_id(answer))
 
     def get_message_surrogate(self, type, externals):
-        from the_tale.linguistics.logic import prepair_get_text
-
         externals.update(self.substitution)
 
-        lexicon_key, externals, restrictions = prepair_get_text(type, externals, quiet=True)
+        lexicon_key, externals, restrictions = linguistics_logic.prepair_get_text(type, externals, quiet=True)
 
-        if lexicon_key is None: return None
+        if lexicon_key is None:
+            return None
 
-        return messages.MessageSurrogate.create(key=lexicon_key,
-                                                externals=externals,
-                                                restrictions=restrictions,
-                                                position=self.hero.position.get_description())
+        return heroes_messages.MessageSurrogate.create(key=lexicon_key,
+                                                       externals=externals,
+                                                       restrictions=restrictions,
+                                                       position=self.hero.position.get_description())
 
     def get_message(self, type_, **kwargs):
-        from the_tale.linguistics.logic import get_text
-
         externals = kwargs
         externals.update(self.substitution)
 
-        return get_text(type_, externals, quiet=True)
+        return linguistics_logic.get_text(type_, externals, quiet=True)
 
 
 def get_writer(**kwargs):

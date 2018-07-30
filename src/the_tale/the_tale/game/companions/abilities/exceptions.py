@@ -1,9 +1,10 @@
-# coding: utf-8
 
-from the_tale.game.companions.exceptions import CompanionsError
+import smart_imports
+
+smart_imports.all()
 
 
-class CompanionsAbilitiesError(CompanionsError):
+class CompanionsAbilitiesError(companions_exceptions.CompanionsError):
     MSG = 'companions abilities error'
 
 

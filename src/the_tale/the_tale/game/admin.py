@@ -1,14 +1,16 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.game import models
+smart_imports.all()
 
-class SupervisorTaskAdmin(admin.ModelAdmin):
+
+class SupervisorTaskAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'type', 'state', 'created_at')
 
-class SupervisorTaskMemberAdmin(admin.ModelAdmin):
+
+class SupervisorTaskMemberAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'task', 'account')
 
-admin.site.register(models.SupervisorTask, SupervisorTaskAdmin)
-admin.site.register(models.SupervisorTaskMember, SupervisorTaskMemberAdmin)
+
+django_admin.site.register(models.SupervisorTask, SupervisorTaskAdmin)
+django_admin.site.register(models.SupervisorTaskMember, SupervisorTaskMemberAdmin)

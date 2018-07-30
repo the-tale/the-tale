@@ -1,19 +1,7 @@
 
-import time
+import smart_imports
 
-from the_tale.game import relations as game_relations
-
-from the_tale.game.chronicle import prototypes as chronicle_prototypes
-
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game import attributes
-from the_tale.game import logic as game_logic
-
-from . import storage
-from . import relations
-from . import conf
+smart_imports.all()
 
 
 def place_info_persons_data(place, full_building_info):
@@ -70,7 +58,7 @@ def place_info_bills(place):
 
         data.append({'id': exchange.bill.id,
                      'caption': exchange.bill.caption,
-                     'properties':properties})
+                     'properties': properties})
 
     return data
 
@@ -85,7 +73,7 @@ def place_info_habits(place):
                                                            'value': place.habit_peacefulness.raw_value,
                                                            'delta': place.habit_peacefulness_change_speed,
                                                            'positive_points': place.habit_peacefulness_positive,
-                                                           'negative_points': place.habit_peacefulness_negative} }
+                                                           'negative_points': place.habit_peacefulness_negative}}
 
 
 def place_info(place, full_building_info):
@@ -102,9 +90,9 @@ def place_info(place, full_building_info):
             'politic_power': {'heroes': inner_circle.ui_info(),
                               'power': politic_power_storage.places.ui_info(place.id)},
             'persons': place_info_persons_data(place, full_building_info=full_building_info),
-            'attributes': attributes.attributes_info(effects=place.all_effects(),
-                                                     attrs=place.attrs,
-                                                     relation=relations.ATTRIBUTE),
+            'attributes': game_attributes.attributes_info(effects=place.all_effects(),
+                                                          attrs=place.attrs,
+                                                          relation=relations.ATTRIBUTE),
             'demographics': place_info_demographics(place),
             'bills': place_info_bills(place),
             'habits': place_info_habits(place),
@@ -124,8 +112,8 @@ def place_info(place, full_building_info):
 
 
 def building_info(building):
-    return { 'id': building.id,
-             'position': {'x': building.x, 'y': building.y},
-             'type': building.type.value,
-             'integrity': building.integrity,
-             'created_at_turn': building.created_at_turn }
+    return {'id': building.id,
+            'position': {'x': building.x, 'y': building.y},
+            'type': building.type.value,
+            'integrity': building.integrity,
+            'created_at_turn': building.created_at_turn}

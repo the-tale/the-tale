@@ -1,35 +1,19 @@
-# coding: utf-8
-from unittest import mock
 
-from django.test import Client
-from django.conf import settings as project_settings
+import smart_imports
 
-from dext.common.utils.urls import url
-from dext.common.utils import s11n
-from dext.common.utils import cache
+smart_imports.all()
 
-from the_tale.common.utils.testcase import TestCase
 
-from the_tale.accounts.logic import login_page_url, logout_url
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.accounts.third_party import prototypes
-from the_tale.accounts.third_party import relations
-from the_tale.accounts.third_party.conf import third_party_settings
-from the_tale.accounts.third_party.tests import helpers
-
-class BaseRequestsTests(TestCase, helpers.ThirdPartyTestsMixin):
+class BaseRequestsTests(utils_testcase.TestCase, helpers.ThirdPartyTestsMixin):
 
     def setUp(self):
         super(BaseRequestsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
         self.request_login(self.account_1.email)
-
 
 
 class IndexRequestsTests(BaseRequestsTests):
@@ -37,17 +21,15 @@ class IndexRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(IndexRequestsTests, self).setUp()
 
-        self.requested_url = url('accounts:third-party:tokens:')
-
+        self.requested_url = dext_urls.url('accounts:third-party:tokens:')
 
     def test_refuse_third_party(self):
         self.request_third_party_token(account=self.account_1)
         self.check_html_ok(self.request_html(self.requested_url), texts=['third_party.access_restricted'])
 
-
     def test_login_required(self):
         self.request_logout()
-        self.check_redirect(self.requested_url, login_page_url(self.requested_url))
+        self.check_redirect(self.requested_url, accounts_logic.login_page_url(self.requested_url))
 
     def test_success(self):
         account_2 = self.accounts_factory.create_account()
@@ -57,8 +39,8 @@ class IndexRequestsTests(BaseRequestsTests):
         prototypes.AccessTokenPrototype.create(account=self.account_1, application_name='app-name-3', application_info='app-info-3', application_description='app-descr-3')
 
         self.check_html_ok(self.request_html(self.requested_url), texts=['app-name-1', 'app-info-1', ('app-descr-1', 0),
-                                                                          'app-name-3', 'app-info-3', ('app-descr-3', 0),
-                                                                          ('app-name-2', 0), ('app-info-2', 0), ('app-descr-2', 0)])
+                                                                         'app-name-3', 'app-info-3', ('app-descr-3', 0),
+                                                                         ('app-name-2', 0), ('app-info-2', 0), ('app-descr-2', 0)])
 
     def test_no_tokens_message(self):
         self.check_html_ok(self.request_html(self.requested_url), texts=['pgf-no-tokens-message'])
@@ -72,7 +54,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                             application_info='app-info-1',
                                                             application_description='app-descr-1')
 
-        self.requested_url = url('accounts:third-party:tokens:show', self.token.uid)
+        self.requested_url = dext_urls.url('accounts:third-party:tokens:show', self.token.uid)
 
     def test_refuse_third_party(self):
         self.request_third_party_token(account=self.account_1)
@@ -80,7 +62,7 @@ class ShowRequestsTests(BaseRequestsTests):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_redirect(self.requested_url, login_page_url(self.requested_url))
+        self.check_redirect(self.requested_url, accounts_logic.login_page_url(self.requested_url))
 
     def test_wrong_owner(self):
         account_2 = self.accounts_factory.create_account()
@@ -105,7 +87,6 @@ class ShowRequestsTests(BaseRequestsTests):
                                                                          'pgf-remove-button'])
 
 
-
 class RemoveTokenRequestsTests(BaseRequestsTests):
 
     def setUp(self):
@@ -116,16 +97,15 @@ class RemoveTokenRequestsTests(BaseRequestsTests):
                                                             application_info='app-info-1',
                                                             application_description='app-descr-1')
 
-        self.requested_url = url('accounts:third-party:tokens:remove', self.token.uid)
+        self.requested_url = dext_urls.url('accounts:third-party:tokens:remove', self.token.uid)
 
     def test_refuse_third_party(self):
         self.request_third_party_token(account=self.account_1)
         self.check_ajax_error(self.client.post(self.requested_url), 'third_party.access_restricted')
 
-
     def test_wrong_token_id(self):
         with self.check_not_changed(prototypes.AccessTokenPrototype._db_count):
-            self.check_ajax_error(self.client.post(url('accounts:third-party:tokens:remove', 'wrong-uid')), 'third_party.tokens.token.not_found')
+            self.check_ajax_error(self.client.post(dext_urls.url('accounts:third-party:tokens:remove', 'wrong-uid')), 'third_party.tokens.token.not_found')
 
     def test_login_required(self):
         self.request_logout()
@@ -144,10 +124,9 @@ class RemoveTokenRequestsTests(BaseRequestsTests):
             with self.check_delta(prototypes.AccessTokenPrototype._db_count, -1):
                 self.check_ajax_ok(self.client.post(self.requested_url))
 
-        self.assertEqual(cache_delete.call_args_list, [mock.call(third_party_settings.ACCESS_TOKEN_CACHE_KEY % self.token.uid)])
+        self.assertEqual(cache_delete.call_args_list, [mock.call(conf.settings.ACCESS_TOKEN_CACHE_KEY % self.token.uid)])
 
         self.assertEqual(prototypes.AccessTokenPrototype.get_by_uid(self.token.uid), None)
-
 
 
 class AcceptTokenRequestsTests(BaseRequestsTests):
@@ -159,14 +138,14 @@ class AcceptTokenRequestsTests(BaseRequestsTests):
                                                             application_info='app-info-1',
                                                             application_description='app-descr-1')
 
-        self.requested_url = url('accounts:third-party:tokens:accept', self.token.uid)
+        self.requested_url = dext_urls.url('accounts:third-party:tokens:accept', self.token.uid)
 
     def test_refuse_third_party(self):
         self.request_third_party_token(account=self.account_1)
         self.check_ajax_error(self.client.post(self.requested_url), 'third_party.access_restricted')
 
     def test_wrong_token_id(self):
-        self.check_ajax_error(self.client.post(url('accounts:third-party:tokens:remove', 'wrong-uid')), 'third_party.tokens.token.not_found')
+        self.check_ajax_error(self.client.post(dext_urls.url('accounts:third-party:tokens:remove', 'wrong-uid')), 'third_party.tokens.token.not_found')
 
         self.token.reload()
         self.assertEqual(self.token.account_id, None)
@@ -185,7 +164,7 @@ class AcceptTokenRequestsTests(BaseRequestsTests):
         with mock.patch('dext.common.utils.cache.delete') as cache_delete:
             self.check_ajax_ok(self.client.post(self.requested_url))
 
-        self.assertEqual(cache_delete.call_args_list, [mock.call(third_party_settings.ACCESS_TOKEN_CACHE_KEY % self.token.uid)])
+        self.assertEqual(cache_delete.call_args_list, [mock.call(conf.settings.ACCESS_TOKEN_CACHE_KEY % self.token.uid)])
 
         self.token.reload()
         self.assertEqual(self.token.account_id, self.account_1.id)
@@ -197,8 +176,7 @@ class RequestAccessRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(RequestAccessRequestsTests, self).setUp()
 
-        self.requested_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
-
+        self.requested_url = dext_urls.url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=django_settings .API_CLIENT)
 
     def test_form_errors(self):
         with self.check_not_changed(prototypes.AccessTokenPrototype._db_count):
@@ -216,11 +194,10 @@ class RequestAccessRequestsTests(BaseRequestsTests):
         self.assertEqual(token.application_info, 'app-info')
         self.assertEqual(token.application_description, 'app-descr')
 
-        self.assertEqual(self.client.session[third_party_settings.ACCESS_TOKEN_SESSION_KEY], token.uid)
+        self.assertEqual(self.client.session[conf.settings.ACCESS_TOKEN_SESSION_KEY], token.uid)
 
         self.check_ajax_ok(response,
-                           data={'authorisation_page': url('accounts:third-party:tokens:show', token.uid)})
-
+                           data={'authorisation_page': dext_urls.url('accounts:third-party:tokens:show', token.uid)})
 
     def test_success_rerequest(self):
         self.request_third_party_token(account=self.account_1)
@@ -236,10 +213,10 @@ class RequestAccessRequestsTests(BaseRequestsTests):
         self.assertEqual(token.application_info, 'xxx-info')
         self.assertEqual(token.application_description, 'xxx-descr')
 
-        self.assertEqual(self.client.session[third_party_settings.ACCESS_TOKEN_SESSION_KEY], token.uid)
+        self.assertEqual(self.client.session[conf.settings.ACCESS_TOKEN_SESSION_KEY], token.uid)
 
         self.check_ajax_ok(response,
-                           data={'authorisation_page': url('accounts:third-party:tokens:show', token.uid)})
+                           data={'authorisation_page': dext_urls.url('accounts:third-party:tokens:show', token.uid)})
 
 
 class AuthorisationStateRequestsTests(BaseRequestsTests, helpers.ThirdPartyTestsMixin):
@@ -247,10 +224,9 @@ class AuthorisationStateRequestsTests(BaseRequestsTests, helpers.ThirdPartyTests
     def setUp(self):
         super(AuthorisationStateRequestsTests, self).setUp()
 
-        self.authorisation_state_url = url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=project_settings.API_CLIENT)
+        self.authorisation_state_url = dext_urls.url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=django_settings.API_CLIENT)
 
         self.request_logout()
-
 
     @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
     def test_token_not_requested__anonimouse(self):
@@ -292,7 +268,6 @@ class AuthorisationStateRequestsTests(BaseRequestsTests, helpers.ThirdPartyTests
                                  'state': relations.AUTHORISATION_STATE.ACCEPTED.value,
                                  'session_expire_at': 666.6})
 
-
     @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
     def test_token_rejected(self):
         token = self.request_third_party_token()
@@ -306,19 +281,17 @@ class AuthorisationStateRequestsTests(BaseRequestsTests, helpers.ThirdPartyTests
                                  'session_expire_at': 666.6})
 
 
-
 class FullTests(BaseRequestsTests):
 
     def setUp(self):
         super(FullTests, self).setUp()
 
-
     @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
     def test_full__accepted(self):
 
-        api_client = Client()
+        api_client = django_test.Client()
 
-        request_token_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
+        request_token_url = dext_urls.url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=django_settings.API_CLIENT)
 
         response = api_client.post(request_token_url, {'application_name': 'app-name',
                                                        'application_info': 'app-info',
@@ -330,12 +303,11 @@ class FullTests(BaseRequestsTests):
 
         token = prototypes.AccessTokenPrototype._db_latest()
 
-        self.assertEqual(url('accounts:third-party:tokens:show', token.uid), token_url)
+        self.assertEqual(dext_urls.url('accounts:third-party:tokens:show', token.uid), token_url)
 
         self.check_html_ok(self.request_html(token_url), texts=['app-name', 'app-info', 'app-descr'])
 
-
-        authorisation_state_url = url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=project_settings.API_CLIENT)
+        authorisation_state_url = dext_urls.url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=django_settings.API_CLIENT)
 
         self.check_ajax_ok(api_client.get(authorisation_state_url),
                            data={'account_id': None,
@@ -345,7 +317,7 @@ class FullTests(BaseRequestsTests):
 
         # emulate accept view
         token.accept(self.account_1)
-        cache.delete(third_party_settings.ACCESS_TOKEN_CACHE_KEY % token.uid)
+        dext_cache.delete(conf.settings.ACCESS_TOKEN_CACHE_KEY % token.uid)
 
         self.check_ajax_ok(api_client.get(authorisation_state_url),
                            data={'account_id': self.account_1.id,
@@ -354,22 +326,21 @@ class FullTests(BaseRequestsTests):
                                  'session_expire_at': 666.6})
 
         self.assertIn('_auth_user_id', api_client.session)
-        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)
+        self.assertIn(conf.settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)
 
-        self.check_ajax_ok(api_client.post(logout_url()))
+        self.check_ajax_ok(api_client.post(accounts_logic.logout_url()))
 
         self.assertNotIn('_auth_user_id', api_client.session)
 
         self.assertEqual(prototypes.AccessTokenPrototype.get_by_uid(token.uid), None)
-        self.assertNotIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)
-
+        self.assertNotIn(conf.settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)
 
     @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
     def test_full__reject(self):
 
-        api_client = Client()
+        api_client = django_test.Client()
 
-        request_token_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
+        request_token_url = dext_urls.url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=django_settings.API_CLIENT)
 
         response = api_client.post(request_token_url, {'application_name': 'app-name',
                                                        'application_info': 'app-info',
@@ -381,12 +352,11 @@ class FullTests(BaseRequestsTests):
 
         token = prototypes.AccessTokenPrototype._db_latest()
 
-        self.assertEqual(url('accounts:third-party:tokens:show', token.uid), token_url)
+        self.assertEqual(dext_urls.url('accounts:third-party:tokens:show', token.uid), token_url)
 
         self.check_html_ok(self.request_html(token_url), texts=['app-name', 'app-info', 'app-descr'])
 
-
-        authorisation_state_url = url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=project_settings.API_CLIENT)
+        authorisation_state_url = dext_urls.url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=django_settings.API_CLIENT)
 
         self.check_ajax_ok(api_client.get(authorisation_state_url),
                            data={'account_id': None,
@@ -402,13 +372,12 @@ class FullTests(BaseRequestsTests):
                                  'state': relations.AUTHORISATION_STATE.REJECTED.value,
                                  'session_expire_at': 666.6})
 
-
     @mock.patch('the_tale.accounts.logic.get_session_expire_at_timestamp', lambda request: 666.6)
     def test_full__logged_out_before_token_accept(self):
 
-        api_client = Client()
+        api_client = django_test.Client()
 
-        request_token_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
+        request_token_url = dext_urls.url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=django_settings.API_CLIENT)
 
         response = api_client.post(request_token_url, {'application_name': 'app-name',
                                                        'application_info': 'app-info',
@@ -420,12 +389,11 @@ class FullTests(BaseRequestsTests):
 
         token = prototypes.AccessTokenPrototype._db_latest()
 
-        self.assertEqual(url('accounts:third-party:tokens:show', token.uid), token_url)
+        self.assertEqual(dext_urls.url('accounts:third-party:tokens:show', token.uid), token_url)
 
         self.check_html_ok(self.request_html(token_url), texts=['app-name', 'app-info', 'app-descr'])
 
-
-        authorisation_state_url = url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=project_settings.API_CLIENT)
+        authorisation_state_url = dext_urls.url('accounts:third-party:tokens:authorisation-state', api_version='1.0', api_client=django_settings.API_CLIENT)
 
         self.check_ajax_ok(api_client.get(authorisation_state_url),
                            data={'account_id': None,
@@ -433,13 +401,12 @@ class FullTests(BaseRequestsTests):
                                  'state': relations.AUTHORISATION_STATE.UNPROCESSED.value,
                                  'session_expire_at': 666.6})
 
-        self.check_ajax_ok(api_client.post(logout_url()))
+        self.check_ajax_ok(api_client.post(accounts_logic.logout_url()))
 
         self.assertNotIn('_auth_user_id', api_client.session)
 
         self.assertNotEqual(prototypes.AccessTokenPrototype.get_by_uid(token.uid), None)
-        self.assertNotIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)
-
+        self.assertNotIn(conf.settings.ACCESS_TOKEN_SESSION_KEY, api_client.session)
 
 
 class RemoveAllRequestsTests(BaseRequestsTests):
@@ -447,11 +414,11 @@ class RemoveAllRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(RemoveAllRequestsTests, self).setUp()
 
-        self.tokens = [ prototypes.AccessTokenPrototype.create(account=self.account_1,
-                                                               application_name='app-name-{}'.format(i),
-                                                               application_info='app-info-{}'.format(i),
-                                                               application_description='app-descr-{}'.format(i))
-                        for i in range(3)]
+        self.tokens = [prototypes.AccessTokenPrototype.create(account=self.account_1,
+                                                              application_name='app-name-{}'.format(i),
+                                                              application_info='app-info-{}'.format(i),
+                                                              application_description='app-descr-{}'.format(i))
+                       for i in range(3)]
 
         self.account_2 = self.accounts_factory.create_account()
         self.token_x = prototypes.AccessTokenPrototype.create(account=self.account_2,
@@ -459,19 +426,16 @@ class RemoveAllRequestsTests(BaseRequestsTests):
                                                               application_info='app-info-x',
                                                               application_description='app-descr-x')
 
-        self.requested_url = url('accounts:third-party:tokens:remove-all')
-
+        self.requested_url = dext_urls.url('accounts:third-party:tokens:remove-all')
 
     def test_refuse_third_party(self):
         self.request_third_party_token(account=self.account_1)
         self.check_ajax_error(self.client.post(self.requested_url), 'third_party.access_restricted')
 
-
     def test_login_required(self):
         self.request_logout()
         with self.check_not_changed(prototypes.AccessTokenPrototype._db_count):
             self.check_ajax_error(self.client.post(self.requested_url), 'common.login_required')
-
 
     def test_success(self):
         with mock.patch('dext.common.utils.cache.delete') as cache_delete:
@@ -479,7 +443,7 @@ class RemoveAllRequestsTests(BaseRequestsTests):
                 self.check_ajax_ok(self.client.post(self.requested_url))
 
         self.assertCountEqual(cache_delete.call_args_list,
-                              [mock.call(third_party_settings.ACCESS_TOKEN_CACHE_KEY % token.uid) for token in self.tokens])
+                              [mock.call(conf.settings.ACCESS_TOKEN_CACHE_KEY % token.uid) for token in self.tokens])
         self.assertEqual(cache_delete.call_count, 3)
 
         self.assertEqual(prototypes.AccessTokenPrototype.get_list_by_account_id(self.account_1.id), [])

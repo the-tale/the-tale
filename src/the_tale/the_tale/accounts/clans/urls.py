@@ -1,11 +1,8 @@
-# coding: utf-8
 
-from django.conf.urls import url
-from django.conf.urls import include
+import smart_imports
 
-from dext.views import resource_patterns
+smart_imports.all()
 
-from the_tale.accounts.clans.views import ClansResource, MembershipResource
 
-urlpatterns = [url(r'^membership/', include(resource_patterns(MembershipResource), namespace='membership')),
-               url(r'^', include(resource_patterns(ClansResource)) )]
+urlpatterns = [django_urls.url(r'^membership/', django_urls.include(dext_old_views.resource_patterns(views.MembershipResource), namespace='membership')),
+               django_urls.url(r'^', django_urls.include(dext_old_views.resource_patterns(views.ClansResource)))]

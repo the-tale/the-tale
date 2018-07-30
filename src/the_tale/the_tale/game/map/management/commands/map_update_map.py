@@ -1,19 +1,18 @@
-# coding: utf-8
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from dext.common.utils.logic import run_django_command
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'update map on base of current database state'
 
     def handle(self, *args, **options):
-        run_django_command(['roads_update_roads'])
+        dext_logic.run_django_command(['roads_update_roads'])
 
-        run_django_command(['roads_update_waymarks'])
+        dext_logic.run_django_command(['roads_update_waymarks'])
 
-        run_django_command(['places_update_nearest_cells'])
+        dext_logic.run_django_command(['places_update_nearest_cells'])
 
-        run_django_command(['map_generate_map'])
+        dext_logic.run_django_command(['map_generate_map'])

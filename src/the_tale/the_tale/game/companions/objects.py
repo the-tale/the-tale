@@ -1,29 +1,7 @@
 
-import random
+import smart_imports
 
-from dext.common.utils import s11n
-
-from utg import words as utg_words
-
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import bbcode
-
-from the_tale.game import names
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import power as p
-
-from the_tale.game import turn
-from the_tale.game import relations as game_relations
-
-from the_tale.game.companions import relations
-from the_tale.game.companions import exceptions
-
-from the_tale.game.companions.abilities import container as abilities_container
-
-from . import exceptions
+smart_imports.all()
 
 
 class Companion(object):
@@ -41,7 +19,6 @@ class Companion(object):
 
     @property
     def record(self):
-        from the_tale.game.companions import storage
         return storage.companions[self.record_id]
 
     def serialize(self):
@@ -77,36 +54,33 @@ class Companion(object):
         return [('weapon', random.choice(self.record.weapons))]
 
     def linguistics_restrictions(self):
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-        from the_tale.linguistics.storage import restrictions_storage
-
-        restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION, self.record.id).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.COMPANION.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION, self.record.dedication.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL, self.record.communication_verbal.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.record.communication_gestures.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE, relations.COMPANION_EXISTENCE.HAS_NO.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE, self.record.structure.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT, self.record.movement.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_BODY, self.record.body.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.record.size.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION, self.record.orientation.value).id]
+        restrictions = [linguistics_restrictions.get_raw('COMPANION', self.record.id),
+                        linguistics_restrictions.get(game_relations.ACTOR.COMPANION),
+                        linguistics_restrictions.get(self.record.dedication),
+                        linguistics_restrictions.get(self.record.archetype),
+                        linguistics_restrictions.get(self.record.communication_verbal),
+                        linguistics_restrictions.get(self.record.communication_gestures),
+                        linguistics_restrictions.get(self.record.communication_telepathic),
+                        linguistics_restrictions.get(self.record.intellect_level),
+                        linguistics_restrictions.get(self.record.type),
+                        linguistics_restrictions.get(relations.COMPANION_EXISTENCE.HAS_NO),
+                        linguistics_restrictions.get(self.record.structure),
+                        linguistics_restrictions.get(self.record.movement),
+                        linguistics_restrictions.get(self.record.body),
+                        linguistics_restrictions.get(self.record.size),
+                        linguistics_restrictions.get(self.record.orientation)]
 
         for feature in self.record.features:
-            restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE, feature.value).id)
+            restrictions.append(linguistics_restrictions.get(feature))
 
         if self._hero:
             terrain = self._hero.position.get_terrain()
 
-            restrictions.extend((restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self._hero.actions.current_action.ui_type.value).id,
-                                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, terrain.value).id,
-                                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_TERRAIN, terrain.meta_terrain.value).id,
-                                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_HEIGHT, terrain.meta_height.value).id,
-                                 restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.META_VEGETATION, terrain.meta_vegetation.value).id))
+            restrictions.extend((linguistics_restrictions.get(self._hero.actions.current_action.ui_type),
+                                 linguistics_restrictions.get(terrain),
+                                 linguistics_restrictions.get(terrain.meta_terrain),
+                                 linguistics_restrictions.get(terrain.meta_height),
+                                 linguistics_restrictions.get(terrain.meta_vegetation)))
 
         return restrictions
 
@@ -156,7 +130,7 @@ class Companion(object):
         return old_health - self.health
 
     def on_heal_started(self):
-        self.healed_at_turn = turn.number()
+        self.healed_at_turn = game_turn.number()
         self._heals_count += 1
 
     def _damage_from_heal_probability(self):
@@ -178,7 +152,7 @@ class Companion(object):
         if self.health == self.max_health:
             return False
 
-        return self.healed_at_turn + c.TURNS_IN_HOUR / c.COMPANIONS_HEALS_IN_HOUR <= turn.number()
+        return self.healed_at_turn + c.TURNS_IN_HOUR / c.COMPANIONS_HEALS_IN_HOUR <= game_turn.number()
 
     @property
     def is_dead(self): return self.health <= 0
@@ -243,7 +217,7 @@ class Companion(object):
     def basic_damage(self):
         distribution = self.record.archetype.power_distribution
         raw_damage = f.expected_damage_to_mob_per_hit(self._hero.level)
-        return p.Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
+        return power.Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
 
     def ui_info(self):
         return {'type': self.record.id,
@@ -256,7 +230,7 @@ class Companion(object):
                 'real_coherence': self.coherence}
 
 
-class CompanionRecord(names.ManageNameMixin2):
+class CompanionRecord(game_names.ManageNameMixin2):
     __slots__ = ('id',
                  'state',
                  'type',
@@ -370,12 +344,10 @@ class CompanionRecord(names.ManageNameMixin2):
 
     @property
     def rarity(self):
-        return relations.RARITY(max(0, min(4, int(round(self.raw_rarity-0.0001))-1)))
+        return relations.RARITY(max(0, min(4, int(round(self.raw_rarity - 0.0001)) - 1)))
 
     @classmethod
     def from_model(cls, model):
-        from the_tale.game.artifacts import objects as artifacts_objects
-
         data = s11n.from_json(model.data)
 
         weapons = [artifacts_objects.Weapon.deserialize(weapon_data)
@@ -393,21 +365,21 @@ class CompanionRecord(names.ManageNameMixin2):
                    communication_telepathic=model.communication_telepathic,
                    intellect_level=model.intellect_level,
 
-                   abilities=abilities_container.Container.deserialize(data.get('abilities', {})),
+                   abilities=companions_abilities_container.Container.deserialize(data.get('abilities', {})),
 
                    utg_name=utg_words.Word.deserialize(data['name']),
                    description=data['description'],
 
-                   structure=beings_relations.STRUCTURE(data.get('structure', 0)),
-                   features=frozenset(beings_relations.FEATURE(feature) for feature in data.get('features', ())),
-                   movement=beings_relations.MOVEMENT(data.get('movement', 0)),
-                   body=beings_relations.BODY(data.get('body', 0)),
-                   size=beings_relations.SIZE(data.get('size', 0)),
-                   orientation=beings_relations.ORIENTATION(data.get('orientation', 0)),
+                   structure=tt_beings_relations.STRUCTURE(data.get('structure', 0)),
+                   features=frozenset(tt_beings_relations.FEATURE(feature) for feature in data.get('features', ())),
+                   movement=tt_beings_relations.MOVEMENT(data.get('movement', 0)),
+                   body=tt_beings_relations.BODY(data.get('body', 0)),
+                   size=tt_beings_relations.SIZE(data.get('size', 0)),
+                   orientation=tt_beings_relations.ORIENTATION(data.get('orientation', 0)),
                    weapons=weapons)
 
     @property
-    def description_html(self): return bbcode.render(self.description)
+    def description_html(self): return utils_bbcode.render(self.description)
 
     def __eq__(self, other):
         return all(getattr(self, field, None) == getattr(other, field, None)

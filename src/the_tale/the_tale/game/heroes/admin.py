@@ -1,22 +1,21 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.game.heroes.models import Hero, HeroPreferences
-from the_tale.game.heroes import logic as heroes_logic
+smart_imports.all()
 
 
-class HeroAdmin(admin.ModelAdmin):
+class HeroAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'name', 'is_alive', 'health', 'account')
     readonly_fields = ('created_at_turn', 'saved_at_turn', 'saved_at', 'account')
 
     def name(self, obj):
-        return heroes_logic.load_hero(hero_model=obj).name
+        from . import logic
+        return logic.load_hero(hero_model=obj).name
 
 
-class HeroPreferencesAdmin(admin.ModelAdmin):
+class HeroPreferencesAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'hero', 'energy_regeneration_type', 'mob', 'place', 'friend', 'enemy', 'equipment_slot')
 
 
-admin.site.register(Hero, HeroAdmin)
-admin.site.register(HeroPreferences, HeroPreferencesAdmin)
+django_admin.site.register(models.Hero, HeroAdmin)
+django_admin.site.register(models.HeroPreferences, HeroPreferencesAdmin)

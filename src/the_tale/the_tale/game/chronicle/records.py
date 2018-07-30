@@ -1,9 +1,7 @@
 
-from the_tale.game import turn
+import smart_imports
 
-from the_tale.game.chronicle.relations import RECORD_TYPE, ACTOR_ROLE
-from the_tale.game.chronicle.exceptions import ChronicleException
-from the_tale.game.chronicle.prototypes import RecordPrototype, create_external_actor
+smart_imports.all()
 
 
 class RecordBase(object):
@@ -15,116 +13,141 @@ class RecordBase(object):
 
         self.text = text
 
-        self.actors = [ (role, create_external_actor(actor)) for role, actor in actors ]
+        self.actors = [(role, prototypes.create_external_actor(actor)) for role, actor in actors]
 
         if not self.IGNORE_ACTORS_CHECK and set(next(zip(*self.actors))) != set(self.ACTORS):
-            raise ChronicleException('wrong actors for chronicle record %r versus %r' % (next(zip(*self.actors)), self.ACTORS))
+            raise exceptions.ChronicleException('wrong actors for chronicle record %r versus %r' % (next(zip(*self.actors)), self.ACTORS))
 
-        self.created_at_turn = turn.number()
+        self.created_at_turn = game_turn.number()
 
     def get_text(self):
         return self.text if self.text is not None else ''
 
     def create_record(self):
-        return RecordPrototype.create(self)
+        return prototypes.RecordPrototype.create(self)
 
     def __repr__(self): return '<Chronicle record for %s>' % self.TYPE.text.encode('utf-8')
 
 
 # change place name
 class _PlaceChangeName(RecordBase):
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL]
+
 
 class PlaceChangeNameBillSuccessed(_PlaceChangeName):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_NAME_BILL_SUCCESSED
+    TYPE = relations.RECORD_TYPE.PLACE_CHANGE_NAME_BILL_SUCCESSED
 
 # change place description
+
+
 class _PlaceChangeDescription(RecordBase):
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL]
+
 
 class PlaceChangeDescriptionBillSuccessed(_PlaceChangeDescription):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_DESCRIPTION_BILL_SUCCESSED
+    TYPE = relations.RECORD_TYPE.PLACE_CHANGE_DESCRIPTION_BILL_SUCCESSED
 
 # change place modifier
+
+
 class _PlaceChangeModifier(RecordBase):
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL]
+
 
 class PlaceChangeModifierBillSuccessed(_PlaceChangeModifier):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_SUCCESSED
+    TYPE = relations.RECORD_TYPE.PLACE_CHANGE_MODIFIER_BILL_SUCCESSED
 
 # change place race
+
+
 class _PlaceChangeRace(RecordBase):
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL]
+
 
 class PlaceChangeRaceBillSuccessed(_PlaceChangeRace):
-    TYPE = RECORD_TYPE.PLACE_CHANGE_RACE
+    TYPE = relations.RECORD_TYPE.PLACE_CHANGE_RACE
 
 # person move to another place
+
+
 class PersonMoveBillSuccessed(RecordBase):
-    TYPE = RECORD_TYPE.PERSON_MOVE_TO_PLACE
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
+    TYPE = relations.RECORD_TYPE.PERSON_MOVE_TO_PLACE
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL, relations.ACTOR_ROLE.PERSON]
 
 
 class PersonAddSocialConnection(RecordBase):
-    TYPE = RECORD_TYPE.PERSON_ADD_SOCIAL_CONNECTION
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON, ACTOR_ROLE.PERSON]
+    TYPE = relations.RECORD_TYPE.PERSON_ADD_SOCIAL_CONNECTION
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL, relations.ACTOR_ROLE.PERSON, relations.ACTOR_ROLE.PERSON]
+
 
 class PersonRemoveSocialConnection(RecordBase):
-    TYPE = RECORD_TYPE.PERSON_REMOVE_SOCIAL_CONNECTION
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON, ACTOR_ROLE.PERSON]
+    TYPE = relations.RECORD_TYPE.PERSON_REMOVE_SOCIAL_CONNECTION
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL, relations.ACTOR_ROLE.PERSON, relations.ACTOR_ROLE.PERSON]
 
 # building create
+
+
 class _BuildingBase(RecordBase):
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL, relations.ACTOR_ROLE.PERSON]
+
 
 class BuildingCreateBillSuccessed(_BuildingBase):
-    TYPE = RECORD_TYPE.BUILDING_CREATE_BILL_SUCCESSED
+    TYPE = relations.RECORD_TYPE.BUILDING_CREATE_BILL_SUCCESSED
 
 # building destroy
+
+
 class BuildingDestroyBillSuccessed(_BuildingBase):
-    TYPE = RECORD_TYPE.BUILDING_DESTROY_BILL_SUCCESSED
+    TYPE = relations.RECORD_TYPE.BUILDING_DESTROY_BILL_SUCCESSED
 
 
 # building renaming
 class _BuildingRenamingBillBase(_BuildingBase):
     pass
 
+
 class BuildingRenamingBillSuccessed(_BuildingRenamingBillBase):
-    TYPE = RECORD_TYPE.BUILDING_RENAMING_BILL_SUCCESSED
+    TYPE = relations.RECORD_TYPE.BUILDING_RENAMING_BILL_SUCCESSED
 
 
 # place resource exchange
 class _PlaceResourceExchangeBillBase(RecordBase):
-    ACTORS = [ACTOR_ROLE.BILL, ACTOR_ROLE.PLACE, ACTOR_ROLE.PLACE]
+    ACTORS = [relations.ACTOR_ROLE.BILL, relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.PLACE]
+
 
 class PlaceResourceExchangeBillSuccessed(_PlaceResourceExchangeBillBase):
-    TYPE = RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_SUCCESSED
+    TYPE = relations.RECORD_TYPE.PLACE_RESOURCE_EXCHANGE_BILL_SUCCESSED
 
 
 # bill decline
 class _BillDeclineBillBase(RecordBase):
     IGNORE_ACTORS_CHECK = True
-    ACTORS = [ACTOR_ROLE.BILL, ACTOR_ROLE.BILL]
+    ACTORS = [relations.ACTOR_ROLE.BILL, relations.ACTOR_ROLE.BILL]
+
 
 class BillDeclineSuccessed(_BillDeclineBillBase):
-    TYPE = RECORD_TYPE.BILL_DECLINE_BILL_SUCCESSED
+    TYPE = relations.RECORD_TYPE.BILL_DECLINE_BILL_SUCCESSED
 
 # place resource conversion
+
+
 class _PlaceResourceConversionBillBase(RecordBase):
-    ACTORS = [ACTOR_ROLE.BILL, ACTOR_ROLE.PLACE]
+    ACTORS = [relations.ACTOR_ROLE.BILL, relations.ACTOR_ROLE.PLACE]
+
 
 class PlaceResourceConversionBillSuccessed(_PlaceResourceConversionBillBase):
-    TYPE = RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED
+    TYPE = relations.RECORD_TYPE.PLACE_RESOURCE_CONVERSION_BILL_SUCCESSED
 
 
-#chronicle
+# chronicle
 class PersonChronicleBillSuccessed(RecordBase):
-    TYPE = RECORD_TYPE.PERSON_CHRONICLE_BILL_SUCCESSED
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL, ACTOR_ROLE.PERSON]
+    TYPE = relations.RECORD_TYPE.PERSON_CHRONICLE_BILL_SUCCESSED
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL, relations.ACTOR_ROLE.PERSON]
+
 
 class PlaceChronicleBillSuccessed(RecordBase):
-    TYPE = RECORD_TYPE.PLACE_CHRONICLE_BILL_SUCCESSED
-    ACTORS = [ACTOR_ROLE.PLACE, ACTOR_ROLE.BILL]
+    TYPE = relations.RECORD_TYPE.PLACE_CHRONICLE_BILL_SUCCESSED
+    ACTORS = [relations.ACTOR_ROLE.PLACE, relations.ACTOR_ROLE.BILL]
 
 
 RECORDS = {}

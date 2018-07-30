@@ -1,6 +1,7 @@
 
+import smart_imports
 
-from . import effects
+smart_imports.all()
 
 
 class JobPower:

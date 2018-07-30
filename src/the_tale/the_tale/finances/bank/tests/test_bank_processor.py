@@ -1,28 +1,20 @@
-# coding: utf-8
-from unittest import mock
 
-from dext.settings import settings
+import smart_imports
 
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils import testcase
-
-from the_tale.finances.bank.tests.helpers import BankTestsMixin
-
-from the_tale.finances.bank.conf import bank_settings
+smart_imports.all()
 
 
-class BankTests(testcase.TestCase, BankTestsMixin):
+class BankTests(utils_testcase.TestCase, helpers.BankTestsMixin):
 
     def setUp(self):
         super(BankTests, self).setUp()
 
-        environment.deinitialize()
-        environment.initialize()
+        amqp_environment.environment.deinitialize()
+        amqp_environment.environment.initialize()
 
-        settings[bank_settings.SETTINGS_ALLOWED_KEY] = 'allowed'
+        dext_settings.settings[conf.settings.SETTINGS_ALLOWED_KEY] = 'allowed'
 
-        self.worker = environment.workers.bank_processor
+        self.worker = amqp_environment.environment.workers.bank_processor
 
     def test_initialize__reset_invoices(self):
         with mock.patch('the_tale.finances.bank.prototypes.InvoicePrototype.reset_all') as reset_all:
@@ -30,17 +22,17 @@ class BankTests(testcase.TestCase, BankTestsMixin):
 
         self.assertEqual(reset_all.call_count, 1)
 
-    @mock.patch('the_tale.finances.bank.conf.bank_settings.ENABLE_BANK', False)
-    @mock.patch('the_tale.finances.bank.conf.bank_settings.BANK_PROCESSOR_SLEEP_TIME', 0)
+    @mock.patch('the_tale.finances.bank.conf.settings.ENABLE_BANK', False)
+    @mock.patch('the_tale.finances.bank.conf.settings.BANK_PROCESSOR_SLEEP_TIME', 0)
     def test_run__turn_off_by_configs(self):
         invoice = self.create_invoice()
         self.worker.process_init_invoice()
         invoice.reload()
         self.assertTrue(invoice.state.is_REQUESTED)
 
-    @mock.patch('the_tale.finances.bank.conf.bank_settings.BANK_PROCESSOR_SLEEP_TIME', 0)
+    @mock.patch('the_tale.finances.bank.conf.settings.BANK_PROCESSOR_SLEEP_TIME', 0)
     def test_init_invoice__turn_off_by_settings(self):
-        del settings[bank_settings.SETTINGS_ALLOWED_KEY]
+        del dext_settings.settings[conf.settings.SETTINGS_ALLOWED_KEY]
         invoice = self.create_invoice()
         self.worker.process_init_invoice()
         invoice.reload()

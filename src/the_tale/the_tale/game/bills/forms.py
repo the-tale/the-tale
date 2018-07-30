@@ -1,25 +1,21 @@
 
-from django.forms import Textarea
+import smart_imports
 
-from dext.forms import forms, fields
-
-from . import conf
-from . import models
-from . import relations
+smart_imports.all()
 
 
-class BaseUserForm(forms.Form):
-    caption = fields.CharField(label='Название записи',
-                               max_length=models.Bill.CAPTION_MAX_LENGTH,
-                               min_length=models.Bill.CAPTION_MIN_LENGTH)
+class BaseUserForm(dext_forms.Form):
+    caption = dext_fields.CharField(label='Название записи',
+                                    max_length=models.Bill.CAPTION_MAX_LENGTH,
+                                    min_length=models.Bill.CAPTION_MIN_LENGTH)
 
-    chronicle_on_accepted = fields.TextField(label='Текст летописи при принятии (от {} до {} символов)'.format(conf.bills_settings.CHRONICLE_MIN_LENGTH,
-                                                                                                               conf.bills_settings.CHRONICLE_MAX_LENGTH),
-                                             widget=Textarea(attrs={'rows': 6}),
-                                             min_length=conf.bills_settings.CHRONICLE_MIN_LENGTH,
-                                             max_length=conf.bills_settings.CHRONICLE_MAX_LENGTH)
+    chronicle_on_accepted = dext_fields.TextField(label='Текст летописи при принятии (от {} до {} символов)'.format(conf.settings.CHRONICLE_MIN_LENGTH,
+                                                                                                                    conf.settings.CHRONICLE_MAX_LENGTH),
+                                                  widget=django_forms.Textarea(attrs={'rows': 6}),
+                                                  min_length=conf.settings.CHRONICLE_MIN_LENGTH,
+                                                  max_length=conf.settings.CHRONICLE_MAX_LENGTH)
 
-    depends_on = fields.ChoiceField(label='Зависит от', required=False)
+    depends_on = dext_fields.ChoiceField(label='Зависит от', required=False)
 
     def __init__(self, *args, **kwargs):
         original_bill_id = kwargs.pop('original_bill_id', None)
@@ -40,5 +36,5 @@ class BaseUserForm(forms.Form):
         return data
 
 
-class ModeratorFormMixin(forms.Form):
-    approved = fields.BooleanField(label='Одобрено', required=False)
+class ModeratorFormMixin(dext_forms.Form):
+    approved = dext_fields.BooleanField(label='Одобрено', required=False)

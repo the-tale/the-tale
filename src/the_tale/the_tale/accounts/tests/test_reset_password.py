@@ -1,107 +1,96 @@
 
-from unittest import mock
+import smart_imports
 
-from django.test import client
-from django.contrib.auth import authenticate as django_authenticate
-from django.core.urlresolvers import reverse
-
-from the_tale.common.utils import testcase
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.post_service.models import Message
-
-from the_tale.accounts.prototypes import ResetPasswordTaskPrototype, ChangeCredentialsTaskPrototype
-from the_tale.accounts.models import ResetPasswordTask
+smart_imports.all()
 
 
-def raise_exception(*argv, **kwargs): raise Exception('unknown error')
+def raise_exception(*argv, **kwargs):
+    raise Exception('unknown error')
 
-class ResetPasswordTaskTests(testcase.TestCase):
+
+class ResetPasswordTaskTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(ResetPasswordTaskTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.task = ResetPasswordTaskPrototype.create(self.account)
+        self.task = prototypes.ResetPasswordTaskPrototype.create(self.account)
 
     # change methods order to prevent segmentation fault
     def test_2_create(self):
-        self.assertEqual(Message.objects.all().count(), 1)
-        self.assertEqual(ResetPasswordTask.objects.all().count(), 1)
+        self.assertEqual(post_service_models.Message.objects.all().count(), 1)
+        self.assertEqual(models.ResetPasswordTask.objects.all().count(), 1)
 
     def test_1_process(self):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
-        self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
+        self.assertEqual(prototypes.ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
 
         new_password = self.task.process(logger=mock.Mock())
         self.assertTrue(self.task.is_processed)
-        self.assertEqual(django_authenticate(nick=self.account.nick, password='111111').id, self.account.id)
+        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111').id, self.account.id)
 
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
+        self.assertEqual(prototypes.ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
 
         PostponedTaskPrototype._db_get_object(0).process(logger=mock.Mock())
 
-        self.assertEqual(django_authenticate(nick=self.account.nick, password='111111'), None)
-        self.assertEqual(django_authenticate(nick=self.account.nick, password=new_password).id, self.account.id)
+        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111'), None)
+        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password=new_password).id, self.account.id)
 
 
-class ResetPasswordRequestsTests(testcase.TestCase):
+class ResetPasswordRequestsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(ResetPasswordRequestsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.client = client.Client()
 
     def test_reset_password_page_for_loggined_user(self):
         self.request_login(self.account.email)
-        self.check_redirect(reverse('accounts:profile:reset-password'), '/')
+        self.check_redirect(django_reverse('accounts:profile:reset-password'), '/')
 
     def test_reset_password_page(self):
-        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password')))
+        self.check_html_ok(self.request_html(django_reverse('accounts:profile:reset-password')))
 
     def test_reset_password_page_for_wrong_email(self):
-        self.check_ajax_error(self.client.post(reverse('accounts:profile:reset-password'), {'email': 'wrong@test.com'}), 'accounts.profile.reset_password.wrong_email')
-        self.assertEqual(django_authenticate(nick=self.account.nick, password='111111').id, self.account.id)
-        self.assertEqual(ResetPasswordTask.objects.all().count(), 0)
+        self.check_ajax_error(self.client.post(django_reverse('accounts:profile:reset-password'), {'email': 'wrong@test.com'}), 'accounts.profile.reset_password.wrong_email')
+        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111').id, self.account.id)
+        self.assertEqual(models.ResetPasswordTask.objects.all().count(), 0)
 
     def test_reset_password_success(self):
-        self.check_ajax_ok(self.client.post(reverse('accounts:profile:reset-password'), {'email': self.account.email}))
-        self.assertEqual(django_authenticate(nick=self.account.nick, password='111111').id, self.account.id)
-        self.assertEqual(ResetPasswordTask.objects.all().count(), 1)
+        self.check_ajax_ok(self.client.post(django_reverse('accounts:profile:reset-password'), {'email': self.account.email}))
+        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111').id, self.account.id)
+        self.assertEqual(models.ResetPasswordTask.objects.all().count(), 1)
 
     def test_reset_password_done(self):
-        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-done')))
+        self.check_html_ok(self.request_html(django_reverse('accounts:profile:reset-password-done')))
 
     def test_reset_password_processed(self):
-        task = ResetPasswordTaskPrototype.create(self.account)
+        task = prototypes.ResetPasswordTaskPrototype.create(self.account)
 
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
-        self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
+        self.assertEqual(prototypes.ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
 
-        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
+        self.check_html_ok(self.request_html(django_reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
 
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 1)
-        self.assertEqual(ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
+        self.assertEqual(prototypes.ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
 
-        self.assertEqual(django_authenticate(nick=self.account.nick, password='111111').id, self.account.id)
+        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111').id, self.account.id)
 
     def test_reset_password_expired(self):
-        task = ResetPasswordTaskPrototype.create(self.account)
-        with mock.patch('the_tale.accounts.conf.accounts_settings.RESET_PASSWORD_TASK_LIVE_TIME', -1):
-            self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)),
+        task = prototypes.ResetPasswordTaskPrototype.create(self.account)
+        with mock.patch('the_tale.accounts.conf.settings.RESET_PASSWORD_TASK_LIVE_TIME', -1):
+            self.check_html_ok(self.request_html(django_reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)),
                                texts=['accounts.profile.reset_password_processed.time_expired'])
-        self.assertEqual(django_authenticate(nick=self.account.nick, password='111111').id, self.account.id)
+        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111').id, self.account.id)
 
     def test_reset_password_already_processed(self):
-        task = ResetPasswordTaskPrototype.create(self.account)
-        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
-        self.check_html_ok(self.request_html(reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)),
+        task = prototypes.ResetPasswordTaskPrototype.create(self.account)
+        self.check_html_ok(self.request_html(django_reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
+        self.check_html_ok(self.request_html(django_reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)),
                            texts=['accounts.profile.reset_password_processed.already_processed'])

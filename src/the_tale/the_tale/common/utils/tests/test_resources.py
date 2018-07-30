@@ -1,34 +1,19 @@
-# coding: utf-8
 
-import datetime
+import smart_imports
 
-from unittest import mock
-
-from django.test import client
-
-from the_tale.common.utils.testcase import TestCase
-
-from the_tale.accounts.prototypes import AccountPrototype
-
-from the_tale.game.logic import create_test_map
+smart_imports.all()
 
 
-class ResourceTest(TestCase):
+class ResourceTest(testcase.TestCase):
 
     def setUp(self):
         super(ResourceTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.client = client.Client()
-
-
-    def tearDown(self):
-        pass
-
-    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.active_end_at', datetime.datetime.now() -datetime.timedelta(seconds=1))
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.active_end_at', datetime.datetime.now() - datetime.timedelta(seconds=1))
     def test_account_activate_unloginned(self):
 
         with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as fake_cmd:
@@ -44,5 +29,5 @@ class ResourceTest(TestCase):
 
         self.assertEqual(fake_cmd.call_count, 1)
         self.assertEqual(fake_cmd.call_args, mock.call(account_id=self.account.id,
-                                                       method_name=AccountPrototype.update_active_state.__name__,
+                                                       method_name=accounts_prototypes.AccountPrototype.update_active_state.__name__,
                                                        data={}))

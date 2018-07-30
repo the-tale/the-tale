@@ -1,28 +1,22 @@
-# coding: utf-8
-import os
-import tempfile
-import subprocess
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from dext.common.utils.logic import run_django_command
-
-from the_tale.game.map.conf import map_settings
+smart_imports.all()
 
 
 CELL_SIZE = 32
+
 TEXTURE_PATH = '/home/tie/repos/mine/the-tale/the_tale/static/game/images/map.png'
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'make map changing video from region datas'
 
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
-        parser.add_argument('-r', '--regions', action='store', type=str, dest='regions', default=map_settings.GEN_MAP_DIR, help='region file name')
+        parser.add_argument('-r', '--regions', action='store', type=str, dest='regions', default=map_conf.settings.GEN_MAP_DIR, help='region file name')
         parser.add_argument('-o', '--output', action='store', type=str, dest='output', help='output file')
-
 
     def handle(self, *args, **options):
         regions_dir = options['regions']
@@ -48,7 +42,7 @@ class Command(BaseCommand):
         for i, region_filename in enumerate(regions):
             print('process region %d: %s' % (i, region_filename))
             output_file = os.path.join(temp_dir, '%.10d.png' % i)
-            run_django_command(['map_visualize_region', '-r', region_filename, '-o', output_file])
+            dext_logic.run_django_command(['map_visualize_region', '-r', region_filename, '-o', output_file])
 
         if os.path.exists(output):
             os.remove(output)

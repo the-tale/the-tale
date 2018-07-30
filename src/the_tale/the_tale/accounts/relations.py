@@ -1,9 +1,10 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
+
+smart_imports.all()
 
 
-class AWARD_TYPE(DjangoEnum):
+class AWARD_TYPE(rels_django.DjangoEnum):
 
     records = (('BUG_MINOR', 0, 'найдена ошибка: небольшая'),
                ('BUG_NORMAL', 1, 'найдена ошибка: обычная'),
@@ -16,7 +17,7 @@ class AWARD_TYPE(DjangoEnum):
                ('STANDARD_MAJOR', 8, 'стандартная награда: существенная'))
 
 
-class CHANGE_CREDENTIALS_TASK_STATE(DjangoEnum):
+class CHANGE_CREDENTIALS_TASK_STATE(rels_django.DjangoEnum):
     records = (('WAITING', 0, 'ожидает обработки'),
                ('EMAIL_SENT', 1, 'отослано письмо'),
                ('PROCESSED', 2, 'обработана'),
@@ -26,14 +27,14 @@ class CHANGE_CREDENTIALS_TASK_STATE(DjangoEnum):
                ('CHANGING', 6, 'применяются изменения'))
 
 
-class BAN_TYPE(DjangoEnum):
+class BAN_TYPE(rels_django.DjangoEnum):
     records = (('FORUM', 0, 'запрет общения'),
-               ('GAME',  1, 'запрет игры'),
+               ('GAME', 1, 'запрет игры'),
                ('TOTAL', 2, 'запрет всего'),)
 
 
-class BAN_TIME(DjangoEnum):
-    days = Column()
+class BAN_TIME(rels_django.DjangoEnum):
+    days = rels.Column()
 
     records = (('1_DAY', 0, '1 день', 1),
                ('2_DAYS', 1, '2 дня', 2),
@@ -41,17 +42,17 @@ class BAN_TIME(DjangoEnum):
                ('WEEK', 3, 'неделя', 7),
                ('MONTH', 4, 'месяц', 30),
                ('HALF_YEAR', 5, 'полгода', 180),
-               ('TOTAL', 6, 'пожизненно', 365*666))
+               ('TOTAL', 6, 'пожизненно', 365 * 666))
 
 
-class RANDOM_PREMIUM_REQUEST_STATE(DjangoEnum):
+class RANDOM_PREMIUM_REQUEST_STATE(rels_django.DjangoEnum):
     records = (('WAITING', 0, 'ожидает обработки'),
-               ('PROCESSED',  1, 'обработана') )
+               ('PROCESSED', 1, 'обработана'))
 
 
-class MIGHT_AMOUNT(DjangoEnum):
-    amount = Column(unique=False, single_type=False)
-    award = Column(unique=False, single_type=False, no_index=False)
+class MIGHT_AMOUNT(rels_django.DjangoEnum):
+    amount = rels.Column(unique=False, single_type=False)
+    award = rels.Column(unique=False, single_type=False, no_index=False)
 
     records = (('FOR_FORUM_POST', 0, 'за сообщение на форуме', 0.3, None),
                ('FOR_FORUM_THREAD', 2, 'со обсуждение на форуме', 3, None),
@@ -77,5 +78,5 @@ class MIGHT_AMOUNT(DjangoEnum):
                ('FOR_EDITED_TEMPLATE_FOR_MODERATOR', 22, 'за отредактированную фразу в лингвистике для модератора', 15, None))
 
 
-class PLAYER_TIMERS_TYPES(DjangoEnum):
+class PLAYER_TIMERS_TYPES(rels_django.DjangoEnum):
     records = (('CARDS_MINER', 0, 'таймер получения новых карт'),)

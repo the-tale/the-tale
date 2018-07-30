@@ -1,20 +1,7 @@
 
-import random
+import smart_imports
 
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import bbcode
-from the_tale.common.utils.logic import random_value_by_priority
-
-from the_tale.game import names
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance.power import Power
-
-from the_tale.game.artifacts import exceptions
-from the_tale.game.artifacts import relations
-from the_tale.game.artifacts import effects
+smart_imports.all()
 
 
 class Artifact(object):
@@ -29,14 +16,13 @@ class Artifact(object):
 
         self.max_integrity = int(max_integrity
                                  if max_integrity is not None
-                                 else rarity.max_integrity * random.uniform(1-c.ARTIFACT_MAX_INTEGRITY_DELTA, 1+c.ARTIFACT_MAX_INTEGRITY_DELTA))
+                                 else rarity.max_integrity * random.uniform(1 - c.ARTIFACT_MAX_INTEGRITY_DELTA, 1 + c.ARTIFACT_MAX_INTEGRITY_DELTA))
         self.integrity = integrity if integrity is not None else self.max_integrity
 
         self.bag_uuid = bag_uuid
 
     @property
     def record(self):
-        from the_tale.game.artifacts import storage
         return storage.artifacts[self.record_id]
 
     @property
@@ -69,19 +55,16 @@ class Artifact(object):
     def set_bag_uuid(self, uuid): self.bag_uuid = uuid
 
     def linguistics_restrictions(self):
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-        from the_tale.linguistics.storage import restrictions_storage
-
-        restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_TYPE, self.type.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_POWER_TYPE, self.record.power_type.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_RARITY, self.rarity.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_EFFECT, self._effect().TYPE.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT, self.record.id).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.WEAPON_TYPE, self.record.weapon_type.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MATERIAL, self.record.material.value).id]
+        restrictions = [linguistics_restrictions.get(self.type),
+                        linguistics_restrictions.get(self.record.power_type),
+                        linguistics_restrictions.get(self.rarity),
+                        linguistics_restrictions.get(self._effect().TYPE),
+                        linguistics_restrictions.get_raw('ARTIFACT', self.record.id),
+                        linguistics_restrictions.get(self.record.weapon_type),
+                        linguistics_restrictions.get(self.record.material)]
 
         for damage_type in self.record.weapon_type.damage_types:
-            restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.DAMAGE_TYPE, damage_type.value).id)
+            restrictions.append(linguistics_restrictions.get(damage_type))
 
         return restrictions
 
@@ -135,8 +118,6 @@ class Artifact(object):
     @classmethod
     def deserialize(cls, data):
         # if artifact record is disabled or deleted, get another random record
-        from the_tale.game.artifacts import storage
-
         record = storage.artifacts.get_by_uuid(data['id'])
 
         if record is None or record.state.is_DISABLED:
@@ -145,7 +126,7 @@ class Artifact(object):
         integrity = data.get('integrity', [c.ARTIFACT_MAX_INTEGRITY, c.ARTIFACT_MAX_INTEGRITY])
 
         return cls(record_id=record.id,
-                   power=Power.deserialize(data['power']),
+                   power=power.Power.deserialize(data['power']),
                    bag_uuid=data['bag_uuid'],
                    integrity=integrity[0],
                    max_integrity=integrity[1],
@@ -176,7 +157,7 @@ class Artifact(object):
         if not choices:
             return False
 
-        if random_value_by_priority(choices) == 'physic':
+        if utils_logic.random_value_by_priority(choices) == 'physic':
             self.power.physic += 1
         else:
             self.power.magic += 1
@@ -199,8 +180,8 @@ class Artifact(object):
         return self.integrity < self.max_integrity * (1.0 - c.ARTIFACT_INTEGRITY_SAFE_BARRIER)
 
     def break_it(self):
-        self.power = Power(physic=max(1, int(self.power.physic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)),
-                           magic=max(1, int(self.power.magic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)) )
+        self.power = power.Power(physic=max(1, int(self.power.physic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)),
+                                 magic=max(1, int(self.power.magic * (1 - random.uniform(*c.ARTIFACT_BREAK_POWER_FRACTIONS)) - 1)))
 
         self.max_integrity = int(self.max_integrity * (1 - random.uniform(*c.ARTIFACT_BREAK_INTEGRITY_FRACTIONS)))
         self.integrity = min(self.integrity, self.max_integrity)
@@ -248,7 +229,7 @@ class Artifact(object):
             return self.EPIC_ARTIFACT_LABEL % (self.name, self.power.physic, self.power.magic)
 
 
-class ArtifactRecord(names.ManageNameMixin2):
+class ArtifactRecord(game_names.ManageNameMixin2):
     __slots__ = ('id',
                  'editor_id',
                  'mob_id',
@@ -303,7 +284,7 @@ class ArtifactRecord(names.ManageNameMixin2):
         self.material = material
 
     @property
-    def description_html(self): return bbcode.render(self.description)
+    def description_html(self): return utils_bbcode.render(self.description)
 
     def accepted_for_level(self, level): return self.level <= level
 
@@ -317,8 +298,6 @@ class ArtifactRecord(names.ManageNameMixin2):
 
     @property
     def mob(self):
-        from the_tale.game.mobs import storage as mobs_storage
-
         if self.mob_id is None:
             return None
 
@@ -335,22 +314,19 @@ class Weapon(object):
     __slots__ = ('type', 'material', 'power_type', '_restrictions')
 
     def __init__(self, weapon, material, power_type):
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-        from the_tale.linguistics.storage import restrictions_storage
-
         self.type = weapon
         self.material = material
         self.power_type = power_type
 
-        restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_TYPE, relations.ARTIFACT_TYPE.MAIN_HAND.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_POWER_TYPE, self.power_type.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_RARITY, relations.RARITY.NORMAL.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARTIFACT_EFFECT, relations.ARTIFACT_EFFECT.NO_EFFECT.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.WEAPON_TYPE, self.type.weapon_type.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MATERIAL, self.material.value).id]
+        restrictions = [linguistics_restrictions.get(relations.ARTIFACT_TYPE.MAIN_HAND),
+                        linguistics_restrictions.get(self.power_type),
+                        linguistics_restrictions.get(relations.RARITY.NORMAL),
+                        linguistics_restrictions.get(relations.ARTIFACT_EFFECT.NO_EFFECT),
+                        linguistics_restrictions.get(self.type.weapon_type),
+                        linguistics_restrictions.get(self.material)]
 
         for damage_type in self.type.weapon_type.damage_types:
-            restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.DAMAGE_TYPE, damage_type.value).id)
+            restrictions.append(linguistics_restrictions.get(damage_type))
 
         self._restrictions = restrictions
 

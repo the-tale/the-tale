@@ -1,22 +1,14 @@
-import gc
-import datetime
 
-from the_tale.amqp_environment import environment
+import smart_imports
 
-from the_tale.common.utils import workers
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.game import turn
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.conf import game_settings
-
-from the_tale.game.quests import logic as quests_logic
+smart_imports.all()
 
 
-class LogicException(Exception): pass
+class LogicException(Exception):
+    pass
 
 
-class Worker(workers.BaseWorker):
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
     STOP_SIGNAL_REQUIRED = False
 
@@ -28,12 +20,12 @@ class Worker(workers.BaseWorker):
         self.send_cmd('initialize', {'turn_number': turn_number, 'worker_id': worker_id})
 
     def process_initialize(self, turn_number, worker_id):
-        self.clean_queues() # it is bad solution, but it allow to clean queues after tests
+        self.clean_queues()  # it is bad solution, but it allow to clean queues after tests
 
         if self.initialized:
             self.logger.warn('WARNING: game already initialized, do reinitialization')
 
-        self.storage = LogicStorage()
+        self.storage = logic_storage.LogicStorage()
 
         self.initialized = True
         self.turn_number = turn_number
@@ -42,7 +34,7 @@ class Worker(workers.BaseWorker):
 
         self.logger.info('GAME INITIALIZED')
 
-        environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
+        amqp_environment.environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_next_turn(self, turn_number):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
@@ -55,8 +47,8 @@ class Worker(workers.BaseWorker):
         if turn_number != self.turn_number:
             raise LogicException('dessinchonization: workers turn number (%d) not equal to command turn number (%d)' % (self.turn_number, turn_number))
 
-        if turn.number() != self.turn_number:
-            raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number, turn.number()))
+        if game_turn.number() != self.turn_number:
+            raise LogicException('dessinchonization: workers turn number (%d) not equal to saved turn number (%d)' % (self.turn_number, game_turn.number()))
 
         self.storage.process_turn(logger=self.logger)
         self.storage.save_changed_data(logger=self.logger)
@@ -65,18 +57,18 @@ class Worker(workers.BaseWorker):
             hero = self.storage.heroes[hero_id]
             if hero.actions.current_action.bundle_id in self.storage.ignored_bundles:
                 continue
-            environment.workers.supervisor.cmd_account_release_required(hero.account_id)
+            amqp_environment.environment.workers.supervisor.cmd_account_release_required(hero.account_id)
 
-        environment.workers.supervisor.cmd_answer('next_turn', self.worker_id)
+        amqp_environment.environment.workers.supervisor.cmd_answer('next_turn', self.worker_id)
 
-        if game_settings.COLLECT_GARBAGE and self.turn_number % game_settings.COLLECT_GARBAGE_PERIOD == 0:
+        if conf.settings.COLLECT_GARBAGE and self.turn_number % conf.settings.COLLECT_GARBAGE_PERIOD == 0:
             self.logger.info('GC: start')
             gc.collect()
             self.logger.info('GC: end')
 
     def release_account(self, account_id):
         if account_id not in self.storage.accounts_to_heroes:
-            environment.workers.supervisor.cmd_account_released(account_id)
+            amqp_environment.environment.workers.supervisor.cmd_account_released(account_id)
             return
 
         hero = self.storage.accounts_to_heroes[account_id]
@@ -90,7 +82,7 @@ class Worker(workers.BaseWorker):
                                        data=(hero.id, bundle_id),
                                        excluded_bundle_id=bundle_id):
             self.storage.release_account_data(account_id)
-            environment.workers.supervisor.cmd_account_released(account_id)
+            amqp_environment.environment.workers.supervisor.cmd_account_released(account_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -99,7 +91,7 @@ class Worker(workers.BaseWorker):
         # no need to save data, since they automaticaly saved on every turn
         self.initialized = False
         self.storage.save_all(logger=self.logger)
-        environment.workers.supervisor.cmd_answer('stop', self.worker_id)
+        amqp_environment.environment.workers.supervisor.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('LOGIC STOPPED')
 
@@ -107,8 +99,7 @@ class Worker(workers.BaseWorker):
         return self.send_cmd('register_account', {'account_id': account_id})
 
     def process_register_account(self, account_id):
-        from the_tale.accounts.prototypes import AccountPrototype
-        account = AccountPrototype.get_by_id(account_id)
+        account = accounts_prototypes.AccountPrototype.get_by_id(account_id)
         if account is None:
             raise LogicException('can not get account with id "%d"' % (account_id,))
         self.storage.load_account_data(account)
@@ -123,7 +114,7 @@ class Worker(workers.BaseWorker):
         return self.send_cmd('logic_task', {'task_id': task_id,
                                             'account_id': account_id})
 
-    def process_logic_task(self, account_id, task_id): # pylint: disable=W0613
+    def process_logic_task(self, account_id, task_id):  # pylint: disable=W0613
         hero = self.storage.accounts_to_heroes[account_id]
         bundle_id = hero.actions.current_action.bundle_id
 
@@ -140,11 +131,10 @@ class Worker(workers.BaseWorker):
 
             self.storage.recache_bundle(bundle_id, force_full_data=True)
 
-
     def cmd_force_save(self, account_id):
         return self.send_cmd('force_save', {'account_id': account_id})
 
-    def process_force_save(self, account_id): # pylint: disable=W0613
+    def process_force_save(self, account_id):  # pylint: disable=W0613
         hero = self.storage.accounts_to_heroes[account_id]
         bundle_id = hero.actions.current_action.bundle_id
         if bundle_id in self.storage.ignored_bundles:

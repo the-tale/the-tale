@@ -1,31 +1,26 @@
-# coding: utf-8
 
-from the_tale.amqp_environment import environment
+import smart_imports
 
-from the_tale.common.utils.workers import BaseWorker
-
-from the_tale.game.conf import game_settings
-from the_tale.game.prototypes import GameState
-
-from the_tale.game import conf
+smart_imports.all()
 
 
-class TurnsLoopException(Exception): pass
+class TurnsLoopException(Exception):
+    pass
 
-class Worker(BaseWorker):
+
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 0.01
-    NO_CMD_TIMEOUT = game_settings.TURN_DELAY
+    NO_CMD_TIMEOUT = conf.settings.TURN_DELAY
 
     def process_no_cmd(self):
-        if GameState.is_working():
+        if prototypes.GameState.is_working():
             self.logger.info('send next turn command')
-            environment.workers.supervisor.cmd_next_turn()
+            amqp_environment.environment.workers.supervisor.cmd_next_turn()
         else:
             self.logger.info('skip next turn command, since game is stopped')
 
-
     def initialize(self):
-        if not conf.game_settings.ENABLE_WORKER_TURNS_LOOP:
+        if not conf.settings.ENABLE_WORKER_TURNS_LOOP:
             return False
 
         if self.initialized:

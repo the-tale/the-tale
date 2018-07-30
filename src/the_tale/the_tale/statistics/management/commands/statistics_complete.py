@@ -1,16 +1,7 @@
-# coding: utf-8
-import os
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from dext.common.utils import s11n
-from dext.common.utils import jinja2
-from dext.settings import settings
-
-from the_tale.statistics.conf import statistics_settings
-from the_tale.statistics.prototypes import RecordPrototype
-
-from the_tale.statistics import models
+smart_imports.all()
 
 from the_tale.statistics.metrics import registrations
 from the_tale.statistics.metrics import lifetime
@@ -22,148 +13,148 @@ from the_tale.statistics.metrics import folclor
 
 
 METRICS = [
-        registrations.RegistrationsCompleted,
-        registrations.RegistrationsTries,
-        registrations.RegistrationsCompletedPercents,
+    statistics_metrics_registrations.RegistrationsCompleted,
+    statistics_metrics_registrations.RegistrationsTries,
+    statistics_metrics_registrations.RegistrationsCompletedPercents,
 
-        registrations.RegistrationsCompletedInMonth,
-        registrations.RegistrationsTriesInMonth,
-        registrations.RegistrationsCompletedPercentsInMonth,
+    statistics_metrics_registrations.RegistrationsCompletedInMonth,
+    statistics_metrics_registrations.RegistrationsTriesInMonth,
+    statistics_metrics_registrations.RegistrationsCompletedPercentsInMonth,
 
-        registrations.AccountsTotal,
+    statistics_metrics_registrations.AccountsTotal,
 
-        registrations.Referrals,
-        registrations.ReferralsTotal,
-        registrations.ReferralsPercents,
+    statistics_metrics_registrations.Referrals,
+    statistics_metrics_registrations.ReferralsTotal,
+    statistics_metrics_registrations.ReferralsPercents,
 
-        registrations.ReferralsInMonth,
+    statistics_metrics_registrations.ReferralsInMonth,
 
-        actual.Premiums,
-        actual.InfinitPremiums,
-        actual.PremiumPercents,
-        actual.Active,
-        actual.DAU,
-        actual.MAU,
+    statistics_metrics_actual.Premiums,
+    statistics_metrics_actual.InfinitPremiums,
+    statistics_metrics_actual.PremiumPercents,
+    statistics_metrics_actual.Active,
+    statistics_metrics_actual.DAU,
+    statistics_metrics_actual.MAU,
 
-        actual.ActiveOlderDay,
-        actual.ActiveOlderWeek,
-        actual.ActiveOlderMonth,
-        actual.ActiveOlder3Month,
-        actual.ActiveOlder6Month,
-        actual.ActiveOlderYear,
+    statistics_metrics_actual.ActiveOlderDay,
+    statistics_metrics_actual.ActiveOlderWeek,
+    statistics_metrics_actual.ActiveOlderMonth,
+    statistics_metrics_actual.ActiveOlder3Month,
+    statistics_metrics_actual.ActiveOlder6Month,
+    statistics_metrics_actual.ActiveOlderYear,
 
-        lifetime.AliveAfterDay,
-        lifetime.AliveAfterWeek,
-        lifetime.AliveAfterMonth,
-        lifetime.AliveAfter3Month,
-        lifetime.AliveAfter6Month,
-        lifetime.AliveAfterYear,
-        lifetime.AliveAfter0,
-        lifetime.Lifetime,
-        lifetime.LifetimePercent,
+    statistics_metrics_lifetime.AliveAfterDay,
+    statistics_metrics_lifetime.AliveAfterWeek,
+    statistics_metrics_lifetime.AliveAfterMonth,
+    statistics_metrics_lifetime.AliveAfter3Month,
+    statistics_metrics_lifetime.AliveAfter6Month,
+    statistics_metrics_lifetime.AliveAfterYear,
+    statistics_metrics_lifetime.AliveAfter0,
+    statistics_metrics_lifetime.Lifetime,
+    statistics_metrics_lifetime.LifetimePercent,
 
-        monetization.Payers,
-        monetization.Income,
-        monetization.PayersInMonth,
-        monetization.IncomeInMonth,
-        monetization.ARPPU,
-        monetization.ARPU,
-        monetization.ARPPUInMonth,
-        monetization.ARPUInMonth,
-        monetization.PU,
-        monetization.PUPercents,
-        monetization.IncomeTotal,
-        monetization.DaysBeforePayment,
-        monetization.ARPNUWeek,
-        monetization.ARPNUMonth,
-        monetization.ARPNU3Month,
-        monetization.LTV,
+    statistics_metrics_monetization.Payers,
+    statistics_metrics_monetization.Income,
+    statistics_metrics_monetization.PayersInMonth,
+    statistics_metrics_monetization.IncomeInMonth,
+    statistics_metrics_monetization.ARPPU,
+    statistics_metrics_monetization.ARPU,
+    statistics_metrics_monetization.ARPPUInMonth,
+    statistics_metrics_monetization.ARPUInMonth,
+    statistics_metrics_monetization.PU,
+    statistics_metrics_monetization.PUPercents,
+    statistics_metrics_monetization.IncomeTotal,
+    statistics_metrics_monetization.DaysBeforePayment,
+    statistics_metrics_monetization.ARPNUWeek,
+    statistics_metrics_monetization.ARPNUMonth,
+    statistics_metrics_monetization.ARPNU3Month,
+    statistics_metrics_monetization.LTV,
 
-        monetization.Revenue,
+    statistics_metrics_monetization.Revenue,
 
-        monetization.IncomeFromForum,
-        monetization.IncomeFromSilent,
-        monetization.IncomeFromGuildMembers,
-        monetization.IncomeFromSingles,
+    statistics_metrics_monetization.IncomeFromForum,
+    statistics_metrics_monetization.IncomeFromSilent,
+    statistics_metrics_monetization.IncomeFromGuildMembers,
+    statistics_metrics_monetization.IncomeFromSingles,
 
-        monetization.IncomeFromForumPercents,
-        monetization.IncomeFromSilentPercents,
-        monetization.IncomeFromGuildMembersPercents,
-        monetization.IncomeFromSinglesPercents,
+    statistics_metrics_monetization.IncomeFromForumPercents,
+    statistics_metrics_monetization.IncomeFromSilentPercents,
+    statistics_metrics_monetization.IncomeFromGuildMembersPercents,
+    statistics_metrics_monetization.IncomeFromSinglesPercents,
 
-        monetization.IncomeFromGoodsPremium,
-        monetization.IncomeFromGoodsEnergy,
-        monetization.IncomeFromGoodsChest,
-        monetization.IncomeFromGoodsPeferences,
-        monetization.IncomeFromGoodsPreferencesReset,
-        monetization.IncomeFromGoodsHabits,
-        monetization.IncomeFromGoodsAbilities,
-        monetization.IncomeFromGoodsClans,
-        monetization.IncomeFromGoodsMarketCommission,
-        monetization.IncomeFromTransferMoneyCommission,
+    statistics_metrics_monetization.IncomeFromGoodsPremium,
+    statistics_metrics_monetization.IncomeFromGoodsEnergy,
+    statistics_metrics_monetization.IncomeFromGoodsChest,
+    statistics_metrics_monetization.IncomeFromGoodsPeferences,
+    statistics_metrics_monetization.IncomeFromGoodsPreferencesReset,
+    statistics_metrics_monetization.IncomeFromGoodsHabits,
+    statistics_metrics_monetization.IncomeFromGoodsAbilities,
+    statistics_metrics_monetization.IncomeFromGoodsClans,
+    statistics_metrics_monetization.IncomeFromGoodsMarketCommission,
+    statistics_metrics_monetization.IncomeFromTransferMoneyCommission,
 
-        monetization.IncomeFromGoodsPremiumPercents,
-        monetization.IncomeFromGoodsEnergyPercents,
-        monetization.IncomeFromGoodsChestPercents,
-        monetization.IncomeFromGoodsPeferencesPercents,
-        monetization.IncomeFromGoodsPreferencesResetPercents,
-        monetization.IncomeFromGoodsHabitsPercents,
-        monetization.IncomeFromGoodsAbilitiesPercents,
-        monetization.IncomeFromGoodsClansPercents,
-        monetization.IncomeFromGoodsMarketCommissionPercents,
-        monetization.IncomeFromTransferMoneyCommissionPercents,
+    statistics_metrics_monetization.IncomeFromGoodsPremiumPercents,
+    statistics_metrics_monetization.IncomeFromGoodsEnergyPercents,
+    statistics_metrics_monetization.IncomeFromGoodsChestPercents,
+    statistics_metrics_monetization.IncomeFromGoodsPeferencesPercents,
+    statistics_metrics_monetization.IncomeFromGoodsPreferencesResetPercents,
+    statistics_metrics_monetization.IncomeFromGoodsHabitsPercents,
+    statistics_metrics_monetization.IncomeFromGoodsAbilitiesPercents,
+    statistics_metrics_monetization.IncomeFromGoodsClansPercents,
+    statistics_metrics_monetization.IncomeFromGoodsMarketCommissionPercents,
+    statistics_metrics_monetization.IncomeFromTransferMoneyCommissionPercents,
 
-        monetization.IncomeGroup0_500,
-        monetization.IncomeGroup500_1000,
-        monetization.IncomeGroup1000_2500,
-        monetization.IncomeGroup2500_10000,
-        monetization.IncomeGroup10000,
+    statistics_metrics_monetization.IncomeGroup0_500,
+    statistics_metrics_monetization.IncomeGroup500_1000,
+    statistics_metrics_monetization.IncomeGroup1000_2500,
+    statistics_metrics_monetization.IncomeGroup2500_10000,
+    statistics_metrics_monetization.IncomeGroup10000,
 
-        monetization.IncomeGroup0_500Percents,
-        monetization.IncomeGroup500_1000Percents,
-        monetization.IncomeGroup1000_2500Percents,
-        monetization.IncomeGroup2500_10000Percents,
-        monetization.IncomeGroup10000Percents,
+    statistics_metrics_monetization.IncomeGroup0_500Percents,
+    statistics_metrics_monetization.IncomeGroup500_1000Percents,
+    statistics_metrics_monetization.IncomeGroup1000_2500Percents,
+    statistics_metrics_monetization.IncomeGroup2500_10000Percents,
+    statistics_metrics_monetization.IncomeGroup10000Percents,
 
-        monetization.IncomeGroupIncome0_500,
-        monetization.IncomeGroupIncome500_1000,
-        monetization.IncomeGroupIncome1000_2500,
-        monetization.IncomeGroupIncome2500_10000,
-        monetization.IncomeGroupIncome10000,
+    statistics_metrics_monetization.IncomeGroupIncome0_500,
+    statistics_metrics_monetization.IncomeGroupIncome500_1000,
+    statistics_metrics_monetization.IncomeGroupIncome1000_2500,
+    statistics_metrics_monetization.IncomeGroupIncome2500_10000,
+    statistics_metrics_monetization.IncomeGroupIncome10000,
 
-        monetization.IncomeGroupIncome0_500Percents,
-        monetization.IncomeGroupIncome500_1000Percents,
-        monetization.IncomeGroupIncome1000_2500Percents,
-        monetization.IncomeGroupIncome2500_10000Percents,
-        monetization.IncomeGroupIncome10000Percents,
+    statistics_metrics_monetization.IncomeGroupIncome0_500Percents,
+    statistics_metrics_monetization.IncomeGroupIncome500_1000Percents,
+    statistics_metrics_monetization.IncomeGroupIncome1000_2500Percents,
+    statistics_metrics_monetization.IncomeGroupIncome2500_10000Percents,
+    statistics_metrics_monetization.IncomeGroupIncome10000Percents,
 
-        forum.Posts,
-        forum.PostsInMonth,
-        forum.PostsTotal,
-        forum.Threads,
-        forum.ThreadsInMonth,
-        forum.ThreadsTotal,
-        forum.PostsPerThreadInMonth,
+    statistics_metrics_forum.Posts,
+    statistics_metrics_forum.PostsInMonth,
+    statistics_metrics_forum.PostsTotal,
+    statistics_metrics_forum.Threads,
+    statistics_metrics_forum.ThreadsInMonth,
+    statistics_metrics_forum.ThreadsTotal,
+    statistics_metrics_forum.PostsPerThreadInMonth,
 
-        bills.Bills,
-        bills.BillsInMonth,
-        bills.BillsTotal,
-        bills.Votes,
-        bills.VotesInMonth,
-        bills.VotesTotal,
-        bills.VotesPerBillInMonth,
+    statistics_metrics_bills.Bills,
+    statistics_metrics_bills.BillsInMonth,
+    statistics_metrics_bills.BillsTotal,
+    statistics_metrics_bills.Votes,
+    statistics_metrics_bills.VotesInMonth,
+    statistics_metrics_bills.VotesTotal,
+    statistics_metrics_bills.VotesPerBillInMonth,
 
-        folclor.Posts,
-        folclor.PostsInMonth,
-        folclor.PostsTotal,
-        folclor.Votes,
-        folclor.VotesInMonth,
-        folclor.VotesTotal,
-        folclor.VotesPerPostInMonth
-    ]
+    statistics_metrics_folclor.Posts,
+    statistics_metrics_folclor.PostsInMonth,
+    statistics_metrics_folclor.PostsTotal,
+    statistics_metrics_folclor.Votes,
+    statistics_metrics_folclor.VotesInMonth,
+    statistics_metrics_folclor.VotesTotal,
+    statistics_metrics_folclor.VotesPerPostInMonth
+]
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'complete statistics'
 
@@ -181,8 +172,8 @@ class Command(BaseCommand):
 
         if recalculate:
             for MetricClass in METRICS:
-                RecordPrototype._db_filter(date=MetricClass._last_datetime().date(),
-                                           type=MetricClass.TYPE).delete()
+                prototypes.RecordPrototype._db_filter(date=MetricClass._last_datetime().date(),
+                                                      type=MetricClass.TYPE).delete()
 
         for MetricClass in METRICS:
             if force_clear or MetricClass.FULL_CLEAR_RECUIRED:
@@ -199,4 +190,4 @@ class Command(BaseCommand):
             metric.complete_values()
 
         models.FullStatistics.objects.all().delete()
-        models.FullStatistics.objects.create(data=RecordPrototype.get_js_data())
+        models.FullStatistics.objects.create(data=prototypes.RecordPrototype.get_js_data())

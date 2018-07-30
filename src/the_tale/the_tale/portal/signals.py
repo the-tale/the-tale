@@ -1,5 +1,7 @@
-# coding: utf-8
 
-from django import dispatch
+import smart_imports
 
-day_started = dispatch.Signal(providing_args=[])
+smart_imports.all()
+
+
+day_started = django_dispatch.Signal(providing_args=[])

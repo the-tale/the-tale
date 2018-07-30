@@ -1,17 +1,10 @@
 
-import rels
-from rels.django import DjangoEnum
+import smart_imports
 
-from utg import words as utg_words
-
-from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
-
-from the_tale.game.relations import GENDER, RACE
-
-from the_tale.game.heroes.habilities import ABILITIES, ABILITY_AVAILABILITY
+smart_imports.all()
 
 
-class CHOOSE_HERO_ABILITY_STATE(DjangoEnum):
+class CHOOSE_HERO_ABILITY_STATE(rels_django.DjangoEnum):
     records = (('UNPROCESSED', 0, 'в очереди'),
                ('PROCESSED', 1, 'обработана'),
                ('WRONG_ID', 2, 'неверный идентификатор способности'),
@@ -43,7 +36,7 @@ class ChooseHeroAbilityTask(PostponedLogic):
 
         hero = storage.heroes[self.hero_id]
 
-        if self.ability_id not in ABILITIES:
+        if self.ability_id not in heroes_abilities.ABILITIES:
             self.state = CHOOSE_HERO_ABILITY_STATE.WRONG_ID
             main_task.comment = 'no ability with id "%s"' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -55,9 +48,9 @@ class ChooseHeroAbilityTask(PostponedLogic):
             main_task.comment = 'ability not in choices list: %s' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        ability_class = ABILITIES[self.ability_id]
+        ability_class = heroes_abilities.ABILITIES[self.ability_id]
 
-        if not (ability_class.AVAILABILITY.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value):
+        if not (ability_class.AVAILABILITY.value & heroes_abilities_relations.ABILITY_AVAILABILITY.FOR_PLAYERS.value):
             self.state = CHOOSE_HERO_ABILITY_STATE.NOT_FOR_PLAYERS
             main_task.comment = 'ability "%s" does not available to players' % self.ability_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -84,7 +77,7 @@ class ChooseHeroAbilityTask(PostponedLogic):
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
-class CHANGE_HERO_TASK_STATE(DjangoEnum):
+class CHANGE_HERO_TASK_STATE(rels_django.DjangoEnum):
     records = (('UNPROCESSED', 0, 'в очереди'),
                ('PROCESSED', 1, 'обработана'))
 
@@ -97,8 +90,8 @@ class ChangeHeroTask(PostponedLogic):
         super(ChangeHeroTask, self).__init__()
         self.hero_id = hero_id
         self.name = name if isinstance(name, utg_words.Word) else utg_words.Word.deserialize(name)
-        self.race = race if isinstance(race, rels.Record) else RACE.index_value[race]
-        self.gender = gender if isinstance(gender, rels.Record) else GENDER.index_value[gender]
+        self.race = race if isinstance(race, rels.Record) else game_relations.RACE.index_value[race]
+        self.gender = gender if isinstance(gender, rels.Record) else game_relations.GENDER.index_value[gender]
         self.state = state if isinstance(state, rels.Record) else CHANGE_HERO_TASK_STATE(state)
 
     def serialize(self):
@@ -133,12 +126,15 @@ class InvokeHeroMethodTask(PostponedLogic):
 
     TYPE = 'invoke-hero-method'
 
-    class STATE(DjangoEnum):
+    class STATE(rels_django.DjangoEnum):
         records = (('UNPROCESSED', 0, 'в очереди'),
                    ('PROCESSED', 1, 'обработана'),
                    ('METHOD_NOT_FOUND', 2, 'метод не обнаружен'))
 
-    def __init__(self, hero_id, method_name, method_kwargs, state=STATE.UNPROCESSED):
+    def __init__(self, hero_id, method_name, method_kwargs, state=None):
+        if state is None:
+            state = self.STATE.UNPROCESSED
+
         super(InvokeHeroMethodTask, self).__init__()
         self.hero_id = hero_id
         self.state = state if isinstance(state, rels.Record) else self.STATE(state)

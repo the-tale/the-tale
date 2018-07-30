@@ -1,21 +1,15 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from dext.common.utils import s11n
-
-from utg import words as utg_words
-
-from the_tale.game.companions import models
+smart_imports.all()
 
 
-class CompanionRecordAdmin(admin.ModelAdmin):
-    list_display = ('id',  'state', 'name', 'type', 'archetype', 'mode', 'dedication', 'max_health', 'created_at', 'updated_at')
+class CompanionRecordAdmin(django_admin.ModelAdmin):
+    list_display = ('id', 'state', 'name', 'type', 'archetype', 'mode', 'dedication', 'max_health', 'created_at', 'updated_at')
     list_filter = ('state',)
 
     def name(self, obj):
         return utg_words.Word.deserialize(s11n.from_json(obj.data)['name']).normal_form()
 
 
-
-admin.site.register(models.CompanionRecord, CompanionRecordAdmin)
+django_admin.site.register(models.CompanionRecord, CompanionRecordAdmin)

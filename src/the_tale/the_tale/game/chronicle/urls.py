@@ -1,7 +1,7 @@
-# coding: utf-8
 
-from dext.views import resource_patterns
+import smart_imports
 
-from the_tale.game.chronicle.views import ChronicleResource
+smart_imports.all()
 
-urlpatterns = resource_patterns(ChronicleResource)
+
+urlpatterns = dext_old_views.resource_patterns(views.ChronicleResource)

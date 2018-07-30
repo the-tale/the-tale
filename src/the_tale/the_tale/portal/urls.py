@@ -1,12 +1,9 @@
-# coding: utf-8
 
-from django.conf.urls import url
-from django.conf.urls import include
+import smart_imports
 
-from dext.views import resource_patterns
+smart_imports.all()
 
-from the_tale.portal.views import PortalResource
 
-urlpatterns = [url(r'^developers-info/', include('the_tale.portal.developers_info.urls', namespace='developers-info') )]
+urlpatterns = [django_urls.url(r'^developers-info/', django_urls.include('the_tale.portal.developers_info.urls', namespace='developers-info'))]
 
-urlpatterns += resource_patterns(PortalResource)
+urlpatterns += dext_old_views.resource_patterns(views.PortalResource)

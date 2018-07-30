@@ -1,49 +1,7 @@
 
-import random
-import copy
-import math
+import smart_imports
 
-from django.conf import settings as project_settings
-
-from dext.common.utils.urls import url
-from dext.common.utils import discovering
-
-from the_tale.common.utils import logic as utils_logic
-
-from the_tale.game import turn
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import power as p
-
-from the_tale.game.quests import logic as quests_logic
-
-from the_tale.game.mobs import objects as mobs_objects
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.artifacts import storage as artifacts_storage
-
-from the_tale.game.roads.storage import waymarks_storage
-from the_tale.game.places import storage as places_storage
-from the_tale.game.map.storage import map_info_storage
-
-from the_tale.game.abilities.relations import HELP_CHOICES
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game import tt_api_energy
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.persons import logic as persons_logic
-
-from the_tale.game.actions import battle
-from the_tale.game.actions import contexts
-from the_tale.game.actions import exceptions
-from the_tale.game.actions import relations
-from the_tale.game.actions import meta_actions
+smart_imports.all()
 
 
 E = 0.0001
@@ -81,7 +39,7 @@ class ActionBase(object):
         PROCESSED = 'processed'
 
     TYPE = None
-    SINGLE = True # is action work with only one hero
+    SINGLE = True  # is action work with only one hero
     TEXTGEN_TYPE = None
     CONTEXT_MANAGER = None
     HELP_CHOICES = set()
@@ -92,7 +50,7 @@ class ActionBase(object):
                  bundle_id,
                  state,
                  percents=0.0,
-                 type=None, # just for deserialization
+                 type=None,  # just for deserialization
                  created_at_turn=None,
                  context=None,
                  description=None,
@@ -126,7 +84,7 @@ class ActionBase(object):
         self.removed = False
         self.storage = None
 
-        self.created_at_turn = created_at_turn if created_at_turn is not None else turn.number()
+        self.created_at_turn = created_at_turn if created_at_turn is not None else game_turn.number()
 
         self.context = None
         self.mob_context = None
@@ -159,7 +117,6 @@ class ActionBase(object):
         self.info_link = info_link
 
         self.replane_required = replane_required
-
 
     def serialize(self):
         data = {'type': self.TYPE.value,
@@ -235,6 +192,7 @@ class ActionBase(object):
     def place(self): return places_storage.places[self.place_id]
 
     def get_destination(self): return self.destination_x, self.destination_y
+
     def set_destination(self, x, y):
         self.destination_x = x
         self.destination_y = y
@@ -243,7 +201,7 @@ class ActionBase(object):
     def meta_action(self):
         if self.saved_meta_action is None:
             return None
-        if self.storage is None: # if meta_action accessed from views (not from logic)
+        if self.storage is None:  # if meta_action accessed from views (not from logic)
             return self.saved_meta_action
         return self.storage.meta_actions.get(self.saved_meta_action.uid)
 
@@ -251,17 +209,17 @@ class ActionBase(object):
     def help_choices(self):
         choices = copy.copy(self.HELP_CHOICES)
 
-        if HELP_CHOICES.HEAL in choices:
+        if abilities_relations.HELP_CHOICES.HEAL in choices:
             if len(choices) > 1 and not self.hero.can_be_healed(strict=False):
-                choices.remove(HELP_CHOICES.HEAL)
+                choices.remove(abilities_relations.HELP_CHOICES.HEAL)
             elif not self.hero.can_be_healed(strict=True):
-                choices.remove(HELP_CHOICES.HEAL)
+                choices.remove(abilities_relations.HELP_CHOICES.HEAL)
 
-        if HELP_CHOICES.HEAL_COMPANION in choices:
+        if abilities_relations.HELP_CHOICES.HEAL_COMPANION in choices:
             if (self.hero.companion is None or
                 self.hero.companion_heal_disabled() or
-                self.hero.companion.health == self.hero.companion.max_health):
-                choices.remove(HELP_CHOICES.HEAL_COMPANION)
+                    self.hero.companion.health == self.hero.companion.max_health):
+                choices.remove(abilities_relations.HELP_CHOICES.HEAL_COMPANION)
 
         return choices
 
@@ -279,7 +237,6 @@ class ActionBase(object):
         return None
 
     def get_description(self):
-        from the_tale.linguistics import logic as linguistics_logic
         return linguistics_logic.get_text(self.description_text_name, self.get_description_arguments())
 
     def get_description_arguments(self):
@@ -360,7 +317,6 @@ class ActionBase(object):
         if self.leader and not self.removed and self.state == self.STATE.PROCESSED:
             self.remove()
 
-
     def process_turn(self):
         self.process_action()
 
@@ -390,7 +346,7 @@ class ActionBase(object):
             artifact, unequipped, sell_price = self.hero.receive_artifact(equip=False, better=False, prefered_slot=False, prefered_item=False, archetype=False)
             self.hero.add_message(message_type, diary=True, hero=self.hero, artifact=artifact, **self.action_event_message_arguments())
         elif event_reward.is_EXPERIENCE:
-            experience = self.hero.add_experience(int(c.HABIT_EVENT_EXPERIENCE * random.uniform(1.0-c.HABIT_EVENT_EXPERIENCE_DELTA, 1.0+c.HABIT_EVENT_EXPERIENCE_DELTA)))
+            experience = self.hero.add_experience(int(c.HABIT_EVENT_EXPERIENCE * random.uniform(1.0 - c.HABIT_EVENT_EXPERIENCE_DELTA, 1.0 + c.HABIT_EVENT_EXPERIENCE_DELTA)))
             self.hero.add_message(message_type, diary=True, hero=self.hero, experience=experience, **self.action_event_message_arguments())
 
     def action_event_message_arguments(self):
@@ -399,8 +355,7 @@ class ActionBase(object):
     searching_quest = False
 
     def setup_quest(self, quest):
-        pass # do nothing if there is not quest action
-
+        pass  # do nothing if there is not quest action
 
     def __eq__(self, other):
 
@@ -423,18 +378,17 @@ class ActionBase(object):
                 self.textgen_id == other.textgen_id)
 
 
-
 class ActionIdlenessPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.IDLENESS
     TEXTGEN_TYPE = 'action_idleness'
 
     @property
-    def HELP_CHOICES(self): # pylint: disable=C0103
-        choices = set((HELP_CHOICES.START_QUEST, HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    def HELP_CHOICES(self):  # pylint: disable=C0103
+        choices = set((abilities_relations.HELP_CHOICES.START_QUEST, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
         if self.percents > 1.0 - E:
-            choices.remove(HELP_CHOICES.START_QUEST)
+            choices.remove(abilities_relations.HELP_CHOICES.START_QUEST)
 
         return choices
 
@@ -455,9 +409,9 @@ class ActionIdlenessPrototype(ActionBase):
     @classmethod
     def _create(cls, hero=None, bundle_id=None):
         if hero.actions.has_actions:
-            return cls( hero=hero,
-                        bundle_id=bundle_id,
-                        state=cls.STATE.WAITING)
+            return cls(hero=hero,
+                       bundle_id=bundle_id,
+                       state=cls.STATE.WAITING)
         else:
             return cls(hero=hero,
                        bundle_id=bundle_id,
@@ -534,7 +488,7 @@ class ActionIdlenessPrototype(ActionBase):
             self.state = self.STATE.WAITING
 
         if self.state == self.STATE.QUEST:
-            self.percents = 0 # reset percents only on quest's ending
+            self.percents = 0  # reset percents only on quest's ending
             if self.process_position():
                 return
             self.state = self.STATE.WAITING
@@ -564,8 +518,8 @@ class ActionQuestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.QUEST
     TEXTGEN_TYPE = 'action_quest'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
-    APPROVED_FOR_STEPS_CHAIN = False # all quest actions MUST be done on separated turns
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    APPROVED_FOR_STEPS_CHAIN = False  # all quest actions MUST be done on separated turns
 
     class STATE(ActionBase.STATE):
         SEARCHING = 'searching'
@@ -594,7 +548,6 @@ class ActionQuestPrototype(ActionBase):
 
         self.state = self.STATE.PROCESSING
 
-
     def process(self):
 
         if self.state == self.STATE.SEARCHING:
@@ -603,8 +556,7 @@ class ActionQuestPrototype(ActionBase):
             else:
                 # a lot of test depans on complete processing of this action
                 # so it is easie to emulate quest generation here, then place everywere mock objects
-                if project_settings.TESTS_RUNNING:
-                    from the_tale.game.quests.tests import helpers as quests_helpers
+                if django_settings.TESTS_RUNNING:
                     quests_helpers.setup_quest(self.hero)
                 else:
                     quests_logic.request_quest_for_hero(self.hero)
@@ -638,10 +590,10 @@ class ActionMoveToPrototype(ActionBase):
 
     @property
     def HELP_CHOICES(self):
-        choices = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+        choices = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
         if self.state == self.STATE.MOVING:
-            choices.add(HELP_CHOICES.TELEPORT)
+            choices.add(abilities_relations.HELP_CHOICES.TELEPORT)
 
         return choices
 
@@ -689,7 +641,7 @@ class ActionMoveToPrototype(ActionBase):
         stop_percents = self.break_at if self.break_at else 1
 
         max_road_distance = self.hero.position.road.length * (1 - self.hero.position.percents)
-        max_action_distance = self.length * (stop_percents - self.percents )
+        max_action_distance = self.length * (stop_percents - self.percents)
 
         distance = min(distance, min(max_road_distance, max_action_distance))
 
@@ -712,7 +664,7 @@ class ActionMoveToPrototype(ActionBase):
         if self.state != self.STATE.MOVING:
             return False
 
-        return self.teleport(distance=self.hero.position.road.length+1, create_inplace_action=create_inplace_action)
+        return self.teleport(distance=self.hero.position.road.length + 1, create_inplace_action=create_inplace_action)
 
     def teleport_to_end(self):
         if self.state != self.STATE.MOVING:
@@ -756,7 +708,7 @@ class ActionMoveToPrototype(ActionBase):
 
     def process_choose_road__in_place(self):
         if self.hero.position.place_id != self.destination_id:
-            waymark = waymarks_storage.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
+            waymark = roads_storage.waymarks.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
             length = waymark.length
             self.hero.position.set_road(waymark.road, invert=(self.hero.position.place_id != waymark.road.point_1_id))
             self.state = self.STATE.MOVING
@@ -767,11 +719,11 @@ class ActionMoveToPrototype(ActionBase):
         return length
 
     def process_choose_road__in_road(self):
-        waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
+        waymark = roads_storage.waymarks.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
         road_left = waymark.road
         length_left = waymark.length
 
-        waymark = waymarks_storage.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
+        waymark = roads_storage.waymarks.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
         road_right = waymark.road
         length_right = waymark.length
 
@@ -826,7 +778,7 @@ class ActionMoveToPrototype(ActionBase):
             self.do_events()
 
         elif random.uniform(0, 1) < 0.33:
-            if self.destination.id != self.current_destination.id and random.uniform(0, 1) < 0.04: # TODO: change probability, when there are move phrases
+            if self.destination.id != self.current_destination.id and random.uniform(0, 1) < 0.04:  # TODO: change probability, when there are move phrases
                 self.hero.add_message('action_moveto_move_long_path',
                                       hero=self.hero,
                                       destination=self.destination,
@@ -854,14 +806,14 @@ class ActionMoveToPrototype(ActionBase):
             self.percents = 1
 
     def picked_up_in_road(self):
-        current_destination = self.current_destination # save destination befor telefort, since it can be reseted after we perfom it
+        current_destination = self.current_destination  # save destination befor telefort, since it can be reseted after we perfom it
 
         if self.teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, create_inplace_action=True):
 
             self.hero.add_message('action_moveto_picked_up_in_road',
-                                   hero=self.hero,
-                                   destination=self.destination,
-                                   current_destination=current_destination)
+                                  hero=self.hero,
+                                  destination=self.destination,
+                                  current_destination=current_destination)
 
     def process_moving(self):
 
@@ -942,12 +894,12 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     HABIT_MODE = relations.ACTION_HABIT_MODE.AGGRESSIVE
 
     @property
-    def HELP_CHOICES(self): # pylint: disable=C0103
+    def HELP_CHOICES(self):  # pylint: disable=C0103
         if not self.hero.is_alive:
-            return set((HELP_CHOICES.RESURRECT,))
+            return set((abilities_relations.HELP_CHOICES.RESURRECT,))
         if self.mob.health <= 0:
-            return set((HELP_CHOICES.MONEY, HELP_CHOICES.HEAL, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
-        return set((HELP_CHOICES.MONEY, HELP_CHOICES.LIGHTING, HELP_CHOICES.HEAL, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+            return set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+        return set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.LIGHTING, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -957,7 +909,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     ###########################################
 
     def get_info_link(self):
-        return url('guide:mobs:info', self.mob.record.id)
+        return dext_urls.url('guide:mobs:info', self.mob.record.id)
 
     @classmethod
     def _create(cls, hero, bundle_id, mob):
@@ -992,13 +944,13 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             state = cls.STATE.BATTLE_RUNNING
             hero.add_message('action_battlepve1x1_start', hero=hero, mob=mob)
 
-        prototype = cls( hero=hero,
-                         bundle_id=bundle_id,
-                         context=cls.CONTEXT_MANAGER(),
-                         mob=mob,
-                         mob_context=cls.CONTEXT_MANAGER(),
-                         percents=percents,
-                         state=state)
+        prototype = cls(hero=hero,
+                        bundle_id=bundle_id,
+                        context=cls.CONTEXT_MANAGER(),
+                        mob=mob,
+                        mob_context=cls.CONTEXT_MANAGER(),
+                        percents=percents,
+                        state=state)
 
         if instant_kill_mob:
             prototype._kill_mob()
@@ -1032,7 +984,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
         return True
 
     def fast_resurrect(self):
-        if self.state != self.STATE.PROCESSED: # hero can be dead only if action already processed
+        if self.state != self.STATE.PROCESSED:  # hero can be dead only if action already processed
             return False
 
         if self.hero.is_alive:
@@ -1066,7 +1018,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             self.hero.add_message('action_battlepve1x1_no_loot', hero=self.hero, mob=self.mob)
 
         if self.hero.can_get_exp_for_kill():
-            raw_experience = int(c.EXP_FOR_KILL*random.uniform(1.0-c.EXP_FOR_KILL_DELTA, 1.0+c.EXP_FOR_KILL_DELTA))
+            raw_experience = int(c.EXP_FOR_KILL * random.uniform(1.0 - c.EXP_FOR_KILL_DELTA, 1.0 + c.EXP_FOR_KILL_DELTA))
             real_experience = self.hero.add_experience(raw_experience)
             self.hero.add_message('action_battlepve1x1_exp_for_kill', hero=self.hero, mob=self.mob, diary=True, experience=real_experience)
 
@@ -1074,16 +1026,15 @@ class ActionBattlePvE1x1Prototype(ActionBase):
             self.hero.companion.health < self.hero.companion.max_health and
             self.hero.can_companion_eat_corpses() and
             random.random() < self.hero.companion_eat_corpses_probability and
-            self.mob.is_eatable):
+                self.mob.is_eatable):
             health = self.hero.companion.heal(c.COMPANIONS_EATEN_CORPSES_HEAL_AMOUNT)
             self.hero.add_message('companions_eat_corpse', companion_owner=self.hero, companion=self.hero.companion, health=health, mob=self.mob)
-
 
     def process_artifact_breaking(self):
 
         self.hero.damage_integrity()
 
-        expected_power = p.Power.normal_total_power_to_level(self.hero.level)
+        expected_power = power.Power.normal_total_power_to_level(self.hero.level)
 
         if random.uniform(0.0, 1.0) > c.ARTIFACTS_BREAKS_PER_BATTLE * (float(self.hero.power.total()) / expected_power)**2:
             return
@@ -1146,7 +1097,7 @@ class ActionResurrectPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.RESURRECT
     TEXTGEN_TYPE = 'action_resurrect'
-    HELP_CHOICES = set((HELP_CHOICES.RESURRECT,))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.RESURRECT,))
 
     class STATE(ActionBase.STATE):
         RESURRECT = 'resurrect'
@@ -1155,9 +1106,9 @@ class ActionResurrectPrototype(ActionBase):
     def _create(cls, hero, bundle_id):
         hero.add_message('action_resurrect_start', hero=hero)
 
-        return cls( hero=hero,
-                    bundle_id=bundle_id,
-                    state=cls.STATE.RESURRECT)
+        return cls(hero=hero,
+                   bundle_id=bundle_id,
+                   state=cls.STATE.RESURRECT)
 
     def fast_resurrect(self):
         if self.state != self.STATE.RESURRECT:
@@ -1170,14 +1121,13 @@ class ActionResurrectPrototype(ActionBase):
 
         return True
 
-
     def process(self):
 
         if self.state == self.STATE.RESURRECT:
 
             self.percents += 1.0 / self.hero.resurrect_length
 
-            if random.uniform(0, 1) < 1.0 / c.TURNS_TO_RESURRECT / 2: # 1 фраза на два уровня героя
+            if random.uniform(0, 1) < 1.0 / c.TURNS_TO_RESURRECT / 2:  # 1 фраза на два уровня героя
                 self.hero.add_message('action_resurrect_resurrecting', hero=self.hero)
 
             if self.percents >= 1:
@@ -1190,23 +1140,21 @@ class ActionFirstStepsPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.FIRST_STEPS
     TEXTGEN_TYPE = 'action_first_steps'
-    HELP_CHOICES = set((HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE))
 
     class STATE(ActionBase.STATE):
         THINK_ABOUT_INITIATION = 'THINK_ABOUT_INITIATION'
         THINK_ABOUT_FUTURE = 'THINK_ABOUT_FUTURE'
         THINK_ABOUT_HEROES = 'THINK_ABOUT_HEROES'
 
-
     @classmethod
     def _create(cls, hero, bundle_id):
         hero.add_message('action_first_steps_initiation_diary', diary=True, hero=hero, place=hero.position.place)
         hero.add_message('action_first_steps_initiation', hero=hero, place=hero.position.place)
 
-        return cls( hero=hero,
-                    bundle_id=bundle_id,
-                    state=cls.STATE.THINK_ABOUT_INITIATION)
-
+        return cls(hero=hero,
+                   bundle_id=bundle_id,
+                   state=cls.STATE.THINK_ABOUT_INITIATION)
 
     def process(self):
 
@@ -1233,7 +1181,7 @@ class ActionInPlacePrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.IN_PLACE
     TEXTGEN_TYPE = 'action_inplace'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         SPEND_MONEY = 'spend_money'
@@ -1250,9 +1198,9 @@ class ActionInPlacePrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id):
-        prototype = cls( hero=hero,
-                         bundle_id=bundle_id,
-                         state=cls.STATE.SPEND_MONEY)
+        prototype = cls(hero=hero,
+                        bundle_id=bundle_id,
+                        state=cls.STATE.SPEND_MONEY)
 
         if hero.health < hero.max_health and random.random() < hero.position.place.attrs.hero_regen_chance:
             hero.health = hero.max_health
@@ -1269,13 +1217,13 @@ class ActionInPlacePrototype(ActionBase):
         hero.add_message('action_inplace_enter', hero=hero, place=hero.position.place)
 
         if (hero.can_regenerate_energy and
-            random.random() < hero.position.place.attrs.energy_regen_chance):
+                random.random() < hero.position.place.attrs.energy_regen_chance):
 
-            tt_api_energy.change_energy_balance(account_id=hero.account_id,
-                                                type='inplace_regen',
-                                                energy=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
-                                                async=True,
-                                                autocommit=True)
+            game_tt_services.energy.cmd_change_balance(account_id=hero.account_id,
+                                                       type='inplace_regen',
+                                                       energy=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
+                                                       async=True,
+                                                       autocommit=True)
 
             hero.add_message('action_inplace_instant_energy_regen',
                              hero=hero,
@@ -1302,8 +1250,8 @@ class ActionInPlacePrototype(ActionBase):
 
         if hero.companion and hero.position.moved_out_place:
             if hero.can_companion_eat():
-                expected_coins = ( f.expected_gold_in_day(hero.level) *
-                                   float(turn.number() - hero.position.last_place_visited_turn) / (c.TURNS_IN_HOUR * 24) )
+                expected_coins = (f.expected_gold_in_day(hero.level) *
+                                  float(game_turn.number() - hero.position.last_place_visited_turn) / (c.TURNS_IN_HOUR * 24))
                 coins = min(hero.money, int(expected_coins * hero.companion_money_for_food_multiplier))
 
                 if coins > 0:
@@ -1487,8 +1435,7 @@ class ActionInPlacePrototype(ActionBase):
             self.spend_money__heal_companion()
 
         else:
-            raise exceptions.ActionException('wrong hero money spend type: %d' % self.hero.next_spending)
-
+            raise exceptions.WrongHeroMoneySpendType(spending=self.hero.next_spending)
 
     def process_companion_stealing(self):
 
@@ -1514,7 +1461,6 @@ class ActionInPlacePrototype(ActionBase):
                 self.hero.statistics.change_artifacts_had(1)
 
             self.hero.add_message('action_inplace_companion_steal_item', hero=self.hero, place=self.hero.position.place, artifact=loot, companion=self.hero.companion)
-
 
     def process_settlement(self):
 
@@ -1562,7 +1508,7 @@ class ActionRestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REST
     TEXTGEN_TYPE = 'action_rest'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         RESTING = 'resting'
@@ -1573,14 +1519,14 @@ class ActionRestPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id):
-        prototype = cls( hero=hero,
-                         bundle_id=bundle_id,
-                         state=cls.STATE.RESTING)
+        prototype = cls(hero=hero,
+                        bundle_id=bundle_id,
+                        state=cls.STATE.RESTING)
         hero.add_message('action_rest_start', hero=hero)
         return prototype
 
     def on_heal(self):
-        self.percents = float(self.hero.health)/self.hero.max_health
+        self.percents = float(self.hero.health) / self.hero.max_health
         self.hero.actions.current_action.percents = self.percents
 
         if self.hero.health >= self.hero.max_health:
@@ -1600,7 +1546,7 @@ class ActionRestPrototype(ActionBase):
             if random.uniform(0, 1) < 0.2:
                 self.hero.add_message('action_rest_resring', hero=self.hero, health=heal_amount)
 
-            self.percents = float(self.hero.health)/self.hero.max_health
+            self.percents = float(self.hero.health) / self.hero.max_health
 
             if self.hero.health >= self.hero.max_health:
                 self.state = self.STATE.PROCESSED
@@ -1609,13 +1555,11 @@ class ActionRestPrototype(ActionBase):
             self.hero.health = self.hero.max_health
 
 
-
-
 class ActionEquippingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.EQUIPPING
     TEXTGEN_TYPE = 'action_equipping'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         EQUIPPING = 'equipping'
@@ -1626,15 +1570,15 @@ class ActionEquippingPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id):
-        return cls( hero=hero,
-                    bundle_id=bundle_id,
-                    state=cls.STATE.EQUIPPING)
+        return cls(hero=hero,
+                   bundle_id=bundle_id,
+                   state=cls.STATE.EQUIPPING)
 
     def process(self):
 
         if self.state == self.STATE.EQUIPPING:
             # TODO: calculate real percents
-            self.percents = min(self.percents+0.25, 1)
+            self.percents = min(self.percents + 0.25, 1)
 
             slot, unequipped, equipped = self.hero.equip_from_bag()
 
@@ -1654,7 +1598,7 @@ class ActionTradingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.TRADING
     TEXTGEN_TYPE = 'action_trading'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         TRADING = 'trading'
@@ -1665,10 +1609,10 @@ class ActionTradingPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id):
-        prototype = cls( hero=hero,
-                         bundle_id=bundle_id,
-                         percents_barier=hero.bag.occupation,
-                         state=cls.STATE.TRADING)
+        prototype = cls(hero=hero,
+                        bundle_id=bundle_id,
+                        percents_barier=hero.bag.occupation,
+                        state=cls.STATE.TRADING)
         hero.add_message('action_trading_start', hero=hero)
         return prototype
 
@@ -1685,7 +1629,7 @@ class ActionTradingPrototype(ActionBase):
                 sell_price = self.hero.sell_artifact(artifact)
                 self.hero.add_message('action_trading_sell_item', hero=self.hero, artifact=artifact, coins=sell_price)
 
-            loot_items_count = self.hero.bag.occupation # pylint: disable=W0612
+            loot_items_count = self.hero.bag.occupation  # pylint: disable=W0612
 
             if loot_items_count:
                 self.percents = 1 - float(loot_items_count - 1) / self.percents_barier
@@ -1697,7 +1641,7 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.MOVE_NEAR_PLACE
     TEXTGEN_TYPE = 'action_movenearplace'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         MOVING = 'MOVING'
@@ -1720,8 +1664,8 @@ class ActionMoveNearPlacePrototype(ActionBase):
             choices = ()
 
             if terrains is not None:
-                map_info = map_info_storage.item
-                choices = [ (x, y) for x, y in place.nearest_cells if map_info.terrain[y][x] in terrains]
+                map_info = map_storage.map_info.item
+                choices = [(x, y) for x, y in place.nearest_cells if map_info.terrain[y][x] in terrains]
 
             if not choices:
                 choices = place.nearest_cells
@@ -1733,13 +1677,13 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
         x, y = cls._get_destination_coordinates(back=back, place=place, terrains=terrains)
 
-        prototype = cls( hero=hero,
-                         bundle_id=bundle_id,
-                         place_id=place.id,
-                         destination_x=x,
-                         destination_y=y,
-                         state=cls.STATE.MOVING,
-                         back=back)
+        prototype = cls(hero=hero,
+                        bundle_id=bundle_id,
+                        place_id=place.id,
+                        destination_x=x,
+                        destination_y=y,
+                        state=cls.STATE.MOVING,
+                        back=back)
 
         from_x, from_y = hero.position.cell_coordinates
 
@@ -1752,7 +1696,6 @@ class ActionMoveNearPlacePrototype(ActionBase):
         args = super(ActionMoveNearPlacePrototype, self).get_description_arguments()
         args.update({'place': self.place})
         return args
-
 
     def preprocess(self):
 
@@ -1810,7 +1753,6 @@ class ActionMoveNearPlacePrototype(ActionBase):
 
             elif random.uniform(0, 1) < 0.25:
                 self.hero.add_message('action_movenearplace_walk', hero=self.hero, place=self.place)
-
 
             if self.hero.position.subroad_len() == 0:
                 self.hero.position.percents += 0.1
@@ -1876,7 +1818,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REGENERATE_ENERGY
     TEXTGEN_TYPE = 'action_regenerate_energy'
-    HELP_CHOICES = set((HELP_CHOICES.MONEY, HELP_CHOICES.HEAL, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         REGENERATE = 'REGENERATE'
@@ -1916,18 +1858,18 @@ class ActionRegenerateEnergyPrototype(ActionBase):
             self.percents += self.step_percents()
 
             if self.percents >= 1:
-                self.hero.last_energy_regeneration_at_turn = turn.number()
+                self.hero.last_energy_regeneration_at_turn = game_turn.number()
 
                 if self.hero.can_regenerate_energy:
                     multiplier = 2 if self.hero.can_regenerate_double_energy else 1
 
                     energy_delta = self.regeneration_type.amount * multiplier
 
-                    tt_api_energy.change_energy_balance(account_id=self.hero.account_id,
-                                                        type='energy_regeneration',
-                                                        energy=energy_delta,
-                                                        async=True,
-                                                        autocommit=True)
+                    game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
+                                                               type='energy_regeneration',
+                                                               energy=energy_delta,
+                                                               async=True,
+                                                               autocommit=True)
 
                     self.hero.add_message('%s_energy_received' % self.textgen_id, hero=self.hero, energy=energy_delta)
                 else:
@@ -1940,7 +1882,7 @@ class ActionDoNothingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.DO_NOTHING
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL, HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         DO_NOTHING = 'DO_NOTHING'
@@ -1955,12 +1897,12 @@ class ActionDoNothingPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id, duration, messages_prefix, messages_probability):
-        prototype = cls( hero=hero,
-                         bundle_id=bundle_id,
-                         percents_barier=duration,
-                         extra_probability=messages_probability,
-                         textgen_id=messages_prefix,
-                         state=cls.STATE.DO_NOTHING)
+        prototype = cls(hero=hero,
+                        bundle_id=bundle_id,
+                        percents_barier=duration,
+                        extra_probability=messages_probability,
+                        textgen_id=messages_prefix,
+                        state=cls.STATE.DO_NOTHING)
         hero.add_message('%s_start' % messages_prefix, hero=hero)
         return prototype
 
@@ -1968,7 +1910,7 @@ class ActionDoNothingPrototype(ActionBase):
 
         if self.state == self.STATE.DO_NOTHING:
 
-            self.percents += 1.0001 /  self.percents_barier
+            self.percents += 1.0001 / self.percents_barier
 
             if self.extra_probability is not None and random.uniform(0, 1) < self.extra_probability:
                 self.hero.add_message('%s_donothing' % self.textgen_id, hero=self.hero)
@@ -1982,7 +1924,7 @@ class ActionMetaProxyPrototype(ActionBase):
     SINGLE = False
     TYPE = relations.ACTION_TYPE.META_PROXY
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((HELP_CHOICES.MONEY, HELP_CHOICES.EXPERIENCE, HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False
 
     @property
@@ -2014,10 +1956,10 @@ class ActionMetaProxyPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id, meta_action):
-        return cls( hero=hero,
-                    bundle_id=bundle_id,
-                    meta_action=meta_action,
-                    state=meta_action.state)
+        return cls(hero=hero,
+                   bundle_id=bundle_id,
+                   meta_action=meta_action,
+                   state=meta_action.state)
 
     def process(self):
 
@@ -2031,7 +1973,7 @@ class ActionHealCompanionPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.HEAL_COMPANION
     TEXTGEN_TYPE = 'action_heal_companion'
-    HELP_CHOICES = set((HELP_CHOICES.HEAL_COMPANION, ))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL_COMPANION, ))
 
     HABIT_MODE = relations.ACTION_HABIT_MODE.COMPANION
 
@@ -2050,9 +1992,9 @@ class ActionHealCompanionPrototype(ActionBase):
 
     @classmethod
     def _create(cls, hero, bundle_id):
-        prototype = cls( hero=hero,
-                         bundle_id=bundle_id,
-                         state=cls.STATE.HEALING)
+        prototype = cls(hero=hero,
+                        bundle_id=bundle_id,
+                        state=cls.STATE.HEALING)
         hero.companion.on_heal_started()
         hero.add_message('action_heal_companion_start', hero=hero, companion=hero.companion)
         return prototype
@@ -2072,14 +2014,13 @@ class ActionHealCompanionPrototype(ActionBase):
 
         if (self.hero.companion.health < self.hero.companion.max_health and
             self.hero.can_companion_regenerate() and
-            random.random() < self.hero.companion_regenerate_probability):
+                random.random() < self.hero.companion_regenerate_probability):
             health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_REGEN_ON_HEAL_AMOUNT))
             self.hero.add_message('companions_regenerate', companion_owner=self.hero, companion=self.hero.companion, health=health)
 
         if (self.hero.companion.health < self.hero.companion.max_health and random.random() < self.hero.companion_heal_probability):
             health = self.hero.companion.heal(utils_logic.randint_from_1(c.COMPANIONS_REGEN_BY_HERO))
             self.hero.add_message('hero_ability_companion_healing', actor=self.hero, companion=self.hero.companion, health=health)
-
 
     def on_heal_companion(self):
         if self.hero.companion is None:
@@ -2124,8 +2065,5 @@ class ActionHealCompanionPrototype(ActionBase):
             self.after_processed()
 
 
-
-
-
-ACTION_TYPES = { action_class.TYPE:action_class
-                 for action_class in discovering.discover_classes(list(globals().values()), ActionBase) }
+ACTION_TYPES = {action_class.TYPE: action_class
+                for action_class in dext_discovering.discover_classes(list(globals().values()), ActionBase)}

@@ -1,11 +1,12 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
+
+smart_imports.all()
 
 
-class RARITY(DjangoEnum):
-    priority = Column()
-    short_text = Column()
+class RARITY(rels_django.DjangoEnum):
+    priority = rels.Column()
+    short_text = rels.Column()
 
     records = (('COMMON', 0, 'обычная карта', 3**4, 'обычная'),
                ('UNCOMMON', 1, 'необычная карта', 3**3, 'необычная'),
@@ -14,12 +15,12 @@ class RARITY(DjangoEnum):
                ('LEGENDARY', 4, 'легендарная карта', 3**0, 'легендарная'))
 
 
-class AVAILABILITY(DjangoEnum):
+class AVAILABILITY(rels_django.DjangoEnum):
     records = (('FOR_ALL', 0, 'для всех'),
                ('FOR_PREMIUMS', 1, 'только для подписчиков'))
 
 
-class COMBINED_CARD_RESULT(DjangoEnum):
+class COMBINED_CARD_RESULT(rels_django.DjangoEnum):
     records = (('NO_CARDS', 0, 'Нечего превращать'),
                ('EQUAL_RARITY_REQUIRED', 1, 'Карты должны быть одной редкости'),
                ('DUPLICATE_IDS', 2, 'Попытка передать одну карту как две'),
@@ -29,7 +30,7 @@ class COMBINED_CARD_RESULT(DjangoEnum):
                ('TOO_MANY_CARDS', 6, 'Вы пытаетесь объединить слишком много карт'))
 
 
-class STORAGE(DjangoEnum):
+class STORAGE(rels_django.DjangoEnum):
     records = (('FAST', 0, 'колода быстрого доступа'),
                ('ARCHIVE', 1, 'хранилище редко используемых карт'),
                ('NEW', 2, 'новые карты'))

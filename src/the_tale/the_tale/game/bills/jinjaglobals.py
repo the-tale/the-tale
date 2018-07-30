@@ -1,9 +1,9 @@
-# coding: utf-8
 
-from dext.common.utils import jinja2
-from the_tale.game.bills.bills import BILLS_BY_ID
+import smart_imports
+
+smart_imports.all()
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def bills_menu_types():
-    return sorted(BILLS_BY_ID.items(), key=lambda x: x[1].type.text)
+    return sorted(bills.BILLS_BY_ID.items(), key=lambda x: x[1].type.text)

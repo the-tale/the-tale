@@ -1,22 +1,22 @@
-# coding: utf-8
+
+import smart_imports
+
+smart_imports.all()
 
 
-from django.db import models
-
-
-class Collection(models.Model):
+class Collection(django_models.Model):
 
     CAPTION_MAX_LENGTH = 100
     DESCRIPTION_MAX_LENGTH = 1000
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    updated_at = models.DateTimeField(auto_now=True, null=False)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = django_models.DateTimeField(auto_now=True, null=False)
 
-    approved = models.BooleanField(blank=True, default=False)
+    approved = django_models.BooleanField(blank=True, default=False)
 
-    caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
+    caption = django_models.CharField(max_length=CAPTION_MAX_LENGTH)
 
-    description = models.TextField(max_length=DESCRIPTION_MAX_LENGTH)
+    description = django_models.TextField(max_length=DESCRIPTION_MAX_LENGTH)
 
     class Meta:
         permissions = (('edit_collection', 'Может создавать и редактировать коллекции'),
@@ -25,20 +25,20 @@ class Collection(models.Model):
     def __str__(self): return self.caption
 
 
-class Kit(models.Model):
+class Kit(django_models.Model):
     CAPTION_MAX_LENGTH = 100
     DESCRIPTION_MAX_LENGTH = 1000
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    updated_at = models.DateTimeField(auto_now=True, null=False)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = django_models.DateTimeField(auto_now=True, null=False)
 
-    approved = models.BooleanField(blank=True, default=False)
+    approved = django_models.BooleanField(blank=True, default=False)
 
-    collection = models.ForeignKey(Collection, null=False, on_delete=models.PROTECT)
+    collection = django_models.ForeignKey(Collection, null=False, on_delete=django_models.PROTECT)
 
-    caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
+    caption = django_models.CharField(max_length=CAPTION_MAX_LENGTH)
 
-    description = models.TextField(max_length=DESCRIPTION_MAX_LENGTH)
+    description = django_models.TextField(max_length=DESCRIPTION_MAX_LENGTH)
 
     class Meta:
         permissions = (('edit_kit', 'Может создавать и редактировать наборы'),
@@ -47,19 +47,19 @@ class Kit(models.Model):
     def __str__(self): return self.caption
 
 
-class Item(models.Model):
+class Item(django_models.Model):
     CAPTION_MAX_LENGTH = 100
 
-    approved = models.BooleanField(blank=True, default=False)
+    approved = django_models.BooleanField(blank=True, default=False)
 
-    kit = models.ForeignKey(Kit, null=False, on_delete=models.PROTECT)
+    kit = django_models.ForeignKey(Kit, null=False, on_delete=django_models.PROTECT)
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    updated_at = models.DateTimeField(auto_now=True, null=False)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = django_models.DateTimeField(auto_now=True, null=False)
 
-    caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
+    caption = django_models.CharField(max_length=CAPTION_MAX_LENGTH)
 
-    text = models.TextField()
+    text = django_models.TextField()
 
     class Meta:
         permissions = (('edit_item', 'Может создавать и редактировать предметы'),
@@ -68,14 +68,13 @@ class Item(models.Model):
     def __str__(self): return self.caption
 
 
+class AccountItems(django_models.Model):
 
-class AccountItems(models.Model):
+    account = django_models.OneToOneField('accounts.Account', on_delete=django_models.CASCADE)
 
-    account = models.OneToOneField('accounts.Account', on_delete=models.CASCADE)
-
-    items = models.TextField(default='{}')
+    items = django_models.TextField(default='{}')
 
 
-class GiveItemTask(models.Model):
-    account = models.ForeignKey('accounts.Account', null=True, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+class GiveItemTask(django_models.Model):
+    account = django_models.ForeignKey('accounts.Account', null=True, on_delete=django_models.CASCADE)
+    item = django_models.ForeignKey(Item, on_delete=django_models.CASCADE)

@@ -1,12 +1,10 @@
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import storage
+smart_imports.all()
 
 
-class Companion(meta_relations.MetaType):
+class Companion(utils_meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 6
     TYPE_CAPTION = 'Спутник'
@@ -17,7 +15,7 @@ class Companion(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('guide:companions:show', self.id)
+        return dext_urls.url('guide:companions:show', self.id)
 
     @classmethod
     def create_from_object(cls, companion):
@@ -25,6 +23,8 @@ class Companion(meta_relations.MetaType):
 
     @classmethod
     def create_from_id(cls, id):
+        from . import storage
+
         companion = storage.companions.get(id)
         if companion is None:
             return None

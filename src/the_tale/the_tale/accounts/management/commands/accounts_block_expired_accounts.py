@@ -1,11 +1,10 @@
-# coding: utf-8
-from django.core.management.base import BaseCommand
 
-import psutil
+import smart_imports
 
-from the_tale.accounts.logic import block_expired_accounts
+smart_imports.all()
 
-class Command(BaseCommand):
+
+class Command(django_management.BaseCommand):
 
     help = 'block expired accounts. MUST run only if game stopped'
 
@@ -23,4 +22,4 @@ class Command(BaseCommand):
             except psutil.NoSuchProcess:
                 pass
 
-        block_expired_accounts()
+        logic.block_expired_accounts(logging.getLogger('the-tale'))

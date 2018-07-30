@@ -1,6 +1,7 @@
-# coding: utf-8
 
-from dext.views import resource_patterns
-from the_tale.game.quests.views import QuestsResource
+import smart_imports
 
-urlpatterns = resource_patterns(QuestsResource)
+smart_imports.all()
+
+
+urlpatterns = dext_old_views.resource_patterns(views.QuestsResource)

@@ -1,6 +1,8 @@
-# coding: utf-8
 
-from django import apps as django_apps
+import smart_imports
+
+smart_imports.all()
+
 
 class Config(django_apps.AppConfig):
     name = 'the_tale.game.chronicle'
@@ -8,5 +10,5 @@ class Config(django_apps.AppConfig):
     verbose_name = 'chronicle'
 
     def ready(self):
-        from the_tale.game.chronicle import signal_processors
+        from . import signal_processors
         pass

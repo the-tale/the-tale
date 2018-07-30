@@ -1,29 +1,25 @@
-# coding: utf-8
 
+import smart_imports
 
-from the_tale.common.utils.decorators import lazy_property
+smart_imports.all()
 
-from the_tale.finances.shop.relations import PERMANENT_PURCHASE_TYPE
-
-from the_tale.accounts.clans.prototypes import ClanPrototype, MembershipPrototype
-from the_tale.accounts.clans.conf import clans_settings
 
 class ClanInfo(object):
 
     def __init__(self, account):
         self.account = account
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def membership(self):
         if self.account.is_authenticated:
-            return MembershipPrototype.get_by_account_id(self.account.id)
+            return prototypes.MembershipPrototype.get_by_account_id(self.account.id)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def clan(self):
         if self.membership:
-            return ClanPrototype.get_by_id(self.membership.clan_id)
+            return prototypes.ClanPrototype.get_by_id(self.membership.clan_id)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def clan_id(self):
         if self.membership:
             return self.membership.clan_id

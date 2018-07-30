@@ -1,12 +1,7 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from utg import words as utg_words
-from utg import constructors as utg_constructors
-from utg.relations import WORD_TYPE
-
-from the_tale.linguistics import relations
+smart_imports.all()
 
 
 def preprocess_s(row):
@@ -17,46 +12,46 @@ def s(*substitutions):
     return [preprocess_s(row[i:] + row[:i]) for i, row in enumerate(substitutions)]
 
 
-class VARIABLE_VERIFICATOR(DjangoEnum):
-    utg_type = Column(unique=False, no_index=True, single_type=False)
-    substitutions = Column(unique=False, no_index=True)
+class VARIABLE_VERIFICATOR(rels_django.DjangoEnum):
+    utg_type = rels.Column(unique=False, no_index=True, single_type=False)
+    substitutions = rels.Column(unique=False, no_index=True)
 
-    records = (('PERSON', 0, 'любой персонаж', WORD_TYPE.NOUN, s(['герой', 'привидение', 'героиня', ('рыцарь', 'мн')],
-                                                                 ['призрак', 'чудовище', 'русалка', ('боец', 'мн')],
-                                                                 ['жираф', 'чучело', 'зебра', ('слон', 'мн')],
-                                                                 ['гусь', 'пугало', 'свинья', ('волк', 'мн')]  )),
+    records = (('PERSON', 0, 'любой персонаж', utg_relations.WORD_TYPE.NOUN, s(['герой', 'привидение', 'героиня', ('рыцарь', 'мн')],
+                                                                               ['призрак', 'чудовище', 'русалка', ('боец', 'мн')],
+                                                                               ['жираф', 'чучело', 'зебра', ('слон', 'мн')],
+                                                                               ['гусь', 'пугало', 'свинья', ('волк', 'мн')])),
 
-               ('NUMBER', 1, 'число', WORD_TYPE.INTEGER, s([1, 2, 5],
-                                                           [21, 23, 25],
-                                                           [1001, 1054, 1013])),
+               ('NUMBER', 1, 'число', utg_relations.WORD_TYPE.INTEGER, s([1, 2, 5],
+                                                                         [21, 23, 25],
+                                                                         [1001, 1054, 1013])),
 
-               ('PLACE', 2, 'место', WORD_TYPE.NOUN, s(['Минск', 'Простоквашино', 'Вилейка', 'Барановичи'],
-                                                       ['Тагил', 'Чугуево', 'Рига', 'Афины'],
-                                                       ['Магадан', 'Бородино', 'Уфа', 'Чебоксары'])),
+               ('PLACE', 2, 'место', utg_relations.WORD_TYPE.NOUN, s(['Минск', 'Простоквашино', 'Вилейка', 'Барановичи'],
+                                                                     ['Тагил', 'Чугуево', 'Рига', 'Афины'],
+                                                                     ['Магадан', 'Бородино', 'Уфа', 'Чебоксары'])),
 
                # TODO: во время следующей большой переделки добавить одушевлённый артефакт в каждый набор слов (скорее всего мужского рода)
-               ('ITEM', 4, 'любой предмет', WORD_TYPE.NOUN, s(['нож', 'ядро', 'пепельница', 'ножницы'],
-                                                              ['кинжал', 'окно', 'мечта', 'макароны'],
-                                                              ['меч', 'варенье', 'чашка', 'дрова'])),
+               ('ITEM', 4, 'любой предмет', utg_relations.WORD_TYPE.NOUN, s(['нож', 'ядро', 'пепельница', 'ножницы'],
+                                                                            ['кинжал', 'окно', 'мечта', 'макароны'],
+                                                                            ['меч', 'варенье', 'чашка', 'дрова'])),
 
-               ('TEXT', 5, 'любой текст', WORD_TYPE.TEXT, s(['любой текст'],
-                                                            ['текст текст текст'],
-                                                            ['какой-то текст'])),
+               ('TEXT', 5, 'любой текст', utg_relations.WORD_TYPE.TEXT, s(['любой текст'],
+                                                                          ['текст текст текст'],
+                                                                          ['какой-то текст'])),
 
-               ('MODIFIER', 6, 'модификатор города', WORD_TYPE.NOUN, s(['форт', 'захолустье', 'святыня', ('мемориал', 'мн')],
-                                                                       ['замок', 'пристанище', 'земля', ('колония', 'мн')])),
+               ('MODIFIER', 6, 'модификатор города', utg_relations.WORD_TYPE.NOUN, s(['форт', 'захолустье', 'святыня', ('мемориал', 'мн')],
+                                                                                     ['замок', 'пристанище', 'земля', ('колония', 'мн')])),
 
-               ('RACE', 7, 'раса', WORD_TYPE.NOUN, s(['человек', 'эльф', 'орк', 'гоблин', 'дварф'],
-                                                     ['человек', 'эльф', 'орк', 'гоблин', 'дварф'],
-                                                     ['человек', 'эльф', 'орк', 'гоблин', 'дварф'])),
+               ('RACE', 7, 'раса', utg_relations.WORD_TYPE.NOUN, s(['человек', 'эльф', 'орк', 'гоблин', 'дварф'],
+                                                                   ['человек', 'эльф', 'орк', 'гоблин', 'дварф'],
+                                                                   ['человек', 'эльф', 'орк', 'гоблин', 'дварф'])),
 
-               ('DATE', 8, 'дата в мире игры', WORD_TYPE.TEXT, s(['18 сухого месяца 183 года'])),
+               ('DATE', 8, 'дата в мире игры', utg_relations.WORD_TYPE.TEXT, s(['18 сухого месяца 183 года'])),
 
-               ('TIME', 9, 'время в мире игры', WORD_TYPE.TEXT, s(['9:20'])),
+               ('TIME', 9, 'время в мире игры', utg_relations.WORD_TYPE.TEXT, s(['9:20'])),
 
-               ('COINS', 10, 'монеты', WORD_TYPE.INTEGER, s([1, 2, 5],
-                                                            [21, 23, 25],
-                                                            [1001, 1054, 1013])),)
+               ('COINS', 10, 'монеты', utg_relations.WORD_TYPE.INTEGER, s([1, 2, 5],
+                                                                          [21, 23, 25],
+                                                                          [1001, 1054, 1013])),)
 
 
 def _construct_utg_name_form(value):
@@ -68,13 +63,10 @@ def _construct_number(value):
 
 
 def _construct_text(value):
-    return (utg_words.WordForm(utg_words.Word(type=WORD_TYPE.TEXT, forms=(value,))), [])
+    return (utg_words.WordForm(utg_words.Word(type=utg_relations.WORD_TYPE.TEXT, forms=(value,))), [])
 
 
 def _construct_coins(value):
-    from the_tale.game import relations as game_relations
-    from the_tale.linguistics.storage import restrictions_storage
-
     value = int(value)
 
     utg_name = utg_constructors.construct_integer(value)
@@ -82,112 +74,112 @@ def _construct_coins(value):
     # check from greater amount to zero
     for record in reversed(game_relations.COINS_AMOUNT.records):
         if record.minumum <= value:
-            sum_restriction = restrictions_storage.get_restriction(relations.TEMPLATE_RESTRICTION_GROUP.COINS_AMOUNT, record.value).id
+            sum_restriction = linguistics_restrictions.get(record)
             return (utg_name, [sum_restriction])
 
 
-class VARIABLE_TYPE(DjangoEnum):
-    verificator = Column(unique=False, no_index=True)
-    constructor = Column(unique=False, no_index=True)
-    restrictions = Column(unique=False, no_index=True)
-    attributes = Column(unique=False, no_index=True)
+class VARIABLE_TYPE(rels_django.DjangoEnum):
+    verificator = rels.Column(unique=False, no_index=True)
+    constructor = rels.Column(unique=False, no_index=True)
+    restrictions = rels.Column(unique=False, no_index=True)
+    attributes = rels.Column(unique=False, no_index=True)
 
     records = (('NUMBER', 1, 'число', VARIABLE_VERIFICATOR.NUMBER, _construct_number, (), ()),
-               ('PLACE', 2, 'город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.TERRAIN,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.META_TERRAIN,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.META_HEIGHT,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.META_VEGETATION,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BUILDING_TYPE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.RACE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM), ()),
-               ('PERSON', 3, 'NPC', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.PERSON_TYPE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.RACE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PERSON_PERSONALITY_COSMETIC,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PERSON_PERSONALITY_PRACTICAL), ()),
-               ('ARTIFACT', 4, 'артефакт', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_TYPE,
-                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_POWER_TYPE,
-                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_RARITY,
-                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT_EFFECT,
-                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT,
-                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
-                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.WEAPON_TYPE,
-                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.DAMAGE_TYPE,
-                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.MATERIAL), ()),
-               ('MOB', 5, 'монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.MOB,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_BODY,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_SIZE,
-                                                                                            relations.TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION), ('weapon',)),
+               ('PLACE', 2, 'город', VARIABLE_VERIFICATOR.PLACE, _construct_utg_name_form, (linguistics_restrictions.GROUP.CITY_MODIFIER,
+                                                                                            linguistics_restrictions.GROUP.HABIT_HONOR,
+                                                                                            linguistics_restrictions.GROUP.HABIT_PEACEFULNESS,
+                                                                                            linguistics_restrictions.GROUP.TERRAIN,
+                                                                                            linguistics_restrictions.GROUP.META_TERRAIN,
+                                                                                            linguistics_restrictions.GROUP.META_HEIGHT,
+                                                                                            linguistics_restrictions.GROUP.META_VEGETATION,
+                                                                                            linguistics_restrictions.GROUP.BUILDING_TYPE,
+                                                                                            linguistics_restrictions.GROUP.RACE,
+                                                                                            linguistics_restrictions.GROUP.PLURAL_FORM), ()),
+               ('PERSON', 3, 'NPC', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (linguistics_restrictions.GROUP.PERSON_TYPE,
+                                                                                            linguistics_restrictions.GROUP.GENDER,
+                                                                                            linguistics_restrictions.GROUP.RACE,
+                                                                                            linguistics_restrictions.GROUP.PLURAL_FORM,
+                                                                                            linguistics_restrictions.GROUP.PERSON_PERSONALITY_COSMETIC,
+                                                                                            linguistics_restrictions.GROUP.PERSON_PERSONALITY_PRACTICAL), ()),
+               ('ARTIFACT', 4, 'артефакт', VARIABLE_VERIFICATOR.ITEM, _construct_utg_name_form, (linguistics_restrictions.GROUP.ARTIFACT_TYPE,
+                                                                                                 linguistics_restrictions.GROUP.ARTIFACT_POWER_TYPE,
+                                                                                                 linguistics_restrictions.GROUP.ARTIFACT_RARITY,
+                                                                                                 linguistics_restrictions.GROUP.ARTIFACT_EFFECT,
+                                                                                                 linguistics_restrictions.GROUP.ARTIFACT,
+                                                                                                 linguistics_restrictions.GROUP.PLURAL_FORM,
+                                                                                                 linguistics_restrictions.GROUP.WEAPON_TYPE,
+                                                                                                 linguistics_restrictions.GROUP.DAMAGE_TYPE,
+                                                                                                 linguistics_restrictions.GROUP.MATERIAL), ()),
+               ('MOB', 5, 'монстр', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (linguistics_restrictions.GROUP.MOB_TYPE,
+                                                                                            linguistics_restrictions.GROUP.MOB,
+                                                                                            linguistics_restrictions.GROUP.ARCHETYPE,
+                                                                                            linguistics_restrictions.GROUP.ACTION_TYPE,
+                                                                                            linguistics_restrictions.GROUP.COMMUNICATION_VERBAL,
+                                                                                            linguistics_restrictions.GROUP.COMMUNICATION_GESTURES,
+                                                                                            linguistics_restrictions.GROUP.COMMUNICATION_TELEPATHIC,
+                                                                                            linguistics_restrictions.GROUP.INTELLECT_LEVEL,
+                                                                                            linguistics_restrictions.GROUP.PLURAL_FORM,
+                                                                                            linguistics_restrictions.GROUP.BEING_STRUCTURE,
+                                                                                            linguistics_restrictions.GROUP.BEING_FEATURE,
+                                                                                            linguistics_restrictions.GROUP.BEING_MOVEMENT,
+                                                                                            linguistics_restrictions.GROUP.BEING_BODY,
+                                                                                            linguistics_restrictions.GROUP.BEING_SIZE,
+                                                                                            linguistics_restrictions.GROUP.BEING_ORIENTATION), ('weapon',)),
                ('TEXT', 6, 'текст', VARIABLE_VERIFICATOR.TEXT, _construct_text, (), ()),
 
-               ('ACTOR', 7, 'герой, монстр или спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.GENDER,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.RACE,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.MOB,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.MOB_TYPE,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_DEDICATION,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_ABILITY,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.TERRAIN,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.META_TERRAIN,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.META_HEIGHT,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.META_VEGETATION,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.ACTOR,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_BODY,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_SIZE,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.UPBRINGING,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.FIRST_DEATH,
-                                                                                                                 relations.TEMPLATE_RESTRICTION_GROUP.AGE), ('weapon',)),
+               ('ACTOR', 7, 'герой, монстр или спутник', VARIABLE_VERIFICATOR.PERSON, _construct_utg_name_form, (linguistics_restrictions.GROUP.GENDER,
+                                                                                                                 linguistics_restrictions.GROUP.RACE,
+                                                                                                                 linguistics_restrictions.GROUP.HABIT_HONOR,
+                                                                                                                 linguistics_restrictions.GROUP.HABIT_PEACEFULNESS,
+                                                                                                                 linguistics_restrictions.GROUP.MOB,
+                                                                                                                 linguistics_restrictions.GROUP.MOB_TYPE,
+                                                                                                                 linguistics_restrictions.GROUP.COMPANION,
+                                                                                                                 linguistics_restrictions.GROUP.COMPANION_DEDICATION,
+                                                                                                                 linguistics_restrictions.GROUP.COMPANION_ABILITY,
+                                                                                                                 linguistics_restrictions.GROUP.ARCHETYPE,
+                                                                                                                 linguistics_restrictions.GROUP.TERRAIN,
+                                                                                                                 linguistics_restrictions.GROUP.META_TERRAIN,
+                                                                                                                 linguistics_restrictions.GROUP.META_HEIGHT,
+                                                                                                                 linguistics_restrictions.GROUP.META_VEGETATION,
+                                                                                                                 linguistics_restrictions.GROUP.ACTION_TYPE,
+                                                                                                                 linguistics_restrictions.GROUP.COMMUNICATION_VERBAL,
+                                                                                                                 linguistics_restrictions.GROUP.COMMUNICATION_GESTURES,
+                                                                                                                 linguistics_restrictions.GROUP.COMMUNICATION_TELEPATHIC,
+                                                                                                                 linguistics_restrictions.GROUP.INTELLECT_LEVEL,
+                                                                                                                 linguistics_restrictions.GROUP.ACTOR,
+                                                                                                                 linguistics_restrictions.GROUP.PLURAL_FORM,
+                                                                                                                 linguistics_restrictions.GROUP.COMPANION_EXISTENCE,
+                                                                                                                 linguistics_restrictions.GROUP.BEING_STRUCTURE,
+                                                                                                                 linguistics_restrictions.GROUP.BEING_FEATURE,
+                                                                                                                 linguistics_restrictions.GROUP.BEING_MOVEMENT,
+                                                                                                                 linguistics_restrictions.GROUP.BEING_BODY,
+                                                                                                                 linguistics_restrictions.GROUP.BEING_SIZE,
+                                                                                                                 linguistics_restrictions.GROUP.BEING_ORIENTATION,
+                                                                                                                 linguistics_restrictions.GROUP.UPBRINGING,
+                                                                                                                 linguistics_restrictions.GROUP.FIRST_DEATH,
+                                                                                                                 linguistics_restrictions.GROUP.AGE), ('weapon',)),
 
-               ('MODIFIER', 8, 'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.CITY_MODIFIER,
-                                                                                                               relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM), ()),
+               ('MODIFIER', 8, 'модификатор города', VARIABLE_VERIFICATOR.MODIFIER, _construct_utg_name_form, (linguistics_restrictions.GROUP.CITY_MODIFIER,
+                                                                                                               linguistics_restrictions.GROUP.PLURAL_FORM), ()),
 
-               ('RACE', 9, 'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.RACE,
-                                                                                         relations.TEMPLATE_RESTRICTION_GROUP.PLURAL_FORM), ()),
+               ('RACE', 9, 'раса', VARIABLE_VERIFICATOR.RACE, _construct_utg_name_form, (linguistics_restrictions.GROUP.RACE,
+                                                                                         linguistics_restrictions.GROUP.PLURAL_FORM), ()),
 
-               ('DATE', 10, 'дата', VARIABLE_VERIFICATOR.DATE, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.REAL_FEAST,
-                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.CALENDAR_DATE,
-                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.PHYSICS_DATE,
-                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.MONTH,
-                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.QUINT,
-                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.QUINT_DAY,
-                                                                                          relations.TEMPLATE_RESTRICTION_GROUP.DAY_TYPE), ()),
+               ('DATE', 10, 'дата', VARIABLE_VERIFICATOR.DATE, _construct_utg_name_form, (linguistics_restrictions.GROUP.REAL_FEAST,
+                                                                                          linguistics_restrictions.GROUP.CALENDAR_DATE,
+                                                                                          linguistics_restrictions.GROUP.PHYSICS_DATE,
+                                                                                          linguistics_restrictions.GROUP.MONTH,
+                                                                                          linguistics_restrictions.GROUP.QUINT,
+                                                                                          linguistics_restrictions.GROUP.QUINT_DAY,
+                                                                                          linguistics_restrictions.GROUP.DAY_TYPE), ()),
 
-               ('TIME', 11, 'время', VARIABLE_VERIFICATOR.TIME, _construct_utg_name_form, (relations.TEMPLATE_RESTRICTION_GROUP.DAY_TIME,), ()),
+               ('TIME', 11, 'время', VARIABLE_VERIFICATOR.TIME, _construct_utg_name_form, (linguistics_restrictions.GROUP.DAY_TIME,), ()),
 
-               ('COINS', 12, 'монеты', VARIABLE_VERIFICATOR.COINS, _construct_coins, (relations.TEMPLATE_RESTRICTION_GROUP.COINS_AMOUNT,), ()),)
+               ('COINS', 12, 'монеты', VARIABLE_VERIFICATOR.COINS, _construct_coins, (linguistics_restrictions.GROUP.COINS_AMOUNT,), ()),)
 
 
-class VARIABLE(DjangoEnum):
-    type = Column(unique=False, no_index=True)
+class VARIABLE(rels_django.DjangoEnum):
+    type = rels.Column(unique=False, no_index=True)
 
     records = (('HERO', 'hero', 'герой', VARIABLE_TYPE.ACTOR),
                ('LEVEL', 'level', 'уровень', VARIABLE_TYPE.NUMBER),

@@ -1,14 +1,7 @@
 
-import math
+import smart_imports
 
-import rels
-
-from the_tale.common.utils.logic import choose_from_interval, choose_nearest
-
-from the_tale.game import turn
-from the_tale.game.balance import constants as c
-
-from the_tale.game.map.conf import map_settings
+smart_imports.all()
 
 
 class WIND_DIRECTION(rels.Relation):
@@ -16,24 +9,24 @@ class WIND_DIRECTION(rels.Relation):
     text = rels.Column(unique=False)
     direction = rels.Column(unique=False)
 
-    records = ((0,  'восточный', -math.pi*8.0/8.0),
-               (1,  'востоко-юго-восточный', -math.pi*7.0/8.0),
-               (2,  'юго-восточный', -math.pi*6.0/8.0),
-               (3,  'юго-юго-восточный', -math.pi*5.0/8.0),
-               (4,  'южный', -math.pi*4.0/8.0),
-               (5,  'юго-юго-западный', -math.pi*3.0/8.0),
-               (6,  'юго-западный', -math.pi*2.0/8.0),
-               (7,  'западо-юго-западный', -math.pi*1.0/8.0),
-               (8,  'западный', -math.pi*0.0/8.0),
-               (9,  'западный', math.pi*0.0/8.0),
-               (10, 'западо-северо-западный', math.pi*1.0/8.0),
-               (11, 'северо-западный', math.pi*2.0/8.0),
-               (12, 'северо-северо-западный', math.pi*3.0/8.0),
-               (13, 'северный', math.pi*4.0/8.0),
-               (14, 'северо-северо-восточный', math.pi*5.0/8.0),
-               (15, 'северо-восточный', math.pi*6.0/8.0),
-               (16, 'востоко-северо-восточный', math.pi*7.0/8.0),
-               (17, 'восточный', math.pi*8.0/8.0) )
+    records = ((0, 'восточный', -math.pi * 8.0 / 8.0),
+               (1, 'востоко-юго-восточный', -math.pi * 7.0 / 8.0),
+               (2, 'юго-восточный', -math.pi * 6.0 / 8.0),
+               (3, 'юго-юго-восточный', -math.pi * 5.0 / 8.0),
+               (4, 'южный', -math.pi * 4.0 / 8.0),
+               (5, 'юго-юго-западный', -math.pi * 3.0 / 8.0),
+               (6, 'юго-западный', -math.pi * 2.0 / 8.0),
+               (7, 'западо-юго-западный', -math.pi * 1.0 / 8.0),
+               (8, 'западный', -math.pi * 0.0 / 8.0),
+               (9, 'западный', math.pi * 0.0 / 8.0),
+               (10, 'западо-северо-западный', math.pi * 1.0 / 8.0),
+               (11, 'северо-западный', math.pi * 2.0 / 8.0),
+               (12, 'северо-северо-западный', math.pi * 3.0 / 8.0),
+               (13, 'северный', math.pi * 4.0 / 8.0),
+               (14, 'северо-северо-восточный', math.pi * 5.0 / 8.0),
+               (15, 'северо-восточный', math.pi * 6.0 / 8.0),
+               (16, 'востоко-северо-восточный', math.pi * 7.0 / 8.0),
+               (17, 'восточный', math.pi * 8.0 / 8.0))
 
 
 # https://ru.wikipedia.org/wiki/Ветер
@@ -42,16 +35,16 @@ class WIND_POWER(rels.Relation):
     text = rels.Column(unique=False)
     power = rels.Column()
 
-    records = ((0,  'штиль', 0.0),
-               (1,  'тихий ветер', 0.05),
-               (2,  'лёгкий ветер', 0.10),
-               (3,  'слабый ветер', 0.17),
-               (4,  'умеренный ветер', 0.25),
-               (5,  'свежий ветер', 0.43),
-               (6,  'сильный ветер', 0.55),
-               (7,  'крепкий ветер', 0.65),
-               (8,  'очень крепкий ветер', 0.75),
-               (9,  'шторм', 0.85),
+    records = ((0, 'штиль', 0.0),
+               (1, 'тихий ветер', 0.05),
+               (2, 'лёгкий ветер', 0.10),
+               (3, 'слабый ветер', 0.17),
+               (4, 'умеренный ветер', 0.25),
+               (5, 'свежий ветер', 0.43),
+               (6, 'сильный ветер', 0.55),
+               (7, 'крепкий ветер', 0.65),
+               (8, 'очень крепкий ветер', 0.75),
+               (9, 'шторм', 0.85),
                (10, 'сильный шторм', 0.88),
                (11, 'жестокий шторм', 0.92),
                (12, 'ураган', 0.96))
@@ -131,7 +124,7 @@ class WILD_TRANSPORT(rels.Relation):
     text = rels.Column(unique=False)
     transport = rels.Column()
 
-    records = [(r.value, 'видно, как %s' % r.text, r.transport) for r in ROAD_TRANSPORT.records ]
+    records = [(r.value, 'видно, как %s' % r.text, r.transport) for r in ROAD_TRANSPORT.records]
 
 # GROUND_WETNESS_POWERS = [(0.00, u'истрескавшаяся пыльная земля'),
 #                          (0.10, u'высохшая земля'),
@@ -144,33 +137,33 @@ class WILD_TRANSPORT(rels.Relation):
 
 
 def _get_wind_direction(cell):
-    return choose_nearest(math.atan2(cell.atmo_wind[1], cell.atmo_wind[0]),
-                          [(r.direction, r) for r in WIND_DIRECTION.records])
+    return utils_logic.choose_nearest(math.atan2(cell.atmo_wind[1], cell.atmo_wind[0]),
+                                      [(r.direction, r) for r in WIND_DIRECTION.records])
 
 
 def _get_wind_power(cell):
     wind_power = math.hypot(*cell.atmo_wind)
-    return choose_from_interval(wind_power, [(r.power, r) for r in WIND_POWER.records])
+    return utils_logic.choose_from_interval(wind_power, [(r.power, r) for r in WIND_POWER.records])
 
 
 def _get_temperature(cell):
-    return choose_from_interval(cell.mid_temperature, [(r.temperature, r) for r in TEMPERATURE_POWER.records])
+    return utils_logic.choose_from_interval(cell.mid_temperature, [(r.temperature, r) for r in TEMPERATURE_POWER.records])
 
 
 def _get_wetness(cell):
-    return choose_from_interval(cell.mid_wetness,  [(r.wetness, r) for r in WETNESS_POWER.records])
+    return utils_logic.choose_from_interval(cell.mid_wetness, [(r.wetness, r) for r in WETNESS_POWER.records])
 
 
 def _get_safety(safety):
-    return choose_from_interval(safety,  [(r.safety, r) for r in SAFETY.records])
+    return utils_logic.choose_from_interval(safety, [(r.safety, r) for r in SAFETY.records])
 
 
 def _get_road_transport(transport):
-    return choose_from_interval(transport,  [(r.transport, r) for r in ROAD_TRANSPORT.records])
+    return utils_logic.choose_from_interval(transport, [(r.transport, r) for r in ROAD_TRANSPORT.records])
 
 
 def _get_wild_transport(transport):
-    return choose_from_interval(transport,  [(r.transport, r) for r in WILD_TRANSPORT.records])
+    return utils_logic.choose_from_interval(transport, [(r.transport, r) for r in WILD_TRANSPORT.records])
 
 
 class UICell(object):
@@ -201,8 +194,7 @@ class UICell(object):
 
     @classmethod
     def safety(self, x, y):
-        from the_tale.game.map.storage import map_info_storage
-        dominant_place = map_info_storage.item.get_dominant_place(x, y)
+        dominant_place = storage.map_info.item.get_dominant_place(x, y)
 
         if dominant_place:
             safety = dominant_place.attrs.safety
@@ -213,17 +205,16 @@ class UICell(object):
 
     @classmethod
     def transport(self, x, y):
-        from the_tale.game.map.storage import map_info_storage
-        from the_tale.game.heroes.position import Position
+        from the_tale.game.heroes import position as heroes_position
 
-        dominant_place = map_info_storage.item.get_dominant_place(x, y)
+        dominant_place = storage.map_info.item.get_dominant_place(x, y)
 
-        has_road = map_info_storage.item.roads_map[y][x].get('road')
+        has_road = storage.map_info.item.roads_map[y][x].get('road')
 
         if dominant_place:
             transport = dominant_place.attrs.transport
         else:
-            transport = Position.raw_transport()
+            transport = heroes_position.Position.raw_transport()
 
         if has_road:
             return _get_road_transport(transport)
@@ -233,7 +224,7 @@ class UICell(object):
 
 class UICells(object):
 
-    def __init__(self, generator=None): # pylint: disable=W0613
+    def __init__(self, generator=None):  # pylint: disable=W0613
         self.cells = ()
 
     def get_cell(self, x, y):
@@ -259,7 +250,7 @@ class UICells(object):
 
             for x in range(0, generator.w):
                 cell = generator.cell_info(x, y)
-                randomized_cell = cell.randomize(seed=(x+y)*turn.game_datetime().day, fraction=map_settings.CELL_RANDOMIZE_FRACTION)
+                randomized_cell = cell.randomize(seed=(x + y) * game_turn.game_datetime().day, fraction=conf.settings.CELL_RANDOMIZE_FRACTION)
                 row.append(UICell(randomized_cell))
 
             cells.append(tuple(row))
@@ -275,7 +266,7 @@ class UICells(object):
         cells = []
 
         for row in data:
-            cells_row = [UICell.deserialize(cell_data) for cell_data in row ]
+            cells_row = [UICell.deserialize(cell_data) for cell_data in row]
             cells.append(tuple(cells_row))
 
         obj.cells = tuple(cells)

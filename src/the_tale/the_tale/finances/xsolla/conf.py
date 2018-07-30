@@ -1,7 +1,9 @@
-# coding: utf-8
 
-from dext.common.utils.app_settings import app_settings
+import smart_imports
 
-xsolla_settings = app_settings('XSOLLA',
-                               SECRET_KEY='secret_key',
-                               ALLOWED_IPS=('127.0.0.1', 'testserver', 'localhost'))
+smart_imports.all()
+
+
+settings = dext_app_settings.app_settings('XSOLLA',
+                                          SECRET_KEY='secret_key',
+                                          ALLOWED_IPS=('127.0.0.1', 'testserver', 'localhost'))

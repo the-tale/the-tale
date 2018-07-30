@@ -1,17 +1,14 @@
 
-from dext.settings import settings
+import smart_imports
 
-from utg import words as utg_words
-from utg.relations import WORD_TYPE
-
-import tt_calendar
+smart_imports.all()
 
 
 TURN_SETTINGS_KEY = 'turn number'
 
 
 def number():
-    return int(settings.get(TURN_SETTINGS_KEY, 0))
+    return int(dext_settings.settings.get(TURN_SETTINGS_KEY, 0))
 
 
 def increment(delta=1):
@@ -19,7 +16,7 @@ def increment(delta=1):
 
 
 def set(turn):
-    settings[TURN_SETTINGS_KEY] = str(turn)
+    dext_settings.settings[TURN_SETTINGS_KEY] = str(turn)
 
 
 def game_datetime(turn=None):
@@ -48,30 +45,25 @@ class LinguisticsDate(object):
 
     @property
     def utg_name_form(self):
-        return utg_words.WordForm(utg_words.Word(type=WORD_TYPE.TEXT, forms=(self.date.verbose_full(),)))
+        return utg_words.WordForm(utg_words.Word(type=utg_relations.WORD_TYPE.TEXT, forms=(self.date.verbose_full(),)))
 
     def linguistics_restrictions(self, now=None):
-        from the_tale.linguistics import storage
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-
         restrictions = []
 
-        get_restriction = storage.restrictions_storage.get_restriction
-
         for real_feast in tt_calendar.actual_real_feasts(now=now):
-            restrictions.append(get_restriction(TEMPLATE_RESTRICTION_GROUP.REAL_FEAST, real_feast.value).id)
+            restrictions.append(linguistics_restrictions.get(real_feast))
 
         for calendar_date in tt_calendar.actual_dates(self.date, tt_calendar.DATE):
-            restrictions.append(get_restriction(TEMPLATE_RESTRICTION_GROUP.CALENDAR_DATE, calendar_date.value).id)
+            restrictions.append(linguistics_restrictions.get(calendar_date))
 
         for physics_date in tt_calendar.actual_dates(self.date, tt_calendar.PHYSICS_DATE):
-            restrictions.append(get_restriction(TEMPLATE_RESTRICTION_GROUP.PHYSICS_DATE, physics_date.value).id)
+            restrictions.append(linguistics_restrictions.get(physics_date))
 
-        restrictions.append(get_restriction(TEMPLATE_RESTRICTION_GROUP.MONTH, self.date.month).id)
-        restrictions.append(get_restriction(TEMPLATE_RESTRICTION_GROUP.QUINT, self.date.quint).id)
-        restrictions.append(get_restriction(TEMPLATE_RESTRICTION_GROUP.QUINT_DAY, self.date.quint_day).id)
+        restrictions.append(linguistics_restrictions.get_raw('MONTH', self.date.month))
+        restrictions.append(linguistics_restrictions.get_raw('QUINT', self.date.quint))
+        restrictions.append(linguistics_restrictions.get_raw('QUINT_DAY', self.date.quint_day))
 
-        restrictions.append(get_restriction(TEMPLATE_RESTRICTION_GROUP.DAY_TYPE, tt_calendar.day_type(self.date).value).id)
+        restrictions.append(linguistics_restrictions.get(tt_calendar.day_type(self.date)))
 
         return restrictions
 
@@ -84,18 +76,13 @@ class LinguisticsTime(object):
 
     @property
     def utg_name_form(self):
-        return utg_words.WordForm(utg_words.Word(type=WORD_TYPE.TEXT, forms=(self.time.verbose(),)))
+        return utg_words.WordForm(utg_words.Word(type=utg_relations.WORD_TYPE.TEXT, forms=(self.time.verbose(),)))
 
     def linguistics_restrictions(self, now=None):
-        from the_tale.linguistics import storage
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-
         restrictions = []
 
-        get_restriction = storage.restrictions_storage.get_restriction
-
         for day_time in tt_calendar.day_times(self.time):
-            restrictions.append(get_restriction(TEMPLATE_RESTRICTION_GROUP.DAY_TIME, day_time.value).id)
+            restrictions.append(linguistics_restrictions.get(day_time))
 
         return restrictions
 

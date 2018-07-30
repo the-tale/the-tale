@@ -1,30 +1,13 @@
 
-from django.forms import ValidationError
+import smart_imports
 
-from dext.forms import fields
-
-from utg import words as utg_words
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.persons import logic as persons_logic
-from the_tale.game.persons import objects as persons_objects
-from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import relations as persons_relations
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-from the_tale.game.bills.bills.base_bill import BaseBill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    person_1 = fields.ChoiceField(label='Первый Мастер')
-    person_2 = fields.ChoiceField(label='Второй Мастер')
-    connection_type = fields.RelationField(label='Тип связи', relation=persons_relations.SOCIAL_CONNECTION_TYPE)
+class BaseForm(forms.BaseUserForm):
+    person_1 = dext_fields.ChoiceField(label='Первый Мастер')
+    person_2 = dext_fields.ChoiceField(label='Второй Мастер')
+    connection_type = dext_fields.RelationField(label='Тип связи', relation=persons_relations.SOCIAL_CONNECTION_TYPE)
 
     def __init__(self, person_1_id, person_2_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -40,20 +23,20 @@ class BaseForm(BaseUserForm):
         cleaned_data = super(BaseForm, self).clean()
 
         if 'person_1' not in cleaned_data or 'person_2' not in cleaned_data:
-            return cleaned_data # error in one of that filed, no need to continue cleaning
+            return cleaned_data  # error in one of that filed, no need to continue cleaning
 
         person_1 = persons_storage.persons[int(cleaned_data['person_1'])]
         person_2 = persons_storage.persons[int(cleaned_data['person_2'])]
 
         if person_1.id == person_2.id:
-            raise ValidationError('Нужно выбрать разных Мастеров')
+            raise django_forms.ValidationError('Нужно выбрать разных Мастеров')
 
         if persons_storage.social_connections.is_connected(person_1, person_2):
-            raise ValidationError('Мастера уже имеют социальную связь')
+            raise django_forms.ValidationError('Мастера уже имеют социальную связь')
 
         if (persons_storage.social_connections.connections_limit_reached(person_1) or
-            persons_storage.social_connections.connections_limit_reached(person_2)):
-            raise ValidationError('Один из Мастеров уже имеет максимум связей')
+                persons_storage.social_connections.connections_limit_reached(person_2)):
+            raise django_forms.ValidationError('Один из Мастеров уже имеет максимум связей')
 
         return cleaned_data
 
@@ -68,16 +51,16 @@ class UserForm(BaseForm):
         person_id = person_id = int(self.cleaned_data['person_1'])
 
         if not politic_power_logic.get_inner_circle(person_id=person_id).in_circle(self.owner_id):
-            raise ValidationError('Ваш герой должен быть в ближнем круге первого Мастера')
+            raise django_forms.ValidationError('Ваш герой должен быть в ближнем круге первого Мастера')
 
         return person_id
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
-class PersonAddSocialConnection(BaseBill):
+class PersonAddSocialConnection(base_bill.BaseBill):
     type = relations.BILL_TYPE.PERSON_ADD_SOCIAL_CONNECTION
 
     UserForm = UserForm
@@ -140,20 +123,17 @@ class PersonAddSocialConnection(BaseBill):
 
     @classmethod
     def get_user_form_create(cls, post=None, owner_id=None):
-        return cls.UserForm(None, None, owner_id, post) #pylint: disable=E1102
-
+        return cls.UserForm(None, None, owner_id, post)  # pylint: disable=E1102
 
     def get_user_form_update(self, post=None, initial=None, owner_id=None, original_bill_id=None):
         if initial:
-            return self.UserForm(self.person_1_id, self.person_2_id, owner_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
-        return  self.UserForm(self.person_1_id, self.person_2_id, owner_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
-
+            return self.UserForm(self.person_1_id, self.person_2_id, owner_id, initial=initial, original_bill_id=original_bill_id)  # pylint: disable=E1102
+        return self.UserForm(self.person_1_id, self.person_2_id, owner_id, post, original_bill_id=original_bill_id)  # pylint: disable=E1102
 
     def get_moderator_form_update(self, post=None, initial=None, owner_id=None, original_bill_id=None):
         if initial:
-            return self.ModeratorForm(self.person_1_id, self.person_2_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
-        return  self.ModeratorForm(self.person_1_id, self.person_2_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
-
+            return self.ModeratorForm(self.person_1_id, self.person_2_id, initial=initial, original_bill_id=original_bill_id)  # pylint: disable=E1102
+        return self.ModeratorForm(self.person_1_id, self.person_2_id, post, original_bill_id=original_bill_id)  # pylint: disable=E1102
 
     @property
     def place_1_name_changed(self):
@@ -168,7 +148,6 @@ class PersonAddSocialConnection(BaseBill):
 
     @property
     def place_2_name(self): return self.place_2.name
-
 
     def initialize_with_form(self, user_form):
         self.person_1_id = int(user_form.c.person_1)
@@ -186,18 +165,16 @@ class PersonAddSocialConnection(BaseBill):
             return False
 
         if (persons_storage.social_connections.connections_limit_reached(self.person_1) or
-            persons_storage.social_connections.connections_limit_reached(self.person_2)):
+                persons_storage.social_connections.connections_limit_reached(self.person_2)):
             return False
 
         return True
-
 
     def apply(self, bill=None):
         if self.has_meaning():
             persons_logic.create_social_connection(connection_type=self.connection_type,
                                                    person_1=self.person_1,
                                                    person_2=self.person_2)
-
 
     def serialize(self):
         return {'type': self.type.name.lower(),

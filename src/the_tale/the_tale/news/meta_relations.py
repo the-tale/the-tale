@@ -1,12 +1,10 @@
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import models
+smart_imports.all()
 
 
-class News(meta_relations.MetaType):
+class News(utils_meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 12
     TYPE_CAPTION = 'Новость'
@@ -17,7 +15,7 @@ class News(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('news:show', self.id)
+        return dext_urls.url('news:show', self.id)
 
     @classmethod
     def create_from_object(cls, news):

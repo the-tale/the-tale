@@ -1,53 +1,32 @@
 
-import random
+import smart_imports
+
+smart_imports.all()
 
 
-from the_tale.common.utils import testcase
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.places import storage as places_storage
-from the_tale.game.persons import storage as persons_storage
-from the_tale.game.mobs import storage as mobs_storage
-
-
-from . import helpers
-
-
-class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
+class ChangePreference(utils_testcase.TestCase, helpers.CardsTestMixin):
 
     def setUp(self):
         super().setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-
     def test_every_preference_has_form(self):
         for preference in heroes_relations.PREFERENCE_TYPE.records:
-            card = cards.CARD.CHANGE_PREFERENCE.effect.create_card(type=cards.CARD.CHANGE_PREFERENCE,
+            card = types.CARD.CHANGE_PREFERENCE.effect.create_card(type=types.CARD.CHANGE_PREFERENCE,
                                                                    available_for_auction=True,
                                                                    preference=preference)
             self.assertNotEqual(card.get_form(hero=self.hero), None)
 
-
     def use_card(self, preference, form_value):
-        card = cards.CARD.CHANGE_PREFERENCE.effect.create_card(type=cards.CARD.CHANGE_PREFERENCE,
+        card = types.CARD.CHANGE_PREFERENCE.effect.create_card(type=types.CARD.CHANGE_PREFERENCE,
                                                                available_for_auction=True,
                                                                preference=preference)
 
@@ -60,7 +39,7 @@ class ChangePreference(testcase.TestCase, helpers.CardsTestMixin):
                                                                                value=form.get_card_data()['value'],
                                                                                card=card))
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_mob(self):
         mob = mobs_storage.mobs.all()[0]

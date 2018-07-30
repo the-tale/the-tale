@@ -1,7 +1,8 @@
 
 
-from . import cards
-from . import relations
+import smart_imports
+
+smart_imports.all()
 
 
 class Card(object):
@@ -27,7 +28,7 @@ class Card(object):
     @classmethod
     def deserialize(cls, uid, data, storage=relations.STORAGE.FAST):
         return cls(uid=uid,
-                   type=cards.CARD(data['type']),
+                   type=types.CARD(data['type']),
                    available_for_auction=data['auction'],
                    data=data.get('data'),
                    storage=storage)

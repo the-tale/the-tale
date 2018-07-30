@@ -1,11 +1,12 @@
-import os
-import sys
-import site
+
+import smart_imports
+
+smart_imports.all()
+
 
 site.addsitedir('/home/the-tale/current/venv/lib/python3.5/site-packages')
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'the_tale.settings'
 
-from django.core import wsgi
 
-application = wsgi.get_wsgi_application()
+application = django_wsgi.get_wsgi_application()

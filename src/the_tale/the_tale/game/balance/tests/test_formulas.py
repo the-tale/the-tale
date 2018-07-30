@@ -1,21 +1,22 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.balance import formulas as f, constants as c
+smart_imports.all()
+
 
 E = 0.00001
 
 
-class FormulasTest(testcase.TestCase):
+class FormulasTest(utils_testcase.TestCase):
 
     LVLS = [1, 2, 3, 4, 5, 7, 11, 17, 19, 25, 30, 40, 60, 71, 82, 99, 101]
 
     def test_experience_for_quest(self):
-        self.assertTrue(f.experience_for_quest(100) < f.experience_for_quest(1000)< f.experience_for_quest(10000))
+        self.assertTrue(f.experience_for_quest(100) < f.experience_for_quest(1000) < f.experience_for_quest(10000))
         self.assertEqual(int(f.experience_for_quest__real(100)), 50)
 
     def test_person_power_for_quest(self):
-        self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000)< f.person_power_for_quest(10000))
+        self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000) < f.person_power_for_quest(10000))
         self.assertEqual(int(f.person_power_for_quest__real(100)), 60)
 
     def test_companions_defend_in_battle_probability(self):
@@ -57,14 +58,14 @@ class FormulasTest(testcase.TestCase):
 
 
 # if one of this tests broken, we MUST review appropriate achievements' barriers
-class AchievementsBarriers(testcase.TestCase):
+class AchievementsBarriers(utils_testcase.TestCase):
 
     def money_after_months(self, months):
-        return f.total_gold_at_lvl(f.lvl_after_time(months*30*24))
+        return f.total_gold_at_lvl(f.lvl_after_time(months * 30 * 24))
 
     def check_money(self, months, money):
         # print months, self.money_after_months(months) , self.money_after_months(months+0.25)
-        self.assertTrue(self.money_after_months(months) <= money <= self.money_after_months(months+0.25))
+        self.assertTrue(self.money_after_months(months) <= money <= self.money_after_months(months + 0.25))
 
     def test_money(self):
         self.check_money(0.03, 1000)
@@ -79,7 +80,7 @@ class AchievementsBarriers(testcase.TestCase):
 
     def check_mobs(self, months, mobs):
         # print months, self.mobs_after_months(months) , self.mobs_after_months(months+0.05)
-        self.assertTrue(self.mobs_after_months(months) <= mobs <= self.mobs_after_months(months+0.05))
+        self.assertTrue(self.mobs_after_months(months) <= mobs <= self.mobs_after_months(months + 0.05))
 
     def test_mobs(self):
         self.check_mobs(0.08, 1000)
@@ -92,12 +93,12 @@ class AchievementsBarriers(testcase.TestCase):
         self.check_mobs(36.25, 400000)
 
     def artifacts_after_months(self, months):
-        MAGIC = 1.5 # magic cooficient, to spend money events and abilities
-        return int(((c.ARTIFACTS_LOOT_PER_DAY+c.EXPECTED_QUESTS_IN_DAY*c.ARTIFACT_FOR_QUEST_PROBABILITY) * months*30-1) * MAGIC)
+        MAGIC = 1.5  # magic cooficient, to spend money events and abilities
+        return int(((c.ARTIFACTS_LOOT_PER_DAY + c.EXPECTED_QUESTS_IN_DAY * c.ARTIFACT_FOR_QUEST_PROBABILITY) * months * 30 - 1) * MAGIC)
 
     def check_artifacts(self, months, artifacts):
         # print months, self.artifacts_after_months(months), artifacts, self.artifacts_after_months(months+0.25)
-        self.assertTrue(self.artifacts_after_months(months) <= artifacts <= self.artifacts_after_months(months+0.25))
+        self.assertTrue(self.artifacts_after_months(months) <= artifacts <= self.artifacts_after_months(months + 0.25))
 
     def test_artifacts(self):
         self.check_artifacts(0, 1)

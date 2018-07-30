@@ -1,18 +1,16 @@
-# coding: utf-8
 
-from dext.forms import forms, fields
+import smart_imports
 
-from the_tale.common.utils import bbcode
-
-from the_tale.accounts.clans.models import Clan, MembershipRequest
-
-class ClanForm(forms.Form):
-
-    name = fields.CharField(label='Название', max_length=Clan.MAX_NAME_LENGTH, min_length=Clan.MIN_NAME_LENGTH)
-    abbr = fields.CharField(label='Аббревиатура (до %d символов)' % Clan.MAX_ABBR_LENGTH, max_length=Clan.MAX_ABBR_LENGTH, min_length=Clan.MIN_ABBR_LENGTH)
-    motto = fields.CharField(label='Девиз', max_length=Clan.MAX_MOTTO_LENGTH)
-    description = bbcode.BBField(label='Описание', max_length=Clan.MAX_DESCRIPTION_LENGTH)
+smart_imports.all()
 
 
-class MembershipRequestForm(forms.Form):
-    text = bbcode.BBField(label='Текст', max_length=MembershipRequest.MAX_TEXT_LENGTH)
+class ClanForm(dext_forms.Form):
+
+    name = dext_fields.CharField(label='Название', max_length=models.Clan.MAX_NAME_LENGTH, min_length=models.Clan.MIN_NAME_LENGTH)
+    abbr = dext_fields.CharField(label='Аббревиатура (до %d символов)' % models.Clan.MAX_ABBR_LENGTH, max_length=models.Clan.MAX_ABBR_LENGTH, min_length=models.Clan.MIN_ABBR_LENGTH)
+    motto = dext_fields.CharField(label='Девиз', max_length=models.Clan.MAX_MOTTO_LENGTH)
+    description = utils_bbcode.BBField(label='Описание', max_length=models.Clan.MAX_DESCRIPTION_LENGTH)
+
+
+class MembershipRequestForm(dext_forms.Form):
+    text = utils_bbcode.BBField(label='Текст', max_length=models.MembershipRequest.MAX_TEXT_LENGTH)

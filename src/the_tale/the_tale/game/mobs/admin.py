@@ -1,14 +1,13 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.game.mobs.models import MobRecord
+smart_imports.all()
 
 
-class MobRecordAdmin(admin.ModelAdmin):
+class MobRecordAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'uuid', 'name', 'archetype', 'state', 'created_at', 'updated_at')
 
     list_filter = ('state', 'archetype')
 
 
-admin.site.register(MobRecord, MobRecordAdmin)
+django_admin.site.register(models.MobRecord, MobRecordAdmin)

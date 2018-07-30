@@ -1,12 +1,10 @@
 
-from django.db import models
+import smart_imports
 
-from rels.django import RelationIntegerField
-
-from the_tale.accounts.clans.relations import MEMBER_ROLE, MEMBERSHIP_REQUEST_TYPE
+smart_imports.all()
 
 
-class Clan(models.Model):
+class Clan(django_models.Model):
 
     MAX_NAME_LENGTH = 128
     MIN_NAME_LENGTH = 5
@@ -15,18 +13,18 @@ class Clan(models.Model):
     MAX_MOTTO_LENGTH = 256
     MAX_DESCRIPTION_LENGTH = 2024
 
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+    created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
 
-    name = models.CharField(max_length=MAX_NAME_LENGTH, unique=True)
-    abbr = models.CharField(max_length=MAX_ABBR_LENGTH, unique=True)
+    name = django_models.CharField(max_length=MAX_NAME_LENGTH, unique=True)
+    abbr = django_models.CharField(max_length=MAX_ABBR_LENGTH, unique=True)
 
-    motto = models.CharField(max_length=MAX_MOTTO_LENGTH)
-    description = models.TextField(max_length=MAX_DESCRIPTION_LENGTH)
+    motto = django_models.CharField(max_length=MAX_MOTTO_LENGTH)
+    description = django_models.TextField(max_length=MAX_DESCRIPTION_LENGTH)
 
-    members_number = models.IntegerField()
+    members_number = django_models.IntegerField()
 
-    forum_subcategory = models.ForeignKey('forum.SubCategory', null=True, on_delete=models.SET_NULL)
+    forum_subcategory = django_models.ForeignKey('forum.SubCategory', null=True, on_delete=django_models.SET_NULL)
 
     def __str__(self): return '[%s] %s' % (self.abbr, self.name)
 
@@ -34,32 +32,32 @@ class Clan(models.Model):
         permissions = (("moderate_clan", "Может редактировать кланы и т.п."), )
 
 
-class Membership(models.Model):
+class Membership(django_models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = django_models.DateTimeField(auto_now_add=True)
+    updated_at = django_models.DateTimeField(auto_now=True)
 
-    clan = models.ForeignKey(Clan, on_delete=models.PROTECT)
-    account = models.OneToOneField('accounts.Account', on_delete=models.PROTECT)
+    clan = django_models.ForeignKey(Clan, on_delete=django_models.PROTECT)
+    account = django_models.OneToOneField('accounts.Account', on_delete=django_models.PROTECT)
 
-    role = RelationIntegerField(relation=MEMBER_ROLE, relation_column='value')
+    role = rels_django.RelationIntegerField(relation=relations.MEMBER_ROLE, relation_column='value')
 
 
-class MembershipRequest(models.Model):
+class MembershipRequest(django_models.Model):
 
     MAX_TEXT_LENGTH = 1024
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = django_models.DateTimeField(auto_now_add=True)
+    updated_at = django_models.DateTimeField(auto_now=True)
 
-    clan = models.ForeignKey(Clan, on_delete=models.CASCADE)
-    account = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
+    clan = django_models.ForeignKey(Clan, on_delete=django_models.CASCADE)
+    account = django_models.ForeignKey('accounts.Account', related_name='+', on_delete=django_models.CASCADE)
 
-    initiator = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
+    initiator = django_models.ForeignKey('accounts.Account', related_name='+', on_delete=django_models.CASCADE)
 
-    type = RelationIntegerField(relation=MEMBERSHIP_REQUEST_TYPE, relation_column='value')
+    type = rels_django.RelationIntegerField(relation=relations.MEMBERSHIP_REQUEST_TYPE, relation_column='value')
 
-    text = models.TextField(max_length=MAX_TEXT_LENGTH)
+    text = django_models.TextField(max_length=MAX_TEXT_LENGTH)
 
     class Meta:
         unique_together = (('clan', 'account'), )

@@ -1,10 +1,7 @@
-# coding: utf-8
 
-from django.conf.urls import url
-from django.conf.urls import include
+import smart_imports
 
-from dext.views import resource_patterns
+smart_imports.all()
 
-from the_tale.blogs.views import PostResource
 
-urlpatterns = [url(r'^posts/', include(resource_patterns(PostResource), namespace='posts')),]
+urlpatterns = [django_urls.url(r'^posts/', django_urls.include(dext_old_views.resource_patterns(views.PostResource), namespace='posts')), ]

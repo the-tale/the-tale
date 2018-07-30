@@ -1,25 +1,10 @@
 
-import math
-import random
-import datetime
+import smart_imports
 
-import tt_calendar
-
-from the_tale.common.utils import bbcode
-
-from the_tale.game import names
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game import effects
-from the_tale.game import turn
-
-from . import relations
+smart_imports.all()
 
 
-class Place(names.ManageNameMixin2):
+class Place(game_names.ManageNameMixin2):
     __slots__ = ('id',
                  'x', 'y',
                  'updated_at',
@@ -109,16 +94,13 @@ class Place(names.ManageNameMixin2):
         return self.created_at + datetime.timedelta(seconds=c.PLACE_NEW_PLACE_LIVETIME)
 
     @property
-    def description_html(self): return bbcode.render(self.description)
+    def description_html(self): return utils_bbcode.render(self.description)
 
     def linguistics_restrictions(self):
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-        from the_tale.linguistics.storage import restrictions_storage
-
-        restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, self.habit_honor.interval.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, self.habit_honor.interval.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value).id]
+        restrictions = [linguistics_restrictions.get(self.race),
+                        linguistics_restrictions.get(self.habit_honor.interval),
+                        linguistics_restrictions.get(self.habit_honor.interval),
+                        linguistics_restrictions.get(self.terrain)]
 
         restrictions.extend(self._modifier.linguistics_restrictions())
 
@@ -129,9 +111,7 @@ class Place(names.ManageNameMixin2):
         return self.is_frontier
 
     def update_heroes_habits(self):
-        from the_tale.game.heroes.preferences import HeroPreferences
-
-        habits_values = HeroPreferences.count_habit_values(self, all=self.depends_from_all_heroes)
+        habits_values = heroes_preferences.HeroPreferences.count_habit_values(self, all=self.depends_from_all_heroes)
 
         self.habit_honor_positive = habits_values[0][0]
         self.habit_honor_negative = habits_values[0][1]
@@ -175,8 +155,7 @@ class Place(names.ManageNameMixin2):
 
     @property
     def url(self):
-        from dext.common.utils.urls import url
-        return url('game:places:show', self.id)
+        return dext_urls.url('game:places:show', self.id)
 
     def name_from(self, with_url=True):
         if with_url:
@@ -186,23 +165,20 @@ class Place(names.ManageNameMixin2):
 
     @property
     def persons(self):
-        from the_tale.game.persons import storage as persons_storage
         return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id),
                       key=lambda p: p.created_at_turn)  # fix persons order
 
     @property
     def persons_by_power(self):
-        from the_tale.game.persons import storage as persons_storage
         return sorted((person for person in persons_storage.persons.all() if person.place_id == self.id),
                       key=lambda p: politic_power_storage.persons.total_power_fraction(p.id),
                       reverse=True)  # fix persons order
 
-    def mark_as_updated(self): self.updated_at_turn = turn.number()
+    def mark_as_updated(self): self.updated_at_turn = game_turn.number()
 
     @property
     def terrains(self):
-        from the_tale.game.map.storage import map_info_storage
-        map_info = map_info_storage.item
+        map_info = map_storage.map_info.item
         terrains = set()
         for cell in self.nearest_cells:
             terrains.add(map_info.terrain[cell[1]][cell[0]])
@@ -210,8 +186,7 @@ class Place(names.ManageNameMixin2):
 
     @property
     def terrain(self):
-        from the_tale.game.map.storage import map_info_storage
-        map_info = map_info_storage.item
+        map_info = map_storage.map_info.item
         return map_info.terrain[self.y][self.x]
 
     def shift(self, dx, dy):
@@ -228,33 +203,31 @@ class Place(names.ManageNameMixin2):
         return self.races.dominant_race and self.race != self.races.dominant_race
 
     def _effects_generator(self):
-        from . import storage
+        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.TAX, value=0.0)
 
-        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.TAX, value=0.0)
-
-        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
+        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
 
         if len(self.persons) > c.PLACE_MAX_PERSONS:
-            yield effects.Effect(name='избыток Мастеров',
-                                 attribute=relations.ATTRIBUTE.STABILITY,
-                                 value=c.PLACE_STABILITY_PENALTY_FOR_MASTER * (len(self.persons) - c.PLACE_MAX_PERSONS))
+            yield game_effects.Effect(name='избыток Мастеров',
+                                      attribute=relations.ATTRIBUTE.STABILITY,
+                                      value=c.PLACE_STABILITY_PENALTY_FOR_MASTER * (len(self.persons) - c.PLACE_MAX_PERSONS))
 
         if self.is_wrong_race():
             dominant_race_power = self.races.get_race_percents(self.races.dominant_race)
             current_race_power = self.races.get_race_percents(self.race)
-            yield effects.Effect(name='расовая дискриминация',
-                                 attribute=relations.ATTRIBUTE.STABILITY,
-                                 value=c.PLACE_STABILITY_PENALTY_FOR_RACES * (dominant_race_power - current_race_power))
+            yield game_effects.Effect(name='расовая дискриминация',
+                                      attribute=relations.ATTRIBUTE.STABILITY,
+                                      value=c.PLACE_STABILITY_PENALTY_FOR_RACES * (dominant_race_power - current_race_power))
 
-        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
+        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
 
         # politic radius
-        yield effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * 0.625)
-        yield effects.Effect(name='культура', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * self.attrs.culture * 0.625)
+        yield game_effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * 0.625)
+        yield game_effects.Effect(name='культура', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * self.attrs.culture * 0.625)
 
         # terrain radius
-        yield effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * 0.5)
-        yield effects.Effect(name='культура', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * self.attrs.culture * 0.5)
+        yield game_effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * 0.5)
+        yield game_effects.Effect(name='культура', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * self.attrs.culture * 0.5)
 
         for effect in self.effects.effects:
             yield effect
@@ -265,23 +238,23 @@ class Place(names.ManageNameMixin2):
 
         elif not self.modifier.is_NONE:
             modifier_points = getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0)
-            yield effects.Effect(name='Несоответствие специализации',
-                                 attribute=relations.ATTRIBUTE.STABILITY,
-                                 value=c.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION * (c.PLACE_TYPE_ENOUGH_BORDER - modifier_points) / c.PLACE_TYPE_ENOUGH_BORDER)
+            yield game_effects.Effect(name='Несоответствие специализации',
+                                      attribute=relations.ATTRIBUTE.STABILITY,
+                                      value=c.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION * (c.PLACE_TYPE_ENOUGH_BORDER - modifier_points) / c.PLACE_TYPE_ENOUGH_BORDER)
 
         for exchange in storage.resource_exchanges.get_exchanges_for_place(self):
             resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
             if resource_1.parameter is not None:
-                yield effects.Effect(name=place_2.name if place_2 is not None else resource_2.text,
-                                     attribute=resource_1.parameter,
-                                     value=-resource_1.amount * resource_1.direction)
+                yield game_effects.Effect(name=place_2.name if place_2 is not None else resource_2.text,
+                                          attribute=resource_1.parameter,
+                                          value=-resource_1.amount * resource_1.direction)
             if resource_2.parameter is not None:
-                yield effects.Effect(name=place_2.name if place_2 is not None else resource_1.text,
-                                     attribute=resource_2.parameter,
-                                     value=resource_2.amount * resource_2.direction)
+                yield game_effects.Effect(name=place_2.name if place_2 is not None else resource_1.text,
+                                          attribute=resource_2.parameter,
+                                          value=resource_2.amount * resource_2.direction)
 
         # economic
-        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.AREA, value=len(self.nearest_cells))
+        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.AREA, value=len(self.nearest_cells))
 
         # мы ожидаем, что радиус владений города сравним с его размером и домножаем на поправочный коэфициент
         area_size_equivalent = ((math.sqrt(self.attrs.area) - 1) / 2) * 2
@@ -289,39 +262,39 @@ class Place(names.ManageNameMixin2):
         if self.is_frontier:
             area_size_equivalent /= 2
 
-        yield effects.Effect(name='экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.66 * self.attrs.power_economic * c.PLACE_GOODS_BONUS)
-        yield effects.Effect(name='владения', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.34 * area_size_equivalent * c.PLACE_GOODS_BONUS)
+        yield game_effects.Effect(name='экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.66 * self.attrs.power_economic * c.PLACE_GOODS_BONUS)
+        yield game_effects.Effect(name='владения', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.34 * area_size_equivalent * c.PLACE_GOODS_BONUS)
 
-        yield effects.Effect(name='потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-self.attrs.size * c.PLACE_GOODS_BONUS)
-        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
+        yield game_effects.Effect(name='потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-self.attrs.size * c.PLACE_GOODS_BONUS)
+        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
 
         if self.attrs.get_next_keepers_goods_spend_amount():
-            yield effects.Effect(name='дары Хранителей', attribute=relations.ATTRIBUTE.PRODUCTION, value=self.attrs.get_next_keepers_goods_spend_amount())
+            yield game_effects.Effect(name='дары Хранителей', attribute=relations.ATTRIBUTE.PRODUCTION, value=self.attrs.get_next_keepers_goods_spend_amount())
 
         # safety
-        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.SAFETY, value=1.0)
-        yield effects.Effect(name='монстры', attribute=relations.ATTRIBUTE.SAFETY, value=-c.BATTLES_PER_TURN)
-        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.SAFETY, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)
+        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.SAFETY, value=1.0)
+        yield game_effects.Effect(name='монстры', attribute=relations.ATTRIBUTE.SAFETY, value=-c.BATTLES_PER_TURN)
+        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.SAFETY, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)
 
         if self.is_frontier:
-            yield effects.Effect(name='дикие земли', attribute=relations.ATTRIBUTE.SAFETY, value=-c.WHILD_BATTLES_PER_TURN_BONUS)
+            yield game_effects.Effect(name='дикие земли', attribute=relations.ATTRIBUTE.SAFETY, value=-c.WHILD_BATTLES_PER_TURN_BONUS)
 
         # transport
-        yield effects.Effect(name='дороги', attribute=relations.ATTRIBUTE.TRANSPORT, value=1.0)
-        yield effects.Effect(name='трафик', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.attrs.size)
+        yield game_effects.Effect(name='дороги', attribute=relations.ATTRIBUTE.TRANSPORT, value=1.0)
+        yield game_effects.Effect(name='трафик', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.attrs.size)
 
         if self.is_frontier:
-            yield effects.Effect(name='бездорожье', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.WHILD_TRANSPORT_PENALTY)
+            yield game_effects.Effect(name='бездорожье', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.WHILD_TRANSPORT_PENALTY)
 
-        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.TRANSPORT, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)
+        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.TRANSPORT, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)
 
         # freedom
-        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
-        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.FREEDOM, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
+        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
+        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.FREEDOM, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
 
         # culture
-        yield effects.Effect(name='город', attribute=relations.ATTRIBUTE.CULTURE, value=1.0)
-        yield effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.CULTURE, value=(1.0-self.attrs.stability) * c.PLACE_STABILITY_MAX_CULTURE_PENALTY)
+        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.CULTURE, value=1.0)
+        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.CULTURE, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_CULTURE_PENALTY)
 
         for person in self.persons:
             for effect in person.place_effects():
@@ -352,27 +325,27 @@ class Place(names.ManageNameMixin2):
 
         if relations.ATTRIBUTE.SAFETY.order == order:
             if safety < c.PLACE_MIN_SAFETY:
-                yield effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.SAFETY, value=c.PLACE_MIN_SAFETY - safety)
+                yield game_effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.SAFETY, value=c.PLACE_MIN_SAFETY - safety)
             if safety > 1:
-                yield effects.Effect(name='демоны', attribute=relations.ATTRIBUTE.SAFETY, value=1 - safety)
+                yield game_effects.Effect(name='демоны', attribute=relations.ATTRIBUTE.SAFETY, value=1 - safety)
 
         if relations.ATTRIBUTE.TRANSPORT.order == order:
             if transport < c.PLACE_MIN_TRANSPORT:
-                yield effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.TRANSPORT, value=c.PLACE_MIN_TRANSPORT - transport)
+                yield game_effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.TRANSPORT, value=c.PLACE_MIN_TRANSPORT - transport)
 
         if relations.ATTRIBUTE.STABILITY.order == order:
             if stability < c.PLACE_MIN_STABILITY:
-                yield effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_MIN_STABILITY - stability)
+                yield game_effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_MIN_STABILITY - stability)
             if stability > 1:
-                yield effects.Effect(name='демоны', attribute=relations.ATTRIBUTE.STABILITY, value=1 - stability)
+                yield game_effects.Effect(name='демоны', attribute=relations.ATTRIBUTE.STABILITY, value=1 - stability)
 
         if relations.ATTRIBUTE.CULTURE.order == order:
             if culture < c.PLACE_MIN_CULTURE:
-                yield effects.Effect(name='бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
+                yield game_effects.Effect(name='бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
 
         if relations.ATTRIBUTE.FREEDOM.order == order:
             if freedom < c.PLACE_MIN_FREEDOM:
-                yield effects.Effect(name='Пять звёзд', attribute=relations.ATTRIBUTE.FREEDOM, value=c.PLACE_MIN_FREEDOM - freedom)
+                yield game_effects.Effect(name='Пять звёзд', attribute=relations.ATTRIBUTE.FREEDOM, value=c.PLACE_MIN_FREEDOM - freedom)
 
     def effects_for_attribute(self, attribute):
         for effect in self.effects_generator(attribute.order):
@@ -434,7 +407,6 @@ class Place(names.ManageNameMixin2):
         return self._modifier
 
     def get_same_places(self):
-        from . import storage
         return [place for place in storage.places.all() if self.is_frontier == place.is_frontier]
 
     def map_info(self):
@@ -445,7 +417,7 @@ class Place(names.ManageNameMixin2):
                 'size': self.attrs.size}
 
 
-class Building(names.ManageNameMixin2):
+class Building(game_names.ManageNameMixin2):
     __slots__ = ('id',
                  'x',
                  'y',
@@ -477,7 +449,6 @@ class Building(names.ManageNameMixin2):
 
     @property
     def person(self):
-        from the_tale.game.persons import storage as persons_storage
         return persons_storage.persons[self.person_id]
 
     @property
@@ -495,17 +466,15 @@ class Building(names.ManageNameMixin2):
         return int(round(power))
 
     def amortization_delta(self, turns_number):
-        from the_tale.game.places import storage
-
         buildings_number = sum(storage.buildings.get_by_person_id(person.id) is not None
                                for person in self.place.persons)
 
         per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED * self.person.attrs.building_amortization_speed
-        return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number-1)
+        return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number - 1)
 
     @property
     def amortization_in_day(self):
-        return self.amortization_delta(c.TURNS_IN_HOUR*24)
+        return self.amortization_delta(c.TURNS_IN_HOUR * 24)
 
     def amortize(self, turns_number):
         self.integrity -= self.amortization_delta(turns_number)
@@ -520,15 +489,11 @@ class Building(names.ManageNameMixin2):
 
     @property
     def terrain(self):
-        from the_tale.game.map.storage import map_info_storage
-        map_info = map_info_storage.item
+        map_info = map_storage.map_info.item
         return map_info.terrain[self.y][self.x]
 
     def linguistics_restrictions(self):
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-        from the_tale.linguistics.storage import restrictions_storage
-
-        return [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.TERRAIN, self.terrain.value)]
+        return [linguistics_restrictions.get(self.terrain.value)]
 
     def map_info(self):
         return {'id': self.id,

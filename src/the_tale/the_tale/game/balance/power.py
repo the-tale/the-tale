@@ -1,9 +1,8 @@
-# coding: utf-
-import collections
-import random
 
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
+import smart_imports
+
+smart_imports.all()
+
 
 PowerDistribution = collections.namedtuple('PowerDistribution', ('physic', 'magic'))
 
@@ -47,14 +46,14 @@ class Power(object):
     @classmethod
     def power_to_level(cls, distribution, level):
         power = float(cls.normal_power_to_level(level))
-        return cls(physic=int(power*distribution.physic+distribution.physic),
-                   magic=int(power*distribution.magic+distribution.magic) )
+        return cls(physic=int(power * distribution.physic + distribution.physic),
+                   magic=int(power * distribution.magic + distribution.magic))
 
     @classmethod
     def power_to_artifact(cls, distribution, level):
         power = float(cls.normal_power_to_level(level)) / c.EQUIP_SLOTS_NUMBER
-        return cls(physic=max(1, int(power*distribution.physic+0.5)),
-                   magic=max(1, int(power*distribution.magic+0.5))  )
+        return cls(physic=max(1, int(power * distribution.physic + 0.5)),
+                   magic=max(1, int(power * distribution.magic + 0.5)))
 
     # функция, для получения случайного значения силы артефакта
     @classmethod
@@ -80,8 +79,8 @@ class Power(object):
         base_power = cls.power_to_artifact(distribution, level)
         physic_delta = max(int(base_power.physic * c.ARTIFACT_POWER_DELTA), c.ARTIFACT_BETTER_MIN_POWER_DELTA)
         magic_delta = max(int(base_power.magic * c.ARTIFACT_POWER_DELTA), c.ARTIFACT_BETTER_MIN_POWER_DELTA)
-        return cls(physic=random.randint(base_power.physic+1, base_power.physic + 1 + 2 * physic_delta),
-                   magic=random.randint(base_power.magic+1, base_power.magic + 1 + 2 * magic_delta))
+        return cls(physic=random.randint(base_power.physic + 1, base_power.physic + 1 + 2 * physic_delta),
+                   magic=random.randint(base_power.magic + 1, base_power.magic + 1 + 2 * magic_delta))
 
     def expected_level(self):
         return float(self.total()) / (c.POWER_PER_LVL + c.POWER_TO_LVL)
@@ -89,8 +88,8 @@ class Power(object):
     def damage(self):
         expected_damage = f.expected_damage_to_mob_per_hit(self.expected_level())
         total_power = self.total()
-        return Damage(physic=float(self.physic)/total_power * expected_damage,
-                      magic=float(self.magic)/total_power * expected_damage)
+        return Damage(physic=float(self.physic) / total_power * expected_damage,
+                      magic=float(self.magic) / total_power * expected_damage)
 
     def __repr__(self): return 'Power(%d, %d)' % (self.physic, self.magic)
 
@@ -115,7 +114,6 @@ class Power(object):
         self.physic -= other.physic
         self.magic -= other.magic
         return self
-
 
 
 class Damage(object):
@@ -143,8 +141,8 @@ class Damage(object):
         return self
 
     def randomize(self):
-        self.physic =  self.physic * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)
-        self.magic =  self.magic * random.uniform(1-c.DAMAGE_DELTA, 1+c.DAMAGE_DELTA)
+        self.physic = self.physic * random.uniform(1 - c.DAMAGE_DELTA, 1 + c.DAMAGE_DELTA)
+        self.magic = self.magic * random.uniform(1 - c.DAMAGE_DELTA, 1 + c.DAMAGE_DELTA)
 
     def __add__(self, other):
         return self.clone().__iadd__(other)

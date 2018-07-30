@@ -1,43 +1,19 @@
 
-import time
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import power
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.heroes.conf import heroes_settings
-from the_tale.game.heroes import relations
-from the_tale.game.heroes.habilities import nonbattle as nonbattle_abilities
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-from the_tale.game.companions.abilities import effects as companions_effects
-from the_tale.game.companions.abilities import container as companions_abilities_container
-
-from .. import logic
+smart_imports.all()
 
 
-class HeroLogicAccessorsTestBase(testcase.TestCase):
+class HeroLogicAccessorsTestBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(HeroLogicAccessorsTestBase, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
@@ -47,16 +23,16 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
     def check_can_process_turn(self, expected_result, banned=False, bot=False, active=False, premium=False, single=True, idle=False, sinchronized_turn=True):
 
         if sinchronized_turn:
-            turn_number = 6 * heroes_settings.INACTIVE_HERO_DELAY + self.hero.id
+            turn_number = 6 * conf.settings.INACTIVE_HERO_DELAY + self.hero.id
         else:
-            turn_number = 6 * heroes_settings.INACTIVE_HERO_DELAY + self.hero.id + 1
+            turn_number = 6 * conf.settings.INACTIVE_HERO_DELAY + self.hero.id + 1
 
         with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', banned), \
-             mock.patch('the_tale.game.heroes.objects.Hero.is_bot', bot), \
-             mock.patch('the_tale.game.heroes.objects.Hero.is_active', active), \
-             mock.patch('the_tale.game.heroes.objects.Hero.is_premium', premium), \
-             mock.patch('the_tale.game.actions.container.ActionsContainer.is_single', single), \
-             mock.patch('the_tale.game.actions.container.ActionsContainer.number', 1 if idle else 2):
+                mock.patch('the_tale.game.heroes.objects.Hero.is_bot', bot), \
+                mock.patch('the_tale.game.heroes.objects.Hero.is_active', active), \
+                mock.patch('the_tale.game.heroes.objects.Hero.is_premium', premium), \
+                mock.patch('the_tale.game.actions.container.ActionsContainer.is_single', single), \
+                mock.patch('the_tale.game.actions.container.ActionsContainer.number', 1 if idle else 2):
             self.assertEqual(self.hero.can_process_turn(turn_number), expected_result)
 
     def test_can_process_turn__banned(self):
@@ -80,8 +56,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertEqual(markers, set())
 
     def test_prefered_quest_markers__has_markers(self):
-        from questgen.relations import OPTION_MARKERS
-
         self.hero.habit_honor.change(500)
         self.hero.habit_peacefulness.change(500)
 
@@ -102,10 +76,10 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         for i in range(1000):
             markers |= self.hero.prefered_quest_markers()
 
-        self.assertEqual(markers, set([OPTION_MARKERS.HONORABLE,
-                                       OPTION_MARKERS.DISHONORABLE,
-                                       OPTION_MARKERS.AGGRESSIVE,
-                                       OPTION_MARKERS.UNAGGRESSIVE]))
+        self.assertEqual(markers, set([questgen_relations.OPTION_MARKERS.HONORABLE,
+                                       questgen_relations.OPTION_MARKERS.DISHONORABLE,
+                                       questgen_relations.OPTION_MARKERS.AGGRESSIVE,
+                                       questgen_relations.OPTION_MARKERS.UNAGGRESSIVE]))
 
     def test_update_context(self):
         additional_ability = mock.Mock()
@@ -121,8 +95,6 @@ class HeroLogicAccessorsTest(HeroLogicAccessorsTestBase):
         self.assertEqual(peacefulness.update_context.call_count, 1)
 
     def test_prefered_mob_loot_multiplier(self):
-        from the_tale.game.mobs import storage as mobs_storage
-
         self.hero.level = relations.PREFERENCE_TYPE.MOB.level_required
         logic.save_hero(self.hero)
 
@@ -337,9 +309,9 @@ class PoliticalPowerTests(HeroLogicAccessorsTestBase):
         with self.check_increased(self.hero.politics_power_multiplier):
             companion_record = companions_logic.create_random_companion_record(name='test-companion',
                                                                                state=companions_relations.STATE.ENABLED,
-                                                                               abilities=companions_abilities_container.Container(start=(companions_effects.ABILITIES.KNOWN,)))
+                                                                               abilities=companions_abilities_container.Container(start=(companions_abilities_effects.ABILITIES.KNOWN,)))
             companion = companions_logic.create_companion(companion_record)
             self.hero.set_companion(companion)
 
         with self.check_increased(self.hero.politics_power_multiplier):
-            self.hero.abilities.add(nonbattle_abilities.DIPLOMATIC.get_id(), level=5)
+            self.hero.abilities.add(heroes_abilities_nonbattle.DIPLOMATIC.get_id(), level=5)

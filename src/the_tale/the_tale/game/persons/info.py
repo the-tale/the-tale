@@ -1,19 +1,7 @@
 
-import time
+import smart_imports
 
-from the_tale.game.chronicle import prototypes as chronicle_prototypes
-
-from the_tale.game import attributes
-from the_tale.game import logic as game_logic
-
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game.places import info as places_info
-from the_tale.game.places import storage as places_storage
-
-from . import conf
-from . import relations
+smart_imports.all()
 
 
 def person_info(person):
@@ -40,9 +28,9 @@ def person_info(person):
             'building': places_info.building_info(building) if building else None,
             'politic_power': {'heroes': inner_circle.ui_info(),
                               'power': politic_power_storage.persons.ui_info(person.id)},
-            'attributes': attributes.attributes_info(effects=person.all_effects(),
-                                                     attrs=person.attrs,
-                                                     relation=relations.ATTRIBUTE),
+            'attributes': game_attributes.attributes_info(effects=person.all_effects(),
+                                                          attrs=person.attrs,
+                                                          relation=relations.ATTRIBUTE),
             'chronicle': chronicle_prototypes.chronicle_info(person, conf.settings.CHRONICLE_RECORDS_NUMBER),
             'job': person.job.ui_info(),
             'accounts': None,

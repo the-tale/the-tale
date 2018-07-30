@@ -1,28 +1,16 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.models import SupervisorTask
-from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import SupervisorTaskPrototype, GameState
-from the_tale.game.workers.supervisor import SupervisorException
-from the_tale.game import exceptions
-
-from the_tale.game.pvp.prototypes import Battle1x1Prototype
+smart_imports.all()
 
 
 @mock.patch('the_tale.game.workers.supervisor.Worker.wait_answers_from', lambda self, name, workers: None)
-class SupervisorWorkerTests(testcase.TestCase):
+class SupervisorWorkerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(SupervisorWorkerTests, self).setUp()
 
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
@@ -30,19 +18,15 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.account_2 = self.accounts_factory.create_account()
         self.hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
 
-        environment.deinitialize()
-        environment.initialize()
+        amqp_environment.environment.deinitialize()
+        amqp_environment.environment.initialize()
 
-        self.worker = environment.workers.supervisor
+        self.worker = amqp_environment.environment.workers.supervisor
 
         self.worker.logger = mock.Mock()
 
     def test_1_initialization(self):
-        from the_tale.common.postponed_tasks.models import PostponedTask
-        from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_STATE
-        from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
-
-        PostponedTaskPrototype.create(FakePostponedInternalTask())
+        PostponedTaskPrototype.create(postponed_tasks_postponed_tasks.FakePostponedInternalTask())
 
         self.assertEqual(PostponedTask.objects.filter(state=POSTPONED_TASK_STATE.WAITING).count(), 1)
 
@@ -57,18 +41,18 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(self.worker.accounts_queues, {})
         self.assertTrue(self.worker.initialized)
         self.assertFalse(self.worker.wait_next_turn_answer)
-        self.assertTrue(GameState.is_working())
+        self.assertTrue(prototypes.GameState.is_working())
 
     def test_register_task(self):
         self.worker.initialize()
 
-        task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
-        battle_1 = Battle1x1Prototype.create(self.account_1)
+        battle_1 = pvp_prototypes.Battle1x1Prototype.create(self.account_1)
         battle_1.set_enemy(self.account_2)
         battle_1.save()
 
-        battle_2 = Battle1x1Prototype.create(self.account_2)
+        battle_2 = pvp_prototypes.Battle1x1Prototype.create(self.account_2)
         battle_2.set_enemy(self.account_1)
         battle_2.save()
 
@@ -87,13 +71,13 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.worker.process_account_released(self.account_1.id)
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'supervisor', self.account_2.id: None})
 
-        #test commands queue
+        # test commands queue
         self.worker.process_start_hero_caching(self.account_1.id)
         self.worker.process_start_hero_caching(self.account_2.id)
         self.worker.process_logic_task(self.account_1.id, 666)
-        self.assertEqual(self.worker.accounts_queues, { self.account_1.id: [('start_hero_caching', {'account_id': self.account_1.id}),
-                                                                            ('logic_task', {'account_id': self.account_1.id, 'task_id': 666}),],
-                                                        self.account_2.id: [('start_hero_caching', {'account_id': self.account_2.id})]})
+        self.assertEqual(self.worker.accounts_queues, {self.account_1.id: [('start_hero_caching', {'account_id': self.account_1.id}),
+                                                                           ('logic_task', {'account_id': self.account_1.id, 'task_id': 666}), ],
+                                                       self.account_2.id: [('start_hero_caching', {'account_id': self.account_2.id})]})
 
         self.worker.process_account_released(self.account_2.id)
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic_1', self.account_2.id: 'logic_1'})
@@ -105,44 +89,43 @@ class SupervisorWorkerTests(testcase.TestCase):
     def test_register_task_release_account(self):
         self.worker.initialize()
 
-        task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
         with mock.patch('the_tale.game.workers.logic.Worker.cmd_release_account') as release_accounts_counter:
             self.worker.register_task(task)
 
         self.assertEqual(release_accounts_counter.call_count, 2)
 
-
     def test_register_task_second_time(self):
         self.worker.initialize()
 
-        task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
         self.worker.register_task(task)
-        self.assertRaises(SupervisorException, self.worker.register_task, task)
+        self.assertRaises(game_workers_supervisor.SupervisorException, self.worker.register_task, task)
 
     def test_register_two_tasks_requested_one_account(self):
         self.worker.initialize()
 
-        task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
-        task_2 = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+        task_2 = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
         self.worker.register_task(task)
 
-        self.assertRaises(SupervisorException, self.worker.register_task, task_2)
+        self.assertRaises(game_workers_supervisor.SupervisorException, self.worker.register_task, task_2)
 
     def test_register_account_not_in_task(self):
         self.worker.initialize()
 
         account_3 = self.accounts_factory.create_account()
 
-        task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
         self.worker.register_task(task)
 
         # for test pending account cmd queue
         self.worker.accounts_queues[account_3.id] = [('logic_task', {'account_id': self.account_1.id, 'task_id': 1}),
-                                                   ('logic_task', {'account_id': self.account_1.id, 'task_id': 2}),
-                                                   ('logic_task', {'account_id': self.account_1.id, 'task_id': 4}) ]
+                                                     ('logic_task', {'account_id': self.account_1.id, 'task_id': 2}),
+                                                     ('logic_task', {'account_id': self.account_1.id, 'task_id': 4})]
 
         with mock.patch('the_tale.game.workers.logic.Worker.cmd_register_account') as register_account_counter:
             with mock.patch('the_tale.game.workers.logic.Worker.cmd_logic_task') as cmd_logic_task:
@@ -157,7 +140,7 @@ class SupervisorWorkerTests(testcase.TestCase):
 
     def test_register_account_in_task(self):
         self.worker.initialize()
-        task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
         self.worker.register_task(task)
 
         with mock.patch('the_tale.game.workers.logic.Worker.cmd_register_account') as register_account_counter:
@@ -173,9 +156,9 @@ class SupervisorWorkerTests(testcase.TestCase):
     def test_1_register_account_last_in_task(self):
         self.worker.initialize()
 
-        Battle1x1Prototype.create(self.account_1).set_enemy(self.account_2)
-        Battle1x1Prototype.create(self.account_2).set_enemy(self.account_1)
-        task = SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+        pvp_prototypes.Battle1x1Prototype.create(self.account_1).set_enemy(self.account_2)
+        pvp_prototypes.Battle1x1Prototype.create(self.account_2).set_enemy(self.account_1)
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
 
         self.worker.register_task(task)
 
@@ -186,7 +169,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(register_account_counter.call_count, 2)
         self.assertEqual(set(self.worker.accounts_for_tasks.keys()), set())
         self.assertEqual(list(self.worker.tasks.values()), [])
-        self.assertEqual(SupervisorTask.objects.all().count(), 0)
+        self.assertEqual(models.SupervisorTask.objects.all().count(), 0)
 
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic_1', self.account_2.id: 'logic_1'})
 
@@ -280,7 +263,7 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertFalse(account_3.id in self.worker.accounts_owners)
         self.assertTrue(account_3.id in self.worker.accounts_queues)
 
-    @mock.patch('the_tale.game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
+    @mock.patch('the_tale.game.conf.settings.ENABLE_WORKER_HIGHLEVEL', True)
     def test_process_next_turn(self):
         self.worker.initialize()
 
@@ -298,22 +281,19 @@ class SupervisorWorkerTests(testcase.TestCase):
         self.assertEqual(wait_answers_from.call_count, 1)
         self.assertTrue(self.worker.wait_next_turn_answer)
 
-    @mock.patch('the_tale.game.conf.game_settings.ENABLE_WORKER_HIGHLEVEL', True)
+    @mock.patch('the_tale.game.conf.settings.ENABLE_WORKER_HIGHLEVEL', True)
     def test_process_next_turn__timeout(self):
-        from dext.common.amqp_queues import exceptions as amqp_exceptions
-
         self.worker.initialize()
 
         def wait_answers_from(worker, code, workers=(), timeout=60.0):
-            raise amqp_exceptions.WaitAnswerTimeoutError(code='code', workers='workers', timeout=60.0)
+            raise amqp_queues_exceptions.WaitAnswerTimeoutError(code='code', workers='workers', timeout=60.0)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.wait_answers_from', wait_answers_from):
             with mock.patch('the_tale.game.workers.logic.Worker.cmd_stop') as logic_cmd_stop:
                 self.worker.process_next_turn()
-                self.assertRaises(amqp_exceptions.WaitAnswerTimeoutError, self.worker.process_next_turn)
+                self.assertRaises(amqp_queues_exceptions.WaitAnswerTimeoutError, self.worker.process_next_turn)
 
         self.assertEqual(logic_cmd_stop.call_count, len(self.worker.logic_workers))
-
 
     def test_send_register_accounts_cmds__register_order(self):
         self.worker.initialize()
@@ -351,7 +331,6 @@ class SupervisorWorkerTests(testcase.TestCase):
 
         self.assertEqual(self.worker.accounts_owners, {self.account_1.id: 'logic_1', self.account_2.id: None})
 
-
     def test_send_release_account_cmd__second_try(self):
         self.worker.initialize()
 
@@ -370,4 +349,4 @@ class SupervisorWorkerTests(testcase.TestCase):
     def test_force_stop(self):
         self.worker.initialize()
         self.worker._force_stop()
-        self.assertTrue(GameState.is_stopped())
+        self.assertTrue(prototypes.GameState.is_stopped())

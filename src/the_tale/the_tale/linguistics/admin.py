@@ -1,31 +1,30 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.linguistics import models
+smart_imports.all()
 
 
-class WordAdmin(admin.ModelAdmin):
+class WordAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'type', 'normal_form', 'state', 'created_at', 'updated_at')
     list_filter = ('type', 'state',)
 
 
-class TemplateAdmin(admin.ModelAdmin):
+class TemplateAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'key', 'state', 'author', 'raw_template', 'created_at', 'updated_at')
     list_filter = ('state', 'key')
 
 
-class ContributionAdmin(admin.ModelAdmin):
+class ContributionAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'type', 'source', 'account', 'entity_id', 'created_at')
     list_filter = ('type',)
 
 
-class RestrictionAdmin(admin.ModelAdmin):
+class RestrictionAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'name', 'group', 'external_id')
     list_filter = ('group',)
 
 
-admin.site.register(models.Word, WordAdmin)
-admin.site.register(models.Template, TemplateAdmin)
-admin.site.register(models.Contribution, ContributionAdmin)
-admin.site.register(models.Restriction, RestrictionAdmin)
+django_admin.site.register(models.Word, WordAdmin)
+django_admin.site.register(models.Template, TemplateAdmin)
+django_admin.site.register(models.Contribution, ContributionAdmin)
+django_admin.site.register(models.Restriction, RestrictionAdmin)

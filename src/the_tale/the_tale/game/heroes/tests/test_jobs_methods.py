@@ -1,26 +1,19 @@
-import time
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game import tt_api_energy
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.places import storage as places_storage
+smart_imports.all()
 
 
-class JobsMethodsTests(testcase.TestCase):
+class JobsMethodsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(JobsMethodsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -28,26 +21,26 @@ class JobsMethodsTests(testcase.TestCase):
         self.person = self.place.persons[0]
 
     def check_job_message(self, place_id, person_id):
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             self.hero.job_message(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_money_positive_enemies', job_power=None)
 
     def check_job_money(self, place_id, person_id):
         old_money = self.hero.money
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             with self.check_increased(lambda: self.hero.statistics.money_earned_from_masters):
                 self.hero.job_money(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_money_positive_enemies', job_power=1)
 
         middle_money = self.hero.money
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             with self.check_increased(lambda: self.hero.statistics.money_earned_from_masters):
                 self.hero.job_money(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_money_positive_enemies', job_power=2)
 
         self.assertTrue(middle_money - old_money < self.hero.money - middle_money)
 
     def check_job_artifact(self, place_id, person_id):
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             with self.check_delta(lambda: self.hero.bag.occupation, 1):
                 with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
                     self.hero.job_artifact(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_artifact_positive_enemies', job_power=1)
@@ -55,7 +48,7 @@ class JobsMethodsTests(testcase.TestCase):
         rating = list(self.hero.bag.values())[0].preference_rating(self.hero.preferences.archetype.power_distribution)
         self.hero.bag.drop_cheapest_item(self.hero.preferences.archetype.power_distribution)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             with self.check_delta(lambda: self.hero.bag.occupation, 1):
                 with self.check_delta(lambda: self.hero.statistics.artifacts_had, 1):
                     self.hero.job_artifact(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_artifact_positive_enemies', job_power=2)
@@ -67,34 +60,34 @@ class JobsMethodsTests(testcase.TestCase):
 
         old_experience = self.hero.experience
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             with self.check_increased(lambda: self.hero.experience):
                 self.hero.job_experience(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_experience_positive_enemies', job_power=1)
 
         middle_experience = self.hero.experience
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             with self.check_increased(lambda: self.hero.experience):
                 self.hero.job_experience(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_experience_positive_enemies', job_power=2)
 
         self.assertTrue(middle_experience - old_experience < self.hero.experience - middle_experience)
 
     def check_job_energy(self, place_id, person_id):
-        old_energy = tt_api_energy.energy_balance(self.hero.account_id)
+        old_energy = game_tt_services.energy.cmd_balance(self.hero.account_id)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
-            with self.check_increased(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
+            with self.check_increased(lambda: game_tt_services.energy.cmd_balance(self.hero.account_id)):
                 self.hero.job_energy(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_energy_positive_enemies', job_power=1)
                 time.sleep(0.1)
 
-        middle_energy = tt_api_energy.energy_balance(self.hero.account_id)
+        middle_energy = game_tt_services.energy.cmd_balance(self.hero.account_id)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
-            with self.check_increased(lambda: tt_api_energy.energy_balance(self.hero.account_id)):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
+            with self.check_increased(lambda: game_tt_services.energy.cmd_balance(self.hero.account_id)):
                 self.hero.job_energy(place_id=place_id, person_id=person_id, message_type='job_diary_person_hero_energy_positive_enemies', job_power=2)
                 time.sleep(0.1)
 
-        self.assertTrue(middle_energy - old_energy < tt_api_energy.energy_balance(self.hero.account_id) - middle_energy)
+        self.assertTrue(middle_energy - old_energy < game_tt_services.energy.cmd_balance(self.hero.account_id) - middle_energy)
 
     def test_job_message(self):
         self.check_job_message(place_id=self.place.id, person_id=self.person.id)

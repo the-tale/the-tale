@@ -1,11 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import discovering
+import smart_imports
 
-from the_tale.finances.bank.conf import bank_settings
+smart_imports.all()
 
 
-_GET_ACCOUNT_ID_BY_EMAIL_FUNCTION = discovering.get_function(bank_settings.GET_ACCOUNT_ID_BY_EMAIL)
+_GET_ACCOUNT_ID_BY_EMAIL_FUNCTION = dext_discovering.get_function(conf.settings.GET_ACCOUNT_ID_BY_EMAIL)
 
 
 def get_account_id(email):

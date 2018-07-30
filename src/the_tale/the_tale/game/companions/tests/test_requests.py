@@ -1,49 +1,22 @@
 
-from dext.common.utils.urls import url
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import testcase
-from the_tale.common.utils.permissions import sync_group
-
-from the_tale.accounts import logic as accounts_logic
-
-from the_tale.linguistics.tests import helpers as linguistics_helpers
-
-from the_tale.game import names
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from .. import logic
-from .. import models
-from .. import storage
-from .. import relations
-from .. import meta_relations
-
-from . import helpers
+smart_imports.all()
 
 
-class RequestsTestsBase(testcase.TestCase):
+class RequestsTestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(RequestsTestsBase, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
         self.account_3 = self.accounts_factory.create_account()
 
-        # self.request_login('test_user_1@test.com')
-
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
-        group_moderate = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
+        group_moderate = utils_permissions.sync_group('moderate companions', ['companions.moderate_companionrecord'])
 
         group_edit.user_set.add(self.account_2._model)
         group_edit.user_set.add(self.account_3._model)
@@ -54,50 +27,50 @@ class IndexRequestsTests(RequestsTestsBase):
 
     def setUp(self):
         super(IndexRequestsTests, self).setUp()
-        self.requested_url = url('game:companions:')
-        self.requested_url_disabled = url('game:companions:', state=relations.STATE.DISABLED.value)
+        self.requested_url = dext_urls.url('game:companions:')
+        self.requested_url_disabled = dext_urls.url('game:companions:', state=relations.STATE.DISABLED.value)
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-1'),
                                                          description='companion-description',
-                                                         type=beings_relations.TYPE.random(),
+                                                         type=tt_beings_relations.TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
-                                                         communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                         communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                         communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                         intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                         structure=beings_relations.STRUCTURE.random(),
-                                                         features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                         movement=beings_relations.MOVEMENT.random(),
-                                                         body=beings_relations.BODY.random(),
-                                                         size=beings_relations.SIZE.random(),
-                                                         orientation=beings_relations.ORIENTATION.random(),
+                                                         communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                         structure=tt_beings_relations.STRUCTURE.random(),
+                                                         features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                         movement=tt_beings_relations.MOVEMENT.random(),
+                                                         body=tt_beings_relations.BODY.random(),
+                                                         size=tt_beings_relations.SIZE.random(),
+                                                         orientation=tt_beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.ENABLED)
 
-        self.companion_2 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-2'),
+        self.companion_2 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-2'),
                                                          description='companion-description',
-                                                         type=beings_relations.TYPE.random(),
+                                                         type=tt_beings_relations.TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
-                                                         communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                         communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                         communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                         intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                         structure=beings_relations.STRUCTURE.random(),
-                                                         features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                         movement=beings_relations.MOVEMENT.random(),
-                                                         body=beings_relations.BODY.random(),
-                                                         size=beings_relations.SIZE.random(),
-                                                         orientation=beings_relations.ORIENTATION.random(),
+                                                         communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                         structure=tt_beings_relations.STRUCTURE.random(),
+                                                         features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                         movement=tt_beings_relations.MOVEMENT.random(),
+                                                         body=tt_beings_relations.BODY.random(),
+                                                         size=tt_beings_relations.SIZE.random(),
+                                                         orientation=tt_beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
@@ -151,7 +124,6 @@ class IndexRequestsTests(RequestsTestsBase):
                                                                                   (self.companion_1.name, 0),
                                                                                   (self.companion_2.name, 1)])
 
-
     def test_moderator_view__disabled_records(self):
         self.request_login(self.account_3.email)
         self.check_html_ok(self.request_html(self.requested_url_disabled), texts=[('pgf-no-companions-message', 0),
@@ -160,20 +132,18 @@ class IndexRequestsTests(RequestsTestsBase):
                                                                                   (self.companion_2.name, 1)])
 
 
-
 class NewRequestsTests(RequestsTestsBase):
 
     def setUp(self):
         super(NewRequestsTests, self).setUp()
 
-        self.requested_url = url('game:companions:new')
+        self.requested_url = dext_urls.url('game:companions:new')
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
-
 
     def test_anonimouse_view(self):
         self.check_redirect(self.requested_url, accounts_logic.login_page_url(self.requested_url))
@@ -192,32 +162,32 @@ class CreateRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(CreateRequestsTests, self).setUp()
 
-        self.requested_url = url('game:companions:create')
+        self.requested_url = dext_urls.url('game:companions:create')
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
     def post_data(self):
         data = {'description': 'some-description',
-                'type': beings_relations.TYPE.random(),
+                'type': tt_beings_relations.TYPE.random(),
                 'max_health': 650,
                 'dedication': relations.DEDICATION.random(),
                 'archetype': game_relations.ARCHETYPE.random(),
                 'mode': relations.MODE.random(),
-                'communication_verbal': beings_relations.COMMUNICATION_VERBAL.CAN,
-                'communication_gestures': beings_relations.COMMUNICATION_GESTURES.CAN,
-                'communication_telepathic': beings_relations.COMMUNICATION_TELEPATHIC.CAN,
-                'intellect_level': beings_relations.INTELLECT_LEVEL.NORMAL,
+                'communication_verbal': tt_beings_relations.COMMUNICATION_VERBAL.CAN,
+                'communication_gestures': tt_beings_relations.COMMUNICATION_GESTURES.CAN,
+                'communication_telepathic': tt_beings_relations.COMMUNICATION_TELEPATHIC.CAN,
+                'intellect_level': tt_beings_relations.INTELLECT_LEVEL.NORMAL,
 
-                'structure': beings_relations.STRUCTURE.STRUCTURE_1,
-                'features': [beings_relations.FEATURE.FEATURE_2, beings_relations.FEATURE.FEATURE_3],
-                'movement': beings_relations.MOVEMENT.MOVEMENT_3,
-                'body': beings_relations.BODY.BODY_4,
-                'size': beings_relations.SIZE.SIZE_5,
-                'orientation': beings_relations.ORIENTATION.HORIZONTAL,
+                'structure': tt_beings_relations.STRUCTURE.STRUCTURE_1,
+                'features': [tt_beings_relations.FEATURE.FEATURE_2, tt_beings_relations.FEATURE.FEATURE_3],
+                'movement': tt_beings_relations.MOVEMENT.MOVEMENT_3,
+                'body': tt_beings_relations.BODY.BODY_4,
+                'size': tt_beings_relations.SIZE.SIZE_5,
+                'orientation': tt_beings_relations.ORIENTATION.HORIZONTAL,
                 'weapon_1': artifacts_relations.STANDARD_WEAPON.WEAPON_1,
                 'material_1': tt_artifacts_relations.MATERIAL.MATERIAL_1,
                 'power_type_1': artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL,
@@ -228,7 +198,7 @@ class CreateRequestsTests(RequestsTestsBase):
                 'material_3': tt_artifacts_relations.MATERIAL.MATERIAL_3,
                 'power_type_3': artifacts_relations.ARTIFACT_POWER_TYPE.PHYSICAL,
                 }
-        data.update(linguistics_helpers.get_word_post_data(names.generator().get_test_name(name='name'), prefix='name'))
+        data.update(linguistics_helpers.get_word_post_data(game_names.generator().get_test_name(name='name'), prefix='name'))
         data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_1),)
         return data
 
@@ -251,7 +221,7 @@ class CreateRequestsTests(RequestsTestsBase):
 
         new_companion = logic.get_last_companion()
 
-        self.check_ajax_ok(response, data={'next_url': url('guide:companions:show', new_companion.id)})
+        self.check_ajax_ok(response, data={'next_url': dext_urls.url('guide:companions:show', new_companion.id)})
 
         self.assertEqual(new_companion.description, 'some-description')
         self.assertTrue(new_companion.state.is_DISABLED)
@@ -267,7 +237,7 @@ class CreateRequestsTests(RequestsTestsBase):
         self.assertEqual(new_companion.name, 'name-нс,ед,им')
 
         self.assertTrue(new_companion.structure.is_STRUCTURE_1)
-        self.assertEqual(new_companion.features, frozenset((beings_relations.FEATURE.FEATURE_2, beings_relations.FEATURE.FEATURE_3)))
+        self.assertEqual(new_companion.features, frozenset((tt_beings_relations.FEATURE.FEATURE_2, tt_beings_relations.FEATURE.FEATURE_3)))
         self.assertTrue(new_companion.movement.is_MOVEMENT_3)
         self.assertTrue(new_companion.body.is_BODY_4)
         self.assertTrue(new_companion.size.is_SIZE_5)
@@ -298,63 +268,63 @@ class ShowRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(ShowRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-1'),
                                                          description='companion-description-1',
-                                                         type=beings_relations.TYPE.random(),
+                                                         type=tt_beings_relations.TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
-                                                         communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                         communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                         communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                         intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                         structure=beings_relations.STRUCTURE.random(),
-                                                         features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                         movement=beings_relations.MOVEMENT.random(),
-                                                         body=beings_relations.BODY.random(),
-                                                         size=beings_relations.SIZE.random(),
-                                                         orientation=beings_relations.ORIENTATION.random(),
+                                                         communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                         structure=tt_beings_relations.STRUCTURE.random(),
+                                                         features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                         movement=tt_beings_relations.MOVEMENT.random(),
+                                                         body=tt_beings_relations.BODY.random(),
+                                                         size=tt_beings_relations.SIZE.random(),
+                                                         orientation=tt_beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.ENABLED)
 
-        self.companion_2 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-2'),
+        self.companion_2 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-2'),
                                                          description='companion-description-2',
-                                                         type=beings_relations.TYPE.random(),
+                                                         type=tt_beings_relations.TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
-                                                         communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                         communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                         communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                         intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                         structure=beings_relations.STRUCTURE.random(),
-                                                         features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                         movement=beings_relations.MOVEMENT.random(),
-                                                         body=beings_relations.BODY.random(),
-                                                         size=beings_relations.SIZE.random(),
-                                                         orientation=beings_relations.ORIENTATION.random(),
+                                                         communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                         structure=tt_beings_relations.STRUCTURE.random(),
+                                                         features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                         movement=tt_beings_relations.MOVEMENT.random(),
+                                                         body=tt_beings_relations.BODY.random(),
+                                                         size=tt_beings_relations.SIZE.random(),
+                                                         orientation=tt_beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url_1 = url('game:companions:show', self.companion_1.id)
-        self.requested_url_2 = url('game:companions:show', self.companion_2.id)
+        self.requested_url_1 = dext_urls.url('game:companions:show', self.companion_1.id)
+        self.requested_url_2 = dext_urls.url('game:companions:show', self.companion_2.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
         self.account_3 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
-        group_moderate = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_moderate = utils_permissions.sync_group('moderate companions', ['companions.moderate_companionrecord'])
         group_moderate.user_set.add(self.account_3._model)
 
     def test_anonimouse_view(self):
@@ -378,16 +348,14 @@ class ShowRequestsTests(RequestsTestsBase):
                                                                            'pgf-no-folclor'])
 
     def test_folclor(self):
-        from the_tale.blogs.tests import helpers as blogs_helpers
-
         blogs_helpers.prepair_forum()
 
         blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Companion.create_from_object(self.companion_1))
         blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Companion.create_from_object(self.companion_1))
 
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[('pgf-no-folclor', 0),
-                                                                          'folclor-1-caption',
-                                                                          'folclor-2-caption'])
+                                                                           'folclor-1-caption',
+                                                                           'folclor-2-caption'])
 
     def test_normal_view__companion_disabled(self):
         self.request_login(self.account_1.email)
@@ -430,63 +398,63 @@ class InfoRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(InfoRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-1'),
                                                          description='companion-description-1',
-                                                         type=beings_relations.TYPE.random(),
+                                                         type=tt_beings_relations.TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
-                                                         communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                         communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                         communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                         intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                         structure=beings_relations.STRUCTURE.random(),
-                                                         features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                         movement=beings_relations.MOVEMENT.random(),
-                                                         body=beings_relations.BODY.random(),
-                                                         size=beings_relations.SIZE.random(),
-                                                         orientation=beings_relations.ORIENTATION.random(),
+                                                         communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                         structure=tt_beings_relations.STRUCTURE.random(),
+                                                         features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                         movement=tt_beings_relations.MOVEMENT.random(),
+                                                         body=tt_beings_relations.BODY.random(),
+                                                         size=tt_beings_relations.SIZE.random(),
+                                                         orientation=tt_beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.ENABLED)
 
-        self.companion_2 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-2'),
+        self.companion_2 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-2'),
                                                          description='companion-description-2',
-                                                         type=beings_relations.TYPE.random(),
+                                                         type=tt_beings_relations.TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_2,
-                                                         communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                         communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                         communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                         intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                         structure=beings_relations.STRUCTURE.random(),
-                                                         features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                         movement=beings_relations.MOVEMENT.random(),
-                                                         body=beings_relations.BODY.random(),
-                                                         size=beings_relations.SIZE.random(),
-                                                         orientation=beings_relations.ORIENTATION.random(),
+                                                         communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                         structure=tt_beings_relations.STRUCTURE.random(),
+                                                         features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                         movement=tt_beings_relations.MOVEMENT.random(),
+                                                         body=tt_beings_relations.BODY.random(),
+                                                         size=tt_beings_relations.SIZE.random(),
+                                                         orientation=tt_beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url_1 = url('game:companions:info', self.companion_1.id)
-        self.requested_url_2 = url('game:companions:info', self.companion_2.id)
+        self.requested_url_1 = dext_urls.url('game:companions:info', self.companion_1.id)
+        self.requested_url_2 = dext_urls.url('game:companions:info', self.companion_2.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
         self.account_3 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
-        group_moderate = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_moderate = utils_permissions.sync_group('moderate companions', ['companions.moderate_companionrecord'])
         group_moderate.user_set.add(self.account_3._model)
 
     def test_anonimouse_view(self):
@@ -503,16 +471,14 @@ class InfoRequestsTests(RequestsTestsBase):
                                                                                 ('pgf-error-no_rights', 0)])
 
     def test_folclor(self):
-        from the_tale.blogs.tests import helpers as blogs_helpers
-
         blogs_helpers.prepair_forum()
 
         blogs_helpers.create_post_for_meta_object(self.account_1, 'folclor-1-caption', 'folclor-1-text', meta_relations.Companion.create_from_object(self.companion_1))
         blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-2-caption', 'folclor-2-text', meta_relations.Companion.create_from_object(self.companion_1))
 
         self.check_html_ok(self.request_html(self.requested_url_1), texts=[('pgf-no-folclor', 0),
-                                                                          'folclor-1-caption',
-                                                                          'folclor-2-caption'])
+                                                                           'folclor-1-caption',
+                                                                           'folclor-2-caption'])
 
     def test_normal_view__companion_disabled(self):
         self.request_login(self.account_1.email)
@@ -545,35 +511,35 @@ class EditRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(EditRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-1'),
                                                          description='companion-description-1',
-                                                         type=beings_relations.TYPE.random(),
+                                                         type=tt_beings_relations.TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
-                                                         communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                         communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                         communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                         intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                         structure=beings_relations.STRUCTURE.random(),
-                                                         features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                         movement=beings_relations.MOVEMENT.random(),
-                                                         body=beings_relations.BODY.random(),
-                                                         size=beings_relations.SIZE.random(),
-                                                         orientation=beings_relations.ORIENTATION.random(),
+                                                         communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                         structure=tt_beings_relations.STRUCTURE.random(),
+                                                         features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                         movement=tt_beings_relations.MOVEMENT.random(),
+                                                         body=tt_beings_relations.BODY.random(),
+                                                         size=tt_beings_relations.SIZE.random(),
+                                                         orientation=tt_beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url = url('game:companions:edit', self.companion_1.id)
+        self.requested_url = dext_urls.url('game:companions:edit', self.companion_1.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
     def test_anonimouse_view(self):
@@ -595,61 +561,61 @@ class UpdateRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(UpdateRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-1'),
                                                          description='companion-description-1',
-                                                         type=beings_relations.TYPE.random(),
+                                                         type=tt_beings_relations.TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          mode=relations.MODE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
-                                                         communication_verbal=beings_relations.COMMUNICATION_VERBAL.CAN_NOT,
-                                                         communication_gestures=beings_relations.COMMUNICATION_GESTURES.CAN_NOT,
-                                                         communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.CAN_NOT,
-                                                         intellect_level=beings_relations.INTELLECT_LEVEL.LOW,
-                                                         structure=beings_relations.STRUCTURE.random(),
-                                                         features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                         movement=beings_relations.MOVEMENT.random(),
-                                                         body=beings_relations.BODY.random(),
-                                                         size=beings_relations.SIZE.random(),
-                                                         orientation=beings_relations.ORIENTATION.random(),
+                                                         communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.CAN_NOT,
+                                                         communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.CAN_NOT,
+                                                         communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.CAN_NOT,
+                                                         intellect_level=tt_beings_relations.INTELLECT_LEVEL.LOW,
+                                                         structure=tt_beings_relations.STRUCTURE.random(),
+                                                         features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                         movement=tt_beings_relations.MOVEMENT.random(),
+                                                         body=tt_beings_relations.BODY.random(),
+                                                         size=tt_beings_relations.SIZE.random(),
+                                                         orientation=tt_beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url = url('game:companions:update', self.companion_1.id)
+        self.requested_url = dext_urls.url('game:companions:update', self.companion_1.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
     def post_data(self):
         data = {'description': 'new-description',
-                'type': beings_relations.TYPE.random(),
+                'type': tt_beings_relations.TYPE.random(),
                 'max_health': 650,
                 'dedication': relations.DEDICATION.random(),
                 'archetype': game_relations.ARCHETYPE.random(),
                 'mode': relations.MODE.random(),
-                'communication_verbal': beings_relations.COMMUNICATION_VERBAL.CAN,
-                'communication_gestures': beings_relations.COMMUNICATION_GESTURES.CAN,
-                'communication_telepathic': beings_relations.COMMUNICATION_TELEPATHIC.CAN,
-                'intellect_level': beings_relations.INTELLECT_LEVEL.NORMAL,
-                'structure': beings_relations.STRUCTURE.STRUCTURE_2,
-                'features': [beings_relations.FEATURE.FEATURE_3, beings_relations.FEATURE.FEATURE_4],
-                'movement': beings_relations.MOVEMENT.MOVEMENT_5,
-                'body': beings_relations.BODY.BODY_6,
-                'size': beings_relations.SIZE.SIZE_1,
-                'orientation': beings_relations.ORIENTATION.VERTICAL,
+                'communication_verbal': tt_beings_relations.COMMUNICATION_VERBAL.CAN,
+                'communication_gestures': tt_beings_relations.COMMUNICATION_GESTURES.CAN,
+                'communication_telepathic': tt_beings_relations.COMMUNICATION_TELEPATHIC.CAN,
+                'intellect_level': tt_beings_relations.INTELLECT_LEVEL.NORMAL,
+                'structure': tt_beings_relations.STRUCTURE.STRUCTURE_2,
+                'features': [tt_beings_relations.FEATURE.FEATURE_3, tt_beings_relations.FEATURE.FEATURE_4],
+                'movement': tt_beings_relations.MOVEMENT.MOVEMENT_5,
+                'body': tt_beings_relations.BODY.BODY_6,
+                'size': tt_beings_relations.SIZE.SIZE_1,
+                'orientation': tt_beings_relations.ORIENTATION.VERTICAL,
                 'weapon_1': artifacts_relations.STANDARD_WEAPON.WEAPON_4,
                 'material_1': tt_artifacts_relations.MATERIAL.MATERIAL_4,
                 'power_type_1': artifacts_relations.ARTIFACT_POWER_TYPE.MOST_MAGICAL,
                 'weapon_2': artifacts_relations.STANDARD_WEAPON.WEAPON_5,
                 'material_2': tt_artifacts_relations.MATERIAL.MATERIAL_5,
                 'power_type_2': artifacts_relations.ARTIFACT_POWER_TYPE.MOST_PHYSICAL}
-        data.update(linguistics_helpers.get_word_post_data(names.generator().get_test_name(name='new_name'), prefix='name'))
+        data.update(linguistics_helpers.get_word_post_data(game_names.generator().get_test_name(name='new_name'), prefix='name'))
         data.update(helpers.get_abilities_post_data(helpers.FAKE_ABILITIES_CONTAINER_2),)
         return data
 
@@ -669,7 +635,7 @@ class UpdateRequestsTests(RequestsTestsBase):
             with self.check_changed(lambda: storage.companions._version):
                 with self.check_not_changed(storage.companions.__len__):
                     self.check_ajax_ok(self.post_ajax_json(self.requested_url, post_data),
-                                       data={'next_url': url('guide:companions:show', self.companion_1.id)})
+                                       data={'next_url': dext_urls.url('guide:companions:show', self.companion_1.id)})
 
         # storage.companions.refresh()
 
@@ -689,7 +655,7 @@ class UpdateRequestsTests(RequestsTestsBase):
         self.assertEqual(companion.abilities, helpers.FAKE_ABILITIES_CONTAINER_2)
 
         self.assertTrue(companion.structure.is_STRUCTURE_2)
-        self.assertEqual(companion.features, frozenset((beings_relations.FEATURE.FEATURE_3, beings_relations.FEATURE.FEATURE_4)))
+        self.assertEqual(companion.features, frozenset((tt_beings_relations.FEATURE.FEATURE_3, tt_beings_relations.FEATURE.FEATURE_4)))
         self.assertTrue(companion.movement.is_MOVEMENT_5)
         self.assertTrue(companion.body.is_BODY_6)
         self.assertTrue(companion.size.is_SIZE_1)
@@ -720,39 +686,39 @@ class EnableRequestsTests(RequestsTestsBase):
     def setUp(self):
         super(EnableRequestsTests, self).setUp()
 
-        self.companion_1 = logic.create_companion_record(utg_name=names.generator().get_test_name('c-1'),
+        self.companion_1 = logic.create_companion_record(utg_name=game_names.generator().get_test_name('c-1'),
                                                          description='companion-description-1',
-                                                         type=beings_relations.TYPE.random(),
+                                                         type=tt_beings_relations.TYPE.random(),
                                                          max_health=100,
                                                          dedication=relations.DEDICATION.random(),
                                                          archetype=game_relations.ARCHETYPE.random(),
                                                          abilities=helpers.FAKE_ABILITIES_CONTAINER_1,
                                                          mode=relations.MODE.random(),
-                                                         communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                         communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                         communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                         intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                         structure=beings_relations.STRUCTURE.random(),
-                                                         features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                         movement=beings_relations.MOVEMENT.random(),
-                                                         body=beings_relations.BODY.random(),
-                                                         size=beings_relations.SIZE.random(),
-                                                         orientation=beings_relations.ORIENTATION.random(),
+                                                         communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                         communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                         communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                         intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                         structure=tt_beings_relations.STRUCTURE.random(),
+                                                         features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                         movement=tt_beings_relations.MOVEMENT.random(),
+                                                         body=tt_beings_relations.BODY.random(),
+                                                         size=tt_beings_relations.SIZE.random(),
+                                                         orientation=tt_beings_relations.ORIENTATION.random(),
                                                          weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
                                                                                            material=tt_artifacts_relations.MATERIAL.random(),
                                                                                            power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                          state=relations.STATE.DISABLED)
 
-        self.requested_url = url('game:companions:enable', self.companion_1.id)
+        self.requested_url = dext_urls.url('game:companions:enable', self.companion_1.id)
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
         self.account_3 = self.accounts_factory.create_account()
 
-        group_edit = sync_group('edit companions', ['companions.create_companionrecord'])
+        group_edit = utils_permissions.sync_group('edit companions', ['companions.create_companionrecord'])
         group_edit.user_set.add(self.account_2._model)
 
-        group_edit = sync_group('moderate companions', ['companions.moderate_companionrecord'])
+        group_edit = utils_permissions.sync_group('moderate companions', ['companions.moderate_companionrecord'])
         group_edit.user_set.add(self.account_3._model)
 
     def test_anonimouse_view(self):

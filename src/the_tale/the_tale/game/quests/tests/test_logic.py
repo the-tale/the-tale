@@ -1,52 +1,28 @@
 
-import random
+import smart_imports
 
-from unittest import mock
-
-from questgen.knowledge_base import KnowledgeBase
-from questgen import facts
-from questgen import relations as questgen_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import relations as persons_relations
-from the_tale.game.persons import logic as persons_logic
-
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.roads.storage import waymarks_storage
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.quests import uids
-from the_tale.game.quests import logic
+smart_imports.all()
 
 
-class LogicTestsBase(testcase.TestCase):
+class LogicTestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(LogicTestsBase, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
         self.hero_uid = uids.hero(self.hero.id)
 
-        self.knowledge_base = KnowledgeBase()
-
+        self.knowledge_base = questgen_knowledge_base.KnowledgeBase()
 
     def get_hero_info(self):
         return logic.create_hero_info(self.hero)
-
 
     def check_uids(self, left, right):
         self.assertEqual(set(f.uid for f in left), set(f.uid for f in right))
@@ -64,18 +40,18 @@ class LogicTestsBase(testcase.TestCase):
                     good_branches=[],
                     equipment_slots=[],
                     social_connections=[]):
-        self.check_uids(self.knowledge_base.filter(facts.Place), places)
-        self.check_uids(self.knowledge_base.filter(facts.Person), persons)
-        self.check_uids(self.knowledge_base.filter(facts.LocatedIn), locations)
-        self.check_uids(self.knowledge_base.filter(facts.Mob), mobs)
-        self.check_uids(self.knowledge_base.filter(facts.PreferenceMob), prefered_mobs)
-        self.check_uids(self.knowledge_base.filter(facts.PreferenceHometown), hometowns)
-        self.check_uids(self.knowledge_base.filter(facts.PreferenceFriend), friends)
-        self.check_uids(self.knowledge_base.filter(facts.ExceptBadBranches), bad_branches)
-        self.check_uids(self.knowledge_base.filter(facts.PreferenceEnemy), enemies)
-        self.check_uids(self.knowledge_base.filter(facts.ExceptGoodBranches), good_branches)
-        self.check_uids(self.knowledge_base.filter(facts.PreferenceEquipmentSlot), equipment_slots)
-        self.check_uids(self.knowledge_base.filter(facts.SocialConnection), social_connections)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.Place), places)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.Person), persons)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.LocatedIn), locations)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.Mob), mobs)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.PreferenceMob), prefered_mobs)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.PreferenceHometown), hometowns)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.PreferenceFriend), friends)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.ExceptBadBranches), bad_branches)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.PreferenceEnemy), enemies)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.ExceptGoodBranches), good_branches)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.PreferenceEquipmentSlot), equipment_slots)
+        self.check_uids(self.knowledge_base.filter(questgen_facts.SocialConnection), social_connections)
 
 
 class HeroQuestInfoTests(LogicTestsBase):
@@ -111,8 +87,8 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.hero.quests.update_history(quest_type='hunt', turn_number=0)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', is_first_quest_path_required), \
-             mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', is_short_quest_path_required), \
-             mock.patch('the_tale.game.heroes.objects.Hero.prefered_quest_markers', lambda hero: prefered_quest_markers):
+                mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', is_short_quest_path_required), \
+                mock.patch('the_tale.game.heroes.objects.Hero.prefered_quest_markers', lambda hero: prefered_quest_markers):
             hero_info = logic.create_hero_info(self.hero)
 
         self.assertEqual(hero_info.id, self.hero.id)
@@ -153,29 +129,26 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.check_serialization(hero_info)
 
 
-
-
 class FillPlacesTest(LogicTestsBase):
 
     def test_prerequiries(self):
-        w_1_2 = waymarks_storage.look_for_road(self.place_1, self.place_2).length
-        w_1_3 = waymarks_storage.look_for_road(self.place_1, self.place_3).length
-        w_2_3 = waymarks_storage.look_for_road(self.place_2, self.place_3).length
+        w_1_2 = roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length
+        w_1_3 = roads_storage.waymarks.look_for_road(self.place_1, self.place_3).length
+        w_2_3 = roads_storage.waymarks.look_for_road(self.place_2, self.place_3).length
 
         self.assertTrue(w_1_3 > w_1_2 > w_2_3)
 
     def test_radius(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length)
 
         self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)])
-
 
     def test_maximum_radius(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_3).length)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_3).length)
 
         self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2), logic.fact_place(self.place_3)])
 
@@ -185,7 +158,7 @@ class FillPlacesTest(LogicTestsBase):
         f_place_1 = logic.fact_place(self.place_1)
         f_place_2 = logic.fact_place(self.place_2)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length)
 
         self.check_facts(places=[f_place_1, f_place_2])
 
@@ -195,7 +168,7 @@ class FillPlacesTest(LogicTestsBase):
         f_place_2 = logic.fact_place(self.place_2)
         f_place_3 = logic.fact_place(self.place_3)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_3).length - 1)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_3).length - 1)
 
         self.check_facts(places=[f_place_2, f_place_3])
 
@@ -206,7 +179,7 @@ class FillPlacesTest(LogicTestsBase):
         f_place_2 = logic.fact_place(self.place_2)
         f_place_3 = logic.fact_place(self.place_3)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_3).length + 1)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_3).length + 1)
 
         self.check_facts(places=[f_place_2, f_place_3, f_place_1])
 
@@ -225,7 +198,7 @@ class SetupPreferencesTest(LogicTestsBase):
 
         f_mob = logic.fact_mob(mob)
         self.check_facts(mobs=[f_mob],
-                         prefered_mobs=[facts.PreferenceMob(object=self.hero_uid, mob=f_mob.uid)])
+                         prefered_mobs=[questgen_facts.PreferenceMob(object=self.hero_uid, mob=f_mob.uid)])
 
     def test_place(self):
         place = self.place_1
@@ -236,7 +209,7 @@ class SetupPreferencesTest(LogicTestsBase):
         logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
-                         hometowns=[facts.PreferenceHometown(object=self.hero_uid, place=f_place.uid)])
+                         hometowns=[questgen_facts.PreferenceHometown(object=self.hero_uid, place=f_place.uid)])
 
     def test_place__second_setup(self):
         place = self.place_1
@@ -248,7 +221,7 @@ class SetupPreferencesTest(LogicTestsBase):
         logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
         self.check_facts(places=[f_place],
-                         hometowns=[facts.PreferenceHometown(object=self.hero_uid, place=f_place.uid)])
+                         hometowns=[questgen_facts.PreferenceHometown(object=self.hero_uid, place=f_place.uid)])
 
     def test_friend(self):
         place = self.place_2
@@ -263,8 +236,8 @@ class SetupPreferencesTest(LogicTestsBase):
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
-                         friends=[facts.PreferenceFriend(object=self.hero_uid, person=f_person.uid)],
-                         bad_branches=[facts.ExceptBadBranches(object=f_person.uid)])
+                         friends=[questgen_facts.PreferenceFriend(object=self.hero_uid, person=f_person.uid)],
+                         bad_branches=[questgen_facts.ExceptBadBranches(object=f_person.uid)])
 
     def test_friend__second_setup(self):
         place = self.place_2
@@ -282,8 +255,8 @@ class SetupPreferencesTest(LogicTestsBase):
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
-                         friends=[facts.PreferenceFriend(object=self.hero_uid, person=f_person.uid)],
-                         bad_branches=[facts.ExceptBadBranches(object=f_person.uid)])
+                         friends=[questgen_facts.PreferenceFriend(object=self.hero_uid, person=f_person.uid)],
+                         bad_branches=[questgen_facts.ExceptBadBranches(object=f_person.uid)])
 
     def test_enemy(self):
         place = self.place_2
@@ -298,8 +271,8 @@ class SetupPreferencesTest(LogicTestsBase):
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
-                         enemies=[facts.PreferenceEnemy(object=self.hero_uid, person=f_person.uid)],
-                         good_branches=[facts.ExceptGoodBranches(object=f_person.uid)])
+                         enemies=[questgen_facts.PreferenceEnemy(object=self.hero_uid, person=f_person.uid)],
+                         good_branches=[questgen_facts.ExceptGoodBranches(object=f_person.uid)])
 
     def test_enemy__second_setup(self):
         place = self.place_2
@@ -317,8 +290,8 @@ class SetupPreferencesTest(LogicTestsBase):
 
         self.check_facts(places=[f_place],
                          persons=[f_person],
-                         enemies=[facts.PreferenceEnemy(object=self.hero_uid, person=f_person.uid)],
-                         good_branches=[facts.ExceptGoodBranches(object=f_person.uid)])
+                         enemies=[questgen_facts.PreferenceEnemy(object=self.hero_uid, person=f_person.uid)],
+                         good_branches=[questgen_facts.ExceptGoodBranches(object=f_person.uid)])
 
     def test_equipment_slot(self):
         slot = heroes_relations.EQUIPMENT_SLOT.HELMET
@@ -327,8 +300,7 @@ class SetupPreferencesTest(LogicTestsBase):
 
         logic.setup_preferences(self.knowledge_base, self.get_hero_info())
 
-        self.check_facts(equipment_slots=[facts.PreferenceEquipmentSlot(object=self.hero_uid, equipment_slot=slot.value)])
-
+        self.check_facts(equipment_slots=[questgen_facts.PreferenceEquipmentSlot(object=self.hero_uid, equipment_slot=slot.value)])
 
 
 class SetupPersonsTest(LogicTestsBase):
@@ -336,7 +308,7 @@ class SetupPersonsTest(LogicTestsBase):
     def test_no_social_connections(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length)
         logic.setup_persons(self.knowledge_base, self.get_hero_info())
         logic.setup_social_connections(self.knowledge_base)
 
@@ -344,7 +316,6 @@ class SetupPersonsTest(LogicTestsBase):
                          persons=[logic.fact_person(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
                          locations=[logic.fact_located_in(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
                          social_connections=[])
-
 
     def test_social_connections(self):
         persons_1 = self.place_1.persons
@@ -358,7 +329,7 @@ class SetupPersonsTest(LogicTestsBase):
 
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), waymarks_storage.look_for_road(self.place_1, self.place_2).length)
+        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length)
         logic.setup_persons(self.knowledge_base, self.get_hero_info())
         logic.setup_social_connections(self.knowledge_base)
 

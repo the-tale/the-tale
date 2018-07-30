@@ -1,8 +1,9 @@
 
+import smart_imports
 
-from dext.common.utils.app_settings import app_settings
+smart_imports.all()
 
 
-ratings_settings = app_settings('RATINGS',
-                                ACCOUNTS_ON_PAGE=50,
-                                SETTINGS_UPDATE_TIMESTEMP_KEY='ratings updated at timestamp' )
+settings = dext_app_settings.app_settings('RATINGS',
+                                          ACCOUNTS_ON_PAGE=50,
+                                          SETTINGS_UPDATE_TIMESTEMP_KEY='ratings updated at timestamp')

@@ -1,12 +1,8 @@
-# coding: utf-8
 
-from utg import words as utg_words
+import smart_imports
 
-from the_tale.game import names
+smart_imports.all()
 
-from the_tale.game.bills.bills import base_bill
-
-from the_tale.game.places import storage as places_storage
 
 class BasePlaceBill(base_bill.BaseBill):
     type = None
@@ -57,6 +53,6 @@ class BasePlaceBill(base_bill.BaseBill):
         elif 'old_place_name_forms' in data:
             obj.old_name_forms = utg_words.Word.deserialize(data['old_place_name_forms'])
         else:
-            obj.old_name_forms = names.generator().get_fast_name('название утрачено')
+            obj.old_name_forms = game_names.generator().get_fast_name('название утрачено')
 
         return obj

@@ -1,25 +1,11 @@
-import math
-import random
 
-from the_tale.game.heroes.relations import MONEY_SOURCE, HABIT_CHANGE_SOURCE
+import smart_imports
 
-from the_tale.game.abilities.prototypes import AbilityPrototype
-from the_tale.game.abilities.relations import ABILITY_TYPE
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-
-from the_tale.game.pvp.prototypes import Battle1x1Prototype
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.abilities import exceptions
+smart_imports.all()
 
 
-class Help(AbilityPrototype):
-    TYPE = ABILITY_TYPE.HELP
+class Help(prototypes.AbilityPrototype):
+    TYPE = relations.ABILITY_TYPE.HELP
 
     def use_heal(self, task, action, hero, critical):
         if critical:
@@ -29,25 +15,25 @@ class Help(AbilityPrototype):
             heal_amount = int(hero.heal(hero.max_health * random.uniform(*c.ANGEL_HELP_HEAL_FRACTION)))
             hero.add_message('angel_ability_healhero', hero=hero, health=heal_amount, energy=self.TYPE.cost)
         action.on_heal()
-        return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
+        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
-    def use_start_quest(self, task, action, hero, critical): # pylint: disable=W0613
+    def use_start_quest(self, task, action, hero, critical):  # pylint: disable=W0613
         hero.add_message('angel_ability_stimulate', hero=hero, energy=self.TYPE.cost)
         action.init_quest()
-        return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
+        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
-    def use_money(self, task, action, hero, critical): # pylint: disable=W0613
-        coins = int(math.ceil(f.normal_loot_cost_at_lvl(hero.level)*random.uniform(*c.ANGEL_HELP_CRIT_MONEY_FRACTION)))
+    def use_money(self, task, action, hero, critical):  # pylint: disable=W0613
+        coins = int(math.ceil(f.normal_loot_cost_at_lvl(hero.level) * random.uniform(*c.ANGEL_HELP_CRIT_MONEY_FRACTION)))
 
         if critical:
             coins *= c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER
-            hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, coins)
+            hero.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_HELP, coins)
             hero.add_message('angel_ability_money_crit', hero=hero, coins=coins, energy=self.TYPE.cost)
         else:
-            hero.change_money(MONEY_SOURCE.EARNED_FROM_HELP, coins)
+            hero.change_money(heroes_relations.MONEY_SOURCE.EARNED_FROM_HELP, coins)
             hero.add_message('angel_ability_money', hero=hero, coins=coins, energy=self.TYPE.cost)
 
-        return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
+        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
     def use_teleport(self, task, action, hero, critical):
         if critical:
@@ -58,7 +44,7 @@ class Help(AbilityPrototype):
             distance = c.ANGEL_HELP_TELEPORT_DISTANCE
 
         action.teleport(distance, create_inplace_action=True)
-        return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
+        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
     def use_lightning(self, task, action, hero, critical):
         if critical:
@@ -75,38 +61,38 @@ class Help(AbilityPrototype):
 
         action.bit_mob(damage)
 
-        return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
+        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
-    def use_resurrect(self, task, action, hero, critical): # pylint: disable=W0613
+    def use_resurrect(self, task, action, hero, critical):  # pylint: disable=W0613
         if hero.is_alive:
-            return (ComplexChangeTask.RESULT.IGNORE, ComplexChangeTask.STEP.SUCCESS, ())
+            return (game_postponed_tasks.ComplexChangeTask.RESULT.IGNORE, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ())
 
         hero.add_message('angel_ability_resurrect', hero=hero, energy=self.TYPE.cost)
 
         action.fast_resurrect()
 
-        return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
+        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
-    def use_experience(self, task, action, hero, critical): # pylint: disable=W0613
+    def use_experience(self, task, action, hero, critical):  # pylint: disable=W0613
 
         if critical:
-            experience = int(c.ANGEL_HELP_CRIT_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA))+ 1)
+            experience = int(c.ANGEL_HELP_CRIT_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA)) + 1)
             real_experience = hero.add_experience(experience)
             hero.add_message('angel_ability_experience_crit', hero=hero, experience=real_experience, energy=self.TYPE.cost)
         else:
-            experience = int(c.ANGEL_HELP_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA))+ 1)
+            experience = int(c.ANGEL_HELP_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA)) + 1)
             real_experience = hero.add_experience(experience)
             hero.add_message('angel_ability_experience', hero=hero, experience=real_experience, energy=self.TYPE.cost)
 
-        return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
+        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
-    def use_heal_companion(self, task, action, hero, critical): # pylint: disable=W0613
+    def use_heal_companion(self, task, action, hero, critical):  # pylint: disable=W0613
 
         if hero.companion is None:
-            return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
+            return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.ERROR)
 
         if hero.companion.health == hero.companion.max_health:
-            return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
+            return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.ERROR)
 
         if critical:
             health = hero.companion.heal(c.COMPANIONS_HEAL_CRIT_AMOUNT)
@@ -117,7 +103,7 @@ class Help(AbilityPrototype):
 
         action.on_heal_companion()
 
-        return task.logic_result(next_step=ComplexChangeTask.STEP.SUCCESS)
+        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
     def _use(self, task, choice, action, hero, critical):
         if choice.is_HEAL:
@@ -144,15 +130,15 @@ class Help(AbilityPrototype):
         elif choice.is_HEAL_COMPANION:
             return self.use_heal_companion(task, action, hero, critical)
 
-    def use(self, task, storage, **kwargs): # pylint: disable=R0911
+    def use(self, task, storage, **kwargs):  # pylint: disable=R0911
 
-        battle = Battle1x1Prototype.get_by_account_id(task.hero.account_id)
+        battle = pvp_prototypes.Battle1x1Prototype.get_by_account_id(task.hero.account_id)
 
         if battle and not battle.state.is_WAITING:
-            return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
+            return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.ERROR)
 
         if not task.hero.can_be_helped():
-            return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
+            return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.ERROR)
 
         task.hero.on_help()
 
@@ -161,12 +147,12 @@ class Help(AbilityPrototype):
         choice = action.get_help_choice()
 
         if choice is None:
-            return task.logic_result(next_step=ComplexChangeTask.STEP.ERROR)
+            return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.ERROR)
 
         if action.HABIT_MODE.is_AGGRESSIVE:
-            task.hero.update_habits(HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)
+            task.hero.update_habits(heroes_relations.HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)
         elif action.HABIT_MODE.is_PEACEFUL:
-            task.hero.update_habits(HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)
+            task.hero.update_habits(heroes_relations.HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)
         elif action.HABIT_MODE.is_COMPANION:
             if task.hero.companion:
                 for habit_source in task.hero.companion.modify_attribute(heroes_relations.MODIFIERS.HABITS_SOURCES, set()):

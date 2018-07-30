@@ -1,11 +1,10 @@
-# coding: utf-8
 
-from dext.forms import forms, fields
+import smart_imports
 
-from the_tale.accounts.third_party import models
+smart_imports.all()
 
 
-class RequestAccessForm(forms.Form):
-    application_name = fields.CharField(max_length=models.AccessToken.APPLICATION_NAME_MAX_LENGTH, required=True)
-    application_info = fields.CharField(max_length=models.AccessToken.APPLICATION_INFO_MAX_LENGTH, required=False)
-    application_description = fields.CharField(required=True)
+class RequestAccessForm(dext_forms.Form):
+    application_name = dext_fields.CharField(max_length=models.AccessToken.APPLICATION_NAME_MAX_LENGTH, required=True)
+    application_info = dext_fields.CharField(max_length=models.AccessToken.APPLICATION_INFO_MAX_LENGTH, required=False)
+    application_description = dext_fields.CharField(required=True)

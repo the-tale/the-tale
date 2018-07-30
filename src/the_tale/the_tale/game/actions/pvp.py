@@ -1,8 +1,8 @@
-# coding: utf-8
 
-from the_tale.game.balance import constants as c
+import smart_imports
 
-from the_tale.game.pvp.abilities import Ice, Blood, Flame
+smart_imports.all()
+
 
 class PvPData(object):
 
@@ -25,8 +25,10 @@ class PvPData(object):
 
     def set_advantage(self, value):
         self.advantage = value
-        if self.advantage < -1: self.advantage = -1
-        if self.advantage > 1: self.advantage = 1
+        if self.advantage < -1:
+            self.advantage = -1
+        if self.advantage > 1:
+            self.advantage = 1
 
     def set_effectiveness(self, value):
         self.effectiveness = value
@@ -46,7 +48,7 @@ class PvPData(object):
                 'turn_advantage': self.turn_advantage,
                 'turn_effectiveness': self.turn_effectiveness,
                 'turn_energy': self.turn_energy,
-                'turn_energy_speed': self.turn_energy_speed }
+                'turn_energy_speed': self.turn_energy_speed}
 
     @classmethod
     def deserialize(cls, data):
@@ -65,22 +67,22 @@ class PvPData(object):
         return obj
 
     def ui_info(self):
-        return  { 'advantage': self.advantage,
-                  'effectiveness': int(self.effectiveness),
-                  'probabilities': { 'ice': Ice.get_probability(self.energy, self.energy_speed),
-                                     'blood': Blood.get_probability(self.energy, self.energy_speed),
-                                     'flame': Flame.get_probability(self.energy, self.energy_speed) },
-                  'energy': self.energy,
-                  'energy_speed': self.energy_speed }
+        return {'advantage': self.advantage,
+                'effectiveness': int(self.effectiveness),
+                'probabilities': {'ice': pvp_abilities.Ice.get_probability(self.energy, self.energy_speed),
+                                  'blood': pvp_abilities.Blood.get_probability(self.energy, self.energy_speed),
+                                  'flame': pvp_abilities.Flame.get_probability(self.energy, self.energy_speed)},
+                'energy': self.energy,
+                'energy_speed': self.energy_speed}
 
     def turn_ui_info(self):
-        return  { 'advantage': self.turn_advantage,
-                  'effectiveness': int(self.turn_effectiveness),
-                  'probabilities': { 'ice': Ice.get_probability(self.turn_energy, self.turn_energy_speed),
-                                     'blood': Blood.get_probability(self.turn_energy, self.turn_energy_speed),
-                                     'flame': Flame.get_probability(self.turn_energy, self.turn_energy_speed) },
-                  'energy': self.turn_energy,
-                  'energy_speed': self.turn_energy_speed }
+        return {'advantage': self.turn_advantage,
+                'effectiveness': int(self.turn_effectiveness),
+                'probabilities': {'ice': pvp_abilities.Ice.get_probability(self.turn_energy, self.turn_energy_speed),
+                                  'blood': pvp_abilities.Blood.get_probability(self.turn_energy, self.turn_energy_speed),
+                                  'flame': pvp_abilities.Flame.get_probability(self.turn_energy, self.turn_energy_speed)},
+                'energy': self.turn_energy,
+                'energy_speed': self.turn_energy_speed}
 
     def store_turn_data(self):
         self.turn_advantage = self.advantage

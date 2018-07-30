@@ -15,9 +15,6 @@ tt_services:
     packages:
       - {editable: True, extra: "-e", name: "/mnt/repos/dext/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/deworld/"}
-      - {editable: True, extra: "-e", name: "/mnt/repos/rels/"}
-      - {editable: True, extra: "-e", name: "/mnt/repos/pynames/"}
-      - {editable: True, extra: "-e", name: "/mnt/repos/utg/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/questgen/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_logic/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}

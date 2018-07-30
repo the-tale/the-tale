@@ -1,47 +1,33 @@
-# coding: utf-8
 
-from django.db import models
+import smart_imports
 
-from dext.common.utils.urls import full_url
-
-from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.utils.prototypes import BasePrototype
-
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.achievements.models import Achievement, AccountAchievements, GiveAchievementTask
-from the_tale.accounts.achievements.container import AchievementsContainer
-from the_tale.accounts.achievements import exceptions
+smart_imports.all()
 
 
-class AchievementPrototype(BasePrototype):
-    _model_class = Achievement
+class AchievementPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Achievement
     _readonly = ('id', 'created_at', 'updated_at')
     _bidirectional = ('caption', 'description', 'order', 'group', 'type', 'approved', 'barrier', 'points', 'item_1_id', 'item_2_id', 'item_3_id')
     _get_by = ('id', )
 
-    CAPTION_MAX_LENGTH = Achievement.CAPTION_MAX_LENGTH
-    DESCRIPTION_MAX_LENGTH = Achievement.DESCRIPTION_MAX_LENGTH
+    CAPTION_MAX_LENGTH = models.Achievement.CAPTION_MAX_LENGTH
+    DESCRIPTION_MAX_LENGTH = models.Achievement.DESCRIPTION_MAX_LENGTH
 
     @property
     def item_1(self):
-        from the_tale.collections.storage import items_storage
-        return items_storage.get(self.item_1_id)
+        return collections_storage.items.get(self.item_1_id)
 
     @property
     def item_2(self):
-        from the_tale.collections.storage import items_storage
-        return items_storage.get(self.item_2_id)
+        return collections_storage.items.get(self.item_2_id)
 
     @property
     def item_3(self):
-        from the_tale.collections.storage import items_storage
-        return items_storage.get(self.item_3_id)
+        return collections_storage.items.get(self.item_3_id)
 
     @classmethod
     def create(cls, group, type, caption, description, approved, barrier, points, item_1=None, item_2=None, item_3=None):
-        from the_tale.accounts.achievements.storage import achievements_storage
-
-        order = cls._db_all().aggregate(models.Max('order'))['order__max']
+        order = cls._db_all().aggregate(django_models.Max('order'))['order__max']
 
         if order is None:
             order = 0
@@ -59,21 +45,17 @@ class AchievementPrototype(BasePrototype):
                                item_3=item_3._model if item_3 is not None else None)
         prototype = cls(model=model)
 
-        achievements_storage.add_item(prototype.id, prototype)
-        achievements_storage.update_version()
+        storage.achievements.add_item(prototype.id, prototype)
+        storage.achievements.update_version()
 
         return prototype
 
-
     def save(self):
-        from the_tale.accounts.achievements.storage import achievements_storage
-
-        if id(self) != id(achievements_storage[self.id]):
+        if id(self) != id(storage.achievements[self.id]):
             raise exceptions.SaveNotRegisteredAchievementError(achievement=self.id)
 
         super(AchievementPrototype, self).save()
-        achievements_storage.update_version()
-
+        storage.achievements.update_version()
 
     def check(self, old_value, new_value):
         if new_value < 0:
@@ -97,15 +79,15 @@ class AchievementPrototype(BasePrototype):
         return [reward for reward in self.rewards if reward.approved]
 
 
-class AccountAchievementsPrototype(BasePrototype):
-    _model_class = AccountAchievements
+class AccountAchievementsPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.AccountAchievements
     _readonly = ('id', 'account_id', 'points')
     _bidirectional = ()
     _get_by = ('id', 'account_id')
-    _serialization_proxies = (('achievements', AchievementsContainer, None),)
+    _serialization_proxies = (('achievements', container.AchievementsContainer, None),)
 
-    @lazy_property
-    def account(self): return AccountPrototype(model=self._model.account)
+    @utils_decorators.lazy_property
+    def account(self): return accounts_prototypes.AccountPrototype(model=self._model.account)
 
     @classmethod
     def create(cls, account):
@@ -115,13 +97,10 @@ class AccountAchievementsPrototype(BasePrototype):
     def give_achievement(cls, account_id, achievement):
         if not achievement.approved:
             return
+
         GiveAchievementTaskPrototype.create(account_id=account_id, achievement_id=achievement.id)
 
     def add_achievement(self, achievement, notify):
-        from the_tale.collections.prototypes import GiveItemTaskPrototype
-        from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-        from the_tale.accounts.logic import get_system_user
-
         already_had_achievement = self.achievements.has_achievement(achievement)
 
         self.achievements.add_achievement(achievement)
@@ -131,7 +110,7 @@ class AccountAchievementsPrototype(BasePrototype):
         approved_rewards = achievement.approved_rewards
 
         for item in rewards:
-            GiveItemTaskPrototype.create(self.account_id, item.id)
+            collections_prototypes.GiveItemTaskPrototype.create(self.account_id, item.id)
 
         if not notify or already_had_achievement:
             return
@@ -141,21 +120,19 @@ class AccountAchievementsPrototype(BasePrototype):
         if approved_rewards:
             reward_texts = []
             for item in approved_rewards:
-                reward_texts.append( '[url=%s#k%d]%s[/url]' % (full_url('https', 'collections:collections:show', item.kit.collection.id),
-                                                                item.kit.id,
-                                                                item.caption))
+                reward_texts.append('[url=%s#k%d]%s[/url]' % (dext_urls.full_url('https', 'collections:collections:show', item.kit.collection.id),
+                                                              item.kit.id,
+                                                              item.caption))
             rewards_message = 'Награды: %s' % ', '.join(reward_texts)
 
-
         message = ('Вы заработали достижение «%(achievement)s» — %(description)s. %(rewards_message)s' %
-                   {'achievement': '[url=%s#a%d]%s[/url]' % (full_url('https', 'accounts:achievements:group', achievement.group.slug),
-                                                              achievement.id,
-                                                              achievement.caption),
+                   {'achievement': '[url=%s#a%d]%s[/url]' % (dext_urls.full_url('https', 'accounts:achievements:group', achievement.group.slug),
+                                                             achievement.id,
+                                                             achievement.caption),
                     'description': achievement.description,
                     'rewards_message': rewards_message})
 
-        pm_tt_api.send_message(get_system_user().id, [self.account.id], message, async=True)
-
+        personal_messages_logic.send_message(accounts_logic.get_system_user().id, [self.account.id], message, async=True)
 
     def remove_achievement(self, achievement):
         self.achievements.remove_achievement(achievement)
@@ -179,9 +156,8 @@ class AccountAchievementsPrototype(BasePrototype):
         return (1, achievement.order)
 
 
-
-class GiveAchievementTaskPrototype(BasePrototype):
-    _model_class = GiveAchievementTask
+class GiveAchievementTaskPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.GiveAchievementTask
     _readonly = ('id', 'account_id', 'achievement_id')
     _bidirectional = ()
     _get_by = ()

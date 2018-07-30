@@ -1,9 +1,7 @@
 
-from the_tale.accounts import prototypes as accounts_prototypes
-from the_tale.accounts.clans import prototypes as clans_prototypes
-from the_tale.accounts.conf import accounts_settings
+import smart_imports
 
-from the_tale.game.heroes import logic as heroes_logic
+smart_imports.all()
 
 
 class ShortHeroInfo(object):
@@ -36,8 +34,8 @@ class ShortAccountInfo(object):
 
     @property
     def nick_verbose(self):
-        if self.name.startswith(accounts_settings.RESET_NICK_PREFIX):
-            return accounts_settings.RESET_NICK_PREFIX
+        if self.name.startswith(accounts_conf.settings.RESET_NICK_PREFIX):
+            return accounts_conf.settings.RESET_NICK_PREFIX
 
         return self.name
 

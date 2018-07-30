@@ -1,30 +1,22 @@
-# coding: utf-8
-import time
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.quests.container import QuestsContainer
-from the_tale.game.quests.conf import quests_settings
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
+smart_imports.all()
 
 
-class ContainerTests(testcase.TestCase):
+class ContainerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(ContainerTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
-        self.container = QuestsContainer()
+        self.container = container.QuestsContainer()
         self.container.hero = self.hero
 
     def test_add_interfered_person(self):
@@ -33,9 +25,9 @@ class ContainerTests(testcase.TestCase):
         self.assertTrue(self.container.is_person_interfered(1))
 
     def test_sync_interfered_persons(self):
-        self.container.interfered_persons[1] = time.time() - quests_settings.INTERFERED_PERSONS_LIVE_TIME
+        self.container.interfered_persons[1] = time.time() - conf.settings.INTERFERED_PERSONS_LIVE_TIME
         self.container.interfered_persons[2] = time.time()
-        self.container.interfered_persons[3] = time.time() - quests_settings.INTERFERED_PERSONS_LIVE_TIME + 1
+        self.container.interfered_persons[3] = time.time() - conf.settings.INTERFERED_PERSONS_LIVE_TIME + 1
 
         self.assertFalse(self.container.is_person_interfered(1))
         self.assertTrue(self.container.is_person_interfered(2))
@@ -83,14 +75,12 @@ class ContainerTests(testcase.TestCase):
 
         self.assertEqual(request_replane.call_count, 1)
 
-
     def test_mark_updated(self):
         self.container._ui_info = 'fake ui info'
 
         self.container.mark_updated()
 
         self.assertEqual(self.container._ui_info, None)
-
 
     def test_ui_info(self):
 

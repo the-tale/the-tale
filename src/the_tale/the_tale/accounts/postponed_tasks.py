@@ -1,35 +1,13 @@
-# coding: utf-8
-import uuid
 
-import rels
-from rels.django import DjangoEnum
+import smart_imports
 
-from django.contrib.auth import update_session_auth_hash
-from django.core.urlresolvers import reverse
-from django.db import transaction
-
-from the_tale import amqp_environment
-
-from the_tale.common.utils.enum import create_enum
-from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
-
-from the_tale.finances.bank import transaction as bank_transaction
-from the_tale.finances.bank import prototypes as bank_prototypes
-from the_tale.finances.bank import relations as bank_relations
-
-from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-
-from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
-from the_tale.accounts import logic
-from the_tale.accounts import conf
-import collections
+smart_imports.all()
 
 
-REGISTRATION_TASK_STATE = create_enum('REGISTRATION_TASK_STATE', ( ('UNPROCESSED', 0, 'ожидает обработки'),
-                                                                   ('PROCESSED', 1, 'обработкана'),
-                                                                   ('UNKNOWN_ERROR', 2, 'неизвестная ошибка') ))
+REGISTRATION_TASK_STATE = utils_enum.create_enum('REGISTRATION_TASK_STATE', (('UNPROCESSED', 0, 'ожидает обработки'),
+                                                                             ('PROCESSED', 1, 'обработкана'),
+                                                                             ('UNKNOWN_ERROR', 2, 'неизвестная ошибка')))
+
 
 class RegistrationTask(PostponedLogic):
 
@@ -44,32 +22,30 @@ class RegistrationTask(PostponedLogic):
         self.state = state
 
     def serialize(self):
-        return { 'state': self.state,
-                 'account_id': self.account_id,
-                 'referer': self.referer,
-                 'referral_of_id': self.referral_of_id,
-                 'action_id': self.action_id}
+        return {'state': self.state,
+                'account_id': self.account_id,
+                'referer': self.referer,
+                'referral_of_id': self.referral_of_id,
+                'action_id': self.action_id}
 
     @property
     def error_message(self): return REGISTRATION_TASK_STATE._CHOICES[self.state][1]
 
-    @lazy_property
-    def account(self): return AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
+    @utils_decorators.lazy_property
+    def account(self): return prototypes.AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
 
     def get_unique_nick(self):
-        return uuid.uuid4().hex[:AccountPrototype._model_class.MAX_NICK_LENGTH]
+        return uuid.uuid4().hex[:prototypes.AccountPrototype._model_class.MAX_NICK_LENGTH]
 
     @property
-    def processed_data(self): return {'next_url': reverse('game:') }
+    def processed_data(self): return {'next_url': django_reverse('game:')}
 
     def process(self, main_task):
-        from the_tale.accounts.logic import register_user, REGISTER_USER_RESULT
+        with django_transaction.atomic():
 
-        with transaction.atomic():
+            result, account_id, bundle_id = logic.register_user(nick=self.get_unique_nick(), referer=self.referer, referral_of_id=self.referral_of_id, action_id=self.action_id)
 
-            result, account_id, bundle_id = register_user(nick=self.get_unique_nick(), referer=self.referer, referral_of_id=self.referral_of_id, action_id=self.action_id)
-
-            if result != REGISTER_USER_RESULT.OK:
+            if result != logic.REGISTER_USER_RESULT.OK:
                 main_task.comment = 'unknown error'
                 self.state = REGISTRATION_TASK_STATE.UNKNOWN_ERROR
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -82,7 +58,7 @@ class RegistrationTask(PostponedLogic):
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
-class CHANGE_CREDENTIALS_STATE(DjangoEnum):
+class CHANGE_CREDENTIALS_STATE(rels_django.DjangoEnum):
     records = (('UNPROCESSED', 1, 'необработана'),
                ('PROCESSED', 2, 'обработана'),
                ('WRONG_STATE', 3, 'неверное состояние задачи'))
@@ -104,13 +80,13 @@ class ChangeCredentials(PostponedLogic):
                 'oneself': self.oneself}
 
     @property
-    def processed_data(self): return {'next_url': reverse('accounts:profile:edited') }
+    def processed_data(self): return {'next_url': django_reverse('accounts:profile:edited')}
 
     @property
     def error_message(self): return self.state.text
 
-    @lazy_property
-    def task(self): return ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
+    @utils_decorators.lazy_property
+    def task(self): return accounts_prototypes.ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
 
     def process(self, main_task):
         if self.state.is_UNPROCESSED:
@@ -127,10 +103,10 @@ class ChangeCredentials(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
 
-class UPDATE_ACCOUNT_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 1, 'необработана'),
-                 ('PROCESSED', 2, 'обработана'),
-                 ('WRONG_STATE', 3, 'неверное состояние задачи'))
+class UPDATE_ACCOUNT_STATE(rels_django.DjangoEnum):
+    records = (('UNPROCESSED', 1, 'необработана'),
+               ('PROCESSED', 2, 'обработана'),
+               ('WRONG_STATE', 3, 'неверное состояние задачи'))
 
 
 class UpdateAccount(PostponedLogic):
@@ -145,13 +121,13 @@ class UpdateAccount(PostponedLogic):
         self.state = state if isinstance(state, rels.Record) else UPDATE_ACCOUNT_STATE.index_value[state]
 
     def serialize(self):
-        return { 'state': self.state.value,
-                 'method': self.method,
-                 'data': self.data,
-                 'account_id': self.account_id}
+        return {'state': self.state.value,
+                'method': self.method,
+                'data': self.data,
+                'account_id': self.account_id}
 
-    @lazy_property
-    def account(self): return AccountPrototype.get_by_id(self.account_id)
+    @utils_decorators.lazy_property
+    def account(self): return prototypes.AccountPrototype.get_by_id(self.account_id)
 
     @property
     def error_message(self): return self.state.text
@@ -172,7 +148,7 @@ class UpdateAccount(PostponedLogic):
 class TransferMoneyTask(PostponedLogic):
     TYPE = 'transfer-money-task'
 
-    class STATE(DjangoEnum):
+    class STATE(rels_django.DjangoEnum):
         records = (('UNPROCESSED', 1, 'в очереди'),
                    ('PROCESSED', 2, 'обработано'),
                    ('TRANSFER_TRANSACTION_REJECTED', 3, 'в переводе отказано'),
@@ -184,14 +160,22 @@ class TransferMoneyTask(PostponedLogic):
                    ('TRANSFER_TRANSACTION_WRONG_STATE', 9, 'ошибка при совершении перевода'),
                    ('COMMISSION_TRANSACTION_WRONG_STATE', 10, 'ошибка при начислении комиссии'))
 
-    class STEP(DjangoEnum):
+    class STEP(rels_django.DjangoEnum):
         records = (('INITIALIZE', 0, 'инициировать перечисление'),
                    ('WAIT', 1, 'ожидание транзакции'),
                    ('SUCCESS', 2, 'перечисление завершено'),
                    ('ERROR', 3, 'ошибка'))
 
-    def __init__(self, sender_id, recipient_id, amount, commission, comment, transfer_transaction=None, commission_transaction=None, step=STEP.INITIALIZE, state=STATE.UNPROCESSED):
+    def __init__(self, sender_id, recipient_id, amount, commission, comment, transfer_transaction=None, commission_transaction=None, step=None, state=None):
+
+        if step is None:
+            step = self.STEP.INITIALIZE
+
+        if state is None:
+            state = self.STATE.UNPROCESSED
+
         super(TransferMoneyTask, self).__init__()
+
         self.sender_id = sender_id
         self.recipient_id = recipient_id
         self.amount = amount
@@ -216,11 +200,11 @@ class TransferMoneyTask(PostponedLogic):
     @property
     def error_message(self): return self.state.text
 
-    @lazy_property
-    def sender(self): return AccountPrototype.get_by_id(self.sender_id)
+    @utils_decorators.lazy_property
+    def sender(self): return prototypes.AccountPrototype.get_by_id(self.sender_id)
 
-    @lazy_property
-    def recipient(self): return AccountPrototype.get_by_id(self.recipient_id)
+    @utils_decorators.lazy_property
+    def recipient(self): return prototypes.AccountPrototype.get_by_id(self.recipient_id)
 
     def process(self, main_task):
 
@@ -266,7 +250,7 @@ class TransferMoneyTask(PostponedLogic):
                                                                          amount=-self.commission,
                                                                          description_for_sender='Комиссия с перевода игроку «%s»: «%s».' % (self.recipient.nick_verbose, self.comment),
                                                                          description_for_recipient='Комиссия с перевода игроку «%s»: «%s».' % (self.recipient.nick_verbose, self.comment),
-                                                                         operation_uid=conf.accounts_settings.COMMISION_TRANSACTION_UID)
+                                                                         operation_uid=conf.settings.COMMISION_TRANSACTION_UID)
 
             self.commission_transaction = bank_transaction.Transaction(commission_invoice.id)
 
@@ -324,10 +308,10 @@ class TransferMoneyTask(PostponedLogic):
                                                                                                                            amount=self.amount,
                                                                                                                            comment=self.comment)
 
-            pm_tt_api.send_message(sender_id=logic.get_system_user_id(),
-                                  recipients_ids=[self.recipient.id],
-                                  body=message,
-                                  async=True)
+            personal_messages_logic.send_message(sender_id=logic.get_system_user_id(),
+                                                 recipients_ids=[self.recipient.id],
+                                                 body=message,
+                                                 async=True)
 
             self.state = self.STATE.PROCESSED
             self.step = self.STEP.SUCCESS

@@ -1,8 +1,10 @@
 
-from the_tale.common.utils.exceptions import TheTaleError
+import smart_imports
+
+smart_imports.all()
 
 
-class AccountError(TheTaleError):
+class AccountError(utils_exceptions.TheTaleError):
     MSG = 'account error'
 
 
@@ -36,11 +38,3 @@ class NickNotSpecifiedForFastAccountError(ChangeCredentialsError):
 
 class NewEmailNotSpecifiedError(ChangeCredentialsError):
     MSG = 'email not specified'
-
-
-class CanNotCreateCardsTimer(AccountError):
-    MSG = 'can not create cards timer'
-
-
-class CanNotChangeCardsTimerSpeed(AccountError):
-    MSG = 'can not change cards timer speed'

@@ -1,26 +1,17 @@
 
-from django import forms as django_forms
+import smart_imports
 
-from dext.forms import forms
-from dext.forms import fields
-from dext.common import utils as dext_utils
-
-from the_tale.game import relations as game_relations
-from the_tale.game.places import storage as places_storage
-from the_tale.game.persons import objects as persons_objects
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.mobs import storage as mobs_storage
+smart_imports.all()
 
 
 def form(preference):
 
     name = preference.text
-    name = name[0].upper()+name[1:]
+    name = name[0].upper() + name[1:]
 
-    class Preference(forms.Form):
+    class Preference(dext_forms.Form):
         PREFERENCE = preference
-        value = fields.ChoiceField(required=False)
+        value = dext_fields.ChoiceField(required=False)
 
         def __init__(self, *args, **kwargs):
             self.hero = kwargs.pop('hero')
@@ -91,11 +82,11 @@ class RelationMixin:
 
 
 class EnergyRegenerationType(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE)):
-    value = fields.RelationField(relation=heroes_relations.ENERGY_REGENERATION)
+    value = dext_fields.RelationField(relation=heroes_relations.ENERGY_REGENERATION)
 
 
 class EquipmentSlot(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT)):
-    value = fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
+    value = dext_fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -103,11 +94,11 @@ class EquipmentSlot(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.EQUIPME
 
 
 class RiskLevel(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.RISK_LEVEL)):
-    value = fields.RelationField(relation=heroes_relations.RISK_LEVEL)
+    value = dext_fields.RelationField(relation=heroes_relations.RISK_LEVEL)
 
 
 class FavoriteItem(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.FAVORITE_ITEM)):
-    value = fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
+    value = dext_fields.RelationField(relation=heroes_relations.EQUIPMENT_SLOT, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -124,16 +115,16 @@ class FavoriteItem(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.FAVORITE
 
 
 class Archetype(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.ARCHETYPE)):
-    value = fields.RelationField(relation=game_relations.ARCHETYPE)
+    value = dext_fields.RelationField(relation=game_relations.ARCHETYPE)
 
 
 class CompanionDedication(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.COMPANION_DEDICATION)):
-    value = fields.RelationField(relation=heroes_relations.COMPANION_DEDICATION)
+    value = dext_fields.RelationField(relation=heroes_relations.COMPANION_DEDICATION)
 
 
 class CompanionEmpathy(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.COMPANION_EMPATHY)):
-    value = fields.RelationField(relation=heroes_relations.COMPANION_EMPATHY)
+    value = dext_fields.RelationField(relation=heroes_relations.COMPANION_EMPATHY)
 
 
 FORMS = {form_class.PREFERENCE: form_class
-         for form_class in dext_utils.discovering.discover_classes(globals().values(), forms.Form)}
+         for form_class in dext_discovering.discover_classes(globals().values(), dext_forms.Form)}

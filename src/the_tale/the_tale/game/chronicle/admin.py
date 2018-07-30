@@ -1,23 +1,25 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.game.chronicle.models import Record, Actor, RecordToActor
+smart_imports.all()
 
 
-class RecordAdmin(admin.ModelAdmin):
+class RecordAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'type', 'created_at', 'created_at_turn', 'text')
 
     list_filter = ('type', )
 
-class ActorAdmin(admin.ModelAdmin):
+
+class ActorAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'uid', 'place', 'person', 'bill')
 
-class RecordToActorAdmin(admin.ModelAdmin):
+
+class RecordToActorAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'role', 'record', 'actor')
 
     list_filter = ('role', )
 
-admin.site.register(Record, RecordAdmin)
-admin.site.register(RecordToActor, RecordToActorAdmin)
-admin.site.register(Actor, ActorAdmin)
+
+django_admin.site.register(models.Record, RecordAdmin)
+django_admin.site.register(models.RecordToActor, RecordToActorAdmin)
+django_admin.site.register(models.Actor, ActorAdmin)

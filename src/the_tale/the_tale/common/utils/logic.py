@@ -1,11 +1,7 @@
 
-import math
-import random
-import datetime
-import types
-import numbers
+import smart_imports
 
-from django.conf import settings as project_settings
+smart_imports.all()
 
 
 def random_value_by_priority(values):
@@ -71,11 +67,11 @@ def verbose_timedelta(value):
         return pluralize_word(value.days, 'день', 'дня', 'дней')
 
     elif value.days == 0:
-        if value.seconds >= 60*60:
-            return pluralize_word(value.seconds // (60*60) , 'час', 'часа', 'часов')
+        if value.seconds >= 60 * 60:
+            return pluralize_word(value.seconds // (60 * 60), 'час', 'часа', 'часов')
 
         if value.seconds >= 60:
-            return pluralize_word(value.seconds // 60 , 'минута', 'минуты', 'минут')
+            return pluralize_word(value.seconds // 60, 'минута', 'минуты', 'минут')
 
     return 'меньше минуты'
 
@@ -89,6 +85,7 @@ def choose_from_interval(value, intervals):
             break
 
     return choosen_result
+
 
 def choose_nearest(value, intervals):
     choosen_result = None
@@ -110,8 +107,8 @@ def split_into_table(sequence, columns):
     start_index = 0
 
     for i in range(columns):
-        sublen = int(math.ceil(items_number / float(columns-i)))
-        table.append(sequence[start_index:start_index+sublen])
+        sublen = int(math.ceil(items_number / float(columns - i)))
+        table.append(sequence[start_index:start_index + sublen])
         items_number -= sublen
         start_index += sublen
 
@@ -137,10 +134,10 @@ def get_or_create(get_method, create_method, exception, kwargs):
 
 
 def days_range(date_from, date_to):
-    for days in range((date_to-date_from).days):
+    for days in range((date_to - date_from).days):
         current_date = (date_from + datetime.timedelta(days=days))
         yield current_date.date() if isinstance(current_date, datetime.datetime) else current_date
 
 
 def absolutize_urls(text):
-    return text.replace('href="/', 'href="https://%s/' % project_settings.SITE_URL).replace('href=\'/', 'href=\'https://%s/' % project_settings.SITE_URL)
+    return text.replace('href="/', 'href="https://%s/' % django_settings.SITE_URL).replace('href=\'/', 'href=\'https://%s/' % django_settings.SITE_URL)

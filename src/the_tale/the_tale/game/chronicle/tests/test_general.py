@@ -1,15 +1,13 @@
 
-from the_tale.game.bills import relations as bills_relations
-from the_tale.game.bills.tests.test_prototype import BaseTestPrototypes
+import smart_imports
 
-from the_tale.game.chronicle import signal_processors
+smart_imports.all()
 
 
-class GeneralTests(BaseTestPrototypes):
+class GeneralTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(GeneralTests, self).setUp()
-
 
     def test_every_bill_has_argument_getter(self):
         self.assertCountEqual(list(signal_processors.BILL_ARGUMENT_GETTERS.keys()),

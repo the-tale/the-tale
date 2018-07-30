@@ -1,12 +1,10 @@
 
-from the_tale.common.utils.prototypes import BasePrototype
-from the_tale.common.utils.decorators import lazy_property
+import smart_imports
 
-from . import models
-from . import relations
+smart_imports.all()
 
 
-class ResourceExchangePrototype(BasePrototype):
+class ResourceExchangePrototype(utils_prototypes.BasePrototype):
     _model_class = models.ResourceExchange
     _readonly = ('id', 'bill_id', 'resource_1', 'resource_2')
     _bidirectional = ()
@@ -14,18 +12,15 @@ class ResourceExchangePrototype(BasePrototype):
 
     @property
     def place_1(self):
-        from the_tale.game.places import storage
         return storage.places.get(self._model.place_1_id)
 
     @property
     def place_2(self):
-        from the_tale.game.places import storage
         return storage.places.get(self._model.place_2_id)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def bill(self):
-        from the_tale.game.bills.prototypes import BillPrototype
-        return BillPrototype.get_by_id(self.bill_id)
+        return bills_prototypes.BillPrototype.get_by_id(self.bill_id)
 
     def get_resources_for_place(self, place):
         if self.place_1 and place.id == self.place_1.id:
@@ -36,8 +31,6 @@ class ResourceExchangePrototype(BasePrototype):
 
     @classmethod
     def create(cls, place_1, place_2, resource_1, resource_2, bill):
-        from the_tale.game.places import storage
-
         model = cls._model_class.objects.create(bill=bill._model if bill is not None else None,
                                                 place_1_id=place_1.id if place_1 is not None else None,
                                                 place_2_id=place_2.id if place_2 is not None else None,
@@ -51,8 +44,6 @@ class ResourceExchangePrototype(BasePrototype):
         return prototype
 
     def remove(self):
-        from the_tale.game.places import storage
-
         self._model.delete()
 
         storage.resource_exchanges.update_version()

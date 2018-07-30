@@ -1,27 +1,27 @@
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.accounts.clans.models import Clan, Membership, MembershipRequest
+smart_imports.all()
 
 
-class ClanAdmin(admin.ModelAdmin):
+class ClanAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'abbr', 'name', 'members_number', 'created_at')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
 
-class MembershipAdmin(admin.ModelAdmin):
+class MembershipAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'clan', 'account', 'role', 'created_at')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
 
-class MembershipRequestAdmin(admin.ModelAdmin):
+class MembershipRequestAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'clan', 'account', 'type', 'initiator', 'created_at')
 
 
-admin.site.register(Clan, ClanAdmin)
-admin.site.register(Membership, MembershipAdmin)
-admin.site.register(MembershipRequest, MembershipRequestAdmin)
+django_admin.site.register(models.Clan, ClanAdmin)
+django_admin.site.register(models.Membership, MembershipAdmin)
+django_admin.site.register(models.MembershipRequest, MembershipRequestAdmin)

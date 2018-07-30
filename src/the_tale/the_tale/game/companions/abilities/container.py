@@ -1,12 +1,7 @@
-# coding: utf-8
 
-from the_tale.game.companions.abilities import exceptions
+import smart_imports
 
-from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.companions.abilities import effects
+smart_imports.all()
 
 
 class Container(object):
@@ -25,7 +20,7 @@ class Container(object):
         self.honor = honor
         self.peacefulness = peacefulness
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def start_abilities(self):
         abilities = []
 
@@ -43,18 +38,18 @@ class Container(object):
 
         return abilities
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def coherence_abilities(self):
         abilities = []
 
         open_interval = c.COMPANIONS_MAX_COHERENCE // (len(self.common) + 1)
 
         for i, ability in enumerate(self.common):
-            abilities.append((open_interval * (i+1), ability))
+            abilities.append((open_interval * (i + 1), ability))
 
         return abilities
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def all_abilities(self):
         abilities = [(0, start_ability) for start_ability in self.start_abilities]
         abilities.extend(self.coherence_abilities)
@@ -83,7 +78,6 @@ class Container(object):
             value = ability.effect.modify_attribute(abilities_levels, modifier, value)
         return value
 
-
     def check_attribute(self, coherence, modifier, is_dead):
         for ability in self.abilities_for_coherence(coherence):
             if is_dead and not ability.work_when_dead:
@@ -104,7 +98,6 @@ class Container(object):
                 'honor': self.honor.value if self.honor else None,
                 'peacefulness': self.peacefulness.value if self.peacefulness else None}
 
-
     @classmethod
     def deserialize(cls, data):
         coherence_uid = data.get('coherence')
@@ -117,11 +110,10 @@ class Container(object):
                    honor=effects.ABILITIES(honor_uid) if honor_uid is not None else None,
                    peacefulness=effects.ABILITIES(peacefulness_uid) if peacefulness_uid is not None else None)
 
-
     def __eq__(self, other):
-        return  (self.__class__ is other.__class__ and
-                 self.common == other.common and
-                 self.start == other.start and
-                 self.coherence == other.coherence and
-                 self.honor == other.honor and
-                 self.peacefulness == other.peacefulness)
+        return (self.__class__ is other.__class__ and
+                self.common == other.common and
+                self.start == other.start and
+                self.coherence == other.coherence and
+                self.honor == other.honor and
+                self.peacefulness == other.peacefulness)

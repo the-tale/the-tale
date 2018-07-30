@@ -1,11 +1,10 @@
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from the_tale.accounts import logic
-from the_tale.accounts import models
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'create super user'
 

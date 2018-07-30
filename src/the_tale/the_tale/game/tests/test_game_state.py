@@ -1,29 +1,26 @@
 
-from dext.settings.models import Setting
-from dext.settings import settings
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.prototypes import GameState
+smart_imports.all()
 
 
-class GameStateTests(testcase.TestCase):
+class GameStateTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(GameStateTests, self).setUp()
-        Setting.objects.all().delete()
-        settings.refresh()
+        dext_settings_models.Setting.objects.all().delete()
+        dext_settings.settings.refresh()
 
     def test_no_state(self):
-        self.assertTrue(GameState.is_stopped())
-        self.assertFalse(GameState.is_working())
+        self.assertTrue(prototypes.GameState.is_stopped())
+        self.assertFalse(prototypes.GameState.is_working())
 
     def test_stoped(self):
-        GameState.stop()
-        self.assertTrue(GameState.is_stopped())
-        self.assertFalse(GameState.is_working())
+        prototypes.GameState.stop()
+        self.assertTrue(prototypes.GameState.is_stopped())
+        self.assertFalse(prototypes.GameState.is_working())
 
     def test_working(self):
-        GameState.start()
-        self.assertFalse(GameState.is_stopped())
-        self.assertTrue(GameState.is_working())
+        prototypes.GameState.start()
+        self.assertFalse(prototypes.GameState.is_stopped())
+        self.assertTrue(prototypes.GameState.is_working())

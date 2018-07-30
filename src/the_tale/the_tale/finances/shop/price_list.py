@@ -1,13 +1,7 @@
-# coding: utf-8
 
-from the_tale.finances.shop import goods
-from the_tale.finances.shop import exceptions
-from the_tale.finances.shop import relations
-from the_tale.finances.shop.conf import payments_settings
+import smart_imports
 
-from the_tale.game.heroes import conf as heroes_conf
-
-from the_tale.game.balance import constants as c
+smart_imports.all()
 
 
 PREMIUM_DAYS_DESCRIPTION = '''
@@ -27,7 +21,7 @@ PREMIUM_DAYS_DESCRIPTION = '''
   <li>спутник героя не покидает его, когда здоровье спутника опускается до нуля;</li>
   <li>игрок может одновременно создать до {PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS} записей в Книге Судеб.</li>
 </ul>
-'''.format(DIARY_LOG_LENGTH_PREMIUM=heroes_conf.heroes_settings.DIARY_LOG_LENGTH_PREMIUM,
+'''.format(DIARY_LOG_LENGTH_PREMIUM=heroes_conf.settings.DIARY_LOG_LENGTH_PREMIUM,
            PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS=c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS)
 
 

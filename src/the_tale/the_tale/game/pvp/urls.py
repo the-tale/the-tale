@@ -1,7 +1,7 @@
-# coding: utf-8
 
-from dext.views import resource_patterns
+import smart_imports
 
-from the_tale.game.pvp.views import PvPResource
+smart_imports.all()
 
-urlpatterns = resource_patterns(PvPResource)
+
+urlpatterns = dext_old_views.resource_patterns(views.PvPResource)

@@ -1,15 +1,16 @@
-# -*- coding: utf-8 -*-
-from django.core.management.base import BaseCommand
 
-from the_tale.game.roads.storage import roads_storage
+import smart_imports
 
-class Command(BaseCommand):
+smart_imports.all()
+
+
+class Command(django_management.BaseCommand):
 
     help = 'update roads data'
 
     def handle(self, *args, **options):
 
-        for road in roads_storage.all():
+        for road in storage.roads.all():
             road.update()
 
-        roads_storage.save_all()
+        storage.roads.save_all()

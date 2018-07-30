@@ -1,3 +1,8 @@
-# coding: utf-8
 
-class PvPException(Exception): pass
+import smart_imports
+
+smart_imports.all()
+
+
+class PvPException(utils_exceptions.TheTaleError):
+    MSG = 'pvp error'

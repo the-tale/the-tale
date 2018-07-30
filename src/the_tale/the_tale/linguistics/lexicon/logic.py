@@ -1,6 +1,7 @@
-# coding: utf-8
 
-from the_tale.linguistics.lexicon import exceptions
+import smart_imports
+
+smart_imports.all()
 
 
 def get_verificators_groups(key, old_groups={}):

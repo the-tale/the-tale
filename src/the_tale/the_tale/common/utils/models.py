@@ -1,9 +1,10 @@
-# coding: utf-8
 
-from django.db import models
+import smart_imports
+
+smart_imports.all()
 
 
-class UUIDField(models.CharField):
+class UUIDField(django_models.CharField):
 
     def __init__(self, *argv, **kwargs):
         kwargs['max_length'] = 36

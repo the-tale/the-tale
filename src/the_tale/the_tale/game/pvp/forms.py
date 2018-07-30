@@ -1,7 +1,9 @@
-# coding: utf-8
 
-from dext.forms import forms, fields
+import smart_imports
 
-class SayForm(forms.Form):
+smart_imports.all()
 
-    text = fields.CharField(max_length=1024, required=True)
+
+class SayForm(dext_forms.Form):
+
+    text = dext_fields.CharField(max_length=1024, required=True)

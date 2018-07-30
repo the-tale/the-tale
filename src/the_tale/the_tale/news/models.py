@@ -1,26 +1,22 @@
 
-from django.db import models
+import smart_imports
 
-from rels.django import RelationIntegerField
-
-from the_tale.forum.models import Thread
-
-from . import relations
+smart_imports.all()
 
 
-class News(models.Model):
+class News(django_models.Model):
 
-    caption = models.CharField(max_length=256, blank=False, null=False)
+    caption = django_models.CharField(max_length=256, blank=False, null=False)
 
-    description = models.TextField(null=False, blank=True, default='')
+    description = django_models.TextField(null=False, blank=True, default='')
 
-    content = models.TextField(null=False, blank=True, default='')
+    content = django_models.TextField(null=False, blank=True, default='')
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False, db_index=True)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False, db_index=True)
 
-    forum_thread = models.ForeignKey(Thread, null=True, on_delete=models.SET_NULL)
+    forum_thread = django_models.ForeignKey(forum_models.Thread, null=True, on_delete=django_models.SET_NULL)
 
-    emailed = RelationIntegerField(relation=relations.EMAILED_STATE, db_index=True)
+    emailed = rels_django.RelationIntegerField(relation=relations.EMAILED_STATE, db_index=True)
 
     class Meta:
         permissions = (("edit_news", "Может создавать новости"), )

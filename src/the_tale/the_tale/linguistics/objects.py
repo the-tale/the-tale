@@ -1,8 +1,10 @@
 
-from the_tale.game import names
+import smart_imports
+
+smart_imports.all()
 
 
-class Restriction(names.ManageNameMixin):
+class Restriction(game_names.ManageNameMixin):
     __slots__ = ('id', 'group', 'external_id', 'name')
 
     def __init__(self,

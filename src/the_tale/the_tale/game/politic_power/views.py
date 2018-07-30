@@ -1,56 +1,30 @@
 
-from django.core.urlresolvers import reverse
+import smart_imports
 
-from rels.django import DjangoEnum
-
-from dext.common.utils import views as dext_views
-from dext.common.utils import urls as dext_urls
-
-from the_tale.common.utils import list_filter
-from the_tale.common.utils import views as utils_views
-
-from the_tale.accounts import prototypes as accounts_prototypes
-from the_tale.accounts import views as accounts_views
-
-from the_tale.game.heroes import logic as heroes_logic
-from the_tale.game.heroes import views as heroes_views
-
-from the_tale.game.places import views as places_views
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.persons import views as persons_views
-from the_tale.game.persons import objects as persons_objects
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.bills import prototypes as bills_prototypes
-
-from the_tale.game import tt_api_impacts
-
-from . import conf
-from . import logic
+smart_imports.all()
 
 
-class POWER_TYPE_FILTER(DjangoEnum):
+class POWER_TYPE_FILTER(rels_django.DjangoEnum):
     records = (('ALL', 0, 'всё'),
                ('PERSONAL', 1, 'ближний круг'),
                ('CROWD', 2, 'народное'))
 
 
-HISTORY_FILTERS = [list_filter.reset_element(),
-                   list_filter.static_element('игрок:', attribute='account'),
-                   list_filter.choice_element('тип влияния:',
-                                              attribute='power_type',
-                                              choices=POWER_TYPE_FILTER.select('value', 'text'),
-                                              default_value=POWER_TYPE_FILTER.ALL.value),
-                   list_filter.choice_element('город:',
-                                              attribute='place',
-                                              choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()),
-                   list_filter.choice_element('мастер:',
-                                              attribute='person',
-                                              choices=lambda x: [(None, 'все')] + persons_objects.Person.form_choices())]
+HISTORY_FILTERS = [utils_list_filter.reset_element(),
+                   utils_list_filter.static_element('игрок:', attribute='account'),
+                   utils_list_filter.choice_element('тип влияния:',
+                                                    attribute='power_type',
+                                                    choices=POWER_TYPE_FILTER.select('value', 'text'),
+                                                    default_value=POWER_TYPE_FILTER.ALL.value),
+                   utils_list_filter.choice_element('город:',
+                                                    attribute='place',
+                                                    choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()),
+                   utils_list_filter.choice_element('мастер:',
+                                                    attribute='person',
+                                                    choices=lambda x: [(None, 'все')] + persons_objects.Person.form_choices())]
 
 
-class HistoryFilter(list_filter.ListFilter):
+class HistoryFilter(utils_list_filter.ListFilter):
     ELEMENTS = HISTORY_FILTERS
 
 
@@ -75,7 +49,7 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 @resource('history', name='history')
 def history(context):
 
-    url = reverse('game:politic-power:history')
+    url = django_reverse('game:politic-power:history')
 
     url_builder = dext_urls.UrlBuilder(url, arguments={'account': context.account_filter.id if context.account_filter else None,
                                                        'power_type': context.power_type.value if context.power_type else POWER_TYPE_FILTER.ALL.value,
@@ -117,10 +91,10 @@ def history(context):
     storages = []
 
     if context.power_type.is_ALL or context.power_type.is_PERSONAL:
-        storages.append(tt_api_impacts.personal_impacts)
+        storages.append(game_tt_services.personal_impacts)
 
     if context.power_type.is_ALL or context.power_type.is_CROWD:
-        storages.append(tt_api_impacts.crowd_impacts)
+        storages.append(game_tt_services.crowd_impacts)
 
     impacts = logic.get_last_power_impacts(storages=storages,
                                            actors=actors,

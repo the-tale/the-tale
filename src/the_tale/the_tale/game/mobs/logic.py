@@ -1,30 +1,7 @@
 
-import random
+import smart_imports
 
-from dext.common.utils import s11n
-
-from utg import words as utg_words
-
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.linguistics import logic as linguistics_logic
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import relations as game_relations
-from the_tale.game import names
-
-from the_tale.game.map import relations as map_relations
-
-from the_tale.game.heroes import habilities
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from . import models
-from . import objects
-from . import relations
-from . import exceptions
+smart_imports.all()
 
 
 def create_mob_record(uuid,
@@ -50,8 +27,6 @@ def create_mob_record(uuid,
                       weapons,
                       is_mercenary,
                       is_eatable):
-
-    from the_tale.game.mobs import storage
 
     data = {'name': utg_name.serialize(),
             'structure': structure.value,
@@ -82,7 +57,7 @@ def create_mob_record(uuid,
 
     mob_record = construct_from_model(model)
 
-    linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.MOB,
+    linguistics_logic.sync_restriction(group=linguistics_restrictions.GROUP.MOB,
                                        external_id=mob_record.id,
                                        name=mob_record.name)
 
@@ -93,12 +68,12 @@ def create_mob_record(uuid,
 
 
 def get_available_abilities():
-    return [a for a in habilities.ABILITIES.values()
-            if a.TYPE.is_BATTLE and a.AVAILABILITY.value & habilities.ABILITY_AVAILABILITY.FOR_MONSTERS.value]
+    return [a for a in heroes_abilities.ABILITIES.values()
+            if a.TYPE.is_BATTLE and a.AVAILABILITY.value & heroes_abilities_relations.ABILITY_AVAILABILITY.FOR_MONSTERS.value]
 
 
 def create_random_mob_record(uuid,
-                             type=beings_relations.TYPE.CIVILIZED,
+                             type=tt_beings_relations.TYPE.CIVILIZED,
                              utg_name=None,
                              description=None,
                              level=1,
@@ -106,20 +81,20 @@ def create_random_mob_record(uuid,
                              abilities_number=3,
                              terrains=map_relations.TERRAIN.records,
                              state=relations.MOB_RECORD_STATE.ENABLED,
-                             structure=beings_relations.STRUCTURE.STRUCTURE_2,
-                             features=frozenset((beings_relations.FEATURE.FEATURE_1, beings_relations.FEATURE.FEATURE_3)),
-                             movement=beings_relations.MOVEMENT.MOVEMENT_4,
-                             body=beings_relations.BODY.BODY_5,
-                             size=beings_relations.SIZE.SIZE_3,
-                             orientation=beings_relations.ORIENTATION.VERTICAL,
+                             structure=tt_beings_relations.STRUCTURE.STRUCTURE_2,
+                             features=frozenset((tt_beings_relations.FEATURE.FEATURE_1, tt_beings_relations.FEATURE.FEATURE_3)),
+                             movement=tt_beings_relations.MOVEMENT.MOVEMENT_4,
+                             body=tt_beings_relations.BODY.BODY_5,
+                             size=tt_beings_relations.SIZE.SIZE_3,
+                             orientation=tt_beings_relations.ORIENTATION.VERTICAL,
                              weapons=None,
                              is_mercenary=True,
                              is_eatable=True,
                              archetype=game_relations.ARCHETYPE.random(),
-                             communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                             communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                             communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                             intellect_level=beings_relations.INTELLECT_LEVEL.random()):
+                             communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                             communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                             communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                             intellect_level=tt_beings_relations.INTELLECT_LEVEL.random()):
 
     if weapons is None:
         weapons = [artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.WEAPON_1,
@@ -132,7 +107,7 @@ def create_random_mob_record(uuid,
     name = uuid.lower()
 
     if utg_name is None:
-        utg_name = names.generator().get_test_name(name=name)
+        utg_name = game_names.generator().get_test_name(name=name)
 
     battle_abilities = get_available_abilities()
     battle_abilities = set([a.get_id() for a in battle_abilities])
@@ -140,8 +115,8 @@ def create_random_mob_record(uuid,
     if abilities is None:
         abilities = set(['hit'])
 
-        for i in range(abilities_number-1):
-            abilities.add(random.choice(list(battle_abilities-abilities)))
+        for i in range(abilities_number - 1):
+            abilities.add(random.choice(list(battle_abilities - abilities)))
 
     return create_mob_record(uuid,
                              level=level,
@@ -233,7 +208,7 @@ def construct_from_model(model):
 
     abilities = frozenset(s11n.from_json(model.abilities))
     terrains = frozenset(map_relations.TERRAIN(terrain) for terrain in s11n.from_json(model.terrains))
-    features = frozenset(beings_relations.FEATURE(feature) for feature in data.get('features', ()))
+    features = frozenset(tt_beings_relations.FEATURE(feature) for feature in data.get('features', ()))
 
     weapons = [artifacts_objects.Weapon.deserialize(weapon_data)
                for weapon_data in data.get('weapons', ())]
@@ -254,20 +229,18 @@ def construct_from_model(model):
                             is_eatable=model.is_eatable,
                             abilities=abilities,
                             terrains=terrains,
-                            structure=beings_relations.STRUCTURE(data.get('structure', 0)),
+                            structure=tt_beings_relations.STRUCTURE(data.get('structure', 0)),
                             features=features,
-                            movement=beings_relations.MOVEMENT(data.get('movement', 0)),
-                            body=beings_relations.BODY(data.get('body', 0)),
-                            size=beings_relations.SIZE(data.get('size', 0)),
-                            orientation=beings_relations.ORIENTATION(data.get('orientation', 0)),
+                            movement=tt_beings_relations.MOVEMENT(data.get('movement', 0)),
+                            body=tt_beings_relations.BODY(data.get('body', 0)),
+                            size=tt_beings_relations.SIZE(data.get('size', 0)),
+                            orientation=tt_beings_relations.ORIENTATION(data.get('orientation', 0)),
                             weapons=weapons,
                             utg_name=utg_words.Word.deserialize(data['name']))
     return mob
 
 
 def save_mob_record(mob):
-    from the_tale.game.mobs import storage
-
     if id(mob) != id(storage.mobs[mob.id]):
         raise exceptions.SaveNotRegisteredMobError(mob=mob.id)
 
@@ -299,7 +272,7 @@ def save_mob_record(mob):
 
     models.MobRecord.objects.filter(id=mob.id).update(**arguments)
 
-    linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.MOB,
+    linguistics_logic.sync_restriction(group=linguistics_restrictions.GROUP.MOB,
                                        external_id=mob.id,
                                        name=mob.name)
 

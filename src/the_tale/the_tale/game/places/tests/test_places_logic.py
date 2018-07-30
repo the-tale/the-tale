@@ -1,42 +1,18 @@
 
-from unittest import mock
+import smart_imports
 
-from utg import words as utg_words
-from utg import relations as utg_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game import names
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.map import conf as map_conf
-
-from the_tale.game.jobs import logic as jobs_logic
-from the_tale.game.jobs import effects as jobs_effects
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import constants as c
-
-from the_tale.game.politic_power import conf as politic_power_conf
-
-from the_tale.game.heroes import logic as heroes_logic
-from the_tale.game.heroes import relations as heroes_relations
-
-from .. import logic
-from .. import storage
+smart_imports.all()
 
 
-class GetAvailablePositionsTests(testcase.TestCase):
+class GetAvailablePositionsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
     def test_get_available_positions(self):
 
-        building = logic.create_building(self.place_1.persons[0], utg_name=names.generator().get_test_name(name='building-name'))
+        building = logic.create_building(self.place_1.persons[0], utg_name=game_names.generator().get_test_name(name='building-name'))
 
         positions = logic.get_available_positions(self.place_1.x, self.place_1.y)
 
@@ -49,8 +25,8 @@ class GetAvailablePositionsTests(testcase.TestCase):
             self.assertFalse((building.x, building.y) in positions)
 
         for x, y in positions:
-            self.assertTrue(0 <= x < map_conf.map_settings.WIDTH)
-            self.assertTrue(0 <= y < map_conf.map_settings.HEIGHT)
+            self.assertTrue(0 <= x < map_conf.settings.WIDTH)
+            self.assertTrue(0 <= y < map_conf.settings.HEIGHT)
 
     def test_dynamic_position_radius(self):
         with mock.patch('the_tale.game.balance.constants.BUILDING_POSITION_RADIUS', 2):
@@ -62,11 +38,11 @@ class GetAvailablePositionsTests(testcase.TestCase):
             self.assertEqual(positions, set([(0, 0), (0, 1), (0, 2), (0, 3)]))
 
 
-class TTPowerImpactsTests(testcase.TestCase):
+class TTPowerImpactsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.actor_type = tt_api_impacts.OBJECT_TYPE.HERO
         self.actor_id = 666
@@ -84,24 +60,24 @@ class TTPowerImpactsTests(testcase.TestCase):
                                               fame=self.fame))
 
         self.assertCountEqual(impacts,
-                              [tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                          actor_type=self.actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                          target_id=self.place_1.id,
-                                                          amount=self.expected_power),
-                              tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                                          actor_type=self.actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
-                                                          target_id=self.place_1.id,
-                                                          amount=self.expected_power),
-                              tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.FAME,
-                                                          actor_type=self.actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                          target_id=self.place_1.id,
-                                                          amount=self.fame)])
+                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                            target_id=self.place_1.id,
+                                                            amount=self.expected_power),
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
+                                                            target_id=self.place_1.id,
+                                                            amount=self.expected_power),
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                            target_id=self.place_1.id,
+                                                            amount=self.fame)])
 
     def test_outer_circle(self):
         impacts = list(logic.tt_power_impacts(inner_circle=False,
@@ -112,18 +88,18 @@ class TTPowerImpactsTests(testcase.TestCase):
                                               fame=self.fame))
 
         self.assertCountEqual(impacts,
-                              [tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
-                                                          actor_type=self.actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                          target_id=self.place_1.id,
-                                                          amount=self.expected_power),
-                              tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.FAME,
-                                                          actor_type=self.actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                          target_id=self.place_1.id,
-                                                          amount=self.fame)])
+                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                            target_id=self.place_1.id,
+                                                            amount=self.expected_power),
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                            target_id=self.place_1.id,
+                                                            amount=self.fame)])
 
     def test_amount_below_zero(self):
         impacts = list(logic.tt_power_impacts(inner_circle=True,
@@ -134,18 +110,18 @@ class TTPowerImpactsTests(testcase.TestCase):
                                               fame=-self.fame))
 
         self.assertCountEqual(impacts,
-                              [tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                          actor_type=self.actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                          target_id=self.place_1.id,
-                                                          amount=-self.expected_power),
-                              tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                                          actor_type=self.actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE,
-                                                          target_id=self.place_1.id,
-                                                          amount=abs(self.expected_power))])
+                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                            target_id=self.place_1.id,
+                                                            amount=-self.expected_power),
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE,
+                                                            target_id=self.place_1.id,
+                                                            amount=abs(self.expected_power))])
 
     def test_fame_only_for_hero(self):
         actor_type = tt_api_impacts.OBJECT_TYPE.random(exclude=(tt_api_impacts.OBJECT_TYPE.HERO,))
@@ -158,18 +134,18 @@ class TTPowerImpactsTests(testcase.TestCase):
                                               fame=self.fame))
 
         self.assertCountEqual(impacts,
-                              [tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                          actor_type=actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                          target_id=self.place_1.id,
-                                                          amount=self.expected_power),
-                              tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                                          actor_type=actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
-                                                          target_id=self.place_1.id,
-                                                          amount=self.expected_power)])
+                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                            actor_type=actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                            target_id=self.place_1.id,
+                                                            amount=self.expected_power),
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                                            actor_type=actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
+                                                            target_id=self.place_1.id,
+                                                            amount=self.expected_power)])
 
     def test_zero(self):
         impacts = list(logic.tt_power_impacts(inner_circle=True,
@@ -180,29 +156,29 @@ class TTPowerImpactsTests(testcase.TestCase):
                                               fame=0))
 
         self.assertCountEqual(impacts,
-                              [tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                          actor_type=self.actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                          target_id=self.place_1.id,
-                                                          amount=0),
-                              tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                                          actor_type=self.actor_type,
-                                                          actor_id=self.actor_id,
-                                                          target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
-                                                          target_id=self.place_1.id,
-                                                          amount=0)])
+                              [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                            target_id=self.place_1.id,
+                                                            amount=0),
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
+                                                            target_id=self.place_1.id,
+                                                            amount=0)])
 
 
 def fake_tt_power_impacts(**kwargs):
     yield kwargs
 
 
-class ImpactsFromHeroTests(testcase.TestCase):
+class ImpactsFromHeroTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=self.account.id)
@@ -264,13 +240,13 @@ class ImpactsFromHeroTests(testcase.TestCase):
                                              'place': self.place_1}])
 
 
-class PlaceJobTests(testcase.TestCase):
+class PlaceJobTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
         self.job = jobs_logic.create_job(logic.PlaceJob)
 

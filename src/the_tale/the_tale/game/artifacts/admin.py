@@ -1,14 +1,13 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.game.artifacts.models import ArtifactRecord
+smart_imports.all()
 
 
-class ArtifactRecordAdmin(admin.ModelAdmin):
+class ArtifactRecordAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'uuid', 'name', 'state', 'type', 'power_type', 'created_at', 'updated_at')
 
     list_filter = ('state', 'type', 'power_type')
 
 
-admin.site.register(ArtifactRecord, ArtifactRecordAdmin)
+django_admin.site.register(models.ArtifactRecord, ArtifactRecordAdmin)

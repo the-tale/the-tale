@@ -1,19 +1,13 @@
-# coding: utf-8
 
-from utg import words as utg_words
-from utg import relations as utg_relations
+import smart_imports
 
-from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.game import relations
+smart_imports.all()
 
 
 class NamesGenerators(object):
     __slots__ = ('elven', 'orcish', 'dwarfish', 'goblin', 'human', 'language')
 
     def __init__(self):
-        import pynames
-
         self.elven = pynames.generators.elven.DnDNamesGenerator()
         self.orcish = pynames.generators.mongolian.MongolianNamesGenerator()
         self.dwarfish = pynames.generators.scandinavian.ScandinavianNamesGenerator()
@@ -37,7 +31,7 @@ class NamesGenerators(object):
     def get_name(self, race, gender):
         name_forms = self._get_name(race, gender).get_forms_for(gender=gender.pynames_id, language=self.language)
 
-        name_forms += ['']*6
+        name_forms += [''] * 6
 
         name = utg_words.Word(type=utg_relations.WORD_TYPE.NOUN,
                               forms=name_forms,
@@ -62,15 +56,15 @@ class NamesGenerators(object):
 
 
 class ManageNameMixin(object):
-    @lazy_property
+    @utils_decorators.lazy_property
     def utg_name(self):
         return utg_words.Word.deserialize(self.data['name'])
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def utg_name_form(self):
         return utg_words.WordForm(self.utg_name)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def name(self): return self.utg_name.normal_form()
 
     def set_utg_name(self, word):
@@ -87,11 +81,11 @@ class ManageNameMixin(object):
 class ManageNameMixin2(object):
     __slots__ = ()
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def utg_name_form(self):
         return utg_words.WordForm(self.utg_name)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def name(self): return self.utg_name.normal_form()
 
     def set_utg_name(self, word):

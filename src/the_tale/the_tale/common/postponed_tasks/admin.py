@@ -1,12 +1,12 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.common.postponed_tasks.models import PostponedTask
+smart_imports.all()
 
-class PostponedTaskAdmin(admin.ModelAdmin):
-    list_display = ('id',  'state', 'internal_type', 'internal_state', 'created_at', 'live_time')
+
+class PostponedTaskAdmin(django_admin.ModelAdmin):
+    list_display = ('id', 'state', 'internal_type', 'internal_state', 'created_at', 'live_time')
     list_filter = ('state', 'internal_state', 'internal_type')
 
 
-admin.site.register(PostponedTask, PostponedTaskAdmin)
+django_admin.site.register(models.PostponedTask, PostponedTaskAdmin)

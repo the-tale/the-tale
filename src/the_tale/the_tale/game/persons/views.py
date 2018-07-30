@@ -1,23 +1,7 @@
 
-from dext.common.utils import views as dext_views
+import smart_imports
 
-from the_tale.common.utils import api
-from the_tale.common.utils import views as utils_views
-
-from the_tale.accounts import views as accounts_views
-
-from the_tale.game.heroes import logic as heroes_logic
-from the_tale.game.chronicle import prototypes as chronicle_prototypes
-
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game import short_info as game_short_info
-
-from . import conf
-from . import info
-from . import storage
-from . import meta_relations
+smart_imports.all()
 
 
 ########################################
@@ -36,6 +20,7 @@ class PersonProcessor(dext_views.ArgumentProcessor):
 
         return storage.persons.get(id)
 
+
 ########################################
 # resource and global processors
 ########################################
@@ -44,7 +29,7 @@ resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 
 
-@api.Processor(versions=(conf.settings.API_SHOW_VERSION,))
+@utils_api.Processor(versions=(conf.settings.API_SHOW_VERSION,))
 @PersonProcessor(error_message='Мастер не найден', url_name='person', context_name='person')
 @resource('#person', 'api', 'show', name='api-show')
 def api_show(context):

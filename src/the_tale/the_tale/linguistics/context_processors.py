@@ -1,10 +1,9 @@
-# coding: utf-8
 
-from utg import relations as utg_relations
+import smart_imports
 
-from the_tale.linguistics.conf import linguistics_settings
+smart_imports.all()
 
 
-def linguistics_context(request): # pylint: disable=W0613
-    return {'linguistics_settings': linguistics_settings,
+def linguistics_context(request):  # pylint: disable=W0613
+    return {'linguistics_settings': conf.settings,
             'UTG_PROPERTY_TYPE': utg_relations.PROPERTY_TYPE}

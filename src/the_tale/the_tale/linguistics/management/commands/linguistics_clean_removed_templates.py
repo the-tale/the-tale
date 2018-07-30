@@ -1,22 +1,16 @@
-# coding: utf-8
 
-import datetime
+import smart_imports
 
-from django.core.management.base import BaseCommand
-
-from ... import conf
-from ... import prototypes
-from ... import relations
-from ... import logic
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'clean removed templates'
 
     def handle(self, *args, **options):
 
-        time_border = datetime.datetime.now() - datetime.timedelta(days=conf.linguistics_settings.REMOVED_TEMPLATE_TIMEOUT)
+        time_border = datetime.datetime.now() - datetime.timedelta(days=conf.settings.REMOVED_TEMPLATE_TIMEOUT)
 
         for template_model in prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED,
                                                                       updated_at__lt=time_border):

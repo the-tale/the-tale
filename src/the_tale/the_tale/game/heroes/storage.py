@@ -1,9 +1,7 @@
-# coding: utf-8
 
-from utg import words as utg_words
-from utg import relations as utg_relations
+import smart_imports
 
-from the_tale.game.places import storage as places_storage
+smart_imports.all()
 
 
 class PositionDescriptionsStorage(object):
@@ -17,7 +15,6 @@ class PositionDescriptionsStorage(object):
         self._position_in_place_cache = {}
         self._position_near_place_cache = {}
         self._position_on_road_cache = {}
-
 
     def sync(self):
         if places_storage.places.version != self._actual_places_version:
@@ -45,7 +42,7 @@ class PositionDescriptionsStorage(object):
         key = (place_from_id, place_to_id)
         if key not in self._position_on_road_cache:
             self._position_on_road_cache[key] = 'дорога из %s в %s' % (places_storage.places[place_from_id].utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)),
-                                                                        places_storage.places[place_to_id].utg_name.form(utg_words.Properties(utg_relations.CASE.ACCUSATIVE)))
+                                                                       places_storage.places[place_to_id].utg_name.form(utg_words.Properties(utg_relations.CASE.ACCUSATIVE)))
 
         return self._position_on_road_cache[key]
 

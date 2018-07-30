@@ -1,9 +1,10 @@
-# coding: utf-8
 
-from dext.common.meta_relations import objects as meta_relations_objects
+import smart_imports
+
+smart_imports.all()
 
 
-class MetaType(meta_relations_objects.MetaType):
+class MetaType(dext_meta_relations_objects.MetaType):
     __slots__ = ()
     TYPE_CAPTION = NotImplemented
 
@@ -14,5 +15,5 @@ class MetaType(meta_relations_objects.MetaType):
     url = NotImplemented
 
 
-class MetaRelation(meta_relations_objects.MetaRelation):
+class MetaRelation(dext_meta_relations_objects.MetaRelation):
     pass

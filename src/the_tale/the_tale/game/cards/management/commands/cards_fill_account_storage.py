@@ -1,14 +1,10 @@
 
-import random
+import smart_imports
 
-from django.core.management.base import BaseCommand
-
-from the_tale.game.cards import relations
-from the_tale.game.cards import tt_api
-from the_tale.game.cards import cards
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'fill specified account with all available cards whitch are needed to tests'
 
@@ -23,7 +19,7 @@ class Command(BaseCommand):
         cards_to_store = []
 
         for i in range(options['number']):
-            for card_type in cards.CARD.records:
+            for card_type in types.CARD.records:
                 cards_to_store.append(card_type.effect.create_card(available_for_auction=random.choice((True, False)), type=card_type))
 
-        tt_api.change_cards(account_id=options['account'], operation_type='test-import', to_add=cards_to_store, storage=relations.STORAGE(options['storage']))
+        logic.change_cards(owner_id=options['account'], operation_type='test-import', to_add=cards_to_store, storage=relations.STORAGE(options['storage']))

@@ -1,11 +1,7 @@
 
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.game import names
-from the_tale.game import relations as game_relations
-
-from . import conf
+smart_imports.all()
 
 
 class Choice(object):
@@ -95,18 +91,18 @@ MALE_TEXTS = {'gender': {'male': None,
                         'in_a_drunken_brawl': 'в пьяной заварушке',
                         'from_the_monster_fangs': 'от клыков монстра',
                         'from_the_disease': 'от болезни',
-                        'in_a_skirmish_with_the_robbers': 'в стычке с разбойниками'}};
+                        'in_a_skirmish_with_the_robbers': 'в стычке с разбойниками'}}
 
 
 TECHNICAL_IDS = {'gender': {'male': game_relations.GENDER.MALE.value,
                             'female': game_relations.GENDER.FEMALE.value},
                  'race': {race.name.lower(): race.value for race in game_relations.RACE.records},
                  'name': None,
-                 'upbringing': {'vulgar': beings_relations.UPBRINGING.VULGAR.value,
-                                'rural': beings_relations.UPBRINGING.RURAL.value,
-                                'philistine': beings_relations.UPBRINGING.PHILISTINE.value,
-                                'aristocratic': beings_relations.UPBRINGING.ARISTOCRATIC.value,
-                                'priestly': beings_relations.UPBRINGING.PRIESTLY.value},
+                 'upbringing': {'vulgar': tt_beings_relations.UPBRINGING.VULGAR.value,
+                                'rural': tt_beings_relations.UPBRINGING.RURAL.value,
+                                'philistine': tt_beings_relations.UPBRINGING.PHILISTINE.value,
+                                'aristocratic': tt_beings_relations.UPBRINGING.ARISTOCRATIC.value,
+                                'priestly': tt_beings_relations.UPBRINGING.PRIESTLY.value},
                  'peacefulness': {'friendly': game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_1.value,
                                   'bully': game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_1.value},
                  'honor': {'truthful': game_relations.HABIT_HONOR_INTERVAL.RIGHT_1.value,
@@ -114,14 +110,14 @@ TECHNICAL_IDS = {'gender': {'male': game_relations.GENDER.MALE.value,
                  'archetype': {'warrior': game_relations.ARCHETYPE.PHYSICAL.value,
                                'mage': game_relations.ARCHETYPE.MAGICAL.value,
                                'adventurer': game_relations.ARCHETYPE.NEUTRAL.value},
-                 'age': {'young': beings_relations.AGE.YOUNG.value,
-                         'mature': beings_relations.AGE.MATURE.value,
-                         'old': beings_relations.AGE.OLD.value},
-                 'death': {'on_the_scaffold': beings_relations.FIRST_DEATH.ON_THE_SCAFFOLD.value,
-                           'in_a_drunken_brawl': beings_relations.FIRST_DEATH.IN_A_DRUNKEN_BRAWL.value,
-                           'from_the_monster_fangs': beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS.value,
-                           'from_the_disease': beings_relations.FIRST_DEATH.FROM_THE_DISEASE.value,
-                           'in_a_skirmish_with_the_robbers': beings_relations.FIRST_DEATH.IN_A_SKIRMISH_WITH_THE_ROBBERS.value}};
+                 'age': {'young': tt_beings_relations.AGE.YOUNG.value,
+                         'mature': tt_beings_relations.AGE.MATURE.value,
+                         'old': tt_beings_relations.AGE.OLD.value},
+                 'death': {'on_the_scaffold': tt_beings_relations.FIRST_DEATH.ON_THE_SCAFFOLD.value,
+                           'in_a_drunken_brawl': tt_beings_relations.FIRST_DEATH.IN_A_DRUNKEN_BRAWL.value,
+                           'from_the_monster_fangs': tt_beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS.value,
+                           'from_the_disease': tt_beings_relations.FIRST_DEATH.FROM_THE_DISEASE.value,
+                           'in_a_skirmish_with_the_robbers': tt_beings_relations.FIRST_DEATH.IN_A_SKIRMISH_WITH_THE_ROBBERS.value}}
 
 
 ATTRIBUTE_CHOICES = [Choice(attribute='race',
@@ -134,7 +130,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 <p>Их мастерские разбросаны по всему миру, их банки есть в любом мало-мальски значимом городе, каждая вторая лавка принадлежит одному из них.</p>
 <p>Их рост, размером с человеческого ребенка, мог бы стать причиной насмешек, но их связь со всеми аспектами повседневной жизни, серьезность и понимание практически всего в этом мире, не позволит никому даже подумать о таком кощунстве!</p>
 <p><a href="{url}" target="_blank">подробнее</p>
-                                      '''.format(url=conf.accounts_settings.LORE_GOBLINS),
+                                      '''.format(url=conf.settings.LORE_GOBLINS),
                                       buttons=[Button('Гоблин', 'race:goblin,gender:male'),
                                                Button('Гоблинша', 'race:goblin,gender:female')]),
 
@@ -146,7 +142,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 <p>Никто как Дварф, не может прочувствовать всю красоту ограненного самоцвета, и изящность линий только что выкованного клинка. Никто, пусть он даже изучит все труды Гоблинов по архитектуре, не сможет построить навесной мост так, как его строят без каких-либо чертежей, на одном лишь понимании сути камня.</p>
 <p>Да, возможно, в общении они чуть неотёсанные, и даже, бывает, грубы, но верность их слова, и бескомпромиссность их дружбы может подтвердить любой житель Пандоры – если тебе удалось заполучить в настоящие друзья Дварфа – то это лучший друг, на которого ты можешь рассчитывать.</p>
 <p><a href="{url}" target="_blank">подробнее</p>
-                                      '''.format(url=conf.accounts_settings.LORE_DWARFS),
+                                      '''.format(url=conf.settings.LORE_DWARFS),
                                       buttons=[Button('Дварф', 'race:dwarf,gender:male'),
                                                Button('Дварфка', 'race:dwarf,gender:female')]),
 
@@ -158,7 +154,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 <p>Природная гибкость сделала их пригодными к любой работе, но чтобы достичь высот человеку необходимо прилагать куда больше усилий, чем представителям других рас.</p>
 <p>Лишь у Людей есть понятие религий и вероисповеданий, причем их разноплановость и вариации, просто огромны в своем количестве. Остальные же расы неоспоримо знают историю своего происхождения и не подвергают её сомнению.</p>
 <p><a href="{url}" target="_blank">подробнее</p>
-                                      '''.format(url=conf.accounts_settings.LORE_HUMANS),
+                                      '''.format(url=conf.settings.LORE_HUMANS),
                                       buttons=[Button('Мужчина', 'race:human,gender:male'),
                                                Button('Женщина', 'race:human,gender:female')]),
 
@@ -170,7 +166,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 <p>Умение Орков ладить с животными дало им вполне заслуженный статус Повелителей Зверей. Они могут укротить, оседлать и выдрессировать любое животное, способное выдержать их вес.</p>
 <p>Нет среди других рас столь искусных кожевников. Кожаный доспех, изготовленный Орком, легок как плотная рубаха и столь же удобно сидит на теле, ничуть не сковывая движения, при этом, по прочности не уступает даже кольчугам Дварфов.</p>
 <p><a href="{url}" target="_blank">подробнее</p>
-                                      '''.format(url=conf.accounts_settings.LORE_ORCS),
+                                      '''.format(url=conf.settings.LORE_ORCS),
                                       buttons=[Button('Орк', 'race:orc,gender:male'),
                                                Button('Оркесса', 'race:orc,gender:female')]),
 
@@ -182,7 +178,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 <p>Они прекрасные певцы, непревзойденные художники, лучшие скульпторы и поэты. Но при этом ужасные собеседники, безобразные друзья и никудышные исполнители. Эльфы любят только себя, и даже к представителям своей же расы не могут относиться без пренебрежения.</p>
 <p>Отдельного слова требует взаимоотношение Эльфов с животными, населяющими Пандору. Эльфийская неприязнь к ним известна всем. Если другие расы еще как-то воспринимаются Эльфами за счет своей разумности, то животный мир является для них чем-то грязным, отвратительным и недостойным внимания: все звери, птицы и насекомые – вредители и паразиты, и потому подлежат уничтожению при любой возможности.</p>
 <p><a href="{url}" target="_blank">подробнее</p>
-                                      '''.format(url=conf.accounts_settings.LORE_ELFS),
+                                      '''.format(url=conf.settings.LORE_ELFS),
                                       buttons=[Button('Эльф', 'race:elf,gender:male'),
                                                Button('Эльфка', 'race:elf,gender:female')])
                                   ]),
@@ -198,203 +194,203 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 <p>Миролюбивый герой не только может разойтись с бандитом (избежав долгого и кровавого боя), но и сбережёт от повреждений во время драки ценную добычу.</p>
 <p>Идущие по этому пути герои чаще берутся помогать своему соратника и получают лучшие награды за мирное выполнение заданий.</p>
 <p><a href="{url}" target="_blank">подробнее</p>
-'''.format(url=conf.accounts_settings.GUIDE_HABITS),
-                                      buttons=[Button('Выбрать', 'peacefulness:friendly')]),
-                                  Tab(value='bully',
-                                      title=['Задиристый', 'Задиристая'],
-                                      body='''
+'''.format(url=conf.settings.GUIDE_HABITS),
+                                buttons=[Button('Выбрать', 'peacefulness:friendly')]),
+                                Tab(value='bully',
+                                    title=['Задиристый', 'Задиристая'],
+                                    body='''
 <h4>Любит хорошую драку</h4>
 <p>Драки бояться — в трактир не ходить. Хороший кулак зачастую приносит больше пользы, чем болтливый язык.</p>
 <p>Задира всегда бьёт первым и периодически получает опыт за убийства врагов.</p>
 <p>Идущие по этому пути герои чаще берутся вредить своему противнику и получают лучшие награды за агрессивное выполнение заданий.</p>
 <p><a href="{url}" target="_blank">подробнее</p>
-'''.format(url=conf.accounts_settings.GUIDE_HABITS),
-                                      buttons=[Button('Выбрать', 'peacefulness:bully')])]),
+'''.format(url=conf.settings.GUIDE_HABITS),
+                                buttons=[Button('Выбрать', 'peacefulness:bully')])]),
 
-                     Choice(attribute='honor',
-                            title=['На сколько благороден герой?',
-                                   'На сколько благородна героиня?'],
-                            tabs=[Tab(value='truthful',
-                                      title=['Порядочный', 'Порядочная'],
-                                      body='''
+    Choice(attribute='honor',
+           title=['На сколько благороден герой?',
+                  'На сколько благородна героиня?'],
+           tabs=[Tab(value='truthful',
+                     title=['Порядочный', 'Порядочная'],
+                     body='''
 <h4>Честь превыше всего</h4>
 <p>Держать слово не просто, но у славы и доброй молвы именно такая цена.</p>
 <p>Известного своей честью героя без опаски подвезёт любой путешественник. А в бою с чудовищами доблестный боец с большей вероятностью нанесёт критический удар.</p>
 <p>Идущие по этому пути герои оказывают большее влияние на своего соратника и получают лучшие награды за честное выполнение заданий.</p>
 <p><a href="{url}" target="_blank">подробнее</p>
-'''.format(url=conf.accounts_settings.GUIDE_HABITS),
-                                      buttons=[Button('Выбрать', 'honor:truthful')]),
-                                  Tab(value='liar',
-                                      title=['Порочный', 'Порочная'],
-                                      body='''
+'''.format(url=conf.settings.GUIDE_HABITS),
+               buttons=[Button('Выбрать', 'honor:truthful')]),
+               Tab(value='liar',
+                   title=['Порочный', 'Порочная'],
+                   body='''
 <h4>Победителей не судят</h4>
 <p>Честь — роскошь для глупцов. Умный никогда не упустит своей выгоды.</p>
 <p>Бесчестный герой с радостью убьёт противника из-за угла, не вступая в бой. Но если уж пришлось драться, то в бою с разумным существом он с большей вероятностью нанесёт критический удар.</p>
 <p>Идущие по этому пути герои оказывают большее влияние на своего противника и получают лучшие награды за бесчестное выполнение заданий.</p>
 <p><a href="{url}" target="_blank">подробнее</p>
-'''.format(url=conf.accounts_settings.GUIDE_HABITS),
-                                      buttons=[Button('Выбрать', 'honor:liar')])]),
+'''.format(url=conf.settings.GUIDE_HABITS),
+               buttons=[Button('Выбрать', 'honor:liar')])]),
 
-                     Choice(attribute='upbringing',
-                            title=['Какое воспитание получил герой?',
-                                   'Какое воспитание получила героиня?'],
-                            tabs=[Tab(value='vulgar',
-                                      title='Уличное',
-                                      body='''
+    Choice(attribute='upbringing',
+           title=['Какое воспитание получил герой?',
+                  'Какое воспитание получила героиня?'],
+           tabs=[Tab(value='vulgar',
+                     title='Уличное',
+                     body='''
 <h4>Мой дом — улица</h4>
 <p>У попрошаек и разбойников тоже есть дети. В большинстве случаев родным домом им становятся городские подворотни.</p>
 <p>Воспитанный улицей бродяжка за словом в карман не полезет, но не стоит от него ждать высокопарных фраз.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'upbringing:vulgar')]),
-                                  Tab(value='rural',
-                                      title='Сельское',
-                                      body='''
+                     buttons=[Button('Выбрать', 'upbringing:vulgar')]),
+                 Tab(value='rural',
+                     title='Сельское',
+                     body='''
 <h4>Дед мой пахал это поле</h4>
 <p>Большинство жителей Пандоры проживает в небольших деревнях вокруг городов. Их жители гнут спину с рассвета до заказа, чтобы прокормить свои семьи.</p>
 <p>Сельский житель в массе своей не знает наук, но является кладезем народной мудрости. </p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'upbringing:rural')]),
-                                  Tab(value='philistine',
-                                      title='Городское',
-                                      body='''
+                     buttons=[Button('Выбрать', 'upbringing:rural')]),
+                 Tab(value='philistine',
+                     title='Городское',
+                     body='''
 <h4>Стены моего города высоки</h4>
 <p>Мещане — второе по численности сословие в Пандоре. Жить им куда легче чем крестьянам, но жизнь в перенаселённых городах имеет свои сложности.</p>
 <p>Городские жители стараются давать своим детям хотя бы минимальное образование. Вместе с ним прививаются определённые манеры и культура.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'upbringing:philistine')]),
-                                  Tab(value='aristocratic',
-                                      title='Аристократическое',
-                                      body='''
+                     buttons=[Button('Выбрать', 'upbringing:philistine')]),
+                 Tab(value='aristocratic',
+                     title='Аристократическое',
+                     body='''
 <h4>Моё слово — закон</h4>
 <p>Немногочисленная аристократия формально владеет большинством известных земель Пандоры. В реальности же её власть ограничена: героями, Мастерами, дикой природой.</p>
 <p>Аристократы, как правило, обладают хорошим образованием, превосходными манерами и безграничной наглостью.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'upbringing:aristocratic')]),
-                                  Tab(value='priestly',
-                                      title='Жреческое',
-                                      body='''
+                     buttons=[Button('Выбрать', 'upbringing:aristocratic')]),
+                 Tab(value='priestly',
+                     title='Жреческое',
+                     body='''
 <h4>Я служу высшим силам</h4>
 <p>Духовенство — такое же немногочисленное сословие, что и аристократия. Если аристократы владеют землями, то жрецы следят за чистотой духовной жизни Пандорцев.</p>
 <p>Воспитанники храмовых школ отличаются отличной риторикой, энциклопедическими знаниями религиозных текстов и, некоторые, чистыми и прямыми устремлениями.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'upbringing:priestly')])]),
+                     buttons=[Button('Выбрать', 'upbringing:priestly')])]),
 
-                     Choice(attribute='archetype',
-                            title=['Герой предпочитает магию или грубую силу?',
-                                   'Героиня предпочитает магию или грубую силу?'],
-                            tabs=[Tab(value='warrior',
-                                      title=['Воин', 'Воительница'],
-                                      body='''
+    Choice(attribute='archetype',
+           title=['Герой предпочитает магию или грубую силу?',
+                  'Героиня предпочитает магию или грубую силу?'],
+           tabs=[Tab(value='warrior',
+                     title=['Воин', 'Воительница'],
+                     body='''
 <h4>Меч — мой брат</h4>
 <p>В бою можно полагаться только на себя: свою силу, скорость и хитрость.</p>
 <p>Герои, предпочитающие физическую силу, будут выбирать экипировку так, чтобы её физическая сила была больше магической.</p>
 <p>Экипировка влияет на физическую и магическую силу героя и тем самым определяет тип наносимого урона. На работу способностей распределение физической и магической силы влияния не оказывает.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'archetype:warrior')]),
-                                  Tab(value='adventurer',
-                                      title=['Авантюрист', 'Авантюристка'],
-                                      body='''
+                     buttons=[Button('Выбрать', 'archetype:warrior')]),
+                 Tab(value='adventurer',
+                     title=['Авантюрист', 'Авантюристка'],
+                     body='''
 <h4>Зачем выбирать что-то одно?</h4>
 <p>Зачем ограничивать себя, если можно хранить баланс между физической силой и магией?</p>
 <p>Авантюрист будет выбирать себе экипировку так, чтобы её магическая и физическая силы были примерно равны.</p>
 <p>Экипировка влияет на физическую и магическую силу героя и тем самым определяет тип наносимого урона. На работу способностей распределение физической и магической силы влияния не оказывает.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'archetype:adventurer')]),
-                                  Tab(value='mage',
-                                      title=['Маг', 'Колдунья'],
-                                      body='''
+                     buttons=[Button('Выбрать', 'archetype:adventurer')]),
+                 Tab(value='mage',
+                     title=['Маг', 'Колдунья'],
+                     body='''
 <h4>Всё что тебе надо — большой огненный шар</h4>
 <p>Для одних магия — это страсть, для других — наука. Но все согласны в одном — это мощное и элегантное средство устранение противника.</p>
 <p>Волшебник будет выбирать себе экипировку так, чтобы её магическая сила была больше физической.</p>
 <p>Экипировка влияет на физическую и магическую силу героя и тем самым определяет тип наносимого урона. На работу способностей распределение физической и магической силы влияния не оказывает.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'archetype:mage')])]),
+                     buttons=[Button('Выбрать', 'archetype:mage')])]),
 
-                     Choice(attribute='age',
-                            title=['В каком возрасте герой умер?',
-                                   'В каком возрасте героиня умерла?'],
-                            tabs=[Tab(value='young',
-                                      title=['Молодым', 'Молодой'],
-                                      body='''
+    Choice(attribute='age',
+           title=['В каком возрасте герой умер?',
+                  'В каком возрасте героиня умерла?'],
+           tabs=[Tab(value='young',
+                     title=['Молодым', 'Молодой'],
+                     body='''
 <h4>Ранняя смерть</h4>
 <p>Пандора — опасное место. Хищник не будет смотреть на возраст своей жертвы, да и бандитам жалость чужда.</p>
 <p>После воскрешения герой перестаёт стареть. Умерев молодым, герой навсегда сохранит юношеский задор и максимализм. Но и окружающие могут не всегда воспринимать его серьёзно.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'age:young')]),
-                                  Tab(value='mature',
-                                      title=['Зрелым', 'Зрелой'],
-                                      body='''
+                     buttons=[Button('Выбрать', 'age:young')]),
+                 Tab(value='mature',
+                     title=['Зрелым', 'Зрелой'],
+                     body='''
 <h4>Самое интересное позади</h4>
 <p>Скончался в зрелом возрасте — считай повезло прожить самые весёлые деньки и не застать старость.</p>
 <p>После воскрешения герой перестаёт стареть. Зрелый герой навсегда сохранит свою рассудительность, как и внешний вид.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'age:mature')]),
-                                  Tab(value='old',
-                                      title=['Престарелым', 'Престарелой'],
-                                      body='''
+                     buttons=[Button('Выбрать', 'age:mature')]),
+                 Tab(value='old',
+                     title=['Престарелым', 'Престарелой'],
+                     body='''
 <h4>Всё в своё время</h4>
 <p>Дожить до старости — роскошь.</p>
 <p>После воскрешения герой перестаёт стареть. Морщины навсегда отпечатаются на лице, а размеренность мышления на душе героя.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'age:old')])]),
+                     buttons=[Button('Выбрать', 'age:old')])]),
 
-                     Choice(attribute='death',
-                            title=['Как именно умер герой?',
-                                   'Как именно умерла героиня?'],
-                            tabs=[Tab(value='on_the_scaffold',
-                                      title='на эшафоте',
-                                      body='''
+    Choice(attribute='death',
+           title=['Как именно умер герой?',
+                  'Как именно умерла героиня?'],
+           tabs=[Tab(value='on_the_scaffold',
+                     title='на эшафоте',
+                     body='''
 <h4>«Благородная» смерть</h4>
 <p>Хорошая казнь — лучше развлечение для толпы. Будь то добрые горожане или разбойники.</p>
 <p>На сук можно попасть разными путями и не все из них достойны осуждения. Но повисев на нём разок, навсегда сохранишь «трепетное» отношение к верёвкам и шейным платкам.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'death:on_the_scaffold')]),
-                                  Tab(value='in_a_drunken_brawl',
-                                      title='в пьяной заварушке',
-                                      body='''
+                     buttons=[Button('Выбрать', 'death:on_the_scaffold')]),
+                 Tab(value='in_a_drunken_brawl',
+                     title='в пьяной заварушке',
+                     body='''
 <h4>В этот раз не свезло</h4>
 <p>В кабаках бывают разные посетители и при определённом складе характера ничего не стоит наткнуться в пьяной драке на нож.</p>
 <p>Впрочем, в кабаках гибнут и от бутылок и от добротных табуретов. После такой смерти наверняка в памяти отложится вкус последнего бокала эля.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'death:in_a_drunken_brawl')]),
-                                  Tab(value='from_the_monster_fangs',
-                                      title='от клыков монстра',
-                                      body='''
+                     buttons=[Button('Выбрать', 'death:in_a_drunken_brawl')]),
+                 Tab(value='from_the_monster_fangs',
+                     title='от клыков монстра',
+                     body='''
 <h4>Быть съеденным — куда уж заурядней</h4>
 <p>Очень частая и очень ожидаемая смерть для многих авантюристов. Всегда найдётся хитрец, готовый рискнуть, срезав путь через лесок или сэкономив на охране.</p>
 <p>Количество тварей, которые могут проглотить, растерзать, искромсать или даже, выпить внутренности не поддаётся счёту. Мало какой храбрец видит с какой стороны и в чьём обличье пришла смерть, но зубы или когти запоминают все.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'death:from_the_monster_fangs')]),
-                                  Tab(value='from_the_disease',
-                                      title='от болезни',
-                                      body='''
+                     buttons=[Button('Выбрать', 'death:from_the_monster_fangs')]),
+                 Tab(value='from_the_disease',
+                     title='от болезни',
+                     body='''
 <h4>Не от всего есть лечение</h4>
 <p>Плохая еда, гнилая вода, загноившаяся рана, сглаз — причин и болезней множество и не от всех из них есть защита. Тем более та, что будет по карману.</p>
 <p>Тяжёлая жизнь имеет тяжёлые последствия и если довелось герою испытать тяжести болезни, то запомнит их он навечно.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'death:from_the_disease')]),
-                                  Tab(value='in_a_skirmish_with_the_robbers',
-                                      title='в стычке с разбойниками',
-                                      body='''
+                     buttons=[Button('Выбрать', 'death:from_the_disease')]),
+                 Tab(value='in_a_skirmish_with_the_robbers',
+                     title='в стычке с разбойниками',
+                     body='''
 <h4>Не тем путём да не по той дороге</h4>
 <p>Лихие люди бывают страшнее лихого зверя, оттого что хитры больно и жадностью безмерной наделены.</p>
 <p>Если не быть осторожным, повстречать разбойников не сложнее, чем сгинуть в лесу от когтей чудовища. Лица же губителей своих ещё долго будут чудиться герою среди прохожих.</p>
 <p>Это свойство влияет только на художественное описание приключений героя.</p>
 ''',
-                                      buttons=[Button('Выбрать', 'death:in_a_skirmish_with_the_robbers')])])]
+                     buttons=[Button('Выбрать', 'death:in_a_skirmish_with_the_robbers')])])]
 
 
 def initial_names():
-    return names.get_names_set(number=1)
+    return game_names.get_names_set(number=1)

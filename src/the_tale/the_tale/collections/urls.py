@@ -1,12 +1,9 @@
-# coding: utf-8
 
-from django.conf.urls import url
-from django.conf.urls import include
+import smart_imports
 
-from dext.views import resource_patterns
+smart_imports.all()
 
-from the_tale.collections.views import KitsResource, CollectionsResource, ItemsResource
 
-urlpatterns = [url(r'^kits/', include(resource_patterns(KitsResource), namespace='kits')),
-               url(r'^collections/', include(resource_patterns(CollectionsResource), namespace='collections')),
-               url(r'^items/', include(resource_patterns(ItemsResource), namespace='items'))]
+urlpatterns = [django_urls.url(r'^kits/', django_urls.include(dext_old_views.resource_patterns(views.KitsResource), namespace='kits')),
+               django_urls.url(r'^collections/', django_urls.include(dext_old_views.resource_patterns(views.CollectionsResource), namespace='collections')),
+               django_urls.url(r'^items/', django_urls.include(dext_old_views.resource_patterns(views.ItemsResource), namespace='items'))]

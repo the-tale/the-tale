@@ -1,23 +1,22 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.accounts.achievements.models import Achievement, AccountAchievements, GiveAchievementTask
+smart_imports.all()
 
 
-class AchievementAdmin(admin.ModelAdmin):
+class AchievementAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'approved', 'caption', 'group', 'type', 'updated_at', 'order')
     list_filter = ('approved', 'group', 'type')
 
 
-class AccountAchievementsAdmin(admin.ModelAdmin):
+class AccountAchievementsAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account')
 
 
-class GiveAchievementTaskAdmin(admin.ModelAdmin):
+class GiveAchievementTaskAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account', 'achievement')
 
 
-admin.site.register(Achievement, AchievementAdmin)
-admin.site.register(AccountAchievements, AccountAchievementsAdmin)
-admin.site.register(GiveAchievementTask, GiveAchievementTaskAdmin)
+django_admin.site.register(models.Achievement, AchievementAdmin)
+django_admin.site.register(models.AccountAchievements, AccountAchievementsAdmin)
+django_admin.site.register(models.GiveAchievementTask, GiveAchievementTaskAdmin)

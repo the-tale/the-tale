@@ -1,17 +1,10 @@
-# coding: utf-8
-import datetime
 
-from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
-from django.utils.translation import ugettext_lazy as _
+import smart_imports
 
-from rels.django import RelationIntegerField
-
-from the_tale.accounts import relations
-from the_tale.game import relations as game_relations
+smart_imports.all()
 
 
-class AccountManager(BaseUserManager):
+class AccountManager(django_auth_models.BaseUserManager):
 
     @classmethod
     def normalize_email(cls, email):
@@ -52,7 +45,7 @@ class AccountManager(BaseUserManager):
         return account
 
 
-class Account(AbstractBaseUser, PermissionsMixin):
+class Account(django_auth_models.AbstractBaseUser, django_auth_models.PermissionsMixin):
 
     objects = AccountManager()
 
@@ -60,52 +53,52 @@ class Account(AbstractBaseUser, PermissionsMixin):
     MAX_EMAIL_LENGTH = 254
     MAX_ACTION_LENGTH = 128
 
-    nick = models.CharField(null=False, default='', max_length=MAX_NICK_LENGTH, unique=True, db_index=True)
+    nick = django_models.CharField(null=False, default='', max_length=MAX_NICK_LENGTH, unique=True, db_index=True)
 
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
 
-    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+    updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
 
-    premium_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
-    active_end_at = models.DateTimeField(db_index=True)
+    premium_end_at = django_models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+    active_end_at = django_models.DateTimeField(db_index=True)
 
-    premium_expired_notification_send_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+    premium_expired_notification_send_at = django_models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
-    is_fast = models.BooleanField(default=True, db_index=True)
-    is_bot = models.BooleanField(default=False)
+    is_fast = django_models.BooleanField(default=True, db_index=True)
+    is_bot = django_models.BooleanField(default=False)
 
     # duplicate django user email - add unique constraints
-    email = models.EmailField(max_length=MAX_EMAIL_LENGTH, null=True, unique=True, blank=True)
+    email = django_models.EmailField(max_length=MAX_EMAIL_LENGTH, null=True, unique=True, blank=True)
 
-    gender = RelationIntegerField(relation=game_relations.GENDER, relation_column='value')
+    gender = rels_django.RelationIntegerField(relation=game_relations.GENDER, relation_column='value')
 
-    last_news_remind_time = models.DateTimeField(auto_now_add=True)
+    last_news_remind_time = django_models.DateTimeField(auto_now_add=True)
 
-    clan = models.ForeignKey('clans.Clan', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
+    clan = django_models.ForeignKey('clans.Clan', null=True, default=None, related_name='+', on_delete=django_models.SET_NULL)
 
-    is_staff = models.BooleanField(_('staff status'), default=False, help_text=_('Designates whether the user can log into this admin site.'))
-    is_active = models.BooleanField(_('active'), default=True, help_text=_('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.'))
+    is_staff = django_models.BooleanField('staff status', default=False, help_text='Designates whether the user can log into this admin site.')
+    is_active = django_models.BooleanField('active', default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.')
 
-    personal_messages_subscription = models.BooleanField(blank=True, default=True)
-    news_subscription = models.BooleanField(blank=True, default=True)
+    personal_messages_subscription = django_models.BooleanField(blank=True, default=True)
+    news_subscription = django_models.BooleanField(blank=True, default=True)
 
-    description = models.TextField(blank=True, default='')
+    description = django_models.TextField(blank=True, default='')
 
-    ban_game_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
-    ban_forum_end_at = models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+    ban_game_end_at = django_models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
+    ban_forum_end_at = django_models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
-    referer_domain = models.CharField(max_length=256, null=True, default=None, db_index=True)
-    referer = models.CharField(max_length=4*1024, null=True, default=None)
+    referer_domain = django_models.CharField(max_length=256, null=True, default=None, db_index=True)
+    referer = django_models.CharField(max_length=4 * 1024, null=True, default=None)
 
-    referral_of = models.ForeignKey('accounts.Account', null=True, blank=True, db_index=True, default=None, on_delete=models.SET_NULL)
-    referrals_number = models.IntegerField(default=0)
+    referral_of = django_models.ForeignKey('accounts.Account', null=True, blank=True, db_index=True, default=None, on_delete=django_models.SET_NULL)
+    referrals_number = django_models.IntegerField(default=0)
 
-    action_id = models.CharField(null=True, blank=True, db_index=True, default=None, max_length=MAX_ACTION_LENGTH)
+    action_id = django_models.CharField(null=True, blank=True, db_index=True, default=None, max_length=MAX_ACTION_LENGTH)
 
-    permanent_purchases = models.TextField(default='[]')
+    permanent_purchases = django_models.TextField(default='[]')
 
-    might = models.FloatField(default=0.0)
-    actual_bills = models.TextField(default='[]')
+    might = django_models.FloatField(default=0.0)
+    actual_bills = django_models.TextField(default='[]')
 
     USERNAME_FIELD = 'nick'
     REQUIRED_FIELDS = ['email']
@@ -121,59 +114,59 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self): return self.nick
 
 
-class Award(models.Model):
+class Award(django_models.Model):
 
-    account = models.ForeignKey(Account,  related_name='+', null=False, on_delete=models.CASCADE)
+    account = django_models.ForeignKey(Account, related_name='+', null=False, on_delete=django_models.CASCADE)
 
-    type = RelationIntegerField(relation=relations.AWARD_TYPE, relation_column='value', db_index=True)
+    type = rels_django.RelationIntegerField(relation=relations.AWARD_TYPE, relation_column='value', db_index=True)
 
-    description = models.TextField(default='', blank=True)
+    description = django_models.TextField(default='', blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated_at = models.DateTimeField(auto_now=True, db_index=True)
-
-
-class ResetPasswordTask(models.Model):
-    account = models.ForeignKey(Account,  related_name='+', null=False, on_delete=models.CASCADE)
-    uuid = models.CharField(max_length=32)
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_processed = models.BooleanField(default=False, db_index=True)
+    created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
 
 
-class ChangeCredentialsTask(models.Model):
+class ResetPasswordTask(django_models.Model):
+    account = django_models.ForeignKey(Account, related_name='+', null=False, on_delete=django_models.CASCADE)
+    uuid = django_models.CharField(max_length=32)
+    created_at = django_models.DateTimeField(auto_now_add=True)
+    is_processed = django_models.BooleanField(default=False, db_index=True)
+
+
+class ChangeCredentialsTask(django_models.Model):
     MAX_COMMENT_LENGTH = 256
 
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
 
-    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+    updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
 
-    state = RelationIntegerField(relation=relations.CHANGE_CREDENTIALS_TASK_STATE, relation_column='value', db_index=True)
+    state = rels_django.RelationIntegerField(relation=relations.CHANGE_CREDENTIALS_TASK_STATE, relation_column='value', db_index=True)
 
-    comment = models.CharField(max_length=256, blank=True, null=True, default='')
+    comment = django_models.CharField(max_length=256, blank=True, null=True, default='')
 
-    account = models.ForeignKey(Account,  related_name='+', on_delete=models.CASCADE)
+    account = django_models.ForeignKey(Account, related_name='+', on_delete=django_models.CASCADE)
 
-    old_email = models.EmailField(max_length=254, null=True)
+    old_email = django_models.EmailField(max_length=254, null=True)
 
-    new_email = models.EmailField(max_length=254, null=True)
+    new_email = django_models.EmailField(max_length=254, null=True)
 
-    new_password = models.TextField(default=None, null=True) # django password hash
+    new_password = django_models.TextField(default=None, null=True)  # django password hash
 
-    new_nick = models.CharField(default=None, null=True, max_length=Account.MAX_NICK_LENGTH)
+    new_nick = django_models.CharField(default=None, null=True, max_length=Account.MAX_NICK_LENGTH)
 
-    uuid = models.CharField(max_length=32, db_index=True)
+    uuid = django_models.CharField(max_length=32, db_index=True)
 
-    relogin_required = models.BooleanField(blank=True, default=False)
+    relogin_required = django_models.BooleanField(blank=True, default=False)
 
 
-class RandomPremiumRequest(models.Model):
+class RandomPremiumRequest(django_models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+    created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
 
-    state = RelationIntegerField(relation=relations.RANDOM_PREMIUM_REQUEST_STATE, db_index=True)
+    state = rels_django.RelationIntegerField(relation=relations.RANDOM_PREMIUM_REQUEST_STATE, db_index=True)
 
-    days = models.IntegerField(null=False)
+    days = django_models.IntegerField(null=False)
 
-    initiator = models.ForeignKey(Account, related_name='+', on_delete=models.PROTECT)
-    receiver = models.ForeignKey(Account, default=None, null=True, related_name='+', on_delete=models.PROTECT)
+    initiator = django_models.ForeignKey(Account, related_name='+', on_delete=django_models.PROTECT)
+    receiver = django_models.ForeignKey(Account, default=None, null=True, related_name='+', on_delete=django_models.PROTECT)

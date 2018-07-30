@@ -1,10 +1,10 @@
 
-from dext.common.utils import jinja2
+import smart_imports
 
-from the_tale.news import logic
+smart_imports.all()
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def get_last_news():
     try:
         return logic.load_last_news()

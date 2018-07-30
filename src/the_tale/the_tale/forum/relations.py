@@ -1,19 +1,20 @@
-# coding: utf-8
 
-from rels.django import DjangoEnum
+import smart_imports
 
-
-class MARKUP_METHOD(DjangoEnum):
-    records = ( ('POSTMARKUP', 0, 'bb-code'),
-                 ('MARKDOWN', 1, 'markdown') )
+smart_imports.all()
 
 
-class POST_REMOVED_BY(DjangoEnum):
-    records = ( ('AUTHOR', 0, 'удалён автором'),
-                 ('THREAD_OWNER', 1, 'удалён владельцем темы'),
-                 ('MODERATOR', 2, 'удалён модератором') )
+class MARKUP_METHOD(rels_django.DjangoEnum):
+    records = (('POSTMARKUP', 0, 'bb-code'),
+               ('MARKDOWN', 1, 'markdown'))
 
 
-class POST_STATE(DjangoEnum):
-    records = ( ('DEFAULT', 0, 'видим'),
-                 ('REMOVED', 1, 'удалён') )
+class POST_REMOVED_BY(rels_django.DjangoEnum):
+    records = (('AUTHOR', 0, 'удалён автором'),
+               ('THREAD_OWNER', 1, 'удалён владельцем темы'),
+               ('MODERATOR', 2, 'удалён модератором'))
+
+
+class POST_STATE(rels_django.DjangoEnum):
+    records = (('DEFAULT', 0, 'видим'),
+               ('REMOVED', 1, 'удалён'))

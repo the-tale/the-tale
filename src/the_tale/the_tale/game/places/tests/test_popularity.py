@@ -1,10 +1,10 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from .. import objects
+smart_imports.all()
 
 
-class PopularityTests(testcase.TestCase):
+class PopularityTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(PopularityTests, self).setUp()

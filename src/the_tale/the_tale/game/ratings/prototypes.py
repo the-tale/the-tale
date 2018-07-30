@@ -1,52 +1,27 @@
 
-import time
+import smart_imports
 
-from django.db import transaction, connection
-
-from dext.settings import settings
-
-from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.utils.prototypes import BasePrototype
-
-from the_tale.accounts.models import Account
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import get_system_user
-from the_tale.accounts.achievements.models import AccountAchievements
-
-from the_tale.linguistics.prototypes import ContributionPrototype
-from the_tale.linguistics.relations import CONTRIBUTION_TYPE
+smart_imports.all()
 
 
-from the_tale.game.heroes.models import Hero
-from the_tale.game.bills import models as bill_models
-from the_tale.game.bills import relations as bill_relations
-
-from the_tale.game.ratings.models import RatingValues, RatingPlaces
-from the_tale.game.ratings.conf import ratings_settings
-
-from the_tale.game.heroes.conf import heroes_settings
-
-
-class RatingValuesPrototype(BasePrototype):
-    _model_class = RatingValues
+class RatingValuesPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.RatingValues
     _readonly = ('id', 'account_id', 'might', 'bills_count', 'magic_power', 'physic_power', 'level',
                  'phrases_count', 'pvp_battles_1x1_number', 'pvp_battles_1x1_victories', 'referrals_number',
                  'achievements_points', 'help_count', 'gifts_returned', 'politics_power')
     _bidirectional = ()
     _get_by = ('account_id', )
 
-    @lazy_property
-    def account(self): return AccountPrototype(self._model.account)
+    @utils_decorators.lazy_property
+    def account(self): return accounts_prototypes.AccountPrototype(self._model.account)
 
     @classmethod
-    @transaction.atomic
+    @django_transaction.atomic
     def recalculate(cls):
 
-        RatingValues.objects.all().delete()
+        models.RatingValues.objects.all().delete()
 
-
-        cursor = connection.cursor()
-
+        cursor = django_db.connection.cursor()
 
         sql_request = '''
 INSERT INTO %(ratings)s (account_id, might, bills_count, magic_power, physic_power, level, phrases_count, pvp_battles_1x1_number, pvp_battles_1x1_victories, referrals_number, achievements_points, help_count, gifts_returned, politics_power)
@@ -78,39 +53,38 @@ LEFT OUTER JOIN ( SELECT %(phrase_candidates)s.account_id AS phrase_author_id, C
 WHERE NOT %(accounts)s.is_fast AND NOT %(accounts)s.is_bot AND %(accounts)s.id <> %(system_user_id)s AND %(accounts)s.ban_game_end_at < current_timestamp
 '''
 
-        sql_request = sql_request % {'ratings': RatingValues._meta.db_table,
-                                     'accounts': Account._meta.db_table,
-                                     'achievements': AccountAchievements._meta.db_table,
-                                     'heroes': Hero._meta.db_table,
-                                     'bills': bill_models.Bill._meta.db_table,
-                                     'bill_accepted_state': bill_relations.BILL_STATE.ACCEPTED.value,
-                                     'phrase_candidates': ContributionPrototype._model_class._meta.db_table,
-                                     'phrase_candidate_type': CONTRIBUTION_TYPE.TEMPLATE.value,
-                                     'min_pvp_battles': heroes_settings.MIN_PVP_BATTLES,
-                                     'system_user_id': get_system_user().id}
+        sql_request = sql_request % {'ratings': models.RatingValues._meta.db_table,
+                                     'accounts': accounts_models.Account._meta.db_table,
+                                     'achievements': achievements_models.AccountAchievements._meta.db_table,
+                                     'heroes': heroes_models.Hero._meta.db_table,
+                                     'bills': bills_models.Bill._meta.db_table,
+                                     'bill_accepted_state': bills_relations.BILL_STATE.ACCEPTED.value,
+                                     'phrase_candidates': linguistics_prototypes.ContributionPrototype._model_class._meta.db_table,
+                                     'phrase_candidate_type': linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE.value,
+                                     'min_pvp_battles': heroes_conf.settings.MIN_PVP_BATTLES,
+                                     'system_user_id': accounts_logic.get_system_user().id}
 
         cursor.execute(sql_request)
 
 
-
-class RatingPlacesPrototype(BasePrototype):
-    _model_class = RatingPlaces
+class RatingPlacesPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.RatingPlaces
     _readonly = ('id', 'account_id', 'might_place', 'bills_count_place', 'magic_power_place', 'physic_power_place', 'level_place',
                  'phrases_count_place', 'pvp_battles_1x1_number_place', 'pvp_battles_1x1_victories_place', 'referrals_number_place',
                  'achievements_points_place', 'help_count_place', 'gifts_returned_place', 'politics_power_place')
     _bidirectional = ()
     _get_by = ('account_id', )
 
-    @lazy_property
-    def account(self): return AccountPrototype(self._model.account)
+    @utils_decorators.lazy_property
+    def account(self): return accounts_prototypes.AccountPrototype(self._model.account)
 
     @classmethod
-    @transaction.atomic
+    @django_transaction.atomic
     def recalculate(cls):
 
-        RatingPlaces.objects.all().delete()
+        models.RatingPlaces.objects.all().delete()
 
-        cursor = connection.cursor()
+        cursor = django_db.connection.cursor()
 
         sql_request = '''
 INSERT INTO %(places)s (account_id, might_place, bills_count_place, magic_power_place, physic_power_place, level_place, phrases_count_place, pvp_battles_1x1_number_place, pvp_battles_1x1_victories_place, referrals_number_place, achievements_points_place, help_count_place, gifts_returned_place, politics_power_place)
@@ -155,10 +129,10 @@ JOIN (SELECT %(ratings)s.account_id AS account_id, row_number() OVER (ORDER BY %
     ON might_table.account_id=politics_power_table.account_id
 '''
 
-        sql_request = sql_request % {'places': RatingPlaces._meta.db_table,
-                                     'ratings': RatingValues._meta.db_table,
-                                     'accounts': Account._meta.db_table}
+        sql_request = sql_request % {'places': models.RatingPlaces._meta.db_table,
+                                     'ratings': models.RatingValues._meta.db_table,
+                                     'accounts': accounts_models.Account._meta.db_table}
 
         cursor.execute(sql_request)
 
-        settings[ratings_settings.SETTINGS_UPDATE_TIMESTEMP_KEY] = str(time.time())
+        dext_settings.settings[conf.settings.SETTINGS_UPDATE_TIMESTEMP_KEY] = str(time.time())

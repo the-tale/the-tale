@@ -1,11 +1,12 @@
-# coding: utf-8
 
-from django import dispatch
+import smart_imports
 
-bill_created = dispatch.Signal(providing_args=['bill'])
-bill_edited = dispatch.Signal(providing_args=['bill'])
-bill_moderated = dispatch.Signal(providing_args=['bill'])
-bill_processed = dispatch.Signal(providing_args=['bill'])
-bill_removed = dispatch.Signal(providing_args=['bill'])
-bill_ended = dispatch.Signal(providing_args=['bill'])
-bill_stopped = dispatch.Signal(providing_args=['bill'])
+smart_imports.all()
+
+bill_created = django_dispatch.Signal(providing_args=['bill'])
+bill_edited = django_dispatch.Signal(providing_args=['bill'])
+bill_moderated = django_dispatch.Signal(providing_args=['bill'])
+bill_processed = django_dispatch.Signal(providing_args=['bill'])
+bill_removed = django_dispatch.Signal(providing_args=['bill'])
+bill_ended = django_dispatch.Signal(providing_args=['bill'])
+bill_stopped = django_dispatch.Signal(providing_args=['bill'])

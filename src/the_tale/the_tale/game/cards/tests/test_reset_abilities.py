@@ -1,34 +1,23 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.cards.tests.helpers import CardsTestMixin
+smart_imports.all()
 
 
-class ResetAbilitiesTest(testcase.TestCase, CardsTestMixin):
-    CARD = cards.CARD.RESET_ABILITIES
+class ResetAbilitiesTest(utils_testcase.TestCase, helpers.CardsTestMixin):
+    CARD = types.CARD.RESET_ABILITIES
 
     def setUp(self):
         super(ResetAbilitiesTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
-
 
     def test_use(self):
         self.hero.randomized_level_up(increment_level=True)
@@ -42,8 +31,7 @@ class ResetAbilitiesTest(testcase.TestCase, CardsTestMixin):
 
         self.assertEqual(save_bundle_data.call_count, 1)
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
-
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_can_not_rechose(self):
 
@@ -53,4 +41,4 @@ class ResetAbilitiesTest(testcase.TestCase, CardsTestMixin):
 
         self.assertTrue(self.hero.abilities.is_initial_state())
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))

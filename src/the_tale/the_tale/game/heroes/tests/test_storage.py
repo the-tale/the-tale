@@ -1,21 +1,14 @@
-# coding: utf-8
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.heroes import storage
+smart_imports.all()
 
 
-class PositionDescriptionsStorageTests(testcase.TestCase):
+class PositionDescriptionsStorageTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(PositionDescriptionsStorageTests, self).setUp()
-        self.place_1, self.place_2, _ = create_test_map()
+        self.place_1, self.place_2, _ = game_logic.create_test_map()
 
         storage.position_descriptions.clear()
 

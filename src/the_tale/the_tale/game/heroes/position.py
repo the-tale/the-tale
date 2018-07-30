@@ -1,16 +1,7 @@
 
-import math
+import smart_imports
 
-from the_tale.game.balance import constants as c
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.roads.storage import roads_storage
-
-from the_tale.game.map.storage import map_info_storage
-
-from the_tale.game import turn
-
-from . import storage
+smart_imports.all()
 
 
 class Position(object):
@@ -53,7 +44,7 @@ class Position(object):
 
     @classmethod
     def create(cls, place_id, road_id):
-        return cls(last_place_visited_turn=turn.number(),
+        return cls(last_place_visited_turn=game_turn.number(),
                    moved_out_place=False,
                    place_id=place_id,
                    road_id=road_id,
@@ -70,9 +61,10 @@ class Position(object):
 
     def move_in_place(self):
         self.moved_out_place = False
-        self.last_place_visited_turn = turn.number()
+        self.last_place_visited_turn = game_turn.number()
 
     def get_description(self):
+        from . import storage
         if self.place:
             return storage.position_descriptions.text_in_place(self.place_id)
 
@@ -89,12 +81,16 @@ class Position(object):
 
         return storage.position_descriptions.text_in_wild_lands()
 
+    @property
+    def place(self):
+        from the_tale.game.places import storage as places_storage
+
+        return places_storage.places.get(self.place_id)
 
     @property
-    def place(self): return places_storage.places.get(self.place_id)
-
-    @property
-    def previous_place(self): return places_storage.places.get(self.previous_place_id)
+    def previous_place(self):
+        from the_tale.game.places import storage as places_storage
+        return places_storage.places.get(self.previous_place_id)
 
     def update_previous_place(self):
         self.previous_place_id = self.place_id
@@ -114,7 +110,8 @@ class Position(object):
         self.place_id = place.id
 
     @property
-    def road(self): return roads_storage.get(self.road_id)
+    def road(self):
+        return roads_storage.roads.get(self.road_id)
 
     def set_road(self, road, percents=0, invert=False):
         self._reset_position()
@@ -131,7 +128,7 @@ class Position(object):
     @property
     def coordinates_to(self): return self.to_x, self.to_y
 
-    def subroad_len(self): return math.sqrt( (self.from_x-self.to_x)**2 + (self.from_y-self.to_y)**2)
+    def subroad_len(self): return math.sqrt((self.from_x - self.to_x)**2 + (self.from_y - self.to_y)**2)
 
     def set_coordinates(self, from_x, from_y, to_x, to_y, percents):
         self._reset_position()
@@ -188,22 +185,28 @@ class Position(object):
         return int(x), int(y)
 
     def get_terrain(self):
-        map_info = map_info_storage.item
+        from the_tale.game.map import storage as map_storage
+
+        map_info = map_storage.map_info.item
         x, y = self.cell_coordinates
         return map_info.terrain[y][x]
 
     def get_dominant_place(self):
+        from the_tale.game.map import storage as map_storage
+
         if self.place:
             return self.place
         else:
-            return map_info_storage.item.get_dominant_place(*self.cell_coordinates)
+            return map_storage.map_info.item.get_dominant_place(*self.cell_coordinates)
 
     def get_nearest_place(self):
+        from the_tale.game.places import storage as places_storage
+
         x, y = self.cell_coordinates
         best_distance = 999999999999999
         best_place = None
         for place in places_storage.places.all():
-            distance = math.hypot(place.x-x, place.y-y)
+            distance = math.hypot(place.x - x, place.y - y)
             if distance < best_distance:
                 best_distance = distance
                 best_place = place
@@ -221,16 +224,15 @@ class Position(object):
         return 1.0 - c.WHILD_TRANSPORT_PENALTY - c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * c.PLACE_MAX_SIZE
 
     def get_minumum_distance_to(self, destination):
-        from the_tale.game.roads.storage import waymarks_storage
 
         if self.place:
-            return waymarks_storage.look_for_road(self.place, destination).length
+            return roads_storage.waymarks.look_for_road(self.place, destination).length
 
         if self.is_walking:
             x = self.coordinates_from[0] + (self.coordinates_to[0] - self.coordinates_from[0]) * self.percents
             y = self.coordinates_from[1] + (self.coordinates_to[1] - self.coordinates_from[1]) * self.percents
             nearest_place = self.get_nearest_place()
-            return math.hypot(x-nearest_place.x, y-nearest_place.y) + waymarks_storage.look_for_road(nearest_place, destination).length
+            return math.hypot(x - nearest_place.x, y - nearest_place.y) + roads_storage.waymarks.look_for_road(nearest_place, destination).length
 
         # if on road
         place_from = self.road.point_1
@@ -240,11 +242,10 @@ class Position(object):
             place_from, place_to = place_to, place_from
 
         delta_from = self.road.length * self.percents
-        delta_to = self.road.length * (1-self.percents)
+        delta_to = self.road.length * (1 - self.percents)
 
-        return min(waymarks_storage.look_for_road(place_from, destination).length + delta_from,
-                   waymarks_storage.look_for_road(place_to, destination).length + delta_to)
-
+        return min(roads_storage.waymarks.look_for_road(place_from, destination).length + delta_from,
+                   roads_storage.waymarks.look_for_road(place_to, destination).length + delta_to)
 
     def get_position_on_map(self):
 
@@ -278,20 +279,28 @@ class Position(object):
                 if index > length:
                     break
 
-                if c == 'l': x -= 1
-                elif c == 'r': x += 1
-                elif c == 'u': y -= 1
-                elif c == 'd': y += 1
+                if c == 'l':
+                    x -= 1
+                elif c == 'r':
+                    x += 1
+                elif c == 'u':
+                    y -= 1
+                elif c == 'd':
+                    y += 1
 
             else:
                 index += 1
 
-            delta = length - (index-1)
+            delta = length - (index - 1)
 
-            if character == 'l': x -= delta
-            elif character == 'r': x += delta
-            elif character == 'u': y -= delta
-            elif character == 'd': y += delta
+            if character == 'l':
+                x -= delta
+            elif character == 'r':
+                x += delta
+            elif character == 'u':
+                y -= delta
+            elif character == 'd':
+                y += delta
 
             return (x, y, dx, dy)
 
@@ -307,23 +316,21 @@ class Position(object):
 
             return (x, y, from_x - to_x, from_y - to_y)
 
-
-
     ###########################################
     # Object operations
     ###########################################
 
     def ui_info(self):
         x, y, dx, dy = self.get_position_on_map()
-        return { 'x': x,
-                 'y': y,
-                 'dx': dx,
-                 'dy': dy}
+        return {'x': x,
+                'y': y,
+                'dx': dx,
+                'dy': dy}
 
     def __eq__(self, other):
-        return ( self.place_id == other.place_id and
-                 self.road_id == other.road_id and
-                 self.percents == other.percents and
-                 self.invert_direction == other.invert_direction and
-                 self.coordinates_from == other.coordinates_from and
-                 self.coordinates_to == other.coordinates_to)
+        return (self.place_id == other.place_id and
+                self.road_id == other.road_id and
+                self.percents == other.percents and
+                self.invert_direction == other.invert_direction and
+                self.coordinates_from == other.coordinates_from and
+                self.coordinates_to == other.coordinates_to)

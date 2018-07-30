@@ -1,22 +1,14 @@
-# coding: utf-8
 
-from django.forms import ValidationError
+import smart_imports
 
-from dext.forms import forms, fields
-from dext.common.meta_relations import logic as meta_relations_logic
-from dext.common.meta_relations import exceptions as meta_relations_exceptions
-
-from the_tale.common.utils import bbcode
-
-from . import models
-from . import conf
+smart_imports.all()
 
 
-class PostForm(forms.Form):
-    caption = fields.CharField(label='Название', max_length=models.Post.CAPTION_MAX_LENGTH, min_length=models.Post.CAPTION_MIN_LENGTH)
-    text = bbcode.BBField(label='Текст', min_length=conf.settings.MIN_TEXT_LENGTH)
+class PostForm(dext_forms.Form):
+    caption = dext_fields.CharField(label='Название', max_length=models.Post.CAPTION_MAX_LENGTH, min_length=models.Post.CAPTION_MIN_LENGTH)
+    text = utils_bbcode.BBField(label='Текст', min_length=conf.settings.MIN_TEXT_LENGTH)
 
-    meta_objects = fields.CharField(label='Текст рассказывает о', required=False)
+    meta_objects = dext_fields.CharField(label='Текст рассказывает о', required=False)
 
     def clean_meta_objects(self):
         data = self.cleaned_data.get('meta_objects', '')
@@ -29,30 +21,30 @@ class PostForm(forms.Form):
             slug = slug.strip()
 
             if slug in slugs:
-                raise ValidationError('Повторяющийся дентификатор: %s' % slug)
+                raise django_forms.ValidationError('Повторяющийся дентификатор: %s' % slug)
 
             slugs.add(slug)
 
             try:
-                object = meta_relations_logic.get_object_by_uid(slug)
+                object = dext_meta_relations_logic.get_object_by_uid(slug)
 
                 if object.is_unknown:
-                    raise ValidationError('Объект не найден: %s' % slug)
+                    raise django_forms.ValidationError('Объект не найден: %s' % slug)
 
                 objects.append(object)
-            except (meta_relations_exceptions.WrongTypeError,
-                    meta_relations_exceptions.WrongObjectError,
-                    meta_relations_exceptions.WrongUIDFormatError):
-                raise ValidationError('Неверный идентификатор: %s' % slug)
+            except (dext_meta_relations_exceptions.WrongTypeError,
+                    dext_meta_relations_exceptions.WrongObjectError,
+                    dext_meta_relations_exceptions.WrongUIDFormatError):
+                raise django_forms.ValidationError('Неверный идентификатор: %s' % slug)
 
         if len(objects) > conf.settings.IS_ABOUT_MAXIMUM:
-            raise ValidationError('Слишком много связей, должно быть не более %d' % conf.settings.IS_ABOUT_MAXIMUM)
+            raise django_forms.ValidationError('Слишком много связей, должно быть не более %d' % conf.settings.IS_ABOUT_MAXIMUM)
 
         return objects
 
 
-class TagsForm(forms.Form):
-    tags = fields.MultipleChoiceField(label='теги', choices=())
+class TagsForm(dext_forms.Form):
+    tags = dext_fields.MultipleChoiceField(label='теги', choices=())
 
     def __init__(self, *args, **kwargs):
         super(TagsForm, self).__init__(*args, **kwargs)

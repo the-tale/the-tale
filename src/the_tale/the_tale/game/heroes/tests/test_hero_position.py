@@ -1,33 +1,24 @@
-# coding: utf-8
-from unittest import mock
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic import create_test_map
+smart_imports.all()
 
 
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.roads.storage import roads_storage
-
-
-
-class HeroPositionTest(testcase.TestCase):
+class HeroPositionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(HeroPositionTest, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
-        self.road_1_2 = roads_storage.get_by_places(self.place_1, self.place_2)
-        self.road_2_3 = roads_storage.get_by_places(self.place_2, self.place_3)
+        self.road_1_2 = roads_storage.roads.get_by_places(self.place_1, self.place_2)
+        self.road_2_3 = roads_storage.roads.get_by_places(self.place_2, self.place_3)
 
     def test_is_battle_start_needed__safety(self):
         for place in places_storage.places.all():
@@ -72,9 +63,8 @@ class HeroPositionTest(testcase.TestCase):
             with mock.patch('the_tale.game.heroes.position.Position.cell_coordinates', (x, y)):
                 self.assertEqual(place.id, self.hero.position.get_nearest_place().id)
 
-
     def test_get_minumum_distance_to__check_map_structure(self):
-        self.assertEqual(len(roads_storage.all()), 2)
+        self.assertEqual(len(roads_storage.roads.all()), 2)
 
     def test_get_minumum_distance_to__from_place(self):
         self.hero.position.set_place(self.place_1)
@@ -104,7 +94,7 @@ class HeroPositionTest(testcase.TestCase):
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_2), self.road_1_2.length * 0.75)
         self.assertEqual(self.hero.position.get_minumum_distance_to(self.place_3), self.road_1_2.length * 0.75 + self.road_2_3.length)
 
-        self.assertEqual(self.hero.position.previous_place, None) # test that when hero step outside town, previouse place will reset
+        self.assertEqual(self.hero.position.previous_place, None)  # test that when hero step outside town, previouse place will reset
 
     def test_get_minumum_distance_to__from_road__invert(self):
         self.hero.position.set_road(self.road_1_2, percents=0.75)

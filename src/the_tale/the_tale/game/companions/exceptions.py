@@ -1,8 +1,10 @@
 
-from the_tale.common.utils.exceptions import TheTaleError
+import smart_imports
+
+smart_imports.all()
 
 
-class CompanionsError(TheTaleError):
+class CompanionsError(utils_exceptions.TheTaleError):
     MSG = 'companions error'
 
 

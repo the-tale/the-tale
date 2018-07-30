@@ -1,14 +1,16 @@
-# coding: utf-8
 
-from the_tale.linguistics import exceptions
+import smart_imports
+
+smart_imports.all()
 
 
-class LexiconError(exceptions.LinguisticsError):
+class LexiconError(linguistics_exceptions.LinguisticsError):
     MSG = None
 
 
-class NoFreeVerificatorSubstitutionError(exceptions.LinguisticsError):
+class NoFreeVerificatorSubstitutionError(linguistics_exceptions.LinguisticsError):
     MSG = 'No free verificator substitution for key %(key)s and variable %(variable)s'
 
-class WrongFormNumberError(exceptions.LinguisticsError):
+
+class WrongFormNumberError(linguistics_exceptions.LinguisticsError):
     MSG = 'Wrong forms number'

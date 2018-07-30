@@ -1,7 +1,9 @@
-# coding: utf-8
 
-from dext.common.utils.app_settings import app_settings
+import smart_imports
 
-clans_settings = app_settings('CLANS',
-                              CLANS_ON_PAGE=25,
-                              FORUM_CATEGORY_SLUG='clans',)
+smart_imports.all()
+
+
+settings = dext_app_settings.app_settings('CLANS',
+                                          CLANS_ON_PAGE=25,
+                                          FORUM_CATEGORY_SLUG='clans',)

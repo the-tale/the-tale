@@ -1,10 +1,10 @@
-# coding: utf-8
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from the_tale.accounts.third_party import logic
+smart_imports.all()
 
-class Command(BaseCommand):
+
+class Command(django_management.BaseCommand):
 
     help = 'remove expired acces tokens'
 

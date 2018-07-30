@@ -1,20 +1,13 @@
 
-import time
+import smart_imports
 
-from the_tale.common.utils import storage
-
-from dext.settings import settings
-
-from the_tale.game.map.prototypes import MapInfoPrototype
-from the_tale.game.map import exceptions
-
-from the_tale.game import turn
+smart_imports.all()
 
 
-class MapInfoStorage(storage.SingleStorage):
+class MapInfoStorage(utils_storage.SingleStorage):
     SETTINGS_KEY = 'map info change time'
     EXCEPTION = exceptions.MapStorageError
-    PROTOTYPE = MapInfoPrototype
+    PROTOTYPE = prototypes.MapInfoPrototype
 
     def _construct_zero_item(self):
         return None
@@ -23,14 +16,14 @@ class MapInfoStorage(storage.SingleStorage):
         self.clear()
 
         try:
-            self._item = MapInfoPrototype(MapInfoPrototype._model_class.objects.order_by('-turn_number', '-id')[0])
+            self._item = prototypes.MapInfoPrototype(prototypes.MapInfoPrototype._model_class.objects.order_by('-turn_number', '-id')[0])
         except IndexError:
             self._item = None
 
-        self._version = settings[self.SETTINGS_KEY]
+        self._version = dext_settings.settings[self.SETTINGS_KEY]
 
     def _get_next_version(self):
-        return '%d-%f' % (turn.number(), time.time())
+        return '%d-%f' % (game_turn.number(), time.time())
 
 
-map_info_storage = MapInfoStorage()
+map_info = MapInfoStorage()

@@ -1,31 +1,26 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.actions.prototypes import ActionResurrectPrototype
-from the_tale.game.balance import constants as c
-from the_tale.game import turn
+smart_imports.all()
 
 
-class ResurrectActionTest(testcase.TestCase):
+class ResurrectActionTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(ResurrectActionTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
         self.hero.kill()
 
-        self.action_resurrect = ActionResurrectPrototype.create(hero=self.hero)
+        self.action_resurrect = prototypes.ActionResurrectPrototype.create(hero=self.hero)
 
     def tearDown(self):
         pass
@@ -40,11 +35,11 @@ class ResurrectActionTest(testcase.TestCase):
 
     def test_processed(self):
 
-        for i in range(c.TURNS_TO_RESURRECT-1):
+        for i in range(c.TURNS_TO_RESURRECT - 1):
 
             self.storage.process_turn()
 
-            turn.increment()
+            game_turn.increment()
 
             self.assertEqual(len(self.hero.actions.actions_list), 2)
             self.assertEqual(self.hero.actions.current_action, self.action_resurrect)
@@ -63,7 +58,7 @@ class ResurrectActionTest(testcase.TestCase):
         while len(self.hero.actions.actions_list) != 1:
             self.storage.process_turn(continue_steps_if_needed=False)
 
-            turn.increment()
+            game_turn.increment()
 
         self.assertTrue(self.action_idl.leader)
         self.assertEqual(self.hero.health, self.hero.max_health)

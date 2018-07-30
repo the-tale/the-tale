@@ -1,4 +1,7 @@
 
-from the_tale.game.persons.views import resource
+import smart_imports
 
-urlpatterns = resource.get_urls()
+smart_imports.all()
+
+
+urlpatterns = views.resource.get_urls()

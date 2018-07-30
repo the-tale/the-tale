@@ -1,18 +1,7 @@
 
-import random
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from the_tale.game.cards.tests.helpers import CardsTestMixin
+smart_imports.all()
 
 
 def companion_total_experience(companion):
@@ -24,16 +13,16 @@ def companion_total_experience(companion):
     return companion.experience + n * (n - 1) / 2
 
 
-class AddCompanionExperienceTestMixin(CardsTestMixin):
+class AddCompanionExperienceTestMixin(helpers.CardsTestMixin):
     CARD = None
 
     def setUp(self):
         super(AddCompanionExperienceTestMixin, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
@@ -46,7 +35,7 @@ class AddCompanionExperienceTestMixin(CardsTestMixin):
 
         with self.check_increased(lambda: companion_total_experience(self.hero.companion)):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_use__coherence_restriction_does_not_work(self):
         companion_record = random.choice(companions_storage.companions.all())
@@ -59,8 +48,7 @@ class AddCompanionExperienceTestMixin(CardsTestMixin):
 
         with self.check_increased(lambda: self.hero.companion.coherence):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
-
+            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_use__companion_is_dead(self):
         companion_record = random.choice(companions_storage.companions.all())
@@ -71,30 +59,30 @@ class AddCompanionExperienceTestMixin(CardsTestMixin):
 
         with self.check_increased(lambda: companion_total_experience(self.hero.companion)):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_no_companion(self):
         self.assertEqual(self.hero.companion, None)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
 
-class AddExperienceCommonTests(AddCompanionExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_COMPANION_EXPERIENCE_COMMON
+class AddExperienceCommonTests(AddCompanionExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_COMPANION_EXPERIENCE_COMMON
 
 
-class AddExperienceUncommonTests(AddCompanionExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_COMPANION_EXPERIENCE_UNCOMMON
+class AddExperienceUncommonTests(AddCompanionExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_COMPANION_EXPERIENCE_UNCOMMON
 
 
-class AddExperienceRareTests(AddCompanionExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_COMPANION_EXPERIENCE_RARE
+class AddExperienceRareTests(AddCompanionExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_COMPANION_EXPERIENCE_RARE
 
 
-class AddExperienceEpicTests(AddCompanionExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_COMPANION_EXPERIENCE_EPIC
+class AddExperienceEpicTests(AddCompanionExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_COMPANION_EXPERIENCE_EPIC
 
 
-class AddExperienceLegendaryTests(AddCompanionExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_COMPANION_EXPERIENCE_LEGENDARY
+class AddExperienceLegendaryTests(AddCompanionExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_COMPANION_EXPERIENCE_LEGENDARY

@@ -1,13 +1,10 @@
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from dext.common.utils.logic import run_django_command
-
-from the_tale.game import logic
-from the_tale.game.places import storage as places_storage
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'create new world'
 
@@ -17,4 +14,4 @@ class Command(BaseCommand):
 
         logic.create_test_map()
 
-        run_django_command(['map_update_map'])
+        dext_logic.run_django_command(['map_update_map'])

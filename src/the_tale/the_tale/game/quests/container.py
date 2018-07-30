@@ -1,9 +1,7 @@
-# coding: utf-8
-import time
-import datetime
 
-from the_tale.game.quests.prototypes import QuestPrototype
-from the_tale.game.quests.conf import quests_settings
+import smart_imports
+
+smart_imports.all()
 
 
 class QuestsContainer(object):
@@ -29,7 +27,7 @@ class QuestsContainer(object):
     @classmethod
     def deserialize(cls, data):
         obj = cls()
-        obj.quests_list = [QuestPrototype.deserialize(data=quest_data) for quest_data in data.get('quests', [])]
+        obj.quests_list = [prototypes.QuestPrototype.deserialize(data=quest_data) for quest_data in data.get('quests', [])]
         obj.history = data.get('history', {})
         obj.interfered_persons = {int(person_id): person_time for person_id, person_time in data.get('interfered_persons', {}).items()}
         return obj
@@ -45,14 +43,13 @@ class QuestsContainer(object):
 
         return self._ui_info
 
-
     def _get_ui_info(self, hero):
-        spending_ui_info = QuestPrototype.next_spending_ui_info(hero.next_spending)
+        spending_ui_info = prototypes.QuestPrototype.next_spending_ui_info(hero.next_spending)
 
         if self.has_quests:
             return {'quests': [spending_ui_info] + [quest.ui_info() for quest in self.quests_list]}
 
-        return {'quests': [spending_ui_info, QuestPrototype.no_quests_ui_info(in_place=hero.position.place is not None)]}
+        return {'quests': [spending_ui_info, prototypes.QuestPrototype.no_quests_ui_info(in_place=hero.position.place is not None)]}
 
     def push_quest(self, quest):
         self.mark_updated()
@@ -83,14 +80,13 @@ class QuestsContainer(object):
         self.history[quest_type] = turn_number
         self.mark_updated()
 
-
     def add_interfered_person(self, person_id):
         self.interfered_persons[person_id] = time.time()
 
     def is_person_interfered(self, person_id):
         if person_id not in self.interfered_persons:
             return False
-        return self.interfered_persons[person_id] + quests_settings.INTERFERED_PERSONS_LIVE_TIME > time.time()
+        return self.interfered_persons[person_id] + quests_conf.settings.INTERFERED_PERSONS_LIVE_TIME > time.time()
 
     def get_interfered_persons(self):
         return [person_id for person_id in self.interfered_persons.keys() if self.is_person_interfered(person_id)]
@@ -100,7 +96,7 @@ class QuestsContainer(object):
         current_time = time.time()
 
         for person_id, person_time in self.interfered_persons.items():
-            if current_time > person_time + quests_settings.INTERFERED_PERSONS_LIVE_TIME:
+            if current_time > person_time + quests_conf.settings.INTERFERED_PERSONS_LIVE_TIME:
                 to_remove.add(person_id)
 
         for person_id in to_remove:
@@ -109,7 +105,7 @@ class QuestsContainer(object):
     def excluded_quests(self, max_number):
         excluded_quests = []
         last_quests = sorted(self.history.items(), key=lambda item: -item[1])
-        for last_quest in last_quests[:max_number]: # exclude half of the quests
+        for last_quest in last_quests[:max_number]:  # exclude half of the quests
             excluded_quests.append(last_quest[0])
 
         return excluded_quests

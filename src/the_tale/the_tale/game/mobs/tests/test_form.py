@@ -1,22 +1,14 @@
 
-from tt_logic.beings import relations as beings_relations
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-
-from .. import logic
-from .. import forms
-from .. import relations
-
-from the_tale.linguistics.tests import helpers as linguistics_helpers
+smart_imports.all()
 
 
-class MobsFormsTests(testcase.TestCase):
+class MobsFormsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(MobsFormsTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
     def get_form_data(self):
         mob = logic.create_random_mob_record(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
@@ -29,10 +21,10 @@ class MobsFormsTests(testcase.TestCase):
                      'type': 'TYPE.CIVILIZED',
                      'archetype': 'ARCHETYPE.NEUTRAL',
                      'description': mob.description,
-                     'communication_verbal': beings_relations.COMMUNICATION_VERBAL.CAN,
-                     'communication_gestures': beings_relations.COMMUNICATION_GESTURES.CAN,
-                     'communication_telepathic': beings_relations.COMMUNICATION_TELEPATHIC.CAN,
-                     'intellect_level': beings_relations.INTELLECT_LEVEL.NORMAL,
+                     'communication_verbal': tt_beings_relations.COMMUNICATION_VERBAL.CAN,
+                     'communication_gestures': tt_beings_relations.COMMUNICATION_GESTURES.CAN,
+                     'communication_telepathic': tt_beings_relations.COMMUNICATION_TELEPATHIC.CAN,
+                     'intellect_level': tt_beings_relations.INTELLECT_LEVEL.NORMAL,
 
                      'structure': 'STRUCTURE.STRUCTURE_1',
                      'features': ['FEATURE.FEATURE_1', 'FEATURE.FEATURE_7'],
@@ -45,7 +37,7 @@ class MobsFormsTests(testcase.TestCase):
                      'power_type_1': 'ARTIFACT_POWER_TYPE.NEUTRAL',
                      'weapon_2': 'STANDARD_WEAPON.WEAPON_10',
                      'material_2': 'MATERIAL.MATERIAL_10',
-                     'power_type_2': 'ARTIFACT_POWER_TYPE.MOST_PHYSICAL',})
+                     'power_type_2': 'ARTIFACT_POWER_TYPE.MOST_PHYSICAL', })
 
         return data
 

@@ -1,24 +1,17 @@
-# coding: utf-8
-import subprocess
-import time
-import datetime
 
-from dext.settings import settings
+import smart_imports
 
-from the_tale.common.utils.workers import BaseWorker
-from dext.common.utils.logic import run_django_command
-
-from the_tale.portal.conf import portal_settings
-from the_tale.portal import signals as portal_signals
-
-from the_tale.portal import signal_processors # DO NOT REMOVE
+smart_imports.all()
 
 
-class Worker(BaseWorker):
+from the_tale.portal import signal_processors  # DO NOT REMOVE
+
+
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
 
     def initialize(self):
-        if not portal_settings.ENABLE_WORKER_LONG_COMMANDS:
+        if not conf.settings.ENABLE_WORKER_LONG_COMMANDS:
             return False
 
         if self.initialized:
@@ -29,8 +22,8 @@ class Worker(BaseWorker):
         self.logger.info('LONG COMMANDS INITIALIZED')
 
     def _try_run_command_with_delay(self, cmd, settings_key, delay):
-        if time.time() - float(settings.get(settings_key, 0)) > delay:
-            settings[settings_key] = str(time.time())
+        if time.time() - float(dext_settings.settings.get(settings_key, 0)) > delay:
+            dext_settings.settings[settings_key] = str(time.time())
             cmd()
             return True
 
@@ -39,60 +32,59 @@ class Worker(BaseWorker):
     def process_no_cmd(self):
 
         # check if new real day started
-        if (time.time() - float(settings.get(portal_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY, 0)) > 23.5*60*60 and
-            datetime.datetime.now().hour >= portal_settings.REAL_DAY_STARTED_TIME):
-            portal_signals.day_started.send(self.__class__)
-            settings[portal_settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY] = str(time.time())
+        if (time.time() - float(dext_settings.settings.get(conf.settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY, 0)) > 23.5 * 60 * 60 and
+                datetime.datetime.now().hour >= conf.settings.REAL_DAY_STARTED_TIME):
+            signals.day_started.send(self.__class__)
+            dext_settings.settings[conf.settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY] = str(time.time())
             return
 
         # is cleaning run needed
-        if (time.time() - float(settings.get(portal_settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY, 0)) > 23.5*60*60 and
-            portal_settings.CLEANING_RUN_TIME <= datetime.datetime.now().hour <= portal_settings.CLEANING_RUN_TIME + 1):
-            settings[portal_settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY] = str(time.time())
+        if (time.time() - float(dext_settings.settings.get(conf.settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY, 0)) > 23.5 * 60 * 60 and
+                conf.settings.CLEANING_RUN_TIME <= datetime.datetime.now().hour <= conf.settings.CLEANING_RUN_TIME + 1):
+            dext_settings.settings[conf.settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY] = str(time.time())
             self.run_cleaning()
             return
 
         # is statistics run needed
-        if (time.time() - float(settings.get(portal_settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY, 0)) > 23.5*60*60 and
-            portal_settings.STATISTICS_RUN_TIME <= datetime.datetime.now().hour <= portal_settings.STATISTICS_RUN_TIME + 1):
-            settings[portal_settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY] = str(time.time())
+        if (time.time() - float(dext_settings.settings.get(conf.settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY, 0)) > 23.5 * 60 * 60 and
+                conf.settings.STATISTICS_RUN_TIME <= datetime.datetime.now().hour <= conf.settings.STATISTICS_RUN_TIME + 1):
+            dext_settings.settings[conf.settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY] = str(time.time())
             self.run_statistics()
             return
 
         # is rating sync needed
         if self._try_run_command_with_delay(cmd=self.run_recalculate_ratings,
-                                            settings_key=portal_settings.SETTINGS_PREV_RATINGS_SYNC_TIME_KEY,
-                                            delay=portal_settings.RATINGS_SYNC_DELAY):
+                                            settings_key=conf.settings.SETTINGS_PREV_RATINGS_SYNC_TIME_KEY,
+                                            delay=conf.settings.RATINGS_SYNC_DELAY):
             return
 
         # is might sync needed
         if self._try_run_command_with_delay(cmd=self.run_recalculate_might,
-                                            settings_key=portal_settings.SETTINGS_PREV_MIGHT_SYNC_TIME_KEY,
-                                            delay=portal_settings.MIGHT_SYNC_DELAY):
+                                            settings_key=conf.settings.SETTINGS_PREV_MIGHT_SYNC_TIME_KEY,
+                                            delay=conf.settings.MIGHT_SYNC_DELAY):
             return
 
         # is cdns refresh needed
         if self._try_run_command_with_delay(cmd=self.run_refresh_cdns,
-                                            settings_key=portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY,
-                                            delay=portal_settings.CDN_SYNC_DELAY):
+                                            settings_key=conf.settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY,
+                                            delay=conf.settings.CDN_SYNC_DELAY):
             return
 
         # is remove expired access tokens refresh needed
         if self._try_run_command_with_delay(cmd=self.run_remove_expired_access_tokens,
-                                            settings_key=portal_settings.SETTINGS_PREV_EXPIRE_ACCESS_TOKENS_SYNC_TIME_KEY,
-                                            delay=portal_settings.EXPIRE_ACCESS_TOKENS_SYNC_DELAY):
+                                            settings_key=conf.settings.SETTINGS_PREV_EXPIRE_ACCESS_TOKENS_SYNC_TIME_KEY,
+                                            delay=conf.settings.EXPIRE_ACCESS_TOKENS_SYNC_DELAY):
             return
 
         # is linguistic cleaning needed
         if self._try_run_command_with_delay(cmd=self.run_clean_removed_templates,
-                                            settings_key=portal_settings.SETTINGS_PREV_CLEAN_REMOVED_TEMPLATES_KEY,
-                                            delay=portal_settings.EXPIRE_CLEAN_REMOVED_TEMPLATES):
+                                            settings_key=conf.settings.SETTINGS_PREV_CLEAN_REMOVED_TEMPLATES_KEY,
+                                            delay=conf.settings.EXPIRE_CLEAN_REMOVED_TEMPLATES):
             return
-
 
     def _run_django_subprocess(self, name, cmd):
         self.logger.info('run %s command' % name)
-        result = run_django_command(cmd)
+        result = dext_logic.run_django_command(cmd)
         if result:
             self.logger.error('%s ENDED WITH CODE %d' % (name, result))
         else:

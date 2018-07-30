@@ -1,54 +1,28 @@
 
-import jinja2
-from unittest import mock
+import smart_imports
 
-from django.test import client
-
-from utg import relations as utg_relations
-
-from dext.common.utils.urls import url
-
-from the_tale.common.utils.testcase import TestCase
-from the_tale.common.postponed_tasks.models import PostponedTask
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-from the_tale.common.utils.permissions import sync_group
-
-from the_tale.accounts.logic import login_page_url
-
-from the_tale.linguistics.tests import helpers as linguistics_helpers
-
-from the_tale.game.relations import GENDER, RACE
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.blogs.tests import helpers as blogs_helpers
-
-from the_tale.game import names
-
-from .. import meta_relations
-from .. import logic
+smart_imports.all()
 
 
-class HeroRequestsTestBase(TestCase):
+class HeroRequestsTestBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(HeroRequestsTestBase, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.client = client.Client()
         self.request_login(self.account.email)
 
 
 class HeroIndexRequestsTests(HeroRequestsTestBase):
 
     def test_index(self):
-        response = self.request_html(url('game:heroes:'))
+        response = self.request_html(dext_urls.url('game:heroes:'))
         self.assertRedirects(response, '/', status_code=302, target_status_code=200)
 
 
@@ -56,11 +30,11 @@ class MyHeroRequestsTests(HeroRequestsTestBase):
 
     def test_unloginned(self):
         self.request_logout()
-        request_url = url('game:heroes:my-hero')
-        self.check_redirect(request_url, login_page_url(request_url))
+        request_url = dext_urls.url('game:heroes:my-hero')
+        self.check_redirect(request_url, accounts_logic.login_page_url(request_url))
 
     def test_redirect(self):
-        self.check_redirect(url('game:heroes:my-hero'), url('game:heroes:show', self.hero.id))
+        self.check_redirect(dext_urls.url('game:heroes:my-hero'), dext_urls.url('game:heroes:show', self.hero.id))
 
 
 class HeroPageRequestsTests(HeroRequestsTestBase):
@@ -69,10 +43,10 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         super(HeroPageRequestsTests, self).setUp()
 
     def test_wrong_hero_id(self):
-        self.check_html_ok(self.request_html(url('game:heroes:show', 'dsdsd')), texts=[('heroes.hero.wrong_format', 1)])
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', 'dsdsd')), texts=[('heroes.hero.wrong_format', 1)])
 
     def test_own_hero_page(self):
-        self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)),
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)),
                            texts=(('pgf-health-percents', 2),
                                   ('pgf-experience-percents', 2),
                                   ('pgf-physic-power value', 1),
@@ -83,7 +57,7 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('pgf-choose-ability-button', 2),
                                   ('pgf-free-destiny-points', 3),
                                   ('pgf-no-destiny-points', 2),
-                                  ('pgf-settings-container',2),
+                                  ('pgf-settings-container', 2),
                                   ('pgf-settings-tab-button', 2),
                                   ('pgf-moderation-container', 0),
                                   'pgf-no-folclor'))
@@ -99,17 +73,17 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                  ('pgf-choose-ability-button', 0),
                  ('pgf-no-destiny-points', 0),
                  ('pgf-free-destiny-points', 0),
-                 ('pgf-settings-container',0),
+                 ('pgf-settings-container', 0),
                  ('pgf-settings-tab-button', 1),
                  ('pgf-moderation-container', 0),
                  'pgf-no-folclor')
 
         self.request_logout()
-        self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=texts)
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=texts)
 
         account_2 = self.accounts_factory.create_account()
         self.request_login(account_2.email)
-        self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=texts)
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=texts)
 
     def test_folclor(self):
         blogs_helpers.prepair_forum()
@@ -119,60 +93,60 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(), 'folclor-2-caption', 'folclor-2-text',
                                                   meta_relations.Hero.create_from_object(self.hero), vote_by=self.account)
         blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(), 'folclor-3-caption', 'folclor-3-text',
-                                                   meta_relations.Hero.create_from_object(self.hero))
+                                                  meta_relations.Hero.create_from_object(self.hero))
 
-        self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=(('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', ('folclor-3-caption', 0)))
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=(('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', ('folclor-3-caption', 0)))
 
     def test_moderation_tab(self):
         account_2 = self.accounts_factory.create_account()
         self.request_login(account_2.email)
 
-        group = sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group = utils_permissions.sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(account_2._model)
 
-        self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=['pgf-moderation-container'])
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=['pgf-moderation-container'])
 
 
 class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
     def test_hero_page(self):
-        self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=[jinja2.escape(self.hero.name),
-                                                                                                       ('pgf-settings-approved-warning', 1)])
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=[jinja2.escape(self.hero.name),
+                                                                                                      ('pgf-settings-approved-warning', 1)])
 
     def test_hero_page_change_name_warning_hidden(self):
         self.hero.settings_approved = True
         logic.save_hero(self.hero)
-        self.check_html_ok(self.request_html(url('game:heroes:show', self.hero.id)), texts=[('pgf-settings-approved-warning', 0)])
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=[('pgf-settings-approved-warning', 0)])
 
-    def get_post_data(self, name='новое имя', gender=GENDER.MALE, race=RACE.DWARF):
+    def get_post_data(self, name='новое имя', gender=game_relations.GENDER.MALE, race=game_relations.RACE.DWARF):
         data = {'gender': gender,
                 'race': race}
-        data.update(linguistics_helpers.get_word_post_data(names.generator().get_test_name(name=name), prefix='name'))
+        data.update(linguistics_helpers.get_word_post_data(game_names.generator().get_test_name(name=name), prefix='name'))
         return data
 
     def test_chane_hero_ownership(self):
         account_2 = self.accounts_factory.create_account()
         self.request_logout()
         self.request_login(account_2.email)
-        self.check_ajax_error(self.client.post(url('game:heroes:change-hero', self.hero.id), self.get_post_data()),
+        self.check_ajax_error(self.client.post(dext_urls.url('game:heroes:change-hero', self.hero.id), self.get_post_data()),
                               'heroes.not_owner')
 
     def test_change_hero_form_errors(self):
-        self.check_ajax_error(self.client.post(url('game:heroes:change-hero', self.hero.id), {}),
+        self.check_ajax_error(self.client.post(dext_urls.url('game:heroes:change-hero', self.hero.id), {}),
                               'heroes.change_name.form_errors')
 
     def test_change_hero(self):
         self.assertEqual(PostponedTask.objects.all().count(), 0)
-        response = self.client.post(url('game:heroes:change-hero', self.hero.id), self.get_post_data())
+        response = self.client.post(dext_urls.url('game:heroes:change-hero', self.hero.id), self.get_post_data())
         self.assertEqual(PostponedTask.objects.all().count(), 1)
 
         task = PostponedTaskPrototype._db_get_object(0)
 
         self.check_ajax_processing(response, task.status_url)
 
-        self.assertEqual(task.internal_logic.name, names.generator().get_test_name(name='новое имя', properties=[utg_relations.NUMBER.SINGULAR]))
-        self.assertEqual(task.internal_logic.gender, GENDER.MALE)
-        self.assertEqual(task.internal_logic.race, RACE.DWARF)
+        self.assertEqual(task.internal_logic.name, game_names.generator().get_test_name(name='новое имя', properties=[utg_relations.NUMBER.SINGULAR]))
+        self.assertEqual(task.internal_logic.gender, game_relations.GENDER.MALE)
+        self.assertEqual(task.internal_logic.race, game_relations.RACE.DWARF)
 
 
 class ResetNameRequestsTests(HeroRequestsTestBase):
@@ -182,7 +156,7 @@ class ResetNameRequestsTests(HeroRequestsTestBase):
 
         self.account_2 = self.accounts_factory.create_account()
 
-        group = sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group = utils_permissions.sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_2._model)
 
         self.request_login(self.account_2.email)
@@ -191,14 +165,14 @@ class ResetNameRequestsTests(HeroRequestsTestBase):
         self.request_logout()
         self.request_login(self.account.email)
 
-        self.check_ajax_error(self.client.post(url('game:heroes:reset-name', self.hero.id)), 'heroes.moderator_rights_required')
+        self.check_ajax_error(self.client.post(dext_urls.url('game:heroes:reset-name', self.hero.id)), 'heroes.moderator_rights_required')
 
     def test_change_hero(self):
-        self.hero.set_utg_name(names.generator().get_test_name('x'))
+        self.hero.set_utg_name(game_names.generator().get_test_name('x'))
         logic.save_hero(self.hero)
 
         self.assertEqual(PostponedTask.objects.all().count(), 0)
-        response = self.client.post(url('game:heroes:reset-name', self.hero.id))
+        response = self.client.post(dext_urls.url('game:heroes:reset-name', self.hero.id))
         self.assertEqual(PostponedTask.objects.all().count(), 1)
 
         task = PostponedTaskPrototype._db_get_object(0)
@@ -217,7 +191,7 @@ class ForceSaveRequestsTests(HeroRequestsTestBase):
 
         self.account_2 = self.accounts_factory.create_account()
 
-        group = sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group = utils_permissions.sync_group('accounts moderators group', ['accounts.moderate_account'])
         group.user_set.add(self.account_2._model)
 
         self.request_login(self.account_2.email)
@@ -227,12 +201,12 @@ class ForceSaveRequestsTests(HeroRequestsTestBase):
         self.request_login(self.account.email)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_force_save') as cmd_force_save:
-            self.check_ajax_error(self.client.post(url('game:heroes:force-save', self.hero.id)), 'heroes.moderator_rights_required')
+            self.check_ajax_error(self.client.post(dext_urls.url('game:heroes:force-save', self.hero.id)), 'heroes.moderator_rights_required')
 
         self.assertEqual(cmd_force_save.call_args_list, [])
 
     def test_force_save(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_force_save') as cmd_force_save:
-            self.check_ajax_ok(self.client.post(url('game:heroes:force-save', self.hero.id)))
+            self.check_ajax_ok(self.client.post(dext_urls.url('game:heroes:force-save', self.hero.id)))
 
         self.assertEqual(cmd_force_save.call_args_list, [mock.call(account_id=self.hero.account_id)])

@@ -1,17 +1,13 @@
-# coding: utf-8
 
-from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+import smart_imports
 
-from the_tale.common.utils.enum import create_enum
+smart_imports.all()
 
-from the_tale.game.pvp.prototypes import Battle1x1Prototype
-from the_tale.game.pvp.abilities import ABILITIES
 
-SAY_IN_HERO_LOG_TASK_STATE = create_enum('SAY_IN_HERO_LOG_TASK_STATE', ( ('UNPROCESSED', 0, 'в очереди'),
-                                                                         ('ACCOUNT_HERO_NOT_FOUND', 1, 'герой не найден'),
-                                                                         ('PROCESSED', 2, 'обработана'),
-                                                                         ('BATTLE_NOT_FOUND', 3, 'битва не найдена') ) )
-
+SAY_IN_HERO_LOG_TASK_STATE = utils_enum.create_enum('SAY_IN_HERO_LOG_TASK_STATE', (('UNPROCESSED', 0, 'в очереди'),
+                                                                                   ('ACCOUNT_HERO_NOT_FOUND', 1, 'герой не найден'),
+                                                                                   ('PROCESSED', 2, 'обработана'),
+                                                                                   ('BATTLE_NOT_FOUND', 3, 'битва не найдена')))
 
 
 class SayInBattleLogTask(PostponedLogic):
@@ -25,18 +21,18 @@ class SayInBattleLogTask(PostponedLogic):
         self.state = state
 
     def serialize(self):
-        return { 'battle_id': self.battle_id,
-                 'text': self.text,
-                 'state': self.state}
+        return {'battle_id': self.battle_id,
+                'text': self.text,
+                'state': self.state}
 
     @property
     def error_message(self): return SAY_IN_HERO_LOG_TASK_STATE._CHOICES[self.state][1]
 
     def process(self, main_task, storage):
 
-        battle = Battle1x1Prototype.get_by_id(self.battle_id)
+        battle = prototypes.Battle1x1Prototype.get_by_id(self.battle_id)
 
-        if battle is None: # battle ended, for example
+        if battle is None:  # battle ended, for example
             self.state = SAY_IN_HERO_LOG_TASK_STATE.BATTLE_NOT_FOUND
             main_task.comment = 'battle %d not found' % self.battle_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -58,13 +54,13 @@ class SayInBattleLogTask(PostponedLogic):
         return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
 
+USE_PVP_ABILITY_TASK_STATE = utils_enum.create_enum('USE_PVP_ABILITY_TASK_STATE', (('UNPROCESSED', 0, 'в очереди'),
+                                                                                   ('HERO_NOT_FOUND', 1, 'герой не найден'),
+                                                                                   ('WRONG_ABILITY_ID', 2, 'неизвестная способность'),
+                                                                                   ('NO_ENERGY', 3, 'недостаточно энергии'),
+                                                                                   ('PROCESSED', 4, 'обработана'),
+                                                                                   ('BATTLE_FINISHED', 5, 'битва уже закончена')))
 
-USE_PVP_ABILITY_TASK_STATE = create_enum('USE_PVP_ABILITY_TASK_STATE', ( ('UNPROCESSED', 0, 'в очереди'),
-                                                                         ('HERO_NOT_FOUND', 1, 'герой не найден'),
-                                                                         ('WRONG_ABILITY_ID', 2, 'неизвестная способность'),
-                                                                         ('NO_ENERGY', 3, 'недостаточно энергии'),
-                                                                         ('PROCESSED', 4, 'обработана'),
-                                                                         ('BATTLE_FINISHED', 5, 'битва уже закончена')) )
 
 class UsePvPAbilityTask(PostponedLogic):
 
@@ -78,19 +74,19 @@ class UsePvPAbilityTask(PostponedLogic):
         self.state = state
 
     def serialize(self):
-        return { 'battle_id': self.battle_id,
-                 'account_id': self.account_id,
-                 'ability_id': self.ability_id,
-                 'state': self.state}
+        return {'battle_id': self.battle_id,
+                'account_id': self.account_id,
+                'ability_id': self.ability_id,
+                'state': self.state}
 
     @property
     def error_message(self): return USE_PVP_ABILITY_TASK_STATE._CHOICES[self.state][1]
 
     def process(self, main_task, storage):
 
-        battle = Battle1x1Prototype.get_by_id(self.battle_id)
+        battle = prototypes.Battle1x1Prototype.get_by_id(self.battle_id)
 
-        if battle is None: # battle ended
+        if battle is None:  # battle ended
             self.state = USE_PVP_ABILITY_TASK_STATE.BATTLE_FINISHED
             main_task.comment = 'battle finished'
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
@@ -103,7 +99,7 @@ class UsePvPAbilityTask(PostponedLogic):
             main_task.comment = 'hero for account %d not found' % self.account_id
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-        pvp_ability_class = ABILITIES.get(self.ability_id)
+        pvp_ability_class = abilities.ABILITIES.get(self.ability_id)
 
         if pvp_ability_class is None:
             self.state = USE_PVP_ABILITY_TASK_STATE.WRONG_ABILITY_ID

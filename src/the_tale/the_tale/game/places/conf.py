@@ -1,11 +1,13 @@
-# coding: utf-8
 
-from dext.common.utils.app_settings import app_settings
+import smart_imports
 
-settings = app_settings('PLACES',
-                        MAX_DESCRIPTION_LENGTH=1000,
+smart_imports.all()
 
-                        CHRONICLE_RECORDS_NUMBER=10,
 
-                        API_LIST_VERSION='1.1',
-                        API_SHOW_VERSION='2.2')
+settings = dext_app_settings.app_settings('PLACES',
+                                          MAX_DESCRIPTION_LENGTH=1000,
+
+                                          CHRONICLE_RECORDS_NUMBER=10,
+
+                                          API_LIST_VERSION='1.1',
+                                          API_SHOW_VERSION='2.2')

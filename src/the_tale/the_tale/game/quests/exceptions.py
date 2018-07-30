@@ -1,8 +1,10 @@
-# coding: utf-8
 
-from the_tale.common.utils.exceptions import TheTaleError
+import smart_imports
 
-class QuestError(TheTaleError):
+smart_imports.all()
+
+
+class QuestError(utils_exceptions.TheTaleError):
     MSG = 'hero error'
 
 
@@ -12,6 +14,7 @@ class UnknownRequirementError(QuestError):
 
 class UnknownPowerRecipientError(QuestError):
     MSG = 'unknown state action: %(recipient)r'
+
 
 class UnknownUpgadeEquipmentTypeError(QuestError):
     MSG = 'unknown upgrade equipment: %(type)r'

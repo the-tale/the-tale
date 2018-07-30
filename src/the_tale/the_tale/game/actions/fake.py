@@ -1,19 +1,18 @@
-# coding: utf-8
 
-from the_tale.game.balance.power import Damage
+import smart_imports
 
-from the_tale.game.actions.contexts.battle import BattleContext
+smart_imports.all()
 
 
 class FakeActor(object):
 
     def __init__(self, name='fake_actor', damage=None, max_health=100, context=None, level=7, mob_type=None, bag=None):
         self.name = name
-        self.basic_damage = damage if damage is not None else Damage(10, 10)
+        self.basic_damage = damage if damage is not None else power.Damage(10, 10)
         self.max_health = max_health
         self.health = max_health
         self.level = level
-        self.context = context if context else BattleContext()
+        self.context = context if context else actions_contexts_battle.BattleContext()
         self.mob_type = mob_type
         self.bag = bag
 

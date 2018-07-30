@@ -1,13 +1,10 @@
-# coding: utf-8
-from django.conf import settings as project_settings
-from django.core.management.base import BaseCommand
 
-import psutil
+import smart_imports
 
-from the_tale.accounts import logic
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'Remove most of users from database, reatain only specified amount + all clan, forumm, folclor users. Also actualize their active states.'
 
@@ -16,7 +13,6 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
         parser.add_argument('-n', '--number', action='store', type=int, dest='accounts_number', default=1000, help='howe many accounts muse be remained')
-
 
     def handle(self, *args, **options):
 
@@ -30,8 +26,8 @@ class Command(BaseCommand):
             except psutil.NoSuchProcess:
                 pass
 
-        if not project_settings.DEBUG:
+        if not django_settings.DEBUG:
             print('DEBUG MUST be True to run this command (command must be runned only in development environment)')
             return
 
-        logic.thin_out_accounts(options['accounts_number'], 30*24*60*60)
+        logic.thin_out_accounts(options['accounts_number'], 30 * 24 * 60 * 60, logger=logging.getLogger('the-tale'))

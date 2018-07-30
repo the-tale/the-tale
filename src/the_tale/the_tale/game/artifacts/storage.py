@@ -1,20 +1,10 @@
 
-import random
-import itertools
+import smart_imports
 
-from dext.common.utils import storage
-
-from the_tale.common.utils.logic import random_value_by_priority
-
-from the_tale.game.balance.power import Power
-
-from . import logic
-from . import models
-from . import relations
-from . import exceptions
+smart_imports.all()
 
 
-class ArtifactsStorage(storage.CachedStorage):
+class ArtifactsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'artifacts records change time'
     EXCEPTION = exceptions.ArtifactsStorageError
 
@@ -58,7 +48,7 @@ class ArtifactsStorage(storage.CachedStorage):
         return uuid in self._artifacts_by_uuids
 
     def artifacts_for_type(self, types):
-        return list(itertools.chain(*[self._artifacts_by_types[type_] for type_ in types] ))
+        return list(itertools.chain(*[self._artifacts_by_types[type_] for type_ in types]))
 
     def generate_artifact_from_list(self, artifacts_list, level, rarity):
 
@@ -74,34 +64,34 @@ class ArtifactsStorage(storage.CachedStorage):
         artifact_record = random.choice(artifact_choices)
 
         if artifact_record.is_useless:
-            power = Power(0, 0)
+            artifact_power = power.Power(0, 0)
         else:
-            power = Power.artifact_power_randomized(distribution=artifact_record.power_type.distribution,
-                                                    level=level)
+            artifact_power = power.Power.artifact_power_randomized(distribution=artifact_record.power_type.distribution,
+                                                                   level=level)
 
         return artifact_record.create_artifact(level=level,
-                                               power=power,
+                                               power=artifact_power,
                                                rarity=rarity)
 
     def get_mob_artifacts(self, mob_id):
         self.sync()
 
         if mob_id not in self._mob_artifacts:
-            self._mob_artifacts[mob_id] = [artifact for artifact in self.artifacts if artifact.mob_id == mob_id] # pylint: disable=W0110
+            self._mob_artifacts[mob_id] = [artifact for artifact in self.artifacts if artifact.mob_id == mob_id]  # pylint: disable=W0110
         return self._mob_artifacts[mob_id]
 
     def get_mob_loot(self, mob_id):
         self.sync()
 
         if mob_id not in self._mob_loot:
-            self._mob_loot[mob_id] = [artifact for artifact in self.loot if artifact.mob_id == mob_id] # pylint: disable=W0110
+            self._mob_loot[mob_id] = [artifact for artifact in self.loot if artifact.mob_id == mob_id]  # pylint: disable=W0110
         return self._mob_loot[mob_id]
 
     def get_rarity_type(self, hero):
         choices = ((relations.RARITY.NORMAL, relations.RARITY.NORMAL.probability),
                    (relations.RARITY.RARE, relations.RARITY.RARE.probability * hero.rare_artifact_probability_multiplier),
                    (relations.RARITY.EPIC, relations.RARITY.EPIC.probability * hero.epic_artifact_probability_multiplier))
-        return random_value_by_priority(choices)
+        return utils_logic.random_value_by_priority(choices)
 
     def generate_loot(self, hero, mob):
 

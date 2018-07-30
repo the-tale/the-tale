@@ -1,10 +1,10 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.finances.xsolla.models import Invoice
+smart_imports.all()
 
-class InvoiceAdmin(admin.ModelAdmin):
+
+class InvoiceAdmin(django_admin.ModelAdmin):
     list_display = ('id',
                     'test',
                     'state',
@@ -19,9 +19,10 @@ class InvoiceAdmin(admin.ModelAdmin):
                     'updated_at',
                     'date')
     list_filter = ('state', 'pay_result', 'test')
-    readonly_fields = [field.name for field in Invoice._meta.get_fields()]
+    readonly_fields = [field.name for field in models.Invoice._meta.get_fields()]
 
     def has_delete_permission(self, request, obj=None):
         return False
 
-admin.site.register(Invoice, InvoiceAdmin)
+
+django_admin.site.register(models.Invoice, InvoiceAdmin)

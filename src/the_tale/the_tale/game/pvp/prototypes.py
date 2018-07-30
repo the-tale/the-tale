@@ -1,26 +1,22 @@
-# coding: utf-8
 
-from django.db import IntegrityError, transaction
+import smart_imports
 
-from the_tale.common.utils.prototypes import BasePrototype
-
-from the_tale.game.pvp.models import Battle1x1, Battle1x1Result
-from the_tale.game.pvp.relations import BATTLE_1X1_STATE
+smart_imports.all()
 
 
-class Battle1x1Prototype(BasePrototype):
-    _model_class = Battle1x1
+class Battle1x1Prototype(utils_prototypes.BasePrototype):
+    _model_class = models.Battle1x1
     _readonly = ('id', 'account_id', 'enemy_id', 'created_at')
     _bidirectional = ('calculate_rating', 'state')
     _get_by = ('id', 'enemy_id', 'account_id')
 
     @classmethod
     def reset_waiting_battles(cls):
-        Battle1x1.objects.filter(state=BATTLE_1X1_STATE.WAITING).delete()
+        models.Battle1x1.objects.filter(state=relations.BATTLE_1X1_STATE.WAITING).delete()
 
     def set_enemy(self, enemy):
         self._model.enemy = enemy._model
-        self.state = BATTLE_1X1_STATE.PREPAIRING
+        self.state = relations.BATTLE_1X1_STATE.PREPAIRING
 
     def save(self):
         self._model.save()
@@ -31,17 +27,17 @@ class Battle1x1Prototype(BasePrototype):
     @classmethod
     def create(cls, account):
         try:
-            with transaction.atomic():
+            with django_transaction.atomic():
                 model = cls._model_class.objects.create(account=account._model,
-                                                        state=BATTLE_1X1_STATE.WAITING)
-        except IntegrityError:
+                                                        state=relations.BATTLE_1X1_STATE.WAITING)
+        except django_db.IntegrityError:
             return cls.get_by_account_id(account.id)
 
         return cls(model=model)
 
 
-class Battle1x1ResultPrototype(BasePrototype):
-    _model_class = Battle1x1Result
+class Battle1x1ResultPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Battle1x1Result
     _readonly = ('id', 'created_at', 'participant_1_id', 'participant_2_id', 'result')
     _bidirectional = ()
     _get_by = ()

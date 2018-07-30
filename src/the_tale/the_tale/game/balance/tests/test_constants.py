@@ -1,14 +1,15 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.balance import constants as c
+smart_imports.all()
+
 
 E = 0.00001
 
 
-class ConstantsTest(testcase.TestCase):
+class ConstantsTest(utils_testcase.TestCase):
 
-    def test_constants_values(self): # pylint: disable=R0915
+    def test_constants_values(self):  # pylint: disable=R0915
 
         self.assertEqual(c.TIME_TO_LVL_DELTA, 7.0)
         self.assertEqual(c.TIME_TO_LVL_MULTIPLIER, 1.02)
@@ -73,13 +74,13 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ARTIFACT_INTEGRITY_SAFE_BARRIER, 0.2)
         self.assertEqual(c.ARTIFACT_BREAK_POWER_FRACTIONS, (0.2, 0.3))
         self.assertEqual(c.ARTIFACT_BREAK_INTEGRITY_FRACTIONS, (0.1, 0.2))
-        self.assertEqual(c.BATTLES_LINE_LENGTH, 8*(16+3)-3)
-        self.assertEqual(c.BATTLES_PER_TURN, 1.0 / (3+1) )
-        self.assertEqual(c.MAX_BATTLES_PER_TURN, 0.9 )
+        self.assertEqual(c.BATTLES_LINE_LENGTH, 8 * (16 + 3) - 3)
+        self.assertEqual(c.BATTLES_PER_TURN, 1.0 / (3 + 1))
+        self.assertEqual(c.MAX_BATTLES_PER_TURN, 0.9)
         self.assertEqual(c.WHILD_BATTLES_PER_TURN_BONUS, 0.05)
-        self.assertEqual(c.HEAL_LENGTH, int((8*(16+3)-3) * 0.2))
+        self.assertEqual(c.HEAL_LENGTH, int((8 * (16 + 3) - 3) * 0.2))
 
-        self.assertEqual(c.ACTIONS_CYCLE_LENGTH, int((8*(16+3)-3 + (8*(16+3)-3) * 0.2) / 0.95))
+        self.assertEqual(c.ACTIONS_CYCLE_LENGTH, int((8 * (16 + 3) - 3 + (8 * (16 + 3) - 3) * 0.2) / 0.95))
 
         self.assertEqual(c.BATTLES_PER_HOUR, 15.319148936170212)
 
@@ -88,7 +89,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ARTIFACT_FROM_PREFERED_SLOT_PROBABILITY, 0.25)
 
         self.assertEqual(c.DAMAGE_TO_HERO_PER_HIT_FRACTION, 0.019230769230769232)
-        self.assertEqual(c.DAMAGE_TO_MOB_PER_HIT_FRACTION, 1.0 / (16/2))
+        self.assertEqual(c.DAMAGE_TO_MOB_PER_HIT_FRACTION, 1.0 / (16 / 2))
         self.assertEqual(c.DAMAGE_DELTA, 0.2)
         self.assertEqual(c.DAMAGE_CRIT_MULTIPLIER, 2.0)
 
@@ -98,8 +99,8 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.DESTINY_POINT_IN_LEVELS, 5)
         self.assertEqual(c.SPEND_MONEY_FOR_HEAL_HEALTH_FRACTION, 0.75)
 
-        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_TIME,  0.5)
-        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD,  180)
+        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_TIME, 0.5)
+        self.assertEqual(c.ANGEL_ENERGY_REGENERATION_PERIOD, 180)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_AMAUNT, 1)
         self.assertEqual(c.ANGEL_ENERGY_REGENERATION_LENGTH, 3)
         self.assertEqual(c.ANGEL_ENERGY_IN_DAY, 48)
@@ -109,14 +110,14 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.ANGEL_DROP_ITEM_COST, 1)
         self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
 
-        self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION,  (float(0.25), float(0.5)))
+        self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION, (float(0.25), float(0.5)))
         self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(3.0))
         self.assertEqual(c.ANGEL_HELP_LIGHTING_FRACTION, (float(0.25), float(0.5)))
         self.assertEqual(c.ANGEL_HELP_EXPERIENCE, 20)
 
         self.assertEqual(c.ANGEL_HELP_EXPERIENCE_DELTA, 0.5)
 
-        self.assertEqual(c.ANGEL_HELP_CRIT_HEAL_FRACTION,  (float(0.5), float(0.75)))
+        self.assertEqual(c.ANGEL_HELP_CRIT_HEAL_FRACTION, (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, float(9.0))
         self.assertEqual(c.ANGEL_HELP_CRIT_LIGHTING_FRACTION, (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER, int(10))
@@ -207,7 +208,6 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.HABIT_EVENT_EXPERIENCE, 99)
         self.assertEqual(c.HABIT_EVENT_EXPERIENCE_DELTA, 0.5)
 
-
         self.assertEqual(c.DAMAGE_PVP_ADVANTAGE_MODIFIER, 0.5)
         self.assertEqual(c.DAMAGE_PVP_FULL_ADVANTAGE_STRIKE_MODIFIER, 5)
         self.assertEqual(c.PVP_MAX_ADVANTAGE_STEP, 0.25)
@@ -229,7 +229,7 @@ class ConstantsTest(testcase.TestCase):
         self.assertEqual(c.PLACE_MAX_ECONOMIC, 10)
         self.assertEqual(c.PLACE_MAX_FRONTIER_ECONOMIC, 5)
 
-        self.assertEqual(c.PLACE_NEW_PLACE_LIVETIME, 2*7*24*60*60)
+        self.assertEqual(c.PLACE_NEW_PLACE_LIVETIME, 2 * 7 * 24 * 60 * 60)
 
         self.assertEqual(c.PLACE_POWER_HISTORY_WEEKS, 6)
         self.assertEqual(c.PLACE_POWER_HISTORY_LENGTH, 362880)
@@ -384,12 +384,12 @@ class ConstantsTest(testcase.TestCase):
         multiplier = ((1 + c.COMPANIONS_BLOCK_MULTIPLIER_COHERENCE_DELTA) *
                       (1 + c.COMPANIONS_BLOCK_MULTIPLIER_COMPANION_DEDICATION_DELTA) *
                       (1 + c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA))
-        self.assertTrue(multiplier < 1.3**3+0.00001)
+        self.assertTrue(multiplier < 1.3**3 + 0.00001)
 
     def test_energy_regeneration_vs_companion_heal(self):
         energy_in_day = c.ANGEL_ENERGY_IN_DAY
 
         health_in_day = c.COMPANIONS_WOUNDS_IN_HOUR_FROM_WOUNDS * c.COMPANIONS_DAMAGE_PER_WOUND * 24
 
-        energy_to_heal_in_day = health_in_day / c.COMPANIONS_HEAL_AMOUNT  * c.ANGEL_HELP_COST
+        energy_to_heal_in_day = health_in_day / c.COMPANIONS_HEAL_AMOUNT * c.ANGEL_HELP_COST
         self.assertEqual(round(energy_to_heal_in_day / energy_in_day, 5), 0.23148)

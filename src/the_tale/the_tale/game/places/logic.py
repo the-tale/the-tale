@@ -1,42 +1,10 @@
 
-import random
-import datetime
+import smart_imports
 
-from django.conf import settings as project_settings
-
-from dext.common.utils.urls import url
-from dext.common.utils import s11n
-
-from utg import words as utg_words
-from utg import relations as utg_relations
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-
-from the_tale.game import turn
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.jobs import objects as jobs_objects
-from the_tale.game.jobs import effects as jobs_effects
-from the_tale.game.jobs import logic as jobs_logic
-
-from the_tale.game.politic_power import conf as politic_power_conf
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game import effects
-
-from . import races
-from . import conf
-from . import models
-from . import objects
-from . import habits
-from . import attributes
-from . import modifiers
-from . import relations
+smart_imports.all()
 
 
-EffectsContainer = effects.create_container(relations.ATTRIBUTE)
+EffectsContainer = game_effects.create_container(relations.ATTRIBUTE)
 
 
 class PlaceJob(jobs_objects.Job):
@@ -57,8 +25,6 @@ class PlaceJob(jobs_objects.Job):
         return politic_power_logic.get_inner_circle(place_id=actor_id)
 
     def get_job_power(self, actor_id):
-        from the_tale.game.places import storage
-
         current_place = storage.places[actor_id]
 
         return jobs_logic.job_power(power=politic_power_storage.places.total_power_fraction(current_place.id),
@@ -66,13 +32,10 @@ class PlaceJob(jobs_objects.Job):
                                             for place in current_place.get_same_places()])
 
     def get_project_name(self, actor_id):
-        from the_tale.game.places import storage
         name = storage.places[actor_id].utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
         return 'Проект города {name}'.format(name=name)
 
     def get_objects(self, actor_id):
-        from the_tale.game.places import storage
-
         return {'person': None,
                 'place': storage.places[actor_id]}
 
@@ -83,25 +46,25 @@ class PlaceJob(jobs_objects.Job):
 def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
     amount = round(amount * place.attrs.freedom)
 
-    impact_type = tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE
+    impact_type = game_tt_services.IMPACT_TYPE.OUTER_CIRCLE
 
     if inner_circle:
-        impact_type = tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE
+        impact_type = game_tt_services.IMPACT_TYPE.INNER_CIRCLE
 
-    yield tt_api_impacts.PowerImpact(type=impact_type,
-                                     actor_type=actor_type,
-                                     actor_id=actor_id,
-                                     target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                     target_id=place.id,
-                                     amount=amount)
+    yield game_tt_services.PowerImpact(type=impact_type,
+                                       actor_type=actor_type,
+                                       actor_id=actor_id,
+                                       target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                       target_id=place.id,
+                                       amount=amount)
 
     if actor_type.is_HERO and 0 < fame:
-        yield tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.FAME,
-                                         actor_type=actor_type,
-                                         actor_id=actor_id,
-                                         target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                         target_id=place.id,
-                                         amount=fame)
+        yield game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
+                                           actor_type=actor_type,
+                                           actor_id=actor_id,
+                                           target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                           target_id=place.id,
+                                           amount=fame)
 
     if not inner_circle:
         return
@@ -111,12 +74,12 @@ def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
     if amount < 0:
         target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE
 
-    yield tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                     actor_type=actor_type,
-                                     actor_id=actor_id,
-                                     target_type=target_type,
-                                     target_id=place.id,
-                                     amount=abs(amount))
+    yield game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                       actor_type=actor_type,
+                                       actor_id=actor_id,
+                                       target_type=target_type,
+                                       target_id=place.id,
+                                       amount=abs(amount))
 
 
 def impacts_from_hero(hero, place, power, impacts_generator=tt_power_impacts):
@@ -179,8 +142,6 @@ def load_place(place_id=None, place_model=None):
 
 
 def save_place(place, new=False):
-    from the_tale.game.places import storage
-
     data = {'name': place.utg_name.serialize(),
             'attributes': place.attrs.serialize(),
             'races': place.races.serialize(),
@@ -190,7 +151,7 @@ def save_place(place, new=False):
 
     arguments = {'x': place.x,
                  'y': place.y,
-                 'updated_at_turn': turn.number(),
+                 'updated_at_turn': game_turn.number(),
                  'updated_at': datetime.datetime.now(),
                  'is_frontier': place.is_frontier,
                  'description': place.description,
@@ -206,7 +167,7 @@ def save_place(place, new=False):
                  'persons_changed_at_turn': place.persons_changed_at_turn}
 
     if new:
-        place_model = models.Place.objects.create(created_at_turn=turn.number(), **arguments)
+        place_model = models.Place.objects.create(created_at_turn=game_turn.number(), **arguments)
         place.id = place_model.id
         storage.places.add_item(place.id, place)
     else:
@@ -222,9 +183,9 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           x=x,
                           y=y,
                           updated_at=datetime.datetime.now(),
-                          updated_at_turn=turn.number(),
+                          updated_at_turn=game_turn.number(),
                           created_at=datetime.datetime.now(),
-                          created_at_turn=turn.number(),
+                          created_at_turn=game_turn.number(),
                           habit_honor=habits.Honor(raw_value=0),
                           habit_honor_positive=0,
                           habit_honor_negative=0,
@@ -234,7 +195,7 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           is_frontier=is_frontier,
                           description='',
                           race=race,
-                          persons_changed_at_turn=turn.number(),
+                          persons_changed_at_turn=game_turn.number(),
                           attrs=attributes.Attributes(size=size),
                           utg_name=utg_name,
                           races=races.Races(),
@@ -249,43 +210,36 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
 
 def api_list_url():
     arguments = {'api_version': conf.settings.API_LIST_VERSION,
-                 'api_client': project_settings.API_CLIENT}
+                 'api_client': django_settings.API_CLIENT}
 
-    return url('game:places:api-list', **arguments)
+    return dext_urls.url('game:places:api-list', **arguments)
 
 
 def api_show_url(place):
     arguments = {'api_version': conf.settings.API_SHOW_VERSION,
-                 'api_client': project_settings.API_CLIENT}
+                 'api_client': django_settings.API_CLIENT}
 
-    return url('game:places:api-show', place.id, **arguments)
+    return dext_urls.url('game:places:api-show', place.id, **arguments)
 
 
 def refresh_all_places_attributes():
-    from the_tale.game.places import storage
-
     for place in storage.places.all():
         place.refresh_attributes()
         save_place(place)
 
 
-def get_available_positions(center_x, center_y, building_position_radius=c.BUILDING_POSITION_RADIUS): # pylint: disable=R0914
-    from the_tale.game.places import storage
-    from the_tale.game.roads.storage import roads_storage
-    from the_tale.game.roads.relations import PATH_DIRECTION
-    from the_tale.game.map.conf import map_settings
-
+def get_available_positions(center_x, center_y, building_position_radius=c.BUILDING_POSITION_RADIUS):  # pylint: disable=R0914
     positions = set()
 
-    for i in range(0, building_position_radius+1):
-        for j in range(0, building_position_radius+1):
-            positions.add((center_x+i, center_y+j))
-            positions.add((center_x-i, center_y+j))
-            positions.add((center_x+i, center_y-j))
-            positions.add((center_x-i, center_y-j))
+    for i in range(0, building_position_radius + 1):
+        for j in range(0, building_position_radius + 1):
+            positions.add((center_x + i, center_y + j))
+            positions.add((center_x - i, center_y + j))
+            positions.add((center_x + i, center_y - j))
+            positions.add((center_x - i, center_y - j))
 
-    positions =  set(pos for pos in positions
-                     if 0 <= pos[0] < map_settings.WIDTH and 0 <= pos[1] < map_settings.HEIGHT)
+    positions = set(pos for pos in positions
+                    if 0 <= pos[0] < map_conf.settings.WIDTH and 0 <= pos[1] < map_conf.settings.HEIGHT)
 
     removed_positions = set()
 
@@ -295,24 +249,26 @@ def get_available_positions(center_x, center_y, building_position_radius=c.BUILD
     for building in storage.buildings.all():
         removed_positions.add((building.x, building.y))
 
-    for road in roads_storage.all_exists_roads():
+    for road in roads_storage.roads.all_exists_roads():
         x, y = road.point_1.x, road.point_1.y
         for direction in road.path:
-            if direction == PATH_DIRECTION.LEFT.value: x -= 1
-            elif direction == PATH_DIRECTION.RIGHT.value: x += 1
-            elif direction == PATH_DIRECTION.UP.value: y -= 1
-            elif direction == PATH_DIRECTION.DOWN.value: y += 1
+            if direction == roads_relations.PATH_DIRECTION.LEFT.value:
+                x -= 1
+            elif direction == roads_relations.PATH_DIRECTION.RIGHT.value:
+                x += 1
+            elif direction == roads_relations.PATH_DIRECTION.UP.value:
+                y -= 1
+            elif direction == roads_relations.PATH_DIRECTION.DOWN.value:
+                y += 1
 
             removed_positions.add((x, y))
 
     result = positions - removed_positions
 
-    return result if result else get_available_positions(center_x, center_y, building_position_radius=building_position_radius+1)
+    return result if result else get_available_positions(center_x, center_y, building_position_radius=building_position_radius + 1)
 
 
 def create_building(person, utg_name, position=None):
-    from the_tale.game.places import storage
-
     building = storage.buildings.get_by_person_id(person.id)
 
     if building:
@@ -331,7 +287,7 @@ def create_building(person, utg_name, position=None):
                                 y=y,
                                 type=person.type.building_type,
                                 integrity=1.0,
-                                created_at_turn=turn.number(),
+                                created_at_turn=game_turn.number(),
                                 state=relations.BUILDING_STATE.WORKING,
                                 utg_name=utg_name,
                                 person_id=person.id)
@@ -342,8 +298,6 @@ def create_building(person, utg_name, position=None):
 
 
 def save_building(building, new=False):
-    from the_tale.game.places import storage
-
     data = {'name': building.utg_name.serialize()}
 
     arguments = {'x': building.x,
@@ -391,8 +345,6 @@ def load_building(building_id=None, building_model=None):
 
 
 def destroy_building(building):
-    from the_tale.game.places import storage
-
     building.state = relations.BUILDING_STATE.DESTROYED
     save_building(building)
 
@@ -413,9 +365,9 @@ def sync_sizes(places, hours, max_economic):
 
 
 def get_hero_popularity(hero_id):
-    impacts = tt_api_impacts.fame_impacts.cmd_get_actor_impacts(actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                                                actor_id=hero_id,
-                                                                target_types=[tt_api_impacts.OBJECT_TYPE.PLACE])
+    impacts = game_tt_services.fame_impacts.cmd_get_actor_impacts(actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                  actor_id=hero_id,
+                                                                  target_types=[tt_api_impacts.OBJECT_TYPE.PLACE])
 
     return objects.Popularity({impact.target_id: impact.amount for impact in impacts})
 
@@ -424,16 +376,16 @@ def add_fame(hero_id, fames):
     impacts = []
 
     for place_id, fame in fames:
-        impacts.append(tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.FAME,
-                                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                                  actor_id=hero_id,
-                                                  target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                                  target_id=place_id,
-                                                  amount=fame))
+        impacts.append(game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
+                                                    actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                    actor_id=hero_id,
+                                                    target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                    target_id=place_id,
+                                                    amount=fame))
 
     politic_power_logic.add_power_impacts(impacts)
 
 
 def sync_fame():
-    tt_api_impacts.fame_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PLACE],
-                                                  scale=c.PLACE_FAME_REDUCE_FRACTION)
+    game_tt_services.fame_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PLACE],
+                                                    scale=c.PLACE_FAME_REDUCE_FRACTION)

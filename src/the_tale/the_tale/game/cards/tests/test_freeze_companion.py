@@ -1,48 +1,30 @@
 
-import random
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.companions import relations as companions_relations
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from the_tale.game.cards.tests.helpers import CardsTestMixin
-
-from .. import tt_api
-from .. import effects
+smart_imports.all()
 
 
-class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
-    CARD = cards.CARD.FREEZE_COMPANION
+class FreezeCompanionTests(helpers.CardsTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.FREEZE_COMPANION
 
     def setUp(self):
         super(FreezeCompanionTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-        tt_api.debug_clear_service()
+        tt_services.storage.cmd_debug_clear_service()
 
     def prepair_data(self, available_for_auction):
 
         card = self.CARD.effect.create_card(type=self.CARD, available_for_auction=available_for_auction)
 
-        self.assertEqual(tt_api.load_cards(self.account_1.id), {})
+        self.assertEqual(tt_services.storage.cmd_get_items(self.account_1.id), {})
 
         old_companion_record = random.choice(companions_storage.companions.all())
 
@@ -54,7 +36,7 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
 
         self.assertEqual(self.hero.companion, None)
 
-        cards = tt_api.load_cards(self.account_1.id)
+        cards = tt_services.storage.cmd_get_items(self.account_1.id)
 
         self.assertEqual(len(cards), 1)
 
@@ -71,7 +53,7 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
 
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.rarity', expected_rarity):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=card))
-            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.check_freeze(expected_rarity)
 
@@ -84,7 +66,7 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
 
         with mock.patch('the_tale.game.companions.objects.CompanionRecord.rarity', expected_rarity):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=card))
-            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.check_freeze(expected_rarity)
 
@@ -97,10 +79,10 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
 
         with mock.patch('the_tale.game.companions.abilities.container.Container.can_be_freezed', lambda self: False):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=card))
-            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
         self.assertNotEqual(self.hero.companion, None)
-        self.assertEqual(tt_api.load_cards(self.account_1.id), {})
+        self.assertEqual(tt_services.storage.cmd_get_items(self.account_1.id), {})
 
     def test_use__no_companion_exists(self):
 
@@ -109,8 +91,8 @@ class FreezeCompanionTests(CardsTestMixin, testcase.TestCase):
         self.assertEqual(self.hero.companion, None)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero, card=card))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
         self.assertEqual(self.hero.companion, None)
 
-        self.assertEqual(tt_api.load_cards(self.account_1.id), {})
+        self.assertEqual(tt_services.storage.cmd_get_items(self.account_1.id), {})

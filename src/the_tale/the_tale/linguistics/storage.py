@@ -1,25 +1,10 @@
 
-import time
+import smart_imports
 
-from dext.common.utils import s11n
-from dext.settings import settings
-from dext.common.utils import storage as dext_storage
-
-from utg import words as utg_words
-from utg import templates as utg_templates
-from utg import dictionary as utg_dictionary
-from utg import lexicon as utg_lexicon
-
-from the_tale.common.utils import storage
-
-from the_tale.linguistics import exceptions
-from the_tale.linguistics import prototypes
-from the_tale.linguistics import relations
-from the_tale.linguistics import objects
-from the_tale.linguistics import models
+smart_imports.all()
 
 
-class BaseGameDictionaryStorage(storage.SingleStorage):
+class BaseGameDictionaryStorage(utils_storage.SingleStorage):
     SETTINGS_KEY = None
     EXCEPTION = exceptions.DictionaryStorageError
 
@@ -36,7 +21,7 @@ class BaseGameDictionaryStorage(storage.SingleStorage):
             word = utg_words.Word.deserialize(s11n.from_json(forms))
             self._item.add_word(word)
 
-        self._version = settings.get(self.SETTINGS_KEY)
+        self._version = dext_settings.settings.get(self.SETTINGS_KEY)
 
     def _get_next_version(self):
         return '%f' % time.time()
@@ -46,14 +31,16 @@ class GameDictionaryStorage(BaseGameDictionaryStorage):
     SETTINGS_KEY = 'game dictionary change time'
 
     def _words_query(self):
+        from . import prototypes
         return prototypes.WordPrototype._db_filter(state=relations.WORD_STATE.IN_GAME).values_list('forms', flat=True)
 
 
-class GameLexiconDictionaryStorage(storage.SingleStorage):
+class GameLexiconDictionaryStorage(utils_storage.SingleStorage):
     SETTINGS_KEY = 'game lexicon change time'
     EXCEPTION = exceptions.LexiconStorageError
 
     def _templates_query(self):
+        from . import prototypes
         return prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME,
                                                        errors_status=relations.TEMPLATE_ERRORS_STATUS.NO_ERRORS).values_list('key', 'data')
 
@@ -69,14 +56,14 @@ class GameLexiconDictionaryStorage(storage.SingleStorage):
             restrictions = frozenset(tuple(key) for key in data.get('restrictions', ()))
             self._item.add_template(key, template, restrictions=restrictions)
 
-        self._version = settings.get(self.SETTINGS_KEY)
+        self._version = dext_settings.settings.get(self.SETTINGS_KEY)
 
     def _get_next_version(self):
         return '%f' % time.time()
 
 
-game_dictionary = GameDictionaryStorage()
-game_lexicon = GameLexiconDictionaryStorage()
+dictionary = GameDictionaryStorage()
+lexicon = GameLexiconDictionaryStorage()
 
 
 class RestrictionsStorage(dext_storage.Storage):
@@ -112,13 +99,15 @@ class RestrictionsStorage(dext_storage.Storage):
         return self._restrictions_by_group.get(group, ())
 
     def get_form_choices(self):
+        from . import restrictions
+
         choices = [(None, 'нет')]
 
-        for restriction_group in relations.TEMPLATE_RESTRICTION_GROUP.records:
-            restrictions = [(r.id, r.name) for r in sorted(self.get_restrictions(restriction_group), key=lambda r: r.name)]
-            choices.append((restriction_group.text, restrictions))
+        for restriction_group in restrictions.GROUP.records:
+            group_restrictions = [(r.id, r.name) for r in sorted(self.get_restrictions(restriction_group), key=lambda r: r.name)]
+            choices.append((restriction_group.text, group_restrictions))
 
         return choices
 
 
-restrictions_storage = RestrictionsStorage()
+restrictions = RestrictionsStorage()

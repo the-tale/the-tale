@@ -1,22 +1,12 @@
-# coding: utf-8
 
-from dext.forms import fields
+import smart_imports
 
-from the_tale.common.utils import bbcode
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import conf as places_conf
-from the_tale.game.places import logic as places_logic
-
-from . import base_place_bill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label='Город')
-    new_description = bbcode.BBField(label='Новое описание', max_length=places_conf.settings.MAX_DESCRIPTION_LENGTH)
+class BaseForm(forms.BaseUserForm):
+    place = dext_fields.ChoiceField(label='Город')
+    new_description = utils_bbcode.BBField(label='Новое описание', max_length=places_conf.settings.MAX_DESCRIPTION_LENGTH)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -27,7 +17,7 @@ class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
@@ -49,10 +39,10 @@ class PlaceDescripton(base_place_bill.BasePlaceBill):
             self.old_name_forms = self.place.utg_name
 
     @property
-    def description_html(self): return bbcode.render(self.description)
+    def description_html(self): return utils_bbcode.render(self.description)
 
     @property
-    def old_description_html(self): return bbcode.render(self.old_description)
+    def old_description_html(self): return utils_bbcode.render(self.old_description)
 
     def user_form_initials(self):
         data = super(PlaceDescripton, self).user_form_initials()

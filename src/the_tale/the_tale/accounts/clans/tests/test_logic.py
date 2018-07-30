@@ -1,31 +1,19 @@
-# coding: utf-8
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils.testcase import TestCase
+smart_imports.all()
 
-from the_tale.game.logic import create_test_map
 
-from the_tale.finances.shop.relations import PERMANENT_PURCHASE_TYPE
-
-from the_tale.accounts.clans.logic import ClanInfo
-from the_tale.accounts.clans.relations import MEMBER_ROLE
-from the_tale.accounts.clans.tests.helpers import ClansTestsMixin
-from the_tale.accounts.clans.conf import clans_settings
-
-from the_tale.forum.prototypes import CategoryPrototype
-
-class ClanInfoTests(TestCase, ClansTestsMixin):
+class ClanInfoTests(utils_testcase.TestCase, helpers.ClansTestsMixin):
 
     def setUp(self):
         super(ClanInfoTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
-        CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
+        forum_prototypes.CategoryPrototype.create(caption='category-1', slug=conf.settings.FORUM_CATEGORY_SLUG, order=0)
 
         self.account = self.accounts_factory.create_account()
-        self.clan_info = ClanInfo(account=self.account)
-
+        self.clan_info = logic.ClanInfo(account=self.account)
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_authenticated', lambda *argv: False)
     def test_membership__anonymous(self):
@@ -62,14 +50,14 @@ class ClanInfoTests(TestCase, ClansTestsMixin):
     def test_is_owner_of__is_owner(self):
         self.assertTrue(self.clan_info.is_owner_of(self.create_clan(self.account, 0)))
 
-    @mock.patch('the_tale.accounts.clans.prototypes.MembershipPrototype.role', MEMBER_ROLE.MEMBER)
+    @mock.patch('the_tale.accounts.clans.prototypes.MembershipPrototype.role', relations.MEMBER_ROLE.MEMBER)
     def test_is_owner_of__not_leader(self):
         self.assertFalse(self.clan_info.is_owner_of(self.create_clan(self.account, 0)))
 
     def test_can_invite__not_member(self):
         self.assertFalse(self.clan_info.can_invite)
 
-    @mock.patch('the_tale.accounts.clans.prototypes.MembershipPrototype.role', MEMBER_ROLE.MEMBER)
+    @mock.patch('the_tale.accounts.clans.prototypes.MembershipPrototype.role', relations.MEMBER_ROLE.MEMBER)
     def test_can_invite__no_rights(self):
         self.create_clan(self.account, 0)
         self.assertFalse(self.clan_info.can_invite)
@@ -81,7 +69,7 @@ class ClanInfoTests(TestCase, ClansTestsMixin):
     def test_can_remove__not_member(self):
         self.assertFalse(self.clan_info.can_remove)
 
-    @mock.patch('the_tale.accounts.clans.prototypes.MembershipPrototype.role', MEMBER_ROLE.MEMBER)
+    @mock.patch('the_tale.accounts.clans.prototypes.MembershipPrototype.role', relations.MEMBER_ROLE.MEMBER)
     def test_can_remove__no_rights(self):
         self.create_clan(self.account, 0)
         self.assertFalse(self.clan_info.can_remove)

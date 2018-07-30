@@ -1,12 +1,12 @@
-# coding: utf-8
-from django.core.management.base import BaseCommand
 
-from the_tale.game.roads.logic import update_waymarks
+import smart_imports
+
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'update roads data'
 
     def handle(self, *args, **options):
-        update_waymarks()
+        logic.update_waymarks()

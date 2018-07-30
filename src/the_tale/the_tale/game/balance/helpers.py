@@ -1,4 +1,4 @@
-# coding: utf-8
+
 
 ######################################
 # зависимость изменения скорости от изменения безопасности
@@ -15,4 +15,4 @@
 #   dy = y - 1
 
 def speed_from_safety(danger, battles_per_turn):
-    return float((1.0/ (battles_per_turn - danger) - 1) / (1.0/battles_per_turn - 1) - 1)
+    return float((1.0 / (battles_per_turn - danger) - 1) / (1.0 / battles_per_turn - 1) - 1)

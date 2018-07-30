@@ -1,26 +1,14 @@
-# coding: utf-8
 
-from dext.views import handler, validate_argument, validator
-from dext.common.utils.urls import url
+import smart_imports
 
-from the_tale.common.utils.resources import Resource
-from the_tale.common.utils.decorators import login_required, lazy_property
-from the_tale.common.utils.logic import split_into_table
-
-from the_tale.accounts.prototypes import AccountPrototype
-
-from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype, AccountItemsPrototype
-from the_tale.collections.forms import EditCollectionForm, EditKitForm, EditItemForm
-from the_tale.collections.logic import get_collections_statistics
-from the_tale.collections.conf import collections_settings
-from the_tale.collections.storage import collections_storage, kits_storage, items_storage
+smart_imports.all()
 
 
-class BaseCollectionsResource(Resource):
+class BaseCollectionsResource(utils_resources.Resource):
 
-    @validate_argument('collection', lambda value: collections_storage[int(value)], 'collections', 'Коллекция не найдена')
-    @validate_argument('kit', lambda value: kits_storage[int(value)], 'collections', 'Набор не найден')
-    @validate_argument('item', lambda value: items_storage[int(value)], 'collections', 'Предмет не найден')
+    @dext_old_views.validate_argument('collection', lambda value: storage.collections[int(value)], 'collections', 'Коллекция не найдена')
+    @dext_old_views.validate_argument('kit', lambda value: storage.kits[int(value)], 'collections', 'Набор не найден')
+    @dext_old_views.validate_argument('item', lambda value: storage.items[int(value)], 'collections', 'Предмет не найден')
     def initialize(self, collection=None, kit=None, item=None, **kwargs):
         super(BaseCollectionsResource, self).initialize(**kwargs)
         self.item = item
@@ -35,43 +23,43 @@ class BaseCollectionsResource(Resource):
         if self.kit:
             self.collection = self.kit.collection
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def edit_collection_permission(self): return self.account.has_perm('collections.edit_collection')
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def moderate_collection_permission(self): return self.account.has_perm('collections.moderate_collection')
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def edit_kit_permission(self): return self.account.has_perm('collections.edit_kit')
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def moderate_kit_permission(self): return self.account.has_perm('collections.moderate_kit')
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def edit_item_permission(self): return self.account.has_perm('collections.edit_item')
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def moderate_item_permission(self): return self.account.has_perm('collections.moderate_item')
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def can_see_all_collections(self): return self.edit_collection_permission or self.moderate_collection_permission
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def can_edit_collection(self):
         if self.collection and self.collection.approved:
             return self.can_moderate_collection
         return self.edit_collection_permission or self.moderate_collection_permission
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def can_moderate_collection(self): return self.moderate_collection_permission
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def can_edit_kit(self):
         if self.kit and self.kit.approved:
             return self.can_moderate_kit
         return self.edit_kit_permission or self.moderate_kit_permission
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def can_moderate_kit(self): return self.moderate_kit_permission
 
     def _can_edit_item(self, item):
@@ -79,78 +67,78 @@ class BaseCollectionsResource(Resource):
             return self.can_moderate_item
         return self.edit_item_permission or self.moderate_item_permission
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def can_edit_item(self): return self._can_edit_item(self.item)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def can_moderate_item(self): return self.moderate_item_permission
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def collections(self):
         if self.moderate_collection_permission or self.edit_collection_permission:
-            return sorted(CollectionPrototype.all_collections(), key=lambda c: c.caption)
+            return sorted(prototypes.CollectionPrototype.all_collections(), key=lambda c: c.caption)
         else:
-            return sorted(CollectionPrototype.approved_collections(), key=lambda c: c.caption)
+            return sorted(prototypes.CollectionPrototype.approved_collections(), key=lambda c: c.caption)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def kits(self):
         if self.moderate_kit_permission or self.edit_kit_permission:
-            return sorted(KitPrototype.all_kits(), key=lambda k: k.caption)
+            return sorted(prototypes.KitPrototype.all_kits(), key=lambda k: k.caption)
         else:
-            return sorted(KitPrototype.approved_kits(), key=lambda k: k.caption)
+            return sorted(prototypes.KitPrototype.approved_kits(), key=lambda k: k.caption)
 
     def collection_url(self, collection):
         if self.master_account:
-            return url('collections:collections:show', collection.id, account=self.master_account.id)
+            return dext_urls.url('collections:collections:show', collection.id, account=self.master_account.id)
         else:
-            return url('collections:collections:show', collection.id)
-
+            return dext_urls.url('collections:collections:show', collection.id)
 
     def index_url(self):
         if self.master_account:
-            return url('collections:collections:', account=self.master_account.id)
+            return dext_urls.url('collections:collections:', account=self.master_account.id)
         else:
-            return url('collections:collections:')
+            return dext_urls.url('collections:collections:')
+
+
+@dext_old_views.validator(code='collections.collections.no_edit_rights', message='нет прав для редактирования коллекции')
+def validate_can_edit_collection(resource, *args, **kwargs):
+    return resource.can_edit_collection
+
+
+@dext_old_views.validator(code='collections.collections.no_moderate_rights', message='нет прав для модерации коллекции')
+def validate_can_moderate_collection(resource, *args, **kwargs):
+    return resource.can_moderate_collection
+
+
+@dext_old_views.validator(code='collections.collections.not_approved', message='коллекция не найдена', status_code=404)
+def validate_collection_approved(resource, *args, **kwargs):
+    return resource.collection and (resource.can_edit_collection or resource.collection.approved)
 
 
 class CollectionsResource(BaseCollectionsResource):
 
-
-    @validator(code='collections.collections.no_edit_rights', message='нет прав для редактирования коллекции')
-    def validate_can_edit_collection(self, *args, **kwargs):
-        return self.can_edit_collection
-
-    @validator(code='collections.collections.no_moderate_rights', message='нет прав для модерации коллекции')
-    def validate_can_moderate_collection(self, *args, **kwargs):
-        return self.can_moderate_collection
-
-    @validator(code='collections.collections.not_approved', message='коллекция не найдена', status_code=404)
-    def validate_collection_approved(self, *args, **kwargs):
-        return self.collection and (self.can_edit_collection or self.collection.approved)
-
-    @validate_argument('account', AccountPrototype.get_by_id, 'collections', 'Игрок не найден')
-    @handler('')
+    @dext_old_views.validate_argument('account', accounts_prototypes.AccountPrototype.get_by_id, 'collections', 'Игрок не найден')
+    @dext_old_views.handler('')
     def index(self, account=None):
 
         if account is None and self.account.is_authenticated:
-            return self.redirect(url('collections:collections:', account=self.account.id))
+            return self.redirect(dext_urls.url('collections:collections:', account=self.account.id))
 
         self.master_account = account
 
         master_account_items = None
         last_items = []
         if self.master_account:
-            master_account_items = AccountItemsPrototype.get_by_account_id(self.master_account.id)
-            last_items = master_account_items.last_items(number=collections_settings.LAST_ITEMS_NUMBER)
+            master_account_items = prototypes.AccountItemsPrototype.get_by_account_id(self.master_account.id)
+            last_items = master_account_items.last_items(number=conf.settings.LAST_ITEMS_NUMBER)
 
         account_items = None
         if self.account.is_authenticated:
-            account_items = AccountItemsPrototype.get_by_account_id(self.account.id)
+            account_items = prototypes.AccountItemsPrototype.get_by_account_id(self.account.id)
 
-        collections_statistics = get_collections_statistics(account_items=master_account_items)
+        collections_statistics = logic.get_collections_statistics(account_items=master_account_items)
 
-        collections_table = split_into_table(self.collections, 3)
-
+        collections_table = utils_logic.split_into_table(self.collections, 3)
 
         return self.template('collections/collections/index.html',
                              {'collections_statistics': collections_statistics,
@@ -159,58 +147,55 @@ class CollectionsResource(BaseCollectionsResource):
                               'master_account_items': master_account_items,
                               'last_items': last_items})
 
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_collection()
-    @handler('new')
+    @dext_old_views.handler('new')
     def new(self):
         return self.template('collections/collections/new.html',
-                             {'form': EditCollectionForm()})
+                             {'form': forms.EditCollectionForm()})
 
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_collection()
-    @handler('create', method='post')
+    @dext_old_views.handler('create', method='post')
     def create(self):
-        form = EditCollectionForm(self.request.POST)
+        form = forms.EditCollectionForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('collections.collections.create.form_errors', form.errors)
 
-        collection = CollectionPrototype.create(caption=form.c.caption,
-                                          description=form.c.description)
+        collection = prototypes.CollectionPrototype.create(caption=form.c.caption,
+                                                           description=form.c.description)
 
-        return self.json_ok(data={'next_url': url('collections:collections:show', collection.id)})
-
+        return self.json_ok(data={'next_url': dext_urls.url('collections:collections:show', collection.id)})
 
     @validate_collection_approved()
-    @validate_argument('account', AccountPrototype.get_by_id, 'collections', 'Игрок не найден')
-    @handler('#collection', name='show')
+    @dext_old_views.validate_argument('account', accounts_prototypes.AccountPrototype.get_by_id, 'collections', 'Игрок не найден')
+    @dext_old_views.handler('#collection', name='show')
     def show(self, account=None):
 
         if account is None and self.account.is_authenticated:
-            return self.redirect(url('collections:collections:show', self.collection.id, account=self.account.id))
+            return self.redirect(dext_urls.url('collections:collections:show', self.collection.id, account=self.account.id))
 
         self.master_account = account
 
         master_account_items = None
         if self.master_account:
-            master_account_items = AccountItemsPrototype.get_by_account_id(self.master_account.id)
+            master_account_items = prototypes.AccountItemsPrototype.get_by_account_id(self.master_account.id)
 
         account_items = None
         if self.account.is_authenticated:
-            account_items = AccountItemsPrototype.get_by_account_id(self.account.id)
+            account_items = prototypes.AccountItemsPrototype.get_by_account_id(self.account.id)
 
-        collections_statistics = get_collections_statistics(account_items=master_account_items)
+        collections_statistics = logic.get_collections_statistics(account_items=master_account_items)
 
-
-        kits = sorted([kit for kit in kits_storage.all() if kit.collection_id == self.collection.id], key=lambda k: k.caption)
+        kits = sorted([kit for kit in storage.kits.all() if kit.collection_id == self.collection.id], key=lambda k: k.caption)
 
         if not (self.can_edit_kit or self.can_moderate_kit):
             kits = [kit for kit in kits if kit.approved]
 
         items = {kit.id: [] for kit in kits}
 
-        items_query = items_storage.all()
+        items_query = storage.items.all()
 
         if not self.edit_item_permission and not self.moderate_item_permission:
             items_query = (item for item in items_query if item.approved)
@@ -227,22 +212,21 @@ class CollectionsResource(BaseCollectionsResource):
                               'master_account_items': master_account_items,
                               'collections_statistics': collections_statistics})
 
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_collection()
-    @handler('#collection', 'edit')
+    @dext_old_views.handler('#collection', 'edit')
     def edit(self):
-        form = EditCollectionForm(initial={'caption': self.collection.caption,
-                                        'description': self.collection.description})
+        form = forms.EditCollectionForm(initial={'caption': self.collection.caption,
+                                                 'description': self.collection.description})
 
         return self.template('collections/collections/edit.html',
                              {'form': form})
 
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_collection()
-    @handler('#collection', 'update')
+    @dext_old_views.handler('#collection', 'update')
     def update(self, method='post'):
-        form = EditCollectionForm(self.request.POST)
+        form = forms.EditCollectionForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('collections.collections.update.form_errors', form.errors)
@@ -253,20 +237,18 @@ class CollectionsResource(BaseCollectionsResource):
 
         return self.json_ok()
 
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_moderate_collection()
-    @handler('#collection', 'approve')
+    @dext_old_views.handler('#collection', 'approve')
     def approve(self, method='post'):
         self.collection.approved = True
         self.collection.save()
 
         return self.json_ok()
 
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_moderate_collection()
-    @handler('#collection', 'disapprove')
+    @dext_old_views.handler('#collection', 'disapprove')
     def disapprove(self, method='post'):
         self.collection.approved = False
         self.collection.save()
@@ -274,59 +256,61 @@ class CollectionsResource(BaseCollectionsResource):
         return self.json_ok()
 
 
+@dext_old_views.validator(code='collections.kits.no_edit_rights', message='нет прав для редактирования набора')
+def validate_can_edit_kit(resource, *args, **kwargs):
+    return resource.can_edit_kit or resource.can_moderate_kit
+
+
+@dext_old_views.validator(code='collections.kits.no_moderate_rights', message='нет прав для модерации набора')
+def validate_can_moderate_kit(resource, *args, **kwargs):
+    return resource.can_moderate_kit
+
+
+@dext_old_views.validator(code='collections.kits.not_approved', message='набор не найден', status_code=404)
+def validate_kit_approved(resource, *args, **kwargs):
+    return resource.kit and (resource.can_edit_kit or resource.kit.approved)
+
+
 class KitsResource(BaseCollectionsResource):
 
-    @validator(code='collections.kits.no_edit_rights', message='нет прав для редактирования набора')
-    def validate_can_edit_kit(self, *args, **kwargs):
-        return self.can_edit_kit or self.can_moderate_kit
-
-    @validator(code='collections.kits.no_moderate_rights', message='нет прав для модерации набора')
-    def validate_can_moderate_kit(self, *args, **kwargs):
-        return self.can_moderate_kit
-
-    @validator(code='collections.kits.not_approved', message='набор не найден', status_code=404)
-    def validate_kit_approved(self, *args, **kwargs):
-        return self.kit and (self.can_edit_kit or self.kit.approved)
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_kit()
-    @handler('new')
+    @dext_old_views.handler('new')
     def new(self):
         return self.template('collections/kits/new.html',
-                             {'form': EditKitForm()})
+                             {'form': forms.EditKitForm()})
 
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_kit()
-    @handler('create', method='post')
+    @dext_old_views.handler('create', method='post')
     def create(self):
-        form = EditKitForm(self.request.POST)
+        form = forms.EditKitForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('collections.kits.create.form_errors', form.errors)
 
-        kit = KitPrototype.create(collection=form.c.collection,
-                                  caption=form.c.caption,
-                                  description=form.c.description)
+        kit = prototypes.KitPrototype.create(collection=form.c.collection,
+                                             caption=form.c.caption,
+                                             description=form.c.description)
 
-        return self.json_ok(data={'next_url': url('collections:collections:show', kit.collection_id)})
+        return self.json_ok(data={'next_url': dext_urls.url('collections:collections:show', kit.collection_id)})
 
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_kit()
-    @handler('#kit', 'edit')
+    @dext_old_views.handler('#kit', 'edit')
     def edit(self):
-        form = EditKitForm(initial={'collection': self.kit.collection_id,
-                                    'caption': self.kit.caption,
-                                    'description': self.kit.description})
+        form = forms.EditKitForm(initial={'collection': self.kit.collection_id,
+                                          'caption': self.kit.caption,
+                                          'description': self.kit.description})
 
         return self.template('collections/kits/edit.html',
                              {'form': form})
 
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_kit()
-    @handler('#kit', 'update')
+    @dext_old_views.handler('#kit', 'update')
     def update(self, method='post'):
-        form = EditKitForm(self.request.POST)
+        form = forms.EditKitForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('collections.kits.update.form_errors', form.errors)
@@ -336,22 +320,20 @@ class KitsResource(BaseCollectionsResource):
         self.kit.description = form.c.description
         self.kit.save()
 
-        return self.json_ok(data={'next_url': url('collections:collections:show', self.kit.collection_id)})
+        return self.json_ok(data={'next_url': dext_urls.url('collections:collections:show', self.kit.collection_id)})
 
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_moderate_kit()
-    @handler('#kit', 'approve')
+    @dext_old_views.handler('#kit', 'approve')
     def approve(self, method='post'):
         self.kit.approved = True
         self.kit.save()
 
         return self.json_ok()
 
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_moderate_kit()
-    @handler('#kit', 'disapprove')
+    @dext_old_views.handler('#kit', 'disapprove')
     def disapprove(self, method='post'):
         self.kit.approved = False
         self.kit.save()
@@ -359,60 +341,57 @@ class KitsResource(BaseCollectionsResource):
         return self.json_ok()
 
 
+@dext_old_views.validator(code='collections.items.no_edit_rights', message='нет прав для редактирования предмета')
+def validate_can_edit_item(resource, *args, **kwargs):
+    return resource.can_edit_item or resource.can_moderate_item
+
+
+@dext_old_views.validator(code='collections.items.no_moderate_rights', message='нет прав для модерации предмета')
+def validate_can_moderate_item(resource, *args, **kwargs):
+    return resource.can_moderate_item
+
+
 class ItemsResource(BaseCollectionsResource):
 
-    @validator(code='collections.items.no_edit_rights', message='нет прав для редактирования предмета')
-    def validate_can_edit_item(self, *args, **kwargs):
-        return self.can_edit_item or self.can_moderate_item
-        # if self.item is None or not self.item.approved:
-        #     print self.item.approved
-        #     return self.can_edit_item or self.can_moderate_item
-        # else:
-        #     return self.can_moderate_item
-
-    @validator(code='collections.items.no_moderate_rights', message='нет прав для модерации предмета')
-    def validate_can_moderate_item(self, *args, **kwargs):
-        return self.can_moderate_item
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_item()
-    @handler('new')
+    @dext_old_views.handler('new')
     def new(self):
         return self.template('collections/items/new.html',
-                             {'form': EditItemForm()})
+                             {'form': forms.EditItemForm()})
 
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_item()
-    @handler('create', method='post')
+    @dext_old_views.handler('create', method='post')
     def create(self):
-        form = EditItemForm(self.request.POST)
+        form = forms.EditItemForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('collections.items.create.form_errors', form.errors)
 
-        item = ItemPrototype.create(kit=form.c.kit,
-                                        caption=form.c.caption,
-                                        text=form.c.text)
+        item = prototypes.ItemPrototype.create(kit=form.c.kit,
+                                               caption=form.c.caption,
+                                               text=form.c.text)
 
-        return self.json_ok(data={'next_url': url('collections:collections:show', item.kit.collection_id)})
+        return self.json_ok(data={'next_url': dext_urls.url('collections:collections:show', item.kit.collection_id)})
 
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_item()
-    @handler('#item', 'edit')
+    @dext_old_views.handler('#item', 'edit')
     def edit(self):
-        form = EditItemForm(initial={ 'kit': self.item.kit_id,
-                                        'caption': self.item.caption,
-                                        'text': self.item.text})
+        form = forms.EditItemForm(initial={'kit': self.item.kit_id,
+                                           'caption': self.item.caption,
+                                           'text': self.item.text})
 
         return self.template('collections/items/edit.html',
                              {'form': form})
 
-    @login_required
+    @utils_decorators.login_required
     @validate_can_edit_item()
-    @handler('#item', 'update')
+    @dext_old_views.handler('#item', 'update')
     def update(self, method='post'):
 
-        form = EditItemForm(self.request.POST)
+        form = forms.EditItemForm(self.request.POST)
 
         if not form.is_valid():
             return self.json_error('collections.items.update.form_errors', form.errors)
@@ -422,22 +401,20 @@ class ItemsResource(BaseCollectionsResource):
         self.item.text = form.c.text
         self.item.save()
 
-        return self.json_ok(data={'next_url': url('collections:collections:show', self.item.kit.collection_id)})
+        return self.json_ok(data={'next_url': dext_urls.url('collections:collections:show', self.item.kit.collection_id)})
 
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_moderate_item()
-    @handler('#item', 'approve')
+    @dext_old_views.handler('#item', 'approve')
     def approve(self, method='post'):
         self.item.approved = True
         self.item.save()
 
         return self.json_ok()
 
-
-    @login_required
+    @utils_decorators.login_required
     @validate_can_moderate_item()
-    @handler('#item', 'disapprove')
+    @dext_old_views.handler('#item', 'disapprove')
     def disapprove(self, method='post'):
         self.item.approved = False
         self.item.save()

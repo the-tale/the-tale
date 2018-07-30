@@ -1,22 +1,17 @@
 
-import time
-import collections
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game import turn
-
-from the_tale.game.heroes import messages
+smart_imports.all()
 
 
-class MessagesContainerTest(testcase.TestCase):
+class MessagesContainerTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(MessagesContainerTest, self).setUp()
         self.messages = messages.JournalContainer()
 
     def create_message(self, message, turn_delta=0, time_delta=0, position='some position info'):
-        return messages.MessageSurrogate(turn_number=turn.number() + turn_delta,
+        return messages.MessageSurrogate(turn_number=game_turn.number() + turn_delta,
                                          timestamp=time.time() + time_delta,
                                          key=None,
                                          externals=None,
@@ -43,12 +38,11 @@ class MessagesContainerTest(testcase.TestCase):
 
         self.assertEqual(self.messages.messages, collections.deque())
 
-
     def test_push_message(self):
         self.messages.push_message(self.create_message('1'))
         self.messages.push_message(self.create_message('2'))
 
-        turn.increment()
+        game_turn.increment()
 
         self.messages.push_message(self.create_message('3'))
 
@@ -58,14 +52,14 @@ class MessagesContainerTest(testcase.TestCase):
         self.messages.push_message(self.create_message('1'))
         self.messages.push_message(self.create_message('2', turn_delta=2))
 
-        turn.increment()
+        game_turn.increment()
 
         self.messages.push_message(self.create_message('3'))
 
         self.assertEqual([msg.message for msg in self.messages.messages], ['1', '3', '2'])
         self.assertEqual([msg[2] for msg in self.messages.ui_info()], ['1', '3'])
 
-        turn.increment()
+        game_turn.increment()
 
         self.assertEqual([msg.message for msg in self.messages.messages], ['1', '3', '2'])
         self.assertEqual([msg[2] for msg in self.messages.ui_info()], ['1', '3', '2'])

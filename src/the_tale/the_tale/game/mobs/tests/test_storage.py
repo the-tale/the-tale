@@ -1,57 +1,42 @@
 
-from unittest import mock
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game import names
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.map import relations as map_relations
-from the_tale.game.actions import relations as actions_relations
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from .. import logic
-from .. import storage
-from .. import relations
+smart_imports.all()
 
 
-class MobsStorageTests(testcase.TestCase):
+class MobsStorageTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(MobsStorageTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.mob_1, self.mob_2, self.mob_3 = storage.mobs.all()
 
-        self.mob_1.type = beings_relations.TYPE.CIVILIZED
+        self.mob_1.type = tt_beings_relations.TYPE.CIVILIZED
         logic.save_mob_record(self.mob_1)
 
-        self.mob_2.type = beings_relations.TYPE.CIVILIZED
+        self.mob_2.type = tt_beings_relations.TYPE.CIVILIZED
         self.mob_2.is_mercenary = False
         logic.save_mob_record(self.mob_2)
 
-        self.mob_3.type = beings_relations.TYPE.CIVILIZED
+        self.mob_3.type = tt_beings_relations.TYPE.CIVILIZED
         logic.save_mob_record(self.mob_3)
 
         self.bandit = logic.create_random_mob_record(uuid='bandit',
                                                      level=1,
-                                                     utg_name=names.generator().get_test_name(name='bandint'),
+                                                     utg_name=game_names.generator().get_test_name(name='bandint'),
                                                      description='description',
                                                      abilities=['hit'],
                                                      terrains=[map_relations.TERRAIN.PLANE_SAND],
-                                                     type=beings_relations.TYPE.CIVILIZED,
+                                                     type=tt_beings_relations.TYPE.CIVILIZED,
                                                      state=relations.MOB_RECORD_STATE.ENABLED)
         self.bandint_wrong = logic.create_random_mob_record(uuid='bandit_wrong',
                                                             level=1,
-                                                            utg_name=names.generator().get_test_name(name='bandit_wrong'),
+                                                            utg_name=game_names.generator().get_test_name(name='bandit_wrong'),
                                                             description='bandit_wrong description',
                                                             abilities=['hit'],
                                                             terrains=[map_relations.TERRAIN.PLANE_SAND],
-                                                            type=beings_relations.TYPE.CIVILIZED,
+                                                            type=tt_beings_relations.TYPE.CIVILIZED,
                                                             state=relations.MOB_RECORD_STATE.DISABLED)
 
         self.account = self.accounts_factory.create_account()
@@ -61,7 +46,7 @@ class MobsStorageTests(testcase.TestCase):
         self.assertEqual(len(storage.mobs.all()), 5)
         self.assertEqual(storage.mobs.mobs_number, 5)
         self.assertEqual(sum(storage.mobs._types_count.values()), 5)
-        self.assertTrue(storage.mobs.mob_type_fraction(beings_relations.TYPE.CIVILIZED) > 2.0 / 5)
+        self.assertTrue(storage.mobs.mob_type_fraction(tt_beings_relations.TYPE.CIVILIZED) > 2.0 / 5)
 
     def test_get_mobs_choices(self):
         mobs_in_forest = [mob.uuid for mob, priority in storage.mobs._get_mobs_choices(level=1, mercenary=None, terrain=map_relations.TERRAIN.PLANE_SAND)]

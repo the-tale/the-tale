@@ -1,17 +1,14 @@
-# coding: utf-8
-import datetime
 
-from dext.settings import settings
+import smart_imports
 
-from the_tale.common.utils.workers import BaseWorker
-
-from the_tale.post_service.prototypes import MessagePrototype
-from the_tale.post_service.conf import post_service_settings
+smart_imports.all()
 
 
-class MessageSenderException(Exception): pass
+class MessageSenderException(Exception):
+    pass
 
-class Worker(BaseWorker):
+
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 0.1
     NO_CMD_TIMEOUT = 5.0
 
@@ -20,7 +17,7 @@ class Worker(BaseWorker):
         self.stop_queue.queue.purge()
 
     def initialize(self):
-        if not post_service_settings.ENABLE_MESSAGE_SENDER:
+        if not conf.settings.ENABLE_MESSAGE_SENDER:
             return False
 
         self.initialized = True
@@ -29,17 +26,17 @@ class Worker(BaseWorker):
 
     def process_no_cmd(self):
         if self.next_message_process_time < datetime.datetime.now():
-            if not self.send_message(MessagePrototype.get_priority_message()):
-                self.next_message_process_time = datetime.datetime.now() + datetime.timedelta(seconds=post_service_settings.MESSAGE_SENDER_DELAY)
+            if not self.send_message(prototypes.MessagePrototype.get_priority_message()):
+                self.next_message_process_time = datetime.datetime.now() + datetime.timedelta(seconds=conf.settings.MESSAGE_SENDER_DELAY)
 
     def send_message(self, message):
 
         if message is None:
             return False
 
-        if (not post_service_settings.ENABLE_MESSAGE_SENDER or
-            (settings.get(post_service_settings.SETTINGS_ALLOWED_KEY) is None and
-             message.handler.settings_type_uid not in settings.get(post_service_settings.SETTINGS_FORCE_ALLOWED_KEY, ''))):
+        if (not conf.settings.ENABLE_MESSAGE_SENDER or
+            (dext_settings.settings.get(conf.settings.SETTINGS_ALLOWED_KEY) is None and
+             message.handler.settings_type_uid not in dext_settings.settings.get(conf.settings.SETTINGS_FORCE_ALLOWED_KEY, ''))):
             self.logger.info('skip message %s' % message.uid)
             message.skip()
             return True
@@ -59,4 +56,4 @@ class Worker(BaseWorker):
         return self.send_cmd('send_now', {'message_id': message_id})
 
     def process_send_now(self, message_id):
-        self.send_message(MessagePrototype.get_by_id(message_id))
+        self.send_message(prototypes.MessagePrototype.get_by_id(message_id))

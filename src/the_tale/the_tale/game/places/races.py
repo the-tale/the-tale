@@ -1,12 +1,8 @@
 
-import copy
-import collections
+import smart_imports
 
-from the_tale.game.relations import RACE
+smart_imports.all()
 
-from the_tale.game.balance import constants as c
-from the_tale.game.map.utils import get_person_race_percents
-from the_tale.game.politic_power import storage as politic_power_storage
 
 E = 0.001
 
@@ -19,7 +15,7 @@ class Races(object):
 
     def __init__(self, races=None):
         if races is None:
-            races = {race: 1.0 / len(RACE.records) for race in RACE.records}
+            races = {race: 1.0 / len(game_relations.RACE.records) for race in game_relations.RACE.records}
 
         self._races = races
 
@@ -28,13 +24,13 @@ class Races(object):
 
     @classmethod
     def deserialize(cls, data):
-        return cls(races={ RACE(int(race_id)): percents for race_id, percents in data.items() })
+        return cls(races={game_relations.RACE(int(race_id)): percents for race_id, percents in data.items()})
 
     def get_race_percents(self, race):
         return self._races.get(race, 0)
 
     def get_next_races(self, persons):
-        trends = {race: 0.0 for race in RACE.records}
+        trends = {race: 0.0 for race in game_relations.RACE.records}
 
         for person in persons:
             trends[person.race] += politic_power_storage.persons.total_power_fraction(person.id) * person.attrs.demographics_pressure
@@ -52,7 +48,7 @@ class Races(object):
         # normalize
         normalizer = sum(new_races.values())
 
-        new_races = {race: percents/normalizer for race, percents in new_races.items()}
+        new_races = {race: percents / normalizer for race, percents in new_races.items()}
 
         return new_races
 
@@ -68,16 +64,16 @@ class Races(object):
     def get_next_delta(self, persons):
         next_races = self.get_next_races(persons)
 
-        return {race: next_races[race] - self._races[race] for race in RACE.records}
+        return {race: next_races[race] - self._races[race] for race in game_relations.RACE.records}
 
     def demographics(self, persons):
         races = []
 
         next_delta = self.get_next_delta(persons)
 
-        persons_percents = get_person_race_percents(persons)
+        persons_percents = map_utils.get_person_race_percents(persons)
 
-        for race in RACE.records:
+        for race in game_relations.RACE.records:
             races.append(RaceInfo(race=race, percents=self._races[race], delta=next_delta[race], persons_percents=persons_percents[race.value]))
 
         return sorted(races, key=lambda r: -r.percents)

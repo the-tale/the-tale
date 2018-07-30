@@ -1,12 +1,12 @@
-# coding: utf-8
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from the_tale.accounts.might import recalculate_accounts_might
+smart_imports.all()
 
-class Command(BaseCommand):
+
+class Command(django_management.BaseCommand):
 
     help = 'Recalculate mights of accounts'
 
     def handle(self, *args, **options):
-        recalculate_accounts_might()
+        might.recalculate_accounts_might()

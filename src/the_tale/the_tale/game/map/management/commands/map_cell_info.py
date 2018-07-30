@@ -1,14 +1,10 @@
-# coding: utf-8
-from django.core.management.base import BaseCommand
 
-from the_tale.game.map.relations import TERRAIN
-from the_tale.game.map.storage import map_info_storage
-from the_tale.game.map.prototypes import WorldInfoPrototype
-from the_tale.game.map.generator.biomes import Biom
-from the_tale.game.map.generator.power_points import get_power_points
+import smart_imports
+
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'generate map'
 
@@ -16,19 +12,18 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
-        parser.add_argument('-x', action='store', type=int, dest='x', default=None, help='x coordinate')
-        parser.add_argument('-y', action='store', type=int, dest='y', default=None, help='y coordinate')
+        parser.add_argument('-x', action='store', type=int, dest='x', required=True, help='x coordinate')
+        parser.add_argument('-y', action='store', type=int, dest='y', required=True, help='y coordinate')
 
-
-    def handle(self, *args, **options): # pylint: disable=R0914
+    def handle(self, *args, **options):
 
         x = options['x']
         y = options['y']
 
-        generator = WorldInfoPrototype.get_by_id(map_info_storage.item.world_id).generator
+        world_generator = prototypes.WorldInfoPrototype.get_by_id(storage.map_info.item.world_id).generator
 
-        cell = generator.cell_info(x, y)
-        power_cell = generator.cell_power_info(x, y)
+        cell = world_generator.cell_info(x, y)
+        power_cell = world_generator.cell_power_info(x, y)
 
         print('----CELL--x=%d--y=%d--' % (x, y))
         print('height:            %.2f \t\t| %r       ' % (cell.height, power_cell.height))
@@ -42,8 +37,8 @@ class Command(BaseCommand):
         print('atmo_wetness:      %.2f \t\t|          ' % (cell.atmo_wetness,))
 
         terrain_points = []
-        for terrain in TERRAIN.records:
-            biom = Biom(id_=terrain)
+        for terrain in relations.TERRAIN.records:
+            biom = generator.biomes.Biom(id_=terrain)
             terrain_points.append((terrain.text, biom.check(cell), biom.get_points(cell)))
         terrain_points = sorted(terrain_points, key=lambda x: -x[1])
 
@@ -59,8 +54,8 @@ class Command(BaseCommand):
         print('----POINTS----')
 
         points = []
-        for point in get_power_points():
-            value = point.log_powers_for(generator, x=x, y=y)
+        for point in generator.power_points.get_power_points():
+            value = point.log_powers_for(world_generator, x=x, y=y)
             if value:
                 points.append((point.name, value))
         points.sort()

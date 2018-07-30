@@ -1,20 +1,18 @@
-# coding: utf-8
 
-import rels
-from rels.django import DjangoEnum
+import smart_imports
 
-from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
+smart_imports.all()
 
 
-class MAKE_CHOICE_TASK_STATE(DjangoEnum):
-    records = ( ('UNPROCESSED', 0, 'в очереди'),
-                ('PROCESSED', 1, 'обработана'),
-                ('UNKNOWN_CHOICE', 2, 'не существует такого выбора'),
-                ('WRONG_POINT', 3, 'в данный момент вы не можете влиять на эту точку выбора'),
-                ('LINE_NOT_AVAILABLE', 4, 'характер не позволяет герою сделать такой выбор'),
-                ('ALREADY_CHOSEN', 5, 'вы уже сделали выбор'),
-                ('QUEST_NOT_FOUND', 6, 'задание не найдено'),
-                ('NO_CHOICES_IN_QUEST', 7, 'в текущем задании не осталось точек выбора'))
+class MAKE_CHOICE_TASK_STATE(rels_django.DjangoEnum):
+    records = (('UNPROCESSED', 0, 'в очереди'),
+               ('PROCESSED', 1, 'обработана'),
+               ('UNKNOWN_CHOICE', 2, 'не существует такого выбора'),
+               ('WRONG_POINT', 3, 'в данный момент вы не можете влиять на эту точку выбора'),
+               ('LINE_NOT_AVAILABLE', 4, 'характер не позволяет герою сделать такой выбор'),
+               ('ALREADY_CHOSEN', 5, 'вы уже сделали выбор'),
+               ('QUEST_NOT_FOUND', 6, 'задание не найдено'),
+               ('NO_CHOICES_IN_QUEST', 7, 'в текущем задании не осталось точек выбора'))
 
 
 class MakeChoiceTask(PostponedLogic):
@@ -28,9 +26,9 @@ class MakeChoiceTask(PostponedLogic):
         self.state = state if isinstance(state, rels.Record) else MAKE_CHOICE_TASK_STATE.index_value[state]
 
     def serialize(self):
-        return { 'account_id': self.account_id,
-                 'option_uid': self.option_uid,
-                 'state': self.state.value}
+        return {'account_id': self.account_id,
+                'option_uid': self.option_uid,
+                'state': self.state.value}
 
     @property
     def error_message(self): return self.state.text

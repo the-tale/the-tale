@@ -1,14 +1,7 @@
 
-import time
-import collections
+import smart_imports
 
-from the_tale.game.balance import constants as c
-
-from the_tale.game import turn
-
-from . import conf
-
-from the_tale.linguistics.lexicon import keys as linguistics_keys
+smart_imports.all()
 
 
 class MessageSurrogate(object):
@@ -26,11 +19,10 @@ class MessageSurrogate(object):
         self._message = message
         self._variables = variables
 
-
     @classmethod
     def create(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=''):
-        return cls(turn_number=turn.number() + turn_delta,
-                   timestamp=time.time()+turn_delta*c.TURN_DELTA,
+        return cls(turn_number=game_turn.number() + turn_delta,
+                   timestamp=time.time() + turn_delta * c.TURN_DELTA,
                    key=key,
                    externals=externals,
                    message=None,
@@ -39,12 +31,11 @@ class MessageSurrogate(object):
 
     @classmethod
     def create_fake(cls, key, externals, turn_delta=0, restrictions=frozenset(), position=''):
-        from the_tale.linguistics.logic import fake_text
-        return cls(turn_number=turn.number() + turn_delta,
-                   timestamp=time.time()+turn_delta*c.TURN_DELTA,
+        return cls(turn_number=game_turn.number() + turn_delta,
+                   timestamp=time.time() + turn_delta * c.TURN_DELTA,
                    key=None,
                    externals=externals,
-                   message=fake_text(key, externals),
+                   message=linguistics_logic.fake_text(key, externals),
                    restrictions=restrictions,
                    position=position)
 
@@ -56,19 +47,17 @@ class MessageSurrogate(object):
         return cls(turn_number=data[0],
                    timestamp=data[1],
                    message=data[2],
-                   key=linguistics_keys.LEXICON_KEY.index_value.get(data[4]),
+                   key=lexicon_keys.LEXICON_KEY.index_value.get(data[4]),
                    externals=None,
                    position=data[3],
                    variables=data[5])
 
     @property
     def message(self):
-        from the_tale.linguistics import logic
-
         if self._message is not None:
             return self._message
 
-        self._message = logic.render_text(lexicon_key=self.key, externals=self.externals, restrictions=self.restrictions)
+        self._message = linguistics_logic.render_text(lexicon_key=self.key, externals=self.externals, restrictions=self.restrictions)
 
         return self._message
 
@@ -78,7 +67,7 @@ class MessageSurrogate(object):
         return self._variables
 
     def game_time(self):
-        return turn.game_datetime(self.turn_number)
+        return game_turn.game_datetime(self.turn_number)
 
     def ui_info(self, with_info=False):
         if self._ui_info is not None:
@@ -104,7 +93,7 @@ class MessageSurrogate(object):
                               timestamp=self.timestamp,
                               key=self.key,
                               externals=self.externals,
-                              message=self.message, # access .message instead ._message to enshure, that two messages will have one text
+                              message=self.message,  # access .message instead ._message to enshure, that two messages will have one text
                               position=self.position,
                               variables=self.get_variables())
 
@@ -121,7 +110,6 @@ class MessagesContainer(object):
     def __init__(self):
         self.messages = collections.deque(maxlen=self.MESSAGES_LOG_LENGTH)
 
-
     def push_message(self, msg):
         self.messages.append(msg)
 
@@ -137,12 +125,10 @@ class MessagesContainer(object):
         if self.messages:
             self.messages.clear()
 
-
     def __len__(self): return len(self.messages)
 
-
     def ui_info(self, with_info=False):
-        current_turn = turn.number()
+        current_turn = game_turn.number()
 
         messages = []
 
@@ -176,8 +162,4 @@ class MessagesContainer(object):
 
 
 class JournalContainer(MessagesContainer):
-    MESSAGES_LOG_LENGTH = conf.heroes_settings.MESSAGES_LOG_LENGTH
-
-
-class DiaryContainer(MessagesContainer):
-    MESSAGES_LOG_LENGTH = conf.heroes_settings.DIARY_LOG_LENGTH
+    MESSAGES_LOG_LENGTH = conf.settings.MESSAGES_LOG_LENGTH

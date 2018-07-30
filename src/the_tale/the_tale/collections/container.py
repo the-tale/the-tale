@@ -1,6 +1,8 @@
-# coding: utf-8
 
-import time
+import smart_imports
+
+
+smart_imports.all()
 
 
 class ItemsContainer(object):
@@ -37,25 +39,26 @@ class ItemsContainer(object):
     def items_ids(self): return self.items.keys()
 
     def __len__(self):
-         return len(self.items)
+        return len(self.items)
 
     def approved_items_count(self):
-        from the_tale.collections.storage import items_storage
-        return len([item_id for item_id in self.items.keys() if item_id in items_storage and items_storage[item_id].approved])
+        from . import storage
+
+        return len([item_id for item_id in self.items.keys() if item_id in storage.items and storage.items[item_id].approved])
 
     def last_items(self, number):
-        from the_tale.collections.storage import items_storage
+        from . import storage
 
         items_ids = list(zip(*sorted((-item_time, item_id)
-                                for item_id, item_time in self.items.items()
-                                if item_id in items_storage)))
+                                     for item_id, item_time in self.items.items()
+                                     if item_id in storage.items)))
 
         if items_ids:
             items_ids = items_ids[1]
 
         MAXIMUM_UNAPPROVED_ITEMS = 5
 
-        candidates = {item_id:items_storage[item_id] for item_id in items_ids[:number+MAXIMUM_UNAPPROVED_ITEMS] if items_storage[item_id].approved}
+        candidates = {item_id: storage.items[item_id] for item_id in items_ids[:number + MAXIMUM_UNAPPROVED_ITEMS] if storage.items[item_id].approved}
 
         result = []
 

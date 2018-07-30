@@ -1,29 +1,14 @@
 
-import time
+import smart_imports
 
-from dext.common.amqp_queues import exceptions as amqp_exceptions
-
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils.workers import BaseWorker
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.accounts.models import Account
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game import exceptions
-from the_tale.game import prototypes
-from the_tale.game import relations
-from the_tale.game import models
-from the_tale.game import conf
-from the_tale.game import turn
+smart_imports.all()
 
 
-class SupervisorException(Exception): pass
+class SupervisorException(Exception):
+    pass
 
 
-class Worker(BaseWorker):
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
     RECEIVE_ANSWERS = True
 
@@ -48,22 +33,22 @@ class Worker(BaseWorker):
 
         PostponedTaskPrototype.reset_all()
 
-        self.logic_workers = {worker.name: worker for worker in (environment.workers.logic_1, environment.workers.logic_2)}
+        self.logic_workers = {worker.name: worker for worker in (amqp_environment.environment.workers.logic_1, amqp_environment.environment.workers.logic_2)}
 
         self.logger.info('initialize logic')
 
-        self.logic_multicast('initialize', arguments=dict(turn_number=turn.number()), worker_id=True, wait_answer=True)
+        self.logic_multicast('initialize', arguments=dict(turn_number=game_turn.number()), worker_id=True, wait_answer=True)
 
-        if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
+        if conf.settings.ENABLE_WORKER_HIGHLEVEL:
             self.logger.info('initialize highlevel')
-            environment.workers.highlevel.cmd_initialize(turn_number=turn.number(), worker_id='highlevel')
+            amqp_environment.environment.workers.highlevel.cmd_initialize(turn_number=game_turn.number(), worker_id='highlevel')
             self.wait_answers_from('initialize', workers=['highlevel'])
         else:
             self.logger.info('skip initialization of highlevel')
 
-        if conf.game_settings.ENABLE_PVP:
+        if conf.settings.ENABLE_PVP:
             self.logger.info('initialize pvp balancer')
-            environment.workers.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
+            amqp_environment.environment.workers.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
             self.wait_answers_from('initialize', workers=['pvp_balancer'])
         else:
             self.logger.info('skip initialization of pvp balancer')
@@ -84,7 +69,7 @@ class Worker(BaseWorker):
 
         self.logger.info('distribute accounts')
 
-        for account_id in Account.objects.all().order_by('id').values_list('id', flat=True).iterator():
+        for account_id in accounts_models.Account.objects.all().order_by('id').values_list('id', flat=True).iterator():
             self.register_account(account_id)
 
         self.initialized = True
@@ -128,7 +113,6 @@ class Worker(BaseWorker):
                 chosen_worker = logic_name
 
         return chosen_worker
-
 
     def register_account(self, account_id):
         if self.accounts_owners.get(account_id) is not None:
@@ -200,7 +184,6 @@ class Worker(BaseWorker):
     def cmd_next_turn(self):
         return self.send_cmd('next_turn')
 
-
     def wait_answer_from_next_turn(self):
 
         if not self.wait_next_turn_answer:
@@ -211,8 +194,8 @@ class Worker(BaseWorker):
             # we do not want to increment turn number in middle of turn processing
             self.wait_answers_from('next_turn',
                                    workers=list(self.logic_workers.keys()),
-                                   timeout=conf.game_settings.PROCESS_TURN_WAIT_LOGIC_TIMEOUT)
-        except amqp_exceptions.WaitAnswerTimeoutError:
+                                   timeout=conf.settings.PROCESS_TURN_WAIT_LOGIC_TIMEOUT)
+        except amqp_queues_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from logic')
             self._force_stop()
             raise
@@ -220,15 +203,15 @@ class Worker(BaseWorker):
     def process_next_turn(self):
         self.wait_answer_from_next_turn()
 
-        turn.increment()
+        game_turn.increment()
 
-        self.logic_multicast('next_turn', arguments=dict(turn_number=turn.number()))
+        self.logic_multicast('next_turn', arguments=dict(turn_number=game_turn.number()))
         self.wait_next_turn_answer = True
 
         try:
-            if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
-                environment.workers.highlevel.cmd_next_turn(turn_number=turn.number())
-        except amqp_exceptions.WaitAnswerTimeoutError:
+            if conf.settings.ENABLE_WORKER_HIGHLEVEL:
+                amqp_environment.environment.workers.highlevel.cmd_next_turn(turn_number=game_turn.number())
+        except amqp_queues_exceptions.WaitAnswerTimeoutError:
             self.logger.error('next turn timeout while getting answer from highlevel')
             self._force_stop()
             raise
@@ -245,10 +228,10 @@ class Worker(BaseWorker):
     def _send_stop_signals(self):
         self.logic_multicast('stop', arguments={})
 
-        if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
-            environment.workers.highlevel.cmd_stop()
-        if conf.game_settings.ENABLE_PVP:
-            environment.workers.pvp_balancer.cmd_stop()
+        if conf.settings.ENABLE_WORKER_HIGHLEVEL:
+            amqp_environment.environment.workers.highlevel.cmd_stop()
+        if conf.settings.ENABLE_PVP:
+            amqp_environment.environment.workers.pvp_balancer.cmd_stop()
 
     def on_sigterm(self, signal_code, frame):
         if self.logger:
@@ -272,20 +255,19 @@ class Worker(BaseWorker):
 
         wait_answers_from = list(self.logic_workers.keys())
 
-        if conf.game_settings.ENABLE_WORKER_HIGHLEVEL:
+        if conf.settings.ENABLE_WORKER_HIGHLEVEL:
             wait_answers_from.append('highlevel')
 
-        if conf.game_settings.ENABLE_PVP:
+        if conf.settings.ENABLE_PVP:
             wait_answers_from.append('pvp_balancer')
 
-        self.wait_answers_from('stop', workers=wait_answers_from, timeout=conf.game_settings.STOP_WAIT_TIMEOUT)
+        self.wait_answers_from('stop', workers=wait_answers_from, timeout=conf.settings.STOP_WAIT_TIMEOUT)
 
         self.stop_queue.put({'code': 'stopped', 'worker': 'supervisor'}, serializer='json', compression=None)
 
         self.stop_required = True
 
         self.logger.info('SUPERVISOR STOPPED')
-
 
     def cmd_register_new_account(self, account_id):
         self.send_cmd('register_new_account', {'account_id': account_id})
@@ -295,11 +277,11 @@ class Worker(BaseWorker):
 
     def cmd_logic_task(self, account_id, task_id):
         self.send_cmd('logic_task', {'task_id': task_id,
-                                     'account_id': account_id })
+                                     'account_id': account_id})
 
     def process_logic_task(self, account_id, task_id):
         self.dispatch_logic_cmd(account_id, 'logic_task', {'account_id': account_id,
-                                                           'task_id': task_id} )
+                                                           'task_id': task_id})
 
     def cmd_update_hero_with_account_data(self, account_id, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
         self.send_cmd('update_hero_with_account_data', {'account_id': account_id,
@@ -317,13 +299,13 @@ class Worker(BaseWorker):
                                                                               'active_end_at': active_end_at,
                                                                               'ban_end_at': ban_end_at,
                                                                               'might': might,
-                                                                              'actual_bills': actual_bills} )
+                                                                              'actual_bills': actual_bills})
 
     def cmd_start_hero_caching(self, account_id):
         self.send_cmd('start_hero_caching', {'account_id': account_id})
 
     def process_start_hero_caching(self, account_id):
-        self.dispatch_logic_cmd(account_id, 'start_hero_caching', {'account_id': account_id} )
+        self.dispatch_logic_cmd(account_id, 'start_hero_caching', {'account_id': account_id})
 
     def cmd_highlevel_data_updated(self):
         self.send_cmd('highlevel_data_updated')
@@ -335,7 +317,7 @@ class Worker(BaseWorker):
         self.send_cmd('force_save', {'account_id': account_id})
 
     def process_force_save(self, account_id):
-        self.dispatch_logic_cmd(account_id, 'force_save', {'account_id': account_id} )
+        self.dispatch_logic_cmd(account_id, 'force_save', {'account_id': account_id})
 
     def cmd_account_release_required(self, account_id):
         return self.send_cmd('account_release_required', {'account_id': account_id})
@@ -355,7 +337,7 @@ class Worker(BaseWorker):
 
     def process_setup_quest(self, account_id, knowledge_base):
         self.dispatch_logic_cmd(account_id, 'setup_quest', {'account_id': account_id,
-                                                            'knowledge_base': knowledge_base} )
+                                                            'knowledge_base': knowledge_base})
 
     def cmd_add_task(self, task_id):
         return self.send_cmd('add_task', {'task_id': task_id})

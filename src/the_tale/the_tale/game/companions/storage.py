@@ -1,12 +1,10 @@
 
-from dext.common.utils import storage
+import smart_imports
 
-from the_tale.game.companions import exceptions
-from the_tale.game.companions import objects
-from the_tale.game.companions import models
+smart_imports.all()
 
 
-class CompanionsStorage(storage.Storage):
+class CompanionsStorage(utils_storage.Storage):
     SETTINGS_KEY = 'companions-storage'
     EXCEPTION = exceptions.CompanionsStorageError
 

@@ -1,17 +1,7 @@
-# coding: utf-8
-import jinja2
 
-from dext.forms import forms
+import smart_imports
 
-from utg import words
-from utg import data as utg_data
-from utg import restrictions as utg_restrictions
-from utg import relations as utg_relations
-from utg import logic as utg_logic
-
-from . import relations
-from . import logic
-from .forms import WORD_FIELD_PREFIX
+smart_imports.all()
 
 
 def get_best_base(word_type):
@@ -47,7 +37,7 @@ def get_structure(word_type):
     for key in iterated_keys:
         data.append(Leaf(type=word_type,
                          base=base,
-                         key={p:k for p, k in zip(iterated, key)}))
+                         key={p: k for p, k in zip(iterated, key)}))
 
     return data
 
@@ -104,7 +94,6 @@ class BaseDrawer(object):
         return any(marker in header_properties for marker in self.skip_markers)
 
 
-
 class ShowDrawer(BaseDrawer):
 
     def __init__(self, word, other_version, skip_markers=(), **kwargs):
@@ -118,8 +107,8 @@ class ShowDrawer(BaseDrawer):
         if key not in cache:
             return ''
 
-        form = self.word.form(words.Properties(*key))
-        other_form = self.other_version.form(words.Properties(*key)) if self.other_version else None
+        form = self.word.form(utg_words.Properties(*key))
+        other_form = self.other_version.form(utg_words.Properties(*key)) if self.other_version else None
 
         if other_form is None or form == other_form:
             html = form
@@ -164,8 +153,8 @@ class FormFieldDrawer(BaseDrawer):
         self.widgets = widgets
 
     def widget_html(self, name):
-        content = self.widgets[name] + forms.HTML_ERROR_CONTAINER % {'name': name}
-        return forms.HTML_WIDGET_WRAPPER % {'content': content}
+        content = self.widgets[name] + dext_forms.HTML_ERROR_CONTAINER % {'name': name}
+        return dext_forms.HTML_WIDGET_WRAPPER % {'content': content}
 
     def get_form(self, key):
 
@@ -179,14 +168,13 @@ class FormFieldDrawer(BaseDrawer):
         if key not in cache:
             return ''
 
-        return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d' % (WORD_FIELD_PREFIX, cache[key]))})
+        return jinja2.Markup(dext_forms.HTML_WIDGET_WRAPPER % {'content': self.widget_html('%s_%d' % (forms.WORD_FIELD_PREFIX, cache[key]))})
 
     def get_property(self, property):
-        content = self.widget_html('%s_%s' % (WORD_FIELD_PREFIX, property.__name__))
-        content = '<label>%s:</label> %s'% (utg_relations.PROPERTY_TYPE.index_relation[property].text, content)
-        return jinja2.Markup(forms.HTML_WIDGET_WRAPPER % {'content': content})
+        content = self.widget_html('%s_%s' % (forms.WORD_FIELD_PREFIX, property.__name__))
+        content = '<label>%s:</label> %s' % (utg_relations.PROPERTY_TYPE.index_relation[property].text, content)
+        return jinja2.Markup(dext_forms.HTML_WIDGET_WRAPPER % {'content': content})
 
 
-
-STRUCTURES = { word_type: get_structure(word_type)
-               for word_type in utg_relations.WORD_TYPE.records }
+STRUCTURES = {word_type: get_structure(word_type)
+              for word_type in utg_relations.WORD_TYPE.records}

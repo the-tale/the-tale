@@ -1,5 +1,7 @@
 
-from the_tale.game import relations as game_relations
+import smart_imports
+
+smart_imports.all()
 
 
 class BaseReactor:
@@ -8,22 +10,17 @@ class BaseReactor:
     def __init__(self):
         self.own_card_type = None
 
-
     def initialize(self, own_card_type):
         self.own_card_type = own_card_type
-
 
     def descrption(self):
         return None
 
-
     def check_types(self, cards):
         return all(card.type == self.own_card_type for card in cards)
 
-
     def check_data_equality(self, cards):
         return all(card.data == cards[0].data for card in cards)
-
 
     def combine(self, combined_cards):
         raise NotImplementedError
@@ -35,12 +32,10 @@ class AutoNextCardReactor(BaseReactor):
     def __init__(self):
         self.next_card_type = None
 
-
     def initialize(self, **kwargs):
-        from . import cards
         super().initialize(**kwargs)
 
-        for card in cards.CARD.records:
+        for card in types.CARD.records:
             if self.own_card_type.effect.__class__ == card.effect.__class__ and self.own_card_type.rarity.value == card.rarity.value - 1:
                 self.next_card_type = card
                 break
@@ -51,7 +46,6 @@ class Simple3(AutoNextCardReactor):
 
     def descrption(self):
         return '3 x «{}» => «{}»'.format(self.own_card_type.text, self.next_card_type.text)
-
 
     def combine(self, combined_cards):
         if len(combined_cards) != 3:
@@ -71,16 +65,12 @@ class Special3(BaseReactor):
         super().__init__()
         self.next_card_type_name = next_card_type_name
 
-
     @property
     def next_card_type(self):
-        from . import cards
-        return getattr(cards.CARD, self.next_card_type_name)
-
+        return getattr(types.CARD, self.next_card_type_name)
 
     def descrption(self):
         return '3 x «{}» => «{}»'.format(self.own_card_type.text, self.next_card_type.text)
-
 
     def combine(self, combined_cards):
         if len(combined_cards) != 3:
@@ -98,7 +88,6 @@ class SameHabbits3(AutoNextCardReactor):
 
     def descrption(self):
         return '3 x одинаковых «{}» => «{}» с тем же эффектом'.format(self.own_card_type.text, self.next_card_type.text)
-
 
     def combine(self, combined_cards):
         if len(combined_cards) != 3:
@@ -122,7 +111,6 @@ class Same2(BaseReactor):
     def descrption(self):
         return '2 x «{}» => «{}» с другим эффектом'.format(self.own_card_type.text, self.own_card_type.text)
 
-
     def combine(self, combined_cards):
 
         if len(combined_cards) != 2:
@@ -138,7 +126,6 @@ class Same2(BaseReactor):
         while new_card is None or new_card.data in excluded_data:
             new_card = self.own_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
                                                              type=self.own_card_type)
-
         return new_card
 
 
@@ -146,7 +133,6 @@ class SameEqual2(AutoNextCardReactor):
 
     def descrption(self):
         return '2 x одинаковых «{}» => «{}» с другим эффектом'.format(self.own_card_type.text, self.own_card_type.text)
-
 
     def combine(self, combined_cards):
         if len(combined_cards) != 2:
@@ -173,7 +159,6 @@ class SamePower3(AutoNextCardReactor):
 
     def descrption(self):
         return '3 x одинаковых «{}» => «{}» с тем же эффектом'.format(self.own_card_type.text, self.next_card_type.text)
-
 
     def combine(self, combined_cards):
         if len(combined_cards) != 3:

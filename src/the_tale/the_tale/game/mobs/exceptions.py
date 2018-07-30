@@ -1,8 +1,10 @@
 
-from the_tale.common.utils.exceptions import TheTaleError
+import smart_imports
+
+smart_imports.all()
 
 
-class MobsError(TheTaleError):
+class MobsError(utils_exceptions.TheTaleError):
     MSG = 'mobs error'
 
 

@@ -1,9 +1,9 @@
-# coding: utf-8
 
-from dext.common.utils import jinja2
+import smart_imports
 
-from the_tale.game.abilities import logic
+smart_imports.all()
 
-@jinja2.jinjaglobal
+
+@dext_jinja2.jinjaglobal
 def use_ability_url(ability, building=None, battle=None):
     return jinja2.Markup(logic.use_ability_url(ability=ability, building=building, battle=battle))

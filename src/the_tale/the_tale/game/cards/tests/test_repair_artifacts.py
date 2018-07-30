@@ -1,45 +1,35 @@
 
-import random
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.cards.tests.helpers import CardsTestMixin
+smart_imports.all()
 
 
-class RepairArtifacsTestMixin(CardsTestMixin):
+class RepairArtifacsTestMixin(helpers.CardsTestMixin):
 
     def check_all_equipment_repaired(self, result):
         self.assertEqual(all(item.integrity == item.max_integrity for item in list(self.hero.equipment.values())), result)
 
 
-class RepairRandomArtifactTests(RepairArtifacsTestMixin, testcase.TestCase):
-    CARD = cards.CARD.REPAIR_RANDOM_ARTIFACT
+class RepairRandomArtifactTests(RepairArtifacsTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.REPAIR_RANDOM_ARTIFACT
 
     def setUp(self):
         super(RepairRandomArtifactTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
-
 
     def test_all_repaired(self):
         self.check_all_equipment_repaired(True)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
         self.check_all_equipment_repaired(True)
 
@@ -55,28 +45,27 @@ class RepairRandomArtifactTests(RepairArtifacsTestMixin, testcase.TestCase):
         self.check_all_equipment_repaired(False)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.check_all_equipment_repaired(False)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.check_all_equipment_repaired(True)
 
 
-
-class RepairAllArtifactsTests(RepairArtifacsTestMixin, testcase.TestCase):
-    CARD = cards.CARD.REPAIR_ALL_ARTIFACTS
+class RepairAllArtifactsTests(RepairArtifacsTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.REPAIR_ALL_ARTIFACTS
 
     def setUp(self):
         super(RepairAllArtifactsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
@@ -85,7 +74,7 @@ class RepairAllArtifactsTests(RepairArtifacsTestMixin, testcase.TestCase):
         self.check_all_equipment_repaired(True)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
         self.check_all_equipment_repaired(True)
 
@@ -101,6 +90,6 @@ class RepairAllArtifactsTests(RepairArtifacsTestMixin, testcase.TestCase):
         self.check_all_equipment_repaired(False)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.check_all_equipment_repaired(True)

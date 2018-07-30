@@ -1,9 +1,14 @@
 
-from the_tale.linguistics.lexicon.relations import VARIABLE as V
-from the_tale.linguistics.lexicon.groups.relations import LEXICON_GROUP
+import smart_imports
 
-KEYS = [('ACTION_QUEST_DESCRIPTION', 140000, 'Описание', LEXICON_GROUP.ACTION_QUEST,
-        'Краткая декларация того, что делает герой.',
-        [V.DATE, V.TIME, V.HERO], None),
+smart_imports.all()
+
+
+V = lexicon_relations.VARIABLE
+
+
+KEYS = [('ACTION_QUEST_DESCRIPTION', 140000, 'Описание', relations.LEXICON_GROUP.ACTION_QUEST,
+         'Краткая декларация того, что делает герой.',
+         [V.DATE, V.TIME, V.HERO], None),
 
         ]

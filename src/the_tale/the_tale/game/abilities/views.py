@@ -1,30 +1,23 @@
 
-from dext.views import handler, validate_argument
+import smart_imports
 
-from the_tale.common.utils.resources import Resource
-from the_tale.common.utils.decorators import login_required
-from the_tale.common.utils import api
-
-from the_tale.game.abilities.deck import ABILITIES
-from the_tale.game.abilities.relations import ABILITY_TYPE
-
-from the_tale.game.heroes import logic as heroes_logic
+smart_imports.all()
 
 
-def argument_to_ability(ability_type): return ABILITIES.get(ABILITY_TYPE(ability_type))
+def argument_to_ability(ability_type): return deck.ABILITIES.get(relations.ABILITY_TYPE(ability_type))
 
 
-class AbilitiesResource(Resource):
+class AbilitiesResource(utils_resources.Resource):
 
-    @login_required
-    @validate_argument('ability', argument_to_ability, 'abilities', 'Неверный идентификатор способности')
+    @utils_decorators.login_required
+    @dext_old_views.validate_argument('ability', argument_to_ability, 'abilities', 'Неверный идентификатор способности')
     def initialize(self, ability=None, *argv, **kwargs):
         super(AbilitiesResource, self).initialize(*argv, **kwargs)
         self.ability = ability()
 
-    @api.handler(versions=('1.0',))
-    @validate_argument('battle', int, 'abilities', 'Неверный идентификатор сражения')
-    @handler('#ability', 'api', 'use', method='post')
+    @utils_api.handler(versions=('1.0',))
+    @dext_old_views.validate_argument('battle', int, 'abilities', 'Неверный идентификатор сражения')
+    @dext_old_views.handler('#ability', 'api', 'use', method='post')
     def use(self, api_version, battle=None):
         task = self.ability.activate(heroes_logic.load_hero(account_id=self.account.id),
                                      data={'battle_id': battle})

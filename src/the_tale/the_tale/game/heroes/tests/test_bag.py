@@ -1,29 +1,20 @@
 
-from unittest import mock
 
-from the_tale.common.utils.testcase import TestCase
+import smart_imports
 
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.artifacts import storage as artifacts_storage
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.heroes import bag
-from the_tale.game.heroes import relations
+smart_imports.all()
 
 
-class BagTests(TestCase):
+class BagTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(BagTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
 
         self.hero = self.storage.accounts_to_heroes[account.id]
@@ -107,16 +98,16 @@ class BagTests(TestCase):
         self.assertEqual(self.bag._ui_info, None)
 
 
-class EquipmentTests(TestCase):
+class EquipmentTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(EquipmentTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
 
         self.hero = self.storage.accounts_to_heroes[account.id]

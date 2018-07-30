@@ -1,17 +1,11 @@
 
-from django.db import transaction
+import smart_imports
 
-import tt_calendar
-
-from the_tale.common.utils.prototypes import BasePrototype
-
-from the_tale.game.chronicle.models import Record, Actor, RecordToActor
-from the_tale.game.chronicle import exceptions
-from the_tale.game.chronicle import relations
+smart_imports.all()
 
 
-class RecordPrototype(BasePrototype):
-    _model_class = Record
+class RecordPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Record
     _readonly = ('id', 'text', 'created_at')
 
     @property
@@ -19,12 +13,12 @@ class RecordPrototype(BasePrototype):
         return tt_calendar.converter.from_turns(self._model.created_at_turn)
 
     @classmethod
-    @transaction.atomic
+    @django_transaction.atomic
     def create(cls, record):
 
-        model = Record.objects.create(type=record.TYPE.value,
-                                      text=record.get_text(),
-                                      created_at_turn=record.created_at_turn)
+        model = models.Record.objects.create(type=record.TYPE.value,
+                                             text=record.get_text(),
+                                             created_at_turn=record.created_at_turn)
 
         prototype = cls(model)
 
@@ -36,7 +30,7 @@ class RecordPrototype(BasePrototype):
     @classmethod
     def get_actor_records_query(cls, external_actor_prototype):
         external_actor = create_external_actor(external_actor_prototype)
-        return Record.objects.filter(actors__uid=external_actor.uid)
+        return models.Record.objects.filter(actors__uid=external_actor.uid)
 
     @classmethod
     def get_last_actor_records(cls, external_actor_prototype, number):
@@ -44,11 +38,11 @@ class RecordPrototype(BasePrototype):
 
     @classmethod
     def get_last_records(cls, number):
-        return [cls(record) for record in Record.objects.all().order_by('-created_at')[:number]]
+        return [cls(record) for record in models.Record.objects.all().order_by('-created_at')[:number]]
 
 
-class RecordToActorPrototype(BasePrototype):
-    _model_class = RecordToActor
+class RecordToActorPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.RecordToActor
     _readonly = ('id', 'role', 'actor_id', 'record_id')
 
     @classmethod
@@ -59,9 +53,9 @@ class RecordToActorPrototype(BasePrototype):
         if actor is None:
             actor = ActorPrototype.create(external_actor)
 
-        model = RecordToActor.objects.create(role=role.value,
-                                             record=record._model,
-                                             actor=actor._model)
+        model = models.RecordToActor.objects.create(role=role.value,
+                                                    record=record._model,
+                                                    actor=actor._model)
         return cls(model)
 
     @classmethod
@@ -87,10 +81,9 @@ class RecordToActorPrototype(BasePrototype):
         return records_to_actors
 
 
-
 class ExternalActorBase(object):
 
-    def __init__(self, object): # pylint: disable=W0622
+    def __init__(self, object):  # pylint: disable=W0622
         self.object = object
         self.bill = None
         self.place = None
@@ -104,12 +97,14 @@ class ExternalBill(ExternalActorBase):
         self.uid = 'bill_%d' % self.object.id
         self.bill = self.object
 
+
 class ExternalPlace(ExternalActorBase):
 
     def __init__(self, *argv, **kwargs):
         super(ExternalPlace, self).__init__(*argv, **kwargs)
         self.uid = 'place_%d' % self.object.id
         self.place = self.object
+
 
 class ExternalPerson(ExternalActorBase):
 
@@ -118,30 +113,30 @@ class ExternalPerson(ExternalActorBase):
         self.uid = 'person_%d' % self.object.id
         self.person = self.object
 
-def create_external_actor(actor):
-    from the_tale.game.bills.prototypes import BillPrototype
-    from the_tale.game.places.objects import Place
-    from the_tale.game.persons.objects import Person
 
-    if isinstance(actor, BillPrototype): return ExternalBill(actor)
-    if isinstance(actor, Person): return ExternalPerson(actor)
-    if isinstance(actor, Place): return ExternalPlace(actor)
+def create_external_actor(actor):
+    if isinstance(actor, bills_prototypes.BillPrototype):
+        return ExternalBill(actor)
+    if isinstance(actor, persons_objects.Person):
+        return ExternalPerson(actor)
+    if isinstance(actor, places_objects.Place):
+        return ExternalPlace(actor)
 
     raise exceptions.ChronicleException('can not create external actor: unknown actor type: %r' % actor)
 
 
-class ActorPrototype(BasePrototype):
-    _model_class = Actor
+class ActorPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Actor
     _readonly = ('id', 'uid', 'bill_id', 'place_id', 'person_id')
     _get_by = ('uid',)
 
     @classmethod
     def create(cls, external_object):
 
-        model = Actor.objects.create(uid=external_object.uid,
-                                     bill=external_object.bill._model if external_object.bill else None,
-                                     place_id=external_object.place.id if external_object.place else None,
-                                     person_id=external_object.person.id if external_object.person else None)
+        model = models.Actor.objects.create(uid=external_object.uid,
+                                            bill=external_object.bill._model if external_object.bill else None,
+                                            place_id=external_object.place.id if external_object.place else None,
+                                            person_id=external_object.person.id if external_object.person else None)
 
         return cls(model)
 
@@ -156,12 +151,8 @@ class ActorPrototype(BasePrototype):
 
     @property
     def name(self):
-        from the_tale.game.bills.prototypes import BillPrototype
-        from the_tale.game.persons import storage as persons_storage
-        from the_tale.game.places import storage as places_storage
-
         if self.bill_id is not None:
-            return BillPrototype.get_by_id(self.bill_id).caption
+            return bills_prototypes.BillPrototype.get_by_id(self.bill_id).caption
         if self.place_id is not None:
             return places_storage.places[self.place_id].name
         if self.person_id is not None:

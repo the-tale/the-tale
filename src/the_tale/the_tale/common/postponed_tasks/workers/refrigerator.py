@@ -1,17 +1,14 @@
-# coding: utf-8
 
-import datetime
+import smart_imports
 
-from the_tale.common.utils.workers import BaseWorker
-
-from the_tale.common.postponed_tasks.conf import postponed_tasks_settings
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
+smart_imports.all()
 
 
-class RefrigeratorException(Exception): pass
+class RefrigeratorException(Exception):
+    pass
 
 
-class Worker(BaseWorker):
+class Worker(utils_workers.BaseWorker):
     NO_CMD_TIMEOUT = 0.1
     REFRESH_SETTINGS = False
 
@@ -29,7 +26,7 @@ class Worker(BaseWorker):
     def process_no_cmd(self):
         if self.next_task_process_time < datetime.datetime.now():
             self.check_tasks()
-            self.next_task_process_time = datetime.datetime.now() + datetime.timedelta(seconds=postponed_tasks_settings.TASK_WAIT_DELAY)
+            self.next_task_process_time = datetime.datetime.now() + datetime.timedelta(seconds=conf.settings.TASK_WAIT_DELAY)
 
     def check_tasks(self):
 

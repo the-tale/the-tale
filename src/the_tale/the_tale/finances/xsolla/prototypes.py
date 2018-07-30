@@ -1,24 +1,11 @@
-# coding: utf-8
-import time
-import datetime
 
-from decimal import Decimal
+import smart_imports
 
-from django.db import IntegrityError
-
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils.prototypes import BasePrototype
-
-from the_tale.finances.bank import logic as bank_logic
-
-from the_tale.finances.xsolla.models import Invoice
-from the_tale.finances.xsolla.relations import PAY_RESULT, INVOICE_STATE
-from the_tale.finances.xsolla import exceptions
+smart_imports.all()
 
 
-class InvoicePrototype(BasePrototype):
-    _model_class = Invoice
+class InvoicePrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Invoice
     _readonly = ('id',
                  'updated_at',
                  'bank_id',
@@ -47,7 +34,6 @@ class InvoicePrototype(BasePrototype):
         except cls._model_class.DoesNotExist:
             return None
 
-
     @classmethod
     def pay(cls, v1, v2, v3, xsolla_id, payment_sum, test, date, request_url):
 
@@ -58,7 +44,7 @@ class InvoicePrototype(BasePrototype):
 
         try:
             return cls.create(v1=v1, v2=v2, v3=v3, xsolla_id=xsolla_id, payment_sum=payment_sum, test=test, date=date, request_url=request_url)
-        except IntegrityError:
+        except django_db.IntegrityError:
             return cls.get_by_xsolla_id(xsolla_id)
 
     @classmethod
@@ -71,31 +57,31 @@ class InvoicePrototype(BasePrototype):
 
         if account_id is None:
             account_id = -1
-            results.append(PAY_RESULT.USER_NOT_EXISTS)
+            results.append(relations.PAY_RESULT.USER_NOT_EXISTS)
 
         try:
-            real_sum = Decimal(payment_sum)
+            real_sum = decimal.Decimal(payment_sum)
         except:
-            real_sum = Decimal('0')
-            results.append(PAY_RESULT.WRONG_SUM_FORMAT)
+            real_sum = decimal.Decimal('0')
+            results.append(relations.PAY_RESULT.WRONG_SUM_FORMAT)
 
         if real_sum % 1 != 0:
             real_sum //= 1
-            results.append(PAY_RESULT.FRACTION_IN_SUM)
+            results.append(relations.PAY_RESULT.FRACTION_IN_SUM)
 
         if real_sum <= 0:
-            results.append(PAY_RESULT.NOT_POSITIVE_SUM)
+            results.append(relations.PAY_RESULT.NOT_POSITIVE_SUM)
 
         if date is not None:
             try:
                 date = datetime.datetime.fromtimestamp(time.mktime(time.strptime(date, '%Y-%m-%d %H:%M:%S')))
             except ValueError:
                 date = None
-                results.append(PAY_RESULT.WRONG_DATE_FORMAT)
+                results.append(relations.PAY_RESULT.WRONG_DATE_FORMAT)
 
-        results.append(PAY_RESULT.SUCCESS) #success result MUST be appended at the end of every checking
+        results.append(relations.PAY_RESULT.SUCCESS)  # success result MUST be appended at the end of every checking
 
-        pay_result = results[0] # get first result
+        pay_result = results[0]  # get first result
 
         model = cls._model_class.objects.create(state=pay_result.invoice_state,
                                                 bank_id=account_id,
@@ -116,41 +102,38 @@ class InvoicePrototype(BasePrototype):
         prototype = cls(model=model)
 
         if prototype.state.is_CREATED:
-            environment.workers.xsolla_banker.cmd_handle_invoices()
+            amqp_environment.environment.workers.xsolla_banker.cmd_handle_invoices()
 
         return prototype
 
     def process(self):
-        from the_tale.finances.bank.transaction import Transaction
-        from the_tale.finances.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
 
         if not self.state.is_CREATED:
             raise exceptions.WrongInvoiceStateInProcessingError(invoice_id=self.id, state=self.state)
 
         if self.test:
-            self.state = INVOICE_STATE.SKIPPED_BECOUSE_TEST
+            self.state = relations.INVOICE_STATE.SKIPPED_BECOUSE_TEST
             self.save()
             return
 
-        transaction = Transaction.create(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
-                                         recipient_id=self.bank_id,
-                                         sender_type=ENTITY_TYPE.XSOLLA,
-                                         sender_id=0,
-                                         currency=CURRENCY_TYPE.PREMIUM,
-                                         amount=self.bank_amount,
-                                         description_for_sender='Покупка печенек (через Xsolla)',
-                                         description_for_recipient='Покупка печенек (через Xsolla)',
-                                         operation_uid='bank-xsolla',
-                                         force=True)
+        transaction = bank_transaction.Transaction.create(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                                                          recipient_id=self.bank_id,
+                                                          sender_type=bank_relations.ENTITY_TYPE.XSOLLA,
+                                                          sender_id=0,
+                                                          currency=bank_relations.CURRENCY_TYPE.PREMIUM,
+                                                          amount=self.bank_amount,
+                                                          description_for_sender='Покупка печенек (через Xsolla)',
+                                                          description_for_recipient='Покупка печенек (через Xsolla)',
+                                                          operation_uid='bank-xsolla',
+                                                          force=True)
 
         self._model.bank_invoice_id = transaction.invoice_id
-        self.state = INVOICE_STATE.PROCESSED
+        self.state = relations.INVOICE_STATE.PROCESSED
         self.save()
-
 
     @classmethod
     def process_invoices(cls):
-        for model in cls._model_class.objects.filter(state=INVOICE_STATE.CREATED).order_by('created_at'):
+        for model in cls._model_class.objects.filter(state=relations.INVOICE_STATE.CREATED).order_by('created_at'):
             invoice = cls(model=model)
             invoice.process()
 

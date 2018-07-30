@@ -1,5 +1,7 @@
 
-import markdown
+import smart_imports
+
+smart_imports.all()
 
 
 class News(object):

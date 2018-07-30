@@ -1,5 +1,8 @@
-# coding: utf-8
-import copy
+
+import smart_imports
+
+smart_imports.all()
+
 
 class Node(object):
 
@@ -29,12 +32,10 @@ class Node(object):
     def label(self):
         raise NotImplementedError()
 
-
     def process_depth_first(self, processor):
         for child in self.children.values():
             child.process_depth_first(processor)
         processor(self)
-
 
     def random_path(self, randomizer):
         next_node = randomizer(self)
@@ -43,7 +44,6 @@ class Node(object):
             return [self]
 
         return [self] + next_node.random_path(randomizer)
-
 
     def filter(self, predicate):
 
@@ -72,11 +72,9 @@ class Node(object):
                    children={uid: cls.deserialize(child) for uid, child in data['children'].items()})
 
 
-
 class Drawer(object):
 
     def __init__(self, tree):
-        import gv
         self.gv = gv
         self.tree = tree
         self.graph = gv.strictdigraph('tree')
@@ -85,9 +83,8 @@ class Drawer(object):
     def draw(self, path):
         self.draw_tree_node(self.tree)
 
-        self.gv.layout(self.graph, 'dot');
-        self.gv.render(self.graph, path[path.rfind('.')+1:], path)
-
+        self.gv.layout(self.graph, 'dot')
+        self.gv.render(self.graph, path[path.rfind('.') + 1:], path)
 
     def draw_tree_node(self, node):
 
@@ -96,7 +93,6 @@ class Drawer(object):
         for child in list(node.children.values()):
             self.draw_tree_node(child)
             self.add_edge(node, child)
-
 
     def add_node(self, tree_node):
         node = self.gv.node(self.graph, tree_node.uid.encode('utf-8'))
@@ -108,7 +104,6 @@ class Drawer(object):
 
         return node
 
-
     def add_edge(self, parent, child):
         edge = self.gv.edge(self.nodes[parent.uid], self.nodes[child.uid])
 
@@ -117,7 +112,6 @@ class Drawer(object):
         self.gv.setv(edge, 'minlen', '1')
 
         return edge
-
 
     def create_label_for(self, tree_node):
         trs = []
@@ -134,7 +128,10 @@ class Drawer(object):
 
 
 def b(data): return '<b>%s</b>' % data
+
+
 def i(data): return '<i>%s</i>' % data
+
 
 def table(*trs, **kwargs):
     bgcolor = kwargs.get('bgcolor')
@@ -152,8 +149,10 @@ def table(*trs, **kwargs):
             'port': 'port="%s"' % port if port else '',
             'bgcolor': 'BGCOLOR="%s"' % bgcolor if bgcolor is not None else ''}
 
+
 def tr(*tds):
     return '<tr BGCOLOR="#00ff00">%s</tr>' % ''.join(tds)
+
 
 def td(body, port=None, **kwargs):
     bgcolor = kwargs.get('bgcolor')
@@ -170,4 +169,4 @@ def td(body, port=None, **kwargs):
                                                  'align': align,
                                                  'border': border,
                                                  'port': 'port="%s"' % port if port else '',
-                                                 'bgcolor': 'BGCOLOR="%s"' % bgcolor if bgcolor is not None else '' }
+                                                 'bgcolor': 'BGCOLOR="%s"' % bgcolor if bgcolor is not None else ''}

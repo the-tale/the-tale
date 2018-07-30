@@ -1,24 +1,20 @@
-# coding: utf-8
-from django.db import models
 
-from django.contrib.postgres import fields as postgres_fields
+import smart_imports
 
-from rels.django import RelationIntegerField
-
-from the_tale.statistics import relations
+smart_imports.all()
 
 
-class Record(models.Model):
+class Record(django_models.Model):
 
-    date = models.DateTimeField(null=False)
-    type = RelationIntegerField(relation=relations.RECORD_TYPE, db_index=True)
+    date = django_models.DateTimeField(null=False)
+    type = rels_django.RelationIntegerField(relation=relations.RECORD_TYPE, db_index=True)
 
-    value_int = models.BigIntegerField()
-    value_float = models.FloatField()
+    value_int = django_models.BigIntegerField()
+    value_float = django_models.FloatField()
 
 
-class FullStatistics(models.Model):
+class FullStatistics(django_models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = django_models.DateTimeField(auto_now_add=True)
 
-    data = postgres_fields.JSONField()
+    data = django_postgres_fields.JSONField()

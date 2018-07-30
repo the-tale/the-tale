@@ -1,53 +1,7 @@
 
-import datetime
-import time
-import random
-import copy
+import smart_imports
 
-from unittest import mock
-
-import tt_calendar
-
-from the_tale.common.utils import testcase
-
-from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
-
-from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.prototypes import GameState
-from the_tale.game import turn
-
-from the_tale.game.quests.relations import QUESTS
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import Damage
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-from the_tale.game.companions.abilities import effects as companions_effects
-from the_tale.game.companions.abilities import container as companions_abilities_container
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places.modifiers import CITY_MODIFIERS
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.bills import conf as bills_conf
-
-from ..habilities import ABILITY_TYPE, ABILITIES, battle, ABILITY_AVAILABILITY
-from .. import conf
-from .. import relations
-from .. import messages
-from .. import logic
-from .. import models
-from .. import objects
+smart_imports.all()
 
 
 def get_simple_cache_data(*argv, **kwargs):
@@ -57,27 +11,26 @@ def get_simple_cache_data(*argv, **kwargs):
             'action': {'data': None}}
 
 
-class HeroTest(testcase.TestCase, pm_helpers.Mixin):
+class HeroTest(utils_testcase.TestCase, personal_messages_helpers.Mixin):
 
     def setUp(self):
         super(HeroTest, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
-        pm_tt_api.debug_clear_service()
-
+        personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
 
     def test_create(self):
         self.assertFalse(self.hero.force_save_required)
 
         self.assertTrue(self.hero.is_alive)
-        self.assertEqual(self.hero.created_at_turn, turn.number())
+        self.assertEqual(self.hero.created_at_turn, game_turn.number())
         self.assertEqual(self.hero.abilities.get('hit').level, 1)
         self.assertEqual(self.hero.abilities.get('coherence').level, 1)
 
@@ -93,10 +46,10 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertTrue(self.hero.can_be_helped())
 
-        for i in range(conf.heroes_settings.MAX_HELPS_IN_TURN-1):
+        for i in range(conf.settings.MAX_HELPS_IN_TURN - 1):
             self.hero.on_help()
 
-        self.assertEqual(self.hero.helps_in_turn, conf.heroes_settings.MAX_HELPS_IN_TURN-1)
+        self.assertEqual(self.hero.helps_in_turn, conf.settings.MAX_HELPS_IN_TURN - 1)
 
         self.assertTrue(self.hero.can_be_helped())
 
@@ -104,15 +57,14 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertFalse(self.hero.can_be_helped())
 
-        turn.increment()
+        game_turn.increment()
 
         self.assertTrue(self.hero.can_be_helped())
 
         self.hero.on_help()
 
-        self.assertEqual(self.hero.last_help_on_turn, turn.number())
+        self.assertEqual(self.hero.last_help_on_turn, game_turn.number())
         self.assertEqual(self.hero.helps_in_turn, 1)
-
 
     def test_is_premium(self):
         self.assertFalse(self.hero.is_premium)
@@ -130,15 +82,15 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         self.assertFalse(self.hero.is_active)
 
     def test_create_time(self):
-        turn.increment()
-        turn.increment()
-        turn.increment()
+        game_turn.increment()
+        game_turn.increment()
+        game_turn.increment()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
         hero = logic.load_hero(account_id=account.id)
 
-        self.assertEqual(hero.created_at_turn, turn.number())
+        self.assertEqual(hero.created_at_turn, game_turn.number())
 
         self.assertTrue(hero.created_at_turn != self.hero.created_at_turn)
 
@@ -217,7 +169,6 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
             with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
                 self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
 
-
     def test_can_change_place_power(self):
         self.assertFalse(self.hero.can_change_place_power(self.place_1))
 
@@ -270,7 +221,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         self.assertTrue(self.hero.quest_money_reward_multiplier() < 1.0)
 
     def test_push_message(self):
-        message = messages.MessageSurrogate(turn_number=turn.number(),
+        message = messages.MessageSurrogate(turn_number=game_turn.number(),
                                             timestamp=time.time(),
                                             key=None,
                                             externals=None,
@@ -280,21 +231,20 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(len(self.hero.journal), 0)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 0):
             self.hero.push_message(message)
 
         self.assertEqual(len(self.hero.journal), 1)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             self.hero.push_message(message, diary=True)
 
         self.assertEqual(len(self.hero.journal), 2)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             self.hero.push_message(message, diary=True, journal=False)
 
         self.assertEqual(len(self.hero.journal), 2)
-
 
     def test_add_message__inactive_hero(self):
 
@@ -302,26 +252,26 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertTrue(self.hero.is_active)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_1')):
                 self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
 
         self.assertEqual(len(self.hero.journal), 1)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.is_active', False):
-            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+            with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
                 with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     self.hero.add_message('hero_common_journal_level_up', diary=True, journal=True)
 
             self.assertEqual(len(self.hero.journal), 2)
 
-            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
+            with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 0):
                 with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
 
             self.assertEqual(len(self.hero.journal), 0)
 
-            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
+            with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 0):
                 with mock.patch('the_tale.linguistics.logic.get_text', mock.Mock(return_value='message_2')):
                     with mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True):
                         self.hero.add_message('hero_common_journal_level_up', diary=False, journal=True)
@@ -350,9 +300,9 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
     def test_need_rest_in_move__from_risk_level(self):
         self.check_rests_from_risk(lambda hero: hero.need_rest_in_move)
 
-    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
+    @mock.patch('the_tale.game.heroes.conf.settings.RARE_OPERATIONS_INTERVAL', 2)
     def test_process_rare_operations__interval_not_passed(self):
-        turn.increment()
+        game_turn.increment()
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.process_rare_operations()
@@ -360,33 +310,32 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         self.assertEqual(verify_achievements.call_args_list, [])
         self.assertEqual(self.hero.last_rare_operation_at_turn, 0)
 
-    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 2)
+    @mock.patch('the_tale.game.heroes.conf.settings.RARE_OPERATIONS_INTERVAL', 2)
     def test_process_rare_operations__interval_passed(self):
-        turn.increment()
-        turn.increment()
+        game_turn.increment()
+        game_turn.increment()
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             with mock.patch('the_tale.game.quests.container.QuestsContainer.sync_interfered_persons') as sync_interfered_persons:
                 self.hero.process_rare_operations()
 
         self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
-                                                                        type=ACHIEVEMENT_TYPE.TIME,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.TIME,
                                                                         old_value=0,
                                                                         new_value=0)])
 
         self.assertEqual(sync_interfered_persons.call_args_list, [mock.call()])
 
-        self.assertEqual(self.hero.last_rare_operation_at_turn, turn.number())
-
+        self.assertEqual(self.hero.last_rare_operation_at_turn, game_turn.number())
 
     def test_process_rare_operations__companion_added(self):
-        turn.increment(max(conf.heroes_settings.RARE_OPERATIONS_INTERVAL,
-                           int(c.TURNS_IN_HOUR * c.COMPANIONS_GIVE_COMPANION_AFTER)))
+        game_turn.increment(max(conf.settings.RARE_OPERATIONS_INTERVAL,
+                                int(c.TURNS_IN_HOUR * c.COMPANIONS_GIVE_COMPANION_AFTER)))
 
         self.assertTrue(len(list(companions_storage.companions.enabled_companions())) > 1)
 
         companions_logic.create_random_companion_record('leaved_companions',
-                                                        abilities=companions_abilities_container.Container(start=(companions_effects.ABILITIES.TEMPORARY, )),
+                                                        abilities=companions_abilities_container.Container(start=(companions_abilities_effects.ABILITIES.TEMPORARY, )),
                                                         state=companions_relations.STATE.ENABLED)
 
         with self.check_changed(lambda: self.hero.companion):
@@ -396,41 +345,38 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertTrue(self.hero.companion.record.rarity.is_COMMON)
 
-
-    @mock.patch('the_tale.game.heroes.conf.heroes_settings.RARE_OPERATIONS_INTERVAL', 0)
+    @mock.patch('the_tale.game.heroes.conf.settings.RARE_OPERATIONS_INTERVAL', 0)
     def test_process_rare_operations__companion_not_added(self):
 
         for i in range(1000):
             self.hero.process_rare_operations()
             self.assertEqual(self.hero.companion, None)
 
-
     def test_process_rare_operations__age_changed(self):
-        turn.increment(tt_calendar.converter.old_converter.seconds_in_year // tt_calendar.converter.old_converter.SECONDS_IN_TURN - 1)
+        game_turn.increment(tt_calendar.converter.old_converter.seconds_in_year // tt_calendar.converter.old_converter.SECONDS_IN_TURN - 1)
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.process_rare_operations()
 
         self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
-                                                                        type=ACHIEVEMENT_TYPE.TIME,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.TIME,
                                                                         old_value=0,
                                                                         new_value=0)])
 
         self.hero.last_rare_operation_at_turn = 0
 
-        turn.increment()
+        game_turn.increment()
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.hero.process_rare_operations()
 
         self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.hero.account_id,
-                                                                        type=ACHIEVEMENT_TYPE.TIME,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.TIME,
                                                                         old_value=0,
                                                                         new_value=1)])
 
-
     def test_get_achievement_type_value(self):
-        for achievement_type in ACHIEVEMENT_TYPE.records:
+        for achievement_type in achievements_relations.ACHIEVEMENT_TYPE.records:
             if achievement_type.source.is_ACCOUNT:
                 continue
             if achievement_type.source.is_NONE:
@@ -450,9 +396,8 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertTrue(value_without_premium < self.hero.habit_honor.raw_value - value_without_premium)
 
-
     def test_reset_accessories_cache(self):
-        self.hero.damage_modifier # fill cache
+        self.hero.damage_modifier  # fill cache
 
         self.assertTrue(getattr(self.hero, '_cached_modifiers'))
 
@@ -460,13 +405,12 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(self.hero._cached_modifiers, {relations.MODIFIERS.HEALTH: 1.0})
 
-    @mock.patch('the_tale.game.balance.power.Power.damage', lambda self: Damage(1, 1))
+    @mock.patch('the_tale.game.balance.power.Power.damage', lambda self: power.Damage(1, 1))
     @mock.patch('the_tale.game.heroes.objects.Hero.damage_modifier', 2)
     @mock.patch('the_tale.game.heroes.objects.Hero.magic_damage_modifier', 3)
     @mock.patch('the_tale.game.heroes.objects.Hero.physic_damage_modifier', 4)
     def test_basic_damage(self):
-        self.assertEqual(self.hero.basic_damage, Damage(physic=8, magic=6))
-
+        self.assertEqual(self.hero.basic_damage, power.Damage(physic=8, magic=6))
 
     def test_set_companion(self):
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -474,12 +418,11 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(self.hero.companion, None)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 1):
             self.hero.set_companion(companion)
 
         self.assertEqual(self.hero.companion.record.id, companion_record.id)
         self.assertEqual(self.hero.companion._hero.id, self.hero.id)
-
 
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_max_health_multiplier', 2)
     def test_set_companion__health_maximum(self):
@@ -490,7 +433,6 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(self.hero.companion.health, self.hero.companion.max_health)
 
-
     def test_set_companion__replace(self):
         companion_record_1 = list(companions_storage.companions.enabled_companions())[0]
         companion_record_2 = list(companions_storage.companions.enabled_companions())[1]
@@ -500,7 +442,7 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.hero.set_companion(companion_1)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 2):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.DiaryClient.cmd_push_message', 2):
             self.hero.set_companion(companion_2)
 
         self.assertEqual(self.hero.companion.record.id, companion_record_2.id)
@@ -518,7 +460,6 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(self.hero.companion, None)
 
-
     def test_remove_companion__switch_next_spending(self):
         companion_record = next(companions_storage.companions.enabled_companions())
         companion = companions_logic.create_companion(companion_record)
@@ -531,7 +472,6 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
         self.hero.remove_companion()
 
         self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
-
 
     def test_switch_next_spending__with_companion(self):
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -568,7 +508,6 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
 
         self.assertEqual(len(heal_companion_priorities), len(relations.COMPANION_DEDICATION.records))
 
-
     def test_switch_next_spending__without_companion(self):
         self.assertEqual(self.hero.companion, None)
 
@@ -577,29 +516,28 @@ class HeroTest(testcase.TestCase, pm_helpers.Mixin):
             self.assertFalse(self.hero.next_spending.is_HEAL_COMPANION)
 
     def test_actual_bills_number(self):
-        self.hero.actual_bills.append(time.time() - bills_conf.bills_settings.BILL_ACTUAL_LIVE_TIME*24*60*60)
-        self.hero.actual_bills.append(time.time() - bills_conf.bills_settings.BILL_ACTUAL_LIVE_TIME*24*60*60 + 1)
+        self.hero.actual_bills.append(time.time() - bills_conf.settings.BILL_ACTUAL_LIVE_TIME * 24 * 60 * 60)
+        self.hero.actual_bills.append(time.time() - bills_conf.settings.BILL_ACTUAL_LIVE_TIME * 24 * 60 * 60 + 1)
         self.hero.actual_bills.append(time.time() - 1)
         self.hero.actual_bills.append(time.time())
 
         self.assertEqual(self.hero.actual_bills_number, 3)
 
 
-class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
+class HeroLevelUpTests(utils_testcase.TestCase, personal_messages_helpers.Mixin):
 
     def setUp(self):
         super(HeroLevelUpTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        pm_tt_api.debug_clear_service()
-
+        personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
 
     def test_is_initial_state(self):
         self.assertTrue(self.hero.abilities.is_initial_state())
@@ -618,12 +556,12 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
             self.assertEqual(self.hero.level, 1)
             self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
-            self.hero.add_experience(f.exp_on_lvl(1)/2 / self.hero.experience_modifier)
+            self.hero.add_experience(f.exp_on_lvl(1) / 2 / self.hero.experience_modifier)
             self.assertEqual(self.hero.level, 1)
 
             self.hero.add_experience(f.exp_on_lvl(1) / self.hero.experience_modifier)
             self.assertEqual(self.hero.level, 2)
-            self.assertEqual(self.hero.experience, f.exp_on_lvl(1)//2)
+            self.assertEqual(self.hero.experience, f.exp_on_lvl(1) // 2)
 
             self.hero.add_experience(f.exp_on_lvl(2) / self.hero.experience_modifier)
             self.assertEqual(self.hero.level, 3)
@@ -648,127 +586,125 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
         self.assertTrue(self.hero.force_save_required)
 
     def test_max_ability_points_number(self):
-        level_to_points_number = { 1: 3,
-                                   2: 4,
-                                   3: 5,
-                                   4: 6,
-                                   5: 7}
+        level_to_points_number = {1: 3,
+                                  2: 4,
+                                  3: 5,
+                                  4: 6,
+                                  5: 7}
 
         for level, points_number in list(level_to_points_number.items()):
             self.hero.level = level
             self.assertEqual(self.hero.abilities.max_ability_points_number, points_number)
 
-
     def test_can_choose_new_ability(self):
         self.assertTrue(self.hero.abilities.can_choose_new_ability)
-        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.current_ability_points_number', 3):
+        with mock.patch('the_tale.game.heroes.abilities.AbilitiesPrototype.current_ability_points_number', 3):
             self.assertFalse(self.hero.abilities.can_choose_new_ability)
 
     def test_next_battle_ability_point_lvl(self):
-        level_to_next_level = { 1: 2,
-                                2: 5,
-                                3: 5,
-                                4: 5,
-                                5: 8,
-                                6: 8,
-                                7: 8,
-                                8: 11,
-                                9: 11,
-                                10: 11,
-                                11: 14,
-                                12: 14,
-                                13: 14,
-                                14: 17,
-                                15: 17}
+        level_to_next_level = {1: 2,
+                               2: 5,
+                               3: 5,
+                               4: 5,
+                               5: 8,
+                               6: 8,
+                               7: 8,
+                               8: 11,
+                               9: 11,
+                               10: 11,
+                               11: 14,
+                               12: 14,
+                               13: 14,
+                               14: 17,
+                               15: 17}
 
         for level, next_level in list(level_to_next_level.items()):
             self.hero.reset_level()
 
-            for i in range(level-1):
+            for i in range(level - 1):
                 self.hero.randomized_level_up(increment_level=True)
 
             self.assertEqual(self.hero.abilities.next_battle_ability_point_lvl, next_level)
 
     def test_next_nonbattle_ability_point_lvl(self):
-        level_to_next_level = { 1: 3,
-                                2: 3,
-                                3: 6,
-                                4: 6,
-                                5: 6,
-                                6: 9,
-                                7: 9,
-                                8: 9,
-                                9: 12,
-                                10: 12,
-                                11: 12,
-                                12: 15,
-                                13: 15,
-                                14: 15,
-                                15: 18,
-                                16: 18}
+        level_to_next_level = {1: 3,
+                               2: 3,
+                               3: 6,
+                               4: 6,
+                               5: 6,
+                               6: 9,
+                               7: 9,
+                               8: 9,
+                               9: 12,
+                               10: 12,
+                               11: 12,
+                               12: 15,
+                               13: 15,
+                               14: 15,
+                               15: 18,
+                               16: 18}
 
         for level, next_level in list(level_to_next_level.items()):
             self.hero.reset_level()
 
-            for i in range(level-1):
+            for i in range(level - 1):
                 self.hero.randomized_level_up(increment_level=True)
 
             self.assertEqual(self.hero.abilities.next_nonbattle_ability_point_lvl, next_level)
 
-
     def test_next_companion_ability_point_lvl(self):
-        level_to_next_level = { 1: 4,
-                                2: 4,
-                                3: 4,
-                                4: 7,
-                                5: 7,
-                                6: 7,
-                                7: 10,
-                                8: 10,
-                                9: 10,
-                                10: 13,
-                                11: 13,
-                                12: 13,
-                                13: 16,
-                                14: 16}
+        level_to_next_level = {1: 4,
+                               2: 4,
+                               3: 4,
+                               4: 7,
+                               5: 7,
+                               6: 7,
+                               7: 10,
+                               8: 10,
+                               9: 10,
+                               10: 13,
+                               11: 13,
+                               12: 13,
+                               13: 16,
+                               14: 16}
 
         for level, next_level in list(level_to_next_level.items()):
             self.hero.reset_level()
 
-            for i in range(level-1):
+            for i in range(level - 1):
                 self.hero.randomized_level_up(increment_level=True)
 
             self.assertEqual(self.hero.abilities.next_companion_ability_point_lvl, next_level)
 
     def test_next_ability_type(self):
-        ability_points_to_type = {1: ABILITY_TYPE.BATTLE,
-                                  2: ABILITY_TYPE.NONBATTLE,
-                                  3: ABILITY_TYPE.COMPANION,
-                                  4: ABILITY_TYPE.BATTLE,
-                                  5: ABILITY_TYPE.NONBATTLE,
-                                  6: ABILITY_TYPE.COMPANION,
+        ability_points_to_type = {1: abilities.ABILITY_TYPE.BATTLE,
+                                  2: abilities.ABILITY_TYPE.NONBATTLE,
+                                  3: abilities.ABILITY_TYPE.COMPANION,
+                                  4: abilities.ABILITY_TYPE.BATTLE,
+                                  5: abilities.ABILITY_TYPE.NONBATTLE,
+                                  6: abilities.ABILITY_TYPE.COMPANION,
 
-                                  50: ABILITY_TYPE.NONBATTLE,
-                                  51: ABILITY_TYPE.COMPANION,
-                                  52: ABILITY_TYPE.BATTLE,
-                                  53: ABILITY_TYPE.NONBATTLE,
-                                  54: ABILITY_TYPE.COMPANION,
-                                  55: ABILITY_TYPE.BATTLE,
-                                  56: ABILITY_TYPE.NONBATTLE,
-                                  57: ABILITY_TYPE.COMPANION,
-                                  58: ABILITY_TYPE.BATTLE,
-                                  59: ABILITY_TYPE.NONBATTLE,
+                                  50: abilities.ABILITY_TYPE.NONBATTLE,
+                                  51: abilities.ABILITY_TYPE.COMPANION,
+                                  52: abilities.ABILITY_TYPE.BATTLE,
+                                  53: abilities.ABILITY_TYPE.NONBATTLE,
+                                  54: abilities.ABILITY_TYPE.COMPANION,
+                                  55: abilities.ABILITY_TYPE.BATTLE,
+                                  56: abilities.ABILITY_TYPE.NONBATTLE,
+                                  57: abilities.ABILITY_TYPE.COMPANION,
+                                  58: abilities.ABILITY_TYPE.BATTLE,
+                                  59: abilities.ABILITY_TYPE.NONBATTLE,
 
-                                  60: ABILITY_TYPE.BATTLE,
-                                  61: ABILITY_TYPE.BATTLE,
-                                  62: ABILITY_TYPE.BATTLE,
-                                  63: ABILITY_TYPE.BATTLE,
-                                  64: ABILITY_TYPE.BATTLE,
-                                  65: ABILITY_TYPE.BATTLE,
-                                  66: ABILITY_TYPE.BATTLE,
-                                  67: ABILITY_TYPE.BATTLE,
-                                  68: ABILITY_TYPE.BATTLE,
-                                  69: ABILITY_TYPE.BATTLE,
+                                  60: abilities.ABILITY_TYPE.BATTLE,
+                                  61: abilities.ABILITY_TYPE.BATTLE,
+                                  62: abilities.ABILITY_TYPE.BATTLE,
+                                  63: abilities.ABILITY_TYPE.BATTLE,
+                                  64: abilities.ABILITY_TYPE.BATTLE,
+                                  65: abilities.ABILITY_TYPE.BATTLE,
+                                  66: abilities.ABILITY_TYPE.BATTLE,
+                                  67: abilities.ABILITY_TYPE.BATTLE,
+                                  68: abilities.ABILITY_TYPE.BATTLE,
+                                  69: abilities.ABILITY_TYPE.BATTLE,
                                   70: None,
                                   71: None,
                                   72: None,
@@ -776,11 +712,10 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
 
         for ability_points, next_type in ability_points_to_type.items():
             self.hero.reset_level()
-            for i in range(ability_points-1):
+            for i in range(ability_points - 1):
                 self.hero.randomized_level_up(increment_level=True)
 
             self.assertEqual(self.hero.abilities.next_ability_type, next_type)
-
 
     def test_get_abilities_for_choose_first_time(self):
         abilities = self.hero.abilities.get_for_choose()
@@ -791,12 +726,12 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
             ability.level = ability.MAX_LEVEL
         abilities = self.hero.abilities.get_for_choose()
         self.assertEqual(len(abilities), 4)
-        self.assertEqual(len([a for a in abilities if a.level==2 and a.get_id()=='hit']), 0)
+        self.assertEqual(len([a for a in abilities if a.level == 2 and a.get_id() == 'hit']), 0)
 
-    @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
+    @mock.patch('the_tale.game.heroes.abilities.AbilitiesPrototype.next_ability_type', abilities.ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_passive_slots_busy(self):
 
-        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(ABILITIES.values())] if a.activation_type.is_PASSIVE and a.type.is_BATTLE]
+        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(heroes_abilities.ABILITIES.values())] if a.activation_type.is_PASSIVE and a.type.is_BATTLE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -804,9 +739,9 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
             abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(len([a for a in abilities if a.activation_type.is_PASSIVE]), 0)
 
-    @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
+    @mock.patch('the_tale.game.heroes.abilities.AbilitiesPrototype.next_ability_type', abilities.ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_active_slots_busy(self):
-        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(ABILITIES.values())] if a.activation_type.is_ACTIVE]
+        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(heroes_abilities.ABILITIES.values())] if a.activation_type.is_ACTIVE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -814,13 +749,13 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
             abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(len([a for a in abilities if a.activation_type.is_ACTIVE]), 0)
 
-    @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
+    @mock.patch('the_tale.game.heroes.abilities.AbilitiesPrototype.next_ability_type', abilities.ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy__battle(self):
-        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in ABILITIES.values()] if a.activation_type.is_PASSIVE and a.type.is_BATTLE]
+        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in heroes_abilities.ABILITIES.values()] if a.activation_type.is_PASSIVE and a.type.is_BATTLE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in ABILITIES.values()] if a.activation_type.is_ACTIVE and a.type.is_BATTLE]
+        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in heroes_abilities.ABILITIES.values()] if a.activation_type.is_ACTIVE and a.type.is_BATTLE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -828,13 +763,13 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
             abilities = self.hero.abilities.get_for_choose()
             self.assertEqual(len(abilities), 0)
 
-    @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
+    @mock.patch('the_tale.game.heroes.abilities.AbilitiesPrototype.next_ability_type', abilities.ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy_but_one_not_max_level__battle(self):
-        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(battle.ABILITIES.values())] if a.activation_type.is_PASSIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value and a.type.is_BATTLE]
+        passive_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(heroes_abilities_battle.ABILITIES.values())] if a.activation_type.is_PASSIVE and a.availability.value & heroes_abilities_relations.ABILITY_AVAILABILITY.FOR_PLAYERS.value and a.type.is_BATTLE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(battle.ABILITIES.values())] if a.activation_type.is_ACTIVE and a.availability.value & ABILITY_AVAILABILITY.FOR_PLAYERS.value and a.type.is_BATTLE]
+        active_abilities = [a for a in [a(level=a.MAX_LEVEL) for a in list(heroes_abilities_battle.ABILITIES.values())] if a.activation_type.is_ACTIVE and a.availability.value & heroes_abilities_relations.ABILITY_AVAILABILITY.FOR_PLAYERS.value and a.type.is_BATTLE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -843,15 +778,15 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
 
         for i in range(100):
             abilities = self.hero.abilities.get_for_choose()
-            self.assertEqual(abilities, [ability.__class__(level=ability.level+1)])
+            self.assertEqual(abilities, [ability.__class__(level=ability.level + 1)])
 
-    @mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.next_ability_type', ABILITY_TYPE.BATTLE)
+    @mock.patch('the_tale.game.heroes.abilities.AbilitiesPrototype.next_ability_type', abilities.ABILITY_TYPE.BATTLE)
     def test_get_abilities_for_choose_all_slots_busy_and_all_not_max_level__battle(self):
-        passive_abilities = [a for a in [a(level=1) for a in list(ABILITIES.values())] if a.activation_type.is_PASSIVE and a.type.is_BATTLE]
+        passive_abilities = [a for a in [a(level=1) for a in list(heroes_abilities.ABILITIES.values())] if a.activation_type.is_PASSIVE and a.type.is_BATTLE]
         for ability in passive_abilities[:c.ABILITIES_PASSIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
-        active_abilities = [a for a in [a(level=1) for a in list(ABILITIES.values())] if a.activation_type.is_ACTIVE and a.type.is_BATTLE]
+        active_abilities = [a for a in [a(level=1) for a in list(heroes_abilities.ABILITIES.values())] if a.activation_type.is_ACTIVE and a.type.is_BATTLE]
         for ability in active_abilities[:c.ABILITIES_ACTIVE_MAXIMUM]:
             self.hero.abilities.add(ability.get_id(), ability.level)
 
@@ -860,12 +795,12 @@ class HeroLevelUpTests(testcase.TestCase, pm_helpers.Mixin):
             self.assertEqual(len(abilities), c.ABILITIES_OLD_ABILITIES_FOR_CHOOSE_MAXIMUM)
 
 
-class HeroQuestsTest(testcase.TestCase):
+class HeroQuestsTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(HeroQuestsTest, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
@@ -874,65 +809,64 @@ class HeroQuestsTest(testcase.TestCase):
         self.place = places_storage.places.all()[0]
         self.person = self.place.persons[0]
 
-
     def test_character_quests__hometown(self):
-        self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertFalse(quests_relations.QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place)
         self.hero.position.set_place(self.place)
-        self.assertFalse(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertFalse(quests_relations.QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.position.set_coordinates(0, 0, 0, 0, 0)
-        self.assertTrue(QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertTrue(quests_relations.QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__friend(self):
-        self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertFalse(quests_relations.QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, self.person)
         self.hero.position.set_place(self.place)
-        self.assertFalse(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertFalse(quests_relations.QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.position.set_coordinates(0, 0, 0, 0, 0)
-        self.assertTrue(QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertTrue(quests_relations.QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__enemy(self):
-        self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertFalse(quests_relations.QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, self.person)
         self.hero.position.set_place(self.place)
-        self.assertFalse(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertFalse(quests_relations.QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.position.set_coordinates(0, 0, 0, 0, 0)
-        self.assertTrue(QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertTrue(quests_relations.QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__hunt(self):
-        self.assertFalse(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertFalse(quests_relations.QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
         self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mobs_storage.mobs.all()[0])
-        self.assertTrue(QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertTrue(quests_relations.QUESTS.HUNT in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_without_artifact(self):
         self.hero.equipment._remove_all()
         self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.PLATE)
         logic.save_hero(self.hero)
 
-        self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertTrue(quests_relations.QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests_searchsmith_with_preferences_with_artifact(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, relations.EQUIPMENT_SLOT.PLATE)
         logic.save_hero(self.hero)
 
         self.assertTrue(self.hero.equipment.get(relations.EQUIPMENT_SLOT.PLATE) is not None)
-        self.assertTrue(QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertTrue(quests_relations.QUESTS.SEARCH_SMITH in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_unique_quests__pilgrimage(self):
-        self.assertFalse(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertFalse(quests_relations.QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.place.set_modifier(CITY_MODIFIERS.HOLY_CITY)
+        self.place.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
         self.hero.position.set_place(self.place)
-        self.assertFalse(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertFalse(quests_relations.QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
         self.hero.position.set_coordinates(0, 0, 0, 0, 0)
-        self.assertTrue(QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
+        self.assertTrue(quests_relations.QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_get_minimum_created_time_of_active_quests(self):
         with mock.patch('the_tale.game.quests.container.QuestsContainer.min_quest_created_time', datetime.datetime.now() - datetime.timedelta(days=1)):
@@ -964,48 +898,47 @@ class HeroQuestsTest(testcase.TestCase):
     def test_modify_quest_priority(self):
         self.prepair_quest_priority_preferences()
 
-        self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
-        self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
+        self.assertEqual(self.hero.modify_quest_priority(quests_relations.QUESTS.HELP_FRIEND), quests_relations.QUESTS.HELP_FRIEND.priority)
+        self.assertEqual(self.hero.modify_quest_priority(quests_relations.QUESTS.INTERFERE_ENEMY), quests_relations.QUESTS.INTERFERE_ENEMY.priority)
 
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_3)
     def test_modify_quest_priority__friend(self):
         self.prepair_quest_priority_preferences()
 
-        self.assertTrue(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND) > QUESTS.HELP_FRIEND.priority)
-        self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority)
+        self.assertTrue(self.hero.modify_quest_priority(quests_relations.QUESTS.HELP_FRIEND) > quests_relations.QUESTS.HELP_FRIEND.priority)
+        self.assertEqual(self.hero.modify_quest_priority(quests_relations.QUESTS.INTERFERE_ENEMY), quests_relations.QUESTS.INTERFERE_ENEMY.priority)
 
     @mock.patch('the_tale.game.heroes.habits.Peacefulness.interval', game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_3)
     def test_modify_quest_priority__enemy(self):
         self.prepair_quest_priority_preferences()
 
-        self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority)
-        self.assertTrue(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY)> QUESTS.INTERFERE_ENEMY.priority)
+        self.assertEqual(self.hero.modify_quest_priority(quests_relations.QUESTS.HELP_FRIEND), quests_relations.QUESTS.HELP_FRIEND.priority)
+        self.assertTrue(self.hero.modify_quest_priority(quests_relations.QUESTS.INTERFERE_ENEMY) > quests_relations.QUESTS.INTERFERE_ENEMY.priority)
 
     def test_modify_quest_priority__from_person(self):
         self.prepair_quest_priority_preferences((1, 2), (3, 4))
 
-        self.assertEqual(self.hero.modify_quest_priority(QUESTS.HELP_FRIEND), QUESTS.HELP_FRIEND.priority + 1)
-        self.assertEqual(self.hero.modify_quest_priority(QUESTS.INTERFERE_ENEMY), QUESTS.INTERFERE_ENEMY.priority + 4)
+        self.assertEqual(self.hero.modify_quest_priority(quests_relations.QUESTS.HELP_FRIEND), quests_relations.QUESTS.HELP_FRIEND.priority + 1)
+        self.assertEqual(self.hero.modify_quest_priority(quests_relations.QUESTS.INTERFERE_ENEMY), quests_relations.QUESTS.INTERFERE_ENEMY.priority + 4)
 
 
-class HeroUiInfoTest(testcase.TestCase):
+class HeroUiInfoTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(HeroUiInfoTest, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
     def test_is_ui_caching_required(self):
-        self.assertTrue(self.hero.is_ui_caching_required) # new hero must be cached, since player, who created him, is in game
-        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=conf.heroes_settings.UI_CACHING_TIME + 1)
+        self.assertTrue(self.hero.is_ui_caching_required)  # new hero must be cached, since player, who created him, is in game
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=conf.settings.UI_CACHING_TIME + 1)
         self.assertFalse(self.hero.is_ui_caching_required)
-
 
     ########################
     # recache required
@@ -1013,7 +946,7 @@ class HeroUiInfoTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes(self):
-        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=conf.heroes_settings.UI_CACHING_TIME + 1)
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=conf.settings.UI_CACHING_TIME + 1)
         logic.save_hero(self.hero)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
@@ -1033,14 +966,13 @@ class HeroUiInfoTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_for_hero__data_is_none__game_stopped(self):
-        GameState.stop()
+        game_prototypes.GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
             with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                 objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=True, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
-
 
     @mock.patch('dext.common.utils.cache.get', get_simple_cache_data)
     def test_cached_ui_info_for_hero__continue_caching_required__cache_exists(self):
@@ -1062,7 +994,7 @@ class HeroUiInfoTest(testcase.TestCase):
 
     @mock.patch('dext.common.utils.cache.get', get_simple_cache_data)
     def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_exists(self):
-        GameState.stop()
+        game_prototypes.GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
             with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
@@ -1072,7 +1004,7 @@ class HeroUiInfoTest(testcase.TestCase):
 
     @mock.patch('dext.common.utils.cache.get', lambda x: None)
     def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_not_exists(self):
-        GameState.stop()
+        game_prototypes.GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
             with mock.patch('the_tale.game.heroes.objects.Hero.ui_info', mock.Mock(return_value=get_simple_cache_data())) as ui_info:
@@ -1088,13 +1020,13 @@ class HeroUiInfoTest(testcase.TestCase):
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_count, 0)
 
-
     ########################
     # recache not required
     ########################
+
     @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_from_cache__from_cache_is_true__for_not_visited_heroes__recache_not_required(self):
-        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=conf.heroes_settings.UI_CACHING_TIME + 1)
+        self.hero.ui_caching_started_at -= datetime.timedelta(seconds=conf.settings.UI_CACHING_TIME + 1)
         logic.save_hero(self.hero)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
@@ -1114,14 +1046,13 @@ class HeroUiInfoTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_ui_continue_caching_required', classmethod(lambda cls, tm: True))
     def test_cached_ui_info_for_hero__data_is_none__game_stopped__recache_not_required(self):
-        GameState.stop()
+        game_prototypes.GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
             with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
                 objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_args, mock.call(actual_guaranteed=False))
-
 
     @mock.patch('dext.common.utils.cache.get', get_simple_cache_data)
     def test_cached_ui_info_for_hero__continue_caching_required__cache_exists__recache_not_required(self):
@@ -1143,7 +1074,7 @@ class HeroUiInfoTest(testcase.TestCase):
 
     @mock.patch('dext.common.utils.cache.get', get_simple_cache_data)
     def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_exists__recache_not_required(self):
-        GameState.stop()
+        game_prototypes.GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
             with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
@@ -1153,7 +1084,7 @@ class HeroUiInfoTest(testcase.TestCase):
 
     @mock.patch('dext.common.utils.cache.get', lambda x: None)
     def test_cached_ui_info_for_hero__continue_caching_required__game_stopped__cache_not_exists__recache_not_required(self):
-        GameState.stop()
+        game_prototypes.GameState.stop()
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_start_hero_caching') as cmd_start_hero_caching:
             with mock.patch('the_tale.game.heroes.objects.Hero.ui_info') as ui_info:
@@ -1168,7 +1099,6 @@ class HeroUiInfoTest(testcase.TestCase):
                 objects.Hero.cached_ui_info_for_hero(self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
         self.assertEqual(cmd_start_hero_caching.call_count, 0)
         self.assertEqual(ui_info.call_count, 0)
-
 
     @mock.patch('dext.common.utils.cache.get', lambda x: {'ui_caching_started_at': time.time(),
                                                           'a': 1,
@@ -1195,7 +1125,6 @@ class HeroUiInfoTest(testcase.TestCase):
 
         self.assertNotEqual(data['patch_turn'], None)
         self.assertEqual(set(data.keys()) | set(('changed_fields',)), set(old_info['changed_fields']))
-
 
     def test_cached_ui_info_for_hero__turn_not_in_patch_turns(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
@@ -1225,7 +1154,6 @@ class HeroUiInfoTest(testcase.TestCase):
             self.assertNotIn('pvp__last_turn', data['action']['data'])
             self.assertNotIn('pvp__actual', data['action']['data'])
 
-
     def test_ui_info_patch(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
 
@@ -1252,7 +1180,7 @@ class HeroUiInfoTest(testcase.TestCase):
         self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 0)
         self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 0)
 
-        turn.set(666)
+        game_turn.set(666)
 
         self.assertEqual(self.hero.ui_info(actual_guaranteed=True)['actual_on_turn'], 666)
         self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 0)
@@ -1265,10 +1193,10 @@ class HeroUiInfoTest(testcase.TestCase):
         self.assertEqual(self.hero.ui_info(actual_guaranteed=False)['actual_on_turn'], 666)
 
     def test_ui_caching_timeout_greate_then_turn_delta(self):
-        self.assertTrue(conf.heroes_settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)
+        self.assertTrue(conf.settings.UI_CACHING_TIMEOUT > c.TURN_DELTA)
 
     def test_is_ui_continue_caching_required(self):
         self.assertTrue(objects.Hero.is_ui_continue_caching_required(0))
-        self.assertFalse(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.heroes_settings.UI_CACHING_TIME - conf.heroes_settings.UI_CACHING_CONTINUE_TIME - 1)))
-        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.heroes_settings.UI_CACHING_TIME - conf.heroes_settings.UI_CACHING_CONTINUE_TIME + 1)))
-        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - conf.heroes_settings.UI_CACHING_TIME))
+        self.assertFalse(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.settings.UI_CACHING_TIME - conf.settings.UI_CACHING_CONTINUE_TIME - 1)))
+        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.settings.UI_CACHING_TIME - conf.settings.UI_CACHING_CONTINUE_TIME + 1)))
+        self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - conf.settings.UI_CACHING_TIME))

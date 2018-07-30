@@ -1,81 +1,57 @@
 
-import random
+import smart_imports
 
-from unittest import mock
-
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game import names
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.heroes import relations as heroes_relations
-
-from the_tale.game.companions import logic
-from the_tale.game.companions import relations
-
-from the_tale.game.companions.abilities import effects
-from the_tale.game.companions.abilities import container as abilities_container
-
-from the_tale.game.heroes.relations import MODIFIERS
+smart_imports.all()
 
 
-class BaseEffectsTests(testcase.TestCase):
+effects = companions_abilities_effects
+
+MODIFIERS = heroes_relations.MODIFIERS
+
+
+class BaseEffectsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(BaseEffectsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.companion_record = logic.create_companion_record(utg_name=names.generator().get_test_name(),
+        self.companion_record = logic.create_companion_record(utg_name=game_names.generator().get_test_name(),
                                                               description='description',
-                                                              type=beings_relations.TYPE.random(),
+                                                              type=tt_beings_relations.TYPE.random(),
                                                               max_health=10,
                                                               dedication=relations.DEDICATION.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
-                                                              abilities=abilities_container.Container(),
-                                                              communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                              communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                              communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                              intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                              structure=beings_relations.STRUCTURE.random(),
-                                                              features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                              movement=beings_relations.MOVEMENT.random(),
-                                                              body=beings_relations.BODY.random(),
-                                                              size=beings_relations.SIZE.random(),
-                                                              orientation=beings_relations.ORIENTATION.random(),
+                                                              abilities=companions_abilities_container.Container(),
+                                                              communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                              communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                              communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                              intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                              structure=tt_beings_relations.STRUCTURE.random(),
+                                                              features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                              movement=tt_beings_relations.MOVEMENT.random(),
+                                                              body=tt_beings_relations.BODY.random(),
+                                                              size=tt_beings_relations.SIZE.random(),
+                                                              orientation=tt_beings_relations.ORIENTATION.random(),
                                                               weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
-                                                                                                material= tt_artifacts_relations.MATERIAL.random(),
+                                                                                                material=tt_artifacts_relations.MATERIAL.random(),
                                                                                                 power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                               state=relations.STATE.ENABLED)
         self.hero.set_companion(logic.create_companion(self.companion_record))
 
     def apply_ability(self, ability):
-        container = abilities_container.Container(common=(),
-                                                  start=frozenset((ability,)),
-                                                  coherence=None,
-                                                  honor=None,
-                                                  peacefulness=None)
+        container = companions_abilities_container.Container(common=(),
+                                                             start=frozenset((ability,)),
+                                                             coherence=None,
+                                                             honor=None,
+                                                             peacefulness=None)
         self.companion_record.abilities = container
         self.hero.reset_accessors_cache()
 
@@ -108,7 +84,6 @@ class CoherenceSpeedTests(BaseEffectsTests):
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.COHERENCE_EXPERIENCE, 11), 13.2)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.COHERENCE_EXPERIENCE,)), 11), 11)
 
-
     def test_in_game(self):
         ability = self.get_ability(effects.CoherenceSpeed)
 
@@ -136,9 +111,8 @@ class ChangeHabitsTests(BaseEffectsTests):
                                       habit_sources=(heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONOR_NEUTRAL_1,
                                                      heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONOR_NEUTRAL_2))
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.HABITS_SOURCES, set()), set((heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONOR_NEUTRAL_1,
-                                                                                         heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONOR_NEUTRAL_2)))
+                                                                                             heroes_relations.HABIT_CHANGE_SOURCE.COMPANION_HONOR_NEUTRAL_2)))
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.HABITS_SOURCES,)), set()), set())
-
 
     def check_habits_changed(self, honor, peacefulness, honor_check, peacefulness_check):
         self.hero.habit_honor.set_habit(honor)
@@ -149,7 +123,6 @@ class ChangeHabitsTests(BaseEffectsTests):
 
         self.assertTrue(honor_check(self.hero.habit_honor.raw_value))
         self.assertTrue(peacefulness_check(self.hero.habit_peacefulness.raw_value))
-
 
     def test_in_game__aggressive(self):
         self.apply_ability(effects.ABILITIES.AGGRESSIVE)
@@ -243,7 +216,6 @@ class QuestMoneyRewardTests(BaseEffectsTests):
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.QUEST_MONEY_REWARD, 11), 13)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.QUEST_MONEY_REWARD,)), 11), 11)
 
-
     def test_in_game(self):
         ability = self.get_ability(effects.QuestMoneyReward)
 
@@ -259,7 +231,6 @@ class MaxBagSizeTests(BaseEffectsTests):
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.MAX_BAG_SIZE, 11), 677)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.MAX_BAG_SIZE,)), 11), 11)
 
-
     def test_in_game(self):
         ability = self.get_ability(effects.MaxBagSize)
 
@@ -273,7 +244,6 @@ class PoliticsPowerTests(BaseEffectsTests):
         effect = effects.PoliticsPower(3)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.POWER, 11), 14.0)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.POWER, )), 11), 11)
-
 
     def test_in_game(self):
         ability = self.get_ability(effects.PoliticsPower)
@@ -331,7 +301,7 @@ class BattleAbilityTests(BaseEffectsTests):
     def test_effect(self):
         effect = effects.BattleAbilityFireball()
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.INITIATIVE, 10), 10.25)
-        self.assertEqual(effect._modify_attribute({}, MODIFIERS.ADDITIONAL_ABILITIES, []), [effect.ability])
+        self.assertEqual(effect._modify_attribute({}, MODIFIERS.ADDITIONAL_ABILITIES, []), [effect.ABILITY])
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.INITIATIVE, MODIFIERS.ADDITIONAL_ABILITIES)), 11), 11)
 
     def test_in_game(self):
@@ -534,7 +504,7 @@ class CompanionEatCorpsesTests(BaseEffectsTests):
         effect = effects.CompanionEatCorpses(3)
         self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_EAT_CORPSES))
         self.assertFalse(effect._check_attribute(MODIFIERS.COMPANION_EAT_CORPSES_PROBABILITY))
-        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_EAT_CORPSES,MODIFIERS.COMPANION_EAT_CORPSES_PROBABILITY))))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_EAT_CORPSES, MODIFIERS.COMPANION_EAT_CORPSES_PROBABILITY))))
 
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_EAT_CORPSES, 1), 1)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_EAT_CORPSES_PROBABILITY, 1), 3)
@@ -594,7 +564,7 @@ class CompanionDrinkArtifactTests(BaseEffectsTests):
         effect = effects.CompanionDrinkArtifact(0.5)
         self.assertTrue(effect._check_attribute(MODIFIERS.COMPANION_DRINK_ARTIFACT))
         self.assertFalse(effect._check_attribute(MODIFIERS.COMPANION_DRINK_ARTIFACT_PROBABILITY))
-        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_DRINK_ARTIFACT,MODIFIERS.COMPANION_DRINK_ARTIFACT_PROBABILITY))))
+        self.assertFalse(effect._check_attribute(MODIFIERS.random(exclude=(MODIFIERS.COMPANION_DRINK_ARTIFACT, MODIFIERS.COMPANION_DRINK_ARTIFACT_PROBABILITY))))
 
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_DRINK_ARTIFACT, 2), 2)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_DRINK_ARTIFACT_PROBABILITY, 2), 1.0)
@@ -606,7 +576,6 @@ class CompanionDrinkArtifactTests(BaseEffectsTests):
         with self.check_changed(lambda: self.hero.can_companion_drink_artifact()):
             with self.check_changed(lambda: self.hero.companion_drink_artifact_probability):
                 self.apply_ability(ability)
-
 
 
 class CompanionExorcistTests(BaseEffectsTests):
@@ -642,7 +611,6 @@ class RestLenghtTests(BaseEffectsTests):
 
         with self.check_changed(lambda: self.hero.rest_length):
             self.apply_ability(ability)
-
 
 
 class IDLELenghtTests(BaseEffectsTests):
@@ -739,7 +707,6 @@ class UnsociableTests(BaseEffectsTests):
         effect = effects.Unsociable(0.1)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.COMPANION_LEAVE_IN_PLACE, 0), 0.1)
         self.assertEqual(effect._modify_attribute({}, MODIFIERS.random(exclude=(MODIFIERS.COMPANION_LEAVE_IN_PLACE,)), 11), 11)
-
 
     def test_in_game(self):
         ability = self.get_ability(effects.Unsociable)

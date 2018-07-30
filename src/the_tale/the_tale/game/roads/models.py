@@ -1,17 +1,19 @@
-# coding: utf-8
 
-from django.db import models
+import smart_imports
 
-class Road(models.Model):
+smart_imports.all()
 
-    point_1 = models.ForeignKey('places.Place', related_name='+', on_delete=models.CASCADE)
-    point_2 = models.ForeignKey('places.Place', related_name='+', on_delete=models.CASCADE)
 
-    length = models.FloatField(blank=True, default=0.0)
+class Road(django_models.Model):
 
-    exists = models.BooleanField(default=True)
+    point_1 = django_models.ForeignKey('places.Place', related_name='+', on_delete=django_models.CASCADE)
+    point_2 = django_models.ForeignKey('places.Place', related_name='+', on_delete=django_models.CASCADE)
 
-    path = models.TextField(null=False, default='')
+    length = django_models.FloatField(blank=True, default=0.0)
+
+    exists = django_models.BooleanField(default=True)
+
+    path = django_models.TextField(null=False, default='')
 
     class Meta:
         unique_together = (('point_1', 'point_2'), )
@@ -20,14 +22,14 @@ class Road(models.Model):
         return '%s -> %s' % (self.point_1, self.point_2)
 
 
-class Waymark(models.Model):
+class Waymark(django_models.Model):
 
-    point_from = models.ForeignKey('places.Place', related_name='+', on_delete=models.CASCADE)
-    point_to = models.ForeignKey('places.Place', related_name='+', on_delete=models.CASCADE)
+    point_from = django_models.ForeignKey('places.Place', related_name='+', on_delete=django_models.CASCADE)
+    point_to = django_models.ForeignKey('places.Place', related_name='+', on_delete=django_models.CASCADE)
 
-    road = models.ForeignKey(Road, null=True, related_name='+', on_delete=models.SET_NULL)
+    road = django_models.ForeignKey(Road, null=True, related_name='+', on_delete=django_models.SET_NULL)
 
-    length = models.FloatField(blank=True, default=0.0)
+    length = django_models.FloatField(blank=True, default=0.0)
 
     class Meta:
         unique_together = (('point_from', 'point_to', 'road'), )

@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from the_tale.game.heroes import logic as heroes_logic
+smart_imports.all()
 
 
-class Hero(meta_relations.MetaType):
+class Hero(utils_meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 9
     TYPE_CAPTION = 'Герой'
@@ -18,7 +15,7 @@ class Hero(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('game:heroes:show', self.id)
+        return dext_urls.url('game:heroes:show', self.id)
 
     @classmethod
     def create_from_object(cls, hero):
@@ -26,7 +23,9 @@ class Hero(meta_relations.MetaType):
 
     @classmethod
     def create_from_id(cls, id):
-        hero = heroes_logic.load_hero(hero_id=id)
+        from . import logic
+
+        hero = logic.load_hero(hero_id=id)
         if hero is None:
             return None
 

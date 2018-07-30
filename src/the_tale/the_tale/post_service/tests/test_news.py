@@ -1,24 +1,14 @@
 
-from django.core import mail
-from django.conf import settings as project_settings
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.accounts import logic as accounts_logic
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.post_service.models import Message
-from the_tale.post_service.prototypes import MessagePrototype
-
-from the_tale.news import logic as news_logic
+smart_imports.all()
 
 
-class NewNewsTests(testcase.TestCase):
+class NewNewsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(NewNewsTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
@@ -28,28 +18,28 @@ class NewNewsTests(testcase.TestCase):
 
         news_logic.send_mails(self.news)
 
-        self.message = MessagePrototype.get_priority_message()
+        self.message = prototypes.MessagePrototype.get_priority_message()
 
         # enshure that system user exists
         accounts_logic.get_system_user()
 
     def test_register_message(self):
-        self.assertEqual(Message.objects.all().count(), 1)
+        self.assertEqual(models.Message.objects.all().count(), 1)
 
     def test_no_subscription(self):
         self.account_2.news_subscription = False
         self.account_2.save()
 
-        with self.check_delta(mail.outbox.__len__, 2):
+        with self.check_delta(django_mail.outbox.__len__, 2):
             self.message.process()
 
         self.assertTrue(self.message.state.is_PROCESSED)
 
-        self.assertEqual(mail.outbox[0].to, [self.account_1.email])
-        self.assertEqual(mail.outbox[1].to, [self.account_3.email])
+        self.assertEqual(django_mail.outbox[0].to, [self.account_1.email])
+        self.assertEqual(django_mail.outbox[1].to, [self.account_3.email])
 
-        self.assertTrue(self.news.caption in mail.outbox[0].body)
-        self.assertTrue(project_settings.SITE_URL in mail.outbox[0].body)
+        self.assertTrue(self.news.caption in django_mail.outbox[0].body)
+        self.assertTrue(django_settings.SITE_URL in django_mail.outbox[0].body)
 
-        self.assertTrue(self.news.caption in mail.outbox[0].alternatives[0][0])
-        self.assertTrue(project_settings.SITE_URL in mail.outbox[0].alternatives[0][0])
+        self.assertTrue(self.news.caption in django_mail.outbox[0].alternatives[0][0])
+        self.assertTrue(django_settings.SITE_URL in django_mail.outbox[0].alternatives[0][0])

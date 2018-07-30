@@ -1,115 +1,113 @@
 
-from django.db import models
-from django.core.urlresolvers import reverse
+import smart_imports
 
-from rels.django import RelationIntegerField
-
-from the_tale.forum.relations import MARKUP_METHOD, POST_REMOVED_BY, POST_STATE
+smart_imports.all()
 
 
-class Category(models.Model):
+class Category(django_models.Model):
 
-    caption = models.CharField(max_length=256, blank=False, null=False)
+    caption = django_models.CharField(max_length=256, blank=False, null=False)
 
-    slug = models.CharField(max_length=32, blank=False, null=False, db_index=True)
+    slug = django_models.CharField(max_length=32, blank=False, null=False, db_index=True)
 
-    order = models.IntegerField(default=0, null=False, blank=True)
+    order = django_models.IntegerField(default=0, null=False, blank=True)
 
     def __str__(self): return self.slug
 
 
-class SubCategory(models.Model):
+class SubCategory(django_models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
 
-    category = models.ForeignKey(Category, null=False, on_delete=models.PROTECT)
+    category = django_models.ForeignKey(Category, null=False, on_delete=django_models.PROTECT)
 
-    caption = models.CharField(max_length=256, blank=False, null=False)
+    caption = django_models.CharField(max_length=256, blank=False, null=False)
 
-    order = models.IntegerField(default=0, null=False, blank=True)
+    order = django_models.IntegerField(default=0, null=False, blank=True)
 
-    uid = models.CharField(max_length=16, blank=True, null=True, default=None, db_index=True)
+    uid = django_models.CharField(max_length=16, blank=True, null=True, default=None, db_index=True)
 
-    updated_at = models.DateTimeField(auto_now_add=True, null=False)
-    last_thread_created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = django_models.DateTimeField(auto_now_add=True, null=False)
+    last_thread_created_at = django_models.DateTimeField(auto_now_add=True, null=True)
 
-    threads_count = models.IntegerField(default=0, null=False)
+    threads_count = django_models.IntegerField(default=0, null=False)
 
-    last_poster = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
-    last_thread = models.ForeignKey('forum.Thread', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
+    last_poster = django_models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=django_models.SET_NULL)
+    last_thread = django_models.ForeignKey('forum.Thread', null=True, blank=True, related_name='+', on_delete=django_models.SET_NULL)
 
-    posts_count = models.BigIntegerField(default=0, null=False)
+    posts_count = django_models.BigIntegerField(default=0, null=False)
 
-    closed = models.BooleanField(default=False) # if True, only staff can create themes in this subcategory
-    restricted = models.BooleanField(default=False, db_index=True) # if True, permissions required to work with this subcategory
+    closed = django_models.BooleanField(default=False)  # if True, only staff can create themes in this subcategory
+    restricted = django_models.BooleanField(default=False, db_index=True)  # if True, permissions required to work with this subcategory
 
-    description = models.TextField(default='', null=False)
+    description = django_models.TextField(default='', null=False)
 
     def __str__(self): return self.caption
 
 
-class Thread(models.Model):
+class Thread(django_models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
 
-    subcategory = models.ForeignKey(SubCategory, null=False, on_delete=models.PROTECT)
+    subcategory = django_models.ForeignKey(SubCategory, null=False, on_delete=django_models.PROTECT)
 
-    caption = models.CharField(max_length=256, blank=False, null=False)
+    caption = django_models.CharField(max_length=256, blank=False, null=False)
 
-    author =  models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
+    author = django_models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=django_models.SET_NULL)
 
-    last_poster = models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=models.SET_NULL)
+    last_poster = django_models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=django_models.SET_NULL)
 
-    posts_count = models.BigIntegerField(default=0, null=False)
+    posts_count = django_models.BigIntegerField(default=0, null=False)
 
-    updated_at = models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = django_models.DateTimeField(auto_now_add=True, null=False)
 
-    technical = models.BooleanField(default=False)
+    technical = django_models.BooleanField(default=False)
 
-    important = models.BooleanField(default=False, db_index=True)
+    important = django_models.BooleanField(default=False, db_index=True)
 
     class Meta:
         permissions = (("moderate_thread", "Может редактировать темы на форуме"), )
 
     def get_absolute_url(self):
-        return reverse('forum:threads:show', args=[self.id])
+        return django_reverse('forum:threads:show', args=[self.id])
 
     def __str__(self): return '%d - %s' % (self.id, self.caption)
 
 
-class Subscription(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    account = models.ForeignKey('accounts.Account', on_delete=models.CASCADE)
-    thread = models.ForeignKey(Thread, null=True, on_delete=models.CASCADE)
-    subcategory = models.ForeignKey(SubCategory, null=True, on_delete=models.CASCADE)
+class Subscription(django_models.Model):
+    created_at = django_models.DateTimeField(auto_now_add=True)
+    account = django_models.ForeignKey('accounts.Account', on_delete=django_models.CASCADE)
+    thread = django_models.ForeignKey(Thread, null=True, on_delete=django_models.CASCADE)
+    subcategory = django_models.ForeignKey(SubCategory, null=True, on_delete=django_models.CASCADE)
 
     class Meta:
         unique_together = (('account', 'thread'),
                            ('account', 'subcategory'),)
 
-class Post(models.Model):
 
-    thread = models.ForeignKey(Thread, null=False, on_delete=models.PROTECT)
+class Post(django_models.Model):
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
+    thread = django_models.ForeignKey(Thread, null=False, on_delete=django_models.PROTECT)
 
-    created_at_turn = models.BigIntegerField(default=0)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
 
-    updated_at = models.DateTimeField(auto_now=True, null=True)
+    created_at_turn = django_models.BigIntegerField(default=0)
 
-    updated_at_turn = models.BigIntegerField(default=0)
+    updated_at = django_models.DateTimeField(auto_now=True, null=True)
 
-    author = models.ForeignKey('accounts.Account', null=True, related_name='forum_posts', on_delete=models.SET_NULL)
+    updated_at_turn = django_models.BigIntegerField(default=0)
 
-    text = models.TextField(null=False, blank=True, default='')
+    author = django_models.ForeignKey('accounts.Account', null=True, related_name='forum_posts', on_delete=django_models.SET_NULL)
 
-    markup_method = RelationIntegerField(relation=MARKUP_METHOD, relation_column='value')
+    text = django_models.TextField(null=False, blank=True, default='')
 
-    state = RelationIntegerField(relation=POST_STATE, relation_column='value', db_index=True)
-    removed_by = RelationIntegerField(relation=POST_REMOVED_BY, relation_column='value', null=True, default=None)
-    remove_initiator = models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=models.SET_NULL)
+    markup_method = rels_django.RelationIntegerField(relation=relations.MARKUP_METHOD, relation_column='value')
 
-    technical = models.BooleanField(default=False)
+    state = rels_django.RelationIntegerField(relation=relations.POST_STATE, relation_column='value', db_index=True)
+    removed_by = rels_django.RelationIntegerField(relation=relations.POST_REMOVED_BY, relation_column='value', null=True, default=None)
+    remove_initiator = django_models.ForeignKey('accounts.Account', null=True, blank=True, related_name='+', on_delete=django_models.SET_NULL)
+
+    technical = django_models.BooleanField(default=False)
 
     class Meta:
         permissions = (("moderate_post", "Может редактировать сообщения пользователей"), )
@@ -117,40 +115,38 @@ class Post(models.Model):
     def __str__(self): return 'thread %d, post %d' % (self.thread_id, self.id)
 
 
+class ThreadReadInfo(django_models.Model):
 
-class ThreadReadInfo(models.Model):
+    thread = django_models.ForeignKey(Thread, db_index=True, on_delete=django_models.CASCADE)
 
-    thread = models.ForeignKey(Thread, db_index=True, on_delete=models.CASCADE)
+    account = django_models.ForeignKey('accounts.Account', related_name='+', db_index=True, on_delete=django_models.CASCADE)
 
-    account = models.ForeignKey('accounts.Account', related_name='+', db_index=True, on_delete=models.CASCADE)
-
-    read_at = models.DateTimeField(auto_now=True, db_index=True)
+    read_at = django_models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
         unique_together = (('thread', 'account'),)
 
 
-class SubCategoryReadInfo(models.Model):
+class SubCategoryReadInfo(django_models.Model):
 
-    subcategory = models.ForeignKey(SubCategory, db_index=True, on_delete=models.CASCADE)
+    subcategory = django_models.ForeignKey(SubCategory, db_index=True, on_delete=django_models.CASCADE)
 
-    account = models.ForeignKey('accounts.Account', related_name='+', db_index=True, on_delete=models.CASCADE)
+    account = django_models.ForeignKey('accounts.Account', related_name='+', db_index=True, on_delete=django_models.CASCADE)
 
-    all_read_at = models.DateTimeField()
-    read_at = models.DateTimeField(auto_now=True)
+    all_read_at = django_models.DateTimeField()
+    read_at = django_models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = (('subcategory', 'account'),)
 
 
+class Permission(django_models.Model):
 
-class Permission(models.Model):
+    created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
 
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated_at = models.DateTimeField(auto_now=True, db_index=True)
-
-    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
-    account = models.ForeignKey('accounts.Account', related_name='+', on_delete=models.CASCADE)
+    subcategory = django_models.ForeignKey(SubCategory, on_delete=django_models.CASCADE)
+    account = django_models.ForeignKey('accounts.Account', related_name='+', on_delete=django_models.CASCADE)
 
     class Meta:
         unique_together = (('subcategory', 'account'),)

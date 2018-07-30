@@ -1,32 +1,14 @@
 
-from dext.common.utils.testcase import TestCase as DextTestCase, TransactionTestCase as DextTransactionTestCase
-from dext.common.utils.urls import url
+import smart_imports
 
-from dext.settings import settings
-
-from the_tale.common.utils.decorators import lazy_property
+smart_imports.all()
 
 
 def setUp(self):
-    from the_tale.accounts import tt_api as accounts_tt_api
 
-    from the_tale.accounts.achievements.storage import achievements_storage
-    from the_tale.collections.storage import collections_storage, kits_storage, items_storage
-    from the_tale.linguistics.storage import game_dictionary, game_lexicon, restrictions_storage
+    accounts_tt_services.players_timers.cmd_debug_clear_service()
 
-    from the_tale.game.prototypes import GameState
-    from the_tale.game.persons import storage as persons_storage
-    from the_tale.game.mobs import storage as mobs_storage
-    from the_tale.game.companions import storage as companions_storage
-    from the_tale.game.artifacts import storage as artifacts_storage
-    from the_tale.game.heroes import storage as heroes_storage
-    from the_tale.game.map.storage import map_info_storage
-    from the_tale.game.places import storage as places_storage
-    from the_tale.game.roads.storage import roads_storage, waymarks_storage
-
-    accounts_tt_api.debug_clear_service()
-
-    settings.refresh(force=True)
+    dext_settings.settings.refresh(force=True)
 
     heroes_storage.position_descriptions.clear()
 
@@ -34,25 +16,22 @@ def setUp(self):
     places_storage.buildings.clear()
     persons_storage.persons.clear()
     persons_storage.social_connections.clear()
-    waymarks_storage.clear()
-    roads_storage.clear()
+    roads_storage.waymarks.clear()
+    roads_storage.roads.clear()
     mobs_storage.mobs.clear()
     companions_storage.companions.clear()
     artifacts_storage.artifacts.clear()
-    map_info_storage.clear()
+    map_storage.map_info.clear()
     places_storage.resource_exchanges.clear()
-    collections_storage.clear()
-    kits_storage.clear()
-    items_storage.clear()
-    achievements_storage.clear()
-    game_dictionary.clear()
-    game_lexicon.clear()
-    restrictions_storage.clear()
+    collections_storage.collections.clear()
+    collections_storage.kits.clear()
+    collections_storage.items.clear()
+    achievements_storage.achievements.clear()
+    linguistics_storage.dictionary.clear()
+    linguistics_storage.lexicon.clear()
+    linguistics_storage.restrictions.clear()
 
-    GameState.start()
-
-    from the_tale.blogs import conf as blogs_conf
-    from the_tale.blogs import models as blogs_models
+    game_prototypes.GameState.start()
 
     for tag_id in blogs_conf.settings.DEFAULT_TAGS:
         blogs_models.Tag.objects.create(id=tag_id, name='{}'.format(tag_id), description='{}'.format(tag_id))
@@ -68,24 +47,22 @@ class TestAccountsFactory(object):
         return self._next_account_uid
 
     def create_account(self, is_fast=False, nick=None, email=None, password='111111', is_bot=False, is_superuser=False, referral_of_id=None):
-        from the_tale.accounts.logic import register_user
-        from the_tale.accounts.prototypes import AccountPrototype
 
         if is_fast:
             nick = nick or 'fast-user-{}'.format(self.get_next_uid())
-            result, account_id, bundle_id = register_user(nick, is_bot=is_bot, referral_of_id=referral_of_id)
+            result, account_id, bundle_id = accounts_logic.register_user(nick, is_bot=is_bot, referral_of_id=referral_of_id)
         else:
             nick = nick or 'test-user-%d' % self.get_next_uid()
             email = email or '{}@test.com'.format(nick)
-            result, account_id, bundle_id = register_user(nick, email, password, is_bot=is_bot, referral_of_id=referral_of_id)
+            result, account_id, bundle_id = accounts_logic.register_user(nick, email, password, is_bot=is_bot, referral_of_id=referral_of_id)
 
-        account = AccountPrototype.get_by_id(account_id)
+        account = accounts_prototypes.AccountPrototype.get_by_id(account_id)
 
         if is_superuser:
             account._model.is_superuser = True
             account.save()
 
-        return AccountPrototype.get_by_id(account_id)
+        return accounts_prototypes.AccountPrototype.get_by_id(account_id)
 
 
 class TestCaseMixin(object):
@@ -94,25 +71,25 @@ class TestCaseMixin(object):
         data = {'email': email, 'password': password}
         if remember:
             data['remember'] = 'remember'
-        response = self.client.post(url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0'), data)
+        response = self.client.post(dext_urls.url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0'), data)
         self.check_ajax_ok(response)
 
     def request_logout(self):
-        response = self.client.post(url('accounts:auth:api-logout', api_version='1.0', api_client='test-1.0'))
+        response = self.client.post(dext_urls.url('accounts:auth:api-logout', api_version='1.0', api_client='test-1.0'))
         self.check_ajax_ok(response)
 
-    @lazy_property
+    @decorators.lazy_property
     def accounts_factory(self):
         return TestAccountsFactory()
 
 
-class TestCase(DextTestCase, TestCaseMixin):
+class TestCase(dext_testcase.TestCase, TestCaseMixin):
     def setUp(self):
         super(TestCase, self).setUp()
         setUp(self)
 
 
-class TransactionTestCase(DextTransactionTestCase, TestCaseMixin):
+class TransactionTestCase(dext_testcase.TransactionTestCase, TestCaseMixin):
     def setUp(self):
         super(TransactionTestCase, self).setUp()
         setUp(self)

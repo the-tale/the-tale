@@ -1,19 +1,14 @@
-# coding: utf-8
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic import create_test_map
-
-from .. import logic
-from .. import relations
+smart_imports.all()
 
 
-
-class LogicTests(testcase.TestCase):
+class LogicTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(LogicTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
     def test_get_terrain_linguistics_restrictions(self):
         all_restrictions = set()

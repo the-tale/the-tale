@@ -1,22 +1,10 @@
 
-from unittest import mock
+import smart_imports
 
-import datetime
-
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.persons import logic as persons_logic
-from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import relations as persons_relations
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import PersonRemoveSocialConnection
-from the_tale.game.bills.tests.helpers import BaseTestPrototypes
+smart_imports.all()
 
 
-class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
+class PersonRemoveSocialConnectionTests(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(PersonRemoveSocialConnectionTests, self).setUp()
@@ -46,9 +34,9 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
                                                person_1=self.person_1_1,
                                                person_2=self.person_2_1)
 
-        self.bill_data = PersonRemoveSocialConnection(person_1_id=self.person_1_1.id,
-                                                      person_2_id=self.person_2_1.id)
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_data = bills.person_remove_social_connection.PersonRemoveSocialConnection(person_1_id=self.person_1_1.id,
+                                                                                            person_2_id=self.person_2_1.id)
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_create(self):
         self.assertEqual(self.bill.data.person_1_id, self.person_1_1.id)
@@ -82,7 +70,7 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
 
         self.bill.update(form)
 
-        self.bill = BillPrototype.get_by_id(self.bill.id)
+        self.bill = prototypes.BillPrototype.get_by_id(self.bill.id)
 
         self.assertEqual(self.bill.data.person_1_id, self.person_2_2.id)
         self.assertEqual(self.bill.data.person_2_id, self.person_3_1.id)
@@ -132,11 +120,11 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
         self.assertTrue(form.is_valid())
 
     @mock.patch('the_tale.game.balance.constants.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME', 0)
-    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_apply(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
 
         data = self.bill.user_form_initials
         data['approved'] = True
@@ -147,7 +135,7 @@ class PersonRemoveSocialConnectionTests(BaseTestPrototypes):
 
         self.assertTrue(self.bill.apply())
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)
 
         self.assertFalse(persons_storage.social_connections.is_connected(self.person_1_1, self.person_2_1))

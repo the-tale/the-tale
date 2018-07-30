@@ -1,4 +1,5 @@
 
+
 class ItemTypeSummary:
     __slots__ = ('type', 'full_type', 'sell_number', 'min_sell_price', 'max_sell_price', 'name', 'owner_sell_number')
 
@@ -43,7 +44,6 @@ class Lot:
         self.item_id = item_id
         self.price = price
         self.created_at = created_at
-
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and

@@ -1,11 +1,10 @@
-#coding: utf-8
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from the_tale.game.places import nearest_cells
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'for each place calculate nearest map cells'
 

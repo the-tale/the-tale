@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import prototypes
+smart_imports.all()
 
 
-class Clan(meta_relations.MetaType):
+class Clan(utils_meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 8
     TYPE_CAPTION = 'Гильдия'
@@ -18,7 +15,7 @@ class Clan(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('accounts:clans:show', self.id)
+        return dext_urls.url('accounts:clans:show', self.id)
 
     @classmethod
     def create_from_object(cls, clan):
@@ -30,6 +27,8 @@ class Clan(meta_relations.MetaType):
 
     @classmethod
     def create_from_id(cls, id):
+        from . import prototypes
+
         clan = prototypes.ClanPrototype.get_by_id(id)
         if clan is None:
             return cls.create_removed()

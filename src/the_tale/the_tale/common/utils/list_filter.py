@@ -1,5 +1,7 @@
 
-import collections
+import smart_imports
+
+smart_imports.all()
 
 
 class ListFilter(object):
@@ -15,7 +17,7 @@ class ListFilter(object):
             element = ElementClass(self, value=values.get(ElementClass.ATTRIBUTE))
             self.elements.append(element)
             self.is_filtering |= any(argument_name in url_builder.default_arguments and url_builder.default_arguments[argument_name] != argument_value
-                                    for argument_name, argument_value in list(element.default_arguments.items()))
+                                     for argument_name, argument_value in list(element.default_arguments.items()))
 
 
 class BaseElement(object):
@@ -31,12 +33,10 @@ class BaseElement(object):
 
 
 def filter_relation(base_relation, sort_key=lambda r: r.value):
-    from rels import Column
-    from rels.django import DjangoEnum
 
-    class FILTER_RELATION(DjangoEnum):
-        original_relation = Column(unique=False, single_type=False)
-        records = [('FILTER_ALL', 0, 'все', None)] + [(r.name, 1+i, r.text, r) for i, r in enumerate(sorted(base_relation.records, key=sort_key))]
+    class FILTER_RELATION(rels_django.DjangoEnum):
+        original_relation = rels.Column(unique=False, single_type=False)
+        records = [('FILTER_ALL', 0, 'все', None)] + [(r.name, 1 + i, r.text, r) for i, r in enumerate(sorted(base_relation.records, key=sort_key))]
 
         @classmethod
         def filter_choices(cls):
@@ -58,7 +58,7 @@ def reset_element(caption='сбросить'):
         @property
         def reset_url(self):
             url_builder = self.list_filter.url_builder
-            arguments = {argument:None for argument in url_builder.arguments_names}
+            arguments = {argument: None for argument in url_builder.arguments_names}
 
             for element in self.list_filter.elements:
                 arguments.update(element.default_arguments)
@@ -131,7 +131,5 @@ def choice_element(caption, attribute, choices, default_value=None):
 
         @property
         def default_arguments(self): return {self.ATTRIBUTE: self.DEFAULT_VALUE}
-
-
 
     return ChoiceElement

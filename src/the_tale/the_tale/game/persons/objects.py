@@ -1,21 +1,7 @@
 
-from utg import words as utg_words
-from utg import relations as utg_relations
+import smart_imports
 
-from the_tale.game import names
-from the_tale.game import effects
-
-from the_tale.game import turn
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import relations as places_relations
-
-from . import economic
-from . import relations
+smart_imports.all()
 
 
 BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_FROM_BEST_PERSON,
@@ -26,7 +12,7 @@ BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_FROM
                        places_relations.ATTRIBUTE.STABILITY: c.PLACE_STABILITY_FROM_BEST_PERSON}
 
 
-class Person(names.ManageNameMixin2):
+class Person(game_names.ManageNameMixin2):
     __slots__ = ('id',
                  'created_at_turn',
                  'updated_at_turn',
@@ -91,8 +77,7 @@ class Person(names.ManageNameMixin2):
 
     @property
     def url(self):
-        from dext.common.utils.urls import url
-        return url('game:persons:show', self.id)
+        return dext_urls.url('game:persons:show', self.id)
 
     def name_from(self, with_url=True):
         if with_url:
@@ -116,15 +101,12 @@ class Person(names.ManageNameMixin2):
 
     @property
     def seconds_before_next_move(self):
-        return (self.moved_at_turn + c.PERSON_MOVE_DELAY - turn.number()) * c.TURN_DELTA
+        return (self.moved_at_turn + c.PERSON_MOVE_DELAY - game_turn.number()) * c.TURN_DELTA
 
     def linguistics_restrictions(self):
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-        from the_tale.linguistics.storage import restrictions_storage
-
-        return (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.GENDER, self.gender.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, self.race.value).id,
-                restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.PERSON_TYPE, self.type.value).id)
+        return (linguistics_restrictions.get(self.gender),
+                linguistics_restrictions.get(self.race),
+                linguistics_restrictions.get(self.type))
 
     @property
     def economic_attributes(self):
@@ -139,7 +121,7 @@ class Person(names.ManageNameMixin2):
         choices = []
 
         for place in places_storage.places.all():
-            accepted_persons = [person for person in place.persons if predicate(place, person)] # pylint: disable=W0110
+            accepted_persons = [person for person in place.persons if predicate(place, person)]  # pylint: disable=W0110
 
             if choosen_person is not None and choosen_person.place.id == place.id:
                 if choosen_person.id not in [p.id for p in accepted_persons]:
@@ -148,7 +130,7 @@ class Person(names.ManageNameMixin2):
             persons = tuple((person.id, '%s [%s %.2f%%]' % (person.name,
                                                             person.type.text,
                                                             politic_power_storage.persons.total_power_fraction(person.id) * 100 if politic_power_storage.persons.total_power_fraction(person.id) > 0.001 else 0))
-                            for person in accepted_persons )
+                            for person in accepted_persons)
 
             persons = sorted(persons, key=lambda choice: choice[1])
 
@@ -211,25 +193,24 @@ class Person(names.ManageNameMixin2):
             if specialization.points_attribute is None:
                 continue
 
-            yield effects.Effect(name=self.name,
-                                 attribute=specialization.points_attribute,
-                                 value=self.modify_specialization_points(points))
+            yield game_effects.Effect(name=self.name,
+                                      attribute=specialization.points_attribute,
+                                      value=self.modify_specialization_points(points))
 
     def place_effects(self):
         for attribute, modifier in self.get_economic_modifiers():
-            yield effects.Effect(name=self.name, attribute=attribute, value=modifier)
+            yield game_effects.Effect(name=self.name, attribute=attribute, value=modifier)
 
         yield from self.specialization_effects()
 
         if self.attrs.terrain_radius_bonus != 0:
-            yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.terrain_radius_bonus)
+            yield game_effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.terrain_radius_bonus)
 
         if self.attrs.politic_radius_bonus != 0:
-            yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.politic_radius_bonus)
+            yield game_effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.politic_radius_bonus)
 
         if self.attrs.stability_renewing_bonus != 0:
-            yield effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=self.attrs.stability_renewing_bonus)
-
+            yield game_effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=self.attrs.stability_renewing_bonus)
 
     def refresh_attributes(self):
         self.attrs.reset()
@@ -253,8 +234,7 @@ class SocialConnection(object):
 
     @property
     def persons(self):
-        from the_tale.game.persons import storage
         return (storage.persons[self.person_1_id], storage.persons[self.person_2_id])
 
     def can_be_removed(self):
-        return turn.number() >= self.created_at_turn + c.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME
+        return game_turn.number() >= self.created_at_turn + c.PERSON_SOCIAL_CONNECTIONS_MIN_LIVE_TIME

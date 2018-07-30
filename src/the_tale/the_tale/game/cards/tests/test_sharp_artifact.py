@@ -1,27 +1,20 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.cards.tests.helpers import CardsTestMixin
+smart_imports.all()
 
 
-class SharpRandomArtifactTests(CardsTestMixin, testcase.TestCase):
-    CARD = cards.CARD.SHARP_RANDOM_ARTIFACT
+class SharpRandomArtifactTests(helpers.CardsTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.SHARP_RANDOM_ARTIFACT
 
     def setUp(self):
         super(SharpRandomArtifactTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
@@ -30,20 +23,20 @@ class SharpRandomArtifactTests(CardsTestMixin, testcase.TestCase):
         with self.check_delta(lambda: self.hero.equipment.get_power().total(), 1):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
 
-class SharpAllArtifactsTests(CardsTestMixin, testcase.TestCase):
-    CARD = cards.CARD.SHARP_ALL_ARTIFACTS
+class SharpAllArtifactsTests(helpers.CardsTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.SHARP_ALL_ARTIFACTS
 
     def setUp(self):
         super(SharpAllArtifactsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
@@ -52,4 +45,4 @@ class SharpAllArtifactsTests(CardsTestMixin, testcase.TestCase):
         with self.check_delta(lambda: self.hero.equipment.get_power().total(), len(list(self.hero.equipment.values()))):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
 
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))

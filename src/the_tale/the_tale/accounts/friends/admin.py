@@ -1,12 +1,12 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
+
+smart_imports.all()
 
 
-from the_tale.accounts.friends.models import Friendship
-
-class FriendshipAdmin(admin.ModelAdmin):
+class FriendshipAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'friend_1', 'friend_2', 'is_confirmed')
     list_filter = ('is_confirmed',)
 
-admin.site.register(Friendship, FriendshipAdmin)
+
+django_admin.site.register(models.Friendship, FriendshipAdmin)

@@ -1,11 +1,11 @@
-# coding: utf-8
 
-from the_tale.game.bills.relations import BILL_TYPE
-from the_tale.game.bills.bills.base_person_bill import BasePersonBill
+import smart_imports
+
+smart_imports.all()
 
 
-class PersonRemove(BasePersonBill):
-    type = BILL_TYPE.PERSON_REMOVE
+class PersonRemove(base_person_bill.BasePersonBill):
+    type = relations.BILL_TYPE.PERSON_REMOVE
 
     UserForm = None
     ModeratorForm = None

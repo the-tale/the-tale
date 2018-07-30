@@ -1,12 +1,7 @@
 
-import os
-import copy
+import smart_imports
 
-import rels
-
-from dext.common.utils import discovering
-
-from . import relations
+smart_imports.all()
 
 
 def get_key_records():
@@ -15,7 +10,7 @@ def get_key_records():
 
     keys = []
 
-    for module in discovering.discover_modules_in_directory(GROUPS_DIR, 'the_tale.linguistics.lexicon.groups'):
+    for module in dext_discovering.discover_modules_in_directory(GROUPS_DIR, 'the_tale.linguistics.lexicon.groups'):
 
         for key in getattr(module, 'KEYS', ()):
             key = copy.deepcopy(key)

@@ -1,15 +1,14 @@
 
-from dext.common.utils import jinja2
+import smart_imports
 
-from . import storage
-from . import logic
+smart_imports.all()
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def all_places():
     return sorted(storage.places.all(), key=lambda p: p.name)
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def hero_popularity(hero_id):
     return logic.get_hero_popularity(hero_id)

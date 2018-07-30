@@ -1,25 +1,7 @@
 
-import datetime
+import smart_imports
 
-import rels
-
-from django.db import models as django_models
-
-from the_tale.common.utils.prototypes import BasePrototype
-
-from the_tale.game.mobs import objects as mobs_objects
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import objects as places_objects
-
-from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import objects as persons_objects
-
-from the_tale.game import relations as game_relations
-
-from . import relations
-from . import models
+smart_imports.all()
 
 
 class _PreferencesMetaclass(type):
@@ -32,7 +14,6 @@ class _PreferencesMetaclass(type):
         getter.__name__ = preference.base_name
 
         return getter
-
 
     def __new__(mcs, name, bases, attributes):
 
@@ -60,7 +41,7 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
         return obj
 
     def value_to_set(self, value):
-        if isinstance(value, BasePrototype):
+        if isinstance(value, utils_prototypes.BasePrototype):
             return value.id if value is not None else None
         if isinstance(value, mobs_objects.MobRecord):
             return value.id if value is not None else None
@@ -105,23 +86,28 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
         return relations.ENERGY_REGENERATION.index_value.get(int(energy_regeneration_id))
 
     def _prepair_equipment_slot(self, slot_id):
-        if slot_id is None: return None
+        if slot_id is None:
+            return None
         return relations.EQUIPMENT_SLOT.index_value.get(int(slot_id))
 
     def _prepair_risk_level(self, risk_id):
-        if risk_id is None: return None
+        if risk_id is None:
+            return None
         return relations.RISK_LEVEL.index_value.get(int(risk_id))
 
     def _prepair_archetype(self, archetype_id):
-        if archetype_id is None: return None
+        if archetype_id is None:
+            return None
         return game_relations.ARCHETYPE.index_value.get(int(archetype_id))
 
     def _prepair_companion_dedication(self, companion_dedication_id):
-        if companion_dedication_id is None: return None
+        if companion_dedication_id is None:
+            return None
         return relations.COMPANION_DEDICATION.index_value.get(int(companion_dedication_id))
 
     def _prepair_companion_empathy(self, companion_empathy_id):
-        if companion_empathy_id is None: return None
+        if companion_empathy_id is None:
+            return None
         return relations.COMPANION_EMPATHY.index_value.get(int(companion_empathy_id))
 
     def _get(self, preferences_type):
@@ -138,8 +124,8 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
         return self.place is not None and self.place.id == place.id
 
     def has_person_in_preferences(self, person):
-        return ( (self.friend is not None and self.friend.id == person.id) or
-                 (self.enemy is not None and self.enemy.id == person.id) )
+        return ((self.friend is not None and self.friend.id == person.id) or
+                (self.enemy is not None and self.enemy.id == person.id))
 
     @classmethod
     def _preferences_query(cls, all):
@@ -175,17 +161,14 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
 
     @classmethod
     def get_friends_of(cls, person, all):
-        from . import logic
         return [logic.load_hero(hero_model=record) for record in cls._heroes_query(all=all).filter(heropreferences__friend_id=person.id)]
 
     @classmethod
     def get_enemies_of(cls, person, all):
-        from . import logic
         return [logic.load_hero(hero_model=record) for record in cls._heroes_query(all=all).filter(heropreferences__enemy_id=person.id)]
 
     @classmethod
     def get_citizens_of(cls, place, all):
-        from . import logic
         return [logic.load_hero(hero_model=record) for record in cls._heroes_query(all=all).filter(heropreferences__place_id=place.id)]
 
     @classmethod
@@ -207,5 +190,5 @@ class HeroPreferences(object, metaclass=_PreferencesMetaclass):
             elif peacefulness < 0:
                 peacefulness_negative += peacefulness
 
-        return ( (honor_positive, honor_negative),
-                 (peacefulness_positive, peacefulness_negative) )
+        return ((honor_positive, honor_negative),
+                (peacefulness_positive, peacefulness_negative))

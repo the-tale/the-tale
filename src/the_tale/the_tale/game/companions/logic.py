@@ -1,29 +1,7 @@
 
-import datetime
+import smart_imports
 
-from dext.common.utils import s11n
-
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.linguistics import logic as linguistics_logic
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import names
-from the_tale.game import turn
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.companions import objects
-from the_tale.game.companions import models
-from the_tale.game.companions import relations
-from the_tale.game.companions import storage
-from the_tale.game.companions.abilities import container as abilities_container
+smart_imports.all()
 
 
 def create_companion_record(utg_name,
@@ -75,7 +53,7 @@ def create_companion_record(utg_name,
     storage.companions.add_item(companion_record.id, companion_record)
     storage.companions.update_version()
 
-    linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
+    linguistics_logic.sync_restriction(group=linguistics_restrictions.GROUP.COMPANION,
                                        external_id=companion_record.id,
                                        name=companion_record.name)
 
@@ -83,23 +61,23 @@ def create_companion_record(utg_name,
 
 
 def create_random_companion_record(name,
-                                   type=beings_relations.TYPE.CIVILIZED,
+                                   type=tt_beings_relations.TYPE.CIVILIZED,
                                    max_health=int(c.COMPANIONS_MEDIUM_HEALTH),
                                    dedication=relations.DEDICATION.BRAVE,
                                    archetype=game_relations.ARCHETYPE.NEUTRAL,
                                    state=relations.STATE.DISABLED,
-                                   abilities=abilities_container.Container(),
+                                   abilities=companions_abilities_container.Container(),
                                    mode=relations.MODE.AUTOMATIC,
-                                   communication_verbal=beings_relations.COMMUNICATION_VERBAL.CAN,
-                                   communication_gestures=beings_relations.COMMUNICATION_GESTURES.CAN,
-                                   communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.CAN,
-                                   intellect_level=beings_relations.INTELLECT_LEVEL.LOW,
-                                   structure=beings_relations.STRUCTURE.STRUCTURE_2,
-                                   features=frozenset((beings_relations.FEATURE.FEATURE_1, beings_relations.FEATURE.FEATURE_3)),
-                                   movement=beings_relations.MOVEMENT.MOVEMENT_4,
-                                   body=beings_relations.BODY.BODY_5,
-                                   size=beings_relations.SIZE.SIZE_3,
-                                   orientation=beings_relations.ORIENTATION.VERTICAL,
+                                   communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.CAN,
+                                   communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.CAN,
+                                   communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.CAN,
+                                   intellect_level=tt_beings_relations.INTELLECT_LEVEL.LOW,
+                                   structure=tt_beings_relations.STRUCTURE.STRUCTURE_2,
+                                   features=frozenset((tt_beings_relations.FEATURE.FEATURE_1, tt_beings_relations.FEATURE.FEATURE_3)),
+                                   movement=tt_beings_relations.MOVEMENT.MOVEMENT_4,
+                                   body=tt_beings_relations.BODY.BODY_5,
+                                   size=tt_beings_relations.SIZE.SIZE_3,
+                                   orientation=tt_beings_relations.ORIENTATION.VERTICAL,
                                    weapons=None):
     if weapons is None:
         weapons = [artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.WEAPON_1,
@@ -109,7 +87,7 @@ def create_random_companion_record(name,
                                             material=tt_artifacts_relations.MATERIAL.MATERIAL_3,
                                             power_type=artifacts_relations.ARTIFACT_POWER_TYPE.MOST_MAGICAL)]
 
-    return create_companion_record(utg_name=names.generator().get_test_name(name=name),
+    return create_companion_record(utg_name=game_names.generator().get_test_name(name=name),
                                    description='description-%s' % name,
                                    type=type,
                                    max_health=max_health,
@@ -199,7 +177,7 @@ def update_companion_record(companion,
 
     storage.companions.update_version()
 
-    linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
+    linguistics_logic.sync_restriction(group=linguistics_restrictions.GROUP.COMPANION,
                                        external_id=companion.id,
                                        name=companion.name)
 
@@ -213,7 +191,7 @@ def enable_companion_record(companion):
 
     storage.companions.update_version()
 
-    linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION,
+    linguistics_logic.sync_restriction(group=linguistics_restrictions.GROUP.COMPANION,
                                        external_id=companion.id,
                                        name=companion.name)
 
@@ -223,21 +201,16 @@ def get_last_companion():
 
 
 def required_templates_count(companion_record):
-    from the_tale.linguistics import storage as linguistics_storage
-    from the_tale.linguistics.lexicon import keys as lexicon_keys
-    from the_tale.linguistics.lexicon import relations as lexicon_relations
-    from the_tale.linguistics.lexicon.relations import VARIABLE as V
+    companions_keys = [key for key in lexicon_keys.LEXICON_KEY.records if lexicon_relations.VARIABLE.COMPANION in key.variables]
 
-    companions_keys = [key for key in lexicon_keys.LEXICON_KEY.records if V.COMPANION in key.variables]
+    restriction_id = linguistics_restrictions.get_raw('COMPANION', companion_record.id)
 
-    restriction = linguistics_storage.restrictions_storage.get_restriction(linguistics_relations.TEMPLATE_RESTRICTION_GROUP.COMPANION, external_id=companion_record.id)
+    template_restrictions = frozenset([(lexicon_relations.VARIABLE.COMPANION.value, restriction_id)])
 
-    template_restrictions = frozenset([(lexicon_relations.VARIABLE.COMPANION.value, restriction.id)])
-
-    ingame_companion_phrases = [(key, len(linguistics_storage.game_lexicon.item.get_templates(key, restrictions=template_restrictions)))
+    ingame_companion_phrases = [(key, len(linguistics_storage.lexicon.item.get_templates(key, restrictions=template_restrictions)))
                                 for key in companions_keys]
 
-    return restriction, ingame_companion_phrases
+    return linguistics_storage.restrictions[restriction_id], ingame_companion_phrases
 
 
 def create_companion(companion_record):
@@ -245,4 +218,4 @@ def create_companion(companion_record):
                              health=companion_record.max_health,
                              coherence=c.COMPANIONS_MIN_COHERENCE,
                              experience=0,
-                             healed_at_turn=turn.number())
+                             healed_at_turn=game_turn.number())

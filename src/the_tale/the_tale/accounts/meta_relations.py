@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import prototypes
+smart_imports.all()
 
 
-class Account(meta_relations.MetaType):
+class Account(utils_meta_relations.MetaType):
     __slots__ = ('caption', )
     TYPE = 7
     TYPE_CAPTION = 'Хранитель'
@@ -18,7 +15,7 @@ class Account(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('accounts:show', self.id)
+        return dext_urls.url('accounts:show', self.id)
 
     @classmethod
     def create_from_object(cls, account):
@@ -26,6 +23,7 @@ class Account(meta_relations.MetaType):
 
     @classmethod
     def create_from_id(cls, id):
+        from . import prototypes
         account = prototypes.AccountPrototype.get_by_id(id)
         if account is None:
             return None

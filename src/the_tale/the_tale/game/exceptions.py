@@ -1,8 +1,10 @@
 
-from the_tale.common.utils.exceptions import TheTaleError
+import smart_imports
+
+smart_imports.all()
 
 
-class GameError(TheTaleError):
+class GameError(utils_exceptions.TheTaleError):
     MSG = 'game error'
 
 
@@ -24,10 +26,6 @@ class UnknownNextStepError(GameError):
 
 class DublicateAccountRegistration(GameError):
     MSG = 'try to double register one account: id=%(account_id)s, owner: %(owner)s'
-
-
-class AutocommitRequiredForAsyncTransaction(GameError):
-    MSG = 'autocommit required for async transaction'
 
 
 #########################

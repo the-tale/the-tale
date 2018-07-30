@@ -1,10 +1,7 @@
-# coding: utf-8
 
-from the_tale.game.map.relations import SPRITES
-from the_tale.game.map.storage import map_info_storage
+import smart_imports
 
-from the_tale.game.places import storage as places_storage
-from the_tale.game.roads.storage import roads_storage
+smart_imports.all()
 
 
 class CellDrawer(object):
@@ -20,7 +17,7 @@ class CellDrawer(object):
         sprites = []
 
         if self.road or self.object:
-            sprites.append((getattr(SPRITES, self.terrain.base).value, 0))
+            sprites.append((getattr(relations.SPRITES, self.terrain.base).value, 0))
         else:
             sprites.append((self.terrain.value, 0))
 
@@ -43,7 +40,8 @@ def get_roads_map(w, h, roads):
             m[-1].append({})
 
     for road in roads:
-        if not road.exists: continue
+        if not road.exists:
+            continue
 
         point_1 = road.point_1
         x = point_1.x
@@ -53,14 +51,19 @@ def get_roads_map(w, h, roads):
             m[y][x][path] = True
             m[y][x]['road'] = True
 
-            if path == 'l': x -= 1
-            elif path == 'r': x += 1
-            elif path == 'u': y -= 1
-            elif path == 'd': y += 1
+            if path == 'l':
+                x -= 1
+            elif path == 'r':
+                x += 1
+            elif path == 'u':
+                y -= 1
+            elif path == 'd':
+                y += 1
 
             m[y][x]['road'] = True
 
     return m
+
 
 def get_road_sprite_info(m, x, y):
     l = 0
@@ -70,50 +73,68 @@ def get_road_sprite_info(m, x, y):
 
     cell = m[y][x]
 
-    l_cell = m[y][x-1] if x > 0 else {}
-    r_cell = m[y][x+1] if x < len(m[y])-1 else {}
-    u_cell = m[y-1][x] if y > 0 else {}
-    d_cell = m[y+1][x] if y < len(m)-1 else {}
+    l_cell = m[y][x - 1] if x > 0 else {}
+    r_cell = m[y][x + 1] if x < len(m[y]) - 1 else {}
+    u_cell = m[y - 1][x] if y > 0 else {}
+    d_cell = m[y + 1][x] if y < len(m) - 1 else {}
 
-    if cell.get('l') or l_cell.get('r'): l = 1
-    if cell.get('r') or r_cell.get('l'): r = 1
-    if cell.get('u') or u_cell.get('d'): u = 1
-    if cell.get('d') or d_cell.get('u'): d = 1
+    if cell.get('l') or l_cell.get('r'):
+        l = 1
+    if cell.get('r') or r_cell.get('l'):
+        r = 1
+    if cell.get('u') or u_cell.get('d'):
+        u = 1
+    if cell.get('d') or d_cell.get('u'):
+        d = 1
 
     sum = l + r + u + d
 
-    if sum == 4: return {'name': 'R4', 'rotate': 0}
+    if sum == 4:
+        return {'name': 'R4', 'rotate': 0}
 
-    if sum==3:
-        if not l: return {'name': 'R3', 'rotate': 90}
-        if not r: return {'name': 'R3', 'rotate': 270}
-        if not u: return {'name': 'R3', 'rotate': 180}
-        if not d: return {'name': 'R3', 'rotate': 0}
+    if sum == 3:
+        if not l:
+            return {'name': 'R3', 'rotate': 90}
+        if not r:
+            return {'name': 'R3', 'rotate': 270}
+        if not u:
+            return {'name': 'R3', 'rotate': 180}
+        if not d:
+            return {'name': 'R3', 'rotate': 0}
 
-    if l and u: return {'name': 'R_ANGLE', 'rotate': 0}
-    if l and r: return {'name': 'R_HORIZ', 'rotate': 0}
-    if l and d: return {'name': 'R_ANGLE', 'rotate': 270}
+    if l and u:
+        return {'name': 'R_ANGLE', 'rotate': 0}
+    if l and r:
+        return {'name': 'R_HORIZ', 'rotate': 0}
+    if l and d:
+        return {'name': 'R_ANGLE', 'rotate': 270}
 
-    if u and r: return {'name': 'R_ANGLE', 'rotate': 90}
-    if u and d: return {'name': 'R_VERT', 'rotate': 0}
+    if u and r:
+        return {'name': 'R_ANGLE', 'rotate': 90}
+    if u and d:
+        return {'name': 'R_VERT', 'rotate': 0}
 
-    if r and d: return {'name': 'R_ANGLE', 'rotate': 180}
+    if r and d:
+        return {'name': 'R_ANGLE', 'rotate': 180}
 
-    if l: return {'name': 'R1', 'rotate': 180}
-    if r: return {'name': 'R1', 'rotate': 0}
-    if u: return {'name': 'R1', 'rotate': 270}
-    if d: return {'name': 'R1', 'rotate': 90}
-
+    if l:
+        return {'name': 'R1', 'rotate': 180}
+    if r:
+        return {'name': 'R1', 'rotate': 0}
+    if u:
+        return {'name': 'R1', 'rotate': 270}
+    if d:
+        return {'name': 'R1', 'rotate': 90}
 
 
 def get_hero_sprite(hero):
-    return getattr(SPRITES, ('HERO_%s_%s' % (hero.race.name, hero.gender.name)).upper())
+    return getattr(relations.SPRITES, ('HERO_%s_%s' % (hero.race.name, hero.gender.name)).upper())
 
 
 def get_draw_info(biomes_map):
 
-    width = map_info_storage.item.width
-    height = map_info_storage.item.height
+    width = storage.map_info.item.width
+    height = storage.map_info.item.height
 
     map_images = []
     for y in range(height):
@@ -121,37 +142,40 @@ def get_draw_info(biomes_map):
         for x in range(width):
             map_images[-1].append(CellDrawer())
 
-
-    roads_map = get_roads_map(width, height, roads_storage.all())
+    roads_map = get_roads_map(width, height, roads_storage.roads.all())
 
     for y in range(height):
         for x in range(width):
             biom = biomes_map[y][x]
             cell_drawer = map_images[y][x]
 
-            cell_drawer.terrain = getattr(SPRITES, biom.id.name)
+            cell_drawer.terrain = getattr(relations.SPRITES, biom.id.name)
 
             if roads_map[y][x]:
                 road_sprite = get_road_sprite_info(roads_map, x, y)
 
-                cell_drawer.road = getattr(SPRITES, road_sprite['name'])
+                cell_drawer.road = getattr(relations.SPRITES, road_sprite['name'])
                 cell_drawer.road_rotate = road_sprite['rotate']
 
     for place in places_storage.places.all():
-        if place.attrs.size < 3: verbose_size = 'small'
-        elif place.attrs.size < 6: verbose_size = 'medium'
-        elif place.attrs.size < 9: verbose_size = 'large'
-        else: verbose_size = 'capital'
+        if place.attrs.size < 3:
+            verbose_size = 'small'
+        elif place.attrs.size < 6:
+            verbose_size = 'medium'
+        elif place.attrs.size < 9:
+            verbose_size = 'large'
+        else:
+            verbose_size = 'capital'
 
         sprite_name = ('city_%s_%s' % (place.race.name.lower(), verbose_size)).upper()
 
         cell_drawer = map_images[place.y][place.x]
-        cell_drawer.object = getattr(SPRITES, sprite_name)
+        cell_drawer.object = getattr(relations.SPRITES, sprite_name)
 
     for building in places_storage.buildings.all():
         sprite_name = 'BUILDING_%s' % building.type.name
 
         cell_drawer = map_images[building.y][building.x]
-        cell_drawer.object = getattr(SPRITES, sprite_name)
+        cell_drawer.object = getattr(relations.SPRITES, sprite_name)
 
     return map_images

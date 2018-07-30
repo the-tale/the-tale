@@ -1,4 +1,6 @@
 
-from django import dispatch
+import smart_imports
 
-on_before_logout = dispatch.Signal(providing_args=[])
+smart_imports.all()
+
+on_before_logout = django_dispatch.Signal(providing_args=[])

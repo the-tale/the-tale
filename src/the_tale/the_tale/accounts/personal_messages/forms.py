@@ -1,14 +1,12 @@
 
-from django.forms import ValidationError, HiddenInput
+import smart_imports
 
-from dext.forms import forms, fields
-
-from the_tale.common.utils import bbcode
+smart_imports.all()
 
 
-class RecipientsForm(forms.Form):
+class RecipientsForm(dext_forms.Form):
 
-    recipients = fields.TextField(label='', widget=HiddenInput())
+    recipients = dext_fields.TextField(label='', widget=django_forms.HiddenInput())
 
     def clean_recipients(self):
         recipients = self.cleaned_data['recipients']
@@ -16,11 +14,11 @@ class RecipientsForm(forms.Form):
         try:
             recipients = [int(id_.strip()) for id_ in recipients.split(',')]
         except ValueError:
-            raise ValidationError('Неверный идентификатор получателя')
+            raise django_forms.ValidationError('Неверный идентификатор получателя')
 
         return recipients
 
 
 class NewMessageForm(RecipientsForm):
 
-    text = bbcode.BBField(label='Сообщение')
+    text = utils_bbcode.BBField(label='Сообщение')

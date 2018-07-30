@@ -1,32 +1,7 @@
 
-from dext.common.utils import views as dext_views
+import smart_imports
 
-from utg import relations as utg_relations
-from utg import words as utg_words
-
-from the_tale.common.utils import api
-from the_tale.common.utils import views as utils_views
-
-from the_tale.accounts import views as accounts_views
-
-from the_tale.game.chronicle import prototypes as chronicle_prototypes
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.map.storage import map_info_storage
-from the_tale.game.map.conf import map_settings
-
-from the_tale.game.politic_power import storage as politic_power_storage
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import info as places_info
-
-from the_tale.game.abilities.relations import ABILITY_TYPE
-
-from the_tale.game import politic_power
-
-from . import conf
-from . import models
+smart_imports.all()
 
 
 ########################################
@@ -48,11 +23,11 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 @resource('')
 def index(context):
     return dext_views.Page('map/index.html',
-                           content={'current_map_version': map_info_storage.version,
+                           content={'current_map_version': storage.map_info.version,
                                     'resource': context.resource})
 
 
-@api.Processor(versions=(conf.map_settings.REGION_API_VERSION,))
+@utils_api.Processor(versions=(conf.settings.REGION_API_VERSION,))
 @dext_views.IntArgumentProcessor(error_message='Неверный формат номера хода', get_name='turn', context_name='turn', default_value=None)
 @resource('api', 'region', name='api-region')
 def region(context):
@@ -68,7 +43,7 @@ def region(context):
                                       'turn': region.turn_number})
 
 
-@api.Processor(versions=(conf.map_settings.REGION_VERSIONS_API_VERSION,))
+@utils_api.Processor(versions=(conf.settings.REGION_VERSIONS_API_VERSION,))
 @resource('api', 'region-versions', name='api-region-versions')
 def region_versions(context):
     return dext_views.AjaxOk(content={'turns': list(models.MapRegion.objects.values_list('turn_number', flat=True))})
@@ -81,10 +56,10 @@ def cell_info(context):
 
     x, y = context.x, context.y
 
-    if x < 0 or y < 0 or x >= map_settings.WIDTH or y >= map_settings.HEIGHT:
+    if x < 0 or y < 0 or x >= conf.settings.WIDTH or y >= conf.settings.HEIGHT:
         raise dext_views.ViewError(code='outside_map', message='Запрашиваемая зона не принадлежит карте')
 
-    map_info = map_info_storage.item
+    map_info = storage.map_info.item
 
     terrain = map_info.terrain[y][x]
 
@@ -120,7 +95,7 @@ def cell_info(context):
                                     'place_inner_circle': place_inner_circle,
                                     'place_bills': places_info.place_info_bills(place) if place else None,
                                     'place_chronicle': chronicle_prototypes.RecordPrototype.get_last_actor_records(place,
-                                                                                                                   conf.map_settings.CHRONICLE_RECORDS_NUMBER) if place else None,
+                                                                                                                   conf.settings.CHRONICLE_RECORDS_NUMBER) if place else None,
                                     'exchanges': exchanges,
                                     'cell': cell,
                                     'terrain': terrain,
@@ -130,4 +105,4 @@ def cell_info(context):
                                     'terrain_points': terrain_points,
                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account.is_authenticated else None,
                                     'resource': context.resource,
-                                    'ABILITY_TYPE': ABILITY_TYPE})
+                                    'ABILITY_TYPE': abilities_relations.ABILITY_TYPE})

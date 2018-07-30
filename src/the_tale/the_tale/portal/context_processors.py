@@ -1,12 +1,12 @@
-# coding: utf-8
 
-from the_tale.portal.conf import SITE_SECTIONS
-from the_tale.portal import logic
+import smart_imports
+
+smart_imports.all()
 
 
 def section(request):
     section_ = None
-    for regex, section_name in SITE_SECTIONS:
+    for regex, section_name in conf.SITE_SECTIONS:
         if regex.match(request.path):
             section_ = section_name
             break

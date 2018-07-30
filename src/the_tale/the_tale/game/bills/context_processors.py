@@ -1,6 +1,8 @@
-# coding: utf-8
 
-from the_tale.game.bills.conf import bills_settings
+import smart_imports
 
-def bills_context(request): # pylint: disable=W0613
-    return {'bills_settings': bills_settings}
+smart_imports.all()
+
+
+def bills_context(request):
+    return {'bills_settings': conf.settings}

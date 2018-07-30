@@ -1,24 +1,8 @@
 
-from rels.django import DjangoEnum
+import smart_imports
 
-from dext.common.utils import views as dext_views
-from dext.common.utils.urls import UrlBuilder, url
+smart_imports.all()
 
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import list_filter
-from the_tale.common.utils import views as utils_views
-
-from the_tale.accounts import views as accounts_views
-
-from . import relations
-from . import forms
-from . import logic
-from . import storage
-from . import meta_relations
-
-from .abilities import effects as abilities_effects
-from .abilities import relations as abilities_relations
 
 ########################################
 # processors definition
@@ -66,6 +50,7 @@ class CompanionProcessor(dext_views.ArgumentProcessor):
 
         return storage.companions.get(id)
 
+
 ########################################
 # resource and global processors
 ########################################
@@ -79,44 +64,45 @@ resource.add_processor(ModerateCompanionProcessor())
 # filters
 ########################################
 
-INDEX_TYPE = list_filter.filter_relation(beings_relations.TYPE)
-INDEX_DEDICATION = list_filter.filter_relation(relations.DEDICATION)
-INDEX_ABILITIES = list_filter.filter_relation(abilities_effects.ABILITIES, sort_key=lambda r: r.text)
+INDEX_TYPE = utils_list_filter.filter_relation(tt_beings_relations.TYPE)
+INDEX_DEDICATION = utils_list_filter.filter_relation(relations.DEDICATION)
+INDEX_ABILITIES = utils_list_filter.filter_relation(companions_abilities_effects.ABILITIES, sort_key=lambda r: r.text)
 
 
-class INDEX_ORDER(DjangoEnum):
+class INDEX_ORDER(rels_django.DjangoEnum):
     records = (('RARITY', 0, 'по редкости'),
                ('NAME', 1, 'по имени'))
 
 
-BASE_INDEX_FILTERS = [list_filter.reset_element(),
-                      list_filter.choice_element('тип:',
-                                                 attribute='type',
-                                                 default_value=INDEX_TYPE.FILTER_ALL.value,
-                                                 choices=INDEX_TYPE.filter_choices()),
-                      list_filter.choice_element('самоотверженность:',
-                                                 attribute='dedication',
-                                                 default_value=INDEX_DEDICATION.FILTER_ALL.value,
-                                                 choices=INDEX_DEDICATION.filter_choices()),
-                      list_filter.choice_element('особенность:',
-                                                 attribute='ability',
-                                                 default_value=INDEX_ABILITIES.FILTER_ALL.value,
-                                                 choices=INDEX_ABILITIES.filter_choices()),
-                       list_filter.choice_element('сортировка:',
-                                                  attribute='order_by',
-                                                  choices=list(INDEX_ORDER.select('value', 'text')),
-                                                  default_value=INDEX_ORDER.RARITY.value) ]
+BASE_INDEX_FILTERS = [utils_list_filter.reset_element(),
+                      utils_list_filter.choice_element('тип:',
+                                                       attribute='type',
+                                                       default_value=INDEX_TYPE.FILTER_ALL.value,
+                                                       choices=INDEX_TYPE.filter_choices()),
+                      utils_list_filter.choice_element('самоотверженность:',
+                                                       attribute='dedication',
+                                                       default_value=INDEX_DEDICATION.FILTER_ALL.value,
+                                                       choices=INDEX_DEDICATION.filter_choices()),
+                      utils_list_filter.choice_element('особенность:',
+                                                       attribute='ability',
+                                                       default_value=INDEX_ABILITIES.FILTER_ALL.value,
+                                                       choices=INDEX_ABILITIES.filter_choices()),
+                      utils_list_filter.choice_element('сортировка:',
+                                                       attribute='order_by',
+                                                       choices=list(INDEX_ORDER.select('value', 'text')),
+                                                       default_value=INDEX_ORDER.RARITY.value)]
 
-MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [list_filter.choice_element('состояние:',
-                                                                           attribute='state',
-                                                                           default_value=relations.STATE.ENABLED.value,
-                                                                           choices=relations.STATE.select('value', 'text'))]
+MODERATOR_INDEX_FILTERS = BASE_INDEX_FILTERS + [utils_list_filter.choice_element('состояние:',
+                                                                                 attribute='state',
+                                                                                 default_value=relations.STATE.ENABLED.value,
+                                                                                 choices=relations.STATE.select('value', 'text'))]
 
 
-class NormalIndexFilter(list_filter.ListFilter):
+class NormalIndexFilter(utils_list_filter.ListFilter):
     ELEMENTS = BASE_INDEX_FILTERS
 
-class ModeratorIndexFilter(list_filter.ListFilter):
+
+class ModeratorIndexFilter(utils_list_filter.ListFilter):
     ELEMENTS = MODERATOR_INDEX_FILTERS
 
 
@@ -154,22 +140,22 @@ def index(context):
         companions = [companion for companion in companions if companion.abilities.has(context.companions_ability.original_relation)]
 
     if not context.companions_can_edit and not context.companions_can_moderate:
-        companions = [companion for companion in companions if companion.state.is_ENABLED] # pylint: disable=W0110
+        companions = [companion for companion in companions if companion.state.is_ENABLED]  # pylint: disable=W0110
 
     if context.order_by.is_RARITY:
         companions = sorted(companions, key=lambda c: (c.rarity.value, c.name))
     elif context.order_by.is_NAME:
         companions = sorted(companions, key=lambda c: c.name)
 
-    companions = [companion for companion in companions if companion.state == context.companions_state] # pylint: disable=W0110
+    companions = [companion for companion in companions if companion.state == context.companions_state]  # pylint: disable=W0110
 
-    url_builder = UrlBuilder(url('guide:companions:'), arguments={ 'state': context.companions_state.value if context.companions_state is not None else None,
-                                                                   'type': context.companions_type.value,
-                                                                   'dedication': context.companions_dedication.value,
-                                                                   'ability': context.companions_ability.value,
-                                                                   'order_by': context.order_by.value})
+    url_builder = dext_urls.UrlBuilder(dext_urls.url('guide:companions:'), arguments={'state': context.companions_state.value if context.companions_state is not None else None,
+                                                                                      'type': context.companions_type.value,
+                                                                                      'dedication': context.companions_dedication.value,
+                                                                                      'ability': context.companions_ability.value,
+                                                                                      'order_by': context.order_by.value})
 
-    IndexFilter = ModeratorIndexFilter if context.companions_can_edit or context.companions_can_moderate else NormalIndexFilter #pylint: disable=C0103
+    IndexFilter = ModeratorIndexFilter if context.companions_can_edit or context.companions_can_moderate else NormalIndexFilter  # pylint: disable=C0103
 
     index_filter = IndexFilter(url_builder=url_builder, values={'state': context.companions_state.value if context.companions_state is not None else None,
                                                                 'type': context.companions_type.value,
@@ -182,8 +168,8 @@ def index(context):
                                     'resource': context.resource,
                                     'companions': companions,
                                     'section': 'companions',
-                                    'ABILITIES': abilities_effects.ABILITIES,
-                                    'METATYPE': abilities_relations.METATYPE,
+                                    'ABILITIES': companions_abilities_effects.ABILITIES,
+                                    'METATYPE': companions_abilities_relations.METATYPE,
                                     'DEDICATION': relations.DEDICATION,
                                     'index_filter': index_filter})
 
@@ -256,7 +242,7 @@ def create(context):
                                                      size=context.form.c.size,
                                                      orientation=context.form.c.orientation,
                                                      weapons=context.form.get_weapons())
-    return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', companion_record.id)})
+    return dext_views.AjaxOk(content={'next_url': dext_urls.url('guide:companions:show', companion_record.id)})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -299,7 +285,7 @@ def update(context):
                                   size=context.form.c.size,
                                   orientation=context.form.c.orientation,
                                   weapons=context.form.get_weapons())
-    return dext_views.AjaxOk(content={'next_url': url('guide:companions:show', context.companion.id)})
+    return dext_views.AjaxOk(content={'next_url': dext_urls.url('guide:companions:show', context.companion.id)})
 
 
 @accounts_views.LoginRequiredProcessor()
