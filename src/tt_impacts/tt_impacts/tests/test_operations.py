@@ -1,5 +1,6 @@
 
 import math
+import random
 import asyncio
 
 from aiohttp import test_utils
@@ -683,3 +684,23 @@ class ScaleImpactsTests(helpers.BaseTests):
 
         await self.check_scale(target_types=[2], scale=0.5)
         await self.check_scale(target_types=[2], scale=10)
+
+    @test_utils.unittest_run_loop
+    async def test_concurrent_updates(self):
+        impacts_bundles = []
+
+        N = 100
+
+        for i in range(N):
+            impacts_bundles.append([helpers.test_impact(actor_type=1, actor_id=10, target_type=100, target_id=1000, amount=1),
+                                    helpers.test_impact(actor_type=1, actor_id=10, target_type=100, target_id=2000, amount=10),
+                                    helpers.test_impact(actor_type=1, actor_id=20, target_type=100, target_id=1000, amount=100)])
+
+        tasks = [operations.add_impacts(bundle) for bundle in impacts_bundles]
+
+        for i in range(N):
+            tasks.append(operations.scale_impacts(target_types=[100], scale=1.001))
+
+        random.shuffle(tasks)
+
+        await asyncio.gather(*tasks)

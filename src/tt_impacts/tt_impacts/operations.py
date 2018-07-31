@@ -35,7 +35,8 @@ async def add_impacts(impacts):
 
 
 async def _add_impacts(execute, arguments):
-    # sort impact to prevent deadlonk on update aggregated impacts
+    # order of executed queries and sorting of items in quiries
+    # required to prevent blocking with add_impacts and scale_impacts functions
 
     impacts = list(arguments['impacts'])
 
@@ -207,15 +208,8 @@ async def _scale_impacts(execute, arguments):
     target_types = tuple(arguments['target_types'])
     scale = arguments['scale']
 
-    await execute('''UPDATE targets_impacts
-                     SET amount =
-                         CASE
-                             WHEN amount < 0 THEN CEIL(amount * %(scale)s)
-                             ELSE FLOOR(amount * %(scale)s)
-                         END
-                      WHERE target_type IN %(target_types)s''',
-                  {'target_types': target_types,
-                   'scale': scale})
+    # order of executed queries and sorting of items in quiries
+    # required to prevent blocking with add_impacts and scale_impacts functions
 
     await execute('''UPDATE actors_impacts
                      SET amount =
@@ -223,7 +217,23 @@ async def _scale_impacts(execute, arguments):
                              WHEN amount < 0 THEN CEIL(amount * %(scale)s)
                              ELSE FLOOR(amount * %(scale)s)
                          END
-                      WHERE target_type IN %(target_types)s''',
+                      WHERE id IN (SELECT id FROM actors_impacts
+                                   WHERE target_type IN %(target_types)s
+                                   ORDER BY (actor_type, actor, target_type, target)
+                                   FOR UPDATE)''',
+                  {'target_types': target_types,
+                   'scale': scale})
+
+    await execute('''UPDATE targets_impacts
+                     SET amount =
+                         CASE
+                             WHEN amount < 0 THEN CEIL(amount * %(scale)s)
+                             ELSE FLOOR(amount * %(scale)s)
+                         END
+                      WHERE id IN (SELECT id FROM targets_impacts
+                                   WHERE target_type IN %(target_types)s
+                                   ORDER BY (target_type, target)
+                                   FOR UPDATE)''',
                   {'target_types': target_types,
                    'scale': scale})
 
