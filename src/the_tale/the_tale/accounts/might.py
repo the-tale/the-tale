@@ -64,11 +64,18 @@ def calculate_might(account):  # pylint: disable=R0914
 
     might = 0
 
-    might += forum_models.Post.objects.filter(thread__subcategory__restricted=False,
-                                              author_id=account.id,
-                                              state=forum_relations.POST_STATE.DEFAULT).count() * relations.MIGHT_AMOUNT.FOR_FORUM_POST.amount
-    might += forum_models.Thread.objects.filter(subcategory__restricted=False,
-                                                author_id=account.id).count() * relations.MIGHT_AMOUNT.FOR_FORUM_THREAD.amount
+    forum_posts_query = forum_models.Post.objects.filter(thread__subcategory__restricted=False,
+                                                         author_id=account.id,
+                                                         state=forum_relations.POST_STATE.DEFAULT)
+    forum_posts_query = forum_posts_query.exclude(thread__subcategory__uid=portal_conf.settings.FORUM_GAMES_SUBCATEGORY)
+
+    might += forum_posts_query.count() * relations.MIGHT_AMOUNT.FOR_FORUM_POST.amount
+
+    forum_threads_query = forum_models.Thread.objects.filter(subcategory__restricted=False,
+                                                             author_id=account.id)
+    forum_threads_query = forum_threads_query.exclude(subcategory__uid=portal_conf.settings.FORUM_GAMES_SUBCATEGORY)
+
+    might += forum_threads_query.count() * relations.MIGHT_AMOUNT.FOR_FORUM_THREAD.amount
 
     might += bills_models.Vote.objects.filter(owner_id=account.id).exclude(type=bills_relations.VOTE_TYPE.REFRAINED).count() * relations.MIGHT_AMOUNT.FOR_BILL_VOTE.amount
     might += bills_models.Bill.objects.filter(owner_id=account.id, state=bills_relations.BILL_STATE.ACCEPTED).count() * relations.MIGHT_AMOUNT.FOR_BILL_ACCEPTED.amount

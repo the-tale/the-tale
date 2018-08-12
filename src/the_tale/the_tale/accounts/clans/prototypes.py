@@ -65,8 +65,8 @@ class ClanPrototype(utils_prototypes.BasePrototype):
         self.motto = motto
         self.description = description
 
-        self.forum_subcateogry.caption = self.get_forum_subcategory_caption(name)
-        self.forum_subcateogry.save()
+        self.forum_subcategory.caption = self.get_forum_subcategory_caption(name)
+        self.forum_subcategory.save()
 
         self.save()
 

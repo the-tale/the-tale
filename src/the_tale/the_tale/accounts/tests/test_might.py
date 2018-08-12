@@ -17,7 +17,16 @@ class CalculateMightTests(utils_testcase.TestCase):
         self.bills_subcategory = forum_prototypes.SubCategoryPrototype.create(self.forum_category, 'subcategory', order=0, uid=bills_conf.settings.FORUM_CATEGORY_UID)
         self.blogs_subcategory = forum_prototypes.SubCategoryPrototype.create(self.forum_category, blogs_conf.settings.FORUM_CATEGORY_UID + '-caption', order=1, uid=blogs_conf.settings.FORUM_CATEGORY_UID)
 
-        self.restricted_subcategory = forum_prototypes.SubCategoryPrototype.create(self.forum_category, 'restricted-caption', order=2, restricted=True, uid='restricted-sub')
+        self.restricted_subcategory = forum_prototypes.SubCategoryPrototype.create(self.forum_category,
+                                                                                   'restricted-caption',
+                                                                                   order=2,
+                                                                                   restricted=True,
+                                                                                   uid='restricted-sub')
+        self.game_subcategory = forum_prototypes.SubCategoryPrototype.create(self.forum_category,
+                                                                             'restricted-caption',
+                                                                             order=2,
+                                                                             restricted=True,
+                                                                             uid=portal_conf.settings.FORUM_GAMES_SUBCATEGORY)
 
     def test_initialize(self):
         self.assertEqual(self.account.might, 0)
@@ -35,6 +44,10 @@ class CalculateMightTests(utils_testcase.TestCase):
         forum_prototypes.ThreadPrototype.create(self.restricted_subcategory, 'caption', self.account, 'text')
         self.assertEqual(might.calculate_might(self.account), 0)
 
+    def test_forum_thread_might__game_subcategory(self):
+        forum_prototypes.ThreadPrototype.create(self.game_subcategory, 'caption', self.account, 'text')
+        self.assertEqual(might.calculate_might(self.account), 0)
+
     def test_forum_post_might(self):
         thread = forum_prototypes.ThreadPrototype.create(self.bills_subcategory, 'caption', self.account_2, 'text')
         forum_prototypes.PostPrototype.create(thread, self.account, 'text')
@@ -44,6 +57,13 @@ class CalculateMightTests(utils_testcase.TestCase):
 
     def test_forum_post_might__restricted(self):
         thread = forum_prototypes.ThreadPrototype.create(self.restricted_subcategory, 'caption', self.account_2, 'text')
+        forum_prototypes.PostPrototype.create(thread, self.account, 'text')
+
+        self.assertEqual(might.calculate_might(self.account), 0)
+        self.assertEqual(might.calculate_might(self.account_2), 0)
+
+    def test_forum_post_might__game_subcategory(self):
+        thread = forum_prototypes.ThreadPrototype.create(self.game_subcategory, 'caption', self.account_2, 'text')
         forum_prototypes.PostPrototype.create(thread, self.account, 'text')
 
         self.assertEqual(might.calculate_might(self.account), 0)
