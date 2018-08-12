@@ -649,6 +649,7 @@ class TemplateResource(utils_resources.Resource):
 
             self._template.parent_id = parent_template.parent_id
             self._template.state = parent_template.state
+            self._template.author_id = parent_template.author_id
 
             parent_template.remove()
 

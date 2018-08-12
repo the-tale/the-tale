@@ -79,8 +79,8 @@ class WordPrototype(utils_prototypes.BasePrototype):
 
 class TemplatePrototype(utils_prototypes.BasePrototype):
     _model_class = models.Template
-    _readonly = ('id', 'created_at', 'updated_at', 'raw_template', 'author_id')
-    _bidirectional = ('state', 'parent_id', 'errors_status', 'key')
+    _readonly = ('id', 'created_at', 'updated_at', 'raw_template')
+    _bidirectional = ('state', 'parent_id', 'errors_status', 'key', 'author_id')
     _get_by = ('id', 'parent_id')
 
     def get_parent(self):

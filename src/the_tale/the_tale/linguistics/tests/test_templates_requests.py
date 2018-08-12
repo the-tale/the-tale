@@ -284,43 +284,46 @@ class ShowRequestsTests(BaseRequestsTests):
         self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', 666)), texts=['linguistics.templates.template.not_found'], status_code=404)
 
     def test_success(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
-                                                                                                                    ('pgf-has-child-message', 0),
-                                                                                                                    ('pgf-replace-button', 0),
-                                                                                                                    ('pgf-detach-button', 0),
-                                                                                                                    ('pgf-in-game-button', 0),
-                                                                                                                    ('pgf-on-review-button', 0),
-                                                                                                                    ('pgf-remove-button', 1),
-                                                                                                                    ('pgf-restore-button', 0),
-                                                                                                                    ('pgf-edit-button', 1)])
+        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+                            texts=[('pgf-has-parent-message', 0),
+                                   ('pgf-has-child-message', 0),
+                                   ('pgf-replace-button', 0),
+                                   ('pgf-detach-button', 0),
+                                   ('pgf-in-game-button', 0),
+                                   ('pgf-on-review-button', 0),
+                                   ('pgf-remove-button', 1),
+                                   ('pgf-restore-button', 0),
+                                   ('pgf-edit-button', 1)])
 
     def test_success__in_game(self):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
-                                                                                                                    ('pgf-has-child-message', 0),
-                                                                                                                    ('pgf-replace-button', 0),
-                                                                                                                    ('pgf-detach-button', 0),
-                                                                                                                    ('pgf-in-game-button', 0),
-                                                                                                                    ('pgf-on-review-button', 0),
-                                                                                                                    ('pgf-remove-button', 0),
-                                                                                                                    ('pgf-restore-button', 0),
-                                                                                                                    ('pgf-edit-button', 1)])
+        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+                           texts=[('pgf-has-parent-message', 0),
+                                  ('pgf-has-child-message', 0),
+                                  ('pgf-replace-button', 0),
+                                  ('pgf-detach-button', 0),
+                                  ('pgf-in-game-button', 0),
+                                  ('pgf-on-review-button', 0),
+                                  ('pgf-remove-button', 0),
+                                  ('pgf-restore-button', 0),
+                                  ('pgf-edit-button', 1)])
 
     def test_success__removed(self):
         self.template.state = relations.TEMPLATE_STATE.REMOVED
         self.template.save()
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
-                                                                                                                    ('pgf-has-child-message', 0),
-                                                                                                                    ('pgf-replace-button', 0),
-                                                                                                                    ('pgf-detach-button', 0),
-                                                                                                                    ('pgf-in-game-button', 0),
-                                                                                                                    ('pgf-on-review-button', 0),
-                                                                                                                    ('pgf-remove-button', 0),
-                                                                                                                    ('pgf-restore-button', 0),
-                                                                                                                    ('pgf-edit-button', 0)])
+        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+                           texts=[('pgf-has-parent-message', 0),
+                                  ('pgf-has-child-message', 0),
+                                  ('pgf-replace-button', 0),
+                                  ('pgf-detach-button', 0),
+                                  ('pgf-in-game-button', 0),
+                                  ('pgf-on-review-button', 0),
+                                  ('pgf-remove-button', 0),
+                                  ('pgf-restore-button', 0),
+                                  ('pgf-edit-button', 0)])
 
     def test_success__removed__moderator(self):
         self.request_login(self.moderator.email)
@@ -328,27 +331,29 @@ class ShowRequestsTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.REMOVED
         self.template.save()
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
-                                                                                                                    ('pgf-has-child-message', 0),
-                                                                                                                    ('pgf-replace-button', 0),
-                                                                                                                    ('pgf-detach-button', 0),
-                                                                                                                    ('pgf-in-game-button', 0),
-                                                                                                                    ('pgf-on-review-button', 0),
-                                                                                                                    ('pgf-remove-button', 0),
-                                                                                                                    ('pgf-restore-button', 1),
-                                                                                                                    ('pgf-edit-button', 0)])
+        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+                           texts=[('pgf-has-parent-message', 0),
+                                  ('pgf-has-child-message', 0),
+                                  ('pgf-replace-button', 0),
+                                  ('pgf-detach-button', 0),
+                                  ('pgf-in-game-button', 0),
+                                  ('pgf-on-review-button', 0),
+                                  ('pgf-remove-button', 0),
+                                  ('pgf-restore-button', 1),
+                                  ('pgf-edit-button', 0)])
 
     def test_success__unlogined(self):
         self.request_logout()
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
-                                                                                                                    ('pgf-has-child-message', 0),
-                                                                                                                    ('pgf-replace-button', 0),
-                                                                                                                    ('pgf-detach-button', 0),
-                                                                                                                    ('pgf-in-game-button', 0),
-                                                                                                                    ('pgf-on-review-button', 0),
-                                                                                                                    ('pgf-remove-button', 0),
-                                                                                                                    ('pgf-restore-button', 0),
-                                                                                                                    ('pgf-edit-button', 0)])
+        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+                           texts=[('pgf-has-parent-message', 0),
+                                  ('pgf-has-child-message', 0),
+                                  ('pgf-replace-button', 0),
+                                  ('pgf-detach-button', 0),
+                                  ('pgf-in-game-button', 0),
+                                  ('pgf-on-review-button', 0),
+                                  ('pgf-remove-button', 0),
+                                  ('pgf-restore-button', 0),
+                                  ('pgf-edit-button', 0)])
 
     def test_success__moderator(self):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
@@ -363,14 +368,15 @@ class ShowRequestsTests(BaseRequestsTests):
                                                     author=self.account_1,
                                                     parent=self.template)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
-                                                                                                                    ('pgf-has-child-message', 1),
-                                                                                                                    ('pgf-replace-button', 0),
-                                                                                                                    ('pgf-detach-button', 0),
-                                                                                                                    ('pgf-in-game-button', 0),
-                                                                                                                    ('pgf-on-review-button', 1),
-                                                                                                                    ('pgf-restore-button', 0),
-                                                                                                                    ('pgf-remove-button', 0)])
+        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+                           texts=[('pgf-has-parent-message', 0),
+                                  ('pgf-has-child-message', 1),
+                                  ('pgf-replace-button', 0),
+                                  ('pgf-detach-button', 0),
+                                  ('pgf-in-game-button', 0),
+                                  ('pgf-on-review-button', 1),
+                                  ('pgf-restore-button', 0),
+                                  ('pgf-remove-button', 0)])
         self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', child.id)), texts=[('pgf-has-parent-message', 1),
                                                                                                             ('pgf-has-child-message', 0),
                                                                                                             ('pgf-replace-button', 1),
@@ -388,12 +394,14 @@ class ShowRequestsTests(BaseRequestsTests):
                                                     author=self.account_1,
                                                     parent=self.template)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', child.id)), texts=[('pgf-has-parent-message', 1),
-                                                                                                            ('pgf-has-child-message', 0),
-                                                                                                            ('pgf-remove-button', 0)])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)), texts=[('pgf-has-parent-message', 0),
-                                                                                                                    ('pgf-has-child-message', 1),
-                                                                                                                    ('pgf-remove-button', 0)])
+        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', child.id)),
+                           texts=[('pgf-has-parent-message', 1),
+                                  ('pgf-has-child-message', 0),
+                                  ('pgf-remove-button', 0)])
+        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+                           texts=[('pgf-has-parent-message', 0),
+                                  ('pgf-has-child-message', 1),
+                                  ('pgf-remove-button', 0)])
 
     def check_errors(self, errors):
 
@@ -442,9 +450,10 @@ class ShowRequestsTests(BaseRequestsTests):
                                                         verificators=verificators[:3],
                                                         author=self.account_1)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', prototype.id)), texts=[verificators[0].text,
-                                                                                                                verificators[1].text,
-                                                                                                                verificators[2].text])
+        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', prototype.id)),
+                           texts=[verificators[0].text,
+                                  verificators[1].text,
+                                  verificators[2].text])
 
 
 class EditRequestsTests(BaseRequestsTests):
@@ -941,8 +950,10 @@ class ReplaceRequestsTests(BaseRequestsTests):
 
     def test_template_errors(self):
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:replace', 'www'), {}), 'linguistics.templates.template.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:replace', 666), {}), 'linguistics.templates.template.not_found')
+            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:replace', 'www'), {}),
+                                  'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:replace', 666), {}),
+                                  'linguistics.templates.template.not_found')
 
     def test_login_required(self):
         self.request_logout()
@@ -1012,6 +1023,32 @@ class ReplaceRequestsTests(BaseRequestsTests):
 
         self.assertTrue(template.state.is_IN_GAME)
         self.assertEqual(template.parent_id, None)
+
+    def test_replace__parent_author_not_changed(self):
+        self.request_login(self.moderator.email)
+
+        text = '[hero|загл] 2 [пепельница|hero|вн]'
+        utg_template = utg_templates.Template()
+        utg_template.parse(text, externals=['hero'])
+        template = prototypes.TemplatePrototype.create(key=self.key,
+                                                       raw_template=text,
+                                                       utg_template=utg_template,
+                                                       verificators=[],
+                                                       author=self.account_2,
+                                                       parent=self.template)
+
+        self.template.state = relations.TEMPLATE_STATE.IN_GAME
+        self.template.save()
+
+        self.assertNotEqual(template.author_id, self.template.author_id)
+
+        self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:templates:replace', template.id), {}))
+
+        self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
+
+        template.reload()
+
+        self.assertEqual(template.author_id, self.account_1.id)
 
     def test_replace__parent_with_no_errors_by_child_with_errors(self):
         self.request_login(self.moderator.email)
