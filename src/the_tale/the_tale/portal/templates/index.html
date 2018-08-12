@@ -36,6 +36,7 @@ jQuery(document).ready(function(e){
       {% endif %}
     </h4>
 
+    {% if block.events %}
     <ul class="unstyled">
       {% for event in block.events %}
         <li class="newspaper-link-list">
@@ -61,7 +62,10 @@ jQuery(document).ready(function(e){
           {{ event.title }}&nbsp;<a style="font-size: 10pt;" href="{{ event.url }}">➔</a>
         </li>
         {% endfor %}
-      </ul>
+    </ul>
+    {% else %}
+    <p>Нет сообщений</p>
+    {% endif %}
     </div>
 {% endmacro %}
 
