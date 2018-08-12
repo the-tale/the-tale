@@ -31,11 +31,17 @@ settings = dext_app_settings.app_settings('PORTAL',
                                           ERRORS_URL=django_reverse_lazy('forum:subcategory', args=['erros']),
                                           BILLS_ON_INDEX=7,
                                           CHRONICLE_RECORDS_ON_INDEX=10,
-                                          FORUM_THREADS_ON_INDEX=12,
+                                          FORUM_COMMON_THREADS_ON_INDEX=9,
+                                          FORUM_CLAN_THREADS_ON_INDEX=4,
+                                          FORUM_RPG_THREADS_ON_INDEX=4,
+                                          FORUM_GAMES_THREADS_ON_INDEX=4,
                                           BLOG_POSTS_ON_INDEX=7,
                                           SETTINGS_ACCOUNT_OF_THE_DAY_KEY='account of the day',
                                           FIRST_EDITION_DATE=datetime.datetime(2012, 10, 29),
                                           NEWS_ON_INDEX=3,
+
+                                          FORUM_RPG_SUBCATEGORY='forum_rpg',
+                                          FORUM_GAMES_SUBCATEGORY='forum_games',
 
                                           FIRST_TIME_LANDING_URLS=['/landing?action=first-time-visit'],
 

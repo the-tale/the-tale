@@ -22,6 +22,10 @@ class ClanPrototype(utils_prototypes.BasePrototype):
     def get_forum_subcategory_caption(cls, clan_name):
         return 'Раздел гильдии «%s»' % clan_name
 
+    @utils_decorators.lazy_property
+    def forum_subcategory(self):
+        return forum_prototypes.SubCategoryPrototype.get_by_id(self.forum_subcategory_id)
+
     @classmethod
     @django_transaction.atomic
     def create(cls, owner, abbr, name, motto, description):
@@ -61,9 +65,8 @@ class ClanPrototype(utils_prototypes.BasePrototype):
         self.motto = motto
         self.description = description
 
-        forum_subcateogry = forum_prototypes.SubCategoryPrototype.get_by_id(self.forum_subcategory_id)
-        forum_subcateogry.caption = self.get_forum_subcategory_caption(name)
-        forum_subcateogry.save()
+        self.forum_subcateogry.caption = self.get_forum_subcategory_caption(name)
+        self.forum_subcateogry.save()
 
         self.save()
 

@@ -35,6 +35,9 @@ class SubCategoryPrototype(utils_prototypes.BasePrototype):
     @utils_decorators.lazy_property
     def last_thread(self): return ThreadPrototype(self._model.last_thread) if self._model.last_thread else None
 
+    def get_last_threads(self, limit):
+        return ThreadPrototype.from_query(models.Thread.objects.filter(subcategory=self._model).order_by('-updated_at')[:limit])
+
     def is_restricted_for(self, account):
         if not self.restricted:
             return False
@@ -119,15 +122,27 @@ class ThreadPrototype(utils_prototypes.BasePrototype):
 
     @classmethod
     def threads_visible_to_account_query(cls, account):
+
+        query = cls._model_class.objects
+
         if account:
-            return cls._model_class.objects.filter(django_models.Q(subcategory__restricted=False) |
-                                                   (django_models.Q(subcategory__restricted=True) & django_models.Q(subcategory__permission__account_id=account.id)))
+            condition = (django_models.Q(subcategory__restricted=False) |
+                         (django_models.Q(subcategory__restricted=True) & django_models.Q(subcategory__permission__account_id=account.id)))
+
+            query = query.filter(condition)
         else:
-            return cls._model_class.objects.filter(subcategory__restricted=False)
+            query = query.filter(subcategory__restricted=False)
+
+        return query
 
     @classmethod
-    def get_last_threads(cls, account, limit):
-        return cls.from_query(cls.threads_visible_to_account_query(account=account).order_by('-updated_at')[:limit])
+    def get_last_threads(cls, account, limit, exclude_subcategories=()):
+        query = cls.threads_visible_to_account_query(account=account)
+
+        if exclude_subcategories:
+            query = query.exclude(subcategory__uid__in=exclude_subcategories)
+
+        return cls.from_query(query.order_by('-updated_at')[:limit])
 
     def get_first_post(self):
         return PostPrototype(model=models.Post.objects.filter(thread=self._model).order_by('created_at')[0])

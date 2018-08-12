@@ -13,8 +13,6 @@ class PortalResource(utils_resources.Resource):
 
         news = news_logic.load_news_from_query(news_models.News.objects.all().order_by('-created_at')[:conf.settings.NEWS_ON_INDEX])
 
-        bills = bills_prototypes.BillPrototype.get_recently_modified_bills(conf.settings.BILLS_ON_INDEX)
-
         account_of_the_day_id = dext_settings.settings.get(conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY)
 
         hero_of_the_day = None
@@ -28,12 +26,29 @@ class PortalResource(utils_resources.Resource):
             if account_of_the_day and account_of_the_day.clan_id is not None:
                 clan_of_the_day = clans_prototypes.ClanPrototype.get_by_id(account_of_the_day.clan_id)
 
-        forum_threads = forum_prototypes.ThreadPrototype.get_last_threads(account=self.account if self.account.is_authenticated else None,
-                                                                          limit=conf.settings.FORUM_THREADS_ON_INDEX)
+        forum_common_block = events_bloks.forum_common(limit=conf.settings.FORUM_COMMON_THREADS_ON_INDEX,
+                                                       exclude_subcategories=(conf.settings.FORUM_RPG_SUBCATEGORY,
+                                                                              conf.settings.FORUM_GAMES_SUBCATEGORY))
+        forum_clan_block = None
 
-        blog_posts = [blogs_prototypes.PostPrototype(blog_post_model)
-                      for blog_post_model in blogs_models.Post.objects.filter(state__in=[blogs_relations.POST_STATE.ACCEPTED, blogs_relations.POST_STATE.NOT_MODERATED],
-                                                                              votes__gte=0).order_by('-created_at')[:conf.settings.BLOG_POSTS_ON_INDEX]]
+        if self.account.is_authenticated and self.account.clan:
+            forum_clan_block = events_bloks.forum_subcategory('Ваша гильдия',
+                                                              subcategory=self.account.clan.forum_subcategory,
+                                                              limit=conf.settings.FORUM_CLAN_THREADS_ON_INDEX)
+
+        forum_rpg_subcategory = forum_prototypes.SubCategoryPrototype.get_by_uid(conf.settings.FORUM_RPG_SUBCATEGORY)
+        forum_rpg_block = events_bloks.forum_subcategory('Ролевые Игры',
+                                                         subcategory=forum_rpg_subcategory,
+                                                         limit=conf.settings.FORUM_RPG_THREADS_ON_INDEX)
+
+        forum_games_subcategory = forum_prototypes.SubCategoryPrototype.get_by_uid(conf.settings.FORUM_GAMES_SUBCATEGORY)
+        forum_games_block = events_bloks.forum_subcategory('Форумные Игры',
+                                                           subcategory=forum_games_subcategory,
+                                                           limit=conf.settings.FORUM_GAMES_THREADS_ON_INDEX)
+
+        folclor_block = events_bloks.blogs_common(limit=conf.settings.BLOG_POSTS_ON_INDEX)
+
+        bills_block = events_bloks.bills_common(limit=conf.settings.BILLS_ON_INDEX)
 
         map_info = map_storage.map_info.item
 
@@ -41,13 +56,16 @@ class PortalResource(utils_resources.Resource):
 
         return self.template('portal/index.html',
                              {'news': news,
-                              'forum_threads': forum_threads,
-                              'bills': bills,
+                              'forum_common_block': forum_common_block,
+                              'forum_clan_block': forum_clan_block,
+                              'forum_rpg_block': forum_rpg_block,
+                              'forum_games_block': forum_games_block,
+                              'folclor_block': folclor_block,
+                              'bills_block': bills_block,
                               'hero_of_the_day': hero_of_the_day,
                               'account_of_the_day': account_of_the_day,
                               'clan_of_the_day': clan_of_the_day,
                               'map_info': map_info,
-                              'blog_posts': blog_posts,
                               'TERRAIN': map_relations.TERRAIN,
                               'MAP_STATISTICS': map_relations.MAP_STATISTICS,
                               'chronicle_records': chronicle_records,
