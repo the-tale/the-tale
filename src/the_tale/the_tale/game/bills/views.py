@@ -41,6 +41,9 @@ def validate_ownership(resource, *args, **kwargs): return resource.account.id ==
 @dext_old_views.validator(code='bills.moderator_rights_required', message='Вы не являетесь модератором')
 def validate_moderator_rights(resource, *args, **kwargs): return resource.can_moderate_bill()
 
+@dext_old_views.validator(code='bills.moderator_rights_required', message='Вы должны являться владельцем записи либо модератором')
+def validate_moderator_or_ownership_rights(resource, *args, **kwargs):
+    return resource.can_moderate_bill() or resource.account.id == resource.bill.owner.id
 
 @dext_old_views.validator(code='bills.can_not_participate_in_politics', message='Для создания записей в Книге Судеб вам необходимо закончить регистрацию')
 def validate_participate_in_politics(resource, *args, **kwargs): return resource.can_participate_in_politics
@@ -251,7 +254,7 @@ class BillResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
-    @validate_moderator_rights()
+    @validate_moderator_or_ownership_rights()
     @dext_old_views.handler('#bill', 'delete', name='delete', method='post')
     def delete(self):
         self.bill.remove(self.account)

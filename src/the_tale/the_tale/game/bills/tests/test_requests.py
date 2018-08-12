@@ -966,8 +966,13 @@ class TestDeleteRequests(BaseTestRequests):
 
     def test_no_permissions(self):
         self.request_logout()
-        self.request_login(self.account1.email)
+        self.request_login(self.accounts_factory.create_account().email)
         self.check_ajax_error(self.client.post(django_reverse('game:bills:delete', args=[self.bill.id]), {}), 'bills.moderator_rights_required')
 
-    def test_delete_success(self):
+    def test_delete_success__by_moderator(self):
+        self.check_ajax_ok(self.client.post(django_reverse('game:bills:delete', args=[self.bill.id]), {}))
+
+    def test_delete_success__by_owner(self):
+        self.request_logout()
+        self.request_login(self.account1.email)
         self.check_ajax_ok(self.client.post(django_reverse('game:bills:delete', args=[self.bill.id]), {}))

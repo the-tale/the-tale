@@ -11,26 +11,6 @@ jQuery(document).ready( function(e) {
 
     var editForm = new pgf.forms.Form(jQuery('#pgf-edit-bill-form'),
                                       {OnSuccess: function(instance, data){location.href = "{{ url('game:bills:show', bill.id) }}";}});
-
-    jQuery('.pgf-remove-button').click(function(e) {
-        e.preventDefault();
-        var DeleteRequest = function(e) {
-            e.preventDefault();
-
-            pgf.forms.Post({ action: "{{ url('game:bills:delete', bill.id) }}",
-                             OnSuccess: function(e){
-                                 location.href = "{{ url('game:bills:') }}";
-                             }
-                           });
-        };
-
-        pgf.ui.dialog.Question({message: 'Вы действительно хотите удалить эту запись?',
-                                title: 'Подтвердите удаление',
-                                buttons: [{text: 'Удалить', classes: 'btn-danger', callback: DeleteRequest},
-                                          {text: 'Отменить', classes: 'btn-success'}]
-                               })
-    });
-
 });
 
 </script>
@@ -40,8 +20,6 @@ jQuery(document).ready( function(e) {
 {% block bills_content %}
 
 <h3>Администрирование записи <small><a href="{{ url('game:bills:show', bill.id) }}">вернуться</a></small></h3>
-
-<a href="#" class="pull-right pgf-remove-button">удалить</a>
 
 <h3>Настройка игровых параметров</h3>
 
