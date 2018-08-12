@@ -1,4 +1,7 @@
 
+import random
+import collections
+
 import psycopg2
 from psycopg2.extras import Json as PGJson
 
@@ -59,19 +62,39 @@ async def _place_sell_lots(execute, arguments):
     return lots_ids
 
 
+def _next_candidate_item(candidates):
+    owner = random.choice(list(candidates.keys()))
+    item = candidates[owner].pop()
+
+    if not candidates[owner]:
+        del candidates[owner]
+
+    return item
+
+
 async def _delete_lots(execute, candidates_ids, number, operation_type, data):
 
     lots = []
 
-    candidates_ids = list(candidates_ids)
-    candidates_ids.sort(reverse=True)
+    # In ideal universe we should do candidates_ids.sort() here, to:
+    # - prevent intersactions of transactions
+    # - guarantee fair processing order
+    #
+    # But since it is game market, we do other things, to create more interesting gameplay experience.
+    # We try to distribute slots choices equally between all players,
+    # to ensure that no player can spam market with large amount of lots, to block sells of other players.
+
+    candidates = collections.defaultdict(list)
+
+    for item, owner in candidates_ids:
+        candidates[owner].append(item)
 
     while number > 0:
 
-        if not candidates_ids:
+        if not candidates:
             break
 
-        candidate_id = candidates_ids.pop()
+        candidate_id = _next_candidate_item(candidates)
 
         results = await execute('''DELETE FROM sell_lots WHERE item=%(item)s
                                    RETURNING item_type, item, owner, price, created_at''',
@@ -116,11 +139,11 @@ async def _close_sell_lot(execute, arguments):
     price = arguments['price']
     number = arguments['number']
 
-    results = await execute('SELECT item FROM sell_lots WHERE price=%(price)s AND item_type=%(item_type)s',
+    results = await execute('SELECT item, owner FROM sell_lots WHERE price=%(price)s AND item_type=%(item_type)s',
                             {'price': price, 'item_type': item_type})
 
     lots = await _delete_lots(execute,
-                              candidates_ids=[row['item'] for row in results],
+                              candidates_ids=[(row['item'], row['owner']) for row in results],
                               number=number,
                               operation_type=relations.OPERATION_TYPE.CLOSE_SELL_LOT,
                               data={'buyer_id': buyer_id})
@@ -142,11 +165,11 @@ async def _cancel_sell_lot(execute, arguments):
     price = arguments['price']
     number = arguments['number']
 
-    results = await execute('SELECT item FROM sell_lots WHERE price=%(price)s AND item_type=%(item_type)s AND owner=%(owner_id)s',
+    results = await execute('SELECT item, owner FROM sell_lots WHERE price=%(price)s AND item_type=%(item_type)s AND owner=%(owner_id)s',
                             {'price': price, 'item_type': item_type, 'owner_id': owner_id})
 
     lots = await _delete_lots(execute,
-                              candidates_ids=[row['item'] for row in results],
+                              candidates_ids=[(row['item'], row['owner']) for row in results],
                               number=number,
                               operation_type=relations.OPERATION_TYPE.CANCEL_SELL_LOT,
                               data={})

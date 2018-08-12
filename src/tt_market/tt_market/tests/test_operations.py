@@ -200,6 +200,27 @@ class CloseSellLotTests(helpers.BaseTests):
 
 
     @test_utils.unittest_run_loop
+    async def test_success__owners_distribution(self):
+        lot_1 = helpers.create_sell_lot(item_type='type-1', price=1, owner_id=100)
+        lot_2 = helpers.create_sell_lot(item_type='type-1', price=1, owner_id=200)
+        lots_3 = [helpers.create_sell_lot(item_type='type-1', price=1, owner_id=300)
+                  for i in range(1000)]
+
+        lots_ids = await operations.place_sell_lots([lot_1]+lots_3+[lot_2])
+
+        owners = set()
+
+        for i in range(20):
+            result_lots = await operations.close_sell_lot(item_type='type-1',
+                                                          buyer_id=78578,
+                                                          price=1,
+                                                          number=1)
+            owners.add(result_lots[0].owner_id)
+
+        self.assertEqual(owners, {100, 200, 300})
+
+
+    @test_utils.unittest_run_loop
     async def test_success__number(self):
         lots = [helpers.create_sell_lot(item_type='type-1', price=1),
                 helpers.create_sell_lot(item_type='type-1', price=1),
