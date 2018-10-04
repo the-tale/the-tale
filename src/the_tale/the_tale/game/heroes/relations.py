@@ -54,8 +54,8 @@ class COMPANION_EMPATHY(rels_django.DjangoEnum):
     description = rels.Column()
 
     records = (('EGOCENTRIC', 0, 'эгоцентрик', 1.0 - c.COMPANIONS_HABITS_DELTA, 'черты спутника оказывают меньшее влияние на черты героя'),
-               ('ORDINAL', 1, 'обыкновенный', 1.0, 'черты спутника оказывает обычное влияние на черты героя'),
-               ('EMPATH', 2, 'эмпат', 1.0 + c.COMPANIONS_HABITS_DELTA, 'черты спутника оказывает большее влияние на черты героя'))
+               ('ORDINAL', 1, 'обыкновенный', 1.0, 'черты спутника оказывают обычное влияние на черты героя'),
+               ('EMPATH', 2, 'эмпат', 1.0 + c.COMPANIONS_HABITS_DELTA, 'черты спутника оказывают большее влияние на черты героя'))
 
 
 class MONEY_SOURCE(rels_django.DjangoEnum):
