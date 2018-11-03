@@ -13,6 +13,8 @@ class RequestsTestsBase(utils_testcase.TestCase):
 
         self.request_login(self.account.email)
 
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
+
 
 class IndexTests(RequestsTestsBase):
 
@@ -58,8 +60,13 @@ class CellInfoTests(RequestsTestsBase):
         self.check_html_ok(self.request_html(django_reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=[('pgf-frontier-message', 0)])
 
     def test_place_chronicle(self):
-        texts = [jinja2.escape(record.text) for record in chronicle_prototypes.RecordPrototype.get_last_actor_records(self.place_1, 1000)]
-        self.check_html_ok(self.request_html(django_reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))), texts=texts)
+        chronicle_tt_services.chronicle.cmd_add_event(tags=[self.place_1.meta_object().tag], message='chronicle.1')
+        chronicle_tt_services.chronicle.cmd_add_event(tags=[self.place_2.meta_object().tag], message='chronicle.2')
+        chronicle_tt_services.chronicle.cmd_add_event(tags=[self.place_1.meta_object().tag], message='chronicle.3')
+
+        self.check_html_ok(self.request_html(django_reverse('game:map:cell-info') + ('?x=%d&y=%d' % (self.place_1.x, self.place_1.y))),
+                           texts=['chronicle.1',
+                                  'chronicle.3'])
 
     def test_building(self):
         building = places_logic.create_building(self.place_1.persons[0], utg_name=game_names.generator().get_test_name('building-name'))

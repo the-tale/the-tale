@@ -6,7 +6,7 @@ smart_imports.all()
 
 @dext_jinja2.jinjaglobal
 def posts_about(meta_object, allowed_for=None):
-    folclor_objects = [obj for relation, obj in dext_meta_relations_logic.get_objects_related_to(relation=meta_relations.IsAbout, meta_object=meta_object)]
+    folclor_objects = [obj for relation, obj in meta_relations_logic.get_objects_related_to(relation=meta_relations.IsAbout, meta_object=meta_object)]
 
     if allowed_for:
         voted_for_ids = set(models.Vote.objects.filter(voter_id=allowed_for.id).values_list('post_id', flat=True))

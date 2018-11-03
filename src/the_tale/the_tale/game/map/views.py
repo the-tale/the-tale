@@ -81,10 +81,17 @@ def cell_info(context):
     place_inner_circle = None
     persons_inner_circles = None
 
+    events = None
+
     if place:
         place_inner_circle = politic_power_logic.get_inner_circle(place_id=place.id)
         persons_inner_circles = {person.id: politic_power_logic.get_inner_circle(person_id=person.id)
                                  for person in place.persons}
+
+        total_events, events = chronicle_tt_services.chronicle.cmd_get_last_events(tags=[place.meta_object().tag],
+                                                                                   number=conf.settings.CHRONICLE_RECORDS_NUMBER)
+
+        tt_api_events_log.fill_events_wtih_meta_objects(events)
 
     return dext_views.Page('map/cell_info.html',
                            content={'place': place,
@@ -94,8 +101,7 @@ def cell_info(context):
                                     'persons_inner_circles': persons_inner_circles,
                                     'place_inner_circle': place_inner_circle,
                                     'place_bills': places_info.place_info_bills(place) if place else None,
-                                    'place_chronicle': chronicle_prototypes.RecordPrototype.get_last_actor_records(place,
-                                                                                                                   conf.settings.CHRONICLE_RECORDS_NUMBER) if place else None,
+                                    'place_chronicle': events,
                                     'exchanges': exchanges,
                                     'cell': cell,
                                     'terrain': terrain,

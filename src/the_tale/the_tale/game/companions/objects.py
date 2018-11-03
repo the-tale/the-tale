@@ -385,3 +385,6 @@ class CompanionRecord(game_names.ManageNameMixin2):
         return all(getattr(self, field, None) == getattr(other, field, None)
                    for field in self.__slots__
                    if field not in ('_utg_name_form__lazy', '_name__lazy'))
+
+    def meta_object(self):
+        return meta_relations.Companion.create_from_object(self)

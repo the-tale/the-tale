@@ -17,7 +17,8 @@ class BillPrototype(utils_prototypes.BasePrototype):
         return cls._model_class.objects.filter(owner_id=account_id, state=relations.BILL_STATE.ACCEPTED).count()
 
     @utils_decorators.lazy_property
-    def declined_by(self): return BillPrototype.get_by_id(self._model.declined_by_id)
+    def declined_by(self):
+        return BillPrototype.get_by_id(self._model.declined_by_id)
 
     @utils_decorators.lazy_property
     def depends_on(self):
@@ -33,7 +34,8 @@ class BillPrototype(utils_prototypes.BasePrototype):
         return self._data
 
     @utils_decorators.lazy_property
-    def forum_thread(self): return forum_prototypes.ThreadPrototype.get_by_id(self.forum_thread_id)
+    def forum_thread(self):
+        return forum_prototypes.ThreadPrototype.get_by_id(self.forum_thread_id)
 
     @property
     def votes_for_percents(self):
@@ -47,7 +49,8 @@ class BillPrototype(utils_prototypes.BasePrototype):
             self._owner = accounts_prototypes.AccountPrototype(self._model.owner)
         return self._owner
 
-    def set_remove_initiator(self, initiator): self._model.remove_initiator = initiator._model
+    def set_remove_initiator(self, initiator):
+        self._model.remove_initiator = initiator._model
 
     @property
     def user_form_initials(self):
@@ -156,8 +159,6 @@ class BillPrototype(utils_prototypes.BasePrototype):
                                                   'Запись потеряла смысл, голосование остановлено. %s' % results_text,
                                                   technical=True)
 
-            signals.bill_stopped.send(self.__class__, bill=self)
-
     def apply(self):
         if not self.state.is_VOTING:
             raise exceptions.ApplyBillInWrongStateError(bill_id=self.id)
@@ -191,8 +192,6 @@ class BillPrototype(utils_prototypes.BasePrototype):
                                                       accounts_logic.get_system_user(),
                                                       'Запись отклонена.\n\n%s' % results_text,
                                                       technical=True)
-
-                signals.bill_processed.send(self.__class__, bill=self)
                 return False
 
             self.data.apply(self)
@@ -215,7 +214,10 @@ class BillPrototype(utils_prototypes.BasePrototype):
 
         logic.initiate_actual_bills_update(self._model.owner_id)
 
-        signals.bill_processed.send(self.__class__, bill=self)
+        chronicle_tt_services.chronicle.cmd_add_event(tags=[actor.meta_object().tag for actor in self.actors] + [self.meta_object().tag],
+                                                      message=self.chronicle_on_accepted,
+                                                      attributes={'bill_id': self.id})
+
         return True
 
     @django_transaction.atomic
@@ -240,7 +242,6 @@ class BillPrototype(utils_prototypes.BasePrototype):
                                               results_text,
                                               technical=True)
 
-        signals.bill_ended.send(self.__class__, bill=self)
         return True
 
     @django_transaction.atomic
@@ -305,15 +306,11 @@ class BillPrototype(utils_prototypes.BasePrototype):
                                               self.bill_info_text(text),
                                               technical=True)
 
-        signals.bill_edited.send(self.__class__, bill=self)
-
     @django_transaction.atomic
     def update_by_moderator(self, form):
         self._initialize_with_form(form, is_updated=False)
         self._model.approved_by_moderator = form.c.approved
         self.save()
-
-        signals.bill_moderated.send(self.__class__, bill=self)
 
     @classmethod
     @django_transaction.atomic
@@ -348,8 +345,6 @@ class BillPrototype(utils_prototypes.BasePrototype):
 
         VotePrototype.create(owner, bill_prototype, relations.VOTE_TYPE.FOR)
 
-        signals.bill_created.send(sender=cls, bill=bill_prototype)
-
         return bill_prototype
 
     @classmethod
@@ -380,8 +375,6 @@ class BillPrototype(utils_prototypes.BasePrototype):
                                               'Запись была удалена',
                                               technical=True)
 
-        signals.bill_removed.send(self.__class__, bill=self)
-
     @classmethod
     def get_applicable_bills_ids(cls):
         time_barrier = datetime.datetime.now() - datetime.timedelta(seconds=conf.settings.BILL_LIVE_TIME)
@@ -396,6 +389,9 @@ class BillPrototype(utils_prototypes.BasePrototype):
     @property
     def is_delayed(self):
         return self.depends_on and self.depends_on.state.is_VOTING
+
+    def meta_object(self):
+        return meta_relations.Bill.create_from_object(self)
 
 
 class ActorPrototype(utils_prototypes.BasePrototype):

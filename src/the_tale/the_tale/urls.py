@@ -3,14 +3,16 @@ import smart_imports
 
 smart_imports.all()
 
+               # wrong names url, leaved to allow old links worked correctly
+urlpatterns = [django_urls.url('^folclor/(?P<path>.*)$', RedirectView.as_view(url='/folklore/%(path)s')),
+               django_urls.url('^accounts/clans/(?P<path>.*)$', RedirectView.as_view(url='/clans/%(path)s')),
 
-urlpatterns = [django_urls.url(r'^admin/', django_urls.include(django_admin.site.urls)),
+               django_urls.url(r'^admin/', django_urls.include(django_admin.site.urls)),
                django_urls.url(r'^accounts/', django_urls.include('the_tale.accounts.urls', namespace='accounts')),
+               django_urls.url(r'^clans/', django_urls.include('the_tale.clans.urls', namespace='clans')),
                django_urls.url(r'^game/', django_urls.include('the_tale.game.urls', namespace='game')),
                django_urls.url(r'^guide/', django_urls.include('the_tale.guide.urls', namespace='guide')),
                django_urls.url(r'^forum/', django_urls.include('the_tale.forum.urls', namespace='forum')),
-
-               django_urls.url('^folclor/(?P<path>.*)$', RedirectView.as_view(url='/folklore/%(path)s')),  # wrong names url, leaved to allow old links worked correctly
 
                django_urls.url(r'^folklore/', django_urls.include('the_tale.blogs.urls', namespace='blogs')),
                django_urls.url(r'^collections/', django_urls.include('the_tale.collections.urls', namespace='collections')),

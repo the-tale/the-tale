@@ -141,7 +141,7 @@ class RatingResource(utils_resources.Resource):
 
         values = dict((values_model.account_id, prototypes.RatingValuesPrototype(values_model)) for values_model in models.RatingValues.objects.filter(account_id__in=accounts_ids))
 
-        clans = {clan.id: clan for clan in clans_prototypes.ClanPrototype.get_list_by_id(list(clans_ids))}
+        clans = {clan.id: clan for clan in clans_logic.load_clans(list(clans_ids))}
 
         return self.template('ratings/show.html',
                              {'ratings': ratings,

@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Person(utils_meta_relations.MetaType):
+class Person(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 10
     TYPE_CAPTION = 'Мастер'

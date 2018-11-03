@@ -79,6 +79,9 @@ class PostPrototype(utils_prototypes.BasePrototype):
     def save(self):
         self._model.save()
 
+    def meta_object(self):
+        return meta_relations.Post.create_from_object(self)
+
 
 class VotePrototype(utils_prototypes.BasePrototype):
     _model_class = models.Vote

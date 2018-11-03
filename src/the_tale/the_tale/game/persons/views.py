@@ -46,13 +46,18 @@ def show(context):
 
     job_power = politic_power_logic.get_job_power(person_id=context.person.id)
 
+    total_events, events = chronicle_tt_services.chronicle.cmd_get_last_events(tags=[context.person.meta_object().tag],
+                                                                               number=conf.settings.CHRONICLE_RECORDS_NUMBER)
+
+    tt_api_events_log.fill_events_wtih_meta_objects(events)
+
     return dext_views.Page('persons/show.html',
                            content={'person': context.person,
                                     'person_meta_object': meta_relations.Person.create_from_object(context.person),
                                     'accounts_short_infos': accounts_short_infos,
                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
                                     'social_connections': storage.social_connections.get_connected_persons(context.person),
-                                    'master_chronicle': chronicle_prototypes.RecordPrototype.get_last_actor_records(context.person, conf.settings.CHRONICLE_RECORDS_NUMBER),
+                                    'master_chronicle': events,
                                     'inner_circle': inner_circle,
                                     'persons_power_storage': politic_power_storage.persons,
                                     'job_power': job_power,

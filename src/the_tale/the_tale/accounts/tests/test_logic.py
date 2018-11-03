@@ -73,7 +73,7 @@ class TestGetAccountInfoLogic(utils_testcase.TestCase):
     def test_has_clan(self):
         forum_prototypes.CategoryPrototype.create(caption='category-1', slug=clans_conf.settings.FORUM_CATEGORY_SLUG, order=0)
 
-        clan = clans_prototypes.ClanPrototype.create(self.account, abbr='abbr', name='name', motto='motto', description='description')
+        clan = clans_logic.create_clan(self.account, abbr='abbr', name='name', motto='motto', description='description')
 
         info = logic.get_account_info(self.account, self.hero)
         self.assertEqual(info['clan'],

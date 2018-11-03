@@ -1087,7 +1087,7 @@ class CreateClan(BaseEffect):
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Гильдия с такой аббревиатурой уже существует.')
 
-        clans_prototypes.ClanPrototype.create(owner=accounts_prototypes.AccountPrototype.get_by_id(task.hero_id),
+        clans_logic.create_clan(owner=accounts_prototypes.AccountPrototype.get_by_id(task.hero_id),
                                               abbr=abbr,
                                               name=name,
                                               motto='Veni, vidi, vici!',

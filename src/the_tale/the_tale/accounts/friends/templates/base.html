@@ -6,12 +6,13 @@
 
 <div class="row">
 
-  <div class="span3">
-    {{account_sidebar(user_account=resource.account, page_account=resource.account, page_caption="Друзья", page_type="friends")}}
-  </div>
-
-  <div class="span9">
+  <div class="span12">
     <div class="easy-block">
+
+      <h2>
+        <a href="{{url('accounts:show', resource.account.id)}}">{{resource.account.nick_verbose}}</a> —
+        Друзья
+      </h2>
 
       {% block friends_content %}
       {% endblock %}

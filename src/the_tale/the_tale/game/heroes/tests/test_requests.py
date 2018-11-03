@@ -22,6 +22,8 @@ class HeroRequestsTestBase(utils_testcase.TestCase):
 class HeroIndexRequestsTests(HeroRequestsTestBase):
 
     def test_index(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
+
         response = self.request_html(dext_urls.url('game:heroes:'))
         self.assertRedirects(response, '/', status_code=302, target_status_code=200)
 

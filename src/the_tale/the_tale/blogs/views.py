@@ -132,9 +132,9 @@ class PostResource(utils_resources.Resource):
 
         post = prototypes.PostPrototype.create(author=self.account, caption=form.c.caption, text=form.c.text)
 
-        dext_meta_relations_logic.create_relations_for_objects(meta_relations.IsAbout,
-                                                               meta_relations.Post.create_from_object(post),
-                                                               form.c.meta_objects)
+        meta_relations_logic.create_relations_for_objects(meta_relations.IsAbout,
+                                                          meta_relations.Post.create_from_object(post),
+                                                          form.c.meta_objects)
 
         return self.json_ok(data={'next_url': django_reverse('blogs:posts:show', args=[post.id])})
 
@@ -146,8 +146,8 @@ class PostResource(utils_resources.Resource):
 
         meta_post = meta_relations.Post.create_from_object(self.post)
 
-        is_about_objects = [obj for relation, obj in dext_meta_relations_logic.get_objects_related_from(relation=meta_relations.IsAbout,
-                                                                                                        meta_object=meta_post)]
+        is_about_objects = [obj for relation, obj in meta_relations_logic.get_objects_related_from(relation=meta_relations.IsAbout,
+                                                                                                   meta_object=meta_post)]
 
         is_about_objects.sort(key=lambda obj: (obj.TYPE_CAPTION, obj.caption))
 
@@ -170,7 +170,7 @@ class PostResource(utils_resources.Resource):
 
         form = forms.PostForm(initial={'caption': self.post.caption,
                                        'text': self.post.text,
-                                       'meta_objects': ' '.join(sorted(dext_meta_relations_logic.get_uids_related_from(relation=meta_relations.IsAbout,
+                                       'meta_objects': ' '.join(sorted(meta_relations_logic.get_uids_related_from(relation=meta_relations.IsAbout,
                                                                                                                        meta_object=meta_post)))})
         return self.template('blogs/edit.html', {'post': self.post,
                                                  'page_type': 'edit',
@@ -200,12 +200,12 @@ class PostResource(utils_resources.Resource):
         self.post.forum_thread.caption = form.c.caption
         self.post.forum_thread.save()
 
-        dext_meta_relations_logic.remove_relations_from_object(meta_relations.IsAbout,
-                                                               meta_relations.Post.create_from_object(self.post))
+        meta_relations_logic.remove_relations_from_object(meta_relations.IsAbout,
+                                                          meta_relations.Post.create_from_object(self.post))
 
-        dext_meta_relations_logic.create_relations_for_objects(meta_relations.IsAbout,
-                                                               meta_relations.Post.create_from_object(self.post),
-                                                               form.c.meta_objects)
+        meta_relations_logic.create_relations_for_objects(meta_relations.IsAbout,
+                                                          meta_relations.Post.create_from_object(self.post),
+                                                          form.c.meta_objects)
 
         return self.json_ok()
 

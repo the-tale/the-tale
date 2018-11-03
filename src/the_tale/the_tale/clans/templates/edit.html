@@ -1,0 +1,43 @@
+{% extends "clans/base.html" %}
+
+{% block title %}Редактирование гильдии | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Редактирование гильдии.{% endblock %}
+
+{% block head %}
+{{ super() }}
+<script type="text/javascript">
+jQuery(document).ready( function(e) {
+
+    var newForm = new pgf.forms.Form(jQuery('#pgf-edit-clan-form'),
+                                     {OnSuccess: function(instance, data){location.href = "{{url('clans:show', current_clan.id)}}";}});
+
+});
+
+</script>
+
+{% endblock %}
+
+{% block clans_content %}
+
+<h2>
+  <a href="{{url('clans:show', current_clan.id)}}">[{{current_clan.abbr}}] {{current_clan.name}}</a>
+  —
+  редактирование
+</h2>
+
+<form id="pgf-edit-clan-form" method="post" action="{{ url('clans:update', current_clan.id) }}">
+
+  {{ form.errors_container }}
+
+  {{ form.name.widget }}
+  {{ form.abbr.widget }}
+  {{ form.motto.widget }}
+  {{ form.description.widget }}
+
+  <div class="widget">
+    <input type="submit" accesskey="s" class="btn" value="Сохранить"/>
+  </div>
+
+</form>
+
+{% endblock %}

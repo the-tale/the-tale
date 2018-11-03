@@ -71,11 +71,15 @@ def show(context):
     persons_inner_circles = {person.id: politic_power_logic.get_inner_circle(person_id=person.id)
                              for person in context.place.persons}
 
+    total_events, events = chronicle_tt_services.chronicle.cmd_get_last_events(tags=[context.place.meta_object().tag],
+                                                                               number=conf.settings.CHRONICLE_RECORDS_NUMBER)
+
+    tt_api_events_log.fill_events_wtih_meta_objects(events)
+
     return dext_views.Page('places/show.html',
                            content={'place': context.place,
                                     'place_bills': info.place_info_bills(context.place),
-                                    'place_chronicle': chronicle_prototypes.RecordPrototype.get_last_actor_records(context.place,
-                                                                                                                   conf.settings.CHRONICLE_RECORDS_NUMBER),
+                                    'place_chronicle': events,
                                     'accounts_short_infos': accounts_short_infos,
                                     'inner_circle': inner_circle,
                                     'persons_inner_circles': persons_inner_circles,

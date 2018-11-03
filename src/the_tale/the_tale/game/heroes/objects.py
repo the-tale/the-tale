@@ -594,3 +594,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
     def new_cards_combined(self, number):
         self.statistics.change_cards_combined(number)
+
+    def meta_object(self):
+        return meta_relations.Hero.create_from_object(self)

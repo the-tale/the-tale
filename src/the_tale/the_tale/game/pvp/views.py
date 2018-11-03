@@ -47,11 +47,11 @@ class PvPResource(utils_resources.Resource):
 
         clan = None
         if self.account.clan_id is not None:
-            clan = clans_prototypes.ClanPrototype.get_by_id(self.account.clan_id)
+            clan = clans_logic.load_clan(clan_id=self.account.clan_id)
 
         enemy_clan = None
         if enemy_account.clan_id is not None:
-            enemy_clan = clans_prototypes.ClanPrototype.get_by_id(enemy_account.clan_id)
+            enemy_clan = clans_logic.load_clan(clan_id=enemy_account.clan_id)
 
         return self.template('pvp/pvp_page.html',
                              {'enemy_account': accounts_prototypes.AccountPrototype.get_by_id(battle.enemy_id),

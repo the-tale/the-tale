@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Hero(utils_meta_relations.MetaType):
+class Hero(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 9
     TYPE_CAPTION = 'Герой'
@@ -22,15 +22,25 @@ class Hero(utils_meta_relations.MetaType):
         return cls(id=hero.id, caption=hero.name)
 
     @classmethod
+    def create_removed(cls):
+        return cls(id=None, caption='неизвестный герой')
+
+    @classmethod
     def create_from_id(cls, id):
         from . import logic
 
         hero = logic.load_hero(hero_id=id)
+
         if hero is None:
-            return None
+            return cls.create_removed()
 
         return cls.create_from_object(hero)
 
     @classmethod
     def create_from_ids(cls, ids):
-        return [cls.create_from_id(id) for id in ids]
+        records = models.Hero.objects.filter(id__in=ids)
+
+        if len(ids) != len(records):
+            raise meta_relations_exceptions.ObjectsNotFound(type=cls.TYPE, ids=ids)
+
+        return [cls.create_from_object(logic.load_hero(hero_model=record)) for record in records]

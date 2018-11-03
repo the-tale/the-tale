@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Mob(utils_meta_relations.MetaType):
+class Mob(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 5
     TYPE_CAPTION = 'Монстр'

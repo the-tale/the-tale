@@ -16,7 +16,7 @@ class BaseTestRequests(utils_testcase.TestCase):
 
         forum_prototypes.CategoryPrototype.create(caption='category-1', slug=clans_conf.settings.FORUM_CATEGORY_SLUG, order=0)
 
-        self.clan_2 = clans_prototypes.ClanPrototype.create(self.account_2, abbr='abbr2', name='name2', motto='motto', description='description')
+        self.clan_2 = clans_logic.create_clan(self.account_2, abbr='abbr2', name='name2', motto='motto', description='description')
 
     def create_posts(self, number, author, caption_template, text_template):
         return [prototypes.PostPrototype.create(author, caption_template % i, text_template % i) for i in range(number)]
@@ -527,26 +527,26 @@ class TestUpdateRequests(BaseTestRequests):
         meta_post_2 = meta_relations.Post.create_from_object(post_2)
         meta_post_3 = meta_relations.Post.create_from_object(post_3)
 
-        with self.check_delta(dext_meta_relations_models.Relation.objects.count, 2):
+        with self.check_delta(meta_relations_models.Relation.objects.count, 2):
             self.check_ajax_ok(self.client.post(django_reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data(uids='%s %s' % (meta_post_2.uid, meta_post_3.uid))))
 
-        self.assertFalse(dext_meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_1))
-        self.assertTrue(dext_meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_2))
-        self.assertTrue(dext_meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_3))
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_1))
+        self.assertTrue(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_2))
+        self.assertTrue(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_3))
 
-        with self.check_delta(dext_meta_relations_models.Relation.objects.count, -1):
+        with self.check_delta(meta_relations_models.Relation.objects.count, -1):
             self.check_ajax_ok(self.client.post(django_reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data(uids=meta_post_1.uid)))
 
-        self.assertTrue(dext_meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_1))
-        self.assertFalse(dext_meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_2))
-        self.assertFalse(dext_meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_3))
+        self.assertTrue(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_1))
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_2))
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_3))
 
-        with self.check_delta(dext_meta_relations_models.Relation.objects.count, 0):
+        with self.check_delta(meta_relations_models.Relation.objects.count, 0):
             self.check_ajax_ok(self.client.post(django_reverse('blogs:posts:update', args=[self.post.id]), self.get_post_data(uids=meta_post_3.uid)))
 
-        self.assertFalse(dext_meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_1))
-        self.assertFalse(dext_meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_2))
-        self.assertTrue(dext_meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_3))
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_1))
+        self.assertFalse(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_2))
+        self.assertTrue(meta_relations_logic.is_relation_exists(meta_relations.IsAbout, meta_post, meta_post_3))
 
 
 class TestModerateRequests(BaseTestRequests):

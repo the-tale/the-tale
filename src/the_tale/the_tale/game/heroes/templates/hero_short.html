@@ -98,7 +98,7 @@ jQuery(document).ready(function(e) {
   <ul class="unstyled" style="margin-top: 0.5em;">
     <li>
       {% if clan %}
-      <strong>гильдия:</strong> <a href="{{ url('accounts:clans:show', clan.id) }}">{{clan.name}}</a>
+      <strong>гильдия:</strong> <a href="{{ url('clans:show', clan.id) }}">{{clan.name}}</a>
       {% elif no_clan_placement %}
       <strong>гильдия:</strong> <small>не состоит в гильдии</small>
       {% endif %}

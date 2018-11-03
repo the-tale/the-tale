@@ -218,6 +218,9 @@ class Person(game_names.ManageNameMixin2):
         for effect in self.all_effects():
             effect.apply_to(self.attrs)
 
+    def meta_object(self):
+        return meta_relations.Person.create_from_object(self)
+
 
 class SocialConnection(object):
     __slots__ = ('id', 'connection', 'person_1_id', 'person_2_id', 'created_at', 'created_at_turn')

@@ -1,8 +1,7 @@
 
 {% macro html_filter(list_filter) %}
 
-  <div>
-    <div class="btn-toolbar">
+    <div class="btn-toolbar" style="margin: 0;">
 
       {% for element in list_filter.elements %}
 
@@ -52,6 +51,5 @@
 
       {% endfor %}
     </div>
-  </div>
 
 {% endmacro %}

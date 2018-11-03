@@ -79,7 +79,7 @@ class HeroResource(utils_resources.Resource):
 
         master_clan = None
         if master_account.clan_id is not None:
-            master_clan = clans_prototypes.ClanPrototype.get_by_id(master_account.clan_id)
+            master_clan = clans_logic.load_clan(clan_id=master_account.clan_id)
 
         return self.template('heroes/hero_page.html',
                              {'battle_active_abilities': battle_active_abilities,

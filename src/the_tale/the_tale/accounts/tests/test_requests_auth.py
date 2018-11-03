@@ -16,6 +16,8 @@ class AuthRequestsTests(utils_testcase.TestCase):
         self.check_html_ok(response)
 
     def test_login_page_after_login(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
+
         self.request_login(self.account.email)
         self.check_redirect(dext_urls.url('accounts:auth:page-login'), '/')
 
@@ -43,4 +45,5 @@ class AuthRequestsTests(utils_testcase.TestCase):
         self.request_logout()
 
     def test_logout_command_get(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
         self.check_redirect(logic.logout_url(), '/')

@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Place(utils_meta_relations.MetaType):
+class Place(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 3
     TYPE_CAPTION = 'Город'

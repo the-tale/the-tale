@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Post(utils_meta_relations.MetaType):
+class Post(meta_relations_objects.MetaType):
     __slots__ = ('caption', '_object__lazy')
     TYPE = 1
     TYPE_CAPTION = 'Произведение'
@@ -24,6 +24,10 @@ class Post(utils_meta_relations.MetaType):
         object._object__lazy = post
         return object
 
+    @classmethod
+    def create_removed(cls):
+        return cls(id=None, caption='неизвестное произведение')
+
     @utils_decorators.lazy_property
     def object(self):
         from . import prototypes
@@ -34,8 +38,10 @@ class Post(utils_meta_relations.MetaType):
         from . import prototypes
 
         post = prototypes.PostPrototype.get_by_id(id)
+
         if post is None:
-            return None
+            return cls.create_removed()
+
         return cls.create_from_object(post)
 
     @classmethod
@@ -45,5 +51,5 @@ class Post(utils_meta_relations.MetaType):
         return [cls(id=id, caption=caption) for id, caption in prototypes.PostPrototype._db_filer(ids__in=ids).values_list('id', 'caption')]
 
 
-class IsAbout(utils_meta_relations.MetaRelation):
+class IsAbout(meta_relations_objects.MetaRelation):
     TYPE = 1

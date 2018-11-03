@@ -4,60 +4,73 @@ import smart_imports
 smart_imports.all()
 
 
+########################################
+# resource and global processors
+########################################
+resource = dext_views.Resource(name='chronicle')
+resource.add_processor(accounts_views.CurrentAccountProcessor())
+resource.add_processor(utils_views.FakeResourceProcessor())
+
+########################################
+# filters
+########################################
+
+
 class IndexFilter(utils_list_filter.ListFilter):
     ELEMENTS = [utils_list_filter.reset_element(),
-                utils_list_filter.choice_element('город:', attribute='place', choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()),
-                utils_list_filter.choice_element('мастер:', attribute='person', choices=lambda x: [(None, 'все')] + persons_objects.Person.form_choices())]
+                utils_list_filter.choice_element('город:',
+                                                 attribute='place',
+                                                 choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()),
+                utils_list_filter.choice_element('мастер:',
+                                                 attribute='person',
+                                                 choices=lambda x: [(None, 'все')] + persons_objects.Person.form_choices())]
+
+########################################
+# views
+########################################
 
 
-class ChronicleResource(utils_resources.Resource):
+@utils_views.PageNumberProcessor(default_value=(2 << 31))
+@places_views.PlaceProcessor(error_message='Город не найден', get_name='place', context_name='place', default_value=None)
+@persons_views.PersonProcessor(error_message='Мастер не найден', get_name='person', context_name='person', default_value=None)
+@resource('')
+def index(context):
 
-    def initialize(self, *args, **kwargs):
-        super(ChronicleResource, self).initialize(*args, **kwargs)
+    tags = [object.meta_object().tag
+            for object in (context.place, context.person)
+            if object is not None]
 
-    @dext_old_views.validate_argument('page', int, 'chronicle', 'неверная страница')
-    @dext_old_views.validate_argument('place', lambda value: places_storage.places[int(value)], 'chronicle', 'неверный идентификатор города')
-    @dext_old_views.validate_argument('person', lambda value: persons_storage.persons[int(value)], 'chronicle', 'неверный идентификатор Мастера')
-    @dext_old_views.handler('', method='get')
-    def index(self, page=None, place=None, person=None):
+    page, total_records, events = tt_services.chronicle.cmd_get_events(page=context.page+1,
+                                                                       tags=tags,
+                                                                       records_on_page=conf.settings.RECORDS_ON_PAGE)
 
-        records_query = models.Record.objects.all()
+    page -= 1
 
-        if place is not None:
-            records_query = records_query.filter(actors__place_id=place.id)
+    url_builder = dext_urls.UrlBuilder(dext_urls.url('game:chronicle:'),
+                                       arguments={'page': context.page,
+                                                  'place': context.place.id if context.place else None,
+                                                  'person': context.person.id if context.person else None})
 
-        if person is not None:
-            records_query = records_query.filter(actors__person_id=person.id)
+    if page != context.page and 'page' in context.django_request.GET:
+        return dext_views.Redirect(url_builder(page=page + 1))
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('game:chronicle:'), arguments={'place': place.id if place else None,
-                                                                                         'person': person.id if person else None})
+    filter = IndexFilter(url_builder=url_builder,
+                         values={'place': context.place.id if context.place else None,
+                                 'person': context.person.id if context.person else None})
 
-        index_filter = IndexFilter(url_builder=url_builder, values={'place': place.id if place else None,
-                                                                    'person': person.id if person else None})
+    paginator = utils_pagination.Paginator(page,
+                                           total_records,
+                                           conf.settings.RECORDS_ON_PAGE,
+                                           url_builder,
+                                           inverse=True)
 
-        records_count = records_query.count()
+    tt_api_events_log.fill_events_wtih_meta_objects(events)
 
-        if page is None:
-            page = utils_pagination.Paginator.get_page_numbers(records_count, conf.settings.RECORDS_ON_PAGE)
-            if page == 0:
-                page = 1
-
-        page = int(page) - 1
-
-        paginator = utils_pagination.Paginator(page, records_count, conf.settings.RECORDS_ON_PAGE, url_builder, inverse=True)
-
-        if paginator.wrong_page_number:
-            return self.redirect(paginator.last_page_url, permanent=False)
-
-        record_from, record_to = paginator.page_borders(page)
-
-        records = [prototypes.RecordPrototype(record) for record in records_query.select_related().order_by('created_at', 'created_at_turn')[record_from:record_to]]
-
-        records = list(reversed(records))
-
-        return self.template('chronicle/index.html',
-                             {'records': records,
-                              'place': place,
-                              'paginator': paginator,
-                              'index_filter': index_filter,
-                              'url_builder': url_builder})
+    return dext_views.Page('chronicle/index.html',
+                           content={'events': events,
+                                    'place': context.place,
+                                    'person': context.person,
+                                    'paginator': paginator,
+                                    'index_filter': filter,
+                                    'url_builder': url_builder,
+                                    'resource': context.resource})

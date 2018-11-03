@@ -54,7 +54,7 @@ def get_accounts_accounts_info(accounts_ids):
             clans_ids.add(account.clan_id)
         accounts[account.id] = ShortAccountInfo(id=account.id, name=account.nick, hero=heroes[account.id], clan=account.clan_id)
 
-    for clan in clans_prototypes.ClanPrototype.get_list_by_id(list(clans_ids)):
+    for clan in clans_logic.load_clans(list(clans_ids)):
         clan_info = ShortClanInfo(id=clan.id, abbr=clan.abbr, name=clan.name)
         for account in accounts.values():
             if account.clan == clan.id:

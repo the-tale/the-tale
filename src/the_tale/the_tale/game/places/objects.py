@@ -416,6 +416,9 @@ class Place(game_names.ManageNameMixin2):
                 'name': self.name,
                 'size': self.attrs.size}
 
+    def meta_object(self):
+        return meta_relations.Place.create_from_object(self)
+
 
 class Building(game_names.ManageNameMixin2):
     __slots__ = ('id',

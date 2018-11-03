@@ -157,6 +157,7 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.51)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_not_enough_voices_percents(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
 
         game_turn.increment()
         game_turn.increment()
@@ -186,13 +187,11 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
 
         self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
-    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
-    def test_approved(self):
-        game_turn.increment()
-        game_turn.increment()
-        game_turn.increment()
+        page, total_records, events = chronicle_tt_services.chronicle.cmd_get_events(tags=(), page=1, records_on_page=100)
 
+        self.assertEqual(total_records, 0)
+
+    def prepair_data_to_approve(self):
         prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
         prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
         prototypes.VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
@@ -209,14 +208,24 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
         self.bill.update_by_moderator(form)
         ##################################
 
+    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_approved(self):
+        game_turn.increment()
+        game_turn.increment()
+        game_turn.increment()
+
+        self.prepair_data_to_approve()
+
         self.assertEqual(forum_models.Post.objects.all().count(), 1)
 
         with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
             self.assertTrue(self.bill.apply())
 
-        self.assertEqual(cmd_run_account_method.call_args_list, [mock.call(account_id=self.bill.owner.id,
-                                                                           method_name=accounts_prototypes.AccountPrototype.update_actual_bills.__name__,
-                                                                           data={})])
+        self.assertEqual(cmd_run_account_method.call_args_list,
+                         [mock.call(account_id=self.bill.owner.id,
+                                    method_name=accounts_prototypes.AccountPrototype.update_actual_bills.__name__,
+                                    data={})])
 
         self.assertTrue(self.bill.state.is_ACCEPTED)
 
@@ -237,28 +246,31 @@ class TestPrototypeApply(helpers.BaseTestPrototypes):
     @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_achievements(self):
-        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
-        prototypes.VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
-
-        ##################################
-        # set name forms
-        data = self.bill.user_form_initials
-        data.update(linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name'))
-        data['approved'] = True
-        form = self.bill.data.get_moderator_form_update(data)
-
-        self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
-        ##################################
+        self.prepair_data_to_approve()
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.assertTrue(self.bill.apply())
 
-        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.account1.id,
-                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_ACCEPTED_BILLS,
-                                                                        old_value=0,
-                                                                        new_value=1)])
+        self.assertEqual(verify_achievements.call_args_list,
+                         [mock.call(account_id=self.account1.id,
+                                    type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_ACCEPTED_BILLS,
+                                    old_value=0,
+                                    new_value=1)])
+
+    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_chronicle(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
+
+        self.prepair_data_to_approve()
+
+        self.assertTrue(self.bill.apply())
+
+        page, total_records, events = chronicle_tt_services.chronicle.cmd_get_events(tags=(), page=1, records_on_page=100)
+
+        self.assertEqual(total_records, 1)
+
+        self.assertEqual(events[0].message, self.bill.chronicle_on_accepted)
 
 
 class TestPrototypeStop(helpers.BaseTestPrototypes):

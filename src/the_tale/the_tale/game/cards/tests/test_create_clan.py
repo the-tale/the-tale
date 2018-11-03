@@ -44,7 +44,7 @@ class CreateClanTests(helpers.CardsTestMixin, utils_testcase.TestCase):
 
         self.assertEqual(membership.clan.id, clan.id)
         self.assertEqual(membership.account.id, self.account_1.id)
-        self.assertTrue(membership.role.is_LEADER)
+        self.assertTrue(membership.role.is_MASTER)
 
     def test_fast_account(self):
         self.account_1.is_fast = True
@@ -60,7 +60,7 @@ class CreateClanTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.assertEqual(clans_models.Clan.objects.count(), 0)
 
     def test_already_in_clan(self):
-        clans_prototypes.ClanPrototype.create(owner=self.account_1,
+        clans_logic.create_clan(owner=self.account_1,
                                               abbr='aaa',
                                               name='bbb',
                                               motto='Veni, vidi, vici!',
@@ -75,7 +75,7 @@ class CreateClanTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.assertEqual(clans_models.Clan.objects.count(), 1)
 
     def test_name_exists(self):
-        clans_prototypes.ClanPrototype.create(owner=self.account_2,
+        clans_logic.create_clan(owner=self.account_2,
                                               abbr='aaa',
                                               name='xxx',
                                               motto='Veni, vidi, vici!',
@@ -90,7 +90,7 @@ class CreateClanTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.assertEqual(clans_models.Clan.objects.count(), 1)
 
     def test_abbr_exists(self):
-        clans_prototypes.ClanPrototype.create(owner=self.account_2,
+        clans_logic.create_clan(owner=self.account_2,
                                               abbr='yyy',
                                               name='bbb',
                                               motto='Veni, vidi, vici!',

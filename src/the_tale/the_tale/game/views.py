@@ -46,7 +46,7 @@ def game_page(context):
 
     clan = None
     if context.account.clan_id is not None:
-        clan = clans_prototypes.ClanPrototype.get_by_id(context.account.clan_id)
+        clan = clans_logic.load_clan(clan_id=context.account.clan_id)
 
     cards = sorted(cards_types.CARD.records, key=lambda r: (r.rarity.value, r.text))
 

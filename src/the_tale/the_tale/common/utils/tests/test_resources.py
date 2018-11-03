@@ -15,6 +15,7 @@ class ResourceTest(testcase.TestCase):
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.active_end_at', datetime.datetime.now() - datetime.timedelta(seconds=1))
     def test_account_activate_unloginned(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
 
         with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as fake_cmd:
             self.client.get('/')
@@ -23,6 +24,8 @@ class ResourceTest(testcase.TestCase):
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.active_end_at', datetime.datetime.now() - datetime.timedelta(seconds=1))
     def test_account_activate_loginned(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
+
         with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as fake_cmd:
             self.request_login(self.account.email)
             self.client.get('/')

@@ -18,7 +18,7 @@ class FriendsResource(utils_resources.Resource):
         accounts_ids = [account.id for account in friends]
         clans_ids = [model.clan_id for model in friends]
         heroes = {hero.account_id: hero for hero in heroes_logic.load_heroes_by_account_ids(accounts_ids)}
-        clans = {clan.id: clan for clan in clans_prototypes.ClanPrototype.get_list_by_id(clans_ids)}
+        clans = {clan.id: clan for clan in clans_logic.load_clans(clans_ids)}
         return self.template('friends/friends_list.html',
                              {'friends': friends,
                               'candidates': candidates,
@@ -31,7 +31,7 @@ class FriendsResource(utils_resources.Resource):
         accounts_ids = [account.id for account in candidates]
         clans_ids = [model.clan_id for model in candidates]
         heroes = {hero.account_id: hero for hero in heroes_logic.load_heroes_by_account_ids(accounts_ids)}
-        clans = {clan.id: clan for clan in clans_prototypes.ClanPrototype.get_list_by_id(clans_ids)}
+        clans = {clan.id: clan for clan in clans_logic.load_clans(clans_ids)}
         return self.template('friends/friends_candidates.html',
                              {'candidates': candidates,
                               'heroes': heroes,

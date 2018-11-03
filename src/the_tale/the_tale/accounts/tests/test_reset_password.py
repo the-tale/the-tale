@@ -50,6 +50,8 @@ class ResetPasswordRequestsTests(utils_testcase.TestCase):
         self.account = self.accounts_factory.create_account()
 
     def test_reset_password_page_for_loggined_user(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
+
         self.request_login(self.account.email)
         self.check_redirect(django_reverse('accounts:profile:reset-password'), '/')
 

@@ -297,3 +297,6 @@ class MobRecord(game_names.ManageNameMixin2):
 
     def create_mob(self, hero, is_boss=False):
         return Mob(record_id=self.id, level=hero.level, is_boss=is_boss)
+
+    def meta_object(self):
+        return meta_relations.Mob.create_from_object(self)

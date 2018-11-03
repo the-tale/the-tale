@@ -9,6 +9,7 @@ smart_imports.all()
 ###############################
 
 
+# TODO: rename to UserAccountProcessor
 class CurrentAccountProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
         context.account = prototypes.AccountPrototype(model=context.django_request.user) if context.django_request.user.is_authenticated else context.django_request.user
@@ -28,6 +29,7 @@ class SuperuserProcessor(dext_views.BaseViewProcessor):
 
 
 class AccountProcessor(dext_views.ArgumentProcessor):
+    ERROR_MESSAGE = 'аккаунт не найден'
 
     def parse(self, context, raw_value):
         try:
@@ -63,7 +65,8 @@ class FullAccountProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_MESSAGE = 'Вы не закончили регистрацию, данная функция вам недоступна'
     ARGUMENT = 'account'
 
-    def validate(self, argument): return not argument.is_fast
+    def validate(self, argument):
+        return not argument.is_fast
 
 
 class BanGameProcessor(dext_views.FlaggedAccessProcessor):
@@ -71,7 +74,8 @@ class BanGameProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
     ARGUMENT = 'account'
 
-    def validate(self, argument): return not argument.is_ban_game
+    def validate(self, argument):
+        return not argument.is_ban_game
 
 
 class BanForumProcessor(dext_views.FlaggedAccessProcessor):
@@ -79,7 +83,8 @@ class BanForumProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
     ARGUMENT = 'account'
 
-    def validate(self, argument): return not argument.is_ban_forum
+    def validate(self, argument):
+        return not argument.is_ban_forum
 
 
 class BanAnyProcessor(dext_views.FlaggedAccessProcessor):
@@ -87,7 +92,8 @@ class BanAnyProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
     ARGUMENT = 'account'
 
-    def validate(self, argument): return not argument.is_ban_any
+    def validate(self, argument):
+        return not argument.is_ban_any
 
 
 class ModerateAccountProcessor(dext_views.PermissionProcessor):
@@ -115,7 +121,10 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 ###############################
 
 accounts_resource = dext_views.Resource(name='accounts')
-accounts_resource.add_processor(AccountProcessor(error_message='Аккаунт не найден', url_name='account', context_name='master_account', default_value=None))
+accounts_resource.add_processor(AccountProcessor(error_message='Аккаунт не найден',
+                                                 url_name='account',
+                                                 context_name='master_account',
+                                                 default_value=None))
 accounts_resource.add_processor(ModerateAccountProcessor())
 
 resource.add_child(accounts_resource)
@@ -156,7 +165,7 @@ def index(context):
 
     heroes = dict((model.account_id, heroes_logic.load_hero(hero_model=model)) for model in heroes_models.Hero.objects.filter(account_id__in=accounts_ids))
 
-    clans = {clan.id: clan for clan in clans_prototypes.ClanPrototype.get_list_by_id(clans_ids)}
+    clans = {clan.id: clan for clan in clans_logic.load_clans(clans_ids)}
 
     return dext_views.Page('accounts/index.html',
                            content={'heroes': heroes,
@@ -174,6 +183,39 @@ def show(context):
 
     master_hero = heroes_logic.load_hero(account_id=context.master_account.id)
 
+    bills_count = bills_prototypes.BillPrototype.accepted_bills_count(context.master_account.id)
+
+    templates_count = linguistics_prototypes.ContributionPrototype._db_filter(account_id=context.master_account.id,
+                                                                              type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE).count()
+    words_count = linguistics_prototypes.ContributionPrototype._db_filter(account_id=context.master_account.id,
+                                                                          type=linguistics_relations.CONTRIBUTION_TYPE.WORD).count()
+    folclor_posts_count = blogs_models.Post.objects.filter(author=context.master_account._model,
+                                                           state=blogs_relations.POST_STATE.ACCEPTED).count()
+
+    threads_count = forum_models.Thread.objects.filter(author=context.master_account._model).count()
+
+    threads_with_posts = forum_models.Thread.objects.filter(post__author=context.master_account._model).distinct().count()
+
+    master_clan = None
+    master_clan_membership = None
+    master_account_membership_request = None
+
+    if context.master_account.clan_id is not None:
+        master_clan = clans_logic.load_clan(clan_id=context.master_account.clan_id)
+        master_clan_membership = clans_logic.get_membership(context.master_account.id)
+
+    user_clan = None
+    user_clan_rights = None
+
+    if context.account.is_authenticated and context.account.clan_id is not None:
+        user_clan = clans_logic.load_clan(clan_id=context.account.clan_id)
+        user_clan_rights = clans_logic.operations_rights(initiator=context.account,
+                                                         clan=user_clan,
+                                                         is_moderator=context.account.has_perm('clans.moderate_clan'))
+
+        master_account_membership_request = clans_logic.request_for_clan_and_account(clan_id=user_clan.id,
+                                                                                     account_id=context.master_account.id)
+
     return dext_views.Page('accounts/show.html',
                            content={'master_hero': master_hero,
                                     'account_meta_object': meta_relations.Account.create_from_object(context.master_account),
@@ -184,7 +226,18 @@ def show(context):
                                     'resource': context.resource,
                                     'ratings_on_page': ratings_conf.settings.ACCOUNTS_ON_PAGE,
                                     'informer_link': conf.settings.INFORMER_LINK % {'account_id': context.master_account.id},
-                                    'friendship': friendship})
+                                    'friendship': friendship,
+                                    'bills_count': bills_count,
+                                    'templates_count': templates_count,
+                                    'words_count': words_count,
+                                    'folclor_posts_count': folclor_posts_count,
+                                    'threads_count': threads_count,
+                                    'threads_with_posts': threads_with_posts,
+                                    'master_clan': master_clan,
+                                    'master_clan_membership': master_clan_membership,
+                                    'master_account_membership_request': master_account_membership_request,
+                                    'user_clan': user_clan,
+                                    'user_clan_rights': user_clan_rights})
 
 
 @utils_api.Processor(versions=('1.0', ))

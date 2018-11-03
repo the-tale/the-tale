@@ -9,6 +9,11 @@ def person_info(person):
 
     inner_circle = politic_power_logic.get_inner_circle(person_id=person.id)
 
+    total_events, events = chronicle_tt_services.chronicle.cmd_get_last_events(tags=[person.meta_object().tag],
+                                                                               number=conf.settings.CHRONICLE_RECORDS_NUMBER)
+
+    tt_api_events_log.fill_events_wtih_meta_objects(events)
+
     data = {'id': person.id,
             'name': person.name,
             'updated_at': time.mktime(person.updated_at.timetuple()),
@@ -31,7 +36,7 @@ def person_info(person):
             'attributes': game_attributes.attributes_info(effects=person.all_effects(),
                                                           attrs=person.attrs,
                                                           relation=relations.ATTRIBUTE),
-            'chronicle': chronicle_prototypes.chronicle_info(person, conf.settings.CHRONICLE_RECORDS_NUMBER),
+            'chronicle': events,
             'job': person.job.ui_info(),
             'accounts': None,
             'clans': None}

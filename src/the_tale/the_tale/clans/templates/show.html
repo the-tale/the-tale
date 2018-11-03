@@ -1,0 +1,288 @@
+{% extends "clans/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'friends/macros.html' as friends_macros with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
+{% import 'chronicle/macros.html' as chronicle_macros with context %}
+
+{% block title %}{{current_clan.name}} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}[{{current_clan.abbr}}] {{current_clan.name}}{% endblock %}
+
+{% block head %}
+{{ super() }}
+{{friends_macros.messages_broadcast_script(uid='members')}}
+
+<script type="text/javascript">
+jQuery(document).ready(function(e){
+    pgf.base.InitializeTabs('clan-tabs', 'clan', [['.pgf-clan-description-button', 'description'],
+                                                  ['.pgf-clan-members-button', 'members'],
+                                                  ['.pgf-clan-events-button', 'events'],
+                                                  ['.pgf-clan-emissaries-button', 'emissaries']]);
+});
+</script>
+{% endblock %}
+
+{% block clans_content %}
+
+{% set has_clan = (resource.account.is_authenticated and resource.account.clan_id is not none) %}
+{% set is_own_clan = (resource.account.is_authenticated and resource.account.clan_id == current_clan.id) %}
+
+{% if not has_clan %}
+<script type="text/javascript">
+    jQuery(document).ready(function(){
+        jQuery('.pgf-create-membership-request').click(function(e){
+            e.preventDefault();
+            pgf.ui.dialog.Create({ fromUrl: "{{ url('clans:request-dialog', current_clan.id) }}",
+                                   OnOpen: function(dialog) {
+                                       var newMessageForm = new pgf.forms.Form(jQuery('#pgf-request-membership-form', dialog),
+                                                                               { OnSuccess: function(form, data){ dialog.modal('hide'); }
+                                                                               });
+                                   }
+                                 });
+        });
+    });
+</script>
+
+{% endif %}
+
+<h2>
+  [{{current_clan.abbr}}]
+  {{current_clan.name}}
+  {{base_macros.magnet(clan_meta_object)}}
+
+  <small class="pull-right"
+         style="font-size: 10pt; cursor: help;"
+         rel="tooltip"
+         title="Часть статистики гильдии обновляется с задержкой. В этой строке показано последнее время обновления данных.">
+    данные на
+    <span class="pgf-format-datetime" data-timestamp="{{ current_clan.statistics_refreshed_at|timestamp}}"></span>
+  </small>
+</h2>
+
+{% if resource.account.is_authenticated %}
+<div class="pagination">
+  <ul>
+    {% if is_own_clan %}
+    <li><a href="{{ url('forum:subcategories:show', current_clan.forum_subcategory_id) }}">форум</a></li>
+    {% endif %}
+
+    {% if current_clan_rights.can_access_chronicle() %}
+      <li><a href="{{ url('clans:chronicle', current_clan.id) }}">летопись</a></li>
+    {% endif %}
+
+    {% if current_clan_rights.can_take_member() %}
+      {% if requests_number_for_clan == 0 %}
+         <li><a href="{{url('clans:join-requests', current_clan.id)}}" class="disabled">нет заявок на вступление</a></li>
+       {% else %}
+         <li><a href="{{url('clans:join-requests', current_clan.id)}}">заявки на вступление</a></li>
+      {% endif %}
+    {% endif %}
+
+    {% if not has_clan %}
+      {% if request_to_this_clan is none %}
+        <li><a class="pgf-create-membership-request btn btn-info" href="#">вступить</a></li>
+      {% elif request_to_this_clan.type.is_FROM_ACCOUNT %}
+        <li><a href="#" style="color: green !important;" class="disabled">ваш запрос рассматривается</a><li>
+      {% elif request_to_this_clan.type.is_FROM_CLAN %}
+        <li><a href="{{url('clans:invites')}}">вас приглашают в гильдию</a></li>
+      {% endif %}
+    {% endif %}
+
+    {% if current_clan_rights.can_edit() %}
+      <li><a href="{{url('clans:edit', current_clan.id)}}">редактировать</a></li>
+    {% endif %}
+
+    {% if is_own_clan %}
+      <li>
+        <a class="pull-right pgf-forms-post-simple"
+           style="color: red;"
+           href="#"
+           data-confirmation="Вы действительно хотите покинуть гильдию?">покинуть гильдию</a>
+      </li>
+   {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+<p style="color: gray; font-size: 14pt;">
+  <strong>Девиз:</strong> <i>{{current_clan.motto}}</i>
+</p>
+
+<table width="100%" style="text-align: center;">
+  <tbody>
+    <tr>
+      <td width="25%" style="vertical-align: middle; line-height: 2em;">
+        СОСТАВ<br/>
+        <span style="font-size: 20pt;">
+          {{current_clan.active_members_number}} / {{current_clan.premium_members_number}} / {{current_clan.members_number}}
+        </span>
+        <br/>
+        <span>активные / подписчики / всего</span>
+      </td>
+      <td width="25%" style="vertical-align: middle; line-height: 2em;">
+        ОБЩЕНИЕ
+        <br/>
+        <span style="font-size: 20pt;">
+          {{forum_subcategory.threads_count}} / {{forum_subcategory.posts_count}}
+        </span>
+        <br/>
+        <span>тем / сообщений на форуме</span>
+      </td>
+      <td width="25%" style="vertical-align: middle; line-height: 2em;">
+        ОБЩЕЕ МОГУЩЕСТВО<br/>
+        <span style="font-size: 20pt;">{{current_clan.might|pprint_int}}</span>
+        <br/>
+        <a href="{{url('guide:keepers')}}">путеводитель</a>
+      </td>
+      <td width="25%" style="vertical-align: middle; line-height: 2em;">
+        ОБЩАЯ ВЛИЯТЕЛЬНОСТЬ %<br/>
+        <span style="font-size: 20pt;">
+          {{(total_frontier_politic_power_multiplier*100)|pprint_int}}
+          /
+          {{(total_core_politic_power_multiplier*100)|pprint_int}}
+        </span>
+        <br/>
+        <span>
+          во фронтире / в ядре
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<br/>
+
+<ul class="nav nav-tabs" style="margin-top: -0.33em;">
+  <li style="width: 25%;" class="active">
+    <a href="#pgf-clan-description" class="pgf-clan-description-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Описание</h4>
+    </a>
+  </li>
+  <li style="width: 25%;">
+    <a href="#pgf-clan-members" class="pgf-clan-members-button"  data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Состав</h4>
+    </a>
+  </li>
+  <li style="width: 25%;">
+    <a href="#pgf-clan-events" class="pgf-clan-events-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Летопись</h4>
+    </a>
+  </li>
+  <li style="width: 25%;">
+    <a href="#pgf-clan-emissaries" class="pgf-clan-emissaries-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Эмиссары</h4>
+    </a>
+  </li>
+</ul>
+
+
+<div class="tab-content">
+
+  <div class="tab-pane active" id="pgf-clan-description">
+    {{current_clan.description_html|safe}}
+
+    {% set folclor_objects = posts_about(clan_meta_object, allowed_for=leader) %}
+
+    <br/>
+    <br/>
+    <h3>Произведения о Гильдии</h3>
+
+    <p>
+      Чтобы произведение появилось в списке, его автор должен указать, что оно об этой гильдии, а лидер гильдии должен поставить произведению «плюсик».
+    </p>
+
+    {% if folclor_objects %}
+    {{ blogs_macros.meta_posts_list(folclor_objects) }}
+    {% else %}
+    <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о гильдии.</p>
+    {% endif %}
+
+  </div>
+
+  <div class="tab-pane" id="pgf-clan-members">
+
+    {% include "clans/permissions_help.html" %}
+
+    <small style="white-space: nowrap;">серым выделены игроки, остутствующие в игре дольше {{active_state_days}} дней.</small></br>
+
+    <table class="table table-condensed table-striped table-bordered">
+      <tr>
+        {% if current_clan_rights.can_bulk_mailing() %}
+        <th width="16px;"><input type="checkbox" class="pgf-members-checkbox-all" value="all"></th>
+        {% endif %}
+        <th width="20px">№</th>
+        <th width="100px">Игрок</th>
+        <th width="100px">Звание</th>
+        <th>Герой</th>
+        <th>Действия</th>
+      </tr>
+      {% for account in accounts %}
+
+      {% set membership = memberships[account.id] %}
+      {% set hero = heroes[account.id] %}
+
+      <tr>
+        {% if current_clan_rights.can_bulk_mailing() %}
+        <td><input type="checkbox" class="pgf-members-checkbox" value="{{account.id}}"></td>
+        {% endif %}
+        <td>
+          <span class="badge {% if account.can_affect_game%}badge-success{% endif %}"
+                style="cursor: pointer;"
+                rel="tooltip"
+                data-tooltip-placement="left"
+                title="{% if account.can_affect_game%}влияет на игру{% else %}не влияет на игру{% endif %}">
+            {{loop.index}}
+          </span>
+        </td>
+        <td>
+          <a href="{{url('accounts:show', account.id)}}"
+             class="{% if not account.is_active %}disabled{% endif %}">
+            {{account.nick_verbose}}
+          </a>
+        </td>
+        <td>{{membership.role.text}}</td>
+        <td>
+          {{hero.race_verbose}}
+          <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
+          {{ hero.level }} уровня
+        </td>
+        <td>
+          {% if current_clan_rights.can_edit_member(membership=membership) %}
+          <a href="{{url('clans:edit-member', current_clan.id, account=account.id)}}">изменить</a>
+          {% else %}
+          —
+          {% endif %}
+        </td>
+
+      </tr>
+      {% endfor %}
+    </table>
+
+    {% if current_clan_rights.can_bulk_mailing() %}
+    <a type="button" class="btn pgf-new-message-button disabled">отправить сообщение</a>
+    {% endif %}
+
+  </div>
+
+  <div class="tab-pane" id="pgf-clan-events">
+    <h3>Последние события в гильдии</h3>
+
+    {% if current_clan_rights.can_access_chronicle() %}
+    {{ chronicle_macros.records_list(chronicle_records) }}
+    {% else %}
+    <p class="alert alert-info">
+      У вас недостаточно прав, чтобы смотреть летопись гильдии.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="tab-pane" id="pgf-clan-emissaries">
+    <p class="alert alert-info">
+      В процессе разработки.
+    </p>
+  </div>
+
+</div>
+
+
+{% endblock %}

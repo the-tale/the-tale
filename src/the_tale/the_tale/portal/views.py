@@ -24,7 +24,7 @@ class PortalResource(utils_resources.Resource):
             account_of_the_day = accounts_prototypes.AccountPrototype.get_by_id(account_of_the_day_id)
 
             if account_of_the_day and account_of_the_day.clan_id is not None:
-                clan_of_the_day = clans_prototypes.ClanPrototype.get_by_id(account_of_the_day.clan_id)
+                clan_of_the_day = clans_logic.load_clan(clan_id=account_of_the_day.clan_id)
 
         forum_common_block = events_bloks.forum_common(limit=conf.settings.FORUM_COMMON_THREADS_ON_INDEX,
                                                        exclude_subcategories=(conf.settings.FORUM_RPG_SUBCATEGORY,
@@ -32,8 +32,9 @@ class PortalResource(utils_resources.Resource):
         forum_clan_block = None
 
         if self.account.is_authenticated and self.account.clan:
+            clan_forum_subcategory = forum_prototypes.SubCategoryPrototype.get_by_id(self.account.clan.forum_subcategory_id)
             forum_clan_block = events_bloks.forum_subcategory('Ваша гильдия',
-                                                              subcategory=self.account.clan.forum_subcategory,
+                                                              subcategory=clan_forum_subcategory,
                                                               limit=conf.settings.FORUM_CLAN_THREADS_ON_INDEX)
 
         forum_rpg_subcategory = forum_prototypes.SubCategoryPrototype.get_by_uid(conf.settings.FORUM_RPG_SUBCATEGORY)
@@ -52,7 +53,9 @@ class PortalResource(utils_resources.Resource):
 
         map_info = map_storage.map_info.item
 
-        chronicle_records = chronicle_prototypes.RecordPrototype.get_last_records(conf.settings.CHRONICLE_RECORDS_ON_INDEX)
+        total_events, events = chronicle_tt_services.chronicle.cmd_get_last_events(tags=(), number=conf.settings.CHRONICLE_RECORDS_ON_INDEX)
+
+        tt_api_events_log.fill_events_wtih_meta_objects(events)
 
         return self.template('portal/index.html',
                              {'news': news,
@@ -68,7 +71,7 @@ class PortalResource(utils_resources.Resource):
                               'map_info': map_info,
                               'TERRAIN': map_relations.TERRAIN,
                               'MAP_STATISTICS': map_relations.MAP_STATISTICS,
-                              'chronicle_records': chronicle_records,
+                              'chronicle_records': events,
                               'RACE': game_relations.RACE})
 
     @dext_old_views.handler('search')

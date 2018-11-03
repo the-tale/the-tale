@@ -173,7 +173,7 @@ jQuery(document).ready(function() {
                                                                          (settings.SOCIAL_DOCUMENTATION, "Документация по API и игре"),
                                                                          (players_projects_url(), "Проекты игроков"),]) }}
             {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
-                                                                           (url("accounts:clans:"), "Гильдии"),
+                                                                           (url("clans:"), "Гильдии"),
                                                                            (url("game:ratings:"), "Рейтинги"),
                                                                            (url("accounts:achievements:"), "Достижения"),
                                                                            (url("collections:collections:"), "Коллекции"),
@@ -235,7 +235,8 @@ jQuery(document).ready(function() {
                                            (url("forum:subscriptions:"), "Подписки"),
                                            (url("accounts:show", resource.account.id), "Моя страница"),
                                            (url("game:heroes:my-hero"), "Мой герой"),
-                                           (url("accounts:clans:show", resource.account.clan_id) if resource.account.clan_id is not none else none, "Моя гильдия") ,
+                                           (url("clans:show", resource.account.clan_id) if resource.account.clan_id is not none else none, "Моя гильдия") ,
+                                           (url("clans:invites") if resource.account.clan_id is none else none, "Приглашения в гильдии") ,
                                            ('-', '<li class="divider"></li>'),
                                            (logout_url(), "Выход")] ) }}
 

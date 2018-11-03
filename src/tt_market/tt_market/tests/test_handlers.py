@@ -266,7 +266,6 @@ class LoadSellLotsTests(helpers.BaseTests):
                                {'item_type': lots[6].item_type, 'price': lots[6].price, 'item_id': lots[6].item_id.hex}])
 
 
-
 class HistoryTests(helpers.BaseTests):
 
     @test_utils.unittest_run_loop
@@ -302,7 +301,6 @@ class HistoryTests(helpers.BaseTests):
         self.assertEqual(data.total_records, 5)
         self.assertEqual(data.page, 2)
 
-
     @test_utils.unittest_run_loop
     async def test_large_page(self):
         await helpers.prepair_history_log()
@@ -314,7 +312,6 @@ class HistoryTests(helpers.BaseTests):
                          [('test.1', 1), ('test.1', 1)])
         self.assertEqual(data.total_records, 5)
         self.assertEqual(data.page, 2)
-
 
     @test_utils.unittest_run_loop
     async def test_small(self):

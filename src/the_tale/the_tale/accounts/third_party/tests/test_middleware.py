@@ -118,6 +118,8 @@ class MiddlewareRequestsTests(utils_testcase.TestCase):
 
         self.request_token_url = dext_urls.url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=django_settings.API_CLIENT)
 
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
+
     def do_test_request(self):
         self.request_html('/')
 

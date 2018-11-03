@@ -16,8 +16,8 @@ class FriendshipRequestsTests(utils_testcase.TestCase):
 
         forum_prototypes.CategoryPrototype.create(caption='category-1', slug=clans_conf.settings.FORUM_CATEGORY_SLUG, order=0)
 
-        self.clan_2 = clans_prototypes.ClanPrototype.create(self.account_2, abbr='abbr2', name='name2', motto='motto', description='description')
-        self.clan_3 = clans_prototypes.ClanPrototype.create(self.account_3, abbr='abbr3', name='name3', motto='motto', description='description')
+        self.clan_2 = clans_logic.create_clan(self.account_2, abbr='abbr2', name='name2', motto='motto', description='description')
+        self.clan_3 = clans_logic.create_clan(self.account_3, abbr='abbr3', name='name3', motto='motto', description='description')
 
         self.request_login(self.account_1.email)
 

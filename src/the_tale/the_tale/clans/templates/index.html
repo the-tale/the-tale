@@ -1,0 +1,66 @@
+{% extends "clans/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+
+{% block title %}Список гильдий | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Список всех гильдий игры{% endblock %}
+
+{% block clans_content %}
+
+      <h2 style="margin-bottom: 0.5em;">Список гильдий</h2>
+
+      {% if user_clan %}
+      <p class="alert alert-info">
+        Вы состоите в гильдии <a href="{{url('clans:show', user_clan.id)}}">[{{user_clan.abbr}}] {{user_clan.name}}</a>.
+      </p>
+      {% else %}
+      <p class="alert alert-info">
+        Чтобы создать гильдию используйте карту <strong>«Братство»</strong>.
+      </p>
+      {% endif %}
+
+      {{ list_filter_macros.html_filter(index_filter) }}
+
+      {% if clans %}
+
+      {{ base_macros.render_paginator(paginator) }}
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th width="100px">аббревиатура</th>
+            <th>название</th>
+            <th>могущество</th>
+            <th width="100px">подписчики</th>
+            <th width="100px">активные</th>
+            <th width="100px">полный состав</th>
+            <th width="100px">дата создания</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for clan in clans %}
+          <tr>
+            <td><a href="{{url('clans:show', clan.id)}}">{{clan.abbr}}</a></td>
+            <td>
+              <a href="{{url('clans:show', clan.id)}}">{{clan.name}}</a>
+              <br/>
+              <i>{{clan.motto}}</i>
+            </td>
+            <td>{{ clan.might|pprint_int }}</td>
+            <td>{{ clan.premium_members_number }}</td>
+            <td>{{ clan.active_members_number }}</td>
+            <td>{{ clan.members_number }}</td>
+            <td><span class="created-at pgf-format-date" data-timestamp="{{ clan.created_at|timestamp }}"></span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {{ base_macros.render_paginator(paginator) }}
+
+      {% else %}
+      <p class="pgf-no-clans-message alert alert-info">Не найдено гильдий, отвечающих условиям поиска</p>
+      {% endif %}
+
+{% endblock %}

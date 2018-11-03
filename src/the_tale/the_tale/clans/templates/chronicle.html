@@ -1,0 +1,38 @@
+{% extends "clans/base.html" %}
+
+{% import 'macros.html' as base_macros with context %}
+{% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'utils/list_filter.html' as list_filter_macros with context %}
+
+{% block title %}Летопись гильдии | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Все события, происходящие в гильдии.{% endblock %}
+
+{% block clans_content %}
+
+<h2 style="margin-bottom: 0.5em;">
+  <a href="{{url('clans:show', current_clan.id)}}">[{{current_clan.abbr}}] {{current_clan.name}}</a>
+  —
+  летопись
+</h2>
+
+<p>
+  В летопись гильдии попадают все события, происходящие в гильдии.
+</p>
+
+<p>
+  Летопись отображается в обратном порядке: от последнего события до первого. Поэтому на странице с актуальными событиями может быть всего несколько событий.
+</p>
+
+{% if events %}
+
+{{ base_macros.render_paginator(paginator) }}
+
+{{ chronicle_macros.records_list(events) }}
+
+{{ base_macros.render_paginator(paginator) }}
+
+{% else %}
+<span class="pgf-no-records-message alert alert-info">Не найдено записей, отвечающих условиям поиска</span>
+{% endif %}
+
+{% endblock %}

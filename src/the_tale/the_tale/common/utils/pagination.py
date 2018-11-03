@@ -63,7 +63,8 @@ class Paginator(object):
                 (self.current_page_number and self.current_page_number >= self.pages_count))  # zero page always exists
 
     @property
-    def last_page_url(self): return self.url_builder(page=max(self.pages_count, 1))
+    def last_page_url(self):
+        return self.url_builder(page=max(self.pages_count, 1))
 
     @property
     def first_page_url(self): return self.url_builder(page=1)

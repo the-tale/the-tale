@@ -5,12 +5,14 @@
 {% block content %}
 
 <div class="row">
-  <div class="span3">
-    {{account_sidebar(user_account=resource.account, page_account=resource.account, page_caption="Сообщения", page_type="messages")}}
-  </div>
 
-  <div class="span9">
+  <div class="span12">
     <div class="easy-block">
+
+      <h2>
+        <a href="{{url('accounts:show', resource.account.id)}}">{{resource.account.nick_verbose}}</a> —
+        Сообщения
+      </h2>
 
       {% block messages_content %}
       {% endblock %}

@@ -31,7 +31,8 @@ class ModeratorAccessProcessor(dext_views.AccessProcessor):
     ERROR_CODE = 'companions.no_moderate_rights'
     ERROR_MESSAGE = 'Вы не можете модерировать спутников'
 
-    def check(self, context): return context.companions_can_moderate
+    def check(self, context):
+        return context.companions_can_moderate
 
 
 class CompanionProcessor(dext_views.ArgumentProcessor):
@@ -59,6 +60,7 @@ resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 resource.add_processor(CreateCompanionProcessor())
 resource.add_processor(ModerateCompanionProcessor())
+
 
 ########################################
 # filters

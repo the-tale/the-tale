@@ -26,15 +26,15 @@ class PostForm(dext_forms.Form):
             slugs.add(slug)
 
             try:
-                object = dext_meta_relations_logic.get_object_by_uid(slug)
+                object = meta_relations_logic.get_object_by_uid(slug)
 
                 if object.is_unknown:
                     raise django_forms.ValidationError('Объект не найден: %s' % slug)
 
                 objects.append(object)
-            except (dext_meta_relations_exceptions.WrongTypeError,
-                    dext_meta_relations_exceptions.WrongObjectError,
-                    dext_meta_relations_exceptions.WrongUIDFormatError):
+            except (meta_relations_exceptions.WrongTypeError,
+                    meta_relations_exceptions.WrongObjectError,
+                    meta_relations_exceptions.WrongUIDFormatError):
                 raise django_forms.ValidationError('Неверный идентификатор: %s' % slug)
 
         if len(objects) > conf.settings.IS_ABOUT_MAXIMUM:

@@ -309,6 +309,9 @@ class ArtifactRecord(game_names.ManageNameMixin2):
                         level=level,
                         rarity=rarity)
 
+    def meta_object(self):
+        return meta_relations.Artifact.create_from_object(self)
+
 
 class Weapon(object):
     __slots__ = ('type', 'material', 'power_type', '_restrictions')

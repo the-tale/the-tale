@@ -7,6 +7,10 @@
 {% block title %} {{ master_account.nick_verbose }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}О Хранителе «{{ master_account.nick_verbose }}» и «{{ master_hero.name }}» — герое {{ master_hero.level }} уровня.{% endblock %}
 
+{% set can_be_invited = master_clan is none and user_clan_rights and user_clan_rights.can_take_member() and not master_account_membership_request %}
+
+{% set can_send_money = resource.account.is_authenticated and master_account.id != resource.account.id and not master_account.is_fast and not master_account.is_ban_any %}
+
 {% block head %}
 {{ super() }}
 
@@ -38,17 +42,84 @@ jQuery(document).ready(function(){
 });
 
 </script>
+
+{% if can_be_invited %}
+            <script type="text/javascript">
+          jQuery(document).ready(function(){
+              jQuery('.pgf-create-invite-to-clan').click(function(e){
+                  e.preventDefault();
+                  pgf.ui.dialog.Create({ fromUrl: "{{ url('clans:invite-dialog', user_clan.id, account=master_account.id) }}",
+                                         OnOpen: function(dialog) {
+                                             var newMessageForm = new pgf.forms.Form(jQuery('#pgf-invite-form', dialog),
+                                                                                     { OnSuccess: function(form, data){
+                                                                                            dialog.modal('hide');
+                                                                                            location.reload();
+                                                                                       }
+                                                                                     });
+                                         }
+                                       });
+              });
+          });
+            </script>
+
+            {% endif %}
+
+{% if can_send_money %}
+
+<script type="text/javascript">
+jQuery(document).ready(function(e) {
+
+    function UpdateCommission() {
+        var input = jQuery('.pgf-sender-money input');
+
+        var price = parseInt(input.val());
+
+        if (price != input.val()) {
+            price = 1;
+        }
+
+        var commission = parseInt(Math.floor(price * {{value('the_tale.accounts.conf', 'settings').MONEY_SEND_COMMISSION}}));
+
+        if (commission == 0) {
+            commission = 1;
+        }
+
+        jQuery('.pgf-sender-commission').text(commission);
+        jQuery('.pgf-receiver-income').text(price-commission);
+    }
+
+    jQuery('.pgf-send-money').click(function(e){
+        e.preventDefault();
+        var target = jQuery(e.currentTarget);
+        var url = target.attr('href');
+
+        pgf.ui.dialog.Create({ fromUrl: url,
+                               OnOpen: function(dialog) {
+                                   var form = new pgf.forms.Form(jQuery('#pgf-send-money-form', dialog),
+                                                                     {OnSuccess: function(form, data){
+                                                                         location.reload();
+                                                                     }});
+                               },
+                               OnOpened: function(dialog) {
+                                   UpdateCommission();
+                               }
+                             });
+    });
+
+    setInterval(UpdateCommission, 500);
+});
+</script>
+
+
+{% endif %}
+
 {% endblock %}
 
 
 {% block content %}
 
   <div class="row">
-    <div class="span3">
-      {{account_sidebar(user_account=resource.account, page_account=master_account, page_caption="Страница игрока", can_moderate=context.can_moderate_accounts, page_type="account")}}
-    </div>
-
-    <div class="span9">
+    <div class="span12">
       <div class="easy-block">
 
         <h2 style="line-height: 24px;">
@@ -80,27 +151,96 @@ jQuery(document).ready(function(){
           </p>
         {% endif %}
 
-        <br/>
+          <br/>
+
+          {% set not_own_page = resource.account.is_authenticated and master_account.id != resource.account.id %}
+
+          {% if not_own_page or context.can_moderate_accounts %}
+          <div class="pagination">
+            <ul>
+              {% if not_own_page %}
+
+              <li><a class="pgf-new-message" data-recipient="{{master_account.id}}" href="#">личное сообщение</a></li>
+
+              {% if can_be_invited %}
+              <li><a class="pgf-create-invite-to-clan" href="">пригласить в гильдию</a></li>
+              {% elif master_account_membership_request %}
+              <li><a class="disabled" style="color: green !important;">приглашён в гильдию</a></li>
+              {% endif %}
+
+              {% if friendship is none %}
+              <li><a class="pgf-friends-request-friendship" href="#">добавить в друзья</a></li>
+              {% elif friendship.is_confirmed %}
+              <li><a class="pgf-friends-in-list" style="color: green;" href="{{url('accounts:friends:')}}">в списке друзей</a></li>
+              {% elif friendship.friend_1_id == master_account.id %}
+              <li><a class="pgf-forms-post-simple pgf-friends-request-from"
+                     style="color: green;"
+                     href="{{url('accounts:friends:accept', friend=master_account.id)}}">подтвердить дружбу</a></li>
+              <li><a class="pgf-forms-post-simple"
+                     style="color: red;"
+                     href="{{url('accounts:friends:remove', friend=master_account.id)}}">отказать</a></li>
+              {% else %}
+              <li><a class="disabled pgf-friends-request-to" href="#">вы предложили дружбу</a></li>
+              {% endif %}
+
+              {% if can_send_money %}
+              <li>
+                <a href="{{url('accounts:transfer-money-dialog', master_account.id)}}"
+                   class="pgf-send-money"
+                   rel="tooltip"
+                   title="Перевести часть печенек этому игроку">
+                  выслать печеньки
+                </a>
+              </li>
+              {% else %}
+
+              <li>
+                <a href="#"
+                   class="disabled"
+                   rel="tooltip"
+                   title="Нельзя выслать печеньки самому себе, забаненному или не завершившему регистрацию игроку">
+                  выслать печеньки
+                </a>
+              </li>
+              {% endif %}
+
+              <li><a href="{{forum_complaint_theme()}}">пожаловаться</a></li>
+
+              {% endif %}
+
+              {% if context.can_moderate_accounts %}
+              <li>
+                <a class="pgf-account-admin-link"
+                   style="color: red;"
+                   href="{{url('accounts:admin', master_account.id)}}">администрировать</a>
+              </li>
+              {% endif %}
+            </ul>
+
+          </div>
+
+          {% endif %}
+
 
         <table width="100%" style="text-align: center;">
           <tbody>
             <tr>
-              <td width="25%" style="vertical-align: middle;">
+              <td width="25%" style="vertical-align: middle; line-height: 2em;">
                 МОГУЩЕСТВО<br/>
                 <span style="font-size: 20pt;">{{ account_info.might|int }}</span></br>
                 <a href="{{url('guide:keepers')}}">путеводитель</a>
               </td>
-              <td width="25%" style="vertical-align: middle;">
+              <td width="25%" style="vertical-align: middle; line-height: 2em;">
                 ОЧКИ ДОСТИЖЕНИЙ<br/>
                 <span style="font-size: 20pt;">{{account_info.achievements}}</span></br>
                 <a href="{{url('accounts:achievements:', account=master_account.id)}}">все достижения</a>
               </td>
-              <td width="25%" style="vertical-align: middle;">
+              <td width="25%" style="vertical-align: middle; line-height: 2em;">
                 ПРЕДМЕТОВ В КОЛЛЕКЦИИ<br/>
                 <span style="font-size: 20pt;">{{account_info.collections}}</span></br>
                 <a href="{{url('collections:collections:', account=master_account.id)}}">коллекция</a>
               </td>
-              <td width="25%" style="vertical-align: middle;">
+              <td width="25%" style="vertical-align: middle; line-height: 2em;">
                 ПОСЛЕДОВАТЕЛИ<br/>
                 <span style="font-size: 20pt;">{{ account_info.referrals }}</span></br>
                 <a href="{{url('guide:referrals')}}">реферальная ссылка</a>
@@ -111,10 +251,30 @@ jQuery(document).ready(function(){
 
         <br/>
 
+          <h3>Гильдия</h3>
+
+          {% if master_clan %}
+          <p>
+            {{master_clan_membership.role.text}} гильдии <a href="{{url('clans:show', master_clan.id)}}">[{{master_clan.abbr}}] {{master_clan.name}}</a>
+          </p>
+          {% else %}
+          <p>
+            Не состоит в гильдии.
+          </p>
+          {% endif %}
+
+          {% if master_account_membership_request %}
+        <p class="alert alert-info">
+          Хранитель уже отправил заявку на всупление или был приглашён в вашу гильдию.
+        </p>
+        {% endif %}
+
+        <h3>О Хранителе</h3>
         {% if account_info.description %}
-          <h3>Об игроке</h3>
-          {{account_info.description|safe}}
-          <br/><br/>
+        {{account_info.description|safe}}
+        <br/><br/>
+        {% else %}
+        <p>Хранитель пока ничего не рассказал о себе.</p>
         {% endif %}
 
         <div class="row-fluid">
@@ -166,6 +326,70 @@ jQuery(document).ready(function(){
           </div>
 
           <div class="span6">
+            <h3>Активности</h3>
+
+            <p>Участие Хранителя в жизни Пандоры.</p>
+
+              <table class="table table-condensed table-striped table-bordered">
+                <tbody>
+                  <tr>
+                    <th>активность</th>
+                    <th>значение</th>
+                  </tr>
+
+                  <tr>
+                    <td>Был в игре</td>
+                    <td><span class="pgf-format-date" data-timestamp="{{ master_account.was_in_game_at|timestamp}}"></span></td>
+                  </tr>
+
+                  <tr>
+                    <td>Влияние на игру</td>
+                    <td>
+                      <a href="{{url('guide:account-types')}}">
+                        {% if master_account.can_affect_game %}на всю Пандору
+                        {% else %}только на Фронтир
+                        {% endif %}
+                      </a>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Записи в книге Судеб</td>
+                    <td><a href="{{ url('game:bills:') }}?owner={{master_account.id}}">{{bills_count}}</a></td>
+                  </tr>
+
+                  <tr>
+                    <td>Фразы лингвистики</td>
+                    <td><a href="{{ url('linguistics:templates:', contributor=master_account.id)}}">{{templates_count}}</a></td>
+                  </tr>
+
+                  <tr>
+                    <td>Слова лингвистики</td>
+                    <td><a href="{{ url('linguistics:words:', contributor=master_account.id) }}">{{words_count}}</a></td>
+                  </tr>
+
+                  <tr>
+                    <td>Произведения фольклора</td>
+                    <td><a href="{{ url('blogs:posts:') }}?author_id={{master_account.id}}">{{folclor_posts_count}}</a></td>
+                  </tr>
+
+                  <tr>
+                    <td>Влияние на мир</td>
+                    <td><a href="{{ url('game:politic-power:history', account=master_account.id) }}">последнее влияние</a></td>
+                  </tr>
+
+                  <tr>
+                    <td>Созданные обсуждения на форум</td>
+                    <td><a href="{{url('forum:threads:')}}?author={{master_account.id}}">{{threads_count}}</a></td>
+                  </tr>
+
+                  <tr>
+                    <td>Сбсуждения на форуме с комментариями</td>
+                    <td><a href="{{url('forum:threads:')}}?participant={{master_account.id}}">{{threads_with_posts}}</a></td>
+                  </tr>
+
+                </tbody>
+              </table>
           </div>
 
         </div>

@@ -35,7 +35,7 @@ def get_contributors(entity_id, author_id, type):
         contributors_ids.append(author_id)
 
     contributors = accounts_prototypes.AccountPrototype.from_query(accounts_prototypes.AccountPrototype._db_filter(id__in=contributors_ids))
-    clans = {clan.id: clan for clan in clans_prototypes.ClanPrototype.from_query(clans_prototypes.ClanPrototype._db_filter(id__in=[account.clan_id for account in contributors if account.clan_id is not None]))}
+    clans = {clan.id: clan for clan in clans_logic.load_clans([account.clan_id for account in contributors if account.clan_id is not None])}
 
     contributors.sort(key=lambda c: contributors_ids.index(c.id))
 
@@ -139,7 +139,7 @@ class WordResource(utils_resources.Resource):
         words = prototypes.WordPrototype.from_query(words_query[words_from:words_to])
 
         authors = {account.id: account for account in accounts_prototypes.AccountPrototype.from_query(accounts_prototypes.AccountPrototype.get_list_by_id([word.author_id for word in words]))}
-        clans = {clan.id: clan for clan in clans_prototypes.ClanPrototype.from_query(clans_prototypes.ClanPrototype.get_list_by_id([author.clan_id for author in authors.values()]))}
+        clans = {clan.id: clan for clan in clans_logic.load_clans([author.clan_id for author in authors.values()])}
 
         return self.template('linguistics/words/index.html',
                              {'words': words,
@@ -449,7 +449,7 @@ class TemplateResource(utils_resources.Resource):
         templates = prototypes.TemplatePrototype.from_query(templates_query[template_from:template_to])
 
         authors = {account.id: account for account in accounts_prototypes.AccountPrototype.from_query(accounts_prototypes.AccountPrototype.get_list_by_id([template.author_id for template in templates]))}
-        clans = {clan.id: clan for clan in clans_prototypes.ClanPrototype.from_query(clans_prototypes.ClanPrototype.get_list_by_id([author.clan_id for author in authors.values()]))}
+        clans = {clan.id: clan for clan in clans_logic.load_clans([author.clan_id for author in authors.values()])}
 
         return self.template('linguistics/templates/index.html',
                              {'key': key,

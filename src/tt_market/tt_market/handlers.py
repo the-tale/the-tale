@@ -4,6 +4,8 @@ import datetime
 from tt_web import handlers
 from tt_web import exceptions as tt_exceptions
 
+from tt_web.common import pagination
+
 from tt_protocol.protocol import market_pb2
 
 from . import protobuf
@@ -75,18 +77,9 @@ async def history(message, **kwargs):
 
     records_number = await operations.history_records_number()
 
-    total_pages = records_number // message.records_on_page
-
-    if total_pages * message.records_on_page < records_number:
-        total_pages += 1
-
-    if total_pages <= 0:
-        total_pages = 1
-
-    page = message.page if message.page <= total_pages else total_pages
-
-    if page <= 0:
-        page = 1
+    page = pagination.normalize_page(page=message.page,
+                                     records_number=records_number,
+                                     records_on_page=message.records_on_page)
 
     records = await operations.load_history_page(page=page,
                                                  records_on_page=message.records_on_page)

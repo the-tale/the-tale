@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Artifact(utils_meta_relations.MetaType):
+class Artifact(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 4
     TYPE_CAPTION = 'Артефакт'

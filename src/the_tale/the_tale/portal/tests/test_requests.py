@@ -10,6 +10,8 @@ class TestRequests(utils_testcase.TestCase):
         super(TestRequests, self).setUp()
         game_logic.create_test_map()
 
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
+
     def test_search(self):
         self.check_html_ok(self.request_html(dext_urls.url('portal:search')))
 
@@ -62,6 +64,8 @@ class IndexRequestTests(utils_testcase.TestCase):
     def setUp(self):
         super(IndexRequestTests, self).setUp()
         game_logic.create_test_map()
+
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
 
     def test_success(self):
         response = self.client.get(dext_urls.url('portal:'))

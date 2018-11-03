@@ -352,7 +352,7 @@ def clans_info(accounts_data):
     return {clan.id: {'id': clan.id,
                       'abbr': clan.abbr,
                       'name': clan.name}
-            for clan in clans_prototypes.ClanPrototype.get_list_by_id(list(clans_ids))}
+            for clan in clans_logic.load_clans(list(clans_ids))}
 
 
 def generate_history(name_forms, gender, race, honor, peacefulness, archetype, upbringing, first_death, age):

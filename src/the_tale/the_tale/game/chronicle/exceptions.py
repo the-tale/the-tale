@@ -1,4 +1,0 @@
-
-
-class ChronicleException(Exception):
-    pass

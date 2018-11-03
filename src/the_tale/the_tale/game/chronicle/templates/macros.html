@@ -1,31 +1,32 @@
 
 
-{% macro records_list(records) %}
-
-{% set chronicle_actors = chronicle_actors(records) %}
+{% macro records_list(events) %}
 
 <ul class="unstyled">
-  {% for record in records %}
+  {% for event in events %}
+  {% set game_time = game_datetime(event.turn) %}
   <li class="newspaper-link-list">
     <span class="newspaper-link-time">
       <span style="cursor: default;"
             rel="tooltip"
             title="<div style='text-align: left; white-space: nowrap;'>
-                   {{record.game_time.date.verbose_full()}} {{record.game_time.time.verbose()}}</br>
-                   В реальности: {{record.created_at|verbose_datetime}}
+                   {{game_time.date.verbose_full()}} {{game_time.time.verbose()}}</br>
+                   В реальности: {{event.created_at|verbose_datetime}}
                    </div>">
-        {{record.game_time.date.verbose_full()}}
+        {{game_time.date.verbose_full()}}
       </span>:
 
-      {% for actor in chronicle_actors.get(record.id, ()) %}
+      {% for meta_object in event.meta_objects %}
         {%- if loop.index > 1 -%},{% endif %}
-        {% if actor.type.is_BILL %}<a href="{{url('game:bills:show', actor.bill_id)}}">{{actor.name}}</a>{% endif -%}
-        {% if actor.type.is_PLACE %}<a href="{{url('game:places:show', actor.place_id)}}">{{actor.name}}</a>{% endif -%}
-        {% if actor.type.is_PERSON %}<a href="{{url('game:persons:show', actor.person_id)}}">{{actor.name}}</a>{% endif -%}
+        {% if meta_object.url %}
+          <a href="{{meta_object.url}}">{{meta_object.caption}}</a>
+        {% else %}
+          <a href="#" class="disabled">{{meta_object.caption}}</a>
+        {% endif %}
       {% endfor %}
     </span>
     <br/>
-    <span>{{ record.text|make_paragraphs }}</span>
+    <span>{{ event.message|make_paragraphs }}</span>
   </li>
   {% endfor %}
 {% endmacro %}

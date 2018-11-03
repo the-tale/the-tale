@@ -1,0 +1,14 @@
+{
+    "database": {"name": "tt_game_chronicle",
+                 "user": "tt_game_chronicle",
+                 "password": "tt_game_chronicle",
+                 "host": "localhost",
+                 "port": 5432,
+                 "minsize": 1,
+                 "maxsize": 2,
+                 "timeout": 10 },
+
+    "log": {"level": "critical"},
+
+    "custom": {}
+}

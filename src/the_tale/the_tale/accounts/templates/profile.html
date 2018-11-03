@@ -27,11 +27,7 @@ jQuery(document).ready( function(e) {
 {% block content %}
 
 <div class="row">
-    <div class="span3">
-      {{account_sidebar(user_account=resource.account, page_account=resource.account, page_caption="Профиль", page_type="profile")}}
-    </div>
-
-  <div class="span9">
+  <div class="span12">
     <div class="easy-block">
 
       {% if resource.account.is_authenticated and resource.account.is_fast %}
@@ -49,7 +45,10 @@ jQuery(document).ready( function(e) {
       </div>
       {% endif %}
 
-      <h2>Изменение email и пароля</h2>
+      <h2>
+        <a href="{{url('accounts:show', resource.account.id)}}">{{resource.account.nick_verbose}}</a> —
+        Изменение email и пароля
+      </h2>
 
       <ul>
         <li>Имя будет отображаться в ваших сообщениях на форуме. Выбирайте имя аккуратно — по нему другие игроки составят первое впечатление о вас;</li>

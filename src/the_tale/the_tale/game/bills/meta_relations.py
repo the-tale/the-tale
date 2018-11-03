@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Bill(utils_meta_relations.MetaType):
+class Bill(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 2
     TYPE_CAPTION = 'Запись Книги Судеб'
@@ -32,4 +32,4 @@ class Bill(utils_meta_relations.MetaType):
 
     @classmethod
     def create_from_ids(cls, ids):
-        return [cls(id=id, caption=caption) for id, caption in models.Bill.objects.filter(ids__in=ids).values_list('id', 'caption')]
+        return [cls(id=id, caption=caption) for id, caption in models.Bill.objects.filter(id__in=ids).values_list('id', 'caption')]

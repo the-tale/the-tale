@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Companion(utils_meta_relations.MetaType):
+class Companion(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 6
     TYPE_CAPTION = 'Спутник'

@@ -3,7 +3,7 @@
 {% macro account_link(account, clan) %}
 <a href="{{url('accounts:show', account.id)}}">{{account.nick_verbose}}</a>
 {% if clan is not none %}
-<a href="{{url('accounts:clans:show', clan.id)}}" style="white-space: nowrap;">[{{clan.abbr}}]</a>
+<a href="{{url('clans:show', clan.id)}}" style="white-space: nowrap;">[{{clan.abbr}}]</a>
 {% endif %}
 {% endmacro %}
 
@@ -22,7 +22,7 @@
 <td>
   <a href="{{ url('accounts:show', account.id) }}">{{ account.nick_verbose }}</a>
   {% if clan %}
-  <a href="{{url('accounts:clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+  <a href="{{url('clans:show', clan.id)}}">[{{clan.abbr}}]</a>
   {% endif %}
 </td>
 {% if not short %}<td>{{ hero.might|int }}</td>{% endif %}

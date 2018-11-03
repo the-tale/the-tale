@@ -197,7 +197,7 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         if self.clan_id is None:
             return None
 
-        return clans_prototypes.ClanPrototype(model=self._model.clan)
+        return clans_logic.load_clan(clan_model=self._model.clan)
 
     def set_might(self, might):
         from the_tale.accounts.achievements import storage as achievements_storage
@@ -303,6 +303,9 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._model == other._model
+
+    def meta_object(self):
+        return meta_relations.Account.create_from_object(self)
 
 
 class ChangeCredentialsTaskPrototype(utils_prototypes.BasePrototype):
