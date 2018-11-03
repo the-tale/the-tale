@@ -24,7 +24,7 @@ KEYS = [('ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, 'Дневник: Артефа
          [V.DATE, V.TIME, V.MOB, V.HERO], None),
 
         ('ACTION_BATTLEPVE1X1_EXP_FOR_KILL', 4, 'Дневник: Получить опыт за убийство монстра', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
-         'Герой получил немного опыта за убийство монстра (испытал новый приём или монстр «особенный» попался)',
+         'Герой получил немного опыта за убийство монстра (испытал новый приём или монстр «особенный» попался).',
          [V.DATE, V.TIME, V.MOB, V.HERO, V.EXPERIENCE], 'hero#N +experience#EXP'),
 
         ('ACTION_BATTLEPVE1X1_JOURNAL_HERO_KILLED', 5, 'Журнал: Герой убит', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
@@ -32,11 +32,11 @@ KEYS = [('ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, 'Дневник: Артефа
          [V.DATE, V.TIME, V.MOB, V.HERO], None),
 
         ('ACTION_BATTLEPVE1X1_KILL_BEFORE_START', 6, 'Журнал: Убить до боя', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
-         'Герой заметил монстра до боя и убил его',
+         'Герой заметил монстра до боя и убил его.',
          [V.DATE, V.TIME, V.MOB, V.HERO], None),
 
         ('ACTION_BATTLEPVE1X1_LEAVE_BATTLE_IN_FEAR', 7, 'Журнал: Противник бежит в страхе', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
-         'Герой так напугал противника, что тот в ужасе убегает',
+         'Герой так напугал противника, что тот в ужасе убегает.',
          [V.DATE, V.TIME, V.MOB, V.HERO], None),
 
         ('ACTION_BATTLEPVE1X1_MOB_KILLED', 8, 'Журнал: Монстр убит', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
@@ -48,7 +48,7 @@ KEYS = [('ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, 'Дневник: Артефа
          [V.DATE, V.TIME, V.MOB, V.HERO], None),
 
         ('ACTION_BATTLEPVE1X1_PEACEFULL_BATTLE', 10, 'Журнал: Мирно разойтись с разумным двуногим противником', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
-         'Герой договорился с разумным двуногим противником о том, чтобы драки не было',
+         'Герой договорился с разумным двуногим противником о том, чтобы драки не было.',
          [V.DATE, V.TIME, V.MOB, V.HERO], None),
 
         ('ACTION_BATTLEPVE1X1_PERIODICAL_FIRE_DAMAGE', 11, 'Журнал: Периодический урон огнём', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
@@ -72,7 +72,7 @@ KEYS = [('ACTION_BATTLEPVE1X1_ARTIFACT_BROKEN', 0, 'Дневник: Артефа
          [V.DATE, V.TIME, V.MOB, V.HERO], None),
 
         ('ACTION_BATTLEPVE1X1_COMPANION_DO_EXORCIMS', 16, 'Журнал: спутник героя изгоняет демона', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
-         'Герой встречает демона, после чего его спутник изгоняет демона, завершая бой',
+         'Герой встречает демона, после чего его спутник изгоняет демона, завершая бой.',
          [V.DATE, V.TIME, V.MOB, V.HERO, V.COMPANION], None),
 
         ('ACTION_BATTLEPVE1X1_DIARY_HERO_AND_MOB_KILLED', 17, 'Дневник: Герой и враг убили друг друга', relations.LEXICON_GROUP.ACTION_BATTLEPVE1X1,
