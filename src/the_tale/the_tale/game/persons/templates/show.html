@@ -194,8 +194,8 @@
   <h3>Герои</h3>
 
   <ul>
-    <li>Всего героев помогает: {{inner_circle.positive_heroes_number}}</li>
-    <li>Всего героев мешает: {{inner_circle.negative_heroes_number}}</li>
+    <li>Всего героев помогает: {{inner_circle.total_positive_heroes_number}} (в круге: {{inner_circle.circle_positive_heroes_number}})</li>
+    <li>Всего героев мешает: {{inner_circle.total_negative_heroes_number}} (в круге: {{inner_circle.circle_negative_heroes_number}})</li>
   </ul>
 
   {{game_macros.inner_circle_heroes(inner_circle, hero.account_id if hero else none)}}

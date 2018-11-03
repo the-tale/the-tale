@@ -149,7 +149,11 @@
           {{persons_macros.person_verbose(person, hero)}}
         </td>
         <td>
-          {{persons_inner_circles[person.id].positive_heroes_number}} / {{persons_inner_circles[person.id].negative_heroes_number}}
+          {{persons_inner_circles[person.id].total_positive_heroes_number}} /
+          {{persons_inner_circles[person.id].total_negative_heroes_number}}
+
+          (в круге: {{persons_inner_circles[person.id].circle_positive_heroes_number}} /
+                    {{persons_inner_circles[person.id].circle_negative_heroes_number}})
         </td>
       </tr>
     {% endfor %}
@@ -397,8 +401,8 @@
 <h3>Герои</h3>
 
 <ul>
-  <li>Всего героев помогает: {{inner_circle.positive_heroes_number}}</li>
-  <li>Всего героев мешает: {{inner_circle.negative_heroes_number}}</li>
+  <li>Всего героев помогает: {{inner_circle.total_positive_heroes_number}} (в круге: {{inner_circle.circle_positive_heroes_number}})</li>
+  <li>Всего героев мешает: {{inner_circle.total_negative_heroes_number}} (в круге: {{inner_circle.circle_negative_heroes_number}})</li>
 </ul>
 
 {{game_macros.inner_circle_heroes(inner_circle, hero.account_id if hero else none)}}
