@@ -44,8 +44,7 @@ class TYPE(DjangoEnum):
                ('INSECT', 7, 'насекомые', heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL, heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED),
                ('DEMON', 8, 'демоны', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
                ('UNDEAD', 9, 'нежить', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
-               ('MONSTER', 10, 'чудовища', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
-               ('CHIMERA', 11, 'химеры', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED))
+               ('MONSTER', 10, 'чудовища', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED))
 
 
 class STRUCTURE(DjangoEnum):
