@@ -9,6 +9,24 @@ class CalculatePowerFractionsTests(utils_testcase.TestCase):
     def test_no_powers(self):
         self.assertEqual(logic.calculate_power_fractions({}), {})
 
+    def test_zeroes(self):
+        self.assertEqual(logic.calculate_power_fractions({1: 0,
+                                                          2: 0,
+                                                          3: 0,
+                                                          4: 0}),
+                         {1: 0.25,
+                          2: 0.25,
+                          3: 0.25,
+                          4: 0.25})
+
+    def test_zeroes__all_except_one(self):
+        self.assertEqual(logic.calculate_power_fractions({1: 0,
+                                                          2: 666,
+                                                          3: 0}),
+                         {1: 0,
+                          2: 1.0,
+                          3: 0})
+
     def test_no_negative_powers(self):
         self.assertEqual(logic.calculate_power_fractions({1: 10 * 2,
                                                           2: 20 * 2,

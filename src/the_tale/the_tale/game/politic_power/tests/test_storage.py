@@ -179,7 +179,7 @@ class PlacesPowerStorageTests(utils_testcase.TestCase):
                                                                 self.places[1].id: 1.0,
                                                                 self.places[2].id: 0.25})
         self.assertEqual(storage.places._outer_power_fraction, {self.places[0].id: 0.5,
-                                                                self.places[1].id: 0,
+                                                                self.places[1].id: 1.0,
                                                                 self.places[2].id: 0.5})
 
     def test_update_fractions__core(self):

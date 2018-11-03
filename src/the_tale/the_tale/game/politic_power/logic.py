@@ -16,7 +16,11 @@ def calculate_power_fractions(all_powers):
     for power in all_powers.values():
         total_power += (power - minimum_power)
 
-    return {power_id: ((current_power - minimum_power) / total_power) if total_power else 0
+    if total_power == 0:
+        return {power_id: 1.0 / len(all_powers)
+                for power_id, current_power in all_powers.items()}
+
+    return {power_id: ((current_power - minimum_power) / total_power)
             for power_id, current_power in all_powers.items()}
 
 
