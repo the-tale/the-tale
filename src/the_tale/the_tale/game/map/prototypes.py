@@ -91,8 +91,8 @@ class MapInfoPrototype(utils_prototypes.BasePrototype):
 
         terrain_percents = dict((id_.value, float(square) / total_cells) for id_, square in terrain_squares.items())
 
-        person_race_percents = map_utils.get_person_race_percents(persons_storage.persons.all())
-        race_percents = map_utils.get_race_percents(places_storage.places.all())
+        person_race_percents = map_logic.get_person_race_percents(persons_storage.persons.all())
+        race_percents = map_logic.get_race_percents(places_storage.places.all())
 
         # race to cities percents
         race_cities = dict((race.value, 0) for race in game_relations.RACE.records)

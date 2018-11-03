@@ -45,3 +45,29 @@ def region_versions_url():
                  'api_client': django_settings.API_CLIENT}
 
     return dext_urls.url('game:map:api-region-versions', **arguments)
+
+
+def get_person_race_percents(persons):
+    race_powers = dict((race.value, 0) for race in game_relations.RACE.records)
+
+    for person in persons:
+        race_powers[person.race.value] += politic_power_storage.persons.total_power_fraction(person.id)
+
+    total_power = sum(race_powers.values())
+
+    if total_power == 0:
+        return {race.value: 1.0 / len(game_relations.RACE.records) for race in game_relations.RACE.records}
+
+    return {race: power / total_power for race, power in race_powers.items()}
+
+
+def get_race_percents(places):
+    race_powers = dict((race.value, 0) for race in game_relations.RACE.records)
+
+    for place in places:
+        for race in game_relations.RACE.records:
+            race_powers[race.value] += place.races.get_race_percents(race) * place.attrs.size
+
+    total_power = sum(race_powers.values()) + 1  # +1 - to prevent division by 0
+
+    return dict((race_id, float(power) / total_power) for race_id, power in race_powers.items())

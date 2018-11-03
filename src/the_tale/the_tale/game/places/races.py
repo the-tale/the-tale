@@ -71,7 +71,7 @@ class Races(object):
 
         next_delta = self.get_next_delta(persons)
 
-        persons_percents = map_utils.get_person_race_percents(persons)
+        persons_percents = map_logic.get_person_race_percents(persons)
 
         for race in game_relations.RACE.records:
             races.append(RaceInfo(race=race, percents=self._races[race], delta=next_delta[race], persons_percents=persons_percents[race.value]))
