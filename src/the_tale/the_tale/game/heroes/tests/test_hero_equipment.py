@@ -645,7 +645,7 @@ class ReceiveArtifactsChoicesTests(_HeroEquipmentTestsBase):
         with mock.patch('the_tale.game.heroes.objects.Hero._receive_artifacts_choices') as receive_artifacts_choices:
             self.hero.receive_artifacts_choices(better=True, prefered_slot=False, prefered_item=True, archetype=True)
         self.assertEqual(receive_artifacts_choices.call_args_list,
-                         [mock.call(better=False, prefered_slot=False, prefered_item=True, archetype=True)])
+                         [mock.call(better=True, prefered_slot=False, prefered_item=True, archetype=False)])
 
         with mock.patch('the_tale.game.heroes.objects.Hero._receive_artifacts_choices') as receive_artifacts_choices:
             self.hero.receive_artifacts_choices(better=True, prefered_slot=False, prefered_item=True, archetype=False)

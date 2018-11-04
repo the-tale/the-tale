@@ -59,7 +59,9 @@ class EquipmentMethodsMixin(object):
         return self.receive_artifacts_choices(**kwargs)
 
     def receive_artifacts_choices(self, better, prefered_slot, prefered_item, archetype):
-        slot_choices = self.receive_artifacts_slots_choices(better=better, prefered_slot=prefered_slot, prefered_item=prefered_item)
+        slot_choices = self.receive_artifacts_slots_choices(better=better,
+                                                            prefered_slot=prefered_slot,
+                                                            prefered_item=prefered_item)
 
         artifacts_choices = self.get_allowed_artifact_types(slots=slot_choices, archetype=archetype)
 
@@ -68,13 +70,11 @@ class EquipmentMethodsMixin(object):
             # remove restrictions
             if prefered_slot:
                 prefered_slot = False
-            # флаг better обнуляется перед archetype, так как:
-            # 1. маловероятно, что архетип влияет на глобальную доступность артефактов (обычно если они доступны, то есть разных архетипов)
-            # 2. сбрасывание архетипа конфликтует с характером героя, поэтому приоритетно его сохранять
-            elif better:
-                better = False
+            # флаг archetype обнуляется перед better, так как на better завязаны некоторые обязательные эффекты, например, у карт судьбы
             elif archetype:
                 archetype = False
+            elif better:
+                better = False
             else:
                 return []
 
@@ -87,7 +87,10 @@ class EquipmentMethodsMixin(object):
 
     def receive_artifact(self, equip, better, prefered_slot, prefered_item, archetype, rarity_type=None, power_bonus=0, level_delta=0):
 
-        artifact_choices = self.receive_artifacts_choices(better=better, prefered_slot=prefered_slot, prefered_item=prefered_item, archetype=archetype)
+        artifact_choices = self.receive_artifacts_choices(better=better,
+                                                          prefered_slot=prefered_slot,
+                                                          prefered_item=prefered_item,
+                                                          archetype=archetype)
 
         if rarity_type is None:
             rarity_type = artifacts_storage.artifacts.get_rarity_type(self)
@@ -267,7 +270,10 @@ class EquipmentMethodsMixin(object):
         for slot in relations.EQUIPMENT_SLOT.records:
             self.equipment.unequip(slot)
 
-            artifacts_list = self.receive_artifacts_choices(better=False, prefered_slot=False, prefered_item=False, archetype=True)
+            artifacts_list = self.receive_artifacts_choices(better=False,
+                                                            prefered_slot=False,
+                                                            prefered_item=False,
+                                                            archetype=True)
 
             artifacts_list = [artifact for artifact in artifacts_list if artifact.type.equipment_slot == slot]
 

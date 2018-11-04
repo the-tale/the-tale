@@ -87,15 +87,18 @@ class ARCHETYPE(rels_django.DjangoEnum):
     description = rels.Column()
     allowed_power_types = rels.Column(no_index=True, unique=False)
 
-    records = (('MAGICAL', 0, 'маг', power.PowerDistribution(0.25, 0.75), 'герой предпочитает магию грубой силе', [artifacts_relations.ARTIFACT_POWER_TYPE.MOST_MAGICAL,
-                                                                                                                   artifacts_relations.ARTIFACT_POWER_TYPE.MAGICAL,
-                                                                                                                   artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL]),
-               ('NEUTRAL', 1, 'авантюрист', power.PowerDistribution(0.5, 0.5), 'герой соблюдает баланс между мечом и магией', [artifacts_relations.ARTIFACT_POWER_TYPE.MAGICAL,
-                                                                                                                               artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                                                                                                                               artifacts_relations.ARTIFACT_POWER_TYPE.PHYSICAL]),
-               ('PHYSICAL', 2, 'воин', power.PowerDistribution(0.75, 0.25), 'герой полагается на воинские умения', [artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL,
-                                                                                                                    artifacts_relations.ARTIFACT_POWER_TYPE.PHYSICAL,
-                                                                                                                    artifacts_relations.ARTIFACT_POWER_TYPE.MOST_PHYSICAL]))
+    records = (('MAGICAL', 0, 'маг', power.PowerDistribution(0.25, 0.75), 'герой предпочитает магию грубой силе',
+                [artifacts_relations.ARTIFACT_POWER_TYPE.MOST_MAGICAL,
+                 artifacts_relations.ARTIFACT_POWER_TYPE.MAGICAL,
+                 artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL]),
+               ('NEUTRAL', 1, 'авантюрист', power.PowerDistribution(0.5, 0.5), 'герой соблюдает баланс между мечом и магией',
+                [artifacts_relations.ARTIFACT_POWER_TYPE.MAGICAL,
+                 artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL,
+                 artifacts_relations.ARTIFACT_POWER_TYPE.PHYSICAL]),
+               ('PHYSICAL', 2, 'воин', power.PowerDistribution(0.75, 0.25), 'герой полагается на воинские умения',
+                [artifacts_relations.ARTIFACT_POWER_TYPE.NEUTRAL,
+                 artifacts_relations.ARTIFACT_POWER_TYPE.PHYSICAL,
+                 artifacts_relations.ARTIFACT_POWER_TYPE.MOST_PHYSICAL]))
 
 
 class SUPERVISOR_TASK_TYPE(rels_django.DjangoEnum):
