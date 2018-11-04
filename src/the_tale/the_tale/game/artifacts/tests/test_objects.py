@@ -341,6 +341,20 @@ class ArtifactTests(utils_testcase.TestCase):
         self.assertEqual(old_integrity, artifact.integrity)
         self.assertTrue(old_max_integrity > artifact.max_integrity)
 
+    def test_sharp__integrity_not_less_then_1(self):
+        artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
+
+        while artifact.integrity != 1:
+            artifact.sharp(distribution=power.PowerDistribution(0.5, 0.5),
+                           max_power=power.Power(3, 3),
+                           force=True)
+
+        artifact.sharp(distribution=power.PowerDistribution(0.5, 0.5),
+                       max_power=power.Power(3, 3),
+                       force=True)
+
+        self.assertEqual(artifact.integrity, 1)
+
     def test_sharp__physic(self):
         artifact = self.artifact_record.create_artifact(level=1, power=power.Power(1, 1))
         artifact.sharp(distribution=power.PowerDistribution(1.0, 0.0), max_power=power.Power(3, 3))

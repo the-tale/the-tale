@@ -142,7 +142,7 @@ ARTIFACT_EPIC_MAX_INTEGRITY_MULTIPLIER = float(2)  # коофициент уве
 ARTIFACT_MAX_INTEGRITY_DELTA = float(0.25)  # разброс допустимой максимальной целостности
 
 ARTIFACT_MAX_INTEGRITY = int(round(_INTEGRITY_LOST_IN_DAY * 30, -3))  # максимальная целостность обычного артефакта
-ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION = float(0.02)  # доля максимальной целостности, теряемая при заточке
+ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION = float(0.04)  # доля максимальной целостности, теряемая при заточке
 ARTIFACT_INTEGRITY_SAFE_BARRIER = float(0.2)  # доля от максимальной целостности, артефакт не может сломаться, если его целостность отличается от максимальной меньше чем на эту долю
 ARTIFACT_BREAK_POWER_FRACTIONS = (float(0.2), float(0.3))  # на сколько артефакт может сломаться за раз
 ARTIFACT_BREAK_INTEGRITY_FRACTIONS = (float(0.1), float(0.2))  # на сколько артефакт может сломаться за раз

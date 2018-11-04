@@ -70,7 +70,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.ARTIFACT_MAX_INTEGRITY_DELTA, 0.25)
 
         self.assertEqual(c.ARTIFACT_MAX_INTEGRITY, 11000)
-        self.assertEqual(c.ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION, 0.02)
+        self.assertEqual(c.ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION, 0.04)
         self.assertEqual(c.ARTIFACT_INTEGRITY_SAFE_BARRIER, 0.2)
         self.assertEqual(c.ARTIFACT_BREAK_POWER_FRACTIONS, (0.2, 0.3))
         self.assertEqual(c.ARTIFACT_BREAK_INTEGRITY_FRACTIONS, (0.1, 0.2))

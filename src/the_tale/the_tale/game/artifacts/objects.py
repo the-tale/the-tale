@@ -149,8 +149,10 @@ class Artifact(object):
 
     def sharp(self, distribution, max_power, force=False):
         choices = []
+
         if force or self.power.physic < max_power.physic:
             choices.append(('physic', distribution.physic))
+
         if force or self.power.magic < max_power.magic:
             choices.append(('magic', distribution.magic))
 
@@ -162,7 +164,16 @@ class Artifact(object):
         else:
             self.power.magic += 1
 
-        self.max_integrity -= int(self.max_integrity * c.ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION)
+        max_integrity_delta = int(self.max_integrity * c.ARTIFACT_SHARP_MAX_INTEGRITY_LOST_FRACTION)
+
+        if max_integrity_delta == 0:
+            max_integrity_delta = 1
+
+        self.max_integrity -= max_integrity_delta
+
+        if self.max_integrity < 1:
+            self.max_integrity = 1
+
         self.integrity = min(self.integrity, self.max_integrity)
 
         return True
