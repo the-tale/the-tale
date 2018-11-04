@@ -50,6 +50,22 @@ class AddPersonPowerMixin(helpers.CardsTestMixin):
             self.assertTrue(impacts[0].actor_type.is_HERO)
             self.assertEqual(impacts[0].actor_id, self.hero.id)
 
+            impacts = politic_power_logic.get_last_power_impacts(limit=100, storages=[game_tt_services.job_impacts])
+
+            self.assertEqual(len(impacts), 1)
+
+            self.assertEqual(impacts[0].amount, self.CARD.effect.modificator)
+            self.assertTrue(impacts[0].type.is_JOB)
+
+            if direction > 0:
+                self.assertTrue(impacts[0].target_type.is_JOB_PERSON_POSITIVE)
+            else:
+                self.assertTrue(impacts[0].target_type.is_JOB_PERSON_NEGATIVE)
+
+            self.assertEqual(impacts[0].target_id, person.id)
+            self.assertTrue(impacts[0].actor_type.is_HERO)
+            self.assertEqual(impacts[0].actor_id, self.hero.id)
+
     def test_no_person(self):
         for direction in (-1, 1):
             card = self.CARD.effect.create_card(type=self.CARD,

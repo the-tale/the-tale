@@ -653,7 +653,10 @@ class AddPersonPower(ModificatorBase):
         impacts = [game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                               hero_id=task.hero.id,
                                                               person_id=person_id,
-                                                              amount=delta)]
+                                                              amount=delta),
+                   game_tt_services.PowerImpact.hero_2_person_job(hero_id=task.hero.id,
+                                                                  person_id=person_id,
+                                                                  amount=delta)]
 
         politic_power_logic.add_power_impacts(impacts)
 
@@ -717,7 +720,10 @@ class AddPlacePower(ModificatorBase):
         impacts = [game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                              hero_id=task.hero.id,
                                                              place_id=place_id,
-                                                             amount=delta)]
+                                                             amount=delta),
+                   game_tt_services.PowerImpact.hero_2_place_job(hero_id=task.hero.id,
+                                                                 place_id=place_id,
+                                                                 amount=delta)]
 
         politic_power_logic.add_power_impacts(impacts)
 

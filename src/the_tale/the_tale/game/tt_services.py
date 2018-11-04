@@ -46,6 +46,22 @@ class PowerImpact(tt_api_impacts.Impact):
                    transaction=transaction)
 
     @classmethod
+    def hero_2_person_job(cls, hero_id, person_id, amount, turn=None, transaction=None):
+        target_type = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE
+
+        if amount < 0:
+            target_type = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE
+
+        return cls(type=game_tt_services.IMPACT_TYPE.JOB,
+                   actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                   actor_id=hero_id,
+                   target_type=target_type,
+                   target_id=person_id,
+                   amount=abs(amount),
+                   turn=turn,
+                   transaction=transaction)
+
+    @classmethod
     def hero_2_place(cls, type, hero_id, place_id, amount, turn=None, transaction=None):
         return cls(type=type,
                    actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
@@ -53,6 +69,22 @@ class PowerImpact(tt_api_impacts.Impact):
                    target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                    target_id=place_id,
                    amount=amount,
+                   turn=turn,
+                   transaction=transaction)
+
+    @classmethod
+    def hero_2_place_job(cls, hero_id, place_id, amount, turn=None, transaction=None):
+        target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE
+
+        if amount < 0:
+            target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE
+
+        return cls(type=game_tt_services.IMPACT_TYPE.JOB,
+                   actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                   actor_id=hero_id,
+                   target_type=target_type,
+                   target_id=place_id,
+                   amount=abs(amount),
                    turn=turn,
                    transaction=transaction)
 
