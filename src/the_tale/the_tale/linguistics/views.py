@@ -54,9 +54,15 @@ class LinguisticsResource(utils_resources.Resource):
         groups_keys = {group: sorted([key for key in lexicon_keys.LEXICON_KEY.records if group == key.group], key=lambda key: key.text)
                        for group in lexicon_groups_relations.LEXICON_GROUP.records}
 
+        extra_rewards = [(key, conf.settings.SPECIAL_CARDS_REWARDS[key.name])
+                         for key in lexicon_keys.LEXICON_KEY.records
+                         if key.name.upper() in conf.settings.SPECIAL_CARDS_REWARDS]
+        extra_rewards.sort(key=lambda pair: pair[0].text)
+
         return self.template('linguistics/index.html',
                              {'GROUPS': sorted(lexicon_groups_relations.LEXICON_GROUP.records, key=lambda group: group.text),
                               'LEXICON_KEY': lexicon_keys.LEXICON_KEY,
+                              'extra_rewards': extra_rewards,
                               'groups_count': groups_count,
                               'keys_count': keys_count,
                               'groups_keys': groups_keys,

@@ -10,11 +10,6 @@
   На этой странице находится список типов фраз, разбитых по ситуациям, в которых они встречаются. Каждый тип фразы имеет краткое описание, пример и список «переменных», которые в ней можно использовать. «Переменная» — это игровой объект, к которому относится фраза (примеры переменных: герой, монстр, артефакт, противник). Если вам кажется, что в одном из типов фраз не хватает переменных, сообщите об этом разработчикам — может быть о них просто забыли.
 </p>
 
-<p>
-  <strong>Автор каждой принятой в игру фразы получает случайную карту судьбы, которую можно продать на рынке.</strong>
-</p>
-
-
 <div class="accordion" id="pgf-help-accordion">
 
   <div class="accordion-group">
@@ -26,6 +21,47 @@
     <div id="pgf-templates-description" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner">
         {% include "linguistics/templates/templates_description.html" %}
+      </div>
+    </div>
+</div>
+
+
+<h3>Награды</h3>
+
+<p>
+  Автор каждой принятой в игру фразы получает случайную карту судьбы, которую можно продать на рынке.
+</p>
+
+<p>
+  За добавление некоторых типов фраз положена дополнительная награда.
+</p>
+
+<div class="accordion" id="pgf-rewards-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-rewards-accordion" href="#pgf-rewards-description">
+        Фразы с увеличеными наградами
+      </a>
+    </div>
+    <div id="pgf-rewards-description" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        <table class="table table-bordered table-condensed table-no-highlighting">
+          <tr>
+            <th>группа</th>
+            <th>тип</th>
+            <th>описание</th>
+            <th>количество карт</th>
+          </tr>
+          {% for key, cards_number in extra_rewards %}
+          <tr>
+            <td>{{key.group.text}}</td>
+            <td><a href="{{url('linguistics:templates:', key=key.value)}}">{{key.text }}</a></td>
+            <td>{{key.description}}</td>
+            <td>{{cards_number}}</td>
+          <tr/>
+          {% endfor %}
+        </table>
       </div>
     </div>
 </div>

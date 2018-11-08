@@ -285,14 +285,18 @@ def give_reward_for_template(template):
     if not updated:
         return
 
+    cards_number = conf.settings.SPECIAL_CARDS_REWARDS.get(template.key.name.upper(), conf.settings.DEFAULT_CARDS_REWARDS)
+
     cards_logic.give_new_cards(account_id=template.author_id,
                                operation_type='give-card-for-linguistic-template',
                                allow_premium_cards=True,
-                               available_for_auction=True)
+                               available_for_auction=True,
+                               number=cards_number)
 
-    message = '''Поздравляем! Ваша [url={template}]фраза[/url] добавлена в игру!\n\nВ награду вы можете получить дополнительную карту судьбы (на странице игры). Карту можно будет продать на рынке.'''
+    message = '''Поздравляем! Ваша [url={template}]фраза[/url] добавлена в игру!\n\nВ награду вы можете получить дополнительные карты судьбы (на странице игры, в количестве {cards_number} шт.). Карты можно будет продать на рынке.'''
 
-    message = message.format(template=dext_urls.full_url('https', 'linguistics:templates:show', template.id))
+    message = message.format(template=dext_urls.full_url('https', 'linguistics:templates:show', template.id),
+                             cards_number=cards_number)
 
     personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                          recipients_ids=[template.author_id],

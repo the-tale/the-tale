@@ -18,4 +18,9 @@ settings = dext_app_settings.app_settings('LINGUISTICS_SETTINGS',
                                           EXAMPLES_URL=django_reverse_lazy('forum:threads:show', args=[3917]),
                                           RULES_URL=django_reverse_lazy('forum:threads:show', args=[3868]),
 
+                                          DEFAULT_CARDS_REWARDS=1,
+                                          SPECIAL_CARDS_REWARDS={'HERO_HISTORY_BIRTH': 10,
+                                                                 'HERO_HISTORY_CHILDHOOD': 10,
+                                                                 'HERO_HISTORY_DEATH': 10},
+
                                           LINGUISTICS_MANAGER_UPDATE_DELAY=datetime.timedelta(minutes=1))

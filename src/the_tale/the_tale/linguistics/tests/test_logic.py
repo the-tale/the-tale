@@ -606,9 +606,26 @@ class GiveRewardForTemplateTests(utils_testcase.TestCase):
                     with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_4.id))):
                         logic.give_reward_for_template(self.template_2)
 
-        card = list(cards_tt_services.storage.cmd_get_items(self.account_2.id).values())[0]
+        cards = list(cards_tt_services.storage.cmd_get_items(self.account_2.id).values())
+
+        self.assertEqual(len(cards), 1)
+
+        card = cards[0]
 
         self.assertTrue(card.available_for_auction)
+
+    def test_give_cards__increased_reward(self):
+        with mock.patch('the_tale.linguistics.conf.settings.SPECIAL_CARDS_REWARDS', {self.template_2.key.name.upper(): 13}):
+            with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_1.id))):
+                with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_2.id)), 13):
+                    with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_3.id))):
+                        with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_4.id))):
+                            logic.give_reward_for_template(self.template_2)
+
+        cards = list(cards_tt_services.storage.cmd_get_items(self.account_2.id).values())
+
+        self.assertEqual(len(cards), 13)
+        self.assertTrue(all(card.available_for_auction for card in cards))
 
     def test_give_message(self):
         with self.check_not_changed(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account_1.id)):
