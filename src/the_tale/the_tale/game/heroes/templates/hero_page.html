@@ -25,11 +25,11 @@ jQuery(document).ready(function(e){
         updater.Refresh({% if is_owner %}true{% else %}false{% endif %});
     }, 0);
 
-    pgf.base.InitializeTabs('hero-tab-main', 'attributes', [['.pgf-attributes-tab-button', 'attributes'],
-                                                            ['.pgf-politics-tab-button', 'politics'],
-                                                            ['.pgf-statistics-tab-button', 'statistics'],
-                                                            ['.pgf-folclor-tab-button', 'folclor'],
-                                                            ['.pgf-settings-tab-button', 'settings']]);
+    pgf.base.InitializeTabs('hero-tab-main', 'about', [['.pgf-about-tab-button', 'about'],
+                                                       ['.pgf-attributes-tab-button', 'attributes'],
+                                                       ['.pgf-politics-tab-button', 'politics'],
+                                                       ['.pgf-statistics-tab-button', 'statistics'],
+                                                       ['.pgf-settings-tab-button', 'settings']]);
 
     pgf.base.ToggleWait(jQuery(".pgf-hero-data-wait"), true);
 });
@@ -57,14 +57,14 @@ jQuery(document).ready(function(e){
   <div class="span8">
 
     <ul class="nav nav-tabs">
+      <li class=""><a href="#pgf-about-container" class="pgf-about-tab-button" data-toggle="tab">О герое</a></li>
       <li class=""><a href="#pgf-attributes-container" class="pgf-attributes-tab-button" data-toggle="tab">Атрибуты</a></li>
       <li class=""><a href="#pgf-politics-container" class="pgf-politics-tab-button" data-toggle="tab">Политика</a></li>
       <li class=""><a href="#pgf-statistics-container" class="pgf-statistics-tab-button" data-toggle="tab">Статистика</a></li>
-      <li class=""><a href="#pgf-folclor-container" class="pgf-folclor-tab-button" data-toggle="tab">Фольклор</a></li>
       {% if is_owner %}
       <li class="">
         <a href="#pgf-settings-container" class="pgf-settings-tab-button" data-toggle="tab">
-          Настройки {% if not resource.hero.settings_approved %}<span class="label label-important pgf-settings-approved-warning">подтвердите параметры героя</span>{% endif %}
+          Настройки
         </a>
       </li>
       {% endif %}
@@ -85,6 +85,13 @@ jQuery(document).ready(function(e){
     </ul>
 
     <div class="row tab-content">
+
+      <div class="tab-pane" id="pgf-about-container">
+        <div class="span8">
+          {% include "heroes/hero_about.html" with context %}
+        </div>
+      </div>
+
       <div class="tab-pane" id="pgf-attributes-container">
         <div class="span4">
           {% include "heroes/hero_abilities.html" with context %}
@@ -104,12 +111,6 @@ jQuery(document).ready(function(e){
       <div class="tab-pane" id="pgf-statistics-container">
         <div class="span8">
           {% include "heroes/hero_statistics.html" with context %}
-        </div>
-      </div>
-
-      <div class="tab-pane" id="pgf-folclor-container">
-        <div class="span8">
-          {% include "heroes/hero_folclor.html" with context %}
         </div>
       </div>
 

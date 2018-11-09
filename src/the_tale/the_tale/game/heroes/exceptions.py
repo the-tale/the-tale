@@ -34,3 +34,7 @@ class SlotAlreadyBusy(EquipmentError):
 
 class UnknownSlot(EquipmentError):
     MSG = 'unknown slot "{slot}"'
+
+
+class HeroAttributeRequiredError(HeroError):
+    MGSG = 'hero attributes required: {attributes}'

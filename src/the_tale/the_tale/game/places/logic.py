@@ -389,3 +389,15 @@ def add_fame(hero_id, fames):
 def sync_fame():
     game_tt_services.fame_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PLACE],
                                                     scale=c.PLACE_FAME_REDUCE_FRACTION)
+
+
+def get_start_place_for_race(race):
+    choices = [place for place in storage.places.all() if not place.is_frontier]
+    choices.sort(key=lambda place: -place.attrs.safety)
+
+    choices = choices[:int(len(choices) * conf.settings.START_PLACE_SAFETY_PERCENTAGE) + 1]
+
+    if any(place.race == race for place in choices):
+        choices = [place for place in choices if place.race == race]
+
+    return choices[0]

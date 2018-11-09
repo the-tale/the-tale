@@ -71,16 +71,9 @@ class IndexRequestTests(utils_testcase.TestCase):
         response = self.client.get(dext_urls.url('portal:'))
         self.assertEqual(response.status_code, 200)
 
-    @mock.patch('the_tale.portal.conf.settings.FIRST_TIME_LANDING_URLS', ['/x', '/x'])
-    def test_first_time_redirect(self):
-        with mock.patch('the_tale.portal.conf.settings.ENABLE_FIRST_TIME_REDIRECT', True):
-            with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: True):
-                self.check_redirect('/', '/x')
-            with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: False):
-                self.check_html_ok(self.request_html('/'))
+    def test_first_time(self):
+        with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: True):
+            self.check_html_ok(self.request_html('/'), texts=[('pgf-first-time-introduction', 1)])
 
-        with mock.patch('the_tale.portal.conf.settings.ENABLE_FIRST_TIME_REDIRECT', False):
-            with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: True):
-                self.check_html_ok(self.request_html('/'))
-            with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: False):
-                self.check_html_ok(self.request_html('/'))
+        with mock.patch('the_tale.accounts.logic.is_first_time_visit', lambda request: False):
+            self.check_html_ok(self.request_html('/'), texts=[('pgf-first-time-introduction', 0)])

@@ -244,21 +244,30 @@ class HeroHistoryTests(RequestTestsBase):
 
         return template
 
+    @mock.patch('the_tale.game.heroes.conf.settings.NAME_MIN_LENGHT', 0)
     def test_success__full_restrictions(self):
         post_data = {key: value.value for key, value in self.properties_1.items()}
-        post_data['name'] = 'x,x,x,x,x,x'
+        post_data['name'] = 'а,б,в,г,д,е'
 
         data = self.check_ajax_ok(self.post_ajax_json(logic.game_hero_history_url(), data=post_data))
 
         self.assertEqual(data['story'], ['history.1', 'history.3', 'history.4'])
 
+    @mock.patch('the_tale.game.heroes.conf.settings.NAME_MIN_LENGHT', 0)
     def test_success__missed_tempaltes(self):
         post_data = {key: value.value for key, value in self.properties_2.items()}
-        post_data['name'] = 'x,x,x,x,x,x'
+        post_data['name'] = 'а,б,в,г,д,е'
 
         data = self.check_ajax_ok(self.post_ajax_json(logic.game_hero_history_url(), data=post_data))
 
         self.assertEqual(data['story'], ['history.2', None, 'history.5'])
+
+    def test_success__name_errors(self):
+        post_data = {key: value.value for key, value in self.properties_1.items()}
+        post_data['name'] = 'a,b,c,d,e,f'
+
+        self.check_ajax_error(self.post_ajax_json(logic.game_hero_history_url(), data=post_data),
+                              'name.wrong_format')
 
 
 class HeroHistoryStatusTests(RequestTestsBase):

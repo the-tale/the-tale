@@ -4,60 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-REGISTRATION_TASK_STATE = utils_enum.create_enum('REGISTRATION_TASK_STATE', (('UNPROCESSED', 0, 'ожидает обработки'),
-                                                                             ('PROCESSED', 1, 'обработкана'),
-                                                                             ('UNKNOWN_ERROR', 2, 'неизвестная ошибка')))
-
-
-class RegistrationTask(PostponedLogic):
-
-    TYPE = 'registration'
-
-    def __init__(self, account_id, referer, referral_of_id, action_id, state=REGISTRATION_TASK_STATE.UNPROCESSED):
-        super(RegistrationTask, self).__init__()
-        self.account_id = account_id
-        self.referer = referer
-        self.referral_of_id = referral_of_id
-        self.action_id = action_id
-        self.state = state
-
-    def serialize(self):
-        return {'state': self.state,
-                'account_id': self.account_id,
-                'referer': self.referer,
-                'referral_of_id': self.referral_of_id,
-                'action_id': self.action_id}
-
-    @property
-    def error_message(self): return REGISTRATION_TASK_STATE._CHOICES[self.state][1]
-
-    @utils_decorators.lazy_property
-    def account(self): return prototypes.AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
-
-    def get_unique_nick(self):
-        return uuid.uuid4().hex[:prototypes.AccountPrototype._model_class.MAX_NICK_LENGTH]
-
-    @property
-    def processed_data(self): return {'next_url': django_reverse('game:')}
-
-    def process(self, main_task):
-        with django_transaction.atomic():
-
-            result, account_id, bundle_id = logic.register_user(nick=self.get_unique_nick(), referer=self.referer, referral_of_id=self.referral_of_id, action_id=self.action_id)
-
-            if result != logic.REGISTER_USER_RESULT.OK:
-                main_task.comment = 'unknown error'
-                self.state = REGISTRATION_TASK_STATE.UNKNOWN_ERROR
-                return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
-        amqp_environment.environment.workers.supervisor.cmd_register_new_account(account_id)
-
-        self.state = REGISTRATION_TASK_STATE.PROCESSED
-        self.account_id = int(account_id)
-
-        return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
-
-
 class CHANGE_CREDENTIALS_STATE(rels_django.DjangoEnum):
     records = (('UNPROCESSED', 1, 'необработана'),
                ('PROCESSED', 2, 'обработана'),

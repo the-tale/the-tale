@@ -3,6 +3,7 @@
 {% import 'news/macros.html' as news_macros with context %}
 {% import 'portal/macros.html' as portal_macros with context %}
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'portal/landing_intro.html' as landing_intro_macros with context %}
 
 {% block title %}{{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}{{super()}}{% endblock %}
@@ -71,6 +72,21 @@ jQuery(document).ready(function(e){
 
 
 {% block content %}
+
+{% if first_time_visit %}
+<div class="row" class="pgf-first-time-introduction">
+  <div class="span12" style="min-height: 50px;">
+    <div class="alert alert-info">
+    <h2>
+      Первый раз в Cказке? <small><a href="{{url('guide:game')}}">Узнайте больше про игру!</a></small>
+    </h2>
+
+    {{ landing_intro_macros.intro(map_button=true) }}
+
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <div class="row">
   <div class="span3" style="min-height: 50px;">&nbsp;</div>

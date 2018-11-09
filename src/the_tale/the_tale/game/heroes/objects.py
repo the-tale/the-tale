@@ -28,7 +28,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'premium_state_end_at',
                  'ban_state_end_at',
                  'last_rare_operation_at_turn',
-                 'settings_approved',
 
                  'force_save_required',
                  'last_help_on_turn',
@@ -99,7 +98,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  premium_state_end_at,
                  ban_state_end_at,
                  last_rare_operation_at_turn,
-                 settings_approved,
                  actual_bills,
                  utg_name,
                  upbringing,
@@ -173,7 +171,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.premium_state_end_at = premium_state_end_at
         self.ban_state_end_at = ban_state_end_at
         self.last_rare_operation_at_turn = last_rare_operation_at_turn
-        self.settings_approved = settings_approved
 
         self.upbringing = upbringing
         self.death_age = death_age

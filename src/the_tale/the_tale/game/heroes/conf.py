@@ -45,4 +45,6 @@ settings = dext_app_settings.app_settings('HEROES',
                                           POWER_PER_ACTIVE_BILL=1.5,
                                           ACTIVE_BILLS_MAXIMUM=4,
 
-                                          TT_DIARY_ENTRY_POINT='http://localhost:10001/')
+                                          TT_DIARY_ENTRY_POINT='http://localhost:10001/',
+
+                                          MAX_HERO_DESCRIPTION_LENGTH=10000)

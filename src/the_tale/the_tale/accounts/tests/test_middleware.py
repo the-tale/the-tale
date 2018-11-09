@@ -16,52 +16,6 @@ class RegistrationMiddlewareTests(utils_testcase.TestCase):
         self.referral_link = '/?%s=%d' % (conf.settings.REFERRAL_URL_ARGUMENT, self.account.id)
         self.action_link = '/?%s=action' % conf.settings.ACTION_URL_ARGUMENT
 
-    def test_handle_registration__not_anonymous(self):
-        with mock.patch('the_tale.accounts.logic.login_user') as login_user:
-            result = self.middleware.handle_registration(self.make_request_html('/',
-                                                                                session={conf.settings.SESSION_REGISTRATION_TASK_ID_KEY: 666},
-                                                                                user=self.account._model))
-
-        self.assertTrue(result.is_NOT_ANONYMOUS)
-        self.assertEqual(login_user.call_count, 0)
-
-    def test_handle_registration__no_data_in_session(self):
-        with mock.patch('the_tale.accounts.logic.login_user') as login_user:
-            result = self.middleware.handle_registration(self.make_request_html('/'))
-
-        self.assertTrue(result.is_NO_TASK_ID)
-        self.assertEqual(login_user.call_count, 0)
-
-    def test_handle_registration__no_task(self):
-        with mock.patch('the_tale.accounts.logic.login_user') as login_user:
-            result = self.middleware.handle_registration(self.make_request_html('/', session={conf.settings.SESSION_REGISTRATION_TASK_ID_KEY: 666}))
-
-        self.assertTrue(result.is_TASK_NOT_FOUND)
-        self.assertEqual(login_user.call_count, 0)
-
-    def test_handle_registration__task_not_processed(self):
-        registration_task = postponed_tasks.RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id=None)
-        task = PostponedTaskPrototype.create(registration_task)
-
-        with mock.patch('the_tale.accounts.logic.login_user') as login_user:
-            result = self.middleware.handle_registration(self.make_request_html('/', session={conf.settings.SESSION_REGISTRATION_TASK_ID_KEY: task.id}))
-
-        self.assertTrue(result.is_TASK_NOT_PROCESSED)
-        self.assertEqual(login_user.call_count, 0)
-
-    def test_handle_registration__task_processed(self):
-        # self.request_login('test_user@test.com')
-
-        registration_task = postponed_tasks.RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id=None)
-        task = PostponedTaskPrototype.create(registration_task)
-        task.process(logger=mock.Mock)
-
-        with mock.patch('the_tale.accounts.logic.login_user') as login_user:
-            result = self.middleware.handle_registration(self.make_request_html('/', session={conf.settings.SESSION_REGISTRATION_TASK_ID_KEY: task.id}))
-
-        self.assertTrue(result.is_USER_LOGINED)
-        self.assertEqual(login_user.call_count, 1)
-
     def test_handle_referer__not_anonymous(self):
         result = self.middleware.handle_referer(self.make_request_html('/', user=self.account._model, meta={'HTTP_REFERER': 'example.com'}))
         self.assertTrue(result.is_NOT_ANONYMOUS)

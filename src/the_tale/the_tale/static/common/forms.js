@@ -198,15 +198,24 @@ pgf.forms.Post = function(params) {
     if (params.wait) {
         pgf.ui.dialog.wait("start");
     }
-    jQuery.ajax({
-        dataType: 'json',
-        type: params.type,
-        url: params.action,
-        data: params.data,
-        success: OnSuccess,
-        error: OnError,
-        complete: OnComplete
-    });
+
+    var ajaxArguments = {dataType: 'json',
+                         type: params.type,
+                         url: params.action,
+                         data: params.data,
+                         success: OnSuccess,
+                         error: OnError,
+                         complete: OnComplete}
+
+    if ('contentType' in params) {
+        ajaxArguments.contentType = params.contentType;
+    }
+
+    if ('processData' in params) {
+        ajaxArguments.processData = params.processData;
+    }
+
+    jQuery.ajax(ajaxArguments);
 };
 
 

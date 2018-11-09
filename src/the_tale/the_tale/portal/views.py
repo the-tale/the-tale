@@ -7,10 +7,6 @@ class PortalResource(utils_resources.Resource):
 
     @dext_old_views.handler('', method='get')
     def index(self):
-
-        if conf.settings.ENABLE_FIRST_TIME_REDIRECT and accounts_logic.is_first_time_visit(self.request):
-            return self.redirect(random.choice(conf.settings.FIRST_TIME_LANDING_URLS))
-
         news = news_logic.load_news_from_query(news_models.News.objects.all().order_by('-created_at')[:conf.settings.NEWS_ON_INDEX])
 
         account_of_the_day_id = dext_settings.settings.get(conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY)
@@ -72,7 +68,8 @@ class PortalResource(utils_resources.Resource):
                               'TERRAIN': map_relations.TERRAIN,
                               'MAP_STATISTICS': map_relations.MAP_STATISTICS,
                               'chronicle_records': events,
-                              'RACE': game_relations.RACE})
+                              'RACE': game_relations.RACE,
+                              'first_time_visit': accounts_logic.is_first_time_visit(self.request)})
 
     @dext_old_views.handler('search')
     def search(self):

@@ -167,6 +167,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.ABILITIES_FOR_CHOOSE_MAXIMUM, 4)
 
         self.assertEqual(c.HABITS_BORDER, 1000)
+        self.assertEqual(c.HABITS_NEW_HERO_POINTS, 200)
         self.assertEqual(c.HABITS_RIGHT_BORDERS, [-700, -300, -100, 100, 300, 700, 1001])
         self.assertEqual(c.HABITS_QUEST_ACTIVE_DELTA, 20.0)
         self.assertEqual(c.HABITS_QUEST_PASSIVE_DELTA, 1.0)

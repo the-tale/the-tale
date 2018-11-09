@@ -102,7 +102,8 @@ class ChangeHeroTask(PostponedLogic):
                 'state': self.state.value}
 
     @property
-    def error_message(self): return self.state.text
+    def error_message(self):
+        return self.state.text
 
     def process(self, main_task, storage):
 
@@ -111,7 +112,6 @@ class ChangeHeroTask(PostponedLogic):
         hero.set_utg_name(self.name)
         hero.gender = self.gender
         hero.race = self.race
-        hero.settings_approved = True
 
         hero.reset_accessors_cache()
 

@@ -22,7 +22,7 @@ jQuery(document).ready(function(e) {
 {% macro equip_record(slot) %}
   <tr class="equip-record pgf-equip-record pgf-slot-{{slot.value}}">
     <td width="20px"><i class="game-ui-icon {{slot.name|lower}}"></i></td>
-    <td class="name pgf-name"></td>
+    <td class="name pgf-name">—</td>
     <td width="50px">
       <span class="power-container pgf-power-container pgf-hidden">
         <span class="pgf-physic-power power physic-label"></span> <span class="pgf-magic-power power magic-label"></span>

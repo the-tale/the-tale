@@ -4,14 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-class HANDLE_REGISTRATION_RESULT(rels_django.DjangoEnum):
-    records = (('NOT_ANONYMOUS', 0, 'пользователь уже зарегистрирован'),
-               ('NO_TASK_ID', 1, 'нет идентификатора задач'),
-               ('TASK_NOT_FOUND', 2, 'задача не найдена'),
-               ('TASK_NOT_PROCESSED', 4, 'задача не обработана'),
-               ('USER_LOGINED', 5, 'пользователь залогинен'))
-
-
 class HANDLE_REFERER_RESULT(rels_django.DjangoEnum):
     records = (('NOT_ANONYMOUS', 0, 'пользователь уже зарегистрирован'),
                ('SAVED', 1, 'реферер сохранён'),
@@ -37,26 +29,6 @@ class RegistrationMiddleware(object):
 
     def __init__(self, get_response):
         self.get_response = get_response
-
-    def handle_registration(self, request):
-
-        if not request.user.is_anonymous:
-            return HANDLE_REGISTRATION_RESULT.NOT_ANONYMOUS
-
-        if conf.settings.SESSION_REGISTRATION_TASK_ID_KEY not in request.session:
-            return HANDLE_REGISTRATION_RESULT.NO_TASK_ID
-
-        task_id = request.session[conf.settings.SESSION_REGISTRATION_TASK_ID_KEY]
-        task = PostponedTaskPrototype.get_by_id(task_id)
-
-        if task is None:
-            return HANDLE_REGISTRATION_RESULT.TASK_NOT_FOUND
-
-        if not task.state.is_processed:
-            return HANDLE_REGISTRATION_RESULT.TASK_NOT_PROCESSED
-
-        logic.login_user(request, nick=task.internal_logic.account.nick, password=conf.settings.FAST_REGISTRATION_USER_PASSWORD)
-        return HANDLE_REGISTRATION_RESULT.USER_LOGINED
 
     def handle_referer(self, request):
         if not request.user.is_anonymous:
@@ -106,7 +78,6 @@ class RegistrationMiddleware(object):
         return HANDLE_ACTION_RESULT.SAVED
 
     def __call__(self, request):
-        self.handle_registration(request)
         self.handle_referer(request)
         self.handle_referral(request)
         self.handle_action(request)

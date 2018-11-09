@@ -144,7 +144,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 <p><a href="{url}" target="_blank">подробнее</p>
                                       '''.format(url=conf.settings.LORE_DWARFS),
                                       buttons=[Button('Дварф', 'race:dwarf,gender:male'),
-                                               Button('Дварфка', 'race:dwarf,gender:female')]),
+                                               Button('Дварфийка', 'race:dwarf,gender:female')]),
 
                                   Tab(value='human',
                                       title='Люди',

@@ -286,3 +286,76 @@ class PlaceJobTests(utils_testcase.TestCase):
     def test_get_effects_priorities(self):
         self.assertEqual(self.job.get_effects_priorities(self.place_1.id),
                          {effect: 1 for effect in jobs_effects.EFFECT.records})
+
+
+class GetStartPlaceForRaceTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.places = list(game_logic.create_test_map())
+        self.races = {place.race for place in self.places}
+
+        self.assertTrue(len(self.places), 3)
+
+    def test_no_frontier(self):
+        unexisted_race = game_relations.RACE.random(exclude=self.races)
+
+        for target_place in self.places:
+            for place in self.places:
+                place.is_frontier = (place.id != target_place.id)
+
+            found_place = logic.get_start_place_for_race(unexisted_race)
+
+            self.assertEqual(found_place.id, target_place.id)
+
+    def test_best_security(self):
+        unexisted_race = game_relations.RACE.random(exclude=self.races)
+
+        for place in self.places:
+            place.is_frontier = False
+            place.attrs.safety = random.uniform(0, 1)
+
+        found_place = logic.get_start_place_for_race(unexisted_race)
+
+        self.assertTrue(all(place.attrs.safety <= found_place.attrs.safety
+                            for place in self.places))
+
+    @mock.patch('the_tale.game.places.conf.settings.START_PLACE_SAFETY_PERCENTAGE', 1.0)
+    def test_filter_by_race(self):
+        race = game_relations.RACE.random()
+
+        for place in self.places:
+            place.is_frontier = False
+
+        self.places[0].race = race
+        self.places[0].attrs.safety = 0.1
+
+        self.places[1].race = game_relations.RACE.random(exclude=[race])
+        self.places[1].attrs.safety = 1.0
+
+        self.places[2].race = race
+        self.places[2].attrs.safety = 0.2
+
+        found_place = logic.get_start_place_for_race(race)
+
+        self.assertEqual(found_place.id, self.places[2].id)
+
+    @mock.patch('the_tale.game.places.conf.settings.START_PLACE_SAFETY_PERCENTAGE', 0.2)
+    def test_filter_by_race__after_safety_limitation(self):
+        race = game_relations.RACE.random()
+
+        for place in self.places:
+            place.is_frontier = False
+
+        self.places[0].race = race
+        self.places[0].attrs.safety = 0.1
+
+        self.places[1].race = game_relations.RACE.random(exclude=[race])
+        self.places[1].attrs.safety = 1.0
+
+        self.places[2].race = race
+        self.places[2].attrs.safety = 0.2
+
+        found_place = logic.get_start_place_for_race(race)
+
+        self.assertEqual(found_place.id, self.places[1].id)

@@ -20,5 +20,10 @@ def logout_url():
 
 
 @dext_jinja2.jinjaglobal
+def register_url():
+    return dext_jinja2.Markup(logic.register_url())
+
+
+@dext_jinja2.jinjaglobal
 def forum_complaint_theme():
     return conf.settings.FORUM_COMPLAINT_THEME

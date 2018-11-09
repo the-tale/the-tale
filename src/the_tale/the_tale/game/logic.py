@@ -355,8 +355,13 @@ def clans_info(accounts_data):
             for clan in clans_logic.load_clans(list(clans_ids))}
 
 
+def hero_name_from_forms(name_forms, gender):
+    return lexicon_dictionary.noun(name_forms + [''] * 6,
+                                   'мр,од,ед' if gender.is_MALE else 'жр,од,ед')
+
+
 def generate_history(name_forms, gender, race, honor, peacefulness, archetype, upbringing, first_death, age):
-    name = lexicon_dictionary.noun(name_forms + [''] * 6, 'мр,од,ед' if gender.is_MALE else 'жр,од,ед')
+    name = hero_name_from_forms(name_forms, gender)
 
     restrictions = (linguistics_restrictions.get(gender),
                     linguistics_restrictions.get(race),

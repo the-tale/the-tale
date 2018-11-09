@@ -360,68 +360,106 @@ def transfer_money(context):
     return dext_views.AjaxProcessing(task.status_url)
 
 
-def create_registration_task(session):
-    if conf.settings.SESSION_REGISTRATION_TASK_ID_KEY in session:
-
-        task_id = session[conf.settings.SESSION_REGISTRATION_TASK_ID_KEY]
-        task = PostponedTaskPrototype.get_by_id(task_id)
-
-        if task is not None and (task.state.is_processed or task.state.is_waiting):
-            return task
-
-    referer = None
-    if conf.settings.SESSION_REGISTRATION_REFERER_KEY in session:
-        referer = session[conf.settings.SESSION_REGISTRATION_REFERER_KEY]
-
-    referral_of_id = None
-    if conf.settings.SESSION_REGISTRATION_REFERRAL_KEY in session:
-        referral_of_id = session[conf.settings.SESSION_REGISTRATION_REFERRAL_KEY]
-
-    action_id = None
-    if conf.settings.SESSION_REGISTRATION_ACTION_KEY in session:
-        action_id = session[conf.settings.SESSION_REGISTRATION_ACTION_KEY]
-
-    registration_task = postponed_tasks.RegistrationTask(account_id=None,
-                                                         referer=referer,
-                                                         referral_of_id=referral_of_id,
-                                                         action_id=action_id)
-
-    task = PostponedTaskPrototype.create(registration_task,
-                                         live_time=conf.settings.REGISTRATION_TIMEOUT)
-
-    session[conf.settings.SESSION_REGISTRATION_TASK_ID_KEY] = task.id
-
-    amqp_environment.environment.workers.registration.cmd_task(task.id)
-
-    return task
-
-
-@registration_resource('fast', method='POST')
-def fast_post(context):
-
-    if context.account.is_authenticated:
-        raise dext_views.ViewError(code='accounts.registration.fast.already_registered',
-                                   message='Вы уже зарегистрированы')
-
-    task = create_registration_task(context.django_request.session)
-
-    if task.state.is_processed:
-        raise dext_views.ViewError(code='accounts.registration.fast.already_processed',
-                                   message='Вы уже зарегистрированы, обновите страницу')
-
-    return dext_views.AjaxProcessing(task.status_url)
-
-
 @registration_resource('create-hero', method='GET')
 def create_hero_view(context):
 
-    # if context.account.is_authenticated:
-    #     raise dext_views.ViewError(code='accounts.create_hero.already_registered',
-    #                                message='Вы уже зарегистрированы')
+    if context.account.is_authenticated:
+        return dext_views.Redirect(target_url=dext_urls.url('game:'))
 
     return dext_views.Page('accounts/create_hero.html',
                            content={'resource': context.resource,
                                     'create_hero': create_hero})
+
+
+def hero_story_attributes(view):
+    from the_tale.game import views as game_views
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.GENDER, error_message='Неверно указан пол героя',
+                                                            context_name='gender', post_name='gender'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.RACE,
+                                                            error_message='Неверно указана раса героя',
+                                                            context_name='race', post_name='race'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.ARCHETYPE,
+                                                            error_message='Неверно указана архетип героя',
+                                                            context_name='archetype', post_name='archetype'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.HABIT_HONOR_INTERVAL,
+                                                            error_message='Неверно указана честь героя',
+                                                            context_name='honor', post_name='honor'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.HABIT_PEACEFULNESS_INTERVAL,
+                                                            error_message='Неверно указано миролюбие героя',
+                                                            context_name='peacefulness', post_name='peacefulness'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=tt_beings_relations.UPBRINGING,
+                                                            error_message='Неверно указано происхождение героя',
+                                                            context_name='upbringing', post_name='upbringing'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=tt_beings_relations.FIRST_DEATH,
+                                                            error_message='Неверно указана первая смерть героя',
+                                                            context_name='first_death', post_name='first_death'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=tt_beings_relations.AGE,
+                                                            error_message='Неверно указан возраст первой смерти героя',
+                                                            context_name='age', post_name='age'))
+    view.add_processor(game_views.NameProcessor())
+
+    return view
+
+
+@hero_story_attributes
+@utils_api.Processor(versions=('1.0',))
+@registration_resource('api', 'register', method='POST', name='api-register')
+def register(context):
+    from the_tale.game import logic as game_logic
+
+    if context.account.is_authenticated:
+        raise dext_views.ViewError(code='accounts.registration.register.already_registered',
+                                   message='Вы уже зарегистрированы')
+
+    texts = game_logic.generate_history(name_forms=context.name_forms,
+                                        gender=context.gender,
+                                        race=context.race,
+                                        honor=context.honor,
+                                        peacefulness=context.peacefulness,
+                                        archetype=context.archetype,
+                                        upbringing=context.upbringing,
+                                        first_death=context.first_death,
+                                        age=context.age)
+
+    referer = context.django_request.session.get(conf.settings.SESSION_REGISTRATION_REFERER_KEY)
+    referral_of_id = context.django_request.session.get(conf.settings.SESSION_REGISTRATION_REFERRAL_KEY)
+    action_id = context.django_request.session.get(conf.settings.SESSION_REGISTRATION_ACTION_KEY)
+
+    account_nick = uuid.uuid4().hex[:prototypes.AccountPrototype._model_class.MAX_NICK_LENGTH]
+
+    peacefulness_points = c.HABITS_NEW_HERO_POINTS * context.peacefulness.direction
+    honor_points = c.HABITS_NEW_HERO_POINTS * context.honor.direction
+
+    hero_attributes = {'name': game_logic.hero_name_from_forms(context.name_forms,
+                                                               context.gender).word,
+                       'gender': context.gender,
+                       'race': context.race,
+                       'honor': honor_points,
+                       'peacefulness': peacefulness_points,
+                       'archetype': context.archetype,
+                       'upbringing': context.upbringing,
+                       'first_death': context.first_death,
+                       'death_age': context.age}
+
+    result, account_id, bundle_id = logic.register_user(nick=account_nick,
+                                                        referer=referer,
+                                                        referral_of_id=referral_of_id,
+                                                        action_id=action_id,
+                                                        hero_attributes=hero_attributes)
+
+    if not result.is_OK:
+        raise dext_views.ViewError(code='accounts.registration.fast.registration_error',
+                                   message=result.text)
+
+    heroes_logic.set_hero_description(account_id, '\n\n'.join('[rl]' + text for text in texts if text).strip())
+
+    amqp_environment.environment.workers.supervisor.cmd_register_new_account(account_id=account_id)
+
+    logic.login_user(context.django_request,
+                     nick=prototypes.AccountPrototype.get_by_id(account_id).nick,
+                     password=conf.settings.FAST_REGISTRATION_USER_PASSWORD)
+
+    return dext_views.AjaxOk()
 
 
 ###############################

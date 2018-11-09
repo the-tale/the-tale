@@ -24,7 +24,7 @@ class TestRegistration(utils_testcase.TestCase):
         result, account_id, bundle_id = logic.register_user('test_user', 'test_user@test.com', '111111')
 
         # test result
-        self.assertEqual(result, logic.REGISTER_USER_RESULT.OK)
+        self.assertTrue(result.is_OK)
         self.assertTrue(bundle_id is not None)
 
         # test basic structure
@@ -124,18 +124,18 @@ class TestRegistration(utils_testcase.TestCase):
 
     def test_duplicate_nick(self):
         result, account_id, bundle_id = logic.register_user('test_user', 'test_user@test.com', '111111')
-        self.assertEqual(result, logic.REGISTER_USER_RESULT.OK)
+        self.assertTrue(result.is_OK)
         self.assertTrue(bundle_id is not None)
         result, account_id, bundle_id = logic.register_user('test_user', 'test_user2@test.com', '111111')
-        self.assertEqual(result, logic.REGISTER_USER_RESULT.DUPLICATE_USERNAME)
+        self.assertTrue(result.is_DUPLICATE_USERNAME)
         self.assertTrue(bundle_id is None)
 
     def test_duplicate_email(self):
         result, account_id, bundle_id = logic.register_user('test_user', 'test_user@test.com', '111111')
-        self.assertEqual(result, logic.REGISTER_USER_RESULT.OK)
+        self.assertTrue(result.is_OK)
         self.assertTrue(bundle_id is not None)
         result, account_id, bundle_id = logic.register_user('test_user2', 'test_user@test.com', '111111')
-        self.assertEqual(result, logic.REGISTER_USER_RESULT.DUPLICATE_EMAIL)
+        self.assertTrue(result.is_DUPLICATE_EMAIL)
         self.assertTrue(bundle_id is None)
 
     def test_successfull_result__is_bot(self):
@@ -145,60 +145,3 @@ class TestRegistration(utils_testcase.TestCase):
 
     def test_successfull_result__is_bot_and_fast(self):
         self.assertRaises(exceptions.BotIsFastError, logic.register_user, 'test_user', is_bot=True)
-
-
-class TestRegistrationTask(utils_testcase.TestCase):
-
-    def setUp(self):
-        super(TestRegistrationTask, self).setUp()
-        game_logic.create_test_map()
-        self.task = postponed_tasks.RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id=None)
-
-    def test_create(self):
-        self.assertEqual(self.task.state, postponed_tasks.REGISTRATION_TASK_STATE.UNPROCESSED)
-
-    def test_get_unique_nick(self):
-        self.assertTrue(self.task.get_unique_nick() != self.task.get_unique_nick())
-
-    def test_process_success(self):
-        self.assertEqual(self.task.process(postponed_tasks_helpers.FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.assertEqual(self.task.state, postponed_tasks.REGISTRATION_TASK_STATE.PROCESSED)
-        self.assertTrue(self.task.account)
-        self.assertTrue(self.task.account.is_fast)
-        self.assertEqual(models.Account.objects.all().count(), 1)
-
-    def test_process_success__with_referer(self):
-        referer = 'https://example.com/forum/post/1/'
-        task = postponed_tasks.RegistrationTask(account_id=None, referer=referer, referral_of_id=None, action_id=None)
-        self.assertEqual(task.process(postponed_tasks_helpers.FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.assertEqual(task.state, postponed_tasks.REGISTRATION_TASK_STATE.PROCESSED)
-        self.assertTrue(task.account)
-        self.assertEqual(task.account.referer, referer)
-        self.assertEqual(task.account.referer_domain, 'example.com')
-
-    def test_process_success__with_referral(self):
-        _, account_id, _ = logic.register_user('test_user', 'test_user@test.com', '111111')
-        task = postponed_tasks.RegistrationTask(account_id=None, referer=None, referral_of_id=account_id, action_id=None)
-        self.assertEqual(task.process(postponed_tasks_helpers.FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.assertEqual(task.state, postponed_tasks.REGISTRATION_TASK_STATE.PROCESSED)
-        self.assertTrue(task.account)
-        self.assertEqual(task.account.referral_of_id, account_id)
-
-    def test_process_success__with_action(self):
-        _, account_id, _ = logic.register_user('test_user', 'test_user@test.com', '111111')
-        task = postponed_tasks.RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id='action')
-        self.assertEqual(task.process(postponed_tasks_helpers.FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.assertEqual(task.state, postponed_tasks.REGISTRATION_TASK_STATE.PROCESSED)
-        self.assertTrue(task.account)
-        self.assertEqual(task.account.action_id, 'action')
-
-    @mock.patch('the_tale.accounts.logic.register_user', lambda *argv, **kwargs: (logic.REGISTER_USER_RESULT.OK + 1, None, None))
-    def test_process_unknown_error(self):
-        self.assertEqual(self.task.process(postponed_tasks_helpers.FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-        self.assertEqual(self.task.state, postponed_tasks.REGISTRATION_TASK_STATE.UNKNOWN_ERROR)
-        self.assertEqual(models.Account.objects.all().count(), 0)
-
-    @mock.patch('the_tale.accounts.logic.register_user', lambda *argv, **kwargs: raise_exception())
-    def test_process_exceptin(self):
-        self.assertRaises(Exception, self.task.process, postponed_tasks_helpers.FakePostpondTaskPrototype())
-        self.assertEqual(models.Account.objects.all().count(), 0)

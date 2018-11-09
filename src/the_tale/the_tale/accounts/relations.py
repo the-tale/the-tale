@@ -80,3 +80,9 @@ class MIGHT_AMOUNT(rels_django.DjangoEnum):
 
 class PLAYER_TIMERS_TYPES(rels_django.DjangoEnum):
     records = (('CARDS_MINER', 0, 'таймер получения новых карт'),)
+
+
+class REGISTER_USER_RESULT(rels_django.DjangoEnum):
+    records = (('OK', 0, 'Регистрация прошла успешно'),
+               ('DUPLICATE_USERNAME', 1, 'Имя игрока уже занято'),
+               ('DUPLICATE_EMAIL', 2, 'На указанную почту уже зарегистрирован аккаунт'))

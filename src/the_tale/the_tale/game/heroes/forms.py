@@ -4,9 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-NAME_REGEX = re.compile(conf.settings.NAME_REGEX)
-
-
 class EditNameForm(dext_forms.Form):
 
     race = dext_fields.TypedChoiceField(label='раса',
@@ -21,23 +18,20 @@ class EditNameForm(dext_forms.Form):
                                        skip_markers=(utg_relations.NOUN_FORM.COUNTABLE, utg_relations.NUMBER.PLURAL),
                                        show_properties=False)
 
+    description = utils_bbcode.BBField(required=False,
+                                       label='Несколько слов о вашем герое',
+                                       max_length=conf.settings.MAX_HERO_DESCRIPTION_LENGTH)
+
     def clean(self):
         cleaned_data = super(EditNameForm, self).clean()
 
         name = cleaned_data.get('name')
 
         if name is not None:
-            for name_form in cleaned_data['name'].forms:
-                if len(name_form) > models.Hero.MAX_NAME_LENGTH:
-                    raise django_forms.ValidationError('Слишком длинное имя, максимальное число символов: %d' % models.Hero.MAX_NAME_LENGTH)
+            success, message = logic.validate_name(cleaned_data['name'].forms)
 
-                if len(name_form) < conf.settings.NAME_MIN_LENGHT:
-                    raise django_forms.ValidationError('Слишком короткое имя, минимальное число символов: %d' %
-                                                       conf.settings.NAME_MIN_LENGHT)
-
-                if NAME_REGEX.match(name_form) is None:
-                    raise django_forms.ValidationError('Имя героя может содержать только следующие символы: %s' %
-                                                       conf.settings.NAME_SYMBOLS_DESCRITION)
+            if not success:
+                raise django_forms.ValidationError(message)
 
             name.properties = name.properties.clone(cleaned_data['gender'].utg_id,
                                                     utg_relations.NUMBER.SINGULAR)
@@ -48,4 +42,5 @@ class EditNameForm(dext_forms.Form):
     def get_initials(cls, hero):
         return {'gender': hero.gender,
                 'race': hero.race,
-                'name': hero.utg_name}
+                'name': hero.utg_name,
+                'description': logic.get_hero_description(hero.id)}

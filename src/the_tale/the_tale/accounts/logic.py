@@ -4,12 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-class REGISTER_USER_RESULT:
-    OK = 0
-    DUPLICATE_USERNAME = 1
-    DUPLICATE_EMAIL = 2
-
-
 def login_url(target_url='/'):
     return dext_urls.url('accounts:auth:api-login', api_version='1.0', api_client=django_settings.API_CLIENT, next_url=target_url.encode('utf-8'))
 
@@ -20,6 +14,10 @@ def login_page_url(target_url='/'):
 
 def logout_url():
     return dext_urls.url('accounts:auth:api-logout', api_version='1.0', api_client=django_settings.API_CLIENT)
+
+
+def register_url():
+    return dext_urls.url('accounts:registration:api-register', api_version='1.0', api_client=django_settings.API_CLIENT)
 
 
 def get_system_user_id():
@@ -39,15 +37,47 @@ def get_system_user():
     if account:
         return account
 
-    register_result, account_id, bundle_id = register_user(conf.settings.SYSTEM_USER_NICK,  # pylint: disable=W0612
+    password = utils_password.generate_password(len_=conf.settings.RESET_PASSWORD_LENGTH)
+
+    register_result, account_id, bundle_id = register_user(conf.settings.SYSTEM_USER_NICK,
                                                            email=django_settings.EMAIL_NOREPLY,
-                                                           password=utils_password.generate_password(len_=conf.settings.RESET_PASSWORD_LENGTH))
+                                                           password=password)
 
     account = prototypes.AccountPrototype.get_by_id(account_id)
     account._model.active_end_at = datetime.datetime.fromtimestamp(0)
     account.save()
 
     return account
+
+
+def cards_for_new_account(account):
+    to_add = [cards_types.CARD.CHANGE_HERO_SPENDINGS.effect.create_card(available_for_auction=False,
+                                                                        type=cards_types.CARD.CHANGE_HERO_SPENDINGS,
+                                                                        item=heroes_relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT),
+              cards_types.CARD.HEAL_COMPANION_COMMON.effect.create_card(available_for_auction=False,
+                                                                        type=cards_types.CARD.HEAL_COMPANION_COMMON),
+              cards_types.CARD.ADD_EXPERIENCE_COMMON.effect.create_card(available_for_auction=False,
+                                                                        type=cards_types.CARD.ADD_EXPERIENCE_COMMON),
+              cards_types.CARD.CHANGE_ABILITIES_CHOICES.effect.create_card(available_for_auction=False,
+                                                                           type=cards_types.CARD.CHANGE_ABILITIES_CHOICES),
+              cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                    type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                    preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+              cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                    type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                    preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+              cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                    type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                    preference=heroes_relations.PREFERENCE_TYPE.PLACE),
+              cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                    type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                    preference=heroes_relations.PREFERENCE_TYPE.FRIEND),
+              cards_types.CARD.ADD_BONUS_ENERGY_RARE.effect.create_card(available_for_auction=False,
+                                                                        type=cards_types.CARD.ADD_BONUS_ENERGY_RARE)]
+
+    cards_logic.change_cards(owner_id=account.id,
+                             operation_type='new-hero-gift',
+                             to_add=to_add)
 
 
 def register_user(nick,
@@ -58,12 +88,13 @@ def register_user(nick,
                   action_id=None,
                   is_bot=False,
                   gender=game_relations.GENDER.MALE,
-                  full_create=True):
+                  full_create=True,
+                  hero_attributes={}):
     if models.Account.objects.filter(nick=nick).exists():
-        return REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
+        return relations.REGISTER_USER_RESULT.DUPLICATE_USERNAME, None, None
 
     if email and models.Account.objects.filter(email=email).exists():
-        return REGISTER_USER_RESULT.DUPLICATE_EMAIL, None, None
+        return relations.REGISTER_USER_RESULT.DUPLICATE_EMAIL, None, None
 
     try:
         referral_of = prototypes.AccountPrototype.get_by_id(referral_of_id)
@@ -94,7 +125,14 @@ def register_user(nick,
     achievements_prototypes.AccountAchievementsPrototype.create(account)
     collections_prototypes.AccountItemsPrototype.create(account)
 
-    hero = heroes_logic.create_hero(account=account, full_create=full_create)
+    hero_attributes['is_fast'] = account.is_fast
+    hero_attributes['is_bot'] = account.is_bot
+    hero_attributes['might'] = account.might
+    hero_attributes['active_state_end_at'] = account.active_end_at
+    hero_attributes['premium_state_end_at'] = account.premium_end_at
+    hero_attributes['ban_state_end_at'] = account.ban_game_end_at
+
+    hero = heroes_logic.create_hero(account_id=account.id, attributes=hero_attributes)
 
     if full_create:
         game_tt_services.energy.cmd_change_balance(account_id=account.id,
@@ -105,7 +143,9 @@ def register_user(nick,
 
         create_cards_timer(account.id)
 
-    return REGISTER_USER_RESULT.OK, account.id, hero.actions.current_action.bundle_id
+        cards_for_new_account(hero)
+
+    return relations.REGISTER_USER_RESULT.OK, account.id, hero.actions.current_action.bundle_id
 
 
 def create_cards_timer(account_id):

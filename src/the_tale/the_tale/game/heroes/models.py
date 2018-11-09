@@ -50,8 +50,6 @@ class Hero(django_models.Model):
 
     quest_created_time = django_models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
-    settings_approved = django_models.BooleanField(null=False, default=True, blank=True)
-
     next_spending = rels_django.RelationIntegerField(relation=relations.ITEMS_OF_EXPENDITURE, relation_column='value')
 
     last_energy_regeneration_at_turn = django_models.IntegerField(null=False, default=0)
@@ -148,3 +146,10 @@ class HeroPreferences(django_models.Model):
     @classmethod
     def update(cls, hero_id, field, value):
         cls.objects.filter(hero_id=hero_id).update(**{field: value})
+
+
+class HeroDescription(django_models.Model):
+
+    hero = django_models.OneToOneField(Hero, on_delete=django_models.CASCADE)
+
+    text = django_models.TextField(null=False, default='', blank=True)

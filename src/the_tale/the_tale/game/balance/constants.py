@@ -294,6 +294,8 @@ ABILITIES_FOR_CHOOSE_MAXIMUM = int(4)
 # Черты
 ##########################
 
+HABITS_NEW_HERO_POINTS = int(200)
+
 HABITS_BORDER = int(1000)  # модуль максимального значения черты
 HABITS_RIGHT_BORDERS = [-700, -300, -100, 100, 300, 700, 1001]  # правые границы черт
 HABITS_QUEST_ACTIVE_DELTA = float(20)  # за выбор в задании игроком

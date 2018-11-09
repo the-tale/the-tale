@@ -146,6 +146,8 @@ class HeroResource(utils_resources.Resource):
 
         amqp_environment.environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
 
+        logic.set_hero_description(hero_id=self.hero.id, text=edit_name_form.c.description)
+
         return self.json_processing(task.status_url)
 
     @utils_decorators.login_required

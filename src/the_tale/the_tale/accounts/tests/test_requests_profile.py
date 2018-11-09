@@ -122,8 +122,11 @@ class ProfileRequestsTests(utils_testcase.TestCase, third_party_helpers.ThirdPar
         self.assertEqual(django_auth.authenticate(nick=self.account_nick, password='111111').email, self.account_email)
 
     def test_profile_update_fast_errors(self):
-        response = self.client.post(django_reverse('accounts:registration:fast'))
-        PostponedTaskPrototype(model=PostponedTask.objects.all()[0]).process(utils_fake.FakeLogger())
+        account = self.accounts_factory.create_account()
+        self.request_login(account.email)
+
+        account.is_fast = True
+        account.save()
 
         response = self.client.post(django_reverse('accounts:profile:update'), {'email': 'test_user@test.ru'})
         self.check_ajax_error(response, 'accounts.profile.update.form_errors')
@@ -169,16 +172,20 @@ class ProfileRequestsTests(utils_testcase.TestCase, third_party_helpers.ThirdPar
         self.check_ajax_error(self.client.get(django_reverse('accounts:profile:confirm-email') + '?uuid=' + uuid), 'third_party.access_restricted')
 
     def test_fast_profile_confirm_email(self):
-        self.client.post(django_reverse('accounts:registration:fast'))
-        PostponedTaskPrototype(model=PostponedTask.objects.all()[0]).process(utils_fake.FakeLogger())
+        account = self.accounts_factory.create_account()
+        self.request_login(account.email)
 
-        self.client.post(django_reverse('accounts:profile:update'), {'email': 'test_user@test.ru', 'nick': 'test_nick', 'password': '123456'})
+        account.is_fast = True
+        account.save()
+
+        self.client.post(django_reverse('accounts:profile:update'),
+                         {'email': 'test_user@test.ru', 'nick': 'test_nick', 'password': '123456'})
         self.assertEqual(post_service_models.Message.objects.all().count(), 1)
 
         uuid = models.ChangeCredentialsTask.objects.all()[0].uuid
 
         response = self.client.get(django_reverse('accounts:profile:confirm-email') + '?uuid=' + uuid)
-        self.check_response_redirect(response, PostponedTaskPrototype._db_get_object(1).wait_url)
+        self.check_response_redirect(response, PostponedTaskPrototype._db_get_object(0).wait_url)
 
         self.assertEqual(models.ChangeCredentialsTask.objects.all().count(), 1)
         self.assertEqual(models.ChangeCredentialsTask.objects.all()[0].state, relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING)

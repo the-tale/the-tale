@@ -17,6 +17,9 @@
 </div>
 {% endmacro %}
 
+{% set hero_model = value("the_tale.game.heroes.models", "Hero") %}
+{% set hero_settings = value("the_tale.game.heroes.conf", "settings") %}
+
 {% block head %}
 {{ super() }}
 
@@ -28,10 +31,6 @@
 </style>
 
 <script>
-
-{% set hero_model = value("the_tale.game.heroes.models", "Hero") %}
-{% set hero_settings = value("the_tale.game.heroes.conf", "heroes_settings") %}
-
 
 MALE_TEXTS = {{create_hero.MALE_TEXTS|json|safe}};
 FEMALE_TEXTS = {{create_hero.FEMALE_TEXTS|json|safe}};
@@ -129,10 +128,12 @@ function NamesManager(params) {
 
     var refreshDelay = 1000.0;
 
+    instance.lastRandomName = undefined;
+
     instance.GetName = function(race, gender) {
-        var result = names[race][gender].shift();
-        names[race][gender].push(result);
-        return result;
+        instance.lastRandomName = names[race][gender].shift();
+        names[race][gender].push(instance.lastRandomName);
+        return instance.lastRandomName;
     };
 
     function RefreshNames() {
@@ -158,35 +159,108 @@ function NamesManager(params) {
     RefreshNames();
 }
 
-function StoryManager(params) {
+function StoryDrawer() {
     var instance = this;
 
     var widget = jQuery('.pgf-hero-story');
-    var widgetDummy = jQuery('.pgf-hero-story-dummy');
+    var caption = jQuery('.pgf-hero-story-caption');
+    var captionDummy = jQuery('.pgf-hero-story-caption-dummy');
+
+    var FADE_DELAY = 1000;
+
+    instance.refreshingUID = null;
+    instance.isHiding = false;
+    instance.storySources = null;
+
+    function ToggleCaption(mode) {
+        caption.toggleClass('pgf-hidden', mode);
+        captionDummy.toggleClass('pgf-hidden', !mode);
+    }
+
+    function RenderStory(storySources) {
+        var story = '';
+
+        for (var i in storySources) {
+            story += '<p>&nbsp;&nbsp;&nbsp;&nbsp;' + storySources[i] + '</p>';
+        }
+
+        widget.html(story);
+    }
+
+    function ShowStory() {
+        RenderStory(instance.storySources);
+        widget.fadeIn(FADE_DELAY, function(){ToggleCaption(false);});
+
+    }
+
+    instance.StartRefreshing = function(uid) {
+        instance.refreshingUID = uid;
+
+        if (!instance.isHiding) {
+            instance.isHiding = true;
+
+            widget.fadeOut(FADE_DELAY, function(){
+                instance.isHiding = false;
+
+                if (instance.storySources) {
+                    ShowStory();
+                }
+            });
+        }
+
+        ToggleCaption(true);
+    };
+
+    instance.CompleteRefreshing = function(uid, storySources) {
+
+        if (instance.refreshingUID != uid) {
+            return;
+        }
+
+        instance.refreshingUID = null;
+        instance.storySources = storySources
+
+        if (instance.isHiding) {
+            return;
+        }
+
+        ShowStory();
+    };
+}
+
+function StoryFormData(attributes) {
+    data = new FormData();
+
+    data.append('name', attributes.name);
+    data.append('gender', TECHNICAL_IDS.gender[attributes.gender]);
+    data.append('race', TECHNICAL_IDS.race[attributes.race]);
+    data.append('archetype', TECHNICAL_IDS.archetype[attributes.archetype]);
+    data.append('honor', TECHNICAL_IDS.honor[attributes.honor]);
+    data.append('peacefulness', TECHNICAL_IDS.peacefulness[attributes.peacefulness]);
+    data.append('upbringing', TECHNICAL_IDS.upbringing[attributes.upbringing]);
+    data.append('first_death', TECHNICAL_IDS.death[attributes.death]);
+    data.append('age', TECHNICAL_IDS.age[attributes.age]);
+
+    return data;
+}
+
+function StoryManager(params) {
+    var instance = this;
 
     var refreshDelay = 1000.0;
 
     instance.refreshes = 0;
+
+    instance.storyDrawer = new StoryDrawer();
 
     instance.Refresh = function(attributes) {
         instance.refreshes += 1;
 
         var currentRefresh = instance.refreshes;
 
-        data = new FormData();
+        data = StoryFormData(attributes);
 
-        data.append('name', attributes.name);
-        data.append('gender', TECHNICAL_IDS.gender[attributes.gender]);
-        data.append('race', TECHNICAL_IDS.race[attributes.race]);
-        data.append('archetype', TECHNICAL_IDS.archetype[attributes.archetype]);
-        data.append('honor', TECHNICAL_IDS.honor[attributes.honor]);
-        data.append('peacefulness', TECHNICAL_IDS.peacefulness[attributes.peacefulness]);
-        data.append('upbringing', TECHNICAL_IDS.upbringing[attributes.upbringing]);
-        data.append('first_death', TECHNICAL_IDS.death[attributes.death]);
-        data.append('age', TECHNICAL_IDS.age[attributes.age]);
-
-        widget.toggleClass('pgf-hidden', true);
-        widgetDummy.toggleClass('pgf-hidden', false);
+        instance.storyDrawer.StartRefreshing(currentRefresh);
 
         jQuery.ajax({
             dataType: 'json',
@@ -200,19 +274,13 @@ function StoryManager(params) {
                     if (currentRefresh != instance.refreshes) {
                         return;
                     }
+
                     setTimeout(function(){instance.Refresh(attributes);}, refreshDelay);
+
                     return;
                 }
 
-                var story = '';
-
-                for (var i in data.data.story) {
-                    story += '<p>&nbsp;&nbsp;&nbsp;&nbsp;' + data.data.story[i] + '</p>';
-                }
-
-                widget.html(story);
-                widget.toggleClass('pgf-hidden', false);
-                widgetDummy.toggleClass('pgf-hidden', true);
+                instance.storyDrawer.CompleteRefreshing(currentRefresh, data.data.story);
             },
             error: function() {
                 if (currentRefresh != instance.refreshes) {
@@ -225,6 +293,26 @@ function StoryManager(params) {
     };
 }
 
+function RandomHeroAttributes(namesManager) {
+    var gender = pgf.base.RandomItem(['male', 'female']);
+    var race = pgf.base.RandomItem(['elf', 'human', 'dwarf', 'orc', 'goblin']);
+
+    return {gender: gender,
+            race: race,
+            name: namesManager.GetName(race, gender).slice(),
+            upbringing: pgf.base.RandomItem(['vulgar', 'rural', 'philistine', 'aristocratic', 'priestly']),
+            peacefulness: pgf.base.RandomItem(['bully', 'friendly']),
+            honor: pgf.base.RandomItem(['truthful', 'liar']),
+            archetype: pgf.base.RandomItem(['adventurer', 'mage', 'warrior']),
+            age: pgf.base.RandomItem(['young', 'mature', 'old']),
+            death: pgf.base.RandomItem(['on_the_scaffold',
+                                        'in_a_drunken_brawl',
+                                        'from_the_monster_fangs',
+                                        'from_the_disease',
+                                        'in_a_skirmish_with_the_robbers'])};
+
+}
+
 jQuery(document).ready(function(e){
 
     var namesManager = new NamesManager({url: "{{game_names_url()}}",
@@ -232,19 +320,7 @@ jQuery(document).ready(function(e){
 
     var storyManager = new StoryManager({url: "{{game_hero_history_url()}}"})
 
-    var gender = pgf.base.RandomItem(['male', 'female']);
-    var race = pgf.base.RandomItem(['elf', 'human', 'dwarf', 'orc', 'goblin']);
-    var lastRandomName = namesManager.GetName(race, gender);
-
-    var ATTRIBUTES = {gender: gender,
-                      race: race,
-                      name: lastRandomName.slice(),
-                      upbringing: pgf.base.RandomItem(['vulgar', 'rural', 'philistine', 'aristocratic', 'priestly']),
-                      peacefulness: pgf.base.RandomItem(['bully', 'friendly']),
-                      honor: pgf.base.RandomItem(['truthful', 'liar']),
-                      archetype: pgf.base.RandomItem(['adventurer', 'mage', 'warrior']),
-                      age: pgf.base.RandomItem(['young', 'mature', 'old']),
-                      death: pgf.base.RandomItem(['on_the_scaffold', 'in_a_drunken_brawl', 'from_the_monster_fangs', 'from_the_disease', 'in_a_skirmish_with_the_robbers'])};
+    var ATTRIBUTES = RandomHeroAttributes(namesManager);
 
     UpdateDescriptions(ATTRIBUTES);
     storyManager.Refresh(ATTRIBUTES);
@@ -260,8 +336,17 @@ jQuery(document).ready(function(e){
 
         var newAttributes = jQuery(e.target).data('attributes').split(',');
         var resetName = false;
+        var changed = false;
+
         for (var i in newAttributes) {
             var attribute = newAttributes[i].split(':');
+
+            if (ATTRIBUTES[attribute[0]] === attribute[1]) {
+                continue;
+            }
+
+            changed = true;
+
             ATTRIBUTES[attribute[0]] = attribute[1];
 
             if (attribute[0] == 'race' || attribute[0] == 'gender') {
@@ -269,12 +354,17 @@ jQuery(document).ready(function(e){
             }
         }
 
-        if (resetName && pgf.base.CompareObjects(lastRandomName, ATTRIBUTES.name)) {
-            lastRandomName = namesManager.GetName(ATTRIBUTES.race, ATTRIBUTES.gender);
-            ATTRIBUTES.name = lastRandomName.slice();
+        if (resetName && pgf.base.CompareObjects(namesManager.lastRandomName, ATTRIBUTES.name)) {
+            ATTRIBUTES.name = namesManager.GetName(ATTRIBUTES.race, ATTRIBUTES.gender).slice();
         }
 
         UpdateDescriptions(ATTRIBUTES);
+        ShowDescription();
+
+        if (!changed) {
+            return;
+        }
+
         ShowDescription();
 
         storyManager.Refresh(ATTRIBUTES);
@@ -320,10 +410,7 @@ jQuery(document).ready(function(e){
 
     jQuery('.pgf-refresh-name').click(function(e){
         e.preventDefault();
-
-        lastRandomName = namesManager.GetName(ATTRIBUTES.race, ATTRIBUTES.gender)
-
-        UpdateNameForm(lastRandomName.slice());
+        UpdateNameForm(namesManager.GetName(ATTRIBUTES.race, ATTRIBUTES.gender).slice());
 
     });
 
@@ -331,6 +418,32 @@ jQuery(document).ready(function(e){
         e.preventDefault();
         UpdateDescriptions(ATTRIBUTES);
         ShowDescription();
+    });
+
+    jQuery('.pgf-create-hero-button').click(function(e){
+        e.preventDefault();
+
+        var data = StoryFormData(ATTRIBUTES);
+
+        pgf.forms.Post({action: "{{register_url()}}",
+                        data: data,
+                        contentType: false,
+                        processData: false,
+                        wait: true,
+                        OnSuccess: function(data) {
+                            location.href = "{{url('game:')}}";
+                        },
+                        OnError: function(data) {}
+                       });
+    });
+
+    jQuery('.pgf-randomize-hero').click(function(e){
+        e.preventDefault();
+        ATTRIBUTES = RandomHeroAttributes(namesManager);
+        UpdateDescriptions(ATTRIBUTES);
+        ShowDescription();
+
+        storyManager.Refresh(ATTRIBUTES);
     });
 });
 
@@ -406,7 +519,14 @@ jQuery(document).ready(function(e){
 
       <div class="alert alert-success pgf-hero-description" style="color: black;">
 
-        <h3>Итак</h3>
+        <h3>
+          Итак
+          <a href="#"
+             rel="tooltip"
+             title="Найти случайного героя"
+             class="icon icon-refresh pgf-randomize-hero"
+             style="vertical-align: middle;"></a>
+        </h3>
 
         <p class="pgf-hero-description-short-female">
           Ваш герой — {{ prop("race", "Изменить расу и пол героя") }} по имени {{ prop("name", "Изменить имя героя") }}.</br>
@@ -420,7 +540,12 @@ jQuery(document).ready(function(e){
           Будучи в душе {{ prop("archetype", "Изменить архетип героя") }} погиб {{ prop("age", "Изменить возраст первой смерти героя") }} {{ prop("death", "Изменить тип смерти героя") }}.
         </p>
 
-        <a href="#" class="btn btn-success" style="font-size: 14pt; padding: 0.5em;">Воскресить <span class="pgf-hero-name-3"></span></a>
+        <a href="#"
+           class="btn btn-success pgf-create-hero-button"
+           style="font-size: 14pt; padding: 0.5em;">
+          Воскресить
+          <span class="pgf-hero-name-3"></span>
+        </a>
       </div>
 
       {% for choice in create_hero.ATTRIBUTE_CHOICES %}
@@ -442,9 +567,6 @@ jQuery(document).ready(function(e){
             </div>
           </div>
           {% endmacro %}
-
-        {% set hero_model = value("the_tale.game.heroes.models", "Hero") %}
-        {% set hero_settings = value("the_tale.game.heroes.conf", "heroes_settings") %}
 
         <p>
           Минимальная длина имени: {{hero_settings.NAME_MIN_LENGHT}} символа</br>
@@ -476,15 +598,12 @@ jQuery(document).ready(function(e){
   </div>
 
   <div class="span6">
-    <div class="alert alert-info" style="color: black;">
+    <div class="alert alert-info" style="color: black; text-align: justify; min-height: 27em;">
 
-      <h3>История <span class="pgf-hero-name-1"></span></h3>
+      <h3 class="pgf-hero-story-caption pgf-hidden">История <span class="pgf-hero-name-1"></span></h3>
+      <h3 class="pgf-hero-story-caption-dummy">Ищем героя…</h3>
 
-      <div class="pgf-hero-story-dummy" style="font-size: 12pt; font-style: italic;">
-        Собираем информацию о герое…
-      </div>
-
-      <div class="pgf-hero-story pgf-hidden"></div>
+      <div class="pgf-hero-story"></div>
     </div>
   </div>
 </div>

@@ -112,17 +112,17 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
 class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
     def test_hero_page(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=[jinja2.escape(self.hero.name),
-                                                                                                      ('pgf-settings-approved-warning', 1)])
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=[jinja2.escape(self.hero.name)])
 
-    def test_hero_page_change_name_warning_hidden(self):
-        self.hero.settings_approved = True
-        logic.save_hero(self.hero)
-        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=[('pgf-settings-approved-warning', 0)])
+    def get_post_data(self,
+                      name='новое имя',
+                      gender=game_relations.GENDER.MALE,
+                      race=game_relations.RACE.DWARF,
+                      description='some description'):
 
-    def get_post_data(self, name='новое имя', gender=game_relations.GENDER.MALE, race=game_relations.RACE.DWARF):
         data = {'gender': gender,
-                'race': race}
+                'race': race,
+                'description': description}
         data.update(linguistics_helpers.get_word_post_data(game_names.generator().get_test_name(name=name), prefix='name'))
         return data
 
@@ -149,6 +149,8 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
         self.assertEqual(task.internal_logic.name, game_names.generator().get_test_name(name='новое имя', properties=[utg_relations.NUMBER.SINGULAR]))
         self.assertEqual(task.internal_logic.gender, game_relations.GENDER.MALE)
         self.assertEqual(task.internal_logic.race, game_relations.RACE.DWARF)
+
+        self.assertEqual(logic.get_hero_description(self.hero.id), 'some description')
 
 
 class ResetNameRequestsTests(HeroRequestsTestBase):

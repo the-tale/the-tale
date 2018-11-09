@@ -66,14 +66,6 @@ class PlacesStorageTest(utils_testcase.TestCase):
     def test_all(self):
         self.assertEqual(len(self.storage.all()), 3)
 
-    def test_random_place(self):
-        places = set([self.p1.id, self.p2.id, self.p3.id])
-
-        for i in range(100):
-            places.discard(self.storage.random_place().id)
-
-        self.assertFalse(places)
-
     def test_contains(self):
         self.assertTrue(self.p1.id in self.storage)
         self.assertFalse(666 in self.storage)

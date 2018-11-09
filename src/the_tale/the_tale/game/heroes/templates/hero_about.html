@@ -2,9 +2,32 @@
 
 <div class="easy-block">
 
-  {% set folclor_objects = posts_about(hero_meta_object, allowed_for=master_account) %}
+  <h3>О герое</h3>
+
+  {% set description = value('the_tale.game.heroes.logic').get_hero_description(master_account.id) %}
+
+  {% if description %}
+
+  {{description|bb}}
+
+  {% else %}
+
+  <p>Хранитель пока ничего не рассказал о герое.</p>
+
+  {% if is_owner %}
+  <p class="alert alert-info">
+    Вы можете редактировать историю героя во вкладке настроек.
+  </p>
+  {% endif %}
+
+  {% endif %}
+
+  <br/>
+  <br/>
 
   <h3>Произведения о герое</h3>
+
+  {% set folclor_objects = posts_about(hero_meta_object, allowed_for=master_account) %}
 
   <p>
     Чтобы произведение появилось в списке, его автор должен указать, что оно об этом герое, а Хранитель героя должен поставить произведению «плюсик».

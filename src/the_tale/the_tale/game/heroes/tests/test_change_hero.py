@@ -45,7 +45,6 @@ class ChangeHeroTest(utils_testcase.TestCase):
         self.assertNotEqual(self.hero.utg_name, self.noun)
         self.assertNotEqual(self.hero.gender, self.gender)
         self.assertNotEqual(self.hero.race, self.race)
-        self.assertFalse(self.hero.settings_approved)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.assertEqual(task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
@@ -58,4 +57,3 @@ class ChangeHeroTest(utils_testcase.TestCase):
         self.assertEqual(self.hero.name, self.noun.normal_form())
         self.assertEqual(self.hero.race, self.race)
         self.assertEqual(self.hero.gender, self.gender)
-        self.assertTrue(self.hero.settings_approved)

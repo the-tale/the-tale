@@ -10,16 +10,17 @@ class NameProcessor(dext_views.ArgumentProcessor):
     POST_NAME = 'name'
 
     def parse(self, context, raw_value):
-        raw_value = raw_value.split(',')
+        forms = raw_value.split(',')
 
-        if len(raw_value) != 6:
+        if len(forms) != 6:
             self.raise_wrong_format()
 
-        for value in raw_value:
-            if not isinstance(value, str):
-                self.raise_wrong_format()
+        success, message = heroes_logic.validate_name(forms)
 
-        return raw_value
+        if not success:
+            self.raise_wrong_format()
+
+        return forms
 
 
 ########################################
@@ -128,23 +129,7 @@ def api_names(context):
     return dext_views.AjaxOk(content={'names': result_names})
 
 
-@dext_views.RelationArgumentProcessor(relation=relations.GENDER, error_message='Неверно указан пол героя',
-                                      context_name='gender', post_name='gender')
-@dext_views.RelationArgumentProcessor(relation=relations.RACE, error_message='Неверно указана раса героя',
-                                      context_name='race', post_name='race')
-@dext_views.RelationArgumentProcessor(relation=relations.ARCHETYPE, error_message='Неверно указана архетип героя',
-                                      context_name='archetype', post_name='archetype')
-@dext_views.RelationArgumentProcessor(relation=relations.HABIT_HONOR_INTERVAL, error_message='Неверно указана честь героя',
-                                      context_name='honor', post_name='honor')
-@dext_views.RelationArgumentProcessor(relation=relations.HABIT_PEACEFULNESS_INTERVAL, error_message='Неверно указано миролюбие героя',
-                                      context_name='peacefulness', post_name='peacefulness')
-@dext_views.RelationArgumentProcessor(relation=tt_beings_relations.UPBRINGING, error_message='Неверно указано происхождение героя',
-                                      context_name='upbringing', post_name='upbringing')
-@dext_views.RelationArgumentProcessor(relation=tt_beings_relations.FIRST_DEATH, error_message='Неверно указана первая смерть героя',
-                                      context_name='first_death', post_name='first_death')
-@dext_views.RelationArgumentProcessor(relation=tt_beings_relations.AGE, error_message='Неверно указан возраст первой смерти героя',
-                                      context_name='age', post_name='age')
-@NameProcessor()
+@accounts_views.hero_story_attributes
 @utils_api.Processor(versions=(conf.settings.HERO_HISTORY_API_VERSION,))
 @resource('api', 'hero-history', method='POST', name='api-hero-history')
 def api_hero_history(context):

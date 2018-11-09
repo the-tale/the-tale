@@ -17,10 +17,6 @@ class PlacesStorage(dext_storage.Storage):
     def _get_all_query(self):
         return models.Place.objects.all()
 
-    def random_place(self):
-        self.sync()
-        return random.choice(list(self._data.values()))
-
     def get_choices(self):
         self.sync()
         return [(place.id, place.name) for place in sorted(self.all(), key=lambda p: p.name)]
