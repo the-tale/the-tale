@@ -136,7 +136,7 @@ async def make_callback(secret, url, timer, data):
             async with session.post(url, data=data.SerializeToString()) as response:
                 return response.status == 200
     except:
-        logging.exception('Error while processing timer %s', timer_id)
+        logging.exception('Error while processing timer %s', timer.id)
         return False
 
 
