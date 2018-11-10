@@ -9,7 +9,7 @@ class ORDER_BY(rels_django.DjangoEnum):
 
     records = (('NAME_DESC', 0, 'имени▲', ('-name',)),
                ('NAME_ASC', 1, 'имени▼', ('name',)),
-               ('ABBR_DESC', 2, 'аббревиатуре▲', ('-abb', 'name')),
+               ('ABBR_DESC', 2, 'аббревиатуре▲', ('-abbr', 'name')),
                ('ABBR_ASC', 3, 'аббревиатуре▼', ('abbr', 'name')),
                ('MEMBERS_NUMBER_DESC', 4, 'количеству Хранителей▲', ('-members_number', 'name')),
                ('MEMBERS_NUMBER_ASC', 5, 'количеству Хранителей▼', ('members_number', 'name')),
