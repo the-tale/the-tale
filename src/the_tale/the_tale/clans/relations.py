@@ -78,7 +78,7 @@ class PERMISSION(rels_django.DjangoEnum):
                ('POLITICS', 4, 'Объявление войны/мира другой гильдии', False, None, True),
                ('EMISSARIES_RELOCATION', 5, 'Назначение/перемещение эмиссаров', False, None, True),
                ('EMISSARIES_PLANING', 6, 'Управление мероприятиями эмиссаров', False, None, True),
-               ('TAKE_MEMBER', 7, 'Принятие в гильдию', False, 'На роль новобранца', False),
+               ('TAKE_MEMBER', 7, 'Принятие в гильдию', False, 'В звании рекрута', False),
                ('REMOVE_MEMBER', 8, 'Исключение из гильдии', True, 'Если ваше звание выше', False),
                ('FORUM_MODERATION', 9, 'Модерация гильдейского форума', False, None, True),
                ('ACCESS_CHRONICLE', 10, 'Просмотр событий гильдии', False, None, False),
