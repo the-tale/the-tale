@@ -38,9 +38,15 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
     def test_change_credentials(self):
         self.assertTrue(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
 
-        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
-            with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
-                self.fast_account.change_credentials(new_email='fast_user@test.ru', new_password=django_auth_hashers.make_password('222222'), new_nick='test_nick')
+        cards_tt_services.storage.cmd_debug_clear_service()
+
+        with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.fast_account.id)),
+                              conf.settings.FREE_CARDS_FOR_REGISTRATION), \
+             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd, \
+             mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+                self.fast_account.change_credentials(new_email='fast_user@test.ru',
+                                                      new_password=django_auth_hashers.make_password('222222'),
+                                                      new_nick='test_nick')
 
         self.assertEqual(cmd_run_account_method.call_count, 0)
 
@@ -48,6 +54,27 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
         self.assertFalse(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
         self.assertEqual(fake_cmd.call_count, 1)
         self.assertFalse(fake_cmd.call_args[1]['is_fast'])
+
+        cards = list(cards_tt_services.storage.cmd_get_items(self.fast_account.id).values())
+
+        self.assertTrue(all(card.type.availability.is_FOR_ALL for card in cards))
+        self.assertFalse(all(card.available_for_auction for card in cards))
+
+    def test_change_credentials__not_registration(self):
+        self.assertFalse(prototypes.AccountPrototype.get_by_id(self.account.id).is_fast)
+
+        cards_tt_services.storage.cmd_debug_clear_service()
+
+        with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id))), \
+             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd, \
+             mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+                self.account.change_credentials(new_email='x_user@test.ru',
+                                                new_password=django_auth_hashers.make_password('222222'),
+                                                new_nick='test_nick')
+
+        self.assertEqual(django_auth.authenticate(nick='test_nick', password='222222').id, self.account.id)
+        self.assertFalse(prototypes.AccountPrototype.get_by_id(self.account.id).is_fast)
+        self.assertEqual(fake_cmd.call_count, 0)
 
     def test_change_credentials__with_referral(self):
         self.fast_account._model.referral_of = self.account._model

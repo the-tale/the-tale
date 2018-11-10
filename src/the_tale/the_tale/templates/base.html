@@ -258,12 +258,15 @@ jQuery(document).ready(function() {
           <a class="btn btn-success"
              href="{{ url('accounts:profile:show') }}"
              style="width: 200px; float: left; margin-right: 0.5em; margin-top: 0.2em;">
-            <span style="vertical-align: middle; font-size: 11pt; font-weight: bold;">Завершить регистрацию</span>
+            <span style="vertical-align: middle; font-size: 11pt; font-weight: bold;">Заверши регистрацию</span><br/>
+            <span style="vertical-align: middle; font-size: 10pt;">
+              И получи {{value('the_tale.accounts.conf').settings.FREE_CARDS_FOR_REGISTRATION}} Карт Судьбы!
+            </span>
           </a>
           <p style="margin: 0;">
             Ваша игра доступна только с этого компьютера. <br/>
             Для игры из другого места необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a>.<br/>
-            Подробнее об игре можно почитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>. Также один из игроков записал небольшой <a href="{{settings.YOUTUBE_TUTORIAL}}">обзор игры</a>.
+            Подробнее об игре можно прочитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>. Также один из игроков записал небольшой <a href="{{settings.YOUTUBE_TUTORIAL}}">обзор игры</a>.
           </p>
         </div>
         {% endif %}

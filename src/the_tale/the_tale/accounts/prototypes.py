@@ -224,12 +224,21 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         self.save()
 
         if old_fast:
+            cards_number = conf.settings.FREE_CARDS_FOR_REGISTRATION
+
+            cards_logic.give_new_cards(account_id=self.id,
+                                       operation_type='give-card-for-registration',
+                                       allow_premium_cards=False,
+                                       available_for_auction=False,
+                                       number=cards_number)
+
             self.cmd_update_hero()
 
             if self.referral_of_id is not None:
-                amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(account_id=self.referral_of_id,
-                                                                                             method_name=self.update_referrals_number.__name__,
-                                                                                             data={})
+                amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(
+                    account_id=self.referral_of_id,
+                    method_name=self.update_referrals_number.__name__,
+                    data={})
 
     ###########################################
     # Object operations
