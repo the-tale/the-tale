@@ -3,6 +3,7 @@ import asyncio
 
 from tt_web import postgresql as db
 
+from . import logic
 from . import objects
 
 
@@ -196,46 +197,58 @@ async def get_impacters_target_ratings(target, actor_types, limit):
     return target, [actor_impact_from_row(row) for row in results]
 
 
-async def scale_impacts(target_types, scale):
+async def scale_impacts(target_types, scale, chunk_size):
     if not target_types:
         return
 
     await db.transaction(_scale_impacts, {'target_types': target_types,
-                                          'scale': scale})
+                                          'scale': scale,
+                                          'chunk_size': chunk_size})
 
 
 async def _scale_impacts(execute, arguments):
     target_types = tuple(arguments['target_types'])
     scale = arguments['scale']
+    chunk_size = arguments['chunk_size']
 
     # order of executed queries and sorting of items in quiries
     # required to prevent blocking with add_impacts and scale_impacts functions
 
-    await execute('''UPDATE actors_impacts
-                     SET amount =
-                         CASE
-                             WHEN amount < 0 THEN CEIL(amount * %(scale)s)
-                             ELSE FLOOR(amount * %(scale)s)
-                         END
-                      WHERE id IN (SELECT id FROM actors_impacts
-                                   WHERE target_type IN %(target_types)s
-                                   ORDER BY (actor_type, actor, target_type, target)
-                                   FOR UPDATE)''',
-                  {'target_types': target_types,
-                   'scale': scale})
+    results = await execute('''SELECT id FROM actors_impacts
+                               WHERE target_type IN %(target_types)s
+                               ORDER BY (actor_type, actor, target_type, target)''',
+                            {'target_types': target_types})
 
-    await execute('''UPDATE targets_impacts
-                     SET amount =
-                         CASE
-                             WHEN amount < 0 THEN CEIL(amount * %(scale)s)
-                             ELSE FLOOR(amount * %(scale)s)
-                         END
-                      WHERE id IN (SELECT id FROM targets_impacts
-                                   WHERE target_type IN %(target_types)s
-                                   ORDER BY (target_type, target)
-                                   FOR UPDATE)''',
-                  {'target_types': target_types,
-                   'scale': scale})
+    actor_impacts_ids = [row['id'] for row in results]
+
+    for ids in logic.chunks(actor_impacts_ids, chunk_size):
+        await execute('''UPDATE actors_impacts
+                         SET amount =
+                             CASE
+                                 WHEN amount < 0 THEN CEIL(amount * %(scale)s)
+                                 ELSE FLOOR(amount * %(scale)s)
+                             END
+                          WHERE id IN %(ids)s''',
+                      {'ids': tuple(ids),
+                       'scale': scale})
+
+    results = await execute('''SELECT id FROM targets_impacts
+                               WHERE target_type IN %(target_types)s
+                               ORDER BY (target_type, target)''',
+                            {'target_types': target_types})
+
+    targets_impacts_ids = [row['id'] for row in results]
+
+    for ids in logic.chunks(targets_impacts_ids, chunk_size):
+        await execute('''UPDATE targets_impacts
+                         SET amount =
+                             CASE
+                                 WHEN amount < 0 THEN CEIL(amount * %(scale)s)
+                                 ELSE FLOOR(amount * %(scale)s)
+                             END
+                         WHERE id IN %(ids)s''',
+                      {'ids': tuple(ids),
+                       'scale': scale})
 
 
 async def clean_database():

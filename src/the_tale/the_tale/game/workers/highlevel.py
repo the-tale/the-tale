@@ -87,8 +87,12 @@ class Worker(utils_workers.BaseWorker):
             self.logger.info('sync data transaction started')
 
             if sheduled:
-                politic_power_logic.sync_power()
-                places_logic.sync_fame()
+                try:
+                    politic_power_logic.sync_power()
+                    places_logic.sync_fame()
+                except tt_api_exceptions.TTAPIError:
+                    raven_client.captureException()
+                    self.logger.exception('Error while syncing powers')
 
                 # обрабатывает работы только во время запланированного обновления
                 # поскольку при остановке игры нельзя будет обработать команды для героев

@@ -11,11 +11,6 @@
     "log": {"level": "critical"},
 
     "custom": {
-        "secret": "test.secret",
-        "delay_before_callback_retry": 0.1,
-        "types": {"1": {"url": "http://example.com/1",
-                        "postprocess_type": "restart"},
-                  "3": {"url": "http://example.com/3",
-                        "postprocess_type": "restart"}}
+        "scale_chunk_size": 2
     }
 }

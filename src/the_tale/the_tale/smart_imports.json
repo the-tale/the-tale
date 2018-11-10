@@ -91,6 +91,8 @@
                                                       "attribute": "POSTPONED_TASK_STATE"},
                              "refrigerator": {"module": "the_tale.common.postponed_tasks.workers.refrigerator"},
 
+                             "raven_client": {"module": "raven.contrib.django.raven_compat.models", "attribute": "client"},
+
                              "urlparse": {"module": "urllib.parse", "attribute": "urlparse"},
                              "URLError": {"module": "urllib.error", "attribute": "URLError"},
                              "urlopen": {"module": "urllib.request", "attribute": "urlopen"}}},
