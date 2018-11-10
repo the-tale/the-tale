@@ -1,9 +1,9 @@
 
-from dext.common.utils import jinja2
+import smart_imports
 
-from . import conf
+smart_imports.all()
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def heroes_conf():
-    return conf.heroes_settings
+    return conf.settings

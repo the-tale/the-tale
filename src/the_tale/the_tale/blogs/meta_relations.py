@@ -1,14 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-from the_tale.common.utils.decorators import lazy_property
-
-from . import prototypes
+smart_imports.all()
 
 
-class Post(meta_relations.MetaType):
+class Post(meta_relations_objects.MetaType):
     __slots__ = ('caption', '_object__lazy')
     TYPE = 1
     TYPE_CAPTION = 'Произведение'
@@ -20,7 +16,7 @@ class Post(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('blogs:posts:show', self.id)
+        return dext_urls.url('blogs:posts:show', self.id)
 
     @classmethod
     def create_from_object(cls, post):
@@ -28,21 +24,32 @@ class Post(meta_relations.MetaType):
         object._object__lazy = post
         return object
 
-    @lazy_property
+    @classmethod
+    def create_removed(cls):
+        return cls(id=None, caption='неизвестное произведение')
+
+    @utils_decorators.lazy_property
     def object(self):
+        from . import prototypes
         return prototypes.PostPrototype.get_by_id(self.id)
 
     @classmethod
     def create_from_id(cls, id):
+        from . import prototypes
+
         post = prototypes.PostPrototype.get_by_id(id)
+
         if post is None:
-            return None
+            return cls.create_removed()
+
         return cls.create_from_object(post)
 
     @classmethod
     def create_from_ids(cls, ids):
+        from . import prototypes
+
         return [cls(id=id, caption=caption) for id, caption in prototypes.PostPrototype._db_filer(ids__in=ids).values_list('id', 'caption')]
 
 
-class IsAbout(meta_relations.MetaRelation):
+class IsAbout(meta_relations_objects.MetaRelation):
     TYPE = 1

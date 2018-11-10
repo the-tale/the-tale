@@ -1,8 +1,7 @@
-# coding: utf-8
 
-import functools
+import smart_imports
 
-from dext.common.utils import views as dext_views
+smart_imports.all()
 
 
 def check_client_version(client_version):
@@ -11,6 +10,7 @@ def check_client_version(client_version):
         return client and version
     except:
         return False
+
 
 def handler(versions):
 
@@ -97,7 +97,6 @@ class Processor(dext_views.BaseViewProcessor):
                                        message='Неверный идентификатор клиента, ожидается <название программы>-<версия программы>')
 
         context.api_client = api_client
-
 
     def postprocess(self, context, response):
         response = super(Processor, self).postprocess(context, response)

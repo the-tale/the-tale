@@ -1,13 +1,10 @@
-# coding: utf-8
-import datetime
 
-from the_tale.common.utils.workers import BaseWorker
+import smart_imports
 
-from the_tale.linguistics import logic
-from the_tale.linguistics.conf import linguistics_settings
+smart_imports.all()
 
 
-class Worker(BaseWorker):
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
@@ -39,10 +36,10 @@ class Worker(BaseWorker):
     def process_game_dictionary_changed(self):
         # when dictionary changed, we update templates
         if self._next_templates_update_at is None:
-            self._next_templates_update_at = datetime.datetime.now() + linguistics_settings.LINGUISTICS_MANAGER_UPDATE_DELAY
+            self._next_templates_update_at = datetime.datetime.now() + conf.settings.LINGUISTICS_MANAGER_UPDATE_DELAY
         # and dictionary (since words changed)
         if self._next_words_update_at is None:
-            self._next_words_update_at = datetime.datetime.now() + linguistics_settings.LINGUISTICS_MANAGER_UPDATE_DELAY
+            self._next_words_update_at = datetime.datetime.now() + conf.settings.LINGUISTICS_MANAGER_UPDATE_DELAY
 
     def cmd_game_lexicon_changed(self):
         return self.send_cmd('game_lexicon_changed')
@@ -50,5 +47,5 @@ class Worker(BaseWorker):
     def process_game_lexicon_changed(self):
         # when lexicon changed, we update dictinoary
         if self._next_words_update_at is None:
-            self._next_words_update_at = datetime.datetime.now() + linguistics_settings.LINGUISTICS_MANAGER_UPDATE_DELAY
+            self._next_words_update_at = datetime.datetime.now() + conf.settings.LINGUISTICS_MANAGER_UPDATE_DELAY
         # and not update templates, sicnce errors status calculated in save method

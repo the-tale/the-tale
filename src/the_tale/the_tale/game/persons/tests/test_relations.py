@@ -1,27 +1,23 @@
-# coding: utf-8
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.places.modifiers import CITY_MODIFIERS
-from the_tale.game.relations import RACE
-
-from the_tale.game.persons import economic
+smart_imports.all()
 
 
-class RelationsTests(testcase.TestCase):
+class RelationsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(RelationsTests, self).setUp()
 
     def test_profession_to_race_mastery(self):
         for profession, masteries in list(economic.PROFESSION_TO_RACE.items()):
-            self.assertEqual(len(masteries), len(RACE.records))
+            self.assertEqual(len(masteries), len(game_relations.RACE.records))
 
             self.assertTrue(all([0 < mastery < 1.1201 for mastery in list(masteries.values())]))
 
         # check, if race id's not changed
-        self.assertEqual(RACE.HUMAN.value, 0)
-        self.assertEqual(RACE.ELF.value, 1)
-        self.assertEqual(RACE.ORC.value, 2)
-        self.assertEqual(RACE.GOBLIN.value, 3)
-        self.assertEqual(RACE.DWARF.value, 4)
+        self.assertEqual(game_relations.RACE.HUMAN.value, 0)
+        self.assertEqual(game_relations.RACE.ELF.value, 1)
+        self.assertEqual(game_relations.RACE.ORC.value, 2)
+        self.assertEqual(game_relations.RACE.GOBLIN.value, 3)
+        self.assertEqual(game_relations.RACE.DWARF.value, 4)

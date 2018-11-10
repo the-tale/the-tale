@@ -1,24 +1,12 @@
-# coding: utf-8
 
-from dext.forms import fields
+import smart_imports
 
-from utg import words as utg_words
-from utg import relations as utg_relations
-
-from the_tale.linguistics.forms import WordField
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-
-from . import base_place_bill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label='Город')
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
+class BaseForm(forms.BaseUserForm):
+    place = dext_fields.ChoiceField(label='Город')
+    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -29,7 +17,7 @@ class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 

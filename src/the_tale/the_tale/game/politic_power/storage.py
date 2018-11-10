@@ -1,12 +1,7 @@
 
+import smart_imports
 
-from the_tale.game import turn
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.persons import storage as persons_storage
-
-from . import logic
+smart_imports.all()
 
 
 class PowerStorage:
@@ -44,10 +39,10 @@ class PowerStorage:
         raise NotImplementedError
 
     def sync(self):
-        if self.turn == turn.number():
+        if self.turn == game_turn.number():
             return
 
-        self.turn = turn.number()
+        self.turn = game_turn.number()
 
         targets_ids = self._tt_targets_ids()
 
@@ -56,11 +51,11 @@ class PowerStorage:
 
         targets = [(self.TARGET_TYPE, target_id) for target_id in targets_ids]
 
-        impacts = tt_api_impacts.personal_impacts.cmd_get_targets_impacts(targets=targets)
+        impacts = game_tt_services.personal_impacts.cmd_get_targets_impacts(targets=targets)
 
         self._fill_powers(self._inner_power, impacts)
 
-        impacts = tt_api_impacts.crowd_impacts.cmd_get_targets_impacts(targets=targets)
+        impacts = game_tt_services.crowd_impacts.cmd_get_targets_impacts(targets=targets)
 
         self._fill_powers(self._outer_power, impacts)
 

@@ -1,27 +1,12 @@
 
-from django.forms import ValidationError
+import smart_imports
 
-from utg import words as utg_words
-
-from dext.forms import fields
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.persons import objects as persons_objects
-from the_tale.game.persons import logic as persons_logic
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game.bills.relations import BILL_TYPE
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-from the_tale.game.bills.bills.base_person_bill import BasePersonBill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    new_place = fields.ChoiceField(label='Новый город')
-    person = fields.ChoiceField(label='Мастер')
+class BaseForm(forms.BaseUserForm):
+    new_place = dext_fields.ChoiceField(label='Новый город')
+    person = dext_fields.ChoiceField(label='Мастер')
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -32,7 +17,7 @@ class BaseForm(BaseUserForm):
         place_id = int(self.cleaned_data['new_place'])
 
         if len(places_storage.places[place_id].persons) >= c.PLACE_MAX_PERSONS:
-            raise ValidationError('В городе достигнут максимум Мастеров. Чтобы переселить Мастера, необходимо кого-нибудь выселить.')
+            raise django_forms.ValidationError('В городе достигнут максимум Мастеров. Чтобы переселить Мастера, необходимо кого-нибудь выселить.')
 
         return place_id
 
@@ -42,13 +27,13 @@ class BaseForm(BaseUserForm):
         person = persons_storage.persons[person_id]
 
         if person.has_building:
-            raise ValidationError('У Мастера в собственности есть постройка. Прежде чем переехать он должен от неё избавиться.')
+            raise django_forms.ValidationError('У Мастера в собственности есть постройка. Прежде чем переехать он должен от неё избавиться.')
 
         if person.on_move_timeout:
-            raise ValidationError('Мастер недавно переезжал. Должно пройти время, прежде чем он снова сможет переехать.')
+            raise django_forms.ValidationError('Мастер недавно переезжал. Должно пройти время, прежде чем он снова сможет переехать.')
 
         if len(person.place.persons) <= c.PLACE_MIN_PERSONS:
-            raise ValidationError('В текущем городе Мастера слишком мало мастеров. Чтобы переселить Мастера, необходимо кого-нибудь вселить вместо него.')
+            raise django_forms.ValidationError('В текущем городе Мастера слишком мало мастеров. Чтобы переселить Мастера, необходимо кого-нибудь вселить вместо него.')
 
         return person_id
 
@@ -63,17 +48,17 @@ class UserForm(BaseForm):
         person_id = super().clean_person()
 
         if not politic_power_logic.get_inner_circle(person_id=person_id).in_circle(self.owner_id):
-            raise ValidationError('Ваш герой должен быть в ближнем круге Мастера')
+            raise django_forms.ValidationError('Ваш герой должен быть в ближнем круге Мастера')
 
         return person_id
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
-class PersonMove(BasePersonBill):
-    type = BILL_TYPE.PERSON_MOVE
+class PersonMove(base_person_bill.BasePersonBill):
+    type = relations.BILL_TYPE.PERSON_MOVE
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
@@ -118,17 +103,17 @@ class PersonMove(BasePersonBill):
 
     @classmethod
     def get_user_form_create(cls, post=None, owner_id=None):
-        return cls.UserForm(None, owner_id, post) #pylint: disable=E1102
+        return cls.UserForm(None, owner_id, post)  # pylint: disable=E1102
 
     def get_user_form_update(self, post=None, initial=None, owner_id=None, original_bill_id=None):
         if initial:
-            return self.UserForm(self.person_id, owner_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
-        return self.UserForm(self.person_id, owner_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
+            return self.UserForm(self.person_id, owner_id, initial=initial, original_bill_id=original_bill_id)  # pylint: disable=E1102
+        return self.UserForm(self.person_id, owner_id, post, original_bill_id=original_bill_id)  # pylint: disable=E1102
 
     def get_moderator_form_update(self, post=None, initial=None, original_bill_id=None):
         if initial:
-            return self.ModeratorForm(self.person_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
-        return self.ModeratorForm(self.person_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
+            return self.ModeratorForm(self.person_id, initial=initial, original_bill_id=original_bill_id)  # pylint: disable=E1102
+        return self.ModeratorForm(self.person_id, post, original_bill_id=original_bill_id)  # pylint: disable=E1102
 
     def user_form_initials(self):
         initials = super(PersonMove, self).user_form_initials()

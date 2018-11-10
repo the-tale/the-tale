@@ -1,31 +1,22 @@
 
-import datetime
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.amqp_environment import environment
-
-from the_tale.accounts.prototypes import AccountPrototype, RandomPremiumRequestPrototype
-from the_tale.accounts.conf import accounts_settings
-
-from the_tale.game.logic import create_test_map
+smart_imports.all()
 
 
-class AccountsManagerTest(testcase.TestCase):
+class AccountsManagerTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(AccountsManagerTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        environment.deinitialize()
-        environment.initialize()
+        amqp_environment.environment.deinitialize()
+        amqp_environment.environment.initialize()
 
-        self.worker = environment.workers.accounts_manager
+        self.worker = amqp_environment.environment.workers.accounts_manager
         self.worker.initialize()
 
     def tearDown(self):
@@ -37,7 +28,7 @@ class AccountsManagerTest(testcase.TestCase):
     def test_process_run_account_method__boundmethod(self):
         self.assertFalse(self.account.is_premium)
         self.worker.process_run_account_method(account_id=self.account.id,
-                                               method_name=AccountPrototype.prolong_premium.__name__,
+                                               method_name=prototypes.AccountPrototype.prolong_premium.__name__,
                                                data={'days': 1})
         self.account.reload()
         self.assertTrue(self.account.is_premium)
@@ -51,7 +42,7 @@ class AccountsManagerTest(testcase.TestCase):
 
     def test_run_random_premium_requests_processing__has_requests_can_not_process(self):
 
-        request = RandomPremiumRequestPrototype.create(self.account.id, days=30)
+        request = prototypes.RandomPremiumRequestPrototype.create(self.account.id, days=30)
 
         self.worker.run_random_premium_requests_processing()
 
@@ -60,10 +51,10 @@ class AccountsManagerTest(testcase.TestCase):
 
     def test_run_random_premium_requests_processing__has_requests_can_process(self):
         account_2 = self.accounts_factory.create_account()
-        AccountPrototype._db_all().update(active_end_at=datetime.datetime.now() + datetime.timedelta(days=1),
-                                          created_at=datetime.datetime.now() - accounts_settings.RANDOM_PREMIUM_CREATED_AT_BARRIER)
+        prototypes.AccountPrototype._db_all().update(active_end_at=datetime.datetime.now() + datetime.timedelta(days=1),
+                                                     created_at=datetime.datetime.now() - conf.settings.RANDOM_PREMIUM_CREATED_AT_BARRIER)
 
-        request = RandomPremiumRequestPrototype.create(self.account.id, days=30)
+        request = prototypes.RandomPremiumRequestPrototype.create(self.account.id, days=30)
 
         self.worker.run_random_premium_requests_processing()
 

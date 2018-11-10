@@ -1,18 +1,19 @@
-# coding: utf-8
-import datetime
 
-from dext.common.utils import jinja2
+import smart_imports
 
-from the_tale.portal.conf import portal_settings
+smart_imports.all()
 
-@jinja2.jinjaglobal
+
+@dext_jinja2.jinjaglobal
 def faq_url():
-    return jinja2.Markup(portal_settings.FAQ_URL)
+    return dext_jinja2.Markup(conf.settings.FAQ_URL)
 
-@jinja2.jinjaglobal
+
+@dext_jinja2.jinjaglobal
 def players_projects_url():
-    return jinja2.Markup(portal_settings.PLAYERS_PROJECTS_URL)
+    return dext_jinja2.Markup(conf.settings.PLAYERS_PROJECTS_URL)
 
-@jinja2.jinjaglobal
+
+@dext_jinja2.jinjaglobal
 def get_edition_number():
-    return (datetime.datetime.now() - portal_settings.FIRST_EDITION_DATE).days + 1
+    return (datetime.datetime.now() - conf.settings.FIRST_EDITION_DATE).days + 1

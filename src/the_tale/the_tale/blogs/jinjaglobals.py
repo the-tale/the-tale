@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import jinja2
-from dext.common.meta_relations import logic as meta_relations_logic
+import smart_imports
 
-from . import meta_relations
-from . import models
+smart_imports.all()
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def posts_about(meta_object, allowed_for=None):
     folclor_objects = [obj for relation, obj in meta_relations_logic.get_objects_related_to(relation=meta_relations.IsAbout, meta_object=meta_object)]
 
@@ -22,6 +19,6 @@ def posts_about(meta_object, allowed_for=None):
     return folclor_objects
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def folclor_tags():
     return models.Tag.objects.order_by('name').all()

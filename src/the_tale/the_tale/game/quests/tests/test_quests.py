@@ -1,57 +1,17 @@
 
-import random
+import smart_imports
 
-from unittest import mock
-
-from dext.common.utils import s11n
-
-from questgen import facts
-from questgen import actions as questgen_actions
-from questgen.quests.search_smith import SearchSmith
-from questgen.quests.quests_base import QuestsBase
-from questgen import logic
-
-from the_tale.common.utils import testcase
-
-from the_tale.linguistics.lexicon.keys import LEXICON_KEY
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.persons.relations import PERSON_TYPE
-from the_tale.game.persons import logic as persons_logic
-
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game import turn
-from the_tale.game import names
-from the_tale.game import logic as game_logic
-from the_tale.game import relations as game_relations
-
-from the_tale.game.actions.prototypes import ActionQuestPrototype, ActionIdlenessPrototype
-
-from the_tale.game.places import modifiers as places_modifiers
-from the_tale.game.places import logic as places_logic
-
-from the_tale.game.persons import relations as persons_relations
-
-from the_tale.game.quests.writers import Writer
-from the_tale.game.quests.prototypes import QuestPrototype
-from the_tale.game.quests.relations import DONOTHING_TYPE, QUESTS
+smart_imports.all()
 
 
-class QuestsTestBase(testcase.TestCase):
+class QuestsTestBase(utils_testcase.TestCase):
 
     def add_person_to_place(self, place):
         persons_logic.create_person(place=place,
                                     race=game_relations.RACE.random(),
                                     gender=game_relations.GENDER.random(),
                                     type=persons_relations.PERSON_TYPE.random(),
-                                    utg_name=names.generator().get_test_name())
+                                    utg_name=game_names.generator().get_test_name())
 
     def setUp(self):
         super(QuestsTestBase, self).setUp()
@@ -74,7 +34,7 @@ class QuestsTestBase(testcase.TestCase):
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
@@ -91,7 +51,7 @@ class QuestsTestBase(testcase.TestCase):
         self.p2.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
         places_logic.save_place(self.p2)
 
-        self.p1.persons[0].type = PERSON_TYPE.BLACKSMITH
+        self.p1.persons[0].type = persons_relations.PERSON_TYPE.BLACKSMITH
         persons_logic.save_person(self.p1.persons[0])
 
 
@@ -100,14 +60,14 @@ class QuestsTest(QuestsTestBase):
     def complete_quest(self):
         while not self.action_idl.leader:
             self.storage.process_turn()
-            turn.increment()
+            game_turn.increment()
 
-            self.hero.ui_info(actual_guaranteed=True) # test if ui info formed correctly
+            self.hero.ui_info(actual_guaranteed=True)  # test if ui info formed correctly
 
 
 def create_test_method(quest, quests):
 
-    internal_quests = {q.quest_class.TYPE: q.quest_class for q in quests }
+    internal_quests = {q.quest_class.TYPE: q.quest_class for q in quests}
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', False)
     @mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', False)
@@ -119,24 +79,24 @@ def create_test_method(quest, quests):
         self.hero.statistics.change_quests_done(1)
         heroes_logic.save_hero(self.hero)
 
-        test_upgrade_equipment = random.randint(0, 1) # test child quest or upgrade equipment for SearchSmith
+        test_upgrade_equipment = random.randint(0, 1)  # test child quest or upgrade equipment for SearchSmith
 
-        while self.hero.actions.current_action.TYPE != ActionQuestPrototype.TYPE or not self.hero.quests.has_quests:
-            if quest == SearchSmith and test_upgrade_equipment:
-                self.hero.money = QuestPrototype.upgrade_equipment_cost(self.hero) * 2
+        while self.hero.actions.current_action.TYPE != actions_prototypes.ActionQuestPrototype.TYPE or not self.hero.quests.has_quests:
+            if quest == questgen_quests_search_smith.SearchSmith and test_upgrade_equipment:
+                self.hero.money = prototypes.QuestPrototype.upgrade_equipment_cost(self.hero) * 2
                 self.hero.next_spending = heroes_relations.ITEMS_OF_EXPENDITURE.INSTANT_HEAL
 
             self.storage.process_turn()
-            turn.increment()
+            game_turn.increment()
 
         # test if quest is serializable
         s11n.to_json(self.hero.quests.current_quest.serialize())
 
         self.complete_quest()
 
-        self.assertEqual(self.hero.actions.current_action.TYPE, ActionIdlenessPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, actions_prototypes.ActionIdlenessPrototype.TYPE)
 
-        if quest == SearchSmith and test_upgrade_equipment:
+        if quest == questgen_quests_search_smith.SearchSmith and test_upgrade_equipment:
             self.assertTrue(self.hero.statistics.money_spend_for_artifacts > 0 or
                             self.hero.statistics.money_spend_for_sharpening > 0)
 
@@ -149,10 +109,10 @@ class RawQuestsTest(QuestsTestBase):
         super(RawQuestsTest, self).setUp()
 
     def check_quest(self, knowledge_base):
-        start = logic.get_absolute_start(knowledge_base)
+        start = questgen_logic.get_absolute_start(knowledge_base)
 
         table = {}
-        for jump in knowledge_base.filter(facts.Jump):
+        for jump in knowledge_base.filter(questgen_facts.Jump):
             if jump.state_from not in table:
                 table[jump.state_from] = []
             table[jump.state_from].append(jump)
@@ -164,15 +124,15 @@ class RawQuestsTest(QuestsTestBase):
         self.check_participants(knowledge_base, powers)
 
     def check_participants(self, knowledge_base, powers):
-        for participant in knowledge_base.filter(facts.QuestParticipant):
+        for participant in knowledge_base.filter(questgen_facts.QuestParticipant):
             self.assertTrue((participant.start, participant.participant) in powers)
 
     def _check_messages(self, quest_type, message):
-        writer = Writer(type=quest_type, message=message, substitution={}, hero=self.hero)
+        writer = writers.Writer(type=quest_type, message=message, substitution={}, hero=self.hero)
 
-        self.assertTrue(hasattr(LEXICON_KEY, writer.journal_id().upper()) or
-                        hasattr(LEXICON_KEY, writer.diary_id().upper()) or
-                        hasattr(LEXICON_KEY, writer.action_id().upper()))
+        self.assertTrue(hasattr(lexicon_keys.LEXICON_KEY, writer.journal_id().upper()) or
+                        hasattr(lexicon_keys.LEXICON_KEY, writer.diary_id().upper()) or
+                        hasattr(lexicon_keys.LEXICON_KEY, writer.action_id().upper()))
 
     def _check_action_messages(self, quest_type, actions):
         for action in actions:
@@ -181,7 +141,7 @@ class RawQuestsTest(QuestsTestBase):
                 self._check_messages(quest_type, '%s_donothing' % action.type)
 
                 # check donothing type in DONOTHING relation
-                self.assertTrue(action.type in DONOTHING_TYPE.index_value)
+                self.assertTrue(action.type in relations.DONOTHING_TYPE.index_value)
 
             elif isinstance(action, questgen_actions.UpgradeEquipment):
                 self._check_messages(quest_type, 'upgrade__fail')
@@ -200,16 +160,14 @@ class RawQuestsTest(QuestsTestBase):
                 self._check_messages(quest_type, '%s_money' % action.type)
                 self._check_messages(quest_type, '%s_artifact' % action.type)
 
-
     def _get_powers(self, start, current_state):
         powers = set()
 
-        if isinstance(current_state, facts.Finish):
+        if isinstance(current_state, questgen_facts.Finish):
             for object_uid in current_state.results.keys():
                 powers.add((start, object_uid))
 
         return powers
-
 
     def _bruteforce(self, knowledge_base, path, table, starts, processed, powers):
         current_state = knowledge_base[path[-1]]
@@ -217,23 +175,23 @@ class RawQuestsTest(QuestsTestBase):
         if current_state.uid in processed:
             return
 
-        if isinstance(current_state, facts.Start):
+        if isinstance(current_state, questgen_facts.Start):
             starts.append((current_state.uid, current_state.type))
 
-            writer = Writer(type=starts[-1][1], message=None, substitution={}, hero=self.hero)
-            self.assertTrue(hasattr(LEXICON_KEY, writer.name_id().upper()))
+            writer = writers.Writer(type=starts[-1][1], message=None, substitution={}, hero=self.hero)
+            self.assertTrue(hasattr(lexicon_keys.LEXICON_KEY, writer.name_id().upper()))
 
-            for participant in knowledge_base.filter(facts.QuestParticipant):
+            for participant in knowledge_base.filter(questgen_facts.QuestParticipant):
                 if knowledge_base[participant.start].type != starts[-1][1]:
                     continue
 
-                self.assertTrue(hasattr(LEXICON_KEY, writer.actor_id(participant.role).upper()))
+                self.assertTrue(hasattr(lexicon_keys.LEXICON_KEY, writer.actor_id(participant.role).upper()))
 
         self._check_action_messages(starts[-1][1], current_state.actions)
 
         powers |= self._get_powers(starts[-1][0], current_state)
 
-        if isinstance(current_state, facts.Finish):
+        if isinstance(current_state, questgen_facts.Finish):
             starts.pop()
 
         if not table.get(current_state.uid):
@@ -244,13 +202,13 @@ class RawQuestsTest(QuestsTestBase):
             self._check_action_messages(starts[-1][1], next_jump.start_actions)
             self._check_action_messages(starts[-1][1], next_jump.end_actions)
 
-            if isinstance(next_jump, facts.Option):
-                writer = Writer(type=starts[-1][1], message='choice', substitution={}, hero=self.hero)
-                self.assertTrue(hasattr(LEXICON_KEY, writer.choice_variant_id(next_jump.type).upper()))
-                self.assertTrue(hasattr(LEXICON_KEY, writer.current_choice_id(next_jump.type).upper()))
+            if isinstance(next_jump, questgen_facts.Option):
+                writer = writers.Writer(type=starts[-1][1], message='choice', substitution={}, hero=self.hero)
+                self.assertTrue(hasattr(lexicon_keys.LEXICON_KEY, writer.choice_variant_id(next_jump.type).upper()))
+                self.assertTrue(hasattr(lexicon_keys.LEXICON_KEY, writer.current_choice_id(next_jump.type).upper()))
 
             path.append(next_jump.state_to)
-            self._bruteforce(knowledge_base, path, table, list(starts), processed, powers )
+            self._bruteforce(knowledge_base, path, table, list(starts), processed, powers)
             path.pop()
 
         processed.add(current_state.uid)
@@ -261,17 +219,12 @@ def create_test_messages_method(quest, quests):
     @mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', False)
     @mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', False)
     def quest_test_method(self):
-        from questgen.selectors import Selector
-
-        from the_tale.game.quests import logic
-        from the_tale.game.quests import uids
-
         knowledge_base = logic.get_knowledge_base(logic.create_hero_info(self.hero))
 
-        qb = QuestsBase()
+        qb = questgen_quests_quests_base.QuestsBase()
         qb += [q.quest_class for q in quests]
 
-        selector = Selector(knowledge_base, qb)
+        selector = questgen_selectors.Selector(knowledge_base, qb)
 
         hero_uid = uids.hero(self.hero.id)
 
@@ -288,12 +241,12 @@ def create_test_messages_method(quest, quests):
     return quest_test_method
 
 
-for quest in QUESTS.records:
+for quest in relations.QUESTS.records:
 
     quests = [quest]
 
     if 'has_subquests' in quest.quest_class.TAGS:
-        quests.append(QUESTS.SPYING)
+        quests.append(relations.QUESTS.SPYING)
 
     setattr(QuestsTest, 'test_%s' % quest.name, create_test_method(quest, list(quests)))
     setattr(RawQuestsTest, 'test_%s' % quest.name, create_test_messages_method(quest, list(quests)))

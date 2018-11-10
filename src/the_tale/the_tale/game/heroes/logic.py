@@ -1,41 +1,8 @@
 
-import random
-import datetime
 
-from utg import words as utg_words
+import smart_imports
 
-from django.db import models as django_models
-
-from dext.common.utils import s11n
-
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.game import turn
-from the_tale.game import relations as game_relations
-from the_tale.game import names
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import power
-
-from the_tale.game.actions import container as actions_container
-from the_tale.game.quests import container as quests_container
-
-
-from the_tale.game.artifacts import storage as artifacts_storage
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.companions import objects as companions_objects
-
-from . import models
-from . import objects
-from . import position
-from . import statistics
-from . import preferences
-from . import relations
-from . import messages
-from . import habilities
-from . import bag
-from . import habits
+smart_imports.all()
 
 
 def live_query():
@@ -48,8 +15,8 @@ def get_minimum_created_time_of_active_quests():
 
 
 def hero_position_from_model(hero_model):
-    return position.Position(last_place_visited_turn=turn.number(), # TODO: get from model
-                             moved_out_place=False, # TODO: get from model
+    return position.Position(last_place_visited_turn=game_turn.number(),  # TODO: get from model
+                             moved_out_place=False,  # TODO: get from model
                              place_id=hero_model.pos_place_id,
                              road_id=hero_model.pos_road_id,
                              previous_place_id=hero_model.pos_previous_place_id,
@@ -142,7 +109,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         companion=companion,
                         journal=messages.JournalContainer(),  # we are not storrings journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
-                        abilities=habilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
+                        abilities=abilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
                         bag=bag.Bag.deserialize(data['bag']),
                         equipment=bag.Equipment.deserialize(data['equipment']),
                         created_at_turn=hero_model.created_at_turn,
@@ -160,11 +127,10 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         premium_state_end_at=hero_model.premium_state_end_at,
                         ban_state_end_at=hero_model.ban_state_end_at,
                         last_rare_operation_at_turn=hero_model.last_rare_operation_at_turn,
-                        settings_approved=hero_model.settings_approved,
                         actual_bills=data['actual_bills'],
-                        upbringing=beings_relations.UPBRINGING(data.get('upbringing', beings_relations.UPBRINGING.PHILISTINE.value)),
-                        death_age=beings_relations.AGE(data.get('death_age', beings_relations.AGE.MATURE.value)),
-                        first_death=beings_relations.FIRST_DEATH(data.get('first_death', beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS.value)),
+                        upbringing=tt_beings_relations.UPBRINGING(data.get('upbringing', tt_beings_relations.UPBRINGING.PHILISTINE.value)),
+                        death_age=tt_beings_relations.AGE(data.get('death_age', tt_beings_relations.AGE.MATURE.value)),
+                        first_death=tt_beings_relations.FIRST_DEATH(data.get('first_death', tt_beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS.value)),
                         utg_name=utg_words.Word.deserialize(data['name']))
 
 
@@ -179,7 +145,7 @@ def save_hero(hero, new=False):
             'upbringing': hero.upbringing.value,
             'first_death': hero.first_death.value}
 
-    arguments = dict(saved_at_turn=turn.number(),
+    arguments = dict(saved_at_turn=game_turn.number(),
                      saved_at=datetime.datetime.now(),
                      data=data,
                      abilities=s11n.to_json(hero.abilities.serialize()),
@@ -258,8 +224,7 @@ def save_hero(hero, new=False):
                      active_state_end_at=hero.active_state_end_at,
                      premium_state_end_at=hero.premium_state_end_at,
                      ban_state_end_at=hero.ban_state_end_at,
-                     last_rare_operation_at_turn=hero.last_rare_operation_at_turn,
-                     settings_approved=hero.settings_approved)
+                     last_rare_operation_at_turn=hero.last_rare_operation_at_turn)
 
     if new:
         models.Hero.objects.create(id=hero.id,
@@ -291,64 +256,64 @@ def preferences_for_new_hero(hero):
         hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_EMPATHY, relations.COMPANION_EMPATHY.ORDINAL)
 
 
-def cards_for_new_hero(hero):
-    from the_tale.game.cards import tt_api
-    from the_tale.game.cards import cards
+def create_hero(account_id, attributes):
 
-    tt_api.change_cards(hero.account_id,
-                        operation_type='new-hero-gift',
-                        to_add=[cards.CARD.CHANGE_HERO_SPENDINGS.effect.create_card(available_for_auction=False,
-                                                                                    type=cards.CARD.CHANGE_HERO_SPENDINGS,
-                                                                                    item=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT),
-                                cards.CARD.HEAL_COMPANION_COMMON.effect.create_card(available_for_auction=False,
-                                                                                    type=cards.CARD.HEAL_COMPANION_COMMON),
-                                cards.CARD.ADD_EXPERIENCE_COMMON.effect.create_card(available_for_auction=False,
-                                                                                    type=cards.CARD.ADD_EXPERIENCE_COMMON),
-                                cards.CARD.CHANGE_ABILITIES_CHOICES.effect.create_card(available_for_auction=False,
-                                                                                       type=cards.CARD.CHANGE_ABILITIES_CHOICES),
-                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
-                                                                                type=cards.CARD.CHANGE_PREFERENCE,
-                                                                                preference=relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
-                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
-                                                                                type=cards.CARD.CHANGE_PREFERENCE,
-                                                                                preference=relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
-                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
-                                                                                type=cards.CARD.CHANGE_PREFERENCE,
-                                                                                preference=relations.PREFERENCE_TYPE.PLACE),
-                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
-                                                                                type=cards.CARD.CHANGE_PREFERENCE,
-                                                                                preference=relations.PREFERENCE_TYPE.ARCHETYPE),
-                                cards.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
-                                                                                type=cards.CARD.CHANGE_PREFERENCE,
-                                                                                preference=relations.PREFERENCE_TYPE.FRIEND),
-                                cards.CARD.ADD_BONUS_ENERGY_RARE.effect.create_card(available_for_auction=False,
-                                                                                type=cards.CARD.ADD_BONUS_ENERGY_RARE)])
+    attributes = dict(attributes)
 
+    if 'race' not in attributes:
+        attributes['race'] = random.choice(game_relations.RACE.records)
 
-def create_hero(account, full_create=True):
-    from the_tale.game.relations import GENDER, RACE
+    if 'gender' not in attributes:
+        attributes['gender'] = random.choice((game_relations.GENDER.MALE,
+                                              game_relations.GENDER.FEMALE))
 
-    start_place = places_storage.places.random_place()
+    if 'name' not in attributes:
+        attributes['name'] = game_names.generator().get_name(attributes['race'],
+                                                             attributes['gender'])
 
-    race = random.choice(RACE.records)
+    if 'peacefulness' not in attributes:
+        attributes['peacefulness'] = 0
 
-    gender = random.choice((GENDER.MALE, GENDER.FEMALE))
+    if 'honor' not in attributes:
+        attributes['honor'] = 0
 
-    current_turn_number = turn.number()
+    if 'archetype' not in attributes:
+        attributes['archetype'] = game_relations.ARCHETYPE.NEUTRAL
 
-    utg_name = names.generator().get_name(race, gender)
+    if 'upbringing' not in attributes:
+        attributes['upbringing'] = tt_beings_relations.UPBRINGING.PHILISTINE
+
+    if 'first_death' not in attributes:
+        attributes['first_death'] = tt_beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS
+
+    if 'death_age' not in attributes:
+        attributes['death_age'] = tt_beings_relations.AGE.MATURE
+
+    required_attributes = {'is_fast',
+                           'is_bot',
+                           'might',
+                           'active_state_end_at',
+                           'premium_state_end_at',
+                           'ban_state_end_at'}
+
+    if not required_attributes.issubset(set(attributes)):
+        raise exceptions.HeroAttributeRequiredError(attributes=(required_attributes - set(attributes)))
+
+    current_turn_number = game_turn.number()
+
+    start_place = places_logic.get_start_place_for_race(attributes['race'])
 
     hero_position = position.Position.create(place_id=start_place.id, road_id=None)
 
-    hero = objects.Hero(id=account.id,
-                        account_id=account.id,
+    hero = objects.Hero(id=account_id,
+                        account_id=account_id,
                         health=f.hp_on_lvl(1),
                         level=1,
                         experience=0,
                         money=0,
                         next_spending=relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT,
-                        habit_honor=habits.Honor(raw_value=0),
-                        habit_peacefulness=habits.Peacefulness(raw_value=0),
+                        habit_honor=habits.Honor(raw_value=attributes['honor']),
+                        habit_peacefulness=habits.Peacefulness(raw_value=attributes['peacefulness']),
                         position=hero_position,
                         statistics=statistics.Statistics.create(),
                         preferences=preferences.HeroPreferences(),
@@ -356,43 +321,41 @@ def create_hero(account, full_create=True):
                         companion=None,
                         journal=messages.JournalContainer(),
                         quests=quests_container.QuestsContainer(),
-                        abilities=habilities.AbilitiesPrototype.create(),
+                        abilities=abilities.AbilitiesPrototype.create(),
                         bag=bag.Bag(),
                         equipment=bag.Equipment(),
                         created_at_turn=current_turn_number,
                         saved_at_turn=current_turn_number,
                         saved_at=None,
-                        is_fast=account.is_fast,
-                        is_bot=account.is_bot,
+                        is_fast=attributes['is_fast'],
+                        is_bot=attributes['is_bot'],
                         is_alive=True,
-                        gender=gender,
-                        race=race,
-                        last_energy_regeneration_at_turn=turn.number(),
-                        might=account.might,
+                        gender=attributes['gender'],
+                        race=attributes['race'],
+                        last_energy_regeneration_at_turn=game_turn.number(),
+                        might=attributes['might'],
                         ui_caching_started_at=datetime.datetime.now(),
-                        active_state_end_at=account.active_end_at,
-                        premium_state_end_at=account.premium_end_at,
-                        ban_state_end_at=account.ban_game_end_at,
-                        last_rare_operation_at_turn=turn.number(),
-                        settings_approved=False,
+                        active_state_end_at=attributes['active_state_end_at'],
+                        premium_state_end_at=attributes['premium_state_end_at'],
+                        ban_state_end_at=attributes['ban_state_end_at'],
+                        last_rare_operation_at_turn=game_turn.number(),
                         actual_bills=[],
-                        upbringing=beings_relations.UPBRINGING.PHILISTINE,
-                        death_age=beings_relations.AGE.MATURE,
-                        first_death=beings_relations.FIRST_DEATH.FROM_THE_MONSTER_FANGS,
-                        utg_name=utg_name)
+                        upbringing=attributes['upbringing'],
+                        death_age=attributes['death_age'],
+                        first_death=attributes['first_death'],
+                        utg_name=attributes['name'])
 
     dress_new_hero(hero)
     preferences_for_new_hero(hero)
 
-    if full_create:
-        cards_for_new_hero(hero)
+    hero.preferences.set(relations.PREFERENCE_TYPE.ARCHETYPE, attributes['archetype'])
 
     save_hero(hero, new=True)
 
     models.HeroPreferences.create(hero,
                                   energy_regeneration_type=hero.preferences.energy_regeneration_type,
                                   risk_level=relations.RISK_LEVEL.NORMAL,
-                                  archetype=game_relations.ARCHETYPE.NEUTRAL,
+                                  archetype=attributes['archetype'],
                                   companion_dedication=relations.COMPANION_DEDICATION.NORMAL,
                                   companion_empathy=relations.COMPANION_EMPATHY.ORDINAL)
 
@@ -403,9 +366,40 @@ def remove_hero(hero_id=None, account_id=None):
     if hero_id is not None:
         models.Hero.objects.filter(id=hero_id).delete()
     else:
-        print(account_id)
         models.Hero.objects.filter(account_id=account_id).delete()
 
 
 def get_heroes_to_accounts_map(heroes_ids):
     return dict(models.Hero.objects.filter(id__in=heroes_ids).values_list('id', 'account_id'))
+
+
+def get_hero_description(hero_id):
+    try:
+        return models.HeroDescription.objects.get(hero_id=hero_id).text
+    except models.HeroDescription.DoesNotExist:
+        return ''
+
+
+def set_hero_description(hero_id, text):
+    try:
+        with django_transaction.atomic():
+            models.HeroDescription.objects.create(hero_id=hero_id, text=text)
+    except django_db.IntegrityError:
+        models.HeroDescription.objects.filter(hero_id=hero_id).update(text=text)
+
+
+NAME_REGEX = re.compile(conf.settings.NAME_REGEX)
+
+
+def validate_name(forms):
+    for name_form in forms:
+        if len(name_form) > models.Hero.MAX_NAME_LENGTH:
+            return False, 'Слишком длинное имя, максимальное число символов: {}'.format(models.Hero.MAX_NAME_LENGTH)
+
+        if len(name_form) < conf.settings.NAME_MIN_LENGHT:
+            return False, 'Слишком короткое имя, минимальное число символов: {}'.format(conf.settings.NAME_MIN_LENGHT)
+
+        if NAME_REGEX.match(name_form) is None:
+            return False, 'Имя героя может содержать только следующие символы: {}'.format(conf.settings.NAME_SYMBOLS_DESCRITION)
+
+    return True, None

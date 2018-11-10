@@ -1,55 +1,50 @@
 
-import os
+import smart_imports
 
-from dext.common.utils.app_settings import app_settings
-
-from the_tale.game.balance import constants as c
+smart_imports.all()
 
 
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
 
-game_settings = app_settings('GAME',
 
-                             TURN_DELAY=c.TURN_DELTA,
+settings = dext_app_settings.app_settings('GAME',
 
-                             ENABLE_WORKER_HIGHLEVEL=True,
-                             ENABLE_WORKER_TURNS_LOOP=True,
-                             ENABLE_WORKER_LONG_COMMANDS=True,
-                             ENABLE_PVP=True,
+                                          TURN_DELAY=c.TURN_DELTA,
 
-                             ENABLE_DATA_REFRESH=True,
+                                          ENABLE_WORKER_HIGHLEVEL=True,
+                                          ENABLE_WORKER_TURNS_LOOP=True,
+                                          ENABLE_WORKER_LONG_COMMANDS=True,
+                                          ENABLE_PVP=True,
 
-                             PROCESS_TURN_WAIT_LOGIC_TIMEOUT=5*60,
-                             PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT=10*60,
+                                          ENABLE_DATA_REFRESH=True,
 
-                             STOP_WAIT_TIMEOUT=20 * 60,
+                                          PROCESS_TURN_WAIT_LOGIC_TIMEOUT=5 * 60,
+                                          PROCESS_TURN_WAIT_HIGHLEVEL_TIMEOUT=10 * 60,
 
-                             SAVED_UNCACHED_HEROES_FRACTION=0.00025,
+                                          STOP_WAIT_TIMEOUT=20 * 60,
 
-                             JS_CONSTNATS_FILE_LOCATION=os.path.join(APP_DIR, '../static/game/data/constants.js'),
+                                          SAVED_UNCACHED_HEROES_FRACTION=0.00025,
 
-                             COLLECT_GARBAGE=True,
-                             COLLECT_GARBAGE_PERIOD=20,
-                             UNLOAD_OBJECTS=False,
+                                          JS_CONSTNATS_FILE_LOCATION=os.path.join(APP_DIR, '../static/game/data/constants.js'),
 
-                             GAME_STATE_KEY='game state',
+                                          COLLECT_GARBAGE=True,
+                                          COLLECT_GARBAGE_PERIOD=20,
+                                          UNLOAD_OBJECTS=False,
 
-                             INFO_API_VERSION='1.9',
-                             DIARY_API_VERSION='1.0',
-                             NAMES_API_VERSION='1.0',
-                             HERO_HISTORY_API_VERSION='1.0',
+                                          GAME_STATE_KEY='game state',
 
-                             SAVE_ON_EXCEPTION_TIMEOUT=60*60,
+                                          INFO_API_VERSION='1.9',
+                                          DIARY_API_VERSION='1.0',
+                                          NAMES_API_VERSION='1.0',
+                                          HERO_HISTORY_API_VERSION='1.0',
 
-                             ENERGY_TRANSACTION_LIFETIME=24*60*60,
+                                          SAVE_ON_EXCEPTION_TIMEOUT=60 * 60,
 
-                             TT_ENERGY_BALANCE='http://localhost:10005/accounts/balance',
-                             TT_ENERGY_START_TRANSACTION='http://localhost:10005/transactions/start',
-                             TT_ENERGY_COMMIT_TRANSACTION='http://localhost:10005/transactions/commit',
-                             TT_ENERGY_ROLLBACK_TRANSACTION='http://localhost:10005/transactions/rollback',
-                             TT_ENERGY_DEBUG_CLEAR_SERVICE_URL='http://localhost:10005/debug-clear-service',
+                                          ENERGY_TRANSACTION_LIFETIME=24 * 60 * 60,
 
-                             TT_IMPACTS_PERSONAL='http://localhost:10007/',
-                             TT_IMPACTS_CROWD='http://localhost:10008/',
-                             TT_IMPACTS_JOB='http://localhost:10009/',
-                             TT_IMPACTS_FAME='http://localhost:10010/')
+                                          TT_ENERGY_ENTRY_POINT='http://localhost:10005/',
+
+                                          TT_IMPACTS_PERSONAL_ENTRY_POINT='http://localhost:10007/',
+                                          TT_IMPACTS_CROWD_ENTRY_POINT='http://localhost:10008/',
+                                          TT_IMPACTS_JOB_ENTRY_POINT='http://localhost:10009/',
+                                          TT_IMPACTS_FAME_ENTRY_POINT='http://localhost:10010/')

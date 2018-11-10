@@ -1,17 +1,16 @@
 
+import smart_imports
 
-from django.contrib import admin
-
-from the_tale.game.ratings.models import RatingValues, RatingPlaces
+smart_imports.all()
 
 
-class RatingValuesAdmin(admin.ModelAdmin):
+class RatingValuesAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account', 'might', 'bills_count', 'physic_power', 'magic_power', 'level')
 
 
-class RatingPlacesAdmin(admin.ModelAdmin):
+class RatingPlacesAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account', 'might_place', 'bills_count_place', 'physic_power_place', 'magic_power_place', 'level_place')
 
 
-admin.site.register(RatingValues, RatingValuesAdmin)
-admin.site.register(RatingPlaces, RatingPlacesAdmin)
+django_admin.site.register(models.RatingValues, RatingValuesAdmin)
+django_admin.site.register(models.RatingPlaces, RatingPlacesAdmin)

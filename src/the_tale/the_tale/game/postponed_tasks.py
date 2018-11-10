@@ -1,44 +1,44 @@
 
-import rels
-from rels.django import DjangoEnum
+import smart_imports
 
-from the_tale.amqp_environment import environment
-
-from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
-
-from the_tale.game import exceptions
+smart_imports.all()
 
 
 class ComplexChangeTask(PostponedLogic):
     TYPE = None
 
-    class STATE(DjangoEnum):
-        records = ( ('UNPROCESSED', 1, 'в очереди'),
-                    ('PROCESSED', 2, 'обработано'),
-                    ('HERO_CONDITIONS_NOT_PASSED', 3, 'не выполнены условия для героя'),
-                    ('CAN_NOT_PROCESS', 4, 'не удалось обработать'),
-                    ('BANNED', 5, 'игрок забанен') )
+    class STATE(rels_django.DjangoEnum):
+        records = (('UNPROCESSED', 1, 'в очереди'),
+                   ('PROCESSED', 2, 'обработано'),
+                   ('HERO_CONDITIONS_NOT_PASSED', 3, 'не выполнены условия для героя'),
+                   ('CAN_NOT_PROCESS', 4, 'не удалось обработать'),
+                   ('BANNED', 5, 'игрок забанен'))
 
+    class STEP(rels_django.DjangoEnum):
+        records = (('ERROR', 0, 'ошибка'),
+                   ('LOGIC', 1, 'логика'),
+                   ('HIGHLEVEL', 2, 'высокоуровневая логика'),
+                   ('PVP_BALANCER', 3, 'pvp балансировщик'),
+                   ('SUCCESS', 4, 'обработка завершена'))
 
-    class STEP(DjangoEnum):
-        records = ( ('ERROR', 0, 'ошибка'),
-                    ('LOGIC', 1, 'логика'),
-                    ('HIGHLEVEL', 2, 'высокоуровневая логика'),
-                    ('PVP_BALANCER', 3, 'pvp балансировщик'),
-                    ('SUCCESS', 4, 'обработка завершена') )
-
-
-    class RESULT(DjangoEnum):
-        records = ( ('SUCCESSED', 0, 'успешно'),
-                    ('FAILED', 1, 'ошибка'),
-                    ('CONTINUE', 2, 'продолжить'),
-                    ('IGNORE', 3, 'игнорировать способность'))
+    class RESULT(rels_django.DjangoEnum):
+        records = (('SUCCESSED', 0, 'успешно'),
+                   ('FAILED', 1, 'ошибка'),
+                   ('CONTINUE', 2, 'продолжить'),
+                   ('IGNORE', 3, 'игнорировать способность'))
 
     def construct_processor(self):
         raise NotImplementedError()
 
-    def __init__(self, processor_id, hero_id, data, step=STEP.LOGIC, state=STATE.UNPROCESSED, message=None):
+    def __init__(self, processor_id, hero_id, data, step=None, state=None, message=None):
         super(ComplexChangeTask, self).__init__()
+
+        if step is None:
+            step = self.STEP.LOGIC
+
+        if state is None:
+            state = self.STATE.UNPROCESSED
+
         self.processor_id = processor_id
         self.hero_id = hero_id
         self.data = data
@@ -51,12 +51,12 @@ class ComplexChangeTask(PostponedLogic):
         self.main_task = None
 
     def serialize(self):
-        return { 'processor_id': self.processor_id,
-                 'hero_id': self.hero_id,
-                 'data': self.data,
-                 'state': self.state.value,
-                 'step': self.step.value,
-                 'message': self.message}
+        return {'processor_id': self.processor_id,
+                'hero_id': self.hero_id,
+                'data': self.data,
+                'state': self.state.value,
+                'step': self.step.value,
+                'message': self.message}
 
     @property
     def processed_data(self):
@@ -72,7 +72,10 @@ class ComplexChangeTask(PostponedLogic):
 
         return self.message
 
-    def logic_result(self, next_step=STEP.SUCCESS, message=None):
+    def logic_result(self, next_step=None, message=None):
+        if next_step is None:
+            next_step = self.STEP.SUCCESS
+
         self.message = message
 
         if next_step.is_SUCCESS:
@@ -82,14 +85,14 @@ class ComplexChangeTask(PostponedLogic):
             return self.RESULT.FAILED, next_step, ()
 
         if next_step.is_HIGHLEVEL:
-            return self.RESULT.CONTINUE, next_step, ((lambda: environment.workers.highlevel.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
+            return self.RESULT.CONTINUE, next_step, ((lambda: amqp_environment.environment.workers.highlevel.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
 
         if next_step.is_PVP_BALANCER:
-            return self.RESULT.CONTINUE, next_step, ((lambda: environment.workers.pvp_balancer.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
+            return self.RESULT.CONTINUE, next_step, ((lambda: amqp_environment.environment.workers.pvp_balancer.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
 
         raise exceptions.UnknownNextStepError(next_step=next_step)
 
-    def process(self, main_task, storage=None, highlevel=None, pvp_balancer=None): # pylint: disable=R0911
+    def process(self, main_task, storage=None, highlevel=None, pvp_balancer=None):  # pylint: disable=R0911
 
         self.main_task = main_task
 
@@ -151,9 +154,8 @@ class ComplexChangeTask(PostponedLogic):
                 self.state = self.STATE.PROCESSED
                 return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
 
-
             if result.is_FAILED:
-                main_task.comment = 'result is False on step %r' %  (self.step,)
+                main_task.comment = 'result is False on step %r' % (self.step,)
                 self.state = self.STATE.CAN_NOT_PROCESS
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 

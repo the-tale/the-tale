@@ -1,0 +1,51 @@
+
+
+{% set permissions = value('the_tale.clans.relations', 'PERMISSION').records %}
+{% set roles = value('the_tale.clans.relations', 'MEMBER_ROLE').records %}
+
+<div class="accordion" id="pgf-clan-permissions-accordion">
+
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-clan-permissions-accordion" href="#pgf-clans-permissions-accordion">
+        Звания и их права
+      </a>
+    </div>
+    <div id="pgf-clans-permissions-accordion" class="accordion-body collapse" style="height: 0px; padding-left: 10px; padding-right: 10px;">
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>право</th>
+            {% for role in roles %}
+              <th>{{role.text}}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {% for permission in permissions %}
+              <tr>
+                <td>
+                  {{permission.text}}
+                  {% if permission.in_development %}
+                    <span class="label label-info">в разработке</span>
+                  {% endif %}
+                  {% if permission.help %}
+                    <i class="icon icon-info-sign"
+                       rel="tooltip"
+                       title="{{permission.help}}"></i>
+                     {% endif %}
+                </td>
+                {% for role in roles %}
+                  <td>{% if permission in role.permissions %}+{% else %}-{% endif %}</td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+</div>

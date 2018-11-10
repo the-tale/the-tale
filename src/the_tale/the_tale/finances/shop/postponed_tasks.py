@@ -1,34 +1,7 @@
 
-import rels
+import smart_imports
 
-from rels.django import DjangoEnum
-
-from tt_logic.cards import constants as logic_cards_constants
-
-from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.common.postponed_tasks.prototypes import PostponedLogic, POSTPONED_TASK_LOGIC_RESULT
-
-from the_tale.accounts import logic as accounts_logic
-
-from the_tale.accounts import tt_api as accounts_tt_api
-from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-
-from the_tale.game.cards import tt_api as cards_tt_api
-from the_tale.game.cards import logic as cards_logic
-from the_tale.game.cards import relations as cards_relations
-
-from the_tale.finances.bank.transaction import Transaction
-from the_tale.finances.bank import relations as bank_relations
-from the_tale.finances.bank import prototypes as bank_prototypes
-
-from the_tale.amqp_environment import environment
-from the_tale.accounts.prototypes import AccountPrototype
-
-from . import relations
-from . import tt_api
-from . import logic
-from . import conf
+smart_imports.all()
 
 
 def good_bought_message(name, price):
@@ -37,13 +10,13 @@ def good_bought_message(name, price):
                        'price': price}
 
 
-class BASE_BUY_TASK_STATE(DjangoEnum):
+class BASE_BUY_TASK_STATE(rels_django.DjangoEnum):
     records = (('TRANSACTION_REQUESTED', 1, 'запрошены средства'),
                ('TRANSACTION_REJECTED', 2, 'недостаточно средств'),
                ('TRANSACTION_FROZEN', 3, 'средства выделены'),
                ('WAIT_TRANSACTION_CONFIRMATION', 4, 'ожидает подтверждение платежа'),
                ('SUCCESSED', 5, 'операция выполнена'),
-               ('ERROR_IN_FREEZING_TRANSACTION',6, 'неверное состояние транзакции при замарозке средств'),
+               ('ERROR_IN_FREEZING_TRANSACTION', 6, 'неверное состояние транзакции при замарозке средств'),
                ('ERROR_IN_CONFIRM_TRANSACTION', 7, 'неверное состояние транзакции при подтверждении траты'),
                ('WRONG_TASK_STATE', 8, 'ошибка при обрабокте задачи — неверное состояние'),
                ('CANCELED', 9, 'операция отменена'), )
@@ -61,7 +34,7 @@ class BaseBuyTask(PostponedLogic):
 
         self.account_id = account_id
         self.state = state if isinstance(state, rels.Record) else self.RELATION.index_value[state]
-        self.transaction = Transaction.deserialize(transaction) if isinstance(transaction, dict) else transaction
+        self.transaction = bank_transaction.Transaction.deserialize(transaction) if isinstance(transaction, dict) else transaction
         self.custom_error = custom_error
 
     def __eq__(self, other):
@@ -71,10 +44,10 @@ class BaseBuyTask(PostponedLogic):
                 self.custom_error == other.custom_error)
 
     def serialize(self):
-        return { 'state': self.state.value,
-                 'transaction': self.transaction.serialize(),
-                 'account_id': self.account_id,
-                 'custom_error': self.custom_error }
+        return {'state': self.state.value,
+                'transaction': self.transaction.serialize(),
+                'account_id': self.account_id,
+                'custom_error': self.custom_error}
 
     @property
     def uuid(self): return self.account_id
@@ -85,8 +58,8 @@ class BaseBuyTask(PostponedLogic):
             return self.custom_error
         return self.state.text
 
-    @lazy_property
-    def account(self): return AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
+    @utils_decorators.lazy_property
+    def account(self): return accounts_prototypes.AccountPrototype.get_by_id(self.account_id) if self.account_id is not None else None
 
     def process_transaction_requested(self, main_task):
         transaction_state = self.transaction.get_invoice_state()
@@ -107,12 +80,12 @@ class BaseBuyTask(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
     def on_process_transaction_requested__transaction_frozen(self, main_task):
-        main_task.extend_postsave_actions((lambda: environment.workers.accounts_manager.cmd_task(main_task.id),))
+        main_task.extend_postsave_actions((lambda: amqp_environment.environment.workers.accounts_manager.cmd_task(main_task.id),))
 
     def on_process_transaction_frozen(self, storage):
         raise NotImplementedError
 
-    def process_transaction_frozen(self, main_task, storage): # pylint: disable=W0613
+    def process_transaction_frozen(self, main_task, storage):  # pylint: disable=W0613
         if self.on_process_transaction_frozen(storage=storage):
             self.transaction.confirm()
             self.state = self.RELATION.WAIT_TRANSACTION_CONFIRMATION
@@ -137,7 +110,7 @@ class BaseBuyTask(PostponedLogic):
             main_task.comment = 'wrong invoice %d state %r on confirmation step' % (self.transaction.invoice_id, transaction_state)
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
-    def process(self, main_task, storage=None): # pylint: disable=W0613
+    def process(self, main_task, storage=None):  # pylint: disable=W0613
 
         if self.state.is_TRANSACTION_REQUESTED:
             return self.process_transaction_requested(main_task)
@@ -159,15 +132,15 @@ class BaseBuyTask(PostponedLogic):
         if invoice.amount >= 0:
             return
 
-        buyer = AccountPrototype.get_by_id(invoice.recipient_id)
+        buyer = accounts_prototypes.AccountPrototype.get_by_id(invoice.recipient_id)
 
         if buyer.referral_of_id is None:
             return
 
-        owner = AccountPrototype.get_by_id(buyer.referral_of_id)
+        owner = accounts_prototypes.AccountPrototype.get_by_id(buyer.referral_of_id)
 
         logic.transaction_logic(account=owner,
-                                amount=-int(invoice.amount*conf.payments_settings.REFERRAL_BONUS),
+                                amount=-int(invoice.amount * conf.settings.REFERRAL_BONUS),
                                 description='Часть от потраченного вашим рефералом',
                                 uid='referral-bonus',
                                 force=True)
@@ -176,7 +149,7 @@ class BaseBuyTask(PostponedLogic):
 class BaseLogicBuyTask(BaseBuyTask):
 
     def on_process_transaction_requested__transaction_frozen(self, main_task):
-        main_task.extend_postsave_actions((lambda: environment.workers.supervisor.cmd_logic_task(self.account_id, main_task.id),))
+        main_task.extend_postsave_actions((lambda: amqp_environment.environment.workers.supervisor.cmd_logic_task(self.account_id, main_task.id),))
 
 
 class BuyPremium(BaseBuyTask):
@@ -188,7 +161,7 @@ class BuyPremium(BaseBuyTask):
 
     def __eq__(self, other):
         return (super(BuyPremium, self).__eq__(other) and
-                self.days == other.days )
+                self.days == other.days)
 
     def serialize(self):
         data = super(BuyPremium, self).serialize()
@@ -199,8 +172,7 @@ class BuyPremium(BaseBuyTask):
         self.account.prolong_premium(days=self.days)
         self.account.save()
 
-        accounts_tt_api.change_cards_timer_speed(account_id=self.account.id,
-                                                 speed=logic_cards_constants.PREMIUM_PLAYER_SPEED)
+        accounts_logic.update_cards_timer(account=self.account)
 
         return True
 
@@ -214,7 +186,7 @@ class BuyPermanentPurchase(BaseBuyTask):
 
     def __eq__(self, other):
         return (super(BuyPermanentPurchase, self).__eq__(other) and
-                self.purchase_type == other.purchase_type )
+                self.purchase_type == other.purchase_type)
 
     def serialize(self):
         data = super(BuyPermanentPurchase, self).serialize()
@@ -238,7 +210,7 @@ class BuyMarketLot(BaseBuyTask):
     def __eq__(self, other):
         return (super(BuyMarketLot, self).__eq__(other) and
                 self.item_type == other.item_type and
-                self.price == other.price )
+                self.price == other.price)
 
     def serialize(self):
         data = super(BuyMarketLot, self).serialize()
@@ -247,21 +219,21 @@ class BuyMarketLot(BaseBuyTask):
         return data
 
     def process_referrals(self):
-        pass # do nothing
+        pass  # do nothing
 
     def on_process_transaction_frozen(self, **kwargs):
-        lots = tt_api.close_lot(item_type=self.item_type,
-                                price=self.price,
-                                buyer_id=self.account_id)
+        lots = tt_services.market.cmd_close_lot(item_type=self.item_type,
+                                                price=self.price,
+                                                buyer_id=self.account_id)
         if not lots:
             self.custom_error = 'Не удалось купить карту: только что её купил другой игрок.'
             return False
 
-        cards_tt_api.change_cards_owner(old_owner_id=accounts_logic.get_system_user_id(),
-                                        new_owner_id=self.account_id,
-                                        operation_type='#close_sell_lots',
-                                        new_storage=cards_relations.STORAGE.FAST,
-                                        cards_ids=[lot.item_id for lot in lots])
+        cards_logic.change_owner(old_owner_id=accounts_logic.get_system_user_id(),
+                                 new_owner_id=self.account_id,
+                                 operation_type='#close_sell_lots',
+                                 new_storage=cards_relations.STORAGE.FAST,
+                                 cards_ids=[lot.item_id for lot in lots])
 
         cards_info = cards_logic.get_cards_info_by_full_types()
 
@@ -285,12 +257,12 @@ class BuyMarketLot(BaseBuyTask):
                                                 amount=-logic.get_commission(self.price),
                                                 description_for_sender='Комиссия с продажи «{}»'.format(lot_name),
                                                 description_for_recipient='Комиссия с продажи «{}»'.format(lot_name),
-                                                operation_uid='{}-cards-hero-good'.format(conf.payments_settings.MARKET_COMMISSION_OPERATION_UID, lot.full_type),
+                                                operation_uid='{}-cards-hero-good'.format(conf.settings.MARKET_COMMISSION_OPERATION_UID, lot.full_type),
                                                 force=True)
 
-        pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
-                               recipients_ids=[lot.owner_id],
-                               body=good_bought_message(name=lot_name, price=self.price - logic.get_commission(self.price)),
-                               async=True)
+        personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                             recipients_ids=[lot.owner_id],
+                                             body=good_bought_message(name=lot_name, price=self.price - logic.get_commission(self.price)),
+                                             async=True)
 
         return True

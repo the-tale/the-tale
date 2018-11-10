@@ -1,27 +1,22 @@
-# coding: utf-8
-import datetime
 
-from the_tale.amqp_environment import environment
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype, POSTPONED_TASK_LOGIC_RESULT
-from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
+smart_imports.all()
 
 
-class RefrigeratorTests(testcase.TestCase):
+class RefrigeratorTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(RefrigeratorTests, self).setUp()
 
-        environment.deinitialize()
-        environment.initialize()
+        amqp_environment.environment.deinitialize()
+        amqp_environment.environment.initialize()
 
-        self.worker = environment.workers.refrigerator
+        self.worker = amqp_environment.environment.workers.refrigerator
         self.worker.initialize()
 
-        self.task_1 = PostponedTaskPrototype.create(FakePostponedInternalTask(result_state=POSTPONED_TASK_LOGIC_RESULT.WAIT))
-        self.task_2 = PostponedTaskPrototype.create(FakePostponedInternalTask())
+        self.task_1 = PostponedTaskPrototype.create(postponed_tasks.FakePostponedInternalTask(result_state=POSTPONED_TASK_LOGIC_RESULT.WAIT))
+        self.task_2 = PostponedTaskPrototype.create(postponed_tasks.FakePostponedInternalTask())
 
     def test_initialize(self):
         self.assertEqual(self.worker.tasks, {})
@@ -37,7 +32,7 @@ class RefrigeratorTests(testcase.TestCase):
     def test_check_tasks(self):
         self.worker.process_wait_task(self.task_2.id)
         self.worker.process_wait_task(self.task_1.id)
-        self.worker.process_wait_task(PostponedTaskPrototype.create(FakePostponedInternalTask(result_state=POSTPONED_TASK_LOGIC_RESULT.CONTINUE)).id)
+        self.worker.process_wait_task(PostponedTaskPrototype.create(postponed_tasks.FakePostponedInternalTask(result_state=POSTPONED_TASK_LOGIC_RESULT.CONTINUE)).id)
 
         self.worker.check_tasks()
 

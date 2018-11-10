@@ -1,7 +1,9 @@
 
-from dext.common.utils.app_settings import app_settings
+import smart_imports
+
+smart_imports.all()
 
 
-settings = app_settings('PERSONS',
-                        API_SHOW_VERSION='1.1',
-                        CHRONICLE_RECORDS_NUMBER=10)
+settings = dext_app_settings.app_settings('PERSONS',
+                                          API_SHOW_VERSION='1.1',
+                                          CHRONICLE_RECORDS_NUMBER=10)

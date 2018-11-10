@@ -1,15 +1,7 @@
-# coding: utf-8
-import random
 
-from dext.common.utils import storage as dext_storage
+import smart_imports
 
-from the_tale.common.utils import storage
-
-from .prototypes import ResourceExchangePrototype
-from .relations import BUILDING_STATE
-
-from . import models
-from . import exceptions
+smart_imports.all()
 
 
 class PlacesStorage(dext_storage.Storage):
@@ -17,19 +9,13 @@ class PlacesStorage(dext_storage.Storage):
     EXCEPTION = exceptions.PlacesStorageError
 
     def _construct_object(self, model):
-        from . import logic
         return logic.load_place(place_model=model)
 
     def _save_object(self, place):
-        from . import logic
         return logic.save_place(place)
 
     def _get_all_query(self):
         return models.Place.objects.all()
-
-    def random_place(self):
-        self.sync()
-        return random.choice(list(self._data.values()))
 
     def get_choices(self):
         self.sync()
@@ -57,15 +43,13 @@ class BuildingsStorage(dext_storage.CachedStorage):
     EXCEPTION = exceptions.BuildingsStorageError
 
     def _construct_object(self, model):
-        from . import logic
         return logic.load_building(building_model=model)
 
     def _save_object(self, building):
-        from . import logic
         return logic.save_building(building)
 
     def _get_all_query(self):
-        return models.Building.objects.exclude(state=BUILDING_STATE.DESTROYED)
+        return models.Building.objects.exclude(state=relations.BUILDING_STATE.DESTROYED)
 
     def _reset_cache(self):
         self._persons_to_buildings = {}
@@ -120,10 +104,10 @@ class BuildingsStorage(dext_storage.CachedStorage):
 buildings = BuildingsStorage()
 
 
-class ResourceExchangeStorage(storage.Storage):
+class ResourceExchangeStorage(utils_storage.Storage):
     SETTINGS_KEY = 'resource exchange change time'
     EXCEPTION = exceptions.ResourceExchangeStorageError
-    PROTOTYPE = ResourceExchangePrototype
+    PROTOTYPE = prototypes.ResourceExchangePrototype
 
     def get_exchanges_for_place(self, place):
         exchanges = []

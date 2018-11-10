@@ -1,40 +1,14 @@
 
-import time
-import random
+import smart_imports
 
-from dext.common.utils import cache
-
-from the_tale import amqp_environment
-
-from the_tale.accounts import logic as accounts_logic
-from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-
-from the_tale.common.utils.logic import random_value_by_priority
-
-from the_tale.game import names
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game import turn
-from the_tale.game.prototypes import GameState
-from the_tale.game import relations as game_relations
-
-from . import tt_api
-from . import relations
-from . import messages
-from . import exceptions
-from . import conf
-from . import logic_accessors
-from . import equipment_methods
-from . import jobs_methods
+smart_imports.all()
 
 
 # TODO: merge classes instead subclassing
 class Hero(logic_accessors.LogicAccessorsMixin,
            equipment_methods.EquipmentMethodsMixin,
            jobs_methods.JobsMethodsMixin,
-           names.ManageNameMixin2):
+           game_names.ManageNameMixin2):
 
     __slots__ = ('id',
                  'account_id',
@@ -54,7 +28,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  'premium_state_end_at',
                  'ban_state_end_at',
                  'last_rare_operation_at_turn',
-                 'settings_approved',
 
                  'force_save_required',
                  'last_help_on_turn',
@@ -125,7 +98,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                  premium_state_end_at,
                  ban_state_end_at,
                  last_rare_operation_at_turn,
-                 settings_approved,
                  actual_bills,
                  utg_name,
                  upbringing,
@@ -199,7 +171,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.premium_state_end_at = premium_state_end_at
         self.ban_state_end_at = ban_state_end_at
         self.last_rare_operation_at_turn = last_rare_operation_at_turn
-        self.settings_approved = settings_approved
 
         self.upbringing = upbringing
         self.death_age = death_age
@@ -218,11 +189,11 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         self.force_save_required = True
 
-        if send_message: # TODO: move out logic
-            pm_tt_api.send_message(sender_id=accounts_logic.get_system_user_id(),
-                                  recipients_ids=[self.account_id],
-                                  body='Поздравляем, Ваш герой получил {} уровень!'.format(self.level),
-                                  async=True)
+        if send_message:  # TODO: move out logic
+            personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                                 recipients_ids=[self.account_id],
+                                                 body='Поздравляем, Ваш герой получил {} уровень!'.format(self.level),
+                                                 async=True)
 
     def add_experience(self, value, without_modifications=False):
         real_experience = int(value) if without_modifications else int(value * self.experience_modifier)
@@ -253,7 +224,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                 self.abilities.increment_level(new_ability.get_id())
             else:
                 self.abilities.add(new_ability.get_id())
-
 
     ##########################
     # health
@@ -289,9 +259,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         if self.companion is None or self.companion_heal_disabled():
             spending_candidates[relations.ITEMS_OF_EXPENDITURE.HEAL_COMPANION] = 0
 
-        self.next_spending = random_value_by_priority(list(spending_candidates.items()))
+        self.next_spending = utils_logic.random_value_by_priority(list(spending_candidates.items()))
         self.quests.mark_updated()
-
 
     ##########################
     # quests
@@ -299,22 +268,20 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
     def get_quests_priorities(self):
         # always check hero position to prevent «bad» quests generation
-        from the_tale.game.quests.relations import QUESTS
-
-        quests = [quest for quest in QUESTS.records if quest.quest_type.is_NORMAL]
+        quests = [quest for quest in quests_relations.QUESTS.records if quest.quest_type.is_NORMAL]
 
         if self.preferences.mob is not None:
-            quests.append(QUESTS.HUNT)
+            quests.append(quests_relations.QUESTS.HUNT)
         if self.preferences.place is not None and (self.position.place is None or self.preferences.place.id != self.position.place.id):
-            quests.append(QUESTS.HOMETOWN)
+            quests.append(quests_relations.QUESTS.HOMETOWN)
         if self.preferences.friend is not None and (self.position.place is None or self.preferences.friend.place.id != self.position.place.id):
-            quests.append(QUESTS.HELP_FRIEND)
+            quests.append(quests_relations.QUESTS.HELP_FRIEND)
         if self.preferences.enemy is not None and (self.position.place is None or self.preferences.enemy.place.id != self.position.place.id):
-            quests.append(QUESTS.INTERFERE_ENEMY)
+            quests.append(quests_relations.QUESTS.INTERFERE_ENEMY)
 
         if any(place._modifier.is_HOLY_CITY for place in places_storage.places.all()):
             if self.position.place is None or not self.position.place._modifier.is_HOLY_CITY:
-                quests.append(QUESTS.PILGRIMAGE)
+                quests.append(quests_relations.QUESTS.PILGRIMAGE)
 
         return [(quest, self.modify_quest_priority(quest)) for quest in quests]
 
@@ -328,20 +295,20 @@ class Hero(logic_accessors.LogicAccessorsMixin,
             multuplier *= self.habit_quest_active_multiplier
 
         if change_source.correlation_requirements is None:
-            self.habit_honor.change(change_source.honor*multuplier)
-            self.habit_peacefulness.change(change_source.peacefulness*multuplier)
+            self.habit_honor.change(change_source.honor * multuplier)
+            self.habit_peacefulness.change(change_source.peacefulness * multuplier)
 
         elif change_source.correlation_requirements:
             if self.habit_honor.raw_value * change_source.honor > 0:
-                self.habit_honor.change(change_source.honor*multuplier)
+                self.habit_honor.change(change_source.honor * multuplier)
             if self.habit_peacefulness.raw_value * change_source.peacefulness > 0:
-                self.habit_peacefulness.change(change_source.peacefulness*multuplier)
+                self.habit_peacefulness.change(change_source.peacefulness * multuplier)
 
         else:
             if self.habit_honor.raw_value * change_source.honor < 0:
-                self.habit_honor.change(change_source.honor*multuplier)
+                self.habit_honor.change(change_source.honor * multuplier)
             if self.habit_peacefulness.raw_value * change_source.peacefulness < 0:
-                self.habit_peacefulness.change(change_source.peacefulness*multuplier)
+                self.habit_peacefulness.change(change_source.peacefulness * multuplier)
 
     def change_habits(self, habit_type, habit_value):
 
@@ -391,17 +358,17 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                 message = message.clone()
 
         if diary:
-            tt_api.push_message_to_diary(self.id, message, self.is_premium)
+            size = conf.settings.DIARY_LOG_LENGTH_PREMIUM if self.is_premium else conf.settings.DIARY_LOG_LENGTH
+
+            tt_services.diary.cmd_push_message(self.id, message, size=size)
 
     def add_message(self, type_, diary=False, journal=True, turn_delta=0, **kwargs):
-        from the_tale.linguistics import logic
-
         if not diary and not self.is_active and not self.is_premium:
             # do not process journal messages for inactive heroes (and clear them if needed)
             self.journal.clear()
             return
 
-        lexicon_key, externals, restrictions = logic.prepair_get_text(type_, kwargs)
+        lexicon_key, externals, restrictions = linguistics_logic.prepair_get_text(type_, kwargs)
 
         message_constructor = messages.MessageSurrogate.create
 
@@ -416,13 +383,12 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         self.push_message(message, diary=diary, journal=journal)
 
-
     ##########################
     # callbacks
     ##########################
 
     def on_help(self):
-        current_turn = turn.number()
+        current_turn = game_turn.number()
 
         if self.last_help_on_turn != current_turn:
             self.last_help_on_turn = current_turn
@@ -448,7 +414,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     def get_achievement_type_value(self, achievement_type):
 
         if achievement_type.is_TIME:
-            return turn.game_datetime(self.last_rare_operation_at_turn - self.created_at_turn).year
+            return game_turn.game_datetime(self.last_rare_operation_at_turn - self.created_at_turn).year
         elif achievement_type.is_MONEY:
             return self.statistics.money_earned
         elif achievement_type.is_MOBS:
@@ -462,7 +428,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         elif achievement_type.is_PVP_BATTLES_1X1:
             return self.statistics.pvp_battles_1x1_number
         elif achievement_type.is_PVP_VICTORIES_1X1:
-            if self.statistics.pvp_battles_1x1_number >= conf.heroes_settings.MIN_PVP_BATTLES:
+            if self.statistics.pvp_battles_1x1_number >= conf.settings.MIN_PVP_BATTLES:
                 return int(float(self.statistics.pvp_battles_1x1_victories) / self.statistics.pvp_battles_1x1_number * 100)
             return 0
         elif achievement_type.is_KEEPER_HELP_COUNT:
@@ -479,17 +445,11 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         raise exceptions.UnkwnownAchievementTypeError(achievement_type=achievement_type)
 
     def process_rare_operations(self):
-        from the_tale.accounts.achievements.storage import achievements_storage
-        from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
-
-        from the_tale.game.companions import storage as companions_storage
-        from the_tale.game.companions import logic as companions_logic
-
-        current_turn = turn.number()
+        current_turn = game_turn.number()
 
         passed_interval = current_turn - self.last_rare_operation_at_turn
 
-        if passed_interval < conf.heroes_settings.RARE_OPERATIONS_INTERVAL:
+        if passed_interval < conf.settings.RARE_OPERATIONS_INTERVAL:
             return
 
         if self.companion is None and random.random() < float(passed_interval) / c.TURNS_IN_HOUR / c.COMPANIONS_GIVE_COMPANION_AFTER:
@@ -500,9 +460,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         self.quests.sync_interfered_persons()
 
-        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.TIME, object=self):
+        with achievements_storage.achievements.verify(type=achievements_relations.ACHIEVEMENT_TYPE.TIME, object=self):
             self.last_rare_operation_at_turn = current_turn
-
 
     def __eq__(self, other):
 
@@ -530,11 +489,9 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     ##########################
 
     def ui_info(self, actual_guaranteed, old_info=None):
-        from the_tale.game.map.generator.drawer import get_hero_sprite
-
         new_info = {'id': self.id,
                     'patch_turn': None if old_info is None else old_info['actual_on_turn'],
-                    'actual_on_turn': turn.number() if actual_guaranteed else self.saved_at_turn,
+                    'actual_on_turn': game_turn.number() if actual_guaranteed else self.saved_at_turn,
                     'ui_caching_started_at': time.mktime(self.ui_caching_started_at.timetuple()),
                     'diary': None,  # diary version will be setupped by game:info view
                     'messages': self.journal.ui_info(),
@@ -544,7 +501,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                     'might': {'value': self.might,
                               'crit_chance': self.might_crit_chance,
                               'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus,
-                              'politics_power': self.politics_power_might },
+                              'politics_power': self.politics_power_might},
                     'permissions': {'can_participate_in_pvp': self.can_participate_in_pvp,
                                     'can_repair_building': self.can_repair_building},
                     'action': self.actions.current_action.ui_info(),
@@ -570,7 +527,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                                game_relations.HABIT_TYPE.PEACEFULNESS.verbose_value: {'verbose': self.habit_peacefulness.verbose_value,
                                                                                       'raw': self.habit_peacefulness.raw_value}},
                     'quests': self.quests.ui_info(self),
-                    'sprite': get_hero_sprite(self).value}
+                    'sprite': map_generator.drawer.get_hero_sprite(self).value}
 
         changed_fields = ['changed_fields', 'actual_on_turn', 'patch_turn']
 
@@ -598,10 +555,9 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         del action_data['pvp__last_turn']
         del action_data['pvp__actual']
 
-
     @classmethod
     def cached_ui_info_key_for_hero(cls, account_id):
-        return conf.heroes_settings.UI_CACHING_KEY % account_id
+        return conf.settings.UI_CACHING_KEY % account_id
 
     @property
     def cached_ui_info_key(self):
@@ -609,9 +565,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
     @classmethod
     def cached_ui_info_for_hero(cls, account_id, recache_if_required, patch_turns, for_last_turn):
-        from . import logic
 
-        data = cache.get(cls.cached_ui_info_key_for_hero(account_id))
+        data = dext_cache.get(cls.cached_ui_info_key_for_hero(account_id))
 
         if data is None:
             hero = logic.load_hero(account_id=account_id)
@@ -619,7 +574,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         cls.modify_ui_info_with_turn(data, for_last_turn=for_last_turn)
 
-        if recache_if_required and cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and GameState.is_working():
+        if recache_if_required and cls.is_ui_continue_caching_required(data['ui_caching_started_at']) and game_prototypes.GameState.is_working():
             amqp_environment.environment.workers.supervisor.cmd_start_hero_caching(account_id)
 
         if patch_turns is not None and data['patch_turn'] in patch_turns:
@@ -636,3 +591,6 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
     def new_cards_combined(self, number):
         self.statistics.change_cards_combined(number)
+
+    def meta_object(self):
+        return meta_relations.Hero.create_from_object(self)

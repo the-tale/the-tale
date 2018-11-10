@@ -1,12 +1,10 @@
-# coding: utf-8
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.finances.bank import logic
-import collections
+smart_imports.all()
 
 
-class LogicTests(testcase.TestCase):
+class LogicTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(LogicTests, self).setUp()

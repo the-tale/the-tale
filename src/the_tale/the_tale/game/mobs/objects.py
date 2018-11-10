@@ -1,27 +1,7 @@
 
-import random
+import smart_imports
 
-from the_tale.common.utils import bbcode
-from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.game import names
-
-from the_tale.game.heroes.habilities import AbilitiesPrototype
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance.power import Damage
-
-from the_tale.game.map import relations as map_relations
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes import habilities
-
-from the_tale.game import relations as game_relations
-from the_tale.game.actions import relations as actions_relations
-
-from the_tale.game.artifacts import storage as artifacts_storage
-
-from . import exceptions
+smart_imports.all()
 
 
 class Mob(object):
@@ -69,15 +49,14 @@ class Mob(object):
 
     @property
     def record(self):
-        from . import storage
         return storage.mobs[self.record_id]
 
     @staticmethod
     def _produce_abilities(record, level):
-        abilities = AbilitiesPrototype()
+        abilities = heroes_abilities.AbilitiesPrototype()
         for ability_id in record.abilities:
             abilities.add(ability_id, level=1)
-        abilities.randomized_mob_level_up(f.max_ability_points_number(level)-len(record.abilities))
+        abilities.randomized_mob_level_up(f.max_ability_points_number(level) - len(record.abilities))
         return abilities
 
     additional_abilities = []
@@ -104,7 +83,7 @@ class Mob(object):
     def basic_damage(self):
         distribution = self.record.archetype.power_distribution
         raw_damage = f.expected_damage_to_hero_per_hit(self.level) * self.damage_modifier
-        return Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
+        return power.Damage(physic=raw_damage * distribution.physic, magic=raw_damage * distribution.magic)
 
     @property
     def mob_type(self): return self.record.type
@@ -112,34 +91,28 @@ class Mob(object):
     @property
     def is_eatable(self): return self.record.is_eatable
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def linguistics_restrictions_constants(self):
-        from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-        from the_tale.linguistics.storage import restrictions_storage
-        from the_tale.game.map import logic as map_logic
-
-        from the_tale.game.companions import relations as companion_relations
-
         terrains = map_logic.get_terrain_linguistics_restrictions(self.terrain)
 
-        restrictions = [restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB_TYPE, self.record.type.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.MOB, self.record.id).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, self.record.archetype.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_VERBAL, self.record.communication_verbal.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_GESTURES, self.record.communication_gestures.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMMUNICATION_TELEPATHIC, self.record.communication_telepathic.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.INTELLECT_LEVEL, self.record.intellect_level.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTOR, game_relations.ACTOR.MOB.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ACTION_TYPE, self.action_type.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.COMPANION_EXISTENCE, companion_relations.COMPANION_EXISTENCE.HAS_NO.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_STRUCTURE, self.record.structure.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_MOVEMENT, self.record.movement.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_BODY, self.record.body.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_SIZE, self.record.size.value).id,
-                        restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_ORIENTATION, self.record.orientation.value).id]
+        restrictions = [linguistics_restrictions.get(self.record.type),
+                        linguistics_restrictions.get_raw('MOB', self.record.id),
+                        linguistics_restrictions.get(self.record.archetype),
+                        linguistics_restrictions.get(self.record.communication_verbal),
+                        linguistics_restrictions.get(self.record.communication_gestures),
+                        linguistics_restrictions.get(self.record.communication_telepathic),
+                        linguistics_restrictions.get(self.record.intellect_level),
+                        linguistics_restrictions.get(game_relations.ACTOR.MOB),
+                        linguistics_restrictions.get(self.action_type),
+                        linguistics_restrictions.get(companions_relations.COMPANION_EXISTENCE.HAS_NO),
+                        linguistics_restrictions.get(self.record.structure),
+                        linguistics_restrictions.get(self.record.movement),
+                        linguistics_restrictions.get(self.record.body),
+                        linguistics_restrictions.get(self.record.size),
+                        linguistics_restrictions.get(self.record.orientation)]
 
         for feature in self.record.features:
-            restrictions.append(restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.BEING_FEATURE, feature.value).id)
+            restrictions.append(linguistics_restrictions.get(feature))
 
         restrictions.extend(terrains)
 
@@ -167,8 +140,6 @@ class Mob(object):
     def deserialize(cls, data):
         # we do not save abilities and after load, mob can has differen abilities levels
         # if mob record is desabled or deleted, get another random record
-
-        from . import storage
 
         record = storage.mobs.get_by_uuid(data['id'])
 
@@ -204,7 +175,7 @@ class Mob(object):
                 self.abilities == other.abilities)
 
 
-class MobRecord(names.ManageNameMixin2):
+class MobRecord(game_names.ManageNameMixin2):
     __slots__ = ('id',
                  'editor_id',
                  'level',
@@ -293,7 +264,7 @@ class MobRecord(names.ManageNameMixin2):
             raise exceptions.NoWeaponsError(mob_id=self.id)
 
     @property
-    def description_html(self): return bbcode.render(self.description)
+    def description_html(self): return utils_bbcode.render(self.description)
 
     def features_verbose(self):
         features = [feature.verbose_text for feature in self.features]
@@ -311,7 +282,7 @@ class MobRecord(names.ManageNameMixin2):
         return weapons
 
     def get_abilities_objects(self):
-        abilities = [habilities.ABILITIES[ability_id] for ability_id in self.abilities]
+        abilities = [heroes_abilities.ABILITIES[ability_id] for ability_id in self.abilities]
         abilities.sort(key=lambda a: a.NAME)
         return abilities
 
@@ -326,3 +297,6 @@ class MobRecord(names.ManageNameMixin2):
 
     def create_mob(self, hero, is_boss=False):
         return Mob(record_id=self.id, level=hero.level, is_boss=is_boss)
+
+    def meta_object(self):
+        return meta_relations.Mob.create_from_object(self)

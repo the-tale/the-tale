@@ -1,31 +1,36 @@
 
-import copy
-import math
-import random
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.jobs import objects as jobs_objects
-
-from the_tale.game import tt_api_impacts
-
-from .. import conf
-from .. import logic
+smart_imports.all()
 
 
-class CalculatePowerFractionsTests(testcase.TestCase):
+class CalculatePowerFractionsTests(utils_testcase.TestCase):
 
     def test_no_powers(self):
         self.assertEqual(logic.calculate_power_fractions({}), {})
 
+    def test_zeroes(self):
+        self.assertEqual(logic.calculate_power_fractions({1: 0,
+                                                          2: 0,
+                                                          3: 0,
+                                                          4: 0}),
+                         {1: 0.25,
+                          2: 0.25,
+                          3: 0.25,
+                          4: 0.25})
+
+    def test_zeroes__all_except_one(self):
+        self.assertEqual(logic.calculate_power_fractions({1: 0,
+                                                          2: 666,
+                                                          3: 0}),
+                         {1: 0,
+                          2: 1.0,
+                          3: 0})
+
     def test_no_negative_powers(self):
-        self.assertEqual(logic.calculate_power_fractions({1: 10*2,
-                                                          2: 20*2,
-                                                          3: 70*2}),
+        self.assertEqual(logic.calculate_power_fractions({1: 10 * 2,
+                                                          2: 20 * 2,
+                                                          3: 70 * 2}),
                          {1: 0.1,
                           2: 0.2,
                           3: 0.7})
@@ -34,34 +39,34 @@ class CalculatePowerFractionsTests(testcase.TestCase):
         self.assertEqual(logic.calculate_power_fractions({1: 10,
                                                           2: -20,
                                                           3: 70}),
-                         {1: (10+20)/(10+20+70+20),
+                         {1: (10 + 20) / (10 + 20 + 70 + 20),
                           2: 0,
-                          3: (70+20)/(10+20+70+20)})
+                          3: (70 + 20) / (10 + 20 + 70 + 20)})
 
 
-class SyncPowerTests(testcase.TestCase):
+class SyncPowerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
 
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
-        logic.add_power_impacts([tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                                          hero_id=1,
-                                                                          person_id=10,
-                                                                          amount=100),
-                                 tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
-                                                                          hero_id=2,
-                                                                          person_id=20,
-                                                                          amount=200),
-                                 tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
-                                                                         hero_id=1,
-                                                                         place_id=30,
-                                                                         amount=300),
-                                 tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                                         hero_id=3,
-                                                                         place_id=40,
-                                                                         amount=400)])
+        logic.add_power_impacts([game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                            hero_id=1,
+                                                                            person_id=10,
+                                                                            amount=100),
+                                 game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                            hero_id=2,
+                                                                            person_id=20,
+                                                                            amount=200),
+                                 game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                           hero_id=1,
+                                                                           place_id=30,
+                                                                           amount=300),
+                                 game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                           hero_id=3,
+                                                                           place_id=40,
+                                                                           amount=400)])
 
     def test_success(self):
 
@@ -77,23 +82,23 @@ class SyncPowerTests(testcase.TestCase):
                    (tt_api_impacts.OBJECT_TYPE.PLACE, 30),
                    (tt_api_impacts.OBJECT_TYPE.PLACE, 40)]
 
-        impacts = tt_api_impacts.personal_impacts.cmd_get_targets_impacts(targets=targets)
+        impacts = game_tt_services.personal_impacts.cmd_get_targets_impacts(targets=targets)
 
-        self.assertCountEqual([impact.amount for impact in impacts], [math.floor(100*c.PLACE_POWER_REDUCE_FRACTION),
-                                                                      math.floor(400*c.PLACE_POWER_REDUCE_FRACTION)])
+        self.assertCountEqual([impact.amount for impact in impacts], [math.floor(100 * c.PLACE_POWER_REDUCE_FRACTION),
+                                                                      math.floor(400 * c.PLACE_POWER_REDUCE_FRACTION)])
 
-        impacts = tt_api_impacts.crowd_impacts.cmd_get_targets_impacts(targets=targets)
+        impacts = game_tt_services.crowd_impacts.cmd_get_targets_impacts(targets=targets)
 
-        self.assertCountEqual([impact.amount for impact in impacts], [math.floor(200*c.PLACE_POWER_REDUCE_FRACTION),
-                                                                      math.floor(300*c.PLACE_POWER_REDUCE_FRACTION)])
+        self.assertCountEqual([impact.amount for impact in impacts], [math.floor(200 * c.PLACE_POWER_REDUCE_FRACTION),
+                                                                      math.floor(300 * c.PLACE_POWER_REDUCE_FRACTION)])
 
 
-class GetInnerCircleTests(testcase.TestCase):
+class GetInnerCircleTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
 
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
         self.person_impacts = []
         self.place_impacts = []
@@ -104,24 +109,24 @@ class GetInnerCircleTests(testcase.TestCase):
         self.place_id = 777
 
         for i in range(test_size):
-            self.person_impacts.append(tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                                                hero_id=100+i,
-                                                                                person_id=self.person_id,
-                                                                                amount=1000+i))
-            self.person_impacts.append(tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
-                                                                                hero_id=200+i,
-                                                                                person_id=self.person_id,
-                                                                                amount=2000+i))
+            self.person_impacts.append(game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                                  hero_id=100 + i,
+                                                                                  person_id=self.person_id,
+                                                                                  amount=1000 + i))
+            self.person_impacts.append(game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                                  hero_id=200 + i,
+                                                                                  person_id=self.person_id,
+                                                                                  amount=2000 + i))
 
         for i in range(test_size):
-            self.place_impacts.append(tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                                              hero_id=300+i,
-                                                                              place_id=self.place_id,
-                                                                              amount=3000+i))
-            self.place_impacts.append(tt_api_impacts.PowerImpact.hero_2_place(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
-                                                                              hero_id=400+i,
-                                                                              place_id=self.place_id,
-                                                                              amount=4000+i))
+            self.place_impacts.append(game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                                hero_id=300 + i,
+                                                                                place_id=self.place_id,
+                                                                                amount=3000 + i))
+            self.place_impacts.append(game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                                hero_id=400 + i,
+                                                                                place_id=self.place_id,
+                                                                                amount=4000 + i))
 
         logic.add_power_impacts(self.person_impacts)
         logic.add_power_impacts(self.place_impacts)
@@ -156,12 +161,12 @@ class GetInnerCircleTests(testcase.TestCase):
         self.assertRaises(NotImplementedError, logic.get_inner_circle)
 
 
-class GetJobPowerTests(testcase.TestCase):
+class GetJobPowerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
 
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
         impacts = []
 
@@ -169,30 +174,30 @@ class GetJobPowerTests(testcase.TestCase):
         self.person_id = 666
         self.place_id = 777
 
-        impacts = [tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                              actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                              actor_id=self.hero_id,
-                                              target_type=tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE,
-                                              target_id=self.person_id,
-                                              amount=1000),
-                   tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                              actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                              actor_id=self.hero_id,
-                                              target_type=tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE,
-                                              target_id=self.person_id,
-                                              amount=2000),
-                   tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                              actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                              actor_id=self.hero_id,
-                                              target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
-                                              target_id=self.place_id,
-                                              amount=3000),
-                   tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                              actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                              actor_id=self.hero_id,
-                                              target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE,
-                                              target_id=self.place_id,
-                                              amount=4000)]
+        impacts = [game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                actor_id=self.hero_id,
+                                                target_type=tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE,
+                                                target_id=self.person_id,
+                                                amount=1000),
+                   game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                actor_id=self.hero_id,
+                                                target_type=tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE,
+                                                target_id=self.person_id,
+                                                amount=2000),
+                   game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                actor_id=self.hero_id,
+                                                target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
+                                                target_id=self.place_id,
+                                                amount=3000),
+                   game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                actor_id=self.hero_id,
+                                                target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE,
+                                                target_id=self.place_id,
+                                                amount=4000)]
 
         foreign_impacts = copy.deepcopy(impacts)
         for impact in foreign_impacts:
@@ -214,29 +219,29 @@ class GetJobPowerTests(testcase.TestCase):
         self.assertRaises(NotImplementedError, logic.get_job_power)
 
 
-class AddPowerImpactsTests(testcase.TestCase):
+class AddPowerImpactsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
     def test_success(self):
         impacts = []
 
-        for type in tt_api_impacts.IMPACT_TYPE.records:
-            impacts.append(tt_api_impacts.PowerImpact.hero_2_person(type=type,
-                                                                    hero_id=random.randint(1, 100),
-                                                                    person_id=random.randint(1, 100),
-                                                                    amount=random.randint(1, 100)))
-            impacts.append(tt_api_impacts.PowerImpact.hero_2_place(type=type,
-                                                                   hero_id=random.randint(1, 100),
-                                                                   place_id=random.randint(1, 100),
-                                                                   amount=random.randint(1, 100)))
+        for type in game_tt_services.IMPACT_TYPE.records:
+            impacts.append(game_tt_services.PowerImpact.hero_2_person(type=type,
+                                                                      hero_id=random.randint(1, 100),
+                                                                      person_id=random.randint(1, 100),
+                                                                      amount=random.randint(1, 100)))
+            impacts.append(game_tt_services.PowerImpact.hero_2_place(type=type,
+                                                                     hero_id=random.randint(1, 100),
+                                                                     place_id=random.randint(1, 100),
+                                                                     amount=random.randint(1, 100)))
         logic.add_power_impacts(impacts)
 
         loaded_impacts = []
 
-        for api in [tt_api_impacts.personal_impacts, tt_api_impacts.crowd_impacts, tt_api_impacts.job_impacts]:
+        for api in [game_tt_services.personal_impacts, game_tt_services.crowd_impacts, game_tt_services.job_impacts]:
             loaded_impacts.extend(api.cmd_get_last_power_impacts(limit=100))
 
         for impact in loaded_impacts:
@@ -244,11 +249,11 @@ class AddPowerImpactsTests(testcase.TestCase):
 
         self.assertCountEqual([impact for impact in impacts if not impact.type.is_FAME], loaded_impacts)
 
-        fame_impacts = tt_api_impacts.fame_impacts.cmd_get_last_power_impacts(limit=100,
-                                                                              actor_type=None,
-                                                                              actor_id=None,
-                                                                              target_type=None,
-                                                                              target_id=None)
+        fame_impacts = game_tt_services.fame_impacts.cmd_get_last_power_impacts(limit=100,
+                                                                                actor_type=None,
+                                                                                actor_id=None,
+                                                                                target_type=None,
+                                                                                target_id=None)
 
         for impact in fame_impacts:
             impact.time = None
@@ -256,23 +261,23 @@ class AddPowerImpactsTests(testcase.TestCase):
         self.assertCountEqual([impact for impact in impacts if impact.type.is_FAME], fame_impacts)
 
 
-class GetLastPowerImpactsTests(testcase.TestCase):
+class GetLastPowerImpactsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
         self.impacts = []
 
-        for type in tt_api_impacts.IMPACT_TYPE.records:
-            self.impacts.append(tt_api_impacts.PowerImpact.hero_2_person(type=type,
-                                                                         hero_id=random.randint(1, 100),
-                                                                         person_id=random.randint(1, 100),
-                                                                         amount=random.randint(1, 100)))
-            self.impacts.append(tt_api_impacts.PowerImpact.hero_2_place(type=type,
-                                                                        hero_id=random.randint(1, 100),
-                                                                        place_id=random.randint(1, 100),
-                                                                        amount=random.randint(1, 100)))
+        for type in game_tt_services.IMPACT_TYPE.records:
+            self.impacts.append(game_tt_services.PowerImpact.hero_2_person(type=type,
+                                                                           hero_id=random.randint(1, 100),
+                                                                           person_id=random.randint(1, 100),
+                                                                           amount=random.randint(1, 100)))
+            self.impacts.append(game_tt_services.PowerImpact.hero_2_place(type=type,
+                                                                          hero_id=random.randint(1, 100),
+                                                                          place_id=random.randint(1, 100),
+                                                                          amount=random.randint(1, 100)))
 
         with mock.patch('the_tale.game.turn.number', lambda: random.randint(1, 10000)):
             for impact in self.impacts:
@@ -297,4 +302,4 @@ class GetLastPowerImpactsTests(testcase.TestCase):
         self.impacts.sort(key=lambda impact: (impact.turn, impact.time), reverse=True)
 
         self.assertEqual([impact for impact in self.impacts if not impact.type.is_JOB and not impact.type.is_FAME][:3],
-                          loaded_impacts)
+                         loaded_impacts)

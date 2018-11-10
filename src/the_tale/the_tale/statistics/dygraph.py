@@ -1,5 +1,7 @@
 
-from the_tale.statistics import relations
+import smart_imports
+
+smart_imports.all()
 
 
 class Plot(object):
@@ -57,7 +59,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.REFERRALS, y_axis='y1'),
                       Plot(relations.RECORD_TYPE.REGISTRATIONS_COMPLETED_IN_MONTH, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.REGISTRATIONS_TRIES_IN_MONTH, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.REFERRALS_IN_MONTH, y_axis='y2')                      ]
+                      Plot(relations.RECORD_TYPE.REFERRALS_IN_MONTH, y_axis='y2')]
                ),
     PlotsGroup(uid='fast-conversion',
                title='Конверсия временных регистраций в завершённые',
@@ -100,7 +102,7 @@ PLOTS_GROUPS = [
                y2_label='процент',
                y2_value_range=[0, 100],
                plots=[Plot(relations.RECORD_TYPE.LIFETIME, y_axis='y'),
-                      Plot(relations.RECORD_TYPE.LIFETIME_PERCENT, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.LIFETIME_PERCENT, y_axis='y2')]),
     PlotsGroup(uid='payers',
                title='Платежи',
                y_label='количество',
@@ -108,13 +110,13 @@ PLOTS_GROUPS = [
                plots=[Plot(relations.RECORD_TYPE.PAYERS, y_axis='y'),
                       Plot(relations.RECORD_TYPE.PAYERS_IN_MONTH, y_axis='y'),
                       Plot(relations.RECORD_TYPE.INCOME, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_IN_MONTH, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_IN_MONTH, y_axis='y2')]),
 
     PlotsGroup(uid='total-income',
                title='Общий доход',
                y_label='',
                y2_label='печеньки',
-               plots=[Plot(relations.RECORD_TYPE.INCOME_TOTAL, y_axis='y2')] ),
+               plots=[Plot(relations.RECORD_TYPE.INCOME_TOTAL, y_axis='y2')]),
 
     PlotsGroup(uid='arppu',
                title='ARPU & ARPPU (Average Revenue per Active & Paying User)',
@@ -123,13 +125,13 @@ PLOTS_GROUPS = [
                plots=[Plot(relations.RECORD_TYPE.ARPPU, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.ARPPU_IN_MONTH, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.ARPU, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.ARPU_IN_MONTH, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.ARPU_IN_MONTH, y_axis='y2')]),
 
     PlotsGroup(uid='first-payment',
                title='Среднее время до 1-ого платежа (за предыдущий месяц)',
                y_label='',
                y2_label='дни',
-               plots=[Plot(relations.RECORD_TYPE.DAYS_BEFORE_PAYMENT, y_axis='y2')] ),
+               plots=[Plot(relations.RECORD_TYPE.DAYS_BEFORE_PAYMENT, y_axis='y2')]),
 
 
     PlotsGroup(uid='arpnu',
@@ -139,13 +141,13 @@ PLOTS_GROUPS = [
                plots=[Plot(relations.RECORD_TYPE.APRNU_WEEK, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.APRNU_MONTH, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.APRNU_3_MONTH, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.LTV, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.LTV, y_axis='y2')]),
 
     PlotsGroup(uid='revenue',
                title='Доход (за предыдущий месяц)',
                y_label='',
                y2_label='печеньки',
-               plots=[Plot(relations.RECORD_TYPE.REVENUE, y_axis='y2')] ),
+               plots=[Plot(relations.RECORD_TYPE.REVENUE, y_axis='y2')]),
 
     PlotsGroup(uid='social-group',
                title='Распределение доходов по социальным группам (за предыдущий месяц)',
@@ -154,7 +156,7 @@ PLOTS_GROUPS = [
                plots=[Plot(relations.RECORD_TYPE.INCOME_FROM_FORUM, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_SILENT, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_SINGLES, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_SINGLES, y_axis='y2')]),
 
     PlotsGroup(uid='social-group-percents',
                title='% доходов по социальным группам (за предыдущий месяц)',
@@ -165,7 +167,7 @@ PLOTS_GROUPS = [
                plots=[Plot(relations.RECORD_TYPE.INCOME_FROM_FORUM_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_SILENT_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GUILD_MEMBERS_PERCENTS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_SINGLES_PERCENTS, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_SINGLES_PERCENTS, y_axis='y2')]),
 
     PlotsGroup(uid='goods',
                title='Распределение доходов по группам товаров (за предыдущий месяц)',
@@ -180,7 +182,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_TRANSFER_MONEY_COMMISSION, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_TRANSFER_MONEY_COMMISSION, y_axis='y2')]),
 
     PlotsGroup(uid='goods-percents',
                title='% доходов по группам товаров (за предыдущий месяц)',
@@ -197,7 +199,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_ABILITIES_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_CLANS_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_FROM_GOODS_MARKET_COMMISSION_PERCENTS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_FROM_TRANSFER_MONEY_COMMISSION_PERCENTS, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_FROM_TRANSFER_MONEY_COMMISSION_PERCENTS, y_axis='y2')]),
 
     PlotsGroup(uid='income-groups',
                title='Численность игроков по размеру трат',
@@ -207,7 +209,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_500_1000, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_1000_2500, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_2500_10000, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_GROUP_10000, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_GROUP_10000, y_axis='y2')]),
 
     PlotsGroup(uid='income-groups-percents',
                title='% игроков по размеру трат',
@@ -219,7 +221,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_500_1000_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_1000_2500_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_2500_10000_PERCENTS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_GROUP_10000_PERCENTS, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_GROUP_10000_PERCENTS, y_axis='y2')]),
 
     PlotsGroup(uid='income-groups-income',
                title='доход по размеру трат',
@@ -229,7 +231,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_500_1000_INCOME, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_1000_2500_INCOME, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_2500_10000_INCOME, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_GROUP_10000_INCOME, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_GROUP_10000_INCOME, y_axis='y2')]),
 
     PlotsGroup(uid='income-groups-income-percents',
                title='% дохода по размеру трат',
@@ -241,7 +243,7 @@ PLOTS_GROUPS = [
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_500_1000_INCOME_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_1000_2500_INCOME_PERCENTS, y_axis='y2'),
                       Plot(relations.RECORD_TYPE.INCOME_GROUP_2500_10000_INCOME_PERCENTS, y_axis='y2'),
-                      Plot(relations.RECORD_TYPE.INCOME_GROUP_10000_INCOME_PERCENTS, y_axis='y2')] ),
+                      Plot(relations.RECORD_TYPE.INCOME_GROUP_10000_INCOME_PERCENTS, y_axis='y2')]),
 
     PlotsGroup(uid='forum-posts',
                title='Сообщения на форуме',
@@ -327,4 +329,4 @@ PLOTS_GROUPS = [
                plots=[Plot(relations.RECORD_TYPE.FOLCLOR_POSTS_TOTAL, y_axis='y1'),
                       Plot(relations.RECORD_TYPE.FOLCLOR_VOTES_TOTAL, y_axis='y2')]),
 
-    ]
+]

@@ -1,84 +1,69 @@
 
-import datetime
+import smart_imports
 
-from utg.words import WordForm, Word, Properties
-from utg.relations import WORD_TYPE
-
-from dext.settings import settings
-from dext.settings.models import Setting
-
-import tt_calendar
-
-from the_tale.common.utils import testcase
-
-from the_tale.linguistics import storage as lignuistics_storage
-from the_tale.linguistics import logic as linguistics_logic
-from the_tale.linguistics import relations as linguistics_relations
+smart_imports.all()
 
 
-from the_tale.game import turn
-
-
-class TimeTest(testcase.TestCase):
+class TimeTest(utils_testcase.TestCase):
 
     def test_creation(self):
-        Setting.objects.all().delete()
-        settings.refresh()
+        dext_settings_models.Setting.objects.all().delete()
+        dext_settings.settings.refresh()
 
-        settings_number = Setting.objects.all().count()
+        settings_number = dext_settings_models.Setting.objects.all().count()
 
-        self.assertEqual(turn.number(), 0)
-        self.assertEqual(Setting.objects.all().count(), settings_number)
+        self.assertEqual(game_turn.number(), 0)
+        self.assertEqual(dext_settings_models.Setting.objects.all().count(), settings_number)
 
-        turn.increment()
+        game_turn.increment()
 
-        self.assertEqual(turn.number(), 1)
-        self.assertEqual(Setting.objects.all().count(), settings_number+1)
+        self.assertEqual(game_turn.number(), 1)
+        self.assertEqual(dext_settings_models.Setting.objects.all().count(), settings_number + 1)
 
     def test_get_current_time(self):
-        self.assertEqual(turn.number(), 0)
+        self.assertEqual(game_turn.number(), 0)
 
     def test_increment_turn(self):
-        self.assertEqual(turn.number(), 0)
+        self.assertEqual(game_turn.number(), 0)
 
-        turn.increment()
+        game_turn.increment()
 
-        self.assertEqual(turn.number(), 1)
+        self.assertEqual(game_turn.number(), 1)
 
     def test_ui_info(self):
-        turn.increment()
+        game_turn.increment()
 
-        self.assertEqual(turn.ui_info()['number'], 1)
+        self.assertEqual(game_turn.ui_info()['number'], 1)
 
     def test_game_time(self):
-        self.assertEqual(turn.game_datetime(), tt_calendar.DateTime(0,0,0,0,0,0))
+        self.assertEqual(game_turn.game_datetime(), tt_calendar.DateTime(0, 0, 0, 0, 0, 0))
 
-        turn.increment()
+        game_turn.increment()
 
-        self.assertEqual(turn.game_datetime(), tt_calendar.DateTime(0,0,0,0,2,0))
+        self.assertEqual(game_turn.game_datetime(), tt_calendar.DateTime(0, 0, 0, 0, 2, 0))
 
 
-class LinguisticsDateTests(testcase.TestCase):
+class LinguisticsDateTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(LinguisticsDateTests, self).setUp()
 
         linguistics_logic.sync_static_restrictions()
 
-        self.date = turn.LinguisticsDate(tt_calendar.Date(year=1, month=2, day=3))
+        self.date = game_turn.LinguisticsDate(tt_calendar.Date(year=1, month=2, day=3))
 
     def test_utg_name_form(self):
-        self.assertEqual(self.date.utg_name_form, WordForm(Word(type=WORD_TYPE.TEXT, forms=('4 юного квинта сырого месяца 2 года',), properties=Properties())))
+        self.assertEqual(self.date.utg_name_form, utg_words.WordForm(utg_words.Word(type=utg_relations.WORD_TYPE.TEXT, forms=('4 юного квинта сырого месяца 2 года',), properties=utg_words.Properties())))
 
     def test_linguistics_restrictions__no_feasts(self):
         now = datetime.datetime(year=34, month=2, day=28, hour=0, minute=0, second=0)
 
         for feast in tt_calendar.REAL_FEAST.records:
-            restriction = lignuistics_storage.restrictions_storage.get_restriction(linguistics_relations.TEMPLATE_RESTRICTION_GROUP.REAL_FEAST, feast.value).id
-            self.assertNotIn(restriction, self.date.linguistics_restrictions(now))
+            restriction_id = linguistics_restrictions.get(feast)
+            self.assertNotIn(restriction_id, self.date.linguistics_restrictions(now))
 
     def test_linguistics_restrictions__has_feast(self):
         for feast in tt_calendar.REAL_FEAST.records:
-            restriction = lignuistics_storage.restrictions_storage.get_restriction(linguistics_relations.TEMPLATE_RESTRICTION_GROUP.REAL_FEAST, feast.value).id
+            restriction_id = linguistics_restrictions.get(feast)
             for interval in feast.intervals:
-                self.assertIn(restriction, self.date.linguistics_restrictions(interval[0] + (interval[1]-interval[0])/2))
+                self.assertIn(restriction_id, self.date.linguistics_restrictions(interval[0] + (interval[1] - interval[0]) / 2))

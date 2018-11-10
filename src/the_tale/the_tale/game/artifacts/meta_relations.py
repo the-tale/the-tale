@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import storage
+smart_imports.all()
 
 
-class Artifact(meta_relations.MetaType):
+class Artifact(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 4
     TYPE_CAPTION = 'Артефакт'
@@ -18,7 +15,7 @@ class Artifact(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('guide:artifacts:show', self.id)
+        return dext_urls.url('guide:artifacts:show', self.id)
 
     @classmethod
     def create_from_object(cls, artifact):
@@ -26,12 +23,13 @@ class Artifact(meta_relations.MetaType):
 
     @classmethod
     def create_from_id(cls, id):
+        from . import storage
+
         artifact = storage.artifacts.get(id)
         if artifact is None:
             return None
 
         return cls.create_from_object(artifact)
-
 
     @classmethod
     def create_from_ids(cls, ids):

@@ -1,9 +1,7 @@
 
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
+import smart_imports
 
-from the_tale.finances.shop import postponed_tasks
-from the_tale.finances.shop import exceptions
-from the_tale.finances.shop.logic import transaction_logic
+smart_imports.all()
 
 
 class PurchaseItem(object):
@@ -26,10 +24,10 @@ class PurchaseItem(object):
 
         self.additional_checks(account)
 
-        transaction = transaction_logic(account=account,
-                                        amount=-self.cost,
-                                        description=self.transaction_description,
-                                        uid='ingame-purchase-<%s>' % self.uid)
+        transaction = logic.transaction_logic(account=account,
+                                              amount=-self.cost,
+                                              description=self.transaction_description,
+                                              uid='ingame-purchase-<%s>' % self.uid)
 
         postponed_logic = self.construct_postponed_task(account, transaction)
 

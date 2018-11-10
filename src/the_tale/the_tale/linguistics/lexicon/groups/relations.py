@@ -1,14 +1,15 @@
+import smart_imports
 
-from rels import Column
-from rels.django import DjangoEnum
-
-from the_tale.linguistics.lexicon.relations import VARIABLE as V
+smart_imports.all()
 
 
-class LEXICON_GROUP(DjangoEnum):
-    index_group = Column()
-    description = Column(unique=False)
-    variables = Column(unique=False, no_index=True)
+V = lexicon_relations.VARIABLE
+
+
+class LEXICON_GROUP(rels_django.DjangoEnum):
+    index_group = rels.Column()
+    description = rels.Column(unique=False)
+    variables = rels.Column(unique=False, no_index=True)
 
     records = (('ACTION_BATTLEPVE1X1', 0, 'Действие: сражение с монстром', 0,
                 'Описание событий, происходящих при сражении с монстрами.',
@@ -135,7 +136,10 @@ class LEXICON_GROUP(DjangoEnum):
                 {V.HERO: 'герой', V.HERO__WEAPON: 'оружие героя', V.PERSON: 'мастер', V.PLACE: 'город', V.COINS: 'монеты', V.ARTIFACT: 'артефакт', V.EXPERIENCE: 'опыт', V.ENERGY: 'энергия', V.DATE: 'дата', V.TIME: 'время'}),
 
                ('ACTION_FIRST_STEPS', 32, 'Действие: первые шаги героя', 320000,
-                'Герой только что завершил инициацию и осознаёт свою новую роль в мире.',
+                '''
+<p>Герой только что завершил инициацию и осознаёт свою новую роль в мире.</p>
+
+<p>Во фразах этой группы рекомендуется активно использовать ограничения переменной героя по свойствам, задаваемым игроком во время его создания.</p>''',
                 {V.HERO: 'герой', V.HERO__WEAPON: 'оружие героя', V.PLACE: 'город', V.DATE: 'дата', V.TIME: 'время'}),
 
                ('HERO_HISTORY', 33, 'Предыстория героя', 330000,
@@ -153,7 +157,7 @@ class LEXICON_GROUP(DjangoEnum):
   <li>миролюбие: только задира или добрхот;</li>
   <li>архетип;</li>
   <li>воспитание;</li>
-  <li>способ первой смерти;</li>
+  <li>первая смерть;</li>
   <li>возраст первой смерти.</li>
 </ul>
 

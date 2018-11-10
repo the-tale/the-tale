@@ -1,10 +1,10 @@
-# coding: utf-8
 
-from the_tale.common.utils.workers import BaseWorker
+import smart_imports
 
-from the_tale.finances.xsolla.prototypes import InvoicePrototype
+smart_imports.all()
 
-class Worker(BaseWorker):
+
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
@@ -19,7 +19,7 @@ class Worker(BaseWorker):
         self.handle_invoices()
 
     def handle_invoices(self):
-        InvoicePrototype.process_invoices()
+        prototypes.InvoicePrototype.process_invoices()
 
     def cmd_handle_invoices(self):
         return self.send_cmd('handle_invoices')

@@ -1,10 +1,7 @@
-# coding: utf-8
-import uuid
-import jinja2
 
-import postmarkup
+import smart_imports
 
-from dext.forms import fields
+smart_imports.all()
 
 
 class SpoilerTag(postmarkup.TagBase):
@@ -32,7 +29,7 @@ class SpoilerTag(postmarkup.TagBase):
     <div id="pgf-spoiler-element-%(accordion_id)s" class="accordion-body collapse" style="height: 0px;">
       <div class="accordion-inner">
 ''' % {'accordion_id': uuid.uuid4().hex,
-       'caption': caption}
+            'caption': caption}
 
     def render_close(self, parser, node_index):
         parser.tag_data[self.tag_key] -= 1
@@ -111,6 +108,7 @@ class RightSquareBracketTag(postmarkup.TagBase):
     def render_close(self, parser, node_index):
         return ''
 
+
 class LinkTag(postmarkup.LinkTag):
     _safe_chars = postmarkup.LinkTag._safe_chars | frozenset('+')
 
@@ -126,6 +124,7 @@ class RedLineTag(postmarkup.TagBase):
 
     def render_close(self, parser, node_index):
         return ''
+
 
 _renderer = postmarkup.create(use_pygments=False, annotate_links=False)
 _renderer.tag_factory.add_tag(LinkTag, 'url', annotate_links=False)
@@ -151,6 +150,7 @@ _safe_renderer = postmarkup.create(use_pygments=False, annotate_links=False)
 _safe_renderer.tag_factory.add_tag(SafeSpoilerTag, 'spoiler')
 _safe_renderer.tag_factory.add_tag(HRTag, 'hr')
 
+
 def safe_render(*argv, **kwargs):
     try:
         kwargs['cosmetic_replace'] = False
@@ -160,8 +160,7 @@ def safe_render(*argv, **kwargs):
         return 'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
 
 
-
-class BBField(fields.TextField):
+class BBField(dext_fields.TextField):
 
     @property
     def command_line(self):
@@ -203,9 +202,9 @@ class BBField(fields.TextField):
 </div>
 
 """ % {'field_id': uuid.uuid4().hex,
-       'label': bound_field.label_tag(),
-       'command_line': self.command_line,
-       'bound_field': bound_field,
-       'errors_container': bound_field.errors_container}
+            'label': bound_field.label_tag(),
+            'command_line': self.command_line,
+            'bound_field': bound_field,
+            'errors_container': bound_field.errors_container}
 
         return jinja2.Markup(html)

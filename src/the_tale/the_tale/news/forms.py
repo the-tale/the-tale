@@ -1,12 +1,14 @@
 
-from dext.forms import forms, fields
+import smart_imports
+
+smart_imports.all()
 
 
-class NewNewsForm(forms.Form):
+class NewNewsForm(dext_forms.Form):
 
-    caption = fields.CharField(label='Заголовок')
-    description = fields.TextField(label='Кратко')
-    content = fields.TextField(label='Полностью')
+    caption = dext_fields.CharField(label='Заголовок')
+    description = dext_fields.TextField(label='Кратко')
+    content = dext_fields.TextField(label='Полностью')
 
     @classmethod
     def get_initials(cls, news):

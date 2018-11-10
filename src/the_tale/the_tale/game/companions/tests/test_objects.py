@@ -1,71 +1,43 @@
-import random
 
-from unittest import mock
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game import names
-
-from the_tale.game.balance import formulas as f
-from the_tale.game.balance import constants as c
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes.habilities import companions as heroes_companions_abilities
-
-from .. import logic
-from .. import objects
-from .. import relations
-from .. import exceptions
-
-from ..abilities import container as abilities_container
-from ..abilities import effects as companions_effects
+smart_imports.all()
 
 
-class CompanionTests(testcase.TestCase):
+class CompanionTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(CompanionTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.companion_record = logic.create_companion_record(utg_name=names.generator().get_test_name(),
+        self.companion_record = logic.create_companion_record(utg_name=game_names.generator().get_test_name(),
                                                               description='description',
-                                                              type=beings_relations.TYPE.random(),
+                                                              type=tt_beings_relations.TYPE.random(),
                                                               max_health=10,
                                                               dedication=relations.DEDICATION.random(),
                                                               archetype=game_relations.ARCHETYPE.random(),
                                                               mode=relations.MODE.random(),
-                                                              abilities=abilities_container.Container(),
-                                                              communication_verbal=beings_relations.COMMUNICATION_VERBAL.random(),
-                                                              communication_gestures=beings_relations.COMMUNICATION_GESTURES.random(),
-                                                              communication_telepathic=beings_relations.COMMUNICATION_TELEPATHIC.random(),
-                                                              intellect_level=beings_relations.INTELLECT_LEVEL.random(),
-                                                              structure=beings_relations.STRUCTURE.random(),
-                                                              features=frozenset((beings_relations.FEATURE.random(), beings_relations.FEATURE.random())),
-                                                              movement=beings_relations.MOVEMENT.random(),
-                                                              body=beings_relations.BODY.random(),
-                                                              size=beings_relations.SIZE.random(),
-                                                              orientation=beings_relations.ORIENTATION.random(),
+                                                              abilities=companions_abilities_container.Container(),
+                                                              communication_verbal=tt_beings_relations.COMMUNICATION_VERBAL.random(),
+                                                              communication_gestures=tt_beings_relations.COMMUNICATION_GESTURES.random(),
+                                                              communication_telepathic=tt_beings_relations.COMMUNICATION_TELEPATHIC.random(),
+                                                              intellect_level=tt_beings_relations.INTELLECT_LEVEL.random(),
+                                                              structure=tt_beings_relations.STRUCTURE.random(),
+                                                              features=frozenset((tt_beings_relations.FEATURE.random(), tt_beings_relations.FEATURE.random())),
+                                                              movement=tt_beings_relations.MOVEMENT.random(),
+                                                              body=tt_beings_relations.BODY.random(),
+                                                              size=tt_beings_relations.SIZE.random(),
+                                                              orientation=tt_beings_relations.ORIENTATION.random(),
                                                               weapons=[artifacts_objects.Weapon(weapon=artifacts_relations.STANDARD_WEAPON.random(),
-                                                                                           material=tt_artifacts_relations.MATERIAL.random(),
-                                                                                           power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
+                                                                                                material=tt_artifacts_relations.MATERIAL.random(),
+                                                                                                power_type=artifacts_relations.ARTIFACT_POWER_TYPE.random())],
                                                               state=relations.STATE.ENABLED)
         self.hero.set_companion(logic.create_companion(self.companion_record))
         self.companion = self.hero.companion
@@ -86,7 +58,7 @@ class CompanionTests(testcase.TestCase):
         self.assertEqual(self.companion.experience_to_next_level, f.companions_coherence_for_level(6))
 
     def test_experience_to_next_level__max_level(self):
-        self.companion.coherence = c.COMPANIONS_MAX_COHERENCE-1
+        self.companion.coherence = c.COMPANIONS_MAX_COHERENCE - 1
 
         with self.check_not_changed(lambda: self.companion.experience_to_next_level):
             self.companion.coherence = c.COMPANIONS_MAX_COHERENCE
@@ -117,7 +89,7 @@ class CompanionTests(testcase.TestCase):
 
         with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             with self.check_delta(lambda: self.companion.coherence, 1):
-                self.companion.add_experience(self.companion.experience_to_next_level+2)
+                self.companion.add_experience(self.companion.experience_to_next_level + 2)
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
 
@@ -127,7 +99,7 @@ class CompanionTests(testcase.TestCase):
         self.companion.coherence = 5
 
         with self.check_delta(lambda: self.companion.coherence, 2):
-            self.companion.add_experience(self.companion.experience_to_next_level+f.companions_coherence_for_level(7)+2)
+            self.companion.add_experience(self.companion.experience_to_next_level + f.companions_coherence_for_level(7) + 2)
 
         self.assertEqual(self.companion.experience, 2)
 
@@ -217,24 +189,24 @@ class CompanionTests(testcase.TestCase):
 
     def test_modify_attribute(self):
         checked_abilities = [ability
-                             for ability in heroes_companions_abilities.ABILITIES.values()
-                             if issubclass(ability, heroes_companions_abilities._CompanionAbilityModifier)]
+                             for ability in heroes_abilities_companions.ABILITIES.values()
+                             if issubclass(ability, heroes_abilities_companions._CompanionAbilityModifier)]
 
         for ability_class in checked_abilities:
-            for companion_ability in companions_effects.ABILITIES.records:
+            for companion_ability in companions_abilities_effects.ABILITIES.records:
                 if ability_class.EFFECT_TYPE != companion_ability.effect.TYPE.metatype:
                     continue
 
-                if hasattr(companion_ability.effect, 'ABILITY'): # skip battle abilities
+                if hasattr(companion_ability.effect, 'ABILITY'):  # skip battle abilities
                     continue
 
-                if companion_ability.effect.MODIFIER is None: # skip complex abilities
+                if companion_ability.effect.MODIFIER is None:  # skip complex abilities
                     continue
 
                 self.hero.abilities.reset()
                 self.hero.reset_accessors_cache()
 
-                self.companion_record.abilities = abilities_container.Container(start=(companion_ability,))
+                self.companion_record.abilities = companions_abilities_container.Container(start=(companion_ability,))
 
                 with self.check_changed(lambda: self.companion.modify_attribute(companion_ability.effect.MODIFIER, companion_ability.effect.MODIFIER.default())):
                     self.hero.abilities.add(ability_class.get_id(), random.randint(1, ability_class.MAX_LEVEL))

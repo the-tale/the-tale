@@ -1,10 +1,13 @@
-# coding: utf-8
+
 
 class FakeLogger(object):
 
     def debug(self, *argv, **kwargs): pass
+
     def info(self, *argv, **kwargs): pass
+
     def warn(self, *argv, **kwargs): pass
+
     def error(self, *argv, **kwargs): pass
 
 

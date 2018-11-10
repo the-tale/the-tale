@@ -1,24 +1,27 @@
-# coding: utf-8
-import functools
+
+import smart_imports
+
+smart_imports.all()
 
 
 def login_required(func):
 
     @functools.wraps(func)
     def wrapper(resource, *argv, **kwargs):
-        from the_tale.accounts.logic import login_page_url
+        from the_tale.accounts import logic as accounts_logic
 
         if resource.account.is_authenticated:
             return func(resource, *argv, **kwargs)
         else:
-            from dext.common.utils.response import mime_type_to_response_type
-            response_type = mime_type_to_response_type(resource.request.META.get('HTTP_ACCEPT'))
+            response_type = dext_response.mime_type_to_response_type(resource.request.META.get('HTTP_ACCEPT'))
 
             if resource.request.is_ajax() or response_type == 'json':
                 return resource.auto_error('common.login_required', 'У Вас нет прав для проведения данной операции')
-            return resource.redirect(login_page_url(resource.request.get_full_path()))
+
+            return resource.redirect(accounts_logic.login_page_url(resource.request.get_full_path()))
 
     return wrapper
+
 
 def staff_required(permissions=()):
 

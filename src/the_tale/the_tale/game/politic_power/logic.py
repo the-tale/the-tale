@@ -1,16 +1,7 @@
 
-import uuid
+import smart_imports
 
-from the_tale.game.balance import constants as c
-
-from the_tale.game.jobs import objects as jobs_objects
-
-from the_tale.game import turn
-from the_tale.game import tt_api_impacts
-
-from . import conf
-from . import storage
-from . import objects
+smart_imports.all()
 
 
 def calculate_power_fractions(all_powers):
@@ -25,18 +16,22 @@ def calculate_power_fractions(all_powers):
     for power in all_powers.values():
         total_power += (power - minimum_power)
 
-    return {power_id: ((current_power - minimum_power) / total_power) if total_power else 0
+    if total_power == 0:
+        return {power_id: 1.0 / len(all_powers)
+                for power_id, current_power in all_powers.items()}
+
+    return {power_id: ((current_power - minimum_power) / total_power)
             for power_id, current_power in all_powers.items()}
 
 
 def sync_power():
-    tt_api_impacts.personal_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PERSON,
-                                                                    tt_api_impacts.OBJECT_TYPE.PLACE],
-                                                      scale=c.PLACE_POWER_REDUCE_FRACTION)
+    game_tt_services.personal_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PERSON,
+                                                                      tt_api_impacts.OBJECT_TYPE.PLACE],
+                                                        scale=c.PLACE_POWER_REDUCE_FRACTION)
 
-    tt_api_impacts.crowd_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PERSON,
-                                                                 tt_api_impacts.OBJECT_TYPE.PLACE],
-                                                   scale=c.PLACE_POWER_REDUCE_FRACTION)
+    game_tt_services.crowd_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PERSON,
+                                                                   tt_api_impacts.OBJECT_TYPE.PLACE],
+                                                     scale=c.PLACE_POWER_REDUCE_FRACTION)
     storage.places.reset()
     storage.persons.reset()
 
@@ -51,9 +46,9 @@ def get_inner_circle(place_id=None, person_id=None):
     else:
         raise NotImplementedError
 
-    ratings = tt_api_impacts.personal_impacts.cmd_get_impacters_ratings(targets=[target],
-                                                                        actor_types=[tt_api_impacts.OBJECT_TYPE.HERO],
-                                                                        limit=10**6)
+    ratings = game_tt_services.personal_impacts.cmd_get_impacters_ratings(targets=[target],
+                                                                          actor_types=[tt_api_impacts.OBJECT_TYPE.HERO],
+                                                                          limit=10**6)
     return objects.InnerCircle(rating=[(impact.actor_id, impact.amount)
                                        for impact in ratings[target]
                                        if 1 <= abs(impact.amount)],
@@ -70,7 +65,7 @@ def get_job_power(place_id=None, person_id=None):
     else:
         raise NotImplementedError
 
-    impacts = tt_api_impacts.job_impacts.cmd_get_targets_impacts(targets=targets)
+    impacts = game_tt_services.job_impacts.cmd_get_targets_impacts(targets=targets)
 
     positive_power = 0
     negative_power = 0
@@ -90,7 +85,7 @@ def get_job_power(place_id=None, person_id=None):
 
 def add_power_impacts(impacts):
     transaction = uuid.uuid4()
-    current_turn = turn.number()
+    current_turn = game_turn.number()
 
     inner_circle = []
     outer_circle = []
@@ -113,21 +108,21 @@ def add_power_impacts(impacts):
             raise NotImplementedError
 
     if inner_circle:
-        tt_api_impacts.personal_impacts.cmd_add_power_impacts(inner_circle)
+        game_tt_services.personal_impacts.cmd_add_power_impacts(inner_circle)
 
     if outer_circle:
-        tt_api_impacts.crowd_impacts.cmd_add_power_impacts(outer_circle)
+        game_tt_services.crowd_impacts.cmd_add_power_impacts(outer_circle)
 
     if jobs:
-        tt_api_impacts.job_impacts.cmd_add_power_impacts(jobs)
+        game_tt_services.job_impacts.cmd_add_power_impacts(jobs)
 
     if fame:
-        tt_api_impacts.fame_impacts.cmd_add_power_impacts(fame)
+        game_tt_services.fame_impacts.cmd_add_power_impacts(fame)
 
 
 def get_last_power_impacts(limit,
-                           storages=(tt_api_impacts.personal_impacts,
-                                     tt_api_impacts.crowd_impacts),
+                           storages=(game_tt_services.personal_impacts,
+                                     game_tt_services.crowd_impacts),
                            actors=((None, None),),
                            target_type=None,
                            target_id=None):

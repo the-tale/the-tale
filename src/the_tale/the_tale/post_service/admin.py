@@ -1,12 +1,12 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.post_service.models import Message
+smart_imports.all()
 
-class MessageAdmin(admin.ModelAdmin):
+
+class MessageAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'state', 'created_at')
     list_filter = ('state',)
 
 
-admin.site.register(Message, MessageAdmin)
+django_admin.site.register(models.Message, MessageAdmin)

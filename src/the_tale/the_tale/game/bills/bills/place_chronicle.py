@@ -1,21 +1,12 @@
 
-from dext.forms import fields
+import smart_imports
 
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game import tt_api_impacts
-
-from . import base_place_bill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label='Город')
-    power_bonus = fields.RelationField(label='Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
+class BaseForm(forms.BaseUserForm):
+    place = dext_fields.ChoiceField(label='Город')
+    power_bonus = dext_fields.RelationField(label='Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -26,7 +17,7 @@ class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 

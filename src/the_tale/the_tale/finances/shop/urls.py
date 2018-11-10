@@ -1,5 +1,7 @@
-# coding: utf-8
 
-from the_tale.finances.shop import views
+import smart_imports
+
+smart_imports.all()
+
 
 urlpatterns = views.resource.get_urls()

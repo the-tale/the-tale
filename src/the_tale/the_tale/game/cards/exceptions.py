@@ -1,8 +1,11 @@
 
-from the_tale.common.utils.exceptions import TheTaleError
+
+import smart_imports
+
+smart_imports.all()
 
 
-class CardsError(TheTaleError):
+class CardsError(utils_exceptions.TheTaleError):
     MSG = 'cards error'
 
 

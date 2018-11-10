@@ -1,12 +1,12 @@
-# coding: utf-8
+
+import smart_imports
+
+smart_imports.all()
 
 
-from django.contrib import admin
-
-from the_tale.statistics.models import Record
-
-class RecordAdmin(admin.ModelAdmin):
+class RecordAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'type', 'date', 'value_int', 'value_float')
     list_filter = ('type',)
 
-admin.site.register(Record, RecordAdmin)
+
+django_admin.site.register(models.Record, RecordAdmin)

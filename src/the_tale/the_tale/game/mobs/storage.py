@@ -1,18 +1,11 @@
 
-from dext.common.utils import storage
 
-from tt_logic.beings import relations as beings_relations
+import smart_imports
 
-from the_tale.common.utils import logic as common_logic
-
-from . import logic
-from . import models
-from . import objects
-from . import filters
-from . import exceptions
+smart_imports.all()
 
 
-class MobsStorage(storage.CachedStorage):
+class MobsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'mob records change time'
     EXCEPTION = exceptions.MobsStorageError
 
@@ -29,7 +22,7 @@ class MobsStorage(storage.CachedStorage):
 
     def _reset_cache(self):
         self._mobs_by_uuids = {}
-        self._types_count = {mob_type: 0 for mob_type in beings_relations.TYPE.records}
+        self._types_count = {mob_type: 0 for mob_type in tt_beings_relations.TYPE.records}
         self.mobs_number = 0
 
     def get_by_uuid(self, uuid):
@@ -59,7 +52,7 @@ class MobsStorage(storage.CachedStorage):
             mobs = filters.restrict_mercenary(mobs, mercenary)
 
         # first april joke
-        # mobs = filters.change_type_priority(mobs, types=(beings_relations.TYPE.UNDEAD,), delta=7)
+        # mobs = filters.change_type_priority(mobs, types=(tt_beings_relations.TYPE.UNDEAD,), delta=7)
 
         return mobs
 
@@ -73,7 +66,7 @@ class MobsStorage(storage.CachedStorage):
         if not mobs:
             return None
 
-        mob_record = common_logic.random_value_by_priority(mobs)
+        mob_record = utils_logic.random_value_by_priority(mobs)
 
         return objects.Mob(record_id=mob_record.id,
                            level=hero.level,

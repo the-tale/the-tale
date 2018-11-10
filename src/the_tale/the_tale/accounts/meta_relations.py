@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import prototypes
+smart_imports.all()
 
 
-class Account(meta_relations.MetaType):
+class Account(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 7
     TYPE_CAPTION = 'Хранитель'
@@ -18,20 +15,32 @@ class Account(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('accounts:show', self.id)
+        return dext_urls.url('accounts:show', self.id)
 
     @classmethod
     def create_from_object(cls, account):
         return cls(id=account.id, caption=account.nick_verbose)
 
     @classmethod
+    def create_removed(cls):
+        return cls(id=None, caption='неизвестный Хранитель')
+
+    @classmethod
     def create_from_id(cls, id):
+        from . import prototypes
+
         account = prototypes.AccountPrototype.get_by_id(id)
+
         if account is None:
-            return None
+            return cls.create_removed()
 
         return cls.create_from_object(account)
 
     @classmethod
     def create_from_ids(cls, ids):
-        return [cls.create_from_id(id) for id in ids]
+        records = models.Account.objects.filter(id__in=ids)
+
+        if len(ids) != len(records):
+            raise meta_relations_exceptions.ObjectsNotFound(type=cls.TYPE, ids=ids)
+
+        return [cls.create_from_object(prototypes.AccountPrototype(record)) for record in records]

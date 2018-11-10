@@ -1,12 +1,10 @@
 
-from dext.views import BaseResource
+import smart_imports
 
-from the_tale.amqp_environment import environment
-
-from the_tale.accounts.prototypes import AccountPrototype
+smart_imports.all()
 
 
-class Resource(BaseResource):
+class Resource(dext_old_views.BaseResource):
 
     ERROR_TEMPLATE = 'error.html'
     DIALOG_ERROR_TEMPLATE = 'dialog_error.html'
@@ -16,19 +14,18 @@ class Resource(BaseResource):
 
         self.account = self.request.user
         if self.account.is_authenticated:
-            self.account = AccountPrototype(model=self.account)
-
+            self.account = accounts_prototypes.AccountPrototype(model=self.account)
 
     def initialize(self, *args, **kwargs):
         super(Resource, self).initialize(*args, **kwargs)
 
         if self.account.is_authenticated and self.account.is_update_active_state_needed:
-            environment.workers.accounts_manager.cmd_run_account_method(account_id=self.account.id,
-                                                                        method_name=AccountPrototype.update_active_state.__name__,
-                                                                        data={})
+            amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(account_id=self.account.id,
+                                                                                         method_name=accounts_prototypes.AccountPrototype.update_active_state.__name__,
+                                                                                         data={})
 
     def validate_account_argument(self, account_id):
         if self.account and self.account.id == int(account_id):
             return self.account
 
-        return AccountPrototype.get_by_id(account_id)
+        return accounts_prototypes.AccountPrototype.get_by_id(account_id)

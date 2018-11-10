@@ -1,8 +1,10 @@
 
-from dext.common.utils.app_settings import app_settings
+import smart_imports
+
+smart_imports.all()
 
 
-settings = app_settings('POLITIC_POWER',
-                        MAX_HISTORY_LENGTH=1000,
-                        PLACE_INNER_CIRCLE_SIZE=7,
-                        PERSON_INNER_CIRCLE_SIZE=3)
+settings = dext_app_settings.app_settings('POLITIC_POWER',
+                                          MAX_HISTORY_LENGTH=1000,
+                                          PLACE_INNER_CIRCLE_SIZE=7,
+                                          PERSON_INNER_CIRCLE_SIZE=3)

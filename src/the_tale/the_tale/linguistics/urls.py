@@ -1,15 +1,11 @@
-# coding: utf-8
 
-from django.conf.urls import url
-from django.conf.urls import include
+import smart_imports
 
-from dext.views import resource_patterns
-
-from the_tale.linguistics import views
+smart_imports.all()
 
 
-urlpatterns = [url(r'^words/', include(resource_patterns(views.WordResource), namespace='words') ),
-               url(r'^templates/', include(resource_patterns(views.TemplateResource), namespace='templates') ) ]
+urlpatterns = [django_urls.url(r'^words/', django_urls.include(dext_old_views.resource_patterns(views.WordResource), namespace='words')),
+               django_urls.url(r'^templates/', django_urls.include(dext_old_views.resource_patterns(views.TemplateResource), namespace='templates'))]
 
 
-urlpatterns += resource_patterns(views.LinguisticsResource)
+urlpatterns += dext_old_views.resource_patterns(views.LinguisticsResource)

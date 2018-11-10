@@ -1,25 +1,20 @@
-# coding: utf-8
 
-from unittest import mock
+import smart_imports
 
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils import testcase
-
-from the_tale.finances.xsolla.tests.helpers import TestInvoiceFabric
+smart_imports.all()
 
 
-class BankerTests(testcase.TestCase):
+class BankerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(BankerTests, self).setUp()
-        self.fabric = TestInvoiceFabric()
+        self.fabric = helpers.TestInvoiceFabric()
         self.invoice = self.fabric.pay()
 
-        environment.deinitialize()
-        environment.initialize()
+        amqp_environment.environment.deinitialize()
+        amqp_environment.environment.initialize()
 
-        self.worker = environment.workers.xsolla_banker
+        self.worker = amqp_environment.environment.workers.xsolla_banker
 
     def test_initialize(self):
         self.worker.initialize()

@@ -1,18 +1,14 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-
-from .. import modifiers
+smart_imports.all()
 
 
-class ModifiersTests(testcase.TestCase):
+class ModifiersTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(ModifiersTests, self).setUp()
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.place_1.refresh_attributes()
 
@@ -20,7 +16,7 @@ class ModifiersTests(testcase.TestCase):
     def test_trade_center(self):
         with self.check_increased(lambda: self.place_1.attrs.sell_price):
             with self.check_increased(lambda: self.place_1.attrs.production):
-                 with self.check_increased(lambda: self.place_1.attrs.freedom):
+                with self.check_increased(lambda: self.place_1.attrs.freedom):
                     with self.check_decreased(lambda: self.place_1.attrs.buy_price):
                         self.place_1.set_modifier(modifiers.CITY_MODIFIERS.TRADE_CENTER)
 
@@ -30,12 +26,10 @@ class ModifiersTests(testcase.TestCase):
             with self.check_increased(lambda: self.place_1.attrs.production):
                 self.place_1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
 
-
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: False)
     def test_craft_center__modifier_disabled(self):
         with self.check_decreased(lambda: self.place_1.attrs.stability):
             self.place_1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
-
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_fort(self):

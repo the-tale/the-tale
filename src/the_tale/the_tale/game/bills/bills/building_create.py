@@ -1,37 +1,18 @@
-# coding: utf-8
 
-from django import forms
+import smart_imports
 
-from dext.forms import fields
-
-from utg import words as utg_words
-from utg import relations as utg_relations
-
-from the_tale.game import names
-
-from the_tale.linguistics.forms import WordField
-
-from the_tale.game.persons import objects as persons_objects
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.places import logic as places_logic
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.bills.relations import BILL_TYPE
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-from the_tale.game.bills.bills.base_person_bill import BasePersonBill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    person = fields.ChoiceField(label='Житель')
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
-    x = forms.IntegerField(label='координата x')
-    y = forms.IntegerField(label='координата y')
+class BaseForm(forms.BaseUserForm):
+    person = dext_fields.ChoiceField(label='Житель')
+    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
+    x = django_forms.IntegerField(label='координата x')
+    y = django_forms.IntegerField(label='координата y')
 
     def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
         super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['person'].choices = persons_objects.Person.form_choices(predicate=lambda place, person: not person.has_building)
-
 
     def clean(self):
         person_id = int(self.cleaned_data['person'])
@@ -41,22 +22,21 @@ class BaseForm(BaseUserForm):
         person = persons_storage.persons[person_id]
 
         if (x, y) not in places_logic.get_available_positions(center_x=person.place.x, center_y=person.place.y):
-            raise forms.ValidationError('Здание не может быть возведено на выбранных координатах')
+            raise django_forms.ValidationError('Здание не может быть возведено на выбранных координатах')
 
         return self.cleaned_data
-
 
 
 class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
-class BuildingCreate(BasePersonBill):
-    type = BILL_TYPE.BUILDING_CREATE
+class BuildingCreate(base_person_bill.BasePersonBill):
+    type = relations.BILL_TYPE.BUILDING_CREATE
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
@@ -112,7 +92,7 @@ class BuildingCreate(BasePersonBill):
         if 'building_name_forms' in data:
             obj.building_name_forms = utg_words.Word.deserialize(data['building_name_forms'])
         else:
-            obj.building_name_forms = names.generator().get_fast_name('название утрачено')
+            obj.building_name_forms = game_names.generator().get_fast_name('название утрачено')
 
         obj.x = data.get('x')
         obj.y = data.get('y')

@@ -3,6 +3,7 @@
 {% import 'news/macros.html' as news_macros with context %}
 {% import 'portal/macros.html' as portal_macros with context %}
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'portal/landing_intro.html' as landing_intro_macros with context %}
 
 {% block title %}{{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}{{super()}}{% endblock %}
@@ -19,7 +20,73 @@ jQuery(document).ready(function(e){
 </script>
 {% endblock %}
 
+
+{% macro events_block(block) %}
+  <div class="easy-block">
+    <h4 class="newspaper-column-header">
+      {{block.title}}
+
+      {% if block.rss %}
+        <a href="{{ block.rss }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss">
+          <img src="{{STATIC_CONTENT}}images/rss.png" style="margin: 2px;"/>
+        </a>
+      {% endif %}
+
+      {% if block.url %}
+        <small><a href="{{ block.url }}">ещё…</a></small>
+      {% endif %}
+    </h4>
+
+    {% if block.events %}
+    <ul class="unstyled">
+      {% for event in block.events %}
+        <li class="newspaper-link-list">
+          {% if event.is_today() %}
+            <span class="newspaper-link-time">сегодня</span>
+            <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ event.date|timestamp }}"></span>
+          {% elif event.is_yesterday() %}
+            <span class="newspaper-link-time">вчера</span>
+            <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ event.date|timestamp }}"></span>
+          {% else %}
+            <span class="pgf-format-datetime newspaper-link-time" data-timestamp="{{ event.date|timestamp }}"></span>
+          {% endif %}
+
+          {% if event.initiator %}
+            <span class="newspaper-user">{{event.initiator}}</span>
+          {% endif %}
+
+          {% if event.operation %}
+            <span class="newspaper-operation">{{event.operation}}</span>
+          {% endif %}
+
+          <br/>
+          {{ event.title }}&nbsp;<a style="font-size: 10pt;" href="{{ event.url }}">➔</a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Нет сообщений</p>
+    {% endif %}
+    </div>
+{% endmacro %}
+
+
 {% block content %}
+
+{% if first_time_visit %}
+<div class="row" class="pgf-first-time-introduction">
+  <div class="span12" style="min-height: 50px;">
+    <div class="alert alert-info">
+    <h2>
+      Первый раз в Cказке? <small><a href="{{url('guide:game')}}">Узнайте больше про игру!</a></small>
+    </h2>
+
+    {{ landing_intro_macros.intro(map_button=true) }}
+
+    </div>
+  </div>
+</div>
+{% endif %}
 
 <div class="row">
   <div class="span3" style="min-height: 50px;">&nbsp;</div>
@@ -34,67 +101,19 @@ jQuery(document).ready(function(e){
 <div class="row">
 
   <div class="span3">
-    <div class="easy-block" style="padding-top: 1em;">
-      <h4 class="newspaper-column-header">
-        Герой дня
-        <i style="margin-top: 2px; cursor: pointer;"
-           class="icon-info-sign"
-           rel="tooltip"
-           title="Герой дня случайно выбирается из активных игроков без подписки и получает подписку на месяц "></i>
-      </h4>
-      {% if hero_of_the_day %}
-      <ul class="unstyled">
-        <li>
-          <h4>
-            <a href="{{ url('game:heroes:show', hero_of_the_day.id) }}">{{ hero_of_the_day.name }}</a>
-            <small>{{ hero_of_the_day.race_verbose}}</small>
-          </h4>
-        </li>
-        <li><strong>уровень:</strong> {{ hero_of_the_day.level}}</li>
-        <li><strong>физическая сила:</strong> {{ hero_of_the_day.power.physic }}</li>
-        <li><strong>магическая сила:</strong> {{ hero_of_the_day.power.magic }}</li>
-        <li><strong>хранитель:</strong> <a href="{{ url('accounts:show', account_of_the_day.id) }}">{{ account_of_the_day.nick_verbose}}</a></li>
-        <li><strong>могущество:</strong> {{ hero_of_the_day.might }}</li>
-        {% if clan_of_the_day %}
-        <li><strong>гильдия:</strong> <a href="{{url('accounts:clans:show', clan_of_the_day.id)}}">{{clan_of_the_day.name}}</a></li>
-        {% endif %}
-        {% if hero_of_the_day.companion %}
-        <li>
-          <strong>спутник:</strong>
-          <a href="{{url('game:companions:show', hero_of_the_day.companion.record.id)}}">
-            {{hero_of_the_day.companion.name}}
-          </a>
-        </li>
-        {% endif %}
-      </ul>
-      {% else %}
-      Здесь может быть Ваша реклама.
-      {% endif %}
-    </div>
+    {{ events_block(forum_common_block) }}
 
-    <div class="easy-block">
-      <h4 class="newspaper-column-header">
-        Горячие темы
-        <a href="{{ url('forum:feed') }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss форума">
-          <img src="{{STATIC_CONTENT}}images/rss.png" style="margin: 2px;"/>
-        </a>
-        <small><a href="{{ url('forum:') }}">ещё…</a></small>
-      </h4>
-      <ul class="unstyled">
-        {% for thread in forum_threads %}
-        <li class="newspaper-link-list">
-          <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ thread.updated_at|timestamp }}"></span>
-          <span class="newspaper-forum-user">
-            {% if thread.last_poster %}{{thread.last_poster.nick_verbose}}
-            {% else %} —
-            {% endif %}
-          </span>
-          <br/>
-          {{ thread.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ thread.paginator.last_page_url }}">➔</a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
+    {% if forum_clan_block %}
+      {{ events_block(forum_clan_block) }}
+    {% endif %}
+
+    {% if forum_rpg_block %}
+      {{ events_block(forum_rpg_block) }}
+    {% endif %}
+
+    {% if forum_games_block %}
+      {{ events_block(forum_games_block) }}
+    {% endif %}
 
   </div>
 
@@ -169,45 +188,44 @@ jQuery(document).ready(function(e){
 
     <div class="easy-block" style="padding-top: 1em;">
       <h4 class="newspaper-column-header">
-        Книга Судеб
-        <small><a href="{{ url('game:bills:') }}">ещё…</a></small>
+        Герой дня
+        <i style="margin-top: 2px; cursor: pointer;"
+           class="icon-info-sign"
+           rel="tooltip"
+           title="Герой дня случайно выбирается из активных игроков без подписки и получает подписку на месяц "></i>
       </h4>
-
+      {% if hero_of_the_day %}
       <ul class="unstyled">
-        {% for bill in bills %}
-        <li class="newspaper-link-list">
-          {% if bill.state.is_VOTING %}
-          <span class="pgf-format-datetime newspaper-link-time" data-timestamp="{{ bill.updated_at|timestamp }}"></span><br/>
-          {% else %}
-          <span class="pgf-format-datetime newspaper-link-time" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span><br/>
-          {% endif %}
-          <strong>{{bill.last_bill_event_text}}</strong>
-          «{{ bill.caption }}»&nbsp;<a href="{{ url('game:bills:show', bill.id) }}">➔</a>
+        <li>
+          <h4>
+            <a href="{{ url('game:heroes:show', hero_of_the_day.id) }}">{{ hero_of_the_day.name }}</a>
+            <small>{{ hero_of_the_day.race_verbose}}</small>
+          </h4>
         </li>
-        {% endfor %}
+        <li><strong>уровень:</strong> {{ hero_of_the_day.level}}</li>
+        <li><strong>физическая сила:</strong> {{ hero_of_the_day.power.physic }}</li>
+        <li><strong>магическая сила:</strong> {{ hero_of_the_day.power.magic }}</li>
+        <li><strong>хранитель:</strong> <a href="{{ url('accounts:show', account_of_the_day.id) }}">{{ account_of_the_day.nick_verbose}}</a></li>
+        <li><strong>могущество:</strong> {{ hero_of_the_day.might }}</li>
+        {% if clan_of_the_day %}
+        <li><strong>гильдия:</strong> <a href="{{url('clans:show', clan_of_the_day.id)}}">{{clan_of_the_day.name}}</a></li>
+        {% endif %}
+        {% if hero_of_the_day.companion %}
+        <li>
+          <strong>спутник:</strong>
+          <a href="{{url('game:companions:show', hero_of_the_day.companion.record.id)}}">
+            {{hero_of_the_day.companion.name}}
+          </a>
+        </li>
+        {% endif %}
       </ul>
+      {% else %}
+      Здесь может быть Ваша реклама.
+      {% endif %}
     </div>
 
-    <div class="easy-block">
-      <h4 class="newspaper-column-header">
-        Фольклор
-        <small><a href="{{ url('blogs:posts:') }}">ещё…</a></small>
-      </h4>
-      <ul class="unstyled">
-        {% for blog_post in blog_posts %}
-        <li class="newspaper-link-list">
-          <span class="pgf-format-date newspaper-link-time" data-timestamp="{{ blog_post.created_at|timestamp }}"></span>
-          <span class="newspaper-forum-user">
-            {% if blog_post.author %}{{blog_post.author.nick_verbose}}
-            {% else %} —
-            {% endif %}
-          </span>
-          <br/>
-          {{ blog_post.caption }}&nbsp;<a style="font-size: 10pt;" href="{{ url('blogs:posts:show', blog_post.id) }}">➔</a>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
+    {{ events_block(bills_block) }}
+    {{ events_block(folclor_block) }}
 
   </div>
 

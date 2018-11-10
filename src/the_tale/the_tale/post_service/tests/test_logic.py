@@ -1,17 +1,10 @@
-# coding: utf-8
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.accounts.logic import get_system_user
-
-from the_tale.post_service import logic
-
-from the_tale.game.logic import create_test_map
+smart_imports.all()
 
 
-class SendMailTests(testcase.TestCase):
+class SendMailTests(utils_testcase.TestCase):
 
     SEND_ARGS = dict(subject='subject',
                      text_content='text_content',
@@ -20,7 +13,7 @@ class SendMailTests(testcase.TestCase):
     def setUp(self):
         super(SendMailTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
@@ -45,7 +38,7 @@ class SendMailTests(testcase.TestCase):
         self.check_send_mail([self.account_1, self.account_2], result=True, call_count=1)
 
     def test_system_user(self):
-        self.check_send_mail([self.account_1, get_system_user(), self.account_2], result=True, call_count=2)
+        self.check_send_mail([self.account_1, accounts_logic.get_system_user(), self.account_2], result=True, call_count=2)
 
     def test_account(self):
         self.check_send_mail([self.account_1], result=True, call_count=1)

@@ -1,6 +1,8 @@
-# coding: utf-8
 
-from django import apps as django_apps
+import smart_imports
+
+smart_imports.all()
+
 
 class Config(django_apps.AppConfig):
     name = 'the_tale.common.postponed_tasks'
@@ -8,5 +10,5 @@ class Config(django_apps.AppConfig):
     verbose_name = 'postponed_tasks'
 
     def ready(self):
-        from the_tale.common.postponed_tasks.prototypes import autodiscover
-        autodiscover()
+        from . import prototypes
+        prototypes.autodiscover()

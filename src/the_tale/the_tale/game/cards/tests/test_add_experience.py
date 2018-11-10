@@ -1,38 +1,27 @@
-from unittest import mock
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-from the_tale.game.quests.tests import helpers as quests_helpers
-from the_tale.game.actions.prototypes import ActionQuestPrototype
-
-from the_tale.game.cards.tests.helpers import CardsTestMixin
+smart_imports.all()
 
 
-class AddExperienceTestMixin(CardsTestMixin):
+class AddExperienceTestMixin(helpers.CardsTestMixin):
     CARD = None
 
     def setUp(self):
         super(AddExperienceTestMixin, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
 
-
     @mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', False)
     @mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', False)
     def test_use(self):
-        self.action_quest = ActionQuestPrototype.create(hero=self.hero)
+        self.action_quest = actions_prototypes.ActionQuestPrototype.create(hero=self.hero)
         quests_helpers.setup_quest(self.hero)
 
         self.assertTrue(self.hero.quests.has_quests)
@@ -45,7 +34,7 @@ class AddExperienceTestMixin(CardsTestMixin):
                     with self.check_not_changed(lambda: self.hero.quests.current_quest.current_info.experience):
                         with self.check_delta(lambda: self.hero.quests.current_quest.current_info.experience_bonus, self.CARD.effect.modificator):
                             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-                            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+                            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(mark_updated.call_count, 1)
 
@@ -58,24 +47,24 @@ class AddExperienceTestMixin(CardsTestMixin):
         self.assertFalse(self.hero.quests.has_quests)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.FAILED, ComplexChangeTask.STEP.ERROR, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
 
-class AddExperienceCommonTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_EXPERIENCE_COMMON
+class AddExperienceCommonTests(AddExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_EXPERIENCE_COMMON
 
 
-class AddExperienceUncommonTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_EXPERIENCE_UNCOMMON
+class AddExperienceUncommonTests(AddExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_EXPERIENCE_UNCOMMON
 
 
-class AddExperienceRareTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_EXPERIENCE_RARE
+class AddExperienceRareTests(AddExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_EXPERIENCE_RARE
 
 
-class AddExperienceEpicTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_EXPERIENCE_EPIC
+class AddExperienceEpicTests(AddExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_EXPERIENCE_EPIC
 
 
-class AddExperienceLegendaryTests(AddExperienceTestMixin, testcase.TestCase):
-    CARD = cards.CARD.ADD_EXPERIENCE_LEGENDARY
+class AddExperienceLegendaryTests(AddExperienceTestMixin, utils_testcase.TestCase):
+    CARD = types.CARD.ADD_EXPERIENCE_LEGENDARY

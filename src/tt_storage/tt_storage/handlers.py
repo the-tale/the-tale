@@ -1,13 +1,11 @@
 
 import uuid
-import datetime
 
 from tt_web import handlers
 from tt_web import exceptions as tt_exceptions
 
 from tt_protocol.protocol import storage_pb2
 
-from . import objects
 from . import protobuf
 from . import exceptions
 from . import operations

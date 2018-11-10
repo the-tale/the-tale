@@ -1,24 +1,7 @@
 
-from dext.common.utils import views as dext_views
+import smart_imports
 
-from the_tale.common.utils import views as utils_views
-from the_tale.common.utils import api
-
-from the_tale.accounts import views as accounts_views
-
-from the_tale.game.heroes import logic as heroes_logic
-from the_tale.game.chronicle import prototypes as chronicle_prototypes
-
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game import relations as game_relations
-from the_tale.game import short_info as game_short_info
-
-from . import storage
-from . import conf
-from . import meta_relations
-from . import info
+smart_imports.all()
 
 
 ########################################
@@ -50,7 +33,7 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 ########################################
 # views
 ########################################
-@api.Processor(versions=(conf.settings.API_LIST_VERSION,))
+@utils_api.Processor(versions=(conf.settings.API_LIST_VERSION,))
 @resource('api', 'list', name='api-list')
 def api_list(context):
     data = {'places': {}}
@@ -68,11 +51,11 @@ def api_list(context):
     return dext_views.AjaxOk(content=data)
 
 
-@api.Processor(versions=(conf.settings.API_SHOW_VERSION))
+@utils_api.Processor(versions=(conf.settings.API_SHOW_VERSION))
 @PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')
 @resource('#place', 'api', 'show', name='api-show')
 def api_show(context):
-    return dext_views.AjaxOk(content=info.place_info(context.place, full_building_info=context.api_version!='2.0'))
+    return dext_views.AjaxOk(content=info.place_info(context.place, full_building_info=context.api_version != '2.0'))
 
 
 @PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')
@@ -88,11 +71,15 @@ def show(context):
     persons_inner_circles = {person.id: politic_power_logic.get_inner_circle(person_id=person.id)
                              for person in context.place.persons}
 
+    total_events, events = chronicle_tt_services.chronicle.cmd_get_last_events(tags=[context.place.meta_object().tag],
+                                                                               number=conf.settings.CHRONICLE_RECORDS_NUMBER)
+
+    tt_api_events_log.fill_events_wtih_meta_objects(events)
+
     return dext_views.Page('places/show.html',
                            content={'place': context.place,
                                     'place_bills': info.place_info_bills(context.place),
-                                    'place_chronicle': chronicle_prototypes.RecordPrototype.get_last_actor_records(context.place,
-                                                                                                                   conf.settings.CHRONICLE_RECORDS_NUMBER),
+                                    'place_chronicle': events,
                                     'accounts_short_infos': accounts_short_infos,
                                     'inner_circle': inner_circle,
                                     'persons_inner_circles': persons_inner_circles,
@@ -102,4 +89,4 @@ def show(context):
                                     'places_power_storage': politic_power_storage.places,
                                     'persons_power_storage': politic_power_storage.persons,
                                     'job_power': job_power,
-                                    'resource': context.resource} )
+                                    'resource': context.resource})

@@ -1,7 +1,7 @@
 
-from . import models
-from . import relations
-from . import objects
+import smart_imports
+
+smart_imports.all()
 
 
 def news_from_model(model):
@@ -12,7 +12,6 @@ def news_from_model(model):
                         created_at=model.created_at,
                         forum_thread_id=model.forum_thread_id,
                         emailed=model.emailed)
-
 
 
 def create_news(caption, description, content):
@@ -51,9 +50,7 @@ def load_last_news():
 
 
 def send_mails(news):
-    from the_tale.post_service.prototypes import MessagePrototype as PostServiceMessagePrototype
-    from the_tale.post_service.message_handlers import NewsHandler
-    PostServiceMessagePrototype.create(NewsHandler(news_id=news.id))
+    post_service_prototypes.MessagePrototype.create(post_service_message_handlers.NewsHandler(news_id=news.id))
 
     news.emailed = relations.EMAILED_STATE.EMAILED
     save_news(news)

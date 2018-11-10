@@ -1,34 +1,7 @@
 
-from django.core.urlresolvers import reverse
+import smart_imports
 
-from dext.common.utils import views as dext_views
-from dext.common.utils.urls import UrlBuilder
-from dext.settings import settings
-
-from the_tale.common.utils import views as utils_views
-from the_tale.common.utils import pagination
-
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.accounts import views as accounts_views
-from the_tale.accounts import logic as accounts_logic
-
-from the_tale.accounts.third_party import views as third_party_views
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.cards import views as cards_views
-from the_tale.game.cards import tt_api as cards_tt_api
-from the_tale.game.cards import logic as cards_logic
-from the_tale.game.cards import relations as cards_relations
-
-from . import conf
-from . import forms
-from . import logic
-from . import tt_api
-from . import objects
-from . import relations
-from . import price_list
+smart_imports.all()
 
 
 ########################################
@@ -37,11 +10,11 @@ from . import price_list
 
 class XsollaEnabledProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
-        real_payments_enabled = (settings.get(conf.payments_settings.SETTINGS_ALLOWED_KEY) and
-                                 (conf.payments_settings.ENABLE_REAL_PAYMENTS or
-                                  context.account.id in conf.payments_settings.ALWAYS_ALLOWED_ACCOUNTS))
+        real_payments_enabled = (dext_settings.settings.get(conf.settings.SETTINGS_ALLOWED_KEY) and
+                                 (conf.settings.ENABLE_REAL_PAYMENTS or
+                                  context.account.id in conf.settings.ALWAYS_ALLOWED_ACCOUNTS))
 
-        context.xsolla_enabled = real_payments_enabled and conf.payments_settings.XSOLLA_ENABLED
+        context.xsolla_enabled = real_payments_enabled and conf.settings.XSOLLA_ENABLED
 
 
 class PurchaseProcessor(dext_views.ArgumentProcessor):
@@ -104,7 +77,7 @@ def index(context):
                                     'CARDS_MIN_PRICES': relations.CARDS_MIN_PRICES,
                                     'JS_CARDS_MIN_PRICES': {rarity.value: price for rarity, price in relations.CARDS_MIN_PRICES.items()},
                                     'hero': hero,
-                                    'payments_settings': conf.payments_settings,
+                                    'payments_settings': conf.settings,
                                     'account': context.account,
                                     'page_type': 'shop',
                                     'resource': context.resource,
@@ -120,7 +93,7 @@ def history(context):
                            content={'SUBSCRIPTIONS': price_list.SUBSCRIPTIONS,
                                     'CARD_RARITY': cards_relations.RARITY,
                                     'page_type': 'shop-history',
-                                    'payments_settings': conf.payments_settings,
+                                    'payments_settings': conf.settings,
                                     'permanent_purchases': sorted(context.account.permanent_purchases, key=lambda r: r.text),
                                     'account': context.account,
                                     'history': history,
@@ -133,22 +106,22 @@ def market_history(context):
 
     cards_info = cards_logic.get_cards_info_by_full_types()
 
-    page, total_records, records = tt_api.history(page=context.page+1, records_on_page=conf.payments_settings.MARKET_HISTORY_RECORDS_ON_PAGE)
+    page, total_records, records = tt_services.market.cmd_history(page=context.page + 1, records_on_page=conf.settings.MARKET_HISTORY_RECORDS_ON_PAGE)
 
     page -= 1
 
-    url_builder = UrlBuilder(reverse('shop:market-history'), arguments={'page': context.page})
+    url_builder = dext_urls.UrlBuilder(django_reverse('shop:market-history'), arguments={'page': context.page})
 
-    history_paginator = pagination.Paginator(page,
-                                             total_records,
-                                             conf.payments_settings.MARKET_HISTORY_RECORDS_ON_PAGE,
-                                             url_builder)
+    history_paginator = utils_pagination.Paginator(page,
+                                                   total_records,
+                                                   conf.settings.MARKET_HISTORY_RECORDS_ON_PAGE,
+                                                   url_builder)
 
     return dext_views.Page('shop/market_history.html',
                            content={'SUBSCRIPTIONS': price_list.SUBSCRIPTIONS,
                                     'CARD_RARITY': cards_relations.RARITY,
                                     'page_type': 'market-history',
-                                    'payments_settings': conf.payments_settings,
+                                    'payments_settings': conf.settings,
                                     'permanent_purchases': sorted(context.account.permanent_purchases, key=lambda r: r.text),
                                     'account': context.account,
                                     'records': records,
@@ -184,13 +157,13 @@ def create_sell_lot(context):
                                 item_id=card.uid,
                                 price=context.price))
 
-    cards_tt_api.change_cards_owner(old_owner_id=context.account.id,
-                                    new_owner_id=accounts_logic.get_system_user_id(),
-                                    operation_type='#create_sell_lots',
-                                    new_storage=cards_relations.STORAGE.FAST,
-                                    cards_ids=[card.uid for card in context.cards])
+    cards_logic.change_owner(old_owner_id=context.account.id,
+                             new_owner_id=accounts_logic.get_system_user_id(),
+                             operation_type='#create_sell_lots',
+                             new_storage=cards_relations.STORAGE.FAST,
+                             cards_ids=[card.uid for card in context.cards])
 
-    tt_api.place_sell_lots(lots)
+    tt_services.market.cmd_place_sell_lots(lots)
 
     return dext_views.AjaxOk()
 
@@ -217,25 +190,25 @@ def close_sell_lot(context):
 @resource('cancel-sell-lot', method='post')
 def cancel_sell_lot(context):
 
-    lots = tt_api.cancel_lot(item_type=context.item_type,
-                             price=context.price,
-                             owner_id=context.account.id)
+    lots = tt_services.market.cmd_cancel_lot(item_type=context.item_type,
+                                             price=context.price,
+                                             owner_id=context.account.id)
 
     if not lots:
         return dext_views.AjaxOk()
 
-    cards_tt_api.change_cards_owner(old_owner_id=accounts_logic.get_system_user_id(),
-                                    new_owner_id=context.account.id,
-                                    operation_type='#cancel_sell_lots',
-                                    new_storage=cards_relations.STORAGE.FAST,
-                                    cards_ids=[lot.item_id for lot in lots])
+    cards_logic.change_owner(old_owner_id=accounts_logic.get_system_user_id(),
+                             new_owner_id=context.account.id,
+                             operation_type='#cancel_sell_lots',
+                             new_storage=cards_relations.STORAGE.FAST,
+                             cards_ids=[lot.item_id for lot in lots])
 
     return dext_views.AjaxOk()
 
 
 @resource('info', method='get')
 def info(context):
-    info = tt_api.info(owner_id=context.account.id)
+    info = tt_services.market.cmd_info(owner_id=context.account.id)
 
     cards_info = cards_logic.get_cards_info_by_full_types()
 
@@ -252,7 +225,7 @@ def info(context):
 @dext_views.ArgumentProcessor(error_message='Необходимо указать тип товара', get_name='item_type', context_name='item_type')
 @resource('item-type-prices', method='get')
 def item_type_prices(context):
-    prices, owner_prices = tt_api.item_type_prices(context.item_type, owner_id=context.account.id)
+    prices, owner_prices = tt_services.market.cmd_item_type_prices(context.item_type, owner_id=context.account.id)
     return dext_views.AjaxOk(content={'prices': prices,
                                       'owner_prices': owner_prices})
 

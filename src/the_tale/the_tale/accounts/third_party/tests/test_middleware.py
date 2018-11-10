@@ -1,32 +1,19 @@
-# coding: utf-8
-import uuid
 
-from unittest import mock
+import smart_imports
 
-from django.conf import settings as project_settings
-
-from dext.common.utils.urls import url
-
-from the_tale.common.utils.testcase import TestCase
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.accounts.third_party import prototypes
-from the_tale.accounts.third_party import middleware
-from the_tale.accounts.third_party.conf import third_party_settings
+smart_imports.all()
 
 
-class MiddlewareTests(TestCase):
+class MiddlewareTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(MiddlewareTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
         self.middleware = middleware.ThirdPartyMiddleware(mock.Mock())
-
 
     def test_token_not_in_session__authenticated(self):
         result = self.middleware.handle_third_party(self.make_request_html('/',
@@ -34,47 +21,42 @@ class MiddlewareTests(TestCase):
                                                                            user=self.account_1._model))
         self.assertTrue(result.is_NO_ACCESS_TOKEN)
 
-
     def test_token_not_in_session__not_authenticated(self):
         result = self.middleware.handle_third_party(self.make_request_html('/',
                                                                            session={}))
         self.assertTrue(result.is_NO_ACCESS_TOKEN)
 
-
     def test_rejected_token__authenticated(self):
         with mock.patch('the_tale.accounts.logic.logout_user') as logout_user:
             result = self.middleware.handle_third_party(self.make_request_html('/',
-                                                                            session={third_party_settings.ACCESS_TOKEN_SESSION_KEY: str(uuid.uuid4())},
-                                                                            user=self.account_1._model))
+                                                                               session={conf.settings.ACCESS_TOKEN_SESSION_KEY: str(uuid.uuid4())},
+                                                                               user=self.account_1._model))
         self.assertTrue(result.is_ACCESS_TOKEN_REJECTED__LOGOUT)
 
         self.assertEqual(logout_user.call_count, 1)
 
-
     def test_rejected_token__not_authenticated(self):
         result = self.middleware.handle_third_party(self.make_request_html('/',
-                                                                           session={third_party_settings.ACCESS_TOKEN_SESSION_KEY: str(uuid.uuid4())}))
+                                                                           session={conf.settings.ACCESS_TOKEN_SESSION_KEY: str(uuid.uuid4())}))
         self.assertTrue(result.is_ACCESS_TOKEN_REJECTED)
-
 
     def test_token_not_accepted_yet__authenticated(self):
         token = prototypes.AccessTokenPrototype.fast_create(id=1)
 
         with mock.patch('the_tale.accounts.logic.logout_user') as logout_user:
             result = self.middleware.handle_third_party(self.make_request_html('/',
-                                                                            session={third_party_settings.ACCESS_TOKEN_SESSION_KEY: token.uid},
-                                                                            user=self.account_1._model))
+                                                                               session={conf.settings.ACCESS_TOKEN_SESSION_KEY: token.uid},
+                                                                               user=self.account_1._model))
 
         self.assertTrue(result.is_ACCESS_TOKEN_NOT_ACCEPTED_YET)
         self.assertEqual(logout_user.call_count, 1)
-
 
     def test_token_not_accepted_yet__not_authenticated(self):
         token = prototypes.AccessTokenPrototype.fast_create(id=1)
 
         with mock.patch('the_tale.accounts.logic.logout_user') as logout_user:
             result = self.middleware.handle_third_party(self.make_request_html('/',
-                                                                            session={third_party_settings.ACCESS_TOKEN_SESSION_KEY: token.uid}))
+                                                                               session={conf.settings.ACCESS_TOKEN_SESSION_KEY: token.uid}))
 
         self.assertTrue(result.is_ACCESS_TOKEN_NOT_ACCEPTED_YET)
         self.assertEqual(logout_user.call_count, 0)
@@ -85,23 +67,21 @@ class MiddlewareTests(TestCase):
         with mock.patch('dext.common.utils.cache.set') as set_cache:
             with mock.patch('the_tale.accounts.logic.force_login_user'):
                 self.middleware.handle_third_party(self.make_request_html('/',
-                                                                        session={third_party_settings.ACCESS_TOKEN_SESSION_KEY: token.uid}))
+                                                                          session={conf.settings.ACCESS_TOKEN_SESSION_KEY: token.uid}))
 
-        cache_key = third_party_settings.ACCESS_TOKEN_CACHE_KEY % token.uid
+        cache_key = conf.settings.ACCESS_TOKEN_CACHE_KEY % token.uid
 
-        self.assertEqual(set_cache.call_args_list, [mock.call(cache_key, token.cache_data(), third_party_settings.ACCESS_TOKEN_CACHE_TIMEOUT)])
-
+        self.assertEqual(set_cache.call_args_list, [mock.call(cache_key, token.cache_data(), conf.settings.ACCESS_TOKEN_CACHE_TIMEOUT)])
 
     def test_authenticated(self):
         token = prototypes.AccessTokenPrototype.fast_create(id=1, account=self.account_1)
 
         with mock.patch('the_tale.accounts.logic.force_login_user') as force_login_user:
             result = self.middleware.handle_third_party(self.make_request_html('/',
-                                                                           session={third_party_settings.ACCESS_TOKEN_SESSION_KEY: token.uid},
-                                                                           user=self.account_1._model))
+                                                                               session={conf.settings.ACCESS_TOKEN_SESSION_KEY: token.uid},
+                                                                               user=self.account_1._model))
         self.assertTrue(result.is_ACCESS_TOKEN_ACCEPTED)
         self.assertEqual(force_login_user.call_count, 0)
-
 
     def test_authenticated_by_another_user(self):
         token = prototypes.AccessTokenPrototype.fast_create(id=1, account=self.account_1)
@@ -110,35 +90,35 @@ class MiddlewareTests(TestCase):
 
         with mock.patch('the_tale.accounts.logic.force_login_user') as force_login_user:
             result = self.middleware.handle_third_party(self.make_request_html('/',
-                                                                           session={third_party_settings.ACCESS_TOKEN_SESSION_KEY: token.uid},
-                                                                           user=account_2._model))
+                                                                               session={conf.settings.ACCESS_TOKEN_SESSION_KEY: token.uid},
+                                                                               user=account_2._model))
         self.assertTrue(result.is_ACCESS_TOKEN_ACCEPTED__USER_LOGED_IN)
 
         self.assertEqual(force_login_user.call_count, 1)
-
 
     def test_not_authenticated(self):
         token = prototypes.AccessTokenPrototype.fast_create(id=1, account=self.account_1)
 
         with mock.patch('the_tale.accounts.logic.force_login_user') as force_login_user:
             result = self.middleware.handle_third_party(self.make_request_html('/',
-                                                                               session={third_party_settings.ACCESS_TOKEN_SESSION_KEY: token.uid}))
+                                                                               session={conf.settings.ACCESS_TOKEN_SESSION_KEY: token.uid}))
         self.assertTrue(result.is_ACCESS_TOKEN_ACCEPTED__USER_LOGED_IN)
 
         self.assertEqual(force_login_user.call_count, 1)
 
 
-
-class MiddlewareRequestsTests(TestCase):
+class MiddlewareRequestsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(MiddlewareRequestsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.request_token_url = url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=project_settings.API_CLIENT)
+        self.request_token_url = dext_urls.url('accounts:third-party:tokens:request-authorisation', api_version='1.0', api_client=django_settings.API_CLIENT)
+
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
 
     def do_test_request(self):
         self.request_html('/')
@@ -153,14 +133,12 @@ class MiddlewareRequestsTests(TestCase):
 
         self.do_test_request()
 
-        self.assertFalse(third_party_settings.ACCESS_TOKEN_SESSION_KEY in self.client.session)
-
+        self.assertFalse(conf.settings.ACCESS_TOKEN_SESSION_KEY in self.client.session)
 
     def test_token_not_in_session__not_authenticated(self):
         self.do_test_request()
 
-        self.assertFalse(third_party_settings.ACCESS_TOKEN_SESSION_KEY in self.client.session)
-
+        self.assertFalse(conf.settings.ACCESS_TOKEN_SESSION_KEY in self.client.session)
 
     def test_rejected_token__authenticated(self):
         self.request_login(self.account_1.email)
@@ -175,7 +153,7 @@ class MiddlewareRequestsTests(TestCase):
 
         self.check_logged_out()
 
-        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
+        self.assertIn(conf.settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
 
     def test_rejected_token__not_authenticated(self):
 
@@ -187,8 +165,7 @@ class MiddlewareRequestsTests(TestCase):
 
         self.check_logged_out()
 
-        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
-
+        self.assertIn(conf.settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
 
     def test_token_not_accepted_yet__authenticated(self):
 
@@ -202,8 +179,7 @@ class MiddlewareRequestsTests(TestCase):
 
         self.check_logged_out()
 
-        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
-
+        self.assertIn(conf.settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
 
     def test_token_not_accepted_yet__not_authenticated(self):
 
@@ -213,8 +189,7 @@ class MiddlewareRequestsTests(TestCase):
 
         self.check_logged_out()
 
-        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
-
+        self.assertIn(conf.settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
 
     def test_no_cache(self):
         self.do_token_request()
@@ -226,12 +201,11 @@ class MiddlewareRequestsTests(TestCase):
         with mock.patch('dext.common.utils.cache.set') as set_cache:
             self.do_test_request()
 
-        cache_key = third_party_settings.ACCESS_TOKEN_CACHE_KEY % token.uid
+        cache_key = conf.settings.ACCESS_TOKEN_CACHE_KEY % token.uid
 
-        self.assertEqual(set_cache.call_args_list, [mock.call(cache_key, token.cache_data(), third_party_settings.ACCESS_TOKEN_CACHE_TIMEOUT)])
+        self.assertEqual(set_cache.call_args_list, [mock.call(cache_key, token.cache_data(), conf.settings.ACCESS_TOKEN_CACHE_TIMEOUT)])
 
         self.check_logged_in()
-
 
     def test_authenticated_by_another_user(self):
         account_2 = self.accounts_factory.create_account()
@@ -248,8 +222,7 @@ class MiddlewareRequestsTests(TestCase):
 
         self.check_logged_in(account=self.account_1)
 
-        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
-
+        self.assertIn(conf.settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
 
     def test_not_authenticated(self):
         self.do_token_request()
@@ -262,4 +235,4 @@ class MiddlewareRequestsTests(TestCase):
 
         self.check_logged_in(account=self.account_1)
 
-        self.assertIn(third_party_settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)
+        self.assertIn(conf.settings.ACCESS_TOKEN_SESSION_KEY, self.client.session)

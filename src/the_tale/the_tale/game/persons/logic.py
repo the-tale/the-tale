@@ -1,38 +1,7 @@
 
-import datetime
+import smart_imports
 
-from django.conf import settings as project_settings
-
-from utg import words as utg_words
-from utg import relations as utg_relations
-
-from dext.common.utils import s11n
-from dext.common.utils.urls import url
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-
-from the_tale.game import turn
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.jobs import objects as jobs_objects
-from the_tale.game.jobs import effects as jobs_effects
-from the_tale.game.jobs import logic as jobs_logic
-
-from the_tale.game.politic_power import conf as politic_power_conf
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from the_tale.game.places import logic as places_logic
-from the_tale.game.places import relations as places_relations
-
-from . import models
-from . import objects
-from . import storage
-from . import conf
-from . import relations
-from . import exceptions
-from . import attributes
+smart_imports.all()
 
 
 class PersonJob(jobs_objects.Job):
@@ -104,17 +73,17 @@ def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_
     # this power, only to person
     person_power = round(amount * power_multiplier * person.place.attrs.freedom)
 
-    impact_type = tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE
+    impact_type = game_tt_services.IMPACT_TYPE.OUTER_CIRCLE
 
     if person_inner_circle:
-        impact_type = tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE
+        impact_type = game_tt_services.IMPACT_TYPE.INNER_CIRCLE
 
-    yield tt_api_impacts.PowerImpact(type=impact_type,
-                                     actor_type=actor_type,
-                                     actor_id=actor_id,
-                                     target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
-                                     target_id=person.id,
-                                     amount=person_power)
+    yield game_tt_services.PowerImpact(type=impact_type,
+                                       actor_type=actor_type,
+                                       actor_id=actor_id,
+                                       target_type=tt_api_impacts.OBJECT_TYPE.PERSON,
+                                       target_id=person.id,
+                                       amount=person_power)
 
     yield from places_logic.tt_power_impacts(inner_circle=place_inner_circle,
                                              actor_type=actor_type,
@@ -131,12 +100,12 @@ def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_
     if amount < 0:
         target_type = tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE
 
-    yield tt_api_impacts.PowerImpact(type=tt_api_impacts.IMPACT_TYPE.JOB,
-                                     actor_type=actor_type,
-                                     actor_id=actor_id,
-                                     target_type=target_type,
-                                     target_id=person.id,
-                                     amount=abs(person_power))
+    yield game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
+                                       actor_type=actor_type,
+                                       actor_id=actor_id,
+                                       target_type=target_type,
+                                       target_id=person.id,
+                                       amount=abs(person_power))
 
 
 def impacts_from_hero(hero, person, power, impacts_generator=tt_power_impacts):
@@ -203,7 +172,7 @@ def save_person(person, new=False):
         person.id = person_model.id
 
         # TODO: that string was in .create method, is it needed here?
-        person.place.persons_changed_at_turn = turn.number()
+        person.place.persons_changed_at_turn = game_turn.number()
 
         storage.persons.add_item(person.id, person)
     else:
@@ -221,8 +190,8 @@ def create_person(place, race, type, utg_name, gender, personality_cosmetic=None
         personality_practical = relations.PERSONALITY_PRACTICAL.random()
 
     person = objects.Person(id=None,
-                            created_at_turn=turn.number(),
-                            updated_at_turn=turn.number(),
+                            created_at_turn=game_turn.number(),
+                            updated_at_turn=game_turn.number(),
                             updated_at=datetime.datetime.now(),
                             place_id=place.id,
                             gender=gender,
@@ -233,7 +202,7 @@ def create_person(place, race, type, utg_name, gender, personality_cosmetic=None
                             personality_practical=personality_practical,
                             utg_name=utg_name,
                             job=jobs_logic.create_job(PersonJob),
-                            moved_at_turn=turn.number())
+                            moved_at_turn=game_turn.number())
     person.refresh_attributes()
     save_person(person, new=True)
     return person
@@ -285,7 +254,7 @@ def create_social_connection(connection_type, person_1, person_2):
     if storage.social_connections.is_connected(person_1, person_2):
         raise exceptions.PersonsAlreadyConnectedError(person_1_id=person_1.id, person_2_id=person_2.id)
 
-    model = models.SocialConnection.objects.create(created_at_turn=turn.number(),
+    model = models.SocialConnection.objects.create(created_at_turn=game_turn.number(),
                                                    person_1_id=person_1.id,
                                                    person_2_id=person_2.id,
                                                    connection=connection_type)
@@ -306,16 +275,16 @@ def remove_connection(connection):
 
 def move_person_to_place(person, new_place):
     person.place_id = new_place.id
-    person.moved_at_turn = turn.number()
+    person.moved_at_turn = game_turn.number()
 
     save_person(person)
 
 
 def api_show_url(person):
     arguments = {'api_version': conf.settings.API_SHOW_VERSION,
-                 'api_client': project_settings.API_CLIENT}
+                 'api_client': django_settings.API_CLIENT}
 
-    return url('game:persons:api-show', person.id, **arguments)
+    return dext_urls.url('game:persons:api-show', person.id, **arguments)
 
 
 def refresh_all_persons_attributes():

@@ -1,14 +1,16 @@
-# coding: utf-8
 
-from the_tale.common.utils.exceptions import TheTaleError
+import smart_imports
+
+smart_imports.all()
 
 
-class ArtifactsError(TheTaleError):
+class ArtifactsError(utils_exceptions.TheTaleError):
     MSG = 'artifacts error'
 
 
 class ArtifactsStorageError(ArtifactsError):
     MSG = 'artifacts storage error: %(message)s'
+
 
 class SaveNotRegisteredArtifactError(ArtifactsError):
     MSG = 'try to save artifact %(artifact)r not from storage'

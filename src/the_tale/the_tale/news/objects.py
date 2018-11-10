@@ -1,5 +1,7 @@
 
-import markdown
+import smart_imports
+
+smart_imports.all()
 
 
 class News(object):
@@ -21,3 +23,6 @@ class News(object):
     @property
     def html_content(self):
         return markdown.markdown(self.content)
+
+    def meta_object(self):
+        return meta_relations.News.create_from_object(self)

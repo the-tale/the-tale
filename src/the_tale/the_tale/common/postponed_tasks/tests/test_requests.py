@@ -1,30 +1,22 @@
-# coding: utf-8
 
-from django.test import client
+import smart_imports
 
-from dext.common.utils.urls import url
+smart_imports.all()
 
-from the_tale.common.utils.testcase import TestCase
 
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-from the_tale.common.postponed_tasks.models import POSTPONED_TASK_STATE
-from the_tale.common.postponed_tasks.postponed_tasks import FakePostponedInternalTask
-
-class RequestsTests(TestCase):
+class RequestsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(RequestsTests, self).setUp()
-        self.task = PostponedTaskPrototype.create(FakePostponedInternalTask())
-
-        self.client = client.Client()
+        self.task = PostponedTaskPrototype.create(postponed_tasks.FakePostponedInternalTask())
 
     def request_status(self, state):
         self.task.state = state
         self.task.save()
-        return self.client.get(url('postponed-tasks:status', self.task.id))
+        return self.client.get(dext_urls.url('postponed-tasks:status', self.task.id))
 
     def test_status_waiting(self):
-        self.check_ajax_processing(self.request_status(POSTPONED_TASK_STATE.WAITING), url('postponed-tasks:status', self.task.id))
+        self.check_ajax_processing(self.request_status(POSTPONED_TASK_STATE.WAITING), dext_urls.url('postponed-tasks:status', self.task.id))
 
     def test_status_processed(self):
         self.check_ajax_ok(self.request_status(POSTPONED_TASK_STATE.PROCESSED), data={'test_value': 666})
@@ -42,18 +34,18 @@ class RequestsTests(TestCase):
         self.check_ajax_error(self.request_status(POSTPONED_TASK_STATE.EXCEPTION), 'postponed_task.exception')
 
     def test_status__wrong_task_id(self):
-        self.check_ajax_error(self.request_ajax_json(url('postponed-tasks:status', 'wrong_task')),
+        self.check_ajax_error(self.request_ajax_json(dext_urls.url('postponed-tasks:status', 'wrong_task')),
                               'postponed_task.task.wrong_format')
 
     def test_status__no_task(self):
-        self.check_ajax_error(self.request_ajax_json(url('postponed-tasks:status', 666)),
+        self.check_ajax_error(self.request_ajax_json(dext_urls.url('postponed-tasks:status', 666)),
                               'postponed_task.task.not_found')
 
     def test_wait_success(self):
-        self.check_html_ok(self.client.get(url('postponed-tasks:wait', self.task.id)))
+        self.check_html_ok(self.client.get(dext_urls.url('postponed-tasks:wait', self.task.id)))
 
     def test_wait_wrong_task(self):
-        self.check_html_ok(self.request_ajax_html(url('postponed-tasks:wait', 'wrong_task')), texts=['postponed_task.task.wrong_format'])
+        self.check_html_ok(self.request_ajax_html(dext_urls.url('postponed-tasks:wait', 'wrong_task')), texts=['postponed_task.task.wrong_format'])
 
     def test_wait_task_not_found(self):
-        self.check_html_ok(self.request_ajax_html(url('postponed-tasks:wait', 666)), texts=['postponed_task.task.not_found'], status_code=404)
+        self.check_html_ok(self.request_ajax_html(dext_urls.url('postponed-tasks:wait', 666)), texts=['postponed_task.task.not_found'], status_code=404)

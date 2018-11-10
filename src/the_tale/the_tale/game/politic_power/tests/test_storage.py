@@ -1,14 +1,8 @@
 
-from the_tale.common.utils import testcase
 
-from the_tale.game.persons import storage as persons_storage
+import smart_imports
 
-from the_tale.game import turn
-from the_tale.game import tt_api_impacts
-from the_tale.game import logic as game_logic
-
-from .. import logic
-from .. import storage
+smart_imports.all()
 
 
 class TestPowerStorage(storage.PowerStorage):
@@ -27,35 +21,35 @@ class TestPowerStorage(storage.PowerStorage):
         self._outer_power_fraction = {target_id: target_id / 10.0 for target_id in self._test_targets_ids}
 
 
-class PowerStorageTests(testcase.TestCase):
+class PowerStorageTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
 
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
-        self.storage = TestPowerStorage(targets_ids=[10, 20, 30, 40 ,50])
+        self.storage = TestPowerStorage(targets_ids=[10, 20, 30, 40, 50])
 
-        logic.add_power_impacts([tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                                          hero_id=1,
-                                                                          person_id=10,
-                                                                          amount=100),
-                                 tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                                          hero_id=2,
-                                                                          person_id=20,
-                                                                          amount=200),
-                                 tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
-                                                                          hero_id=1,
-                                                                          person_id=30,
-                                                                          amount=-300),
-                                 tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                                          hero_id=3,
-                                                                          person_id=40,
-                                                                          amount=-400),
-                                 tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.OUTER_CIRCLE,
-                                                                          hero_id=4,
-                                                                          person_id=50,
-                                                                          amount=500)])
+        logic.add_power_impacts([game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                            hero_id=1,
+                                                                            person_id=10,
+                                                                            amount=100),
+                                 game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                            hero_id=2,
+                                                                            person_id=20,
+                                                                            amount=200),
+                                 game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                            hero_id=1,
+                                                                            person_id=30,
+                                                                            amount=-300),
+                                 game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                            hero_id=3,
+                                                                            person_id=40,
+                                                                            amount=-400),
+                                 game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                                            hero_id=4,
+                                                                            person_id=50,
+                                                                            amount=500)])
 
     def test_initialize(self):
         self.assertEqual(self.storage.turn, None)
@@ -82,7 +76,7 @@ class PowerStorageTests(testcase.TestCase):
         self.assertEqual(self.storage._outer_power_fraction, {10: 1, 20: 2, 30: 3, 40: 4, 50: 5})
 
     def test_sync__no_power(self):
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
         self.storage.sync()
 
         self.assertEqual(self.storage.turn, 0)
@@ -92,10 +86,10 @@ class PowerStorageTests(testcase.TestCase):
     def test_sync__turn_cache(self):
         self.storage.sync()
 
-        logic.add_power_impacts([tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                                          hero_id=1,
-                                                                          person_id=10,
-                                                                          amount=666)])
+        logic.add_power_impacts([game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                            hero_id=1,
+                                                                            person_id=10,
+                                                                            amount=666)])
         self.storage.sync()
 
         self.assertEqual(self.storage.turn, 0)
@@ -113,16 +107,16 @@ class PowerStorageTests(testcase.TestCase):
     def test_sync__turn_cache_reset(self):
         self.storage.sync()
 
-        logic.add_power_impacts([tt_api_impacts.PowerImpact.hero_2_person(type=tt_api_impacts.IMPACT_TYPE.INNER_CIRCLE,
-                                                                          hero_id=1,
-                                                                          person_id=10,
-                                                                          amount=666)])
-        turn.increment()
+        logic.add_power_impacts([game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                            hero_id=1,
+                                                                            person_id=10,
+                                                                            amount=666)])
+        game_turn.increment()
 
         self.storage.sync()
 
         self.assertEqual(self.storage.turn, 1)
-        self.assertEqual(self.storage._inner_power, {10: 100+666,
+        self.assertEqual(self.storage._inner_power, {10: 100 + 666,
                                                      20: 200,
                                                      30: 0,
                                                      40: -400,
@@ -134,7 +128,7 @@ class PowerStorageTests(testcase.TestCase):
                                                      50: 500})
 
     def test_total_power_fraction(self):
-        self.assertEqual(self.storage.total_power_fraction(10), (0.1+1) / 2)
+        self.assertEqual(self.storage.total_power_fraction(10), (0.1 + 1) / 2)
 
     def test_inner_power_fraction(self):
         self.assertEqual(self.storage.inner_power_fraction(10), 0.1)
@@ -154,17 +148,17 @@ class PowerStorageTests(testcase.TestCase):
                                     'fraction': 0.3},
                           'outer': {'value': -300,
                                     'fraction': 3},
-                          'fraction': (3+0.3)/2})
+                          'fraction': (3 + 0.3) / 2})
 
 
-class PlacesPowerStorageTests(testcase.TestCase):
+class PlacesPowerStorageTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
 
         self.places = game_logic.create_test_map()
 
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
     def test_targets_ids(self):
         self.assertCountEqual(storage.places._tt_targets_ids(),
@@ -185,7 +179,7 @@ class PlacesPowerStorageTests(testcase.TestCase):
                                                                 self.places[1].id: 1.0,
                                                                 self.places[2].id: 0.25})
         self.assertEqual(storage.places._outer_power_fraction, {self.places[0].id: 0.5,
-                                                                self.places[1].id: 0,
+                                                                self.places[1].id: 1.0,
                                                                 self.places[2].id: 0.5})
 
     def test_update_fractions__core(self):
@@ -198,7 +192,7 @@ class PlacesPowerStorageTests(testcase.TestCase):
         self.check_fractions()
 
 
-class PersonsPowerStorageTests(testcase.TestCase):
+class PersonsPowerStorageTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -207,7 +201,7 @@ class PersonsPowerStorageTests(testcase.TestCase):
 
         self.persons = [place.persons for place in self.places]
 
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
     def test_targets_ids(self):
         self.assertEqual(storage.persons._tt_targets_ids(),

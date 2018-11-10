@@ -1,32 +1,26 @@
 
-import re
+import smart_imports
 
-from django.forms import ValidationError
-
-from dext.forms import forms, fields
-
-from utg import relations as utg_relations
-
-from the_tale.linguistics import forms as word_forms
-
-from the_tale.game.relations import GENDER, RACE
-
-from the_tale.game.heroes import models
-from the_tale.game.heroes import conf
+smart_imports.all()
 
 
-NAME_REGEX = re.compile(conf.heroes_settings.NAME_REGEX)
+class EditNameForm(dext_forms.Form):
 
+    race = dext_fields.TypedChoiceField(label='раса',
+                                        choices=game_relations.RACE.choices(),
+                                        coerce=game_relations.RACE.get_from_name)
+    gender = dext_fields.TypedChoiceField(label='пол',
+                                          choices=game_relations.GENDER.choices(),
+                                          coerce=game_relations.GENDER.get_from_name)
+    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
+                                       widget_class=linguistics_forms.SimpleNounWidget,
+                                       label='имя',
+                                       skip_markers=(utg_relations.NOUN_FORM.COUNTABLE, utg_relations.NUMBER.PLURAL),
+                                       show_properties=False)
 
-class EditNameForm(forms.Form):
-
-    race = fields.TypedChoiceField(label='раса', choices=RACE.choices(), coerce=RACE.get_from_name)
-    gender = fields.TypedChoiceField(label='пол', choices=GENDER.choices(), coerce=GENDER.get_from_name)
-    name = word_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
-                                widget_class=word_forms.SimpleNounWidget,
-                                label='имя',
-                                skip_markers=(utg_relations.NOUN_FORM.COUNTABLE, utg_relations.NUMBER.PLURAL),
-                                show_properties=False)
+    description = utils_bbcode.BBField(required=False,
+                                       label='Несколько слов о вашем герое',
+                                       max_length=conf.settings.MAX_HERO_DESCRIPTION_LENGTH)
 
     def clean(self):
         cleaned_data = super(EditNameForm, self).clean()
@@ -34,15 +28,10 @@ class EditNameForm(forms.Form):
         name = cleaned_data.get('name')
 
         if name is not None:
-            for name_form in cleaned_data['name'].forms:
-                if len(name_form) > models.Hero.MAX_NAME_LENGTH:
-                    raise ValidationError('Слишком длинное имя, максимальное число символов: %d' % models.Hero.MAX_NAME_LENGTH)
+            success, message = logic.validate_name(cleaned_data['name'].forms)
 
-                if len(name_form) < conf.heroes_settings.NAME_MIN_LENGHT:
-                    raise ValidationError('Слишком короткое имя, минимальное число символов: %d' % conf.heroes_settings.NAME_MIN_LENGHT)
-
-                if NAME_REGEX.match(name_form) is None:
-                    raise ValidationError('Имя героя может содержать только следующие символы: %s' % conf.heroes_settings.NAME_SYMBOLS_DESCRITION)
+            if not success:
+                raise django_forms.ValidationError(message)
 
             name.properties = name.properties.clone(cleaned_data['gender'].utg_id,
                                                     utg_relations.NUMBER.SINGULAR)
@@ -53,4 +42,5 @@ class EditNameForm(forms.Form):
     def get_initials(cls, hero):
         return {'gender': hero.gender,
                 'race': hero.race,
-                'name':  hero.utg_name }
+                'name': hero.utg_name,
+                'description': logic.get_hero_description(hero.id)}

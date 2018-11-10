@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from django.db import models
+import smart_imports
 
-from rels.django import RelationIntegerField
-
-from the_tale.finances.xsolla.relations import INVOICE_STATE, PAY_RESULT
+smart_imports.all()
 
 
-class Invoice(models.Model):
+class Invoice(django_models.Model):
 
     XSOLLA_ID_MAX_LENGTH = 255
     XSOLLA_V1_MAX_LENGTH = 255
@@ -16,30 +13,30 @@ class Invoice(models.Model):
     COMMENT_MAX_LENGTH = 255
     REQUEST_URL_LENGTH = 1024
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    updated_at = models.DateTimeField(auto_now=True, null=False)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = django_models.DateTimeField(auto_now=True, null=False)
 
-    state = RelationIntegerField(null=True, relation=INVOICE_STATE, relation_column='value', db_index=True)
+    state = rels_django.RelationIntegerField(null=True, relation=relations.INVOICE_STATE, relation_column='value', db_index=True)
 
-    bank_id = models.BigIntegerField()
-    bank_amount = models.BigIntegerField()
-    bank_invoice = models.OneToOneField('bank.Invoice', null=True, related_name='+', on_delete=models.SET_NULL) # settuped when payments deposited to account
+    bank_id = django_models.BigIntegerField()
+    bank_amount = django_models.BigIntegerField()
+    bank_invoice = django_models.OneToOneField('bank.Invoice', null=True, related_name='+', on_delete=django_models.SET_NULL)  # settuped when payments deposited to account
 
-    xsolla_id = models.CharField(max_length=XSOLLA_ID_MAX_LENGTH, db_index=True)
+    xsolla_id = django_models.CharField(max_length=XSOLLA_ID_MAX_LENGTH, db_index=True)
 
-    xsolla_v1 = models.CharField(max_length=XSOLLA_V1_MAX_LENGTH)
-    xsolla_v2 = models.CharField(max_length=XSOLLA_V2_MAX_LENGTH, null=True)
-    xsolla_v3 = models.CharField(max_length=XSOLLA_V3_MAX_LENGTH, null=True)
+    xsolla_v1 = django_models.CharField(max_length=XSOLLA_V1_MAX_LENGTH)
+    xsolla_v2 = django_models.CharField(max_length=XSOLLA_V2_MAX_LENGTH, null=True)
+    xsolla_v3 = django_models.CharField(max_length=XSOLLA_V3_MAX_LENGTH, null=True)
 
-    comment = models.CharField(max_length=COMMENT_MAX_LENGTH, null=False, default='')
+    comment = django_models.CharField(max_length=COMMENT_MAX_LENGTH, null=False, default='')
 
-    pay_result = RelationIntegerField(null=True, relation=PAY_RESULT, relation_column='value', db_index=True)
+    pay_result = rels_django.RelationIntegerField(null=True, relation=relations.PAY_RESULT, relation_column='value', db_index=True)
 
-    test = models.BooleanField(blank=True, default=False)
+    test = django_models.BooleanField(blank=True, default=False)
 
-    date = models.DateTimeField(null=True)
+    date = django_models.DateTimeField(null=True)
 
-    request_url = models.CharField(max_length=REQUEST_URL_LENGTH)
+    request_url = django_models.CharField(max_length=REQUEST_URL_LENGTH)
 
     class Meta:
         unique_together = (('xsolla_id', 'test'), )

@@ -1,18 +1,13 @@
-# coding: utf-8
 
-from dext.common.utils import s11n
-from dext.views import handler
+import smart_imports
 
-from the_tale.common.utils.resources import Resource
-
-from the_tale.common.utils import testcase
-from the_tale.common.utils import api
+smart_imports.all()
 
 
-class TestResource(Resource):
+class TestResource(resources.Resource):
 
     @api.handler(versions=('1.1', '1.0'))
-    @handler('path')
+    @dext_old_views.handler('path')
     def test_view(self, arg_1, api_version=None):
         return self.ok(data={'arg_1': arg_1})
 
@@ -39,7 +34,7 @@ class ApiTest(testcase.TestCase):
 
     def test_handler(self):
         self.assertEqual(s11n.from_json(self.resource.test_view(arg_1=6, api_version='1.1', api_client='client-v0.1').content.decode('utf-8')),
-                         {'status': 'ok', 'data': {'arg_1': 6} })
+                         {'status': 'ok', 'data': {'arg_1': 6}})
 
     def test_handler__no_api_version(self):
         self.check_api_error('api.no_method_version', arg_1=6, api_client='client-v0.1')
@@ -49,7 +44,7 @@ class ApiTest(testcase.TestCase):
 
     def test_handler__depricated_api_version(self):
         self.assertEqual(s11n.from_json(self.resource.test_view(arg_1=6, api_version='1.0', api_client='client-v0.1').content.decode('utf-8')),
-                         {'status': 'ok', 'data': {'arg_1': 6}, 'depricated': True })
+                         {'status': 'ok', 'data': {'arg_1': 6}, 'depricated': True})
 
     def test_handler__no_client_version(self):
         self.check_api_error('api.no_client_identificator', arg_1=6, api_version='1.1')

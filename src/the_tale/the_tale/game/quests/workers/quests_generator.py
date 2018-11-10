@@ -1,15 +1,10 @@
-# coding: utf-8
-import sys
-import collections
 
-from the_tale import amqp_environment
+import smart_imports
 
-from the_tale.common.utils.workers import BaseWorker
-
-from the_tale.game.quests import logic
+smart_imports.all()
 
 
-class Worker(BaseWorker):
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 0.1
     NO_CMD_TIMEOUT = 0.1
 
@@ -52,7 +47,7 @@ class Worker(BaseWorker):
             self.logger.error('exception in quest generation')
             self.logger.error('Exception',
                               exc_info=sys.exc_info(),
-                              extra={} )
+                              extra={})
             self.logger.error('continue processing')
             return
 

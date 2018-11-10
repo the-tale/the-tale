@@ -1,34 +1,34 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.collections.models import Collection, Kit, Item, GiveItemTask, AccountItems
+smart_imports.all()
 
 
-class CollectionAdmin(admin.ModelAdmin):
+class CollectionAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'approved', 'caption')
     list_filter = ('approved',)
 
 
-class KitAdmin(admin.ModelAdmin):
+class KitAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'approved', 'caption', 'collection')
     list_filter = ('approved', 'collection')
 
 
-class ItemAdmin(admin.ModelAdmin):
+class ItemAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'approved', 'caption', 'kit')
     list_filter = ('approved', 'kit')
 
 
-class GiveItemTaskAdmin(admin.ModelAdmin):
+class GiveItemTaskAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account', 'item')
 
-class AccountItemsAdmin(admin.ModelAdmin):
+
+class AccountItemsAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account')
 
 
-admin.site.register(Collection, CollectionAdmin)
-admin.site.register(Kit, KitAdmin)
-admin.site.register(Item, ItemAdmin)
-admin.site.register(GiveItemTask, GiveItemTaskAdmin)
-admin.site.register(AccountItems, AccountItemsAdmin)
+django_admin.site.register(models.Collection, CollectionAdmin)
+django_admin.site.register(models.Kit, KitAdmin)
+django_admin.site.register(models.Item, ItemAdmin)
+django_admin.site.register(models.GiveItemTask, GiveItemTaskAdmin)
+django_admin.site.register(models.AccountItems, AccountItemsAdmin)

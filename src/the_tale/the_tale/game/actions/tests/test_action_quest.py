@@ -1,28 +1,19 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game import turn
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game.quests.tests import helpers as quests_helpers
-
-from the_tale.game.actions import prototypes
+smart_imports.all()
 
 
-class QuestActionTests(testcase.TestCase):
+class QuestActionTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(QuestActionTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
@@ -50,14 +41,12 @@ class QuestActionTests(testcase.TestCase):
         self.assertTrue(2 <= len(self.hero.actions.actions_list) <= 3)
         self.storage._test_save()
 
-
     def test_step_with_no_quest(self):
         quests_helpers.setup_quest(self.hero)
 
         self.hero.quests.pop_quest()
         self.storage.process_turn()
         self.assertEqual(self.action_idl.leader, True)
-
 
     def test_need_equipping(self):
         with mock.patch('the_tale.game.heroes.objects.Hero.need_equipping', lambda hero: True):
@@ -75,13 +64,12 @@ class QuestActionTests(testcase.TestCase):
 
         self.assertEqual(self.action_quest.state, self.action_quest.STATE.PROCESSING)
 
-
     def test_full_quest(self):
 
         # just test that quest will be ended
         while not self.action_idl.leader:
             self.storage.process_turn()
-            turn.increment()
+            game_turn.increment()
 
         self.storage._test_save()
 

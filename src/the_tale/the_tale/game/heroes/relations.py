@@ -1,34 +1,28 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
-
-from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import Power
-
-from the_tale.game.artifacts.relations import ARTIFACT_TYPE
+smart_imports.all()
 
 
-class RISK_LEVEL(DjangoEnum):
-    health_percent_to_rest = Column()
-    experience_modifier = Column()
-    power_modifier = Column()
-    reward_modifier = Column()
-    description = Column()
+class RISK_LEVEL(rels_django.DjangoEnum):
+    health_percent_to_rest = rels.Column()
+    experience_modifier = rels.Column()
+    power_modifier = rels.Column()
+    reward_modifier = rels.Column()
+    description = rels.Column()
 
-    records = (('VERY_HIGH', 0, 'очень высокий', 0.70, 1.30,  2.0,  2.00, 'больше опыта и наград за задания, +200% к влиянию и денежным наградам за задания'),
-               ('HIGH',      1, 'высокий',       0.85, 1.15,  1.0,  1.00, 'немного больше опыта и наград за задания, +100% к влиянию и денежным наградам за задания'),
-               ('NORMAL',    2, 'обычный',       1.00, 1.00,  0.0,  0.00, 'никакого влияния на опыт, награды и влияние героя'),
-               ('LOW',       3, 'низкий',        1.15, 0.85, -1.0, -1.00, 'немного меньше опыта и наград за задания, -100% к влиянию и денежным наградам за задания'),
-               ('VERY_LOW',  4, 'очень низкий',  1.30, 0.70, -2.0, -2.00, 'меньше опыта и наград за задания, -200% к влиянию и денежным наградам за задания'))
+    records = (('VERY_HIGH', 0, 'очень высокий', 0.70, 1.30, 2.0, 2.00, 'больше опыта и наград за задания, +200% к влиянию и денежным наградам за задания'),
+               ('HIGH', 1, 'высокий', 0.85, 1.15, 1.0, 1.00, 'немного больше опыта и наград за задания, +100% к влиянию и денежным наградам за задания'),
+               ('NORMAL', 2, 'обычный', 1.00, 1.00, 0.0, 0.00, 'никакого влияния на опыт, награды и влияние героя'),
+               ('LOW', 3, 'низкий', 1.15, 0.85, -1.0, -1.00, 'немного меньше опыта и наград за задания, -100% к влиянию и денежным наградам за задания'),
+               ('VERY_LOW', 4, 'очень низкий', 1.30, 0.70, -2.0, -2.00, 'меньше опыта и наград за задания, -200% к влиянию и денежным наградам за задания'))
 
 
-class PREFERENCE_TYPE(DjangoEnum):
-    level_required = Column()
-    base_name = Column()
-    prepair_method = Column(unique=False)
-    nullable = Column(unique=False)
+class PREFERENCE_TYPE(rels_django.DjangoEnum):
+    level_required = rels.Column()
+    base_name = rels.Column()
+    prepair_method = rels.Column(unique=False)
+    nullable = rels.Column(unique=False)
 
     records = (('MOB', 0, 'любимая добыча', 8, 'mob', '_prepair_mob', True),
                ('PLACE', 1, 'родной город', 4, 'place', '_prepair_place', True),
@@ -43,28 +37,28 @@ class PREFERENCE_TYPE(DjangoEnum):
                ('COMPANION_EMPATHY', 10, 'эмпатия', 24, 'companion_empathy', '_prepair_companion_empathy', False))
 
 
-class COMPANION_DEDICATION(DjangoEnum):
-    block_multiplier = Column(unique=False)
-    heal_spending_priority = Column()
-    description = Column()
+class COMPANION_DEDICATION(rels_django.DjangoEnum):
+    block_multiplier = rels.Column(unique=False)
+    heal_spending_priority = rels.Column()
+    description = rels.Column()
 
-    records = (('EGOISM', 0, 'эгоизм', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA,  0.75, 'спутник чаще защищает героя в бою'),
+    records = (('EGOISM', 0, 'эгоизм', 1.0 + c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, 0.75, 'спутник чаще защищает героя в бою'),
                ('NORMAL', 1, 'нейтралитет', 1.0, 1.0, 'спутник защищает героя с обычной частотой'),
                ('ALTRUISM', 2, 'альтруизм', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, 1.25, 'спутник реже защищает героя в бою'),
                ('EVERY_MAN_FOR_HIMSELF', 3, 'каждый сам за себя', 1.0 - c.COMPANIONS_BLOCK_MULTIPLIER_HERO_DEDICATION_DELTA, 0.0,
                 'спутник реже защищает героя в бою, герой ничего не делает для лечения спутника, помощь герою не лечит спутника'))
 
 
-class COMPANION_EMPATHY(DjangoEnum):
-    habit_multiplier = Column()
-    description = Column()
+class COMPANION_EMPATHY(rels_django.DjangoEnum):
+    habit_multiplier = rels.Column()
+    description = rels.Column()
 
-    records = (('EGOCENTRIC', 0, 'эгоцентрик', 1.0 - c.COMPANIONS_HABITS_DELTA,  'черты спутника оказывают меньшее влияние на черты героя'),
-               ('ORDINAL', 1, 'обыкновенный', 1.0, 'черты спутника оказывает обычное влияние на черты героя'),
-               ('EMPATH', 2, 'эмпат', 1.0 + c.COMPANIONS_HABITS_DELTA, 'черты спутника оказывает большее влияние на черты героя'))
+    records = (('EGOCENTRIC', 0, 'эгоцентрик', 1.0 - c.COMPANIONS_HABITS_DELTA, 'черты спутника оказывают меньшее влияние на черты героя'),
+               ('ORDINAL', 1, 'обыкновенный', 1.0, 'черты спутника оказывают обычное влияние на черты героя'),
+               ('EMPATH', 2, 'эмпат', 1.0 + c.COMPANIONS_HABITS_DELTA, 'черты спутника оказывают большее влияние на черты героя'))
 
 
-class MONEY_SOURCE(DjangoEnum):
+class MONEY_SOURCE(rels_django.DjangoEnum):
 
     records = (('EARNED_FROM_LOOT', 0, 'заработано продажей добычи'),
                ('EARNED_FROM_ARTIFACTS', 1, 'заработано продажей артефактов'),
@@ -85,28 +79,28 @@ class MONEY_SOURCE(DjangoEnum):
                ('SPEND_FOR_COMPANIONS', 1008, 'потрачено на спутников'))
 
 
-class ITEMS_OF_EXPENDITURE(DjangoEnum):
-    ui_id = Column()
-    priority = Column(unique=False, primary=False)
-    price_fraction = Column(unique=False, primary=False) # цена в доле от стандартной цены
-    money_source = Column()
-    description = Column()
+class ITEMS_OF_EXPENDITURE(rels_django.DjangoEnum):
+    ui_id = rels.Column()
+    priority = rels.Column(unique=False, primary=False)
+    price_fraction = rels.Column(unique=False, primary=False)  # цена в доле от стандартной цены
+    money_source = rels.Column()
+    description = rels.Column()
 
-    records = (('INSTANT_HEAL',        0, 'лечение',           'heal',       20, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
+    records = (('INSTANT_HEAL', 0, 'лечение', 'heal', 20, 0.3, MONEY_SOURCE.SPEND_FOR_HEAL,
                 'Собирает деньги, чтобы поправить здоровье, если понадобится.'),
-               ('BUYING_ARTIFACT',     1, 'покупка артефакта', 'artifact',   4,  3.0, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
+               ('BUYING_ARTIFACT', 1, 'покупка артефакта', 'artifact', 4, 3.0, MONEY_SOURCE.SPEND_FOR_ARTIFACTS,
                 'Планирует приобретение новой экипировки.'),
-               ('SHARPENING_ARTIFACT', 2, 'заточка артефакта', 'sharpening', 3,  2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
+               ('SHARPENING_ARTIFACT', 2, 'заточка артефакта', 'sharpening', 3, 2.0, MONEY_SOURCE.SPEND_FOR_SHARPENING,
                 'Собирает на улучшение экипировки.'),
-               ('USELESS',             3, 'на себя', 'useless',    7,  0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
+               ('USELESS', 3, 'на себя', 'useless', 7, 0.4, MONEY_SOURCE.SPEND_FOR_USELESS,
                 'Копит золото для не очень полезных, но безусловно необходимых, трат.'),
-               ('IMPACT',              4, 'изменение влияния', 'impact',     4,  1.0, MONEY_SOURCE.SPEND_FOR_IMPACT,
+               ('IMPACT', 4, 'изменение влияния', 'impact', 4, 1.0, MONEY_SOURCE.SPEND_FOR_IMPACT,
                 'Планирует накопить деньжат, чтобы повлиять на «запомнившегося» горожанина.'),
-               ('EXPERIENCE',          5, 'обучение',          'experience', 2,  4.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
+               ('EXPERIENCE', 5, 'обучение', 'experience', 2, 4.0, MONEY_SOURCE.SPEND_FOR_EXPERIENCE,
                 'Копит деньги в надежде немного повысить свою грамотность.'),
-               ('REPAIRING_ARTIFACT',  6, 'починка артефакта', 'repairing', 15, 1.5, MONEY_SOURCE.SPEND_FOR_REPAIRING,
+               ('REPAIRING_ARTIFACT', 6, 'починка артефакта', 'repairing', 15, 1.5, MONEY_SOURCE.SPEND_FOR_REPAIRING,
                 'Копит на починку экипировки'),
-               ('HEAL_COMPANION',  7, 'лечение спутника', 'heal_companion', 10, 0.3, MONEY_SOURCE.SPEND_FOR_COMPANIONS,
+               ('HEAL_COMPANION', 7, 'лечение спутника', 'heal_companion', 10, 0.3, MONEY_SOURCE.SPEND_FOR_COMPANIONS,
                 'Копит на лечение спутника, если оно понадобится'))
 
     @classmethod
@@ -114,30 +108,30 @@ class ITEMS_OF_EXPENDITURE(DjangoEnum):
         return cls.BUYING_ARTIFACT.price_fraction * 0.75
 
 
-class EQUIPMENT_SLOT(DjangoEnum):
-    artifact_type = Column(related_name='equipment_slot')
-    default = Column(unique=False, single_type=False, no_index=False)
+class EQUIPMENT_SLOT(rels_django.DjangoEnum):
+    artifact_type = rels.Column(related_name='equipment_slot')
+    default = rels.Column(unique=False, single_type=False, no_index=False)
 
     # records sorted in order in which they must be placed in UI
-    records = (('HAND_PRIMARY', 0, 'основная рука', ARTIFACT_TYPE.MAIN_HAND, 'default_weapon'),
-               ('HAND_SECONDARY', 1, 'вспомогательная рука', ARTIFACT_TYPE.OFF_HAND, None),
-               ('HELMET', 2, 'шлем', ARTIFACT_TYPE.HELMET, None),
-               ('AMULET', 9, 'амулет', ARTIFACT_TYPE.AMULET, None),
-               ('SHOULDERS', 3, 'наплечники', ARTIFACT_TYPE.SHOULDERS, None),
-               ('PLATE', 4, 'доспех', ARTIFACT_TYPE.PLATE, 'default_plate'),
-               ('GLOVES', 5, 'перчатки', ARTIFACT_TYPE.GLOVES, 'default_gloves'),
-               ('CLOAK', 6, 'плащ', ARTIFACT_TYPE.CLOAK, None),
-               ('PANTS', 7, 'штаны', ARTIFACT_TYPE.PANTS, 'default_pants'),
-               ('BOOTS', 8, 'сапоги', ARTIFACT_TYPE.BOOTS, 'default_boots'),
-               ('RING', 10, 'кольцо', ARTIFACT_TYPE.RING, None))
+    records = (('HAND_PRIMARY', 0, 'основная рука', artifacts_relations.ARTIFACT_TYPE.MAIN_HAND, 'default_weapon'),
+               ('HAND_SECONDARY', 1, 'вспомогательная рука', artifacts_relations.ARTIFACT_TYPE.OFF_HAND, None),
+               ('HELMET', 2, 'шлем', artifacts_relations.ARTIFACT_TYPE.HELMET, None),
+               ('AMULET', 9, 'амулет', artifacts_relations.ARTIFACT_TYPE.AMULET, None),
+               ('SHOULDERS', 3, 'наплечники', artifacts_relations.ARTIFACT_TYPE.SHOULDERS, None),
+               ('PLATE', 4, 'доспех', artifacts_relations.ARTIFACT_TYPE.PLATE, 'default_plate'),
+               ('GLOVES', 5, 'перчатки', artifacts_relations.ARTIFACT_TYPE.GLOVES, 'default_gloves'),
+               ('CLOAK', 6, 'плащ', artifacts_relations.ARTIFACT_TYPE.CLOAK, None),
+               ('PANTS', 7, 'штаны', artifacts_relations.ARTIFACT_TYPE.PANTS, 'default_pants'),
+               ('BOOTS', 8, 'сапоги', artifacts_relations.ARTIFACT_TYPE.BOOTS, 'default_boots'),
+               ('RING', 10, 'кольцо', artifacts_relations.ARTIFACT_TYPE.RING, None))
 
     @classmethod
     def default_uids(cls):
         return [record.default for record in cls.records if record.default is not None]
 
 
-class MODIFIERS(DjangoEnum):
-    default = Column(unique=False, single_type=False)
+class MODIFIERS(rels_django.DjangoEnum):
+    default = rels.Column(unique=False, single_type=False)
 
     records = (('INITIATIVE', 0, 'инициатива', lambda: 1.0),
                ('HEALTH', 1, 'здоровье', lambda: 1.0),
@@ -150,7 +144,7 @@ class MODIFIERS(DjangoEnum):
                ('QUEST_MONEY_REWARD', 8, 'денежная награда за выполнение задения', lambda: 0.0),
                ('BUY_PRICE', 9, 'цена покупки', lambda: 0.0),
                ('SELL_PRICE', 10, 'цена продажи', lambda: 0.0),
-               ('ITEMS_OF_EXPENDITURE_PRIORITIES', 11, 'приортет трат', lambda: {record:record.priority for record in ITEMS_OF_EXPENDITURE.records}),
+               ('ITEMS_OF_EXPENDITURE_PRIORITIES', 11, 'приортет трат', lambda: {record: record.priority for record in ITEMS_OF_EXPENDITURE.records}),
                ('GET_ARTIFACT_FOR_QUEST', 12, 'получить артефакты за задания', lambda: c.ARTIFACT_FOR_QUEST_PROBABILITY),
                # ('BUY_BETTER_ARTIFACT', 13, u'купить лучший артефакт', lambda: 0),
                ('KILL_BEFORE_BATTLE', 14, 'убить монстра перед боем', lambda: False),
@@ -174,7 +168,7 @@ class MODIFIERS(DjangoEnum):
                ('IDLE_LENGTH', 33, 'длительность бездействия', lambda: 1.0),
                # ('ENERGY_DISCOUNT', 34, 'скидка на трату энергии', lambda: 0),
                ('DOUBLE_ENERGY_REGENERATION', 35, 'вероятность восстановить в 2 раза больше энергии', lambda: 0),
-               ('BONUS_ARTIFACT_POWER', 36, 'бонус к силе артефактов получаемых', lambda: Power(0, 0)),
+               ('BONUS_ARTIFACT_POWER', 36, 'бонус к силе артефактов получаемых', lambda: power.Power(0, 0)),
                ('ADDITIONAL_ABILITIES', 37, 'дополнительные способности', lambda: []),
                # ('PREFERENCES_CHANCE_DELAY', 38, 'зедержка смены предпочтений', lambda: c.PREFERENCES_CHANGE_DELAY),
                ('FEAR', 39, 'монстры могу убежать в начале боя', lambda: 0),
@@ -226,56 +220,56 @@ class MODIFIERS(DjangoEnum):
                ('CHARACTER_QUEST_PRIORITY', 83, 'приоритет заданий связанных с героем', lambda: 1.0))
 
 
-class HABIT_CHANGE_SOURCE(DjangoEnum):
-    quest_marker = Column(unique=False, single_type=False)
-    quest_default = Column(unique=False, single_type=False)
-    correlation_requirements = Column(unique=False, single_type=False)
-    honor = Column(unique=False)
-    peacefulness = Column(unique=False)
+class HABIT_CHANGE_SOURCE(rels_django.DjangoEnum):
+    quest_marker = rels.Column(unique=False, single_type=False)
+    quest_default = rels.Column(unique=False, single_type=False)
+    correlation_requirements = rels.Column(unique=False, single_type=False)
+    honor = rels.Column(unique=False)
+    peacefulness = rels.Column(unique=False)
 
-    records = (('QUEST_HONORABLE', 0, 'выбор чести в задании игроком', QUEST_OPTION_MARKERS.HONORABLE,            False, None, c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
-               ('QUEST_DISHONORABLE', 1, 'выбор бесчестия в задании игроком', QUEST_OPTION_MARKERS.DISHONORABLE,  False, None, -c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
-               ('QUEST_AGGRESSIVE', 2, 'выборе агрессивности в задании игроком', QUEST_OPTION_MARKERS.AGGRESSIVE, False, None, 0.0, -c.HABITS_QUEST_ACTIVE_DELTA),
-               ('QUEST_UNAGGRESSIVE', 3, 'выбор миролюбия в задании игроком', QUEST_OPTION_MARKERS.UNAGGRESSIVE,  False, None, 0.0, c.HABITS_QUEST_ACTIVE_DELTA),
+    records = (('QUEST_HONORABLE', 0, 'выбор чести в задании игроком', questgen_relations.OPTION_MARKERS.HONORABLE, False, None, c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
+               ('QUEST_DISHONORABLE', 1, 'выбор бесчестия в задании игроком', questgen_relations.OPTION_MARKERS.DISHONORABLE, False, None, -c.HABITS_QUEST_ACTIVE_DELTA, 0.0),
+               ('QUEST_AGGRESSIVE', 2, 'выборе агрессивности в задании игроком', questgen_relations.OPTION_MARKERS.AGGRESSIVE, False, None, 0.0, -c.HABITS_QUEST_ACTIVE_DELTA),
+               ('QUEST_UNAGGRESSIVE', 3, 'выбор миролюбия в задании игроком', questgen_relations.OPTION_MARKERS.UNAGGRESSIVE, False, None, 0.0, c.HABITS_QUEST_ACTIVE_DELTA),
 
-               ('QUEST_HONORABLE_DEFAULT', 4, 'выбор чести в задании героем', QUEST_OPTION_MARKERS.HONORABLE,            True, False, c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
-               ('QUEST_DISHONORABLE_DEFAULT', 5, 'выбор бесчестия в задании героем', QUEST_OPTION_MARKERS.DISHONORABLE,  True, False, -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
-               ('QUEST_AGGRESSIVE_DEFAULT', 6, 'выборе агрессивности в задании героем', QUEST_OPTION_MARKERS.AGGRESSIVE, True, False, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
-               ('QUEST_UNAGGRESSIVE_DEFAULT', 7, 'выбор миролюбия в задании героем', QUEST_OPTION_MARKERS.UNAGGRESSIVE,  True, False, 0.0, c.HABITS_QUEST_PASSIVE_DELTA),
+               ('QUEST_HONORABLE_DEFAULT', 4, 'выбор чести в задании героем', questgen_relations.OPTION_MARKERS.HONORABLE, True, False, c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+               ('QUEST_DISHONORABLE_DEFAULT', 5, 'выбор бесчестия в задании героем', questgen_relations.OPTION_MARKERS.DISHONORABLE, True, False, -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+               ('QUEST_AGGRESSIVE_DEFAULT', 6, 'выборе агрессивности в задании героем', questgen_relations.OPTION_MARKERS.AGGRESSIVE, True, False, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
+               ('QUEST_UNAGGRESSIVE_DEFAULT', 7, 'выбор миролюбия в задании героем', questgen_relations.OPTION_MARKERS.UNAGGRESSIVE, True, False, 0.0, c.HABITS_QUEST_PASSIVE_DELTA),
 
-               ('HELP_AGGRESSIVE', 8, 'помощь в бою',     None, None, None, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
+               ('HELP_AGGRESSIVE', 8, 'помощь в бою', None, None, None, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
                ('HELP_UNAGGRESSIVE', 9, 'помощь вне боя', None, None, None, 0.0, c.HABITS_HELP_ABILITY_DELTA),
-               ('ARENA_SEND', 10, 'отправка на арену',    None, None, None, 0.0, -c.HABITS_ARENA_ABILITY_DELTA),
-               ('ARENA_LEAVE', 11, 'покидание арены',     None, None, None, 0.0, c.HABITS_ARENA_ABILITY_DELTA),
+               ('ARENA_SEND', 10, 'отправка на арену', None, None, None, 0.0, -c.HABITS_ARENA_ABILITY_DELTA),
+               ('ARENA_LEAVE', 11, 'покидание арены', None, None, None, 0.0, c.HABITS_ARENA_ABILITY_DELTA),
 
-               ('COMPANION_DISHONORABLE', 12, 'спутник склоняет к бесчестию',                          None, None, None,  -c.HABITS_HELP_ABILITY_DELTA, 0.0),
-               ('COMPANION_HONOR_NEUTRAL_1', 13, 'спутник склоняет к нейтральной чести 1',             None, None, False, -c.HABITS_HELP_ABILITY_DELTA, 0.0),
-               ('COMPANION_HONOR_NEUTRAL_2', 14, 'спутник склоняет к нейтральной чести 2',             None, None, False, c.HABITS_HELP_ABILITY_DELTA, 0.0),
-               ('COMPANION_HONORABLE', 15, 'спутнки склоняет к чести',                                 None, None, None,  c.HABITS_HELP_ABILITY_DELTA, 0.0),
-               ('COMPANION_AGGRESSIVE', 16, 'спутнки склоняет к агрессивности',                        None, None, None,  0.0, -c.HABITS_HELP_ABILITY_DELTA),
+               ('COMPANION_DISHONORABLE', 12, 'спутник склоняет к бесчестию', None, None, None, -c.HABITS_HELP_ABILITY_DELTA, 0.0),
+               ('COMPANION_HONOR_NEUTRAL_1', 13, 'спутник склоняет к нейтральной чести 1', None, None, False, -c.HABITS_HELP_ABILITY_DELTA, 0.0),
+               ('COMPANION_HONOR_NEUTRAL_2', 14, 'спутник склоняет к нейтральной чести 2', None, None, False, c.HABITS_HELP_ABILITY_DELTA, 0.0),
+               ('COMPANION_HONORABLE', 15, 'спутнки склоняет к чести', None, None, None, c.HABITS_HELP_ABILITY_DELTA, 0.0),
+               ('COMPANION_AGGRESSIVE', 16, 'спутнки склоняет к агрессивности', None, None, None, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
                ('COMPANION_PEACEFULL_NEUTRAL_1', 17, 'спутник склоняет к нейтральной агрессивности 1', None, None, False, 0.0, -c.HABITS_HELP_ABILITY_DELTA),
                ('COMPANION_PEACEFULL_NEUTRAL_2', 18, 'спутник склоняет к нейтральной агрессивности 2', None, None, False, 0.0, c.HABITS_HELP_ABILITY_DELTA),
-               ('COMPANION_PEACEFULL', 19, 'спутник склоняет к миролюбию',                             None, None, None,  0.0, c.HABITS_HELP_ABILITY_DELTA),
+               ('COMPANION_PEACEFULL', 19, 'спутник склоняет к миролюбию', None, None, None, 0.0, c.HABITS_HELP_ABILITY_DELTA),
 
-               ('MASTER_QUEST_HONORABLE', 20, 'бонус от мастера к чести', QUEST_OPTION_MARKERS.HONORABLE,            None, None, c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
-               ('MASTER_QUEST_DISHONORABLE', 21, 'бонус от мастера к бесчестью', QUEST_OPTION_MARKERS.DISHONORABLE,  None, None, -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
-               ('MASTER_QUEST_AGGRESSIVE', 22, 'бонус от мастера к аггресивности', QUEST_OPTION_MARKERS.AGGRESSIVE,  None, None, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
-               ('MASTER_QUEST_UNAGGRESSIVE', 23, 'бонус от мастера к миролюбию', QUEST_OPTION_MARKERS.UNAGGRESSIVE,  None, None, 0.0, c.HABITS_QUEST_PASSIVE_DELTA))
+               ('MASTER_QUEST_HONORABLE', 20, 'бонус от мастера к чести', questgen_relations.OPTION_MARKERS.HONORABLE, None, None, c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+               ('MASTER_QUEST_DISHONORABLE', 21, 'бонус от мастера к бесчестью', questgen_relations.OPTION_MARKERS.DISHONORABLE, None, None, -c.HABITS_QUEST_PASSIVE_DELTA, 0.0),
+               ('MASTER_QUEST_AGGRESSIVE', 22, 'бонус от мастера к аггресивности', questgen_relations.OPTION_MARKERS.AGGRESSIVE, None, None, 0.0, -c.HABITS_QUEST_PASSIVE_DELTA),
+               ('MASTER_QUEST_UNAGGRESSIVE', 23, 'бонус от мастера к миролюбию', questgen_relations.OPTION_MARKERS.UNAGGRESSIVE, None, None, 0.0, c.HABITS_QUEST_PASSIVE_DELTA))
 
 
-class ENERGY_REGENERATION(DjangoEnum):
-    delay = Column(unique=False)
-    period = Column(unique=False)
-    amount = Column(unique=False)
-    length = Column(unique=False)
-    linguistics_slugs = Column()
+class ENERGY_REGENERATION(rels_django.DjangoEnum):
+    delay = rels.Column(unique=False)
+    period = rels.Column(unique=False)
+    amount = rels.Column(unique=False)
+    length = rels.Column(unique=False)
+    linguistics_slugs = rels.Column()
 
     _PERIOD = c.ANGEL_ENERGY_REGENERATION_PERIOD
     _AMOUNT = c.ANGEL_ENERGY_REGENERATION_AMAUNT
     _LENGTH = c.ANGEL_ENERGY_REGENERATION_LENGTH
 
-    records = (('PRAY', 0, 'молитва',               1, 1 * _PERIOD, 1 * _AMOUNT, 1 * _LENGTH, ('pray', )),
+    records = (('PRAY', 0, 'молитва', 1, 1 * _PERIOD, 1 * _AMOUNT, 1 * _LENGTH, ('pray', )),
                ('SACRIFICE', 1, 'жертвоприношение', 2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, ('sacrifice_fire', 'sacrifice_blood', 'sacrifice_knife')),
-               ('INCENSE', 2, 'благовония',         4, 4 * _PERIOD, 4 * _AMOUNT, 4 * _LENGTH, ('incense', )),
-               ('SYMBOLS', 3, 'символы',            3, 3 * _PERIOD, 3 * _AMOUNT, 3 * _LENGTH, ('symbols_stone', 'symbols_ground', 'symbols_tree')),
-               ('MEDITATION', 4, 'медитация',       2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, ('meditation', )))
+               ('INCENSE', 2, 'благовония', 4, 4 * _PERIOD, 4 * _AMOUNT, 4 * _LENGTH, ('incense', )),
+               ('SYMBOLS', 3, 'символы', 3, 3 * _PERIOD, 3 * _AMOUNT, 3 * _LENGTH, ('symbols_stone', 'symbols_ground', 'symbols_tree')),
+               ('MEDITATION', 4, 'медитация', 2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, ('meditation', )))

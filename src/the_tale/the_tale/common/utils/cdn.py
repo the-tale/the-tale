@@ -1,7 +1,7 @@
-# coding: utf-8
 
-import urllib.request, urllib.error, urllib.parse
-import collections
+import smart_imports
+
+smart_imports.all()
 
 
 def get_cdns_info(cdns):
@@ -18,10 +18,10 @@ def get_cdns_info(cdns):
 
         if cdn_path is not None:
             try:
-                resource = urllib.request.urlopen(checked_url)
+                resource = urlopen(checked_url)
                 resource.close()
                 variable_value = cdn_path
-            except urllib.error.URLError:
+            except URLError:
                 pass
 
         info[variable_name] = variable_value

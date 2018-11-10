@@ -1,30 +1,24 @@
-# coding: utf-8
 
-from django.db import models
+import smart_imports
 
-from rels.django import RelationIntegerField
-
-from the_tale.common.utils.models import UUIDField
-
-from the_tale.accounts.third_party import relations
+smart_imports.all()
 
 
-class AccessToken(models.Model):
+class AccessToken(django_models.Model):
     APPLICATION_NAME_MAX_LENGTH = 100
     APPLICATION_INFO_MAX_LENGTH = 100
 
+    created_at = django_models.DateTimeField(auto_now_add=True)
+    updated_at = django_models.DateTimeField(auto_now=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    account = django_models.ForeignKey('accounts.Account', null=True, default=None, on_delete=django_models.CASCADE)
 
-    account = models.ForeignKey('accounts.Account', null=True, default=None, on_delete=models.CASCADE)
+    uid = utils_models.UUIDField(unique=True, db_index=True)
 
-    uid = UUIDField(unique=True, db_index=True)
+    application_name = django_models.CharField(max_length=APPLICATION_NAME_MAX_LENGTH)
 
-    application_name = models.CharField(max_length=APPLICATION_NAME_MAX_LENGTH)
+    application_info = django_models.CharField(max_length=APPLICATION_INFO_MAX_LENGTH)
 
-    application_info = models.CharField(max_length=APPLICATION_INFO_MAX_LENGTH)
+    application_description = django_models.TextField()
 
-    application_description = models.TextField()
-
-    state = RelationIntegerField(relation=relations.ACCESS_TOKEN_STATE)
+    state = rels_django.RelationIntegerField(relation=relations.ACCESS_TOKEN_STATE)

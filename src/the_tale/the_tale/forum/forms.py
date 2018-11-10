@@ -1,23 +1,23 @@
-# coding: utf-8
-from dext.forms import forms, fields
 
-from the_tale.common.utils import bbcode
+import smart_imports
+
+smart_imports.all()
 
 
-class NewPostForm(forms.Form):
+class NewPostForm(dext_forms.Form):
 
-    text = bbcode.BBField(label='Сообщение', min_length=1)
+    text = utils_bbcode.BBField(label='Сообщение', min_length=1)
 
 
 class NewThreadForm(NewPostForm):
 
-    caption = fields.CharField(label='Название', max_length=256, min_length=1)
+    caption = dext_fields.CharField(label='Название', max_length=256, min_length=1)
 
 
-class EditThreadForm(forms.Form):
+class EditThreadForm(dext_forms.Form):
 
-    caption = fields.CharField(label='Название', max_length=256, min_length=1)
-    subcategory = fields.ChoiceField(label='Раздел', required=False)
+    caption = dext_fields.CharField(label='Название', max_length=256, min_length=1)
+    subcategory = dext_fields.ChoiceField(label='Раздел', required=False)
 
     def __init__(self, subcategories, *args, **kwargs):
         super(EditThreadForm, self).__init__(*args, **kwargs)
@@ -25,4 +25,4 @@ class EditThreadForm(forms.Form):
 
 
 class EditThreadModeratorForm(EditThreadForm):
-    important = fields.BooleanField(label='Важная', required=False)
+    important = dext_fields.BooleanField(label='Важная', required=False)

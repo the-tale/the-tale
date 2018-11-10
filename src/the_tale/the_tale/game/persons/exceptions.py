@@ -1,9 +1,10 @@
 
+import smart_imports
 
-from the_tale.common.utils.exceptions import TheTaleError
+smart_imports.all()
 
 
-class PersonsError(TheTaleError):
+class PersonsError(utils_exceptions.TheTaleError):
     MSG = 'persons error'
 
 

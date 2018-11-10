@@ -1,15 +1,14 @@
 
-from the_tale.game.abilities.relations import ABILITY_TYPE
+import smart_imports
 
-from the_tale.game.postponed_tasks import ComplexChangeTask
+smart_imports.all()
 
 
-class UseAbilityTask(ComplexChangeTask):
+class UseAbilityTask(game_postponed_tasks.ComplexChangeTask):
     TYPE = 'user-ability'
 
     def construct_processor(self):
-        from the_tale.game.abilities.deck import ABILITIES
-        return ABILITIES[ABILITY_TYPE(self.processor_id)]()
+        return deck.ABILITIES[relations.ABILITY_TYPE(self.processor_id)]()
 
     @property
     def processed_data(self):

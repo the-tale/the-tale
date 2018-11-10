@@ -1,17 +1,19 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.game.pvp.models import Battle1x1, Battle1x1Result
+smart_imports.all()
 
-class Battle1x1Admin(admin.ModelAdmin):
+
+class Battle1x1Admin(django_admin.ModelAdmin):
     list_display = ('id', 'state', 'calculate_rating', 'account', 'enemy', 'created_at')
 
     list_filter = ('state',)
 
-class Battle1x1ResultAdmin(admin.ModelAdmin):
+
+class Battle1x1ResultAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'participant_1', 'participant_2', 'result', 'created_at')
     list_filter = ('result',)
 
-admin.site.register(Battle1x1, Battle1x1Admin)
-admin.site.register(Battle1x1Result, Battle1x1ResultAdmin)
+
+django_admin.site.register(models.Battle1x1, Battle1x1Admin)
+django_admin.site.register(models.Battle1x1Result, Battle1x1ResultAdmin)

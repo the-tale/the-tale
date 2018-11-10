@@ -1,15 +1,7 @@
-# coding: utf-8
 
-from dext.common.utils import jinja2
+import smart_imports
 
-from the_tale.accounts.prototypes import AccountPrototype, ChangeCredentialsTaskPrototype
-from the_tale.accounts.logic import get_system_user
-
-from the_tale.post_service import logic
-
-# TODO: rewrite to autodiscover() logic
-#       code for this can be chosen from postponed_tasks and moved to utils
-
+smart_imports.all()
 
 
 class BaseMessageHandler(object):
@@ -78,19 +70,17 @@ class PersonalMessageHandler(BaseMessageHandler):
     def uid(self): return 'personal-message-{}-{}'.format(self.account_id, self.message_id)
 
     def process(self):
-        from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-
-        message = pm_tt_api.get_message(self.account_id, message_id=self.message_id)
+        message = personal_messages_tt_services.personal_messages.cmd_get_message(self.account_id, message_id=self.message_id)
 
         if message is None:
-            return True # message can be removed by admins or with removed thread
+            return True  # message can be removed by admins or with removed thread
 
-        account = AccountPrototype.get_by_id(self.account_id)
+        account = accounts_prototypes.AccountPrototype.get_by_id(self.account_id)
 
         if not account.personal_messages_subscription:
             return True
 
-        if account.id == get_system_user().id or account.is_bot:
+        if account.id == accounts_logic.get_system_user().id or account.is_bot:
             return True
 
         if not account.email:
@@ -99,10 +89,10 @@ class PersonalMessageHandler(BaseMessageHandler):
         subject = '«Сказка»: личное сообщение'
 
         context = {'message': message,
-                   'sender': AccountPrototype.get_by_id(message.sender_id)}
+                   'sender': accounts_prototypes.AccountPrototype.get_by_id(message.sender_id)}
 
-        html_content = jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail([account], subject, text_content, html_content)
 
@@ -131,21 +121,19 @@ class ForumPostHandler(BaseMessageHandler):
     def uid(self): return 'forum-post-%d-message' % self.post_id
 
     def process(self):
-        from the_tale.forum.prototypes import PostPrototype, SubscriptionPrototype
-
-        post = PostPrototype.get_by_id(self.post_id)
+        post = forum_prototypes.PostPrototype.get_by_id(self.post_id)
 
         if post is None:
-            return True # post can be removed by admins or with removed thread
+            return True  # post can be removed by admins or with removed thread
 
-        accounts = SubscriptionPrototype.get_accounts_for_thread(post.thread)
+        accounts = forum_prototypes.SubscriptionPrototype.get_accounts_for_thread(post.thread)
 
         subject = '«Сказка»: %s' % post.thread.caption
 
         context = {'post': post}
 
-        html_content = jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail(accounts, subject, text_content, html_content)
 
@@ -174,24 +162,22 @@ class ForumThreadHandler(BaseMessageHandler):
     def uid(self): return 'forum-thread-%d-message' % self.thread_id
 
     def process(self):
-        from the_tale.forum.prototypes import ThreadPrototype, SubscriptionPrototype
-
-        thread = ThreadPrototype.get_by_id(self.thread_id)
+        thread = forum_prototypes.ThreadPrototype.get_by_id(self.thread_id)
 
         if thread is None:
-            return True # thread can be removed by admins or with removed thread
+            return True  # thread can be removed by admins or with removed thread
 
         post = thread.get_first_post()
 
-        accounts = SubscriptionPrototype.get_accounts_for_subcategory(thread.subcategory)
+        accounts = forum_prototypes.SubscriptionPrototype.get_accounts_for_subcategory(thread.subcategory)
 
         subject = '«Сказка»: новая тема на форуме'
 
         context = {'thread': thread,
                    'post': post}
 
-        html_content = jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail(accounts, subject, text_content, html_content)
 
@@ -223,9 +209,9 @@ class ResetPasswordHandler(BaseMessageHandler):
     def uid(self): return 'reset-password-%d-%s-message' % (self.account_id, self.task_uuid)
 
     def process(self):
-        account = AccountPrototype.get_by_id(self.account_id)
+        account = accounts_prototypes.AccountPrototype.get_by_id(self.account_id)
 
-        if account.id == get_system_user().id or account.is_bot:
+        if account.id == accounts_logic.get_system_user().id or account.is_bot:
             return True
 
         subject = '«Сказка»: сброс пароля'
@@ -233,8 +219,8 @@ class ResetPasswordHandler(BaseMessageHandler):
         context = {'account': account,
                    'task_uuid': self.task_uuid}
 
-        html_content = jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail([account], subject, text_content, html_content)
 
@@ -266,15 +252,15 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
 
         subject = '«Сказка»: подтвердите email'
 
-        task = ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
+        task = accounts_prototypes.ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
 
-        if task.account.id == get_system_user().id or task.account.is_bot:
+        if task.account.id == accounts_logic.get_system_user().id or task.account.is_bot:
             return True
 
         context = {'task': task}
 
-        html_content = jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail([(task.account, task.new_email)], subject, text_content, html_content)
 
@@ -302,29 +288,26 @@ class NewsHandler(BaseMessageHandler):
     def uid(self): return 'news-%d-message' % self.news_id
 
     def process(self):
-        from the_tale.news import logic as news_logic
-
         news = news_logic.load_news(self.news_id)
 
         if news is None:
             return True
 
-        accounts = (AccountPrototype(model=account_model) for account_model in AccountPrototype._db_filter(news_subscription=True).iterator())
+        accounts = (accounts_prototypes.AccountPrototype(model=account_model) for account_model in accounts_prototypes.AccountPrototype._db_filter(news_subscription=True).iterator())
 
         subject = '«Сказка»::Новости: %s' % news.caption
 
         context = {'news': news}
 
-        html_content = jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail(accounts, subject, text_content, html_content)
 
 
-
-HANDLERS = dict( (handler.TYPE, handler)
-                 for handler in globals().values()
-                 if isinstance(handler, type) and issubclass(handler, BaseMessageHandler) and handler != BaseMessageHandler)
+HANDLERS = dict((handler.TYPE, handler)
+                for handler in globals().values()
+                if isinstance(handler, type) and issubclass(handler, BaseMessageHandler) and handler != BaseMessageHandler)
 
 
 def deserialize_handler(data):

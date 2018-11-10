@@ -1,11 +1,14 @@
-# coding: utf-8
 
-from the_tale.common.utils.workers import BaseWorker
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
+import smart_imports
 
-class RegistrationException(Exception): pass
+smart_imports.all()
 
-class Worker(BaseWorker):
+
+class RegistrationException(Exception):
+    pass
+
+
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):

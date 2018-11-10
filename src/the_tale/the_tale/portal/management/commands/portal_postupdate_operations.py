@@ -1,26 +1,10 @@
-# coding: utf-8
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from dext.settings import settings
-
-from the_tale.common.utils.permissions import sync_group
-from dext.common.utils.logic import run_django_command
-
-from the_tale.forum.conf import forum_settings
-
-from the_tale.linguistics.conf import linguistics_settings
-from the_tale.linguistics import logic as linguistics_logic
-
-from the_tale.game.persons import logic as persons_logic
-from the_tale.game.places import logic as places_logic
-
-from the_tale.game.bills import logic as bills_logic
-
-from the_tale.portal.conf import portal_settings
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'do post update operations'
 
@@ -32,7 +16,7 @@ class Command(BaseCommand):
         print('UPDATE MAP')
         print()
 
-        run_django_command(['map_update_map'])
+        dext_logic.run_django_command(['map_update_map'])
 
         print()
         print('UPDATE LINGUISTICS')
@@ -55,48 +39,47 @@ class Command(BaseCommand):
         print()
         print('REMOVE OLD CDN INFO')
 
-        if portal_settings.SETTINGS_CDN_INFO_KEY in settings:
-            del settings[portal_settings.SETTINGS_CDN_INFO_KEY]
+        if portal_conf.settings.SETTINGS_CDN_INFO_KEY in dext_settings.settings:
+            del dext_settings.settings[portal_conf.settings.SETTINGS_CDN_INFO_KEY]
 
-        if portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY in settings:
-            del settings[portal_settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY]
+        if portal_conf.settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY in dext_settings.settings:
+            del dext_settings.settings[portal_conf.settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY]
 
         print()
         print('SYNC GROUPS AND PERMISSIONS')
         print()
 
-        sync_group('content group', ['news.add_news', 'news.change_news', 'news.delete_news'])
+        utils_permissions.sync_group('content group', ['news.add_news', 'news.change_news', 'news.delete_news'])
 
-        sync_group(forum_settings.MODERATOR_GROUP_NAME, ['forum.moderate_thread', 'forum.moderate_post'])
+        utils_permissions.sync_group(forum_conf.settings.MODERATOR_GROUP_NAME, ['forum.moderate_thread', 'forum.moderate_post'])
 
-        sync_group('bills moderators group', ['bills.moderate_bill'])
+        utils_permissions.sync_group('bills moderators group', ['bills.moderate_bill'])
 
-        sync_group('developers group', ['mobs.moderate_mobrecord',
-                                        'artifacts.moderate_artifactrecord',
-                                        'linguistics.moderate_word',
-                                        'linguistics.moderate_template',
-                                        'linguistics.edit_template'])
+        utils_permissions.sync_group('developers group', ['mobs.moderate_mobrecord',
+                                                          'artifacts.moderate_artifactrecord',
+                                                          'linguistics.moderate_word',
+                                                          'linguistics.moderate_template',
+                                                          'linguistics.edit_template'])
 
-        sync_group('folclor moderation group', ['blogs.moderate_post'])
+        utils_permissions.sync_group('folclor moderation group', ['blogs.moderate_post'])
 
-        sync_group('mobs & artifacts create group', ['mobs.create_mobrecord', 'artifacts.create_artifactrecord'])
+        utils_permissions.sync_group('mobs & artifacts create group', ['mobs.create_mobrecord', 'artifacts.create_artifactrecord'])
 
-        sync_group('accounts moderators group', ['accounts.moderate_account'])
+        utils_permissions.sync_group('accounts moderators group', ['accounts.moderate_account'])
 
-        sync_group('clans moderators group', ['clans.moderate_clan'])
+        utils_permissions.sync_group('clans moderators group', ['clans.moderate_clan'])
 
-        sync_group('collections editors group', ['collections.edit_collection',
-                                                 'collections.edit_kit',
-                                                 'collections.edit_item'])
-        sync_group('collections moderators group', ['collections.moderate_collection',
-                                                    'collections.moderate_kit',
-                                                    'collections.moderate_item'])
+        utils_permissions.sync_group('collections editors group', ['collections.edit_collection',
+                                                                   'collections.edit_kit',
+                                                                   'collections.edit_item'])
+        utils_permissions.sync_group('collections moderators group', ['collections.moderate_collection',
+                                                                      'collections.moderate_kit',
+                                                                      'collections.moderate_item'])
 
-        sync_group('achievements editors group', ['achievements.edit_achievement'])
+        utils_permissions.sync_group('achievements editors group', ['achievements.edit_achievement'])
 
-
-        sync_group(linguistics_settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word',
-                                                               'linguistics.moderate_template',
-                                                               'linguistics.edit_template'])
-        sync_group(linguistics_settings.EDITOR_GROUP_NAME, ['linguistics.moderate_word',
-                                                            'linguistics.edit_template'])
+        utils_permissions.sync_group(linguistics_conf.settings.MODERATOR_GROUP_NAME, ['linguistics.moderate_word',
+                                                                                      'linguistics.moderate_template',
+                                                                                      'linguistics.edit_template'])
+        utils_permissions.sync_group(linguistics_conf.settings.EDITOR_GROUP_NAME, ['linguistics.moderate_word',
+                                                                                   'linguistics.edit_template'])

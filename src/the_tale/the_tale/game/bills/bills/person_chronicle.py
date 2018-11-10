@@ -1,22 +1,12 @@
 
-from dext.forms import fields
+import smart_imports
 
-from the_tale.game.persons import objects as persons_objects
-from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import logic as persons_logic
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-from the_tale.game.bills.bills.base_person_bill import BasePersonBill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    person = fields.ChoiceField(label='Мастер')
-    power_bonus = fields.RelationField(label='Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
+class BaseForm(forms.BaseUserForm):
+    person = dext_fields.ChoiceField(label='Мастер')
+    power_bonus = dext_fields.RelationField(label='Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -27,11 +17,11 @@ class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
-class PersonChronicle(BasePersonBill):
+class PersonChronicle(base_person_bill.BasePersonBill):
     type = relations.BILL_TYPE.PERSON_CHRONICLE
 
     UserForm = UserForm

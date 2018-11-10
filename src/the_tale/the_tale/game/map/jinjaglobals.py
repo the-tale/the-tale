@@ -1,9 +1,9 @@
 
-from dext.common.utils import jinja2
+import smart_imports
 
-from . import logic
+smart_imports.all()
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def region_url(turn=None):
     return logic.region_url(turn=turn)

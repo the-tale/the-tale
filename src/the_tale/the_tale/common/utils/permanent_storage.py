@@ -1,12 +1,16 @@
-# coding: utf-8
 
-from the_tale.common.utils.exceptions import TheTaleError
+import smart_imports
 
-class PermanentStorageError(TheTaleError):
+smart_imports.all()
+
+
+class PermanentStorageError(exceptions.TheTaleError):
     pass
+
 
 class DuplicateInsertError(PermanentStorageError):
     MSG = 'item %(item)r already in storage'
+
 
 class WrongRelationError(PermanentStorageError):
     MSG = 'try insert wrong relation record %(wrong_relation)r, expected %(expected_relation)s'
@@ -39,7 +43,6 @@ class PermanentStorage(object):
 
     def __iter__(self):
         return self._data.__iter__()
-
 
 
 class PermanentRelationsStorage(PermanentStorage):

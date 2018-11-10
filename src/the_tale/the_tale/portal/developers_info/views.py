@@ -1,36 +1,22 @@
 
-import itertools
-import datetime
-import collections
+import smart_imports
 
-from django.db import models
-
-from dext.views import handler
-
-from the_tale.common.utils.decorators import staff_required
-from the_tale.common.utils.resources import Resource
-
-from the_tale.finances.bank.prototypes import AccountPrototype as BankAccountPrototype, InvoicePrototype
-from the_tale.finances.bank.relations import ENTITY_TYPE as BANK_ENTITY_TYPE, INVOICE_STATE
-
-from the_tale.accounts.prototypes import AccountPrototype
-
-from the_tale.portal.developers_info.relations import PAYMENT_GROUPS
-from the_tale.portal.conf import portal_settings
+smart_imports.all()
 
 
-InvoiceQuery = InvoicePrototype._db_filter(models.Q(state=INVOICE_STATE.CONFIRMED)|models.Q(state=INVOICE_STATE.FORCED))
+InvoiceQuery = bank_prototypes.InvoicePrototype._db_filter(django_models.Q(state=bank_relations.INVOICE_STATE.CONFIRMED) | django_models.Q(state=bank_relations.INVOICE_STATE.FORCED))
 
 
 class RefererStatistics(collections.namedtuple('RefererStatisticsBase', ('domain', 'count', 'active_accounts', 'premium_accounts', 'active_and_premium', 'premium_currency'))):
 
     def __add__(self, s):
         return RefererStatistics(domain=self.domain,
-                                 count=self.count+s.count,
-                                 active_accounts=self.active_accounts+s.active_accounts,
-                                 premium_accounts=self.premium_accounts+s.premium_accounts,
-                                 active_and_premium=self.active_and_premium+s.active_and_premium,
-                                 premium_currency=self.premium_currency+s.premium_currency)
+                                 count=self.count + s.count,
+                                 active_accounts=self.active_accounts + s.active_accounts,
+                                 premium_accounts=self.premium_accounts + s.premium_accounts,
+                                 active_and_premium=self.active_and_premium + s.active_and_premium,
+                                 premium_currency=self.premium_currency + s.premium_currency)
+
 
 class InvoiceStatistics(collections.namedtuple('InvoiceStatisticsBase', ('operation', 'count', 'premium_currency'))):
     pass
@@ -38,23 +24,23 @@ class InvoiceStatistics(collections.namedtuple('InvoiceStatisticsBase', ('operat
 
 def get_referers_statistics():
 
-    raw_statistics = AccountPrototype.live_query().values('referer_domain').order_by().annotate(models.Count('referer_domain'))
+    raw_statistics = accounts_prototypes.AccountPrototype.live_query().values('referer_domain').order_by().annotate(django_models.Count('referer_domain'))
 
     statistics = {}
 
     for s in raw_statistics:
-        domain=s['referer_domain']
+        domain = s['referer_domain']
 
-        count=s['referer_domain__count']
+        count = s['referer_domain__count']
 
-        query = AccountPrototype.live_query().filter(referer_domain=domain)
+        query = accounts_prototypes.AccountPrototype.live_query().filter(referer_domain=domain)
 
         if domain is None:
             count = query.count()
 
         target_domain = domain
 
-        if target_domain and target_domain.endswith('livejournal.com'): # hide all domains username.livejournal.com (to hide there payment info)
+        if target_domain and target_domain.endswith('livejournal.com'):  # hide all domains username.livejournal.com (to hide there payment info)
             target_domain = 'livejournal.com'
 
         st = RefererStatistics(domain=target_domain,
@@ -63,8 +49,8 @@ def get_referers_statistics():
                                premium_accounts=query.filter(premium_end_at__gt=datetime.datetime.now()).count(),
                                active_and_premium=query.filter(active_end_at__gt=datetime.datetime.now(),
                                                                premium_end_at__gt=datetime.datetime.now()).count(),
-                                                               premium_currency=BankAccountPrototype._money_received(from_type=BANK_ENTITY_TYPE.XSOLLA,
-                                                                                                                     accounts_ids=query.values_list('id', flat=True)))
+                               premium_currency=bank_prototypes.AccountPrototype._money_received(from_type=bank_relations.ENTITY_TYPE.XSOLLA,
+                                                                                                 accounts_ids=query.values_list('id', flat=True)))
 
         if st.domain in statistics:
             statistics[st.domain] = statistics[st.domain] + st
@@ -75,9 +61,10 @@ def get_referers_statistics():
 
     return statistics
 
+
 def get_invoice_statistics():
 
-    raw_statistics = InvoiceQuery.values('operation_uid').order_by().annotate(models.Count('operation_uid'), models.Sum('amount'))
+    raw_statistics = InvoiceQuery.values('operation_uid').order_by().annotate(django_models.Count('operation_uid'), django_models.Sum('amount'))
 
     statistics = []
 
@@ -91,11 +78,11 @@ def get_invoice_statistics():
 
 def get_repeatable_payments_statistics():
     # группы по количеству оплат
-    payments_count = collections.Counter(InvoiceQuery.filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', flat=True))
+    payments_count = collections.Counter(InvoiceQuery.filter(sender_type=bank_relations.ENTITY_TYPE.XSOLLA).values_list('recipient_id', flat=True))
     payments_count_groups = collections.Counter(list(payments_count.values()))
 
     # группы по заплаченным деньгам
-    gold_count = InvoiceQuery.filter(sender_type=BANK_ENTITY_TYPE.XSOLLA).values_list('recipient_id', 'amount')
+    gold_count = InvoiceQuery.filter(sender_type=bank_relations.ENTITY_TYPE.XSOLLA).values_list('recipient_id', 'amount')
     accounts_spend = {}
     for account_id, amount in gold_count:
         accounts_spend[account_id] = accounts_spend.get(account_id, 0) + amount
@@ -103,53 +90,49 @@ def get_repeatable_payments_statistics():
     payment_sum_groups = {}
 
     for amount in list(accounts_spend.values()):
-        for group in PAYMENT_GROUPS.records:
+        for group in relations.PAYMENT_GROUPS.records:
             if amount < group.top_border:
                 payment_sum_groups[group.value] = payment_sum_groups.get(group.value, 0) + 1
                 break
 
     # группы по повторным подпискам
-    subscriptions_count = collections.Counter(InvoiceQuery.filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
+    subscriptions_count = collections.Counter(InvoiceQuery.filter(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
                                                                   operation_uid__startswith='ingame-purchase-<subscription').values_list('recipient_id', flat=True))
     subscriptions_count_groups = collections.Counter(list(subscriptions_count.values()))
 
     # группы по повторным покупкам энергии
-    energy_count = collections.Counter(InvoiceQuery.filter(recipient_type=BANK_ENTITY_TYPE.GAME_ACCOUNT,
+    energy_count = collections.Counter(InvoiceQuery.filter(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
                                                            operation_uid__startswith='ingame-purchase-<energy-').values_list('recipient_id', flat=True))
     energy_count_groups = collections.Counter(list(energy_count.values()))
 
-
     return {'payments_count_groups': sorted(payments_count_groups.items()),
-            'payment_sum_groups': [(PAYMENT_GROUPS(group_id).text, count) for group_id, count in sorted(payment_sum_groups.items())],
+            'payment_sum_groups': [(relations.PAYMENT_GROUPS(group_id).text, count) for group_id, count in sorted(payment_sum_groups.items())],
             'subscriptions_count_groups': sorted(subscriptions_count_groups.items()),
             'energy_count_groups': sorted(energy_count_groups.items())}
 
 
+class DevelopersInfoResource(utils_resources.Resource):
 
-
-
-class DevelopersInfoResource(Resource):
-
-    @staff_required()
+    @utils_decorators.staff_required()
     def initialize(self, *args, **kwargs):
         super(DevelopersInfoResource, self).initialize(*args, **kwargs)
 
-    @handler('', method='get')
+    @dext_old_views.handler('', method='get')
     def index(self):
 
-        registration_attemps_number = AccountPrototype._model_class.objects.all().aggregate(models.Max('id'))['id__max']
-        accounts_total = AccountPrototype._model_class.objects.all().count()
-        accounts_bots = AccountPrototype._model_class.objects.filter(is_bot=True).count()
-        accounts_registered = AccountPrototype.live_query().count()
-        accounts_active = AccountPrototype.live_query().filter(active_end_at__gt=datetime.datetime.now()).count()
-        accounts_premium = AccountPrototype.live_query().filter(premium_end_at__gt=datetime.datetime.now()).count()
-        accounts_active_and_premium = AccountPrototype.live_query().filter(active_end_at__gt=datetime.datetime.now(),
-                                                                           premium_end_at__gt=datetime.datetime.now()).count()
+        registration_attemps_number = accounts_prototypes.AccountPrototype._model_class.objects.all().aggregate(django_models.Max('id'))['id__max']
+        accounts_total = accounts_prototypes.AccountPrototype._model_class.objects.all().count()
+        accounts_bots = accounts_prototypes.AccountPrototype._model_class.objects.filter(is_bot=True).count()
+        accounts_registered = accounts_prototypes.AccountPrototype.live_query().count()
+        accounts_active = accounts_prototypes.AccountPrototype.live_query().filter(active_end_at__gt=datetime.datetime.now()).count()
+        accounts_premium = accounts_prototypes.AccountPrototype.live_query().filter(premium_end_at__gt=datetime.datetime.now()).count()
+        accounts_active_and_premium = accounts_prototypes.AccountPrototype.live_query().filter(active_end_at__gt=datetime.datetime.now(),
+                                                                                               premium_end_at__gt=datetime.datetime.now()).count()
 
-        accounts_referrals = AccountPrototype.live_query().exclude(referral_of=None).count()
-        accounts_referrals_and_premium = AccountPrototype.live_query().exclude(referral_of=None).filter(premium_end_at__gt=datetime.datetime.now()).count()
-        accounts_referrals_and_active = AccountPrototype.live_query().exclude(referral_of=None).filter(active_end_at__gt=datetime.datetime.now(),
-                                                                                                       premium_end_at__gt=datetime.datetime.now()).count()
+        accounts_referrals = accounts_prototypes.AccountPrototype.live_query().exclude(referral_of=None).count()
+        accounts_referrals_and_premium = accounts_prototypes.AccountPrototype.live_query().exclude(referral_of=None).filter(premium_end_at__gt=datetime.datetime.now()).count()
+        accounts_referrals_and_active = accounts_prototypes.AccountPrototype.live_query().exclude(referral_of=None).filter(active_end_at__gt=datetime.datetime.now(),
+                                                                                                                           premium_end_at__gt=datetime.datetime.now()).count()
 
         gold = {}
         gold_total_spent = 0
@@ -157,9 +140,9 @@ class DevelopersInfoResource(Resource):
         real_gold_total_spent = 0
         real_gold_total_received = 0
 
-        for record in BANK_ENTITY_TYPE.records:
-            spent = -BankAccountPrototype._money_spent(from_type=record)
-            received = BankAccountPrototype._money_received(from_type=record)
+        for record in bank_relations.ENTITY_TYPE.records:
+            spent = -bank_prototypes.AccountPrototype._money_spent(from_type=record)
+            received = bank_prototypes.AccountPrototype._money_received(from_type=record)
             gold[record.text] = {'spent': spent, 'received': received}
 
             gold_total_spent += spent
@@ -192,17 +175,12 @@ class DevelopersInfoResource(Resource):
                               'invoice_statistics': get_invoice_statistics(),
                               'invoice_count': InvoiceQuery.count(),
                               'repeatable_payments_statistics': get_repeatable_payments_statistics(),
-                              'PAYMENT_GROUPS': PAYMENT_GROUPS,
-                              'PREMIUM_DAYS_FOR_HERO_OF_THE_DAY': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY,
+                              'PAYMENT_GROUPS': relations.PAYMENT_GROUPS,
+                              'PREMIUM_DAYS_FOR_HERO_OF_THE_DAY': portal_conf.settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY,
                               'page_type': 'index'})
 
-    @handler('mobs-and-artifacts', method='get')
-    def mobs_and_artifacts(self): # pylint: disable=R0914
-        from the_tale.game.mobs import storage as mobs_storage
-        from the_tale.game.artifacts import storage as artifacts_storage
-        from the_tale.game.map.relations import TERRAIN
-        from the_tale.game.heroes import relations as heroes_relations
-
+    @dext_old_views.handler('mobs-and-artifacts', method='get')
+    def mobs_and_artifacts(self):  # pylint: disable=R0914
         mobs_without_loot = []
         mobs_without_artifacts = []
         mobs_without_loot_on_first_level = []
@@ -221,7 +199,7 @@ class DevelopersInfoResource(Resource):
 
         territory_levels_checks = [1, 2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100]
 
-        mobs_by_territory = {terrain.name:[0]*len(territory_levels_checks) for terrain in TERRAIN.records}
+        mobs_by_territory = {terrain.name: [0] * len(territory_levels_checks) for terrain in map_relations.TERRAIN.records}
 
         for mob in mobs_storage.mobs.get_all_mobs_for_level(level=999999):
             for terrain in mob.terrains:

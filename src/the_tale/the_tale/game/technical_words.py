@@ -1,5 +1,10 @@
 
-from the_tale.linguistics.lexicon.dictionary import noun
+import smart_imports
+
+smart_imports.all()
+
+
+noun = lexicon_dictionary.noun
 
 
 RACE_HUMANS = noun(['человек', 'человека', 'человеку', 'человека', 'человеком', 'человеке',

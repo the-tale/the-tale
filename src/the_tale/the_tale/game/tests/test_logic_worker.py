@@ -1,33 +1,24 @@
 
-import datetime
+import smart_imports
 
-from unittest import mock
-
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.logic import create_test_map
-from the_tale.game import turn
+smart_imports.all()
 
 
-class LogicWorkerTests(testcase.TestCase):
+class LogicWorkerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(LogicWorkerTests, self).setUp()
 
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=self.account.id)
 
-        environment.deinitialize()
-        environment.initialize()
+        amqp_environment.environment.deinitialize()
+        amqp_environment.environment.initialize()
 
-        self.worker = environment.workers.logic_1
-        self.worker.process_initialize(turn.number(), 'logic')
+        self.worker = amqp_environment.environment.workers.logic_1
+        self.worker.process_initialize(game_turn.number(), 'logic')
 
     def tearDown(self):
         pass
@@ -48,21 +39,20 @@ class LogicWorkerTests(testcase.TestCase):
 
     def test_process_next_turn(self):
 
-        turn.increment()
+        game_turn.increment()
 
         self.worker.process_register_account(self.account.id)
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
             with mock.patch('the_tale.game.heroes.logic.save_hero') as save_counter:
-                self.worker.process_next_turn(turn.number())
+                self.worker.process_next_turn(game_turn.number())
 
         self.assertEqual(save_counter.call_count, 1)
         self.assertEqual(release_required_counter.call_count, 0)
 
-
     def test_process_next_turn_with_skipped_hero(self):
 
-        turn.increment()
+        game_turn.increment()
 
         self.worker.process_register_account(self.account.id)
 
@@ -71,8 +61,8 @@ class LogicWorkerTests(testcase.TestCase):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.process_turn') as action_process_turn:
             with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_account_release_required') as release_required_counter:
                 with mock.patch('the_tale.game.heroes.logic.save_hero') as save_counter:
-                    with mock.patch('the_tale.game.conf.game_settings.SAVED_UNCACHED_HEROES_FRACTION', 0):
-                        self.worker.process_next_turn(turn.number())
+                    with mock.patch('the_tale.game.conf.settings.SAVED_UNCACHED_HEROES_FRACTION', 0):
+                        self.worker.process_next_turn(game_turn.number())
 
         self.assertEqual(action_process_turn.call_count, 0)
         self.assertEqual(save_counter.call_count, 1)
@@ -102,7 +92,6 @@ class LogicWorkerTests(testcase.TestCase):
             self.worker.process_stop()
         self.assertEqual(save_all.call_count, 1)
 
-
     def test_release_account(self):
         self.worker.process_register_account(self.account.id)
 
@@ -111,7 +100,6 @@ class LogicWorkerTests(testcase.TestCase):
 
         self.assertEqual(release_account_data.call_count, 1)
         self.assertEqual(release_account_data.call_args_list[0][0][0], self.account.id)
-
 
     def test_release_account__account_not_in_logic(self):
         self.worker.process_register_account(self.account.id)

@@ -1,3 +1,12 @@
-# coding: utf-8
 
-class ActionException(Exception): pass
+import smart_imports
+
+smart_imports.all()
+
+
+class ActionError(utils_exceptions.TheTaleError):
+    pass
+
+
+class WrongHeroMoneySpendType(ActionError):
+    MSG = 'wrong hero money spend type: %(spending)s'

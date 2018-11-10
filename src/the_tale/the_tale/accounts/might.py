@@ -1,23 +1,7 @@
-# coding: utf-8
-import math
 
-from django.db import models
-from django.utils.html import strip_tags
+import smart_imports
 
-from the_tale.accounts.models import Award
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts import relations
-
-from the_tale.forum.models import Post, Thread, POST_STATE
-from the_tale.blogs.relations import POST_STATE as BLOG_POST_STATE
-from the_tale.blogs.prototypes import PostPrototype as BlogPostProtype
-from the_tale.blogs import conf as blogs_conf
-
-from the_tale.game.bills.models import Bill, Vote
-from the_tale.game.bills.relations import BILL_STATE, VOTE_TYPE
-
-from the_tale.linguistics import prototypes as linguistics_prototypes
-from the_tale.linguistics import relations as linguistics_relations
+smart_imports.all()
 
 
 def get_linguistic_entity_info(entity_id, contribution_type, source):
@@ -74,20 +58,27 @@ def folclor_post_might(characters_count):
     return might
 
 
-def calculate_might(account): # pylint: disable=R0914
+def calculate_might(account):  # pylint: disable=R0914
 
     MIGHT_FROM_REFERRAL = 0.1
 
     might = 0
 
-    might += Post.objects.filter(thread__subcategory__restricted=False,
-                                 author_id=account.id,
-                                 state=POST_STATE.DEFAULT).count() * relations.MIGHT_AMOUNT.FOR_FORUM_POST.amount
-    might += Thread.objects.filter(subcategory__restricted=False,
-                                   author_id=account.id).count() * relations.MIGHT_AMOUNT.FOR_FORUM_THREAD.amount
+    forum_posts_query = forum_models.Post.objects.filter(thread__subcategory__restricted=False,
+                                                         author_id=account.id,
+                                                         state=forum_relations.POST_STATE.DEFAULT)
+    forum_posts_query = forum_posts_query.exclude(thread__subcategory__uid=portal_conf.settings.FORUM_GAMES_SUBCATEGORY)
 
-    might += Vote.objects.filter(owner_id=account.id).exclude(type=VOTE_TYPE.REFRAINED).count() * relations.MIGHT_AMOUNT.FOR_BILL_VOTE.amount
-    might += Bill.objects.filter(owner_id=account.id, state=BILL_STATE.ACCEPTED).count() * relations.MIGHT_AMOUNT.FOR_BILL_ACCEPTED.amount
+    might += forum_posts_query.count() * relations.MIGHT_AMOUNT.FOR_FORUM_POST.amount
+
+    forum_threads_query = forum_models.Thread.objects.filter(subcategory__restricted=False,
+                                                             author_id=account.id)
+    forum_threads_query = forum_threads_query.exclude(subcategory__uid=portal_conf.settings.FORUM_GAMES_SUBCATEGORY)
+
+    might += forum_threads_query.count() * relations.MIGHT_AMOUNT.FOR_FORUM_THREAD.amount
+
+    might += bills_models.Vote.objects.filter(owner_id=account.id).exclude(type=bills_relations.VOTE_TYPE.REFRAINED).count() * relations.MIGHT_AMOUNT.FOR_BILL_VOTE.amount
+    might += bills_models.Bill.objects.filter(owner_id=account.id, state=bills_relations.BILL_STATE.ACCEPTED).count() * relations.MIGHT_AMOUNT.FOR_BILL_ACCEPTED.amount
 
     might += calculate_linguistics_migth(account.id,
                                          contribution_type=linguistics_relations.CONTRIBUTION_TYPE.WORD,
@@ -110,27 +101,27 @@ def calculate_might(account): # pylint: disable=R0914
                                          might_per_edited_entity=relations.MIGHT_AMOUNT.FOR_EDITED_TEMPLATE_FOR_MODERATOR.amount,
                                          source=linguistics_relations.CONTRIBUTION_SOURCE.MODERATOR)
 
-    folclor_posts = BlogPostProtype.from_query(BlogPostProtype._db_filter(author_id=account.id, state=BLOG_POST_STATE.ACCEPTED))
-    folclor_texts = (strip_tags(post.text_html) for post in folclor_posts)
+    folclor_posts = blogs_prototypes.PostPrototype.from_query(blogs_prototypes.PostPrototype._db_filter(author_id=account.id, state=blogs_relations.POST_STATE.ACCEPTED))
+    folclor_texts = (django_html.strip_tags(post.text_html) for post in folclor_posts)
 
     for text in folclor_texts:
         characters_count = len(text)
         might += folclor_post_might(characters_count)
 
-    referrals_mights = AccountPrototype._model_class.objects.filter(referral_of=account.id).aggregate(models.Sum('might'))['might__sum']
+    referrals_mights = prototypes.AccountPrototype._model_class.objects.filter(referral_of=account.id).aggregate(django_models.Sum('might'))['might__sum']
 
     might += referrals_mights * MIGHT_FROM_REFERRAL if referrals_mights else 0
 
     for award_type in relations.AWARD_TYPE.records:
-        might += Award.objects.filter(account_id=account.id, type=award_type).count() * relations.MIGHT_AMOUNT.index_award[award_type][0].amount
+        might += models.Award.objects.filter(account_id=account.id, type=award_type).count() * relations.MIGHT_AMOUNT.index_award[award_type][0].amount
 
     return might
 
 
 def recalculate_accounts_might():
 
-    for account_model in AccountPrototype.live_query():
-        account = AccountPrototype(model=account_model)
+    for account_model in prototypes.AccountPrototype.live_query():
+        account = prototypes.AccountPrototype(model=account_model)
 
         new_might = calculate_might(account)
 
@@ -142,14 +133,12 @@ def recalculate_accounts_might():
 
 
 def recalculate_folclor_rating():
-    from the_tale.blogs import models as folclor_models
-
-    for post in folclor_models.Post.objects.all().iterator():
-        voters_ids = folclor_models.Vote.objects.filter(post_id=post.id).values_list('voter_id', flat=True)
+    for post in blogs_models.Post.objects.all().iterator():
+        voters_ids = blogs_models.Vote.objects.filter(post_id=post.id).values_list('voter_id', flat=True)
 
         rating = 0
 
-        for account in AccountPrototype._model_class.objects.filter(id__in=voters_ids).iterator():
+        for account in prototypes.AccountPrototype._model_class.objects.filter(id__in=voters_ids).iterator():
             might = account.might
             if might is None or might < 100:
                 might = 1
@@ -158,4 +147,4 @@ def recalculate_folclor_rating():
 
             rating += math.log(might) * 100
 
-        folclor_models.Post.objects.filter(id=post.id).update(rating=int(math.ceil(rating)))
+        blogs_models.Post.objects.filter(id=post.id).update(rating=int(math.ceil(rating)))

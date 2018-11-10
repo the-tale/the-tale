@@ -1,8 +1,12 @@
-# coding: utf-8
 
-from the_tale.common.utils.exceptions import TheTaleError
+import smart_imports
 
-class XsollaError(TheTaleError): pass
+smart_imports.all()
+
+
+class XsollaError(utils_exceptions.TheTaleError):
+    pass
+
 
 class WrongInvoiceStateInProcessingError(XsollaError):
     MSG = 'invoice %(invoice_id)d: wrong invoice_state: "%(state)s"'

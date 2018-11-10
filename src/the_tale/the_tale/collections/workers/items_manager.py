@@ -1,12 +1,10 @@
-# coding: utf-8
 
-from the_tale.common.utils.workers import BaseWorker
+import smart_imports
 
-from the_tale.collections.prototypes import GiveItemTaskPrototype, AccountItemsPrototype
-from the_tale.collections.storage import items_storage
+smart_imports.all()
 
 
-class Worker(BaseWorker):
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
@@ -18,7 +16,7 @@ class Worker(BaseWorker):
         self.logger.info('ITEMS_MANAGER INITIALIZED')
 
     def add_item(self, item, account_id, notify):
-        account_items = AccountItemsPrototype.get_by_account_id(account_id)
+        account_items = prototypes.AccountItemsPrototype.get_by_account_id(account_id)
         account_items.add_item(item, notify=notify)
         account_items.save()
 
@@ -26,8 +24,8 @@ class Worker(BaseWorker):
         self.add_items()
 
     def add_items(self):
-        for task in GiveItemTaskPrototype.from_query(GiveItemTaskPrototype._db_all()):
-            item = items_storage[task.item_id]
+        for task in prototypes.GiveItemTaskPrototype.from_query(prototypes.GiveItemTaskPrototype._db_all()):
+            item = storage.items[task.item_id]
 
             self.logger.info('process task %d for item %d' % (task.id, item.id))
 

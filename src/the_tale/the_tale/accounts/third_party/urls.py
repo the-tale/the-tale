@@ -1,10 +1,7 @@
-# coding: utf-8
 
-from django.conf.urls import url
-from django.conf.urls import include
+import smart_imports
 
-from dext.views import resource_patterns
+smart_imports.all()
 
-from the_tale.accounts.third_party.views import TokensResource
 
-urlpatterns = [ url(r'^tokens/', include(resource_patterns(TokensResource), namespace='tokens'))]
+urlpatterns = [django_urls.url(r'^tokens/', django_urls.include(dext_old_views.resource_patterns(views.TokensResource), namespace='tokens'))]

@@ -1,8 +1,9 @@
-# coding: utf-8
 
-from the_tale.game.balance import constants as c, formulas as f
+import smart_imports
+
+smart_imports.all()
 
 
-def balance(request): # pylint: disable=W0613
-    return {'c': c,
-            'f': f}
+def balance(request):
+    return {'c': constants,
+            'f': formulas}

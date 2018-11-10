@@ -1,30 +1,14 @@
 
-from unittest import mock
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.game import names
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.map import relations as map_relations
-from the_tale.game.actions import relations as actions_relations
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from .. import logic
-from .. import storage
-from .. import filters
-from .. import relations
+smart_imports.all()
 
 
-class MobsStorageTests(testcase.TestCase):
+class MobsStorageTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(MobsStorageTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.mobs = list(storage.mobs.all())
         self.mobs_candidates = [(mob, 1) for mob in self.mobs]
@@ -67,12 +51,12 @@ class MobsStorageTests(testcase.TestCase):
                          {(mob.id, priority) for mob, priority in mobs})
 
     def test_change_type_priority(self):
-        self.mobs[0].type = beings_relations.TYPE.UNDEAD
-        self.mobs[1].type = beings_relations.TYPE.MECHANICAL
-        self.mobs[2].type = beings_relations.TYPE.DEMON
+        self.mobs[0].type = tt_beings_relations.TYPE.UNDEAD
+        self.mobs[1].type = tt_beings_relations.TYPE.MECHANICAL
+        self.mobs[2].type = tt_beings_relations.TYPE.DEMON
 
         mobs = list(filters.change_type_priority(self.mobs_candidates,
-                                                 types=(beings_relations.TYPE.UNDEAD, beings_relations.TYPE.DEMON),
+                                                 types=(tt_beings_relations.TYPE.UNDEAD, tt_beings_relations.TYPE.DEMON),
                                                  delta=10))
 
         self.assertEqual({(self.mobs[0].id, 11), (self.mobs[1].id, 1), (self.mobs[2].id, 11)},

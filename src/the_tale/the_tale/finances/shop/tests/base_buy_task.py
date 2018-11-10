@@ -1,53 +1,41 @@
-# coding: utf-8
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT
-
-from the_tale.finances.bank.transaction import Transaction
-from the_tale.finances.bank.prototypes import InvoicePrototype, AccountPrototype as BankAccountPrototype
-from the_tale.finances.bank.relations import ENTITY_TYPE, CURRENCY_TYPE, INVOICE_STATE
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.accounts.prototypes import AccountPrototype
+smart_imports.all()
 
 
-class _BaseBuyPosponedTaskTests(testcase.TestCase):
+class _BaseBuyPosponedTaskTests(utils_testcase.TestCase):
 
     CREATE_INVOICE = True
-
 
     def setUp(self):
         super(_BaseBuyPosponedTaskTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.initial_amount = 500
         self.amount = 130
 
         self.account = self.accounts_factory.create_account()
 
-        self.bank_account = BankAccountPrototype.create(entity_type=ENTITY_TYPE.GAME_ACCOUNT,
-                                                        entity_id=self.account.id,
-                                                        currency=CURRENCY_TYPE.PREMIUM)
+        self.bank_account = bank_prototypes.AccountPrototype.create(entity_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                                                                    entity_id=self.account.id,
+                                                                    currency=bank_relations.CURRENCY_TYPE.PREMIUM)
         self.bank_account.amount = self.initial_amount
         self.bank_account.save()
 
         if self.CREATE_INVOICE:
-            self.invoice = InvoicePrototype.create(recipient_type=ENTITY_TYPE.GAME_ACCOUNT,
-                                                   recipient_id=self.account.id,
-                                                   sender_type=ENTITY_TYPE.GAME_LOGIC,
-                                                   sender_id=0,
-                                                   currency=CURRENCY_TYPE.PREMIUM,
-                                                   amount=-self.amount,
-                                                   description_for_sender='transaction-description-for-sender',
-                                                   description_for_recipient='transaction-description-for-recipient',
-                                                   operation_uid='transaction-operation-ui')
+            self.invoice = bank_prototypes.InvoicePrototype.create(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                                                                   recipient_id=self.account.id,
+                                                                   sender_type=bank_relations.ENTITY_TYPE.GAME_LOGIC,
+                                                                   sender_id=0,
+                                                                   currency=bank_relations.CURRENCY_TYPE.PREMIUM,
+                                                                   amount=-self.amount,
+                                                                   description_for_sender='transaction-description-for-sender',
+                                                                   description_for_recipient='transaction-description-for-recipient',
+                                                                   operation_uid='transaction-operation-ui')
 
-            self.transaction = Transaction(self.invoice.id)
+            self.transaction = bank_transaction.Transaction(self.invoice.id)
 
         self.task = None
         self.storage = None
@@ -74,7 +62,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
     def test_process__transaction_requested__invoice_rejected(self):
         self.invoice.reload()
-        self.invoice.state = INVOICE_STATE.REJECTED
+        self.invoice.state = bank_relations.INVOICE_STATE.REJECTED
         self.invoice.save()
 
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
@@ -87,7 +75,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
     def test_process__transaction_requested__invoice_wrong_state(self):
         self.invoice.reload()
-        self.invoice.state = INVOICE_STATE.CONFIRMED
+        self.invoice.state = bank_relations.INVOICE_STATE.CONFIRMED
         self.invoice.save()
 
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.ERROR)
@@ -100,7 +88,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
     def test_process__transaction_requested__invoice_frozen(self):
         self.invoice.reload()
-        self.invoice.state = INVOICE_STATE.FROZEN
+        self.invoice.state = bank_relations.INVOICE_STATE.FROZEN
         self.invoice.save()
 
         main_task = mock.Mock()
@@ -127,7 +115,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
     def test_process__transaction_frozen(self):
         self.invoice.reload()
-        self.invoice.state = INVOICE_STATE.FROZEN
+        self.invoice.state = bank_relations.INVOICE_STATE.FROZEN
         self.invoice.save()
 
         self.task.state = self.task.RELATION.TRANSACTION_FROZEN
@@ -142,11 +130,11 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
         self._test_process__transaction_frozen()
 
         self.bank_account.reload()
-        self.assertEqual(self.bank_account.amount, self.initial_amount) # money will be withdrawed after transaction confirm processed
+        self.assertEqual(self.bank_account.amount, self.initial_amount)  # money will be withdrawed after transaction confirm processed
 
     def test_process__wait_confirmation__transaction_frozen(self):
         self.invoice.reload()
-        self.invoice.state = INVOICE_STATE.FROZEN
+        self.invoice.state = bank_relations.INVOICE_STATE.FROZEN
         self.invoice.save()
 
         self.task.state = self.task.RELATION.WAIT_TRANSACTION_CONFIRMATION
@@ -156,7 +144,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
     def test_process__wait_confirmation__transaction_confirmed(self):
         self.invoice.reload()
-        self.invoice.state = INVOICE_STATE.CONFIRMED
+        self.invoice.state = bank_relations.INVOICE_STATE.CONFIRMED
         self.invoice.save()
 
         self.task.state = self.task.RELATION.WAIT_TRANSACTION_CONFIRMATION
@@ -170,7 +158,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
     def test_process__wait_confirmation__transaction_confirmed__with_referal(self):
         self.invoice.reload()
-        self.invoice.state = INVOICE_STATE.CONFIRMED
+        self.invoice.state = bank_relations.INVOICE_STATE.CONFIRMED
         self.invoice.save()
 
         account_2 = self.accounts_factory.create_account()
@@ -182,10 +170,10 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
         self.assertEqual(self.task.process(main_task=mock.Mock()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
-        self.assertEqual(InvoicePrototype._db_count(), (2 if self.with_referrals else 1))
+        self.assertEqual(bank_prototypes.InvoicePrototype._db_count(), (2 if self.with_referrals else 1))
 
         if self.with_referrals:
-            referral_invoice = InvoicePrototype._db_get_object(1)
+            referral_invoice = bank_prototypes.InvoicePrototype._db_get_object(1)
 
             self.assertTrue(referral_invoice.amount > 0)
             self.assertTrue(referral_invoice.amount < self.amount)
@@ -196,7 +184,7 @@ class _BaseBuyPosponedTaskTests(testcase.TestCase):
 
     def test_process__wait_confirmation__transaction_in_wrong_state(self):
         self.invoice.reload()
-        self.invoice.state = INVOICE_STATE.REJECTED
+        self.invoice.state = bank_relations.INVOICE_STATE.REJECTED
         self.invoice.save()
 
         self.task.state = self.task.RELATION.WAIT_TRANSACTION_CONFIRMATION

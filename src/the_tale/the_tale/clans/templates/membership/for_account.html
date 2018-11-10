@@ -1,0 +1,60 @@
+{% extends "clans/base.html" %}
+
+{% block title %}Приглашения в гильдии | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Ваши приглашения в гильдии.{% endblock %}
+
+{% block clans_content %}
+
+<h2 style="margin-bottom: 0.5em;">Приглашения в гильдии</h2>
+
+{% if requests %}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>дата</th>
+      <th>гильдия</th>
+      <th>Хранитель</th>
+      <th>сообщение</th>
+      <th>операции</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for request in requests %}
+
+    {% set request_account = accounts[request.initiator_id] %}
+    {% set request_clan = clans[request.clan_id] %}
+
+    <tr>
+      <td><span class="created-at pgf-format-date" data-timestamp="{{ request.created_at|timestamp }}"></span></td>
+      <td style="white-space: nowrap;">
+        <a href="{{url('clans:show', request_clan.id)}}">[{{request_clan.abbr}}] {{request_clan.name}}</a>
+      </td>
+      <td><a href="{{url('accounts:show', request_account.id)}}">{{request_account.nick_verbose}}</a></td>
+      <td>{{request.text_html|safe}}</td>
+      <td style="white-space: nowrap;">
+        <a class="pgf-forms-post-simple"
+           style="color: green;"
+           data-action-type="redirect"
+           data-redirect-url="{{url('clans:show', request_clan.id)}}"
+           href="{{ url('clans:accept-invite', request.clan_id, request=request.id) }}">Принять</a>
+
+        |
+
+        <a class="pgf-forms-post-simple"
+           style="color: red;"
+           href="{{ url('clans:reject-invite', request.clan_id, request=request.id) }}">Отклонить</a>
+      </td>
+    </tr>
+
+    {% endfor %}
+  </tbody>
+</table>
+
+{% else %}
+<p class="pgf-no-requests-message alert alert-info">Нет приглашений в гильдию</p>
+{% endif %}
+
+
+{% endblock %}

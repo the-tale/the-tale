@@ -1,20 +1,11 @@
-# coding: utf-8
 
-from django.forms import ValidationError
+import smart_imports
 
-from dext.forms import fields
-
-from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-from the_tale.game.bills.bills.base_bill import BaseBill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    declined_bill = fields.TypedChoiceField(label='Отменяемая запись', coerce=int)
+class BaseForm(forms.BaseUserForm):
+    declined_bill = dext_fields.TypedChoiceField(label='Отменяемая запись', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -25,7 +16,7 @@ class BaseForm(BaseUserForm):
         cleaned_data = super(BaseForm, self).clean()
 
         if 'declined_bill' not in cleaned_data or not places_storage.resource_exchanges.get_exchange_for_bill_id(cleaned_data['declined_bill']):
-            raise ValidationError('Запись уже не действует или не может быть отменена')
+            raise django_forms.ValidationError('Запись уже не действует или не может быть отменена')
 
         return cleaned_data
 
@@ -34,11 +25,11 @@ class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
-class BillDecline(BaseBill):
+class BillDecline(base_bill.BaseBill):
     type = relations.BILL_TYPE.BILL_DECLINE
 
     UserForm = UserForm
@@ -51,10 +42,9 @@ class BillDecline(BaseBill):
         super(BillDecline, self).__init__()
         self.declined_bill_id = declined_bill_id
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def declined_bill(self):
-        from the_tale.game.bills.prototypes import BillPrototype
-        return BillPrototype.get_by_id(self.declined_bill_id)
+        return prototypes.BillPrototype.get_by_id(self.declined_bill_id)
 
     @property
     def actors(self): return self.declined_bill.data.actors
@@ -66,7 +56,7 @@ class BillDecline(BaseBill):
         self.declined_bill_id = int(user_form.c.declined_bill)
 
     def has_meaning(self):
-        self.declined_bill.reload() # enshure that we loaded latest bill version
+        self.declined_bill.reload()  # enshure that we loaded latest bill version
         return not self.declined_bill.is_declined
 
     def apply(self, bill=None):

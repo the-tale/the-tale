@@ -1,10 +1,9 @@
-# coding: utf-8
 
-from dext.common.utils import jinja2
+import smart_imports
 
-from the_tale.game.quests import logic
+smart_imports.all()
 
 
-@jinja2.jinjaglobal
+@dext_jinja2.jinjaglobal
 def choose_quest_path_url():
     return jinja2.Markup(logic.choose_quest_path_url())

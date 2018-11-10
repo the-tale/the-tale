@@ -1,11 +1,10 @@
-# coding: utf-8
-from django.core.management.base import BaseCommand
+
+import smart_imports
+
+smart_imports.all()
 
 
-from the_tale.game.ratings.prototypes import RatingValuesPrototype, RatingPlacesPrototype
-
-
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'recalculate ratings'
 
@@ -13,8 +12,8 @@ class Command(BaseCommand):
 
         print('recalculate values')
 
-        RatingValuesPrototype.recalculate()
+        prototypes.RatingValuesPrototype.recalculate()
 
         print('recalculate places')
 
-        RatingPlacesPrototype.recalculate()
+        prototypes.RatingPlacesPrototype.recalculate()

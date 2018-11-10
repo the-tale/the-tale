@@ -1,8 +1,7 @@
-# coding: utf-8
 
-from the_tale.common.utils.decorators import lazy_property
+import smart_imports
 
-from the_tale.game.balance import constants as c
+smart_imports.all()
 
 
 class HabitBase(object):
@@ -17,7 +16,7 @@ class HabitBase(object):
     def set_habit(self, value):
         self.raw_value = max(-c.HABITS_BORDER, min(c.HABITS_BORDER, value))
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def interval(self):
         for interval, right_border in zip(self.TYPE.intervals.records, c.HABITS_RIGHT_BORDERS):
             if right_border > self.raw_value:

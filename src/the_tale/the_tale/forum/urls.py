@@ -1,14 +1,11 @@
-# coding: utf-8
 
-from django.conf.urls import url
-from django.conf.urls import include
+import smart_imports
 
-from dext.views import resource_patterns
+smart_imports.all()
 
-from the_tale.forum.views import ForumResource, PostsResource, ThreadsResource, SubscriptionsResource, SubCategoryResource
 
-urlpatterns = [url(r'^posts/', include(resource_patterns(PostsResource), namespace='posts')),
-               url(r'^threads/', include(resource_patterns(ThreadsResource), namespace='threads')),
-               url(r'^subcategories/', include(resource_patterns(SubCategoryResource), namespace='subcategories')),
-               url(r'^subscriptions/', include(resource_patterns(SubscriptionsResource), namespace='subscriptions')),
-               url(r'^', include(resource_patterns(ForumResource)) )]
+urlpatterns = [django_urls.url(r'^posts/', django_urls.include(dext_old_views.resource_patterns(views.PostsResource), namespace='posts')),
+               django_urls.url(r'^threads/', django_urls.include(dext_old_views.resource_patterns(views.ThreadsResource), namespace='threads')),
+               django_urls.url(r'^subcategories/', django_urls.include(dext_old_views.resource_patterns(views.SubCategoryResource), namespace='subcategories')),
+               django_urls.url(r'^subscriptions/', django_urls.include(dext_old_views.resource_patterns(views.SubscriptionsResource), namespace='subscriptions')),
+               django_urls.url(r'^', django_urls.include(dext_old_views.resource_patterns(views.ForumResource)))]

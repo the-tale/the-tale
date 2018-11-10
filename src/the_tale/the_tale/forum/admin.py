@@ -1,31 +1,34 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.forum.models import Category, SubCategory, Thread, Post, Subscription, ThreadReadInfo, SubCategoryReadInfo, Permission
+smart_imports.all()
 
-class CategoryAdmin(admin.ModelAdmin):
+
+class CategoryAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'slug', 'caption')
 
-class SubCategoryAdmin(admin.ModelAdmin):
+
+class SubCategoryAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'caption', 'category', )
 
     readonly_fields = ('threads_count', 'posts_count')
 
     list_filter = ('category',)
 
-class ThreadAdmin(admin.ModelAdmin):
+
+class ThreadAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'caption', 'subcategory', 'author', 'last_poster')
 
     readonly_fields = ('posts_count', )
 
     list_filter = ('subcategory',)
 
-class SubscriptionAdmin(admin.ModelAdmin):
+
+class SubscriptionAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account', 'thread', 'subcategory', 'created_at')
 
 
-class PostAdmin(admin.ModelAdmin):
+class PostAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'state', 'technical', 'thread', 'author', 'created_at', 'updated_at')
 
     fields = ('thread', 'author', 'created_at', 'updated_at', 'text', 'markup_method', 'technical', 'state', 'removed_by', 'remove_initiator')
@@ -35,23 +38,23 @@ class PostAdmin(admin.ModelAdmin):
     list_filter = ('state',)
 
 
-class ThreadReadInfoAdmin(admin.ModelAdmin):
+class ThreadReadInfoAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account', 'thread', 'read_at')
 
 
-class SubCategoryReadInfoAdmin(admin.ModelAdmin):
+class SubCategoryReadInfoAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'account', 'subcategory', 'read_at', 'all_read_at')
 
 
-class PermissionAdmin(admin.ModelAdmin):
+class PermissionAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'subcategory', 'account', 'created_at')
 
 
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(SubCategory, SubCategoryAdmin)
-admin.site.register(Thread, ThreadAdmin)
-admin.site.register(Post, PostAdmin)
-admin.site.register(Subscription, SubscriptionAdmin)
-admin.site.register(ThreadReadInfo, ThreadReadInfoAdmin)
-admin.site.register(SubCategoryReadInfo, SubCategoryReadInfoAdmin)
-admin.site.register(Permission, PermissionAdmin)
+django_admin.site.register(models.Category, CategoryAdmin)
+django_admin.site.register(models.SubCategory, SubCategoryAdmin)
+django_admin.site.register(models.Thread, ThreadAdmin)
+django_admin.site.register(models.Post, PostAdmin)
+django_admin.site.register(models.Subscription, SubscriptionAdmin)
+django_admin.site.register(models.ThreadReadInfo, ThreadReadInfoAdmin)
+django_admin.site.register(models.SubCategoryReadInfo, SubCategoryReadInfoAdmin)
+django_admin.site.register(models.Permission, PermissionAdmin)

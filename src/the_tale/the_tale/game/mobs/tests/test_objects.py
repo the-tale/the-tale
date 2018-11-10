@@ -1,34 +1,14 @@
 
-from unittest import mock
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.common.utils import testcase
-
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import names
-
-from the_tale.game.logic import create_test_map
-from the_tale.game import relations as game_relations
-
-from the_tale.game.map.relations import TERRAIN
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from .. import logic
-from .. import models
-from .. import objects
-from .. import storage
-from .. import relations
-from .. import exceptions
+smart_imports.all()
 
 
-class MobsPrototypeTests(testcase.TestCase):
+class MobsPrototypeTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(MobsPrototypeTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=account.id)
@@ -53,7 +33,7 @@ class MobsPrototypeTests(testcase.TestCase):
         self.assertNotEqual(mob.id, mob_2.id)
 
     def test_load_data(self):
-        self.assertEqual(len(storage.mobs.all()), 3) # create_test_map create 3 random mobs
+        self.assertEqual(len(storage.mobs.all()), 3)  # create_test_map create 3 random mobs
         self.assertFalse(storage.mobs.has_mob('wrong_id'))
         self.assertTrue(storage.mobs.has_mob('mob_1'))
         self.assertTrue(storage.mobs.has_mob('mob_2'))
@@ -68,7 +48,7 @@ class MobsPrototypeTests(testcase.TestCase):
         with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
             mob = logic.create_random_mob_record(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
 
-        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.MOB,
+        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_restrictions.GROUP.MOB,
                                                                      external_id=mob.id,
                                                                      name=mob.name)])
 
@@ -80,23 +60,23 @@ class MobsPrototypeTests(testcase.TestCase):
 
     def test_linguistics_restrictions_update_on_save(self):
         mob = logic.create_random_mob_record(uuid='bandit', state=relations.MOB_RECORD_STATE.DISABLED)
-        mob.set_utg_name(names.generator().get_test_name('new-name'))
+        mob.set_utg_name(game_names.generator().get_test_name('new-name'))
 
         with mock.patch('the_tale.linguistics.logic.sync_restriction') as sync_restriction:
             logic.save_mob_record(mob)
 
-        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.MOB,
+        self.assertEqual(sync_restriction.call_args_list, [mock.call(group=linguistics_restrictions.GROUP.MOB,
                                                                      external_id=mob.id,
                                                                      name=mob.name)])
 
     def test_mob_attributes(self):
         logic.create_random_mob_record(uuid='bandit',
                                        level=1,
-                                       utg_name=names.generator().get_test_name(name='bandit'),
+                                       utg_name=game_names.generator().get_test_name(name='bandit'),
                                        description='bandint',
                                        abilities=['hit', 'thick', 'slow', 'extra_strong'],
-                                       terrains=TERRAIN.records,
-                                       type=beings_relations.TYPE.CIVILIZED,
+                                       terrains=map_relations.TERRAIN.records,
+                                       type=tt_beings_relations.TYPE.CIVILIZED,
                                        archetype=game_relations.ARCHETYPE.NEUTRAL,
                                        state=relations.MOB_RECORD_STATE.ENABLED)
         storage.mobs.sync(force=True)

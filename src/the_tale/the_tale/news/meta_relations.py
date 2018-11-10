@@ -1,12 +1,10 @@
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import models
+smart_imports.all()
 
 
-class News(meta_relations.MetaType):
+class News(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 12
     TYPE_CAPTION = 'Новость'
@@ -17,7 +15,7 @@ class News(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('news:show', self.id)
+        return dext_urls.url('news:show', self.id)
 
     @classmethod
     def create_from_object(cls, news):
@@ -28,10 +26,15 @@ class News(meta_relations.MetaType):
         try:
             news = models.News.objects.get(id=id)
         except models.News.DoesNotExists:
-            return None
+            raise meta_relations_exceptions.ObjectsNotFound(type=cls.TYPE, ids=[id])
 
         return cls.create_from_object(news)
 
     @classmethod
     def create_from_ids(cls, ids):
-        return [cls.create_from_id(id) for id in ids]
+        news = models.News.objects.filter(id__in=ids)
+
+        if len(ids) != len(news):
+            raise meta_relations_exceptions.ObjectsNotFound(type=cls.TYPE, ids=ids)
+
+        return [cls.create_from_object(record) for record in news]

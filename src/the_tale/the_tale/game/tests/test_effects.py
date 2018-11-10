@@ -1,16 +1,13 @@
 
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.places import relations as places_relations
-
-from .. import effects
+smart_imports.all()
 
 
 TEST_CONTAINER_CLASS = effects.create_container(places_relations.ATTRIBUTE)
 
 
-class EffectsContainerTests(testcase.TestCase):
+class EffectsContainerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(EffectsContainerTests, self).setUp()

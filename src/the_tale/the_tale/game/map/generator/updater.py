@@ -1,44 +1,32 @@
 
-from django.db.utils import IntegrityError
+import smart_imports
 
-from the_tale.game import turn
-
-from the_tale.game.map.conf import map_settings
-from the_tale.game.map.storage import map_info_storage
-from the_tale.game.map.prototypes import MapInfoPrototype, WorldInfoPrototype
-from the_tale.game.map.generator.biomes import Biom
-from the_tale.game.map.generator.power_points import get_power_points
-from the_tale.game.map.generator.drawer import get_draw_info
-from the_tale.game.places import storage as places_storage
-from the_tale.game.roads.storage import roads_storage
-from the_tale.game.map.relations import TERRAIN
-from the_tale.game.map import models
-
+smart_imports.all()
 
 
 def update_map(index):
 
-    generator = WorldInfoPrototype.get_by_id(map_info_storage.item.world_id).generator
+    generator = prototypes.WorldInfoPrototype.get_by_id(storage.map_info.item.world_id).generator
 
     generator.clear_power_points()
     generator.clear_biomes()
 
-    if generator.w != map_settings.WIDTH or generator.h != map_settings.HEIGHT:
-        dx, dy = generator.resize(map_settings.WIDTH, map_settings.HEIGHT)
+    if generator.w != conf.settings.WIDTH or generator.h != conf.settings.HEIGHT:
+        dx, dy = generator.resize(conf.settings.WIDTH, conf.settings.HEIGHT)
         places_storage.places.shift_all(dx, dy)
         places_storage.buildings.shift_all(dx, dy)
 
-    for point in get_power_points():
+    for point in power_points.get_power_points():
         generator.add_power_point(point)
 
-    for terrain in TERRAIN.records:
-        generator.add_biom(Biom(id_=terrain))
+    for terrain in relations.TERRAIN.records:
+        generator.add_biom(biomes.Biom(id_=terrain))
 
     generator.do_step()
 
     biomes_map = generator.get_biomes_map()
 
-    draw_info = get_draw_info(biomes_map)
+    draw_info = drawer.get_draw_info(biomes_map)
 
     terrain = []
     for y in range(0, generator.h):
@@ -47,13 +35,13 @@ def update_map(index):
         for x in range(0, generator.w):
             row.append(biomes_map[y][x].id)
 
-    map_info_storage.set_item(MapInfoPrototype.create(turn_number=turn.number(),
-                                                      width=generator.w,
-                                                      height=generator.h,
-                                                      terrain=terrain,
-                                                      world=WorldInfoPrototype.create_from_generator(generator)))
+    storage.map_info.set_item(prototypes.MapInfoPrototype.create(turn_number=game_turn.number(),
+                                                                 width=generator.w,
+                                                                 height=generator.h,
+                                                                 terrain=terrain,
+                                                                 world=prototypes.WorldInfoPrototype.create_from_generator(generator)))
 
-    MapInfoPrototype.remove_old_infos()
+    prototypes.MapInfoPrototype.remove_old_infos()
 
     raw_draw_info = []
     for row in draw_info:
@@ -63,14 +51,14 @@ def update_map(index):
 
     data = {'width': generator.w,
             'height': generator.h,
-            'map_version': map_info_storage.version,
+            'map_version': storage.map_info.version,
             'format_version': '0.1',
             'draw_info': raw_draw_info,
-            'places': dict( (place.id, place.map_info() ) for place in places_storage.places.all() ),
+            'places': dict((place.id, place.map_info()) for place in places_storage.places.all()),
             # 'buildings': dict( (building.id, building.map_info() ) for building in buildings_storage.all() ),
-            'roads': dict( (road.id, road.map_info() ) for road in roads_storage.all()) }
+            'roads': dict((road.id, road.map_info()) for road in roads_storage.roads.all())}
 
     try:
-        models.MapRegion.objects.create(turn_number=turn.number(), data=data)
-    except IntegrityError:
-        models.MapRegion.objects.filter(turn_number=turn.number()).update(data=data)
+        models.MapRegion.objects.create(turn_number=game_turn.number(), data=data)
+    except django_db_utils.IntegrityError:
+        models.MapRegion.objects.filter(turn_number=game_turn.number()).update(data=data)

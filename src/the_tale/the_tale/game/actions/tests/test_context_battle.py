@@ -1,21 +1,14 @@
-# coding: utf-8
-from unittest import mock
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.balance import constants as c
+smart_imports.all()
 
-from the_tale.game.actions.contexts import BattleContext, Damage
 
-class BattleContextTest(testcase.TestCase):
+class BattleContextTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(BattleContextTest, self).setUp()
-        self.context = BattleContext()
-
-    def tearDown(self):
-        pass
-
+        self.context = contexts.BattleContext()
 
     def check_empty_values(self):
         self.assertEqual(self.context.ability_magic_mushroom, [])
@@ -35,77 +28,76 @@ class BattleContextTest(testcase.TestCase):
 
         self.assertEqual(self.context.pvp_advantage, 0)
         self.assertFalse(self.context.pvp_advantage_used)
-        self.assertEqual(self.context.pvp_advantage_strike_damage, Damage(0, 0))
-
+        self.assertEqual(self.context.pvp_advantage_strike_damage, power.Damage(0, 0))
 
     def test_create(self):
         self.check_empty_values()
 
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_damage(self):
-        damage = Damage(100, 50)
+        damage = power.Damage(100, 50)
         damage.multiply(0.5, 2)
-        self.assertEqual(damage, Damage(50, 100))
+        self.assertEqual(damage, power.Damage(50, 100))
 
-        damage = Damage(100.5, 50.5)
+        damage = power.Damage(100.5, 50.5)
         damage.randomize()
         self.assertEqual(damage.total, 151)
 
     def test_damage_queue_fire(self):
         self.assertEqual(self.context.fire_damage, None)
-        self.context.use_damage_queue_fire([Damage(0, 0)])
+        self.context.use_damage_queue_fire([power.Damage(0, 0)])
         self.assertEqual(self.context.fire_damage, None)
 
-        self.context.use_damage_queue_fire([Damage(5, 5), Damage(5, 5), Damage(5, 5)])
-        self.assertEqual(self.context.damage_queue_fire, [Damage(0, 0), Damage(5, 5), Damage(5, 5), Damage(5, 5)])
+        self.context.use_damage_queue_fire([power.Damage(5, 5), power.Damage(5, 5), power.Damage(5, 5)])
+        self.assertEqual(self.context.damage_queue_fire, [power.Damage(0, 0), power.Damage(5, 5), power.Damage(5, 5), power.Damage(5, 5)])
         self.context.on_own_turn()
-        self.assertEqual(self.context.damage_queue_fire, [Damage(5, 5), Damage(5, 5), Damage(5, 5)])
-        self.assertEqual(self.context.fire_damage, Damage(5, 5))
+        self.assertEqual(self.context.damage_queue_fire, [power.Damage(5, 5), power.Damage(5, 5), power.Damage(5, 5)])
+        self.assertEqual(self.context.fire_damage, power.Damage(5, 5))
 
-        self.context.use_damage_queue_fire([Damage(10, 10), Damage(5, 5)])
-        self.assertEqual(self.context.damage_queue_fire, [Damage(5, 5), Damage(15, 15), Damage(10, 10)])
+        self.context.use_damage_queue_fire([power.Damage(10, 10), power.Damage(5, 5)])
+        self.assertEqual(self.context.damage_queue_fire, [power.Damage(5, 5), power.Damage(15, 15), power.Damage(10, 10)])
         self.context.on_own_turn()
-        self.assertEqual(self.context.fire_damage, Damage(15, 15))
+        self.assertEqual(self.context.fire_damage, power.Damage(15, 15))
 
         self.context.on_own_turn()
-        self.assertEqual(self.context.damage_queue_fire, [Damage(10, 10)])
-        self.assertEqual(self.context.fire_damage, Damage(10, 10))
+        self.assertEqual(self.context.damage_queue_fire, [power.Damage(10, 10)])
+        self.assertEqual(self.context.fire_damage, power.Damage(10, 10))
 
-        self.context.use_damage_queue_fire([Damage(1, 1), Damage(1, 1), Damage(1, 1), Damage(1, 1)])
-        self.assertEqual(self.context.damage_queue_fire, [Damage(10, 10), Damage(1, 1), Damage(1, 1), Damage(1, 1), Damage(1, 1)])
-        self.assertEqual(self.context.fire_damage, Damage(10, 10))
+        self.context.use_damage_queue_fire([power.Damage(1, 1), power.Damage(1, 1), power.Damage(1, 1), power.Damage(1, 1)])
+        self.assertEqual(self.context.damage_queue_fire, [power.Damage(10, 10), power.Damage(1, 1), power.Damage(1, 1), power.Damage(1, 1), power.Damage(1, 1)])
+        self.assertEqual(self.context.fire_damage, power.Damage(10, 10))
         self.context.on_own_turn()
-        self.assertEqual(self.context.fire_damage, Damage(1, 1))
+        self.assertEqual(self.context.fire_damage, power.Damage(1, 1))
 
-        self.assertEqual(self.context.serialize(), BattleContext.deserialize(self.context.serialize()).serialize())
+        self.assertEqual(self.context.serialize(), contexts.BattleContext.deserialize(self.context.serialize()).serialize())
 
     def test_damage_queue_poison(self):
         self.assertEqual(self.context.poison_damage, None)
-        self.context.use_damage_queue_poison([Damage(0, 0)])
+        self.context.use_damage_queue_poison([power.Damage(0, 0)])
         self.assertEqual(self.context.poison_damage, None)
 
-        self.context.use_damage_queue_poison([Damage(5, 5), Damage(5, 5), Damage(5, 5)])
-        self.assertEqual(self.context.damage_queue_poison, [Damage(0, 0), Damage(5, 5), Damage(5, 5), Damage(5, 5)])
+        self.context.use_damage_queue_poison([power.Damage(5, 5), power.Damage(5, 5), power.Damage(5, 5)])
+        self.assertEqual(self.context.damage_queue_poison, [power.Damage(0, 0), power.Damage(5, 5), power.Damage(5, 5), power.Damage(5, 5)])
         self.context.on_own_turn()
-        self.assertEqual(self.context.damage_queue_poison, [Damage(5, 5), Damage(5, 5), Damage(5, 5)])
-        self.assertEqual(self.context.poison_damage, Damage(5, 5))
+        self.assertEqual(self.context.damage_queue_poison, [power.Damage(5, 5), power.Damage(5, 5), power.Damage(5, 5)])
+        self.assertEqual(self.context.poison_damage, power.Damage(5, 5))
 
-        self.context.use_damage_queue_poison([Damage(10, 10), Damage(5, 5), Damage(5, 5)])
+        self.context.use_damage_queue_poison([power.Damage(10, 10), power.Damage(5, 5), power.Damage(5, 5)])
         self.context.on_own_turn()
-        self.assertEqual(self.context.damage_queue_poison, [Damage(15, 15), Damage(10, 10), Damage(5, 5)])
-        self.assertEqual(self.context.poison_damage, Damage(15, 15))
+        self.assertEqual(self.context.damage_queue_poison, [power.Damage(15, 15), power.Damage(10, 10), power.Damage(5, 5)])
+        self.assertEqual(self.context.poison_damage, power.Damage(15, 15))
 
         self.context.on_own_turn()
-        self.assertEqual(self.context.damage_queue_poison, [Damage(10, 10), Damage(5, 5)])
-        self.assertEqual(self.context.poison_damage, Damage(10, 10))
+        self.assertEqual(self.context.damage_queue_poison, [power.Damage(10, 10), power.Damage(5, 5)])
+        self.assertEqual(self.context.poison_damage, power.Damage(10, 10))
 
-        self.context.use_damage_queue_poison([Damage(1, 1), Damage(1, 1), Damage(1, 1), Damage(1, 1)])
-        self.assertEqual(self.context.damage_queue_poison, [Damage(10, 10), Damage(6, 6), Damage(1, 1), Damage(1, 1), Damage(1, 1)])
+        self.context.use_damage_queue_poison([power.Damage(1, 1), power.Damage(1, 1), power.Damage(1, 1), power.Damage(1, 1)])
+        self.assertEqual(self.context.damage_queue_poison, [power.Damage(10, 10), power.Damage(6, 6), power.Damage(1, 1), power.Damage(1, 1), power.Damage(1, 1)])
         self.context.on_own_turn()
-        self.assertEqual(self.context.damage_queue_poison, [Damage(6, 6), Damage(1, 1), Damage(1, 1), Damage(1, 1)])
-        self.assertEqual(self.context.poison_damage, Damage(6, 6))
+        self.assertEqual(self.context.damage_queue_poison, [power.Damage(6, 6), power.Damage(1, 1), power.Damage(1, 1), power.Damage(1, 1)])
+        self.assertEqual(self.context.poison_damage, power.Damage(6, 6))
 
-        self.assertEqual(self.context.serialize(), BattleContext.deserialize(self.context.serialize()).serialize())
+        self.assertEqual(self.context.serialize(), contexts.BattleContext.deserialize(self.context.serialize()).serialize())
 
     def test_initiative_queue(self):
         self.assertEqual(self.context.initiative, 1.0)
@@ -129,7 +121,6 @@ class BattleContextTest(testcase.TestCase):
         self.context.on_own_turn()
         self.assertEqual(self.context.initiative, 10)
 
-
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_ability_magic_mushroom(self):
         self.context.use_ability_magic_mushroom([2.0, 1.0, 0.5])
@@ -137,20 +128,19 @@ class BattleContextTest(testcase.TestCase):
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [2.0, 1.0, 0.5])
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 5)), Damage(20, 10))
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(10, 5)), power.Damage(20, 10))
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [1.0, 0.5])
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 5)), Damage(10, 5))
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(10, 5)), power.Damage(10, 5))
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [0.5])
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 5)).total, 8)
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(10, 5)).total, 8)
 
         self.context.on_own_turn()
         self.assertEqual(self.context.ability_magic_mushroom, [])
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 5)), Damage(10, 5))
-
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(10, 5)), power.Damage(10, 5))
 
     def test_ability_sidestep(self):
         self.context.use_ability_sidestep([1.0, 0.5, 0.0])
@@ -172,7 +162,6 @@ class BattleContextTest(testcase.TestCase):
         self.assertEqual(self.context.ability_sidestep, [])
         self.assertTrue(not self.context.should_miss_attack())
 
-
     def test_stun(self):
         self.context.use_stun(3)
         self.assertEqual(self.context.stun_length, 4)
@@ -183,7 +172,7 @@ class BattleContextTest(testcase.TestCase):
 
         for i in range(3):
             self.context.on_own_turn()
-            self.assertEqual(self.context.stun_length, 3-i)
+            self.assertEqual(self.context.stun_length, 3 - i)
             self.assertTrue(self.context.is_stunned)
 
         self.context.on_own_turn()
@@ -192,47 +181,46 @@ class BattleContextTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_modify_outcoming_damage(self):
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10, 11)).total, 21)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10.4, 11.4)).total, 22)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10.5, 11.5)).total, 22)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(10.8, 11.8)).total, 23)
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(10, 11)).total, 21)
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(10.4, 11.4)).total, 22)
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(10.5, 11.5)).total, 22)
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(10.8, 11.8)).total, 23)
 
         # advantage_modifier
         self.context.use_pvp_advantage(0.75)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)),
-                         Damage(20*(1+c.DAMAGE_PVP_ADVANTAGE_MODIFIER*0.75), 10*(1+c.DAMAGE_PVP_ADVANTAGE_MODIFIER*0.75)))
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(20, 10)),
+                         power.Damage(20 * (1 + c.DAMAGE_PVP_ADVANTAGE_MODIFIER * 0.75), 10 * (1 + c.DAMAGE_PVP_ADVANTAGE_MODIFIER * 0.75)))
         self.assertFalse(self.context.pvp_advantage_used)
 
         self.context.use_pvp_advantage(-0.75)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)), Damage(20, 10))
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(20, 10)), power.Damage(20, 10))
         self.assertFalse(self.context.pvp_advantage_used)
 
-        self.assertEqual(self.context.serialize(), BattleContext.deserialize(self.context.serialize()).serialize())
+        self.assertEqual(self.context.serialize(), contexts.BattleContext.deserialize(self.context.serialize()).serialize())
 
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_modify_outcoming_damage_advantage_strike(self):
         self.context.use_pvp_advantage(1.0)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)), Damage(0, 0)) # pvp_advantage_strike_damage not set
-        self.context.use_pvp_advantage_stike_damage(Damage(333, 666))
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(20, 10)), Damage(333, 666))
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(20, 10)), power.Damage(0, 0))  # pvp_advantage_strike_damage not set
+        self.context.use_pvp_advantage_stike_damage(power.Damage(333, 666))
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(20, 10)), power.Damage(333, 666))
         self.assertTrue(self.context.pvp_advantage_used)
-
 
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_critical_hit(self):
-        old_damage = self.context.modify_outcoming_damage(Damage(100, 1000))
+        old_damage = self.context.modify_outcoming_damage(power.Damage(100, 1000))
         self.context.use_crit_chance(100)
-        new_damage = self.context.modify_outcoming_damage(Damage(100, 1000))
+        new_damage = self.context.modify_outcoming_damage(power.Damage(100, 1000))
         self.assertTrue(old_damage.physic < new_damage.physic)
         self.assertTrue(old_damage.magic < new_damage.magic)
 
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_berserk(self):
-        old_damage = self.context.modify_outcoming_damage(Damage(100, 10))
+        old_damage = self.context.modify_outcoming_damage(power.Damage(100, 10))
         self.context.use_berserk(1.0)
-        self.assertEqual(old_damage, self.context.modify_outcoming_damage(Damage(100, 10)))
+        self.assertEqual(old_damage, self.context.modify_outcoming_damage(power.Damage(100, 10)))
         self.context.use_berserk(1.5)
-        new_damage = self.context.modify_outcoming_damage(Damage(100, 10))
+        new_damage = self.context.modify_outcoming_damage(power.Damage(100, 10))
         self.assertTrue(old_damage.physic < new_damage.physic)
         self.assertTrue(old_damage.magic < new_damage.magic)
 
@@ -243,19 +231,18 @@ class BattleContextTest(testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.DAMAGE_DELTA', 0)
     def test_outcoming_damage_modifier(self):
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(100, 1000)), Damage(100, 1000))
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(100, 1000)), power.Damage(100, 1000))
         self.context.use_outcoming_damage_modifier(5, 0.25)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(100, 1000)), Damage(500, 250))
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(100, 1000)), power.Damage(500, 250))
         self.context.use_outcoming_damage_modifier(2, 10)
-        self.assertEqual(self.context.modify_outcoming_damage(Damage(100, 1000)), Damage(1000, 2500))
+        self.assertEqual(self.context.modify_outcoming_damage(power.Damage(100, 1000)), power.Damage(1000, 2500))
 
     def test_incoming_damage_modifier(self):
-        self.assertEqual(self.context.modify_incoming_damage(Damage(100, 1000)), Damage(100, 1000))
+        self.assertEqual(self.context.modify_incoming_damage(power.Damage(100, 1000)), power.Damage(100, 1000))
         self.context.use_incoming_damage_modifier(5, 0.25)
-        self.assertEqual(self.context.modify_incoming_damage(Damage(100, 1000)), Damage(500, 250))
+        self.assertEqual(self.context.modify_incoming_damage(power.Damage(100, 1000)), power.Damage(500, 250))
         self.context.use_incoming_damage_modifier(2, 10)
-        self.assertEqual(self.context.modify_incoming_damage(Damage(100, 1000)), Damage(1000, 2500))
-
+        self.assertEqual(self.context.modify_incoming_damage(power.Damage(100, 1000)), power.Damage(1000, 2500))
 
     def test_on_own_turn_with_empty_values(self):
         self.context.on_own_turn()

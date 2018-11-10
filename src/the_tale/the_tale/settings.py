@@ -1,10 +1,8 @@
 
-import os
-import sys
-import time
-import jinja2
+import smart_imports
 
-from dext.common.utils.meta_config import MetaConfig
+smart_imports.all()
+
 
 # NotImplemented settings MUST be defined in settings_local
 
@@ -18,7 +16,7 @@ HOME_DIR = os.getenv("HOME")
 PROJECT_MODULE = os.path.basename(PROJECT_DIR)
 
 META_CONFIG_FILE = os.path.join(PROJECT_DIR, 'meta_config.json')
-META_CONFIG = MetaConfig(config_path=META_CONFIG_FILE)
+META_CONFIG = dext_meta_config.MetaConfig(config_path=META_CONFIG_FILE)
 
 DEBUG = False
 
@@ -32,7 +30,7 @@ DATABASES = {
         'PASSWORD': 'the_tale',
         'HOST': '',
         'PORT': '',
-        'CONN_MAX_AGE': 60*60 # close connection after an hour
+        'CONN_MAX_AGE': 60 * 60  # close connection after an hour
     }
 }
 
@@ -117,47 +115,47 @@ EMAIL_FILE_PATH = '/tmp/emails'
 
 APPEND_SLASH = True
 
-TEMPLATES = [ {'BACKEND': 'dext.common.utils.jinja2.Engine',
-               'OPTIONS': {
-                   'context_processors':( 'django.contrib.auth.context_processors.auth',
-                                          'django.template.context_processors.debug',
-                                          'django.template.context_processors.i18n',
-                                          'django.template.context_processors.media',
-                                          'django.template.context_processors.static',
-                                          'django.contrib.messages.context_processors.messages',
-                                          'the_tale.portal.context_processors.section',
-                                          'the_tale.portal.context_processors.cdn_paths',
-                                          'the_tale.game.balance.context_processors.balance',
-                                          'the_tale.game.bills.context_processors.bills_context',
-                                          'the_tale.linguistics.context_processors.linguistics_context',
-                                          'the_tale.guide.context_processors.guide_context',
-                                          'the_tale.blogs.context_processors.blogs_context'
-                                        ),
-                   'directories': (os.path.join(PROJECT_DIR, 'templates'),),
-                   'auto_reload': False,
-                   'undefined': jinja2.StrictUndefined,
-                   'autoescape': True,
-                   'trim_blocks': True,
-                   'extensions': ['jinja2.ext.loopcontrols']
-                   } },
-              { 'BACKEND': 'django.template.backends.django.DjangoTemplates',
-                'APP_DIRS' : True,
-                'OPTIONS': {
-                    'context_processors':( 'django.contrib.auth.context_processors.auth',
-                                           'django.template.context_processors.debug',
-                                           'django.template.context_processors.i18n',
-                                           'django.template.context_processors.media',
-                                           'django.template.context_processors.static',
-                                           'django.contrib.messages.context_processors.messages',
-                                           'the_tale.portal.context_processors.section',
-                                           'the_tale.portal.context_processors.cdn_paths',
-                                           'the_tale.game.balance.context_processors.balance',
-                                           'the_tale.game.bills.context_processors.bills_context',
-                                           'the_tale.linguistics.context_processors.linguistics_context'
-                                          ),
-                    'debug': False
-                            } }
-    ]
+TEMPLATES = [{'BACKEND': 'dext.common.utils.jinja2.Engine',
+              'OPTIONS': {
+                  'context_processors': ('django.contrib.auth.context_processors.auth',
+                                         'django.template.context_processors.debug',
+                                         'django.template.context_processors.i18n',
+                                         'django.template.context_processors.media',
+                                         'django.template.context_processors.static',
+                                         'django.contrib.messages.context_processors.messages',
+                                         'the_tale.portal.context_processors.section',
+                                         'the_tale.portal.context_processors.cdn_paths',
+                                         'the_tale.game.balance.context_processors.balance',
+                                         'the_tale.game.bills.context_processors.bills_context',
+                                         'the_tale.linguistics.context_processors.linguistics_context',
+                                         'the_tale.guide.context_processors.guide_context',
+                                         'the_tale.blogs.context_processors.blogs_context'
+                                         ),
+                  'directories': (os.path.join(PROJECT_DIR, 'templates'),),
+                  'auto_reload': False,
+                  'undefined': jinja2.StrictUndefined,
+                  'autoescape': True,
+                  'trim_blocks': True,
+                  'extensions': ['jinja2.ext.loopcontrols']
+              }},
+             {'BACKEND': 'django.template.backends.django.DjangoTemplates',
+              'APP_DIRS': True,
+              'OPTIONS': {
+                  'context_processors': ('django.contrib.auth.context_processors.auth',
+                                         'django.template.context_processors.debug',
+                                         'django.template.context_processors.i18n',
+                                         'django.template.context_processors.media',
+                                         'django.template.context_processors.static',
+                                         'django.contrib.messages.context_processors.messages',
+                                         'the_tale.portal.context_processors.section',
+                                         'the_tale.portal.context_processors.cdn_paths',
+                                         'the_tale.game.balance.context_processors.balance',
+                                         'the_tale.game.bills.context_processors.bills_context',
+                                         'the_tale.linguistics.context_processors.linguistics_context'
+                                         ),
+                  'debug': False
+              }}
+             ]
 
 
 MIDDLEWARE = ('django.middleware.common.CommonMiddleware',
@@ -186,19 +184,20 @@ INSTALLED_APPS = [
     'dext.forms',
     'dext.common.utils',
     'dext.common.amqp_queues',
-    'dext.common.meta_relations',
 
     'the_tale.common.utils',
     'the_tale.common.postponed_tasks',
+    'the_tale.common.meta_relations',
 
     'the_tale.post_service',
 
-    'the_tale.accounts.third_party', # MUST be before 'the_tale.accounts', since strange bug in Django 1.8, when model AccessToken placed in accounts application instead third_party
+    'the_tale.accounts.third_party',  # MUST be before 'the_tale.accounts', since strange bug in Django 1.8, when model AccessToken placed in accounts application instead third_party
     'the_tale.accounts',
-    'the_tale.accounts.clans',
     'the_tale.accounts.personal_messages',
     'the_tale.accounts.friends',
     'the_tale.accounts.achievements',
+
+    'the_tale.clans',
 
     'the_tale.guide',
 
@@ -278,13 +277,12 @@ CACHES = {'default': {'BACKEND': 'django_redis.cache.RedisCache',
                           'SERIALIZER': 'django_redis.serializers.json.JSONSerializer'}}}
 
 
-
-CACHE_MIDDLEWARE_SECONDS = 24*60*60
+CACHE_MIDDLEWARE_SECONDS = 24 * 60 * 60
 CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
 try:
-    from the_tale.settings_local import * # pylint: disable=W0403,W0401,W0614
-except Exception: # pylint: disable=W0702,W0703
+    from the_tale.settings_local import *  # pylint: disable=W0403,W0401,W0614
+except Exception:  # pylint: disable=W0702,W0703
     pass
 
 
@@ -338,14 +336,14 @@ LESS_DEST_DIR = os.path.join(PROJECT_DIR, 'static', 'css')
 
 CDNS_ENABLED = globals().get('CDNS_ENABLED', False)
 
-CDNS = ( ('STATIC_TWITTER_BOOTSTRAP',
-          '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
-          'https:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
+CDNS = (('STATIC_TWITTER_BOOTSTRAP',
+         '%sbootstrap/' % STATIC_URL, '%sbootstrap/' % STATIC_CDN,
+         'https:%sbootstrap/css/bootstrap.min.css' % STATIC_CDN),
 
-         ('STATIC_CONTENT',
-          STATIC_URL, STATIC_CDN,
-          lambda: 'https:%simages/rss.png?_=%f' % (STATIC_CDN, time.time())), # prevent url from caching for cases, when portal closed to 503
-    )
+        ('STATIC_CONTENT',
+         STATIC_URL, STATIC_CDN,
+         lambda: 'https:%simages/rss.png?_=%f' % (STATIC_CDN, time.time())),  # prevent url from caching for cases, when portal closed to 503
+        )
 
 
 ############################
@@ -374,7 +372,7 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
             'formatter': 'verbose'
-            },
+        },
         'sentry': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -385,7 +383,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
-            },
+        },
         'django.server': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',

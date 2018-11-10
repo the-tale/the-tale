@@ -1,13 +1,13 @@
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.news.models import News
+smart_imports.all()
 
 
-class NewsAdmin(admin.ModelAdmin):
+class NewsAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'caption', 'emailed', 'created_at')
 
     readonly_fields = ('forum_thread',)
 
 
-admin.site.register(News, NewsAdmin)
+django_admin.site.register(models.News, NewsAdmin)

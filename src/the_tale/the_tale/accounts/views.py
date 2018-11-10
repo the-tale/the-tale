@@ -1,41 +1,7 @@
 
-import logging
-import uuid
+import smart_imports
 
-from django.core.urlresolvers import reverse
-
-from dext.common.utils import views as dext_views
-from dext.common.utils import exceptions as dext_exceptions
-from dext.common.utils.urls import UrlBuilder
-from dext.views import handler, validator, validate_argument
-
-from the_tale.common.utils import views as utils_views
-
-from the_tale.amqp_environment import environment
-
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-from the_tale.common.utils.resources import Resource
-from the_tale.common.utils.pagination import Paginator
-from the_tale.common.utils.decorators import login_required
-from the_tale.common.utils import api
-
-from the_tale.game.heroes.models import Hero
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.accounts.friends.prototypes import FriendshipPrototype
-from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-from the_tale.accounts.clans.prototypes import ClanPrototype
-from the_tale.accounts.third_party import decorators
-
-from .prototypes import AccountPrototype, ChangeCredentialsTaskPrototype, AwardPrototype, ResetPasswordTaskPrototype
-
-from . import conf
-from . import logic
-from . import forms
-from . import relations
-from . import create_hero
-from . import meta_relations
-from . import postponed_tasks
+smart_imports.all()
 
 
 ###############################
@@ -43,14 +9,15 @@ from . import postponed_tasks
 ###############################
 
 
+# TODO: rename to UserAccountProcessor
 class CurrentAccountProcessor(dext_views.BaseViewProcessor):
     def preprocess(self, context):
-        context.account = AccountPrototype(model=context.django_request.user) if context.django_request.user.is_authenticated else context.django_request.user
+        context.account = prototypes.AccountPrototype(model=context.django_request.user) if context.django_request.user.is_authenticated else context.django_request.user
 
         if context.account.is_authenticated and context.account.is_update_active_state_needed:
-            environment.workers.accounts_manager.cmd_run_account_method(account_id=context.account.id,
-                                                                        method_name=AccountPrototype.update_active_state.__name__,
-                                                                        data={})
+            amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(account_id=context.account.id,
+                                                                                         method_name=prototypes.AccountPrototype.update_active_state.__name__,
+                                                                                         data={})
 
 
 class SuperuserProcessor(dext_views.BaseViewProcessor):
@@ -62,6 +29,7 @@ class SuperuserProcessor(dext_views.BaseViewProcessor):
 
 
 class AccountProcessor(dext_views.ArgumentProcessor):
+    ERROR_MESSAGE = 'аккаунт не найден'
 
     def parse(self, context, raw_value):
         try:
@@ -69,7 +37,7 @@ class AccountProcessor(dext_views.ArgumentProcessor):
         except ValueError:
             self.raise_wrong_format()
 
-        account = AccountPrototype.get_by_id(account_id)
+        account = prototypes.AccountPrototype.get_by_id(account_id)
 
         if account is None:
             self.raise_wrong_value()
@@ -97,7 +65,8 @@ class FullAccountProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_MESSAGE = 'Вы не закончили регистрацию, данная функция вам недоступна'
     ARGUMENT = 'account'
 
-    def validate(self, argument): return not argument.is_fast
+    def validate(self, argument):
+        return not argument.is_fast
 
 
 class BanGameProcessor(dext_views.FlaggedAccessProcessor):
@@ -105,7 +74,8 @@ class BanGameProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
     ARGUMENT = 'account'
 
-    def validate(self, argument): return not argument.is_ban_game
+    def validate(self, argument):
+        return not argument.is_ban_game
 
 
 class BanForumProcessor(dext_views.FlaggedAccessProcessor):
@@ -113,7 +83,8 @@ class BanForumProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
     ARGUMENT = 'account'
 
-    def validate(self, argument): return not argument.is_ban_forum
+    def validate(self, argument):
+        return not argument.is_ban_forum
 
 
 class BanAnyProcessor(dext_views.FlaggedAccessProcessor):
@@ -121,7 +92,8 @@ class BanAnyProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
     ARGUMENT = 'account'
 
-    def validate(self, argument): return not argument.is_ban_any
+    def validate(self, argument):
+        return not argument.is_ban_any
 
 
 class ModerateAccountProcessor(dext_views.PermissionProcessor):
@@ -149,7 +121,10 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 ###############################
 
 accounts_resource = dext_views.Resource(name='accounts')
-accounts_resource.add_processor(AccountProcessor(error_message='Аккаунт не найден', url_name='account', context_name='master_account', default_value=None))
+accounts_resource.add_processor(AccountProcessor(error_message='Аккаунт не найден',
+                                                 url_name='account',
+                                                 context_name='master_account',
+                                                 default_value=None))
 accounts_resource.add_processor(ModerateAccountProcessor())
 
 resource.add_child(accounts_resource)
@@ -164,17 +139,17 @@ resource.add_child(registration_resource)
 @accounts_resource('')
 def index(context):
 
-    accounts_query = AccountPrototype.live_query()
+    accounts_query = prototypes.AccountPrototype.live_query()
 
     if context.prefix:
         accounts_query = accounts_query.filter(nick__istartswith=context.prefix)
 
     accounts_count = accounts_query.count()
 
-    url_builder = UrlBuilder(reverse('accounts:'), arguments={'page': context.page,
-                                                              'prefix': context.prefix})
+    url_builder = dext_urls.UrlBuilder(django_reverse('accounts:'), arguments={'page': context.page,
+                                                                               'prefix': context.prefix})
 
-    paginator = Paginator(context.page, accounts_count, conf.accounts_settings.ACCOUNTS_ON_PAGE, url_builder)
+    paginator = utils_pagination.Paginator(context.page, accounts_count, conf.settings.ACCOUNTS_ON_PAGE, url_builder)
 
     if paginator.wrong_page_number:
         return dext_views.Redirect(paginator.last_page_url, permanent=False)
@@ -183,14 +158,14 @@ def index(context):
 
     accounts_models = accounts_query.select_related().order_by('nick')[account_from:account_to]
 
-    accounts = [AccountPrototype(model) for model in accounts_models]
+    accounts = [prototypes.AccountPrototype(model) for model in accounts_models]
 
     accounts_ids = [model.id for model in accounts_models]
     clans_ids = [model.clan_id for model in accounts_models]
 
-    heroes = dict((model.account_id, heroes_logic.load_hero(hero_model=model)) for model in Hero.objects.filter(account_id__in=accounts_ids))
+    heroes = dict((model.account_id, heroes_logic.load_hero(hero_model=model)) for model in heroes_models.Hero.objects.filter(account_id__in=accounts_ids))
 
-    clans = {clan.id: clan for clan in ClanPrototype.get_list_by_id(clans_ids)}
+    clans = {clan.id: clan for clan in clans_logic.load_clans(clans_ids)}
 
     return dext_views.Page('accounts/index.html',
                            content={'heroes': heroes,
@@ -204,27 +179,68 @@ def index(context):
 
 @accounts_resource('#account', name='show')
 def show(context):
-    from the_tale.game.ratings import relations as ratings_relations
-    from the_tale.game.ratings import conf as ratings_conf
-
-    friendship = FriendshipPrototype.get_for_bidirectional(context.account, context.master_account)
+    friendship = friends_prototypes.FriendshipPrototype.get_for_bidirectional(context.account, context.master_account)
 
     master_hero = heroes_logic.load_hero(account_id=context.master_account.id)
+
+    bills_count = bills_prototypes.BillPrototype.accepted_bills_count(context.master_account.id)
+
+    templates_count = linguistics_prototypes.ContributionPrototype._db_filter(account_id=context.master_account.id,
+                                                                              type=linguistics_relations.CONTRIBUTION_TYPE.TEMPLATE).count()
+    words_count = linguistics_prototypes.ContributionPrototype._db_filter(account_id=context.master_account.id,
+                                                                          type=linguistics_relations.CONTRIBUTION_TYPE.WORD).count()
+    folclor_posts_count = blogs_models.Post.objects.filter(author=context.master_account._model,
+                                                           state=blogs_relations.POST_STATE.ACCEPTED).count()
+
+    threads_count = forum_models.Thread.objects.filter(author=context.master_account._model).count()
+
+    threads_with_posts = forum_models.Thread.objects.filter(post__author=context.master_account._model).distinct().count()
+
+    master_clan = None
+    master_clan_membership = None
+    master_account_membership_request = None
+
+    if context.master_account.clan_id is not None:
+        master_clan = clans_logic.load_clan(clan_id=context.master_account.clan_id)
+        master_clan_membership = clans_logic.get_membership(context.master_account.id)
+
+    user_clan = None
+    user_clan_rights = None
+
+    if context.account.is_authenticated and context.account.clan_id is not None:
+        user_clan = clans_logic.load_clan(clan_id=context.account.clan_id)
+        user_clan_rights = clans_logic.operations_rights(initiator=context.account,
+                                                         clan=user_clan,
+                                                         is_moderator=context.account.has_perm('clans.moderate_clan'))
+
+        master_account_membership_request = clans_logic.request_for_clan_and_account(clan_id=user_clan.id,
+                                                                                     account_id=context.master_account.id)
 
     return dext_views.Page('accounts/show.html',
                            content={'master_hero': master_hero,
                                     'account_meta_object': meta_relations.Account.create_from_object(context.master_account),
                                     'account_info': logic.get_account_info(context.master_account, master_hero),
                                     'master_account': context.master_account,
-                                    'accounts_settings': conf.accounts_settings,
+                                    'accounts_settings': conf.settings,
                                     'RATING_TYPE': ratings_relations.RATING_TYPE,
                                     'resource': context.resource,
-                                    'ratings_on_page': ratings_conf.ratings_settings.ACCOUNTS_ON_PAGE,
-                                    'informer_link': conf.accounts_settings.INFORMER_LINK % {'account_id': context.master_account.id},
-                                    'friendship': friendship} )
+                                    'ratings_on_page': ratings_conf.settings.ACCOUNTS_ON_PAGE,
+                                    'informer_link': conf.settings.INFORMER_LINK % {'account_id': context.master_account.id},
+                                    'friendship': friendship,
+                                    'bills_count': bills_count,
+                                    'templates_count': templates_count,
+                                    'words_count': words_count,
+                                    'folclor_posts_count': folclor_posts_count,
+                                    'threads_count': threads_count,
+                                    'threads_with_posts': threads_with_posts,
+                                    'master_clan': master_clan,
+                                    'master_clan_membership': master_clan_membership,
+                                    'master_account_membership_request': master_account_membership_request,
+                                    'user_clan': user_clan,
+                                    'user_clan_rights': user_clan_rights})
 
 
-@api.Processor(versions=('1.0', ))
+@utils_api.Processor(versions=('1.0', ))
 @accounts_resource('#account', 'api', 'show', name='api-show')
 def api_show(context):
     master_hero = heroes_logic.load_hero(account_id=context.master_account.id)
@@ -235,12 +251,11 @@ def api_show(context):
 @ModerateAccessProcessor()
 @accounts_resource('#account', 'admin', name='admin')
 def admin(context):
-    from the_tale.finances.shop.forms import GMForm
     return dext_views.Page('accounts/admin.html',
                            content={'master_account': context.master_account,
                                     'give_award_form': forms.GiveAwardForm(),
                                     'resource': context.resource,
-                                    'give_money_form': GMForm(),
+                                    'give_money_form': shop_forms.GMForm(),
                                     'ban_form': forms.BanForm()})
 
 
@@ -249,9 +264,9 @@ def admin(context):
 @dext_views.FormProcessor(form_class=forms.GiveAwardForm)
 @accounts_resource('#account', 'give-award', name='give-award', method='post')
 def give_award(context):
-    AwardPrototype.create(description=context.form.c.description,
-                          type=context.form.c.type,
-                          account=context.master_account)
+    prototypes.AwardPrototype.create(description=context.form.c.description,
+                                     type=context.form.c.type,
+                                     account=context.master_account)
 
     return dext_views.AjaxOk()
 
@@ -260,8 +275,8 @@ def give_award(context):
 @ModerateAccessProcessor()
 @accounts_resource('#account', 'reset-nick', name='reset-nick', method='post')
 def reset_nick(context):
-    task = ChangeCredentialsTaskPrototype.create(account=context.master_account,
-                                                 new_nick='%s (%s)' % (conf.accounts_settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
+    task = prototypes.ChangeCredentialsTaskPrototype.create(account=context.master_account,
+                                                            new_nick='%s (%s)' % (conf.settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
 
     postponed_task = task.process(logger)
 
@@ -287,9 +302,9 @@ def ban(context):
     else:
         raise dext_views.ViewError(code='unknown_ban_type', message='Неизвестный тип бана')
 
-    pm_tt_api.send_message(sender_id=logic.get_system_user_id(),
-                          recipients_ids=[context.master_account.id],
-                          body=message % {'message': context.form.c.description})
+    personal_messages_logic.send_message(sender_id=logic.get_system_user_id(),
+                                         recipients_ids=[context.master_account.id],
+                                         body=message % {'message': context.form.c.description})
 
     return dext_views.AjaxOk()
 
@@ -302,9 +317,9 @@ def reset_bans(context):
     context.master_account.reset_ban_forum()
     context.master_account.reset_ban_game()
 
-    pm_tt_api.send_message(sender_id=logic.get_system_user_id(),
-                          recipients_ids=[context.master_account.id],
-                          body='С вас сняли все ограничения, наложенные ранее.')
+    personal_messages_logic.send_message(sender_id=logic.get_system_user_id(),
+                                         recipients_ids=[context.master_account.id],
+                                         body='С вас сняли все ограничения, наложенные ранее.')
 
     return dext_views.AjaxOk()
 
@@ -320,8 +335,9 @@ def transfer_money_dialog(context):
         raise dext_views.ViewError(code='own_account', message='Нельзя переводить печеньки самому себе')
 
     return dext_views.Page('accounts/transfer_money.html',
-                           content={'commission': conf.accounts_settings.MONEY_SEND_COMMISSION,
+                           content={'commission': conf.settings.MONEY_SEND_COMMISSION,
                                     'form': forms.SendMoneyForm()})
+
 
 @LoginRequiredProcessor()
 @FullAccountProcessor()
@@ -344,68 +360,106 @@ def transfer_money(context):
     return dext_views.AjaxProcessing(task.status_url)
 
 
-def create_registration_task(session):
-    if conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY in session:
-
-        task_id = session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY]
-        task = PostponedTaskPrototype.get_by_id(task_id)
-
-        if task is not None and (task.state.is_processed or task.state.is_waiting):
-            return task
-
-    referer = None
-    if conf.accounts_settings.SESSION_REGISTRATION_REFERER_KEY in session:
-        referer = session[conf.accounts_settings.SESSION_REGISTRATION_REFERER_KEY]
-
-    referral_of_id = None
-    if conf.accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY in session:
-        referral_of_id = session[conf.accounts_settings.SESSION_REGISTRATION_REFERRAL_KEY]
-
-    action_id = None
-    if conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY in session:
-        action_id = session[conf.accounts_settings.SESSION_REGISTRATION_ACTION_KEY]
-
-    registration_task = postponed_tasks.RegistrationTask(account_id=None,
-                                                         referer=referer,
-                                                         referral_of_id=referral_of_id,
-                                                         action_id=action_id)
-
-    task = PostponedTaskPrototype.create(registration_task,
-                                         live_time=conf.accounts_settings.REGISTRATION_TIMEOUT)
-
-    session[conf.accounts_settings.SESSION_REGISTRATION_TASK_ID_KEY] = task.id
-
-    environment.workers.registration.cmd_task(task.id)
-
-    return task
-
-
-@registration_resource('fast', method='POST')
-def fast_post(context):
-
-    if context.account.is_authenticated:
-        raise dext_views.ViewError(code='accounts.registration.fast.already_registered',
-                                   message='Вы уже зарегистрированы')
-
-    task = create_registration_task(context.django_request.session)
-
-    if task.state.is_processed:
-        raise dext_views.ViewError(code='accounts.registration.fast.already_processed',
-                                   message='Вы уже зарегистрированы, обновите страницу')
-
-    return dext_views.AjaxProcessing(task.status_url)
-
-
 @registration_resource('create-hero', method='GET')
 def create_hero_view(context):
 
-    # if context.account.is_authenticated:
-    #     raise dext_views.ViewError(code='accounts.create_hero.already_registered',
-    #                                message='Вы уже зарегистрированы')
+    if context.account.is_authenticated:
+        return dext_views.Redirect(target_url=dext_urls.url('game:'))
 
     return dext_views.Page('accounts/create_hero.html',
                            content={'resource': context.resource,
                                     'create_hero': create_hero})
+
+
+def hero_story_attributes(view):
+    from the_tale.game import views as game_views
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.GENDER, error_message='Неверно указан пол героя',
+                                                            context_name='gender', post_name='gender'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.RACE,
+                                                            error_message='Неверно указана раса героя',
+                                                            context_name='race', post_name='race'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.ARCHETYPE,
+                                                            error_message='Неверно указана архетип героя',
+                                                            context_name='archetype', post_name='archetype'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.HABIT_HONOR_INTERVAL,
+                                                            error_message='Неверно указана честь героя',
+                                                            context_name='honor', post_name='honor'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=game_relations.HABIT_PEACEFULNESS_INTERVAL,
+                                                            error_message='Неверно указано миролюбие героя',
+                                                            context_name='peacefulness', post_name='peacefulness'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=tt_beings_relations.UPBRINGING,
+                                                            error_message='Неверно указано происхождение героя',
+                                                            context_name='upbringing', post_name='upbringing'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=tt_beings_relations.FIRST_DEATH,
+                                                            error_message='Неверно указана первая смерть героя',
+                                                            context_name='first_death', post_name='first_death'))
+    view.add_processor(dext_views.RelationArgumentProcessor(relation=tt_beings_relations.AGE,
+                                                            error_message='Неверно указан возраст первой смерти героя',
+                                                            context_name='age', post_name='age'))
+    view.add_processor(game_views.NameProcessor())
+
+    return view
+
+
+@hero_story_attributes
+@utils_api.Processor(versions=('1.0',))
+@registration_resource('api', 'register', method='POST', name='api-register')
+def register(context):
+    from the_tale.game import logic as game_logic
+
+    if context.account.is_authenticated:
+        raise dext_views.ViewError(code='accounts.registration.register.already_registered',
+                                   message='Вы уже зарегистрированы')
+
+    texts = game_logic.generate_history(name_forms=context.name_forms,
+                                        gender=context.gender,
+                                        race=context.race,
+                                        honor=context.honor,
+                                        peacefulness=context.peacefulness,
+                                        archetype=context.archetype,
+                                        upbringing=context.upbringing,
+                                        first_death=context.first_death,
+                                        age=context.age)
+
+    referer = context.django_request.session.get(conf.settings.SESSION_REGISTRATION_REFERER_KEY)
+    referral_of_id = context.django_request.session.get(conf.settings.SESSION_REGISTRATION_REFERRAL_KEY)
+    action_id = context.django_request.session.get(conf.settings.SESSION_REGISTRATION_ACTION_KEY)
+
+    account_nick = uuid.uuid4().hex[:prototypes.AccountPrototype._model_class.MAX_NICK_LENGTH]
+
+    peacefulness_points = c.HABITS_NEW_HERO_POINTS * context.peacefulness.direction
+    honor_points = c.HABITS_NEW_HERO_POINTS * context.honor.direction
+
+    hero_attributes = {'name': game_logic.hero_name_from_forms(context.name_forms,
+                                                               context.gender).word,
+                       'gender': context.gender,
+                       'race': context.race,
+                       'honor': honor_points,
+                       'peacefulness': peacefulness_points,
+                       'archetype': context.archetype,
+                       'upbringing': context.upbringing,
+                       'first_death': context.first_death,
+                       'death_age': context.age}
+
+    result, account_id, bundle_id = logic.register_user(nick=account_nick,
+                                                        referer=referer,
+                                                        referral_of_id=referral_of_id,
+                                                        action_id=action_id,
+                                                        hero_attributes=hero_attributes)
+
+    if not result.is_OK:
+        raise dext_views.ViewError(code='accounts.registration.fast.registration_error',
+                                   message=result.text)
+
+    heroes_logic.set_hero_description(account_id, '\n\n'.join('[rl]' + text for text in texts if text).strip())
+
+    amqp_environment.environment.workers.supervisor.cmd_register_new_account(account_id=account_id)
+
+    logic.login_user(context.django_request,
+                     nick=prototypes.AccountPrototype.get_by_id(account_id).nick,
+                     password=conf.settings.FAST_REGISTRATION_USER_PASSWORD)
+
+    return dext_views.AjaxOk()
 
 
 ###############################
@@ -415,23 +469,23 @@ def create_hero_view(context):
 logger = logging.getLogger('django.request')
 
 
-@validator(code='common.fast_account', message='Вы не закончили регистрацию и данная функция вам не доступна')
+@dext_old_views.validator(code='common.fast_account', message='Вы не закончили регистрацию и данная функция вам не доступна')
 def validate_fast_account(self, *args, **kwargs): return not self.account.is_fast
 
 
-@validator(code='common.ban_forum', message='Вам запрещено проводить эту операцию')
+@dext_old_views.validator(code='common.ban_forum', message='Вам запрещено проводить эту операцию')
 def validate_ban_forum(self, *args, **kwargs): return not self.account.is_ban_forum
 
 
-@validator(code='common.ban_game', message='Вам запрещено проводить эту операцию')
+@dext_old_views.validator(code='common.ban_game', message='Вам запрещено проводить эту операцию')
 def validate_ban_game(self, *args, **kwargs): return not self.account.is_ban_game
 
 
-@validator(code='common.ban_any', message='Вам запрещено проводить эту операцию')
+@dext_old_views.validator(code='common.ban_any', message='Вам запрещено проводить эту операцию')
 def validate_ban_any(self, *args, **kwargs): return not self.account.is_ban_any
 
 
-class BaseAccountsResource(Resource):
+class BaseAccountsResource(utils_resources.Resource):
 
     def initialize(self, *argv, **kwargs):
         super(BaseAccountsResource, self).initialize(*argv, **kwargs)
@@ -439,7 +493,7 @@ class BaseAccountsResource(Resource):
 
 class AuthResource(BaseAccountsResource):
 
-    @handler('login', name='page-login', method='get')
+    @dext_old_views.handler('login', name='page-login', method='get')
     def login_page(self, next_url='/'):
         if self.account.is_authenticated:
             return self.redirect(next_url)
@@ -447,16 +501,16 @@ class AuthResource(BaseAccountsResource):
         login_form = forms.LoginForm()
         return self.template('accounts/login.html',
                              {'login_form': login_form,
-                              'next_url': next_url} )
+                              'next_url': next_url})
 
-    @api.handler(versions=('1.0',))
-    @handler('api', 'login', name='api-login', method='post')
+    @utils_api.handler(versions=('1.0',))
+    @dext_old_views.handler('api', 'login', name='api-login', method='post')
     def api_login(self, api_version, next_url='/'):
         login_form = forms.LoginForm(self.request.POST)
 
         if login_form.is_valid():
 
-            account = AccountPrototype.get_by_email(login_form.c.email)
+            account = prototypes.AccountPrototype.get_by_email(login_form.c.email)
             if account is None:
                 return self.error('accounts.auth.login.wrong_credentials', 'Неверный логин или пароль')
 
@@ -472,14 +526,14 @@ class AuthResource(BaseAccountsResource):
 
         return self.error('accounts.auth.login.form_errors', login_form.errors)
 
-    @api.handler(versions=('1.0',))
-    @handler('api', 'logout', name='api-logout', method=['post'])
+    @utils_api.handler(versions=('1.0',))
+    @dext_old_views.handler('api', 'logout', name='api-logout', method=['post'])
     def api_logout(self, api_version):
         logic.logout_user(self.request)
         return self.ok()
 
-    @api.handler(versions=('1.0',))
-    @handler('api', 'logout', name='api-logout', method=['get'])
+    @utils_api.handler(versions=('1.0',))
+    @dext_old_views.handler('api', 'logout', name='api-logout', method=['get'])
     def logout_get(self, api_version):
         logic.logout_user(self.request)
         return self.redirect('/')
@@ -487,12 +541,12 @@ class AuthResource(BaseAccountsResource):
 
 class ProfileResource(BaseAccountsResource):
 
-    @decorators.refuse_third_party
+    @third_party_decorators.refuse_third_party
     def initialize(self, *argv, **kwargs):
         super(ProfileResource, self).initialize(*argv, **kwargs)
 
-    @login_required
-    @handler('', name='show', method='get')
+    @utils_decorators.login_required
+    @dext_old_views.handler('', name='show', method='get')
     def profile(self):
         data = {'email': self.account.email if self.account.email else 'укажите email',
                 'nick': self.account.nick if not self.account.is_fast and self.account.nick else 'укажите ваше имя'}
@@ -507,18 +561,18 @@ class ProfileResource(BaseAccountsResource):
                              {'edit_profile_form': edit_profile_form,
                               'settings_form': settings_form})
 
-    @login_required
-    @handler('edited', name='edited', method='get')
+    @utils_decorators.login_required
+    @dext_old_views.handler('edited', name='edited', method='get')
     def edit_profile_done(self):
         return self.template('accounts/profile_edited.html')
 
-    @login_required
-    @handler('confirm-email-request', method='get')
+    @utils_decorators.login_required
+    @dext_old_views.handler('confirm-email-request', method='get')
     def confirm_email_request(self):
         return self.template('accounts/confirm_email_request.html')
 
-    @login_required
-    @handler('update', name='update', method='post')
+    @utils_decorators.login_required
+    @dext_old_views.handler('update', name='update', method='post')
     def update_profile(self):
 
         edit_profile_form = forms.EditProfileForm(self.request.POST)
@@ -530,38 +584,38 @@ class ProfileResource(BaseAccountsResource):
             return self.json_error('accounts.profile.update.empty_fields', 'Необходимо заполнить все поля')
 
         if edit_profile_form.c.email:
-            existed_account = AccountPrototype.get_by_email(edit_profile_form.c.email)
+            existed_account = prototypes.AccountPrototype.get_by_email(edit_profile_form.c.email)
             if existed_account and existed_account.id != self.account.id:
                 return self.json_error('accounts.profile.update.used_email', {'email': ['На этот адрес уже зарегистрирован аккаунт']})
 
         if edit_profile_form.c.nick:
-            existed_account = AccountPrototype.get_by_nick(edit_profile_form.c.nick)
+            existed_account = prototypes.AccountPrototype.get_by_nick(edit_profile_form.c.nick)
             if existed_account and existed_account.id != self.account.id:
                 return self.json_error('accounts.profile.update.used_nick', {'nick': ['Это имя уже занято']})
 
         if edit_profile_form.c.nick != self.account.nick and self.account.is_ban_any:
             return self.json_error('accounts.profile.update.banned', {'nick': ['Вы не можете менять ник пока забанены']})
 
-        task = ChangeCredentialsTaskPrototype.create(account=self.account,
-                                                     new_email=edit_profile_form.c.email,
-                                                     new_password=edit_profile_form.c.password,
-                                                     new_nick=edit_profile_form.c.nick,
-                                                     relogin_required=True)
+        task = prototypes.ChangeCredentialsTaskPrototype.create(account=self.account,
+                                                                new_email=edit_profile_form.c.email,
+                                                                new_password=edit_profile_form.c.password,
+                                                                new_nick=edit_profile_form.c.nick,
+                                                                relogin_required=True)
 
         postponed_task = task.process(logger)
 
         if postponed_task is not None:
             return self.json_processing(postponed_task.status_url)
 
-        return self.json_ok(data={'next_url': reverse('accounts:profile:confirm-email-request')})
+        return self.json_ok(data={'next_url': django_reverse('accounts:profile:confirm-email-request')})
 
-    @handler('confirm-email', method='get')
-    def confirm_email(self, uuid=None): # pylint: disable=W0621
+    @dext_old_views.handler('confirm-email', method='get')
+    def confirm_email(self, uuid=None):  # pylint: disable=W0621
 
         if uuid is None:
             return self.auto_error('accounts.profile.confirm_email.no_uid', 'Вы неверно скопировали url. Пожалуйста, внимательно прочтите письмо ещё раз.')
 
-        task = ChangeCredentialsTaskPrototype.get_by_uuid(uuid)
+        task = prototypes.ChangeCredentialsTaskPrototype.get_by_uuid(uuid)
 
         context = {'already_processed': False,
                    'timeout': False,
@@ -588,8 +642,8 @@ class ProfileResource(BaseAccountsResource):
 
         return self.redirect(postponed_task.wait_url)
 
-    @login_required
-    @handler('update-settings', name='update-settings', method='post')
+    @utils_decorators.login_required
+    @dext_old_views.handler('update-settings', name='update-settings', method='post')
     def update_settings(self):
 
         settings_form = forms.SettingsForm(self.request.POST)
@@ -599,28 +653,28 @@ class ProfileResource(BaseAccountsResource):
 
         self.account.update_settings(settings_form)
 
-        return self.json_ok(data={'next_url': reverse('accounts:profile:edited')})
+        return self.json_ok(data={'next_url': django_reverse('accounts:profile:edited')})
 
-    @handler('reset-password', method='get')
+    @dext_old_views.handler('reset-password', method='get')
     def reset_password_page(self):
         if self.account.is_authenticated:
             return self.redirect('/')
 
         reset_password_form = forms.ResetPasswordForm()
         return self.template('accounts/reset_password.html',
-                             {'reset_password_form': reset_password_form} )
+                             {'reset_password_form': reset_password_form})
 
-    @handler('reset-password-done', method='get')
+    @dext_old_views.handler('reset-password-done', method='get')
     def reset_password_done(self):
         if self.account.is_authenticated:
             return self.redirect('/')
 
-        return self.template('accounts/reset_password_done.html', {} )
+        return self.template('accounts/reset_password_done.html', {})
 
-    @validate_argument('task', ResetPasswordTaskPrototype.get_by_uuid,
-                       'accounts.profile.reset_password_done',
-                       'Не получилось сбросить пароль, возможно вы используете неверную ссылку')
-    @handler('reset-password-processed', method='get')
+    @dext_old_views.validate_argument('task', prototypes.ResetPasswordTaskPrototype.get_by_uuid,
+                                      'accounts.profile.reset_password_done',
+                                      'Не получилось сбросить пароль, возможно вы используете неверную ссылку')
+    @dext_old_views.handler('reset-password-processed', method='get')
     def reset_password_processed(self, task):
         if self.account.is_authenticated:
             return self.redirect('/')
@@ -636,9 +690,9 @@ class ProfileResource(BaseAccountsResource):
 
         password = task.process(logger=logger)
 
-        return self.template('accounts/reset_password_processed.html', {'password': password} )
+        return self.template('accounts/reset_password_processed.html', {'password': password})
 
-    @handler('reset-password', method='post')
+    @dext_old_views.handler('reset-password', method='post')
     def reset_password(self):
 
         if self.account.is_authenticated:
@@ -650,18 +704,18 @@ class ProfileResource(BaseAccountsResource):
         if not reset_password_form.is_valid():
             return self.json_error('accounts.profile.reset_password.form_errors', reset_password_form.errors)
 
-        account = AccountPrototype.get_by_email(reset_password_form.c.email)
+        account = prototypes.AccountPrototype.get_by_email(reset_password_form.c.email)
 
         if account is None:
             return self.auto_error('accounts.profile.reset_password.wrong_email',
                                    'На указанный email аккаунт не зарегистрирован')
 
-        ResetPasswordTaskPrototype.create(account)
+        prototypes.ResetPasswordTaskPrototype.create(account)
 
         return self.json_ok()
 
-    @login_required
-    @handler('update-last-news-reminder-time', method='post')
+    @utils_decorators.login_required
+    @dext_old_views.handler('update-last-news-reminder-time', method='post')
     def update_last_news_reminder_time(self):
         self.account.update_last_news_remind_time()
         return self.json_ok()

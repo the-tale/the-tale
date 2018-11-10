@@ -1,17 +1,10 @@
-# coding: utf-8
 
-from django.core.management.base import BaseCommand
-from django.conf import settings as project_settings
+import smart_imports
 
-from dext.settings import settings
-from dext.common.utils import s11n
-
-from the_tale.common.utils import cdn
-
-from the_tale.portal.conf import portal_settings
+smart_imports.all()
 
 
-class Command(BaseCommand):
+class Command(django_management.BaseCommand):
 
     help = 'refresh CDNs info'
 
@@ -19,6 +12,6 @@ class Command(BaseCommand):
 
         print('refresh CDNs')
 
-        info = cdn.get_cdns_info(project_settings.CDNS)
+        info = utils_cdn.get_cdns_info(django_settings.CDNS)
 
-        settings[portal_settings.SETTINGS_CDN_INFO_KEY] = s11n.to_json(info)
+        dext_settings.settings[conf.settings.SETTINGS_CDN_INFO_KEY] = s11n.to_json(info)

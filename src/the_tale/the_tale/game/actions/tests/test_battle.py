@@ -1,46 +1,28 @@
 
-import random
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.balance import power as p
-from the_tale.game.balance import constants as c
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.companions import storage as companions_storage
-from the_tale.game.companions import logic as companions_logic
-
-from the_tale.game.actions import battle
-from the_tale.game.actions.contexts import BattleContext
-
-from the_tale.game.heroes.habilities.battle import RUN_UP_PUSH, HIT, VAMPIRE_STRIKE
-from the_tale.game.mobs import storage as mobs_storage
-from the_tale.game.logic_storage import LogicStorage
+smart_imports.all()
 
 
-class TestsBase(testcase.TestCase):
+class TestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(TestsBase, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
     def get_actors(self):
         mob = mobs_storage.mobs.get_random_mob(self.hero)
-        actor_1 = battle.Actor(self.hero, BattleContext())
-        actor_2 = battle.Actor(mob, BattleContext())
+        actor_1 = battle.Actor(self.hero, contexts.BattleContext())
+        actor_2 = battle.Actor(mob, contexts.BattleContext())
 
         return actor_1, actor_2
-
 
     def set_hero_companion(self):
         companion_record = next(companions_storage.companions.enabled_companions())
@@ -50,12 +32,12 @@ class TestsBase(testcase.TestCase):
 
 class BattleTests(TestsBase):
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.additional_abilities', [VAMPIRE_STRIKE(level=1)])
+    @mock.patch('the_tale.game.heroes.objects.Hero.additional_abilities', [heroes_abilities_battle.VAMPIRE_STRIKE(level=1)])
     def test_hero_actor(self):
         self.hero.health = 10
-        self.hero.abilities.add(RUN_UP_PUSH.get_id())
+        self.hero.abilities.add(heroes_abilities_battle.RUN_UP_PUSH.get_id())
 
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
 
         self.assertEqual(self.hero.initiative, actor.initiative)
         self.assertEqual(self.hero.name, actor.name)
@@ -70,7 +52,7 @@ class BattleTests(TestsBase):
         self.assertEqual(actor.change_health(-50), -5)
         self.assertEqual(actor.health, 0)
 
-        self.assertEqual(actor.change_health(actor.max_health+50), actor.max_health)
+        self.assertEqual(actor.change_health(actor.max_health + 50), actor.max_health)
         self.assertEqual(actor.health, actor.max_health)
 
         hit_selected = False
@@ -79,11 +61,11 @@ class BattleTests(TestsBase):
         for i in range(100):
             ability = actor.choose_ability()
 
-            if ability.get_id() == HIT.get_id():
-               hit_selected = True
-            elif ability.get_id() == RUN_UP_PUSH.get_id():
+            if ability.get_id() == heroes_abilities_battle.HIT.get_id():
+                hit_selected = True
+            elif ability.get_id() == heroes_abilities_battle.RUN_UP_PUSH.get_id():
                 run_up_push_selected = True
-            elif ability.get_id() == VAMPIRE_STRIKE.get_id():
+            elif ability.get_id() == heroes_abilities_battle.VAMPIRE_STRIKE.get_id():
                 vampire_strike_selected = True
 
         self.assertTrue(hit_selected)
@@ -93,14 +75,13 @@ class BattleTests(TestsBase):
         self.storage._test_save()
 
     def test_choose_ability__additional_abilities(self):
-        from the_tale.game.heroes.habilities import ABILITIES
-        all_abilities = [ability(level=ability.MAX_LEVEL) for ability in list(ABILITIES.values())]
+        all_abilities = [ability(level=ability.MAX_LEVEL) for ability in list(heroes_abilities.ABILITIES.values())]
 
         active_abilities = set(ability.get_id() for ability in all_abilities if ability.activation_type.is_ACTIVE)
 
-        self.hero.health = 1 # allow regeneration
+        self.hero.health = 1  # allow regeneration
 
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
 
         chosen_abilities = set()
 
@@ -110,32 +91,25 @@ class BattleTests(TestsBase):
 
         self.assertEqual(active_abilities, chosen_abilities)
 
-
     def test_choose_ability__additional_companion_abilities(self):
-        from the_tale.game.heroes.habilities import ABILITIES
-        from the_tale.game.companions.abilities import effects as companions_effects
-        from the_tale.game.companions.abilities import container as abilities_container
-        from the_tale.game.companions import logic as companions_logic
-        from the_tale.game.companions import relations as companions_relations
-
-        abilities = [ability for ability in companions_effects.ABILITIES.records
-                     if ( isinstance(ability.effect, companions_effects.BaseBattleAbility) and
-                          ability.effect.ABILITY.get_id() != 'hit' )]
+        abilities = [ability for ability in companions_abilities_effects.ABILITIES.records
+                     if (isinstance(ability.effect, companions_abilities_effects.BaseBattleAbility) and
+                         ability.effect.ABILITY.get_id() != 'hit')]
         companion_ability = random.choice(abilities)
 
         all_abilities = [ability(level=ability.MAX_LEVEL)
-                         for ability in list(ABILITIES.values())
+                         for ability in list(heroes_abilities.ABILITIES.values())
                          if ability.get_id() != companion_ability.effect.ABILITY.get_id()]
 
-        active_abilities = set(ability.get_id() for ability in list(ABILITIES.values()) if ability.ACTIVATION_TYPE.is_ACTIVE)
+        active_abilities = set(ability.get_id() for ability in list(heroes_abilities.ABILITIES.values()) if ability.ACTIVATION_TYPE.is_ACTIVE)
 
         companion_record = companions_logic.create_random_companion_record('battle',
-                                                                           abilities=abilities_container.Container(start=(companion_ability,)),
+                                                                           abilities=companions_abilities_container.Container(start=(companion_ability,)),
                                                                            state=companions_relations.STATE.ENABLED)
         self.hero.set_companion(companions_logic.create_companion(companion_record))
-        self.hero.health = 1 # allow regeneration
+        self.hero.health = 1  # allow regeneration
 
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
 
         chosen_abilities = set()
 
@@ -145,7 +119,7 @@ class BattleTests(TestsBase):
                 return all_abilities
             return value
 
-        with mock.patch('the_tale.game.heroes.habilities.AbilitiesPrototype.modify_attribute', modify_attribute):
+        with mock.patch('the_tale.game.heroes.abilities.AbilitiesPrototype.modify_attribute', modify_attribute):
             for i in range(1000):
                 chosen_abilities.add(actor.choose_ability().get_id())
 
@@ -153,17 +127,17 @@ class BattleTests(TestsBase):
         self.assertEqual(active_abilities - set([companion_ability.effect.ABILITY.get_id()]), chosen_abilities)
 
     def test_initiative_change(self):
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
         actor.context.use_initiative([2])
-        self.assertEqual(actor.initiative, self.hero.initiative*2)
+        self.assertEqual(actor.initiative, self.hero.initiative * 2)
 
-    @mock.patch('the_tale.game.mobs.objects.Mob.additional_abilities', [VAMPIRE_STRIKE(level=1)])
+    @mock.patch('the_tale.game.mobs.objects.Mob.additional_abilities', [heroes_abilities_battle.VAMPIRE_STRIKE(level=1)])
     def test_mob_actor(self):
         mob = mobs_storage.mobs.get_random_mob(self.hero)
         mob.health = 10
-        mob.abilities.add(RUN_UP_PUSH.get_id())
+        mob.abilities.add(heroes_abilities_battle.RUN_UP_PUSH.get_id())
 
-        actor = battle.Actor(mob, BattleContext())
+        actor = battle.Actor(mob, contexts.BattleContext())
 
         self.assertEqual(mob.initiative, actor.initiative)
         self.assertEqual(mob.name, actor.name)
@@ -178,7 +152,7 @@ class BattleTests(TestsBase):
         self.assertEqual(actor.change_health(-50), -5)
         self.assertEqual(actor.health, 0)
 
-        self.assertEqual(actor.change_health(actor.max_health+50), actor.max_health)
+        self.assertEqual(actor.change_health(actor.max_health + 50), actor.max_health)
         self.assertEqual(actor.health, actor.max_health)
 
         hit_selected = False
@@ -187,11 +161,11 @@ class BattleTests(TestsBase):
         for i in range(100):
             ability = actor.choose_ability()
 
-            if ability.get_id() == HIT.get_id():
-               hit_selected = True
-            elif ability.get_id() == RUN_UP_PUSH.get_id():
+            if ability.get_id() == heroes_abilities_battle.HIT.get_id():
+                hit_selected = True
+            elif ability.get_id() == heroes_abilities_battle.RUN_UP_PUSH.get_id():
                 run_up_push_selected = True
-            elif ability.get_id() == VAMPIRE_STRIKE.get_id():
+            elif ability.get_id() == heroes_abilities_battle.VAMPIRE_STRIKE.get_id():
                 vampire_strike_selected = True
 
         self.assertTrue(hit_selected)
@@ -201,10 +175,10 @@ class BattleTests(TestsBase):
         self.storage._test_save()
 
     def test_process_effects(self):
-        actor = battle.Actor(self.hero, BattleContext())
+        actor = battle.Actor(self.hero, contexts.BattleContext())
 
-        actor.context.use_damage_queue_fire([p.Damage(50, 50), p.Damage(50, 50)])
-        actor.context.use_damage_queue_poison([p.Damage(50, 50), p.Damage(50, 50)])
+        actor.context.use_damage_queue_fire([power.Damage(50, 50), power.Damage(50, 50)])
+        actor.context.use_damage_queue_poison([power.Damage(50, 50), power.Damage(50, 50)])
         actor.context.on_own_turn()
 
         actor.context.use_incoming_damage_modifier(physic=1.0, magic=0.8)
@@ -215,7 +189,6 @@ class BattleTests(TestsBase):
         actor.context.use_incoming_damage_modifier(physic=1.2, magic=1.0)
         actor.process_effects(self.hero)
         self.assertEqual(self.hero.health, self.hero.max_health - 180 - 220)
-
 
     def check_first_strike(self, actor_1, actor_2, turn, expected_actors):
         with mock.patch('the_tale.game.actions.battle.strike') as strike:
@@ -265,7 +238,6 @@ class BattleTests(TestsBase):
 
         self.assertEqual(strike.call_count, 1)
         self.assertEqual(update_context.call_args_list, [mock.call(actor_2), mock.call(actor_1)])
-
 
     @mock.patch('the_tale.game.actions.contexts.battle.BattleContext._on_every_turn', mock.Mock())
     def test_last_chance__attacker(self):
@@ -323,8 +295,7 @@ class TryCompanionBlockTests(TestsBase):
             with mock.patch('the_tale.game.actions.battle.strike_with_contact') as strike_with_contact:
                 battle.make_turn(actor_1, actor_2, self.hero)
 
-        self.assertEqual(strike_without_contact.call_count+strike_with_contact.call_count, 1)
-
+        self.assertEqual(strike_without_contact.call_count + strike_with_contact.call_count, 1)
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
@@ -335,7 +306,6 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_2.has_companion)
 
         self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
-
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
@@ -349,7 +319,6 @@ class TryCompanionBlockTests(TestsBase):
 
         self.assertFalse(battle.try_companion_block(attacker=actor_1, defender=actor_2, messenger=self.hero))
 
-
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=0.0))
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     def test_not_defend(self):
@@ -360,11 +329,10 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.diary.cmd_push_message', 0):
             with self.check_not_changed(self.hero.journal.__len__):
                 with self.check_not_changed(lambda: self.hero.companion.health):
                     self.assertFalse(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
-
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 0.0)
@@ -377,13 +345,12 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.diary.cmd_push_message', 0):
             with self.check_delta(self.hero.journal.__len__, 1):
                 with self.check_not_changed(lambda: self.hero.companion.health):
                     self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
         self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_BLOCK)
-
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
@@ -395,13 +362,12 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(actor_1.has_companion)
         self.assertFalse(actor_2.has_companion)
 
-        with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 0):
+        with self.check_calls_count('the_tale.game.heroes.tt_services.diary.cmd_push_message', 0):
             with self.check_delta(self.hero.journal.__len__, 1):
                 with self.check_delta(lambda: self.hero.companion.health, -c.COMPANIONS_DAMAGE_PER_WOUND):
                     self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
         self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_WOUND)
-
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
@@ -416,7 +382,7 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_2.has_companion)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
-            with self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 1):
+            with self.check_calls_count('the_tale.game.heroes.tt_services.diary.cmd_push_message', 1):
                 while self.hero.companion:
                     self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
 
@@ -424,7 +390,6 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_1.has_companion)
         self.assertTrue(self.hero.journal.messages[-1].key.is_COMPANIONS_KILLED)
         self.assertEqual(reset_accessors_cache.call_count, 1)
-
 
     @mock.patch('the_tale.game.balance.formulas.companions_defend_in_battle_probability', mock.Mock(return_value=1.0))
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
@@ -447,7 +412,6 @@ class TryCompanionBlockTests(TestsBase):
         self.assertTrue(self.hero.companion.is_dead)
         self.assertEqual(reset_accessors_cache.call_count, 1)
 
-
     @mock.patch('the_tale.game.companions.objects.Companion.defend_in_battle_probability', 1.0)
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_damage_probability', 1.0)
     @mock.patch('the_tale.game.heroes.messages.JournalContainer.MESSAGES_LOG_LENGTH', 10000)
@@ -461,8 +425,8 @@ class TryCompanionBlockTests(TestsBase):
         self.assertFalse(actor_2.has_companion)
 
         with self.check_increased(lambda: self.hero.money), \
-             self.check_increased(lambda: self.hero.statistics.money_earned_from_companions), \
-             self.check_calls_count('the_tale.game.heroes.tt_api.push_message_to_diary', 2):
+                self.check_increased(lambda: self.hero.statistics.money_earned_from_companions), \
+                self.check_calls_count('the_tale.game.heroes.tt_services.diary.cmd_push_message', 2):
 
             while self.hero.companion:
                 self.assertTrue(battle.try_companion_block(attacker=actor_2, defender=actor_1, messenger=self.hero))
@@ -478,7 +442,6 @@ class TryCompanionStrikeTests(TestsBase):
         super(TryCompanionStrikeTests, self).setUp()
         self.set_hero_companion()
 
-
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
     def test_no_companion(self):
         self.hero.remove_companion()
@@ -490,7 +453,6 @@ class TryCompanionStrikeTests(TestsBase):
 
         self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))
 
-
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 0.0)
     def test_no_probability(self):
         actor_1, actor_2 = self.get_actors()
@@ -499,7 +461,6 @@ class TryCompanionStrikeTests(TestsBase):
         self.assertFalse(actor_2.has_companion)
 
         self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))
-
 
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
     def test_no_battle_abilities(self):
@@ -510,15 +471,11 @@ class TryCompanionStrikeTests(TestsBase):
 
         self.assertFalse(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))
 
-
     def prepair_strike_test(self):
-        from the_tale.game.companions.abilities import effects
-        from the_tale.game.companions.abilities import container
-
         battle_ability = random.choice([ability
-                                        for ability in effects.ABILITIES.records
-                                        if isinstance(ability.effect, effects.BaseBattleAbility)])
-        self.hero.companion.record.abilities = container.Container(start=(battle_ability,))
+                                        for ability in companions_abilities_effects.ABILITIES.records
+                                        if isinstance(ability.effect, companions_abilities_effects.BaseBattleAbility)])
+        self.hero.companion.record.abilities = companions_abilities_container.Container(start=(battle_ability,))
         self.hero.reset_accessors_cache()
 
         actor_1, actor_2 = self.get_actors()
@@ -528,13 +485,11 @@ class TryCompanionStrikeTests(TestsBase):
 
         return actor_1, actor_2
 
-
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
     def test_strike(self):
         actor_1, actor_2 = self.prepair_strike_test()
 
         self.assertTrue(battle.try_companion_strike(attacker=actor_1, defender=actor_2, messenger=self.hero))
-
 
     @mock.patch('the_tale.game.balance.constants.COMPANIONS_BATTLE_STRIKE_PROBABILITY', 1.0)
     def test_strike__companion_dead(self):

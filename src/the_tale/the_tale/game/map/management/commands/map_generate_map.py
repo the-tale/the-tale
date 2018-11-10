@@ -1,16 +1,13 @@
-# coding: utf-8
-import sys
-import logging
-import traceback
 
-from django.core.management.base import BaseCommand
+import smart_imports
 
-from the_tale.game.map.storage import map_info_storage
-from the_tale.game.map.generator import update_map
+smart_imports.all()
+
 
 logger = logging.getLogger('the-tale.workers.game_highlevel')
 
-class Command(BaseCommand):
+
+class Command(django_management.BaseCommand):
 
     help = 'generate map'
 
@@ -21,11 +18,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         try:
-            for i in range(options['repeate_number']): # pylint: disable=W0612
+            for i in range(options['repeate_number']):  # pylint: disable=W0612
                 # print i
-                update_map(index=map_info_storage.item.id+1)
-        except Exception: # pylint: disable=W0703
+                generator.update_map(index=storage.map_info.item.id + 1)
+        except Exception:  # pylint: disable=W0703
             traceback.print_exc()
             logger.error('Map generation exception',
                          exc_info=sys.exc_info(),
-                         extra={} )
+                         extra={})

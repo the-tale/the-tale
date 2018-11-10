@@ -1,7 +1,8 @@
-# coding: utf-8
 
-from dext.common.utils.app_settings import app_settings
+import smart_imports
+
+smart_imports.all()
 
 
-achievements_settings = app_settings('ACHIEVEMENTS',
-                                     LAST_ACHIEVEMENTS_NUMBER=5)
+settings = dext_app_settings.app_settings('ACHIEVEMENTS',
+                                          LAST_ACHIEVEMENTS_NUMBER=5)

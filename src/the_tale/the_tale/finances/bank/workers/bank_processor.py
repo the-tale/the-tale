@@ -1,19 +1,14 @@
-# coding: utf-8
-import datetime
-import time
 
-from dext.settings import settings
+import smart_imports
 
-from the_tale.common.utils.workers import BaseWorker
-
-from the_tale.finances.bank.prototypes import InvoicePrototype
-from the_tale.finances.bank.conf import bank_settings
+smart_imports.all()
 
 
-class BankException(Exception): pass
+class BankException(Exception):
+    pass
 
 
-class Worker(BaseWorker):
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 0.25
 
     def clean_queues(self):
@@ -24,7 +19,7 @@ class Worker(BaseWorker):
         self.initialized = True
         self.next_invoice_process_time = datetime.datetime.now()
 
-        InvoicePrototype.reset_all()
+        prototypes.InvoicePrototype.reset_all()
 
         self.logger.info('BANK PROCESSOR INITIALIZED')
 
@@ -34,12 +29,12 @@ class Worker(BaseWorker):
 
     def check_frozen_expired_invoices(self):
 
-        if time.time() - float(settings.get(bank_settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY, 0)) < bank_settings.FROZEN_INVOICE_EXPIRED_CHECK_TIMEOUT:
+        if time.time() - float(dext_settings.settings.get(conf.settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY, 0)) < conf.settings.FROZEN_INVOICE_EXPIRED_CHECK_TIMEOUT:
             return
 
-        settings[bank_settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY] = str(time.time())
+        dext_settings.settings[conf.settings.SETTINGS_LAST_FROZEN_EXPIRED_CHECK_KEY] = str(time.time())
 
-        if not InvoicePrototype.check_frozen_expired_invoices():
+        if not prototypes.InvoicePrototype.check_frozen_expired_invoices():
             return
 
         self.logger.error('We have some expired frozen invoices. Please, check them and remove or find error.')
@@ -49,13 +44,13 @@ class Worker(BaseWorker):
 
     def process_init_invoice(self):
 
-        invoice = InvoicePrototype.get_unprocessed_invoice()
+        invoice = prototypes.InvoicePrototype.get_unprocessed_invoice()
 
         if invoice is None:
             return
 
-        if (not bank_settings.ENABLE_BANK or
-            settings.get(bank_settings.SETTINGS_ALLOWED_KEY) is None):
+        if (not conf.settings.ENABLE_BANK or
+                dext_settings.settings.get(conf.settings.SETTINGS_ALLOWED_KEY) is None):
             self.logger.info('postpone invoice %d' % invoice.id)
             return
 
@@ -70,12 +65,11 @@ class Worker(BaseWorker):
 
         self.logger.info('invoice %s status %s' % (invoice.id, invoice.state))
 
-
     def cmd_confirm_invoice(self, invoice_id):
         return self.send_cmd('confirm_invoice', {'invoice_id': invoice_id})
 
     def process_confirm_invoice(self, invoice_id):
-        invoice = InvoicePrototype.get_by_id(invoice_id)
+        invoice = prototypes.InvoicePrototype.get_by_id(invoice_id)
 
         if invoice:
             invoice.confirm()
@@ -84,7 +78,7 @@ class Worker(BaseWorker):
         return self.send_cmd('cancel_invoice', {'invoice_id': invoice_id})
 
     def process_cancel_invoice(self, invoice_id):
-        invoice = InvoicePrototype.get_by_id(invoice_id)
+        invoice = prototypes.InvoicePrototype.get_by_id(invoice_id)
 
         if invoice:
             invoice.cancel()

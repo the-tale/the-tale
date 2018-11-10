@@ -1,31 +1,7 @@
-import copy
 
-from django import forms as django_forms
-from django.core.exceptions import ValidationError
-from django.utils.safestring import mark_safe
+import smart_imports
 
-import jinja2
-
-from dext.forms import forms, fields
-from dext.common.utils import jinja2 as dext_jinja2
-from dext.common.utils import s11n
-
-from utg import relations as utg_relations
-from utg import words as utg_words
-from utg import data as utg_data
-from utg import templates as utg_templates
-from utg import exceptions as utg_exceptions
-
-from tt_logic.beings import relations as beings_relations
-from the_tale.game import relations as game_relations
-
-from . import models
-from . import storage
-from . import relations
-from . import prototypes
-from .lexicon import keys as lexicon_keys
-from .lexicon import relations as lexicon_relations
-from .lexicon.groups import relations as groups_relations
+smart_imports.all()
 
 
 WORD_FIELD_PREFIX = 'word_field'
@@ -41,10 +17,10 @@ def get_fields(word_type):
         choices = [(r, r.text) for r in static_property.records]
         if not required:
             choices = [('', ' — ')] + choices
-        field = fields.TypedChoiceField(label=property_type.text,
-                                        choices=choices,
-                                        coerce=static_property.get_from_name,
-                                        required=False)
+        field = dext_fields.TypedChoiceField(label=property_type.text,
+                                             choices=choices,
+                                             coerce=static_property.get_from_name,
+                                             required=False)
 
         form_fields['%s_%s' % (WORD_FIELD_PREFIX, static_property.__name__)] = field
 
@@ -91,14 +67,12 @@ class WordWidget(django_forms.MultiWidget):
         return decompress_word(self.word_type, value)
 
     def format_output(self, rendered_widgets):
-        from the_tale.linguistics.word_drawer import FormFieldDrawer
-
         fields = get_fields(self.word_type)
         keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
 
         widgets = {key: rendered_widgets[keys[key]] for key in keys}
 
-        drawer = FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
+        drawer = word_drawer.FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
 
         return jinja2.Markup(dext_jinja2.render('linguistics/words/field.html', context={'drawer': drawer}))
 
@@ -106,26 +80,22 @@ class WordWidget(django_forms.MultiWidget):
 class SimpleNounWidget(WordWidget):
 
     def format_output(self, rendered_widgets):
-        from the_tale.linguistics.relations import WORD_BLOCK_BASE
-        from the_tale.linguistics.word_drawer import Leaf
-        from the_tale.linguistics.word_drawer import FormFieldDrawer
-
         fields = get_fields(self.word_type)
         keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
 
-        leaf = Leaf(type=self.word_type,
-                    base=WORD_BLOCK_BASE.C,
-                    key={utg_relations.NUMBER: utg_relations.NUMBER.SINGULAR,
-                         utg_relations.NOUN_FORM: utg_relations.NOUN_FORM.NORMAL})
+        leaf = word_drawer.Leaf(type=self.word_type,
+                                base=relations.WORD_BLOCK_BASE.C,
+                                key={utg_relations.NUMBER: utg_relations.NUMBER.SINGULAR,
+                                     utg_relations.NOUN_FORM: utg_relations.NOUN_FORM.NORMAL})
 
         widgets = {key: rendered_widgets[keys[key]] for key in keys}
 
-        drawer = FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
+        drawer = word_drawer.FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
         return jinja2.Markup(dext_jinja2.render('linguistics/words/simple_noun_field.html', context={'drawer': drawer,
                                                                                                      'leaf': leaf}))
 
 
-@fields.pgf
+@dext_fields.pgf
 class WordField(django_forms.MultiValueField):
     LABEL_SUFFIX = ''
 
@@ -137,7 +107,7 @@ class WordField(django_forms.MultiValueField):
 
         label = kwargs.get('label')
         if label:
-            label = mark_safe('<h3>%s</h3>' % label)
+            label = django_safestring.mark_safe('<h3>%s</h3>' % label)
             kwargs['label'] = label
 
         super(WordField, self).__init__(fields=[fields[key] for key in keys],
@@ -146,16 +116,15 @@ class WordField(django_forms.MultiValueField):
                                         **kwargs)
         self.word_type = word_type
 
-
     def clean(self, value):
         clean_data = []
         errors_count = 0
 
         if not value or isinstance(value, (list, tuple)):
             if not value or not [v for v in value if v not in self.empty_values]:
-                raise ValidationError(self.error_messages['required'], code='required')
+                raise django_forms.ValidationError(self.error_messages['required'], code='required')
         else:
-            raise ValidationError(self.error_messages['invalid'], code='invalid')
+            raise django_forms.ValidationError(self.error_messages['invalid'], code='invalid')
 
         for i, field in enumerate(self.fields):
             try:
@@ -165,11 +134,11 @@ class WordField(django_forms.MultiValueField):
 
             # requered field will be checked in extra errors
             # if self.required and field_value in self.empty_values:
-            #     raise ValidationError(self.error_messages['required'], code='required')
+            #     raise django_forms.ValidationError(self.error_messages['required'], code='required')
 
             try:
                 clean_data.append(field.clean(field_value))
-            except ValidationError:
+            except django_forms.ValidationError:
                 errors_count += 1
 
         if errors_count:
@@ -205,26 +174,25 @@ class WordField(django_forms.MultiValueField):
         return word
 
 
-
 def get_word_fields_dict(word_type):
     form_fields = {}
 
     for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[word_type]):
-        form_fields['%s_%d' % (WORD_FIELD_PREFIX, i)] = fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH, required=False)
+        form_fields['%s_%d' % (WORD_FIELD_PREFIX, i)] = dext_fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH, required=False)
 
     return form_fields
 
 
 def get_word_fields_initials(word):
     return {('%s_%d' % (WORD_FIELD_PREFIX, i)): word.forms[i]
-             for i in range(len(utg_data.INVERTED_WORDS_CACHES[word.type]))}
+            for i in range(len(utg_data.INVERTED_WORDS_CACHES[word.type]))}
 
 
 def get_word_forms(form, word_type):
-     return [getattr(form.c, '%s_%d' % (WORD_FIELD_PREFIX, i)) for i in range(len(utg_data.INVERTED_WORDS_CACHES[word_type]))]
+    return [getattr(form.c, '%s_%d' % (WORD_FIELD_PREFIX, i)) for i in range(len(utg_data.INVERTED_WORDS_CACHES[word_type]))]
 
 
-class BaseWordForm(forms.Form):
+class BaseWordForm(dext_forms.Form):
     WORD_TYPE = None
 
 
@@ -241,22 +209,24 @@ WORD_FORMS = {word_type: create_word_type_form(word_type)
               for word_type in utg_relations.WORD_TYPE.records}
 
 
-class TemplateForm(forms.Form):
-    template = fields.TextField(label='Шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
+class TemplateForm(dext_forms.Form):
+    template = dext_fields.TextField(label='Шаблон', min_length=1, widget=django_forms.Textarea(attrs={'rows': 3}))
 
     def __init__(self, key, verificators, *args, **kwargs):
+        self.template_id = kwargs.pop('template_id', None)
+
         super(TemplateForm, self).__init__(*args, **kwargs)
         self.key = key
         self.verificators = copy.deepcopy(verificators)
 
         for i, verificator in enumerate(self.verificators):
-            self.fields['verificator_%d' % i] = fields.TextField(label=verificator.get_label(), required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
+            self.fields['verificator_%d' % i] = dext_fields.TextField(label=verificator.get_label(), required=False, widget=django_forms.Textarea(attrs={'rows': 3}))
 
         for variable in self.key.variables:
             for restrictions_group in variable.type.restrictions:
                 field_name = 'restriction_%s_%d' % (variable.value, restrictions_group.value)
 
-                restrictions = storage.restrictions_storage.get_restrictions(restrictions_group)
+                restrictions = storage.restrictions.get_restrictions(restrictions_group)
 
                 restrictions_choices = [(restriction.id, restriction.name) for restriction in restrictions]
 
@@ -267,7 +237,7 @@ class TemplateForm(forms.Form):
                 else:
                     choices += restrictions_choices
 
-                self.fields[field_name] = fields.ChoiceField(label=restrictions_group.text, required=False, choices=choices)
+                self.fields[field_name] = dext_fields.ChoiceField(label=restrictions_group.text, required=False, choices=choices)
 
     def verificators_fields(self):
         return [self['verificator_%d' % i] for i, verificator in enumerate(self.verificators)]
@@ -292,22 +262,22 @@ class TemplateForm(forms.Form):
 
         allowed_reistrictions = {
             lexicon_relations.VARIABLE.HERO.value: {
-                relations.TEMPLATE_RESTRICTION_GROUP.GENDER: [record.value for record in game_relations.GENDER.records],
-                relations.TEMPLATE_RESTRICTION_GROUP.RACE: [record.value for record in game_relations.RACE.records],
-                relations.TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR: [game_relations.HABIT_HONOR_INTERVAL.LEFT_1.value,
-                                                                   game_relations.HABIT_HONOR_INTERVAL.RIGHT_1.value],
-                relations.TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS: [game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_1.value,
-                                                                          game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_1.value],
-                relations.TEMPLATE_RESTRICTION_GROUP.ARCHETYPE: [record.value for record in game_relations.ARCHETYPE.records],
-                relations.TEMPLATE_RESTRICTION_GROUP.UPBRINGING: [record.value for record in beings_relations.UPBRINGING.records],
-                relations.TEMPLATE_RESTRICTION_GROUP.FIRST_DEATH: [record.value for record in beings_relations.FIRST_DEATH.records],
-                relations.TEMPLATE_RESTRICTION_GROUP.AGE: [record.value for record in beings_relations.AGE.records]}}
+                restrictions.GROUP.GENDER: [record.value for record in game_relations.GENDER.records],
+                restrictions.GROUP.RACE: [record.value for record in game_relations.RACE.records],
+                restrictions.GROUP.HABIT_HONOR: [game_relations.HABIT_HONOR_INTERVAL.LEFT_1.value,
+                                                 game_relations.HABIT_HONOR_INTERVAL.RIGHT_1.value],
+                restrictions.GROUP.HABIT_PEACEFULNESS: [game_relations.HABIT_PEACEFULNESS_INTERVAL.LEFT_1.value,
+                                                        game_relations.HABIT_PEACEFULNESS_INTERVAL.RIGHT_1.value],
+                restrictions.GROUP.ARCHETYPE: [record.value for record in game_relations.ARCHETYPE.records],
+                restrictions.GROUP.UPBRINGING: [record.value for record in tt_beings_relations.UPBRINGING.records],
+                restrictions.GROUP.FIRST_DEATH: [record.value for record in tt_beings_relations.FIRST_DEATH.records],
+                restrictions.GROUP.AGE: [record.value for record in tt_beings_relations.AGE.records]}}
 
         for variable_value, restriction_id in current_restrictions:
             if variable_value not in allowed_reistrictions:
                 raise django_forms.ValidationError('Ограничения для переменной «{}» нельзя использовать в этой фразе'.format(variable_value))
 
-            restriction = storage.restrictions_storage[restriction_id]
+            restriction = storage.restrictions[restriction_id]
 
             if restriction.group not in allowed_reistrictions[variable_value]:
                 field_name = 'restriction_%s_%d' % (variable_value, restriction.group.value)
@@ -321,6 +291,10 @@ class TemplateForm(forms.Form):
 
         for template_model in models.Template.objects.filter(key=self.key).iterator():
             template = prototypes.TemplatePrototype(template_model)
+
+            if template.id == self.template_id:
+                continue
+
             if template.raw_restrictions == frozenset(current_restrictions):
                 message_template = 'Фраза с такими ограничениями уже есть, её идентификатор: {}. Не может быть двух фраз истории с одинаковыми ограничениями.'
                 raise django_forms.ValidationError(message_template.format(template.id))
@@ -374,7 +348,7 @@ class TemplateForm(forms.Form):
 
 KEY_CHOICES = []
 
-for group in groups_relations.LEXICON_GROUP.records:
+for group in lexicon_groups_relations.LEXICON_GROUP.records:
     keys = []
     for key in lexicon_keys.LEXICON_KEY.records:
         if key.group != group:
@@ -384,27 +358,27 @@ for group in groups_relations.LEXICON_GROUP.records:
     KEY_CHOICES.append((group.text, keys))
 
 
-class TemplateKeyForm(forms.Form):
+class TemplateKeyForm(dext_forms.Form):
     key = django_forms.TypedChoiceField(label='Тип фразы', choices=KEY_CHOICES, coerce=lexicon_keys.LEXICON_KEY.get_from_name)
 
 
-class LoadDictionaryForm(forms.Form):
-    words = fields.TextField(label='Данные словаря')
+class LoadDictionaryForm(dext_forms.Form):
+    words = dext_fields.TextField(label='Данные словаря')
 
     def clean_words(self):
         data = self.cleaned_data.get('words')
 
         if data is None:
-            raise ValidationError('Нет данных', code='not_json')
+            raise django_forms.ValidationError('Нет данных', code='not_json')
 
         try:
             words_data = s11n.from_json(data)
         except ValueError:
-            raise ValidationError('Данные должны быть в формате JSON', code='not_json')
+            raise django_forms.ValidationError('Данные должны быть в формате JSON', code='not_json')
 
         try:
             words = [utg_words.Word.deserialize(word_data) for word_data in words_data.get('words')]
         except:
-            raise ValidationError('Неверный формат описания слов', code='wrong_words_format')
+            raise django_forms.ValidationError('Неверный формат описания слов', code='wrong_words_format')
 
         return words

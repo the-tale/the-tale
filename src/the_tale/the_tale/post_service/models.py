@@ -1,18 +1,14 @@
-# coding: utf-8
+
+import smart_imports
+
+smart_imports.all()
 
 
-from django.db import models
+class Message(django_models.Model):
 
-from rels.django import RelationIntegerField
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
+    processed_at = django_models.DateTimeField(null=True, blank=True)
 
-from the_tale.post_service.relations import MESSAGE_STATE
+    state = rels_django.RelationIntegerField(relation=relations.MESSAGE_STATE, relation_column='value', db_index=True)
 
-
-class Message(models.Model):
-
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    processed_at = models.DateTimeField(null=True, blank=True)
-
-    state = RelationIntegerField(relation=MESSAGE_STATE, relation_column='value', db_index=True)
-
-    handler = models.TextField(default='')
+    handler = django_models.TextField(default='')

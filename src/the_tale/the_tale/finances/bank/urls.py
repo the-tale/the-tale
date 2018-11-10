@@ -1,6 +1,7 @@
-# coding: utf-8
 
-from django.conf.urls import url
-from django.conf.urls import include
+import smart_imports
 
-urlpatterns = [url(r'^xsolla/', include('the_tale.finances.xsolla.urls', namespace='xsolla') )]
+smart_imports.all()
+
+
+urlpatterns = [django_urls.url(r'^xsolla/', django_urls.include('the_tale.finances.xsolla.urls', namespace='xsolla'))]

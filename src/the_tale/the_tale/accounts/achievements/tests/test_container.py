@@ -1,26 +1,22 @@
-# coding: utf-8
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
-from the_tale.accounts.achievements.prototypes import AchievementPrototype
-from the_tale.accounts.achievements.container import AchievementsContainer
+smart_imports.all()
 
 
-class ContainerTests(testcase.TestCase):
+class ContainerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(ContainerTests, self).setUp()
 
-        self.achievement_1 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
-                                                         caption='achievement_1', description='description_1', approved=True)
-        self.achievement_2 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.MONEY, type=ACHIEVEMENT_TYPE.MONEY, barrier=4, points=20,
-                                                         caption='achievement_2', description='description_2', approved=False)
-        self.achievement_3 = AchievementPrototype.create(group=ACHIEVEMENT_GROUP.TIME, type=ACHIEVEMENT_TYPE.TIME, barrier=8, points=30,
-                                                         caption='achievement_3', description='description_3', approved=True)
+        self.achievement_1 = prototypes.AchievementPrototype.create(group=relations.ACHIEVEMENT_GROUP.MONEY, type=relations.ACHIEVEMENT_TYPE.MONEY, barrier=0, points=10,
+                                                                    caption='achievement_1', description='description_1', approved=True)
+        self.achievement_2 = prototypes.AchievementPrototype.create(group=relations.ACHIEVEMENT_GROUP.MONEY, type=relations.ACHIEVEMENT_TYPE.MONEY, barrier=4, points=20,
+                                                                    caption='achievement_2', description='description_2', approved=False)
+        self.achievement_3 = prototypes.AchievementPrototype.create(group=relations.ACHIEVEMENT_GROUP.TIME, type=relations.ACHIEVEMENT_TYPE.TIME, barrier=8, points=30,
+                                                                    caption='achievement_3', description='description_3', approved=True)
 
-        self.container = AchievementsContainer()
-
+        self.container = container.AchievementsContainer()
 
     def test_add_achievement(self):
         self.assertFalse(self.container.has_achievement(self.achievement_1))

@@ -1,20 +1,10 @@
-# coding: utf-8
 
-from utg import words as utg_words
+import smart_imports
 
-from the_tale.game import names
-
-from the_tale.game.relations import GENDER, RACE
-
-from the_tale.game.persons.relations import PERSON_TYPE
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.bills.bills.base_bill import BaseBill
+smart_imports.all()
 
 
-class BasePersonBill(BaseBill):
+class BasePersonBill(base_bill.BaseBill):
     type = None
     UserForm = None
     CAPTION = None
@@ -77,17 +67,17 @@ class BasePersonBill(BaseBill):
 
     @classmethod
     def get_user_form_create(cls, post=None, **kwargs):
-        return cls.UserForm(None, post) #pylint: disable=E1102
+        return cls.UserForm(None, post)  # pylint: disable=E1102
 
     def get_user_form_update(self, post=None, initial=None, original_bill_id=None, **kwargs):
         if initial:
-            return self.UserForm(self.person_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
-        return self.UserForm(self.person_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
+            return self.UserForm(self.person_id, initial=initial, original_bill_id=original_bill_id)  # pylint: disable=E1102
+        return self.UserForm(self.person_id, post, original_bill_id=original_bill_id)  # pylint: disable=E1102
 
     def get_moderator_form_update(self, post=None, initial=None, original_bill_id=None, **kwargs):
         if initial:
-            return self.ModeratorForm(self.person_id, initial=initial, original_bill_id=original_bill_id) #pylint: disable=E1102
-        return self.ModeratorForm(self.person_id, post, original_bill_id=original_bill_id) #pylint: disable=E1102
+            return self.ModeratorForm(self.person_id, initial=initial, original_bill_id=original_bill_id)  # pylint: disable=E1102
+        return self.ModeratorForm(self.person_id, post, original_bill_id=original_bill_id)  # pylint: disable=E1102
 
     def apply(self, bill=None):
         raise NotImplementedError
@@ -107,14 +97,14 @@ class BasePersonBill(BaseBill):
         obj = cls()
         obj.person_id = data['person_id']
         obj.person_name = data['person_name']
-        obj.person_race = RACE(data['person_race'])
-        obj.person_type = PERSON_TYPE(data['person_type'])
-        obj.person_gender = GENDER(data['person_gender'])
+        obj.person_race = game_relations.RACE(data['person_race'])
+        obj.person_type = persons_relations.PERSON_TYPE(data['person_type'])
+        obj.person_gender = game_relations.GENDER(data['person_gender'])
         obj.place_id = data['place_id']
 
         if 'old_place_name_forms' in data:
             obj.old_place_name_forms = utg_words.Word.deserialize(data['old_place_name_forms'])
         else:
-            obj.old_place_name_forms = names.generator().get_fast_name('название утрачено')
+            obj.old_place_name_forms = game_names.generator().get_fast_name('название утрачено')
 
         return obj

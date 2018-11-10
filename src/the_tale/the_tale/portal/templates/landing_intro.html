@@ -1,4 +1,6 @@
 
+{% macro intro(map_button) %}
+
 <h4>У нас есть живой мир</h4>
 <p style="margin-left: 1em;">
   Мир игры постоянно меняется и никогда не замирает. На месте равнин появляются горы, засушливые пустыни сменяются болотами. Растут и угасают города, их жители борются за власть. И все это под влиянием игроков. Решите каким Вы хотите видеть этот мир и измените его.
@@ -15,9 +17,19 @@
 </p>
 
 <div style="text-align: center">
-  <a class="btn btn-success pgf-fast-registration"
-     href="{{ url('accounts:registration:fast') }}"
+  <a class="btn btn-success"
+     href="{{ url('accounts:registration:create-hero') }}"
      style="text-align: center; font-size: 14pt; padding: 0.5em;">
-    Создать героя
+    Найти героя
   </a>
+
+  {% if map_button %}
+  <a class="btn btn-info"
+     href="{{ url('game:map:') }}"
+     style="text-align: center; font-size: 14pt; padding: 0.5em;">
+    Карта мира
+  </a>
+  {% endif %}
 </div>
+
+{% endmacro %}

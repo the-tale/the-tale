@@ -1,0 +1,42 @@
+{% import 'blogs/macros.html' as blogs_macros with context %}
+
+<div class="easy-block">
+
+  <h3>О герое</h3>
+
+  {% set description = value('the_tale.game.heroes.logic').get_hero_description(master_account.id) %}
+
+  {% if description %}
+
+  {{description|bb}}
+
+  {% else %}
+
+  <p>Хранитель пока ничего не рассказал о герое.</p>
+
+  {% if is_owner %}
+  <p class="alert alert-info">
+    Вы можете редактировать историю героя во вкладке настроек.
+  </p>
+  {% endif %}
+
+  {% endif %}
+
+  <br/>
+  <br/>
+
+  <h3>Произведения о герое</h3>
+
+  {% set folclor_objects = posts_about(hero_meta_object, allowed_for=master_account) %}
+
+  <p>
+    Чтобы произведение появилось в списке, его автор должен указать, что оно об этом герое, а Хранитель героя должен поставить произведению «плюсик».
+  </p>
+
+  {% if folclor_objects %}
+  {{ blogs_macros.meta_posts_list(folclor_objects) }}
+  {% else %}
+  <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений о герое.</p>
+  {% endif %}
+
+</div>

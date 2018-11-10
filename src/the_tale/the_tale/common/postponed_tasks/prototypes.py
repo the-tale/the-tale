@@ -1,20 +1,7 @@
-# coding: utf-8
 
-import sys
-import datetime
+import smart_imports
 
-from django.core.urlresolvers import reverse
-
-from dext.common.utils import s11n
-from dext.common.utils import discovering
-
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils.prototypes import BasePrototype
-
-from the_tale.common.postponed_tasks.models import PostponedTask, POSTPONED_TASK_STATE, POSTPONED_TASK_LOGIC_RESULT
-from the_tale.common.postponed_tasks.exceptions import PostponedTaskException
-from the_tale.common.postponed_tasks.conf import postponed_tasks_settings
+smart_imports.all()
 
 
 _INTERNAL_LOGICS = {}
@@ -50,21 +37,21 @@ class PostponedLogic(object):
 
 def _register_postponed_tasks(container, objects):
 
-    for obj in discovering.discover_classes(objects, PostponedLogic):
+    for obj in dext_discovering.discover_classes(objects, PostponedLogic):
         if obj.TYPE in container:
-            raise PostponedTaskException('interanl logic "%s" for postponed task has being registered already' % obj.TYPE)
+            raise exceptions.PostponedTaskException('interanl logic "%s" for postponed task has being registered already' % obj.TYPE)
         if obj.TYPE is None:
-            continue # skip abstract classes
-            # raise PostponedTaskException(u'interanl logic "%r" for postponed task does not define TYPE' % obj)
+            continue  # skip abstract classes
+            # raise exceptions.PostponedTaskException(u'interanl logic "%r" for postponed task does not define TYPE' % obj)
         container[obj.TYPE] = obj
 
 
-@discovering.automatic_discover(_INTERNAL_LOGICS, 'postponed_tasks')
+@dext_discovering.automatic_discover(_INTERNAL_LOGICS, 'postponed_tasks')
 def autodiscover(container, module):
     _register_postponed_tasks(container, [getattr(module, name) for name in dir(module)])
 
 
-class PostponedTaskPrototype(BasePrototype):
+class PostponedTaskPrototype(utils_prototypes.BasePrototype):
     _model_class = PostponedTask
     _readonly = ('id', 'internal_type', 'created_at', 'updated_at', 'live_time')
     _bidirectional = ('internal_state', 'internal_result', 'comment')
@@ -78,15 +65,16 @@ class PostponedTaskPrototype(BasePrototype):
     def type(self): return self.internal_type
 
     @property
-    def status_url(self): return reverse('postponed-tasks:status', args=[self.id])
+    def status_url(self): return django_reverse('postponed-tasks:status', args=[self.id])
 
     @property
-    def wait_url(self): return reverse('postponed-tasks:wait', args=[self.id])
+    def wait_url(self): return django_reverse('postponed-tasks:wait', args=[self.id])
 
     def get_state(self):
         if not hasattr(self, '_state'):
             self._state = POSTPONED_TASK_STATE(self._model.state)
         return self._state
+
     def set_state(self, value):
         self.state.update(value)
         self._model.state = self.state.value
@@ -116,7 +104,7 @@ class PostponedTaskPrototype(BasePrototype):
 
     @classmethod
     def remove_old_tasks(cls):
-        cls.get_processed_tasks_query().filter(updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=postponed_tasks_settings.TASK_LIVE_TIME)).delete()
+        cls.get_processed_tasks_query().filter(updated_at__lt=datetime.datetime.now() - datetime.timedelta(seconds=conf.settings.TASK_LIVE_TIME)).delete()
 
     @classmethod
     def create(cls, task_logic, live_time=None):
@@ -139,7 +127,7 @@ class PostponedTaskPrototype(BasePrototype):
                 action()
 
     def cmd_wait(self):
-        environment.workers.refrigerator.cmd_wait_task(self.id)
+        amqp_environment.environment.workers.refrigerator.cmd_wait_task(self.id)
 
     def process(self, logger, **kwargs):
 
@@ -153,7 +141,7 @@ class PostponedTaskPrototype(BasePrototype):
 
         try:
 
-            old_internal_result = self.internal_result # pylint: disable=E0203
+            old_internal_result = self.internal_result  # pylint: disable=E0203
 
             self.internal_result = self.internal_logic.process(self, **kwargs)
 
@@ -167,12 +155,12 @@ class PostponedTaskPrototype(BasePrototype):
                 if old_internal_result != POSTPONED_TASK_LOGIC_RESULT.WAIT:
                     self.extend_postsave_actions([self.cmd_wait])
             else:
-                raise PostponedTaskException('unknown process result %r' % (self.process_result, ))
+                raise exceptions.PostponedTaskException('unknown process result %r' % (self.process_result, ))
 
             self.internal_state = self.internal_logic.state
             self.save()
 
-        except Exception as e:# pylint: disable=W0703
+        except Exception as e:  # pylint: disable=W0703
 
             logger.error('EXCEPTION: %s' % e)
 
@@ -180,7 +168,7 @@ class PostponedTaskPrototype(BasePrototype):
 
             logger.error('Worker exception: %r' % self,
                          exc_info=exception_info,
-                         extra={} )
+                         extra={})
 
             self.state = POSTPONED_TASK_STATE.EXCEPTION
             self.comment = '%s\n\n%s\n\n %s' % exception_info

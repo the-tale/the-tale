@@ -15,18 +15,22 @@
   В летопись Пандоры заносятся все важные события, происходящие в мире. Ничто не укроется от пристального взгляда духов-летописцев.
 </p>
 
+<p>
+  Летопись отображается в обратном порядке: от последнего события до первого. Поэтому на странице с актуальными событиями может быть всего несколько событий.
+</p>
+
 {{ list_filter_macros.html_filter(index_filter) }}
 
-{% if records %}
+{% if events %}
 
 {{ base_macros.render_paginator(paginator) }}
 
-{{ chronicle_macros.records_list(records) }}
+{{ chronicle_macros.records_list(events) }}
 
 {{ base_macros.render_paginator(paginator) }}
 
 {% else %}
-<span class="pgf-no-records-message">Не найдено записей, отвечающих условиям поиска</span>
+<p class="pgf-no-records-message alert alert-info">Не найдено записей, отвечающих условиям поиска</p>
 {% endif %}
 
 {% endblock %}

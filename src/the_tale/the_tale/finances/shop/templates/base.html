@@ -123,7 +123,7 @@ jQuery(document).ready(function(e){
 <p class="alert alert-danger pgf-failed-payment-message">
   При обработке вашего платежа произошла ошибка.<br/>
 
-  {% set xsolla_support = value("the_tale.finances.shop.conf", "payments_settings").XSOLLA_SUPPORT %}
+  {% set xsolla_support = value("the_tale.finances.shop.conf", "settings").XSOLLA_SUPPORT %}
 
   Пожалуйста, обратитесь в поддержку Xsolla <a href="{{xsolla_support}}">{{xsolla_support}}</a> или в поддержку нашей игры: <a href="mailto:{{ settings.EMAIL_SUPPORT }}">{{ settings.EMAIL_SUPPORT_SHORT }}</a>.
 </p>

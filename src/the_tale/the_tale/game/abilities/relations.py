@@ -1,12 +1,11 @@
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
 
-from the_tale.game.balance import constants as c
+smart_imports.all()
 
 
-class HELP_CHOICES(DjangoEnum):
-    priority = Column(unique=False)
+class HELP_CHOICES(rels_django.DjangoEnum):
+    priority = rels.Column(unique=False)
 
     records = (('HEAL', 0, 'лечение', 160),
                ('TELEPORT', 1, 'телепорт', 160),
@@ -18,10 +17,10 @@ class HELP_CHOICES(DjangoEnum):
                ('HEAL_COMPANION', 8, 'лечение спутника', 20))
 
 
-class ABILITY_TYPE(DjangoEnum):
-    cost = Column(unique=False)
-    description = Column()
-    request_attributes = Column(unique=False)
+class ABILITY_TYPE(rels_django.DjangoEnum):
+    cost = rels.Column(unique=False)
+    description = rels.Column()
+    request_attributes = rels.Column(unique=False)
 
     records = (('HELP', 'help', 'Помочь', c.ANGEL_HELP_COST, 'Попытаться помочь герою, чем бы тот не занимался', ()),
                ('ARENA_PVP_1x1', 'arena_pvp_1x1', 'Отправить на арену', c.ANGEL_ARENA_COST, 'Отправить героя на гладиаторскую арену', ()),

@@ -335,6 +335,9 @@ pgf.game.widgets.Cards = function (params) {
         pgf.ui.dialog.Create({ fromString: pgf.game.widgets.CARDS_TRANSFORMATOR_DIALOG,
                                OnOpen: function(dialog) {
                                    pgf.game.CardsTransformatorDialog(dialog, instance);
+                               },
+                               OnClosed: function(dialog) {
+                                   instance.RemoveAllCardsFromTransformator();
                                }
                              });
     };
@@ -418,10 +421,19 @@ pgf.game.widgets.Cards = function (params) {
             return;
         }
 
-        instance.data.cardsInTransformator.splice(instance.data.cardsInTransformator.indexOf(cardId), 1)
+        instance.data.cardsInTransformator.splice(instance.data.cardsInTransformator.indexOf(cardId), 1);
 
         Refresh();
     };
+
+    this.RemoveAllCardsFromTransformator = function() {
+        for (var i in instance.data.cardsInTransformator.slice()) {
+            cardId = instance.data.cardsInTransformator[i];
+            instance.data.cardsInTransformator.splice(instance.data.cardsInTransformator.indexOf(cardId), 1);
+        }
+
+        Refresh();
+    }
 
     this.Transform = function() {
         if (!instance.CanTransform()) return;

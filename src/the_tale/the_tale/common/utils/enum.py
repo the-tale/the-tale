@@ -1,9 +1,12 @@
-# coding: utf-8
 
-class EnumException(Exception): pass
+
+class EnumException(Exception):
+    pass
+
 
 def _create_state_checker(value):
     return lambda self: self.value == value
+
 
 def create_enum(class_name, records):
     '''

@@ -1,31 +1,25 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.actions.prototypes import ActionDoNothingPrototype
-from the_tale.game import turn
+smart_imports.all()
 
 
-class DoNothingActionTest(testcase.TestCase):
+class DoNothingActionTest(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
         super(DoNothingActionTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account(is_fast=True)
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
         self.action_idl = self.hero.actions.current_action
 
-        self.action_donothing = ActionDoNothingPrototype.create(hero=self.hero, duration=7, messages_prefix='QUEST_HOMETOWN_JOURNAL_CHATTING', messages_probability=0.3)
-
+        self.action_donothing = prototypes.ActionDoNothingPrototype.create(hero=self.hero, duration=7, messages_prefix='QUEST_HOMETOWN_JOURNAL_CHATTING', messages_probability=0.3)
 
     def tearDown(self):
         pass
@@ -51,7 +45,7 @@ class DoNothingActionTest(testcase.TestCase):
             self.assertEqual(len(self.hero.actions.actions_list), 2)
             self.assertTrue(self.action_donothing.leader)
             self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+            game_turn.increment()
 
         self.assertEqual(len(self.hero.actions.actions_list), 1)
         self.assertTrue(self.action_idl.leader)

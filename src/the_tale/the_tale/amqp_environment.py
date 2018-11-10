@@ -1,8 +1,6 @@
-# coding: utf-8
+
 
 from dext.common.amqp_queues.environment import BaseEnvironment
-
-from the_tale.game.conf import game_settings
 
 
 class Environment(BaseEnvironment):
@@ -41,10 +39,10 @@ class Environment(BaseEnvironment):
         self.workers.supervisor = supervisor.Worker(name='supervisor')
         self.workers.logic_1 = logic.Worker(name='logic_1')
         self.workers.logic_2 = logic.Worker(name='logic_2')
-        self.workers.highlevel = highlevel.Worker(name='highlevel')# if game_settings.ENABLE_WORKER_HIGHLEVEL else None
-        self.workers.turns_loop = turns_loop.Worker(name='turns_loop')# if game_settings.ENABLE_WORKER_TURNS_LOOP else None
+        self.workers.highlevel = highlevel.Worker(name='highlevel')
+        self.workers.turns_loop = turns_loop.Worker(name='turns_loop')
         self.workers.game_long_commands = game_long_commands.Worker(name='game_long_commands')
-        self.workers.pvp_balancer = balancer.Worker(name='pvp_balancer')# if game_settings.ENABLE_PVP else None
+        self.workers.pvp_balancer = balancer.Worker(name='pvp_balancer')
         self.workers.quests_generator = quests_generator.Worker(name='quests_generator')
 
         super(Environment, self).initialize()

@@ -1,17 +1,14 @@
 
-from django.conf.urls import url
-from django.conf.urls import include
+import smart_imports
 
-from dext.views import resource_patterns
+smart_imports.all()
 
-from the_tale.accounts import views
 
-urlpatterns = [url(r'^registration/', include(views.registration_resource.get_urls(), namespace='registration')),
-               url(r'^profile/', include(resource_patterns(views.ProfileResource), namespace='profile')),
-               url(r'^auth/', include(resource_patterns(views.AuthResource), namespace='auth')),
-               url(r'^messages/', include('the_tale.accounts.personal_messages.urls', namespace='messages')),
-               url(r'^friends/', include('the_tale.accounts.friends.urls', namespace='friends')),
-               url(r'^clans/', include('the_tale.accounts.clans.urls', namespace='clans')),
-               url(r'^achievements/', include('the_tale.accounts.achievements.urls', namespace='achievements')),
-               url(r'^third-party/', include('the_tale.accounts.third_party.urls', namespace='third-party')),
-               url(r'^', include(views.accounts_resource.get_urls()))]
+urlpatterns = [django_urls.url(r'^registration/', django_urls.include(views.registration_resource.get_urls(), namespace='registration')),
+               django_urls.url(r'^profile/', django_urls.include(dext_old_views.resource_patterns(views.ProfileResource), namespace='profile')),
+               django_urls.url(r'^auth/', django_urls.include(dext_old_views.resource_patterns(views.AuthResource), namespace='auth')),
+               django_urls.url(r'^messages/', django_urls.include('the_tale.accounts.personal_messages.urls', namespace='messages')),
+               django_urls.url(r'^friends/', django_urls.include('the_tale.accounts.friends.urls', namespace='friends')),
+               django_urls.url(r'^achievements/', django_urls.include('the_tale.accounts.achievements.urls', namespace='achievements')),
+               django_urls.url(r'^third-party/', django_urls.include('the_tale.accounts.third_party.urls', namespace='third-party')),
+               django_urls.url(r'^', django_urls.include(views.accounts_resource.get_urls()))]

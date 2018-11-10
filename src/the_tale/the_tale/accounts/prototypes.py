@@ -1,36 +1,11 @@
-import sys
-import uuid
-import datetime
-import traceback
-import random
 
-from urllib.parse import urlparse
+import smart_imports
 
-from django.contrib.auth.hashers import make_password
-from django.db import transaction
-
-from dext.common.utils.urls import full_url
-from dext.common.utils import s11n
-
-from the_tale.game import relations as game_relations
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils import bbcode
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-from the_tale.common.utils.logic import verbose_timedelta
-
-from the_tale.common.utils.password import generate_password
-from the_tale.common.utils.prototypes import BasePrototype
-from the_tale.common.utils.decorators import lazy_property
-
-from the_tale.accounts.models import Account, ChangeCredentialsTask, Award, ResetPasswordTask, RandomPremiumRequest
-from the_tale.accounts.conf import accounts_settings
-from the_tale.accounts import exceptions
-from the_tale.accounts import relations
+smart_imports.all()
 
 
-class AccountPrototype(BasePrototype): #pylint: disable=R0904
-    _model_class = Account
+class AccountPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Account
     _readonly = ('id',
                  'is_authenticated',
                  'created_at',
@@ -52,17 +27,15 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     _get_by = ('id', 'email', 'nick')
 
     def cmd_update_hero(self):
-        environment.workers.supervisor.cmd_update_hero_with_account_data(self.id,
-                                                                         is_fast=self.is_fast,
-                                                                         premium_end_at=self.premium_end_at,
-                                                                         active_end_at=self.active_end_at,
-                                                                         ban_end_at=self.ban_game_end_at,
-                                                                         might=self.might,
-                                                                         actual_bills=self.actual_bills)
+        amqp_environment.environment.workers.supervisor.cmd_update_hero_with_account_data(self.id,
+                                                                                          is_fast=self.is_fast,
+                                                                                          premium_end_at=self.premium_end_at,
+                                                                                          active_end_at=self.active_end_at,
+                                                                                          ban_end_at=self.ban_game_end_at,
+                                                                                          might=self.might,
+                                                                                          actual_bills=self.actual_bills)
 
     def update_actual_bills(self):
-        from the_tale.game.bills import logic as bills_logic
-
         self._model.actual_bills = s11n.to_json(bills_logic.actual_bills_accepted_timestamps(self.id))
         self.save()
 
@@ -70,7 +43,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
         self.cmd_update_hero()
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def actual_bills(self):
         return s11n.from_json(self._model.actual_bills)
 
@@ -80,26 +53,25 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     @classmethod
     def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False).select_related('clan')
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def is_system_user(self):
-        return self.nick == accounts_settings.SYSTEM_USER_NICK
+        return self.nick == conf.settings.SYSTEM_USER_NICK
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def is_developer(self):
-        return self.id in accounts_settings.DEVELOPERS_IDS
+        return self.id in conf.settings.DEVELOPERS_IDS
 
     @property
-    def description_html(self): return bbcode.render(self.description)
+    def description_html(self): return utils_bbcode.render(self.description)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def permanent_purchases(self):
-        from the_tale.finances.shop.logic import PermanentRelationsStorage
-        return PermanentRelationsStorage.deserialize(s11n.from_json(self._model.permanent_purchases))
+        return shop_logic.PermanentRelationsStorage.deserialize(s11n.from_json(self._model.permanent_purchases))
 
     @property
     def nick_verbose(self):
-        if self._model.nick.startswith(accounts_settings.RESET_NICK_PREFIX):
-            return accounts_settings.RESET_NICK_PREFIX
+        if self._model.nick.startswith(conf.settings.RESET_NICK_PREFIX):
+            return conf.settings.RESET_NICK_PREFIX
         return self._model.nick if not self._model.is_fast else 'Игрок'
 
     def update_last_news_remind_time(self):
@@ -138,18 +110,17 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         if self.is_premium:
             return False
 
-        return accounts_settings.SHOW_SUBSCRIPTION_OFFER_AFTER < (datetime.datetime.now() - self.created_at).total_seconds()
+        return conf.settings.SHOW_SUBSCRIPTION_OFFER_AFTER < (datetime.datetime.now() - self.created_at).total_seconds()
 
     @property
     def premium_end_at(self):
         if self.is_premium_infinit:
-            return datetime.datetime.now() + accounts_settings.PREMIUM_INFINIT_TIMEOUT
+            return datetime.datetime.now() + conf.settings.PREMIUM_INFINIT_TIMEOUT
         return self._model.premium_end_at
 
     @property
     def is_premium_infinit(self):
-        from the_tale.finances.shop.relations import PERMANENT_PURCHASE_TYPE
-        return PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION in self.permanent_purchases
+        return shop_relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION in self.permanent_purchases
 
     @property
     def is_ban_game(self): return self.ban_game_end_at > datetime.datetime.now()
@@ -188,8 +159,8 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
     def send_premium_expired_notifications(cls):
         current_time = datetime.datetime.now()
         accounts_query = cls._model_class.objects.filter(premium_end_at__gt=current_time,
-                                                         premium_end_at__lt=current_time + accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN,
-                                                         premium_expired_notification_send_at__lt=current_time-accounts_settings.PREMIUM_EXPIRED_NOTIFICATION_IN)
+                                                         premium_end_at__lt=current_time + conf.settings.PREMIUM_EXPIRED_NOTIFICATION_IN,
+                                                         premium_expired_notification_send_at__lt=current_time - conf.settings.PREMIUM_EXPIRED_NOTIFICATION_IN)
         for account_model in accounts_query:
             account = cls(model=account_model)
             account.notify_about_premium_expiration()
@@ -197,52 +168,42 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         accounts_query.update(premium_expired_notification_send_at=current_time)
 
     def notify_about_premium_expiration(self):
-        from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-        from the_tale.accounts import logic
-
         current_time = datetime.datetime.now()
 
         message = '''
 До окончания подписки осталось: %(verbose_timedelta)s.
 
 Вы можете продлить подписку на странице нашего %(shop_link)s.
-''' % {'verbose_timedelta': verbose_timedelta(self.premium_end_at - current_time),
-       'shop_link': '[url="%s"]магазина[/url]' % full_url('https', 'shop:')}
+''' % {'verbose_timedelta': utils_logic.verbose_timedelta(self.premium_end_at - current_time),
+            'shop_link': '[url="%s"]магазина[/url]' % dext_urls.full_url('https', 'shop:')}
 
-        pm_tt_api.send_message(logic.get_system_user_id(), [self.id], message, async=True)
+        personal_messages_logic.send_message(logic.get_system_user_id(), [self.id], message, async=True)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def bank_account(self):
-        from the_tale.finances.bank.prototypes import AccountPrototype as BankAccountPrototype
-        from the_tale.finances.bank.relations import ENTITY_TYPE, CURRENCY_TYPE
-
-        bank_account = BankAccountPrototype.get_for(entity_type=ENTITY_TYPE.GAME_ACCOUNT,
-                                                    entity_id=self.id,
-                                                    currency=CURRENCY_TYPE.PREMIUM,
-                                                    null_object=True)
+        bank_account = bank_prototypes.AccountPrototype.get_for(entity_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                                                                entity_id=self.id,
+                                                                currency=bank_relations.CURRENCY_TYPE.PREMIUM,
+                                                                null_object=True)
 
         return bank_account
 
     def set_clan_id(self, clan_id):
-        Account.objects.filter(id=self.id).update(clan=clan_id)
+        models.Account.objects.filter(id=self.id).update(clan=clan_id)
         self._model.clan_id = clan_id
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def clan(self):
-        from the_tale.accounts.clans.prototypes import ClanPrototype
-
         if self.clan_id is None:
             return None
 
-        return ClanPrototype(model=self._model.clan)
+        return clans_logic.load_clan(clan_model=self._model.clan)
 
     def set_might(self, might):
-        from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
-        from the_tale.accounts.achievements.storage import achievements_storage
+        from the_tale.accounts.achievements import storage as achievements_storage
+        models.Account.objects.filter(id=self.id).update(might=might)
 
-        Account.objects.filter(id=self.id).update(might=might)
-
-        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.KEEPER_MIGHT, object=self):
+        with achievements_storage.achievements.verify(type=achievements_relations.ACHIEVEMENT_TYPE.KEEPER_MIGHT, object=self):
             self._model.might = might
 
     def check_password(self, password):
@@ -256,7 +217,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         if new_nick:
             self.nick = new_nick
 
-        old_fast = self.is_fast # pylint: disable=E0203
+        old_fast = self.is_fast  # pylint: disable=E0203
 
         self.is_fast = False
 
@@ -266,9 +227,9 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
             self.cmd_update_hero()
 
             if self.referral_of_id is not None:
-                environment.workers.accounts_manager.cmd_run_account_method(account_id=self.referral_of_id,
-                                                                            method_name=self.update_referrals_number.__name__,
-                                                                            data={})
+                amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(account_id=self.referral_of_id,
+                                                                                             method_name=self.update_referrals_number.__name__,
+                                                                                             data={})
 
     ###########################################
     # Object operations
@@ -286,11 +247,11 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
 
     @classmethod
     def _next_active_end_at(cls):
-        return datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)
+        return datetime.datetime.now() + datetime.timedelta(seconds=conf.settings.ACTIVE_STATE_TIMEOUT)
 
     @property
     def is_update_active_state_needed(self):
-        return datetime.datetime.now() + datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT - accounts_settings.ACTIVE_STATE_REFRESH_PERIOD) > self.active_end_at
+        return datetime.datetime.now() + datetime.timedelta(seconds=conf.settings.ACTIVE_STATE_TIMEOUT - conf.settings.ACTIVE_STATE_REFRESH_PERIOD) > self.active_end_at
 
     def update_active_state(self):
         self._model.active_end_at = self._next_active_end_at()
@@ -299,7 +260,7 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         self.cmd_update_hero()
 
     @property
-    def was_in_game_at(self): return self.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)
+    def was_in_game_at(self): return self.active_end_at - datetime.timedelta(seconds=conf.settings.ACTIVE_STATE_TIMEOUT)
 
     @property
     def is_active(self): return self.active_end_at > datetime.datetime.now()
@@ -308,16 +269,14 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
         return self.id
 
     def get_achievement_type_value(self, achievement_type):
-        from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-
         if achievement_type.is_POLITICS_ACCEPTED_BILLS:
-            return BillPrototype.accepted_bills_count(self.id)
+            return bills_prototypes.BillPrototype.accepted_bills_count(self.id)
         elif achievement_type.is_POLITICS_VOTES_TOTAL:
-            return VotePrototype.votes_count(self.id)
+            return bills_prototypes.VotePrototype.votes_count(self.id)
         elif achievement_type.is_POLITICS_VOTES_FOR:
-            return VotePrototype.votes_for_count(self.id)
+            return bills_prototypes.VotePrototype.votes_for_count(self.id)
         elif achievement_type.is_POLITICS_VOTES_AGAINST:
-            return VotePrototype.votes_against_count(self.id)
+            return bills_prototypes.VotePrototype.votes_against_count(self.id)
         elif achievement_type.is_KEEPER_MIGHT:
             return self.might
 
@@ -330,24 +289,27 @@ class AccountPrototype(BasePrototype): #pylint: disable=R0904
             referer_info = urlparse(referer)
             referer_domain = referer_info.netloc
 
-        return AccountPrototype(model=Account.objects.create_user(nick=nick,
-                                                                  email=email,
-                                                                  is_fast=is_fast,
-                                                                  is_bot=is_bot,
-                                                                  password=password,
-                                                                  active_end_at=cls._next_active_end_at(),
-                                                                  referer=referer,
-                                                                  referer_domain=referer_domain,
-                                                                  referral_of=referral_of._model if referral_of else None,
-                                                                  action_id=action_id,
-                                                                  gender=gender))
+        return AccountPrototype(model=models.Account.objects.create_user(nick=nick,
+                                                                         email=email,
+                                                                         is_fast=is_fast,
+                                                                         is_bot=is_bot,
+                                                                         password=password,
+                                                                         active_end_at=cls._next_active_end_at(),
+                                                                         referer=referer,
+                                                                         referer_domain=referer_domain,
+                                                                         referral_of=referral_of._model if referral_of else None,
+                                                                         action_id=action_id,
+                                                                         gender=gender))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._model == other._model
 
+    def meta_object(self):
+        return meta_relations.Account.create_from_object(self)
 
-class ChangeCredentialsTaskPrototype(BasePrototype):
-    _model_class = ChangeCredentialsTask
+
+class ChangeCredentialsTaskPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.ChangeCredentialsTask
     _readonly = ('id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password', 'relogin_required')
     _bidirectional = ()
     _get_by = ('id', 'uuid')
@@ -365,17 +327,17 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         if old_email == new_email:
             new_email = None
 
-        model = ChangeCredentialsTask.objects.create(uuid=uuid.uuid4().hex,
-                                                     account=account._model,
-                                                     old_email=old_email,
-                                                     new_email=new_email,
-                                                     new_password=make_password(new_password) if new_password else '',
-                                                     state=relations.CHANGE_CREDENTIALS_TASK_STATE.WAITING,
-                                                     new_nick=new_nick,
-                                                     relogin_required=relogin_required)
+        model = models.ChangeCredentialsTask.objects.create(uuid=uuid.uuid4().hex,
+                                                            account=account._model,
+                                                            old_email=old_email,
+                                                            new_email=new_email,
+                                                            new_password=django_auth_hashers.make_password(new_password) if new_password else '',
+                                                            state=relations.CHANGE_CREDENTIALS_TASK_STATE.WAITING,
+                                                            new_nick=new_nick,
+                                                            relogin_required=relogin_required)
         return cls(model=model)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def account(self): return AccountPrototype.get_by_id(self._model.account_id)
 
     @property
@@ -383,23 +345,18 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         return self._model.new_email is not None and (self._model.old_email != self._model.new_email)
 
     def change_credentials(self):
-        from the_tale.accounts.postponed_tasks import ChangeCredentials
-
-        change_credentials_task = ChangeCredentials(task_id=self.id)
+        change_credentials_task = postponed_tasks.ChangeCredentials(task_id=self.id)
         task = PostponedTaskPrototype.create(change_credentials_task)
 
-        environment.workers.accounts_manager.cmd_task(task.id)
+        amqp_environment.environment.workers.accounts_manager.cmd_task(task.id)
 
         return task
 
     def request_email_confirmation(self):
-        from the_tale.post_service.prototypes import MessagePrototype
-        from the_tale.post_service.message_handlers import ChangeEmailNotificationHandler
-
         if self._model.new_email is None:
             raise exceptions.NewEmailNotSpecifiedError()
 
-        MessagePrototype.create(ChangeEmailNotificationHandler(task_id=self.id), now=True)
+        post_service_prototypes.MessagePrototype.create(post_service_message_handlers.ChangeEmailNotificationHandler(task_id=self.id), now=True)
 
     @property
     def has_already_processed(self):
@@ -414,7 +371,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
         if self.has_already_processed:
             return
 
-        if self._model.created_at + datetime.timedelta(seconds=accounts_settings.CHANGE_EMAIL_TIMEOUT) < datetime.datetime.now():
+        if self._model.created_at + datetime.timedelta(seconds=conf.settings.CHANGE_EMAIL_TIMEOUT) < datetime.datetime.now():
             self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
             self._model.comment = 'timeout'
             self._model.save()
@@ -445,7 +402,7 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
                 self._model.save()
                 return postponed_task
 
-        except Exception as e: # pylint: disable=W0703
+        except Exception as e:  # pylint: disable=W0703
             logger.error('EXCEPTION: %s' % e)
 
             exception_info = sys.exc_info()
@@ -461,47 +418,44 @@ class ChangeCredentialsTaskPrototype(BasePrototype):
             self._model.save()
 
 
-class AwardPrototype(BasePrototype):
-    _model_class = Award
+class AwardPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Award
     _readonly = ('id', 'type')
     _bidirectional = ()
     _get_by = ('id',)
 
     @classmethod
-    def create(cls, description, type, account): # pylint: disable=W0622
-        return cls(model=Award.objects.create(description=description,
-                                              type=type,
-                                              account=account._model))
+    def create(cls, description, type, account):  # pylint: disable=W0622
+        return cls(model=models.Award.objects.create(description=description,
+                                                     type=type,
+                                                     account=account._model))
 
 
-class ResetPasswordTaskPrototype(BasePrototype):
-    _model_class = ResetPasswordTask
+class ResetPasswordTaskPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.ResetPasswordTask
     _readonly = ('uuid', 'is_processed')
     _bidirectional = ()
     _get_by = ('uuid',)
 
     @property
-    def is_time_expired(self): return datetime.datetime.now() > self._model.created_at + datetime.timedelta(seconds=accounts_settings.RESET_PASSWORD_TASK_LIVE_TIME)
+    def is_time_expired(self): return datetime.datetime.now() > self._model.created_at + datetime.timedelta(seconds=conf.settings.RESET_PASSWORD_TASK_LIVE_TIME)
 
     @classmethod
     def create(cls, account):
-        from the_tale.post_service.prototypes import MessagePrototype
-        from the_tale.post_service.message_handlers import ResetPasswordHandler
-
         model = cls._model_class.objects.create(account=account._model,
                                                 uuid=uuid.uuid4().hex)
         prototype = cls(model=model)
 
-        MessagePrototype.create(ResetPasswordHandler(account_id=account.id, task_uuid=prototype.uuid), now=True)
+        post_service_prototypes.MessagePrototype.create(post_service_message_handlers.ResetPasswordHandler(account_id=account.id, task_uuid=prototype.uuid), now=True)
 
         return prototype
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def account(self): return AccountPrototype.get_by_id(self._model.account_id)
 
     def process(self, logger):
 
-        new_password = generate_password(len_=accounts_settings.RESET_PASSWORD_LENGTH)
+        new_password = utils_password.generate_password(len_=conf.settings.RESET_PASSWORD_LENGTH)
 
         task = ChangeCredentialsTaskPrototype.create(account=self.account,
                                                      new_password=new_password)
@@ -518,8 +472,8 @@ class ResetPasswordTaskPrototype(BasePrototype):
         self._model.save()
 
 
-class RandomPremiumRequestPrototype(BasePrototype):
-    _model_class = RandomPremiumRequest
+class RandomPremiumRequestPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.RandomPremiumRequest
     _readonly = ('days', 'id')
     _bidirectional = ('state', 'initiator_id', 'receiver_id')
     _get_by = ()
@@ -547,11 +501,8 @@ class RandomPremiumRequestPrototype(BasePrototype):
             return None
 
     def process(self):
-        from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-        from the_tale.accounts import logic
-
         accounts_ids = AccountPrototype.live_query().filter(is_fast=False,
-                                                            created_at__lt=datetime.datetime.now() - accounts_settings.RANDOM_PREMIUM_CREATED_AT_BARRIER,
+                                                            created_at__lt=datetime.datetime.now() - conf.settings.RANDOM_PREMIUM_CREATED_AT_BARRIER,
                                                             active_end_at__gt=datetime.datetime.now(),
                                                             premium_end_at__lt=datetime.datetime.now()).exclude(id=self.initiator_id).values_list('id', flat=True)
 
@@ -560,11 +511,11 @@ class RandomPremiumRequestPrototype(BasePrototype):
 
         account = AccountPrototype.get_by_id(random.choice(accounts_ids))
 
-        with transaction.atomic():
+        with django_transaction.atomic():
             account.prolong_premium(self.days)
             account.save()
 
-            pm_tt_api.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, async=True)
+            personal_messages_logic.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, async=True)
 
             self.receiver_id = account.id
             self.state = relations.RANDOM_PREMIUM_REQUEST_STATE.PROCESSED

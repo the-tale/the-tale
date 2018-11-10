@@ -1,14 +1,7 @@
 
-import random
+import smart_imports
 
-from the_tale.game.balance.power import Power
-
-from the_tale.game.artifacts import objects as artifacts_objects
-
-from the_tale.game.heroes.relations import EQUIPMENT_SLOT
-
-
-class EquipmentException(Exception): pass
+smart_imports.all()
 
 
 class Bag(object):
@@ -22,6 +15,8 @@ class Bag(object):
 
     @classmethod
     def deserialize(cls, data):
+        from the_tale.game.artifacts import objects as artifacts_objects
+
         obj = cls()
 
         obj.next_uuid = data.get('next_uuid', 0)
@@ -36,12 +31,12 @@ class Bag(object):
         self._ui_info = None
 
     def serialize(self):
-        return { 'next_uuid': self.next_uuid,
-                 'bag': dict( (uuid, artifact.serialize()) for uuid, artifact in self.bag.items() )  }
+        return {'next_uuid': self.next_uuid,
+                'bag': dict((uuid, artifact.serialize()) for uuid, artifact in self.bag.items())}
 
     def ui_info(self, hero):
         if self._ui_info is None:
-            self._ui_info = dict( (int(uuid), artifact.ui_info(hero)) for uuid, artifact in self.bag.items() )
+            self._ui_info = dict((int(uuid), artifact.ui_info(hero)) for uuid, artifact in self.bag.items())
 
         return self._ui_info
 
@@ -137,26 +132,28 @@ class Equipment(object):
             self.hero.quests.mark_updated()
 
     def get_power(self):
-        power = Power(0, 0)
-        for slot in EQUIPMENT_SLOT.records:
+        total_power = power.Power(0, 0)
+        for slot in relations.EQUIPMENT_SLOT.records:
             artifact = self._get(slot)
             if artifact:
-                power += artifact.power
-        return power
+                total_power += artifact.power
+        return total_power
 
     def ui_info(self, hero):
         if self._ui_info is None:
-            self._ui_info = dict( (slot, artifact.ui_info(hero)) for slot, artifact in self.equipment.items() if artifact )
+            self._ui_info = dict((slot, artifact.ui_info(hero)) for slot, artifact in self.equipment.items() if artifact)
         return self._ui_info
 
     def serialize(self):
-        return dict( (slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact )
+        return dict((slot, artifact.serialize()) for slot, artifact in self.equipment.items() if artifact)
 
     @classmethod
     def deserialize(cls, data):
+        from the_tale.game.artifacts import objects as artifacts_objects
+
         obj = cls()
         obj.equipment = dict((int(slot), artifacts_objects.Artifact.deserialize(artifact_data))
-                             for slot, artifact_data in data.items() if  artifact_data)
+                             for slot, artifact_data in data.items() if artifact_data)
         return obj
 
     def unequip(self, slot):
@@ -171,9 +168,10 @@ class Equipment(object):
 
     def equip(self, slot, artifact):
         if slot.value in self.equipment:
-            raise EquipmentException('slot for equipment has already busy')
-        if slot not in EQUIPMENT_SLOT.records:
-            raise EquipmentException('unknown slot id: %s' % slot)
+            raise exceptions.SlotAlreadyBusy(slot=slot)
+
+        if slot not in relations.EQUIPMENT_SLOT.records:
+            raise exceptions.UnknownSlot(slot=slot)
 
         self.mark_updated()
 
@@ -194,7 +192,7 @@ class Equipment(object):
         return self.equipment.values()
 
     def _remove_all(self):
-        for slot in EQUIPMENT_SLOT.records:
+        for slot in relations.EQUIPMENT_SLOT.records:
             self.unequip(slot)
 
         self.mark_updated()
@@ -205,7 +203,7 @@ class Equipment(object):
         return value
 
     def test_equip_in_all_slots(self, artifact):
-        for slot in EQUIPMENT_SLOT.records:
+        for slot in relations.EQUIPMENT_SLOT.records:
             if self._get(slot) is not None:
                 self.unequip(slot)
             self.equip(slot, artifact)

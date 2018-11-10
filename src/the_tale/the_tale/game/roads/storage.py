@@ -1,15 +1,13 @@
-# coding: utf-8
 
-from the_tale.common.utils import storage
+import smart_imports
 
-from the_tale.game.roads.prototypes import RoadPrototype, WaymarkPrototype
-from the_tale.game.roads import exceptions
+smart_imports.all()
 
 
-class RoadsStorage(storage.Storage):
+class RoadsStorage(utils_storage.Storage):
     SETTINGS_KEY = 'roads change time'
     EXCEPTION = exceptions.RoadsStorageError
-    PROTOTYPE = RoadPrototype
+    PROTOTYPE = prototypes.RoadPrototype
 
     def all_exists_roads(self):
         return [road for road in self.all() if road.exists]
@@ -19,18 +17,18 @@ class RoadsStorage(storage.Storage):
             if not road.exists:
                 continue
             if (road.point_1_id == place_1.id and road.point_2_id == place_2.id or
-                road.point_1_id == place_2.id and road.point_2_id == place_1.id):
+                    road.point_1_id == place_2.id and road.point_2_id == place_1.id):
                 return road
         return None
 
 
-roads_storage = RoadsStorage()
+roads = RoadsStorage()
 
 
-class WaymarksStorage(storage.CachedStorage):
+class WaymarksStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'waymarks change time'
     EXCEPTION = exceptions.WaymarksStorageError
-    PROTOTYPE = WaymarkPrototype
+    PROTOTYPE = prototypes.WaymarkPrototype
 
     def _update_cached_data(self, item):
         self._waymarks_map[(item.point_from_id, item.point_to_id)] = item
@@ -46,7 +44,7 @@ class WaymarksStorage(storage.CachedStorage):
         if not isinstance(point_to, int):
             point_to = point_to.id
 
-        return  self._waymarks_map.get((point_from, point_to))
+        return self._waymarks_map.get((point_from, point_to))
 
 
-waymarks_storage = WaymarksStorage()
+waymarks = WaymarksStorage()

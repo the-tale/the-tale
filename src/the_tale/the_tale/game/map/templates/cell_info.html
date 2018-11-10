@@ -85,7 +85,13 @@
             <tr>
               <th>Мастер</th>
               <th>влияние</th>
-              <th width="60px">герои <i class="icon icon-info-sign" rel="tooltip" title="помогающие / мешающие" style="vertical-align: middle;"></i></th>
+              <th width="60px">
+                герои
+                <i class="icon icon-info-sign"
+                   rel="tooltip"
+                   title="всего помогают / мешают"
+                   style="vertical-align: middle;"></i>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +100,8 @@
                 <td>{{persons_macros.person_verbose(person, hero)}}</td>
                 <td>{{persons_power_storage.total_power_fraction(person.id)|percents(2)}}</td>
                 <td>
-                  {{persons_inner_circles[person.id].positive_heroes_number}} / {{persons_inner_circles[person.id].negative_heroes_number}}
+                  {{persons_inner_circles[person.id].total_positive_heroes_number}} /
+                  {{persons_inner_circles[person.id].total_negative_heroes_number}}
                 </td>
               </tr>
             {% endfor %}
@@ -123,9 +130,25 @@
             {{places_macros.attribute_record(place, 'culture')}}
             {{places_macros.attribute_record(place, 'tax')}}
             <tr>
-              <th>герои</th>
-              <td>{{place_inner_circle.positive_heroes_number}} / {{place_inner_circle.negative_heroes_number}}</td>
-              <td><a href="javascript:void(0)" class="info-link" rel="tooltip" title="помогающие / мешающие">подробнее</a></td>
+              <th>герои (всего)</th>
+              <td>{{place_inner_circle.total_positive_heroes_number}} / {{place_inner_circle.total_negative_heroes_number}}</td>
+              <td>
+                <a href="javascript:void(0)"
+                   class="info-link"
+                   rel="tooltip"
+                   title="всего помогают / мешают">подробнее</a>
+              </td>
+            </tr>
+
+            <tr>
+              <th>герои (в круге)</th>
+              <td>{{place_inner_circle.circle_positive_heroes_number}} / {{place_inner_circle.circle_negative_heroes_number}}</td>
+              <td>
+                <a href="javascript:void(0)"
+                   class="info-link"
+                   rel="tooltip"
+                   title="помогают / мешают в ближнем круге">подробнее</a>
+              </td>
             </tr>
           </tbody>
         </table>

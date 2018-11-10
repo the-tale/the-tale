@@ -1,37 +1,18 @@
-# coding: utf-8
-import datetime
-import math
-import itertools
-import collections
 
-from django.db import transaction
+import smart_imports
 
-from the_tale.common.utils.workers import BaseWorker
-
-from the_tale.amqp_environment import environment
-
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.accounts.prototypes import AccountPrototype
-
-from the_tale.game.prototypes import SupervisorTaskPrototype
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.pvp.conf import pvp_settings
-from the_tale.game.pvp.prototypes import Battle1x1Prototype
-
-from the_tale.game import conf
+smart_imports.all()
 
 
-class PvPBalancerException(Exception): pass
+class PvPBalancerException(Exception):
+    pass
 
 
-class QueueRecord(collections.namedtuple('QueueRecord', ('account_id', 'created_at', 'battle_id', 'hero_level'))): #pylint: disable=E1001
+class QueueRecord(collections.namedtuple('QueueRecord', ('account_id', 'created_at', 'battle_id', 'hero_level'))):  # pylint: disable=E1001
     __slots__ = ()
 
 
-class BalancingRecord(collections.namedtuple('BalancingRecord', ('min_level', 'max_level', 'record'))): #pylint: disable=E1001
+class BalancingRecord(collections.namedtuple('BalancingRecord', ('min_level', 'max_level', 'record'))):  # pylint: disable=E1001
     __slots__ = ()
 
     def in_interval(self, level):
@@ -41,11 +22,10 @@ class BalancingRecord(collections.namedtuple('BalancingRecord', ('min_level', 'm
         return self.in_interval(other.record.hero_level) and other.in_interval(self.record.hero_level)
 
 
-
-class Worker(BaseWorker):
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
     STOP_SIGNAL_REQUIRED = False
-    NO_CMD_TIMEOUT = pvp_settings.BALANCER_SLEEP_TIME
+    NO_CMD_TIMEOUT = conf.settings.BALANCER_SLEEP_TIME
 
     def __init__(self, *argv, **kwargs):
         super(Worker, self).__init__(*argv, **kwargs)
@@ -56,7 +36,7 @@ class Worker(BaseWorker):
             self._do_balancing()
 
     def initialize(self):
-        if not conf.game_settings.ENABLE_PVP:
+        if not game_conf.settings.ENABLE_PVP:
             return False
 
         self.logger.info('PVP_BALANCER INITIALIZED')
@@ -72,20 +52,20 @@ class Worker(BaseWorker):
         self.initialized = True
         self.worker_id = worker_id
 
-        Battle1x1Prototype.reset_waiting_battles()
+        prototypes.Battle1x1Prototype.reset_waiting_battles()
 
         self.arena_queue = {}
 
         self.logger.info('PVP BALANCER INITIALIZED')
 
-        environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
+        amqp_environment.environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_stop(self):
         return self.send_cmd('stop')
 
     def process_stop(self):
         self.initialized = False
-        environment.workers.supervisor.cmd_answer('stop', self.worker_id)
+        amqp_environment.environment.workers.supervisor.cmd_answer('stop', self.worker_id)
         self.stop_required = True
         self.logger.info('PVP BALANCER STOPPED')
 
@@ -93,7 +73,7 @@ class Worker(BaseWorker):
         return self.send_cmd('logic_task', {'task_id': task_id,
                                             'account_id': account_id})
 
-    def process_logic_task(self, account_id, task_id):#pylint: disable=W0613
+    def process_logic_task(self, account_id, task_id):
         task = PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger, pvp_balancer=self)
         task.do_postsave_actions()
@@ -105,7 +85,7 @@ class Worker(BaseWorker):
         if hero.account_id in self.arena_queue:
             return None
 
-        battle = Battle1x1Prototype.create(AccountPrototype.get_by_id(hero.account_id))
+        battle = prototypes.Battle1x1Prototype.create(accounts_prototypes.AccountPrototype.get_by_id(hero.account_id))
 
         if not battle.state.is_WAITING:
             raise PvPBalancerException('account %d already has battle not in waiting state' % hero.account_id)
@@ -125,7 +105,7 @@ class Worker(BaseWorker):
     def leave_arena_queue(self, hero_id):
         hero = heroes_logic.load_hero(hero_id=hero_id)
 
-        battle = Battle1x1Prototype.get_by_account_id(hero.account_id)
+        battle = prototypes.Battle1x1Prototype.get_by_account_id(hero.account_id)
 
         if not battle.state.is_WAITING:
             return
@@ -138,24 +118,23 @@ class Worker(BaseWorker):
 
         battle.remove()
 
-
     def _get_prepaired_queue(self):
 
         records = []
         records_to_bots = []
 
-        time_in_level = float(pvp_settings.BALANCING_TIMEOUT) / pvp_settings.BALANCING_MAX_LEVEL_DELTA
+        time_in_level = float(conf.settings.BALANCING_TIMEOUT) / conf.settings.BALANCING_MAX_LEVEL_DELTA
 
         for record in list(self.arena_queue.values()):
 
             time_delta = (datetime.datetime.now() - record.created_at).total_seconds()
 
-            if time_delta > pvp_settings.BALANCING_TIMEOUT:
+            if time_delta > conf.settings.BALANCING_TIMEOUT:
                 records_to_bots.append(record)
                 continue
 
-            balancing_record = BalancingRecord(min_level=int(math.floor(record.hero_level - pvp_settings.BALANCING_MIN_LEVEL_DELTA - time_delta / time_in_level)),
-                                               max_level=int(math.ceil(record.hero_level + pvp_settings.BALANCING_MIN_LEVEL_DELTA + time_delta / time_in_level)),
+            balancing_record = BalancingRecord(min_level=int(math.floor(record.hero_level - conf.settings.BALANCING_MIN_LEVEL_DELTA - time_delta / time_in_level)),
+                                               max_level=int(math.ceil(record.hero_level + conf.settings.BALANCING_MIN_LEVEL_DELTA + time_delta / time_in_level)),
                                                record=record)
 
             records.append(balancing_record)
@@ -175,7 +154,7 @@ class Worker(BaseWorker):
 
             for index, record in enumerate(records):
 
-                if pvp_settings.BALANCING_WITHOUT_LEVELS or current_record.has_intersections(record):
+                if conf.settings.BALANCING_WITHOUT_LEVELS or current_record.has_intersections(record):
                     battle_pairs.append((current_record.record, record.record))
                     records.pop(index)
                     records_to_exclude.append(current_record.record)
@@ -190,44 +169,42 @@ class Worker(BaseWorker):
 
         if records_to_remove:
             for record in records_to_remove:
-                Battle1x1Prototype.get_by_id(record.battle_id).remove()
+                prototypes.Battle1x1Prototype.get_by_id(record.battle_id).remove()
             self.logger.info('remove from queue request from the_tale.accounts %r' % (records_to_remove, ))
 
-
     def _initiate_battle(self, record_1, record_2, calculate_ratings=False):
-        from the_tale.accounts.prototypes import AccountPrototype
 
-        account_1 = AccountPrototype.get_by_id(record_1.account_id)
-        account_2 = AccountPrototype.get_by_id(record_2.account_id)
+        account_1 = accounts_prototypes.AccountPrototype.get_by_id(record_1.account_id)
+        account_2 = accounts_prototypes.AccountPrototype.get_by_id(record_2.account_id)
 
         self.logger.info('start battle between accounts %d and %d' % (account_1.id, account_2.id))
 
-        with transaction.atomic():
-            battle_1 = Battle1x1Prototype.get_by_id(record_1.battle_id)
-            battle_2 = Battle1x1Prototype.get_by_id(record_2.battle_id)
+        with django_transaction.atomic():
+            battle_1 = prototypes.Battle1x1Prototype.get_by_id(record_1.battle_id)
+            battle_2 = prototypes.Battle1x1Prototype.get_by_id(record_2.battle_id)
 
             battle_1.set_enemy(account_2)
             battle_2.set_enemy(account_1)
 
-            if calculate_ratings and abs(record_1.hero_level - record_2.hero_level) <= pvp_settings.BALANCING_MIN_LEVEL_DELTA:
+            if calculate_ratings and abs(record_1.hero_level - record_2.hero_level) <= conf.settings.BALANCING_MIN_LEVEL_DELTA:
                 battle_1.calculate_rating = True
                 battle_2.calculate_rating = True
 
             battle_1.save()
             battle_2.save()
 
-            task = SupervisorTaskPrototype.create_arena_pvp_1x1(account_1, account_2)
+            task = game_prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(account_1, account_2)
 
-        environment.workers.supervisor.cmd_add_task(task.id)
+        amqp_environment.environment.workers.supervisor.cmd_add_task(task.id)
 
     def _initiate_battle_with_bot(self, record):
 
         # search free bot
         # since now bots needed only for PvP, we can do simplified search
-        battled_accounts_ids = Battle1x1Prototype._model_class.objects.all().values_list('account_id', flat=True)
+        battled_accounts_ids = prototypes.Battle1x1Prototype._model_class.objects.all().values_list('account_id', flat=True)
 
         try:
-            bot_account = AccountPrototype(model=AccountPrototype._model_class.objects.filter(is_bot=True).exclude(id__in=battled_accounts_ids)[0])
+            bot_account = accounts_prototypes.AccountPrototype(model=accounts_prototypes.AccountPrototype._model_class.objects.filter(is_bot=True).exclude(id__in=battled_accounts_ids)[0])
         except IndexError:
             bot_account = None
 
@@ -245,7 +222,6 @@ class Worker(BaseWorker):
         self._initiate_battle(record, bot_record, calculate_ratings=False)
 
         return [], [record, bot_record]
-
 
     def _do_balancing(self):
 

@@ -1,79 +1,73 @@
-# coding: utf-8
 
-from django.forms import ValidationError
+import smart_imports
 
-from dext.forms import forms, fields
-
-from the_tale.common.utils import bbcode
-
-from the_tale.accounts import conf
-from the_tale.accounts import relations
-from the_tale.game import relations as game_relations
+smart_imports.all()
 
 
-class EditProfileForm(forms.Form):
+class EditProfileForm(dext_forms.Form):
 
-    nick = fields.RegexField(label='Имя',
-                             regex=conf.accounts_settings.NICK_REGEX,
-                             min_length=conf.accounts_settings.NICK_MIN_LENGTH,
-                             max_length=conf.accounts_settings.NICK_MAX_LENGTH)
+    nick = dext_fields.RegexField(label='Имя',
+                                  regex=conf.settings.NICK_REGEX,
+                                  min_length=conf.settings.NICK_MIN_LENGTH,
+                                  max_length=conf.settings.NICK_MAX_LENGTH)
 
-    email = fields.EmailField(label='Email (логин)')
+    email = dext_fields.EmailField(label='Email (логин)')
 
-    password = fields.PasswordField(label='Новый пароль',
-                                    required=False)
-
-
-class SettingsForm(forms.Form):
-    personal_messages_subscription = fields.BooleanField(required=False,
-                                                         label='получать письма о новых личных сообщениях')
-
-    news_subscription = fields.BooleanField(required=False,
-                                            label='получать письма о новостях')
-
-    description = bbcode.BBField(required=False, label='Несколько слов о Вас, для страницы Вашего аккаунта', max_length=conf.accounts_settings.MAX_ACCOUNT_DESCRIPTION_LENGTH)
-
-    gender = fields.TypedChoiceField(required=True,
-                                     label='Пол (необходим для корректного создания фраз, в которых упоминается игрок)',
-                                     choices=((game_relations.GENDER.MALE, game_relations.GENDER.MALE.text),
-                                              (game_relations.GENDER.FEMALE, game_relations.GENDER.FEMALE.text)),
-                                     coerce=game_relations.GENDER.get_from_name,
-                                     initial=game_relations.GENDER.MALE)
-
-class LoginForm(forms.Form):
-
-    email = fields.EmailField(label='Email')
-    password = fields.PasswordField(label='Пароль')
-    remember = fields.BooleanField(label='Запомнить меня', required=False)
+    password = dext_fields.PasswordField(label='Новый пароль',
+                                         required=False)
 
 
-class ResetPasswordForm(forms.Form):
+class SettingsForm(dext_forms.Form):
+    personal_messages_subscription = dext_fields.BooleanField(required=False,
+                                                              label='получать письма о новых личных сообщениях')
 
-    email = fields.EmailField(label='Email')
+    news_subscription = dext_fields.BooleanField(required=False,
+                                                 label='получать письма о новостях')
+
+    description = utils_bbcode.BBField(required=False, label='Несколько слов о Вас, для страницы Вашего аккаунта', max_length=conf.settings.MAX_ACCOUNT_DESCRIPTION_LENGTH)
+
+    gender = dext_fields.TypedChoiceField(required=True,
+                                          label='Пол (необходим для корректного создания фраз, в которых упоминается игрок)',
+                                          choices=((game_relations.GENDER.MALE, game_relations.GENDER.MALE.text),
+                                                   (game_relations.GENDER.FEMALE, game_relations.GENDER.FEMALE.text)),
+                                          coerce=game_relations.GENDER.get_from_name,
+                                          initial=game_relations.GENDER.MALE)
 
 
-class GiveAwardForm(forms.Form):
-    type = fields.TypedChoiceField(label='тип', choices=relations.AWARD_TYPE.choices(), coerce=relations.AWARD_TYPE.get_from_name)
-    description = fields.TextField(label='обоснование', required=False)
+class LoginForm(dext_forms.Form):
+
+    email = dext_fields.EmailField(label='Email')
+    password = dext_fields.PasswordField(label='Пароль')
+    remember = dext_fields.BooleanField(label='Запомнить меня', required=False)
 
 
-class BanForm(forms.Form):
-    ban_type = fields.TypedChoiceField(label='тип', choices=relations.BAN_TYPE.choices(), coerce=relations.BAN_TYPE.get_from_name)
-    ban_time = fields.TypedChoiceField(label='длительность', choices=relations.BAN_TIME.choices(), coerce=relations.BAN_TIME.get_from_name)
+class ResetPasswordForm(dext_forms.Form):
 
-    description = fields.TextField(label='обоснование', required=True)
+    email = dext_fields.EmailField(label='Email')
 
 
-class SendMoneyForm(forms.Form):
+class GiveAwardForm(dext_forms.Form):
+    type = dext_fields.TypedChoiceField(label='тип', choices=relations.AWARD_TYPE.choices(), coerce=relations.AWARD_TYPE.get_from_name)
+    description = dext_fields.TextField(label='обоснование', required=False)
 
-    money = fields.IntegerField(label='Печеньки')
 
-    comment = fields.CharField(label='Комментарий (для истории платежей)', min_length=10)
+class BanForm(dext_forms.Form):
+    ban_type = dext_fields.TypedChoiceField(label='тип', choices=relations.BAN_TYPE.choices(), coerce=relations.BAN_TYPE.get_from_name)
+    ban_time = dext_fields.TypedChoiceField(label='длительность', choices=relations.BAN_TIME.choices(), coerce=relations.BAN_TIME.get_from_name)
+
+    description = dext_fields.TextField(label='обоснование', required=True)
+
+
+class SendMoneyForm(dext_forms.Form):
+
+    money = dext_fields.IntegerField(label='Печеньки')
+
+    comment = dext_fields.CharField(label='Комментарий (для истории платежей)', min_length=10)
 
     def clean_money(self):
         money = self.cleaned_data['money']
 
-        if money < conf.accounts_settings.MINIMUM_SEND_MONEY:
-            raise ValidationError('Сумма должна быть не меньше %(min_money)s печенек' % {'min_money': conf.accounts_settings.MINIMUM_SEND_MONEY})
+        if money < conf.settings.MINIMUM_SEND_MONEY:
+            raise django_forms.ValidationError('Сумма должна быть не меньше %(min_money)s печенек' % {'min_money': conf.settings.MINIMUM_SEND_MONEY})
 
         return money

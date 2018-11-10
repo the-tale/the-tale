@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import models
+smart_imports.all()
 
 
-class Bill(meta_relations.MetaType):
+class Bill(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 2
     TYPE_CAPTION = 'Запись Книги Судеб'
@@ -18,7 +15,7 @@ class Bill(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('game:bills:show', self.id)
+        return dext_urls.url('game:bills:show', self.id)
 
     @classmethod
     def create_from_object(cls, bill):
@@ -33,7 +30,6 @@ class Bill(meta_relations.MetaType):
 
         return cls.create_from_object(bill)
 
-
     @classmethod
     def create_from_ids(cls, ids):
-        return [cls(id=id, caption=caption) for id, caption in models.Bill.objects.filter(ids__in=ids).values_list('id', 'caption')]
+        return [cls(id=id, caption=caption) for id, caption in models.Bill.objects.filter(id__in=ids).values_list('id', 'caption')]

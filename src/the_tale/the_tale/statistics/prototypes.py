@@ -1,19 +1,14 @@
-# coding: utf-8
-import datetime
 
-from the_tale.common.utils.prototypes import BasePrototype
+import smart_imports
 
-from the_tale.statistics.models import Record
-from the_tale.statistics import exceptions
-from the_tale.statistics import relations
+smart_imports.all()
 
 
-class RecordPrototype(BasePrototype):
-    _model_class = Record
+class RecordPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Record
     _readonly = ('id', 'date', 'type', 'value_int', 'value_float')
     _bidirectional = ()
     _get_by = ()
-
 
     @classmethod
     def create(cls, type, date, value_int=None, value_float=None):
@@ -38,11 +33,9 @@ class RecordPrototype(BasePrototype):
 
         return cls(model=model)
 
-
     @classmethod
     def remove_by_type(cls, type):
         cls._db_filter(type=type).delete()
-
 
     @classmethod
     def select(cls, type, date_from, date_to):
@@ -61,13 +54,12 @@ class RecordPrototype(BasePrototype):
     @classmethod
     def select_values(cls, *argv, **kwargs):
         data = cls.select(*argv, **kwargs)
-        return next(next(zip(*data)))
+        return list(zip(*data))[1]
 
     @classmethod
     def select_for_js(cls, type, date_from, date_to):
         data = cls.select(type=type, date_from=date_from, date_to=date_to)
         return [(date.date().isoformat(), value) for date, value in data]
-
 
     @classmethod
     def get_js_data(cls):

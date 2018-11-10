@@ -44,8 +44,7 @@ class TYPE(DjangoEnum):
                ('INSECT', 7, 'насекомые', heroes_relations.MODIFIERS.COMPANION_LIVING_HEAL, heroes_relations.MODIFIERS.COMPANION_LIVING_COHERENCE_SPEED),
                ('DEMON', 8, 'демоны', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
                ('UNDEAD', 9, 'нежить', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
-               ('MONSTER', 10, 'чудовища', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED),
-               ('CHIMERA', 11, 'химеры', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED))
+               ('MONSTER', 10, 'чудовища', heroes_relations.MODIFIERS.COMPANION_UNUSUAL_HEAL, heroes_relations.MODIFIERS.COMPANION_UNUSUAL_COHERENCE_SPEED))
 
 
 class STRUCTURE(DjangoEnum):
@@ -100,7 +99,7 @@ class FEATURE(DjangoEnum):
                ('FEATURE_34', 34, 'одежда: хорошо', 'одет в хорошую одежду', False),
                ('FEATURE_35', 35, 'рога: большие', 'большие рога', False),
                ('FEATURE_36', 36, 'рога: маленькие', 'маленькие рожки', False),
-               ('FEATURE_37', 37, 'руки: отсутсвуют', 'нет рук', False),
+               ('FEATURE_37', 37, 'руки: отсутствуют', 'нет рук', False),
                ('FEATURE_38', 38, 'руки: три', 'три руки', False),
                ('FEATURE_39', 39, 'тело: горит', 'горит огнём', False),
                ('FEATURE_40', 40, 'тело: светится', 'светится', False),

@@ -1,10 +1,7 @@
 
-from dext.common.utils import storage as dext_storage
+import smart_imports
 
-from the_tale.game.balance import constants as c
-
-from the_tale.game.persons import models
-from the_tale.game.persons import exceptions
+smart_imports.all()
 
 
 class PersonsStorage(dext_storage.Storage):
@@ -12,11 +9,9 @@ class PersonsStorage(dext_storage.Storage):
     EXCEPTION = exceptions.PersonsStorageError
 
     def _construct_object(self, model):
-        from . import logic
         return logic.load_person(person_model=model)
 
     def _save_object(self, person):
-        from . import logic
         return logic.save_person(person)
 
     def _get_all_query(self):
@@ -31,7 +26,6 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
     EXCEPTION = exceptions.PersonsStorageError
 
     def _construct_object(self, model):
-        from the_tale.game.persons import logic
         return logic.social_connection_from_model(model)
 
     def _get_all_query(self):
@@ -67,7 +61,6 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
     def get_connected_persons(self, person):
         return [(connection, persons[person_id]) for connection, person_id in self.get_person_connections(person)]
 
-
     def get_connection(self, person_1, person_2):
         self.sync()
         for connected_person_id, connection in self._person_connections.get(person_1.id).items():
@@ -94,7 +87,6 @@ class SocialConnectionsStorage(dext_storage.CachedStorage):
         if not self.is_connected(person_1, person_2):
             return None
         return self._person_connections[person_1.id][person_2.id].connection
-
 
 
 social_connections = SocialConnectionsStorage()

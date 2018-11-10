@@ -1,14 +1,10 @@
-# coding: utf-8
-from the_tale.common.utils.workers import BaseWorker
 
-from the_tale.game.heroes import logic as heroes_logic
-from the_tale.game.heroes import models as heroes_models
+import smart_imports
 
-from the_tale.accounts.achievements.prototypes import GiveAchievementTaskPrototype, AccountAchievementsPrototype
-from the_tale.accounts.achievements.storage import achievements_storage
+smart_imports.all()
 
 
-class Worker(BaseWorker):
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
 
     def clean_queues(self):
@@ -20,12 +16,12 @@ class Worker(BaseWorker):
         self.logger.info('ACHIEVEMENT_MANAGER INITIALIZED')
 
     def add_achievement(self, achievement, account_id, notify):
-        achievements = AccountAchievementsPrototype.get_by_account_id(account_id)
+        achievements = prototypes.AccountAchievementsPrototype.get_by_account_id(account_id)
         achievements.add_achievement(achievement, notify=notify)
         achievements.save()
 
     def remove_achievement(self, achievement, account_id):
-        achievements = AccountAchievementsPrototype.get_by_account_id(account_id)
+        achievements = prototypes.AccountAchievementsPrototype.get_by_account_id(account_id)
         achievements.remove_achievement(achievement)
         achievements.save()
 
@@ -33,9 +29,9 @@ class Worker(BaseWorker):
         self.add_achievements()
 
     def add_achievements(self):
-        for task in GiveAchievementTaskPrototype.from_query(GiveAchievementTaskPrototype._db_all()):
+        for task in prototypes.GiveAchievementTaskPrototype.from_query(prototypes.GiveAchievementTaskPrototype._db_all()):
 
-            achievement = achievements_storage[task.achievement_id]
+            achievement = storage.achievements[task.achievement_id]
 
             self.logger.info('process task %d for achievement %d' % (task.id, achievement.id))
 
@@ -47,10 +43,8 @@ class Worker(BaseWorker):
             task.remove()
 
     def get_achievements_source_iterator(self, achievement):
-        from the_tale.accounts.prototypes import AccountPrototype
-
         if achievement.type.source.is_ACCOUNT:
-            return (AccountPrototype(model=account_model) for account_model in AccountPrototype._db_all())
+            return (accounts_prototypes.AccountPrototype(model=account_model) for account_model in accounts_prototypes.AccountPrototype._db_all())
 
         if achievement.type.source.is_GAME_OBJECT:
             return (heroes_logic.load_hero(hero_model=hero_model) for hero_model in heroes_models.Hero.objects.all().iterator())

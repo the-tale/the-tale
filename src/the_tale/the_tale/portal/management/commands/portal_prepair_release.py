@@ -1,21 +1,19 @@
-# coding: utf-8
-import sys
 
-from django.core.management.base import BaseCommand
-from django.conf import settings as project_settings
+import smart_imports
 
-from dext.common.utils.logic import run_django_command
+smart_imports.all()
 
-META_CONFIG = project_settings.META_CONFIG
 
-class Command(BaseCommand):
+META_CONFIG = django_settings.META_CONFIG
+
+
+class Command(django_management.BaseCommand):
 
     help = 'prepair all generated static files'
 
     def add_arguments(self, parser):
         super(Command, self).add_arguments(parser)
         parser.add_argument('-g', '--game-version', action='store', type=str, dest='game-version', help='game version')
-
 
     def handle(self, *args, **options):
 
@@ -29,13 +27,13 @@ class Command(BaseCommand):
         print('GENERATE JAVASCRIPT CONSTANTS')
         print()
 
-        run_django_command(['game_generate_js'])
+        dext_logic.run_django_command(['game_generate_js'])
 
         print()
         print('GENERATE CSS')
         print()
 
-        run_django_command(['less_generate_css'])
+        dext_logic.run_django_command(['less_generate_css'])
 
         print()
         print('GENERATE META CONFIG')

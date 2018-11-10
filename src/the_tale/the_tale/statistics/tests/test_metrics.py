@@ -1,23 +1,15 @@
-# coding: utf-8
 
-import datetime
+import smart_imports
 
-from unittest import mock
-
-from the_tale.common.utils import testcase
-
-from the_tale.statistics.prototypes import RecordPrototype
-from the_tale.statistics import relations
-from the_tale.statistics.tests.helpers import TestMetric
-from the_tale.statistics.metrics import exceptions as metrics_exceptions
+smart_imports.all()
 
 
-class BaseMetricsTests(testcase.TestCase):
+class BaseMetricsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(BaseMetricsTests, self).setUp()
         self.date = datetime.datetime.now()
-        self.metric = TestMetric()
+        self.metric = helpers.TestMetric()
         self.metric.initialize()
 
     @mock.patch('the_tale.statistics.metrics.base.BaseMetric._last_datetime', lambda self: datetime.datetime(year=6, month=6, day=6, hour=6))
@@ -29,7 +21,7 @@ class BaseMetricsTests(testcase.TestCase):
         self.assertEqual(self.metric.now_date, datetime.datetime.now().date() - datetime.timedelta(days=1))
 
     def test_last_datetime__no_records(self):
-        self.assertEqual(RecordPrototype._db_filter(type=TestMetric.TYPE).count(), 0)
+        self.assertEqual(prototypes.RecordPrototype._db_filter(type=helpers.TestMetric.TYPE).count(), 0)
         self.assertEqual(self.metric._last_datetime(), datetime.datetime(year=2012, month=6, day=26))
 
     def test_last_datetime__has_records(self):
@@ -38,18 +30,18 @@ class BaseMetricsTests(testcase.TestCase):
 
     def test_store_value__int(self):
         self.metric.store_value(datetime.datetime(year=6, month=6, day=6, hour=6), 666)
-        self.assertEqual(RecordPrototype._db_filter(type=TestMetric.TYPE).count(), 1)
-        record = RecordPrototype._db_get_object(0)
+        self.assertEqual(prototypes.RecordPrototype._db_filter(type=helpers.TestMetric.TYPE).count(), 1)
+        record = prototypes.RecordPrototype._db_get_object(0)
         self.assertEqual(record.date, datetime.datetime(year=6, month=6, day=6, hour=6))
         self.assertEqual(record.value_int, 666)
         self.assertEqual(record.value_float, 666.0)
         self.assertTrue(record.type.is_TEST_INT)
 
-    @mock.patch('the_tale.statistics.tests.helpers.TestMetric.TYPE', relations.RECORD_TYPE.TEST_FLOAT)
+    @mock.patch('the_tale.statistics.helpers.TestMetric.TYPE', relations.RECORD_TYPE.TEST_FLOAT)
     def test_store_value__float(self):
         self.metric.store_value(datetime.datetime(year=6, month=6, day=6, hour=6), 666.6)
-        self.assertEqual(RecordPrototype._db_filter(type=TestMetric.TYPE).count(), 1)
-        record = RecordPrototype._db_get_object(0)
+        self.assertEqual(prototypes.RecordPrototype._db_filter(type=helpers.TestMetric.TYPE).count(), 1)
+        record = prototypes.RecordPrototype._db_get_object(0)
         self.assertEqual(record.date, datetime.datetime(year=6, month=6, day=6, hour=6))
         self.assertEqual(record.value_int, 666)
         self.assertEqual(record.value_float, 666.6)
@@ -74,15 +66,15 @@ class BaseMetricsTests(testcase.TestCase):
 
     def test_complete_values__block_second_time(self):
         self.metric.complete_values()
-        self.assertRaises(metrics_exceptions.ValuesCompletedError, self.metric.complete_values)
+        self.assertRaises(exceptions.ValuesCompletedError, self.metric.complete_values)
 
     def test_no_second_record(self):
         self.metric.complete_values()
-        self.assertTrue(RecordPrototype._db_count() > 0)
+        self.assertTrue(prototypes.RecordPrototype._db_count() > 0)
 
         self.metric.initialize()
 
-        with self.check_not_changed(RecordPrototype._db_count):
+        with self.check_not_changed(prototypes.RecordPrototype._db_count):
             self.metric.complete_values()
 
     def test_db_date_gt(self):
@@ -113,7 +105,7 @@ class BaseMetricsTests(testcase.TestCase):
         self.assertEqual(self.metric.db_date_interval('x', days=10).children,
                          [('x__gt', self.metric.free_date), ('x__lt', self.metric.free_date + datetime.timedelta(days=10))])
         self.assertEqual(self.metric.db_date_interval('x', days=-10).children,
-                         [('x__lt', self.metric.free_date +  + datetime.timedelta(days=1)), ('x__gt', self.metric.free_date + datetime.timedelta(days=-9))])
+                         [('x__lt', self.metric.free_date + + datetime.timedelta(days=1)), ('x__gt', self.metric.free_date + datetime.timedelta(days=-9))])
         self.assertEqual(self.metric.db_date_interval('x', days=0).children,
                          [('x__gt', self.metric.free_date), ('x__lt', self.metric.free_date + datetime.timedelta(days=1))])
 
@@ -121,7 +113,7 @@ class BaseMetricsTests(testcase.TestCase):
         self.assertEqual(self.metric.db_date_interval('x', days=10, date=self.date).children,
                          [('x__gt', self.date), ('x__lt', self.date + datetime.timedelta(days=10))])
         self.assertEqual(self.metric.db_date_interval('x', days=-10, date=self.date).children,
-                         [('x__lt', self.date +  + datetime.timedelta(days=1)), ('x__gt', self.date + datetime.timedelta(days=-9))])
+                         [('x__lt', self.date + + datetime.timedelta(days=1)), ('x__gt', self.date + datetime.timedelta(days=-9))])
         self.assertEqual(self.metric.db_date_interval('x', days=0, date=self.date).children,
                          [('x__gt', self.date), ('x__lt', self.date + datetime.timedelta(days=1))])
 

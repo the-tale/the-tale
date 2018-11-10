@@ -1,13 +1,10 @@
-# coding: utf-8
 
-from dext.common.utils import urls
+import smart_imports
 
-from the_tale.common.utils import meta_relations
-
-from . import storage
+smart_imports.all()
 
 
-class Place(meta_relations.MetaType):
+class Place(meta_relations_objects.MetaType):
     __slots__ = ('caption', )
     TYPE = 3
     TYPE_CAPTION = 'Город'
@@ -18,7 +15,7 @@ class Place(meta_relations.MetaType):
 
     @property
     def url(self):
-        return urls.url('game:places:show', self.id)
+        return dext_urls.url('game:places:show', self.id)
 
     @classmethod
     def create_from_object(cls, place):
@@ -26,12 +23,13 @@ class Place(meta_relations.MetaType):
 
     @classmethod
     def create_from_id(cls, id):
+        from . import storage
+
         place = storage.places.get(id)
         if place is None:
             return None
 
         return cls.create_from_object(place)
-
 
     @classmethod
     def create_from_ids(cls, ids):

@@ -1,12 +1,9 @@
-# coding: utf-8
-import os
-import datetime
 
-from django.conf import settings as project_settings
+import smart_imports
 
-from dext.common.utils.app_settings import app_settings
+smart_imports.all()
 
 
-statistics_settings = app_settings('STATISTICS',
-                                   START_DATE=datetime.datetime(year=2012, month=6, day=27),
-                                   PAYMENTS_START_DATE=datetime.datetime(year=2013, month=8, day=1))
+settings = dext_app_settings.app_settings('STATISTICS',
+                                          START_DATE=datetime.datetime(year=2012, month=6, day=27),
+                                          PAYMENTS_START_DATE=datetime.datetime(year=2013, month=8, day=1))

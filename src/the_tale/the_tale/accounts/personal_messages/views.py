@@ -1,20 +1,7 @@
 
-from dext.common.utils import views as dext_views
-from dext.common.utils.urls import UrlBuilder, url
+import smart_imports
 
-from the_tale.common.utils.pagination import Paginator
-from the_tale.common.utils import list_filter
-from the_tale.common.utils import views as utils_views
-from the_tale.common.utils import api
-
-from the_tale.accounts import prototypes as accounts_prototypes
-from the_tale.accounts import views as accounts_views
-from the_tale.accounts import models as accounts_models
-from the_tale.accounts import logic as accounts_logic
-
-from . import conf
-from . import tt_api
-from . import forms
+smart_imports.all()
 
 
 ########################################
@@ -28,12 +15,13 @@ class MessageProcessor(dext_views.ArgumentProcessor):
         except ValueError:
             self.raise_wrong_format()
 
-        message = tt_api.get_message(context.account.id, message_id)
+        message = tt_services.personal_messages.cmd_get_message(context.account.id, message_id)
 
         if not message:
             self.raise_wrong_value()
 
         return message
+
 
 ########################################
 # resource and global processors
@@ -48,31 +36,32 @@ resource.add_processor(accounts_views.FullAccountProcessor())
 # views
 ########################################
 
+
 @utils_views.PageNumberProcessor()
 @utils_views.TextFilterProcessor(get_name='filter', context_name='filter', default_value=None)
 @resource('')
 def index(context):
-    tt_api.read_messages(context.account.id)
+    tt_services.personal_messages.cmd_read_messages(context.account.id)
 
-    contacts_ids = tt_api.get_contacts(context.account.id)
+    contacts_ids = tt_services.personal_messages.cmd_get_contacts(context.account.id)
 
-    messages_count, messages = tt_api.get_received_messages(context.account.id,
-                                                           text=context.filter,
-                                                           offset=context.page*conf.settings.MESSAGES_ON_PAGE,
-                                                           limit=conf.settings.MESSAGES_ON_PAGE)
+    messages_count, messages = tt_services.personal_messages.cmd_get_received_messages(context.account.id,
+                                                                                       text=context.filter,
+                                                                                       offset=context.page * conf.settings.MESSAGES_ON_PAGE,
+                                                                                       limit=conf.settings.MESSAGES_ON_PAGE)
 
-    class Filter(list_filter.ListFilter):
-        ELEMENTS = [list_filter.reset_element(),
-                    list_filter.filter_element('поиск:', attribute='filter', default_value=None),
-                    list_filter.static_element('количество:', attribute='count', default_value=0) ]
+    class Filter(utils_list_filter.ListFilter):
+        ELEMENTS = [utils_list_filter.reset_element(),
+                    utils_list_filter.filter_element('поиск:', attribute='filter', default_value=None),
+                    utils_list_filter.static_element('количество:', attribute='count', default_value=0)]
 
-    url_builder = UrlBuilder(url('accounts:messages:'), arguments={'page': context.page,
-                                                                   'filter': context.filter})
+    url_builder = dext_urls.UrlBuilder(dext_urls.url('accounts:messages:'), arguments={'page': context.page,
+                                                                                       'filter': context.filter})
 
     index_filter = Filter(url_builder=url_builder, values={'filter': context.filter,
                                                            'count': messages_count})
 
-    paginator = Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
+    paginator = utils_pagination.Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
 
     if paginator.wrong_page_number:
         return dext_views.Redirect(paginator.last_page_url, permanent=False)
@@ -89,14 +78,14 @@ def index(context):
     contacts.sort(key=lambda account: account.nick_verbose)
 
     return dext_views.Page('personal_messages/index.html',
-                           content= {'messages': messages,
-                                     'paginator': paginator,
-                                     'page': 'incoming',
-                                     'contacts': contacts,
-                                     'accounts': accounts,
-                                     'index_filter': index_filter,
-                                     'master_account': context.account,
-                                     'resource': context.resource})
+                           content={'messages': messages,
+                                    'paginator': paginator,
+                                    'page': 'incoming',
+                                    'contacts': contacts,
+                                    'accounts': accounts,
+                                    'index_filter': index_filter,
+                                    'master_account': context.account,
+                                    'resource': context.resource})
 
 
 @utils_views.PageNumberProcessor()
@@ -104,25 +93,25 @@ def index(context):
 @resource('sent')
 def sent(context):
 
-    contacts_ids = tt_api.get_contacts(context.account.id)
+    contacts_ids = tt_services.personal_messages.cmd_get_contacts(context.account.id)
 
-    messages_count, messages = tt_api.get_sent_messages(context.account.id,
-                                                       text=context.filter,
-                                                       offset=context.page*conf.settings.MESSAGES_ON_PAGE,
-                                                       limit=conf.settings.MESSAGES_ON_PAGE)
+    messages_count, messages = tt_services.personal_messages.cmd_get_sent_messages(context.account.id,
+                                                                                   text=context.filter,
+                                                                                   offset=context.page * conf.settings.MESSAGES_ON_PAGE,
+                                                                                   limit=conf.settings.MESSAGES_ON_PAGE)
 
-    class Filter(list_filter.ListFilter):
-        ELEMENTS = [list_filter.reset_element(),
-                    list_filter.filter_element('поиск:', attribute='filter', default_value=None),
-                    list_filter.static_element('количество:', attribute='count', default_value=0) ]
+    class Filter(utils_list_filter.ListFilter):
+        ELEMENTS = [utils_list_filter.reset_element(),
+                    utils_list_filter.filter_element('поиск:', attribute='filter', default_value=None),
+                    utils_list_filter.static_element('количество:', attribute='count', default_value=0)]
 
-    url_builder=UrlBuilder(url('accounts:messages:sent'), arguments={'page': context.page,
-                                                                     'filter': context.filter})
+    url_builder = dext_urls.UrlBuilder(dext_urls.url('accounts:messages:sent'), arguments={'page': context.page,
+                                                                                           'filter': context.filter})
 
     index_filter = Filter(url_builder=url_builder, values={'filter': context.filter,
                                                            'count': messages_count})
 
-    paginator = Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
+    paginator = utils_pagination.Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
 
     if paginator.wrong_page_number:
         return dext_views.Redirect(paginator.last_page_url, permanent=False)
@@ -155,28 +144,28 @@ def sent(context):
 @resource('conversation')
 def conversation(context):
 
-    contacts_ids = tt_api.get_contacts(context.account.id)
+    contacts_ids = tt_services.personal_messages.cmd_get_contacts(context.account.id)
 
-    messages_count, messages = tt_api.get_conversation(context.account.id,
-                                                      context.contact.id,
-                                                      text=context.filter,
-                                                      offset=context.page*conf.settings.MESSAGES_ON_PAGE,
-                                                      limit=conf.settings.MESSAGES_ON_PAGE)
+    messages_count, messages = tt_services.personal_messages.cmd_get_conversation(context.account.id,
+                                                                                  context.contact.id,
+                                                                                  text=context.filter,
+                                                                                  offset=context.page * conf.settings.MESSAGES_ON_PAGE,
+                                                                                  limit=conf.settings.MESSAGES_ON_PAGE)
 
-    class Filter(list_filter.ListFilter):
-        ELEMENTS = [list_filter.reset_element(),
-                    list_filter.filter_element('поиск:', attribute='filter', default_value=None),
-                    list_filter.static_element('количество:', attribute='count', default_value=0) ]
+    class Filter(utils_list_filter.ListFilter):
+        ELEMENTS = [utils_list_filter.reset_element(),
+                    utils_list_filter.filter_element('поиск:', attribute='filter', default_value=None),
+                    utils_list_filter.static_element('количество:', attribute='count', default_value=0)]
 
-    url_builder = UrlBuilder(url('accounts:messages:conversation'), arguments={'page': context.page,
-                                                                               'contact': context.contact.id,
-                                                                               'filter': context.filter})
+    url_builder = dext_urls.UrlBuilder(dext_urls.url('accounts:messages:conversation'), arguments={'page': context.page,
+                                                                                                   'contact': context.contact.id,
+                                                                                                   'filter': context.filter})
 
     index_filter = Filter(url_builder=url_builder, values={'contact': context.contact.id,
                                                            'filter': context.filter,
                                                            'count': messages_count})
 
-    paginator = Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
+    paginator = utils_pagination.Paginator(context.page, messages_count, conf.settings.MESSAGES_ON_PAGE, url_builder)
 
     if paginator.wrong_page_number:
         return dext_views.Redirect(paginator.last_page_url, permanent=False)
@@ -193,15 +182,15 @@ def conversation(context):
     contacts.sort(key=lambda account: account.nick_verbose)
 
     return dext_views.Page('personal_messages/index.html',
-                           content= {'messages': messages,
-                                     'paginator': paginator,
-                                     'page': 'contacts',
-                                     'contacts': contacts,
-                                     'accounts': accounts,
-                                     'master_account': context.account,
-                                     'index_filter': index_filter,
-                                     'contact': context.contact,
-                                     'resource': context.resource})
+                           content={'messages': messages,
+                                    'paginator': paginator,
+                                    'page': 'contacts',
+                                    'contacts': contacts,
+                                    'accounts': accounts,
+                                    'master_account': context.account,
+                                    'index_filter': index_filter,
+                                    'contact': context.contact,
+                                    'resource': context.resource})
 
 
 def check_recipients(current_user, recipients_form):
@@ -249,9 +238,9 @@ def new(context):
 def create(context):
     recipients = check_recipients(context.account, context.form)
 
-    tt_api.send_message(sender_id=context.account.id,
-                        recipients_ids=recipients,
-                        body=context.form.c.text)
+    logic.send_message(sender_id=context.account.id,
+                       recipients_ids=recipients,
+                       body=context.form.c.text)
 
     return dext_views.AjaxOk()
 
@@ -265,25 +254,25 @@ def delete(context):
     if context.account.id not in owners_ids:
         raise dext_views.ViewError(code='no_permissions', message='Вы не можете влиять на это сообщение')
 
-    tt_api.hide_message(account_id=context.account.id, message_id=context.message.id)
+    tt_services.personal_messages.cmd_hide_message(account_id=context.account.id, message_id=context.message.id)
 
     return dext_views.AjaxOk()
 
 
 @resource('delete-all', method='POST')
 def delete_all(context):
-    tt_api.hide_all_messages(account_id=context.account.id)
+    tt_services.personal_messages.cmd_hide_all_messages(account_id=context.account.id)
     return dext_views.AjaxOk()
 
 
 @accounts_views.AccountProcessor(error_message='Контакт не найден', get_name='contact', context_name='contact')
 @resource('delete-conversation', method='POST')
 def delete_conversation(context):
-    tt_api.hide_conversation(account_id=context.account.id, partner_id=context.contact.id)
+    tt_services.personal_messages.cmd_hide_conversation(account_id=context.account.id, partner_id=context.contact.id)
     return dext_views.AjaxOk()
 
 
-@api.Processor(versions=(conf.settings.NEW_MESSAGES_NUMNER_API_VERSION,))
+@utils_api.Processor(versions=(conf.settings.NEW_MESSAGES_NUMNER_API_VERSION,))
 @resource('api', 'new-messages-number', name='api-new-messages-number')
 def api_new_messages(context):
-    return dext_views.AjaxOk(content={'number': tt_api.new_messages_number(context.account.id)})
+    return dext_views.AjaxOk(content={'number': tt_services.personal_messages.cmd_new_messages_number(context.account.id)})

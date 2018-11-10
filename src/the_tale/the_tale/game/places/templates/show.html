@@ -80,7 +80,7 @@
   <table class="table table-condensed">
     <tbody>
       <tr>
-        <th>влияние среди городов</th>
+        <th width="220px">влияние среди городов</th>
         <td>{{places_power_storage.total_power_fraction(place.id)|percents(2)}}</td>
       </tr>
       <tr>
@@ -109,25 +109,24 @@
       </tr>
       {% if place.job.is_completed(job_power) %}
         <tr>
-          <th>проект завершён</th>
-          <td width="250px">Эффект проекта будет применён в ближайшее время. Влияние, начисленное сверх необходимого, будет засчитано в следующем проекте.</td>
-        </tr>
-      {% else %}
-        <tr>
-          <th>помощь в проекте от соратников</th>
-          <td>
-            <span style="color:green;">{{(job_power.positive/place.job.power_required)|percents(2)}}</span>
-            осталось влияния: {{(place.job.power_required - job_power.positive)|round(0)|int}}
-          </td>
-        </tr>
-        <tr>
-          <th>вред в проекте от противников</th>
-          <td>
-            <span style="color:red;">{{(job_power.negative/place.job.power_required)|percents(2)}}</span>
-            осталось влияния: {{(place.job.power_required - job_power.negative)|round(0)|int}}
-          </td>
+          <th>проект почти закончен</th>
+          <td width="400px">Проект будет завершён в ближайшее время. Влияние победившей стороны будет обнулено. Влияние проигравшей стороны пойдёт в счёт следующего проекта.</td>
         </tr>
       {% endif %}
+      <tr>
+        <th>помощь в проекте от соратников</th>
+        <td>
+          <span style="color:green;">{{(job_power.positive/place.job.power_required)|percents(2)}}</span>
+          всего влияния: {{job_power.positive|round(0)|int}} из {{place.job.power_required|round(0)|int}}
+        </td>
+      </tr>
+      <tr>
+        <th>вред в проекте от противников</th>
+        <td>
+          <span style="color:red;">{{(job_power.negative/place.job.power_required)|percents(2)}}</span>
+          всего влияния: {{job_power.negative|round(0)|int}} из {{place.job.power_required|round(0)|int}}
+        </td>
+      </tr>
     </tbody>
   </table>
   </div>
@@ -150,7 +149,11 @@
           {{persons_macros.person_verbose(person, hero)}}
         </td>
         <td>
-          {{persons_inner_circles[person.id].positive_heroes_number}} / {{persons_inner_circles[person.id].negative_heroes_number}}
+          {{persons_inner_circles[person.id].total_positive_heroes_number}} /
+          {{persons_inner_circles[person.id].total_negative_heroes_number}}
+
+          (в круге: {{persons_inner_circles[person.id].circle_positive_heroes_number}} /
+                    {{persons_inner_circles[person.id].circle_negative_heroes_number}})
         </td>
       </tr>
     {% endfor %}
@@ -398,8 +401,8 @@
 <h3>Герои</h3>
 
 <ul>
-  <li>Всего героев помогает: {{inner_circle.positive_heroes_number}}</li>
-  <li>Всего героев мешает: {{inner_circle.negative_heroes_number}}</li>
+  <li>Всего героев помогает: {{inner_circle.total_positive_heroes_number}} (в круге: {{inner_circle.circle_positive_heroes_number}})</li>
+  <li>Всего героев мешает: {{inner_circle.total_negative_heroes_number}} (в круге: {{inner_circle.circle_negative_heroes_number}})</li>
 </ul>
 
 {{game_macros.inner_circle_heroes(inner_circle, hero.account_id if hero else none)}}

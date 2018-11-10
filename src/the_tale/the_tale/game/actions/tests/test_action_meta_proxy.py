@@ -1,31 +1,21 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic import create_test_map
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game import turn
-from the_tale.game.actions.prototypes import ActionMetaProxyPrototype
-from the_tale.game.actions import meta_actions
-from the_tale.game.actions import relations
-
-from the_tale.game.pvp.models import BATTLE_1X1_STATE
-from the_tale.game.pvp.tests.helpers import PvPTestsMixin
+smart_imports.all()
 
 
-class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
+class MetaProxyActionForArenaPvP1x1Tests(utils_testcase.TestCase, pvp_helpers.PvPTestsMixin):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
         super(MetaProxyActionForArenaPvP1x1Tests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
         self.storage.load_account_data(self.account_2)
 
@@ -35,23 +25,19 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
         self.action_idl_1 = self.hero_1.actions.current_action
         self.action_idl_2 = self.hero_2.actions.current_action
 
-        self.pvp_create_battle(self.account_1, self.account_2, BATTLE_1X1_STATE.PROCESSING)
-        self.pvp_create_battle(self.account_2, self.account_1, BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(self.account_1, self.account_2, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
+        self.pvp_create_battle(self.account_2, self.account_1, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
 
         self.bundle_id = 666
 
         meta_action_battle = meta_actions.ArenaPvP1x1.create(self.storage, self.hero_1, self.hero_2)
 
-        self.action_proxy_1 = ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=self.bundle_id, meta_action=meta_action_battle)
-        self.action_proxy_2 = ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=self.bundle_id, meta_action=meta_action_battle)
+        self.action_proxy_1 = prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=self.bundle_id, meta_action=meta_action_battle)
+        self.action_proxy_2 = prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=self.bundle_id, meta_action=meta_action_battle)
 
         self.storage.merge_bundles([self.action_idl_1.bundle_id, self.action_idl_2.bundle_id], self.bundle_id)
 
         self.meta_action_battle = list(self.storage.meta_actions.values())[0]
-
-
-    def tearDown(self):
-        pass
 
     # renamed to fix segmentation fault
     def test_z_create(self):
@@ -99,7 +85,7 @@ class MetaProxyActionForArenaPvP1x1Tests(testcase.TestCase, PvPTestsMixin):
     def test_full_battle(self):
         while self.action_proxy_1.state != meta_actions.ArenaPvP1x1.STATE.PROCESSED:
             self.storage.process_turn(continue_steps_if_needed=False)
-            turn.increment()
+            game_turn.increment()
 
         self.assertEqual(self.meta_action_battle.state, meta_actions.ArenaPvP1x1.STATE.PROCESSED)
         self.assertTrue(self.hero_1.is_alive and self.hero_2.is_alive)

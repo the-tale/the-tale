@@ -1,5 +1,10 @@
-# coding: utf-8
 
-from the_tale.game.actions.contexts.battle import BattleContext, Damage
+import smart_imports
 
-__all__ = ['BattleContext', 'Damage']
+smart_imports.all()
+
+
+BattleContext = battle.BattleContext
+
+
+__all__ = ['BattleContext']

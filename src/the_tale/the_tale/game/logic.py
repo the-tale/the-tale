@@ -1,63 +1,14 @@
 
-import os
-import time
-import datetime
+import smart_imports
 
-from django.conf import settings as project_settings
-
-from dext.common.utils.urls import url
-
-from the_tale.accounts.conf import accounts_settings
-
-from the_tale.linguistics import logic as linguistics_logic
-
-from the_tale.game import names
-from the_tale.game import conf
-from the_tale.game import turn
-
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.mobs import logic as mobs_logic
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.artifacts import logic as artifacts_logic
-from the_tale.game.artifacts import storage as artifacts_storage
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.map.storage import map_info_storage
-from the_tale.game.map import logic as map_logic
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-from the_tale.game.places import nearest_cells
-
-from the_tale.game.persons import logic as persons_logic
-from the_tale.game.persons import relations as persons_relations
-
-from the_tale.game.roads.storage import roads_storage, waymarks_storage
-from the_tale.game.roads.prototypes import RoadPrototype
-from the_tale.game.roads.logic import update_waymarks
-
-from the_tale.game.companions import logic as companions_logic
-from the_tale.game.companions import relations as companions_relations
-
-from the_tale.game.heroes import relations as heroes_relations
-from the_tale.game.heroes import tt_api as heroes_tt_api
-from the_tale.game.heroes import logic as heroes_logic
-from the_tale.game.heroes import objects as heroes_objects
-
-from the_tale.game.politic_power import storage as politic_power_storage
-
-from . import tt_api_energy
-from . import tt_api_impacts
-from . import relations
+smart_imports.all()
 
 
 @places_storage.places.postpone_version_update
 @places_storage.buildings.postpone_version_update
 @persons_storage.persons.postpone_version_update
-@waymarks_storage.postpone_version_update
-@roads_storage.postpone_version_update
+@roads_storage.waymarks.postpone_version_update
+@roads_storage.roads.postpone_version_update
 @mobs_storage.mobs.postpone_version_update
 @artifacts_storage.artifacts.postpone_version_update
 def create_test_map():
@@ -66,13 +17,13 @@ def create_test_map():
     politic_power_storage.places.reset()
     politic_power_storage.persons.reset()
 
-    tt_api_impacts.debug_clear_service()
+    tt_services.debug_clear_service()
 
     map_logic.create_test_map_info()
 
-    p1 = places_logic.create_place(x=1, y=1, size=1, utg_name=names.generator().get_test_name(name='1x1'), race=relations.RACE.HUMAN)
-    p2 = places_logic.create_place(x=3, y=3, size=3, utg_name=names.generator().get_test_name(name='10x10'), race=relations.RACE.HUMAN)
-    p3 = places_logic.create_place(x=1, y=3, size=3, utg_name=names.generator().get_test_name(name='1x10'), race=relations.RACE.HUMAN)
+    p1 = places_logic.create_place(x=1, y=1, size=1, utg_name=game_names.generator().get_test_name(name='1x1'), race=relations.RACE.HUMAN)
+    p2 = places_logic.create_place(x=3, y=3, size=3, utg_name=game_names.generator().get_test_name(name='10x10'), race=relations.RACE.HUMAN)
+    p3 = places_logic.create_place(x=1, y=3, size=3, utg_name=game_names.generator().get_test_name(name='1x10'), race=relations.RACE.HUMAN)
 
     for place in places_storage.places.all():
         for i in range(3):
@@ -80,17 +31,17 @@ def create_test_map():
                                         race=relations.RACE.random(),
                                         gender=relations.GENDER.random(),
                                         type=persons_relations.PERSON_TYPE.random(),
-                                        utg_name=names.generator().get_test_name())
+                                        utg_name=game_names.generator().get_test_name())
 
     for place in places_storage.places.all():
         place.refresh_attributes()
 
-    RoadPrototype.create(point_1=p1, point_2=p2).update()
-    RoadPrototype.create(point_1=p2, point_2=p3).update()
+    roads_prototypes.RoadPrototype.create(point_1=p1, point_2=p2).update()
+    roads_prototypes.RoadPrototype.create(point_1=p2, point_2=p3).update()
 
-    update_waymarks()
+    roads_logic.update_waymarks()
 
-    nearest_cells.update_nearest_cells()
+    places_nearest_cells.update_nearest_cells()
 
     mob_1 = mobs_logic.create_random_mob_record('mob_1')
     mob_2 = mobs_logic.create_random_mob_record('mob_2')
@@ -115,24 +66,13 @@ def create_test_map():
     return p1, p2, p3
 
 
-def log_sql_queries(turn_number):
-    from django.db import connection
-
-    with open(os.path.join('/tmp/', '%d.turn' % turn_number), 'w') as f:
-        f.write('total queries: %d\n\n' % len(connection.queries))
-        for querie in connection.queries:
-            f.write('%s\t %s\n\n' % (querie['time'], querie['sql']))
-
-    connection.queries = []
-
-
 def remove_game_data(account):
     heroes_logic.remove_hero(account_id=account.id)
 
 
 def _form_game_account_info(turn_number, account, in_pvp_queue, is_own, client_turns=None):
     data = {'id': account.id,
-            'last_visit': time.mktime((account.active_end_at - datetime.timedelta(seconds=accounts_settings.ACTIVE_STATE_TIMEOUT)).timetuple()),
+            'last_visit': time.mktime((account.active_end_at - datetime.timedelta(seconds=accounts_conf.settings.ACTIVE_STATE_TIMEOUT)).timetuple()),
             'is_own': is_own,
             'is_old': False,
             'hero': None,
@@ -143,12 +83,12 @@ def _form_game_account_info(turn_number, account, in_pvp_queue, is_own, client_t
                                                             patch_turns=client_turns,
                                                             for_last_turn=(not is_own))
     data['hero'] = hero_data
-    data['hero']['diary'] = heroes_tt_api.diary_version(account.id)
+    data['hero']['diary'] = heroes_tt_services.diary.cmd_version(account.id)
 
     data['is_old'] = (data['hero']['actual_on_turn'] < turn_number)
 
     if is_own:
-        data['energy'] = tt_api_energy.energy_balance(account.id)
+        data['energy'] = game_tt_services.energy.cmd_balance(account.id)
     else:
         data['energy'] = None
 
@@ -156,21 +96,17 @@ def _form_game_account_info(turn_number, account, in_pvp_queue, is_own, client_t
 
 
 def form_game_info(account=None, is_own=False, client_turns=None):
-    from the_tale.accounts.prototypes import AccountPrototype
-    from the_tale.game.prototypes import GameState
-    from the_tale.game.pvp.prototypes import Battle1x1Prototype
-
     data = {'mode': 'pve',
-            'turn': turn.ui_info(),
-            'game_state': GameState.state().value,
-            'map_version': map_info_storage.version,
+            'turn': game_turn.ui_info(),
+            'game_state': prototypes.GameState.state().value,
+            'map_version': map_storage.map_info.version,
             'account': None,
             'enemy': None}
 
     if account:
-        turn_number = turn.number()
+        turn_number = game_turn.number()
 
-        battle = Battle1x1Prototype.get_by_account_id(account.id)
+        battle = pvp_prototypes.Battle1x1Prototype.get_by_account_id(account.id)
         data['account'] = _form_game_account_info(turn_number,
                                                   account,
                                                   in_pvp_queue=False if battle is None else battle.state.is_WAITING,
@@ -180,7 +116,7 @@ def form_game_info(account=None, is_own=False, client_turns=None):
         if battle and battle.state.is_PROCESSING:
             data['mode'] = 'pvp'
             data['enemy'] = _form_game_account_info(turn_number,
-                                                    AccountPrototype.get_by_id(battle.enemy_id),
+                                                    accounts_prototypes.AccountPrototype.get_by_id(battle.enemy_id),
                                                     in_pvp_queue=False,
                                                     is_own=False,
                                                     client_turns=client_turns)
@@ -189,8 +125,8 @@ def form_game_info(account=None, is_own=False, client_turns=None):
 
 
 def game_info_url(account_id=None, client_turns=None):
-    arguments = {'api_version': conf.game_settings.INFO_API_VERSION,
-                 'api_client': project_settings.API_CLIENT}
+    arguments = {'api_version': conf.settings.INFO_API_VERSION,
+                 'api_client': django_settings.API_CLIENT}
 
     if account_id is not None:
         arguments['account'] = account_id
@@ -198,28 +134,28 @@ def game_info_url(account_id=None, client_turns=None):
     if client_turns:
         arguments['client_turns'] = ','.join(str(turn) for turn in client_turns)
 
-    return url('game:api-info', **arguments)
+    return dext_urls.url('game:api-info', **arguments)
 
 
 def game_diary_url():
-    arguments = {'api_version': conf.game_settings.DIARY_API_VERSION,
-                 'api_client': project_settings.API_CLIENT}
+    arguments = {'api_version': conf.settings.DIARY_API_VERSION,
+                 'api_client': django_settings.API_CLIENT}
 
-    return url('game:api-diary', **arguments)
+    return dext_urls.url('game:api-diary', **arguments)
 
 
 def game_names_url():
-    arguments = {'api_version': conf.game_settings.NAMES_API_VERSION,
-                 'api_client': project_settings.API_CLIENT}
+    arguments = {'api_version': conf.settings.NAMES_API_VERSION,
+                 'api_client': django_settings.API_CLIENT}
 
-    return url('game:api-names', **arguments)
+    return dext_urls.url('game:api-names', **arguments)
 
 
 def game_hero_history_url():
-    arguments = {'api_version': conf.game_settings.HERO_HISTORY_API_VERSION,
-                 'api_client': project_settings.API_CLIENT}
+    arguments = {'api_version': conf.settings.HERO_HISTORY_API_VERSION,
+                 'api_client': django_settings.API_CLIENT}
 
-    return url('game:api-hero-history', **arguments)
+    return dext_urls.url('game:api-hero-history', **arguments)
 
 
 def _game_info_from_1_1_to_1_0__heroes(data):
@@ -245,6 +181,7 @@ def _game_info_from_1_2_to_1_1__heroes(data):
 
 def _remove_variables_from_message(message):
     return message[:3] + message[5:]
+
 
 def _game_info_from_1_4_to_1_3__heroes(data):
     if 'diary' in data:
@@ -274,9 +211,9 @@ def _game_info_from_1_6_to_1_5__heroes(data):
                    'effectiveness': 0,
                    'probabilities': {'ice': 0,
                                      'blood': 0,
-                                     'flame': 0 },
-                    'energy': 0,
-                    'energy_speed': 0}
+                                     'flame': 0},
+                   'energy': 0,
+                   'energy_speed': 0}
     data['diary'] = []
 
 
@@ -386,8 +323,6 @@ def game_info_from_1_9_to_1_8(data):
 
 
 def accounts_info(accounts_ids):
-    from the_tale.accounts import prototypes as accounts_prototypes
-
     accounts = {account.id: account for account in accounts_prototypes.AccountPrototype.get_list_by_id(list(accounts_ids))}
     heroes = {hero.account_id: hero for hero in heroes_logic.load_heroes_by_account_ids(list(accounts_ids))}
 
@@ -413,32 +348,29 @@ def accounts_info(accounts_ids):
 
 
 def clans_info(accounts_data):
-    from the_tale.accounts.clans import prototypes as clans_prototypes
-
     clans_ids = set(account['clan'] for account in accounts_data.values() if account['clan'] is not None)
     return {clan.id: {'id': clan.id,
                       'abbr': clan.abbr,
                       'name': clan.name}
-            for clan in clans_prototypes.ClanPrototype.get_list_by_id(list(clans_ids))}
+            for clan in clans_logic.load_clans(list(clans_ids))}
+
+
+def hero_name_from_forms(name_forms, gender):
+    return lexicon_dictionary.noun(name_forms + [''] * 6,
+                                   'мр,од,ед' if gender.is_MALE else 'жр,од,ед')
 
 
 def generate_history(name_forms, gender, race, honor, peacefulness, archetype, upbringing, first_death, age):
-    from the_tale.linguistics import logic as linguistics_logic
-    from the_tale.linguistics.lexicon.dictionary import noun
-    from the_tale.linguistics.relations import TEMPLATE_RESTRICTION_GROUP
-    from the_tale.linguistics.storage import restrictions_storage
-    from the_tale.linguistics import objects as linguistics_objects
+    name = hero_name_from_forms(name_forms, gender)
 
-    name = noun(name_forms+['']*6, 'мр,од,ед' if gender.is_MALE else 'жр,од,ед')
-
-    restrictions = (restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.GENDER, gender.value).id,
-                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.RACE, race.value).id,
-                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_HONOR, honor.value).id,
-                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.HABIT_PEACEFULNESS, peacefulness.value).id,
-                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.ARCHETYPE, archetype.value).id,
-                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.UPBRINGING, upbringing.value).id,
-                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.FIRST_DEATH, first_death.value).id,
-                    restrictions_storage.get_restriction(TEMPLATE_RESTRICTION_GROUP.AGE, age.value).id)
+    restrictions = (linguistics_restrictions.get(gender),
+                    linguistics_restrictions.get(race),
+                    linguistics_restrictions.get(honor),
+                    linguistics_restrictions.get(peacefulness),
+                    linguistics_restrictions.get(archetype),
+                    linguistics_restrictions.get(upbringing),
+                    linguistics_restrictions.get(first_death),
+                    linguistics_restrictions.get(age))
 
     hero_variable = linguistics_objects.UTGVariable(word=name, restrictions=restrictions)
 

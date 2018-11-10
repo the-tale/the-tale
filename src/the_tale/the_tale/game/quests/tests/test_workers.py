@@ -1,39 +1,27 @@
 
-from unittest import mock
+import smart_imports
 
-import collections
-
-from questgen import facts as questgen_facts
-from questgen import knowledge_base as questgen_knowlege_base
-
-from the_tale.common.utils import testcase
-
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.quests import logic
-from the_tale.game.quests.workers import quests_generator
+smart_imports.all()
 
 
-class QuestsGeneratorWorkerTests(testcase.TestCase):
+class QuestsGeneratorWorkerTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(QuestsGeneratorWorkerTests, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.account_2 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
         self.storage.load_account_data(self.account_2)
         self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
         self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
 
-        self.worker = quests_generator.Worker(name='game_quests_generator')
+        self.worker = quests_workers_quests_generator.Worker(name='game_quests_generator')
 
         self.worker.initialize()
-
 
     def test_process_request_quest(self):
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_setup_quest') as cmd_setup_quest:
@@ -43,12 +31,10 @@ class QuestsGeneratorWorkerTests(testcase.TestCase):
         self.assertEqual(cmd_setup_quest.call_count, 1)
 
         self.assertEqual(cmd_setup_quest.call_args_list[0][0][0], self.hero_1.account_id)
-        self.assertTrue(questgen_knowlege_base.KnowledgeBase.deserialize(cmd_setup_quest.call_args_list[0][0][1], fact_classes=questgen_facts.FACTS))
-
+        self.assertTrue(questgen_knowledge_base.KnowledgeBase.deserialize(cmd_setup_quest.call_args_list[0][0][1], fact_classes=questgen_facts.FACTS))
 
     def test_generate_quest__empty_queue(self):
         self.worker.generate_quest()
-
 
     def test_process_request_quest__query(self):
         old_hero_1_info = logic.create_hero_info(self.hero_1)

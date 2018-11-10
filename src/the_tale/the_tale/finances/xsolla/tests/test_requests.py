@@ -1,22 +1,15 @@
-# coding: utf-8
-from unittest import mock
 
-from dext.common.utils.urls import url
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.finances.xsolla.logic import check_user_md5, pay_md5, cancel_md5
-from the_tale.finances.xsolla.relations import COMMAND_TYPE, CHECK_USER_RESULT, COMMON_RESULT, PAY_RESULT, CANCEL_RESULT
-from the_tale.finances.xsolla.prototypes import InvoicePrototype
+smart_imports.all()
 
 
-class BaseRequestsTests(testcase.TestCase):
+class BaseRequestsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(BaseRequestsTests, self).setUp()
         self.user_email = 'test@mailinator.com'
-        self.check_user_md5 = check_user_md5(command=COMMAND_TYPE.CHECK, v1=self.user_email)
-
+        self.check_user_md5 = logic.check_user_md5(command=relations.COMMAND_TYPE.CHECK, v1=self.user_email)
 
     def construct_url(self, command, md5_hash='', **kwargs):
         v1 = kwargs.get('v1', self.user_email)
@@ -24,12 +17,11 @@ class BaseRequestsTests(testcase.TestCase):
         if 'v1' in kwargs:
             del kwargs['v1']
 
-        return url('bank:xsolla:command',
-                   command=command.value,
-                   v1=v1,
-                   md5=md5_hash,
-                   **kwargs)
-
+        return dext_urls.url('bank:xsolla:command',
+                             command=command.value,
+                             v1=v1,
+                             md5=md5_hash,
+                             **kwargs)
 
     def construct_answer(self, check_result):
         answer = '''<?xml version="1.0" encoding="windows-1251"?>
@@ -42,22 +34,20 @@ class BaseRequestsTests(testcase.TestCase):
         return answer
 
 
-
 class CommonRequestsTests(BaseRequestsTests):
 
     def setUp(self):
         super(CommonRequestsTests, self).setUp()
 
     def test_wrong_ips(self):
-        with mock.patch('the_tale.finances.xsolla.conf.xsolla_settings.ALLOWED_IPS', ()):
-            self.check_xml_ok(self.request_xml(self.construct_url(command=COMMAND_TYPE.CHECK)),
-                              body=self.construct_answer(COMMON_RESULT.DISALLOWED_IP),
+        with mock.patch('the_tale.finances.xsolla.conf.settings.ALLOWED_IPS', ()):
+            self.check_xml_ok(self.request_xml(self.construct_url(command=relations.COMMAND_TYPE.CHECK)),
+                              body=self.construct_answer(relations.COMMON_RESULT.DISALLOWED_IP),
                               encoding='cp1251')
 
-
     def test_wrong_command(self):
-        self.check_xml_ok(self.request_xml(url('bank:xsolla:command', command='wrong-command')),
-                          body=self.construct_answer(COMMON_RESULT.WRONG_COMMAND),
+        self.check_xml_ok(self.request_xml(dext_urls.url('bank:xsolla:command', command='wrong-command')),
+                          body=self.construct_answer(relations.COMMON_RESULT.WRONG_COMMAND),
                           encoding='cp1251')
 
     @mock.patch('the_tale.finances.xsolla.views.logger.error', mock.Mock())
@@ -66,10 +56,9 @@ class CommonRequestsTests(BaseRequestsTests):
             raise Exception('!')
 
         with mock.patch('the_tale.finances.xsolla.logic.check_user', raise_exception):
-            self.check_xml_ok(self.request_xml(self.construct_url(command=COMMAND_TYPE.CHECK)),
-                              body=self.construct_answer(COMMON_RESULT.UNKNOWN_ERROR),
+            self.check_xml_ok(self.request_xml(self.construct_url(command=relations.COMMAND_TYPE.CHECK)),
+                              body=self.construct_answer(relations.COMMON_RESULT.UNKNOWN_ERROR),
                               encoding='cp1251')
-
 
 
 class CheckUserRequestsTests(BaseRequestsTests):
@@ -78,29 +67,28 @@ class CheckUserRequestsTests(BaseRequestsTests):
         super(CheckUserRequestsTests, self).setUp()
 
     def construct_url(self, md5_hash=None, **kwargs):
-        return super(CheckUserRequestsTests, self).construct_url(command=COMMAND_TYPE.CHECK,
+        return super(CheckUserRequestsTests, self).construct_url(command=relations.COMMAND_TYPE.CHECK,
                                                                  md5_hash=md5_hash if md5_hash else self.check_user_md5,
                                                                  **kwargs)
 
     def test_check_user__wrong_md5(self):
         self.check_xml_ok(self.request_xml(self.construct_url(md5_hash='bla-bla')),
-                          body=self.construct_answer(CHECK_USER_RESULT.WRONG_MD5),
+                          body=self.construct_answer(relations.CHECK_USER_RESULT.WRONG_MD5),
                           encoding='cp1251')
 
     def test_check_user__user_exists(self):
         with mock.patch('the_tale.finances.bank.logic.get_account_id', mock.Mock(return_value=13)) as bank_check_user:
             self.check_xml_ok(self.request_xml(self.construct_url()),
-                              body=self.construct_answer(CHECK_USER_RESULT.USER_EXISTS),
+                              body=self.construct_answer(relations.CHECK_USER_RESULT.USER_EXISTS),
                               encoding='cp1251')
 
         self.assertEqual(bank_check_user.call_count, 1)
         self.assertEqual(bank_check_user.call_args, mock.call(email=self.user_email))
 
-
     def test_check_user__user_not_exists(self):
         with mock.patch('the_tale.finances.bank.logic.get_account_id', mock.Mock(return_value=None)) as bank_check_user:
             self.check_xml_ok(self.request_xml(self.construct_url()),
-                              body=self.construct_answer(CHECK_USER_RESULT.USER_NOT_EXISTS),
+                              body=self.construct_answer(relations.CHECK_USER_RESULT.USER_NOT_EXISTS),
                               encoding='cp1251')
 
         self.assertEqual(bank_check_user.call_count, 1)
@@ -114,14 +102,14 @@ class PayRequestsTests(BaseRequestsTests):
         self.user_email = 'test@mailinator.com'
         self.xsolla_id = '666'
         self.payment_sum = '13'
-        self.pay_md5 = pay_md5(command=COMMAND_TYPE.PAY, v1=self.user_email, id=self.xsolla_id)
+        self.pay_md5 = logic.pay_md5(command=relations.COMMAND_TYPE.PAY, v1=self.user_email, id=self.xsolla_id)
 
     def construct_url(self, **kwargs):
         md5_hash = kwargs.get('md5_hash', self.pay_md5)
         v1 = kwargs.get('v1', self.user_email)
         xsolla_id = kwargs.get('xsolla_id', self.xsolla_id)
         payment_sum = kwargs.get('payment_sum', self.payment_sum)
-        return super(PayRequestsTests, self).construct_url(command=COMMAND_TYPE.PAY,
+        return super(PayRequestsTests, self).construct_url(command=relations.COMMAND_TYPE.PAY,
                                                            md5_hash=md5_hash,
                                                            v1=v1,
                                                            id=xsolla_id,
@@ -139,17 +127,16 @@ class PayRequestsTests(BaseRequestsTests):
     <comment>%(comment)s</comment>
 </response>
 ''' % {'xsolla_result': pay_result.xsolla_result.value,
-       'comment': pay_result.text,
-       'xsolla_id': xsolla_id,
-       'internal_id': internal_id,
-       'sum': payment_sum}
+            'comment': pay_result.text,
+            'xsolla_id': xsolla_id,
+            'internal_id': internal_id,
+            'sum': payment_sum}
 
         return answer
 
-
     def test_wrong_md5(self):
         self.check_xml_ok(self.request_xml(self.construct_url(md5_hash='bla-bla')),
-                          body=self.construct_pay_answer(PAY_RESULT.WRONG_MD5, internal_id=None),
+                          body=self.construct_pay_answer(relations.PAY_RESULT.WRONG_MD5, internal_id=None),
                           encoding='cp1251')
 
     def test_success(self):
@@ -157,19 +144,18 @@ class PayRequestsTests(BaseRequestsTests):
             response = self.request_xml(self.construct_url())
 
         self.check_xml_ok(response,
-                          body=self.construct_pay_answer(PAY_RESULT.SUCCESS, internal_id=InvoicePrototype._db_get_object(0).id),
+                          body=self.construct_pay_answer(relations.PAY_RESULT.SUCCESS, internal_id=prototypes.InvoicePrototype._db_get_object(0).id),
                           encoding='cp1251')
 
         self.assertEqual(bank_check_user.call_count, 1)
         self.assertEqual(bank_check_user.call_args, mock.call(email=self.user_email))
-
 
     def test_user_not_exists(self):
         with mock.patch('the_tale.finances.bank.logic.get_account_id', mock.Mock(return_value=None)) as bank_check_user:
             response = self.request_xml(self.construct_url())
 
         self.check_xml_ok(response,
-                          body=self.construct_pay_answer(PAY_RESULT.USER_NOT_EXISTS, internal_id=InvoicePrototype._db_get_object(0).id),
+                          body=self.construct_pay_answer(relations.PAY_RESULT.USER_NOT_EXISTS, internal_id=prototypes.InvoicePrototype._db_get_object(0).id),
                           encoding='cp1251')
 
         self.assertEqual(bank_check_user.call_count, 1)
@@ -181,14 +167,14 @@ class CancelRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(CancelRequestsTests, self).setUp()
         self.xsolla_id = '666'
-        self.cancel_md5 = cancel_md5(command=COMMAND_TYPE.CANCEL, id=self.xsolla_id)
+        self.cancel_md5 = logic.cancel_md5(command=relations.COMMAND_TYPE.CANCEL, id=self.xsolla_id)
 
     def construct_url(self, md5_hash=None, **kwargs):
-        return super(CancelRequestsTests, self).construct_url(command=COMMAND_TYPE.CANCEL,
+        return super(CancelRequestsTests, self).construct_url(command=relations.COMMAND_TYPE.CANCEL,
                                                               md5_hash=md5_hash if md5_hash else self.cancel_md5,
                                                               **kwargs)
 
     def test_not_supported(self):
         self.check_xml_ok(self.request_xml(self.construct_url()),
-                          body=self.construct_answer(CANCEL_RESULT.NOT_SUPPORTED),
+                          body=self.construct_answer(relations.CANCEL_RESULT.NOT_SUPPORTED),
                           encoding='cp1251')

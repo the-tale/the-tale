@@ -1,6 +1,7 @@
-# coding: utf-8
 
-from the_tale.game.actions import relations
+import smart_imports
+
+smart_imports.all()
 
 
 class ActionsContainer(object):
@@ -16,8 +17,6 @@ class ActionsContainer(object):
 
     @classmethod
     def deserialize(cls, data):
-        from the_tale.game.actions import prototypes
-
         obj = cls()
         obj.actions_list = [prototypes.ACTION_TYPES[relations.ACTION_TYPE.index_value[action_data['type']]].deserialize(data=action_data)
                             for action_data in data.get('actions', [])]
@@ -26,7 +25,6 @@ class ActionsContainer(object):
         return obj
 
     def initialize(self, hero):
-        from the_tale.game.actions import prototypes
         if not self.actions_list:
             prototypes.ActionIdlenessPrototype.create(hero=hero, _bundle_id=hero.account_id)
             self.is_single = True
@@ -61,7 +59,6 @@ class ActionsContainer(object):
 
     def reset_to_idl(self):
         self.actions_list = self.actions_list[:1]
-
 
     def request_replane(self):
         for action in self.actions_list:

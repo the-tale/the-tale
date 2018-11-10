@@ -1,9 +1,10 @@
-# coding: utf-8
 
-from the_tale.common.utils.exceptions import TheTaleError
+import smart_imports
+
+smart_imports.all()
 
 
-class RoadError(TheTaleError):
+class RoadError(utils_exceptions.TheTaleError):
     MSG = 'road error'
 
 

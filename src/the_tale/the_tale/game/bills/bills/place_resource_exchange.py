@@ -1,57 +1,42 @@
-# coding: utf-8
 
-from django.forms import ValidationError
+import smart_imports
 
-from utg import words as utg_words
-
-from dext.forms import fields
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-from the_tale.game.bills.bills.base_bill import BaseBill
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places.prototypes import ResourceExchangePrototype
-from the_tale.game.places.relations import RESOURCE_EXCHANGE_TYPE
-
-from the_tale.game.roads.storage import roads_storage
+smart_imports.all()
 
 
 ALLOWED_EXCHANGE_TYPES = [
-    RESOURCE_EXCHANGE_TYPE.NONE,
+    places_relations.RESOURCE_EXCHANGE_TYPE.NONE,
 
-    RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
-    RESOURCE_EXCHANGE_TYPE.PRODUCTION_NORMAL,
-    RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE,
-    RESOURCE_EXCHANGE_TYPE.PRODUCTION_EXTRA_LARGE,
+    places_relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL,
+    places_relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_NORMAL,
+    places_relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE,
+    places_relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_EXTRA_LARGE,
 
-    RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL,
-    RESOURCE_EXCHANGE_TYPE.SAFETY_NORMAL,
-    RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE,
-    RESOURCE_EXCHANGE_TYPE.SAFETY_EXTRA_LARGE,
+    places_relations.RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL,
+    places_relations.RESOURCE_EXCHANGE_TYPE.SAFETY_NORMAL,
+    places_relations.RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE,
+    places_relations.RESOURCE_EXCHANGE_TYPE.SAFETY_EXTRA_LARGE,
 
-    RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL,
-    RESOURCE_EXCHANGE_TYPE.TRANSPORT_NORMAL,
-    RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,
-    RESOURCE_EXCHANGE_TYPE.TRANSPORT_EXTRA_LARGE,
+    places_relations.RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL,
+    places_relations.RESOURCE_EXCHANGE_TYPE.TRANSPORT_NORMAL,
+    places_relations.RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE,
+    places_relations.RESOURCE_EXCHANGE_TYPE.TRANSPORT_EXTRA_LARGE,
 
-    RESOURCE_EXCHANGE_TYPE.CULTURE_SMALL,
-    RESOURCE_EXCHANGE_TYPE.CULTURE_NORMAL,
-    RESOURCE_EXCHANGE_TYPE.CULTURE_LARGE,
-    RESOURCE_EXCHANGE_TYPE.CULTURE_EXTRA_LARGE
-    ]
+    places_relations.RESOURCE_EXCHANGE_TYPE.CULTURE_SMALL,
+    places_relations.RESOURCE_EXCHANGE_TYPE.CULTURE_NORMAL,
+    places_relations.RESOURCE_EXCHANGE_TYPE.CULTURE_LARGE,
+    places_relations.RESOURCE_EXCHANGE_TYPE.CULTURE_EXTRA_LARGE
+]
 
 ALLOWED_EXCHANGE_TYPES_CHOICES = [(record, record.text) for record in ALLOWED_EXCHANGE_TYPES]
 
 
-class BaseForm(BaseUserForm):
-    place_1 = fields.ChoiceField(label='Первый город')
-    place_2 = fields.ChoiceField(label='Второй город')
+class BaseForm(forms.BaseUserForm):
+    place_1 = dext_fields.ChoiceField(label='Первый город')
+    place_2 = dext_fields.ChoiceField(label='Второй город')
 
-    resource_1 = fields.TypedChoiceField(label='Ресурс от первого города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=RESOURCE_EXCHANGE_TYPE.get_from_name)
-    resource_2 = fields.TypedChoiceField(label='Ресурс от второго города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=RESOURCE_EXCHANGE_TYPE.get_from_name)
+    resource_1 = dext_fields.TypedChoiceField(label='Ресурс от первого города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=places_relations.RESOURCE_EXCHANGE_TYPE.get_from_name)
+    resource_2 = dext_fields.TypedChoiceField(label='Ресурс от второго города', choices=ALLOWED_EXCHANGE_TYPES_CHOICES, coerce=places_relations.RESOURCE_EXCHANGE_TYPE.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
@@ -64,30 +49,30 @@ class BaseForm(BaseUserForm):
         place_1 = places_storage.places.get(int(cleaned_data['place_1']))
         place_2 = places_storage.places.get(int(cleaned_data['place_2']))
 
-        if roads_storage.get_by_places(place_1, place_2) is None:
-            raise ValidationError('Обмениваться ресурсами могут только города связаные дорогой')
+        if roads_storage.roads.get_by_places(place_1, place_2) is None:
+            raise django_forms.ValidationError('Обмениваться ресурсами могут только города связаные дорогой')
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_1)) or
-            c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_2)) ):
-            raise ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных записей в Книге Судьбы' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
+                c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_2))):
+            raise django_forms.ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных записей в Книге Судьбы' % {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
 
         resource_1 = cleaned_data.get('resource_1')
         resource_2 = cleaned_data.get('resource_2')
 
         if resource_1 is None:
-            raise ValidationError('Не указан ресурс от первого города')
+            raise django_forms.ValidationError('Не указан ресурс от первого города')
 
         if resource_2 is None:
-            raise ValidationError('Не указан ресурс от второго города')
+            raise django_forms.ValidationError('Не указан ресурс от второго города')
 
         if resource_1 not in ALLOWED_EXCHANGE_TYPES:
-            raise ValidationError('Нельзя заключить договор на обмен ресурса «%s»' % resource_1.text)
+            raise django_forms.ValidationError('Нельзя заключить договор на обмен ресурса «%s»' % resource_1.text)
 
         if resource_2 not in ALLOWED_EXCHANGE_TYPES:
-            raise ValidationError('Нельзя заключить договор на обмен ресурса «%s»' % resource_2.text)
+            raise django_forms.ValidationError('Нельзя заключить договор на обмен ресурса «%s»' % resource_2.text)
 
         if resource_1.parameter == resource_2.parameter:
-            raise ValidationError('Нельзя заключить договор на обмен одинаковыми ресурсами')
+            raise django_forms.ValidationError('Нельзя заключить договор на обмен одинаковыми ресурсами')
 
         return cleaned_data
 
@@ -96,18 +81,18 @@ class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
-class PlaceResourceExchange(BaseBill):
+class PlaceResourceExchange(base_bill.BaseBill):
     type = relations.BILL_TYPE.PLACE_RESOURCE_EXCHANGE
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
 
     CAPTION = 'Обмен ресурсами между городами'
-    DESCRIPTION = 'Устанавливает обмен ресурсами между городами. Обмен разрешён только между соседними городами (связанными прямой дорогой), один город может иметь не более %(max_exchanges)d активных записей в Книге Судьбы. Обмен не обязан быть равноценным.' %  {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
+    DESCRIPTION = 'Устанавливает обмен ресурсами между городами. Обмен разрешён только между соседними городами (связанными прямой дорогой), один город может иметь не более %(max_exchanges)d активных записей в Книге Судьбы. Обмен не обязан быть равноценным.' % {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
 
     def __init__(self, place_1_id=None, place_2_id=None, resource_1=None, resource_2=None, old_place_1_name_forms=None, old_place_2_name_forms=None):
         super(PlaceResourceExchange, self).__init__()
@@ -162,23 +147,22 @@ class PlaceResourceExchange(BaseBill):
         self.old_place_2_name_forms = self.place_2.utg_name
 
     def has_meaning(self):
-        if roads_storage.get_by_places(self.place_1, self.place_2) is None:
+        if roads_storage.roads.get_by_places(self.place_1, self.place_2) is None:
             return False
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(self.place_1)) or
-            c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(self.place_2)) ):
+                c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(self.place_2))):
             return False
 
         return True
 
-
     def apply(self, bill=None):
         if self.has_meaning():
-            ResourceExchangePrototype.create(place_1=self.place_1,
-                                             place_2=self.place_2,
-                                             resource_1=self.resource_1,
-                                             resource_2=self.resource_2,
-                                             bill=bill)
+            places_prototypes.ResourceExchangePrototype.create(place_1=self.place_1,
+                                                               place_2=self.place_2,
+                                                               resource_1=self.resource_1,
+                                                               resource_2=self.resource_2,
+                                                               bill=bill)
 
     def decline(self, bill):
         exchange = places_storage.resource_exchanges.get_exchange_for_bill_id(bill.id)
@@ -206,7 +190,7 @@ class PlaceResourceExchange(BaseBill):
         obj.place_2_id = data['place_2_id']
         obj.old_place_1_name_forms = utg_words.Word.deserialize(data['old_place_1_name_forms'])
         obj.old_place_2_name_forms = utg_words.Word.deserialize(data['old_place_2_name_forms'])
-        obj.resource_1 = RESOURCE_EXCHANGE_TYPE.index_value[data['resource_1']]
-        obj.resource_2 = RESOURCE_EXCHANGE_TYPE.index_value[data['resource_2']]
+        obj.resource_1 = places_relations.RESOURCE_EXCHANGE_TYPE.index_value[data['resource_1']]
+        obj.resource_2 = places_relations.RESOURCE_EXCHANGE_TYPE.index_value[data['resource_2']]
 
         return obj

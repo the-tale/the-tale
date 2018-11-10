@@ -1,29 +1,21 @@
-# coding: utf-8
-import datetime
 
-from the_tale.common.utils.testcase import TestCase
+import smart_imports
 
-from the_tale.accounts.third_party.conf import third_party_settings
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.accounts.third_party import prototypes
-from the_tale.accounts.third_party import relations
-from the_tale.accounts.third_party import logic
+smart_imports.all()
 
 
-class LogicTests(TestCase):
+class LogicTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(LogicTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
     def test_remove_expired_access_tokens(self):
 
-        old_created_at = datetime.datetime.now() - datetime.timedelta(minutes=third_party_settings.UNPROCESSED_ACCESS_TOKEN_LIVE_TIME)
+        old_created_at = datetime.datetime.now() - datetime.timedelta(minutes=conf.settings.UNPROCESSED_ACCESS_TOKEN_LIVE_TIME)
 
         t_1 = prototypes.AccessTokenPrototype.fast_create(1, account=None, state=relations.ACCESS_TOKEN_STATE.UNPROCESSED)
         t_1._model.created_at = old_created_at

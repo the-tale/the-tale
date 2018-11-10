@@ -1,13 +1,14 @@
-# coding: utf-8
 
-import xlrd
-import rels
+import smart_imports
 
-
-class XLSException(Exception): pass
+smart_imports.all()
 
 
-def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=None, data_type=lambda x: x): # pylint: disable=R0912,R0914,R0915
+class XLSException(Exception):
+    pass
+
+
+def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=None, data_type=lambda x: x):
 
     if rows and len(set(rows)) != len(rows):
         raise XLSException('duplicate row id')
@@ -28,8 +29,10 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
         row_data = list(sheet.row_values(row_number))
 
         if not any(row_data):
-            if visited: break
-            else: continue
+            if visited:
+                break
+            else:
+                continue
 
         row_rows.append(row_data)
 
@@ -47,9 +50,10 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
                 right_border_index = i
                 break
 
-        if right_border_index == -1: right_border_index = len(row)
+        if right_border_index == -1:
+            right_border_index = len(row)
 
-    data = [row[left_border_index:right_border_index+1] for row in row_rows]
+    data = [row[left_border_index:right_border_index + 1] for row in row_rows]
 
     if rows and columns:
         new_data = {}
@@ -70,7 +74,7 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
             if len(row[1:]) != len(columns):
                 raise XLSException('wrong number of elements in row: %r' % (row[1:], ))
 
-            new_data[row_id] = dict(zip(real_columns, [ data_type(el) for el in row[1:]]))
+            new_data[row_id] = dict(zip(real_columns, [data_type(el) for el in row[1:]]))
 
         return new_data
 
@@ -83,7 +87,7 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
             if row_id in new_data:
                 raise XLSException('duplicate row id: "%s"' % (row_id, ))
 
-            new_data[row_id] = [ data_type(el) for el in row[1:]]
+            new_data[row_id] = [data_type(el) for el in row[1:]]
 
         return new_data
 
@@ -98,7 +102,7 @@ def load_table(filename, sheet_index=0, encoding='utf-8', rows=None, columns=Non
         for row in data[1:]:
             if len(row) != len(columns):
                 raise XLSException('wrong number of elements in row: %r' % (row, ))
-            new_data.append(dict(zip(real_columns, [ data_type(el) for el in row])))
+            new_data.append(dict(zip(real_columns, [data_type(el) for el in row])))
         return new_data
 
     return data
@@ -125,10 +129,10 @@ def load_table_for_enums(filename, rows_enum, columns_enum, sheet_index=0, encod
                       columns=columns_values,
                       data_type=data_type)
 
-    result = dict( (row_id,
-                    dict( (columns_dict[column_str], column_value)
-                          for column_str, column_value in data[row_str].items()) )
-                    for row_id, row_str in rows_items)
+    result = dict((row_id,
+                   dict((columns_dict[column_str], column_value)
+                        for column_str, column_value in data[row_str].items()))
+                  for row_id, row_str in rows_items)
 
     return result
 
@@ -146,9 +150,9 @@ def load_table_for_enums_subsets(filename, rows, columns, sheet_index=0, encodin
                       columns=columns_values,
                       data_type=data_type)
 
-    result = dict( (row_id,
-                    dict( (columns_dict[column_str], column_value)
-                          for column_str, column_value in data[row_str].items()) )
-                    for row_id, row_str in rows_items)
+    result = dict((row_id,
+                   dict((columns_dict[column_str], column_value)
+                        for column_str, column_value in data[row_str].items()))
+                  for row_id, row_str in rows_items)
 
     return result

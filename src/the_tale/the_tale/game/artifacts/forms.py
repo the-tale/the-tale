@@ -1,46 +1,36 @@
 
-from dext.forms import forms, fields
+import smart_imports
 
-from utg import relations as utg_relations
-
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import bbcode
-
-from the_tale.linguistics.forms import WordField
-
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.artifacts import relations
+smart_imports.all()
 
 
 EFFECT_CHOICES = sorted(relations.ARTIFACT_EFFECT.choices(), key=lambda v: v[1])
 
 
-class ArtifactRecordBaseForm(forms.Form):
+class ArtifactRecordBaseForm(dext_forms.Form):
 
-    level = fields.IntegerField(label='минимальный уровень')
+    level = dext_fields.IntegerField(label='минимальный уровень')
 
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название')
+    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название')
 
-    description = bbcode.BBField(label='Описание', required=False)
+    description = utils_bbcode.BBField(label='Описание', required=False)
 
-    type = fields.TypedChoiceField(label='тип', choices=relations.ARTIFACT_TYPE.choices(), coerce=relations.ARTIFACT_TYPE.get_from_name)
-    power_type = fields.TypedChoiceField(label='тип силы', choices=relations.ARTIFACT_POWER_TYPE.choices(), coerce=relations.ARTIFACT_POWER_TYPE.get_from_name)
+    type = dext_fields.TypedChoiceField(label='тип', choices=relations.ARTIFACT_TYPE.choices(), coerce=relations.ARTIFACT_TYPE.get_from_name)
+    power_type = dext_fields.TypedChoiceField(label='тип силы', choices=relations.ARTIFACT_POWER_TYPE.choices(), coerce=relations.ARTIFACT_POWER_TYPE.get_from_name)
 
-    weapon_type = fields.TypedChoiceField(label='тип оружия',
-                                          choices=tt_artifacts_relations.WEAPON_TYPE.choices(),
-                                          coerce=tt_artifacts_relations.WEAPON_TYPE.get_from_name)
-    material = fields.TypedChoiceField(label='основной материал',
-                                       choices=tt_artifacts_relations.MATERIAL.choices(),
-                                       coerce=tt_artifacts_relations.MATERIAL.get_from_name)
+    weapon_type = dext_fields.TypedChoiceField(label='тип оружия',
+                                               choices=tt_artifacts_relations.WEAPON_TYPE.choices(),
+                                               coerce=tt_artifacts_relations.WEAPON_TYPE.get_from_name)
+    material = dext_fields.TypedChoiceField(label='основной материал',
+                                            choices=tt_artifacts_relations.MATERIAL.choices(),
+                                            coerce=tt_artifacts_relations.MATERIAL.get_from_name)
 
-    rare_effect = fields.TypedChoiceField(label='редкий эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
-    epic_effect = fields.TypedChoiceField(label='эпический эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
+    rare_effect = dext_fields.TypedChoiceField(label='редкий эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
+    epic_effect = dext_fields.TypedChoiceField(label='эпический эффект', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
 
-    special_effect = fields.TypedChoiceField(label='особое свойство', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
+    special_effect = dext_fields.TypedChoiceField(label='особое свойство', choices=EFFECT_CHOICES, coerce=relations.ARTIFACT_EFFECT.get_from_name)
 
-    mob = fields.ChoiceField(label='Монстр', required=False)
+    mob = dext_fields.ChoiceField(label='Монстр', required=False)
 
     def __init__(self, *args, **kwargs):
         super(ArtifactRecordBaseForm, self).__init__(*args, **kwargs)
@@ -74,7 +64,7 @@ class ArtifactRecordForm(ArtifactRecordBaseForm):
 
 
 class ModerateArtifactRecordForm(ArtifactRecordBaseForm):
-    approved = fields.BooleanField(label='одобрен', required=False)
+    approved = dext_fields.BooleanField(label='одобрен', required=False)
 
     @classmethod
     def get_initials(cls, mob):

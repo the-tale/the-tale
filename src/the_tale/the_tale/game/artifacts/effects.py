@@ -1,14 +1,7 @@
 
-from dext.common.utils import discovering
+import smart_imports
 
-from the_tale.game.balance import constants as c
-from the_tale.game.balance.power import Power
-
-from the_tale.game.heroes.habilities import nonbattle
-from the_tale.game.heroes.habilities import battle
-from the_tale.game.heroes.habilities import modifiers as battle_modifiers
-
-from the_tale.game.artifacts import relations
+smart_imports.all()
 
 
 class BaseEffect(object):
@@ -99,7 +92,6 @@ class Bag(BaseEffect):
     @classmethod
     def modify_attribute(cls, type_, value):
         return value + cls.MULTIPLIER if type_.is_MAX_BAG_SIZE else value
-
 
 
 class GreatPhysicalDamage(BaseEffect):
@@ -215,7 +207,7 @@ class IDLELength(BaseEffect):
 class Conviction(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CONVICTION
     DESCRIPTION = 'Уменьшение всех трат'
-    BONUS = nonbattle.HUCKSTER.BUY_BONUS[-1] / 2
+    BONUS = heroes_abilities_nonbattle.HUCKSTER.BUY_BONUS[-1] / 2
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -225,7 +217,7 @@ class Conviction(BaseEffect):
 class Charm(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.CHARM
     DESCRIPTION = 'Увеличение цены продажи предметов'
-    BONUS = nonbattle.HUCKSTER._sell_bonus(5) / 2
+    BONUS = heroes_abilities_nonbattle.HUCKSTER._sell_bonus(5) / 2
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -257,7 +249,7 @@ class Concentration(DoubleEnergy):
 class SpecialAura(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.SPECIAL_AURA
     DESCRIPTION = 'Физическая и магическая сила всех артефактов, получаемых героем, увеличивается на 1'
-    MULTIPLIER = Power(1, 1)
+    MULTIPLIER = power.Power(1, 1)
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -278,53 +270,62 @@ class AdditionalAbilitiesBase(BaseEffect):
 
 class LastChance(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.LAST_CHANCE
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.LAST_CHANCE.NAME
-    ABILITY = battle.LAST_CHANCE
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_battle.LAST_CHANCE.NAME
+    ABILITY = heroes_abilities_battle.LAST_CHANCE
+
 
 class Regeneration(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.REGENERATION
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.REGENERATION.NAME
-    ABILITY = battle.REGENERATION
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_battle.REGENERATION.NAME
+    ABILITY = heroes_abilities_battle.REGENERATION
+
 
 class Ice(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.ICE
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.FREEZING.NAME
-    ABILITY = battle.FREEZING
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_battle.FREEZING.NAME
+    ABILITY = heroes_abilities_battle.FREEZING
+
 
 class Flame(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.FLAME
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.FIREBALL.NAME
-    ABILITY = battle.FIREBALL
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_battle.FIREBALL.NAME
+    ABILITY = heroes_abilities_battle.FIREBALL
+
 
 class Poison(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.POISON
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.POISON_CLOUD.NAME
-    ABILITY = battle.POISON_CLOUD
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_battle.POISON_CLOUD.NAME
+    ABILITY = heroes_abilities_battle.POISON_CLOUD
+
 
 class VampireStrike(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.VAMPIRE_STRIKE
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.VAMPIRE_STRIKE.NAME
-    ABILITY = battle.VAMPIRE_STRIKE
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_battle.VAMPIRE_STRIKE.NAME
+    ABILITY = heroes_abilities_battle.VAMPIRE_STRIKE
+
 
 class Speedup(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.SPEEDUP
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.SPEEDUP.NAME
-    ABILITY = battle.SPEEDUP
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_battle.SPEEDUP.NAME
+    ABILITY = heroes_abilities_battle.SPEEDUP
+
 
 class CriticalHit(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.CRITICAL_HIT
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.CRITICAL_HIT.NAME
-    ABILITY = battle.CRITICAL_HIT
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_battle.CRITICAL_HIT.NAME
+    ABILITY = heroes_abilities_battle.CRITICAL_HIT
+
 
 class AstralBarrier(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.ASTRAL_BARRIER
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle_modifiers.GARGOYLE.NAME
-    ABILITY = battle_modifiers.GARGOYLE
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_modifiers.GARGOYLE.NAME
+    ABILITY = heroes_abilities_modifiers.GARGOYLE
+
 
 class Recklessness(AdditionalAbilitiesBase):
     TYPE = relations.ARTIFACT_EFFECT.RECKLESSNESS
-    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % battle.INSANE_STRIKE.NAME
-    ABILITY = battle.INSANE_STRIKE
+    DESCRIPTION = 'Герою становится доступна способность «%s» максимального уровня' % heroes_abilities_battle.INSANE_STRIKE.NAME
+    ABILITY = heroes_abilities_battle.INSANE_STRIKE
 
 
 class Esprit(BaseEffect):
@@ -334,13 +335,13 @@ class Esprit(BaseEffect):
 
     @classmethod
     def modify_attribute(cls, type_, value):
-        return value*cls.MULTIPLIER if type_.is_COHERENCE_EXPERIENCE else value
+        return value * cls.MULTIPLIER if type_.is_COHERENCE_EXPERIENCE else value
 
 
 class TerribleView(BaseEffect):
     TYPE = relations.ARTIFACT_EFFECT.TERRIBLE_VIEW
     DESCRIPTION = 'Герой выглядит настолько ужасно, что некоторые противники в ужасе убегают, не вступая в бой'
-    MULTIPLIER = c.KILL_BEFORE_BATTLE_PROBABILITY # just to be equal to some similar behavour
+    MULTIPLIER = c.KILL_BEFORE_BATTLE_PROBABILITY  # just to be equal to some similar behavour
 
     @classmethod
     def modify_attribute(cls, type_, value):
@@ -419,5 +420,5 @@ class ChildGift(BaseEffect):
 
 
 EFFECTS = {effect.TYPE: effect
-           for effect in discovering.discover_classes(globals().values(), BaseEffect)
+           for effect in dext_discovering.discover_classes(globals().values(), BaseEffect)
            if effect.TYPE is not None}

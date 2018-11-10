@@ -1,49 +1,37 @@
 
-from unittest import mock
-import datetime
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.common.postponed_tasks.prototypes import POSTPONED_TASK_LOGIC_RESULT, PostponedTaskPrototype
-from the_tale.common.postponed_tasks.tests.helpers import FakePostpondTaskPrototype
-
-from the_tale.game.heroes.models import Hero
-from the_tale.game.logic import create_test_map
-
-from the_tale.accounts import logic
-from the_tale.accounts import conf
-from the_tale.accounts.models import Account
-from the_tale.accounts.postponed_tasks import RegistrationTask
-from the_tale.accounts.achievements.prototypes import AccountAchievementsPrototype
-
-from the_tale.accounts.clans.prototypes import ClanPrototype
-from the_tale.accounts.clans.conf import clans_settings
-
-from the_tale.game.heroes import logic as heroes_logic
+smart_imports.all()
 
 
-class TestLogic(testcase.TestCase):
+class TestLogic(utils_testcase.TestCase):
 
     def setUp(self):
-        super(TestLogic, self).setUp()
-        create_test_map()
+        super().setUp()
+        game_logic.create_test_map()
 
     def test_block_expired_accounts(self):
-        task = RegistrationTask(account_id=None, referer=None, referral_of_id=None, action_id=None)
-        self.assertEqual(task.process(FakePostpondTaskPrototype()), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
+        fast_account = self.accounts_factory.create_account(is_fast=True)
+        fast_account._model.created_at = datetime.datetime.fromtimestamp(0)
+        fast_account._model.save()
 
-        task.account._model.created_at = datetime.datetime.fromtimestamp(0)
-        task.account._model.save()
+        normal_account = self.accounts_factory.create_account()
+        normal_account._model.created_at = datetime.datetime.fromtimestamp(0)
+        normal_account._model.save()
 
-        self.assertEqual(AccountAchievementsPrototype._db_count(), 1)
+        self.assertTrue(achievements_models.AccountAchievements.objects.all().count(), 2)
+        self.assertEqual(models.Account.objects.all().count(), 2)
+        self.assertEqual(heroes_models.Hero.objects.all().count(), 2)
 
-        logic.block_expired_accounts()
+        logic.block_expired_accounts(logger=logging.getLogger('dummy'))
 
-        self.assertEqual(Hero.objects.all().count(), 0)
+        self.assertEqual(achievements_models.AccountAchievements.objects.all().count(), 1)
+        self.assertEqual(heroes_models.Hero.objects.all().count(), 1)
+        self.assertEqual(models.Account.objects.all().count(), 1)
 
-        self.assertEqual(Account.objects.all().count(), 0)
-
-        self.assertEqual(AccountAchievementsPrototype._db_count(), 0)
+        self.assertEqual(achievements_models.AccountAchievements.objects.filter(id=normal_account.id).count(), 1)
+        self.assertEqual(heroes_models.Hero.objects.filter(id=normal_account.id).count(), 1)
+        self.assertEqual(models.Account.objects.filter(id=normal_account.id).count(), 1)
 
     def test_get_account_id_by_email(self):
         self.assertEqual(logic.get_account_id_by_email('bla@bla.bla'), None)
@@ -71,34 +59,72 @@ class TestLogic(testcase.TestCase):
         self.assertEqual(task.internal_logic.transfer_transaction, None)
         self.assertEqual(task.internal_logic.commission_transaction, None)
         self.assertEqual(task.internal_logic.comment, 'some comment')
-        self.assertEqual(task.internal_logic.amount, int(1000 * (1 - conf.accounts_settings.MONEY_SEND_COMMISSION)))
-        self.assertEqual(task.internal_logic.commission, 1000 * conf.accounts_settings.MONEY_SEND_COMMISSION)
+        self.assertEqual(task.internal_logic.amount, int(1000 * (1 - conf.settings.MONEY_SEND_COMMISSION)))
+        self.assertEqual(task.internal_logic.commission, 1000 * conf.settings.MONEY_SEND_COMMISSION)
 
 
-class TestGetAccountInfoLogic(testcase.TestCase):
+class TestGetAccountInfoLogic(utils_testcase.TestCase):
 
     def setUp(self):
-        super(TestGetAccountInfoLogic, self).setUp()
-        create_test_map()
+        super().setUp()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(self.account.id)
-
 
     def test_no_clan(self):
         info = logic.get_account_info(self.account, self.hero)
         self.assertEqual(info['clan'], None)
 
-
     def test_has_clan(self):
-        from the_tale.forum.prototypes import CategoryPrototype
+        forum_prototypes.CategoryPrototype.create(caption='category-1', slug=clans_conf.settings.FORUM_CATEGORY_SLUG, order=0)
 
-        CategoryPrototype.create(caption='category-1', slug=clans_settings.FORUM_CATEGORY_SLUG, order=0)
-
-        clan = ClanPrototype.create(self.account, abbr='abbr', name='name', motto='motto', description='description')
+        clan = clans_logic.create_clan(self.account, abbr='abbr', name='name', motto='motto', description='description')
 
         info = logic.get_account_info(self.account, self.hero)
         self.assertEqual(info['clan'],
                          {'id': clan.id,
                           'abbr': clan.abbr,
                           'name': clan.name})
+
+
+class CardsForNewAccountTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        game_logic.create_test_map()
+
+        cards_tt_services.storage.cmd_debug_clear_service()
+
+        self.account = self.accounts_factory.create_account()
+
+        self.expected_cards = [
+            cards_types.CARD.CHANGE_HERO_SPENDINGS.effect.create_card(available_for_auction=False,
+                                                                      type=cards_types.CARD.CHANGE_HERO_SPENDINGS,
+                                                                      item=heroes_relations.ITEMS_OF_EXPENDITURE.BUYING_ARTIFACT),
+            cards_types.CARD.HEAL_COMPANION_COMMON.effect.create_card(available_for_auction=False,
+                                                                      type=cards_types.CARD.HEAL_COMPANION_COMMON),
+            cards_types.CARD.ADD_EXPERIENCE_COMMON.effect.create_card(available_for_auction=False,
+                                                                      type=cards_types.CARD.ADD_EXPERIENCE_COMMON),
+            cards_types.CARD.CHANGE_ABILITIES_CHOICES.effect.create_card(available_for_auction=False,
+                                                                         type=cards_types.CARD.CHANGE_ABILITIES_CHOICES),
+            cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                  type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+            cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                  type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE),
+            cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                  type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.PLACE),
+            cards_types.CARD.CHANGE_PREFERENCE.effect.create_card(available_for_auction=False,
+                                                                  type=cards_types.CARD.CHANGE_PREFERENCE,
+                                                                  preference=heroes_relations.PREFERENCE_TYPE.FRIEND),
+            cards_types.CARD.ADD_BONUS_ENERGY_RARE.effect.create_card(available_for_auction=False,
+                                                                      type=cards_types.CARD.ADD_BONUS_ENERGY_RARE)]
+
+    def test_change_and_load(self):
+        cards = cards_tt_services.storage.cmd_get_items(self.account.id)
+
+        self.assertEqual({card.item_full_type for card in cards.values()},
+                         {card.item_full_type for card in self.expected_cards})

@@ -1,14 +1,11 @@
-# coding: utf-8
 
-from the_tale.game.abilities.deck.help import Help
-from the_tale.game.abilities.deck.arena_pvp_1x1 import ArenaPvP1x1
-from the_tale.game.abilities.deck.arena_pvp_1x1_leave_queue import ArenaPvP1x1LeaveQueue
-from the_tale.game.abilities.deck.arena_pvp_1x1_accept import ArenaPvP1x1Accept
-from the_tale.game.abilities.deck.drop_item import DropItem
+import smart_imports
+
+smart_imports.all()
 
 
-ABILITIES = {Help.TYPE: Help,
-             ArenaPvP1x1.TYPE: ArenaPvP1x1,
-             ArenaPvP1x1LeaveQueue.TYPE: ArenaPvP1x1LeaveQueue,
-             ArenaPvP1x1Accept.TYPE: ArenaPvP1x1Accept,
-             DropItem.TYPE: DropItem}
+ABILITIES = {help.Help.TYPE: help.Help,
+             arena_pvp_1x1.ArenaPvP1x1.TYPE: arena_pvp_1x1.ArenaPvP1x1,
+             arena_pvp_1x1_leave_queue.ArenaPvP1x1LeaveQueue.TYPE: arena_pvp_1x1_leave_queue.ArenaPvP1x1LeaveQueue,
+             arena_pvp_1x1_accept.ArenaPvP1x1Accept.TYPE: arena_pvp_1x1_accept.ArenaPvP1x1Accept,
+             drop_item.DropItem.TYPE: drop_item.DropItem}

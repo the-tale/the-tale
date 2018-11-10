@@ -1,53 +1,27 @@
 
-from unittest import mock
-import datetime
+import smart_imports
 
-from the_tale.forum.models import Post
-
-from the_tale.accounts import prototypes as accounts_prototypes
-from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
-
-from the_tale.linguistics.tests import helpers as linguistics_helpers
-
-from the_tale.game import names
-
-from the_tale.game import turn
-from the_tale.game.balance import constants as c
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.bills.models import Actor
-from the_tale.game.bills import relations
-from the_tale.game.bills.prototypes import BillPrototype, VotePrototype
-from the_tale.game.bills.bills import PlaceRenaming, PlaceDescripton
-from the_tale.game.bills.conf import bills_settings
-from the_tale.game.bills import exceptions
-from the_tale.game.bills.tests.helpers import BaseTestPrototypes
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
+smart_imports.all()
 
 
-class BillPrototypeTests(BaseTestPrototypes):
+class BillPrototypeTests(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(BillPrototypeTests, self).setUp()
 
         self.hero = heroes_logic.load_hero(account_id=self.account2.id)
 
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
     def create_bill(self, account=None, depends_on_id=None):
         if account is None:
             account = self.account1
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        return BillPrototype.create(account,
-                                    'bill-1-caption',
-                                    bill_data,
-                                    chronicle_on_accepted='chronicle-on-accepted',
-                                    depends_on_id=depends_on_id)
+        bill_data = bills.place_renaming.PlaceRenaming(place_id=self.place1.id, name_forms=game_names.generator().get_test_name('new_name_1'))
+        return prototypes.BillPrototype.create(account,
+                                               'bill-1-caption',
+                                               bill_data,
+                                               chronicle_on_accepted='chronicle-on-accepted',
+                                               depends_on_id=depends_on_id)
 
     def test_accepted_bills_count(self):
         for state in relations.BILL_STATE.records:
@@ -60,26 +34,26 @@ class BillPrototypeTests(BaseTestPrototypes):
             bill.state = state
             bill.save()
 
-        self.assertEqual(BillPrototype.accepted_bills_count(self.account1.id), 1)
-        self.assertEqual(BillPrototype.accepted_bills_count(self.account2.id), 1)
-        self.assertEqual(BillPrototype.accepted_bills_count(self.account3.id), 0)
+        self.assertEqual(prototypes.BillPrototype.accepted_bills_count(self.account1.id), 1)
+        self.assertEqual(prototypes.BillPrototype.accepted_bills_count(self.account2.id), 1)
+        self.assertEqual(prototypes.BillPrototype.accepted_bills_count(self.account3.id), 0)
 
     def test_is_active_bills_limit_reached__free_accounts(self):
         for i in range(c.FREE_ACCOUNT_MAX_ACTIVE_BILLS):
-            self.assertFalse(BillPrototype.is_active_bills_limit_reached(self.account1))
+            self.assertFalse(prototypes.BillPrototype.is_active_bills_limit_reached(self.account1))
             self.create_bill()
 
-        self.assertTrue(BillPrototype.is_active_bills_limit_reached(self.account1))
+        self.assertTrue(prototypes.BillPrototype.is_active_bills_limit_reached(self.account1))
 
     def test_is_active_bills_limit_reached__premiun_accounts(self):
         self.account1.prolong_premium(30)
         self.account1.save()
 
         for i in range(c.PREMIUM_ACCOUNT_MAX_ACTIVE_BILLS):
-            self.assertFalse(BillPrototype.is_active_bills_limit_reached(self.account1))
+            self.assertFalse(prototypes.BillPrototype.is_active_bills_limit_reached(self.account1))
             self.create_bill()
 
-        self.assertTrue(BillPrototype.is_active_bills_limit_reached(self.account1))
+        self.assertTrue(prototypes.BillPrototype.is_active_bills_limit_reached(self.account1))
 
     @mock.patch('the_tale.game.places.objects.Place.is_new', False)
     def test_can_vote__places_restrictions__no_places(self):
@@ -137,13 +111,13 @@ class BillPrototypeTests(BaseTestPrototypes):
             self.assertEqual(not state.break_dependent_bills, child_bill.has_meaning())
 
 
-class TestPrototypeApply(BaseTestPrototypes):
+class TestPrototypeApply(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(TestPrototypeApply, self).setUp()
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill_data = bills.place_renaming.PlaceRenaming(place_id=self.place1.id, name_forms=game_names.generator().get_test_name('new_name_1'))
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -180,17 +154,18 @@ class TestPrototypeApply(BaseTestPrototypes):
         places_storage.places.sync(force=True)
         self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
-    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.51)
+    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.51)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_not_enough_voices_percents(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
 
-        turn.increment()
-        turn.increment()
+        game_turn.increment()
+        game_turn.increment()
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
 
-        self.assertEqual(Post.objects.all().count(), 1)
+        self.assertEqual(forum_models.Post.objects.all().count(), 1)
 
         with self.check_not_changed(lambda: self.place1.attrs.stability):
             with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
@@ -199,29 +174,27 @@ class TestPrototypeApply(BaseTestPrototypes):
             self.assertEqual(cmd_run_account_method.call_count, 0)
             self.assertTrue(self.bill.state.is_REJECTED)
 
-            self.assertEqual(Post.objects.all().count(), 2)
+            self.assertEqual(forum_models.Post.objects.all().count(), 2)
 
-            bill = BillPrototype.get_by_id(self.bill.id)
+            bill = prototypes.BillPrototype.get_by_id(self.bill.id)
             self.assertTrue(bill.state.is_REJECTED)
 
             places_storage.places.sync(force=True)
 
             self.place1.refresh_attributes()
 
-        self.assertEqual(bill.applyed_at_turn, turn.number())
+        self.assertEqual(bill.applyed_at_turn, game_turn.number())
 
         self.check_place(self.place1.id, self.place1.name, self.place1.utg_name.forms)
 
-    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
-    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
-    def test_approved(self):
-        turn.increment()
-        turn.increment()
-        turn.increment()
+        page, total_records, events = chronicle_tt_services.chronicle.cmd_get_events(tags=(), page=1, records_on_page=100)
 
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
-        VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
+        self.assertEqual(total_records, 0)
+
+    def prepair_data_to_approve(self):
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
+        prototypes.VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
 
         ##################################
         # set name forms
@@ -235,20 +208,30 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.bill.update_by_moderator(form)
         ##################################
 
-        self.assertEqual(Post.objects.all().count(), 1)
+    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_approved(self):
+        game_turn.increment()
+        game_turn.increment()
+        game_turn.increment()
+
+        self.prepair_data_to_approve()
+
+        self.assertEqual(forum_models.Post.objects.all().count(), 1)
 
         with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
             self.assertTrue(self.bill.apply())
 
-        self.assertEqual(cmd_run_account_method.call_args_list, [mock.call(account_id=self.bill.owner.id,
-                                                                           method_name=accounts_prototypes.AccountPrototype.update_actual_bills.__name__,
-                                                                           data={})])
+        self.assertEqual(cmd_run_account_method.call_args_list,
+                         [mock.call(account_id=self.bill.owner.id,
+                                    method_name=accounts_prototypes.AccountPrototype.update_actual_bills.__name__,
+                                    data={})])
 
         self.assertTrue(self.bill.state.is_ACCEPTED)
 
-        self.assertEqual(Post.objects.all().count(), 2)
+        self.assertEqual(forum_models.Post.objects.all().count(), 2)
 
-        bill = BillPrototype.get_by_id(self.bill.id)
+        bill = prototypes.BillPrototype.get_by_id(self.bill.id)
         self.assertTrue(bill.state.is_ACCEPTED)
 
         places_storage.places.sync(force=True)
@@ -256,45 +239,47 @@ class TestPrototypeApply(BaseTestPrototypes):
         self.place1.refresh_attributes()
         self.assertTrue(self.place1.attrs.stability < 1.0)
 
-        self.assertEqual(bill.applyed_at_turn, turn.number())
+        self.assertEqual(bill.applyed_at_turn, game_turn.number())
 
         self.check_place(self.place1.id, 'new_name_1-нс,ед,им', self.bill.data.name_forms.forms)
 
-
-    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
     @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
     def test_achievements(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.FOR)
-        VotePrototype.create(self.account4, self.bill, relations.VOTE_TYPE.REFRAINED)
-
-        ##################################
-        # set name forms
-        data = self.bill.user_form_initials
-        data.update(linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name'))
-        data['approved'] = True
-        form = self.bill.data.get_moderator_form_update(data)
-
-        self.assertTrue(form.is_valid())
-        self.bill.update_by_moderator(form)
-        ##################################
+        self.prepair_data_to_approve()
 
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
             self.assertTrue(self.bill.apply())
 
-        self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.account1.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_ACCEPTED_BILLS,
-                                                                        old_value=0,
-                                                                        new_value=1)])
+        self.assertEqual(verify_achievements.call_args_list,
+                         [mock.call(account_id=self.account1.id,
+                                    type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_ACCEPTED_BILLS,
+                                    old_value=0,
+                                    new_value=1)])
+
+    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0.6)
+    @mock.patch('the_tale.game.bills.prototypes.BillPrototype.time_before_voting_end', datetime.timedelta(seconds=0))
+    def test_chronicle(self):
+        chronicle_tt_services.chronicle.cmd_debug_clear_service()
+
+        self.prepair_data_to_approve()
+
+        self.assertTrue(self.bill.apply())
+
+        page, total_records, events = chronicle_tt_services.chronicle.cmd_get_events(tags=(), page=1, records_on_page=100)
+
+        self.assertEqual(total_records, 1)
+
+        self.assertEqual(events[0].message, self.bill.chronicle_on_accepted)
 
 
-class TestPrototypeStop(BaseTestPrototypes):
+class TestPrototypeStop(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(TestPrototypeStop, self).setUp()
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill_data = bills.place_renaming.PlaceRenaming(place_id=self.place1.id, name_forms=game_names.generator().get_test_name('new_name_1'))
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.approved_by_moderator = True
         self.bill.save()
@@ -305,23 +290,23 @@ class TestPrototypeStop(BaseTestPrototypes):
         self.assertRaises(exceptions.StopBillInWrongStateError, self.bill.stop)
 
     def test_stopped(self):
-        with self.check_delta(Post.objects.all().count, 1):
+        with self.check_delta(forum_models.Post.objects.all().count, 1):
             self.bill.stop()
 
         self.assertTrue(self.bill.state.is_STOPPED)
 
 
-class TestPrototypeEnd(BaseTestPrototypes):
+class TestPrototypeEnd(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(TestPrototypeEnd, self).setUp()
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill_data = bills.place_renaming.PlaceRenaming(place_id=self.place1.id, name_forms=game_names.generator().get_test_name('new_name_1'))
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.state = relations.BILL_STATE.ACCEPTED
 
-        turn.increment()
+        game_turn.increment()
 
     def test_not_accepted(self):
         for state in relations.BILL_STATE.records:
@@ -349,25 +334,25 @@ class TestPrototypeEnd(BaseTestPrototypes):
         self.assertEqual(end.call_count, 1)
 
 
-class GetApplicableBillsTest(BaseTestPrototypes):
+class GetApplicableBillsTest(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(GetApplicableBillsTest, self).setUp()
 
-        self.bill_data = PlaceDescripton(place_id=self.place1.id, description='description')
-        self.bill_1 = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-        self.bill_2 = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
-        self.bill_3 = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_data = bills.place_description.PlaceDescripton(place_id=self.place1.id, description='description')
+        self.bill_1 = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_2 = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_3 = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
-        BillPrototype._model_class.objects.all().update(updated_at=datetime.datetime.now() - datetime.timedelta(seconds=bills_settings.BILL_LIVE_TIME),
-                                                        approved_by_moderator=True)
+        prototypes.BillPrototype._model_class.objects.all().update(updated_at=datetime.datetime.now() - datetime.timedelta(seconds=conf.settings.BILL_LIVE_TIME),
+                                                                   approved_by_moderator=True)
 
         self.bill_1.reload()
         self.bill_2.reload()
         self.bill_3.reload()
 
     def test_all(self):
-        self.assertEqual(set(BillPrototype.get_applicable_bills_ids()),
+        self.assertEqual(set(prototypes.BillPrototype.get_applicable_bills_ids()),
                          set((self.bill_1.id, self.bill_2.id, self.bill_3.id)))
 
     def test_wrong_state(self):
@@ -377,141 +362,138 @@ class GetApplicableBillsTest(BaseTestPrototypes):
                 continue
             self.bill_1.state = state
             self.bill_1.save()
-            self.assertEqual(set(BillPrototype.get_applicable_bills_ids()), set((self.bill_2.id, self.bill_3.id)))
+            self.assertEqual(set(prototypes.BillPrototype.get_applicable_bills_ids()), set((self.bill_2.id, self.bill_3.id)))
 
     def test_approved_by_moderator(self):
 
         self.bill_2.approved_by_moderator = False
         self.bill_2.save()
-        self.assertEqual(set(BillPrototype.get_applicable_bills_ids()), set((self.bill_1.id, self.bill_3.id)))
+        self.assertEqual(set(prototypes.BillPrototype.get_applicable_bills_ids()), set((self.bill_1.id, self.bill_3.id)))
 
     def test_voting_not_ended(self):
 
         self.bill_3._model.updated_at = datetime.datetime.now()
         self.bill_3.save()
-        self.assertEqual(set(BillPrototype.get_applicable_bills_ids()), set((self.bill_1.id, self.bill_2.id)))
+        self.assertEqual(set(prototypes.BillPrototype.get_applicable_bills_ids()), set((self.bill_1.id, self.bill_2.id)))
 
 
-class TestActorPrototype(BaseTestPrototypes):
+class TestActorPrototype(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(TestActorPrototype, self).setUp()
 
-        self.bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        self.bill_data = bills.place_renaming.PlaceRenaming(place_id=self.place1.id, name_forms=game_names.generator().get_test_name('new_name_1'))
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', self.bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
     def test_actors_created(self):
-        self.assertTrue(Actor.objects.all().exists())
+        self.assertTrue(models.Actor.objects.all().exists())
 
     def test_actors_after_user_update(self):
-        old_actors_timestamps = list(Actor.objects.all().values_list('created_at', flat=True))
+        old_actors_timestamps = list(models.Actor.objects.all().values_list('created_at', flat=True))
 
-        noun = names.generator().get_test_name('new-new-name')
+        noun = game_names.generator().get_test_name('new-new-name')
 
         data = linguistics_helpers.get_word_post_data(noun, prefix='name')
         data.update({'caption': 'new-caption',
                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
                      'place': self.place2.id})
 
-        form = PlaceRenaming.UserForm(data)
+        form = bills.place_renaming.PlaceRenaming.UserForm(data)
 
         self.assertTrue(form.is_valid())
         self.bill.update(form)
 
-        new_actors_timestamps = list(Actor.objects.all().values_list('created_at', flat=True))
+        new_actors_timestamps = list(models.Actor.objects.all().values_list('created_at', flat=True))
 
         self.assertFalse(set(old_actors_timestamps) & set(new_actors_timestamps))
         self.assertTrue(new_actors_timestamps)
 
 
-class TestVotePrototype(BaseTestPrototypes):
+class TestVotePrototype(helpers.BaseTestPrototypes):
 
     def setUp(self):
         super(TestVotePrototype, self).setUp()
 
-        bill_data = PlaceRenaming(place_id=self.place1.id, name_forms=names.generator().get_test_name('new_name_1'))
-        self.bill = BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
+        bill_data = bills.place_renaming.PlaceRenaming(place_id=self.place1.id, name_forms=game_names.generator().get_test_name('new_name_1'))
+        self.bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', bill_data, chronicle_on_accepted='chronicle-on-accepted')
 
         self.bill.approved_by_moderator = True
         self.bill.save()
 
     def test_votes_count(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
 
-        self.assertEqual(VotePrototype.votes_count(self.account1.id), 1)
-        self.assertEqual(VotePrototype.votes_count(self.account2.id), 1)
-        self.assertEqual(VotePrototype.votes_count(self.account3.id), 1)
-        self.assertEqual(VotePrototype.votes_count(self.account4.id), 0)
+        self.assertEqual(prototypes.VotePrototype.votes_count(self.account1.id), 1)
+        self.assertEqual(prototypes.VotePrototype.votes_count(self.account2.id), 1)
+        self.assertEqual(prototypes.VotePrototype.votes_count(self.account3.id), 1)
+        self.assertEqual(prototypes.VotePrototype.votes_count(self.account4.id), 0)
 
     def test_votes_for_count(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
 
-        self.assertEqual(VotePrototype.votes_for_count(self.account1.id), 1)
-        self.assertEqual(VotePrototype.votes_for_count(self.account2.id), 0)
-        self.assertEqual(VotePrototype.votes_for_count(self.account3.id), 0)
-        self.assertEqual(VotePrototype.votes_for_count(self.account4.id), 0)
+        self.assertEqual(prototypes.VotePrototype.votes_for_count(self.account1.id), 1)
+        self.assertEqual(prototypes.VotePrototype.votes_for_count(self.account2.id), 0)
+        self.assertEqual(prototypes.VotePrototype.votes_for_count(self.account3.id), 0)
+        self.assertEqual(prototypes.VotePrototype.votes_for_count(self.account4.id), 0)
 
     def test_votes_agains_count(self):
-        VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
-        VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
+        prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+        prototypes.VotePrototype.create(self.account3, self.bill, relations.VOTE_TYPE.REFRAINED)
 
-        self.assertEqual(VotePrototype.votes_against_count(self.account1.id), 0)
-        self.assertEqual(VotePrototype.votes_against_count(self.account2.id), 1)
-        self.assertEqual(VotePrototype.votes_against_count(self.account3.id), 0)
-        self.assertEqual(VotePrototype.votes_against_count(self.account4.id), 0)
-
-
+        self.assertEqual(prototypes.VotePrototype.votes_against_count(self.account1.id), 0)
+        self.assertEqual(prototypes.VotePrototype.votes_against_count(self.account2.id), 1)
+        self.assertEqual(prototypes.VotePrototype.votes_against_count(self.account3.id), 0)
+        self.assertEqual(prototypes.VotePrototype.votes_against_count(self.account4.id), 0)
 
     def test_vote_for_achievements(self):
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
-            VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.FOR)
+            prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.FOR)
 
         self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.account2.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_VOTES_TOTAL,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_VOTES_TOTAL,
                                                                         old_value=0,
                                                                         new_value=1),
                                                               mock.call(account_id=self.account2.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_VOTES_FOR,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_VOTES_FOR,
                                                                         old_value=0,
                                                                         new_value=1),
                                                               mock.call(account_id=self.account2.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_VOTES_AGAINST,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_VOTES_AGAINST,
                                                                         old_value=0,
                                                                         new_value=0)])
 
     def test_vote_agains_achievements(self):
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
-            VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
+            prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.AGAINST)
 
         self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.account2.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_VOTES_TOTAL,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_VOTES_TOTAL,
                                                                         old_value=0,
                                                                         new_value=1),
                                                               mock.call(account_id=self.account2.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_VOTES_FOR,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_VOTES_FOR,
                                                                         old_value=0,
                                                                         new_value=0),
                                                               mock.call(account_id=self.account2.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_VOTES_AGAINST,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_VOTES_AGAINST,
                                                                         old_value=0,
                                                                         new_value=1)])
 
-
     def test_vote_refrained_achievements(self):
         with mock.patch('the_tale.accounts.achievements.storage.AchievementsStorage.verify_achievements') as verify_achievements:
-            VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.REFRAINED)
+            prototypes.VotePrototype.create(self.account2, self.bill, relations.VOTE_TYPE.REFRAINED)
 
         self.assertEqual(verify_achievements.call_args_list, [mock.call(account_id=self.account2.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_VOTES_TOTAL,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_VOTES_TOTAL,
                                                                         old_value=0,
                                                                         new_value=1),
                                                               mock.call(account_id=self.account2.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_VOTES_FOR,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_VOTES_FOR,
                                                                         old_value=0,
                                                                         new_value=0),
                                                               mock.call(account_id=self.account2.id,
-                                                                        type=ACHIEVEMENT_TYPE.POLITICS_VOTES_AGAINST,
+                                                                        type=achievements_relations.ACHIEVEMENT_TYPE.POLITICS_VOTES_AGAINST,
                                                                         old_value=0,
                                                                         new_value=0)])

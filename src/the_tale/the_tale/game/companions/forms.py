@@ -1,68 +1,50 @@
 
-from dext.forms import forms, fields
+import smart_imports
 
-from utg import relations as utg_relations
-
-from tt_logic.beings import relations as beings_relations
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.common.utils import bbcode
-
-from the_tale.linguistics.forms import WordField
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.artifacts import objects as artifacts_objects
-from the_tale.game.artifacts import relations as artifacts_relations
-
-from the_tale.game.companions import relations
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.companions.abilities import forms as abilities_forms
+smart_imports.all()
 
 
-class CompanionRecordForm(forms.Form):
+class CompanionRecordForm(dext_forms.Form):
 
-    name = WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название')
+    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название')
 
-    max_health = fields.IntegerField(label='здоровье', min_value=c.COMPANIONS_MIN_HEALTH, max_value=c.COMPANIONS_MAX_HEALTH)
+    max_health = dext_fields.IntegerField(label='здоровье', min_value=c.COMPANIONS_MIN_HEALTH, max_value=c.COMPANIONS_MAX_HEALTH)
 
-    type = fields.RelationField(label='тип', relation=beings_relations.TYPE)
-    dedication = fields.RelationField(label='самоотверженность', relation=relations.DEDICATION)
-    archetype = fields.RelationField(label='архетип', relation=game_relations.ARCHETYPE)
-    mode = fields.RelationField(label='режим появления в игре', relation=relations.MODE)
+    type = dext_fields.RelationField(label='тип', relation=tt_beings_relations.TYPE)
+    dedication = dext_fields.RelationField(label='самоотверженность', relation=relations.DEDICATION)
+    archetype = dext_fields.RelationField(label='архетип', relation=game_relations.ARCHETYPE)
+    mode = dext_fields.RelationField(label='режим появления в игре', relation=relations.MODE)
 
-    communication_verbal = fields.RelationField(label='вербальное общение', relation=beings_relations.COMMUNICATION_VERBAL)
-    communication_gestures = fields.RelationField(label='невербальное общение', relation=beings_relations.COMMUNICATION_GESTURES)
-    communication_telepathic = fields.RelationField(label='телепатия', relation=beings_relations.COMMUNICATION_TELEPATHIC)
+    communication_verbal = dext_fields.RelationField(label='вербальное общение', relation=tt_beings_relations.COMMUNICATION_VERBAL)
+    communication_gestures = dext_fields.RelationField(label='невербальное общение', relation=tt_beings_relations.COMMUNICATION_GESTURES)
+    communication_telepathic = dext_fields.RelationField(label='телепатия', relation=tt_beings_relations.COMMUNICATION_TELEPATHIC)
 
-    intellect_level = fields.RelationField(label='уровень интеллекта', relation=beings_relations.INTELLECT_LEVEL)
+    intellect_level = dext_fields.RelationField(label='уровень интеллекта', relation=tt_beings_relations.INTELLECT_LEVEL)
 
-    abilities = abilities_forms.AbilitiesField(label='', required=False)
+    abilities = companions_abilities_forms.AbilitiesField(label='', required=False)
 
-    structure = fields.RelationField(label='структура', relation=beings_relations.STRUCTURE, sort_key=lambda choice: choice[1])
-    features = fields.TypedMultipleChoiceField(label='особенности',
-                                               choices=sorted(beings_relations.FEATURE.choices(), key=lambda choice: choice[1]),
-                                               coerce=beings_relations.FEATURE.get_from_name)
-    movement = fields.RelationField(label='способ передвижения', relation=beings_relations.MOVEMENT)
-    body = fields.RelationField(label='форма тела', relation=beings_relations.BODY, sort_key=lambda choice: choice[1])
-    size = fields.RelationField(label='размер тела', relation=beings_relations.SIZE)
-    orientation = fields.RelationField(label='положение тела', relation=beings_relations.ORIENTATION)
+    structure = dext_fields.RelationField(label='структура', relation=tt_beings_relations.STRUCTURE, sort_key=lambda choice: choice[1])
+    features = dext_fields.TypedMultipleChoiceField(label='особенности',
+                                                    choices=sorted(tt_beings_relations.FEATURE.choices(), key=lambda choice: choice[1]),
+                                                    coerce=tt_beings_relations.FEATURE.get_from_name)
+    movement = dext_fields.RelationField(label='способ передвижения', relation=tt_beings_relations.MOVEMENT)
+    body = dext_fields.RelationField(label='форма тела', relation=tt_beings_relations.BODY, sort_key=lambda choice: choice[1])
+    size = dext_fields.RelationField(label='размер тела', relation=tt_beings_relations.SIZE)
+    orientation = dext_fields.RelationField(label='положение тела', relation=tt_beings_relations.ORIENTATION)
 
-    weapon_1 = fields.RelationField(label='оружие 1', relation=artifacts_relations.STANDARD_WEAPON, sort_key=lambda choice: choice[1])
-    material_1 = fields.RelationField(label='материал оружия 1', relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
-    power_type_1 = fields.RelationField(label='тип силы оружия 1', relation=artifacts_relations.ARTIFACT_POWER_TYPE)
+    weapon_1 = dext_fields.RelationField(label='оружие 1', relation=artifacts_relations.STANDARD_WEAPON, sort_key=lambda choice: choice[1])
+    material_1 = dext_fields.RelationField(label='материал оружия 1', relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
+    power_type_1 = dext_fields.RelationField(label='тип силы оружия 1', relation=artifacts_relations.ARTIFACT_POWER_TYPE)
 
-    weapon_2 = fields.RelationField(label='оружие 2', required=False, relation=artifacts_relations.STANDARD_WEAPON, sort_key=lambda choice: choice[1])
-    material_2 = fields.RelationField(label='материал оружия 2', required=False, relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
-    power_type_2 = fields.RelationField(label='тип силы оружия 2', required=False, relation=artifacts_relations.ARTIFACT_POWER_TYPE)
+    weapon_2 = dext_fields.RelationField(label='оружие 2', required=False, relation=artifacts_relations.STANDARD_WEAPON, sort_key=lambda choice: choice[1])
+    material_2 = dext_fields.RelationField(label='материал оружия 2', required=False, relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
+    power_type_2 = dext_fields.RelationField(label='тип силы оружия 2', required=False, relation=artifacts_relations.ARTIFACT_POWER_TYPE)
 
-    weapon_3 = fields.RelationField(label='оружие 3', required=False, relation=artifacts_relations.STANDARD_WEAPON, sort_key=lambda choice: choice[1])
-    material_3 = fields.RelationField(label='материал оружия 3', required=False, relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
-    power_type_3 = fields.RelationField(label='тип силы оружия 3', required=False, relation=artifacts_relations.ARTIFACT_POWER_TYPE)
+    weapon_3 = dext_fields.RelationField(label='оружие 3', required=False, relation=artifacts_relations.STANDARD_WEAPON, sort_key=lambda choice: choice[1])
+    material_3 = dext_fields.RelationField(label='материал оружия 3', required=False, relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
+    power_type_3 = dext_fields.RelationField(label='тип силы оружия 3', required=False, relation=artifacts_relations.ARTIFACT_POWER_TYPE)
 
-    description = bbcode.BBField(label='Описание', required=False)
+    description = utils_bbcode.BBField(label='Описание', required=False)
 
     def clean_features(self):
         features = self.cleaned_data['features']

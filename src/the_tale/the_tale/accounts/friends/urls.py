@@ -1,7 +1,7 @@
-# coding: utf-8
 
-from dext.views import resource_patterns
+import smart_imports
 
-from the_tale.accounts.friends.views import FriendsResource
+smart_imports.all()
 
-urlpatterns = resource_patterns(FriendsResource)
+
+urlpatterns = dext_old_views.resource_patterns(views.FriendsResource)

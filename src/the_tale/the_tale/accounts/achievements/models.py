@@ -1,53 +1,48 @@
-# coding: utf-8
 
-from django.db import models
+import smart_imports
 
-from rels.django import RelationIntegerField
-
-from the_tale.accounts.achievements.relations import ACHIEVEMENT_GROUP, ACHIEVEMENT_TYPE
+smart_imports.all()
 
 
-class Achievement(models.Model):
+class Achievement(django_models.Model):
 
     CAPTION_MAX_LENGTH = 128
     DESCRIPTION_MAX_LENGTH = 1024
 
-    created_at = models.DateTimeField(auto_now_add=True, null=False)
-    updated_at = models.DateTimeField(auto_now=True, null=False)
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = django_models.DateTimeField(auto_now=True, null=False)
 
-    group = RelationIntegerField(relation=ACHIEVEMENT_GROUP, db_index=True)
-    type = RelationIntegerField(relation=ACHIEVEMENT_TYPE, db_index=True)
+    group = rels_django.RelationIntegerField(relation=relations.ACHIEVEMENT_GROUP, db_index=True)
+    type = rels_django.RelationIntegerField(relation=relations.ACHIEVEMENT_TYPE, db_index=True)
 
-    caption = models.CharField(max_length=CAPTION_MAX_LENGTH)
-    description = models.CharField(max_length=DESCRIPTION_MAX_LENGTH)
+    caption = django_models.CharField(max_length=CAPTION_MAX_LENGTH)
+    description = django_models.CharField(max_length=DESCRIPTION_MAX_LENGTH)
 
-    order = models.IntegerField()
+    order = django_models.IntegerField()
 
-    approved = models.BooleanField(default=False)
+    approved = django_models.BooleanField(default=False)
 
-    barrier = models.IntegerField()
+    barrier = django_models.IntegerField()
 
-    points = models.IntegerField()
+    points = django_models.IntegerField()
 
-    item_1 = models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
-    item_2 = models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
-    item_3 = models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=models.SET_NULL)
+    item_1 = django_models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=django_models.SET_NULL)
+    item_2 = django_models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=django_models.SET_NULL)
+    item_3 = django_models.ForeignKey('collections.Item', null=True, default=None, related_name='+', on_delete=django_models.SET_NULL)
 
     class Meta:
         permissions = (('edit_achievement', 'Может создавать и редактировать достижения'),)
 
 
+class AccountAchievements(django_models.Model):
 
-class AccountAchievements(models.Model):
+    account = django_models.OneToOneField('accounts.Account', on_delete=django_models.CASCADE)
 
-    account = models.OneToOneField('accounts.Account', on_delete=models.CASCADE)
+    achievements = django_models.TextField(default='{}')
 
-    achievements = models.TextField(default='{}')
-
-    points = models.IntegerField(default=0)
-
+    points = django_models.IntegerField(default=0)
 
 
-class GiveAchievementTask(models.Model):
-    account = models.ForeignKey('accounts.Account', null=True, on_delete=models.CASCADE)
-    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
+class GiveAchievementTask(django_models.Model):
+    account = django_models.ForeignKey('accounts.Account', null=True, on_delete=django_models.CASCADE)
+    achievement = django_models.ForeignKey(Achievement, on_delete=django_models.CASCADE)

@@ -1,8 +1,8 @@
 
-from the_tale.game import attributes
+import smart_imports
 
-from . import relations
+smart_imports.all()
 
 
-class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
+class Attributes(game_attributes.create_attributes_class(relations.ATTRIBUTE)):
     __slots__ = ()

@@ -1,24 +1,10 @@
 
-import random
+import smart_imports
 
-from questgen.relations import OPTION_MARKERS as QUEST_OPTION_MARKERS
-
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.game.mobs import storage as mobs_storage
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.actions.relations import ACTION_EVENT
-
-from the_tale.game.habits import HabitBase
-from the_tale.game import relations as game_relations
-
-from the_tale.accounts.achievements.storage import achievements_storage
-from the_tale.accounts.achievements.relations import ACHIEVEMENT_TYPE
+smart_imports.all()
 
 
-class Habit(HabitBase):
+class Habit(game_habits.HabitBase):
     __slots__ = ()
 
     @property
@@ -53,7 +39,7 @@ class Honor(Habit):
     TYPE = game_relations.HABIT_TYPE.HONOR
 
     def change(self, delta):
-        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.HABITS_HONOR, object=self.owner):
+        with achievements_storage.achievements.verify(type=achievements_relations.ACHIEVEMENT_TYPE.HABITS_HONOR, object=self.owner):
             super(Honor, self).change(delta)
 
     def modify_attribute(self, modifier, value):
@@ -64,27 +50,27 @@ class Honor(Habit):
             return value + c.HONOR_POWER_BONUS_FRACTION
 
         if modifier.is_QUEST_MARKERS and (self._real_interval.is_LEFT_1 or self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
-            value[QUEST_OPTION_MARKERS.DISHONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER))
+            value[questgen_relations.OPTION_MARKERS.DISHONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
         if modifier.is_QUEST_MARKERS and (self._real_interval.is_RIGHT_1 or self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
-            value[QUEST_OPTION_MARKERS.HONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER))
+            value[questgen_relations.OPTION_MARKERS.HONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
         if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self._real_interval.is_LEFT_1 or self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
-            value[QUEST_OPTION_MARKERS.DISHONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
+            value[questgen_relations.OPTION_MARKERS.DISHONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
 
         if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self._real_interval.is_RIGHT_1 or self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
-            value[QUEST_OPTION_MARKERS.HONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
+            value[questgen_relations.OPTION_MARKERS.HONORABLE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
 
         if modifier.is_HONOR_EVENTS and (self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
-            value.add(ACTION_EVENT.NOBLE)
+            value.add(actions_relations.ACTION_EVENT.NOBLE)
             return value
 
         if modifier.is_HONOR_EVENTS and (self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
-            value.add(ACTION_EVENT.DISHONORABLE)
+            value.add(actions_relations.ACTION_EVENT.DISHONORABLE)
             return value
 
         return value
@@ -106,14 +92,13 @@ class Honor(Habit):
             actor.context.use_crit_chance(c.MONSTER_TYPE_BATTLE_CRIT_MAX_CHANCE / mobs_storage.mobs.mob_type_fraction(enemy.mob_type))
 
 
-
 class Peacefulness(Habit):
     __slots__ = ()
 
     TYPE = game_relations.HABIT_TYPE.PEACEFULNESS
 
     def change(self, delta):
-        with achievements_storage.verify(type=ACHIEVEMENT_TYPE.HABITS_PEACEFULNESS, object=self.owner):
+        with achievements_storage.achievements.verify(type=achievements_relations.ACHIEVEMENT_TYPE.HABITS_PEACEFULNESS, object=self.owner):
             super(Peacefulness, self).change(delta)
 
     def modify_attribute(self, modifier, value):
@@ -128,27 +113,27 @@ class Peacefulness(Habit):
             return value * c.HABIT_LOOT_PROBABILITY_MODIFIER
 
         if modifier.is_QUEST_MARKERS and (self._real_interval.is_LEFT_1 or self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
-            value[QUEST_OPTION_MARKERS.AGGRESSIVE] =  abs(self.raw_value / float(c.HABITS_BORDER))
+            value[questgen_relations.OPTION_MARKERS.AGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
         if modifier.is_QUEST_MARKERS and (self._real_interval.is_RIGHT_1 or self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
-            value[QUEST_OPTION_MARKERS.UNAGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER))
+            value[questgen_relations.OPTION_MARKERS.UNAGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER))
             return value
 
         if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self._real_interval.is_LEFT_1 or self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
-            value[QUEST_OPTION_MARKERS.AGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
+            value[questgen_relations.OPTION_MARKERS.AGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
 
         if modifier.is_QUEST_MARKERS_REWARD_BONUS and (self._real_interval.is_RIGHT_1 or self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
-            value[QUEST_OPTION_MARKERS.UNAGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
+            value[questgen_relations.OPTION_MARKERS.UNAGGRESSIVE] = abs(self.raw_value / float(c.HABITS_BORDER)) * c.HABIT_QUEST_REWARD_MAX_BONUS
             return value
 
         if modifier.is_HONOR_EVENTS and (self._real_interval.is_RIGHT_2 or self._real_interval.is_RIGHT_3):
-            value.add(ACTION_EVENT.PEACEABLE)
+            value.add(actions_relations.ACTION_EVENT.PEACEABLE)
             return value
 
         if modifier.is_HONOR_EVENTS and (self._real_interval.is_LEFT_2 or self._real_interval.is_LEFT_3):
-            value.add(ACTION_EVENT.AGGRESSIVE)
+            value.add(actions_relations.ACTION_EVENT.AGGRESSIVE)
             return value
 
         return value
@@ -158,7 +143,7 @@ class Peacefulness(Habit):
             return random.uniform(0, 1) < c.EXP_FOR_KILL_PROBABILITY
 
         if modifier.is_PEACEFULL_BATTLE and self._real_interval.is_RIGHT_3:
-            return random.uniform(0, 1) < c.PEACEFULL_BATTLE_PROBABILITY / mobs_storage.mobs.mob_type_fraction(beings_relations.TYPE.CIVILIZED)
+            return random.uniform(0, 1) < c.PEACEFULL_BATTLE_PROBABILITY / mobs_storage.mobs.mob_type_fraction(tt_beings_relations.TYPE.CIVILIZED)
 
         return False
 

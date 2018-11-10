@@ -1,107 +1,101 @@
-# coding: utf-8
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic import create_test_map
-
-from the_tale.collections.prototypes import CollectionPrototype, KitPrototype, ItemPrototype, AccountItemsPrototype, GiveItemTaskPrototype
-from the_tale.collections.storage import collections_storage, kits_storage, items_storage
-from the_tale.collections import exceptions
+smart_imports.all()
 
 
-class PrototypeTestsBase(testcase.TestCase):
+class PrototypeTestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(PrototypeTestsBase, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.account_1_items = AccountItemsPrototype.get_by_account_id(self.account_1.id)
+        self.account_1_items = prototypes.AccountItemsPrototype.get_by_account_id(self.account_1.id)
 
-        self.collection_1 = CollectionPrototype.create(caption='collection_1', description='description_1')
-        self.collection_2 = CollectionPrototype.create(caption='collection_2', description='description_2', approved=True)
+        self.collection_1 = prototypes.CollectionPrototype.create(caption='collection_1', description='description_1')
+        self.collection_2 = prototypes.CollectionPrototype.create(caption='collection_2', description='description_2', approved=True)
 
-        self.kit_1 = KitPrototype.create(collection=self.collection_1, caption='kit_1', description='description_1')
+        self.kit_1 = prototypes.KitPrototype.create(collection=self.collection_1, caption='kit_1', description='description_1')
 
-        self.kit_2 = KitPrototype.create(collection=self.collection_2, caption='kit_2', description='description_2', approved=True)
-        self.kit_3 = KitPrototype.create(collection=self.collection_2, caption='kit_3', description='description_3', approved=True)
+        self.kit_2 = prototypes.KitPrototype.create(collection=self.collection_2, caption='kit_2', description='description_2', approved=True)
+        self.kit_3 = prototypes.KitPrototype.create(collection=self.collection_2, caption='kit_3', description='description_3', approved=True)
 
-        self.item_1_1 = ItemPrototype.create(kit=self.kit_1, caption='item_1_1', text='text_1_1', approved=False)
-        self.item_1_2 = ItemPrototype.create(kit=self.kit_1, caption='item_1_2', text='text_1_2', approved=True)
-        self.item_2_1 = ItemPrototype.create(kit=self.kit_2, caption='item_2_1', text='text_2_1', approved=True)
-        self.item_2_2 = ItemPrototype.create(kit=self.kit_2, caption='item_2_2', text='text_2_2', approved=False)
-        self.item_3_1 = ItemPrototype.create(kit=self.kit_3, caption='item_3_1', text='text_3_1', approved=True)
+        self.item_1_1 = prototypes.ItemPrototype.create(kit=self.kit_1, caption='item_1_1', text='text_1_1', approved=False)
+        self.item_1_2 = prototypes.ItemPrototype.create(kit=self.kit_1, caption='item_1_2', text='text_1_2', approved=True)
+        self.item_2_1 = prototypes.ItemPrototype.create(kit=self.kit_2, caption='item_2_1', text='text_2_1', approved=True)
+        self.item_2_2 = prototypes.ItemPrototype.create(kit=self.kit_2, caption='item_2_2', text='text_2_2', approved=False)
+        self.item_3_1 = prototypes.ItemPrototype.create(kit=self.kit_3, caption='item_3_1', text='text_3_1', approved=True)
 
 
 class CollectionPrototypeTests(PrototypeTestsBase):
 
     def test_create(self):
-        self.assertTrue(self.collection_1.id in collections_storage)
-        self.assertTrue(self.collection_2.id in collections_storage)
+        self.assertTrue(self.collection_1.id in storage.collections)
+        self.assertTrue(self.collection_2.id in storage.collections)
 
-        with self.check_changed(lambda: collections_storage.version):
-            collection = CollectionPrototype.create(caption='collection_3', description='description_3')
+        with self.check_changed(lambda: storage.collections.version):
+            collection = prototypes.CollectionPrototype.create(caption='collection_3', description='description_3')
 
-        self.assertTrue(collection.id in collections_storage)
+        self.assertTrue(collection.id in storage.collections)
 
     def test_save(self):
-        with self.check_changed(lambda: collections_storage.version):
+        with self.check_changed(lambda: storage.collections.version):
             self.collection_1.save()
 
     def test_save__not_from_storage(self):
-        self.assertRaises(exceptions.SaveNotRegisteredCollectionError, CollectionPrototype.get_by_id(self.collection_1.id).save)
+        self.assertRaises(exceptions.SaveNotRegisteredCollectionError, prototypes.CollectionPrototype.get_by_id(self.collection_1.id).save)
 
 
 class KitPrototypeTests(PrototypeTestsBase):
 
     def test_create(self):
-        self.assertTrue(self.kit_1.id in kits_storage)
-        self.assertTrue(self.kit_2.id in kits_storage)
+        self.assertTrue(self.kit_1.id in storage.kits)
+        self.assertTrue(self.kit_2.id in storage.kits)
 
-        with self.check_changed(lambda: kits_storage.version):
-            kit = KitPrototype.create(collection=self.collection_2, caption='kit_3', description='description_3')
+        with self.check_changed(lambda: storage.kits.version):
+            kit = prototypes.KitPrototype.create(collection=self.collection_2, caption='kit_3', description='description_3')
 
-        self.assertTrue(kit.id in kits_storage)
+        self.assertTrue(kit.id in storage.kits)
 
     def test_save(self):
-        with self.check_changed(lambda: kits_storage.version):
+        with self.check_changed(lambda: storage.kits.version):
             self.kit_1.save()
 
     def test_save__not_from_storage(self):
-        self.assertRaises(exceptions.SaveNotRegisteredKitError, KitPrototype.get_by_id(self.kit_1.id).save)
+        self.assertRaises(exceptions.SaveNotRegisteredKitError, prototypes.KitPrototype.get_by_id(self.kit_1.id).save)
 
 
 class ItemPrototypeTests(PrototypeTestsBase):
 
     def test_create(self):
-        self.assertTrue(self.item_1_1.id in items_storage)
-        self.assertTrue(self.item_1_2.id in items_storage)
+        self.assertTrue(self.item_1_1.id in storage.items)
+        self.assertTrue(self.item_1_2.id in storage.items)
 
-        with self.check_changed(lambda: items_storage.version):
-            item = ItemPrototype.create(kit=self.kit_2, caption='item_3', text='description_3')
+        with self.check_changed(lambda: storage.items.version):
+            item = prototypes.ItemPrototype.create(kit=self.kit_2, caption='item_3', text='description_3')
 
-        self.assertTrue(item.id in items_storage)
+        self.assertTrue(item.id in storage.items)
 
     def test_save(self):
-        with self.check_changed(lambda: items_storage.version):
+        with self.check_changed(lambda: storage.items.version):
             self.item_1_1.save()
 
     def test_save__not_from_storage(self):
-        self.assertRaises(exceptions.SaveNotRegisteredItemError, ItemPrototype.get_by_id(self.item_1_1.id).save)
-
+        self.assertRaises(exceptions.SaveNotRegisteredItemError, prototypes.ItemPrototype.get_by_id(self.item_1_1.id).save)
 
 
 class AccountItemsPrototypeTests(PrototypeTestsBase):
 
     def test_give_item(self):
-        with self.check_not_changed(GiveItemTaskPrototype._db_count):
+        with self.check_not_changed(prototypes.GiveItemTaskPrototype._db_count):
             self.account_1_items.give_item(self.account_1.id, self.item_1_1)
 
     # change tests order to fix sqlite segmentation fault
     def test_1_give_item__unapproved(self):
-        with self.check_delta(GiveItemTaskPrototype._db_count, 1):
+        with self.check_delta(prototypes.GiveItemTaskPrototype._db_count, 1):
             self.account_1_items.give_item(self.account_1.id, self.item_1_2)
 
     def test_add_item(self):

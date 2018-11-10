@@ -1,25 +1,24 @@
-# coding: utf-8
-import numbers
-import operator
 
-from rels import Column
-from rels.django import DjangoEnum
+import smart_imports
+
+smart_imports.all()
 
 
-class ATTRIBUTE_TYPE(DjangoEnum):
-    records = ( ('AGGREGATED', 0, 'аггрегируемый'),
-                ('CALCULATED', 1, 'вычисляемый'))
+class ATTRIBUTE_TYPE(rels_django.DjangoEnum):
+    records = (('AGGREGATED', 0, 'аггрегируемый'),
+               ('CALCULATED', 1, 'вычисляемый'))
 
-class ATTRIBUTE(DjangoEnum):
-    default = Column(unique=False, primary=False, single_type=False)
-    type = Column(unique=False, primary=False)
-    order = Column(unique=False, primary=False)
-    description = Column(primary=False)
-    apply = Column(primary=False, unique=False, single_type=False)
-    verbose_units = Column(unique=False, primary=False)
-    serializer = Column(unique=False)
-    deserializer = Column(unique=False)
-    formatter = Column(unique=False, single_type=False)
+
+class ATTRIBUTE(rels_django.DjangoEnum):
+    default = rels.Column(unique=False, primary=False, single_type=False)
+    type = rels.Column(unique=False, primary=False)
+    order = rels.Column(unique=False, primary=False)
+    description = rels.Column(primary=False)
+    apply = rels.Column(primary=False, unique=False, single_type=False)
+    verbose_units = rels.Column(unique=False, primary=False)
+    serializer = rels.Column(unique=False)
+    deserializer = rels.Column(unique=False)
+    formatter = rels.Column(unique=False, single_type=False)
 
 
 def attr(name, value, text, default=lambda: 0, type=ATTRIBUTE_TYPE.AGGREGATED, order=1, description=None, apply=operator.add, verbose_units='', serializer=lambda x: x, deserializer=lambda x: x, formatter=lambda x: x):
@@ -44,7 +43,7 @@ def create_attributes_class(ATTRIBUTES):
 
         @classmethod
         def deserialize(cls, data):
-            return cls(**{k: getattr(ATTRIBUTES, k.upper()).deserializer(v) for k,v in data.items() if hasattr(ATTRIBUTES, k.upper())})
+            return cls(**{k: getattr(ATTRIBUTES, k.upper()).deserializer(v) for k, v in data.items() if hasattr(ATTRIBUTES, k.upper())})
 
         def reset(self):
             for attribute in ATTRIBUTES.records:
@@ -71,9 +70,9 @@ def attributes_info(effects, attrs, relation):
             'attributes': attributes}
 
 
-
 def percents_formatter(value):
-    return '%.2f' % round(value*100, 2)
+    return '%.2f' % round(value * 100, 2)
+
 
 def float_formatter(value):
     return '%.2f' % round(value, 2)

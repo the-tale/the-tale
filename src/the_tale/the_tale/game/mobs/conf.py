@@ -1,8 +1,7 @@
-# coding: utf-8
-import os
 
-from dext.common.utils.app_settings import app_settings
+import smart_imports
 
-APP_DIR = os.path.abspath(os.path.dirname(__file__))
+smart_imports.all()
 
-mobs_settings = app_settings('MOBS')
+
+mobs_settings = dext_app_settings.app_settings('MOBS')

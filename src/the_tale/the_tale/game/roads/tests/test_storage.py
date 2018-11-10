@@ -1,33 +1,26 @@
-# coding: utf-8
-import uuid
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from dext.settings import settings
+smart_imports.all()
 
-from the_tale.game.logic import create_test_map
 
-from the_tale.game.roads.models import Road
-from the_tale.game.roads.storage import RoadsStorage
-from the_tale.game.roads import exceptions
-
-class RoadsStorageTest(testcase.TestCase):
+class RoadsStorageTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(RoadsStorageTest, self).setUp()
-        self.p1, self.p2, self.p3 = create_test_map()
-        self.storage = RoadsStorage()
+        self.p1, self.p2, self.p3 = game_logic.create_test_map()
+        self.storage = storage.RoadsStorage()
         self.storage.sync()
 
     def test_initialization(self):
-        storage = RoadsStorage()
-        self.assertEqual(storage._data, {})
-        self.assertEqual(storage._version, None)
+        test_storage = storage.RoadsStorage()
+        self.assertEqual(test_storage._data, {})
+        self.assertEqual(test_storage._version, None)
 
     def test_sync(self):
         self.assertEqual(len(self.storage._data), 2)
 
-        road = Road.objects.order_by('?')[0]
+        road = models.Road.objects.order_by('?')[0]
         road.length = 666
         road.save()
 
@@ -40,14 +33,14 @@ class RoadsStorageTest(testcase.TestCase):
     def test_sync_after_settings_update(self):
         self.assertEqual(len(self.storage._data), 2)
 
-        road = Road.objects.order_by('?')[0]
+        road = models.Road.objects.order_by('?')[0]
         road.length = 666
         road.save()
 
         self.storage.sync()
         self.assertFalse(self.storage[road.id].length == 666)
 
-        settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
+        dext_settings.settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
 
         self.storage.sync()
         self.assertTrue(self.storage[road.id].length == 666)
@@ -56,11 +49,11 @@ class RoadsStorageTest(testcase.TestCase):
         self.assertRaises(exceptions.RoadsStorageError, self.storage.__getitem__, 666)
 
     def test_getitem(self):
-        road = Road.objects.order_by('?')[0]
+        road = models.Road.objects.order_by('?')[0]
         self.assertEqual(self.storage[road.id].id, road.id)
 
     def test_get(self):
-        road = Road.objects.order_by('?')[0]
+        road = models.Road.objects.order_by('?')[0]
         self.assertEqual(self.storage.get(666, self.storage[road.id]), self.storage[road.id])
         self.assertEqual(self.storage.get(road.id, 666).id, road.id)
 
@@ -68,6 +61,6 @@ class RoadsStorageTest(testcase.TestCase):
         self.assertEqual(len(self.storage.all()), 2)
 
     def test_contains(self):
-        road = Road.objects.order_by('?')[0]
+        road = models.Road.objects.order_by('?')[0]
         self.assertTrue(road.id in self.storage)
         self.assertFalse(666 in self.storage)

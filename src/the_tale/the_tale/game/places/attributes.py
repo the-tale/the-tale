@@ -1,13 +1,10 @@
 
-from the_tale.game.balance import constants as c
-from the_tale.game.balance import formulas as f
-from the_tale.game import attributes
+import smart_imports
 
-from . import modifiers
-from . import relations
+smart_imports.all()
 
 
-class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
+class Attributes(game_attributes.create_attributes_class(relations.ATTRIBUTE)):
     __slots__ = ()
 
     def sync_size(self, hours):
@@ -34,7 +31,6 @@ class Attributes(attributes.create_attributes_class(relations.ATTRIBUTE)):
 
     def sync(self):
         self.modifier_multiplier = f.place_specialization_modifier(self.size)
-
 
     def set_power_economic(self, value):
         self.power_economic = value

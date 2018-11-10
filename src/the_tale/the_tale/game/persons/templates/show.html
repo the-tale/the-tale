@@ -37,7 +37,7 @@
   <table class="table table-condensed">
     <tbody>
       <tr>
-        <th width="250px">влияние в городе</th>
+        <th width="220px">влияние в городе</th>
         <td>
           {{persons_power_storage.total_power_fraction(person.id)|percents}}
           <a href="{{url('game:politic-power:history', person=person.id)}}" target="_blank">история</a>
@@ -73,25 +73,24 @@
       </tr>
       {% if person.job.is_completed(job_power) %}
         <tr>
-          <th>проект завершён</th>
-          <td>Эффект проекта будет применён в ближайшее время. Влияние, начисленное сверх необходимого, будет засчитано в следующем проекте.</td>
-        </tr>
-      {% else %}
-        <tr>
-          <th>помощь в проекте от соратников</th>
-          <td>
-            <span style="color:green;">{{(job_power.positive/person.job.power_required)|percents(2)}}</span>
-            осталось влияния: {{(person.job.power_required - job_power.positive)|round(0)|int}}
-          </td>
-        </tr>
-        <tr>
-          <th>вред в проекте от противников</th>
-          <td>
-            <span style="color:red;">{{(job_power.negative/person.job.power_required)|percents(2)}}</span>
-            осталось влияния: {{(person.job.power_required - job_power.negative)|round(0)|int}}
-          </td>
+          <th>проект почти закончен</th>
+          <td>Проект будет завершён в ближайшее время. Влияние победившей стороны будет обнулено. Влияние проигравшей стороны пойдёт в счёт следующего проекта.</td>
         </tr>
       {% endif %}
+      <tr>
+        <th>помощь в проекте от соратников</th>
+        <td>
+          <span style="color:green;">{{(job_power.positive/person.job.power_required)|percents(2)}}</span>
+          всего влияния: {{job_power.positive|round(0)|int}} из {{person.job.power_required|round(0)|int}}
+        </td>
+      </tr>
+      <tr>
+        <th>вред в проекте от противников</th>
+        <td>
+          <span style="color:red;">{{(job_power.negative/person.job.power_required)|percents(2)}}</span>
+          всего влияния: {{job_power.negative|round(0)|int}} из {{person.job.power_required|round(0)|int}}
+        </td>
+      </tr>
     </tbody>
   </table>
 
@@ -195,8 +194,8 @@
   <h3>Герои</h3>
 
   <ul>
-    <li>Всего героев помогает: {{inner_circle.positive_heroes_number}}</li>
-    <li>Всего героев мешает: {{inner_circle.negative_heroes_number}}</li>
+    <li>Всего героев помогает: {{inner_circle.total_positive_heroes_number}} (в круге: {{inner_circle.circle_positive_heroes_number}})</li>
+    <li>Всего героев мешает: {{inner_circle.total_negative_heroes_number}} (в круге: {{inner_circle.circle_negative_heroes_number}})</li>
   </ul>
 
   {{game_macros.inner_circle_heroes(inner_circle, hero.account_id if hero else none)}}

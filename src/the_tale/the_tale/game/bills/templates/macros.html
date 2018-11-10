@@ -46,11 +46,8 @@
         {% elif bill.state.is_ACCEPTED %}
 
           принята
-          <span class="pgf-format-datetime"
-                data-timestamp="{{ bill.voting_end_at|timestamp }}"
-                style="cursor: default;"
-                rel="tooltip"
-                title="{{bill.applyed_at_turn|verbose_game_date}}"></span>
+          <span class="pgf-format-datetime" data-timestamp="{{ bill.voting_end_at|timestamp }}"></span>
+          ({{bill.applyed_at_turn|verbose_game_date}})
 
           {% if bill.is_declined %}
             <br/>

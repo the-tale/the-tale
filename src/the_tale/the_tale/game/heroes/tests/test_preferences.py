@@ -1,36 +1,19 @@
 
-import datetime
+import smart_imports
 
-from the_tale.common.utils.testcase import TestCase
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.mobs import logic as mobs_logic
-from the_tale.game.mobs import storage as mobs_storage
-from the_tale.game.mobs import relations as mobs_relations
-
-from the_tale.game.logic_storage import LogicStorage
-
-from the_tale.game import relations as game_relations
-
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.heroes import relations
-from the_tale.game.heroes.preferences import HeroPreferences
-
-from .. import logic
+smart_imports.all()
 
 
-class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
+class HeroPreferencesEnergyRegenerationTypeTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE
 
     def setUp(self):
         super(HeroPreferencesEnergyRegenerationTypeTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -40,7 +23,7 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
 
     def test_preferences_serialization(self):
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, relations.ENERGY_REGENERATION.PRAY)
@@ -49,16 +32,16 @@ class HeroPreferencesEnergyRegenerationTypeTest(TestCase):
         self.assertEqual(self.hero.preferences.energy_regeneration_type, relations.ENERGY_REGENERATION.PRAY)
 
 
-class HeroPreferencesMobTest(TestCase):
+class HeroPreferencesMobTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.MOB
 
     def setUp(self):
         super(HeroPreferencesMobTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -71,7 +54,7 @@ class HeroPreferencesMobTest(TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.MOB, mobs_storage.mobs.all()[0])
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         mob = mobs_storage.mobs.all()[0]
@@ -92,17 +75,16 @@ class HeroPreferencesMobTest(TestCase):
         self.assertEqual(self.hero.preferences.mob, None)
 
 
-
-class HeroPreferencesPlaceTest(TestCase):
+class HeroPreferencesPlaceTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.PLACE
 
     def setUp(self):
         super(HeroPreferencesPlaceTest, self).setUp()
 
-        self.place, self.place_2, self.place_3 = create_test_map()
+        self.place, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -112,14 +94,13 @@ class HeroPreferencesPlaceTest(TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place)
         logic.save_hero(self.hero)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.place.id, self.place.id)
-
 
     def test_get_citizens_number(self):
         hero_1 = self.hero
@@ -161,9 +142,8 @@ class HeroPreferencesPlaceTest(TestCase):
         hero_7.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         logic.save_hero(hero_7)
 
-        self.assertEqual(set([h.id for h in HeroPreferences.get_citizens_of(self.place, all=False)]), set([hero_1.id, hero_3.id]))
-        self.assertEqual(set([h.id for h in HeroPreferences.get_citizens_of(self.place, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
-
+        self.assertEqual(set([h.id for h in preferences.HeroPreferences.get_citizens_of(self.place, all=False)]), set([hero_1.id, hero_3.id]))
+        self.assertEqual(set([h.id for h in preferences.HeroPreferences.get_citizens_of(self.place, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
 
     def test_count_habit_values(self):
         hero_1 = self.hero
@@ -197,24 +177,23 @@ class HeroPreferencesPlaceTest(TestCase):
         hero_4.habit_peacefulness.change(-8)
         logic.save_hero(hero_4)
 
-        self.assertEqual(HeroPreferences.count_habit_values(self.place, all=False), ((10, -1), (1, -10)))
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_2, all=False), ((0, -4), (4, 0)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place, all=False), ((10, -1), (1, -10)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_2, all=False), ((0, -4), (4, 0)))
 
-        self.assertEqual(HeroPreferences.count_habit_values(self.place, all=True), ((10, -1), (1, -10)))
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_2, all=True), ((0, -4), (4, 0)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place, all=True), ((10, -1), (1, -10)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_2, all=True), ((0, -4), (4, 0)))
 
 
-
-class HeroPreferencesFriendTest(TestCase):
+class HeroPreferencesFriendTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.FRIEND
 
     def setUp(self):
         super(HeroPreferencesFriendTest, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -232,7 +211,7 @@ class HeroPreferencesFriendTest(TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, persons_storage.persons[self.friend_id])
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         friend = persons_storage.persons[self.friend_id]
@@ -241,7 +220,6 @@ class HeroPreferencesFriendTest(TestCase):
         logic.save_hero(self.hero)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.friend.id, friend.id)
-
 
     def test_get_friends_number(self):
         hero_1 = self.hero
@@ -283,9 +261,8 @@ class HeroPreferencesFriendTest(TestCase):
         hero_6.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         logic.save_hero(hero_6)
 
-        self.assertEqual(set([h.id for h in HeroPreferences.get_friends_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
-        self.assertEqual(set([h.id for h in HeroPreferences.get_friends_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
-
+        self.assertEqual(set([h.id for h in preferences.HeroPreferences.get_friends_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
+        self.assertEqual(set([h.id for h in preferences.HeroPreferences.get_friends_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
 
     def test_count_habit_values(self):
         hero_1 = self.hero
@@ -319,25 +296,23 @@ class HeroPreferencesFriendTest(TestCase):
         hero_4.habit_peacefulness.change(-8)
         logic.save_hero(hero_4)
 
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_1, all=False), ((10, -1), (1, -10)))
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_2, all=False), ((0, -4), (4, 0)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_1, all=False), ((10, -1), (1, -10)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_2, all=False), ((0, -4), (4, 0)))
 
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_1, all=True), ((10, -1), (1, -10)))
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_2, all=True), ((0, -4), (4, 0)))
-
-
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_1, all=True), ((10, -1), (1, -10)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_2, all=True), ((0, -4), (4, 0)))
 
 
-class HeroPreferencesEnemyTest(TestCase):
+class HeroPreferencesEnemyTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.ENEMY
 
     def setUp(self):
         super(HeroPreferencesEnemyTest, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -350,12 +325,12 @@ class HeroPreferencesEnemyTest(TestCase):
 
         self.enemy_id = self.enemy.id
         self.enemy_2_id = self.enemy_2.id
-        self.friend_id =  self.friend.id
+        self.friend_id = self.friend.id
 
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, persons_storage.persons[self.enemy_id])
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         enemy = persons_storage.persons[self.enemy_id]
@@ -364,7 +339,6 @@ class HeroPreferencesEnemyTest(TestCase):
         logic.save_hero(self.hero)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.enemy.id, enemy.id)
-
 
     def test_get_enemies_number(self):
         hero_1 = self.hero
@@ -406,9 +380,8 @@ class HeroPreferencesEnemyTest(TestCase):
         hero_6.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=60)
         logic.save_hero(hero_6)
 
-        self.assertEqual(set([h.id for h in HeroPreferences.get_enemies_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
-        self.assertEqual(set([h.id for h in HeroPreferences.get_enemies_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
-
+        self.assertEqual(set([h.id for h in preferences.HeroPreferences.get_enemies_of(person_1, all=False)]), set([hero_1.id, hero_3.id]))
+        self.assertEqual(set([h.id for h in preferences.HeroPreferences.get_enemies_of(person_1, all=True)]), set([hero_1.id, hero_2.id, hero_3.id]))
 
     def test_count_habit_values(self):
         hero_1 = self.hero
@@ -442,24 +415,23 @@ class HeroPreferencesEnemyTest(TestCase):
         hero_4.habit_peacefulness.change(-8)
         logic.save_hero(hero_4)
 
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_1, all=False), ((10, -1), (1, -10)))
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_2, all=False), ((0, -4), (4, 0)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_1, all=False), ((10, -1), (1, -10)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_2, all=False), ((0, -4), (4, 0)))
 
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_1, all=True), ((10, -1), (1, -10)))
-        self.assertEqual(HeroPreferences.count_habit_values(self.place_2, all=True), ((0, -4), (4, 0)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_1, all=True), ((10, -1), (1, -10)))
+        self.assertEqual(preferences.HeroPreferences.count_habit_values(self.place_2, all=True), ((0, -4), (4, 0)))
 
 
-
-class HeroPreferencesEquipmentSlotTest(TestCase):
+class HeroPreferencesEquipmentSlotTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT
 
     def setUp(self):
         super(HeroPreferencesEquipmentSlotTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -472,7 +444,7 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, self.slot_1)
@@ -481,16 +453,16 @@ class HeroPreferencesEquipmentSlotTest(TestCase):
         self.assertEqual(self.hero.preferences.equipment_slot, self.slot_1)
 
 
-class HeroPreferencesFavoriteItemTest(TestCase):
+class HeroPreferencesFavoriteItemTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.FAVORITE_ITEM
 
     def setUp(self):
         super(HeroPreferencesFavoriteItemTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -503,7 +475,7 @@ class HeroPreferencesFavoriteItemTest(TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.FAVORITE_ITEM, self.slot_1)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.FAVORITE_ITEM, self.slot_1)
@@ -512,16 +484,16 @@ class HeroPreferencesFavoriteItemTest(TestCase):
         self.assertEqual(self.hero.preferences.favorite_item, self.slot_1)
 
 
-class HeroPreferencesRiskLevelTest(TestCase):
+class HeroPreferencesRiskLevelTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.RISK_LEVEL
 
     def setUp(self):
         super(HeroPreferencesRiskLevelTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -534,7 +506,7 @@ class HeroPreferencesRiskLevelTest(TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, self.risk_1)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.RISK_LEVEL, self.risk_1)
@@ -543,16 +515,16 @@ class HeroPreferencesRiskLevelTest(TestCase):
         self.assertEqual(self.hero.preferences.risk_level, self.risk_1)
 
 
-class HeroPreferencesArchetypeTest(TestCase):
+class HeroPreferencesArchetypeTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.ARCHETYPE
 
     def setUp(self):
         super(HeroPreferencesArchetypeTest, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -565,7 +537,7 @@ class HeroPreferencesArchetypeTest(TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.ARCHETYPE, self.mage)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.ARCHETYPE, self.mage)
@@ -574,15 +546,15 @@ class HeroPreferencesArchetypeTest(TestCase):
         self.assertEqual(self.hero.preferences.archetype, self.mage)
 
 
-class HeroPreferencesCompanionDedicationTest(TestCase):
+class HeroPreferencesCompanionDedicationTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.COMPANION_DEDICATION
 
     def setUp(self):
         super(HeroPreferencesCompanionDedicationTest, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -598,7 +570,7 @@ class HeroPreferencesCompanionDedicationTest(TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_DEDICATION, self.egoism)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_DEDICATION, self.egoism)
@@ -607,15 +579,15 @@ class HeroPreferencesCompanionDedicationTest(TestCase):
         self.assertEqual(self.hero.preferences.companion_dedication, self.egoism)
 
 
-class HeroPreferencesCompanionEmpathyTest(TestCase):
+class HeroPreferencesCompanionEmpathyTest(utils_testcase.TestCase):
     PREFERENCE_TYPE = relations.PREFERENCE_TYPE.COMPANION_EMPATHY
 
     def setUp(self):
         super(HeroPreferencesCompanionEmpathyTest, self).setUp()
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
@@ -631,7 +603,7 @@ class HeroPreferencesCompanionEmpathyTest(TestCase):
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_EMPATHY, self.empath)
         data = self.hero.preferences.serialize()
-        self.assertEqual(data, HeroPreferences.deserialize(data).serialize())
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
 
     def test_save(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_EMPATHY, self.empath)

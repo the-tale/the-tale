@@ -1,19 +1,8 @@
-# coding: utf-8
 
-from django.forms import ValidationError
+import smart_imports
 
-from dext.forms import fields
+smart_imports.all()
 
-from the_tale.game.balance import constants as c
-
-from the_tale.game.bills import relations
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-from the_tale.game.places.modifiers import CITY_MODIFIERS
-
-from . import base_place_bill
 
 def can_be_choosen(place, modifier):
     if modifier.is_NONE:
@@ -25,14 +14,13 @@ def can_be_choosen(place, modifier):
     return True
 
 
-class BaseForm(BaseUserForm):
-    place = fields.ChoiceField(label='Город')
-    new_modifier = fields.TypedChoiceField(label='Новая специализация', choices=sorted(CITY_MODIFIERS.choices(), key=lambda g: g[1]), coerce=CITY_MODIFIERS.get_from_name)
+class BaseForm(forms.BaseUserForm):
+    place = dext_fields.ChoiceField(label='Город')
+    new_modifier = dext_fields.TypedChoiceField(label='Новая специализация', choices=sorted(places_modifiers.CITY_MODIFIERS.choices(), key=lambda g: g[1]), coerce=places_modifiers.CITY_MODIFIERS.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['place'].choices = places_storage.places.get_choices()
-
 
 
 class UserForm(BaseForm):
@@ -45,12 +33,12 @@ class UserForm(BaseForm):
 
         if modifier:
             if not can_be_choosen(place, modifier):
-                raise ValidationError('В данный момент город «%s» нельзя преобразовать в «%s».' % (place.name, modifier.text))
+                raise django_forms.ValidationError('В данный момент город «%s» нельзя преобразовать в «%s».' % (place.name, modifier.text))
 
         return cleaned_data
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
@@ -98,7 +86,7 @@ class PlaceModifier(base_place_bill.BasePlaceBill):
     @classmethod
     def deserialize(cls, data):
         obj = super(PlaceModifier, cls).deserialize(data)
-        obj.modifier_id = CITY_MODIFIERS(data['modifier_id'])
+        obj.modifier_id = places_modifiers.CITY_MODIFIERS(data['modifier_id'])
         obj.modifier_name = data['modifier_name']
         obj.old_modifier_name = data.get('old_modifier_name')
         return obj

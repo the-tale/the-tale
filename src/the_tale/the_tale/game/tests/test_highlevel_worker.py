@@ -1,31 +1,7 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils import testcase
-
-from the_tale.game import names
-
-from the_tale.game.bills import bills
-from the_tale.game.bills import prototypes as bills_prototypes
-
-from the_tale.game.persons import storage as persons_storage
-from the_tale.game.persons import logic as persons_logic
-from the_tale.game.persons.models import Person
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-
-from ..balance import constants as c
-from ..logic import create_test_map
-from .. import turn
-from ..bills.conf import bills_settings
-from ..logic_storage import LogicStorage
-from .. import tt_api_impacts
-
-from the_tale.game.politic_power import logic as politic_power_logic
-from the_tale.game.politic_power import storage as politic_power_storage
+smart_imports.all()
 
 
 def fake_sync_data(self, sheduled=True):
@@ -38,25 +14,25 @@ def fake_apply_bills(self):
     self._bills_applied += 1
 
 
-class HighlevelTest(testcase.TestCase):
+class HighlevelTest(utils_testcase.TestCase):
 
     def setUp(self):
         super(HighlevelTest, self).setUp()
 
-        self.p1, self.p2, self.p3 = create_test_map()
+        self.p1, self.p2, self.p3 = logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
         self.action_idl = self.hero.actions.current_action
 
-        environment.deinitialize()
-        environment.initialize()
+        amqp_environment.environment.deinitialize()
+        amqp_environment.environment.initialize()
 
-        self.worker = environment.workers.highlevel
-        self.worker.process_initialize(turn.number(), 'highlevel')
+        self.worker = amqp_environment.environment.workers.highlevel
+        self.worker.process_initialize(game_turn.number(), 'highlevel')
 
     def test_process_initialize(self):
         self.assertTrue(self.worker.initialized)
@@ -69,42 +45,40 @@ class HighlevelTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.MAP_SYNC_TIME', 10)
     def test_process_next_turn(self):
 
-        turn.increment()
+        game_turn.increment()
 
-        self.assertEqual(turn.number(), 1)
+        self.assertEqual(game_turn.number(), 1)
 
-        for i in range(c.MAP_SYNC_TIME-1):
-            self.worker.process_next_turn(turn.number())
+        for i in range(c.MAP_SYNC_TIME - 1):
+            self.worker.process_next_turn(game_turn.number())
             self.assertFalse(hasattr(self.worker, '_data_synced'))
 
-            if turn.number() < bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA:
+            if game_turn.number() < bills_conf.settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA:
                 self.assertFalse(hasattr(self.worker, '_bills_applied'))
             else:
-                self.assertEqual(self.worker._bills_applied, turn.number() // (bills_settings.BILLS_PROCESS_INTERVAL // c.TURN_DELTA))
+                self.assertEqual(self.worker._bills_applied, game_turn.number() // (bills_conf.settings.BILLS_PROCESS_INTERVAL // c.TURN_DELTA))
 
-            turn.increment()
+            game_turn.increment()
 
-        self.worker.process_next_turn(turn.number())
+        self.worker.process_next_turn(game_turn.number())
         self.assertTrue(self.worker._data_synced)
 
-    @mock.patch('the_tale.game.bills.conf.bills_settings.MIN_VOTES_PERCENT', 0)
-    @mock.patch('the_tale.game.bills.conf.bills_settings.BILL_LIVE_TIME', 0)
+    @mock.patch('the_tale.game.bills.conf.settings.MIN_VOTES_PERCENT', 0)
+    @mock.patch('the_tale.game.bills.conf.settings.BILL_LIVE_TIME', 0)
     def test_apply_bills__stop_bill_without_meaning(self):
-        from the_tale.forum.models import Category, SubCategory
+        forum_category = forum_models.Category.objects.create(caption='category-1', slug='category-1')
+        forum_models.SubCategory.objects.create(caption=bills_conf.settings.FORUM_CATEGORY_UID + '-caption',
+                                                uid=bills_conf.settings.FORUM_CATEGORY_UID,
+                                                category=forum_category)
 
-        forum_category = Category.objects.create(caption='category-1', slug='category-1')
-        SubCategory.objects.create(caption=bills_settings.FORUM_CATEGORY_UID + '-caption',
-                                   uid=bills_settings.FORUM_CATEGORY_UID,
-                                   category=forum_category)
+        new_name = game_names.generator().get_test_name('new-new-name')
 
-        new_name = names.generator().get_test_name('new-new-name')
-
-        bill_data_1 = bills.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
+        bill_data_1 = bills_bills.place_renaming.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
         bill_1 = bills_prototypes.BillPrototype.create(self.account, 'bill-1-caption', bill_data_1, chronicle_on_accepted='chronicle-on-accepted')
         bill_1.approved_by_moderator = True
         bill_1.save()
 
-        bill_data_2 = bills.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
+        bill_data_2 = bills_bills.place_renaming.PlaceRenaming(place_id=self.p1.id, name_forms=new_name)
         bill_2 = bills_prototypes.BillPrototype.create(self.account, 'bill-2-caption', bill_data_2, chronicle_on_accepted='chronicle-on-accepted')
         bill_2.approved_by_moderator = True
         bill_2.save()
@@ -135,11 +109,11 @@ class HighlevelTest(testcase.TestCase):
         mark_as_updated = mock.Mock()
 
         with mock.patch('the_tale.game.places.attributes.Attributes.set_power_economic', set_power_economic), \
-             mock.patch('the_tale.game.places.attributes.Attributes.sync_size', sync_size), \
-             mock.patch('the_tale.game.places.objects.Place.effects', mock.Mock(update_step=update_step, effects=[], serialize=lambda: {})), \
-             mock.patch('the_tale.game.places.objects.Place.sync_habits', sync_habits), \
-             mock.patch('the_tale.game.places.objects.Place.refresh_attributes', refresh_attributes), \
-             mock.patch('the_tale.game.places.objects.Place.mark_as_updated', mark_as_updated):
+                mock.patch('the_tale.game.places.attributes.Attributes.sync_size', sync_size), \
+                mock.patch('the_tale.game.places.objects.Place.effects', mock.Mock(update_step=update_step, effects=[], serialize=lambda: {})), \
+                mock.patch('the_tale.game.places.objects.Place.sync_habits', sync_habits), \
+                mock.patch('the_tale.game.places.objects.Place.refresh_attributes', refresh_attributes), \
+                mock.patch('the_tale.game.places.objects.Place.mark_as_updated', mark_as_updated):
             self.worker.sync_data()
 
         places_number = len(places_storage.places.all())
@@ -175,7 +149,7 @@ class HighlevelTest(testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.PLACE_POWER_REDUCE_FRACTION', 0.9)
     @mock.patch('the_tale.game.places.objects.Place.refresh_attributes', mock.Mock())
     def test_sync_data(self):
-        tt_api_impacts.debug_clear_service()
+        game_tt_services.debug_clear_service()
 
         self.assertEqual(politic_power_storage.places.outer_power(self.p1.id), 0)
         self.assertEqual(politic_power_storage.places.inner_power(self.p1.id), 0)
@@ -184,9 +158,9 @@ class HighlevelTest(testcase.TestCase):
         self.assertEqual(politic_power_storage.places.outer_power(self.p3.id), 0)
         self.assertEqual(politic_power_storage.places.inner_power(self.p3.id), 0)
 
-        self.assertEqual(Person.objects.filter(place_id=self.p1.id).count(), 3)
-        self.assertEqual(Person.objects.filter(place_id=self.p2.id).count(), 3)
-        self.assertEqual(Person.objects.filter(place_id=self.p3.id).count(), 3)
+        self.assertEqual(persons_models.Person.objects.filter(place_id=self.p1.id).count(), 3)
+        self.assertEqual(persons_models.Person.objects.filter(place_id=self.p2.id).count(), 3)
+        self.assertEqual(persons_models.Person.objects.filter(place_id=self.p3.id).count(), 3)
         self.assertEqual(len(persons_storage.persons.all()), 9)
 
         popularity = places_logic.get_hero_popularity(666)
@@ -211,7 +185,7 @@ class HighlevelTest(testcase.TestCase):
 
         self.assertTrue(self.p1._modifier.is_NONE)
 
-        turn.increment()
+        game_turn.increment()
 
         self.assertEqual(politic_power_storage.persons.outer_power(person_1_1.id), 0)
         self.assertEqual(politic_power_storage.persons.outer_power(person_2_1.id), 90)

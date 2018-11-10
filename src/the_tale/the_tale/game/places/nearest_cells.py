@@ -1,23 +1,21 @@
-# coding: utf-8
-import math
 
-from the_tale.game.map import conf as map_conf
+import smart_imports
 
-from the_tale.game.balance import constants as c
+smart_imports.all()
 
-from . import storage
 
 E = 0.01
-GUARANTIED_RADIUS = math.sqrt(1+1)+E # guarantied raidius of places cells
+GUARANTIED_RADIUS = math.sqrt(1 + 1) + E  # guarantied raidius of places cells
 SKIPPED_ANGLE = math.pi / 6
 
+
 def dst(x, y, x2, y2):
-    return math.sqrt((x-x2)**2 + (y-y2)**2)
+    return math.sqrt((x - x2)**2 + (y - y2)**2)
 
 
 def skip_one(x, y, current_place, checked_place):
-    current_angle = math.atan2(y-current_place.y, x-current_place.x)
-    checked_angle = math.atan2(y-checked_place.y, x-checked_place.x)
+    current_angle = math.atan2(y - current_place.y, x - current_place.x)
+    checked_angle = math.atan2(y - checked_place.y, x - checked_place.x)
     return abs(current_angle - checked_angle) < SKIPPED_ANGLE
 
 
@@ -51,8 +49,8 @@ def update_nearest_cells():
     for place in storage.places.all():
         place.nearest_cells = []
 
-    for x in range(0, map_conf.map_settings.WIDTH):
-        for y in range(0, map_conf.map_settings.HEIGHT):
+    for x in range(0, map_conf.settings.WIDTH):
+        for y in range(0, map_conf.settings.HEIGHT):
             nearest_place = None
             nearest_power = 0
 

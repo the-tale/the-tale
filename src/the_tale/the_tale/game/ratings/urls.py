@@ -1,6 +1,7 @@
 
-from dext.views import resource_patterns
+import smart_imports
 
-from the_tale.game.ratings.views import RatingResource
+smart_imports.all()
 
-urlpatterns = resource_patterns(RatingResource)
+
+urlpatterns = dext_old_views.resource_patterns(views.RatingResource)

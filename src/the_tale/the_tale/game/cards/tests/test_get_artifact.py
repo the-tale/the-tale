@@ -1,18 +1,10 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic_storage import LogicStorage
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.cards import cards
-
-from the_tale.game.postponed_tasks import ComplexChangeTask
-
-from the_tale.game.cards.tests.helpers import CardsTestMixin
-from the_tale.game.artifacts.relations import RARITY as ARTIFACT_RARITY
+smart_imports.all()
 
 
-class GetArtifactMixin(CardsTestMixin):
+class GetArtifactMixin(helpers.CardsTestMixin):
     CARD = None
     RARITIES = None
     HAS_USELESS = False
@@ -20,15 +12,14 @@ class GetArtifactMixin(CardsTestMixin):
     def setUp(self):
         super(GetArtifactMixin, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
 
-        self.storage = LogicStorage()
+        self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account_1)
 
         self.hero = self.storage.accounts_to_heroes[self.account_1.id]
-
 
     def test_use(self):
 
@@ -38,7 +29,7 @@ class GetArtifactMixin(CardsTestMixin):
 
         for i in range(1000):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-            self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
             artifact = list(self.hero.bag.values())[0]
             self.hero.bag.pop_artifact(artifact)
@@ -60,22 +51,18 @@ class GetArtifactMixin(CardsTestMixin):
         self.assertEqual(has_useless, self.HAS_USELESS)
         self.assertEqual(rarities, {self.RARITY})
 
-
     def test_use__full_bag(self):
         with self.check_delta(lambda: self.hero.bag.occupation, 1000):
             for i in range(1000):
                 result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-                self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
-
+                self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_use_when_trading(self):
-        from the_tale.game.actions.prototypes import ActionTradingPrototype
-
         action_idl = self.hero.actions.current_action
-        action_trade = ActionTradingPrototype.create(hero=self.hero)
+        action_trade = actions_prototypes.ActionTradingPrototype.create(hero=self.hero)
 
         result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage, hero=self.hero))
-        self.assertEqual((result, step, postsave_actions), (ComplexChangeTask.RESULT.SUCCESSED, ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(self.hero.bag.occupation, 1)
 
@@ -88,20 +75,22 @@ class GetArtifactMixin(CardsTestMixin):
         self.assertEqual(self.hero.bag.occupation, 1)
 
 
-
-class GetArtifactCommonTests(GetArtifactMixin, testcase.TestCase):
-    CARD = cards.CARD.GET_ARTIFACT_COMMON
-    RARITY = ARTIFACT_RARITY.NORMAL
+class GetArtifactCommonTests(GetArtifactMixin, utils_testcase.TestCase):
+    CARD = types.CARD.GET_ARTIFACT_COMMON
+    RARITY = artifacts_relations.RARITY.NORMAL
     HAS_USELESS = True
 
-class GetArtifactUncommonTests(GetArtifactMixin, testcase.TestCase):
-    CARD = cards.CARD.GET_ARTIFACT_UNCOMMON
-    RARITY = ARTIFACT_RARITY.NORMAL
 
-class GetArtifactRareTests(GetArtifactMixin, testcase.TestCase):
-    CARD = cards.CARD.GET_ARTIFACT_RARE
-    RARITY = ARTIFACT_RARITY.RARE
+class GetArtifactUncommonTests(GetArtifactMixin, utils_testcase.TestCase):
+    CARD = types.CARD.GET_ARTIFACT_UNCOMMON
+    RARITY = artifacts_relations.RARITY.NORMAL
 
-class GetArtifactEpicTests(GetArtifactMixin, testcase.TestCase):
-    CARD = cards.CARD.GET_ARTIFACT_EPIC
-    RARITY = ARTIFACT_RARITY.EPIC
+
+class GetArtifactRareTests(GetArtifactMixin, utils_testcase.TestCase):
+    CARD = types.CARD.GET_ARTIFACT_RARE
+    RARITY = artifacts_relations.RARITY.RARE
+
+
+class GetArtifactEpicTests(GetArtifactMixin, utils_testcase.TestCase):
+    CARD = types.CARD.GET_ARTIFACT_EPIC
+    RARITY = artifacts_relations.RARITY.EPIC

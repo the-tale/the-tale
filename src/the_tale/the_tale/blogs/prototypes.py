@@ -1,64 +1,47 @@
 
-from django.core.urlresolvers import reverse
-from django.conf import settings as project_settings
-from django.db import transaction
+import smart_imports
 
-from the_tale.common.utils import bbcode
-from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.utils.prototypes import BasePrototype
-
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import get_system_user
-
-from the_tale.game import turn
-
-from the_tale.forum.prototypes import ThreadPrototype as ForumThreadPrototype, PostPrototype as ForumPostPrototype
-from the_tale.forum.prototypes import SubCategoryPrototype as ForumSubCategoryPrototype
-from the_tale.forum.models import MARKUP_METHOD
-
-from . import models
-from . import conf
-from . import relations
+smart_imports.all()
 
 
-class PostPrototype(BasePrototype):
+class PostPrototype(utils_prototypes.BasePrototype):
     _model_class = models.Post
     _readonly = ('id', 'forum_thread_id', 'created_at', 'updated_at', 'created_at_turn', 'rating')
     _bidirectional = ('votes', 'moderator_id', 'caption', 'text', 'state')
     _get_by = ('id', )
 
-    @lazy_property
-    def forum_thread(self): return ForumThreadPrototype.get_by_id(self.forum_thread_id)
+    @utils_decorators.lazy_property
+    def forum_thread(self): return forum_prototypes.ThreadPrototype.get_by_id(self.forum_thread_id)
 
     @property
-    def text_html(self): return bbcode.render(self.text)
+    def text_html(self): return utils_bbcode.render(self.text)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def author(self):
         if self._model.author:
-            return AccountPrototype(self._model.author)
+            return accounts_prototypes.AccountPrototype(self._model.author)
         return None
 
     def recalculate_votes(self):
         self.votes = models.Vote.objects.filter(post=self._model).count()
 
     @classmethod
-    @transaction.atomic
+    @django_transaction.atomic
     def create(cls, author, caption, text):
 
         model = models.Post.objects.create(author=author._model,
-                                    caption=caption,
-                                    text=text,
-                                    state=relations.POST_STATE.ACCEPTED,
-                                    created_at_turn=turn.number(),
-                                    votes=1)
+                                           caption=caption,
+                                           text=text,
+                                           state=relations.POST_STATE.ACCEPTED,
+                                           created_at_turn=game_turn.number(),
+                                           votes=1)
 
-        thread = ForumThreadPrototype.create(ForumSubCategoryPrototype.get_by_uid(conf.settings.FORUM_CATEGORY_UID),
-                                             caption=caption,
-                                             author=get_system_user(),
-                                             text='обсуждение [url="%s%s"]произведения[/url]' % (project_settings.SITE_URL,
-                                                                                                  reverse('blogs:posts:show', args=[model.id])),
-                                             markup_method=MARKUP_METHOD.POSTMARKUP)
+        thread = forum_prototypes.ThreadPrototype.create(forum_prototypes.SubCategoryPrototype.get_by_uid(conf.settings.FORUM_CATEGORY_UID),
+                                                         caption=caption,
+                                                         author=accounts_logic.get_system_user(),
+                                                         text='обсуждение [url="%s%s"]произведения[/url]' % (django_settings.SITE_URL,
+                                                                                                             django_reverse('blogs:posts:show', args=[model.id])),
+                                                         markup_method=forum_relations.MARKUP_METHOD.POSTMARKUP)
 
         model.forum_thread = thread._model
         model.save()
@@ -72,33 +55,35 @@ class PostPrototype(BasePrototype):
 
         return post
 
-    @transaction.atomic
+    @django_transaction.atomic
     def accept(self, moderator):
         self.state = relations.POST_STATE.ACCEPTED
         self.moderator_id = moderator.id
         self.save()
 
-    @transaction.atomic
+    @django_transaction.atomic
     def decline(self, moderator):
         self.state = relations.POST_STATE.DECLINED
         self.moderator_id = moderator.id
         self.save()
 
-        thread = ForumThreadPrototype(self._model.forum_thread)
+        thread = forum_prototypes.ThreadPrototype(self._model.forum_thread)
         thread.caption = thread.caption + ' [удалён]'
         thread.save()
 
-        ForumPostPrototype.create(thread,
-                                  get_system_user(),
-                                  'Произведение было удалено',
-                                  technical=True)
-
+        forum_prototypes.PostPrototype.create(thread,
+                                              accounts_logic.get_system_user(),
+                                              'Произведение было удалено',
+                                              technical=True)
 
     def save(self):
         self._model.save()
 
+    def meta_object(self):
+        return meta_relations.Post.create_from_object(self)
 
-class VotePrototype(BasePrototype):
+
+class VotePrototype(utils_prototypes.BasePrototype):
     _model_class = models.Vote
     _readonly = ('id', )
     _bidirectional = ()
@@ -111,8 +96,8 @@ class VotePrototype(BasePrototype):
         except models.Vote.DoesNotExist:
             return None
 
-    @lazy_property
-    def voter(self): return AccountPrototype(self._model.voter)
+    @utils_decorators.lazy_property
+    def voter(self): return accounts_prototypes.AccountPrototype(self._model.voter)
 
     @classmethod
     def create(cls, post, voter):

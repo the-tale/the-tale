@@ -1,20 +1,7 @@
 
-from unittest import mock
+import smart_imports
 
-from the_tale.common.utils import testcase
-
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game import tt_api_impacts
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.jobs import objects
-from the_tale.game.jobs import effects
-
-from the_tale.game.heroes import logic as heroes_logic
+smart_imports.all()
 
 
 class FakeJob(objects.Job):
@@ -27,12 +14,12 @@ class FakeJob(objects.Job):
     NORMAL_POWER = 1000
 
 
-class BaseEffectsTests(testcase.TestCase):
+class BaseEffectsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(BaseEffectsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
@@ -99,12 +86,12 @@ class BaseEffectsTests(testcase.TestCase):
                          'job_diary_x_place_safety_a_z')
 
 
-class EffectsTestsBase(testcase.TestCase):
+class EffectsTestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(EffectsTestsBase, self).setUp()
 
-        self.place_1, self.place_2, self.place_3 = create_test_map()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
         self.hero_1 = heroes_logic.load_hero(account_id=self.account_1.id)
@@ -135,27 +122,27 @@ class PlaceEffectTests(EffectsTestsBase):
                                         job_power=self.job_power)
 
         self.assertCountEqual(invoke_hero_method.call_args_list,
-                         [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
-                                    method_kwargs={'person_id': None,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
-                                                   'job_power': self.job_power}),
-                          mock.call(method_name='job_message', account_id=self.account_3.id, hero_id=self.hero_3.id,
-                                    method_kwargs={'person_id': None,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
-                                                   'job_power': self.job_power}),
-                          mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
-                                    method_kwargs={'person_id': None,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_x_%s_positive_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power})])
+                              [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
+                                         method_kwargs={'person_id': None,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
+                                                        'job_power': self.job_power}),
+                               mock.call(method_name='job_message', account_id=self.account_3.id, hero_id=self.hero_3.id,
+                                         method_kwargs={'person_id': None,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
+                                                        'job_power': self.job_power}),
+                               mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
+                                         method_kwargs={'person_id': None,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_x_%s_positive_enemies' % effect.name.lower(),
+                                                        'job_power': self.job_power})])
 
         applied_effect = self.place.effects.effects[0]
 
         self.assertEqual(applied_effect.name, self.actor_name)
         self.assertEqual(applied_effect.attribute, effect.logic.attribute)
-        self.assertEqual(applied_effect.value, effect.logic.base_value*self.job_power)
+        self.assertEqual(applied_effect.value, effect.logic.base_value * self.job_power)
 
     def check_apply_negative(self, effect):
         with mock.patch('the_tale.game.jobs.effects.BaseEffect.invoke_hero_method') as invoke_hero_method:
@@ -170,28 +157,28 @@ class PlaceEffectTests(EffectsTestsBase):
         self.assertEqual(len(invoke_hero_method.call_args_list), 3)
 
         self.assertCountEqual(invoke_hero_method.call_args_list,
-                         [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
-                                    method_kwargs={'person_id': self.person.id,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_y_%s_negative_friends' % effect.name.lower(),
-                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
-                          mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
-                                    method_kwargs={'person_id': self.person.id,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
-                          mock.call(method_name='job_message', account_id=self.account_3.id, hero_id=self.hero_3.id,
-                                    method_kwargs={'person_id': self.person.id,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
+                              [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
+                                         method_kwargs={'person_id': self.person.id,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_y_%s_negative_friends' % effect.name.lower(),
+                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
+                               mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
+                                         method_kwargs={'person_id': self.person.id,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
+                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
+                               mock.call(method_name='job_message', account_id=self.account_3.id, hero_id=self.hero_3.id,
+                                         method_kwargs={'person_id': self.person.id,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
+                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
 
         applied_effect = self.place.effects.effects[0]
 
         self.assertEqual(applied_effect.name, self.actor_name)
         self.assertEqual(applied_effect.attribute, effect.logic.attribute)
 
-        self.assertEqual(applied_effect.value, -effect.logic.base_value*self.job_power*c.JOB_NEGATIVE_POWER_MULTIPLIER)
+        self.assertEqual(applied_effect.value, -effect.logic.base_value * self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER)
 
     def test_production__positive(self):
         self.check_apply_positive(effects.EFFECT.PLACE_PRODUCTION)
@@ -243,21 +230,21 @@ class HeroEffectTests(EffectsTestsBase):
                                         job_power=self.job_power)
 
         self.assertCountEqual(invoke_hero_method.call_args_list,
-                         [mock.call(method_name=effect.logic.method_name, account_id=self.account_1.id, hero_id=self.hero_1.id,
-                                    method_kwargs={'person_id': None,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
-                                                   'job_power': self.job_power}),
-                          mock.call(method_name=effect.logic.method_name, account_id=self.account_3.id, hero_id=self.hero_3.id,
-                                    method_kwargs={'person_id': None,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
-                                                   'job_power': self.job_power}),
-                          mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
-                                    method_kwargs={'person_id': None,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_x_%s_positive_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power})])
+                              [mock.call(method_name=effect.logic.method_name, account_id=self.account_1.id, hero_id=self.hero_1.id,
+                                         method_kwargs={'person_id': None,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
+                                                        'job_power': self.job_power}),
+                               mock.call(method_name=effect.logic.method_name, account_id=self.account_3.id, hero_id=self.hero_3.id,
+                                         method_kwargs={'person_id': None,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_x_%s_positive_friends' % effect.name.lower(),
+                                                        'job_power': self.job_power}),
+                               mock.call(method_name='job_message', account_id=self.account_2.id, hero_id=self.hero_2.id,
+                                         method_kwargs={'person_id': None,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_x_%s_positive_enemies' % effect.name.lower(),
+                                                        'job_power': self.job_power})])
 
     def check_apply_negative(self, effect):
         with mock.patch('the_tale.game.jobs.effects.BaseEffect.invoke_hero_method') as invoke_hero_method:
@@ -270,21 +257,21 @@ class HeroEffectTests(EffectsTestsBase):
                                         job_power=self.job_power)
 
         self.assertCountEqual(invoke_hero_method.call_args_list,
-                         [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
-                                    method_kwargs={'person_id': self.person.id,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_y_%s_negative_friends' % effect.name.lower(),
-                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
-                          mock.call(method_name=effect.logic.method_name, account_id=self.account_2.id, hero_id=self.hero_2.id,
-                                    method_kwargs={'person_id': self.person.id,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
-                          mock.call(method_name=effect.logic.method_name, account_id=self.account_3.id, hero_id=self.hero_3.id,
-                                    method_kwargs={'person_id': self.person.id,
-                                                   'place_id': self.place.id,
-                                                   'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
-                                                   'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
+                              [mock.call(method_name='job_message', account_id=self.account_1.id, hero_id=self.hero_1.id,
+                                         method_kwargs={'person_id': self.person.id,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_y_%s_negative_friends' % effect.name.lower(),
+                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
+                               mock.call(method_name=effect.logic.method_name, account_id=self.account_2.id, hero_id=self.hero_2.id,
+                                         method_kwargs={'person_id': self.person.id,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
+                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER}),
+                               mock.call(method_name=effect.logic.method_name, account_id=self.account_3.id, hero_id=self.hero_3.id,
+                                         method_kwargs={'person_id': self.person.id,
+                                                        'place_id': self.place.id,
+                                                        'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
+                                                        'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
 
     def test_money__positive(self):
         self.check_apply_positive(effects.EFFECT.HERO_MONEY)

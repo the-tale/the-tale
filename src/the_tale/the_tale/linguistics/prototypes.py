@@ -1,35 +1,16 @@
-import datetime
 
-from django.db import IntegrityError, transaction
+import smart_imports
 
-from dext.common.utils import s11n
-
-from utg import words as utg_words
-from utg import templates as utg_templates
-from utg import exceptions as utg_exceptions
-from utg import constructors as utg_constructors
-from utg.data import VERBOSE_TO_PROPERTIES
-
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils.prototypes import BasePrototype
-from the_tale.common.utils.decorators import lazy_property
-from the_tale.common.utils.logic import get_or_create
-
-from the_tale.linguistics import models
-from the_tale.linguistics import relations
-from the_tale.linguistics.lexicon import logic as lexicon_logic
-from the_tale.linguistics.lexicon import dictionary as lexicon_dictionary
-from the_tale.linguistics.lexicon import relations as lexicon_relations
+smart_imports.all()
 
 
-class WordPrototype(BasePrototype):
+class WordPrototype(utils_prototypes.BasePrototype):
     _model_class = models.Word
     _readonly = ('id', 'type', 'created_at', 'updated_at', 'author_id')
     _bidirectional = ('state', 'parent_id', 'used_in_ingame_templates', 'used_in_onreview_templates', 'used_in_status')
     _get_by = ('id', 'parent_id')
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def utg_word(self):
         return utg_words.Word.deserialize(s11n.from_json(self._model.forms))
 
@@ -42,6 +23,7 @@ class WordPrototype(BasePrototype):
         return self.get_by_parent_id(self.id)
 
     def has_parent(self): return bool(self.get_parent())
+
     def has_child(self): return bool(self.get_child())
 
     @classmethod
@@ -56,13 +38,11 @@ class WordPrototype(BasePrototype):
 
         prototype = cls(model)
 
-        environment.workers.linguistics_manager.cmd_game_dictionary_changed()
+        amqp_environment.environment.workers.linguistics_manager.cmd_game_dictionary_changed()
 
         return prototype
 
     def save(self):
-        from the_tale.linguistics import storage
-
         self._model.forms = s11n.to_json(self.utg_word.serialize())
         self._model.normal_form = self.utg_word.normal_form()
         self._model.updated_at = datetime.datetime.now()
@@ -70,11 +50,10 @@ class WordPrototype(BasePrototype):
         super(WordPrototype, self).save()
 
         if self.state.is_IN_GAME:
-            storage.game_dictionary.update_version()
-            storage.game_dictionary.refresh()
+            storage.dictionary.update_version()
+            storage.dictionary.refresh()
 
-        environment.workers.linguistics_manager.cmd_game_dictionary_changed()
-
+        amqp_environment.environment.workers.linguistics_manager.cmd_game_dictionary_changed()
 
     def remove(self):
         self._model.delete()
@@ -98,10 +77,10 @@ class WordPrototype(BasePrototype):
                                                used_in_onreview_templates=self.used_in_onreview_templates)
 
 
-class TemplatePrototype(BasePrototype):
+class TemplatePrototype(utils_prototypes.BasePrototype):
     _model_class = models.Template
-    _readonly = ('id', 'created_at', 'updated_at', 'raw_template', 'author_id')
-    _bidirectional = ('state', 'parent_id', 'errors_status', 'key')
+    _readonly = ('id', 'created_at', 'updated_at', 'raw_template')
+    _bidirectional = ('state', 'parent_id', 'errors_status', 'key', 'author_id')
     _get_by = ('id', 'parent_id')
 
     def get_parent(self):
@@ -112,27 +91,24 @@ class TemplatePrototype(BasePrototype):
     def get_child(self):
         return self.get_by_parent_id(self.id)
 
-
-    @lazy_property
+    @utils_decorators.lazy_property
     def _data(self):
         return s11n.from_json(self._model.data)
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def lexicon_groups(self):
         return {key: tuple(value) for key, value in self._data['groups'].items()}
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def verificators(self):
         return [Verificator.deserialize(v) for v in self._data['verificators']]
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def raw_restrictions(self):
         return frozenset(tuple(key) for key in self._data.get('restrictions', ()))
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def restrictions(self):
-        from the_tale.linguistics import storage
-
         data = {}
 
         for variable_value, restriction_id in self.raw_restrictions:
@@ -141,11 +117,11 @@ class TemplatePrototype(BasePrototype):
             if variable not in data:
                 data[variable] = []
 
-            data[variable].append(storage.restrictions_storage[restriction_id])
+            data[variable].append(storage.restrictions[restriction_id])
 
         return data
 
-    @lazy_property
+    @utils_decorators.lazy_property
     def utg_template(self):
         return utg_templates.Template.deserialize(self._data['template'])
 
@@ -161,11 +137,7 @@ class TemplatePrototype(BasePrototype):
         return verificators
 
     def get_errors(self):
-        from the_tale.linguistics import storage
-        from the_tale.linguistics import logic
-
-
-        utg_dictionary = storage.game_dictionary.item
+        utg_dictionary = storage.dictionary.item
 
         errors = []
 
@@ -190,9 +162,8 @@ class TemplatePrototype(BasePrototype):
                               e.arguments['text'])
                 return errors
 
-            import jinja2
             if logic.efication(verificator.text) != logic.efication(template_render):
-                errors.append('Проверочный текст не совпадает с интерпретацией шаблона<br/>%s<br/>%s' % (jinja2.escape(template_render), jinja2.escape(verificator.text)) )
+                errors.append('Проверочный текст не совпадает с интерпретацией шаблона<br/>%s<br/>%s' % (jinja2.escape(template_render), jinja2.escape(verificator.text)))
 
         return errors
 
@@ -200,12 +171,11 @@ class TemplatePrototype(BasePrototype):
         return bool(self.get_errors())
 
     def sync_restrictions(self):
-        with transaction.atomic():
+        with django_transaction.atomic():
             models.TemplateRestriction.objects.filter(template_id=self.id).delete()
             for variable, restrictions in self.restrictions.items():
                 for restriction in restrictions:
                     models.TemplateRestriction.objects.create(template_id=self.id, variable=variable.value, restriction_id=restriction.id)
-
 
     @classmethod
     def create(cls, key, raw_template, utg_template, verificators, author, parent=None, restrictions=frozenset(), state=relations.TEMPLATE_STATE.ON_REVIEW):
@@ -223,10 +193,9 @@ class TemplatePrototype(BasePrototype):
         prototype.update_errors_status(force_update=True)
         prototype.sync_restrictions()
 
-        environment.workers.linguistics_manager.cmd_game_lexicon_changed()
+        amqp_environment.environment.workers.linguistics_manager.cmd_game_lexicon_changed()
 
         return prototype
-
 
     def update(self, raw_template=None, utg_template=None, verificators=None, restrictions=None):
         if raw_template is not None:
@@ -247,10 +216,7 @@ class TemplatePrototype(BasePrototype):
 
         self.save()
 
-
     def save(self):
-        from the_tale.linguistics import storage
-
         self._data['verificators'] = [v.serialize() for v in self.verificators]
         self._data['restrictions'] = list(self.raw_restrictions)
         self._data['template'] = self.utg_template.serialize()
@@ -266,10 +232,10 @@ class TemplatePrototype(BasePrototype):
         super(TemplatePrototype, self).save()
 
         if self.state.is_IN_GAME:
-            storage.game_lexicon.update_version()
-            storage.game_lexicon.refresh()
+            storage.lexicon.update_version()
+            storage.lexicon.refresh()
 
-        environment.workers.linguistics_manager.cmd_game_lexicon_changed()
+        amqp_environment.environment.workers.linguistics_manager.cmd_game_lexicon_changed()
 
     def remove(self):
         self._model.delete()
@@ -302,7 +268,7 @@ class Verificator(object):
     @classmethod
     def deserialize(cls, data):
         return cls(text=data['text'],
-                   externals={k: tuple(v) for k,v in data['externals'].items()})
+                   externals={k: tuple(v) for k, v in data['externals'].items()})
 
     def __eq__(self, other):
         return (self.text == other.text and
@@ -323,14 +289,13 @@ class Verificator(object):
 
             if additional_properties:
                 properties = utg_words.Properties(word_form.properties,
-                                                *[VERBOSE_TO_PROPERTIES[prop.strip()] for prop in additional_properties.split(',') if prop])
+                                                  *[utg_data.VERBOSE_TO_PROPERTIES[prop.strip()] for prop in additional_properties.split(',') if prop])
                 word_form = utg_words.WordForm(word=word_form.word,
                                                properties=properties)
 
             externals[k] = word_form
 
         return externals
-
 
     @classmethod
     def _fill_externals(cls, externals, start_substitutions, work_substitutions, used_substitutions):
@@ -351,17 +316,14 @@ class Verificator(object):
             if not substitutions:
                 substitutions.extend(start_substitutions[variable_value])
 
-
     @classmethod
     def get_verificators(cls, key, groups, old_verificators=()):
-        from the_tale.linguistics.lexicon.relations import VARIABLE_VERIFICATOR
-
         start_substitutions = {}
         used_substitutions = {}
         work_substitutions = {}
 
         for variable_value, (verificator_value, substitution_index) in groups.items():
-            verificator = VARIABLE_VERIFICATOR(verificator_value)
+            verificator = lexicon_relations.VARIABLE_VERIFICATOR(verificator_value)
             start_substitutions[variable_value] = list(verificator.substitutions[substitution_index])
             work_substitutions[variable_value] = list(start_substitutions[variable_value])
             used_substitutions[variable_value] = set()
@@ -373,7 +335,7 @@ class Verificator(object):
             correct_verificator = True
 
             for variable_value, substitution in old_verificator.externals.items():
-                if variable_value not in work_substitutions: # if variable removed from key
+                if variable_value not in work_substitutions:  # if variable removed from key
                     continue
                 if substitution not in work_substitutions[variable_value]:
                     correct_verificator = False
@@ -385,7 +347,7 @@ class Verificator(object):
             verificators.append(old_verificator)
 
             for variable_value, substitution in old_verificator.externals.items():
-                if variable_value not in work_substitutions: # if variable removed from key
+                if variable_value not in work_substitutions:  # if variable removed from key
                     continue
                 used_substitutions[variable_value].add(substitution)
 
@@ -409,13 +371,11 @@ class Verificator(object):
         return verificators
 
 
-
-class ContributionPrototype(BasePrototype):
+class ContributionPrototype(utils_prototypes.BasePrototype):
     _model_class = models.Contribution
     _readonly = ('id', 'created_at', 'account_id', 'type', 'entity_id', 'source', 'state')
     _bidirectional = ()
     _get_by = ('id', 'account_id', 'entity_id')
-
 
     @classmethod
     def create(cls, type, account_id, entity_id, source, state):
@@ -434,11 +394,11 @@ class ContributionPrototype(BasePrototype):
 
     @classmethod
     def get_for_or_create(cls, type, account_id, entity_id, source, state):
-        return get_or_create(get_method=cls.get_for,
-                             create_method=cls.create,
-                             exception=IntegrityError,
-                             kwargs={'type': type,
-                                     'account_id': account_id,
-                                     'entity_id': entity_id,
-                                     'source': source,
-                                     'state': state})
+        return utils_logic.get_or_create(get_method=cls.get_for,
+                                         create_method=cls.create,
+                                         exception=django_db.IntegrityError,
+                                         kwargs={'type': type,
+                                                 'account_id': account_id,
+                                                 'entity_id': entity_id,
+                                                 'source': source,
+                                                 'state': state})

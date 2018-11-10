@@ -1,10 +1,10 @@
-# coding: utf-8
 
-from the_tale.game.habits import HabitBase
-from the_tale.game.relations import HABIT_TYPE
+import smart_imports
+
+smart_imports.all()
 
 
-class Habit(HabitBase):
+class Habit(game_habits.HabitBase):
     __slots__ = ()
 
     @property
@@ -14,9 +14,9 @@ class Habit(HabitBase):
 
 class Honor(Habit):
     __slots__ = ()
-    TYPE = HABIT_TYPE.HONOR
+    TYPE = game_relations.HABIT_TYPE.HONOR
 
 
 class Peacefulness(Habit):
     __slots__ = ()
-    TYPE = HABIT_TYPE.PEACEFULNESS
+    TYPE = game_relations.HABIT_TYPE.PEACEFULNESS

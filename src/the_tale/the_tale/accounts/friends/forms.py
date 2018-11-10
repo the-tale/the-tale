@@ -1,11 +1,12 @@
-# coding: utf-8
 
-from dext.forms import forms
+import smart_imports
 
-from the_tale.common.utils import bbcode
+smart_imports.all()
+
 
 DEFAULT_TEXT = '''Здравствуйте!
 Давайте дружить.'''
 
-class RequestForm(forms.Form):
-    text = bbcode.BBField(label='Сообщение', initial=DEFAULT_TEXT)
+
+class RequestForm(dext_forms.Form):
+    text = utils_bbcode.BBField(label='Сообщение', initial=DEFAULT_TEXT)

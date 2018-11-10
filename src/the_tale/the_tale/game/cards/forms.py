@@ -1,23 +1,17 @@
 
-from dext.forms import forms
-from dext.forms import fields
+import smart_imports
 
-from tt_logic.beings import relations as beings_relations
-
-from the_tale.accounts.clans import models as clan_models
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.persons import objects as persons_objects
+smart_imports.all()
 
 
-class Empty(forms.Form):
+class Empty(dext_forms.Form):
 
     def get_card_data(self):
         return {}
 
 
-class Person(forms.Form):
-    value = fields.ChoiceField(label='Мастер')
+class Person(dext_forms.Form):
+    value = dext_fields.ChoiceField(label='Мастер')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -27,8 +21,8 @@ class Person(forms.Form):
         return {'value': int(self.c.value)}
 
 
-class Place(forms.Form):
-    value = fields.ChoiceField(label='Город')
+class Place(dext_forms.Form):
+    value = dext_fields.ChoiceField(label='Город')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -38,8 +32,8 @@ class Place(forms.Form):
         return {'value': int(self.c.value)}
 
 
-class Building(forms.Form):
-    value = fields.ChoiceField(label='Строение')
+class Building(dext_forms.Form):
+    value = dext_fields.ChoiceField(label='Строение')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -49,35 +43,35 @@ class Building(forms.Form):
         return {'value': int(self.c.value)}
 
 
-class CreateClan(forms.Form):
-    name = fields.CharField(label='Название',
-                            max_length=clan_models.Clan.MAX_NAME_LENGTH,
-                            min_length=clan_models.Clan.MIN_NAME_LENGTH)
-    abbr = fields.CharField(label='Аббревиатура (до %d символов)' % clan_models.Clan.MAX_ABBR_LENGTH,
-                            max_length=clan_models.Clan.MAX_ABBR_LENGTH,
-                            min_length=clan_models.Clan.MIN_ABBR_LENGTH)
+class CreateClan(dext_forms.Form):
+    name = dext_fields.CharField(label='Название',
+                                 max_length=clans_models.Clan.MAX_NAME_LENGTH,
+                                 min_length=clans_models.Clan.MIN_NAME_LENGTH)
+    abbr = dext_fields.CharField(label='Аббревиатура (до %d символов)' % clans_models.Clan.MAX_ABBR_LENGTH,
+                                 max_length=clans_models.Clan.MAX_ABBR_LENGTH,
+                                 min_length=clans_models.Clan.MIN_ABBR_LENGTH)
 
     def get_card_data(self):
         return {'name': self.c.name,
                 'abbr': self.c.abbr}
 
 
-class Upbringing(forms.Form):
-    value = fields.RelationField(label='происхождение', relation=beings_relations.UPBRINGING)
+class Upbringing(dext_forms.Form):
+    value = dext_fields.RelationField(label='происхождение', relation=tt_beings_relations.UPBRINGING)
 
     def get_card_data(self):
         return {'value': int(self.c.value.value)}
 
 
-class DeathAge(forms.Form):
-    value = fields.RelationField(label='возраст смерти', relation=beings_relations.AGE)
+class DeathAge(dext_forms.Form):
+    value = dext_fields.RelationField(label='возраст смерти', relation=tt_beings_relations.AGE)
 
     def get_card_data(self):
         return {'value': int(self.c.value.value)}
 
 
-class DeathType(forms.Form):
-    value = fields.RelationField(label='способ первой смерти', relation=beings_relations.FIRST_DEATH)
+class DeathType(dext_forms.Form):
+    value = dext_fields.RelationField(label='первая смерть', relation=tt_beings_relations.FIRST_DEATH)
 
     def get_card_data(self):
         return {'value': int(self.c.value.value)}

@@ -1,19 +1,7 @@
 
-from utg import words as utg_words
+import smart_imports
 
-from dext.common.utils import s11n
-
-from tt_logic.artifacts import relations as tt_artifacts_relations
-
-from the_tale.linguistics import logic as linguistics_logic
-from the_tale.linguistics import relations as linguistics_relations
-
-from the_tale.game import names
-
-from . import models
-from . import objects
-from . import relations
-from . import exceptions
+smart_imports.all()
 
 
 def create_artifact_record(uuid,
@@ -31,36 +19,34 @@ def create_artifact_record(uuid,
                            weapon_type=tt_artifacts_relations.WEAPON_TYPE.NONE,
                            material=tt_artifacts_relations.MATERIAL.UNKNOWN):
 
-        from . import storage
+    data = {'name': utg_name.serialize(),
+            'weapon_type': weapon_type.value,
+            'material': material.value}
 
-        data = {'name': utg_name.serialize(),
-                'weapon_type': weapon_type.value,
-                'material': material.value}
+    model = models.ArtifactRecord.objects.create(uuid=uuid,
+                                                 level=level,
+                                                 name=utg_name.normal_form(),
+                                                 description=description,
+                                                 data=s11n.to_json(data),
+                                                 mob_id=mob.id if mob else None,
+                                                 type=type,
+                                                 power_type=power_type,
+                                                 rare_effect=rare_effect,
+                                                 epic_effect=epic_effect,
+                                                 special_effect=special_effect,
+                                                 state=state,
+                                                 editor_id=editor.id if editor else None)
 
-        model = models.ArtifactRecord.objects.create(uuid=uuid,
-                                                     level=level,
-                                                     name=utg_name.normal_form(),
-                                                     description=description,
-                                                     data=s11n.to_json(data),
-                                                     mob_id=mob.id if mob else None,
-                                                     type=type,
-                                                     power_type=power_type,
-                                                     rare_effect=rare_effect,
-                                                     epic_effect=epic_effect,
-                                                     special_effect=special_effect,
-                                                     state=state,
-                                                     editor_id=editor.id if editor else None)
+    artifact_record = construct_from_model(model)
 
-        artifact_record = construct_from_model(model)
+    linguistics_logic.sync_restriction(group=linguistics_restrictions.GROUP.ARTIFACT,
+                                       external_id=artifact_record.id,
+                                       name=artifact_record.name)
 
-        linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT,
-                                           external_id=artifact_record.id,
-                                           name=artifact_record.name)
+    storage.artifacts.add_item(artifact_record.id, artifact_record)
+    storage.artifacts.update_version()
 
-        storage.artifacts.add_item(artifact_record.id, artifact_record)
-        storage.artifacts.update_version()
-
-        return artifact_record
+    return artifact_record
 
 
 def create_random_artifact_record(uuid,
@@ -71,7 +57,7 @@ def create_random_artifact_record(uuid,
                                   state=relations.ARTIFACT_RECORD_STATE.ENABLED,
                                   weapon_type=tt_artifacts_relations.WEAPON_TYPE.NONE,
                                   material=tt_artifacts_relations.MATERIAL.UNKNOWN):
-    utg_name = names.generator().get_test_name(name=uuid.lower())
+    utg_name = game_names.generator().get_test_name(name=uuid.lower())
     return create_artifact_record(uuid=uuid,
                                   level=level,
                                   utg_name=utg_name,
@@ -85,12 +71,11 @@ def create_random_artifact_record(uuid,
 
 
 def save_artifact_record(record):
-    from . import storage
 
     if id(record) != id(storage.artifacts[record.id]):
         raise exceptions.SaveNotRegisteredArtifactError(mob=record.id)
 
-    linguistics_logic.sync_restriction(group=linguistics_relations.TEMPLATE_RESTRICTION_GROUP.ARTIFACT,
+    linguistics_logic.sync_restriction(group=linguistics_restrictions.GROUP.ARTIFACT,
                                        external_id=record.id,
                                        name=record.name)
 
@@ -166,9 +151,7 @@ def update_by_creator(artifact, form, editor):
 
 
 def update_by_moderator(artifact, form, editor=None):
-    from the_tale.game.heroes import relations as heroes_relations
-
-    if artifact.uuid in heroes_relations.EQUIPMENT_SLOT.index_default: # pylint: disable=E0203
+    if artifact.uuid in heroes_relations.EQUIPMENT_SLOT.index_default:  # pylint: disable=E0203
         if not form.c.approved:
             raise exceptions.DisableDefaultEquipmentError(artifact=artifact.uuid)
 

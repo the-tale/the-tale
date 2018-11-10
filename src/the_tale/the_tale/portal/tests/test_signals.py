@@ -1,51 +1,36 @@
 
-from unittest import mock
+import smart_imports
 
-from dext.settings import settings
-
-from the_tale.common.utils.testcase import TestCase
-
-from the_tale.accounts.prototypes import AccountPrototype
-from the_tale.accounts.logic import get_system_user
-
-from the_tale.accounts.personal_messages import tt_api as pm_tt_api
-from the_tale.accounts.personal_messages.tests import helpers as pm_helpers
-
-from the_tale.game.logic import create_test_map
-
-from the_tale.portal import signals as portal_signals
-from the_tale.portal.conf import portal_settings
+smart_imports.all()
 
 
-class DayStartedSignalTests(TestCase, pm_helpers.Mixin):
+class DayStartedSignalTests(utils_testcase.TestCase, personal_messages_helpers.Mixin):
 
     def setUp(self):
         super(DayStartedSignalTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()
 
-        pm_tt_api.debug_clear_service()
-
+        personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
 
     def test_day_started_signal(self):
-        self.assertFalse(portal_settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY in settings)
+        self.assertFalse(conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY in dext_settings.settings)
 
-        with self.check_new_message(self.account.id, [get_system_user().id]):
+        with self.check_new_message(self.account.id, [accounts_logic.get_system_user().id]):
             with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
-                portal_signals.day_started.send(self.__class__)
+                signals.day_started.send(self.__class__)
 
             self.assertEqual(cmd_run_account_method.call_count, 1)
             self.assertEqual(cmd_run_account_method.call_args, mock.call(account_id=self.account.id,
                                                                          method_name='prolong_premium',
-                                                                         data={'days': portal_settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY}))
+                                                                         data={'days': conf.settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY}))
 
-            self.assertEqual(int(settings[portal_settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY]), self.account.id)
-
+            self.assertEqual(int(dext_settings.settings[conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY]), self.account.id)
 
     def test_day_started_signal__only_not_premium(self):
-        self.assertEqual(AccountPrototype._db_count(), 1)
+        self.assertEqual(accounts_prototypes.AccountPrototype._db_count(), 1)
 
         self.account.prolong_premium(days=30)
         self.account.save()
@@ -53,7 +38,7 @@ class DayStartedSignalTests(TestCase, pm_helpers.Mixin):
         old_premium_end_at = self.account.premium_end_at
 
         with self.check_no_messages(self.account.id):
-            portal_signals.day_started.send(self.__class__)
+            signals.day_started.send(self.__class__)
 
         self.account.reload()
         self.assertEqual(old_premium_end_at, self.account.premium_end_at)

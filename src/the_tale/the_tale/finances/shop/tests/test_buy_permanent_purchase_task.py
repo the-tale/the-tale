@@ -1,22 +1,20 @@
-# coding: utf-8
 
-from the_tale.finances.shop.postponed_tasks import BuyPermanentPurchase
-from the_tale.finances.shop.tests import base_buy_task
-from the_tale.finances.shop.relations import PERMANENT_PURCHASE_TYPE
+import smart_imports
+
+smart_imports.all()
+
 
 class BuyPermanentPurchasePosponedTaskTests(base_buy_task._BaseBuyPosponedTaskTests):
 
     def setUp(self):
         super(BuyPermanentPurchasePosponedTaskTests, self).setUp()
-        self.purchase_type = PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION
+        self.purchase_type = relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION
 
-        self.task = BuyPermanentPurchase(account_id=self.account.id,
-                                         purchase_type=self.purchase_type,
-                                         transaction=self.transaction)
+        self.task = postponed_tasks.BuyPermanentPurchase(account_id=self.account.id,
+                                                         purchase_type=self.purchase_type,
+                                                         transaction=self.transaction)
 
-        self.cmd_update_with_account_data__call_count = 0 # no need in updating hero state
-
-
+        self.cmd_update_with_account_data__call_count = 0  # no need in updating hero state
 
     def _test_create(self):
         self.assertEqual(self.task.purchase_type, self.purchase_type)

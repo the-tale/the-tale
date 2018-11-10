@@ -1,8 +1,6 @@
-# coding: utf-8
 import re
 import json
 import setuptools
-
 
 
 with open('./the_tale/meta_config.json') as f:
@@ -14,7 +12,7 @@ setuptools.setup(
     name='TheTale',
     version=VERSION,
     description='Zero Player Game with indirect character controll',
-    long_description = 'Zero Player Game with indirect character controll',
+    long_description='Zero Player Game with indirect character controll',
     url='https://github.com/Tiendil/the-tale',
     author='Aleksey Yeletsky <Tiendil>',
     author_email='a.eletsky@gmail.com',
@@ -46,10 +44,15 @@ setuptools.setup(
                       'unicodecsv==0.14.1',
                       'django-redis==4.5.0',
                       'psutil==4.4.2',
-                      'requests==2.12.1',
+                      'requests==2.20.0',
                       'protobuf==3.1.0.post1',
                       'gunicorn==19.6.0',
-                      'raven==5.32.0'],
+                      'raven==5.32.0',
+
+                      'pynames==0.2.2',
+                      'utg==0.3.1',
+                      'rels==0.3.0',
+                      'smart_imports==0.1.1'],
 
     include_package_data=True,
-    test_suite = 'tests' )
+    test_suite='tests')

@@ -1,21 +1,15 @@
 
-from the_tale.common.utils import testcase
+import smart_imports
 
-from the_tale.game.logic import create_test_map
-
-from the_tale.game.heroes import logic as heroes_logic
-
-from the_tale.game.artifacts import relations
-from the_tale.game.artifacts import effects
-from the_tale.game.artifacts import storage
+smart_imports.all()
 
 
-class EffectsTests(testcase.TestCase):
+class EffectsTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(EffectsTests, self).setUp()
 
-        create_test_map()
+        game_logic.create_test_map()
 
         account = self.accounts_factory.create_account()
         self.hero = heroes_logic.load_hero(account_id=account.id)
@@ -25,11 +19,9 @@ class EffectsTests(testcase.TestCase):
         self.artifact = list(self.hero.equipment.values())[0]
         self.artifact_2 = list(self.hero.equipment.values())[1]
 
-
     def test_all_effects_declared(self):
         for effect in relations.ARTIFACT_EFFECT.records:
             self.assertTrue(effect in effects.EFFECTS)
-
 
     def test_no_undeclared_effects(self):
         for effect in list(effects.EFFECTS.values()):
@@ -82,7 +74,6 @@ class EffectsTests(testcase.TestCase):
     def test_bag(self):
         with self.check_increased(lambda: self.hero.max_bag_size):
             self._set_effect(relations.ARTIFACT_EFFECT.BAG)
-
 
     def test_great_physical_damage(self):
         old_damage = self.hero.basic_damage

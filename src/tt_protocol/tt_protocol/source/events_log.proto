@@ -1,0 +1,53 @@
+syntax = "proto3";
+package events_log;
+
+
+message Event {
+  uint64 id = 1;
+  string data = 2;
+  repeated uint64 tags = 3;
+  uint64 turn = 4;
+  double time = 5;
+}
+
+
+message AddEventRequest {
+  repeated uint64 tags = 1;
+  string data = 2;
+  uint64 turn = 3;
+  double time = 4;
+}
+
+
+message AddEventResponse {
+}
+
+
+message GetEventsRequest {
+  repeated uint64 tags = 1;
+  uint64 page = 2;
+  uint32 records_on_page = 3;
+}
+
+
+message GetEventsResponse {
+  repeated Event events = 1;
+  uint64 page = 2;
+  uint64 total_records = 3;
+}
+
+
+message GetLastEventsRequest {
+  repeated uint64 tags = 1;
+  uint32 number = 2;
+}
+
+
+message GetLastEventsResponse {
+  repeated Event events = 1;
+  uint64 total_records = 2;
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

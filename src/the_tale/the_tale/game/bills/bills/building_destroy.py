@@ -1,30 +1,18 @@
-# coding: utf-8
 
-from dext.forms import fields
+import smart_imports
 
-from utg import words as utg_words
-
-from the_tale.game import names
-
-from the_tale.game.persons import objects as persons_objects
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-
-from the_tale.game.bills.relations import BILL_TYPE
-from the_tale.game.bills.forms import BaseUserForm, ModeratorFormMixin
-from the_tale.game.bills.bills.base_person_bill import BasePersonBill
+smart_imports.all()
 
 
-class BaseForm(BaseUserForm):
-    person = fields.ChoiceField(label='Житель')
+class BaseForm(forms.BaseUserForm):
+    person = dext_fields.ChoiceField(label='Житель')
 
-    def __init__(self, choosen_person_id, *args, **kwargs): # pylint: disable=W0613
+    def __init__(self, choosen_person_id, *args, **kwargs):  # pylint: disable=W0613
         super(BaseForm, self).__init__(*args, **kwargs)
         self.fields['person'].choices = persons_objects.Person.form_choices(predicate=self._person_has_building)
 
     @classmethod
-    def _person_has_building(cls, place, person): # pylint: disable=W0613
+    def _person_has_building(cls, place, person):  # pylint: disable=W0613
         return places_storage.buildings.get_by_person_id(person.id) is not None
 
 
@@ -32,12 +20,12 @@ class UserForm(BaseForm):
     pass
 
 
-class ModeratorForm(BaseForm, ModeratorFormMixin):
+class ModeratorForm(BaseForm, forms.ModeratorFormMixin):
     pass
 
 
-class BuildingDestroy(BasePersonBill):
-    type = BILL_TYPE.BUILDING_DESTROY
+class BuildingDestroy(base_person_bill.BasePersonBill):
+    type = relations.BILL_TYPE.BUILDING_DESTROY
 
     UserForm = UserForm
     ModeratorForm = ModeratorForm
@@ -87,6 +75,6 @@ class BuildingDestroy(BasePersonBill):
         if 'building_name_forms' in data:
             obj.building_name_forms = utg_words.Word.deserialize(data['building_name_forms'])
         else:
-            obj.building_name_forms = names.generator().get_fast_name('название утрачено')
+            obj.building_name_forms = game_names.generator().get_fast_name('название утрачено')
 
         return obj

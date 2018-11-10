@@ -1,13 +1,11 @@
-# coding: utf-8
-import time
 
-from dext.common.utils import s11n
+import smart_imports
 
-from the_tale.common.utils.decorators import lazy_property
+smart_imports.all()
 
 
-class PrototypeError(Exception): pass
-
+class PrototypeError(Exception):
+    pass
 
 
 def _serialization_proxy(Class, field_name, unload_after):
@@ -65,7 +63,6 @@ def _serialization_proxy(Class, field_name, unload_after):
             self._accessed_at = time.time()
             return self._object.__len__()
 
-
     SerializationProxy.__name__ = '%sSerializationProxy' % Class.__name__
 
     return SerializationProxy
@@ -119,7 +116,6 @@ class _PrototypeMetaclass(type):
 
         return proxy
 
-
     def __new__(mcs, name, bases, attributes):
 
         # create readonly properties
@@ -154,7 +150,7 @@ class _PrototypeMetaclass(type):
         for proxy_field, proxy_class, unload_after in serialization_proxies:
             if proxy_field in attributes:
                 raise PrototypeError('cannot set attribute "%s" class has already had attribute with such name' % proxy_field)
-            attributes[proxy_field] = lazy_property(mcs.create_serialization_proxy(Class=proxy_class, field_name=proxy_field, unload_after=unload_after))
+            attributes[proxy_field] = decorators.lazy_property(mcs.create_serialization_proxy(Class=proxy_class, field_name=proxy_field, unload_after=unload_after))
 
         return super(_PrototypeMetaclass, mcs).__new__(mcs, name, bases, attributes)
 
@@ -224,7 +220,7 @@ class BasePrototype(object, metaclass=_PrototypeMetaclass):
         return cls._model_class.objects.all()
 
     @classmethod
-    def _db_count(cls): # DEPRECTATED: use _db_all().count() || _db_filter().count()
+    def _db_count(cls):  # DEPRECTATED: use _db_all().count() || _db_filter().count()
         return cls._model_class.objects.all().count()
 
     @classmethod

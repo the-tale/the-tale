@@ -1,15 +1,7 @@
-# coding: utf-8
-import math
 
-from the_tale.common.utils.prototypes import BasePrototype
+import smart_imports
 
-from the_tale.game.balance import constants as c
-
-from the_tale.game.places import storage as places_storage
-
-from the_tale.game.roads.models import Road, Waymark
-from the_tale.game.roads import exceptions
-from the_tale.game.roads.relations import PATH_DIRECTION
+smart_imports.all()
 
 
 def old_round(value):
@@ -19,8 +11,8 @@ def old_round(value):
     return floor
 
 
-class RoadPrototype(BasePrototype):
-    _model_class = Road
+class RoadPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Road
     _readonly = ('id', 'path', 'point_1_id', 'point_2_id')
     _bidirectional = ('length', 'exists')
     _get_by = ('id',)
@@ -36,6 +28,7 @@ class RoadPrototype(BasePrototype):
     ###########################################
 
     def remove(self): self._model.delete()
+
     def save(self): self._model.save(force_update=True)
 
     @classmethod
@@ -44,31 +37,28 @@ class RoadPrototype(BasePrototype):
 
     @classmethod
     def create(cls, point_1, point_2):
-        from the_tale.game.roads.storage import roads_storage
-
         if point_1.id > point_2.id:
             point_1, point_2 = point_2, point_1
 
         try:
-            Road.objects.get(point_1=point_1.id,
-                             point_2=point_2.id)
+            models.Road.objects.get(point_1=point_1.id,
+                                    point_2=point_2.id)
             raise exceptions.RoadsAlreadyExistsError(start=point_1.id, stop=point_2.id)
-        except Road.DoesNotExist:
+        except models.Road.DoesNotExist:
             pass
 
         distance = cls._distance_in_cells(point_1, point_2)
 
-        model = Road.objects.create(point_1_id=point_1.id,
-                                    point_2_id=point_2.id,
-                                    length=distance * c.MAP_CELL_LENGTH)
+        model = models.Road.objects.create(point_1_id=point_1.id,
+                                           point_2_id=point_2.id,
+                                           length=distance * c.MAP_CELL_LENGTH)
 
         prototype = cls(model)
 
-        roads_storage.add_item(prototype.id, prototype)
-        roads_storage.update_version()
+        storage.roads.add_item(prototype.id, prototype)
+        storage.roads.update_version()
 
         return prototype
-
 
     def update(self):
         # since road paved only vertically and horizontally
@@ -106,11 +96,15 @@ class RoadPrototype(BasePrototype):
             real_x += dx
             real_y += dy
 
-            if int(old_round(real_x)) == x + 1: path.append(PATH_DIRECTION.RIGHT.value)
-            elif int(old_round(real_x)) == x - 1: path.append(PATH_DIRECTION.LEFT.value)
+            if int(old_round(real_x)) == x + 1:
+                path.append(relations.PATH_DIRECTION.RIGHT.value)
+            elif int(old_round(real_x)) == x - 1:
+                path.append(relations.PATH_DIRECTION.LEFT.value)
 
-            if int(old_round(real_y)) == y + 1: path.append(PATH_DIRECTION.DOWN.value)
-            elif int(old_round(real_y)) == y - 1: path.append(PATH_DIRECTION.UP.value)
+            if int(old_round(real_y)) == y + 1:
+                path.append(relations.PATH_DIRECTION.DOWN.value)
+            elif int(old_round(real_y)) == y - 1:
+                path.append(relations.PATH_DIRECTION.UP.value)
 
             x = int(old_round(real_x))
             y = int(old_round(real_y))
@@ -126,9 +120,8 @@ class RoadPrototype(BasePrototype):
                 'exists': self.exists}
 
 
-
-class WaymarkPrototype(BasePrototype):
-    _model_class = Waymark
+class WaymarkPrototype(utils_prototypes.BasePrototype):
+    _model_class = models.Waymark
     _readonly = ('id', 'point_from_id', 'point_to_id', 'road_id')
     _bidirectional = ('length',)
     _get_by = ('id',)
@@ -142,8 +135,7 @@ class WaymarkPrototype(BasePrototype):
     def get_road(self):
         if self._model.road_id is None:
             return None
-        from the_tale.game.roads.storage import roads_storage
-        return roads_storage[self._model.road_id]
+        return storage.roads[self._model.road_id]
 
     def set_road(self, value):
         if value is None:
@@ -156,28 +148,30 @@ class WaymarkPrototype(BasePrototype):
     # Object operations
     ###########################################
 
-    def remove(self): self._model.delete()
-    def save(self): self._model.save()
+    def remove(self):
+        self._model.delete()
+
+    def save(self):
+        self._model.save()
 
     @classmethod
     def create(cls, point_from, point_to, road, length):
-        from the_tale.game.roads.storage import waymarks_storage
 
         try:
-            Waymark.objects.get(point_from=point_from.id,
-                                point_to=point_to.id)
+            models.Waymark.objects.get(point_from=point_from.id,
+                                       point_to=point_to.id)
             raise exceptions.WaymarkAlreadyExistsError(start=point_from.id, stop=point_to.id)
-        except Waymark.DoesNotExist:
+        except models.Waymark.DoesNotExist:
             pass
 
-        model = Waymark.objects.create(point_from_id=point_from.id,
-                                       point_to_id=point_to.id,
-                                       road=road._model if road else None,
-                                       length=length)
+        model = models.Waymark.objects.create(point_from_id=point_from.id,
+                                              point_to_id=point_to.id,
+                                              road=road._model if road else None,
+                                              length=length)
 
         prototype = cls(model)
 
-        waymarks_storage.add_item(prototype.id, prototype)
-        waymarks_storage.update_version()
+        storage.waymarks.add_item(prototype.id, prototype)
+        storage.waymarks.update_version()
 
         return prototype

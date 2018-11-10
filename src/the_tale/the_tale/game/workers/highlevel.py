@@ -1,39 +1,18 @@
 
-from django.db import transaction
+import smart_imports
 
-from the_tale.amqp_environment import environment
-
-from the_tale.common.utils.workers import BaseWorker
-from the_tale.common.postponed_tasks.prototypes import PostponedTaskPrototype
-
-from the_tale.game.balance import constants as c
-
-from the_tale.game.jobs import logic as jobs_logic
-
-from the_tale.game.bills import prototypes as bill_prototypes
-
-from the_tale.game.persons import storage as persons_storage
-
-from the_tale.game.places import storage as places_storage
-from the_tale.game.places import logic as places_logic
-
-from the_tale.game.bills.conf import bills_settings
-
-from the_tale.game.politic_power import logic as politic_power_logic
-
-from the_tale.game import exceptions
-from the_tale.game import conf
+smart_imports.all()
 
 
 E = 0.001
 
 
-class Worker(BaseWorker):
+class Worker(utils_workers.BaseWorker):
     GET_CMD_TIMEOUT = 10
     STOP_SIGNAL_REQUIRED = False
 
     def initialize(self):
-        return conf.game_settings.ENABLE_WORKER_HIGHLEVEL
+        return conf.settings.ENABLE_WORKER_HIGHLEVEL
 
     def cmd_initialize(self, turn_number, worker_id):
         self.send_cmd('initialize', {'turn_number': turn_number, 'worker_id': worker_id})
@@ -50,7 +29,7 @@ class Worker(BaseWorker):
 
         self.logger.info('HIGHLEVEL INITIALIZED')
 
-        environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
+        amqp_environment.environment.workers.supervisor.cmd_answer('initialize', self.worker_id)
 
     def cmd_next_turn(self, turn_number):
         return self.send_cmd('next_turn', data={'turn_number': turn_number})
@@ -69,7 +48,7 @@ class Worker(BaseWorker):
             sync_data_required = True
             sync_data_sheduled = True
 
-        if self.turn_number % (bills_settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA) == 0:
+        if self.turn_number % (bills_conf.settings.BILLS_PROCESS_INTERVAL / c.TURN_DELTA) == 0:
             if self.apply_bills():
                 sync_data_required = True
                 sync_data_sheduled = False
@@ -80,7 +59,7 @@ class Worker(BaseWorker):
 
     def update_map(self):
         self.logger.info('initialize map update')
-        environment.workers.game_long_commands.cmd_update_map()
+        amqp_environment.environment.workers.game_long_commands.cmd_update_map()
 
     def cmd_stop(self):
         return self.send_cmd('stop')
@@ -90,7 +69,7 @@ class Worker(BaseWorker):
 
         self.initialized = False
 
-        environment.workers.supervisor.cmd_answer('stop', self.worker_id)
+        amqp_environment.environment.workers.supervisor.cmd_answer('stop', self.worker_id)
 
         self.stop_required = True
         self.logger.info('HIGHLEVEL STOPPED')
@@ -104,7 +83,7 @@ class Worker(BaseWorker):
 
         call_after_transaction = []
 
-        with transaction.atomic():
+        with django_transaction.atomic():
             self.logger.info('sync data transaction started')
 
             if sheduled:
@@ -158,8 +137,8 @@ class Worker(BaseWorker):
         self.logger.info('sync data completed')
 
     def validate_bills(self):
-        for active_bill_id in bill_prototypes.BillPrototype.get_active_bills_ids():
-            bill = bill_prototypes.BillPrototype.get_by_id(active_bill_id)
+        for active_bill_id in bills_prototypes.BillPrototype.get_active_bills_ids():
+            bill = bills_prototypes.BillPrototype.get_by_id(active_bill_id)
             if not bill.has_meaning():
                 bill.stop()
 
@@ -170,8 +149,8 @@ class Worker(BaseWorker):
 
         applied = False
 
-        for applied_bill_id in bill_prototypes.BillPrototype.get_applicable_bills_ids():
-            bill = bill_prototypes.BillPrototype.get_by_id(applied_bill_id)
+        for applied_bill_id in bills_prototypes.BillPrototype.get_applicable_bills_ids():
+            bill = bills_prototypes.BillPrototype.get_by_id(applied_bill_id)
 
             if bill.is_delayed:
                 continue
@@ -189,7 +168,7 @@ class Worker(BaseWorker):
         return self.send_cmd('logic_task', {'task_id': task_id,
                                             'account_id': account_id})
 
-    def process_logic_task(self, account_id, task_id): # pylint: disable=W0613
+    def process_logic_task(self, account_id, task_id):  # pylint: disable=W0613
         task = PostponedTaskPrototype.get_by_id(task_id)
         task.process(self.logger, highlevel=self)
         task.do_postsave_actions()

@@ -1,24 +1,23 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.game.bills.models import Bill, Vote, Actor
+smart_imports.all()
 
 
-class BillAdmin(admin.ModelAdmin):
+class BillAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'type', 'state', 'owner', 'updated_at', 'votes_for', 'votes_against')
     list_filter = ('state', 'type')
 
 
-class ActorAdmin(admin.ModelAdmin):
+class ActorAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'bill', 'place')
 
 
-class VoteAdmin(admin.ModelAdmin):
+class VoteAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'owner', 'type')
     list_filter = ('type',)
 
 
-admin.site.register(Bill, BillAdmin)
-admin.site.register(Vote, VoteAdmin)
-admin.site.register(Actor, ActorAdmin)
+django_admin.site.register(models.Bill, BillAdmin)
+django_admin.site.register(models.Vote, VoteAdmin)
+django_admin.site.register(models.Actor, ActorAdmin)

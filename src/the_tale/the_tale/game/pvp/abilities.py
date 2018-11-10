@@ -1,9 +1,7 @@
-# coding: utf-8
-import random
 
-from dext.common.utils import discovering
+import smart_imports
 
-from the_tale.game.balance import constants as c
+smart_imports.all()
 
 
 class BasePvPAbility(object):
@@ -24,7 +22,6 @@ class BasePvPAbility(object):
         else:
             self.hero_pvp = self.hero.actions.current_action.meta_action.hero_2_pvp
             self.enemy_pvp = self.hero.actions.current_action.meta_action.hero_1_pvp
-
 
     @property
     def has_resources(self): return self.hero_pvp.energy > 0
@@ -64,7 +61,6 @@ class Ice(BasePvPAbility):
         self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, duelist_1=self.hero, duelist_2=self.enemy)
 
 
-
 class Blood(BasePvPAbility):
     TYPE = 'blood'
     NAME = 'Кровь'
@@ -78,7 +74,7 @@ class Blood(BasePvPAbility):
     def modify_effect(self, expected): return self.hero_pvp.energy * expected / self.probability
 
     def apply(self):
-        effectiveness_delta = int(round(c.PVP_EFFECTIVENESS_STEP * self.modify_effect(1.0)*(1 + self.hero.might_pvp_effectiveness_bonus)))
+        effectiveness_delta = int(round(c.PVP_EFFECTIVENESS_STEP * self.modify_effect(1.0) * (1 + self.hero.might_pvp_effectiveness_bonus)))
         self.hero_pvp.set_effectiveness(self.hero_pvp.effectiveness + effectiveness_delta)
         self.hero_pvp.set_energy(0)
         self.hero.add_message('pvp_use_ability_%s' % self.TYPE, duelist_1=self.hero, duelist_2=self.enemy, effectiveness=effectiveness_delta)
@@ -101,5 +97,5 @@ class Flame(BasePvPAbility):
         self.enemy.add_message('pvp_use_ability_%s' % self.TYPE, turn_delta=1, duelist_1=self.hero, duelist_2=self.enemy)
 
 
-ABILITIES = {ability.TYPE:ability
-             for ability in discovering.discover_classes(globals().values(), BasePvPAbility)}
+ABILITIES = {ability.TYPE: ability
+             for ability in dext_discovering.discover_classes(globals().values(), BasePvPAbility)}

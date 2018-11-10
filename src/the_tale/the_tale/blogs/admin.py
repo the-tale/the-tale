@@ -1,24 +1,26 @@
-# coding: utf-8
 
-from django.contrib import admin
+import smart_imports
 
-from the_tale.blogs import models
+smart_imports.all()
 
 
-class PostAdmin(admin.ModelAdmin):
+class PostAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'caption', 'votes', 'rating', 'author', 'state', 'moderator', 'created_at', 'updated_at')
 
-class VoteAdmin(admin.ModelAdmin):
+
+class VoteAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'voter', 'post', 'created_at')
 
-class TagAdmin(admin.ModelAdmin):
+
+class TagAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'name', 'description', 'created_at', 'updated_at')
 
-class TaggedAdmin(admin.ModelAdmin):
+
+class TaggedAdmin(django_admin.ModelAdmin):
     list_display = ('id', 'post', 'tag', 'created_at', 'updated_at')
 
 
-admin.site.register(models.Post, PostAdmin)
-admin.site.register(models.Vote, VoteAdmin)
-admin.site.register(models.Tag, TagAdmin)
-admin.site.register(models.Tagged, TaggedAdmin)
+django_admin.site.register(models.Post, PostAdmin)
+django_admin.site.register(models.Vote, VoteAdmin)
+django_admin.site.register(models.Tag, TagAdmin)
+django_admin.site.register(models.Tagged, TaggedAdmin)
