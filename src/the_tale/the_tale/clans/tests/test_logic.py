@@ -74,9 +74,12 @@ class SyncClanStatisitcsTests(BaseClanTests):
 
     def test_premium_members_number(self):
         accounts_models.Account.objects.filter(id=self.account.id).update(premium_end_at=self.future)
-        accounts_models.Account.objects.filter(id=self.account_2.id).update(premium_end_at=self.future)
         accounts_models.Account.objects.filter(id=self.account_3.id).update(premium_end_at=self.past)
         accounts_models.Account.objects.filter(id=self.account_4.id).update(premium_end_at=self.future)
+
+        account_2 = accounts_prototypes.AccountPrototype.get_by_id(self.account_2.id)
+        account_2.permanent_purchases.insert(shop_relations.PERMANENT_PURCHASE_TYPE.INFINIT_SUBSCRIPTION)
+        account_2.save()
 
         logic.sync_clan_statistics(self.clan)
 
