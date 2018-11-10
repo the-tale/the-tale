@@ -74,7 +74,7 @@ KEYS = [('QUEST_COLLECT_DEBT_ACTION_AFTER_FAILED_HELP', 380000, 'Активно�
 
         ('QUEST_COLLECT_DEBT_DIARY_FINISH_ATTACK_FAILED', 380016, 'Дневник: должник оказался сильнее', relations.LEXICON_GROUP.QUEST_COLLECT_DEBT,
          'Герой не смог силой заставить должника выполнить обещание.',
-         [V.DATE, V.TIME, V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.COINS], 'hero#N +coins#G'),
+         [V.DATE, V.TIME, V.INITIATOR, V.HERO, V.INITIATOR_POSITION, V.RECEIVER, V.RECEIVER_POSITION, V.COINS], 'hero#N'),
 
         ('QUEST_COLLECT_DEBT_DIARY_FINISH_ATTACK_SUCCESSED_ARTIFACT', 380017, 'Дневник: награда за успешное применение насилия (артефакт)', relations.LEXICON_GROUP.QUEST_COLLECT_DEBT,
          'Герой получает награду за успешное применение насилия (артефакт).',

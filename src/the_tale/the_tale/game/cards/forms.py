@@ -71,7 +71,7 @@ class DeathAge(dext_forms.Form):
 
 
 class DeathType(dext_forms.Form):
-    value = dext_fields.RelationField(label='способ первой смерти', relation=tt_beings_relations.FIRST_DEATH)
+    value = dext_fields.RelationField(label='первая смерть', relation=tt_beings_relations.FIRST_DEATH)
 
     def get_card_data(self):
         return {'value': int(self.c.value.value)}

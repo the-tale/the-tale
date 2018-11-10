@@ -1111,7 +1111,7 @@ class ChangeHistory(BaseEffect):
 
         records = (('UPBRINGING', 0, 'воспитание', tt_beings_relations.UPBRINGING, forms.Upbringing),
                    ('DEATH_AGE', 1, 'возраст смерти', tt_beings_relations.AGE, forms.DeathAge),
-                   ('FIRST_DEATH', 2, 'способ смерти', tt_beings_relations.FIRST_DEATH, forms.DeathType))
+                   ('FIRST_DEATH', 2, 'первая смерть', tt_beings_relations.FIRST_DEATH, forms.DeathType))
 
     DESCRIPTION = 'Позволяет изменить часть истории героя, указанную в названии карты.'
 
