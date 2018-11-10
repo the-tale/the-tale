@@ -10,9 +10,9 @@
 
 {% macro render_object(type, id) %}
 
-{% if type.is_ACCOUNT %}
+{% if type.is_ACCOUNT and id in accounts %}
 {{accounts_macros.account_link(accounts[id], accounts[id].clan)}} (герой: {{heroes_macros.hero_link(heroes[id])}})
-{% elif type.is_HERO %}
+{% elif type.is_HERO and id in heroes%}
 {{heroes_macros.hero_link(heroes[id])}} (Хранитель: {{accounts_macros.account_link(accounts[id], accounts[id].clan)}})
 {% elif type.is_PERSON %}
 {{persons_macros.profession(persons_storage[id])}}
@@ -24,7 +24,7 @@
 {% elif type.is_BILL %}
 запись <a href="{{url('game:bills:show', id)}}">{{bills[id].caption}}</a>
 {% else %}
-неизвестно
+Неизвестно <i class="icon icon-info-sign" rel="tooltip" title="Скорее всего удалённый аккаунт"></i>
 {% endif %}
 
 {% endmacro %}

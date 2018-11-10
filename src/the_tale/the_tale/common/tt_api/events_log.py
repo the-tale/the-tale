@@ -26,6 +26,14 @@ class Event:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def ui_info(self):
+        if self.meta_objects is None:
+            fill_events_wtih_meta_objects([self])
+
+        return {'message': self.message,
+                'turn': self.turn,
+                'meta_objects': [object.tag for object in self.meta_objects]}
+
 
 def fill_events_wtih_meta_objects(events):
     tags = set()

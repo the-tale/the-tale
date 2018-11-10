@@ -622,7 +622,9 @@ class ScaleImpactsTests(helpers.BaseTests):
                                               WHERE target_type NOT IN %(target_types)s''',
                                            {'target_types': target_types})
 
-        await operations.scale_impacts(target_types=target_types, scale=scale)
+        await operations.scale_impacts(target_types=target_types,
+                                       scale=scale,
+                                       chunk_size=2)
 
         new_scaled_targets = await db.sql('''SELECT target_type, target, amount FROM targets_impacts
                                              WHERE target_type IN %(target_types)s''',
@@ -662,7 +664,9 @@ class ScaleImpactsTests(helpers.BaseTests):
 
         await operations.add_impacts(impacts)
 
-        await operations.scale_impacts(target_types=[], scale=0.5)
+        await operations.scale_impacts(target_types=[],
+                                       scale=0.5,
+                                       chunk_size=2)
 
     @test_utils.unittest_run_loop
     async def test_has_targets(self):
@@ -699,7 +703,9 @@ class ScaleImpactsTests(helpers.BaseTests):
         tasks = [operations.add_impacts(bundle) for bundle in impacts_bundles]
 
         for i in range(N):
-            tasks.append(operations.scale_impacts(target_types=[100], scale=1.001))
+            tasks.append(operations.scale_impacts(target_types=[100],
+                                                  scale=1.001,
+                                                  chunk_size=3))
 
         random.shuffle(tasks)
 

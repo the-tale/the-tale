@@ -610,9 +610,7 @@ class GiveRewardForTemplateTests(utils_testcase.TestCase):
 
         self.assertEqual(len(cards), 1)
 
-        card = cards[0]
-
-        self.assertTrue(card.available_for_auction)
+        self.assertTrue(all(card.available_for_auction for card in cards))
 
     def test_give_cards__increased_reward(self):
         with mock.patch('the_tale.linguistics.conf.settings.SPECIAL_CARDS_REWARDS', {self.template_2.key.name.upper(): 13}):

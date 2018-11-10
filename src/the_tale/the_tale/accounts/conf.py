@@ -85,4 +85,6 @@ settings = dext_app_settings.app_settings('ACCOUNTS',
 
                                           GUIDE_HABITS='https://the-tale.org/guide/hero-habits',
 
-                                          TT_PLAYERS_TIMERS_EMPTY_POINTS='http://localhost:10006/')
+                                          TT_PLAYERS_TIMERS_EMPTY_POINTS='http://localhost:10006/',
+
+                                          FREE_CARDS_FOR_REGISTRATION=10)

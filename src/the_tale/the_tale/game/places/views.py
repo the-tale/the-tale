@@ -51,7 +51,7 @@ def api_list(context):
     return dext_views.AjaxOk(content=data)
 
 
-@utils_api.Processor(versions=(conf.settings.API_SHOW_VERSION))
+@utils_api.Processor(versions=(conf.settings.API_SHOW_VERSION,))
 @PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')
 @resource('#place', 'api', 'show', name='api-show')
 def api_show(context):

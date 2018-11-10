@@ -128,12 +128,16 @@ async def make_callback(secret, url, timer, data):
     logging.info('initialize callback with owner: %s, entity: %s, type: %s to %s',
                  timer.owner_id, timer.entity_id, timer.type, url)
 
-    async with aiohttp.ClientSession() as session:
-        data = timers_pb2.CallbackBody(timer=protobuf.from_timer(timer),
-                                       secret=secret,
-                                       callback_data=data)
-        async with session.post(url, data=data.SerializeToString()) as response:
-            return response.status == 200
+    try:
+        async with aiohttp.ClientSession() as session:
+            data = timers_pb2.CallbackBody(timer=protobuf.from_timer(timer),
+                                           secret=secret,
+                                           callback_data=data)
+            async with session.post(url, data=data.SerializeToString()) as response:
+                return response.status == 200
+    except:
+        logging.exception('Error while processing timer %s', timer_id)
+        return False
 
 
 async def postprocess_timer(timer_id, type):

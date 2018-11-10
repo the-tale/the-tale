@@ -19,6 +19,7 @@
         - libffi-dev
         - g++
         - libssl-dev
+        - screen
 
     - name: start supervisor
       raw: systemctl start supervisor

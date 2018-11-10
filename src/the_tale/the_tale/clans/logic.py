@@ -12,8 +12,17 @@ def sync_clan_statistics(clan):
     clan.members_number = models.Membership.objects.filter(clan_id=clan.id).count()
     clan.active_members_number = accounts_models.Account.objects.filter(clan_id=clan.id,
                                                                         active_end_at__gt=datetime.datetime.now()).count()
-    clan.premium_members_number = accounts_models.Account.objects.filter(clan_id=clan.id,
-                                                                         premium_end_at__gt=datetime.datetime.now()).count()
+
+    premium_members_number = 0
+
+    for account_id in accounts_models.Account.objects.filter(clan_id=clan.id).values_list('id', flat=True):
+        account = accounts_prototypes.AccountPrototype.get_by_id(account_id)
+
+        if account.is_premium:
+            premium_members_number += 1
+
+    clan.premium_members_number = premium_members_number
+
     clan.might = accounts_models.Account.objects.filter(clan_id=clan.id).aggregate(might=django_models.Sum('might')).get('might', 0)
 
     clan.statistics_refreshed_at = datetime.datetime.now()

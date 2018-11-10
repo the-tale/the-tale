@@ -60,7 +60,9 @@ async def get_impacters_ratings(message, config, **kwargs):
 
 @handlers.api(impacts_pb2.ScaleImpactsRequest)
 async def scale_impacts(message, config, **kwargs):
-    await operations.scale_impacts(target_types=message.target_types, scale=message.scale)
+    await operations.scale_impacts(target_types=message.target_types,
+                                   scale=message.scale,
+                                   chunk_size=config['custom']['scale_chunk_size'])
     return impacts_pb2.ScaleImpactsResponse()
 
 
