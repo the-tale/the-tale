@@ -102,7 +102,7 @@ def place_info(place, full_building_info):
             'bills': place_info_bills(place),
             'habits': place_info_habits(place),
             'job': place.job.ui_info(),
-            'chronicle': events,
+            'chronicle': [event.ui_info() for event in events],
             'accounts': None,
             'clans': None}
 

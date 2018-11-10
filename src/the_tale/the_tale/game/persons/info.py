@@ -36,7 +36,7 @@ def person_info(person):
             'attributes': game_attributes.attributes_info(effects=person.all_effects(),
                                                           attrs=person.attrs,
                                                           relation=relations.ATTRIBUTE),
-            'chronicle': events,
+            'chronicle': [event.ui_info() for event in events],
             'job': person.job.ui_info(),
             'accounts': None,
             'clans': None}
