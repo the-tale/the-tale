@@ -35,7 +35,11 @@ jQuery(document).ready(function(e){
             pgf.ui.dialog.Create({ fromUrl: "{{ url('clans:request-dialog', current_clan.id) }}",
                                    OnOpen: function(dialog) {
                                        var newMessageForm = new pgf.forms.Form(jQuery('#pgf-request-membership-form', dialog),
-                                                                               { OnSuccess: function(form, data){ dialog.modal('hide'); }
+                                                                               {
+                                                                                   OnSuccess: function(form, data){
+                                                                                       dialog.modal('hide');
+                                                                                       location.reload();
+                                                                                   }
                                                                                });
                                    }
                                  });
