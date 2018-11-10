@@ -223,7 +223,7 @@ jQuery(document).ready( function(e) {
     <thead>
       <tr>
         <td width="200px" class="info-head">
-          {{accounts_macros.account_link(author, author.clan)}}
+          {{accounts_macros.account_link(author, none)}}
         </td>
         <td class="head">
 
@@ -278,6 +278,15 @@ jQuery(document).ready( function(e) {
       <tr>
         <td width="200px" class="info" >
           {% if not author.is_system_user %}
+
+          {% if author.clan %}
+          <a href="{{'clans:show', author.clan.id}}">[{{author.clan.abbr}}]</a>
+          {{ value('the_tale.clans.logic').get_membership(author.id).role.text}}
+          {% else %}
+          без гильдии
+          {% endif %}
+
+          </br>
             могущество: {{author.might|int}} <br/>
 
             {% if resource.account.is_authenticated %}
@@ -289,8 +298,11 @@ jQuery(document).ready( function(e) {
             {% elif author.is_ban_forum %}<strong title="Игрок нарушил правила игры и был забанен" rel="tooltip" style="cursor: pointer;">игрок забанен</strong>{% endif %}
 
             <br/>
-            {{game_object.race_verbose}}<br/>
-            <a href="{{url('game:heroes:show', game_object.id)}}">{{game_object.name}}</a><br/>
+            {{game_object.race_verbose}}
+            <a href="{{url('game:heroes:show', game_object.id)}}" style="white-space: nowrap;">
+              {{game_object.name}}
+            </a>
+            <br/>
             {{game_object.level}} уровня
           {% else %}
             системный пользователь
