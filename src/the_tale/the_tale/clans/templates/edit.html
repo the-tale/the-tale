@@ -40,4 +40,29 @@ jQuery(document).ready( function(e) {
 
 </form>
 
+{% if current_clan_rights.can_destroy() %}
+
+<h3>Удаление гильдии</h3>
+
+{% if current_clan.members_number == 1 %}
+
+<p class="alert alert-danger">
+  <strong>ВНИМАНИЕ!</strong>
+
+  Отменить удаление будет нельзя.
+</p>
+
+<a class="btn btn-danger pgf-forms-post-simple"
+   href="{{ url('clans:remove', current_clan.id) }}"
+   data-action-type="redirect"
+   data-redirect-url="{{ url('clans:') }}"
+   data-confirmation="Вы действительно хотите удалить гильдию?">
+  Удалить
+</a>
+{% else %}
+<p class="alert alert-info">Перед удалением гильдии исключите из неё всех членов.</p>
+{% endif %}
+
+{% endif %}
+
 {% endblock %}

@@ -295,7 +295,8 @@ def edit(context):
                            content={'resource': context.resource,
                                     'form': form,
                                     'page_id': relations.PAGE_ID.EDIT,
-                                    'current_clan': context.current_clan})
+                                    'current_clan': context.current_clan,
+                                    'current_clan_rights': context.current_clan_rights})
 
 
 @accounts_views.LoginRequiredProcessor()
