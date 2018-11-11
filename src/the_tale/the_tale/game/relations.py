@@ -57,7 +57,7 @@ class HABIT_INTERVAL(rels_django.DjangoEnum):
 class HABIT_HONOR_INTERVAL(HABIT_INTERVAL):
     records = (('LEFT_3', 0, 'бесчестный', 'бесчестная', 'бесчестное', 'криминальная столица', -c.HABITS_BORDER, c.HABITS_RIGHT_BORDERS[0], -1),
                ('LEFT_2', 1, 'подлый', 'подлая', 'подлое', 'бандитская вотчина', c.HABITS_RIGHT_BORDERS[0], c.HABITS_RIGHT_BORDERS[1], -1),
-               ('LEFT_1', 2, 'порочный', 'порочная', 'порочное', 'неблагополучный город', c.HABITS_RIGHT_BORDERS[1], -1, c.HABITS_RIGHT_BORDERS[2]),
+               ('LEFT_1', 2, 'порочный', 'порочная', 'порочное', 'неблагополучный город', c.HABITS_RIGHT_BORDERS[1],  c.HABITS_RIGHT_BORDERS[2], -1),
                ('NEUTRAL', 3, 'себе на уме', 'себе на уме', 'себе на уме', 'обычный город', c.HABITS_RIGHT_BORDERS[2], c.HABITS_RIGHT_BORDERS[3], 0),
                ('RIGHT_1', 4, 'порядочный', 'порядочная', 'порядочное', 'благополучное поселение', c.HABITS_RIGHT_BORDERS[3], c.HABITS_RIGHT_BORDERS[4], 1),
                ('RIGHT_2', 5, 'благородный', 'благородная', 'благородное', 'честный город', c.HABITS_RIGHT_BORDERS[4], c.HABITS_RIGHT_BORDERS[5], 1),
