@@ -498,12 +498,12 @@ def api_login(context):
 
     account = prototypes.AccountPrototype.get_by_email(context.form.c.email)
     if account is None:
-        return dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
-                                    message='Неверный логин или пароль')
+        raise dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
+                                   message='Неверный логин или пароль')
 
     if not account.check_password(context.form.c.password):
-        return dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
-                                    message='Неверный логин или пароль')
+        raise dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
+                                   message='Неверный логин или пароль')
 
     logic.login_user(context.django_request,
                      nick=account.nick,
