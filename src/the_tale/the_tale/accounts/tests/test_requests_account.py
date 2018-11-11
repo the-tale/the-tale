@@ -251,18 +251,18 @@ class GiveAwardRequestsTests(AccountRequestsTests):
         self.request_logout()
         self.request_login(self.account_2.email)
 
-        self.check_ajax_error(self.client.post(django_reverse('accounts:give-award', args=[self.account_1.id]), {'type': relations.AWARD_TYPE.BUG_MINOR}),
+        self.check_ajax_error(self.post_ajax_json(django_reverse('accounts:give-award', args=[self.account_1.id]), {'type': relations.AWARD_TYPE.BUG_MINOR}),
                               'accounts.no_moderation_rights')
 
         self.assertEqual(models.Award.objects.all().count(), 0)
 
     def test_form_errors(self):
-        self.check_ajax_error(self.client.post(django_reverse('accounts:give-award', args=[self.account_1.id]), {'type': '666'}),
+        self.check_ajax_error(self.post_ajax_json(django_reverse('accounts:give-award', args=[self.account_1.id]), {'type': '666'}),
                               'form_errors')
         self.assertEqual(models.Award.objects.all().count(), 0)
 
     def test_success(self):
-        self.check_ajax_ok(self.client.post(django_reverse('accounts:give-award', args=[self.account_1.id]), {'type': relations.AWARD_TYPE.BUG_MINOR}))
+        self.check_ajax_ok(self.post_ajax_json(django_reverse('accounts:give-award', args=[self.account_1.id]), {'type': relations.AWARD_TYPE.BUG_MINOR}))
         self.assertEqual(models.Award.objects.all().count(), 1)
 
         award = models.Award.objects.all()[0]
@@ -287,7 +287,7 @@ class ResetNickRequestsTests(AccountRequestsTests):
 
         old_nick = self.account_1.nick
 
-        self.check_ajax_error(self.client.post(django_reverse('accounts:reset-nick', args=[self.account_1.id])),
+        self.check_ajax_error(self.post_ajax_json(django_reverse('accounts:reset-nick', args=[self.account_1.id])),
                               'accounts.no_moderation_rights')
 
         self.assertEqual(old_nick, prototypes.AccountPrototype.get_by_id(self.account_1.id).nick)
@@ -295,19 +295,9 @@ class ResetNickRequestsTests(AccountRequestsTests):
     def test_success(self):
         old_nick = self.account_1.nick
 
-        response = self.client.post(django_reverse('accounts:reset-nick', args=[self.account_1.id]))
+        self.check_ajax_ok(self.post_ajax_json(django_reverse('accounts:reset-nick', args=[self.account_1.id])))
 
-        postponed_task = PostponedTaskPrototype._db_get_object(0)
-
-        self.check_ajax_processing(response, django_reverse('postponed-tasks:status', args=[postponed_task.id]))
-
-        task = prototypes.ChangeCredentialsTaskPrototype._db_get_object(0)
-
-        self.assertFalse(task.relogin_required)
-        self.assertEqual(self.account_1.id, task.account.id)
-        self.assertNotEqual(self.account_1.nick, task.new_nick)
-
-        self.assertEqual(old_nick, prototypes.AccountPrototype.get_by_id(self.account_1.id).nick)
+        self.assertNotEqual(old_nick, prototypes.AccountPrototype.get_by_id(self.account_1.id).nick)
 
 
 class BanRequestsTests(AccountRequestsTests, personal_messages_helpers.Mixin):
@@ -330,7 +320,7 @@ class BanRequestsTests(AccountRequestsTests, personal_messages_helpers.Mixin):
         self.request_login(self.account_2.email)
 
         with self.check_no_messages(self.account_1.id):
-            self.check_ajax_error(self.client.post(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.FORUM)),
+            self.check_ajax_error(self.post_ajax_json(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.FORUM)),
                                   'accounts.no_moderation_rights')
 
         self.account_1.reload()
@@ -339,7 +329,7 @@ class BanRequestsTests(AccountRequestsTests, personal_messages_helpers.Mixin):
 
     def test_form_errors(self):
         with self.check_no_messages(self.account_1.id):
-            self.check_ajax_error(self.client.post(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.FORUM, description='')),
+            self.check_ajax_error(self.post_ajax_json(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.FORUM, description='')),
                                   'form_errors')
 
         self.account_1.reload()
@@ -349,7 +339,7 @@ class BanRequestsTests(AccountRequestsTests, personal_messages_helpers.Mixin):
     def test_success__ban_forum(self):
 
         with self.check_new_message(self.account_1.id, [logic.get_system_user_id()]):
-            self.check_ajax_ok(self.client.post(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.FORUM)))
+            self.check_ajax_ok(self.post_ajax_json(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.FORUM)))
 
         self.account_1.reload()
         self.assertTrue(self.account_1.is_ban_forum)
@@ -357,7 +347,7 @@ class BanRequestsTests(AccountRequestsTests, personal_messages_helpers.Mixin):
 
     def test_success__ban_game(self):
         with self.check_new_message(self.account_1.id, [logic.get_system_user_id()]):
-            self.check_ajax_ok(self.client.post(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.GAME)))
+            self.check_ajax_ok(self.post_ajax_json(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.GAME)))
 
         self.account_1.reload()
         self.assertFalse(self.account_1.is_ban_forum)
@@ -365,7 +355,7 @@ class BanRequestsTests(AccountRequestsTests, personal_messages_helpers.Mixin):
 
     def test_success__ban_total(self):
         with self.check_new_message(self.account_1.id, [logic.get_system_user_id()]):
-            self.check_ajax_ok(self.client.post(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.TOTAL)))
+            self.check_ajax_ok(self.post_ajax_json(django_reverse('accounts:ban', args=[self.account_1.id]), self.form_data(relations.BAN_TYPE.TOTAL)))
 
         self.account_1.reload()
         self.assertTrue(self.account_1.is_ban_forum)
@@ -389,7 +379,7 @@ class ResetBansRequestsTests(AccountRequestsTests):
         self.request_logout()
         self.request_login(self.account_2.email)
 
-        self.check_ajax_error(self.client.post(django_reverse('accounts:reset-bans', args=[self.account_1.id])),
+        self.check_ajax_error(self.post_ajax_json(django_reverse('accounts:reset-bans', args=[self.account_1.id])),
                               'accounts.no_moderation_rights')
 
         self.account_1.reload()
@@ -397,7 +387,7 @@ class ResetBansRequestsTests(AccountRequestsTests):
         self.assertTrue(self.account_1.is_ban_game)
 
     def test_success(self):
-        self.check_ajax_ok(self.client.post(django_reverse('accounts:reset-bans', args=[self.account_1.id])))
+        self.check_ajax_ok(self.post_ajax_json(django_reverse('accounts:reset-bans', args=[self.account_1.id])))
 
         self.account_1.reload()
         self.assertFalse(self.account_1.is_ban_forum)
@@ -482,18 +472,22 @@ class TransferMoneyTests(AccountRequestsTests):
     def test_no_ban_sender_required(self):
         self.account_1.ban_game(1)
         self.account_1.save()
+
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()), 'common.ban_any')
+            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()),
+                                  'common.ban_any')
 
     def test_no_ban_receiver_required(self):
         self.account_2.ban_game(1)
         self.account_2.save()
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()), 'receiver_banned')
+            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_2.id), self.post_data()),
+                                  'receiver_banned')
 
     def test_same_accounts(self):
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_1.id), self.post_data()), 'own_account')
+            self.check_ajax_error(self.post_ajax_json(dext_urls.url('accounts:transfer-money', self.account_1.id), self.post_data()),
+                                  'own_account')
 
     def test_success(self):
         with self.check_delta(PostponedTaskPrototype._db_count, 1):

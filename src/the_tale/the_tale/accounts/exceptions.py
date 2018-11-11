@@ -38,3 +38,7 @@ class NickNotSpecifiedForFastAccountError(ChangeCredentialsError):
 
 class NewEmailNotSpecifiedError(ChangeCredentialsError):
     MSG = 'email not specified'
+
+
+class UnexpectedChangeCredentialsTaskStateError(utils_exceptions.TheTaleError):
+    MSG = 'unexpected change credentials task %(task_id)s state'

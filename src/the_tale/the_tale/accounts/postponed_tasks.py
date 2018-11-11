@@ -4,51 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-class CHANGE_CREDENTIALS_STATE(rels_django.DjangoEnum):
-    records = (('UNPROCESSED', 1, 'необработана'),
-               ('PROCESSED', 2, 'обработана'),
-               ('WRONG_STATE', 3, 'неверное состояние задачи'))
-
-
-class ChangeCredentials(PostponedLogic):
-
-    TYPE = 'change-credentials'
-
-    def __init__(self, task_id, oneself=False, state=CHANGE_CREDENTIALS_STATE.UNPROCESSED):
-        super(ChangeCredentials, self).__init__()
-        self.task_id = task_id
-        self.oneself = oneself
-        self.state = state if isinstance(state, rels.Record) else CHANGE_CREDENTIALS_STATE.index_value[state]
-
-    def serialize(self):
-        return {'state': self.state.value,
-                'task_id': self.task_id,
-                'oneself': self.oneself}
-
-    @property
-    def processed_data(self): return {'next_url': django_reverse('accounts:profile:edited')}
-
-    @property
-    def error_message(self): return self.state.text
-
-    @utils_decorators.lazy_property
-    def task(self): return accounts_prototypes.ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
-
-    def process(self, main_task):
-        if self.state.is_UNPROCESSED:
-            self.task.account.change_credentials(new_email=self.task.new_email,
-                                                 new_password=self.task.new_password,
-                                                 new_nick=self.task.new_nick)
-            self.task.mark_as_processed()
-            self.state = CHANGE_CREDENTIALS_STATE.PROCESSED
-            return POSTPONED_TASK_LOGIC_RESULT.SUCCESS
-
-        else:
-            main_task.comment = 'wrong task state %r' % self.state
-            self.state = CHANGE_CREDENTIALS_STATE.WRONG_STATE
-            return POSTPONED_TASK_LOGIC_RESULT.ERROR
-
-
 class UPDATE_ACCOUNT_STATE(rels_django.DjangoEnum):
     records = (('UNPROCESSED', 1, 'необработана'),
                ('PROCESSED', 2, 'обработана'),

@@ -84,7 +84,11 @@ class MessageSurrogate(object):
                              game_time.date.verbose_full(),
                              self.position)
         else:
-            self._ui_info = (self.timestamp, game_time.time.verbose(), self.message, self.key.value if self.key else None, self.get_variables())
+            self._ui_info = (self.timestamp,
+                             game_time.time.verbose(),
+                             self.message,
+                             self.key.value if self.key else None,
+                             self.get_variables())
 
         return self._ui_info
 

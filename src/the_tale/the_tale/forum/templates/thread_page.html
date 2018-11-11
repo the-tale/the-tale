@@ -280,7 +280,7 @@ jQuery(document).ready( function(e) {
           {% if not author.is_system_user %}
 
           {% if author.clan %}
-          <a href="{{'clans:show', author.clan.id}}">[{{author.clan.abbr}}]</a>
+          <a href="{{url('clans:show', author.clan.id)}}">[{{author.clan.abbr}}]</a>
           {{ value('the_tale.clans.logic').get_membership(author.id).role.text}}
           {% else %}
           без гильдии

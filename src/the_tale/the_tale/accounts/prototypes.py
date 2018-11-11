@@ -209,37 +209,6 @@ class AccountPrototype(utils_prototypes.BasePrototype):
     def check_password(self, password):
         return self._model.check_password(password)
 
-    def change_credentials(self, new_email=None, new_password=None, new_nick=None):
-        if new_password:
-            self._model.password = new_password
-        if new_email:
-            self._model.email = new_email
-        if new_nick:
-            self.nick = new_nick
-
-        old_fast = self.is_fast  # pylint: disable=E0203
-
-        self.is_fast = False
-
-        self.save()
-
-        if old_fast:
-            cards_number = conf.settings.FREE_CARDS_FOR_REGISTRATION
-
-            cards_logic.give_new_cards(account_id=self.id,
-                                       operation_type='give-card-for-registration',
-                                       allow_premium_cards=False,
-                                       available_for_auction=False,
-                                       number=cards_number)
-
-            self.cmd_update_hero()
-
-            if self.referral_of_id is not None:
-                amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(
-                    account_id=self.referral_of_id,
-                    method_name=self.update_referrals_number.__name__,
-                    data={})
-
     ###########################################
     # Object operations
     ###########################################
@@ -319,12 +288,12 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 
 class ChangeCredentialsTaskPrototype(utils_prototypes.BasePrototype):
     _model_class = models.ChangeCredentialsTask
-    _readonly = ('id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password', 'relogin_required')
+    _readonly = ('id', 'account_id', 'uuid', 'state', 'new_email', 'new_nick', 'new_password')
     _bidirectional = ()
     _get_by = ('id', 'uuid')
 
     @classmethod
-    def create(cls, account, new_email=None, new_password=None, new_nick=None, relogin_required=False):
+    def create(cls, account, new_email=None, new_password=None, new_nick=None):
         old_email = account.email
         if account.is_fast and new_email is None:
             raise exceptions.MailNotSpecifiedForFastAccountError()
@@ -342,89 +311,67 @@ class ChangeCredentialsTaskPrototype(utils_prototypes.BasePrototype):
                                                             new_email=new_email,
                                                             new_password=django_auth_hashers.make_password(new_password) if new_password else '',
                                                             state=relations.CHANGE_CREDENTIALS_TASK_STATE.WAITING,
-                                                            new_nick=new_nick,
-                                                            relogin_required=relogin_required)
+                                                            new_nick=new_nick)
         return cls(model=model)
 
     @utils_decorators.lazy_property
-    def account(self): return AccountPrototype.get_by_id(self._model.account_id)
+    def account(self):
+        return AccountPrototype.get_by_id(self.account_id)
 
     @property
     def email_changed(self):
         return self._model.new_email is not None and (self._model.old_email != self._model.new_email)
 
     def change_credentials(self):
-        change_credentials_task = postponed_tasks.ChangeCredentials(task_id=self.id)
-        task = PostponedTaskPrototype.create(change_credentials_task)
+        logic.change_credentials(account=self.account,
+                                 new_email=self.new_email,
+                                 new_password=self.new_password,
+                                 new_nick=self.new_nick)
 
-        amqp_environment.environment.workers.accounts_manager.cmd_task(task.id)
-
-        return task
+        self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
+        self._model.save()
 
     def request_email_confirmation(self):
         if self._model.new_email is None:
             raise exceptions.NewEmailNotSpecifiedError()
 
-        post_service_prototypes.MessagePrototype.create(post_service_message_handlers.ChangeEmailNotificationHandler(task_id=self.id), now=True)
+        post_service_prototypes.MessagePrototype.create(post_service_message_handlers.ChangeEmailNotificationHandler(task_id=self.id),
+                                                        now=True)
+
+        self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
+        self._model.save()
+
+    def on_error(self, state, comment):
+        self._model.state = state
+        self._model.comment = comment
+        self._model.save()
 
     @property
     def has_already_processed(self):
         return not (self.state.is_WAITING or self.state.is_EMAIL_SENT)
 
-    def mark_as_processed(self):
-        self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.PROCESSED
-        self._model.save()
-
-    def process(self, logger):
+    def process(self):
 
         if self.has_already_processed:
-            return
+            raise exceptions.UnexpectedChangeCredentialsTaskStateError(task_id=self.id)
 
         if self._model.created_at + datetime.timedelta(seconds=conf.settings.CHANGE_EMAIL_TIMEOUT) < datetime.datetime.now():
-            self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT
-            self._model.comment = 'timeout'
-            self._model.save()
-            return
+            self.on_error(state=relations.CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT,
+                          comment='timeout')
+            return relations.CHANGE_CREDENTIALS_TASK_RESULT.ERROR, 'timeout', 'Время подтверждения операции истекло.'
 
-        try:
-            if self.state.is_WAITING:
-                if self.email_changed:
-                    self.request_email_confirmation()
-                    self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.EMAIL_SENT
-                    self._model.save()
-                    return
-                else:
-                    postponed_task = self.change_credentials()
-                    self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING
-                    self._model.save()
-                    return postponed_task
+        if self.state.is_WAITING and self.email_changed:
+            self.request_email_confirmation()
+            return relations.CHANGE_CREDENTIALS_TASK_RESULT.EMAIL_SENT, None, None
 
-            if self.state.is_EMAIL_SENT:
-                if AccountPrototype.get_by_email(self._model.new_email):
-                    self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
-                    self._model.comment = 'duplicate email'
-                    self._model.save()
-                    return
+        if self.state.is_EMAIL_SENT and AccountPrototype.get_by_email(self._model.new_email):
+            self.on_error(state=relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR,
+                          comment='duplicate email')
+            return relations.CHANGE_CREDENTIALS_TASK_RESULT.ERROR, 'duplicate_email', 'Этот email уже привязан к одному из аккаунтов.'
 
-                postponed_task = self.change_credentials()
-                self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.CHANGING
-                self._model.save()
-                return postponed_task
+        self.change_credentials()
 
-        except Exception as e:  # pylint: disable=W0703
-            logger.error('EXCEPTION: %s' % e)
-
-            exception_info = sys.exc_info()
-
-            traceback_strings = traceback.format_exception(*sys.exc_info())
-
-            logger.error('Worker exception: %r' % self,
-                         exc_info=exception_info,
-                         extra={})
-
-            self._model.state = relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR
-            self._model.comment = ('%s' % traceback_strings)[:self._model.MAX_COMMENT_LENGTH]
-            self._model.save()
+        return relations.CHANGE_CREDENTIALS_TASK_RESULT.PROCESSED, None, None
 
 
 class AwardPrototype(utils_prototypes.BasePrototype):
@@ -460,17 +407,17 @@ class ResetPasswordTaskPrototype(utils_prototypes.BasePrototype):
         return prototype
 
     @utils_decorators.lazy_property
-    def account(self): return AccountPrototype.get_by_id(self._model.account_id)
+    def account(self):
+        return AccountPrototype.get_by_id(self._model.account_id)
 
-    def process(self, logger):
+    def process(self):
 
         new_password = utils_password.generate_password(len_=conf.settings.RESET_PASSWORD_LENGTH)
 
         task = ChangeCredentialsTaskPrototype.create(account=self.account,
                                                      new_password=new_password)
 
-        # here postponed task is created, but we will not wait for it processed, just  display new password
-        task.process(logger)
+        task.process()
 
         self._model.is_processed = True
         self.save()
