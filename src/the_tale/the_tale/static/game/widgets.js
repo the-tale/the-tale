@@ -1235,11 +1235,17 @@ pgf.game.widgets.Log = function(selector, updater, widgets, params) {
 
     function RenderLog(data, widget) {
 
+        var messagesToRender = messages;
+
+        if (messagesToRender.length == 0 && params.type == 'log') {
+            messagesToRender = [['', [[0, '21:50', 'Ищем героя…', -1, {}]]]];
+        }
+
         if (params.type == 'log') {
-            pgf.base.RenderTemplateList(shortLogContainer, messages, RenderLogMessage, {});
+            pgf.base.RenderTemplateList(shortLogContainer, messagesToRender, RenderLogMessage, {});
         }
         if (params.type == 'diary') {
-            pgf.base.RenderTemplateList(shortLogContainer, messages, RenderDiaryMessage, {});
+            pgf.base.RenderTemplateList(shortLogContainer, messagesToRender, RenderDiaryMessage, {});
         }
 
     }
