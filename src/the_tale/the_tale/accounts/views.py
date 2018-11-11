@@ -109,6 +109,12 @@ class ModerateAccessProcessor(dext_views.AccessProcessor):
         return context.can_moderate_accounts
 
 
+class NextUrlProcessor(dext_views.ArgumentProcessor):
+    CONTEXT_NAME = 'next_url'
+    GET_NAME = 'next_url'
+    DEFAULT_VALUE = '/'
+
+
 ########################################
 # resource and global processors
 ########################################
@@ -126,12 +132,17 @@ accounts_resource.add_processor(AccountProcessor(error_message='Аккаунт �
                                                  context_name='master_account',
                                                  default_value=None))
 accounts_resource.add_processor(ModerateAccountProcessor())
-
 resource.add_child(accounts_resource)
 
 registration_resource = dext_views.Resource(name='registration')
-
 resource.add_child(registration_resource)
+
+auth_resource = dext_views.Resource(name='auth')
+resource.add_child(auth_resource)
+
+profile_resource = dext_views.Resource(name='profile')
+profile_resource.add_processor(third_party_views.RefuseThirdPartyProcessor())
+resource.add_child(profile_resource)
 
 
 @utils_views.TextFilterProcessor(context_name='prefix', get_name='prefix', default_value=None)
@@ -275,12 +286,11 @@ def give_award(context):
 @ModerateAccessProcessor()
 @accounts_resource('#account', 'reset-nick', name='reset-nick', method='post')
 def reset_nick(context):
-    task = prototypes.ChangeCredentialsTaskPrototype.create(account=context.master_account,
-                                                            new_nick='%s (%s)' % (conf.settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
 
-    postponed_task = task.process(logger)
+    logic.change_credentials(account=context.master_account,
+                             new_nick='{} ({})'.format(conf.settings.RESET_NICK_PREFIX, uuid.uuid4().hex))
 
-    return dext_views.AjaxProcessing(postponed_task.status_url)
+    return dext_views.AjaxOk()
 
 
 @LoginRequiredProcessor()
@@ -292,13 +302,16 @@ def ban(context):
     if context.form.c.ban_type.is_FORUM:
         context.master_account.ban_forum(context.form.c.ban_time.days)
         message = 'Вы лишены права общаться на форуме. Причина: \n\n%(message)s'
+
     elif context.form.c.ban_type.is_GAME:
         context.master_account.ban_game(context.form.c.ban_time.days)
         message = 'Ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
+
     elif context.form.c.ban_type.is_TOTAL:
         context.master_account.ban_forum(context.form.c.ban_time.days)
         context.master_account.ban_game(context.form.c.ban_time.days)
         message = 'Вы лишены права общаться на форуме, ваш герой лишён возможности влиять на мир игры. Причина: \n\n%(message)s'
+
     else:
         raise dext_views.ViewError(code='unknown_ban_type', message='Неизвестный тип бана')
 
@@ -462,260 +475,292 @@ def register(context):
     return dext_views.AjaxOk()
 
 
-###############################
-# end of new views
-###############################
+@NextUrlProcessor()
+@auth_resource('login', name='page-login')
+def login_page(context):
 
-logger = logging.getLogger('django.request')
+    if context.account.is_authenticated:
+        return dext_views.Redirect(target_url=context.next_url)
 
+    login_form = forms.LoginForm()
+
+    return dext_views.Page('accounts/login.html',
+                           content={'resource': context.resource,
+                                    'login_form': login_form,
+                                    'next_url': context.next_url})
+
+
+@NextUrlProcessor()
+@dext_views.FormProcessor(form_class=forms.LoginForm)
+@utils_api.Processor(versions=('1.0',))
+@auth_resource('api', 'login', name='api-login', method='POST')
+def api_login(context):
+
+    account = prototypes.AccountPrototype.get_by_email(context.form.c.email)
+    if account is None:
+        return dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
+                                    message='Неверный логин или пароль')
+
+    if not account.check_password(context.form.c.password):
+        return dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
+                                    message='Неверный логин или пароль')
+
+    logic.login_user(context.django_request,
+                     nick=account.nick,
+                     password=context.form.c.password,
+                     remember=context.form.c.remember)
+
+    return dext_views.AjaxOk(content={'next_url': context.next_url,
+                                      'account_id': account.id,
+                                      'account_name': account.nick_verbose,
+                                      'session_expire_at': logic.get_session_expire_at_timestamp(context.django_request)})
+
+
+@utils_api.Processor(versions=('1.0',))
+@auth_resource('api', 'logout', name='api-logout', method=('POST', 'GET'))
+def api_logout(context):
+    logic.logout_user(context.django_request)
+
+    if context.django_request.method.upper() == 'GET':
+        return dext_views.Redirect(target_url='/')
+
+    return dext_views.AjaxOk()
+
+
+@LoginRequiredProcessor()
+@profile_resource('', name='show')
+def profile(context):
+    data = {'email': context.account.email if context.account.email else 'укажите email',
+            'nick': context.account.nick if not context.account.is_fast and context.account.nick else 'укажите ваше имя'}
+
+    edit_profile_form = forms.EditProfileForm(data)
+
+    settings_form = forms.SettingsForm({'personal_messages_subscription': context.account.personal_messages_subscription,
+                                        'news_subscription': context.account.news_subscription,
+                                        'description': context.account.description,
+                                        'gender': context.account.gender})
+
+    return dext_views.Page('accounts/profile.html',
+                           content={'edit_profile_form': edit_profile_form,
+                                    'settings_form': settings_form,
+                                    'resource': context.resource})
+
+
+@LoginRequiredProcessor()
+@profile_resource('edited', name='edited')
+def edit_profile_done(context):
+    return dext_views.Page('accounts/profile_edited.html',
+                           content={'resource': context.resource})
+
+
+@LoginRequiredProcessor()
+@profile_resource('confirm-email-request')
+def confirm_email_request(context):
+    return dext_views.Page('accounts/confirm_email_request.html',
+                           content={'resource': context.resource})
+
+
+@LoginRequiredProcessor()
+@dext_views.FormProcessor(form_class=forms.EditProfileForm)
+@profile_resource('update', name='update', method='POST')
+def update_profile(context):
+
+    if context.account.is_fast and not (context.form.c.email and context.form.c.password and context.form.c.nick):
+        raise dext_views.ViewError(code='accounts.profile.update.empty_fields',
+                                   message='Необходимо заполнить все поля')
+
+    if context.form.c.email:
+        existed_account = prototypes.AccountPrototype.get_by_email(context.form.c.email)
+        if existed_account and existed_account.id != context.account.id:
+            raise dext_views.ViewError(code='accounts.profile.update.used_email',
+                                       message={'email': ['На этот адрес уже зарегистрирован аккаунт']})
+
+    if context.form.c.nick:
+        existed_account = prototypes.AccountPrototype.get_by_nick(context.form.c.nick)
+        if existed_account and existed_account.id != context.account.id:
+            raise dext_views.ViewError(code='accounts.profile.update.used_nick',
+                                       message={'nick': ['Это имя уже занято']})
+
+    if context.form.c.nick != context.account.nick and context.account.is_ban_any:
+        raise dext_views.ViewError(code='accounts.profile.update.banned',
+                                   message={'nick': ['Вы не можете менять ник пока забанены']})
+
+    task = prototypes.ChangeCredentialsTaskPrototype.create(account=context.account,
+                                                            new_email=context.form.c.email,
+                                                            new_password=context.form.c.password,
+                                                            new_nick=context.form.c.nick)
+
+    result, error_code, error_message = task.process()
+
+    if result.is_PROCESSED:
+        # force login independent from current login status to prevent session corruption on password changing
+        # for details see https://docs.djangoproject.com/en/2.1/topics/auth/default/#session-invalidation-on-password-change
+        logic.force_login_user(context.django_request, task.account._model)
+
+        return dext_views.AjaxOk(content={'next_url': dext_urls.url('accounts:profile:edited')})
+
+    if result.is_EMAIL_SENT:
+        return dext_views.AjaxOk(content={'next_url': dext_urls.url('accounts:profile:confirm-email-request')})
+
+    raise dext_views.ViewError(code='accounts.profile.update.' + error_code,
+                               message=error_message)
+
+
+@dext_views.ArgumentProcessor(context_name='uuid', get_name='uuid', default_value=None)
+@profile_resource('confirm-email')
+def confirm_email(context):  # pylint: disable=W0621
+
+    if context.uuid is None:
+        raise dext_views.ViewError(code='accounts.profile.confirm_email.no_uid',
+                                   message='Вы неверно скопировали url. Пожалуйста, внимательно прочтите письмо ещё раз.')
+
+    task = prototypes.ChangeCredentialsTaskPrototype.get_by_uuid(context.uuid)
+
+    content = {'already_processed': False,
+               'timeout': False,
+               'error_occured': False,
+               'task': None,
+               'resource': context.resource}
+
+    if task is None:
+        content['wrong_link'] = True
+        return dext_views.Page('accounts/confirm_email.html',
+                               content=content)
+
+    if task.has_already_processed:
+        content['already_processed'] = True
+        return dext_views.Page('accounts/confirm_email.html',
+                               content=content)
+
+    if context.account.is_authenticated and context.account.id != task.account_id:
+        task.on_error(state=relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR,
+                      comment='try to access task from other account')
+        raise dext_views.ViewError(code='not_your_task',
+                                   message='Вы пытаетесь обратиться к данным другого игрока, их изменение отменено')
+
+    result, error_code, error_message = task.process()
+
+    if result.is_PROCESSED:
+        # force login independent from current login status to prevent session corruption on password changing
+        # for details see https://docs.djangoproject.com/en/2.1/topics/auth/default/#session-invalidation-on-password-change
+        logic.force_login_user(context.django_request, task.account._model)
+
+        return dext_views.Redirect(target_url=dext_urls.url('accounts:profile:edited'))
+
+    if task.state == relations.CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT:
+        content['timeout'] = True
+        return dext_views.Page('accounts/confirm_email.html',
+                               content=content)
+
+    content['error_occured'] = True
+    return dext_views.Page('accounts/confirm_email.html',
+                           content=content)
+
+
+@LoginRequiredProcessor()
+@dext_views.FormProcessor(form_class=forms.SettingsForm)
+@profile_resource('update-settings', name='update-settings', method='POST')
+def update_settings(context):
+    context.account.update_settings(context.form)
+
+    return dext_views.AjaxOk(content={'next_url': dext_urls.url('accounts:profile:edited')})
+
+
+@profile_resource('reset-password')
+def reset_password_page(context):
+    if context.account.is_authenticated:
+        return dext_views.Redirect(target_url='/')
+
+    reset_password_form = forms.ResetPasswordForm()
+
+    return dext_views.Page('accounts/reset_password.html',
+                           content={'reset_password_form': reset_password_form,
+                                    'resource': context.resource})
+
+
+@profile_resource('reset-password-done')
+def reset_password_done(context):
+    if context.account.is_authenticated:
+        return dext_views.Redirect(target_url='/')
+
+    return dext_views.Page('accounts/reset_password_done.html',
+                           content={'resource': context.resource})
+
+
+@dext_views.ArgumentProcessor(context_name='task_uid', get_name='task', default_value=None)
+@profile_resource('reset-password-processed')
+def reset_password_processed(context):
+
+    task = prototypes.ResetPasswordTaskPrototype.get_by_uuid(context.task_uid)
+
+    if task is None:
+        raise dext_views.ViewError(code='accounts.profile.reset_password_done',
+                                   message='Не получилось сбросить пароль, возможно вы используете неверную ссылку')
+
+    if context.account.is_authenticated:
+        return dext_views.Redirect(target_url='/')
+
+    if task.is_time_expired:
+        raise dext_views.ViewError(code='accounts.profile.reset_password_processed.time_expired',
+                                   message='Срок действия ссылки закончился, попробуйте восстановить пароль ещё раз')
+
+    if task.is_processed:
+        raise dext_views.ViewError(code='accounts.profile.reset_password_processed.already_processed',
+                                   message='Эта ссылка уже была использована для восстановления пароля,'
+                                           'одну ссылку можно использовать только один раз')
+
+    password = task.process()
+
+    return dext_views.Page('accounts/reset_password_processed.html',
+                           content={'password': password,
+                                    'resource': context.resource})
+
+
+@dext_views.FormProcessor(form_class=forms.ResetPasswordForm)
+@profile_resource('do-reset-password', method='POST')
+def reset_password(context):
+
+    if context.account.is_authenticated:
+        raise dext_views.ViewError(code='accounts.profile.reset_password.already_logined',
+                                   message='Вы уже вошли на сайт и можете просто изменить пароль')
+
+    account = prototypes.AccountPrototype.get_by_email(context.form.c.email)
+
+    if account is None:
+        raise dext_views.ViewError(code='accounts.profile.reset_password.wrong_email',
+                                   message='На указанный email аккаунт не зарегистрирован')
+
+    prototypes.ResetPasswordTaskPrototype.create(account)
+
+    return dext_views.AjaxOk()
+
+
+@LoginRequiredProcessor()
+@profile_resource('update-last-news-reminder-time', method='POST')
+def update_last_news_reminder_time(context):
+    context.account.update_last_news_remind_time()
+    return dext_views.AjaxOk()
+
+
+################################################
+# old views decorators (for other applications)
+################################################
 
 @dext_old_views.validator(code='common.fast_account', message='Вы не закончили регистрацию и данная функция вам не доступна')
-def validate_fast_account(self, *args, **kwargs): return not self.account.is_fast
+def validate_fast_account(self, *args, **kwargs):
+    return not self.account.is_fast
 
 
 @dext_old_views.validator(code='common.ban_forum', message='Вам запрещено проводить эту операцию')
-def validate_ban_forum(self, *args, **kwargs): return not self.account.is_ban_forum
+def validate_ban_forum(self, *args, **kwargs):
+    return not self.account.is_ban_forum
 
 
 @dext_old_views.validator(code='common.ban_game', message='Вам запрещено проводить эту операцию')
-def validate_ban_game(self, *args, **kwargs): return not self.account.is_ban_game
+def validate_ban_game(self, *args, **kwargs):
+    return not self.account.is_ban_game
 
 
 @dext_old_views.validator(code='common.ban_any', message='Вам запрещено проводить эту операцию')
-def validate_ban_any(self, *args, **kwargs): return not self.account.is_ban_any
-
-
-class BaseAccountsResource(utils_resources.Resource):
-
-    def initialize(self, *argv, **kwargs):
-        super(BaseAccountsResource, self).initialize(*argv, **kwargs)
-
-
-class AuthResource(BaseAccountsResource):
-
-    @dext_old_views.handler('login', name='page-login', method='get')
-    def login_page(self, next_url='/'):
-        if self.account.is_authenticated:
-            return self.redirect(next_url)
-
-        login_form = forms.LoginForm()
-        return self.template('accounts/login.html',
-                             {'login_form': login_form,
-                              'next_url': next_url})
-
-    @utils_api.handler(versions=('1.0',))
-    @dext_old_views.handler('api', 'login', name='api-login', method='post')
-    def api_login(self, api_version, next_url='/'):
-        login_form = forms.LoginForm(self.request.POST)
-
-        if login_form.is_valid():
-
-            account = prototypes.AccountPrototype.get_by_email(login_form.c.email)
-            if account is None:
-                return self.error('accounts.auth.login.wrong_credentials', 'Неверный логин или пароль')
-
-            if not account.check_password(login_form.c.password):
-                return self.error('accounts.auth.login.wrong_credentials', 'Неверный логин или пароль')
-
-            logic.login_user(self.request, nick=account.nick, password=login_form.c.password, remember=login_form.c.remember)
-
-            return self.ok(data={'next_url': next_url,
-                                 'account_id': account.id,
-                                 'account_name': account.nick_verbose,
-                                 'session_expire_at': logic.get_session_expire_at_timestamp(self.request)})
-
-        return self.error('accounts.auth.login.form_errors', login_form.errors)
-
-    @utils_api.handler(versions=('1.0',))
-    @dext_old_views.handler('api', 'logout', name='api-logout', method=['post'])
-    def api_logout(self, api_version):
-        logic.logout_user(self.request)
-        return self.ok()
-
-    @utils_api.handler(versions=('1.0',))
-    @dext_old_views.handler('api', 'logout', name='api-logout', method=['get'])
-    def logout_get(self, api_version):
-        logic.logout_user(self.request)
-        return self.redirect('/')
-
-
-class ProfileResource(BaseAccountsResource):
-
-    @third_party_decorators.refuse_third_party
-    def initialize(self, *argv, **kwargs):
-        super(ProfileResource, self).initialize(*argv, **kwargs)
-
-    @utils_decorators.login_required
-    @dext_old_views.handler('', name='show', method='get')
-    def profile(self):
-        data = {'email': self.account.email if self.account.email else 'укажите email',
-                'nick': self.account.nick if not self.account.is_fast and self.account.nick else 'укажите ваше имя'}
-        edit_profile_form = forms.EditProfileForm(data)
-
-        settings_form = forms.SettingsForm({'personal_messages_subscription': self.account.personal_messages_subscription,
-                                            'news_subscription': self.account.news_subscription,
-                                            'description': self.account.description,
-                                            'gender': self.account.gender})
-
-        return self.template('accounts/profile.html',
-                             {'edit_profile_form': edit_profile_form,
-                              'settings_form': settings_form})
-
-    @utils_decorators.login_required
-    @dext_old_views.handler('edited', name='edited', method='get')
-    def edit_profile_done(self):
-        return self.template('accounts/profile_edited.html')
-
-    @utils_decorators.login_required
-    @dext_old_views.handler('confirm-email-request', method='get')
-    def confirm_email_request(self):
-        return self.template('accounts/confirm_email_request.html')
-
-    @utils_decorators.login_required
-    @dext_old_views.handler('update', name='update', method='post')
-    def update_profile(self):
-
-        edit_profile_form = forms.EditProfileForm(self.request.POST)
-
-        if not edit_profile_form.is_valid():
-            return self.json_error('accounts.profile.update.form_errors', edit_profile_form.errors)
-
-        if self.account.is_fast and not (edit_profile_form.c.email and edit_profile_form.c.password and edit_profile_form.c.nick):
-            return self.json_error('accounts.profile.update.empty_fields', 'Необходимо заполнить все поля')
-
-        if edit_profile_form.c.email:
-            existed_account = prototypes.AccountPrototype.get_by_email(edit_profile_form.c.email)
-            if existed_account and existed_account.id != self.account.id:
-                return self.json_error('accounts.profile.update.used_email', {'email': ['На этот адрес уже зарегистрирован аккаунт']})
-
-        if edit_profile_form.c.nick:
-            existed_account = prototypes.AccountPrototype.get_by_nick(edit_profile_form.c.nick)
-            if existed_account and existed_account.id != self.account.id:
-                return self.json_error('accounts.profile.update.used_nick', {'nick': ['Это имя уже занято']})
-
-        if edit_profile_form.c.nick != self.account.nick and self.account.is_ban_any:
-            return self.json_error('accounts.profile.update.banned', {'nick': ['Вы не можете менять ник пока забанены']})
-
-        task = prototypes.ChangeCredentialsTaskPrototype.create(account=self.account,
-                                                                new_email=edit_profile_form.c.email,
-                                                                new_password=edit_profile_form.c.password,
-                                                                new_nick=edit_profile_form.c.nick,
-                                                                relogin_required=True)
-
-        postponed_task = task.process(logger)
-
-        if postponed_task is not None:
-            return self.json_processing(postponed_task.status_url)
-
-        return self.json_ok(data={'next_url': django_reverse('accounts:profile:confirm-email-request')})
-
-    @dext_old_views.handler('confirm-email', method='get')
-    def confirm_email(self, uuid=None):  # pylint: disable=W0621
-
-        if uuid is None:
-            return self.auto_error('accounts.profile.confirm_email.no_uid', 'Вы неверно скопировали url. Пожалуйста, внимательно прочтите письмо ещё раз.')
-
-        task = prototypes.ChangeCredentialsTaskPrototype.get_by_uuid(uuid)
-
-        context = {'already_processed': False,
-                   'timeout': False,
-                   'error_occured': False,
-                   'task': None}
-
-        if task is None:
-            context['wrong_link'] = True
-            return self.template('accounts/confirm_email.html', context)
-
-        if task.has_already_processed:
-            context['already_processed'] = True
-            return self.template('accounts/confirm_email.html', context)
-
-        postponed_task = task.process(logger)
-
-        if task.state == relations.CHANGE_CREDENTIALS_TASK_STATE.TIMEOUT:
-            context['timeout'] = True
-            return self.template('accounts/confirm_email.html', context)
-
-        if task.state == relations.CHANGE_CREDENTIALS_TASK_STATE.ERROR:
-            context['error_occured'] = True
-            return self.template('accounts/confirm_email.html', context)
-
-        return self.redirect(postponed_task.wait_url)
-
-    @utils_decorators.login_required
-    @dext_old_views.handler('update-settings', name='update-settings', method='post')
-    def update_settings(self):
-
-        settings_form = forms.SettingsForm(self.request.POST)
-
-        if not settings_form.is_valid():
-            return self.json_error('accounts.profile.update_settings.form_errors', settings_form.errors)
-
-        self.account.update_settings(settings_form)
-
-        return self.json_ok(data={'next_url': django_reverse('accounts:profile:edited')})
-
-    @dext_old_views.handler('reset-password', method='get')
-    def reset_password_page(self):
-        if self.account.is_authenticated:
-            return self.redirect('/')
-
-        reset_password_form = forms.ResetPasswordForm()
-        return self.template('accounts/reset_password.html',
-                             {'reset_password_form': reset_password_form})
-
-    @dext_old_views.handler('reset-password-done', method='get')
-    def reset_password_done(self):
-        if self.account.is_authenticated:
-            return self.redirect('/')
-
-        return self.template('accounts/reset_password_done.html', {})
-
-    @dext_old_views.validate_argument('task', prototypes.ResetPasswordTaskPrototype.get_by_uuid,
-                                      'accounts.profile.reset_password_done',
-                                      'Не получилось сбросить пароль, возможно вы используете неверную ссылку')
-    @dext_old_views.handler('reset-password-processed', method='get')
-    def reset_password_processed(self, task):
-        if self.account.is_authenticated:
-            return self.redirect('/')
-
-        if task.is_time_expired:
-            return self.auto_error('accounts.profile.reset_password_processed.time_expired',
-                                   'Срок действия ссылки закончился, попробуйте восстановить пароль ещё раз')
-
-        if task.is_processed:
-            return self.auto_error('accounts.profile.reset_password_processed.already_processed',
-                                   'Эта ссылка уже была использована для восстановления пароля,'
-                                   'одну ссылку можно использовать только один раз')
-
-        password = task.process(logger=logger)
-
-        return self.template('accounts/reset_password_processed.html', {'password': password})
-
-    @dext_old_views.handler('reset-password', method='post')
-    def reset_password(self):
-
-        if self.account.is_authenticated:
-            return self.json_error('accounts.profile.reset_password.already_logined',
-                                   'Вы уже вошли на сайт и можете просто изменить пароль')
-
-        reset_password_form = forms.ResetPasswordForm(self.request.POST)
-
-        if not reset_password_form.is_valid():
-            return self.json_error('accounts.profile.reset_password.form_errors', reset_password_form.errors)
-
-        account = prototypes.AccountPrototype.get_by_email(reset_password_form.c.email)
-
-        if account is None:
-            return self.auto_error('accounts.profile.reset_password.wrong_email',
-                                   'На указанный email аккаунт не зарегистрирован')
-
-        prototypes.ResetPasswordTaskPrototype.create(account)
-
-        return self.json_ok()
-
-    @utils_decorators.login_required
-    @dext_old_views.handler('update-last-news-reminder-time', method='post')
-    def update_last_news_reminder_time(self):
-        self.account.update_last_news_remind_time()
-        return self.json_ok()
+def validate_ban_any(self, *args, **kwargs):
+    return not self.account.is_ban_any

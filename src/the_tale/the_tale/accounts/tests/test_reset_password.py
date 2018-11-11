@@ -27,14 +27,8 @@ class ResetPasswordTaskTests(utils_testcase.TestCase):
         self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 0)
         self.assertEqual(prototypes.ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 0)
 
-        new_password = self.task.process(logger=mock.Mock())
+        new_password = self.task.process()
         self.assertTrue(self.task.is_processed)
-        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111').id, self.account.id)
-
-        self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 1)
-        self.assertEqual(prototypes.ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
-
-        PostponedTaskPrototype._db_get_object(0).process(logger=mock.Mock())
 
         self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111'), None)
         self.assertEqual(django_auth.authenticate(nick=self.account.nick, password=new_password).id, self.account.id)
@@ -59,12 +53,12 @@ class ResetPasswordRequestsTests(utils_testcase.TestCase):
         self.check_html_ok(self.request_html(django_reverse('accounts:profile:reset-password')))
 
     def test_reset_password_page_for_wrong_email(self):
-        self.check_ajax_error(self.client.post(django_reverse('accounts:profile:reset-password'), {'email': 'wrong@test.com'}), 'accounts.profile.reset_password.wrong_email')
+        self.check_ajax_error(self.client.post(django_reverse('accounts:profile:do-reset-password'), {'email': 'wrong@test.com'}), 'accounts.profile.reset_password.wrong_email')
         self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111').id, self.account.id)
         self.assertEqual(models.ResetPasswordTask.objects.all().count(), 0)
 
     def test_reset_password_success(self):
-        self.check_ajax_ok(self.client.post(django_reverse('accounts:profile:reset-password'), {'email': self.account.email}))
+        self.check_ajax_ok(self.client.post(django_reverse('accounts:profile:do-reset-password'), {'email': self.account.email}))
         self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111').id, self.account.id)
         self.assertEqual(models.ResetPasswordTask.objects.all().count(), 1)
 
@@ -79,10 +73,9 @@ class ResetPasswordRequestsTests(utils_testcase.TestCase):
 
         self.check_html_ok(self.request_html(django_reverse('accounts:profile:reset-password-processed') + ('?task=%s' % task.uuid)))
 
-        self.assertEqual(PostponedTaskPrototype._model_class.objects.all().count(), 1)
         self.assertEqual(prototypes.ChangeCredentialsTaskPrototype._model_class.objects.all().count(), 1)
 
-        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111').id, self.account.id)
+        self.assertEqual(django_auth.authenticate(nick=self.account.nick, password='111111'), None)
 
     def test_reset_password_expired(self):
         task = prototypes.ResetPasswordTaskPrototype.create(self.account)

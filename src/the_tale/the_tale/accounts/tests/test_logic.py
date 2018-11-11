@@ -128,3 +128,117 @@ class CardsForNewAccountTests(utils_testcase.TestCase):
 
         self.assertEqual({card.item_full_type for card in cards.values()},
                          {card.item_full_type for card in self.expected_cards})
+
+
+class ChangeCredentialsTests(utils_testcase.TestCase, personal_messages_helpers.Mixin):
+
+    def setUp(self):
+        super().setUp()
+        self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+
+        self.fast_account = self.accounts_factory.create_account(is_fast=True)
+
+        personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
+
+    def test_change_credentials(self):
+        self.assertTrue(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
+
+        cards_tt_services.storage.cmd_debug_clear_service()
+
+        with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.fast_account.id)),
+                              conf.settings.FREE_CARDS_FOR_REGISTRATION), \
+             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd, \
+             mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+                logic.change_credentials(account=self.fast_account,
+                                         new_email='fast_user@test.ru',
+                                         new_password=django_auth_hashers.make_password('222222'),
+                                         new_nick='test_nick')
+
+        self.assertEqual(cmd_run_account_method.call_count, 0)
+
+        self.assertEqual(django_auth.authenticate(nick='test_nick', password='222222').id, self.fast_account.id)
+        self.assertFalse(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
+        self.assertEqual(fake_cmd.call_count, 1)
+        self.assertFalse(fake_cmd.call_args[1]['is_fast'])
+
+        cards = list(cards_tt_services.storage.cmd_get_items(self.fast_account.id).values())
+
+        self.assertTrue(all(card.type.availability.is_FOR_ALL for card in cards))
+        self.assertFalse(all(card.available_for_auction for card in cards))
+
+    def test_change_credentials__not_registration(self):
+        self.assertFalse(prototypes.AccountPrototype.get_by_id(self.account.id).is_fast)
+
+        cards_tt_services.storage.cmd_debug_clear_service()
+
+        with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id))), \
+             mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd, \
+             mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+                logic.change_credentials(account=self.account,
+                                         new_email='x_user@test.ru',
+                                         new_password=django_auth_hashers.make_password('222222'),
+                                         new_nick='test_nick')
+
+        self.assertEqual(django_auth.authenticate(nick='test_nick', password='222222').id, self.account.id)
+        self.assertFalse(prototypes.AccountPrototype.get_by_id(self.account.id).is_fast)
+        self.assertEqual(fake_cmd.call_count, 0)
+
+    def test_change_credentials__with_referral(self):
+        self.fast_account._model.referral_of = self.account._model
+        self.fast_account.save()
+
+        self.assertTrue(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
+            with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
+                logic.change_credentials(account=self.fast_account,
+                                         new_email='fast_user@test.ru',
+                                         new_password=django_auth_hashers.make_password('222222'),
+                                         new_nick='test_nick')
+
+        self.assertEqual(cmd_run_account_method.call_count, 1)
+        self.assertEqual(cmd_run_account_method.call_args, mock.call(account_id=self.account.id,
+                                                                     method_name=prototypes.AccountPrototype.update_referrals_number.__name__,
+                                                                     data={}))
+
+        self.assertEqual(django_auth.authenticate(nick='test_nick', password='222222').id, self.fast_account.id)
+        self.assertFalse(prototypes.AccountPrototype.get_by_id(self.fast_account.id).is_fast)
+        self.assertEqual(fake_cmd.call_count, 1)
+        self.assertFalse(fake_cmd.call_args[1]['is_fast'])
+
+    def test_change_credentials_password(self):
+        nick = self.account.nick
+        email = self.account.email
+
+        logic.change_credentials(account=self.account,
+                                 new_password=django_auth_hashers.make_password('222222'))
+
+        self.assertEqual(post_service_models.Message.objects.all().count(), 0)
+
+        self.assertEqual(self.account.email, email)
+        user = django_auth.authenticate(nick=nick, password='222222')
+        self.assertEqual(user.id, self.account.id)
+
+    def test_change_credentials_nick(self):
+
+        with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as fake_cmd:
+            logic.change_credentials(account=self.account,
+                                     new_nick='test_nick')
+
+        self.assertEqual(post_service_models.Message.objects.all().count(), 0)
+        self.assertEqual(fake_cmd.call_count, 0)
+        self.assertEqual(django_auth.authenticate(nick='test_nick', password='111111').id, self.account.id)
+
+    def test_change_credentials_email(self):
+        nick = self.account.nick
+
+        logic.change_credentials(account=self.account,
+                                 new_email='test_user@test.ru')
+
+        self.assertEqual(post_service_models.Message.objects.all().count(), 0)
+
+        self.assertEqual(self.account.email, 'test_user@test.ru')
+        self.assertEqual(django_auth.authenticate(nick=nick, password='111111').id, self.account.id)
+        self.assertEqual(django_auth.authenticate(nick=nick, password='111111').nick, nick)

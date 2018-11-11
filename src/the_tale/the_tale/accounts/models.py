@@ -156,8 +156,6 @@ class ChangeCredentialsTask(django_models.Model):
 
     uuid = django_models.CharField(max_length=32, db_index=True)
 
-    relogin_required = django_models.BooleanField(blank=True, default=False)
-
 
 class RandomPremiumRequest(django_models.Model):
 

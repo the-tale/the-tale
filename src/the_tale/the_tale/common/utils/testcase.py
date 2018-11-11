@@ -71,16 +71,22 @@ class TestCaseMixin(object):
         data = {'email': email, 'password': password}
         if remember:
             data['remember'] = 'remember'
-        response = self.client.post(dext_urls.url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0'), data)
+        response = self.post_ajax_json(dext_urls.url('accounts:auth:api-login', api_version='1.0', api_client='test-1.0'), data)
         self.check_ajax_ok(response)
 
     def request_logout(self):
-        response = self.client.post(dext_urls.url('accounts:auth:api-logout', api_version='1.0', api_client='test-1.0'))
+        response = self.post_ajax_json(dext_urls.url('accounts:auth:api-logout', api_version='1.0', api_client='test-1.0'))
         self.check_ajax_ok(response)
 
     @decorators.lazy_property
     def accounts_factory(self):
         return TestAccountsFactory()
+
+    def check_logined_as(self, account_id):
+        self.assertEqual(self.client.session.get('_auth_user_id'), str(account_id))
+
+    def check_not_logined(self):
+        self.assertEqual(self.client.session.get('_auth_user_id'), None)
 
 
 class TestCase(dext_testcase.TestCase, TestCaseMixin):

@@ -329,3 +329,35 @@ def initiate_transfer_money(sender_id, recipient_id, amount, comment):
     amqp_environment.environment.workers.refrigerator.cmd_wait_task(task.id)
 
     return task
+
+
+def change_credentials(account, new_email=None, new_password=None, new_nick=None):
+    if new_password:
+        account._model.password = new_password
+    if new_email:
+        account._model.email = new_email
+    if new_nick:
+        account.nick = new_nick
+
+    old_fast = account.is_fast  # pylint: disable=E0203
+
+    account.is_fast = False
+
+    account.save()
+
+    if old_fast:
+        cards_number = conf.settings.FREE_CARDS_FOR_REGISTRATION
+
+        cards_logic.give_new_cards(account_id=account.id,
+                                   operation_type='give-card-for-registration',
+                                   allow_premium_cards=False,
+                                   available_for_auction=False,
+                                   number=cards_number)
+
+        account.cmd_update_hero()
+
+        if account.referral_of_id is not None:
+            amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(
+                account_id=account.referral_of_id,
+                method_name=account.update_referrals_number.__name__,
+                data={})

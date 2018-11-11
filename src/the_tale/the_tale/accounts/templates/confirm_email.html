@@ -21,21 +21,31 @@ jQuery(document).ready( function(e) {
 
       {% if already_processed or timeout or error_occured or wrong_link%}
       <p class="alert alert-error">
+
         {% if already_processed %}
         <span class="pgf-change-credentials-already-processed">
-          Запрос на изменение email уже был обработан ранее, если Вы утратили пароль, перейдите на <a href="{{ url('accounts:profile:reset-password') }}"> страницу восстановления пароля</a>.</span>
+          Запрос на изменение email уже был обработан ранее, если Вы утратили пароль,
+          {% if not resource.account.is_authenticated %}
+          перейдите на <a href="{{ url('accounts:profile:reset-password') }}"> страницу восстановления пароля</a>.</span>
+        {% else %}
+          перейдите на <a href="{{ url('accounts:profile:show') }}"> страницу профиля</a> и измените его.</span>
+        {% endif %}
+
         {% elif timeout %}
         <span class="pgf-change-credentials-timeout">
           Запрос на изменение email был сделан слишком давно и более не активен. Вы можете повторить изменения на <a href="url('accounts:profile:show)">странице профиля</a>.
         </span>
+
         {% elif error_occured %}
         <span class="pgf-change-credentials-error">
           Во время изменения email произошла ошибка. Мы уже работаем над её исправлением. Вы можете повторить изменения позже на <a href="url('accounts:profile:show)">странице профиля</a>.
         </span>
+
         {% elif wrong_link %}
         <span class="pgf-change-credentials-wrong-link">
           Неверная ссылка, убедитесь, что верно скопировали адрес.
         </span>
+
         {% endif %}
       </p>
 
