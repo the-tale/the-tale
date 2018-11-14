@@ -1,5 +1,8 @@
 {% extends "accounts/base.html" %}
 
+{% block title %}Создание героя | {{super()}}{% endblock %}
+{% block description %}Найдите своего героя с уникальной предысторией.{% endblock %}
+
 
 {% macro form_select(id, label, options, comment='') %}
 <div class="control-group">
