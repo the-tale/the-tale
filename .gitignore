@@ -14,3 +14,4 @@ ubuntu-xenial-16.04-cloudimg-console.log
 game_server.retry
 ansible.log
 __pycache__
+.smart_imports
