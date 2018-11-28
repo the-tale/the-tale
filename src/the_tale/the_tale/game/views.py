@@ -117,12 +117,12 @@ def api_diary(context):
 
 
 @utils_api.Processor(versions=(conf.settings.NAMES_API_VERSION,))
-@dext_views.IntArgumentProcessor(error_message='Неверное количество имён', get_name='number', context_name='names_number', default_value=None)
+@dext_views.IntArgumentProcessor(error_message='Неверное количество имён', get_name='number', context_name='names_number', default_value=10)
 @resource('api', 'names', name='api-names')
 def api_names(context):
 
     if context.names_number < 0 or 100 < context.names_number:
-        raise dext_views.ViewError(code='wrong_number', message='Нельзя сгенерировать такое колдичесво имён')
+        raise dext_views.ViewError(code='wrong_number', message='Нельзя сгенерировать такое количесво имён')
 
     result_names = game_names.get_names_set(number=context.names_number)
 
