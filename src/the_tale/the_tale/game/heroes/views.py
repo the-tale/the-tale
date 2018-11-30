@@ -167,6 +167,13 @@ class HeroResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @validate_moderator_rights()
+    @dext_old_views.handler('#hero', 'reset-description', method='post')
+    def reset_description(self):
+        logic.set_hero_description(hero_id=self.hero.id, text='')
+        return self.json_ok()
+
+    @utils_decorators.login_required
+    @validate_moderator_rights()
     @dext_old_views.handler('#hero', 'force-save', method='post')
     def force_save(self):
         amqp_environment.environment.workers.supervisor.cmd_force_save(account_id=self.hero.account_id)

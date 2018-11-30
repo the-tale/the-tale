@@ -132,6 +132,12 @@ jQuery(document).ready(function(e){
                href="{{ url('game:heroes:reset-name', resource.hero.id) }}"
                data-confirmation="Вы действительно хотите сбросить имя героя?">сбросить имя</a>
 
+            <h3>Сброс описания героя</h3>
+
+            <a class="btn btn-success pgf-forms-post-simple"
+               href="{{ url('game:heroes:reset-description', resource.hero.id) }}"
+               data-confirmation="Вы действительно хотите сбросить описание героя?">сбросить описание</a>
+
             <h3>Выгрузить в базу</h3>
 
             <a class="btn btn-success pgf-forms-post-simple"
