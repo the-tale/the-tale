@@ -12,7 +12,7 @@ class IndexRequestsTest(utils_testcase.TestCase):
 
         tt_services.chronicle.cmd_debug_clear_service()
 
-    def create_record(self, index, tags=(), turn_number=0, type_=relations.RECORD_TYPE.PLACE_CHANGE_RACE):
+    def create_record(self, index, tags=(), turn_number=0):
         tt_services.chronicle.cmd_add_event(tags=tags,
                                             message='record_text_{}_{}'.format(turn_number, index),
                                             attributes={},
