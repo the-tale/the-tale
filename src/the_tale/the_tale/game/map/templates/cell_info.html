@@ -121,7 +121,6 @@
             {{places_macros.attribute_record(place, 'power_economic')}}
             {{places_macros.attribute_record(place, 'area')}}
             {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
-            {{places_macros.attribute_record(place, 'keepers_goods')}}
             {{places_macros.attribute_record(place, 'stability')}}
             {{places_macros.attribute_record(place, 'production')}}
             {{places_macros.attribute_record(place, 'transport')}}
@@ -217,17 +216,16 @@
             </tr>
             <tr><th>возведено</th><td>{{building.created_at_turn|verbose_game_date}}</td></tr>
             <tr>
-              <th>целостность</th>
+              <th>поддержка</th>
               <td>
-                <span class="pgf-building-integrity" style="vertical-align: middle;">
-                  {% if building.integrity <= 1 %}{{building.integrity|percents(2)}}
-                  {% else %}100% + {{(building.integrity-1)|percents(2)}} запаса
-                  {% endif %}
-                </span>
-                <i class="icon icon-info-sign" style="vertical-align: middle;" rel="tooltip" title="Отремонтировать здание можно с помощью карт судьбы"></i>
+                {{ building.person.attrs.building_support_cost }}
+
+                <i class="icon icon-info-sign"
+                   style="vertical-align: middle;"
+                   rel="tooltip"
+                   title="На поддержку здания город направляет указанную часть своего производства"></i>
               </td>
             </tr>
-            <tr><th>скорость износа</th><td>-{{building.amortization_in_day|percents(2)}} в день</td></tr>
           </tbody>
         </table>
       </div>

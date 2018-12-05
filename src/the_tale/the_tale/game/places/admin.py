@@ -5,13 +5,9 @@ smart_imports.all()
 
 
 class PlaceAdmin(django_admin.ModelAdmin):
-    list_display = ('id', 'name', 'is_frontier', 'size', 'politic_power', 'x', 'y')
+    list_display = ('id', 'name', 'is_frontier', 'size', 'x', 'y')
 
     list_filter = ('is_frontier',)
-
-    def politic_power(self, obj):
-        from . import logic
-        return logic.load_place(place_model=obj).politic_power
 
     def size(self, obj):
         from . import logic

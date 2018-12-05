@@ -21,11 +21,6 @@ class PlaceTests(utils_testcase.TestCase):
     def test_is_new__true(self):
         self.assertTrue(self.p1.is_new)
 
-    def test_sync_size__keepers_goods(self):
-        self.p1.attrs.keepers_goods = c.PLACE_GOODS_BONUS + 50
-        self.p1.attrs.sync_size(2)
-        self.assertEqual(self.p1.attrs.keepers_goods, 50)
-
     def test_sync_size__good_changing(self):
         self.p1.attrs.production = 10
 
@@ -116,7 +111,6 @@ class PlaceTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
     @mock.patch('the_tale.game.places.objects.Place.nearest_cells', [(i, i) for i in range(100)])
     def test_refresh_attributes__production(self):
-        self.p1.attrs.keepers_goods = 10000
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
         self.p1.attrs.size = 1
         self.p1.attrs.power_economic = 6
@@ -127,8 +121,7 @@ class PlaceTests(utils_testcase.TestCase):
 
         expected_production = (0.66 * self.p1.attrs.power_economic * c.PLACE_GOODS_BONUS +
                                0.34 * 9 * c.PLACE_GOODS_BONUS +
-                               10 * len(self.p1.persons) +
-                               self.p1.attrs.get_next_keepers_goods_spend_amount() -
+                               10 * len(self.p1.persons) -
                                relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount +
                                relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount)
 
@@ -216,6 +209,10 @@ class PlaceTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__tax(self):
 
+        # compensate low production
+        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.PRODUCTION, value=+10000))
+        self.p1.refresh_attributes()
+
         self._create_test_exchanges()
 
         self.assertEqual(self.p1.attrs.tax, 0)
@@ -273,6 +270,28 @@ class PlaceTests(utils_testcase.TestCase):
         self.p1.refresh_attributes()
 
         self.assertEqual(self.p1.attrs.stability, 1.0)
+
+    def test_refresh_attributes__production__min_value(self):
+        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.PRODUCTION, value=-1000))
+        self.p1.attrs.size = 1
+        self.p1.attrs.goods = 0
+
+        self.p1.refresh_attributes()
+
+        self.assertTrue(-0.001 < self.p1.attrs.production < 0.001)
+
+        self.assertTrue(self.p1.attrs.tax > 0)
+
+    def test_refresh_attributes__production__min_value__not_min_size(self):
+        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.PRODUCTION, value=-1000))
+        self.p1.attrs.size = 10
+        self.p1.attrs.goods = 0
+
+        self.p1.refresh_attributes()
+
+        self.assertTrue(self.p1.attrs.production < 0)
+
+        self.assertEqual(self.p1.attrs.tax, 0)
 
     @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
     def test_refresh_attributes__stability_penalty_for_masters_number(self):
@@ -426,23 +445,6 @@ class PlaceTests(utils_testcase.TestCase):
         self.assertEqual(objects.Place._habit_change_speed(500, 0, 0), -5)
         self.assertEqual(objects.Place._habit_change_speed(-500, 0, 0), 5)
 
-    def test_get_next_keepers_goods_spend_amount__0(self):
-        self.assertEqual(self.p1.attrs.keepers_goods, 0)
-        self.assertEqual(self.p1.attrs.get_next_keepers_goods_spend_amount(), 0)
-
-    def test_get_next_keepers_goods_spend_amount__less_then_production(self):
-        self.p1.attrs.keepers_goods = c.PLACE_GOODS_BONUS - 1
-        self.assertEqual(self.p1.attrs.get_next_keepers_goods_spend_amount(), c.PLACE_GOODS_BONUS - 1)
-
-    def test_get_next_keepers_goods_spend_amount__less_then_production_barrier(self):
-        self.p1.attrs.keepers_goods = int((c.PLACE_GOODS_BONUS - 1) / c.PLACE_KEEPERS_GOODS_SPENDING)
-        self.assertTrue(self.p1.attrs.keepers_goods > c.PLACE_GOODS_BONUS)
-        self.assertEqual(self.p1.attrs.get_next_keepers_goods_spend_amount(), c.PLACE_GOODS_BONUS)
-
-    def test_get_next_keepers_goods_spend_amount__greater_then_production(self):
-        self.p1.attrs.keepers_goods = int((c.PLACE_GOODS_BONUS + 1) / c.PLACE_KEEPERS_GOODS_SPENDING)
-        self.assertEqual(self.p1.attrs.get_next_keepers_goods_spend_amount(), c.PLACE_GOODS_BONUS + 1)
-
 
 class BuildingTests(utils_testcase.TestCase):
 
@@ -491,46 +493,6 @@ class BuildingTests(utils_testcase.TestCase):
 
         self.assertEqual(models.Building.objects.all().count(), 1)
         self.assertEqual(building.utg_name, name_2)
-
-    def test_amortize(self):
-        building = logic.create_building(self.place_1.persons[0], utg_name=game_names.generator().get_test_name(name='building-name'))
-
-        old_integrity = building.integrity
-
-        building.amortize(1000)
-
-        self.assertTrue(old_integrity > building.integrity)
-
-        building.integrity = -1
-
-        building.amortize(1000)
-
-        self.assertEqual(building.integrity, 0)
-        self.assertTrue(building.state.is_WORKING)
-
-    def test_amortization_grows(self):
-        building = logic.create_building(self.place_1.persons[0], utg_name=game_names.generator().get_test_name(name='building-name'))
-
-        old_integrity = building.integrity
-        building.amortize(1000)
-        amortization_delta = old_integrity - building.integrity
-
-        building_2 = logic.create_building(self.place_1.persons[1], utg_name=game_names.generator().get_test_name(name='building-name-2'))
-
-        old_integrity_2 = building_2.integrity
-        building_2.amortize(1000)
-        amortization_delta_2 = old_integrity_2 - building_2.integrity
-
-        self.assertTrue(amortization_delta < amortization_delta_2)
-
-    def test_amortization_delta_depends_from_person_building_amortization_speed(self):
-        person = self.place_1.persons[0]
-        building = logic.create_building(person, utg_name=game_names.generator().get_test_name(name='building-name'))
-
-        person.attrs.building_amortization_speed = 1
-
-        with self.check_decreased(lambda: building.amortization_delta(1000)):
-            person.attrs.building_amortization_speed = 0.5
 
     def test_save__update_storage(self):
         building = logic.create_building(self.place_1.persons[0], utg_name=game_names.generator().get_test_name(name='building-name'))

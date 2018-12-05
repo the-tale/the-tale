@@ -268,9 +268,6 @@ class Place(game_names.ManageNameMixin2):
         yield game_effects.Effect(name='потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-self.attrs.size * c.PLACE_GOODS_BONUS)
         yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
 
-        if self.attrs.get_next_keepers_goods_spend_amount():
-            yield game_effects.Effect(name='дары Хранителей', attribute=relations.ATTRIBUTE.PRODUCTION, value=self.attrs.get_next_keepers_goods_spend_amount())
-
         # safety
         yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.SAFETY, value=1.0)
         yield game_effects.Effect(name='монстры', attribute=relations.ATTRIBUTE.SAFETY, value=-c.BATTLES_PER_TURN)
@@ -307,6 +304,7 @@ class Place(game_names.ManageNameMixin2):
         stability = 0
         culture = 0
         freedom = 0
+        production = 0
 
         for effect in self._effects_generator():
             if effect.attribute.order != order:
@@ -321,6 +319,8 @@ class Place(game_names.ManageNameMixin2):
                 culture += effect.value
             if effect.attribute.is_FREEDOM:
                 freedom += effect.value
+            if effect.attribute.is_PRODUCTION:
+                production += effect.value
             yield effect
 
         if relations.ATTRIBUTE.SAFETY.order == order:
@@ -346,6 +346,14 @@ class Place(game_names.ManageNameMixin2):
         if relations.ATTRIBUTE.FREEDOM.order == order:
             if freedom < c.PLACE_MIN_FREEDOM:
                 yield game_effects.Effect(name='Пять звёзд', attribute=relations.ATTRIBUTE.FREEDOM, value=c.PLACE_MIN_FREEDOM - freedom)
+
+        if self.attrs.size == 1 and production < 0 and self.attrs.goods == 0:
+            yield game_effects.Effect(name='Компенсация потерь пошлиной',
+                                      attribute=relations.ATTRIBUTE.PRODUCTION,
+                                      value=-production)
+            yield game_effects.Effect(name='Производственный кризис',
+                                      attribute=relations.ATTRIBUTE.TAX,
+                                      value=min(1.0, c.PLACE_TAX_PER_ONE_GOODS * abs(production)))
 
     def effects_for_attribute(self, attribute):
         for effect in self.effects_generator(attribute.order):
@@ -467,28 +475,6 @@ class Building(game_names.ManageNameMixin2):
         # +1 to prevent power == 0
         power = self.place.attrs.terrain_radius * self.logical_integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
         return int(round(power))
-
-    def amortization_delta(self, turns_number):
-        buildings_number = sum(storage.buildings.get_by_person_id(person.id) is not None
-                               for person in self.place.persons)
-
-        per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED * self.person.attrs.building_amortization_speed
-        return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number - 1)
-
-    @property
-    def amortization_in_day(self):
-        return self.amortization_delta(c.TURNS_IN_HOUR * 24)
-
-    def amortize(self, turns_number):
-        self.integrity -= self.amortization_delta(turns_number)
-        if self.integrity <= 0.0001:
-            self.integrity = 0
-
-    @property
-    def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
-
-    def repair(self, delta):
-        self.integrity += delta
 
     @property
     def terrain(self):

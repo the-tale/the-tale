@@ -204,13 +204,24 @@ class Person(game_names.ManageNameMixin2):
         yield from self.specialization_effects()
 
         if self.attrs.terrain_radius_bonus != 0:
-            yield game_effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.terrain_radius_bonus)
+            yield game_effects.Effect(name=self.name,
+                                      attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS,
+                                      value=self.attrs.terrain_radius_bonus)
 
         if self.attrs.politic_radius_bonus != 0:
-            yield game_effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.politic_radius_bonus)
+            yield game_effects.Effect(name=self.name,
+                                      attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS,
+                                      value=self.attrs.politic_radius_bonus)
 
         if self.attrs.stability_renewing_bonus != 0:
-            yield game_effects.Effect(name=self.name, attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=self.attrs.stability_renewing_bonus)
+            yield game_effects.Effect(name=self.name,
+                                      attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED,
+                                      value=self.attrs.stability_renewing_bonus)
+
+        if self.has_building:
+            yield game_effects.Effect(name='{}: {}'.format(self.name, self.building.name),
+                                      attribute=places_relations.ATTRIBUTE.PRODUCTION,
+                                      value=-self.attrs.building_support_cost)
 
     def refresh_attributes(self):
         self.attrs.reset()

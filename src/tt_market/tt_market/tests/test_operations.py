@@ -403,6 +403,80 @@ class CancelSellLotTests(helpers.BaseTests):
         self.assertFalse(result)
 
 
+class CancelSellLotsByTypeTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_success(self):
+        lot = helpers.create_sell_lot()
+        lots_ids = await operations.place_sell_lots([lot])
+        lot_id = lots_ids[0]
+
+        with mock.patch.object(operations.MarketInfoCache, 'soft_reset') as soft_reset:
+            lots = await operations.cancel_sell_lots_by_type(item_type=lot.item_type)
+
+        for lot in lots:
+            lot.created_at = None
+
+        self.assertEqual(lots, [lot])
+        self.assertTrue(soft_reset.called)
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records ORDER BY created_at DESC')
+        self.assertEqual(len(result), 2)
+
+        self.assertEqual(result[0]['operation_type'], relations.OPERATION_TYPE.CANCEL_SELL_LOT.value)
+        self.assertEqual(result[0]['lot_type'], lot.type.value)
+        self.assertEqual(result[0]['item_type'], lot.item_type)
+        self.assertEqual(result[0]['item'], lot.item_id)
+        self.assertEqual(result[0]['owner'], lot.owner_id)
+        self.assertEqual(result[0]['price'], lot.price)
+        self.assertEqual(result[0]['data'], {})
+
+    @test_utils.unittest_run_loop
+    async def test_success__multiple(self):
+        lot_1 = helpers.create_sell_lot(item_type='x', owner_id=666)
+        lot_2 = helpers.create_sell_lot(item_type='y', owner_id=666)
+        lot_3 = helpers.create_sell_lot(item_type='x', owner_id=777)
+
+        lots_ids = await operations.place_sell_lots([lot_1, lot_2, lot_3])
+
+        with mock.patch.object(operations.MarketInfoCache, 'soft_reset') as soft_reset:
+            lots = await operations.cancel_sell_lots_by_type(item_type=lot_1.item_type)
+
+        for lot in lots:
+            lot.created_at = None
+
+        self.assertCountEqual(lots, [lot_1, lot_3])
+        self.assertTrue(soft_reset.called)
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['item'], lots_ids[1])
+
+        result = await db.sql('SELECT * FROM log_records ORDER BY created_at DESC')
+        self.assertEqual(len(result), 5)
+
+        self.assertEqual(result[0]['operation_type'], relations.OPERATION_TYPE.CANCEL_SELL_LOT.value)
+        self.assertEqual(result[1]['operation_type'], relations.OPERATION_TYPE.CANCEL_SELL_LOT.value)
+
+
+    @test_utils.unittest_run_loop
+    async def test_no_lot(self):
+        with mock.patch.object(operations.MarketInfoCache, 'soft_reset') as soft_reset:
+            items_ids = await operations.cancel_sell_lots_by_type(item_type='some type')
+
+        self.assertEqual(items_ids, [])
+        self.assertFalse(soft_reset.called)
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records')
+        self.assertFalse(result)
+
+
 class LoadSellLotsTests(helpers.BaseTests):
 
     async def prepair_data(self):

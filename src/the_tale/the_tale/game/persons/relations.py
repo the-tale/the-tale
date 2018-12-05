@@ -69,7 +69,7 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                game_attributes.attr('ENEMIES_QUESTS_PRIORITY_BONUS', 8, 'бонус к вероятности противников получить задание, связанное с Мастером'),
                game_attributes.attr('POLITIC_RADIUS_BONUS', 9, 'бонус к радиусу влияния города'),
                game_attributes.attr('STABILITY_RENEWING_BONUS', 10, 'бонус к скорости восстановления стабильности в городе'),
-               game_attributes.attr('BUILDING_AMORTIZATION_SPEED', 11, 'скорость амортизации здания Мастера', default=lambda: 1),
+               game_attributes.attr('BUILDING_SUPPORT_COST', 11, 'стоимость поддержи здания Мастера городом', default=lambda: c.PLACE_GOODS_FOR_BUILDING_SUPPORT),
                game_attributes.attr('ON_PROFITE_ENERGY', 12, 'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
                game_attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту занятий Мастера'),
                game_attributes.attr('JOB_GROUP_PRIORITY', 14, 'бонус к приоритету типов занятий Мастера', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
@@ -150,8 +150,8 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                personality('RELIABLE', 7, 'надёжный', 'STABILITY_RENEWING_BONUS', c.PLACE_STABILITY_RECOVER_SPEED * 0.25,
                            'надёжный', 'надёжная', 'Увеличивает скорость восстановления стабильности.'),
 
-               personality('ORDERLY', 8, 'аккуратный', 'BUILDING_AMORTIZATION_SPEED', -0.5,
-                           'аккуратный', 'аккуратная', 'Замедляет амортизацию своего здания.'),
+               personality('ORDERLY', 8, 'аккуратный', 'BUILDING_SUPPORT_COST', -int(c.PLACE_GOODS_FOR_BUILDING_SUPPORT / 2),
+                           'аккуратный', 'аккуратная', 'Бережливо относится к своему имуществу — уменьшает стоимость поддержки городом своего здания.'),
 
                personality('DEVOUT', 9, 'набожный', 'ON_PROFITE_ENERGY', 4,
                            'набожный', 'набожная', 'За каждое задание, в котором Мастер получил выгоду, возносит хвалу Хранителям героев, и те получают немного энергии.'),

@@ -10,7 +10,6 @@ class Attributes(game_attributes.create_attributes_class(relations.ATTRIBUTE)):
     def sync_size(self, hours):
 
         self.goods += hours * self.production
-        self.keepers_goods -= self.get_next_keepers_goods_spend_amount()
 
         if self.goods >= c.PLACE_GOODS_TO_LEVEL:
             self.size += 1
@@ -34,9 +33,6 @@ class Attributes(game_attributes.create_attributes_class(relations.ATTRIBUTE)):
 
     def set_power_economic(self, value):
         self.power_economic = value
-
-    def get_next_keepers_goods_spend_amount(self):
-        return min(self.keepers_goods, max(int(self.keepers_goods * c.PLACE_KEEPERS_GOODS_SPENDING), c.PLACE_GOODS_BONUS))
 
     def ui_specializations(self):
         specializations = [record

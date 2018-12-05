@@ -212,6 +212,6 @@ async def get_owner_timers(owner_id):
 
 
 async def clean_database():
-    await db.sql('DELETE FROM timers')
+    await db.sql('TRUNCATE timers')
 
     TIMERS_QUEUE.clean()

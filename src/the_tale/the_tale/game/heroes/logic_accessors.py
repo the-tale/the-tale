@@ -158,9 +158,6 @@ class LogicAccessorsMixin(object):
     def can_participate_in_pvp(self): return not self.is_fast and not self.is_banned
 
     @property
-    def can_repair_building(self): return self.is_premium and not self.is_banned
-
-    @property
     def is_ui_caching_required(self):
         return (datetime.datetime.now() - self.ui_caching_started_at).total_seconds() < conf.settings.UI_CACHING_TIME
 

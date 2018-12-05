@@ -73,6 +73,13 @@ class Client(client.Client):
 
         return [self.protobuf_to_lot(lot) for lot in answer.lots]
 
+    def cmd_cancel_lots_by_type(self, item_type):
+        answer = operations.sync_request(url=self.url('cancel-sell-lots-by-type'),
+                                         data=tt_protocol_market_pb2.CancelSellLotsByTypeRequest(item_type=item_type),
+                                         AnswerType=tt_protocol_market_pb2.CancelSellLotsByTypeResponse)
+
+        return [self.protobuf_to_lot(lot) for lot in answer.lots]
+
     def cmd_list_sell_lots(self, owner_id):
         answer = operations.sync_request(url=self.url('list-sell-lots'),
                                          data=tt_protocol_market_pb2.ListSellLotsRequest(owner_id=owner_id),

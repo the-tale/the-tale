@@ -176,6 +176,26 @@ async def _cancel_sell_lot(execute, arguments):
     return lots
 
 
+async def cancel_sell_lots_by_type(item_type):
+    lots = await db.transaction(_cancel_sell_lots_by_type, {'item_type': item_type})
+    return lots
+
+
+async def _cancel_sell_lots_by_type(execute, arguments):
+
+    item_type = arguments['item_type']
+
+    results = await execute('SELECT item, owner FROM sell_lots WHERE item_type=%(item_type)s',
+                            {'item_type': item_type})
+
+    lots = await _delete_lots(execute,
+                              candidates_ids=[(row['item'], row['owner']) for row in results],
+                              number=len(results),
+                              operation_type=relations.OPERATION_TYPE.CANCEL_SELL_LOT,
+                              data={})
+    return lots
+
+
 async def load_sell_lots(owner_id):
     results = await db.sql('SELECT * FROM sell_lots WHERE owner=%(owner_id)s',
                            {'owner_id': owner_id})
@@ -282,8 +302,7 @@ def lot_from_row(row, type):
 
 
 async def clean_database():
-    await db.sql('DELETE FROM log_records')
-    await db.sql('DELETE FROM sell_lots')
+    await db.sql('TRUNCATE log_records, sell_lots')
     MARKET_INFO_CACHE.soft_reset()
 
 

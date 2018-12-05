@@ -17,8 +17,8 @@ class HeroPositionTest(utils_testcase.TestCase):
         self.storage.load_account_data(account)
         self.hero = self.storage.accounts_to_heroes[account.id]
 
-        self.road_1_2 = roads_storage.roads.get_by_places(self.place_1, self.place_2)
-        self.road_2_3 = roads_storage.roads.get_by_places(self.place_2, self.place_3)
+        self.road_1_2 = roads_logic.road_between_places(self.place_1, self.place_2)
+        self.road_2_3 = roads_logic.road_between_places(self.place_2, self.place_3)
 
     def test_is_battle_start_needed__safety(self):
         for place in places_storage.places.all():

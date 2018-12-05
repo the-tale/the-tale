@@ -435,9 +435,13 @@ PLACE_GOODS_TO_LEVEL = int(PLACE_GOODS_BONUS * (1 + 3.0 / 2) * 24)  # 1 горо
 PLACE_GOODS_AFTER_LEVEL_UP = float(0.25)  # процент товаров, остающихся при увеличении размера города
 PLACE_GOODS_AFTER_LEVEL_DOWN = float(0.75)  # процент товаров, возвращающихся при уменьшении размера города
 
-PLACE_KEEPERS_GOODS_SPENDING = float(0.05)  # доля трат даров хранителей за один час
-
 PLACE_GOODS_FROM_BEST_PERSON = int(PLACE_GOODS_BONUS / 2)
+
+PLACE_GOODS_FOR_BUILDING_SUPPORT = int(PLACE_GOODS_FROM_BEST_PERSON * 3.0 / 5)
+
+# если размер города равен 1 (минимальный) и производство отрицательное
+# то в городе вводят пошлину в размере "недостающее производство" * PLACE_TAX_PER_ONE_GOODS
+PLACE_TAX_PER_ONE_GOODS = float(0.1 / PLACE_GOODS_BONUS)
 
 # исходим из того, что в первую очередь надо балансировать вероятность нападения монстров как самый важный параметр
 PLACE_SAFETY_FROM_BEST_PERSON = float(0.025)
@@ -512,21 +516,6 @@ PERSON_SOCIAL_CONNECTIONS_POWER_BONUS = float(0.1)
 ###########################
 
 BUILDING_POSITION_RADIUS = int(2)
-
-# на починку зданий игроки тратят энергию
-# желательно, чтобы для единственного здания в городе эффект единичной траты энергии был заметен
-
-# единственное здание города  должно поддерживаться одним человеком без дополнительных усилий
-# поскольку ремонт производится картами, делаем срок жизни достаточно долгим, чтобы рандом не сильно влиял на возможность ремонта
-BUILDING_FULL_DESTRUCTION_TIME = int(2)  # в месяцах
-BUILDING_AMORTIZATION_SPEED = float(1.0 / (BUILDING_FULL_DESTRUCTION_TIME * 30 * 24))  # % в час
-
-_BUILDING_CARDS_IN_MONTH = int(2)  # делаем допущение, что в среднем игрок получает 2 базовых карты починки в месяц
-
-# базовое значение размера починки от карты
-BUILDING_CARD_REPAIR_BASE = float(1.0 / BUILDING_FULL_DESTRUCTION_TIME / _BUILDING_CARDS_IN_MONTH)
-
-BUILDING_AMORTIZATION_MODIFIER = float(1.5)  # цена ремонта здания зависит от количества зданий в городе и равно <цена>*BULDING_AMORTIZATION_MODIFIER^<количество зданий - 1>
 
 BUILDING_PERSON_POWER_BONUS = float(0.5)
 BUILDING_TERRAIN_POWER_MULTIPLIER = float(0.5)  # building terrain power is percent from city power

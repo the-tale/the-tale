@@ -134,10 +134,8 @@ async def has_items(owner_id, items_ids):
     return len(result) == len(items_ids)
 
 
-
 async def clean_database():
-    await db.sql('DELETE FROM log_records')
-    await db.sql('DELETE FROM items')
+    await db.sql('TRUNCATE log_records, items')
 
 
 OPERATIONS = {objects.OperationCreate: apply_create,

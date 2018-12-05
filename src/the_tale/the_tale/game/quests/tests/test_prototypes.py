@@ -671,7 +671,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_in(object=self.hero_fact, place=self.place_3_fact, result=False)
 
     def test_check_located_in__hero__road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.5)
+        self.hero.position.set_road(roads_logic.road_between_places(self.place_1, self.place_2), percents=0.5)
 
         self.check_located_in(object=self.hero_fact, place=self.place_1_fact, result=False)
         self.check_located_in(object=self.hero_fact, place=self.place_2_fact, result=False)
@@ -714,7 +714,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_near(object=self.hero_fact, place=self.place_3_fact, result=False)
 
     def test_check_located_near__hero__road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.25)
+        self.hero.position.set_road(roads_logic.road_between_places(self.place_1, self.place_2), percents=0.25)
 
         self.check_located_near(object=self.hero_fact, place=self.place_1_fact, result=True)
         self.check_located_near(object=self.hero_fact, place=self.place_2_fact, result=False)
@@ -770,7 +770,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=False)
 
     def test_check_located_on_road__hero__road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.25)
+        self.hero.position.set_road(roads_logic.road_between_places(self.place_1, self.place_2), percents=0.25)
 
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=True)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
@@ -1007,7 +1007,7 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
 
     def test_move_hero_to__from_road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.5)
+        self.hero.position.set_road(roads_logic.road_between_places(self.place_1, self.place_2), percents=0.5)
 
         self.quest._move_hero_to(self.place_3)
 
@@ -1045,7 +1045,7 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.assertFalse(self.hero.actions.current_action.back)
 
     def test_move_hero_near__from_road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.5)
+        self.hero.position.set_road(roads_logic.road_between_places(self.place_1, self.place_2), percents=0.5)
 
         self.quest._move_hero_near(self.place_3)
 
@@ -1083,7 +1083,7 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.assertTrue(self.hero.actions.current_action.back)
 
     def test_move_hero_on_road__from_road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.5)
+        self.hero.position.set_road(roads_logic.road_between_places(self.place_1, self.place_2), percents=0.5)
 
         self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
 

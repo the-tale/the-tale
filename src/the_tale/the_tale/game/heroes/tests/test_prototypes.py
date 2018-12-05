@@ -187,14 +187,6 @@ class HeroTest(utils_testcase.TestCase, personal_messages_helpers.Mixin):
             with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
                 self.assertFalse(self.hero.can_change_person_power(self.place_1))
 
-    def test_can_repair_building(self):
-        self.assertFalse(self.hero.can_repair_building)
-        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        self.assertTrue(self.hero.can_repair_building)
-
-        with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
-            self.assertFalse(self.hero.can_repair_building)
-
     def test_update_with_account_data(self):
         self.hero.is_fast = True
         self.hero.active_state_end_at = datetime.datetime.now() - datetime.timedelta(seconds=1)

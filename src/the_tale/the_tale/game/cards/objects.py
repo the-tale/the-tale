@@ -26,9 +26,13 @@ class Card(object):
                 'data': self.data}
 
     @classmethod
-    def deserialize(cls, uid, data, storage=relations.STORAGE.FAST):
+    def deserialize(cls, uid, data, storage=relations.STORAGE.FAST, cards=None):
+
+        if cards is None:
+            cards = types.CARD
+
         return cls(uid=uid,
-                   type=types.CARD(data['type']),
+                   type=cards(data['type']),
                    available_for_auction=data['auction'],
                    data=data.get('data'),
                    storage=storage)

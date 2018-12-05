@@ -67,6 +67,14 @@ message CancelSellLotResponse {
   repeated Lot lots = 1;
 }
 
+message CancelSellLotsByTypeRequest {
+  string item_type = 1;
+}
+
+
+message CancelSellLotsByTypeResponse {
+  repeated Lot lots = 1;
+}
 
 message ListSellLotsRequest {
   uint32 owner_id = 1;

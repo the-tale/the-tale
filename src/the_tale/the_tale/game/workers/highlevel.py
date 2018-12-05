@@ -125,12 +125,6 @@ class Worker(utils_workers.BaseWorker):
             places_storage.places.save_all()
             persons_storage.persons.save_all()
 
-            if sheduled:
-                for building in places_storage.buildings.all():
-                    building.amortize(c.MAP_SYNC_TIME)
-
-            places_storage.buildings.save_all()
-
         self.logger.info('sync data transaction completed')
 
         self.logger.info('after transaction operations number: {number}'.format(number=len(call_after_transaction)))

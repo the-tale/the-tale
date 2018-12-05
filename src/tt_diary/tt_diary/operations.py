@@ -1,8 +1,6 @@
 
 from psycopg2.extras import Json as PGJson
 
-import asyncio
-
 from tt_web import postgresql as db
 from tt_web import utils
 
@@ -62,9 +60,8 @@ async def save_diary(account_id, diary):
     TIMESTAMPS_CACHE[account_id] = result[0]['version']
 
 
-
 async def clean_diaries():
-    await db.sql('DELETE FROM diaries')
+    await db.sql('TRUNCATE diaries')
 
 
 async def count_diaries():

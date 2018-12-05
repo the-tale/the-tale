@@ -130,6 +130,42 @@ class CancelSellLotTests(helpers.BaseTests):
         self.assertEqual(len(result), 0)
 
 
+class CancelSellLotsByTypeTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_success(self):
+        lot = helpers.create_sell_lot()
+        request = await self.client.post('/place-sell-lot', data=market_pb2.PlaceSellLotRequest(lots=[protobuf.from_sell_lot(lot)]).SerializeToString())
+        data = await self.check_success(request, market_pb2.PlaceSellLotResponse)
+
+        request = await self.client.post('/cancel-sell-lots-by-type',
+                                         data=market_pb2.CancelSellLotsByTypeRequest(item_type=lot.item_type).SerializeToString())
+
+        data = await self.check_success(request, market_pb2.CancelSellLotsByTypeResponse)
+
+        self.assertEqual([protobuf.to_sell_lot(x) for x in data.lots], [lot])
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records')
+        self.assertEqual(len(result), 2)
+
+    @test_utils.unittest_run_loop
+    async def test_no_lot_to_cancel(self):
+        request = await self.client.post('/cancel-sell-lots-by-type',
+                                         data=market_pb2.CancelSellLotsByTypeRequest(item_type='wrong type').SerializeToString())
+
+        data = await self.check_success(request, market_pb2.CancelSellLotsByTypeResponse)
+        self.assertEqual(list(data.lots), [])
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records')
+        self.assertEqual(len(result), 0)
+
+
 class InfoTests(helpers.BaseTests):
 
     @test_utils.unittest_run_loop

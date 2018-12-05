@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='market.proto',
   package='market',
   syntax='proto3',
-  serialized_pb=_b('\n\x0cmarket.proto\x12\x06market\"J\n\x03Lot\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x0f\n\x07item_id\x18\x02 \x01(\t\x12\r\n\x05price\x18\x03 \x01(\r\x12\x10\n\x08owner_id\x18\x04 \x01(\r\"P\n\x07LotInfo\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x0f\n\x07item_id\x18\x02 \x01(\t\x12\r\n\x05price\x18\x03 \x01(\r\x12\x12\n\ncreated_at\x18\x04 \x01(\x01\"\x84\x01\n\x0fItemTypeSummary\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x13\n\x0bsell_number\x18\x02 \x01(\r\x12\x16\n\x0emin_sell_price\x18\x03 \x01(\r\x12\x16\n\x0emax_sell_price\x18\x04 \x01(\r\x12\x19\n\x11owner_sell_number\x18\x05 \x01(\r\"A\n\tLogRecord\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x12\n\ncreated_at\x18\x02 \x01(\x01\x12\r\n\x05price\x18\x03 \x01(\r\"0\n\x13PlaceSellLotRequest\x12\x19\n\x04lots\x18\x01 \x03(\x0b\x32\x0b.market.Lot\"(\n\x14PlaceSellLotResponse\x12\x10\n\x08lots_ids\x18\x01 \x03(\t\"Y\n\x13\x43loseSellLotRequest\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\r\n\x05price\x18\x02 \x01(\r\x12\x0e\n\x06number\x18\x03 \x01(\r\x12\x10\n\x08\x62uyer_id\x18\x04 \x01(\r\"1\n\x14\x43loseSellLotResponse\x12\x19\n\x04lots\x18\x01 \x03(\x0b\x32\x0b.market.Lot\"Z\n\x14\x43\x61ncelSellLotRequest\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\r\n\x05price\x18\x02 \x01(\r\x12\x0e\n\x06number\x18\x03 \x01(\r\x12\x10\n\x08owner_id\x18\x04 \x01(\r\"2\n\x15\x43\x61ncelSellLotResponse\x12\x19\n\x04lots\x18\x01 \x03(\x0b\x32\x0b.market.Lot\"\'\n\x13ListSellLotsRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\r\"5\n\x14ListSellLotsResponse\x12\x1d\n\x04lots\x18\x01 \x03(\x0b\x32\x0f.market.LotInfo\"*\n\x0bInfoRequest\x12\x12\n\x08owner_id\x18\x01 \x01(\rH\x00\x42\x07\n\x05owner\"5\n\x0cInfoResponse\x12%\n\x04info\x18\x01 \x03(\x0b\x32\x17.market.ItemTypeSummary\"G\n\x15ItemTypePricesRequest\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x12\n\x08owner_id\x18\x02 \x01(\rH\x00\x42\x07\n\x05owner\"\xfe\x01\n\x16ItemTypePricesResponse\x12:\n\x06prices\x18\x01 \x03(\x0b\x32*.market.ItemTypePricesResponse.PricesEntry\x12\x45\n\x0cowner_prices\x18\x02 \x03(\x0b\x32/.market.ItemTypePricesResponse.OwnerPricesEntry\x1a-\n\x0bPricesEntry\x12\x0b\n\x03key\x18\x01 \x01(\r\x12\r\n\x05value\x18\x02 \x01(\r:\x02\x38\x01\x1a\x32\n\x10OwnerPricesEntry\x12\x0b\n\x03key\x18\x01 \x01(\r\x12\r\n\x05value\x18\x02 \x01(\r:\x02\x38\x01\"7\n\x0eHistoryRequest\x12\x0c\n\x04page\x18\x01 \x01(\r\x12\x17\n\x0frecords_on_page\x18\x02 \x01(\r\"Z\n\x0fHistoryResponse\x12\x15\n\rtotal_records\x18\x01 \x01(\r\x12\x0c\n\x04page\x18\x02 \x01(\r\x12\"\n\x07records\x18\x03 \x03(\x0b\x32\x11.market.LogRecord\"9\n\x11StatisticsRequest\x12\x11\n\ttime_from\x18\x01 \x01(\x01\x12\x11\n\ttime_till\x18\x02 \x01(\x01\"Z\n\x12StatisticsResponse\x12\x18\n\x10sell_lots_placed\x18\x01 \x01(\r\x12\x18\n\x10sell_lots_closed\x18\x02 \x01(\r\x12\x10\n\x08turnover\x18\x03 \x01(\r\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
+  serialized_pb=_b('\n\x0cmarket.proto\x12\x06market\"J\n\x03Lot\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x0f\n\x07item_id\x18\x02 \x01(\t\x12\r\n\x05price\x18\x03 \x01(\r\x12\x10\n\x08owner_id\x18\x04 \x01(\r\"P\n\x07LotInfo\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x0f\n\x07item_id\x18\x02 \x01(\t\x12\r\n\x05price\x18\x03 \x01(\r\x12\x12\n\ncreated_at\x18\x04 \x01(\x01\"\x84\x01\n\x0fItemTypeSummary\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x13\n\x0bsell_number\x18\x02 \x01(\r\x12\x16\n\x0emin_sell_price\x18\x03 \x01(\r\x12\x16\n\x0emax_sell_price\x18\x04 \x01(\r\x12\x19\n\x11owner_sell_number\x18\x05 \x01(\r\"A\n\tLogRecord\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x12\n\ncreated_at\x18\x02 \x01(\x01\x12\r\n\x05price\x18\x03 \x01(\r\"0\n\x13PlaceSellLotRequest\x12\x19\n\x04lots\x18\x01 \x03(\x0b\x32\x0b.market.Lot\"(\n\x14PlaceSellLotResponse\x12\x10\n\x08lots_ids\x18\x01 \x03(\t\"Y\n\x13\x43loseSellLotRequest\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\r\n\x05price\x18\x02 \x01(\r\x12\x0e\n\x06number\x18\x03 \x01(\r\x12\x10\n\x08\x62uyer_id\x18\x04 \x01(\r\"1\n\x14\x43loseSellLotResponse\x12\x19\n\x04lots\x18\x01 \x03(\x0b\x32\x0b.market.Lot\"Z\n\x14\x43\x61ncelSellLotRequest\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\r\n\x05price\x18\x02 \x01(\r\x12\x0e\n\x06number\x18\x03 \x01(\r\x12\x10\n\x08owner_id\x18\x04 \x01(\r\"2\n\x15\x43\x61ncelSellLotResponse\x12\x19\n\x04lots\x18\x01 \x03(\x0b\x32\x0b.market.Lot\"0\n\x1b\x43\x61ncelSellLotsByTypeRequest\x12\x11\n\titem_type\x18\x01 \x01(\t\"9\n\x1c\x43\x61ncelSellLotsByTypeResponse\x12\x19\n\x04lots\x18\x01 \x03(\x0b\x32\x0b.market.Lot\"\'\n\x13ListSellLotsRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\r\"5\n\x14ListSellLotsResponse\x12\x1d\n\x04lots\x18\x01 \x03(\x0b\x32\x0f.market.LotInfo\"*\n\x0bInfoRequest\x12\x12\n\x08owner_id\x18\x01 \x01(\rH\x00\x42\x07\n\x05owner\"5\n\x0cInfoResponse\x12%\n\x04info\x18\x01 \x03(\x0b\x32\x17.market.ItemTypeSummary\"G\n\x15ItemTypePricesRequest\x12\x11\n\titem_type\x18\x01 \x01(\t\x12\x12\n\x08owner_id\x18\x02 \x01(\rH\x00\x42\x07\n\x05owner\"\xfe\x01\n\x16ItemTypePricesResponse\x12:\n\x06prices\x18\x01 \x03(\x0b\x32*.market.ItemTypePricesResponse.PricesEntry\x12\x45\n\x0cowner_prices\x18\x02 \x03(\x0b\x32/.market.ItemTypePricesResponse.OwnerPricesEntry\x1a-\n\x0bPricesEntry\x12\x0b\n\x03key\x18\x01 \x01(\r\x12\r\n\x05value\x18\x02 \x01(\r:\x02\x38\x01\x1a\x32\n\x10OwnerPricesEntry\x12\x0b\n\x03key\x18\x01 \x01(\r\x12\r\n\x05value\x18\x02 \x01(\r:\x02\x38\x01\"7\n\x0eHistoryRequest\x12\x0c\n\x04page\x18\x01 \x01(\r\x12\x17\n\x0frecords_on_page\x18\x02 \x01(\r\"Z\n\x0fHistoryResponse\x12\x15\n\rtotal_records\x18\x01 \x01(\r\x12\x0c\n\x04page\x18\x02 \x01(\r\x12\"\n\x07records\x18\x03 \x03(\x0b\x32\x11.market.LogRecord\"9\n\x11StatisticsRequest\x12\x11\n\ttime_from\x18\x01 \x01(\x01\x12\x11\n\ttime_till\x18\x02 \x01(\x01\"Z\n\x12StatisticsResponse\x12\x18\n\x10sell_lots_placed\x18\x01 \x01(\r\x12\x18\n\x10sell_lots_closed\x18\x02 \x01(\r\x12\x10\n\x08turnover\x18\x03 \x01(\r\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -462,6 +462,68 @@ _CANCELSELLLOTRESPONSE = _descriptor.Descriptor(
 )
 
 
+_CANCELSELLLOTSBYTYPEREQUEST = _descriptor.Descriptor(
+  name='CancelSellLotsByTypeRequest',
+  full_name='market.CancelSellLotsByTypeRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='item_type', full_name='market.CancelSellLotsByTypeRequest.item_type', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=762,
+  serialized_end=810,
+)
+
+
+_CANCELSELLLOTSBYTYPERESPONSE = _descriptor.Descriptor(
+  name='CancelSellLotsByTypeResponse',
+  full_name='market.CancelSellLotsByTypeResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='lots', full_name='market.CancelSellLotsByTypeResponse.lots', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=812,
+  serialized_end=869,
+)
+
+
 _LISTSELLLOTSREQUEST = _descriptor.Descriptor(
   name='ListSellLotsRequest',
   full_name='market.ListSellLotsRequest',
@@ -488,8 +550,8 @@ _LISTSELLLOTSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=762,
-  serialized_end=801,
+  serialized_start=871,
+  serialized_end=910,
 )
 
 
@@ -519,8 +581,8 @@ _LISTSELLLOTSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=803,
-  serialized_end=856,
+  serialized_start=912,
+  serialized_end=965,
 )
 
 
@@ -553,8 +615,8 @@ _INFOREQUEST = _descriptor.Descriptor(
       name='owner', full_name='market.InfoRequest.owner',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=858,
-  serialized_end=900,
+  serialized_start=967,
+  serialized_end=1009,
 )
 
 
@@ -584,8 +646,8 @@ _INFORESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=902,
-  serialized_end=955,
+  serialized_start=1011,
+  serialized_end=1064,
 )
 
 
@@ -625,8 +687,8 @@ _ITEMTYPEPRICESREQUEST = _descriptor.Descriptor(
       name='owner', full_name='market.ItemTypePricesRequest.owner',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=957,
-  serialized_end=1028,
+  serialized_start=1066,
+  serialized_end=1137,
 )
 
 
@@ -663,8 +725,8 @@ _ITEMTYPEPRICESRESPONSE_PRICESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1188,
-  serialized_end=1233,
+  serialized_start=1297,
+  serialized_end=1342,
 )
 
 _ITEMTYPEPRICESRESPONSE_OWNERPRICESENTRY = _descriptor.Descriptor(
@@ -700,8 +762,8 @@ _ITEMTYPEPRICESRESPONSE_OWNERPRICESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1235,
-  serialized_end=1285,
+  serialized_start=1344,
+  serialized_end=1394,
 )
 
 _ITEMTYPEPRICESRESPONSE = _descriptor.Descriptor(
@@ -737,8 +799,8 @@ _ITEMTYPEPRICESRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1031,
-  serialized_end=1285,
+  serialized_start=1140,
+  serialized_end=1394,
 )
 
 
@@ -775,8 +837,8 @@ _HISTORYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1287,
-  serialized_end=1342,
+  serialized_start=1396,
+  serialized_end=1451,
 )
 
 
@@ -820,8 +882,8 @@ _HISTORYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1344,
-  serialized_end=1434,
+  serialized_start=1453,
+  serialized_end=1543,
 )
 
 
@@ -858,8 +920,8 @@ _STATISTICSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1436,
-  serialized_end=1493,
+  serialized_start=1545,
+  serialized_end=1602,
 )
 
 
@@ -903,8 +965,8 @@ _STATISTICSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1495,
-  serialized_end=1585,
+  serialized_start=1604,
+  serialized_end=1694,
 )
 
 
@@ -927,8 +989,8 @@ _DEBUGCLEARSERVICEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1587,
-  serialized_end=1613,
+  serialized_start=1696,
+  serialized_end=1722,
 )
 
 
@@ -951,13 +1013,14 @@ _DEBUGCLEARSERVICERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1615,
-  serialized_end=1642,
+  serialized_start=1724,
+  serialized_end=1751,
 )
 
 _PLACESELLLOTREQUEST.fields_by_name['lots'].message_type = _LOT
 _CLOSESELLLOTRESPONSE.fields_by_name['lots'].message_type = _LOT
 _CANCELSELLLOTRESPONSE.fields_by_name['lots'].message_type = _LOT
+_CANCELSELLLOTSBYTYPERESPONSE.fields_by_name['lots'].message_type = _LOT
 _LISTSELLLOTSRESPONSE.fields_by_name['lots'].message_type = _LOTINFO
 _INFOREQUEST.oneofs_by_name['owner'].fields.append(
   _INFOREQUEST.fields_by_name['owner_id'])
@@ -981,6 +1044,8 @@ DESCRIPTOR.message_types_by_name['CloseSellLotRequest'] = _CLOSESELLLOTREQUEST
 DESCRIPTOR.message_types_by_name['CloseSellLotResponse'] = _CLOSESELLLOTRESPONSE
 DESCRIPTOR.message_types_by_name['CancelSellLotRequest'] = _CANCELSELLLOTREQUEST
 DESCRIPTOR.message_types_by_name['CancelSellLotResponse'] = _CANCELSELLLOTRESPONSE
+DESCRIPTOR.message_types_by_name['CancelSellLotsByTypeRequest'] = _CANCELSELLLOTSBYTYPEREQUEST
+DESCRIPTOR.message_types_by_name['CancelSellLotsByTypeResponse'] = _CANCELSELLLOTSBYTYPERESPONSE
 DESCRIPTOR.message_types_by_name['ListSellLotsRequest'] = _LISTSELLLOTSREQUEST
 DESCRIPTOR.message_types_by_name['ListSellLotsResponse'] = _LISTSELLLOTSRESPONSE
 DESCRIPTOR.message_types_by_name['InfoRequest'] = _INFOREQUEST
@@ -1063,6 +1128,20 @@ CancelSellLotResponse = _reflection.GeneratedProtocolMessageType('CancelSellLotR
   # @@protoc_insertion_point(class_scope:market.CancelSellLotResponse)
   ))
 _sym_db.RegisterMessage(CancelSellLotResponse)
+
+CancelSellLotsByTypeRequest = _reflection.GeneratedProtocolMessageType('CancelSellLotsByTypeRequest', (_message.Message,), dict(
+  DESCRIPTOR = _CANCELSELLLOTSBYTYPEREQUEST,
+  __module__ = 'market_pb2'
+  # @@protoc_insertion_point(class_scope:market.CancelSellLotsByTypeRequest)
+  ))
+_sym_db.RegisterMessage(CancelSellLotsByTypeRequest)
+
+CancelSellLotsByTypeResponse = _reflection.GeneratedProtocolMessageType('CancelSellLotsByTypeResponse', (_message.Message,), dict(
+  DESCRIPTOR = _CANCELSELLLOTSBYTYPERESPONSE,
+  __module__ = 'market_pb2'
+  # @@protoc_insertion_point(class_scope:market.CancelSellLotsByTypeResponse)
+  ))
+_sym_db.RegisterMessage(CancelSellLotsByTypeResponse)
 
 ListSellLotsRequest = _reflection.GeneratedProtocolMessageType('ListSellLotsRequest', (_message.Message,), dict(
   DESCRIPTOR = _LISTSELLLOTSREQUEST,

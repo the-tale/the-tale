@@ -252,6 +252,4 @@ async def _scale_impacts(execute, arguments):
 
 
 async def clean_database():
-    await db.sql('DELETE FROM targets_impacts')
-    await db.sql('DELETE FROM actors_impacts')
-    await db.sql('DELETE FROM impacts')
+    await db.sql('TRUNCATE targets_impacts, actors_impacts, impacts')

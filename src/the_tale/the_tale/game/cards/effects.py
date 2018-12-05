@@ -538,7 +538,8 @@ class KeepersGoods(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Создаёт в указанном городе %(goods)d «даров Хранителей». Город будет постепенно переводить их в продукцию, пока дары не кончатся.' % {'goods': self.modificator}
+        return 'Временно увеличивает производство в указанном городе на  %(goods)d. Бонус будет постепенно уменьшаться и исчезнет через %(days)s дней.' % {'goods': self.modificator,
+                         'days': c.NORMAL_JOB_LENGTH}
 
     def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
 
@@ -553,7 +554,15 @@ class KeepersGoods(ModificatorBase):
         elif task.step.is_HIGHLEVEL:
             place = places_storage.places[place_id]
 
-            place.attrs.keepers_goods += self.modificator
+            effect_delta = self.modificator * (1.0 / (24 * c.NORMAL_JOB_LENGTH))
+
+            account_nick = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).nick
+
+            place.effects.add(game_effects.Effect(name='Хранитель {}'.format(account_nick),
+                                                  attribute=places_relations.ATTRIBUTE.PRODUCTION,
+                                                  value=self.modificator,
+                                                  delta=effect_delta))
+
             place.refresh_attributes()
 
             places_logic.save_place(place)
@@ -596,35 +605,6 @@ class GiveStability(ModificatorBase):
             places_logic.save_place(place)
 
             places_storage.places.update_version()
-
-            return task.logic_result()
-
-
-class RepairBuilding(ModificatorBase):
-    __slots__ = ()
-
-    def get_form(self, card, hero, data):
-        return forms.Building(data)
-
-    @property
-    def DESCRIPTION(self):
-        return 'Ремонтирует указанное строение на {}%. Целостность может накапливаться больше 100%.'.format(self.modificator * 100)
-
-    def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
-        building_id = task.data.get('value')
-
-        if building_id not in places_storage.buildings:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Строение не найдено.')
-
-        if task.step.is_LOGIC:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.HIGHLEVEL)
-
-        elif task.step.is_HIGHLEVEL:
-            building = places_storage.buildings[building_id]
-
-            building.repair(self.modificator)
-
-            places_logic.save_building(building)
 
             return task.logic_result()
 

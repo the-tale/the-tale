@@ -147,5 +147,4 @@ async def fill_events_with_tags(events):
 
 
 async def clean_database():
-    await db.sql('DELETE FROM events_tags')
-    await db.sql('DELETE FROM events')
+    await db.sql('TRUNCATE events_tags, events')

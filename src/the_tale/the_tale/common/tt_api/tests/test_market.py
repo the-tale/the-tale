@@ -112,6 +112,13 @@ class TTAPiTests(utils_testcase.TestCase):
 
         self.assertEqual(lots, [])
 
+    def test_cancel_lots_by_type(self):
+        market_client.cmd_place_sell_lots(self.lots)
+
+        lots = market_client.cmd_cancel_lots_by_type(item_type=self.lots[0].full_type)
+
+        self.assertCountEqual(lots, [self.lots[0], self.lots[1]])
+
     def test_list_sell_lots__no_lots(self):
         market_client.cmd_place_sell_lots(self.lots)
 

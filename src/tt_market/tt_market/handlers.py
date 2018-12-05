@@ -41,6 +41,12 @@ async def cancel_sell_lot(message, **kwargs):
     return market_pb2.CancelSellLotResponse(lots=[protobuf.from_sell_lot(lot) for lot in lots])
 
 
+@handlers.api(market_pb2.CancelSellLotsByTypeRequest)
+async def cancel_sell_lots_by_type(message, **kwargs):
+    lots = await operations.cancel_sell_lots_by_type(item_type=message.item_type)
+    return market_pb2.CancelSellLotsByTypeResponse(lots=[protobuf.from_sell_lot(lot) for lot in lots])
+
+
 @handlers.api(market_pb2.ListSellLotsRequest)
 async def list_sell_lots(message, **kwargs):
     lots = await operations.load_sell_lots(owner_id=message.owner_id)

@@ -1346,7 +1346,6 @@ pgf.game.widgets.Abilities = function() {
     var angelEnergy = 0;
     var pvpWaiting = false;
     var canParticipateInPvp = true;
-    var canRepairBuilding = true;
 
     var canRestoreEnergy = false;
 
@@ -1464,11 +1463,6 @@ pgf.game.widgets.Abilities = function() {
         jQuery('.pgf-in-pvp-queue-message').toggleClass('pgf-hidden', !pvpWaiting);
 
         jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
-        jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable disabled', !canRepairBuilding);
-
-        if (jQuery('.pgf-ability-building_repair').data('building-workers') ==0) {
-            jQuery('.pgf-ability-building_repair').toggleClass('pgf-disable disabled', true);
-        }
     }
 
     function RenderDeck() {
@@ -1488,7 +1482,6 @@ pgf.game.widgets.Abilities = function() {
 
         pvpWaiting = game_data.account.in_pvp_queue;
         canParticipateInPvp = hero.permissions.can_participate_in_pvp;
-        canRepairBuilding = hero.permissions.can_repair_building;
 
         itemsInBag = false;
         for (var uuid in hero.bag) {

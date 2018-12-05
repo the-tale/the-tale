@@ -10,8 +10,8 @@ class GeneralTest(utils_testcase.TestCase):
         super(GeneralTest, self).setUp()
         self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
-        self.r1 = storage.roads.get_by_places(self.p1, self.p2)
-        self.r2 = storage.roads.get_by_places(self.p2, self.p3)
+        self.r1 = logic.road_between_places(self.p1, self.p2)
+        self.r2 = logic.road_between_places(self.p2, self.p3)
 
     def test_add_del_road(self):
 

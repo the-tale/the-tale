@@ -247,9 +247,12 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_GOODS_TO_LEVEL, 6000)
         self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_UP, 0.25)
         self.assertEqual(c.PLACE_GOODS_AFTER_LEVEL_DOWN, 0.75)
-        self.assertEqual(c.PLACE_KEEPERS_GOODS_SPENDING, 0.05)
 
         self.assertEqual(c.PLACE_GOODS_FROM_BEST_PERSON, 50)
+        self.assertEqual(c.PLACE_GOODS_FOR_BUILDING_SUPPORT, 30)
+
+        self.assertEqual(c.PLACE_TAX_PER_ONE_GOODS, 0.001)
+
         self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.025)
         self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.14815)
         self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.14815)
@@ -301,10 +304,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PERSON_SOCIAL_CONNECTIONS_POWER_BONUS, 0.1)
 
         self.assertEqual(c.BUILDING_POSITION_RADIUS, 2)
-        self.assertEqual(c.BUILDING_FULL_DESTRUCTION_TIME, 2)
-        self.assertEqual(round(c.BUILDING_AMORTIZATION_SPEED, 5), 0.00069)
-        self.assertEqual(c.BUILDING_CARD_REPAIR_BASE, 0.25)
-        self.assertEqual(c.BUILDING_AMORTIZATION_MODIFIER, 1.5)
+
         self.assertEqual(c.BUILDING_PERSON_POWER_BONUS, 0.5)
         self.assertEqual(c.BUILDING_TERRAIN_POWER_MULTIPLIER, 0.5)
 

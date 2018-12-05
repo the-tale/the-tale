@@ -60,6 +60,24 @@ class PermanentRelationsStorage(utils_permanent_storage.PermanentRelationsStorag
     VALUE_COLUMN = 'value'
 
 
+def create_lots(owner_id, cards, price):
+    lots = []
+
+    for card in cards:
+        lots.append(objects.Lot(owner_id=owner_id,
+                                full_type=card.item_full_type,
+                                item_id=card.uid,
+                                price=price))
+
+    cards_logic.change_owner(old_owner_id=owner_id,
+                             new_owner_id=accounts_logic.get_system_user_id(),
+                             operation_type='#create_sell_lots',
+                             new_storage=cards_relations.STORAGE.FAST,
+                             cards_ids=[card.uid for card in cards])
+
+    tt_services.market.cmd_place_sell_lots(lots)
+
+
 def close_lot(item_type, price, buyer_id):
     cards_info = cards_logic.get_cards_info_by_full_types()
 
@@ -81,6 +99,19 @@ def close_lot(item_type, price, buyer_id):
                                         price=price,
                                         item_type=item_type,
                                         transaction=transaction)
+
+
+def cancel_lots_by_type(item_type):
+    lots = tt_services.market.cmd_cancel_lots_by_type(item_type=item_type)
+
+    for lot in lots:
+        cards_logic.change_owner(old_owner_id=accounts_logic.get_system_user_id(),
+                                 new_owner_id=lot.owner_id,
+                                 operation_type='#cancel_sell_lots',
+                                 new_storage=cards_relations.STORAGE.FAST,
+                                 cards_ids=[lot.item_id])
+
+    return lots
 
 
 def get_commission(price):

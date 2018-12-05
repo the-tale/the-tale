@@ -503,7 +503,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                               'pvp_effectiveness_bonus': self.might_pvp_effectiveness_bonus,
                               'politics_power': self.politics_power_might},
                     'permissions': {'can_participate_in_pvp': self.can_participate_in_pvp,
-                                    'can_repair_building': self.can_repair_building},
+                                    'can_repair_building': False},  # deprecated, remove in future releases
                     'action': self.actions.current_action.ui_info(),
                     'companion': self.companion.ui_info() if self.companion else None,
                     'base': {'name': self.name,

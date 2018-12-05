@@ -150,20 +150,9 @@ def create_sell_lot(context):
         if context.price < relations.CARDS_MIN_PRICES[card.type.rarity]:
             raise dext_views.ViewError(code='too_small_price', message='Цена продажи меньше чем минимально разрешённая цена продажи как минимум одной карты')
 
-    lots = []
-    for card in context.cards:
-        lots.append(objects.Lot(owner_id=context.account.id,
-                                full_type=card.item_full_type,
-                                item_id=card.uid,
-                                price=context.price))
-
-    cards_logic.change_owner(old_owner_id=context.account.id,
-                             new_owner_id=accounts_logic.get_system_user_id(),
-                             operation_type='#create_sell_lots',
-                             new_storage=cards_relations.STORAGE.FAST,
-                             cards_ids=[card.uid for card in context.cards])
-
-    tt_services.market.cmd_place_sell_lots(lots)
+    logic.create_lots(owner_id=context.account.id,
+                      cards=context.cards,
+                      price=context.price)
 
     return dext_views.AjaxOk()
 

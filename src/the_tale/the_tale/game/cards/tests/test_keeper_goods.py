@@ -29,9 +29,15 @@ class KeepersGoodsMixin(helpers.CardsTestMixin):
 
     def test_use(self):
 
-        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(hero=self.hero, storage=self.storage, value=self.place_1.id))
+        self.place_1.attrs.size = 10
+        self.place_1.refresh_attributes()
 
-        self.assertEqual((result, step), (game_postponed_tasks.ComplexChangeTask.RESULT.CONTINUE, game_postponed_tasks.ComplexChangeTask.STEP.HIGHLEVEL))
+        result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(hero=self.hero,
+                                                                                    storage=self.storage,
+                                                                                    value=self.place_1.id))
+
+        self.assertEqual((result, step), (game_postponed_tasks.ComplexChangeTask.RESULT.CONTINUE,
+                                          game_postponed_tasks.ComplexChangeTask.STEP.HIGHLEVEL))
         self.assertEqual(len(postsave_actions), 1)
 
         with mock.patch('the_tale.game.workers.highlevel.Worker.cmd_logic_task') as highlevel_logic_task_counter:
@@ -39,18 +45,22 @@ class KeepersGoodsMixin(helpers.CardsTestMixin):
 
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
-        with self.check_delta(lambda: self.place_1.attrs.keepers_goods, self.CARD.effect.modificator):
+        with self.check_delta(lambda: self.place_1.attrs.production, self.CARD.effect.modificator):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(hero=self.hero,
                                                                                         step=step,
                                                                                         highlevel=self.highlevel,
                                                                                         value=self.place_1.id))
 
-        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+        self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED,
+                                                            game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS,
+                                                            ()))
 
     def test_use_for_wrong_place_id(self):
-        with self.check_not_changed(lambda: self.place_1.attrs.keepers_goods):
+        with self.check_not_changed(lambda: self.place_1.attrs.production):
             self.assertEqual(self.CARD.effect.use(**self.use_attributes(hero=self.hero, value=666, storage=self.storage)),
-                             (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
+                             (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED,
+                              game_postponed_tasks.ComplexChangeTask.STEP.ERROR,
+                              ()))
 
 
 class KeepersGoodsCommonTests(KeepersGoodsMixin, utils_testcase.TestCase):

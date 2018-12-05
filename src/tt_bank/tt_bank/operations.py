@@ -255,6 +255,4 @@ async def remove_old_transactions(timeout):
 
 
 async def clean_database():
-    await db.sql('DELETE FROM operations')
-    await db.sql('DELETE FROM transactions')
-    await db.sql('DELETE FROM accounts')
+    await db.sql('TRUNCATE operations, transactions, accounts')

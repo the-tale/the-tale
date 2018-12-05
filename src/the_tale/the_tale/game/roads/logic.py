@@ -70,3 +70,33 @@ def update_waymarks():  # pylint: disable=R0912
                                                              length=paths[i][j].length)
 
     storage.waymarks.update_version()
+
+
+def road_between_places(place_1, place_2):
+    for road in storage.roads.all():
+
+        if not road.exists:
+            continue
+
+        if (road.point_1_id == place_1.id and road.point_2_id == place_2.id or
+                road.point_1_id == place_2.id and road.point_2_id == place_1.id):
+            return road
+
+    return None
+
+
+def get_places_connected_to(place):
+    places_ids = set()
+
+    for road in storage.roads.all():
+        if not road.exists:
+            continue
+
+        if road.point_1_id == place.id:
+            places_ids.add(road.point_2_id)
+            continue
+
+        if road.point_2_id == place.id:
+            places_ids.add(road.point_1_id)
+
+    return (places_storage.places[place_id] for place_id in places_ids)

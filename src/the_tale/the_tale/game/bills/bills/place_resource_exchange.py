@@ -49,7 +49,7 @@ class BaseForm(forms.BaseUserForm):
         place_1 = places_storage.places.get(int(cleaned_data['place_1']))
         place_2 = places_storage.places.get(int(cleaned_data['place_2']))
 
-        if roads_storage.roads.get_by_places(place_1, place_2) is None:
+        if roads_logic.road_between_places(place_1, place_2) is None:
             raise django_forms.ValidationError('Обмениваться ресурсами могут только города связаные дорогой')
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_1)) or
@@ -147,7 +147,7 @@ class PlaceResourceExchange(base_bill.BaseBill):
         self.old_place_2_name_forms = self.place_2.utg_name
 
     def has_meaning(self):
-        if roads_storage.roads.get_by_places(self.place_1, self.place_2) is None:
+        if roads_logic.road_between_places(self.place_1, self.place_2) is None:
             return False
 
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(self.place_1)) or
