@@ -69,6 +69,15 @@ class FullAccountProcessor(dext_views.FlaggedAccessProcessor):
         return not argument.is_fast
 
 
+class PremiumAccountProcessor(dext_views.FlaggedAccessProcessor):
+    ERROR_CODE = 'common.premium_account'
+    ERROR_MESSAGE = 'Эта функциональность доступна только подписчикам'
+    ARGUMENT = 'account'
+
+    def validate(self, argument):
+        return argument.is_premium
+
+
 class BanGameProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_CODE = 'common.ban_game'
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'

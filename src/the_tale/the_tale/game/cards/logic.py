@@ -32,6 +32,13 @@ def transform_cards_url():
     return dext_urls.url('game:cards:api-combine', api_version=conf.settings.COMBINE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
+def change_receive_mode_url(mode):
+    return dext_urls.url('game:cards:api-change-receive-mode',
+                         api_version=conf.settings.CHANGE_RECEIVE_MODE_API_VERSION,
+                         api_client=django_settings.API_CLIENT,
+                         mode=mode.value)
+
+
 def create_card(allow_premium_cards, rarity=None, exclude=(), available_for_auction=False):
     cards_types = list(types.CARD.records)
 

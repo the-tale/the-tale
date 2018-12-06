@@ -323,7 +323,10 @@ class TakeCardCallbackTests(CardsRequestsTestsBase):
         self.check_cards_timer_speed(tt_cards_constants.NORMAL_PLAYER_SPEED)
 
         self.account.prolong_premium(30)
+        self.account.set_cards_receive_mode(relations.RECEIVE_MODE.ALL)
         self.account.save()
+
+        tt_services.storage.cmd_debug_clear_service()
 
         data = self.create_data(secret=django_settings.TT_SECRET)
         self.check_ajax_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data))
@@ -352,6 +355,78 @@ class TakeCardCallbackTests(CardsRequestsTestsBase):
         self.assertFalse(list(cards.values())[0].available_for_auction)
 
         self.check_cards_timer_speed(tt_cards_constants.NORMAL_PLAYER_SPEED)
+
+    def test_no_premium_cards_for_not_premium_player(self):
+
+        self.assertTrue(self.account.cards_receive_mode().is_PERSONAL_ONLY)
+
+        accounts_tt_services.players_timers.cmd_change_timer_speed(owner_id=self.account.id,
+                                                                   speed=tt_cards_constants.PREMIUM_PLAYER_SPEED,
+                                                                   type=accounts_relations.PLAYER_TIMERS_TYPES.CARDS_MINER)
+
+        self.check_cards_timer_speed(tt_cards_constants.PREMIUM_PLAYER_SPEED)
+
+        for i in range(100):
+            data = self.create_data(secret=django_settings.TT_SECRET)
+            self.check_ajax_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data))
+
+        cards = tt_services.storage.cmd_get_items(self.account.id)
+        self.assertEqual(len(cards), 100)
+
+        for card in cards.values():
+            self.assertFalse(card.available_for_auction)
+            self.assertTrue(card.type.availability.is_FOR_ALL)
+
+    def test_premium_cards_for_premium_player(self):
+
+        self.check_cards_timer_speed(tt_cards_constants.NORMAL_PLAYER_SPEED)
+
+        self.account.prolong_premium(30)
+        self.account.set_cards_receive_mode(relations.RECEIVE_MODE.ALL)
+        self.account.save()
+
+        tt_services.storage.cmd_debug_clear_service()
+
+        for i in range(100):
+            data = self.create_data(secret=django_settings.TT_SECRET)
+            self.check_ajax_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data))
+
+        card_types = set()
+
+        cards = tt_services.storage.cmd_get_items(self.account.id)
+        self.assertEqual(len(cards), 100)
+
+        for card in cards.values():
+            card_types.add(card.type.availability)
+
+        self.assertEqual(card_types,
+                         {relations.AVAILABILITY.FOR_ALL,
+                          relations.AVAILABILITY.FOR_PREMIUMS})
+
+    def test_only_not_premium_cards_for_premium_player(self):
+
+        self.check_cards_timer_speed(tt_cards_constants.NORMAL_PLAYER_SPEED)
+
+        self.account.prolong_premium(30)
+        self.account.set_cards_receive_mode(relations.RECEIVE_MODE.PERSONAL_ONLY)
+        self.account.save()
+
+        tt_services.storage.cmd_debug_clear_service()
+
+        for i in range(100):
+            data = self.create_data(secret=django_settings.TT_SECRET)
+            self.check_ajax_ok(self.post_ajax_binary(dext_urls.url('game:cards:tt-take-card-callback'), data))
+
+        card_types = set()
+
+        cards = tt_services.storage.cmd_get_items(self.account.id)
+        self.assertEqual(len(cards), 100)
+
+        for card in cards.values():
+            card_types.add(card.type.availability)
+
+        self.assertEqual(card_types,
+                         {relations.AVAILABILITY.FOR_ALL})
 
 
 class GetCardsTests(CardsRequestsTestsBase):
@@ -421,3 +496,36 @@ class GetCardsTests(CardsRequestsTestsBase):
         self.assertEqual(len(data['cards']), 1)
 
         self.assertEqual(visible_card.uid.hex, data['cards'][0]['uid'])
+
+
+class ChangeReceiveModeRequestTests(CardsRequestsTestsBase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.url_personal_only = logic.change_receive_mode_url(relations.RECEIVE_MODE.PERSONAL_ONLY)
+        self.url_all = logic.change_receive_mode_url(relations.RECEIVE_MODE.ALL)
+
+    def test_unlogined(self):
+        self.check_ajax_error(self.post_ajax_json(self.url_all, {}), 'common.login_required')
+
+    def test_not_premium(self):
+        self.request_login(self.account.email)
+
+        self.check_ajax_error(self.post_ajax_json(self.url_all, {}), 'common.premium_account')
+
+    def test_success(self):
+        self.request_login(self.account.email)
+
+        self.account.prolong_premium(30)
+        self.account.save()
+
+        self.assertTrue(self.account.cards_receive_mode().is_ALL)
+
+        self.check_ajax_ok(self.post_ajax_json(self.url_personal_only))
+        self.account.reload()
+        self.assertTrue(self.account.cards_receive_mode().is_PERSONAL_ONLY)
+
+        self.check_ajax_ok(self.post_ajax_json(self.url_all))
+        self.account.reload()
+        self.assertTrue(self.account.cards_receive_mode().is_ALL)

@@ -69,7 +69,7 @@ jQuery(document).ready(function(e) {
             title="<ul style='text-align: left;'>
                    <li>Игроки получают карту каждые {{value('tt_logic.cards.constants', 'NORMAL_RECEIVE_TIME')}} часов.</li>
                    <li>Подписчики получают карту каждые {{(value('tt_logic.cards.constants', 'NORMAL_RECEIVE_TIME') / value('tt_logic.cards.constants', 'PREMIUM_PLAYER_SPEED'))|int}} часов.</li>
-                   <li>Подписчики могут получить особые типы карт, недоступные другим игрокам.</li>
+                   <li>Подписчики могут получать особые типы карт, влияющие на мир игр.</li>
                    <li>Карты, получаемые подписчиками, можно продавать на рынке.</li>
                    <li>Заработать дополнительные карты можно в разделе лингвистики. Автор каждой принятой в игру фразы получает случайную карту, которую можно продать на рынке.</li>
                    </ul>">
@@ -82,6 +82,33 @@ jQuery(document).ready(function(e) {
               </div>
             </div>
 
+        </li>
+
+        <li class="pgf-change-cards-receive-mode">
+          {% set current_cards_receive_mode = resource.account.cards_receive_mode() %}
+          {% set CARDS_RECEIVE_MODE = value('the_tale.game.cards.relations').RECEIVE_MODE %}
+            <a style="margin: 0.25em; height: 18px; font-weight: bold;"
+
+               class="pgf-forms-post-simple"
+               data-action-type="reload"
+               {% if current_cards_receive_mode.is_PERSONAL_ONLY %}
+               href="{{ value('the_tale.game.cards.logic').change_receive_mode_url(CARDS_RECEIVE_MODE.ALL) }}"
+               {% else %}
+               href="{{ value('the_tale.game.cards.logic').change_receive_mode_url(CARDS_RECEIVE_MODE.PERSONAL_ONLY) }}"
+               {% endif %}
+
+               rel="tooltip"
+               title="
+<p>Подписчики могут ограничить тип получаемых карт:</p>
+<ul style='text-align: left;'>
+<li>{{CARDS_RECEIVE_MODE.PERSONAL_ONLY.text}}</li>
+<li>{{CARDS_RECEIVE_MODE.ALL.text}}</li>
+</ul>
+<p>Смена типа влияет только на карты, создаваемые игрой после его изменения. То есть карты, которые вы можете получить прямо сейчас (если такие есть) уже созданы и их тип не изменится.</p>
+ ">
+              получать карты
+              <span class="pgf-cards-receive-mode-description">{{current_cards_receive_mode.text}}</span>
+            </a>
           </li>
 
           <li class="pgf-get-card-button pgf-hidden">

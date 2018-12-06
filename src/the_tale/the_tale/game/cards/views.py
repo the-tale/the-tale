@@ -304,7 +304,21 @@ def take_card_callback(context):
 
     logic.give_new_cards(account_id=account.id,
                          operation_type='give-card',
-                         allow_premium_cards=account.is_premium,
+                         allow_premium_cards=account.cards_receive_mode().is_ALL,
                          available_for_auction=account.is_premium)
 
+    return dext_views.AjaxOk()
+
+
+@accounts_views.LoginRequiredProcessor()
+@accounts_views.PremiumAccountProcessor(error_message='Изменить тип получаемых карт могут только подписчики.')
+@dext_views.RelationArgumentProcessor(relation=relations.RECEIVE_MODE,
+                                      error_message='неверный тип получения карт',
+                                      context_name='receive_mode',
+                                      get_name='mode')
+@utils_api.Processor(versions=(conf.settings.CHANGE_RECEIVE_MODE_API_VERSION, ))
+@resource('api', 'change-receive-mode', name='api-change-receive-mode', method='POST')
+def api_change_receive_mode(context):
+    context.account.set_cards_receive_mode(context.receive_mode)
+    context.account.save()
     return dext_views.AjaxOk()

@@ -72,6 +72,10 @@ class Account(django_auth_models.AbstractBaseUser, django_auth_models.Permission
 
     gender = rels_django.RelationIntegerField(relation=game_relations.GENDER, relation_column='value')
 
+    cards_receive_mode = rels_django.RelationIntegerField(relation=cards_relations.RECEIVE_MODE,
+                                                          relation_column='value',
+                                                          default=cards_relations.RECEIVE_MODE.ALL.value)
+
     last_news_remind_time = django_models.DateTimeField(auto_now_add=True)
 
     clan = django_models.ForeignKey('clans.Clan', null=True, default=None, related_name='+', on_delete=django_models.SET_NULL)
