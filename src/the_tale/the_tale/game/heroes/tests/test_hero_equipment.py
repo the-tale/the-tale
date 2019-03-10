@@ -121,8 +121,12 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
         self.assertTrue(unequipped is None)
         self.assertEqual(equipped, artifact)
 
+        self.assertFalse(self.hero.force_save_required)
+
         with mock.patch('the_tale.game.heroes.objects.Hero.reset_accessors_cache') as reset_accessors_cache:
             self.hero.change_equipment(slot, unequipped, equipped)
+
+        self.assertTrue(self.hero.force_save_required)
 
         self.assertEqual(reset_accessors_cache.call_count, 1)
 
