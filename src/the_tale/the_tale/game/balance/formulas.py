@@ -62,10 +62,12 @@ def expected_damage_to_mob_per_hit(lvl): return float(mob_hp_to_lvl(lvl) * c.DAM
 # а остальное по мере фантазии чисто для разнообразия
 
 
-def normal_loot_cost_at_lvl(lvl): return int(c.NORMAL_LOOT_COST * math.log(lvl, 1.3)) + 1
+def normal_loot_cost_at_lvl(lvl):
+    return int(c.NORMAL_LOOT_COST * math.log(lvl, 1.3)) + 1
 
 
-def medium_loot_cost_at_lvl(lvl): return sum(normal_loot_cost_at_lvl(i) for i in range(1, lvl + 1)) // lvl
+def medium_loot_cost_at_lvl(lvl):
+    return sum(normal_loot_cost_at_lvl(i) for i in range(1, lvl + 1)) // lvl
 
 # при рассчётах принимаем, что герой будет встречать мобов разных уровней с одинаковой вероятностью
 
@@ -75,10 +77,12 @@ def expected_gold_in_day(lvl):
     return int(1 + loot_cost // c.INCOME_LOOT_FRACTION)
 
 
-def artifacts_in_day(): return c.ARTIFACTS_LOOT_PER_DAY + c.EXPECTED_QUESTS_IN_DAY
+def artifacts_in_day():
+    return c.ARTIFACTS_LOOT_PER_DAY + c.EXPECTED_QUESTS_IN_DAY
 
 
-def sell_artifact_price(lvl): return 1 + int((expected_gold_in_day(lvl) * c.INCOME_ARTIFACTS_FRACTION) / artifacts_in_day())
+def sell_artifact_price(lvl):
+    return 1 + int((expected_gold_in_day(lvl) * c.INCOME_ARTIFACTS_FRACTION) / artifacts_in_day())
 
 
 def total_gold_at_lvl(lvl):
@@ -170,7 +174,7 @@ def path_to_turns(path_length):
 
 
 def experience_for_quest__real(max_path_length):
-    MAGIC_QUEST_MULTIPLIER = 0.7
+    MAGIC_QUEST_MULTIPLIER = 0.7 / 3
     return path_to_turns(max_path_length) / c.TURNS_IN_HOUR * c.EXP_PER_HOUR * MAGIC_QUEST_MULTIPLIER
 
 

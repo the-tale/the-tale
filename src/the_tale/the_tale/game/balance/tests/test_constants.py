@@ -38,7 +38,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.EXP_FOR_PREMIUM_ACCOUNT, 1.0)
         self.assertEqual(c.EXP_FOR_NORMAL_ACCOUNT, 0.66)
 
-        self.assertEqual(c.HERO_MOVE_SPEED, 0.3)
+        self.assertEqual(c.HERO_MOVE_SPEED, 0.1)
         self.assertEqual(c.BATTLE_LENGTH, 16)
         self.assertEqual(c.INTERVAL_BETWEEN_BATTLES, 3)
         self.assertEqual(c.BATTLES_BEFORE_HEAL, 8)
@@ -111,14 +111,14 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.ANGEL_HELP_HEAL_IF_LOWER_THEN, float(0.8))
 
         self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION, (float(0.25), float(0.5)))
-        self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(3.0))
+        self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(1.0))
         self.assertEqual(c.ANGEL_HELP_LIGHTING_FRACTION, (float(0.25), float(0.5)))
         self.assertEqual(c.ANGEL_HELP_EXPERIENCE, 20)
 
         self.assertEqual(c.ANGEL_HELP_EXPERIENCE_DELTA, 0.5)
 
         self.assertEqual(c.ANGEL_HELP_CRIT_HEAL_FRACTION, (float(0.5), float(0.75)))
-        self.assertEqual(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, float(9.0))
+        self.assertEqual(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, float(3.0))
         self.assertEqual(c.ANGEL_HELP_CRIT_LIGHTING_FRACTION, (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER, int(10))
         self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_FRACTION, (0.75, 1.25))
@@ -128,13 +128,34 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.INITIAL_ENERGY_AMOUNT, 100)
 
-        self.assertEqual(c.MAP_CELL_LENGTH, 3.0)
-        self.assertEqual(c.QUEST_AREA_RADIUS, 180)
-        self.assertEqual(c.QUEST_AREA_SHORT_RADIUS, 90)
-        self.assertEqual(c.QUEST_AREA_MAXIMUM_RADIUS, 3000000)
+        self.assertEqual(c.QUEST_AREA_RADIUS, 60)
+        self.assertEqual(c.QUEST_AREA_SHORT_RADIUS, 30)
+        self.assertEqual(c.QUEST_AREA_MAXIMUM_RADIUS, 1000000)
 
         self.assertEqual(c.MAP_SYNC_TIME_HOURS, 1)
         self.assertEqual(c.MAP_SYNC_TIME, 360)
+
+        self.assertEqual(c.CELL_SAFETY_MIN, 0.05)
+        self.assertEqual(c.CELL_SAFETY_DELTA, 0.01)
+        self.assertEqual(c.CELL_SAFETY_TREES, -0.02)
+        self.assertEqual(c.CELL_SAFETY_HILLS, -0.01)
+        self.assertEqual(c.CELL_SAFETY_MOUNTAINS, 0.02)
+        self.assertEqual(c.CELL_SAFETY_NO_PATRULES, -0.5)
+
+        self.assertEqual(round(c.CELL_TRANSPORT_MIN, 5), 0.25)
+        self.assertEqual(round(c.CELL_TRANSPORT_DELTA, 5), 0.05)
+        self.assertEqual(round(c.CELL_TRANSPORT_TREES, 5), -0.05)
+        self.assertEqual(round(c.CELL_TRANSPORT_HILLS, 5), -0.1)
+        self.assertEqual(round(c.CELL_TRANSPORT_MOUNTAINS, 5), -0.2)
+        self.assertEqual(round(c.CELL_TRANSPORT_MAGIC, 5), -0.05)
+        self.assertEqual(round(c.CELL_TRANSPORT_HAS_MAIN_ROAD, 5), 0.5)
+        self.assertEqual(round(c.CELL_TRANSPORT_HAS_OFF_ROAD, 5), 0.25)
+        self.assertEqual(round(c.CELL_TRANSPORT_BASE, 5), 0.5)
+
+        self.assertEqual(c.PATH_MINIMAL_LENGTH, 1.0)
+
+        self.assertEqual(c.PATH_MODIFIER_MINOR_DELTA, 3.0)
+        self.assertEqual(c.PATH_MODIFIER_NORMAL_DELTA, 9.0)
 
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
@@ -177,9 +198,9 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER, 1.5)
 
         self.assertEqual(c.KILL_BEFORE_BATTLE_PROBABILITY, 0.05)
-        self.assertEqual(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, 3.0)
-        self.assertEqual(round(c.PICKED_UP_IN_ROAD_SPEED_BONUS, 5), 0.07018)
-        self.assertEqual(round(c.PICKED_UP_IN_ROAD_PROBABILITY, 5), 0.02339)
+        self.assertEqual(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, 1.0)
+        self.assertEqual(round(c.PICKED_UP_IN_ROAD_SPEED_BONUS, 5), 0.0625)
+        self.assertEqual(round(c.PICKED_UP_IN_ROAD_PROBABILITY, 5), 0.0625)
 
         self.assertEqual(c.HABIT_QUEST_PRIORITY_MODIFIER, 1)
 
@@ -220,8 +241,6 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_MIN_PERSONS, 2)
         self.assertEqual(c.PLACE_MAX_PERSONS, 6)
 
-        self.assertEqual(c.PLACE_MIN_SAFETY, 0.05)
-        self.assertEqual(c.PLACE_MIN_TRANSPORT, 0.1)
         self.assertEqual(c.PLACE_MIN_STABILITY, 0)
         self.assertEqual(c.PLACE_MIN_CULTURE, 0.2)
         self.assertEqual(c.PLACE_MIN_FREEDOM, 0.1)
@@ -239,6 +258,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_POWER_REDUCE_FRACTION, 0.9954417990588478)
 
         self.assertEqual(c.PLACE_FAME_REDUCE_FRACTION, 0.9954417990588478)
+        self.assertEqual(c.PLACE_MONEY_REDUCE_FRACTION, 0.9954417990588478)
 
         self.assertEqual(c.PLACE_TYPE_NECESSARY_BORDER, 75)
         self.assertEqual(c.PLACE_TYPE_ENOUGH_BORDER, 50)
@@ -251,11 +271,14 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_GOODS_FROM_BEST_PERSON, 50)
         self.assertEqual(c.PLACE_GOODS_FOR_BUILDING_SUPPORT, 30)
 
+        self.assertEqual(c.PLACE_AVERAGE_TOTAL_ROADS_PRICE, 150)
+        self.assertEqual(c.CELL_STABILIZATION_PRICE, 16)
+
         self.assertEqual(c.PLACE_TAX_PER_ONE_GOODS, 0.001)
 
         self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.025)
-        self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.14815)
-        self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.14815)
+        self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.125)
+        self.assertEqual(round(c.PLACE_FREEDOM_FROM_BEST_PERSON, 5), 0.125)
         self.assertEqual(round(c.PLACE_CULTURE_FROM_BEST_PERSON, 5), 0.15)
 
         self.assertEqual(c.PLACE_RACE_CHANGE_DELTA_IN_DAY, 0.1)
@@ -263,15 +286,15 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.PLACE_STABILITY_UNIT, 0.1)
 
-        self.assertEqual(round(c.PLACE_STABILITY_FROM_BEST_PERSON, 5), 0.04839)
+        self.assertEqual(c.PLACE_STABILITY_FROM_BEST_PERSON, 0.06)
 
         self.assertEqual(round(c.PLACE_STABILITY_RECOVER_SPEED, 4), 0.0006)
 
         self.assertEqual(c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY, -200)
-        self.assertEqual(c.PLACE_STABILITY_MAX_SAFETY_PENALTY, -0.25)
-        self.assertEqual(round(c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY, 2), -0.67)
-        self.assertEqual(round(c.PLACE_STABILITY_MAX_FREEDOM_PENALTY, 2), 0.67)
-        self.assertEqual(round(c.PLACE_STABILITY_MAX_CULTURE_PENALTY, 2), -1.0)
+        self.assertEqual(c.PLACE_STABILITY_MAX_SAFETY_PENALTY, -0.15)
+        self.assertEqual(c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY, -0.75)
+        self.assertEqual(c.PLACE_STABILITY_MAX_FREEDOM_PENALTY, 0.75)
+        self.assertEqual(c.PLACE_STABILITY_MAX_CULTURE_PENALTY, -1.0)
 
         self.assertEqual(c.PLACE_STABILITY_PENALTY_FOR_MASTER, -0.15)
         self.assertEqual(c.PLACE_STABILITY_PENALTY_FOR_RACES, -0.5)
@@ -287,11 +310,13 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_JOB_EFFECT_FRACTION, 0.2)
 
         self.assertEqual(c.JOB_PRODUCTION_BONUS, 20)
-        self.assertEqual(round(c.JOB_SAFETY_BONUS, 5), 0.005)
-        self.assertEqual(round(c.JOB_TRANSPORT_BONUS, 5), 0.02963)
-        self.assertEqual(round(c.JOB_FREEDOM_BONUS, 5), 0.02963)
-        self.assertEqual(round(c.JOB_STABILITY_BONUS, 5), 0.02)
-        self.assertEqual(round(c.JOB_CULTURE_BONUS, 5), 0.03)
+        self.assertAlmostEqual(c.JOB_SAFETY_BONUS, 0.005)
+        self.assertEqual(c.JOB_TRANSPORT_BONUS, 0.025)
+        self.assertEqual(c.JOB_FREEDOM_BONUS, 0.025)
+        self.assertAlmostEqual(c.JOB_STABILITY_BONUS, 0.02)
+        self.assertEqual(c.JOB_CULTURE_BONUS, 0.03)
+
+        self.assertEqual(c.RESOURCE_EXCHANGE_COST_PER_CELL, 2)
 
         self.assertEqual(c.PERSON_MOVE_DELAY_IN_WEEKS, 2)
         self.assertEqual(c.PERSON_MOVE_DELAY, 120960)
@@ -394,3 +419,8 @@ class ConstantsTest(utils_testcase.TestCase):
 
         energy_to_heal_in_day = health_in_day / c.COMPANIONS_HEAL_AMOUNT * c.ANGEL_HELP_COST
         self.assertEqual(round(energy_to_heal_in_day / energy_in_day, 5), 0.23148)
+
+    def test_cell_transport_terrain_balance(self):
+        self.assertTrue(abs(c.CELL_TRANSPORT_TREES) < abs(c.CELL_TRANSPORT_HILLS))
+        self.assertTrue(abs(c.CELL_TRANSPORT_HILLS + c.CELL_TRANSPORT_TREES) < abs(c.CELL_TRANSPORT_MOUNTAINS))
+        self.assertTrue(abs(c.CELL_TRANSPORT_MIN) + abs(c.CELL_TRANSPORT_MOUNTAINS + c.CELL_TRANSPORT_MAGIC) <= abs(c.CELL_TRANSPORT_BASE))

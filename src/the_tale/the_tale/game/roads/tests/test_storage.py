@@ -4,10 +4,10 @@ import smart_imports
 smart_imports.all()
 
 
-class RoadsStorageTest(utils_testcase.TestCase):
+class RoadsStorageTests(utils_testcase.TestCase):
 
     def setUp(self):
-        super(RoadsStorageTest, self).setUp()
+        super().setUp()
         self.p1, self.p2, self.p3 = game_logic.create_test_map()
         self.storage = storage.RoadsStorage()
         self.storage.sync()

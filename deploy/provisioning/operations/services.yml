@@ -141,6 +141,17 @@
     collect_static: false
 
 
+- name: install TT money spendings
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT money spendings
+    user: tt_money_spendings
+    packages: "{{tt_services['tt_money_spendings']['packages']}}"
+    django_settings: tt_impacts.settings
+    port: 10013
+    collect_static: false
+
+
 - name: install services cron files
   import_playbook: ../tasks/tt_cron.yml
 

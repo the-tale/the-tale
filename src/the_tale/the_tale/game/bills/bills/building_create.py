@@ -52,7 +52,8 @@ class BuildingCreate(base_person_bill.BasePersonBill):
         self.y = y
 
     @property
-    def base_name(self): return self.building_name_forms.normal_form()
+    def base_name(self):
+        return self.building_name_forms.normal_form()
 
     def has_meaning(self):
         return (self.person and

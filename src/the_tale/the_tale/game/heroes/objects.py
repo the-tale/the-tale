@@ -250,6 +250,9 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
     def change_money(self, source, value):
         value = int(round(value))
+
+        logic.register_spending(self, value)
+
         self.statistics.change_money(source, abs(value))
         self.money += value
 

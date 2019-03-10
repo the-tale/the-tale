@@ -185,7 +185,7 @@ class HeroTest(utils_testcase.TestCase, personal_messages_helpers.Mixin):
 
         with mock.patch('the_tale.game.places.objects.Place.depends_from_all_heroes', True):
             with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
-                self.assertFalse(self.hero.can_change_person_power(self.place_1))
+                self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
 
     def test_update_with_account_data(self):
         self.hero.is_fast = True
@@ -808,7 +808,7 @@ class HeroQuestsTest(utils_testcase.TestCase):
         self.hero.position.set_place(self.place)
         self.assertFalse(quests_relations.QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.position.set_coordinates(0, 0, 0, 0, 0)
+        self.hero.position.set_position(0, 0)
         self.assertTrue(quests_relations.QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__friend(self):
@@ -818,7 +818,7 @@ class HeroQuestsTest(utils_testcase.TestCase):
         self.hero.position.set_place(self.place)
         self.assertFalse(quests_relations.QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.position.set_coordinates(0, 0, 0, 0, 0)
+        self.hero.position.set_position(0, 0)
         self.assertTrue(quests_relations.QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__enemy(self):
@@ -828,7 +828,7 @@ class HeroQuestsTest(utils_testcase.TestCase):
         self.hero.position.set_place(self.place)
         self.assertFalse(quests_relations.QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.position.set_coordinates(0, 0, 0, 0, 0)
+        self.hero.position.set_position(0, 0)
         self.assertTrue(quests_relations.QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__hunt(self):
@@ -857,7 +857,7 @@ class HeroQuestsTest(utils_testcase.TestCase):
         self.hero.position.set_place(self.place)
         self.assertFalse(quests_relations.QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.position.set_coordinates(0, 0, 0, 0, 0)
+        self.hero.position.set_position(0, 0)
         self.assertTrue(quests_relations.QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_get_minimum_created_time_of_active_quests(self):
@@ -1192,3 +1192,10 @@ class HeroUiInfoTest(utils_testcase.TestCase):
         self.assertFalse(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.settings.UI_CACHING_TIME - conf.settings.UI_CACHING_CONTINUE_TIME - 1)))
         self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.settings.UI_CACHING_TIME - conf.settings.UI_CACHING_CONTINUE_TIME + 1)))
         self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - conf.settings.UI_CACHING_TIME))
+
+    def test_register_spenging_on_money_change(self):
+
+        with mock.patch('the_tale.game.heroes.logic.register_spending') as register_spending:
+            self.hero.change_money(relations.MONEY_SOURCE.random(), 100500)
+
+        self.assertEqual(register_spending.call_count, 1)

@@ -141,3 +141,7 @@ def days_range(date_from, date_to):
 
 def absolutize_urls(text):
     return text.replace('href="/', 'href="https://%s/' % django_settings.SITE_URL).replace('href=\'/', 'href=\'https://%s/' % django_settings.SITE_URL)
+
+
+def distribute_values_on_interval(number, min, max):
+    return [int((max - min) * float(i) / number) + min for i in range(1, number+1)]

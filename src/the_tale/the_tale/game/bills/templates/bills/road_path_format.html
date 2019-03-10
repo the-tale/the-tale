@@ -1,0 +1,17 @@
+
+<div class="alert alert-info">
+<p>
+  Путь описывается строкой с направлениями движения по клеткам из начальной клетки в конечную (не включая).
+</p>
+
+<p>
+  Направления:
+</p>
+
+<ul>
+  {% for direction in value('the_tale.game.roads.relations').PATH_DIRECTION.records %}
+  <li>{{direction.value}} — {{direction.text}}</li>
+  {% endfor %}
+</ul>
+
+</div>

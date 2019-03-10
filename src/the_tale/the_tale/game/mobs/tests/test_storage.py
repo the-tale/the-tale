@@ -104,7 +104,7 @@ class MobsStorageTests(utils_testcase.TestCase):
     def test_get_random_mob__terrain(self):
         terrain = map_relations.TERRAIN.random()
 
-        with mock.patch('the_tale.game.heroes.position.Position.get_terrain', lambda h: terrain):
+        with mock.patch.object(self.hero.position.cell(), 'terrain', terrain):
             mob = storage.mobs.get_random_mob(self.hero)
 
         self.assertEqual(mob.terrain, terrain)

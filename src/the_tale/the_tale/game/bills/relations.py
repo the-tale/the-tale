@@ -33,7 +33,10 @@ class BILL_TYPE(rels_django.DjangoEnum):
                ('PERSON_MOVE', 12, 'переезд Мастера', 2.0 * c.PLACE_STABILITY_UNIT, True),
                ('PLACE_CHANGE_RACE', 13, 'изменить расу города', 0.4 * c.PLACE_STABILITY_UNIT, True),
                ('PERSON_ADD_SOCIAL_CONNECTION', 14, 'добавить социальную связь', 0.6 * c.PLACE_STABILITY_UNIT, True),
-               ('PERSON_REMOVE_SOCIAL_CONNECTION', 15, 'удалить социальную связь', 0.6 * c.PLACE_STABILITY_UNIT, True))
+               ('PERSON_REMOVE_SOCIAL_CONNECTION', 15, 'удалить социальную связь', 0.6 * c.PLACE_STABILITY_UNIT, True),
+               ('ROAD_CREATE', 16, 'проложить дорогу', 3.0 * c.PLACE_STABILITY_UNIT, True),
+               ('ROAD_DESTROY', 17, 'разрушить дорогу', 4.0 * c.PLACE_STABILITY_UNIT, True),
+               ('ROAD_CHANGE', 18, 'изменить дорогу', 2.0 * c.PLACE_STABILITY_UNIT, True))
 
 
 class VOTE_TYPE(rels_django.DjangoEnum):

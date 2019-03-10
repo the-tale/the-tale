@@ -74,7 +74,7 @@ class Companion(object):
             restrictions.append(linguistics_restrictions.get(feature))
 
         if self._hero:
-            terrain = self._hero.position.get_terrain()
+            terrain = self._hero.position.cell().terrain
 
             restrictions.extend((linguistics_restrictions.get(self._hero.actions.current_action.ui_type),
                                  linguistics_restrictions.get(terrain),

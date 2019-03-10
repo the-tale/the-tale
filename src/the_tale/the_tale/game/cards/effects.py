@@ -539,7 +539,7 @@ class KeepersGoods(ModificatorBase):
     @property
     def DESCRIPTION(self):
         return 'Временно увеличивает производство в указанном городе на  %(goods)d. Бонус будет постепенно уменьшаться и исчезнет через %(days)s дней.' % {'goods': self.modificator,
-                         'days': c.NORMAL_JOB_LENGTH}
+                   'days': c.NORMAL_JOB_LENGTH}
 
     def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
 
@@ -777,7 +777,7 @@ class ShortTeleport(BaseEffect):
     DESCRIPTION = 'Телепортирует героя до ближайшего города либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
-        if not task.hero.actions.current_action.TYPE.is_MOVE_TO:
+        if not task.hero.actions.current_action.TYPE.is_MOVE_SIMPLE:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Герой не находится в движении.')
 
         if not task.hero.actions.current_action.teleport_to_place(create_inplace_action=True):
@@ -796,7 +796,7 @@ class LongTeleport(BaseEffect):
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
 
-        if not task.hero.actions.current_action.TYPE.is_MOVE_TO:
+        if not task.hero.actions.current_action.TYPE.is_MOVE_SIMPLE:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Герой не находится в движении.')
 
         if not task.hero.actions.current_action.teleport_to_end():

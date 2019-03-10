@@ -56,17 +56,6 @@ class Hero(django_models.Model):
 
     might = django_models.FloatField(null=False, default=0.0)
 
-    # position
-    pos_previous_place = django_models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=django_models.PROTECT)
-    pos_place = django_models.ForeignKey('places.Place', related_name='+', null=True, default=None, blank=True, on_delete=django_models.PROTECT)
-    pos_road = django_models.ForeignKey('roads.Road', related_name='+', null=True, default=None, blank=True, on_delete=django_models.PROTECT)
-    pos_percents = django_models.FloatField(null=True, default=None, blank=True)
-    pos_invert_direction = django_models.NullBooleanField(default=False, null=True, blank=True)
-    pos_from_x = django_models.IntegerField(null=True, blank=True, default=None)
-    pos_from_y = django_models.IntegerField(null=True, blank=True, default=None)
-    pos_to_x = django_models.IntegerField(null=True, blank=True, default=None)
-    pos_to_y = django_models.IntegerField(null=True, blank=True, default=None)
-
     preferences = django_models.TextField(null=False, default='{}')
 
     habit_honor = django_models.FloatField(default=0)

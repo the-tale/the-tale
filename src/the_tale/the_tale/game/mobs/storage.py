@@ -60,7 +60,7 @@ class MobsStorage(utils_storage.CachedStorage):
         self.sync()
 
         mobs = self._get_mobs_choices(level=hero.level,
-                                      terrain=hero.position.get_terrain(),
+                                      terrain=hero.position.cell().terrain,
                                       mercenary=mercenary)
 
         if not mobs:
@@ -72,7 +72,7 @@ class MobsStorage(utils_storage.CachedStorage):
                            level=hero.level,
                            is_boss=is_boss,
                            action_type=hero.actions.current_action.ui_type,
-                           terrain=hero.position.get_terrain())
+                           terrain=hero.position.cell().terrain)
 
     def create_mob_for_hero(self, hero):
         return self.get_random_mob(hero)

@@ -761,7 +761,13 @@ class InPlaceActionCompanionBuyMealTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.heroes.objects.Hero.companion_money_for_food_multiplier', 1)
     @mock.patch('the_tale.game.heroes.objects.Hero.can_companion_eat', lambda hero: True)
     def test_buy_meal__from_moveto(self):
-        prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=self.place_3)
+        prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
+                                                    path=navigation_path.simple_path(self.hero.position.x,
+                                                                                     self.hero.position.y,
+                                                                                     self.place_3.x,
+                                                                                     self.place_3.y),
+                                                    destination=self.place_3,
+                                                    break_at=None)
 
         with self.check_decreased(lambda: self.hero.money), \
                 self.check_increased(lambda: self.hero.statistics.money_spend_for_companions):

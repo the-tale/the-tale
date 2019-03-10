@@ -7,7 +7,6 @@ smart_imports.all()
 @places_storage.places.postpone_version_update
 @places_storage.buildings.postpone_version_update
 @persons_storage.persons.postpone_version_update
-@roads_storage.waymarks.postpone_version_update
 @roads_storage.roads.postpone_version_update
 @mobs_storage.mobs.postpone_version_update
 @artifacts_storage.artifacts.postpone_version_update
@@ -33,15 +32,13 @@ def create_test_map():
                                         type=persons_relations.PERSON_TYPE.random(),
                                         utg_name=game_names.generator().get_test_name())
 
+    roads_logic.create_road(place_1=p1, place_2=p2, path='rdrd')
+    roads_logic.create_road(place_1=p2, place_2=p3, path='ll')
+
+    map_storage.cells.sync(force=True)
+
     for place in places_storage.places.all():
         place.refresh_attributes()
-
-    roads_prototypes.RoadPrototype.create(point_1=p1, point_2=p2).update()
-    roads_prototypes.RoadPrototype.create(point_1=p2, point_2=p3).update()
-
-    roads_logic.update_waymarks()
-
-    places_nearest_cells.update_nearest_cells()
 
     mob_1 = mobs_logic.create_random_mob_record('mob_1')
     mob_2 = mobs_logic.create_random_mob_record('mob_2')

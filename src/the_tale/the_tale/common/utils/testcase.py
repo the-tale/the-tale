@@ -16,7 +16,6 @@ def setUp(self):
     places_storage.buildings.clear()
     persons_storage.persons.clear()
     persons_storage.social_connections.clear()
-    roads_storage.waymarks.clear()
     roads_storage.roads.clear()
     mobs_storage.mobs.clear()
     companions_storage.companions.clear()

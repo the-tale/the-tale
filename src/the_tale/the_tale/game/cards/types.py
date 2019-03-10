@@ -31,9 +31,9 @@ class CARD(rels.Relation):
                ('ADD_BONUS_ENERGY_EPIC', 8, 'энергетический шторм', FOR_ALL, EPIC, effects.AddBonusEnergy(base=10, level=4), [reactors.Simple3()]),
                ('ADD_BONUS_ENERGY_LEGENDARY', 9, 'шквал Силы', FOR_ALL, LEGENDARY, effects.AddBonusEnergy(base=10, level=5), []),
 
-               ('ADD_GOLD_COMMON', 10, 'горсть монет', FOR_ALL, COMMON, effects.AddGold(base=1000, level=1), [reactors.Simple3()]),
-               ('ADD_GOLD_UNCOMMON', 11, 'увесистый кошель', FOR_ALL, UNCOMMON, effects.AddGold(base=1000, level=2), [reactors.Simple3()]),
-               ('ADD_GOLD_RARE', 12, 'сундучок на счастье', FOR_ALL, RARE, effects.AddGold(base=1000, level=3), [reactors.Simple3()]),
+               ('ADD_GOLD_COMMON', 10, 'горсть монет', FOR_PREMIUMS, COMMON, effects.AddGold(base=1000, level=1), [reactors.Simple3()]),
+               ('ADD_GOLD_UNCOMMON', 11, 'увесистый кошель', FOR_PREMIUMS, UNCOMMON, effects.AddGold(base=1000, level=2), [reactors.Simple3()]),
+               ('ADD_GOLD_RARE', 12, 'сундучок на счастье', FOR_PREMIUMS, RARE, effects.AddGold(base=1000, level=3), [reactors.Simple3()]),
 
                ('CHANGE_ABILITIES_CHOICES', 39, 'альтернатива', FOR_ALL, UNCOMMON, effects.ChangeAbilitiesChoices(), [reactors.Special3('RESET_ABILITIES')]),
 
@@ -137,8 +137,8 @@ class CARD(rels.Relation):
 
                ('CREATE_CLAN', 133, 'братство', FOR_ALL, RARE, effects.CreateClan(), []),
 
-               ('ADD_GOLD_EPIC', 136, 'клад', FOR_ALL, EPIC, effects.AddGold(base=1000, level=4), [reactors.Simple3()]),
-               ('ADD_GOLD_LEGENDARY', 137, 'фарт', FOR_ALL, LEGENDARY, effects.AddGold(base=1000, level=5), []),
+               ('ADD_GOLD_EPIC', 136, 'клад', FOR_PREMIUMS, EPIC, effects.AddGold(base=1000, level=4), [reactors.Simple3()]),
+               ('ADD_GOLD_LEGENDARY', 137, 'фарт', FOR_PREMIUMS, LEGENDARY, effects.AddGold(base=1000, level=5), []),
 
                ('FREEZE_COMPANION', 138, 'отгул', FOR_ALL, UNCOMMON, effects.FreezeCompanion(), []),
 

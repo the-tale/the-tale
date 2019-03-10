@@ -43,7 +43,8 @@ class MetaAction(object):
     def description_text_name(self):
         return '%s_description' % self.TEXTGEN_TYPE
 
-    def set_storage(self, storage): self.storage = storage
+    def set_storage(self, storage):
+        self.storage = storage
 
     def process(self):
         turn_number = game_turn.number()
@@ -54,6 +55,13 @@ class MetaAction(object):
 
     def _process(self):
         pass
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                all(getattr(self, name) == getattr(other, name) for name in self.__slots__))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class ArenaPvP1x1(MetaAction):
@@ -316,6 +324,11 @@ class ArenaPvP1x1(MetaAction):
 
         if self.state == self.STATE.BATTLE_RUNNING:
             self.process_battle_running()
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                super().__eq__(other) and
+                all(getattr(self, name) == getattr(other, name) for name in self.__slots__))
 
 
 ACTION_TYPES = {action_class.TYPE: action_class

@@ -109,23 +109,39 @@ class PlaceTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
-    @mock.patch('the_tale.game.places.objects.Place.nearest_cells', [(i, i) for i in range(100)])
+    @mock.patch('the_tale.game.map.storage.CellsStorage.place_area', lambda self, place_id: 100)
+    @mock.patch('the_tale.game.roads.objects.Road.get_stabilization_price_for', lambda self, place: 33)
     def test_refresh_attributes__production(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
-        self.p1.attrs.size = 1
+        self.p1.attrs.size = 3
         self.p1.attrs.power_economic = 6
+        self.p1.attrs.money_economic = 4
 
         self._create_test_exchanges()
 
+        self.p2.attrs.size = 3
+
+        map_storage.cells(self.p1.x, self.p1.y).magic = 2.0
+
         self.p1.refresh_attributes()
 
-        expected_production = (0.66 * self.p1.attrs.power_economic * c.PLACE_GOODS_BONUS +
-                               0.34 * 9 * c.PLACE_GOODS_BONUS +
-                               10 * len(self.p1.persons) -
-                               relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount +
-                               relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount)
+        place_1_2_distance = navigation_logic.manhattan_distance(self.p1.x, self.p1.y, self.p2.x, self.p2.y)
+        place_1_3_distance = navigation_logic.manhattan_distance(self.p1.x, self.p1.y, self.p3.x, self.p3.y)
 
-        self.assertTrue(-0.001 < self.p1.attrs.production - expected_production < 0.001)
+        expected_production = (0.33 * self.p1.attrs.power_economic * c.PLACE_GOODS_BONUS +
+                               0.33 * self.p1.attrs.money_economic * c.PLACE_GOODS_BONUS +
+                               0.34 * 9 * c.PLACE_GOODS_BONUS +
+                               10 * len(self.p1.persons) +
+                               - 3 * c.PLACE_GOODS_BONUS +  # place size support
+                               c.PLACE_GOODS_BONUS +  # craft center
+                               - relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount +
+                               relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount +
+                               - 2.0 * c.CELL_STABILIZATION_PRICE +  # place terrain support
+                               - 3 * c.RESOURCE_EXCHANGE_COST_PER_CELL * place_1_2_distance +
+                               - 3 * c.RESOURCE_EXCHANGE_COST_PER_CELL * place_1_3_distance +
+                               - 33)  # roads support
+
+        self.assertAlmostEqual(self.p1.attrs.production, expected_production)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
@@ -137,33 +153,12 @@ class PlaceTests(utils_testcase.TestCase):
 
         self.p1.refresh_attributes()
 
-        expected_safety = (1.0 - c.BATTLES_PER_TURN +
-                           0.03 * len(self.p1.persons) +
+        expected_safety = (0.03 * len(self.p1.persons) +
                            0.05 -
                            relations.RESOURCE_EXCHANGE_TYPE.SAFETY_SMALL.amount +
                            relations.RESOURCE_EXCHANGE_TYPE.SAFETY_LARGE.amount)
 
-        self.assertTrue(-0.001 < self.p1.attrs.safety - expected_safety < 0.001)
-
-    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
-    def test_refresh_attributes__safety__min_value(self):
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.SAFETY, value=-1000))
-
-        self._create_test_exchanges()
-
-        self.p1.refresh_attributes()
-
-        self.assertTrue(-0.001 < self.p1.attrs.safety - c.PLACE_MIN_SAFETY < 0.001)
-
-    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
-    def test_refresh_attributes__safety__max_value(self):
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.SAFETY, value=1000))
-
-        self._create_test_exchanges()
-
-        self.p1.refresh_attributes()
-
-        self.assertTrue(-0.001 < self.p1.attrs.safety - 1 < 0.001)
+        self.assertAlmostEqual(self.p1.attrs.safety, expected_safety)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
@@ -176,25 +171,14 @@ class PlaceTests(utils_testcase.TestCase):
 
         self.p1.refresh_attributes()
 
-        expected_transport = (1.0 +
-                              1000 +
+        expected_transport = (1000 +
                               100 * len(self.p1.persons) +
                               0.2 -
                               relations.RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL.amount +
                               relations.RESOURCE_EXCHANGE_TYPE.TRANSPORT_LARGE.amount -
                               c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.p1.attrs.size)
 
-        self.assertTrue(-0.001 < self.p1.attrs.transport - expected_transport < 0.001)
-
-    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
-    def test_refresh_attributes__transport__min_value(self):
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.TRANSPORT, value=-1000))
-
-        self._create_test_exchanges()
-
-        self.p1.refresh_attributes()
-
-        self.assertTrue(-0.001 < self.p1.attrs.transport - c.PLACE_MIN_TRANSPORT < 0.001)
+        self.assertAlmostEqual(self.p1.attrs.transport, expected_transport)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__culture__min_value(self):
@@ -416,6 +400,7 @@ class PlaceTests(utils_testcase.TestCase):
     def test_refresh_attributes__stability__parameters_descreased(self):
 
         self._create_test_exchanges()
+        self.p1.attrs.size = 5
         self.p1.refresh_attributes()
 
         self.p1.effects.add(game_effects.Effect(name='x', attribute=relations.ATTRIBUTE.STABILITY, value=-1.0))

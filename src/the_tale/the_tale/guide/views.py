@@ -253,3 +253,7 @@ class GuideResource(utils_resources.Resource):
     @dext_old_views.handler('game-resources')
     def game_resources(self):
         return self.template('guide/game_resources.html', {'section': 'game-resources'})
+
+    @dext_old_views.handler('movement')
+    def movement(self):
+        return self.template('guide/movement.html', {'section': 'movement'})

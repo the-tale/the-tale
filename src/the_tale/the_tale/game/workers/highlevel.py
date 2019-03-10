@@ -90,6 +90,7 @@ class Worker(utils_workers.BaseWorker):
                 try:
                     politic_power_logic.sync_power()
                     places_logic.sync_fame()
+                    places_logic.sync_money()
                 except tt_api_exceptions.TTAPIError:
                     raven_client.captureException()
                     self.logger.exception('Error while syncing powers')
@@ -103,15 +104,21 @@ class Worker(utils_workers.BaseWorker):
                 for place in places_storage.places.all():
                     call_after_transaction.extend(jobs_logic.update_job(place.job, place.id))
 
-                places_logic.sync_sizes([place for place in places_storage.places.all() if place.is_frontier],
-                                        hours=c.MAP_SYNC_TIME_HOURS,
-                                        max_economic=c.PLACE_MAX_FRONTIER_ECONOMIC)
+                frontier_places = [place for place in places_storage.places.all() if place.is_frontier]
+                core_places = [place for place in places_storage.places.all() if not place.is_frontier]
 
-                places_logic.sync_sizes([place for place in places_storage.places.all() if not place.is_frontier],
-                                        hours=c.MAP_SYNC_TIME_HOURS,
-                                        max_economic=c.PLACE_MAX_ECONOMIC)
+                places_logic.sync_power_economic(frontier_places,
+                                                 max_economic=c.PLACE_MAX_FRONTIER_ECONOMIC)
+                places_logic.sync_power_economic(core_places,
+                                                 max_economic=c.PLACE_MAX_ECONOMIC)
+
+                places_logic.sync_money_economic(frontier_places,
+                                                 max_economic=c.PLACE_MAX_FRONTIER_ECONOMIC)
+                places_logic.sync_money_economic(core_places,
+                                                 max_economic=c.PLACE_MAX_ECONOMIC)
 
                 for place in places_storage.places.all():
+                    place.attrs.sync_size(c.MAP_SYNC_TIME_HOURS)
                     place.effects_update_step()
                     place.sync_race()
                     place.sync_habits()

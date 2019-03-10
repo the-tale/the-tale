@@ -146,10 +146,17 @@ def fill_places_for_first_quest(kb, hero_info):
     best_distance = c.QUEST_AREA_MAXIMUM_RADIUS
     best_destination = None
 
+    hero_place = places_storage.places[hero_info.position_place_id]
+
     for place in places_storage.places.all():
         if place.id == hero_info.position_place_id:
             continue
-        path_length = roads_storage.waymarks.look_for_road(places_storage.places[hero_info.position_place_id], place).length
+
+        path_length = navigation_logic.manhattan_distance(hero_place.x,
+                                                          hero_place.y,
+                                                          place.x,
+                                                          place.y)
+
         if path_length < best_distance:
             best_distance = path_length
             best_destination = place
@@ -161,8 +168,13 @@ def fill_places_for_first_quest(kb, hero_info):
 def fill_places(kb, hero_info, max_distance):
     places = []
 
+    hero_place = places_storage.places[hero_info.position_place_id]
+
     for place in places_storage.places.all():
-        path_length = roads_storage.waymarks.look_for_road(places_storage.places[hero_info.position_place_id], place).length
+        path_length = navigation_logic.manhattan_distance(hero_place.x,
+                                                          hero_place.y,
+                                                          place.x,
+                                                          place.y)
 
         if path_length > max_distance:
             continue
@@ -175,7 +187,10 @@ def fill_places(kb, hero_info, max_distance):
 
     for base_distance, place in places:
         for chosen_place in chosen_places:
-            path_length = roads_storage.waymarks.look_for_road(chosen_place, place).length
+            path_length = navigation_logic.manhattan_distance(chosen_place.x,
+                                                              chosen_place.y,
+                                                              place.x,
+                                                              place.y)
 
             if path_length > max_distance:
                 break

@@ -93,6 +93,12 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
     companion_data = data.get('companion')
     companion = companions_objects.Companion.deserialize(companion_data) if companion_data else None
 
+    if 'position' not in data:
+        # TODO: remove after 0.3.29
+        hero_position = position.Position.create(places_logic.get_start_place_for_race(hero_model.race))
+    else:
+        hero_position = position.Position.deserialize(data['position'])
+
     return objects.Hero(id=hero_model.id,
                         account_id=hero_model.account_id,
                         health=hero_model.health,
@@ -102,7 +108,7 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         next_spending=hero_model.next_spending,
                         habit_honor=habits.Honor(raw_value=hero_model.habit_honor),
                         habit_peacefulness=habits.Peacefulness(raw_value=hero_model.habit_peacefulness),
-                        position=hero_position_from_model(hero_model),
+                        position=hero_position,
                         statistics=hero_statistics_from_model(hero_model),
                         preferences=preferences.HeroPreferences.deserialize(data=s11n.from_json(hero_model.preferences)),
                         actions=actions_container.ActionsContainer.deserialize(s11n.from_json(hero_model.actions)),
@@ -143,7 +149,8 @@ def save_hero(hero, new=False):
             'actual_bills': hero.actual_bills,
             'death_age': hero.death_age.value,
             'upbringing': hero.upbringing.value,
-            'first_death': hero.first_death.value}
+            'first_death': hero.first_death.value,
+            'position': hero.position.serialize()}
 
     arguments = dict(saved_at_turn=game_turn.number(),
                      saved_at=datetime.datetime.now(),
@@ -155,16 +162,6 @@ def save_hero(hero, new=False):
                      quest_created_time=hero.quests.min_quest_created_time,
                      preferences=s11n.to_json(hero.preferences.serialize()),
                      stat_politics_multiplier=hero.politics_power_multiplier() if hero.can_change_all_powers() else 0,
-
-                     pos_previous_place_id=hero.position.previous_place_id,
-                     pos_place_id=hero.position.place_id,
-                     pos_road_id=hero.position.road_id,
-                     pos_percents=hero.position.percents,
-                     pos_invert_direction=hero.position.invert_direction,
-                     pos_from_x=hero.position.from_x,
-                     pos_from_y=hero.position.from_y,
-                     pos_to_x=hero.position.to_x,
-                     pos_to_y=hero.position.to_y,
 
                      stat_pve_deaths=hero.statistics.pve_deaths,
                      stat_pve_kills=hero.statistics.pve_kills,
@@ -303,7 +300,7 @@ def create_hero(account_id, attributes):
 
     start_place = places_logic.get_start_place_for_race(attributes['race'])
 
-    hero_position = position.Position.create(place_id=start_place.id, road_id=None)
+    hero_position = position.Position.create(place=start_place)
 
     hero = objects.Hero(id=account_id,
                         account_id=account_id,
@@ -403,3 +400,54 @@ def validate_name(forms):
             return False, 'Имя героя может содержать только следующие символы: {}'.format(conf.settings.NAME_SYMBOLS_DESCRITION)
 
     return True, None
+
+
+def register_spending(hero, amount):
+    if hero.position.place_id is None:
+        return
+
+    if not hero.can_change_place_power(hero.position.place):
+        return
+
+    places_logic.register_money_transaction(hero_id=hero.id,
+                                            place_id=hero.position.place_id,
+                                            amount=abs(amount))
+
+
+def get_places_path_modifiers(hero):
+    modifiers = {}
+
+    for place in places_storage.places.all():
+        modifier = 0
+
+        if place.race == hero.race:
+            modifier -= c.PATH_MODIFIER_MINOR_DELTA
+
+        if place.is_modifier_active():
+            modifier -= c.PATH_MODIFIER_MINOR_DELTA
+
+        if hero.preferences.place and hero.preferences.place.id == place.id:
+            modifier -= c.PATH_MODIFIER_NORMAL_DELTA
+
+        if hero.preferences.friend and hero.preferences.friend.place_id == place.id:
+            modifier -= c.PATH_MODIFIER_NORMAL_DELTA
+
+        if hero.preferences.enemy and hero.preferences.enemy.place_id == place.id:
+            modifier += c.PATH_MODIFIER_NORMAL_DELTA
+
+        if place.attrs.tax > 0:
+            modifier += c.PATH_MODIFIER_NORMAL_DELTA
+
+        if (not place.habit_honor.interval.is_NEUTRAL and not hero.habit_honor.interval.is_NEUTRAL):
+            modifier -= (place.habit_honor.interval.direction *
+                         hero.habit_honor.interval.direction *
+                         c.PATH_MODIFIER_MINOR_DELTA)
+
+        if (not place.habit_peacefulness.interval.is_NEUTRAL and not hero.habit_peacefulness.interval.is_NEUTRAL):
+            modifier -= (place.habit_peacefulness.interval.direction *
+                         hero.habit_peacefulness.interval.direction *
+                         c.PATH_MODIFIER_MINOR_DELTA)
+
+        modifiers[place.id] = modifier
+
+    return modifiers

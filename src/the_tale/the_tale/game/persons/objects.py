@@ -90,10 +90,12 @@ class Person(game_names.ManageNameMixin2):
         return '%s — %s из %s' % (self.name, self.race.text, self.place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE)))
 
     @property
-    def has_building(self): return self.building is not None
+    def has_building(self):
+        return self.building is not None
 
     @property
-    def building(self): return places_storage.buildings.get_by_person_id(self.id)
+    def building(self):
+        return places_storage.buildings.get_by_person_id(self.id)
 
     @property
     def on_move_timeout(self):
@@ -219,9 +221,12 @@ class Person(game_names.ManageNameMixin2):
                                       value=self.attrs.stability_renewing_bonus)
 
         if self.has_building:
+            stabilization_cost = c.CELL_STABILIZATION_PRICE * map_storage.cells(self.building.x,
+                                                                                self.building.y).magic
+
             yield game_effects.Effect(name='{}: {}'.format(self.name, self.building.name),
                                       attribute=places_relations.ATTRIBUTE.PRODUCTION,
-                                      value=-self.attrs.building_support_cost)
+                                      value=-(self.attrs.building_support_cost + stabilization_cost))
 
     def refresh_attributes(self):
         self.attrs.reset()

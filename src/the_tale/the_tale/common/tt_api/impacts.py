@@ -105,7 +105,8 @@ class Client(client.Client):
         return [self.impact_class.from_tt_object(type=self.impact_type, tt_impact=impact) for impact in answer.impacts]
 
     def cmd_get_targets_impacts(self, targets):
-        data = tt_protocol_impacts_pb2.GetTargetsImpactsRequest(targets=[tt_protocol_impacts_pb2.Object(type=target_type.value, id=target_id)
+        data = tt_protocol_impacts_pb2.GetTargetsImpactsRequest(targets=[tt_protocol_impacts_pb2.Object(type=target_type.value,
+                                                                                                        id=target_id)
                                                                          for target_type, target_id in targets])
 
         answer = operations.sync_request(url=self.url('get-targets-impacts'),

@@ -282,7 +282,6 @@ pgf.game.map.Map = function(selector, params) {
 
                                    if (widgets.abilities) {
                                        widgets.abilities.UpdateButtons();
-                                       widgets.abilities.RenderAbility(pgf.game.constants.abilities.building_repair);
                                        jQuery('.angel-ability', dialog).toggleClass('pgf-hidden', false);
                                    }
 

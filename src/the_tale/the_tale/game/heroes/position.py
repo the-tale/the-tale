@@ -8,53 +8,48 @@ class Position(object):
     __slots__ = ('last_place_visited_turn',
                  'moved_out_place',
                  'place_id',
-                 'road_id',
                  'previous_place_id',
-                 'invert_direction',
-                 'percents',
-                 'from_x',
-                 'from_y',
-                 'to_x',
-                 'to_y')
+                 'x',
+                 'y',
+                 'cell_x',
+                 'cell_y',
+                 'dx',
+                 'dy')
 
     def __init__(self,
-                 last_place_visited_turn,
-                 moved_out_place,
-                 place_id,
-                 road_id,
-                 previous_place_id,
-                 invert_direction,
-                 percents,
-                 from_x,
-                 from_y,
-                 to_x,
-                 to_y):
+                 last_place_visited_turn=None,
+                 moved_out_place=False,
+                 place_id=None,
+                 previous_place_id=None,
+                 x=0,
+                 y=0,
+                 cell_x=None,
+                 cell_y=None,
+                 dx=0,
+                 dy=0):
         self.last_place_visited_turn = last_place_visited_turn
         self.moved_out_place = moved_out_place
         self.place_id = place_id
-        self.road_id = road_id
         self.previous_place_id = previous_place_id
 
-        self.invert_direction = invert_direction
-        self.percents = percents
-        self.from_x = from_x
-        self.from_y = from_y
-        self.to_x = to_x
-        self.to_y = to_y
+        self.x = x
+        self.y = y
+        self.cell_x = cell_x
+        self.cell_y = cell_y
+        self.dx = dx
+        self.dy = dy
 
     @classmethod
-    def create(cls, place_id, road_id):
-        return cls(last_place_visited_turn=game_turn.number(),
-                   moved_out_place=False,
-                   place_id=place_id,
-                   road_id=road_id,
-                   previous_place_id=None,
-                   invert_direction=False,
-                   percents=0,
-                   from_x=None,
-                   from_y=None,
-                   to_x=None,
-                   to_y=None)
+    def create(cls, place):
+        position = cls()
+
+        position.set_place(place)
+        position.move_in_place()
+
+        position.dx = 0
+        position.dy = 0
+
+        return position
 
     def move_out_place(self):
         self.moved_out_place = True
@@ -65,19 +60,21 @@ class Position(object):
 
     def get_description(self):
         from . import storage
+
         if self.place:
             return storage.position_descriptions.text_in_place(self.place_id)
 
-        if self.road:
-            place_from_id, place_to_id = self.road.point_1_id, self.road.point_2_id
-            if self.invert_direction:
-                place_from_id, place_to_id = place_to_id, place_from_id
+        cell = self.cell()
+
+        if cell.roads_ids:
+            road = roads_storage.roads[random.choice(cell.roads_ids)]
+
+            place_from_id, place_to_id = road.place_1_id, road.place_2_id
+
             return storage.position_descriptions.text_on_road(place_from_id, place_to_id)
 
-        dominant_place = self.get_dominant_place()
-
-        if dominant_place:
-            return storage.position_descriptions.text_near_place(dominant_place.id)
+        if cell.dominant_place_id is not None:
+            return storage.position_descriptions.text_near_place(cell.dominant_place_id)
 
         return storage.position_descriptions.text_in_wild_lands()
 
@@ -95,242 +92,74 @@ class Position(object):
     def update_previous_place(self):
         self.previous_place_id = self.place_id
 
-    def _reset_position(self):
-        self.place_id = None
-        self.road_id = None
-        self.invert_direction = None
-        self.percents = None
-        self.from_x = None
-        self.from_y = None
-        self.to_x = None
-        self.to_y = None
-
     def set_place(self, place):
-        self._reset_position()
+        self.set_position(place.x, place.y)
+
         self.place_id = place.id
 
-    @property
-    def road(self):
-        return roads_storage.roads.get(self.road_id)
+    def set_position(self, x, y):
+        self.dx = self.x - x
+        self.dy = self.y - y
 
-    def set_road(self, road, percents=0, invert=False):
-        self._reset_position()
+        self.x = x
+        self.y = y
 
-        self.road_id = road.id
-        self.invert_direction = invert
-        self.percents = percents
-
-        self.update_previous_place()
-
-    @property
-    def coordinates_from(self): return self.from_x, self.from_y
-
-    @property
-    def coordinates_to(self): return self.to_x, self.to_y
-
-    def subroad_len(self): return math.sqrt((self.from_x - self.to_x)**2 + (self.from_y - self.to_y)**2)
-
-    def set_coordinates(self, from_x, from_y, to_x, to_y, percents):
-        self._reset_position()
-
-        self.from_x = from_x
-        self.from_y = from_y
-        self.to_x = to_x
-        self.to_y = to_y
-        self.percents = percents
+        self.cell_x = int(round(self.x))
+        self.cell_y = int(round(self.y))
 
         self.update_previous_place()
 
-    @property
-    def is_walking(self):
-        return (self.from_x is not None and
-                self.from_y is not None and
-                self.to_x is not None and
-                self.to_y is not None)
+        self.place_id = None
 
-    @property
-    def cell_coordinates(self):
-        if self.place:
-            return self.get_cell_coordinates_in_place()
-        elif self.road:
-            return self.get_cell_coordinates_on_road()
-        else:
-            return self.get_cell_coordinates_near_place()
-
-    def get_cell_coordinates_in_place(self):
-        return self.place.x, self.place.y
-
-    def get_cell_coordinates_on_road(self):
-        point_1 = self.road.point_1
-        point_2 = self.road.point_2
-
-        percents = self.percents
-
-        if self.invert_direction:
-            percents = 1 - percents
-
-        x = point_1.x + (point_2.x - point_1.x) * percents
-        y = point_1.y + (point_2.y - point_1.y) * percents
-
-        return int(x), int(y)
-
-    def get_cell_coordinates_near_place(self):
-        from_x, from_y = self.coordinates_from
-        to_x, to_y = self.coordinates_to
-        percents = self.percents
-
-        x = from_x + (to_x - from_x) * percents
-        y = from_y + (to_y - from_y) * percents
-
-        return int(x), int(y)
-
-    def get_terrain(self):
+    def cell(self):
         from the_tale.game.map import storage as map_storage
+        return map_storage.cells(self.cell_x, self.cell_y)
 
-        map_info = map_storage.map_info.item
-        x, y = self.cell_coordinates
-        return map_info.terrain[y][x]
+    def is_near_cell_center(self, delta):
+        if delta < abs(self.cell_x - self.x):
+            return False
 
-    def get_dominant_place(self):
-        from the_tale.game.map import storage as map_storage
+        if delta < abs(self.cell_y - self.y):
+            return False
 
-        if self.place:
-            return self.place
-        else:
-            return map_storage.map_info.item.get_dominant_place(*self.cell_coordinates)
+        return True
 
-    def get_nearest_place(self):
-        from the_tale.game.places import storage as places_storage
+    def can_visit_current_place(self, delta):
+        if not self.is_near_cell_center(delta=delta):
+            return False
 
-        x, y = self.cell_coordinates
-        best_distance = 999999999999999
-        best_place = None
-        for place in places_storage.places.all():
-            distance = math.hypot(place.x - x, place.y - y)
-            if distance < best_distance:
-                best_distance = distance
-                best_place = place
+        return self.cell().place_id is not None
 
-        return best_place
-
-    def get_nearest_dominant_place(self):
-        place = self.get_dominant_place()
-        if place is None:
-            place = self.get_nearest_place()
-        return place
-
-    @classmethod
-    def raw_transport(cls):
-        return 1.0 - c.WHILD_TRANSPORT_PENALTY - c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * c.PLACE_MAX_SIZE
-
-    def get_minumum_distance_to(self, destination):
-
-        if self.place:
-            return roads_storage.waymarks.look_for_road(self.place, destination).length
-
-        if self.is_walking:
-            x = self.coordinates_from[0] + (self.coordinates_to[0] - self.coordinates_from[0]) * self.percents
-            y = self.coordinates_from[1] + (self.coordinates_to[1] - self.coordinates_from[1]) * self.percents
-            nearest_place = self.get_nearest_place()
-            return math.hypot(x - nearest_place.x, y - nearest_place.y) + roads_storage.waymarks.look_for_road(nearest_place, destination).length
-
-        # if on road
-        place_from = self.road.point_1
-        place_to = self.road.point_2
-
-        if self.invert_direction:
-            place_from, place_to = place_to, place_from
-
-        delta_from = self.road.length * self.percents
-        delta_to = self.road.length * (1 - self.percents)
-
-        return min(roads_storage.waymarks.look_for_road(place_from, destination).length + delta_from,
-                   roads_storage.waymarks.look_for_road(place_to, destination).length + delta_to)
-
-    def get_position_on_map(self):
-
-        if self.place:
-            return (self.place.x, self.place.y, 0, 0)
-
-        if self.road:
-            percents = self.percents
-            path = self.road.path
-
-            x = self.road.point_1.x
-            y = self.road.point_1.y
-
-            dx = self.road.point_1.x - self.road.point_2.x
-            dy = self.road.point_1.y - self.road.point_2.y
-
-            if self.invert_direction:
-                percents = 1 - percents
-                dx = -dx
-                dy = -dy
-
-            length = percents * len(path)
-            index = 0
-            character = None
-
-            for c in path:
-                character = c
-
-                index += 1
-
-                if index > length:
-                    break
-
-                if c == 'l':
-                    x -= 1
-                elif c == 'r':
-                    x += 1
-                elif c == 'u':
-                    y -= 1
-                elif c == 'd':
-                    y += 1
-
-            else:
-                index += 1
-
-            delta = length - (index - 1)
-
-            if character == 'l':
-                x -= delta
-            elif character == 'r':
-                x += delta
-            elif character == 'u':
-                y -= delta
-            elif character == 'd':
-                y += delta
-
-            return (x, y, dx, dy)
-
-        if self.is_walking:
-
-            to_x = self.coordinates_to[0]
-            to_y = self.coordinates_to[1]
-            from_x = self.coordinates_from[0]
-            from_y = self.coordinates_from[1]
-
-            x = from_x + (to_x - from_x) * self.percents
-            y = from_y + (to_y - from_y) * self.percents
-
-            return (x, y, from_x - to_x, from_y - to_y)
+    def should_visit_current_place(self, delta):
+        return (self.can_visit_current_place(delta=delta) and
+                self.previous_place_id != self.cell().place_id)
 
     ###########################################
     # Object operations
     ###########################################
 
     def ui_info(self):
-        x, y, dx, dy = self.get_position_on_map()
-        return {'x': x,
-                'y': y,
-                'dx': dx,
-                'dy': dy}
+        return {'x': self.x,
+                'y': self.y,
+                'dx': self.dx,
+                'dy': self.dy}
 
     def __eq__(self, other):
-        return (self.place_id == other.place_id and
-                self.road_id == other.road_id and
-                self.percents == other.percents and
-                self.invert_direction == other.invert_direction and
-                self.coordinates_from == other.coordinates_from and
-                self.coordinates_to == other.coordinates_to)
+        return (self.__class__ == other.__class__ and
+                all(getattr(self, name) == getattr(other, name) for name in self.__slots__))
+
+    def serialize(self):
+        return {'last_place_visited_turn': self.last_place_visited_turn,
+                'moved_out_place': self.moved_out_place,
+                'place_id': self.place_id,
+                'previous_place_id': self.previous_place_id,
+                'x': self.x,
+                'y': self.y,
+                'cell_x': self.cell_x,
+                'cell_y': self.cell_y,
+                'dx': self.dx,
+                'dy': self.dy}
+
+    @classmethod
+    def deserialize(cls, data):
+        return cls(**data)

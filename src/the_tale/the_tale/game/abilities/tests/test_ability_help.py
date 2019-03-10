@@ -90,19 +90,26 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
         if move_place.id == self.hero.position.place.id:
             move_place = self.p1
 
-        action_move = actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=move_place)
+        action_move = actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
+                                                                          destination=move_place,
+                                                                          path=navigation_path.simple_path(self.hero.position.x,
+                                                                                                           self.hero.position.y,
+                                                                                                           move_place.x,
+                                                                                                           move_place.y),
+                                                                          break_at=None)
 
         game_turn.increment()
         self.storage.process_turn()
 
-        old_road_percents = self.hero.position.percents
         old_percents = action_move.percents
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.TELEPORT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes),
+                                 (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED,
+                                  game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS,
+                                  ()))
 
-        self.assertTrue(old_road_percents < self.hero.position.percents)
         self.assertTrue(old_percents < action_move.percents)
         self.assertEqual(self.hero.actions.current_action.percents, action_move.percents)
 
@@ -114,14 +121,23 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
         if move_place.id == self.hero.position.place.id:
             move_place = self.p1
 
-        actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=move_place)
+        actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
+                                                            destination=move_place,
+                                                            path=navigation_path.simple_path(self.hero.position.x,
+                                                                                             self.hero.position.y,
+                                                                                             move_place.x,
+                                                                                             move_place.y),
+                                                            break_at=None)
 
         game_turn.increment()
         self.storage.process_turn()
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.TELEPORT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes),
+                                 (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED,
+                                  game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS,
+                                  ()))
 
         self.assertEqual(self.hero.actions.current_action.TYPE, actions_prototypes.ActionInPlacePrototype.TYPE)
 

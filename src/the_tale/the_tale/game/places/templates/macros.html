@@ -17,7 +17,8 @@
 {% macro place_description(place) %}
   Земля
   <span {%if place.is_wrong_race()%}style="color: orange; cursor: default; font-weight: bold;" rel="tooltip" title="Титульная раса города не соответствует самой влиятельной"{% endif %}>
-    {{place.race.utg_name_form.word.forms[7]}}</span>,
+    {{place.race.utg_name_form.word.forms[7]}}
+  </span>,
   {{place.habit_honor.interval.place_text}},
   {{place.habit_peacefulness.interval.place_text}}
   {%- if place.is_frontier -%}, <a href="{{url('guide:cities')}}" class="pgf-frontier-message" target="_blank">Фронтир</a>{% endif %}

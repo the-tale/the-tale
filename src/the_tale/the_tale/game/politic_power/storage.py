@@ -38,8 +38,8 @@ class PowerStorage:
     def _update_fractions(self):
         raise NotImplementedError
 
-    def sync(self):
-        if self.turn == game_turn.number():
+    def sync(self, force=False):
+        if not force and self.turn == game_turn.number():
             return
 
         self.turn = game_turn.number()

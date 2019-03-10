@@ -71,67 +71,67 @@ KEYS = [('ACTION_EVENT_HABIT_IN_PLACE_AGGRESSIVE_ARTIFACT', 40000, 'Дневни
          'События при посещении города миролюбивым героем (без бонуса)',
          [V.DATE, V.TIME, V.HERO, V.PLACE], None),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_AGGRESSIVE_ARTIFACT', 40016, 'Дневник: В движении, черты, агрессивность (артефакт)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_AGGRESSIVE_ARTIFACT', 40016, 'Дневник: В движении, черты, агрессивность (артефакт)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии агрессивного героя (артефакт)',
          [V.DATE, V.TIME, V.HERO, V.ARTIFACT], None),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_AGGRESSIVE_EXPERIENCE', 40017, 'Дневник: В движении, черты, агрессивность (опыт)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_AGGRESSIVE_EXPERIENCE', 40017, 'Дневник: В движении, черты, агрессивность (опыт)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии агрессивного героя (опыт)',
          [V.DATE, V.TIME, V.HERO, V.EXPERIENCE], 'hero#N +experience#EXP'),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_AGGRESSIVE_MONEY', 40018, 'Дневник: В движении, черты, агрессивность (деньги)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_AGGRESSIVE_MONEY', 40018, 'Дневник: В движении, черты, агрессивность (деньги)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии агрессивного героя (деньги)',
          [V.DATE, V.TIME, V.COINS, V.HERO], 'hero#N +coins#G'),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_AGGRESSIVE_NOTHING', 40019, 'Дневник: В движении, черты, агрессивность (без бонуса)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_AGGRESSIVE_NOTHING', 40019, 'Дневник: В движении, черты, агрессивность (без бонуса)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии агрессивного героя (без бонуса)',
          [V.DATE, V.TIME, V.HERO], None),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_DISHONORABLE_ARTIFACT', 40020, 'Дневник: В движении, черты, бесчестие (артефакт)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_DISHONORABLE_ARTIFACT', 40020, 'Дневник: В движении, черты, бесчестие (артефакт)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии бесчестного героя (артефакт)',
          [V.DATE, V.TIME, V.HERO, V.ARTIFACT], None),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_DISHONORABLE_EXPERIENCE', 40021, 'Дневник: В движении, черты, бесчестие (опыт)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_DISHONORABLE_EXPERIENCE', 40021, 'Дневник: В движении, черты, бесчестие (опыт)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии бесчестного героя (опыт)',
          [V.DATE, V.TIME, V.HERO, V.EXPERIENCE], 'hero#N +experience#EXP'),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_DISHONORABLE_MONEY', 40022, 'Дневник: В движении, черты, бесчестие (деньги)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_DISHONORABLE_MONEY', 40022, 'Дневник: В движении, черты, бесчестие (деньги)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии бесчестного героя (деньги)',
          [V.DATE, V.TIME, V.COINS, V.HERO], 'hero#N +coins#G'),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_DISHONORABLE_NOTHING', 40023, 'Дневник: В движении, черты, бесчестие (без бонуса)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_DISHONORABLE_NOTHING', 40023, 'Дневник: В движении, черты, бесчестие (без бонуса)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии бесчестного героя (без бонуса)',
          [V.DATE, V.TIME, V.HERO], None),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_NOBLE_ARTIFACT', 40024, 'Дневник: В движении, черты, благородство (артефакт)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_NOBLE_ARTIFACT', 40024, 'Дневник: В движении, черты, благородство (артефакт)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии благородного героя (артефакт)',
          [V.DATE, V.TIME, V.HERO, V.ARTIFACT], None),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_NOBLE_EXPERIENCE', 40025, 'Дневник: В движении, черты, благородство (опыт)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_NOBLE_EXPERIENCE', 40025, 'Дневник: В движении, черты, благородство (опыт)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии благородного героя (опыт)',
          [V.DATE, V.TIME, V.HERO, V.EXPERIENCE], 'hero#N +experience#EXP'),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_NOBLE_MONEY', 40026, 'Дневник: В движении, черты, благородство (деньги)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_NOBLE_MONEY', 40026, 'Дневник: В движении, черты, благородство (деньги)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии благородного героя (деньги)',
          [V.DATE, V.TIME, V.COINS, V.HERO], 'hero#N +coins#G'),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_NOBLE_NOTHING', 40027, 'Дневник: В движении, черты, благородство (без бонуса)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_NOBLE_NOTHING', 40027, 'Дневник: В движении, черты, благородство (без бонуса)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии благородного героя (без бонуса)',
          [V.DATE, V.TIME, V.HERO], None),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_PEACEABLE_ARTIFACT', 40028, 'Дневник: В движении, черты, миролюбие (артефакт)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_PEACEABLE_ARTIFACT', 40028, 'Дневник: В движении, черты, миролюбие (артефакт)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии миролюбивого героя (артефакт)',
          [V.DATE, V.TIME, V.HERO, V.ARTIFACT], None),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_PEACEABLE_EXPERIENCE', 40029, 'Дневник: В движении, черты, миролюбие (опыт)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_PEACEABLE_EXPERIENCE', 40029, 'Дневник: В движении, черты, миролюбие (опыт)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии миролюбивого героя (опыт)',
          [V.DATE, V.TIME, V.HERO, V.EXPERIENCE], 'hero#N +experience#EXP'),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_PEACEABLE_MONEY', 40030, 'Дневник: В движении, черты, миролюбие (деньги)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_PEACEABLE_MONEY', 40030, 'Дневник: В движении, черты, миролюбие (деньги)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии миролюбивого героя (деньги)',
          [V.DATE, V.TIME, V.COINS, V.HERO], 'hero#N +coins#G'),
 
-        ('ACTION_EVENT_HABIT_MOVE_TO_PEACEABLE_NOTHING', 40031, 'Дневник: В движении, черты, миролюбие (без бонуса)', relations.LEXICON_GROUP.ACTION_EVENT,
+        ('ACTION_EVENT_HABIT_MOVE_SIMPLE_PEACEABLE_NOTHING', 40031, 'Дневник: В движении, черты, миролюбие (без бонуса)', relations.LEXICON_GROUP.ACTION_EVENT,
          'События при путешествии миролюбивого героя (без бонуса)',
          [V.DATE, V.TIME, V.HERO], None),
 

@@ -131,36 +131,37 @@ class HeroQuestInfoTests(LogicTestsBase):
 
 class FillPlacesTest(LogicTestsBase):
 
-    def test_prerequiries(self):
-        w_1_2 = roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length
-        w_1_3 = roads_storage.waymarks.look_for_road(self.place_1, self.place_3).length
-        w_2_3 = roads_storage.waymarks.look_for_road(self.place_2, self.place_3).length
+    def setUp(self):
+        super().setUp()
 
-        self.assertTrue(w_1_3 > w_1_2 > w_2_3)
+        self.w_1_2 = navigation_logic.manhattan_distance(self.place_1.x, self.place_1.y, self.place_2.x, self.place_2.y)
+        self.w_1_3 = navigation_logic.manhattan_distance(self.place_1.x, self.place_1.y, self.place_3.x, self.place_3.y)
+        self.w_2_3 = navigation_logic.manhattan_distance(self.place_2.x, self.place_2.y, self.place_3.x, self.place_3.y)
+
+    def test_prerequiries(self):
+        self.assertTrue(self.w_1_2 > self.w_1_3 == self.w_2_3)
+        # self.assertTrue(w_1_3 > w_1_2 > w_2_3)
 
     def test_radius(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length)
+        logic.fill_places(self.knowledge_base,
+                          self.get_hero_info(),
+                          self.w_1_3)
 
-        self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)])
+        self.check_facts(places=[logic.fact_place(self.place_1),
+                                 logic.fact_place(self.place_3)])
 
     def test_maximum_radius(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_3).length)
+        logic.fill_places(self.knowledge_base,
+                          self.get_hero_info(),
+                          self.w_1_2)
 
-        self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2), logic.fact_place(self.place_3)])
-
-    def test_second_fill(self):
-        self.hero.position.set_place(self.place_1)
-
-        f_place_1 = logic.fact_place(self.place_1)
-        f_place_2 = logic.fact_place(self.place_2)
-
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length)
-
-        self.check_facts(places=[f_place_1, f_place_2])
+        self.check_facts(places=[logic.fact_place(self.place_1),
+                                 logic.fact_place(self.place_2),
+                                 logic.fact_place(self.place_3)])
 
     def test_diameter(self):
         self.hero.position.set_place(self.place_2)
@@ -168,7 +169,9 @@ class FillPlacesTest(LogicTestsBase):
         f_place_2 = logic.fact_place(self.place_2)
         f_place_3 = logic.fact_place(self.place_3)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_3).length - 1)
+        logic.fill_places(self.knowledge_base,
+                          self.get_hero_info(),
+                          self.w_2_3)
 
         self.check_facts(places=[f_place_2, f_place_3])
 
@@ -179,7 +182,9 @@ class FillPlacesTest(LogicTestsBase):
         f_place_2 = logic.fact_place(self.place_2)
         f_place_3 = logic.fact_place(self.place_3)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_3).length + 1)
+        logic.fill_places(self.knowledge_base,
+                          self.get_hero_info(),
+                          self.w_1_2)
 
         self.check_facts(places=[f_place_2, f_place_3, f_place_1])
 
@@ -305,16 +310,30 @@ class SetupPreferencesTest(LogicTestsBase):
 
 class SetupPersonsTest(LogicTestsBase):
 
+    def setUp(self):
+        super().setUp()
+
+        self.w_1_2 = navigation_logic.manhattan_distance(self.place_1.x, self.place_1.y, self.place_2.x, self.place_2.y)
+        self.w_1_3 = navigation_logic.manhattan_distance(self.place_1.x, self.place_1.y, self.place_3.x, self.place_3.y)
+        self.w_2_3 = navigation_logic.manhattan_distance(self.place_2.x, self.place_2.y, self.place_3.x, self.place_3.y)
+
     def test_no_social_connections(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length)
+        logic.fill_places(self.knowledge_base,
+                          self.get_hero_info(),
+                          self.w_1_3)
         logic.setup_persons(self.knowledge_base, self.get_hero_info())
         logic.setup_social_connections(self.knowledge_base)
 
-        self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)],
-                         persons=[logic.fact_person(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
-                         locations=[logic.fact_located_in(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
+        self.check_facts(places=[logic.fact_place(self.place_1),
+                                 logic.fact_place(self.place_3)],
+                         persons=[logic.fact_person(person)
+                                  for person in persons_storage.persons.all()
+                                  if person.place_id != self.place_2.id],
+                         locations=[logic.fact_located_in(person)
+                                    for person in persons_storage.persons.all()
+                                    if person.place_id != self.place_2.id],
                          social_connections=[])
 
     def test_social_connections(self):
@@ -322,29 +341,37 @@ class SetupPersonsTest(LogicTestsBase):
         persons_2 = self.place_2.persons
         persons_3 = self.place_3.persons
 
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_1[0], persons_2[0])
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_1[1], persons_3[0])
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_2[0], persons_3[0])
-        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_2[1], persons_3[1])
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_1[0], persons_3[0])
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_1[1], persons_2[0])
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_3[0], persons_2[0])
+        persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_3[1], persons_2[1])
 
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base, self.get_hero_info(), roads_storage.waymarks.look_for_road(self.place_1, self.place_2).length)
+        logic.fill_places(self.knowledge_base,
+                          self.get_hero_info(),
+                          self.w_1_3)
         logic.setup_persons(self.knowledge_base, self.get_hero_info())
         logic.setup_social_connections(self.knowledge_base)
 
         expected_connections = []
 
         for person in persons_storage.persons.all():
-            if person.place_id == self.place_3.id:
+            if person.place_id == self.place_2.id:
                 continue
+
             for connection_type, connected_person_id in persons_storage.social_connections.get_person_connections(person):
                 connected_person = persons_storage.persons[connected_person_id]
-                if connected_person.place_id == self.place_3.id:
+                if connected_person.place_id == self.place_2.id:
                     continue
                 expected_connections.append(logic.fact_social_connection(connection_type, uids.person(person.id), uids.person(connected_person.id)))
 
-        self.check_facts(places=[logic.fact_place(self.place_1), logic.fact_place(self.place_2)],
-                         persons=[logic.fact_person(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
-                         locations=[logic.fact_located_in(person) for person in persons_storage.persons.all() if person.place_id != self.place_3.id],
+        self.check_facts(places=[logic.fact_place(self.place_1),
+                                 logic.fact_place(self.place_3)],
+                         persons=[logic.fact_person(person)
+                                  for person in persons_storage.persons.all()
+                                  if person.place_id != self.place_2.id],
+                         locations=[logic.fact_located_in(person)
+                                    for person in persons_storage.persons.all()
+                                    if person.place_id != self.place_2.id],
                          social_connections=expected_connections)

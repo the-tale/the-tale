@@ -25,9 +25,9 @@ class GeneralTest(utils_testcase.TestCase):
             self.assertTrue('HELP_CHOICES' in action_class.__dict__)
             if (not action_class.TYPE.is_IDLENESS and           # TODO: check
                 not action_class.TYPE.is_BATTLE_PVE_1X1 and     # TODO: check
-                not action_class.TYPE.is_MOVE_TO and            # TODO: check
+                not action_class.TYPE.is_MOVE_SIMPLE and        # TODO: check
                 not action_class.TYPE.is_HEAL_COMPANION and
-                    not action_class.TYPE.is_RESURRECT):
+                not action_class.TYPE.is_RESURRECT):
                 self.assertIn(abilities_relations.HELP_CHOICES.MONEY, action_class.HELP_CHOICES)  # every action MUST has MONEY choice, or it will be great disbalance in energy & experience receiving
 
     def test_TEXTGEN_TYPE(self):
@@ -180,30 +180,23 @@ class GeneralTest(utils_testcase.TestCase):
                                             mob=mob,
                                             data={'xxx': 'yyy'},
                                             break_at=0.75,
-                                            length=777,
-                                            destination_x=20,
-                                            destination_y=30,
                                             percents_barier=77,
                                             extra_probability=0.6,
                                             mob_context=helpers.TestAction.CONTEXT_MANAGER(),
                                             textgen_id='textgen_id',
-                                            back=True,
                                             info_link='/bla-bla',
                                             meta_action=meta_action,
-                                            replane_required=True)
+                                            replane_required=True,
+                                            path=navigation_path.Path(cells=[(1, 2)]))
 
         self.assertEqual(default_action.serialize(), {'bundle_id': self.bundle_id,
                                                       'state': helpers.TestAction.STATE.UNINITIALIZED,
                                                       'context': helpers.TestAction.CONTEXT_MANAGER().serialize(),
                                                       'mob_context': helpers.TestAction.CONTEXT_MANAGER().serialize(),
                                                       'mob': mob.serialize(),
-                                                      'length': 777,
-                                                      'back': True,
                                                       'textgen_id': 'textgen_id',
                                                       'extra_probability': 0.6,
                                                       'percents_barier': 77,
-                                                      'destination_x': 20,
-                                                      'destination_y': 30,
                                                       'percents': 0.0,
                                                       'description': 'description',
                                                       'type': helpers.TestAction.TYPE.value,
@@ -213,7 +206,8 @@ class GeneralTest(utils_testcase.TestCase):
                                                       'info_link': '/bla-bla',
                                                       'break_at': 0.75,
                                                       'meta_action': meta_action.serialize(),
-                                                      'replane_required': True})
+                                                      'replane_required': True,
+                                                      'path': navigation_path.Path(cells=[(1, 2)]).serialize()})
         deserialized_action = helpers.TestAction.deserialize(default_action.serialize())
         deserialized_action.hero = self.hero
         self.assertEqual(default_action, deserialized_action)

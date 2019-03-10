@@ -54,7 +54,7 @@ EXP_FOR_NORMAL_ACCOUNT = float(0.66)  # модификатор опыта для
 #       сейчас это сделать нельзя т.к. паливо
 
 
-HERO_MOVE_SPEED = float(0.3)  # базовая скорость героя расстояние в ход
+HERO_MOVE_SPEED = float(0.1)  # базовая скорость героя расстояние в ход
 
 BATTLE_LENGTH = int(16)  # ходов - средняя длительность одного боя (количество действий в бой)
 INTERVAL_BETWEEN_BATTLES = int(3)  # ходов - время, между двумя битвами
@@ -207,7 +207,7 @@ ANGEL_DROP_ITEM_COST = int(1)
 ANGEL_HELP_HEAL_IF_LOWER_THEN = float(0.8)  # можем лечить если здоровья меньше чем
 
 ANGEL_HELP_HEAL_FRACTION = (float(0.25), float(0.5))  # (min, max) процент хелсов, которые будут вылечины
-ANGEL_HELP_TELEPORT_DISTANCE = float(3.0)  # расстяние на которое происходит телепорт
+ANGEL_HELP_TELEPORT_DISTANCE = float(1.0)  # расстяние на которое происходит телепорт
 ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5))  # (min, max) процент урона, который будет нанесён
 
 # считаем, что при эпической удачливости все использования будут давать опыт
@@ -217,7 +217,7 @@ ANGEL_HELP_EXPERIENCE = int(24.0 * EXP_PER_HOUR / (ANGEL_ENERGY_IN_DAY / ANGEL_H
 ANGEL_HELP_EXPERIENCE_DELTA = float(0.5)
 
 ANGEL_HELP_CRIT_HEAL_FRACTION = (float(0.5), float(0.75))  # (min, max) процент хелсов, которые будут вылечины
-ANGEL_HELP_CRIT_TELEPORT_DISTANCE = float(9.0)  # расстяние на которое происходит телепорт
+ANGEL_HELP_CRIT_TELEPORT_DISTANCE = float(3.0)  # расстяние на которое происходит телепорт
 ANGEL_HELP_CRIT_LIGHTING_FRACTION = (float(0.5), float(0.75))  # (min, max) процент урона, который будет нанесён
 ANGEL_HELP_CRIT_MONEY_MULTIPLIER = int(10)
 ANGEL_HELP_CRIT_MONEY_FRACTION = (float(0.75), float(1.25))
@@ -227,15 +227,38 @@ ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE = ANGEL_HELP_COST
 
 INITIAL_ENERGY_AMOUNT = 25 * ANGEL_HELP_COST  # стартовое количество энергии у игрока (так, чтобы хватило на много помощей, но не чрезмерно)
 
+
+######################################
+# зависимость изменения скорости от изменения безопасности
+# при фиксированном количестве боёв за цикл движения, изменение скорости эквивалентное изменению вероятности боя
+# можно получить исходя из того, что пройденные пути должны быть равными (т.к. количество ходов движения пренебрежительно мало по сравнению с прочими ходами)
+# так же можно пренебречь количеством отдыха
+# уравнение:
+#   y — изменение скорости
+#   x — изменение вероятности
+#   1 / battle_probability - 1 — количество ходов на одну битву
+#   (1 + y) * speed * (1 / battle_probability - 1) = speed * (1 / (battle_probability - x) - 1)
+#
+#   y = -x / ((battle_probability + x)*(1 - battle_probability))
+#
+# Так как полученный коофициент зависит от вероятности боя и дельты, а они варьируется, нам необходимо выбрать для «наиболее общего случая»:
+# - фиксированную вероятность
+# - фиксированную дельту
+# которые послужит базой для расчёта коофициента пересчёта безопасности в транспорт
+
+def speed_from_safety(danger, battles_per_turn):
+    return -danger / ((battles_per_turn + danger) * (1 - battles_per_turn))
+
+
+_SAFETY_TO_TRANSPORT = float(round(-speed_from_safety(0.01, BATTLES_PER_TURN) / 0.01))
+
 ##########################
 # Карта
 ##########################
 
-MAP_CELL_LENGTH = float(3.0)  # длина клетки в километрах
-
-QUEST_AREA_RADIUS = float(60 * MAP_CELL_LENGTH)  # радиус от позиции героя в котором ОБЫЧНО выбираются города для его заданий
+QUEST_AREA_RADIUS = float(60)  # радиус от позиции героя в котором ОБЫЧНО выбираются города для его заданий
 QUEST_AREA_SHORT_RADIUS = QUEST_AREA_RADIUS / 2  # радиус от позиции героя в котором выбираются города для его заданий на начальных уровнях
-QUEST_AREA_MAXIMUM_RADIUS = float(1000000 * MAP_CELL_LENGTH)  # максимальный радиус для выбора городов для заданий
+QUEST_AREA_MAXIMUM_RADIUS = float(1000000)  # максимальный радиус для выбора городов для заданий
 
 # примерное количество ходов на один квест вида «сходит туда и обратно»
 # средний квест предполагает среднее расстояние между городами, значит двойное расстоения надо поделить на 2
@@ -243,6 +266,36 @@ TURNS_IN_QUEST = QUEST_AREA_RADIUS * 2 / 2 / DISTANCE_IN_ACTION_CYCLE * ACTIONS_
 
 MAP_SYNC_TIME_HOURS = int(1)
 MAP_SYNC_TIME = int(TURNS_IN_HOUR * MAP_SYNC_TIME_HOURS)  # синхронизируем карту раз в N часов
+
+CELL_SAFETY_MIN = float(0.05)
+
+CELL_SAFETY_DELTA = float(0.01)
+
+CELL_SAFETY_TREES = -2 * CELL_SAFETY_DELTA
+CELL_SAFETY_HILLS = -CELL_SAFETY_DELTA
+CELL_SAFETY_MOUNTAINS = 2 * CELL_SAFETY_DELTA
+
+CELL_SAFETY_NO_PATRULES = float(-0.5)
+
+CELL_TRANSPORT_MIN = CELL_SAFETY_MIN * _SAFETY_TO_TRANSPORT
+CELL_TRANSPORT_DELTA = CELL_SAFETY_DELTA * _SAFETY_TO_TRANSPORT
+
+CELL_TRANSPORT_TREES = -CELL_TRANSPORT_DELTA
+CELL_TRANSPORT_HILLS = -CELL_TRANSPORT_DELTA * 2
+CELL_TRANSPORT_MOUNTAINS = -CELL_TRANSPORT_DELTA * 4
+
+CELL_TRANSPORT_MAGIC = -CELL_TRANSPORT_DELTA
+
+CELL_TRANSPORT_HAS_MAIN_ROAD = float(0.5)
+CELL_TRANSPORT_HAS_OFF_ROAD = float(CELL_TRANSPORT_HAS_MAIN_ROAD / 2)
+
+# дорога по клетке без штрафов и модификаторов должна давать 100% скорость
+CELL_TRANSPORT_BASE = float(1.0 - CELL_TRANSPORT_HAS_MAIN_ROAD)
+
+PATH_MINIMAL_LENGTH = float(1.0)
+
+PATH_MODIFIER_MINOR_DELTA = float(3.0)
+PATH_MODIFIER_NORMAL_DELTA = 3 * PATH_MODIFIER_MINOR_DELTA
 
 ##########################
 # Задания
@@ -309,7 +362,7 @@ HABITS_QUEST_ACTIVE_PREMIUM_MULTIPLIER = float(1.5)  # бонус к начис�
 KILL_BEFORE_BATTLE_PROBABILITY = float(0.05)  # вероятность убить мобы в начале боя
 PICKED_UP_IN_ROAD_TELEPORT_LENGTH = ANGEL_HELP_TELEPORT_DISTANCE
 # бонус к скорости передвижения, эквивалентный вероятности убить моба
-PICKED_UP_IN_ROAD_SPEED_BONUS = helpers.speed_from_safety(BATTLES_PER_TURN * KILL_BEFORE_BATTLE_PROBABILITY, BATTLES_PER_TURN)
+PICKED_UP_IN_ROAD_SPEED_BONUS = BATTLES_PER_TURN * KILL_BEFORE_BATTLE_PROBABILITY * _SAFETY_TO_TRANSPORT
 PICKED_UP_IN_ROAD_PROBABILITY = PICKED_UP_IN_ROAD_SPEED_BONUS / PICKED_UP_IN_ROAD_TELEPORT_LENGTH
 
 HABIT_QUEST_PRIORITY_MODIFIER = float(1)  # модификатор приоритета выбора заданий от предпочтений
@@ -407,8 +460,6 @@ PVP_EFFECTIVENESS_INITIAL = float(300)
 PLACE_MIN_PERSONS = 2
 PLACE_MAX_PERSONS = 6
 
-PLACE_MIN_SAFETY = 0.05
-PLACE_MIN_TRANSPORT = 0.1
 PLACE_MIN_STABILITY = 0
 PLACE_MIN_CULTURE = 0.2
 PLACE_MIN_FREEDOM = 0.1
@@ -426,6 +477,7 @@ PLACE_POWER_RECALCULATE_STEPS = float(PLACE_POWER_HISTORY_LENGTH) / MAP_SYNC_TIM
 PLACE_POWER_REDUCE_FRACTION = float(math.pow(0.01, 1.0 / PLACE_POWER_RECALCULATE_STEPS))
 
 PLACE_FAME_REDUCE_FRACTION = float(PLACE_POWER_REDUCE_FRACTION)
+PLACE_MONEY_REDUCE_FRACTION = float(PLACE_POWER_REDUCE_FRACTION)
 
 PLACE_TYPE_NECESSARY_BORDER = int(75)
 PLACE_TYPE_ENOUGH_BORDER = int(50)
@@ -439,13 +491,21 @@ PLACE_GOODS_FROM_BEST_PERSON = int(PLACE_GOODS_BONUS / 2)
 
 PLACE_GOODS_FOR_BUILDING_SUPPORT = int(PLACE_GOODS_FROM_BEST_PERSON * 3.0 / 5)
 
+# поскольку наибольшая статья расходов на стабильность — дороги, то расчёт делаем исходя из них
+# здания и города будут вкладывать значительно меньше в эту статью трат (потмоу что меньше клеток занимают)
+#
+# изначально карта магических потоков строилась исходя из того, что клетки с существующими дорогами имеют около 60% силы потока
+# во ремя постройки карты потоков средний город имел дорог ~ 26 клеток, т.е. на 13, если делить поровну между двумя точками, округлим до 15
+PLACE_AVERAGE_TOTAL_ROADS_PRICE = int(1.5 * PLACE_GOODS_BONUS)  # средняя стоимость поддержки дорог для города
+CELL_STABILIZATION_PRICE = int((PLACE_AVERAGE_TOTAL_ROADS_PRICE / 15 ) / 0.6)
+
 # если размер города равен 1 (минимальный) и производство отрицательное
 # то в городе вводят пошлину в размере "недостающее производство" * PLACE_TAX_PER_ONE_GOODS
 PLACE_TAX_PER_ONE_GOODS = float(0.1 / PLACE_GOODS_BONUS)
 
 # исходим из того, что в первую очередь надо балансировать вероятность нападения монстров как самый важный параметр
 PLACE_SAFETY_FROM_BEST_PERSON = float(0.025)
-PLACE_TRANSPORT_FROM_BEST_PERSON = helpers.speed_from_safety(PLACE_SAFETY_FROM_BEST_PERSON, BATTLES_PER_TURN)
+PLACE_TRANSPORT_FROM_BEST_PERSON = PLACE_SAFETY_FROM_BEST_PERSON * _SAFETY_TO_TRANSPORT
 
 # хотя на опыт свобода и не влияет, но на город оказывает такое-же влияние как и транспорт
 PLACE_FREEDOM_FROM_BEST_PERSON = PLACE_TRANSPORT_FROM_BEST_PERSON
@@ -461,8 +521,8 @@ PLACE_STABILITY_UNIT = float(0.1)  # базовая единица измене�
 PLACE_STABILITY_RECOVER_SPEED = float(PLACE_STABILITY_UNIT / (7 * 24))  # стабильности в час
 
 PLACE_STABILITY_MAX_PRODUCTION_PENALTY = float(-PLACE_GOODS_BONUS * 2)
-PLACE_STABILITY_MAX_SAFETY_PENALTY = float(-0.25)
-PLACE_STABILITY_MAX_TRANSPORT_PENALTY = helpers.speed_from_safety(PLACE_STABILITY_MAX_SAFETY_PENALTY, BATTLES_PER_TURN)
+PLACE_STABILITY_MAX_SAFETY_PENALTY = float(-0.15)
+PLACE_STABILITY_MAX_TRANSPORT_PENALTY = PLACE_STABILITY_MAX_SAFETY_PENALTY * _SAFETY_TO_TRANSPORT
 PLACE_STABILITY_MAX_FREEDOM_PENALTY = -PLACE_STABILITY_MAX_TRANSPORT_PENALTY
 PLACE_STABILITY_MAX_CULTURE_PENALTY = -1.0
 
@@ -496,6 +556,9 @@ JOB_TRANSPORT_BONUS = float(PLACE_TRANSPORT_FROM_BEST_PERSON * PLACE_JOB_EFFECT_
 JOB_FREEDOM_BONUS = float(PLACE_FREEDOM_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTION)
 JOB_STABILITY_BONUS = float(PLACE_STABILITY_UNIT * PLACE_JOB_EFFECT_FRACTION)
 JOB_CULTURE_BONUS = float(PLACE_CULTURE_FROM_BEST_PERSON * PLACE_JOB_EFFECT_FRACTION)
+
+
+RESOURCE_EXCHANGE_COST_PER_CELL = int(math.floor(PLACE_GOODS_BONUS / 40))
 
 ###########################
 # мастера

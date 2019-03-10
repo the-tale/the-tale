@@ -258,7 +258,13 @@ class LogicStorageTests(utils_testcase.TestCase):
         action_1 = actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
         action_1.state = action_1.STATE.PROCESSED
 
-        action_2 = actions_prototypes.ActionMoveToPrototype.create(hero=self.hero_1, destination=self.p1)
+        action_2 = actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero_1,
+                                                                       destination=self.p1,
+                                                                       path=navigation_path.simple_path(self.hero_1.position.x,
+                                                                                                        self.hero_1.position.y,
+                                                                                                        self.p1.x,
+                                                                                                        self.p1.y),
+                                                                       break_at=None)
         action_2.state = action_2.STATE.PROCESSED
 
         action_3 = actions_prototypes.ActionInPlacePrototype.create(hero=self.hero_1)
@@ -279,7 +285,13 @@ class LogicStorageTests(utils_testcase.TestCase):
         action_1 = actions_prototypes.ActionRegenerateEnergyPrototype.create(hero=self.hero_1)
         action_1.state = action_1.STATE.PROCESSED
 
-        action_2 = actions_prototypes.ActionMoveToPrototype.create(hero=self.hero_1, destination=self.p1)
+        action_2 = actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero_1,
+                                                                       destination=self.p1,
+                                                                       path=navigation_path.simple_path(self.hero_1.position.x,
+                                                                                                        self.hero_1.position.y,
+                                                                                                        self.p1.x,
+                                                                                                        self.p1.y),
+                                                                       break_at=None)
         action_2.state = action_2.STATE.PROCESSED
 
         action_3 = actions_prototypes.ActionInPlacePrototype.create(hero=self.hero_1)
@@ -308,10 +320,16 @@ class LogicStorageTests(utils_testcase.TestCase):
         place = self.p1
 
         def process_action(self):
-            actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=place)
+            actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
+                                                                destination=place,
+                                                                path=navigation_path.simple_path(self.hero.position.x,
+                                                                                                 self.hero.position.y,
+                                                                                                 place.x,
+                                                                                                 place.y),
+                                                                break_at=None)
 
         with mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.process', process_action):
-            with mock.patch('the_tale.game.actions.prototypes.ActionMoveToPrototype.process') as move_to_process:
+            with mock.patch('the_tale.game.actions.prototypes.ActionMoveSimplePrototype.process') as move_to_process:
                 self.storage.process_turn()
 
         self.assertEqual(move_to_process.call_count, 2)

@@ -115,3 +115,160 @@ class CreateHero(utils_testcase.TestCase):
         self.assertEqual(hero.upbringing, self.attributes['upbringing'])
         self.assertEqual(hero.first_death, self.attributes['first_death'])
         self.assertEqual(hero.death_age, self.attributes['death_age'])
+
+
+class RegisterSpendingTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.places = game_logic.create_test_map()
+
+        account = self.accounts_factory.create_account()
+
+        self.storage = game_logic_storage.LogicStorage()
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
+
+        self.hero.premium_state_end_at
+
+        game_tt_services.debug_clear_service()
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda hero, place: True)
+    def test_not_in_place(self):
+        self.hero.position.set_position(0, 0)
+        self.assertEqual(self.hero.position.place_id, None)
+
+        logic.register_spending(self.hero, 100)
+
+        impacts = game_tt_services.money_impacts.cmd_get_targets_impacts(targets=[(tt_api_impacts.OBJECT_TYPE.PLACE, self.places[0].id)])
+
+        self.assertEqual(impacts, [])
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda hero, place: False)
+    def test_can_not_change_place_power(self):
+        self.hero.position.set_place(self.places[0])
+
+        logic.register_spending(self.hero, 100)
+
+        impacts = game_tt_services.money_impacts.cmd_get_targets_impacts(targets=[(tt_api_impacts.OBJECT_TYPE.PLACE, self.places[0].id)])
+
+        self.assertEqual(impacts, [])
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda hero, place: True)
+    def test_can_change_place_power(self):
+        self.hero.position.set_place(self.places[0])
+
+        logic.register_spending(self.hero, 100)
+
+        impacts = game_tt_services.money_impacts.cmd_get_targets_impacts(targets=[(tt_api_impacts.OBJECT_TYPE.PLACE, self.places[0].id)])
+
+        self.assertEqual(len(impacts), 1)
+
+        self.assertEqual(impacts[0].amount, 100)
+        self.assertTrue(impacts[0].target_type.is_PLACE)
+        self.assertEqual(impacts[0].target_id, self.places[0].id)
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda hero, place: True)
+    def test_can_change_place_power__below_zero(self):
+        self.hero.position.set_place(self.places[0])
+
+        logic.register_spending(self.hero, 100)
+        logic.register_spending(self.hero, -50)
+
+        impacts = game_tt_services.money_impacts.cmd_get_targets_impacts(targets=[(tt_api_impacts.OBJECT_TYPE.PLACE, self.places[0].id)])
+
+        self.assertEqual(len(impacts), 1)
+
+        self.assertEqual(impacts[0].amount, 150)
+
+
+class GetPlacesPathModifiersTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.places = game_logic.create_test_map()
+
+        account = self.accounts_factory.create_account(is_fast=True)
+
+        self.storage = game_logic_storage.LogicStorage()
+        self.storage.load_account_data(account)
+        self.hero = self.storage.accounts_to_heroes[account.id]
+
+    def place_0_cost(self):
+        return logic.get_places_path_modifiers(self.hero)[self.places[0].id]
+
+    def test_every_place_has_modifier(self):
+        modifiers = logic.get_places_path_modifiers(self.hero)
+        self.assertEqual(set(modifiers.keys()), {place.id for place in self.places})
+
+    def test_race_bonus(self):
+        self.places[0].race = game_relations.RACE.random(exclude=(self.hero.race,))
+
+        with self.check_almost_delta(self.place_0_cost, -c.PATH_MODIFIER_MINOR_DELTA):
+            self.places[0].race = self.hero.race
+
+    def test_modifier_bonus(self):
+        self.assertFalse(self.places[0].is_modifier_active())
+
+        with self.check_almost_delta(self.place_0_cost, -c.PATH_MODIFIER_MINOR_DELTA):
+            self.places[0].set_modifier(places_modifiers.CITY_MODIFIERS.FORT)
+            self.places[0].effects.add(game_effects.Effect(name='test',
+                                                           attribute=places_relations.ATTRIBUTE.MODIFIER_FORT,
+                                                           value=100500,
+                                                           delta=0))
+            self.places[0].refresh_attributes()
+
+        self.assertTrue(self.places[0].is_modifier_active())
+
+    def test_home_place(self):
+        with self.check_almost_delta(self.place_0_cost, -c.PATH_MODIFIER_NORMAL_DELTA):
+            self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.places[0])
+
+    def test_friend(self):
+        with self.check_almost_delta(self.place_0_cost, -c.PATH_MODIFIER_NORMAL_DELTA):
+            self.hero.preferences.set(relations.PREFERENCE_TYPE.FRIEND, self.places[0].persons[0])
+
+    def test_enemy(self):
+        with self.check_almost_delta(self.place_0_cost, c.PATH_MODIFIER_NORMAL_DELTA):
+            self.hero.preferences.set(relations.PREFERENCE_TYPE.ENEMY, self.places[0].persons[0])
+
+    def test_tax(self):
+        self.places[0].attrs.size = 10
+        self.places[0].refresh_attributes()
+        self.assertEqual(self.places[0].attrs.tax, 0)
+
+        with self.check_almost_delta(self.place_0_cost, c.PATH_MODIFIER_NORMAL_DELTA):
+            self.places[0].effects.add(game_effects.Effect(name='test',
+                                                           attribute=places_relations.ATTRIBUTE.TAX,
+                                                           value=100,
+                                                           delta=0))
+            self.places[0].refresh_attributes()
+
+    HABITS_DELTAS = [(-1, -1, -c.PATH_MODIFIER_MINOR_DELTA),
+                     (-1,  0, 0),
+                     (-1, +1, +c.PATH_MODIFIER_MINOR_DELTA),
+                     ( 0, -1, 0),
+                     ( 0,  0, 0),
+                     ( 0, +1, 0),
+                     (+1, -1, +c.PATH_MODIFIER_MINOR_DELTA),
+                     (+1,  0, 0),
+                     (+1, +1, -c.PATH_MODIFIER_MINOR_DELTA)]
+
+    def test_habits__honor(self):
+        for place_direction, hero_direction, expected_delta in self.HABITS_DELTAS:
+            self.places[0].habit_honor.set_habit(0)
+            self.hero.habit_honor.set_habit(0)
+
+            with self.check_almost_delta(self.place_0_cost, expected_delta):
+                self.places[0].habit_honor.set_habit(place_direction * c.HABITS_BORDER)
+                self.hero.habit_honor.set_habit(hero_direction * c.HABITS_BORDER)
+
+    def test_habits__peacefulness(self):
+        for place_direction, hero_direction, expected_delta in self.HABITS_DELTAS:
+            self.places[0].habit_peacefulness.set_habit(0)
+            self.hero.habit_peacefulness.set_habit(0)
+
+            with self.check_almost_delta(self.place_0_cost, expected_delta):
+                self.places[0].habit_peacefulness.set_habit(place_direction * c.HABITS_BORDER)
+                self.hero.habit_peacefulness.set_habit(hero_direction * c.HABITS_BORDER)

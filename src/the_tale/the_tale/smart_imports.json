@@ -101,6 +101,7 @@
                              {"prefix": "quests_", "module": "the_tale.game.quests"},
                              {"prefix": "cards_", "module": "the_tale.game.cards"},
                              {"prefix": "map_", "module": "the_tale.game.map"},
+                             {"prefix": "navigation_", "module": "the_tale.game.navigation"},
                              {"prefix": "heroes_abilities_", "module": "the_tale.game.heroes.abilities"},
                              {"prefix": "heroes_", "module": "the_tale.game.heroes"},
                              {"prefix": "game_workers_", "module": "the_tale.game.workers"},
