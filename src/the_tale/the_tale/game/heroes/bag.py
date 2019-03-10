@@ -51,11 +51,19 @@ class Bag(object):
         self.mark_updated()
         del self.bag[artifact.bag_uuid]
 
-    def pop_random_artifact(self):
+    def pop_random_artifact(self, predicate=lambda artifact: True):
         if self.is_empty:
             return None
-        artifact = random.choice(list(self.values()))
+
+        choices = [artifact for artifact in self.values() if predicate(artifact)]
+
+        if not choices:
+            return None
+
+        artifact = random.choice(choices)
+
         self.pop_artifact(artifact)
+
         return artifact
 
     def get(self, artifact_id):

@@ -42,7 +42,7 @@ class CHARGE(prototypes.AbilityPrototype):
     HAS_DAMAGE = True
     NAME = 'Заряд'
     normalized_name = NAME
-    DESCRIPTION = 'Боец создаёт электрический разряд, который может повредить не только противника, но и его вещи (не экипировку).'
+    DESCRIPTION = 'Боец создаёт электрический разряд, который может повредить не только противника, но и его вещи. Уничтожается только хлам.'
     DAMAGE_MODIFIER = [1.00]
 
     # расчитываем приоритет так, чтобы математическое ожидание вероятности поломки предмета в бою было равно 1
@@ -62,7 +62,8 @@ class CHARGE(prototypes.AbilityPrototype):
     def pop_random_item_from_bag(self, enemy):
         if enemy.bag is None:
             return None
-        return enemy.bag.pop_random_artifact()
+
+        return enemy.bag.pop_random_artifact(predicate=lambda artifact: artifact.type.is_USELESS)
 
     def use(self, messenger, actor, enemy):
         damage = actor.basic_damage * self.damage_modifier
