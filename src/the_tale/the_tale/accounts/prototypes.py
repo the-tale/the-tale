@@ -61,6 +61,10 @@ class AccountPrototype(utils_prototypes.BasePrototype):
     def is_developer(self):
         return self.id in conf.settings.DEVELOPERS_IDS
 
+    @utils_decorators.lazy_property
+    def is_moderator(self):
+        return self.id in conf.settings.MODERATORS_IDS
+
     @property
     def description_html(self): return utils_bbcode.render(self.description)
 

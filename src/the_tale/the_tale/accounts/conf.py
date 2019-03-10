@@ -33,6 +33,7 @@ settings = dext_app_settings.app_settings('ACCOUNTS',
                                           ACTIVE_STATE_REFRESH_PERIOD=3 * 60 * 60,
                                           SYSTEM_USER_NICK='Смотритель',
                                           DEVELOPERS_IDS=[1, 1022],
+                                          MODERATORS_IDS=[8157],
 
                                           ACCOUNTS_ON_PAGE=25,
 

@@ -4,6 +4,7 @@
 @post-border-color: #dddddd;
 @post-background-color: @background-color;/* #f9f9f9; */
 @post-developer-background-color: #e9f9e9;
+@post-moderator-background-color: #e9e9f9;
 @post-banned-background-color: #f9e9e9;
 
 .forum-table {
@@ -99,6 +100,18 @@
 
    &.developer .info-head {
       background-color: @post-developer-background-color;
+   }
+
+   &.moderator .head {
+      background-color: @post-moderator-background-color;
+   }
+
+   &.moderator .info {
+      background-color: @post-moderator-background-color;
+   }
+
+   &.moderator .info-head {
+      background-color: @post-moderator-background-color;
    }
 
    &.banned .head {

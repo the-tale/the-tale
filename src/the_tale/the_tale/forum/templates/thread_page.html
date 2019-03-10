@@ -218,7 +218,11 @@ jQuery(document).ready( function(e) {
   {% set game_object = thread_data.game_objects[post.author_id] %}
 
   {# give anchor to previous element, if we give anchor to current element#}
-  <table class="post pgf-post {% if author.is_developer%}developer{% endif %} {% if author.is_ban_forum %}banned{% endif %}"
+  <table class="post
+                pgf-post
+                {% if author.is_developer%}developer{% endif %}
+                {% if author.is_moderator%}moderator{% endif %}
+                {% if author.is_ban_forum %}banned{% endif %}"
          width="100%" data-author-name="{{author.nick_verbose}}" style="table-layout: fixed;">
     <thead>
       <tr>
@@ -293,7 +297,8 @@ jQuery(document).ready( function(e) {
               <a class="pgf-new-message" data-recipient="{{author.id}}" href="#">личное сообщение</a><br/>
             {% endif %}
 
-            {% if author.is_developer%}<strong title="Один из разработчиков игры" rel="tooltip" style="cursor: pointer;">разработчик</strong>
+            {% if author.is_developer%}<strong title="Разработчик игры" rel="tooltip" style="cursor: pointer;">разработчик</strong>
+            {% elif author.is_moderator%}<strong title="Модератор игры<br/> (игрок, заслуживающий доверие)" rel="tooltip" style="cursor: pointer;">модератор</strong>
             {% elif author.can_affect_game%}<strong title="Герой игрока оказывает влияние на мир игры без ограничений" rel="tooltip" style="cursor: pointer;">длань судьбы</strong>
             {% elif author.is_ban_forum %}<strong title="Игрок нарушил правила игры и был забанен" rel="tooltip" style="cursor: pointer;">игрок забанен</strong>{% endif %}
 
