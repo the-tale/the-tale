@@ -12,6 +12,7 @@ from tt_protocol.protocol import timers_pb2
 
 from tt_web import postgresql as db
 from tt_web.common import unique_priority_queue
+from tt_web.common import semaphore
 
 from . import objects
 from . import protobuf
@@ -174,8 +175,13 @@ async def postprocess_timer(timer_id, postprocess_type):
 
 
 async def finish_timer(timer_id, config, callback=do_callback, postprocess=postprocess_timer):
+
+    step = 0
+
     while True:
-        logging.info('try to finish timer %s', timer_id)
+        step += 1
+
+        logging.info('try to finish timer %s, step %s', timer_id, step)
 
         results = await db.sql('SELECT * FROM timers WHERE id=%(id)s', {'id': timer_id})
 
@@ -195,14 +201,16 @@ async def finish_timer(timer_id, config, callback=do_callback, postprocess=postp
         if type not in config['types']:
             raise exceptions.WrongTimerType(type=type, timer_id=timer_id)
 
-        result, postprocess_type = await callback(secret=config['secret'],
-                                                  url=config['types'][type]['url'],
-                                                  timer=timer,
-                                                  data=results[0]['data']['callback_data'])
+        async with semaphore.get('finish_request', config['max_simultaneously_requests']):
+            result, postprocess_type = await callback(secret=config['secret'],
+                                                      url=config['types'][type]['url'],
+                                                      timer=timer,
+                                                      data=results[0]['data']['callback_data'])
 
         if not result:
-            logging.info('timer %s callback failed, another try after %s seconds', timer_id, config['delay_before_callback_retry'])
-            await asyncio.sleep(config['delay_before_callback_retry'])
+            delay_time = min(step * config['delay_before_callback_retry'], config['max_delay_before_callback_retry'])
+            logging.info('timer %s callback failed, another try after %s seconds', timer_id, delay_time)
+            await asyncio.sleep(delay_time)
             continue
 
         logging.info('timer %s callback successed', timer_id)

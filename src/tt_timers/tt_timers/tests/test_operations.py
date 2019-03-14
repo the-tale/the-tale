@@ -1,4 +1,7 @@
 import time
+import uuid
+import random
+import asyncio
 import datetime
 
 from aiohttp import test_utils
@@ -284,6 +287,55 @@ class FinishTimerTests(helpers.BaseTests):
                                            'timer': timer}])
 
         self.assertTrue(operations.TIMERS_QUEUE.empty())
+
+    @test_utils.unittest_run_loop
+    async def test_semaphore(self):
+        timer = await create_timer(1, 2, 3, speed=10000000)
+
+        operations.TIMERS_QUEUE.pop()
+
+        time.sleep(0.01)
+
+        storage = set()
+        history = []
+
+        def create_callback(delay):
+            async def callback(*argv, **kwargs):
+                uid = uuid.uuid4().hex
+                storage.add(uid)
+
+                self.assertTrue(len(storage) <= 5)
+
+                await asyncio.sleep(delay)
+
+                storage.remove(uid)
+
+                history.append(len(storage))
+
+                return True, relations.POSTPROCESS_TYPE.RESTART
+
+            return callback
+
+        async def postprocess(**kwargs):
+            pass
+
+        tasks = []
+
+        delays = [0.02, 0.03, 0.05, 0.07, 0.11, 0.13, 0.17, 0.19, 0.23, 0.29]
+
+        random.shuffle(delays)
+
+        for delay in delays:
+            task = operations.finish_timer(timer_id=timer.id,
+                                           config=self.config,
+                                           callback=create_callback(delay),
+                                           postprocess=postprocess)
+            tasks.append(task)
+
+        await asyncio.gather(*tasks)
+
+        self.assertEqual(storage, set())
+        self.assertEqual(history, [4, 4, 4, 4, 4, 4, 3, 2, 1, 0])
 
     @test_utils.unittest_run_loop
     async def test_callback_failed(self):

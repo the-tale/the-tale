@@ -54,8 +54,10 @@ tt_services:
     custom:
         secret: test.secret
         sleep_if_no_timers_interval: 0.1
-        delay_before_callback_retry: 31536000  # do not spam test site (it can be stopped at all)
-                                               # if timer processing required - restart service
+        delay_before_callback_retry: 1.0
+        max_delay_before_callback_retry: 3600
+        max_simultaneously_requests: 5
+
         types:
           0:
             url: http://localhost:8000/game/cards/tt/take-card-callback
