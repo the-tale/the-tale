@@ -42,6 +42,8 @@ jQuery(document).ready(function(e){
         var data = game_data.account.hero;
         jQuery('.pgf-abilities-block .pgf-free-destiny-points').toggleClass('pgf-hidden', !data.base.destiny_points);
         jQuery('.pgf-abilities-block .pgf-no-destiny-points').toggleClass('pgf-hidden', !!data.base.destiny_points);
+        jQuery('.pgf-free-destiny-points-number').text(data.base.destiny_points);
+        jQuery('.pgf-free-destiny-points-sign').toggleClass('pgf-hidden', !data.base.destiny_points);
     });
 
 
@@ -61,7 +63,7 @@ jQuery(document).ready(function(e){
   <div id="choose-ability-button" class="alert alert-success fade in pgf-choose-ability-button pgf-free-destiny-points pgf-hidden">
     {{ resource.hero.name }} может выучить новую способность. <br/>
     Нажмите на это сообщение, чтобы выбрать её.<br/>
-    Доступно способностей: {{resource.hero.abilities.destiny_points}}
+    Доступно способностей: <span class="pgf-free-destiny-points-number"></span>
   </div>
 
   <div class="alert alert-info fade in pgf-choose-ability-button pgf-no-destiny-points">
