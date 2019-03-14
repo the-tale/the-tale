@@ -54,5 +54,15 @@ message CallbackBody {
   string secret = 3;
 }
 
+
+message CallbackAnswer {
+  enum PostprocessType {
+    REMOVE = 0;
+    RESTART = 1;
+  }
+
+  PostprocessType postprocess_type = 1;
+}
+
 message DebugClearServiceRequest {}
 message DebugClearServiceResponse {}

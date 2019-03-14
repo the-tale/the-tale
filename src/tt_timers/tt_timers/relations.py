@@ -3,4 +3,5 @@ from enum import Enum
 
 
 class POSTPROCESS_TYPE(Enum):
-    RESTART = 1
+    REMOVE = 1
+    RESTART = 2

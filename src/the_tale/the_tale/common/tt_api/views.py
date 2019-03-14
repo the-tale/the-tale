@@ -24,3 +24,13 @@ class SecretProcessor(dext_views.BaseViewProcessor):
             raise dext_views.ViewError(code='common.wrong_tt_secret',
                                        message='У Вас нет прав для проведения данной операции',
                                        http_status=dext_relations.HTTP_STATUS.INTERNAL_SERVER_ERROR)
+
+
+class ProtobufOk(dext_views.BaseResponse):
+
+    def __init__(self, http_mimetype='application/protobuf', **kwargs):
+        super().__init__(http_mimetype=http_mimetype, **kwargs)
+
+    def complete(self, context):
+        self.content = self.content.SerializeToString()
+        return super().complete(context)

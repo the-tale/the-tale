@@ -5,6 +5,8 @@ from aiohttp import test_utils
 
 from tt_web import postgresql as db
 
+from tt_protocol.protocol import timers_pb2
+
 from .. import relations
 from .. import operations
 from .. import exceptions
@@ -222,7 +224,7 @@ class FinishCompletedTimersTests(helpers.BaseTests):
 
 class FakeCallback(object):
 
-    def __init__(self, results=(True,)):
+    def __init__(self, results):
         self.calls = []
         self.results = list(results)
 
@@ -240,7 +242,7 @@ class FinishTimerTests(helpers.BaseTests):
 
     @test_utils.unittest_run_loop
     async def test_no_timer(self):
-        callback = FakeCallback()
+        callback = FakeCallback(results=[(True, relations.POSTPROCESS_TYPE.RESTART)])
 
         await operations.finish_timer(timer_id=666, config=self.config, callback=callback)
 
@@ -250,7 +252,7 @@ class FinishTimerTests(helpers.BaseTests):
     async def test_timer_not_finished(self):
         timer = await create_timer(1, 2, 3, speed=0.01)
 
-        callback = FakeCallback()
+        callback = FakeCallback(results=[(True, relations.POSTPROCESS_TYPE.RESTART)])
 
         await operations.finish_timer(timer_id=timer.id, config=self.config, callback=callback)
 
@@ -266,7 +268,7 @@ class FinishTimerTests(helpers.BaseTests):
 
         time.sleep(0.01)
 
-        callback = FakeCallback()
+        callback = FakeCallback(results=[(True, relations.POSTPROCESS_TYPE.RESTART)])
 
         async def postprocess(**kwargs):
             pass
@@ -291,7 +293,9 @@ class FinishTimerTests(helpers.BaseTests):
 
         time.sleep(0.01)
 
-        callback = FakeCallback(results=(False, False, True))
+        callback = FakeCallback(results=((False, None),
+                                         (False, None),
+                                         (True, relations.POSTPROCESS_TYPE.RESTART)))
 
         async def postprocess(**kwargs):
             pass
@@ -324,7 +328,7 @@ class FinishTimerTests(helpers.BaseTests):
 
         time.sleep(0.01)
 
-        callback = FakeCallback()
+        callback = FakeCallback(results=[(True, relations.POSTPROCESS_TYPE.RESTART)])
 
         async def postprocess(**kwargs):
             pass
@@ -340,13 +344,87 @@ class FinishTimerTests(helpers.BaseTests):
         self.assertTrue(operations.TIMERS_QUEUE.empty())
 
 
+class DoCallbackTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_wrong_format(self):
+        timer = await create_timer(1, 2, 666, speed=10000000)
+
+        operations.TIMERS_QUEUE.pop()
+
+        async def fake_http_caller(*argv):
+            return True, b'wrong data'
+
+        success, postprocess_type = await operations.do_callback(secret='test.secret',
+                                                                 url='http://example.com/1',
+                                                                 timer=timer,
+                                                                 data='data_x',
+                                                                 http_caller=fake_http_caller)
+        self.assertFalse(success)
+        self.assertEqual(postprocess_type, None)
+
+    @test_utils.unittest_run_loop
+    async def test_remove(self):
+        timer = await create_timer(1, 2, 666, speed=10000000)
+
+        operations.TIMERS_QUEUE.pop()
+
+        async def fake_http_caller(*argv):
+            data = timers_pb2.CallbackAnswer(postprocess_type=timers_pb2.CallbackAnswer.PostprocessType.Value('REMOVE'))
+            return True, data.SerializeToString()
+
+        success, postprocess_type = await operations.do_callback(secret='test.secret',
+                                                                 url='http://example.com/1',
+                                                                 timer=timer,
+                                                                 data='data_x',
+                                                                 http_caller=fake_http_caller)
+        self.assertTrue(success)
+        self.assertEqual(postprocess_type, relations.POSTPROCESS_TYPE.REMOVE)
+
+    @test_utils.unittest_run_loop
+    async def test_restart(self):
+        timer = await create_timer(1, 2, 666, speed=10000000)
+
+        operations.TIMERS_QUEUE.pop()
+
+        async def fake_http_caller(*argv):
+            data = timers_pb2.CallbackAnswer(postprocess_type=timers_pb2.CallbackAnswer.PostprocessType.Value('RESTART'))
+            return True, data.SerializeToString()
+
+        success, postprocess_type = await operations.do_callback(secret='test.secret',
+                                                                 url='http://example.com/1',
+                                                                 timer=timer,
+                                                                 data='data_x',
+                                                                 http_caller=fake_http_caller)
+        self.assertTrue(success)
+        self.assertEqual(postprocess_type, relations.POSTPROCESS_TYPE.RESTART)
+
+    @test_utils.unittest_run_loop
+    async def test_wrong_command(self):
+        timer = await create_timer(1, 2, 666, speed=10000000)
+
+        operations.TIMERS_QUEUE.pop()
+
+        async def fake_http_caller(*argv):
+            data = timers_pb2.CallbackAnswer(postprocess_type=111)
+            return True, data.SerializeToString()
+
+        success, postprocess_type = await operations.do_callback(secret='test.secret',
+                                                                 url='http://example.com/1',
+                                                                 timer=timer,
+                                                                 data='data_x',
+                                                                 http_caller=fake_http_caller)
+        self.assertFalse(success)
+        self.assertEqual(postprocess_type, None)
+
+
 class PostprocessRestartTests(helpers.BaseTests):
 
     @test_utils.unittest_run_loop
     async def test_continue(self):
         timer = await create_timer(1, 2, 3, speed=2, border=10)
 
-        await operations.postprocess_timer(timer.id, relations.POSTPROCESS_TYPE.RESTART.name.lower())
+        await operations.postprocess_timer(timer.id, relations.POSTPROCESS_TYPE.RESTART)
 
         results = await db.sql('SELECT * FROM timers WHERE id=%(id)s', {'id': timer.id})
 
@@ -355,6 +433,19 @@ class PostprocessRestartTests(helpers.BaseTests):
         self.assertEqual(results[0]['resources'], 0)
         self.assertEqual(results[0]['resources_at'].replace(tzinfo=None), timer.finish_at)
         self.assertEqual(results[0]['finish_at'].replace(tzinfo=None), timer.finish_at+datetime.timedelta(seconds=10/2))
+
+
+class PostprocessRemoveTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_continue(self):
+        timer = await create_timer(1, 2, 3, speed=2, border=10)
+
+        await operations.postprocess_timer(timer.id, relations.POSTPROCESS_TYPE.REMOVE)
+
+        results = await db.sql('SELECT * FROM timers WHERE id=%(id)s', {'id': timer.id})
+
+        self.assertFalse(results)
 
 
 class GetOwnerTimersTests(helpers.BaseTests):

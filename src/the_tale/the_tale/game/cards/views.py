@@ -293,12 +293,15 @@ def take_card_callback(context):
     account = accounts_prototypes.AccountPrototype.get_by_id(context.tt_request.timer.owner_id)
 
     if account is None:
-        return dext_views.AjaxOk()
+        postprocess_type = tt_protocol_timers_pb2.CallbackAnswer.PostprocessType.Value('REMOVE')
+        return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))
 
     if not tt_logic_checkers.is_player_participate_in_game(is_banned=account.is_ban_game,
                                                            active_end_at=account.active_end_at,
                                                            is_premium=account.is_premium):
-        raise dext_views.ViewError(code='common.player_does_not_participate_in_game', message='игрок не активен, карты ему не выдаются')
+
+        postprocess_type = tt_protocol_timers_pb2.CallbackAnswer.PostprocessType.Value('RESTART')
+        return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))
 
     accounts_logic.update_cards_timer(account=account)
 
@@ -307,7 +310,8 @@ def take_card_callback(context):
                          allow_premium_cards=account.cards_receive_mode().is_ALL,
                          available_for_auction=account.is_premium)
 
-    return dext_views.AjaxOk()
+    postprocess_type = tt_protocol_timers_pb2.CallbackAnswer.PostprocessType.Value('RESTART')
+    return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))
 
 
 @accounts_views.LoginRequiredProcessor()

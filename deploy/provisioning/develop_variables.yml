@@ -59,7 +59,7 @@ tt_services:
         types:
           0:
             url: http://localhost:8000/game/cards/tt/take-card-callback
-            postprocess_type: restart
+
   tt_personal_impacts:
     packages:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
