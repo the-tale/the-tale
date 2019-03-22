@@ -18,7 +18,7 @@ PROJECT_MODULE = os.path.basename(PROJECT_DIR)
 META_CONFIG_FILE = os.path.join(PROJECT_DIR, 'meta_config.json')
 META_CONFIG = dext_meta_config.MetaConfig(config_path=META_CONFIG_FILE)
 
-DEBUG = False
+DEBUG = True
 
 SENTRY_RAVEN_CONFIG = None
 
