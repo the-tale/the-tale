@@ -99,7 +99,7 @@ class SimpleNounWidget(WordWidget):
 class WordField(django_forms.MultiValueField):
     LABEL_SUFFIX = ''
 
-    def __init__(self, word_type, show_properties=True, skip_markers=(), widget_class=WordWidget, **kwargs):
+    def __init__(self, word_type, show_properties=True, skip_markers=(), min_length=1, widget_class=WordWidget, **kwargs):
         fields = get_fields(word_type)
         keys = sorted(fields.keys())
 
@@ -111,10 +111,13 @@ class WordField(django_forms.MultiValueField):
             kwargs['label'] = label
 
         super(WordField, self).__init__(fields=[fields[key] for key in keys],
-                                        widget=widget_class(word_type=word_type, skip_markers=skip_markers, show_properties=show_properties),
+                                        widget=widget_class(word_type=word_type,
+                                                            skip_markers=skip_markers,
+                                                            show_properties=show_properties),
                                         required=False,
                                         **kwargs)
         self.word_type = word_type
+        self.min_length = min_length
 
     def clean(self, value):
         clean_data = []
@@ -144,10 +147,15 @@ class WordField(django_forms.MultiValueField):
         if errors_count:
             return None
 
-        out = self.compress(clean_data)
-        self.validate(out)
-        self.run_validators(out)
-        return out
+        word = self.compress(clean_data)
+
+        for form in word.forms:
+            if len(form) < self.min_length:
+                raise django_forms.ValidationError('Минимальная длинна каждой формы слова должна быть не меньше {}'.format(self.min_length), code='min_length')
+
+        self.validate(word)
+        self.run_validators(word)
+        return word
 
     def compress(self, data_list):
         fields = get_fields(self.word_type)
@@ -178,7 +186,9 @@ def get_word_fields_dict(word_type):
     form_fields = {}
 
     for i, key in enumerate(utg_data.INVERTED_WORDS_CACHES[word_type]):
-        form_fields['%s_%d' % (WORD_FIELD_PREFIX, i)] = dext_fields.CharField(label='', max_length=models.Word.MAX_FORM_LENGTH, required=False)
+        form_fields['%s_%d' % (WORD_FIELD_PREFIX, i)] = dext_fields.CharField(label='',
+                                                                              max_length=models.Word.MAX_FORM_LENGTH,
+                                                                              required=False)
 
     return form_fields
 

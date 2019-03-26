@@ -6,7 +6,9 @@ smart_imports.all()
 
 class BaseForm(forms.BaseUserForm):
     person = dext_fields.ChoiceField(label='Житель')
-    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
+    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
+                                       label='Название',
+                                       skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
     x = django_forms.IntegerField(label='координата x')
     y = django_forms.IntegerField(label='координата y')
 

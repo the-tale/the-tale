@@ -6,7 +6,9 @@ smart_imports.all()
 
 class BaseForm(forms.BaseUserForm):
     place = dext_fields.ChoiceField(label='Город')
-    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
+    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
+                                       label='Название',
+                                       skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)
