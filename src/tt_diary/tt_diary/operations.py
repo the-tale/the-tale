@@ -2,7 +2,7 @@
 from psycopg2.extras import Json as PGJson
 
 from tt_web import postgresql as db
-from tt_web import utils
+from tt_web.common import sync_point
 
 from . import objects
 
@@ -10,7 +10,7 @@ from . import objects
 TIMESTAMPS_CACHE = {}
 
 
-CHANGE_DIARY_POINT = utils.SyncPoint()
+CHANGE_DIARY_POINT = sync_point.SyncPoint()
 
 
 async def initialize_timestamps_cache():

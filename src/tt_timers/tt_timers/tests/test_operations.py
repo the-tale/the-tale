@@ -227,11 +227,15 @@ class FinishCompletedTimersTests(helpers.BaseTests):
 
 class FakeCallback(object):
 
-    def __init__(self, results):
+    def __init__(self, results, delay=0):
         self.calls = []
         self.results = list(results)
+        self.delay = delay
 
     async def __call__(self, **kwargs):
+        if self.delay > 0:
+            asyncio.sleep(self.delay)
+
         self.calls.append(kwargs)
         return self.results.pop(0)
 
@@ -289,8 +293,44 @@ class FinishTimerTests(helpers.BaseTests):
         self.assertTrue(operations.TIMERS_QUEUE.empty())
 
     @test_utils.unittest_run_loop
-    async def test_semaphore(self):
+    async def test_race(self):
         timer = await create_timer(1, 2, 3, speed=10000000)
+
+        operations.TIMERS_QUEUE.pop()
+
+        time.sleep(0.01)
+
+        callback = FakeCallback(results=[(True, relations.POSTPROCESS_TYPE.REMOVE),
+                                         (True, relations.POSTPROCESS_TYPE.REMOVE)])
+
+        task_1 = operations.finish_timer(timer_id=timer.id,
+                                         config=self.config,
+                                         callback=callback)
+
+        task_2 = operations.finish_timer(timer_id=timer.id,
+                                         config=self.config,
+                                         callback=callback)
+
+        await asyncio.gather(task_1, task_2)
+
+        # first call must remove timer
+        self.assertEqual(callback.calls, [{'data': 'data_1_2_3',
+                                           'secret': 'test.secret',
+                                           'url': 'http://example.com/3',
+                                           'timer': timer}])
+
+        self.assertTrue(operations.TIMERS_QUEUE.empty())
+
+    @test_utils.unittest_run_loop
+    async def test_semaphore(self):
+
+        delays = [0.02, 0.03, 0.05, 0.07, 0.11, 0.13, 0.17, 0.19, 0.23, 0.29]
+
+        timers = []
+
+        for i in range(len(delays)):
+            timer = await create_timer(i, 2, 3, speed=10000000)
+            timers.append(timer)
 
         operations.TIMERS_QUEUE.pop()
 
@@ -321,11 +361,9 @@ class FinishTimerTests(helpers.BaseTests):
 
         tasks = []
 
-        delays = [0.02, 0.03, 0.05, 0.07, 0.11, 0.13, 0.17, 0.19, 0.23, 0.29]
-
         random.shuffle(delays)
 
-        for delay in delays:
+        for delay, timer in zip(delays, timers):
             task = operations.finish_timer(timer_id=timer.id,
                                            config=self.config,
                                            callback=create_callback(delay),

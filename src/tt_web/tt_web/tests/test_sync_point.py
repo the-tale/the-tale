@@ -1,5 +1,4 @@
 
-import time
 import asyncio
 import random
 
@@ -7,18 +6,17 @@ from aiohttp import test_utils
 
 from . import helpers
 
-from .. import utils
+from ..common import sync_point
 from .. import exceptions
 
 
-POINT = utils.SyncPoint()
+POINT = sync_point.SyncPoint()
 
 
 class SyncPointTests(helpers.BaseTests):
 
     def test_empty(self):
         self.assertEqual(POINT._locks, {})
-
 
     @test_utils.unittest_run_loop
     async def test_sigle(self):
@@ -33,7 +31,6 @@ class SyncPointTests(helpers.BaseTests):
             self.assertEqual(set(POINT._locks), {'key_1',})
 
         self.test_empty()
-
 
     @test_utils.unittest_run_loop
     async def test_nested(self):
@@ -53,7 +50,6 @@ class SyncPointTests(helpers.BaseTests):
 
         self.test_empty()
 
-
     @test_utils.unittest_run_loop
     async def test_dublicate(self):
 
@@ -68,7 +64,6 @@ class SyncPointTests(helpers.BaseTests):
                 self.assertEqual(set(POINT._locks), {'key_1',})
 
             self.assertEqual(set(POINT._locks), {'key_1',})
-
 
         async def operation_2():
 
@@ -86,7 +81,6 @@ class SyncPointTests(helpers.BaseTests):
         await asyncio.gather(task_1, task_2)
 
         self.test_empty()
-
 
     @test_utils.unittest_run_loop
     async def test_timeout(self):
@@ -124,7 +118,6 @@ class SyncPointTests(helpers.BaseTests):
         self.assertTrue(isinstance(task_2.exception(), exceptions.SyncPointTimeoutError))
 
         self.test_empty()
-
 
     @test_utils.unittest_run_loop
     async def test_ordering(self):

@@ -296,19 +296,17 @@ def take_card_callback(context):
         postprocess_type = tt_protocol_timers_pb2.CallbackAnswer.PostprocessType.Value('REMOVE')
         return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))
 
-    if not tt_logic_checkers.is_player_participate_in_game(is_banned=account.is_ban_game,
-                                                           active_end_at=account.active_end_at,
-                                                           is_premium=account.is_premium):
+    if tt_logic_checkers.is_player_participate_in_game(is_banned=account.is_ban_game,
+                                                       active_end_at=account.active_end_at,
+                                                       is_premium=account.is_premium):
 
-        postprocess_type = tt_protocol_timers_pb2.CallbackAnswer.PostprocessType.Value('RESTART')
-        return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))
+        logic.give_new_cards(account_id=account.id,
+                             operation_type='give-card',
+                             allow_premium_cards=account.cards_receive_mode().is_ALL,
+                             available_for_auction=account.is_premium)
 
-    accounts_logic.update_cards_timer(account=account)
-
-    logic.give_new_cards(account_id=account.id,
-                         operation_type='give-card',
-                         allow_premium_cards=account.cards_receive_mode().is_ALL,
-                         available_for_auction=account.is_premium)
+    if accounts_logic.cards_timer_speed(account) != context.tt_request.timer.speed:
+        accounts_logic.update_cards_timer(account=account)
 
     postprocess_type = tt_protocol_timers_pb2.CallbackAnswer.PostprocessType.Value('RESTART')
     return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))

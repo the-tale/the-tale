@@ -13,6 +13,7 @@ from tt_protocol.protocol import timers_pb2
 from tt_web import postgresql as db
 from tt_web.common import unique_priority_queue
 from tt_web.common import semaphore
+from tt_web.common import sync_point
 
 from . import objects
 from . import protobuf
@@ -21,6 +22,12 @@ from . import exceptions
 
 
 TIMERS_QUEUE = unique_priority_queue.Queue()
+
+FINISH_TIMER_POINT = sync_point.SyncPoint()
+
+
+def push_to_queue(timer_id, finish_at):
+    TIMERS_QUEUE.push(timer_id, finish_at)
 
 
 def timer_from_row(row):
@@ -57,7 +64,7 @@ async def create_timer(owner_id, entity_id, type, speed, border, callback_data, 
 
     timer = timer_from_row(results[0])
 
-    TIMERS_QUEUE.push(timer.id, timer.finish_at)
+    push_to_queue(timer.id, timer.finish_at)
 
     logging.info('timer %s created, owner: %s, entity: %s, type: %s, speed: %s, border: %s, resources: %s, finish_at: %s',
                  timer.id, timer.owner_id, timer.entity_id, timer.type, timer.speed, timer.border, timer.resources, timer.finish_at)
@@ -84,7 +91,7 @@ async def change_speed(owner_id, entity_id, type, speed):
 
     timer = timer_from_row(results[0])
 
-    TIMERS_QUEUE.push(timer.id, timer.finish_at)
+    push_to_queue(timer.id, timer.finish_at)
 
     logging.info('timer %s updated, owner: %s, entity: %s, type: %s, speed: %s, border: %s, resources: %s, finish_at: %s',
                  timer.id, timer.owner_id, timer.entity_id, timer.type, timer.speed, timer.border, timer.resources, timer.finish_at)
@@ -101,7 +108,7 @@ async def load_all_timers():
 
     for row in results:
         logging.info('load timer %s', row['id'])
-        TIMERS_QUEUE.push(row['id'], row['finish_at'].replace(tzinfo=None))
+        push_to_queue(row['id'], row['finish_at'].replace(tzinfo=None))
 
     logging.info('all timers loaded')
 
@@ -176,48 +183,50 @@ async def postprocess_timer(timer_id, postprocess_type):
 
 async def finish_timer(timer_id, config, callback=do_callback, postprocess=postprocess_timer):
 
-    step = 0
+    async with FINISH_TIMER_POINT.lock(timer_id):
 
-    while True:
-        step += 1
+        step = 0
 
-        logging.info('try to finish timer %s, step %s', timer_id, step)
+        while True:
+            step += 1
 
-        results = await db.sql('SELECT * FROM timers WHERE id=%(id)s', {'id': timer_id})
+            logging.info('try to finish timer %s, step %s', timer_id, step)
 
-        if not results:
-            logging.info('timer %s not found, do nothing', timer_id)
+            results = await db.sql('SELECT * FROM timers WHERE id=%(id)s', {'id': timer_id})
+
+            if not results:
+                logging.info('timer %s not found, do nothing', timer_id)
+                return
+
+            timer = timer_from_row(results[0])
+
+            if datetime.datetime.utcnow() <= timer.finish_at:
+                logging.info('timer %s finish time changed, do nothing', timer_id)
+                # do not add back to TIMERS_QUEUE, since new values should already be there
+                return
+
+            type = str(results[0]['type'])
+
+            if type not in config['types']:
+                raise exceptions.WrongTimerType(type=type, timer_id=timer_id)
+
+            async with semaphore.get('finish_request', config['max_simultaneously_requests']):
+                result, postprocess_type = await callback(secret=config['secret'],
+                                                          url=config['types'][type]['url'],
+                                                          timer=timer,
+                                                          data=results[0]['data']['callback_data'])
+
+            if not result:
+                delay_time = min(step * config['delay_before_callback_retry'], config['max_delay_before_callback_retry'])
+                logging.info('timer %s callback failed, another try after %s seconds', timer_id, delay_time)
+                await asyncio.sleep(delay_time)
+                continue
+
+            logging.info('timer %s callback successed', timer_id)
+
+            await postprocess(timer_id=timer_id,
+                              postprocess_type=postprocess_type)
             return
-
-        timer = timer_from_row(results[0])
-
-        if datetime.datetime.utcnow() <= timer.finish_at:
-            logging.info('timer %s finish time changed, do nothing', timer_id)
-            # do not add back to TIMERS_QUEUE, since new values should already be there
-            return
-
-        type = str(results[0]['type'])
-
-        if type not in config['types']:
-            raise exceptions.WrongTimerType(type=type, timer_id=timer_id)
-
-        async with semaphore.get('finish_request', config['max_simultaneously_requests']):
-            result, postprocess_type = await callback(secret=config['secret'],
-                                                      url=config['types'][type]['url'],
-                                                      timer=timer,
-                                                      data=results[0]['data']['callback_data'])
-
-        if not result:
-            delay_time = min(step * config['delay_before_callback_retry'], config['max_delay_before_callback_retry'])
-            logging.info('timer %s callback failed, another try after %s seconds', timer_id, delay_time)
-            await asyncio.sleep(delay_time)
-            continue
-
-        logging.info('timer %s callback successed', timer_id)
-
-        await postprocess(timer_id=timer_id,
-                          postprocess_type=postprocess_type)
-        return
 
 
 async def postprocess_restart(timer_id):
@@ -232,7 +241,7 @@ async def postprocess_restart(timer_id):
                               WHERE id=%(id)s
                               RETURNING finish_at''', {'id': timer_id})
 
-    TIMERS_QUEUE.push(timer_id, results[0]['finish_at'].replace(tzinfo=None))
+    push_to_queue(timer_id, results[0]['finish_at'].replace(tzinfo=None))
 
 
 async def postprocess_remove(timer_id):

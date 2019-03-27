@@ -155,14 +155,16 @@ def create_cards_timer(account_id):
                                                 border=tt_cards_constants.RECEIVE_TIME)
 
 
-def update_cards_timer(account):
-    speed = tt_cards_constants.NORMAL_PLAYER_SPEED
-
+def cards_timer_speed(account):
     if account.is_premium:
-        speed = tt_cards_constants.PREMIUM_PLAYER_SPEED
+        return tt_cards_constants.PREMIUM_PLAYER_SPEED
 
+    return tt_cards_constants.NORMAL_PLAYER_SPEED
+
+
+def update_cards_timer(account):
     tt_services.players_timers.cmd_change_timer_speed(owner_id=account.id,
-                                                      speed=speed,
+                                                      speed=cards_timer_speed(account),
                                                       type=relations.PLAYER_TIMERS_TYPES.CARDS_MINER)
 
 
