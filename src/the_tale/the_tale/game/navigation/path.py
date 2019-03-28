@@ -60,6 +60,8 @@ class Path:
 
         self._cells.extend(appended_cells)
 
+        self._cells = logic.normalise_path(self._cells)
+
         self._update_length()
 
     def next_place_at(self, percents):
