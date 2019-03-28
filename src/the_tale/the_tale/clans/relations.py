@@ -63,7 +63,8 @@ class EVENT(rels_django.DjangoEnum):
                ('MEMBER_REMOVED', 8, 'игрок исключён из гильдии', meta_object_receiver(8)),
                ('TECHNICAL', 9, 'техническое сообщение', meta_object_receiver(9)),
                ('ROLE_CHANGED', 10, 'изменение звания', meta_object_receiver(10)),
-               ('OWNER_CHANGED', 11, 'передача владения', meta_object_receiver(11)))
+               ('OWNER_CHANGED', 11, 'передача владения', meta_object_receiver(11)),
+               ('UPDATED', 12, 'редактирование гильдии', meta_object_receiver(12)))
 
 
 class PERMISSION(rels_django.DjangoEnum):

@@ -305,6 +305,13 @@ class TestUpdateRequests(BaseTestRequests):
         self.check_ajax_ok(self.post_ajax_json(self.update_url, self.update_data()))
         self.check_clan_new_data()
 
+        total_events, events = tt_services.chronicle.cmd_get_last_events(self.clan, tags=(), number=1000)
+
+        self.assertEqual(set(events[0].tags),
+                         {self.clan.meta_object().tag,
+                          relations.EVENT.UPDATED.meta_object().tag,
+                          self.account.meta_object().tag})
+
     def test_banned(self):
         self.request_login(self.account.email)
         self.account.ban_forum(1)

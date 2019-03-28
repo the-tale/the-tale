@@ -313,12 +313,22 @@ def update(context):
         raise dext_views.ViewError(code='clans.update.abbr_exists',
                                    message='Гильдия с такой аббревиатурой уже существует')
 
-    context.current_clan.abbr = context.form.c.abbr
-    context.current_clan.name = context.form.c.name
-    context.current_clan.motto = context.form.c.motto
-    context.current_clan.description = context.form.c.description
+    clan = context.current_clan
 
-    logic.save_clan(context.current_clan)
+    clan.abbr = context.form.c.abbr
+    clan.name = context.form.c.name
+    clan.motto = context.form.c.motto
+    clan.description = context.form.c.description
+
+    logic.save_clan(clan)
+
+    message = 'Хранитель {keeper} изменил(а) базовые свойства гильдии {guild}'.format(guild=clan.name,
+                                                                                      keeper=context.account.nick_verbose)
+
+    tt_services.chronicle.cmd_add_event(clan=clan,
+                                        event=relations.EVENT.UPDATED,
+                                        tags=[context.account.meta_object().tag],
+                                        message=message)
 
     return dext_views.AjaxOk()
 
