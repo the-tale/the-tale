@@ -5,12 +5,12 @@
 {% import 'forum/thread_page.html' as thread_page with context %}
 {% import 'blogs/macros.html' as blogs_macros with context %}
 
-{% block title %} {{ bill.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
-{% block description %}Информация о записи «{{ bill.caption }}».{% endblock %}
+{% block title %} {{ bill.caption|olbanize }} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Информация о записи «{{ bill.caption|olbanize }}».{% endblock %}
 
 {% block bills_content %}
 
-<h3>{{ bill.caption }} {{base_macros.magnet(bill_meta_object)}}</h3>
+<h3>{{ bill.caption|olbanize }} {{base_macros.magnet(bill_meta_object)}}</h3>
 
 {{ bills_macros.bill_info(bill, vote) }}
 
@@ -92,7 +92,7 @@
 
 {% endif %}
 
-<h3 style="margin-bottom: 0.5em;">{{ bill.data.CAPTION }}</h3>
+<h3 style="margin-bottom: 0.5em;">{{ bill.data.CAPTION|olbanize }}</h3>
 
 <ul style="font-size: 14px;" class="unstyled">
   {% include bill.data.show_template() with context %}
@@ -106,9 +106,9 @@
 {% set folclor_objects = posts_about(bill_meta_object) %}
 
 {% if folclor_objects %}
-  <h4><a href="{{folclor_objects[0].url}}" target="_blank">{{folclor_objects[0].caption}}</a></h4>
+  <h4><a href="{{folclor_objects[0].url}}" target="_blank">{{folclor_objects[0].caption|olbanize}}</a></h4>
 
-  {{folclor_objects[0].object.text_html|safe}}
+  {{folclor_objects[0].object.text_html|olbanize|safe}}
 
   {% if folclor_objects|length > 1 %}
     <br/>

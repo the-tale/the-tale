@@ -1,7 +1,7 @@
 
 
 {% macro account_link(account, clan) %}
-<a href="{{url('accounts:show', account.id)}}">{{account.nick_verbose}}</a>
+<a href="{{url('accounts:show', account.id)}}">{{account.nick_verbose|olbanize}}</a>
 {% if clan is not none %}
 <a href="{{url('clans:show', clan.id)}}" style="white-space: nowrap;">[{{clan.abbr}}]</a>
 {% endif %}
@@ -20,7 +20,7 @@
 
 {% macro account_record(account, hero, clan=none, short=false) %}
 <td>
-  <a href="{{ url('accounts:show', account.id) }}">{{ account.nick_verbose }}</a>
+  <a href="{{ url('accounts:show', account.id) }}">{{ account.nick_verbose|olbanize }}</a>
   {% if clan %}
   <a href="{{url('clans:show', clan.id)}}">[{{clan.abbr}}]</a>
   {% endif %}
@@ -28,8 +28,8 @@
 {% if not short %}<td>{{ hero.might|int }}</td>{% endif %}
 {% if not short %}<td class="updated-at pgf-format-date" data-timestamp="{{ account.created_at|timestamp }}"></td>{% endif %}
 <td>
-  {{ hero.race_verbose }}
-  <a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name }}</a>
+  {{ hero.race_verbose|olbanize }}
+  <a href="{{ url('game:heroes:show', hero.id) }}">{{ hero.name|olbanize }}</a>
 </td>
 <td>{{ hero.level }}</td>
 {% if not short %}

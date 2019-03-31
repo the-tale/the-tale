@@ -17,11 +17,11 @@
   </li>
   <li>
     {% if author_account %}
-    аффтар: {{author_account.nick_verbose}}
+    аффтар: {{author_account.nick_verbose|olbanize}}
     {% endif %}
 
     {% if participant_account %}
-    участник: {{participant_account.nick_verbose}}
+    участник: {{participant_account.nick_verbose|olbanize}}
     {% endif %}
 
   </li>

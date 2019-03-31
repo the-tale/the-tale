@@ -22,4 +22,8 @@ def get_edition_number():
 @dext_jinja2.jinjafilter
 def olbanize(value):
     from the_tale import olbanizator
+
+    if 'пейшунаалбанскам' in value:
+        return value
+
     return olbanizator.olbanize(value)

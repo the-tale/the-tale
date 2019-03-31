@@ -10,7 +10,7 @@
 {% block clans_content %}
 
 <h2 style="margin-bottom: 0.5em;">
-  <a href="{{url('clans:show', current_clan.id)}}">[{{current_clan.abbr}}] {{current_clan.name}}</a>
+  <a href="{{url('clans:show', current_clan.id)}}">[{{current_clan.abbr}}] {{current_clan.name|olbanize}}</a>
   —
   летопись
 </h2>

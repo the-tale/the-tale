@@ -48,11 +48,11 @@
 {% set category = category_data['category'] %}
 {% set subcategories = category_data['subcategories'] %}
 
-<h3>{{ category.caption }}</h3>
+<h3>{{ category.caption|olbanize }}</h3>
 <table class="table table-striped forum-table table-no-highlighting">
     <thead>
       <tr>
-        {{ forum_macros.subcategory_record_heading() }}
+        {{ forum_macros.subcategory_record_heading()|olbanize|safe }}
       </tr>
     </thead>
     <tbody>

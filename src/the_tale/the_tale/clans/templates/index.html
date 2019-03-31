@@ -12,7 +12,7 @@
 
       {% if user_clan %}
       <p class="alert alert-info">
-        Вы состоите в гильдии <a href="{{url('clans:show', user_clan.id)}}">[{{user_clan.abbr}}] {{user_clan.name}}</a>.
+        Вы состоите в гильдии <a href="{{url('clans:show', user_clan.id)}}">[{{user_clan.abbr}}] {{user_clan.name|olbanize}}</a>.
       </p>
       {% else %}
       <p class="alert alert-info">
@@ -43,9 +43,9 @@
           <tr>
             <td><a href="{{url('clans:show', clan.id)}}">{{clan.abbr}}</a></td>
             <td>
-              <a href="{{url('clans:show', clan.id)}}">{{clan.name}}</a>
+              <a href="{{url('clans:show', clan.id)}}">{{clan.name|olbanize}}</a>
               <br/>
-              <i>{{clan.motto}}</i>
+              <i>{{clan.motto|olbanize}}</i>
             </td>
             <td>{{ clan.might|pprint_int }}</td>
             <td>{{ clan.premium_members_number }}</td>

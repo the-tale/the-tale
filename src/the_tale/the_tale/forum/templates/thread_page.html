@@ -281,7 +281,7 @@ jQuery(document).ready( function(e) {
 
           {% if author.clan %}
           <a href="{{url('clans:show', author.clan.id)}}">[{{author.clan.abbr}}]</a>
-          {{ value('the_tale.clans.logic').get_membership(author.id).role.text}}
+          {{ value('the_tale.clans.logic').get_membership(author.id).role.text|olbanize}}
           {% else %}
           без гильдии
           {% endif %}
@@ -300,7 +300,7 @@ jQuery(document).ready( function(e) {
             <br/>
             {{game_object.race_verbose}}
             <a href="{{url('game:heroes:show', game_object.id)}}" style="white-space: nowrap;">
-              {{game_object.name}}
+              {{game_object.name|olbanize}}
             </a>
             <br/>
             {{game_object.level}} уровня
@@ -321,7 +321,7 @@ jQuery(document).ready( function(e) {
               {% endif %}
             </span>
           {% else %}
-            {{ post.html|safe }}
+            {{ post.html|olbanize|safe }}
           {% endif %}
           </div>
 

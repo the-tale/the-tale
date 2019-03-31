@@ -52,7 +52,7 @@
           {% if bill.is_declined %}
             <br/>
             отменена записью
-            <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption}}»</a>
+            <a target="_blank" href="{{url('game:bills:show', bill.declined_by.id)}}">«{{bill.declined_by.caption|olbanize}}»</a>
             <span class="pgf-format-datetime"
                   data-timestamp="{{ bill.declined_by.voting_end_at|timestamp }}"
                   style="cursor: default;"
@@ -105,7 +105,7 @@
     <tr>
       <th>зависит от</th>
       <td colspan="3">
-        <a target="_blank" href="{{url('game:bills:show', bill.depends_on.id)}}">«{{bill.depends_on.caption}}»</a>
+        <a target="_blank" href="{{url('game:bills:show', bill.depends_on.id)}}">«{{bill.depends_on.caption|olbanize}}»</a>
         {{bill.depends_on.state.text}}
       </td>
     </tr>
@@ -119,9 +119,9 @@
 {% macro bill_record(bill, vote=none) %}
 
 <h4 style="margin-bottom: 0.5em; display: inline-block;">
-  <a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption }}</a>
+  <a href="{{ url('game:bills:show', bill.id) }}">{{ bill.caption|olbanize }}</a>
   <small>
-    {{bill.type.text}}:
+    {{bill.type.text|olbanize}}:
     {% for actor in bill.actors %}
       {%- if loop.index > 1 -%},{% endif %}
       <a href="{{actor.url}}" target="_blank">{{ actor.name }}</a>
@@ -134,5 +134,5 @@
 {% endmacro %}
 
 {% macro person_info(person) %}
-<a href="{{url('game:persons:show', person.id)}}">{{person.name}}</a> — {{ persons_macros.person_description(person) }}
+<a href="{{url('game:persons:show', person.id)}}">{{person.name|olbanize}}</a> — {{ persons_macros.person_description(person)|olbanize }}
 {% endmacro %}

@@ -20,7 +20,7 @@ jQuery(document).ready( function(e) {
 {% block clans_content %}
 
 <h2>
-  <a href="{{url('clans:show', current_clan.id)}}">[{{current_clan.abbr}}] {{current_clan.name}}</a>
+  <a href="{{url('clans:show', current_clan.id)}}">[{{current_clan.abbr}}] {{current_clan.name|olbanize}}</a>
   —
   редактирование
 </h2>

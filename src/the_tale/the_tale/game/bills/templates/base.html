@@ -18,7 +18,7 @@
           <ul class="dropdown-menu">
             {% for bill_id, bill_type in bills_menu_types() %}
               {% if bill_type.type.enabled %}
-                <li><a href="{{ url('game:bills:new', bill_type=bill_id) }}">{{bill_type.CAPTION}}</a></li>
+                <li><a href="{{ url('game:bills:new', bill_type=bill_id) }}">{{bill_type.CAPTION|olbanize}}</a></li>
               {% endif %}
             {% endfor %}
           </ul>

@@ -5,8 +5,8 @@
 {% import 'blogs/macros.html' as blogs_macros with context %}
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 
-{% block title %}{{current_clan.name}} | {{settings.PAGE_TITLE}}{% endblock %}
-{% block description %}[{{current_clan.abbr}}] {{current_clan.name}}{% endblock %}
+{% block title %}{{current_clan.name|olbanize}} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}[{{current_clan.abbr}}] {{current_clan.name|olbanize}}{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -51,7 +51,7 @@ jQuery(document).ready(function(e){
 
 <h2>
   [{{current_clan.abbr}}]
-  {{current_clan.name}}
+  {{current_clan.name|olbanize}}
   {{base_macros.magnet(clan_meta_object)}}
 
   <small class="pull-right"
@@ -109,7 +109,7 @@ jQuery(document).ready(function(e){
 {% endif %}
 
 <p style="color: gray; font-size: 14pt;">
-  <strong>Девиз:</strong> <i>{{current_clan.motto}}</i>
+  <strong>Девиз:</strong> <i>{{current_clan.motto|olbanize}}</i>
 </p>
 
 <table width="100%" style="text-align: center;">
@@ -183,7 +183,7 @@ jQuery(document).ready(function(e){
 <div class="tab-content">
 
   <div class="tab-pane active" id="pgf-clan-description">
-    {{current_clan.description_html|safe}}
+    {{current_clan.description_html|olbanize|safe}}
 
     {% set folclor_objects = posts_about(clan_meta_object, allowed_for=leader) %}
 
@@ -241,13 +241,13 @@ jQuery(document).ready(function(e){
         <td>
           <a href="{{url('accounts:show', account.id)}}"
              class="{% if not account.is_active %}disabled{% endif %}">
-            {{account.nick_verbose}}
+            {{account.nick_verbose|olbanize}}
           </a>
         </td>
-        <td>{{membership.role.text}}</td>
+        <td>{{membership.role.text|olbanize}}</td>
         <td>
           {{hero.race_verbose}}
-          <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
+          <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name|olbanize}}</a>
           {{ hero.level }} уровня
         </td>
         <td>

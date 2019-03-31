@@ -27,7 +27,7 @@ jQuery(document).ready( function(e) {
   <strong>ВНИМАНИЕ!</strong> После редактирования будут сброшены результаты голосования.
 </div>
 
-<h3>{{ bill.data.CAPTION }}</h3>
+<h3>{{ bill.data.CAPTION|olbanize }}</h3>
 
 <form id="pgf-edit-bill-form" method="post" action="{{ url('game:bills:update', bill.id) }}">
 

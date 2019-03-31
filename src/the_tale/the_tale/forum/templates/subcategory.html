@@ -35,7 +35,7 @@
 {% endmacro %}
 
 
-{% block title %}{{subcategory.caption}} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block title %}{{subcategory.caption|olbanize}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Список обсуждений в подкатегогии «{{subcategory.caption}}».{% endblock %}
 
 {% block forum_content %}
@@ -46,7 +46,7 @@
       <img src="{{STATIC_CONTENT}}images/rss.png" style="margin: 2px;"/>
     </a>
     <a href="{{ url('forum:') }}">Форум</a><span class="divider">/</span></li>
-  <li class="active">{{ subcategory.caption }}</li>
+  <li class="active">{{ subcategory.caption|olbanize }}</li>
 </ul>
 
 {% if threads or important_threads %}
@@ -56,7 +56,7 @@
 <table class="table table-striped forum-table table-no-highlighting">
   <thead>
     <tr>
-      {{ forum_macros.thread_record_heading() }}
+      {{ forum_macros.thread_record_heading()|olbanize|safe }}
     </tr>
   </thead>
   <tbody>

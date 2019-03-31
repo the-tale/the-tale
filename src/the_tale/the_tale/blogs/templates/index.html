@@ -39,8 +39,8 @@
         <tbody>
           {% for tag in folclor_tags() %}
           <tr>
-            <td><span class="label label-success">{{tag.name}}</span></td>
-            <td>{{tag.description}}</td>
+            <td><span class="label label-success">{{tag.name|olbanize}}</span></td>
+            <td>{{tag.description|olbanize}}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -63,7 +63,7 @@
     {% if author_account %}
     <div class="btn-group">
       <a class="btn disabled" href="#">
-        аффтар: {{author_account.nick_verbose}}
+        аффтар: {{author_account.nick_verbose|olbanize}}
       </a>
     </div>
     {% endif %}
@@ -74,21 +74,21 @@
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
-        <li><a href="{{ url_builder(order_by=ORDER_BY.CREATED_AT) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.CREATED_AT]}}</a></li>
-        <li><a href="{{ url_builder(order_by=ORDER_BY.ALPHABET) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.ALPHABET]}}</a></li>
-        <li><a href="{{ url_builder(order_by=ORDER_BY.RATING) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.RATING]}}</a></li>
-        <li><a href="{{ url_builder(order_by=ORDER_BY.MIGHT) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.MIGHT]}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.CREATED_AT) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.CREATED_AT]|olbanize}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.ALPHABET) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.ALPHABET]|olbanize}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.RATING) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.RATING]|olbanize}}</a></li>
+        <li><a href="{{ url_builder(order_by=ORDER_BY.MIGHT) }}">{{ORDER_BY._ID_TO_TEXT[ORDER_BY.MIGHT]|olbanize}}</a></li>
       </ul>
     </div>
 
     <div class="btn-group">
       <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        метка: {% if current_tag is not none %}{{current_tag.name}}{% else %}все{% endif %}
+        метка: {% if current_tag is not none %}{{current_tag.name|olbanize}}{% else %}все{% endif %}
         <span class="caret"></span>
       </a>
       <ul class="dropdown-menu">
         {% for tag in folclor_tags() %}
-        <li><a href="{{ url_builder(tag_id=tag.id if tag is not none else none) }}">{{tag.name}}</a></li>
+        <li><a href="{{ url_builder(tag_id=tag.id if tag is not none else none) }}">{{tag.name|olbanize}}</a></li>
         {% endfor %}
       </ul>
     </div>
@@ -129,7 +129,7 @@
           {% if post.state.is_NOT_MODERATED %}
           <span class="label label-info">не проверено</span>
           {% endif %}
-          <a href="{{url('blogs:posts:show', post.id)}}">{{post.caption}}</a>
+          <a href="{{url('blogs:posts:show', post.id)}}">{{post.caption|olbanize}}</a>
         </td>
         <td width="200px">
           {% if post.author %}
