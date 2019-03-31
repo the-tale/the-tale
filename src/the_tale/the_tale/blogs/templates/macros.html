@@ -11,7 +11,7 @@
             {{ object.object.votes }}
           </span>
         </td>
-        <td><a href="{{object.url}}" target="_blank">{{object.caption}}</a></td>
+        <td><a href="{{object.url}}" target="_blank">{{object.caption|olbanize}}</a></td>
       </tr>
       {% endfor %}
   </tbody>

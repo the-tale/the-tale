@@ -10,7 +10,7 @@ class MARKUP_METHOD(rels_django.DjangoEnum):
 
 
 class POST_REMOVED_BY(rels_django.DjangoEnum):
-    records = (('AUTHOR', 0, 'удалён автором'),
+    records = (('AUTHOR', 0, 'удалён аффтаром'),
                ('THREAD_OWNER', 1, 'удалён владельцем темы'),
                ('MODERATOR', 2, 'удалён модератором'))
 

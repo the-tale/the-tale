@@ -164,7 +164,7 @@ class ThreadsResource(BaseForumResource):
 
         return self.json_ok(data={'next_url': dext_urls.url('forum:threads:show', self.thread.id, page=self.thread.paginator.pages_count) + ('#m%d' % post.id)})
 
-    @dext_old_views.validate_argument('author', accounts_prototypes.AccountPrototype.get_by_id, 'forum.threads.index', 'автор не найден')
+    @dext_old_views.validate_argument('author', accounts_prototypes.AccountPrototype.get_by_id, 'forum.threads.index', 'аффтар не найден')
     @dext_old_views.validate_argument('participant', accounts_prototypes.AccountPrototype.get_by_id, 'forum.threads.index', 'участник не найден')
     @dext_old_views.validate_argument('page', int, 'forum.threads.index', 'неверный номер страницы')
     @dext_old_views.handler('', method='get')
@@ -517,9 +517,9 @@ class ForumResource(BaseForumResource):
 
     @dext_old_views.handler('feed', method='get')
     def feed(self):
-        feed = django_feedgenerator.Atom1Feed('Сказка: Форум',
+        feed = django_feedgenerator.Atom1Feed('Сказга: Форум',
                                               self.request.build_absolute_uri('/'),
-                                              'Новые темы на форуме мморпг «Сказка»',
+                                              'Новые темы на форуме мморпг «Сказга»',
                                               language='ru',
                                               feed_url=self.request.build_absolute_uri(django_reverse('forum:feed')))
 

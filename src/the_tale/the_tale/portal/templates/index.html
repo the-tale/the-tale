@@ -24,7 +24,7 @@ jQuery(document).ready(function(e){
 {% macro events_block(block) %}
   <div class="easy-block">
     <h4 class="newspaper-column-header">
-      {{block.title}}
+      {{block.title|olbanize}}
 
       {% if block.rss %}
         <a href="{{ block.rss }}" class="rss-link" rel="alternate" type="application/rss+xml" rel="tooltip" title="подписаться на rss">
@@ -42,30 +42,30 @@ jQuery(document).ready(function(e){
       {% for event in block.events %}
         <li class="newspaper-link-list">
           {% if event.is_today() %}
-            <span class="newspaper-link-time">сегодня</span>
-            <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ event.date|timestamp }}"></span>
+            <span class="newspaper-link-time">сеготня</span>
+            <span class="pgf-format-time ewspaper-link-time" data-timestamp="{{ event.date|timestamp }}"></span>
           {% elif event.is_yesterday() %}
-            <span class="newspaper-link-time">вчера</span>
+            <span class="newspaper-link-time">фчера</span>
             <span class="pgf-format-time newspaper-link-time" data-timestamp="{{ event.date|timestamp }}"></span>
           {% else %}
             <span class="pgf-format-datetime newspaper-link-time" data-timestamp="{{ event.date|timestamp }}"></span>
           {% endif %}
 
           {% if event.initiator %}
-            <span class="newspaper-user">{{event.initiator}}</span>
+            <span class="newspaper-user">{{event.initiator|olbanize}}</span>
           {% endif %}
 
           {% if event.operation %}
-            <span class="newspaper-operation">{{event.operation}}</span>
+            <span class="newspaper-operation">{{event.operation|olbanize}}</span>
           {% endif %}
 
           <br/>
-          {{ event.title }}&nbsp;<a style="font-size: 10pt;" href="{{ event.url }}">➔</a>
+          {{ event.title|olbanize }}&nbsp;<a style="font-size: 10pt;" href="{{ event.url }}">➔</a>
         </li>
         {% endfor %}
     </ul>
     {% else %}
-    <p>Нет сообщений</p>
+    <p>Нет саапщений</p>
     {% endif %}
     </div>
 {% endmacro %}
@@ -78,7 +78,7 @@ jQuery(document).ready(function(e){
   <div class="span12" style="min-height: 50px;">
     <div class="alert alert-info">
     <h2>
-      Первый раз в Cказке? <small><a href="{{url('guide:game')}}">Узнайте больше про игру!</a></small>
+      Перфый раз в Cказге? <small><a href="{{url('guide:game')}}">Уснайте больше пра игру!</a></small>
     </h2>
 
     {{ landing_intro_macros.intro(map_button=true) }}
@@ -91,7 +91,7 @@ jQuery(document).ready(function(e){
 <div class="row">
   <div class="span3" style="min-height: 50px;">&nbsp;</div>
   <div class="span6" style="text-align: center; min-height: 50px;">
-    <h1 style="font-size: 40px; line-height: 50px;">Вестник Пандоры</h1>
+    <h1 style="font-size: 40px; line-height: 50px;">Вестнег Allбании</h1>
   </div>
   <div class="span3" style="vertical-align: middle; min-height: 50px;">
     <h4 style="line-height: 50px;">Выпуск №{{get_edition_number()}}</h4>
@@ -125,12 +125,12 @@ jQuery(document).ready(function(e){
           <ul class="nav nav-tabs" style="margin-top: -0.33em;">
             <li style="width: 33%;">
               <a href="#pgf-newspaper-news" class="pgf-newspaper-news-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
-                <h4 class="newspaper-column-header">новости</h4>
+                <h4 class="newspaper-column-header">новасти</h4>
               </a>
             </li>
             <li style="width: 33%;" class="active">
               <a href="#pgf-newspaper-chronicle" class="pgf-newspaper-chronicle-button"  data-toggle="tab" style="color: rgb(51, 51, 51);">
-                <h4 class="newspaper-column-header">события</h4>
+                <h4 class="newspaper-column-header">событийа</h4>
               </a>
             </li>
             <li style="width: 33%;">
@@ -160,18 +160,18 @@ jQuery(document).ready(function(e){
               {{ chronicle_macros.records_list(chronicle_records) }}
 
               <div>
-                <a href="{{ url('game:chronicle:') }}">ВСЕ СОБЫТИЯ…</a>
+                <a href="{{ url('game:chronicle:') }}">ФСЕ САБЫТИЙА…</a>
               </div>
             </div>
 
             <div class="tab-pane" id="pgf-newspaper-statistics">
 
-              <h4 class="newspaper-column-header">Географический уголок</h4>
-              <span style="font-size: 8pt;">Обзор географической ситуации любезно предоставлен Гоблинским Географическим Обществом.</span>
+              <h4 class="newspaper-column-header">Геаграфический угалок</h4>
+              <span style="font-size: 8pt;">Апсор геаграфической ситуации любесно предаставлен Гоблинским Геаграфическим Опществом.</span>
               {{ portal_macros.map_statistics(MAP_STATISTICS, map_info) }}
 
-              <h4 class="newspaper-column-header">Политический обзор</h4>
-              <span style="font-size: 8pt;">Политическая ситуация описана согласно данным полученным от ПандораСтат.</span>
+              <h4 class="newspaper-column-header">Палитический апзор</h4>
+              <span style="font-size: 8pt;">Палитическайа ситуацийа аписана сагласно даным палученным от AllбанияСтат.</span>
               {{ portal_macros.race_statistics(RACE, map_info) }}
 
             </div>
@@ -202,13 +202,13 @@ jQuery(document).ready(function(e){
             <small>{{ hero_of_the_day.race_verbose}}</small>
           </h4>
         </li>
-        <li><strong>уровень:</strong> {{ hero_of_the_day.level}}</li>
-        <li><strong>физическая сила:</strong> {{ hero_of_the_day.power.physic }}</li>
-        <li><strong>магическая сила:</strong> {{ hero_of_the_day.power.magic }}</li>
-        <li><strong>хранитель:</strong> <a href="{{ url('accounts:show', account_of_the_day.id) }}">{{ account_of_the_day.nick_verbose}}</a></li>
-        <li><strong>могущество:</strong> {{ hero_of_the_day.might }}</li>
+        <li><strong>уравень:</strong> {{ hero_of_the_day.level}}</li>
+        <li><strong>физическайа сила:</strong> {{ hero_of_the_day.power.physic }}</li>
+        <li><strong>магическайа сила:</strong> {{ hero_of_the_day.power.magic }}</li>
+        <li><strong>Хранитель:</strong> <a href="{{ url('accounts:show', account_of_the_day.id) }}">{{ account_of_the_day.nick_verbose}}</a></li>
+        <li><strong>магущэство:</strong> {{ hero_of_the_day.might }}</li>
         {% if clan_of_the_day %}
-        <li><strong>гильдия:</strong> <a href="{{url('clans:show', clan_of_the_day.id)}}">{{clan_of_the_day.name}}</a></li>
+        <li><strong>гильдийа:</strong> <a href="{{url('clans:show', clan_of_the_day.id)}}">{{clan_of_the_day.name}}</a></li>
         {% endif %}
         {% if hero_of_the_day.companion %}
         <li>
@@ -220,7 +220,7 @@ jQuery(document).ready(function(e){
         {% endif %}
       </ul>
       {% else %}
-      Здесь может быть Ваша реклама.
+      Сдесь может быть ваша реклама.
       {% endif %}
     </div>
 

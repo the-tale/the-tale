@@ -6,7 +6,7 @@ smart_imports.all()
 
 class WordsIndexFilter(utils_list_filter.ListFilter):
     ELEMENTS = [utils_list_filter.reset_element(),
-                utils_list_filter.static_element('автор:', attribute='contributor'),
+                utils_list_filter.static_element('аффтар:', attribute='contributor'),
                 utils_list_filter.filter_element('поиск:', attribute='filter', default_value=None),
                 utils_list_filter.choice_element('часть речи:', attribute='type', choices=[(None, 'все')] + list(relations.ALLOWED_WORD_TYPE.select('value', 'text'))),
                 utils_list_filter.choice_element('состояние:', attribute='state', choices=[(None, 'все')] + list(relations.WORD_STATE.select('value', 'text'))),
@@ -17,7 +17,7 @@ class WordsIndexFilter(utils_list_filter.ListFilter):
 
 class TemplatesIndexFilter(utils_list_filter.ListFilter):
     ELEMENTS = [utils_list_filter.reset_element(),
-                utils_list_filter.static_element('автор:', attribute='contributor'),
+                utils_list_filter.static_element('аффтар:', attribute='contributor'),
                 utils_list_filter.filter_element('поиск:', attribute='filter', default_value=None),
                 utils_list_filter.choice_element('состояние:', attribute='state', choices=[(None, 'все')] + list(relations.TEMPLATE_STATE.select('value', 'text'))),
                 utils_list_filter.choice_element('наличие ошибок:', attribute='errors_status', choices=[(None, 'все')] + list(relations.TEMPLATE_ERRORS_STATUS.select('value', 'text'))),
@@ -90,7 +90,7 @@ class WordResource(utils_resources.Resource):
         self.can_edit_words = self.account.is_authenticated and not self.account.is_fast
         self.can_be_removed_by_owner = self.word and self.word.state.is_ON_REVIEW and self.account.is_authenticated and self.account.id == self.word.author_id
 
-    @dext_old_views.validate_argument('contributor', accounts_prototypes.AccountPrototype.get_by_id, 'linguistics.words', 'неверный сооавтор')
+    @dext_old_views.validate_argument('contributor', accounts_prototypes.AccountPrototype.get_by_id, 'linguistics.words', 'неверный сооаффтар')
     @dext_old_views.validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', 'неверное состояние слова')
     @dext_old_views.validate_argument('type', lambda v: relations.ALLOWED_WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова')
     @dext_old_views.validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.words', 'неверный тип сортировки')
@@ -201,7 +201,7 @@ class WordResource(utils_resources.Resource):
 
         if parent and parent.has_child():
             return self.auto_error('linguistics.words.create.has_on_review_copy',
-                                   'Для этого слова уже создана улучшенная копия. Отредактируйте её (если вы её автор) или подождите, пока её проверит модератор.')
+                                   'Для этого слова уже создана улучшенная копия. Отредактируйте её (если вы её аффтар) или подождите, пока её проверит модератор.')
 
         if parent and parent.state.is_ON_REVIEW and parent.author_id != self.account.id and not self.can_moderate_words:
             return self.auto_error('linguistics.words.create.can_not_edit_anothers_word',
@@ -319,7 +319,7 @@ class WordResource(utils_resources.Resource):
     def remove(self):
 
         if not (self.can_moderate_words or self.can_be_removed_by_owner):
-            return self.json_error('linguistics.words.remove.no_rights', 'Удалить слово может только модератор либо автор слова, если оно не находится в игре.')
+            return self.json_error('linguistics.words.remove.no_rights', 'Удалить слово может только модератор либо аффтар слова, если оно не находится в игре.')
 
         with django_transaction.atomic():
             prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.WORD,
@@ -388,7 +388,7 @@ class TemplateResource(utils_resources.Resource):
         self.can_edit_templates = self.account.has_perm('linguistics.edit_template') or self.can_moderate_templates
         self.can_be_removed_by_owner = self._template and self._template.state.is_ON_REVIEW and self.account.is_authenticated and self.account.id == self._template.author_id
 
-    @dext_old_views.validate_argument('contributor', accounts_prototypes.AccountPrototype.get_by_id, 'linguistics.templates', 'неверный сооавтор')
+    @dext_old_views.validate_argument('contributor', accounts_prototypes.AccountPrototype.get_by_id, 'linguistics.templates', 'неверный сооаффтар')
     @dext_old_views.validate_argument('page', int, 'linguistics.templates', 'неверная страница')
     @dext_old_views.validate_argument('key', lambda v: lexicon_keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы')
     @dext_old_views.validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', 'неверное состояние шаблона')
@@ -546,7 +546,7 @@ class TemplateResource(utils_resources.Resource):
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.edit.template_has_child',
-                                   'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
+                                   'У этой фразы уже есть копия. Отредактируйте её или попросите аффтара копии сделать это.')
 
         verificators = self._template.get_all_verificatos()
 
@@ -575,7 +575,7 @@ class TemplateResource(utils_resources.Resource):
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.update.template_has_child',
-                                   'У этой фразы уже есть копия. Отредактируйте её или попросите автора копии сделать это.')
+                                   'У этой фразы уже есть копия. Отредактируйте её или попросите аффтара копии сделать это.')
 
         form = forms.TemplateForm(self._template.key,
                                   self._template.get_all_verificatos(),
@@ -727,7 +727,7 @@ class TemplateResource(utils_resources.Resource):
             return self.auto_error('linguistics.templates.remove.template_has_parent',
                                    'У этой фразы есть копия, необходимо разорвать связь между ними.')
 
-        ERROR_MSG = 'Удалить фразу может только модератор либо редактор или автор фразы, если она находится на рассмотрении.'
+        ERROR_MSG = 'Удалить фразу может только модератор либо редактор или аффтар фразы, если она находится на рассмотрении.'
 
         if self._template.state.is_ON_REVIEW:
             if not self.can_edit_templates and self._template.author_id != self.account.id:
@@ -766,7 +766,7 @@ class TemplateResource(utils_resources.Resource):
 
         if not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.edit_key.can_not_edit',
-                                   'Менять тип фразы могут только модераторы, редакторы и автор фразы, если она не внесена в игру.')
+                                   'Менять тип фразы могут только модераторы, редакторы и аффтар фразы, если она не внесена в игру.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.edit_key.template_has_child',
@@ -786,7 +786,7 @@ class TemplateResource(utils_resources.Resource):
 
         if not self.can_edit_templates and self._template.author_id != self.account.id:
             return self.auto_error('linguistics.templates.change_key.can_not_change',
-                                   'Менять тип фразы могут только модераторы, редакторы и автор фразы, если она не внесена в игру.')
+                                   'Менять тип фразы могут только модераторы, редакторы и аффтар фразы, если она не внесена в игру.')
 
         if self._template.get_child():
             return self.auto_error('linguistics.templates.change_key.template_has_child',

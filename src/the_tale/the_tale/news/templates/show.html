@@ -4,13 +4,17 @@
 {% import 'forum/thread_page.html' as thread_page with context %}
 {% import 'blogs/macros.html' as blogs_macros with context %}
 
-{% block title %}{{ news.caption }} | {{settings.PAGE_TITLE}}{% endblock %}
-{% block description %}Новость: «{{news.caption}}».{% endblock %}
+{% block title %}{{ news.caption|olbanize }} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Новость: «{{news.caption|olbanize}}».{% endblock %}
 
 {% block news_content %}
 
-  <h2>
+<h2>
+    {% if news.id != 285 %}
+    {{news.caption|olbanize}}
+    {% else %}
     {{news.caption}}
+    {% endif %}
     {{ base_macros.magnet(news_meta_object) }}
   </h2>
 
@@ -29,7 +33,7 @@
       {% if context.news_can_edit %}
 
       {% if news.forum_thread_id is none %}
-      <li><a class="pgf-forms-post-simple" href="{{ url('news:publish-on-forum', news.id) }}">опубликовать на форуме</a></li>
+      <li><a class="pgf-forms-post-simple" href="{{ url('news:publish-on-forum', news.id) }}">опупликовать на форуме</a></li>
       {% endif %}
 
       {% if news.emailed.is_DISABLED %}
@@ -61,7 +65,11 @@
     <span class="publication-date">опубликовано: <span class="pgf-format-datetime" data-timestamp="{{ news.created_at|timestamp }}"></span></span>
   </div>
 
+  {% if news.id != 285 %}
+  {{ news.html_content|olbanize|safe }}
+  {% else %}
   {{ news.html_content|safe }}
+  {% endif %}
 
   {% set folclor_objects = posts_about(news_meta_object) %}
 

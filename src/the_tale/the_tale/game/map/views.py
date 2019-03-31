@@ -39,7 +39,7 @@ def region(context):
         except models.MapRegion.DoesNotExist:
             raise dext_views.ViewError(code='no_region_found', message='Описание карты для заданного хода не найдено')
 
-    return dext_views.AjaxOk(content={'region': region.data,
+    return dext_views.AjaxOk(content={'region': utils_api.olbanize(region.data),
                                       'turn': region.turn_number})
 
 

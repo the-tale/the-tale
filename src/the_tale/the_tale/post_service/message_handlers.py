@@ -86,7 +86,7 @@ class PersonalMessageHandler(BaseMessageHandler):
         if not account.email:
             return True
 
-        subject = '«Сказка»: личное сообщение'
+        subject = '«Сказга»: личное сообщение'
 
         context = {'message': message,
                    'sender': accounts_prototypes.AccountPrototype.get_by_id(message.sender_id)}
@@ -128,7 +128,7 @@ class ForumPostHandler(BaseMessageHandler):
 
         accounts = forum_prototypes.SubscriptionPrototype.get_accounts_for_thread(post.thread)
 
-        subject = '«Сказка»: %s' % post.thread.caption
+        subject = '«Сказга»: %s' % post.thread.caption
 
         context = {'post': post}
 
@@ -171,7 +171,7 @@ class ForumThreadHandler(BaseMessageHandler):
 
         accounts = forum_prototypes.SubscriptionPrototype.get_accounts_for_subcategory(thread.subcategory)
 
-        subject = '«Сказка»: новая тема на форуме'
+        subject = '«Сказга»: новая тема на форуме'
 
         context = {'thread': thread,
                    'post': post}
@@ -214,7 +214,7 @@ class ResetPasswordHandler(BaseMessageHandler):
         if account.id == accounts_logic.get_system_user().id or account.is_bot:
             return True
 
-        subject = '«Сказка»: сброс пароля'
+        subject = '«Сказга»: сброс пароля'
 
         context = {'account': account,
                    'task_uuid': self.task_uuid}
@@ -250,7 +250,7 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
 
     def process(self):
 
-        subject = '«Сказка»: подтвердите email'
+        subject = '«Сказга»: подтвердите email'
 
         task = accounts_prototypes.ChangeCredentialsTaskPrototype.get_by_id(self.task_id)
 
@@ -295,7 +295,7 @@ class NewsHandler(BaseMessageHandler):
 
         accounts = (accounts_prototypes.AccountPrototype(model=account_model) for account_model in accounts_prototypes.AccountPrototype._db_filter(news_subscription=True).iterator())
 
-        subject = '«Сказка»::Новости: %s' % news.caption
+        subject = '«Сказга»::Новости: %s' % news.caption
 
         context = {'news': news}
 

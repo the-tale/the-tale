@@ -104,7 +104,7 @@ def api_info(context):
     if context.api_version == '1.0':
         data = logic.game_info_from_1_1_to_1_0(data)
 
-    return dext_views.AjaxOk(content=data)
+    return dext_views.AjaxOk(content=utils_api.olbanize(data))
 
 
 @utils_api.Processor(versions=(conf.settings.DIARY_API_VERSION,))
@@ -113,7 +113,7 @@ def api_info(context):
 def api_diary(context):
     diary = heroes_tt_services.diary.cmd_diary(context.account.id)
 
-    return dext_views.AjaxOk(content=diary)
+    return dext_views.AjaxOk(content=utils_api.olbanize(diary))
 
 
 @utils_api.Processor(versions=(conf.settings.NAMES_API_VERSION,))
@@ -126,7 +126,7 @@ def api_names(context):
 
     result_names = game_names.get_names_set(number=context.names_number)
 
-    return dext_views.AjaxOk(content={'names': result_names})
+    return dext_views.AjaxOk(content={'names': utils_api.olbanize(result_names)})
 
 
 @accounts_views.hero_story_attributes
@@ -143,7 +143,7 @@ def api_hero_history(context):
                                    first_death=context.first_death,
                                    age=context.age)
 
-    return dext_views.AjaxOk(content={'story': texts})
+    return dext_views.AjaxOk(content={'story': utils_api.olbanize(texts)})
 
 
 @accounts_views.LoginRequiredProcessor()

@@ -48,14 +48,14 @@ def api_list(context):
                       'specialization': place._modifier.value}
         data['places'][place.id] = place_data
 
-    return dext_views.AjaxOk(content=data)
+    return dext_views.AjaxOk(content=utils_api.olbanize(data))
 
 
 @utils_api.Processor(versions=(conf.settings.API_SHOW_VERSION,))
 @PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')
 @resource('#place', 'api', 'show', name='api-show')
 def api_show(context):
-    return dext_views.AjaxOk(content=info.place_info(context.place, full_building_info=context.api_version != '2.0'))
+    return dext_views.AjaxOk(content=utils_api.olbanize(info.place_info(context.place, full_building_info=context.api_version != '2.0')))
 
 
 @PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')

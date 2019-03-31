@@ -17,3 +17,9 @@ def players_projects_url():
 @dext_jinja2.jinjaglobal
 def get_edition_number():
     return (datetime.datetime.now() - conf.settings.FIRST_EDITION_DATE).days + 1
+
+
+@dext_jinja2.jinjafilter
+def olbanize(value):
+    from the_tale import olbanizator
+    return olbanizator.olbanize(value)

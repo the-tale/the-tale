@@ -838,7 +838,7 @@ pgf.game.constants.EFFECTS = {
 
 pgf.game.constants.abilities = {
 
-    
+
     "help": {
         "type": "help",
         "name": "Помочь",
@@ -873,821 +873,821 @@ pgf.game.constants.abilities = {
 
 pgf.game.constants.linguistics_formatters = {
 
-    
+
     "4": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "160005": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "620038": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "160007": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "480008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "620041": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "160010": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "160011": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "160012": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "160013": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "620046": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "620049": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "620050": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "620053": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "160024": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "240004": "<span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "160026": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "160027": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "160028": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "40026": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "160030": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "240005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "180001": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
-    
+
     "340002": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!duelist_1!</span> <span class='log-short log-short-effectiveness-up' rel='tooltip' title='полученная эффективность'>+!effectiveness!👁</span>",
-    
+
     "80006": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "620074": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "240007": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "620077": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "240008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "620082": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "620085": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "620086": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "240009": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "620089": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "240010": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!mob!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "40001": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "40002": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "11": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!actor!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
-    
+
     "40005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "40006": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "40009": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "40010": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "40013": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "40014": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "40017": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "40018": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "40021": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "40022": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "360023": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "40025": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "360026": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "40029": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "40030": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "220001": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "500005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "540006": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "540007": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!sell_price!☉</span>",
-    
+
     "540008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "540009": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "540010": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "12": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!actor!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
-    
+
     "400025": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "380016": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span>",
-    
+
     "380018": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "380020": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "400020": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "160008": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "240021": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "240000": "<span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "80002": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!sell_price!☉</span>",
-    
+
     "80003": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!sell_price!☉</span>",
-    
+
     "80004": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "80005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "240006": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "80007": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "80008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "80009": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "80010": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "240011": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!mob!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "240012": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "240013": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "240014": "<span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "240015": "<span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "240016": "<span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "240017": "<span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "600003": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
-    
+
     "240020": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-energy-down' rel='tooltip' title='потерянная энергия'>-!energy!⚡</span>",
-    
+
     "560021": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "400022": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "160025": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "80025": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "560026": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "80027": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "560028": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "80029": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
-    
+
     "80030": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "520005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "80032": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span>",
-    
+
     "80035": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-down' rel='tooltip' title='потерянные монеты'>-!coins!☉</span> <span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
-    
+
     "580004": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
-    
+
     "580005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!coins!♥</span>",
-    
+
     "580006": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion_owner!</span> <span class='log-short log-short-exp-up' rel='tooltip' title='полученный опыт'>+!experience!★</span>",
-    
+
     "580007": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
-    
+
     "580008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
-    
+
     "160009": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "160029": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "560030": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "160031": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "280000": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!defender!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
-    
+
     "280003": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!defender!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
-    
+
     "440005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "280008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!actor!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
-    
+
     "280009": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!defender!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
-    
+
     "280013": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!defender!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
-    
+
     "280015": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!attacker!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span> <span class='log-short log-short-name' rel='tooltip' title='актёр'>!defender!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
-    
+
     "280017": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!companion!</span> <span class='log-short log-short-hp-up' rel='tooltip' title='восстановленное здоровье'>+!health!♥</span>",
-    
+
     "280018": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!attacker!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!attacker_damage!♥</span> <span class='log-short log-short-name' rel='tooltip' title='актёр'>!defender!</span> <span class='log-short log-short-hp-down' rel='tooltip' title='полученный урон'>-!damage!♥</span>",
-    
+
     "420005": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "160006": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>",
-    
+
     "460008": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "420007": "<span class='log-short log-short-name' rel='tooltip' title='актёр'>!hero!</span> <span class='log-short log-short-gold-up' rel='tooltip' title='полученные монеты'>+!coins!☉</span>",
-    
+
     "160014": "<span class='log-short log-short-energy-up' rel='tooltip' title='полученная энергия'>+!energy!⚡</span>"
-    
+
 };
 
 
 pgf.game.constants.sprites = {
 
-    
+
     "0": {
         "x": "0",
         "y": "256"
     },
 
-    
+
     "1": {
         "x": "32",
         "y": "256"
     },
 
-    
+
     "2": {
         "x": "64",
         "y": "256"
     },
 
-    
+
     "3": {
         "x": "96",
         "y": "256"
     },
 
-    
+
     "4": {
         "x": "128",
         "y": "256"
     },
 
-    
+
     "5": {
         "x": "160",
         "y": "256"
     },
 
-    
+
     "6": {
         "x": "192",
         "y": "256"
     },
 
-    
+
     "7": {
         "x": "224",
         "y": "256"
     },
 
-    
+
     "8": {
         "x": "256",
         "y": "256"
     },
 
-    
+
     "9": {
         "x": "288",
         "y": "256"
     },
 
-    
+
     "10": {
         "x": "0",
         "y": "256"
     },
 
-    
+
     "11": {
         "x": "64",
         "y": "256"
     },
 
-    
+
     "12": {
         "x": "128",
         "y": "256"
     },
 
-    
+
     "13": {
         "x": "192",
         "y": "256"
     },
 
-    
+
     "14": {
         "x": "256",
         "y": "256"
     },
 
-    
+
     "15": {
         "x": "128",
         "y": "64"
     },
 
-    
+
     "16": {
         "x": "96",
         "y": "64"
     },
 
-    
+
     "17": {
         "x": "32",
         "y": "64"
     },
 
-    
+
     "18": {
         "x": "0",
         "y": "64"
     },
 
-    
+
     "19": {
         "x": "32",
         "y": "0"
     },
 
-    
+
     "20": {
         "x": "96",
         "y": "0"
     },
 
-    
+
     "21": {
         "x": "128",
         "y": "0"
     },
 
-    
+
     "22": {
         "x": "160",
         "y": "0"
     },
 
-    
+
     "23": {
         "x": "0",
         "y": "0"
     },
 
-    
+
     "24": {
         "x": "64",
         "y": "0"
     },
 
-    
+
     "25": {
         "x": "0",
         "y": "32"
     },
 
-    
+
     "26": {
         "x": "32",
         "y": "32"
     },
 
-    
+
     "27": {
         "x": "64",
         "y": "32"
     },
 
-    
+
     "28": {
         "x": "96",
         "y": "32"
     },
 
-    
+
     "29": {
         "x": "160",
         "y": "64"
     },
 
-    
+
     "30": {
         "x": "224",
         "y": "0"
     },
 
-    
+
     "31": {
         "x": "352",
         "y": "0"
     },
 
-    
+
     "32": {
         "x": "320",
         "y": "0"
     },
 
-    
+
     "33": {
         "x": "288",
         "y": "0"
     },
 
-    
+
     "34": {
         "x": "192",
         "y": "0"
     },
 
-    
+
     "35": {
         "x": "256",
         "y": "0"
     },
 
-    
+
     "36": {
         "x": "192",
         "y": "32"
     },
 
-    
+
     "37": {
         "x": "224",
         "y": "32"
     },
 
-    
+
     "38": {
         "x": "256",
         "y": "32"
     },
 
-    
+
     "39": {
         "x": "288",
         "y": "32"
     },
 
-    
+
     "40": {
         "x": "192",
         "y": "64"
     },
 
-    
+
     "41": {
         "x": "224",
         "y": "64"
     },
 
-    
+
     "42": {
         "x": "64",
         "y": "64"
     },
 
-    
+
     "43": {
         "x": "352",
         "y": "32"
     },
 
-    
+
     "44": {
         "x": "0",
         "y": "192"
     },
 
-    
+
     "45": {
         "x": "32",
         "y": "192"
     },
 
-    
+
     "46": {
         "x": "64",
         "y": "192"
     },
 
-    
+
     "47": {
         "x": "96",
         "y": "192"
     },
 
-    
+
     "48": {
         "x": "128",
         "y": "192"
     },
 
-    
+
     "49": {
         "x": "160",
         "y": "192"
     },
 
-    
+
     "50": {
         "x": "192",
         "y": "192"
     },
 
-    
+
     "51": {
         "x": "224",
         "y": "192"
     },
 
-    
+
     "52": {
         "x": "256",
         "y": "192"
     },
 
-    
+
     "53": {
         "x": "288",
         "y": "192"
     },
 
-    
+
     "54": {
         "x": "320",
         "y": "192"
     },
 
-    
+
     "55": {
         "x": "352",
         "y": "192"
     },
 
-    
+
     "56": {
         "x": "0",
         "y": "224"
     },
 
-    
+
     "57": {
         "x": "32",
         "y": "224"
     },
 
-    
+
     "58": {
         "x": "64",
         "y": "224"
     },
 
-    
+
     "59": {
         "x": "96",
         "y": "224"
     },
 
-    
+
     "60": {
         "x": "128",
         "y": "224"
     },
 
-    
+
     "61": {
         "x": "160",
         "y": "224"
     },
 
-    
+
     "62": {
         "x": "192",
         "y": "224"
     },
 
-    
+
     "63": {
         "x": "224",
         "y": "224"
     },
 
-    
+
     "64": {
         "x": "96",
         "y": "96"
     },
 
-    
+
     "65": {
         "x": "32",
         "y": "96"
     },
 
-    
+
     "66": {
         "x": "160",
         "y": "96"
     },
 
-    
+
     "67": {
         "x": "64",
         "y": "96"
     },
 
-    
+
     "68": {
         "x": "128",
         "y": "96"
     },
 
-    
+
     "69": {
         "x": "0",
         "y": "96"
     },
 
-    
+
     "70": {
         "x": "0",
         "y": "288"
     },
 
-    
+
     "71": {
         "x": "32",
         "y": "288"
     },
 
-    
+
     "72": {
         "x": "0",
         "y": "128"
     },
 
-    
+
     "73": {
         "x": "32",
         "y": "128"
     },
 
-    
+
     "74": {
         "x": "64",
         "y": "128"
     },
 
-    
+
     "75": {
         "x": "96",
         "y": "128"
     },
 
-    
+
     "76": {
         "x": "128",
         "y": "128"
     },
 
-    
+
     "77": {
         "x": "160",
         "y": "128"
     },
 
-    
+
     "78": {
         "x": "192",
         "y": "128"
     },
 
-    
+
     "79": {
         "x": "224",
         "y": "128"
     },
 
-    
+
     "80": {
         "x": "256",
         "y": "128"
     },
 
-    
+
     "81": {
         "x": "288",
         "y": "128"
     },
 
-    
+
     "82": {
         "x": "320",
         "y": "128"
     },
 
-    
+
     "83": {
         "x": "352",
         "y": "128"
     },
 
-    
+
     "84": {
         "x": "0",
         "y": "160"
     },
 
-    
+
     "85": {
         "x": "32",
         "y": "160"
     },
 
-    
+
     "86": {
         "x": "64",
         "y": "160"
     },
 
-    
+
     "87": {
         "x": "96",
         "y": "160"
     },
 
-    
+
     "88": {
         "x": "128",
         "y": "160"
     },
 
-    
+
     "89": {
         "x": "160",
         "y": "160"
     },
 
-    
+
     "90": {
         "x": "192",
         "y": "160"
     },
 
-    
+
     "91": {
         "x": "224",
         "y": "160"
     },
 
-    
+
     "92": {
         "x": "256",
         "y": "160"
     },
 
-    
+
     "93": {
         "x": "288",
         "y": "160"
     },
 
-    
+
     "CELL_HIGHLIGHTING": "71",
     "SELECT_LAND": "70"
 

@@ -140,47 +140,47 @@ jQuery(document).ready(function() {
           <a class="brand" href="{{ url('portal:') }}"><img src="{{STATIC_CONTENT}}images/logo.png"></img></a>
 
           <ul class="nav">
-            {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
-            {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:world"), "О мире"),
-                                                                         (url("guide:game"), "Описание игры"),
-                                                                         (url("guide:keepers"), "Хранители"),
-                                                                         (url("guide:hero-abilities"), "Способности героев"),
-                                                                         (url("guide:hero-habits"), "Черты героев"),
-                                                                         (url("guide:hero-preferences"), "Предпочтения героев"),
-                                                                         (url("guide:cards:"), "Карты Судьбы"),
-                                                                         (url("guide:quests"), "Задания"),
-                                                                         (url("guide:persons"), "Мастера"),
-                                                                         (url("guide:cities"), "Города"),
-                                                                         (url("guide:politics"), "Книга Судеб"),
-                                                                         (url("guide:clans"), "Гильдии"),
-                                                                         (url("guide:map"), "Карта"),
-                                                                         (url("guide:pvp"), "PvP"),
-                                                                         (url("guide:mobs:"), "Бестиарий"),
-                                                                         (url("guide:artifacts:"), "Артефакты"),
-                                                                         (url("guide:companions:"), "Спутники"),
-                                                                         (url("guide:account-types"), "Общее"),
+            {{ base_macros.main_menu_item("forum", url("forum:"), "Форум"|olbanize) }}
+            {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:world"), "О мире"|olbanize),
+                                                                         (url("guide:game"), "Описание игры"|olbanize),
+                                                                         (url("guide:keepers"), "Хранители"|olbanize),
+                                                                         (url("guide:hero-abilities"), "Способности героев"|olbanize),
+                                                                         (url("guide:hero-habits"), "Черты героев"|olbanize),
+                                                                         (url("guide:hero-preferences"), "Предпочтения героев"|olbanize),
+                                                                         (url("guide:cards:"), "Карты Судьбы"|olbanize),
+                                                                         (url("guide:quests"), "Задания"|olbanize),
+                                                                         (url("guide:persons"), "Мастера"|olbanize),
+                                                                         (url("guide:cities"), "Города"|olbanize),
+                                                                         (url("guide:politics"), "Книга Судеб"|olbanize),
+                                                                         (url("guide:clans"), "Гильдии"|olbanize),
+                                                                         (url("guide:map"), "Карта"|olbanize),
+                                                                         (url("guide:pvp"), "PvP"|olbanize),
+                                                                         (url("guide:mobs:"), "Бестиарий"|olbanize),
+                                                                         (url("guide:artifacts:"), "Артефакты"|olbanize),
+                                                                         (url("guide:companions:"), "Спутники"|olbanize),
+                                                                         (url("guide:account-types"), "Общее"|olbanize),
                                                                          (faq_url(), "FAQ"),
-                                                                         (settings.SOCIAL_DOCUMENTATION, "Документация по API и игре"),
-                                                                         (players_projects_url(), "Проекты игроков"),]) }}
-            {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
-                                                                           (url("clans:"), "Гильдии"),
-                                                                           (url("game:ratings:"), "Рейтинги"),
-                                                                           (url("accounts:achievements:"), "Достижения"),
-                                                                           (url("collections:collections:"), "Коллекции"),
+                                                                         (settings.SOCIAL_DOCUMENTATION, "Документация по API и игре"|olbanize),
+                                                                         (players_projects_url(), "Проекты игроков"|olbanize),]) }}
+            {{ base_macros.main_menu_item("community", "#", "Сообщество"|olbanize, [(url("accounts:"), "Игроки"|olbanize),
+                                                                           (url("clans:"), "Гильдии"|olbanize),
+                                                                           (url("game:ratings:"), "Рейтинги"|olbanize),
+                                                                           (url("accounts:achievements:"), "Достижения"|olbanize),
+                                                                           (url("collections:collections:"), "Коллекции"|olbanize),
                                                                            ('-', '<li class="divider"></li>'),
                                                                            (settings.SOCIAL_GITHUB_URL, "GitHub"),
-                                                                           (settings.SOCIAL_VK_GROUP_URL, "ВКонтакте"),
+                                                                           (settings.SOCIAL_VK_GROUP_URL, "ВКонтакте|olbanize"),
                                                                            (settings.SOCIAL_FACEBOOK_GROUP_URL, "Facebook"),
                                                                            (settings.SOCIAL_TWITTER_GROUP_URL, "Twitter"),
                                                                            ('-', '<li class="divider"></li>'),
                                                                            ('-', "<li style='padding-left: 15px;'>Проекты игроков</li>")]+settings.COMMUNITY_PROJECTS) }}
 
-            {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Книга Судеб"),
-                                                                (url("linguistics:"), "Лингвистика"),
-                                                                (url("blogs:posts:"), "Фольклор"),
-                                                                (url("game:chronicle:"), "Летопись"),
-                                                                (url("game:pvp:calls"), "Арена"),
-                                                                (url("game:politic-power:history"), "История влияния"), ] ) }}
+            {{ base_macros.main_menu_item("world", "#", "Мир", [(url("game:bills:"), "Книга Судеб"|olbanize),
+                                                                (url("linguistics:"), "Лингвистика"|olbanize),
+                                                                (url("blogs:posts:"), "Фольклор"|olbanize),
+                                                                (url("game:chronicle:"), "Летопись"|olbanize),
+                                                                (url("game:pvp:calls"), "Арена"|olbanize),
+                                                                (url("game:politic-power:history"), "История влияния"|olbanize), ] ) }}
 
             {% if resource.account.is_authenticated %}
             {{ base_macros.main_menu_item("game", url("game:"), "<span class='game-link'>Игра</span>") }}
@@ -188,7 +188,7 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("map", url("game:map:"), "<span class='game-link'>Карта</span>") }}
             <li><a href="{{ url('accounts:registration:create-hero') }}" class="attention-link"><strong>Найти героя</strong></a></li>
             {% endif %}
-            {{ base_macros.main_menu_item("shop", url("shop:"), "Рынок") }}
+            {{ base_macros.main_menu_item("shop", url("shop:"), "Рынок"|olbanize) }}
 
           </ul>
 
@@ -196,11 +196,11 @@ jQuery(document).ready(function() {
             {% set game_time = game_datetime() %}
             <li class="visible-desktop">
               <p id="time-block" class="navbar-text" rel="tooltip" title="{{game_time.date.verbose_full()}}">
-                <span class="pgf-game-date" style="font-size: 8pt;">{{game_time.date.verbose_full()}}</span>
+                <span class="pgf-game-date" style="font-size: 8pt;">{{game_time.date.verbose_full()|olbanize}}</span>
               </p>
             </li>
             <li class="hidden-desktop">
-              <p id="time-block" class="navbar-text" rel="tooltip" title="{{game_time.date.verbose_full()}}">
+              <p id="time-block" class="navbar-text" rel="tooltip" title="{{game_time.date.verbose_full()|olbanize}}">
                 <i class="icon-time icon-white" style="opacity: 0.5;"></i>
               </p>
             </li>
@@ -218,17 +218,17 @@ jQuery(document).ready(function() {
             {{ base_macros.main_menu_item("profile",
                                           "#",
                                           resource.account.nick_verbose,
-                                          [(url("accounts:profile:show"), "Профиль"),
-                                           (url("accounts:friends:"), "Друзья"),
-                                           (url("accounts:messages:"), "Сообщения"),
-                                           (url("accounts:third-party:tokens:"), "Приложения"),
-                                           (url("forum:subscriptions:"), "Подписки"),
-                                           (url("accounts:show", resource.account.id), "Моя страница"),
-                                           (url("game:heroes:my-hero"), "Мой герой"),
+                                          [(url("accounts:profile:show"), "Профиль"|olbanize),
+                                           (url("accounts:friends:"), "Друзья"|olbanize),
+                                           (url("accounts:messages:"), "Сообщения"|olbanize),
+                                           (url("accounts:third-party:tokens:"), "Приложения"|olbanize),
+                                           (url("forum:subscriptions:"), "Подписки"|olbanize),
+                                           (url("accounts:show", resource.account.id), "Моя страница"|olbanize),
+                                           (url("game:heroes:my-hero"), "Мой герой"|olbanize),
                                            (url("clans:show", resource.account.clan_id) if resource.account.clan_id is not none else none, "Моя гильдия") ,
-                                           (url("clans:invites") if resource.account.clan_id is none else none, "Приглашения в гильдии") ,
+                                           (url("clans:invites") if resource.account.clan_id is none else none, "Приглашения в гильдии"|olbanize) ,
                                            ('-', '<li class="divider"></li>'),
-                                           (logout_url(), "Выход")] ) }}
+                                           (logout_url(), "Выход"|olbanize)] ) }}
 
             {% else %}
             <li><a href="{{ login_page_url(resource.request.get_full_path())|safe }}">Войти</a></li>
@@ -266,7 +266,7 @@ jQuery(document).ready(function() {
           <p style="margin: 0;">
             Ваша игра доступна только с этого компьютера. <br/>
             Для игры из другого места необходимо указать имя, email и пароль в своём <a href="{{ url('accounts:profile:show') }}">профиле</a>.<br/>
-            Подробнее об игре можно прочитать в <a href="{{ url('guide:') }}">Путеводителе по Сказке</a>.
+            Подробнее об игре можно прочитать в <a href="{{ url('guide:') }}">Путеводителе по Сказге</a>.
           </p>
         </div>
         {% endif %}

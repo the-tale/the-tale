@@ -13,20 +13,20 @@
                    {{game_time.date.verbose_full()}} {{game_time.time.verbose()}}</br>
                    В реальности: {{event.created_at|verbose_datetime}}
                    </div>">
-        {{game_time.date.verbose_full()}}
+        {{game_time.date.verbose_full()|olbanize}}
       </span>:
 
       {% for meta_object in event.meta_objects %}
         {%- if loop.index > 1 -%},{% endif %}
         {% if meta_object.url %}
-          <a href="{{meta_object.url}}">{{meta_object.caption}}</a>
+          <a href="{{meta_object.url}}">{{meta_object.caption|olbanize}}</a>
         {% else %}
-          <a href="#" class="disabled">{{meta_object.caption}}</a>
+          <a href="#" class="disabled">{{meta_object.caption|olbanize}}</a>
         {% endif %}
       {% endfor %}
     </span>
     <br/>
-    <span>{{ event.message|make_paragraphs }}</span>
+    <span>{{ event.message|olbanize|make_paragraphs }}</span>
   </li>
   {% endfor %}
 {% endmacro %}

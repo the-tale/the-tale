@@ -168,9 +168,9 @@ def publish_on_forum(context):
 
 @resource('feed')
 def feed(context):
-    feed = django_feedgenerator.Atom1Feed('Сказка: Новости',
+    feed = django_feedgenerator.Atom1Feed('Сказга: Новости',
                                           context.django_request.build_absolute_uri('/'),
-                                          'Новости мморпг «Сказка»',
+                                          'Новости мморпг «Сказга»',
                                           language='ru',
                                           feed_url=context.django_request.build_absolute_uri(dext_urls.url('news:feed')))
 

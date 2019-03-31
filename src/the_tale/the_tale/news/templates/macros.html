@@ -2,8 +2,20 @@
 {% macro news_record(news, in_block=False, center_captions=false) -%}
 
 <div class="news-record">
-  <h3 class="caption" style="{% if center_captions %}text-align: center;{% endif %}"><a href="{{ url('news:show', news.id) }}">{{ news.caption }}</a></h3>
-  <div class="">{{ news.html_description|safe }}</div>
+  <h3 class="caption" style="{% if center_captions %}text-align: center;{% endif %}"><a href="{{ url('news:show', news.id) }}">
+      {% if news.id != 285 %}
+      {{ news.caption|olbanize }}
+      {% else %}
+      {{ news.caption }}
+      {% endif %}
+  </a></h3>
+  <div class="">
+    {% if news.id != 285 %}
+    {{ news.html_description|olbanize|safe }}
+    {% else %}
+    {{ news.html_description|safe }}
+    {% endif %}
+  </div>
 
   <div class="news-info">
     <span class="publication-date"><span class="pgf-format-datetime" data-timestamp="{{ news.created_at|timestamp }}"></span></span>

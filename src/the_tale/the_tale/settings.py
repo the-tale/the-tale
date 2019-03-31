@@ -71,7 +71,7 @@ AUTH_USER_MODEL = 'accounts.Account'
 
 OWNER = 'Информация о владельце сайта'
 
-PAGE_TITLE = 'Сказка'
+PAGE_TITLE = 'Сказга'
 
 API_CLIENT = 'the_tale-%s' % META_CONFIG.version
 
@@ -98,11 +98,11 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 # Mail settings
 ################################
 
-SERVER_EMAIL = '«Сказка»: системное сообщение <no-reply@example.com>'
+SERVER_EMAIL = '«Сказга»: системное сообщение <no-reply@example.com>'
 ADMINS = ()
 
-EMAIL_NOREPLY = '«Сказка» <no-reply@example.com>'
-EMAIL_SUPPORT = '«Сказка» <support@example.com>'
+EMAIL_NOREPLY = '«Сказга» <no-reply@example.com>'
+EMAIL_SUPPORT = '«Сказга» <support@example.com>'
 EMAIL_SUPPORT_SHORT = 'support@example.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'

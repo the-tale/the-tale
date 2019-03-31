@@ -255,7 +255,7 @@ def show(context):
 @accounts_resource('#account', 'api', 'show', name='api-show')
 def api_show(context):
     master_hero = heroes_logic.load_hero(account_id=context.master_account.id)
-    return dext_views.AjaxOk(content=logic.get_account_info(context.master_account, master_hero))
+    return dext_views.AjaxOk(content=utils_api.olbanize(logic.get_account_info(context.master_account, master_hero)))
 
 
 @LoginRequiredProcessor()

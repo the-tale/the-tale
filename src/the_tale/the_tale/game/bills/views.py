@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 BASE_INDEX_FILTERS = [utils_list_filter.reset_element(),
-                      utils_list_filter.static_element('автор:', attribute='owner'),
+                      utils_list_filter.static_element('аффтар:', attribute='owner'),
                       utils_list_filter.choice_element('состояние:', attribute='state', choices=[(None, 'все'),
                                                                                                  (relations.BILL_STATE.VOTING.value, 'голосование'),
                                                                                                  (relations.BILL_STATE.ACCEPTED.value, 'принятые'),

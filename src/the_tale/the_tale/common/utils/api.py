@@ -105,3 +105,8 @@ class Processor(dext_views.BaseViewProcessor):
             response.content['depricated'] = True
 
         return response
+
+
+def olbanize(struct):
+    from the_tale import olbanizator
+    return olbanizator.olbanize_struct(struct)

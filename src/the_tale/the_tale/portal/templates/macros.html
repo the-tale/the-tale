@@ -2,12 +2,12 @@
 {% macro map_statistics(MAP_STATISTICS, map_info) %}
 <table class="table table-condensed">
   <tr><th>местность</th>  <th>распространение</th></tr>
-  <tr><th>{{MAP_STATISTICS.LOWLANDS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.LOWLANDS, 0)|percents }}</td></tr>
-  <tr><th>{{MAP_STATISTICS.PLAINS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.PLAINS, 0)|percents }}</td></tr>
-  <tr><th>{{MAP_STATISTICS.UPLANDS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.UPLANDS, 0)|percents }}</td></tr>
-  <tr><th>{{MAP_STATISTICS.DESERTS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.DESERTS, 0)|percents }}</td></tr>
-  <tr><th>{{MAP_STATISTICS.GRASS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.GRASS, 0)|percents }}</td></tr>
-  <tr><th>{{MAP_STATISTICS.FORESTS.text}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.FORESTS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.LOWLANDS.text|olbanize}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.LOWLANDS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.PLAINS.text|olbanize}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.PLAINS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.UPLANDS.text|olbanize}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.UPLANDS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.DESERTS.text|olbanize}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.DESERTS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.GRASS.text|olbanize}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.GRASS, 0)|percents }}</td></tr>
+  <tr><th>{{MAP_STATISTICS.FORESTS.text|olbanize}}</th> <td>{{ map_info.terrain_percents.get(MAP_STATISTICS.FORESTS, 0)|percents }}</td></tr>
 </table>
 {% endmacro %}
 
@@ -17,7 +17,7 @@
   <tr>
     <th>раса</th>
     <th>влияние</th>
-    <th>жители</th>
+    <th>жытели</th>
     <th>города</th>
   </tr>
   <tr>

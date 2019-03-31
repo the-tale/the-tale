@@ -33,7 +33,7 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 @PersonProcessor(error_message='Мастер не найден', url_name='person', context_name='person')
 @resource('#person', 'api', 'show', name='api-show')
 def api_show(context):
-    return dext_views.AjaxOk(content=info.person_info(context.person))
+    return dext_views.AjaxOk(content=utils_api.olbanize(info.person_info(context.person)))
 
 
 @PersonProcessor(error_message='Мастер не найден', url_name='person', context_name='person')
