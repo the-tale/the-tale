@@ -101,8 +101,8 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 SERVER_EMAIL = '«Сказга»: системное сообщение <no-reply@example.com>'
 ADMINS = ()
 
-EMAIL_NOREPLY = '«Сказга» <no-reply@example.com>'
-EMAIL_SUPPORT = '«Сказга» <support@example.com>'
+EMAIL_NOREPLY = '«Сказка» <no-reply@example.com>'
+EMAIL_SUPPORT = '«Сказка» <support@example.com>'
 EMAIL_SUPPORT_SHORT = 'support@example.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
