@@ -7,7 +7,11 @@
 {% block title %} {{ master_account.nick_verbose }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}О Хранителе «{{ master_account.nick_verbose }}» и «{{ master_hero.name }}» — герое {{ master_hero.level }} уровня.{% endblock %}
 
-{% set can_be_invited = master_clan is none and user_clan_rights and user_clan_rights.can_take_member() and not master_account_membership_request %}
+{% set can_be_invited = master_clan is none and
+                        user_clan_rights and
+                        user_clan_rights.can_take_member() and
+                        not master_account_membership_request and
+                        master_account_properties.accept_invites_from_clans %}
 
 {% set can_send_money = resource.account.is_authenticated and master_account.id != resource.account.id and not master_account.is_fast and not master_account.is_ban_any %}
 

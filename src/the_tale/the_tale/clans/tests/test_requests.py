@@ -531,6 +531,10 @@ class MembershipInviteDialogRequestsTests(BaseMembershipRequestsTests):
                              text='invite')
         self.check_html_ok(self.request_ajax_html(self.invite_url), texts=['clans.account_has_invite'])
 
+    def test_accept_invites_from_clans(self):
+        accounts_tt_services.players_properties.cmd_set_property(self.account_2.id, 'accept_invites_from_clans', False)
+        self.check_html_ok(self.request_ajax_html(self.invite_url), texts=['clans.player_does_not_accept_invites_from_clans'])
+
     def test_success(self):
         account_3 = self.accounts_factory.create_account()
         clan_3 = self.create_clan(account_3, 1)
@@ -584,6 +588,10 @@ class MembershipRequestDialogRequestsTests(BaseMembershipRequestsTests):
                              clan=self.clan,
                              text='request')
         self.check_html_ok(self.request_ajax_html(self.request_url), texts=['clans.clan_has_request'])
+
+    def test_accept_requests_from_players(self):
+        tt_services.properties.cmd_set_property(self.clan.id, 'accept_requests_from_players', False)
+        self.check_html_ok(self.request_ajax_html(self.request_url), texts=['clans.clan_does_not_accept_requests_from_players'])
 
     def test_success(self):
         account_3 = self.accounts_factory.create_account()
@@ -657,6 +665,11 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
                              text='invite')
         self.check_ajax_error(self.post_ajax_json(self.invite_url, self.post_data()), 'clans.account_has_invite')
         self.assertEqual(models.MembershipRequest.objects.count(), 1)
+
+    def test_not_accept_invites_from_clans(self):
+        accounts_tt_services.players_properties.cmd_set_property(self.account_2.id, 'accept_invites_from_clans', False)
+        self.check_ajax_error(self.post_ajax_json(self.invite_url, self.post_data()), 'clans.player_does_not_accept_invites_from_clans')
+        self.assertEqual(models.MembershipRequest.objects.count(), 0)
 
     def test_form_errors(self):
         self.check_ajax_error(self.post_ajax_json(self.invite_url, {}), 'form_errors')
@@ -739,6 +752,11 @@ class MembershipRequestRequestsTests(BaseMembershipRequestsTests):
 
     def test_form_errors(self):
         self.check_ajax_error(self.post_ajax_json(self.request_url, {}), 'form_errors')
+        self.assertEqual(models.MembershipRequest.objects.count(), 0)
+
+    def test_not_accept_requests_from_players(self):
+        tt_services.properties.cmd_set_property(self.clan.id, 'accept_requests_from_players', False)
+        self.check_ajax_error(self.post_ajax_json(self.request_url, self.post_data()), 'clans.clan_does_not_accept_requests_from_players')
         self.assertEqual(models.MembershipRequest.objects.count(), 0)
 
     def test_success(self):

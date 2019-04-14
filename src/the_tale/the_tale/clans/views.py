@@ -102,6 +102,28 @@ class ClanMemberOperationAccessProcessor(dext_views.AccessProcessor):
         return getattr(context.current_clan_rights, self.permission)(membership=membership)
 
 
+class CanBeInvitedProcessor(dext_views.FlaggedAccessProcessor):
+    ERROR_CODE = 'clans.player_does_not_accept_invites_from_clans'
+    ERROR_MESSAGE = 'Игрок не хочет прнимать приглашения от гильдий'
+    ARGUMENT = 'target_account'
+
+    def validate(self, argument):
+        accept_invites_from_clans = accounts_tt_services.players_properties.cmd_get_object_property(object_id=argument.id,
+                                                                                                    name='accept_invites_from_clans')
+        return accept_invites_from_clans
+
+
+class CanReceiveRequessProcessor(dext_views.FlaggedAccessProcessor):
+    ERROR_CODE = 'clans.clan_does_not_accept_requests_from_players'
+    ERROR_MESSAGE = 'Гильдия не принимает запросы на вступление от игроков.'
+    ARGUMENT = 'current_clan'
+
+    def validate(self, argument):
+        accept_requests_from_players = tt_services.properties.cmd_get_object_property(object_id=argument.id,
+                                                                                      name='accept_requests_from_players')
+        return accept_requests_from_players
+
+
 ########################################
 # resource and global processors
 ########################################
@@ -261,6 +283,8 @@ def show(context):
 
     requests_number_for_clan = logic.requests_number_for_clan(clan_id=context.current_clan.id)
 
+    current_clan_properties = tt_services.properties.cmd_get_all_object_properties(context.current_clan.id)
+
     return dext_views.Page('clans/show.html',
                            content={'resource': context.resource,
                                     'page_id': relations.PAGE_ID.SHOW,
@@ -278,7 +302,8 @@ def show(context):
                                     'request_to_this_clan': request_to_this_clan,
                                     'current_clan': context.current_clan,
                                     'current_clan_rights': context.current_clan_rights,
-                                    'requests_number_for_clan': requests_number_for_clan})
+                                    'requests_number_for_clan': requests_number_for_clan,
+                                    'current_clan_properties': current_clan_properties})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -286,10 +311,14 @@ def show(context):
 @ClanStaticOperationAccessProcessor(permission='can_edit')
 @resource('#clan', 'edit')
 def edit(context):
+
+    clan_properties = tt_services.properties.cmd_get_all_object_properties(context.current_clan.id)
+
     form = forms.ClanForm(initial={'name': context.current_clan.name,
                                    'abbr': context.current_clan.abbr,
                                    'motto': context.current_clan.motto,
-                                   'description': context.current_clan.description})
+                                   'description': context.current_clan.description,
+                                   'accept_requests_from_players': clan_properties.accept_requests_from_players})
 
     return dext_views.Page('clans/edit.html',
                            content={'resource': context.resource,
@@ -321,6 +350,10 @@ def update(context):
     clan.description = context.form.c.description
 
     logic.save_clan(clan)
+
+    tt_services.properties.cmd_set_property(context.current_clan.id,
+                                            'accept_requests_from_players',
+                                            context.form.c.accept_requests_from_players)
 
     message = 'Хранитель {keeper} изменил(а) базовые свойства гильдии {guild}'.format(guild=clan.name,
                                                                                       keeper=context.account.nick_verbose)
@@ -416,6 +449,7 @@ def on_request_checks(account, clan):
 
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
+@CanBeInvitedProcessor()
 @ClanStaticOperationAccessProcessor(permission='can_take_member')
 @resource('#clan', 'invite-dialog')
 def invite_dialog(context):
@@ -430,6 +464,7 @@ def invite_dialog(context):
 
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
+@CanReceiveRequessProcessor()
 @resource('#clan', 'request-dialog')
 def request_dialog(context):
 
@@ -444,6 +479,7 @@ def request_dialog(context):
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @ClanStaticOperationAccessProcessor(permission='can_take_member')
+@CanBeInvitedProcessor()
 @dext_views.FormProcessor(form_class=forms.MembershipRequestForm)
 @resource('#clan', 'invite', method='POST')
 def invite(context):
@@ -459,6 +495,7 @@ def invite(context):
 
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
+@CanReceiveRequessProcessor()
 @dext_views.FormProcessor(form_class=forms.MembershipRequestForm)
 @resource('#clan', 'request', method='POST')
 def request(context):

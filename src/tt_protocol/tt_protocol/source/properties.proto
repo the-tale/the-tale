@@ -1,0 +1,32 @@
+syntax = "proto3";
+package properties;
+
+
+message Property {
+  uint64 object_id = 1;
+  uint64 type = 2;
+  string value = 3;
+}
+
+message PropertiesList {
+  uint64 object_id = 1;
+  repeated uint64 types = 2;
+}
+
+message SetPropertiesRequest {
+  repeated Property properties = 1;
+}
+
+message SetPropertiesResponse {
+}
+
+message GetPropertiesRequest {
+  repeated PropertiesList objects = 1;
+}
+
+message GetPropertiesResponse {
+  repeated Property properties = 1;
+}
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}
