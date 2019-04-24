@@ -13,6 +13,9 @@ from . import relations
 from . import exceptions
 
 
+MAX_LOT_PRICE = 2**63-1
+
+
 async def log(execute, operation_type, lot_type, item_type, item_id, owner_id, price, data):
     await execute('''INSERT INTO log_records (operation_type, lot_type, item_type, item, owner, price, data, created_at)
                      VALUES (%(operation_type)s, %(lot_type)s, %(item_type)s, %(item_id)s, %(owner_id)s, %(price)s, %(data)s, NOW())''',
@@ -33,6 +36,13 @@ async def place_sell_lots(lots):
 async def _place_sell_lots(execute, arguments):
 
     lots = arguments['lots']
+
+    for lot in lots:
+        if MAX_LOT_PRICE < lot.price:
+            raise exceptions.SellLotMaximumPriceExceeded(price=lot.price)
+
+        if lot.price < 0:
+            raise exceptions.SellLotPriceBelowZero(price=lot.price)
 
     lots_ids = []
 
@@ -287,9 +297,16 @@ async def statistics(time_from, time_till):
                           {'from': time_from, 'till': time_till, 'operation_type': relations.OPERATION_TYPE.CLOSE_SELL_LOT.value})
 
     if result:
-        data['turnover'] = result[0]['turnover']
+        data['turnover'] = int(result[0]['turnover'])
 
     return data
+
+
+async def does_lot_exist_for_item(item_type, item_id):
+    result = await db.sql('SELECT TRUE FROM sell_lots WHERE item_type=%(item_type)s AND item=%(item)s',
+                          {'item_type': item_type,
+                           'item': item_id})
+    return bool(result)
 
 
 def lot_from_row(row, type):

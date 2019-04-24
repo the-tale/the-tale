@@ -11,14 +11,12 @@ class Item:
         self.storage_id = storage_id
         self.data = data
 
-
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
                 self.id == other.id and
                 self.owner_id == other.owner_id and
                 self.storage_id == other.storage_id and
                 self.data == other.data)
-
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -82,3 +80,22 @@ class OperationChangeStorage(Operation):
         self.owner_id = owner_id
         self.old_storage_id = old_storage_id
         self.new_storage_id = new_storage_id
+
+
+class LogRecord:
+    __slots__ = ('id', 'transaction', 'item_id', 'type', 'data', 'created_at')
+
+    def __init__(self, id, transaction, item_id, type, data, created_at):
+        self.id = id
+        self.transaction = transaction
+        self.item_id = item_id
+        self.type = type
+        self.data = data
+        self.created_at = created_at
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                all(getattr(self, name) == getattr(other, name) for name in self.__slots__))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

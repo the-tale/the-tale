@@ -34,6 +34,12 @@ async def has_items(message, **kwargs):
     return storage_pb2.HasItemsResponse(has=has)
 
 
+@handlers.api(storage_pb2.GetItemLogsRequest)
+async def get_item_logs(message, **kwargs):
+    logs = await operations.get_item_logs(uuid.UUID(message.item_id))
+    return storage_pb2.GetItemLogsResponse(logs=[protobuf.from_log_record(log_record) for log_record in logs])
+
+
 @handlers.api(storage_pb2.DebugClearServiceRequest)
 async def debug_clear_service(message, **kwargs):
     await operations.clean_database()

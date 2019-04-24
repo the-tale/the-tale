@@ -1,11 +1,8 @@
 
 import uuid
-import time
-import asyncio
 
 from aiohttp import test_utils
 
-from tt_web import utils
 from tt_web import postgresql as db
 
 from .. import objects
@@ -33,7 +30,6 @@ class LogTests(helpers.BaseTests):
         self.assertEqual(result[0]['data'], {'a': 'b'})
 
 
-
 class ApplyCreateTests(helpers.BaseTests):
 
     def setUp(self):
@@ -45,7 +41,6 @@ class ApplyCreateTests(helpers.BaseTests):
                                                  full_type='full-type',
                                                  data={'a': 'b'},
                                                  operation_type='#test')
-
 
     @test_utils.unittest_run_loop
     async def test_create(self):
@@ -74,7 +69,6 @@ class ApplyCreateTests(helpers.BaseTests):
                                              'owner_id': 666,
                                              'storage_id': 13,
                                              'operation_type': '#test'})
-
 
     async def check_duplicate_item_id(self, user_id):
 
@@ -121,7 +115,6 @@ class ApplyCreateTests(helpers.BaseTests):
     async def test_duplicate_item_id__same_owner(self):
         await self.check_duplicate_item_id(self.operation.owner_id)
 
-
     @test_utils.unittest_run_loop
     async def check_duplicate_item_id__other_owner(self, user_id):
         await self.check_duplicate_item_id(self.operation.owner_id+1)
@@ -134,7 +127,6 @@ class ApplyDestroyTests(helpers.BaseTests):
         self.operation_destroy = objects.OperationDestroy(owner_id=666,
                                                           item_id=uuid.uuid4(),
                                                           operation_type='#test')
-
 
     @test_utils.unittest_run_loop
     async def test_no_object(self):
@@ -149,7 +141,6 @@ class ApplyDestroyTests(helpers.BaseTests):
         result = await db.sql('SELECT * FROM log_records ORDER BY created_at DESC')
 
         self.assertEqual(len(result), 0)
-
 
     @test_utils.unittest_run_loop
     async def test_wrong_owner(self):
@@ -180,7 +171,6 @@ class ApplyDestroyTests(helpers.BaseTests):
         self.assertEqual(len(result), 1)
 
         self.assertEqual(result[0]['type'], relations.OPERATION.CREATE.value)
-
 
     @test_utils.unittest_run_loop
     async def test_success(self):
@@ -236,8 +226,6 @@ class ApplyChangeOwnerTests(helpers.BaseTests):
 
         self.assertEqual(len(result), 0)
 
-
-
     @test_utils.unittest_run_loop
     async def test_move_to_same_user(self):
         operation_create = objects.OperationCreate(owner_id=self.operation_move.old_owner_id,
@@ -273,7 +261,6 @@ class ApplyChangeOwnerTests(helpers.BaseTests):
 
         self.assertEqual(result[0]['type'], relations.OPERATION.CREATE.value)
 
-
     @test_utils.unittest_run_loop
     async def test_wrong_owner(self):
         operation_create = objects.OperationCreate(owner_id=self.operation_move.old_owner_id,
@@ -308,7 +295,6 @@ class ApplyChangeOwnerTests(helpers.BaseTests):
         self.assertEqual(len(result), 1)
 
         self.assertEqual(result[0]['type'], relations.OPERATION.CREATE.value)
-
 
     @test_utils.unittest_run_loop
     async def test_success(self):
@@ -346,7 +332,6 @@ class ApplyChangeOwnerTests(helpers.BaseTests):
         self.assertEqual(result[1]['type'], relations.OPERATION.CREATE.value)
 
 
-
 class ApplyChangeStorageTests(helpers.BaseTests):
 
     def setUp(self):
@@ -370,8 +355,6 @@ class ApplyChangeStorageTests(helpers.BaseTests):
         result = await db.sql('SELECT * FROM log_records ORDER BY created_at DESC')
 
         self.assertEqual(len(result), 0)
-
-
 
     @test_utils.unittest_run_loop
     async def test_move_to_same_storage(self):
@@ -405,7 +388,6 @@ class ApplyChangeStorageTests(helpers.BaseTests):
         self.assertEqual(len(result), 1)
 
         self.assertEqual(result[0]['type'], relations.OPERATION.CREATE.value)
-
 
     @test_utils.unittest_run_loop
     async def test_wrong_storage(self):
@@ -441,7 +423,6 @@ class ApplyChangeStorageTests(helpers.BaseTests):
 
         self.assertEqual(result[0]['type'], relations.OPERATION.CREATE.value)
 
-
     @test_utils.unittest_run_loop
     async def test_success(self):
         operation_create = objects.OperationCreate(owner_id=self.operation_move.owner_id,
@@ -475,7 +456,6 @@ class ApplyChangeStorageTests(helpers.BaseTests):
                                              'operation_type': '#test'})
 
         self.assertEqual(result[1]['type'], relations.OPERATION.CREATE.value)
-
 
 
 class ApplyTests(helpers.BaseTests):
@@ -568,8 +548,6 @@ class ApplyTests(helpers.BaseTests):
 
         self.assertEqual(len(set([row['transaction'] for row in result])), 1)
 
-
-
     @test_utils.unittest_run_loop
     async def test_rollback(self):
 
@@ -627,7 +605,6 @@ class LoadItemsTests(helpers.BaseTests):
                                                         new_storage_id=1,
                                                         operation_type='#test')]
 
-
     @test_utils.unittest_run_loop
     async def test_no_items(self):
 
@@ -636,7 +613,6 @@ class LoadItemsTests(helpers.BaseTests):
         items = await operations.load_items(1)
 
         self.assertEqual(items, [])
-
 
     @test_utils.unittest_run_loop
     async def test_has_items(self):
@@ -685,7 +661,6 @@ class HasItemsTests(helpers.BaseTests):
                                                         new_storage_id=0,
                                                         operation_type='#test')]
 
-
     @test_utils.unittest_run_loop
     async def test_no_items(self):
         await operations.apply(self.operations)
@@ -693,7 +668,6 @@ class HasItemsTests(helpers.BaseTests):
         has = await operations.has_items(3, items_ids=[])
 
         self.assertTrue(has)
-
 
     @test_utils.unittest_run_loop
     async def test_no_items_found(self):
@@ -703,7 +677,6 @@ class HasItemsTests(helpers.BaseTests):
 
         self.assertFalse(has)
 
-
     @test_utils.unittest_run_loop
     async def test_wrong_owner(self):
         await operations.apply(self.operations)
@@ -712,7 +685,6 @@ class HasItemsTests(helpers.BaseTests):
 
         self.assertFalse(has)
 
-
     @test_utils.unittest_run_loop
     async def test_has(self):
         await operations.apply(self.operations)
@@ -720,7 +692,6 @@ class HasItemsTests(helpers.BaseTests):
         has = await operations.has_items(2, items_ids=[self.item_2_id])
 
         self.assertTrue(has)
-
 
     @test_utils.unittest_run_loop
     async def test_has_multiple(self):
@@ -738,3 +709,71 @@ class HasItemsTests(helpers.BaseTests):
         has = await operations.has_items(3, items_ids=[self.item_1_id, self.item_3_id, self.item_2_id])
 
         self.assertFalse(has)
+
+
+class GetItemLogsTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_no_logs(self):
+        log = await operations.get_item_logs(item_id=uuid.uuid4())
+        self.assertEqual(log, [])
+
+    @test_utils.unittest_run_loop
+    async def test_has_logs(self):
+
+        transactions = [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()]
+        items = [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()]
+
+        await operations.log(db.sql,
+                             transaction_id=transactions[0],
+                             item_id=items[0],
+                             data={'a': 1},
+                             type=relations.OPERATION.CREATE)
+
+        await operations.log(db.sql,
+                             transaction_id=transactions[0],
+                             item_id=items[1],
+                             data={'a': 2},
+                             type=relations.OPERATION.DESTROY)
+
+        await operations.log(db.sql,
+                             transaction_id=transactions[1],
+                             item_id=items[0],
+                             data={'a': 3},
+                             type=relations.OPERATION.CHANGE_OWNER)
+
+        await operations.log(db.sql,
+                             transaction_id=transactions[2],
+                             item_id=items[2],
+                             data={'a': 4},
+                             type=relations.OPERATION.CHANGE_STORAGE)
+
+        await operations.log(db.sql,
+                             transaction_id=transactions[2],
+                             item_id=items[0],
+                             data={'a': 5},
+                             type=relations.OPERATION.CHANGE_STORAGE)
+
+        log = await operations.get_item_logs(item_id=items[0])
+
+        self.assertEqual([record.data['a'] for record in log],
+                         [1, 3, 5])
+
+    @test_utils.unittest_run_loop
+    async def test_load_fields(self):
+
+        transaction = uuid.uuid4()
+        item_id = uuid.uuid4()
+
+        await operations.log(db.sql,
+                             transaction_id=transaction,
+                             item_id=item_id,
+                             data={'a': 1},
+                             type=relations.OPERATION.CREATE)
+
+        log = await operations.get_item_logs(item_id=item_id)
+
+        self.assertEqual(log[0].transaction, transaction)
+        self.assertEqual(log[0].item_id, item_id)
+        self.assertEqual(log[0].type, relations.OPERATION.CREATE)
+        self.assertEqual(log[0].data, {'a': 1})

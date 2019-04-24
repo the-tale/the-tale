@@ -40,4 +40,6 @@ settings = dext_app_settings.app_settings('PAYMENTS',
                                           XSOLLA_DIALOG_WIDTH=900,
                                           XSOLLA_DIALOG_HEIGHT=800,
 
-                                          REFERRAL_BONUS=0.1)
+                                          REFERRAL_BONUS=0.1,
+
+                                          MAX_PRICE=1000000)

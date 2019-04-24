@@ -29,6 +29,8 @@ def register_routers(app):
 
     app.router.add_post('/history', handlers.history)
 
+    app.router.add_post('/does-lot-exist-for-item', handlers.does_lot_exist_for_item)
+
     app.router.add_post('/debug-clear-service', handlers.debug_clear_service)
 
 

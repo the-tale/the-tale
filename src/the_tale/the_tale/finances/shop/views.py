@@ -148,7 +148,12 @@ def create_sell_lot(context):
 
     for card in context.cards:
         if context.price < relations.CARDS_MIN_PRICES[card.type.rarity]:
-            raise dext_views.ViewError(code='too_small_price', message='Цена продажи меньше чем минимально разрешённая цена продажи как минимум одной карты')
+            raise dext_views.ViewError(code='too_small_price',
+                                       message='Цена продажи меньше чем минимально разрешённая цена продажи как минимум у одной карты')
+
+        if conf.settings.MAX_PRICE < context.price:
+            raise dext_views.ViewError(code='too_large_price',
+                                       message='Цена продажи больше чем максимально разрешённая ({max_price}) как минимум у одной карты'.format(max_price=conf.settings.MAX_PRICE))
 
     logic.create_lots(owner_id=context.account.id,
                       cards=context.cards,

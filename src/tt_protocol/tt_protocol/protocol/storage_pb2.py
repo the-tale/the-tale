@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='storage.proto',
   package='storage',
   syntax='proto3',
-  serialized_pb=_b('\n\rstorage.proto\x12\x07storage\"l\n\x04Item\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08owner_id\x18\x02 \x01(\r\x12\x12\n\nstorage_id\x18\x03 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\t\x12\x11\n\tbase_type\x18\x05 \x01(\t\x12\x11\n\tfull_type\x18\x06 \x01(\t\"\x94\x01\n\x0fOperationCreate\x12\x10\n\x08owner_id\x18\x01 \x01(\r\x12\x0f\n\x07item_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\x12\x11\n\tbase_type\x18\x04 \x01(\t\x12\x11\n\tfull_type\x18\x05 \x01(\t\x12\x16\n\x0eoperation_type\x18\x06 \x01(\t\x12\x12\n\nstorage_id\x18\x07 \x01(\r\"M\n\x10OperationDestroy\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x10\n\x08owner_id\x18\x02 \x01(\r\x12\x16\n\x0eoperation_type\x18\x03 \x01(\t\"\x83\x01\n\x14OperationChangeOwner\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x14\n\x0cold_owner_id\x18\x02 \x01(\r\x12\x14\n\x0cnew_owner_id\x18\x03 \x01(\r\x12\x16\n\x0enew_storage_id\x18\x04 \x01(\r\x12\x16\n\x0eoperation_type\x18\x05 \x01(\t\"\x83\x01\n\x16OperationChangeStorage\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x10\n\x08owner_id\x18\x02 \x01(\r\x12\x16\n\x0eold_storage_id\x18\x03 \x01(\r\x12\x16\n\x0enew_storage_id\x18\x04 \x01(\r\x12\x16\n\x0eoperation_type\x18\x05 \x01(\t\"\xe4\x01\n\tOperation\x12*\n\x06\x63reate\x18\x01 \x01(\x0b\x32\x18.storage.OperationCreateH\x00\x12,\n\x07\x64\x65stroy\x18\x02 \x01(\x0b\x32\x19.storage.OperationDestroyH\x00\x12\x35\n\x0c\x63hange_owner\x18\x03 \x01(\x0b\x32\x1d.storage.OperationChangeOwnerH\x00\x12\x39\n\x0e\x63hange_storage\x18\x04 \x01(\x0b\x32\x1f.storage.OperationChangeStorageH\x00\x42\x0b\n\toperation\"6\n\x0c\x41pplyRequest\x12&\n\noperations\x18\x01 \x03(\x0b\x32\x12.storage.Operation\"\x0f\n\rApplyResponse\"#\n\x0fGetItemsRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\r\"0\n\x10GetItemsResponse\x12\x1c\n\x05items\x18\x01 \x03(\x0b\x32\r.storage.Item\"6\n\x0fHasItemsRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\r\x12\x11\n\titems_ids\x18\x02 \x03(\t\"\x1f\n\x10HasItemsResponse\x12\x0b\n\x03has\x18\x01 \x01(\x08\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
+  serialized_pb=_b('\n\rstorage.proto\x12\x07storage\"l\n\x04Item\x12\n\n\x02id\x18\x01 \x01(\t\x12\x10\n\x08owner_id\x18\x02 \x01(\r\x12\x12\n\nstorage_id\x18\x03 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x04 \x01(\t\x12\x11\n\tbase_type\x18\x05 \x01(\t\x12\x11\n\tfull_type\x18\x06 \x01(\t\"\x94\x01\n\x0fOperationCreate\x12\x10\n\x08owner_id\x18\x01 \x01(\r\x12\x0f\n\x07item_id\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\x12\x11\n\tbase_type\x18\x04 \x01(\t\x12\x11\n\tfull_type\x18\x05 \x01(\t\x12\x16\n\x0eoperation_type\x18\x06 \x01(\t\x12\x12\n\nstorage_id\x18\x07 \x01(\r\"M\n\x10OperationDestroy\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x10\n\x08owner_id\x18\x02 \x01(\r\x12\x16\n\x0eoperation_type\x18\x03 \x01(\t\"\x83\x01\n\x14OperationChangeOwner\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x14\n\x0cold_owner_id\x18\x02 \x01(\r\x12\x14\n\x0cnew_owner_id\x18\x03 \x01(\r\x12\x16\n\x0enew_storage_id\x18\x04 \x01(\r\x12\x16\n\x0eoperation_type\x18\x05 \x01(\t\"\x83\x01\n\x16OperationChangeStorage\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x10\n\x08owner_id\x18\x02 \x01(\r\x12\x16\n\x0eold_storage_id\x18\x03 \x01(\r\x12\x16\n\x0enew_storage_id\x18\x04 \x01(\r\x12\x16\n\x0eoperation_type\x18\x05 \x01(\t\"\xe4\x01\n\tOperation\x12*\n\x06\x63reate\x18\x01 \x01(\x0b\x32\x18.storage.OperationCreateH\x00\x12,\n\x07\x64\x65stroy\x18\x02 \x01(\x0b\x32\x19.storage.OperationDestroyH\x00\x12\x35\n\x0c\x63hange_owner\x18\x03 \x01(\x0b\x32\x1d.storage.OperationChangeOwnerH\x00\x12\x39\n\x0e\x63hange_storage\x18\x04 \x01(\x0b\x32\x1f.storage.OperationChangeStorageH\x00\x42\x0b\n\toperation\"m\n\tLogRecord\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x13\n\x0btransaction\x18\x02 \x01(\t\x12\x0f\n\x07item_id\x18\x03 \x01(\t\x12\x0c\n\x04type\x18\x04 \x01(\x05\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\t\x12\x12\n\ncreated_at\x18\x06 \x01(\x01\"6\n\x0c\x41pplyRequest\x12&\n\noperations\x18\x01 \x03(\x0b\x32\x12.storage.Operation\"\x0f\n\rApplyResponse\"#\n\x0fGetItemsRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\r\"0\n\x10GetItemsResponse\x12\x1c\n\x05items\x18\x01 \x03(\x0b\x32\r.storage.Item\"6\n\x0fHasItemsRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\r\x12\x11\n\titems_ids\x18\x02 \x03(\t\"\x1f\n\x10HasItemsResponse\x12\x0b\n\x03has\x18\x01 \x01(\x08\"%\n\x12GetItemLogsRequest\x12\x0f\n\x07item_id\x18\x01 \x01(\t\"7\n\x13GetItemLogsResponse\x12 \n\x04logs\x18\x01 \x03(\x0b\x32\x12.storage.LogRecord\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -383,6 +383,72 @@ _OPERATION = _descriptor.Descriptor(
 )
 
 
+_LOGRECORD = _descriptor.Descriptor(
+  name='LogRecord',
+  full_name='storage.LogRecord',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='id', full_name='storage.LogRecord.id', index=0,
+      number=1, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='transaction', full_name='storage.LogRecord.transaction', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='item_id', full_name='storage.LogRecord.item_id', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='type', full_name='storage.LogRecord.type', index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='storage.LogRecord.data', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='created_at', full_name='storage.LogRecord.created_at', index=5,
+      number=6, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=865,
+  serialized_end=974,
+)
+
+
 _APPLYREQUEST = _descriptor.Descriptor(
   name='ApplyRequest',
   full_name='storage.ApplyRequest',
@@ -409,8 +475,8 @@ _APPLYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=865,
-  serialized_end=919,
+  serialized_start=976,
+  serialized_end=1030,
 )
 
 
@@ -433,8 +499,8 @@ _APPLYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=921,
-  serialized_end=936,
+  serialized_start=1032,
+  serialized_end=1047,
 )
 
 
@@ -464,8 +530,8 @@ _GETITEMSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=938,
-  serialized_end=973,
+  serialized_start=1049,
+  serialized_end=1084,
 )
 
 
@@ -495,8 +561,8 @@ _GETITEMSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=975,
-  serialized_end=1023,
+  serialized_start=1086,
+  serialized_end=1134,
 )
 
 
@@ -533,8 +599,8 @@ _HASITEMSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1025,
-  serialized_end=1079,
+  serialized_start=1136,
+  serialized_end=1190,
 )
 
 
@@ -564,8 +630,70 @@ _HASITEMSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1081,
-  serialized_end=1112,
+  serialized_start=1192,
+  serialized_end=1223,
+)
+
+
+_GETITEMLOGSREQUEST = _descriptor.Descriptor(
+  name='GetItemLogsRequest',
+  full_name='storage.GetItemLogsRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='item_id', full_name='storage.GetItemLogsRequest.item_id', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1225,
+  serialized_end=1262,
+)
+
+
+_GETITEMLOGSRESPONSE = _descriptor.Descriptor(
+  name='GetItemLogsResponse',
+  full_name='storage.GetItemLogsResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='logs', full_name='storage.GetItemLogsResponse.logs', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1264,
+  serialized_end=1319,
 )
 
 
@@ -588,8 +716,8 @@ _DEBUGCLEARSERVICEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1114,
-  serialized_end=1140,
+  serialized_start=1321,
+  serialized_end=1347,
 )
 
 
@@ -612,8 +740,8 @@ _DEBUGCLEARSERVICERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1142,
-  serialized_end=1169,
+  serialized_start=1349,
+  serialized_end=1376,
 )
 
 _OPERATION.fields_by_name['create'].message_type = _OPERATIONCREATE
@@ -634,18 +762,22 @@ _OPERATION.oneofs_by_name['operation'].fields.append(
 _OPERATION.fields_by_name['change_storage'].containing_oneof = _OPERATION.oneofs_by_name['operation']
 _APPLYREQUEST.fields_by_name['operations'].message_type = _OPERATION
 _GETITEMSRESPONSE.fields_by_name['items'].message_type = _ITEM
+_GETITEMLOGSRESPONSE.fields_by_name['logs'].message_type = _LOGRECORD
 DESCRIPTOR.message_types_by_name['Item'] = _ITEM
 DESCRIPTOR.message_types_by_name['OperationCreate'] = _OPERATIONCREATE
 DESCRIPTOR.message_types_by_name['OperationDestroy'] = _OPERATIONDESTROY
 DESCRIPTOR.message_types_by_name['OperationChangeOwner'] = _OPERATIONCHANGEOWNER
 DESCRIPTOR.message_types_by_name['OperationChangeStorage'] = _OPERATIONCHANGESTORAGE
 DESCRIPTOR.message_types_by_name['Operation'] = _OPERATION
+DESCRIPTOR.message_types_by_name['LogRecord'] = _LOGRECORD
 DESCRIPTOR.message_types_by_name['ApplyRequest'] = _APPLYREQUEST
 DESCRIPTOR.message_types_by_name['ApplyResponse'] = _APPLYRESPONSE
 DESCRIPTOR.message_types_by_name['GetItemsRequest'] = _GETITEMSREQUEST
 DESCRIPTOR.message_types_by_name['GetItemsResponse'] = _GETITEMSRESPONSE
 DESCRIPTOR.message_types_by_name['HasItemsRequest'] = _HASITEMSREQUEST
 DESCRIPTOR.message_types_by_name['HasItemsResponse'] = _HASITEMSRESPONSE
+DESCRIPTOR.message_types_by_name['GetItemLogsRequest'] = _GETITEMLOGSREQUEST
+DESCRIPTOR.message_types_by_name['GetItemLogsResponse'] = _GETITEMLOGSRESPONSE
 DESCRIPTOR.message_types_by_name['DebugClearServiceRequest'] = _DEBUGCLEARSERVICEREQUEST
 DESCRIPTOR.message_types_by_name['DebugClearServiceResponse'] = _DEBUGCLEARSERVICERESPONSE
 
@@ -691,6 +823,13 @@ Operation = _reflection.GeneratedProtocolMessageType('Operation', (_message.Mess
   ))
 _sym_db.RegisterMessage(Operation)
 
+LogRecord = _reflection.GeneratedProtocolMessageType('LogRecord', (_message.Message,), dict(
+  DESCRIPTOR = _LOGRECORD,
+  __module__ = 'storage_pb2'
+  # @@protoc_insertion_point(class_scope:storage.LogRecord)
+  ))
+_sym_db.RegisterMessage(LogRecord)
+
 ApplyRequest = _reflection.GeneratedProtocolMessageType('ApplyRequest', (_message.Message,), dict(
   DESCRIPTOR = _APPLYREQUEST,
   __module__ = 'storage_pb2'
@@ -732,6 +871,20 @@ HasItemsResponse = _reflection.GeneratedProtocolMessageType('HasItemsResponse', 
   # @@protoc_insertion_point(class_scope:storage.HasItemsResponse)
   ))
 _sym_db.RegisterMessage(HasItemsResponse)
+
+GetItemLogsRequest = _reflection.GeneratedProtocolMessageType('GetItemLogsRequest', (_message.Message,), dict(
+  DESCRIPTOR = _GETITEMLOGSREQUEST,
+  __module__ = 'storage_pb2'
+  # @@protoc_insertion_point(class_scope:storage.GetItemLogsRequest)
+  ))
+_sym_db.RegisterMessage(GetItemLogsRequest)
+
+GetItemLogsResponse = _reflection.GeneratedProtocolMessageType('GetItemLogsResponse', (_message.Message,), dict(
+  DESCRIPTOR = _GETITEMLOGSRESPONSE,
+  __module__ = 'storage_pb2'
+  # @@protoc_insertion_point(class_scope:storage.GetItemLogsResponse)
+  ))
+_sym_db.RegisterMessage(GetItemLogsResponse)
 
 DebugClearServiceRequest = _reflection.GeneratedProtocolMessageType('DebugClearServiceRequest', (_message.Message,), dict(
   DESCRIPTOR = _DEBUGCLEARSERVICEREQUEST,

@@ -105,12 +105,20 @@ class Client(client.Client):
 
     def cmd_statistics(self, time_from, time_till):
         answer = operations.sync_request(url=self.url('statistics'),
-                                         data=tt_protocol_market_pb2.StatisticsRequest(time_from=time.mktime(time_from.timetuple()) + time_from.microsecond / 10**6,
-                                                                                       time_till=time.mktime(time_till.timetuple()) + time_till.microsecond / 10**6),
+                                         data=tt_protocol_market_pb2.StatisticsRequest(time_from=time.mktime(time_from.timetuple()) +
+                                                                                                 time_from.microsecond / 10**6,
+                                                                                       time_till=time.mktime(time_till.timetuple()) +
+                                                                                                 time_till.microsecond / 10**6),
                                          AnswerType=tt_protocol_market_pb2.StatisticsResponse)
         return {'sell_lots_placed': answer.sell_lots_placed,
                 'sell_lots_closed': answer.sell_lots_closed,
-                'turnover': answer.turnover}
+                'turnover': int(answer.turnover)}
+
+    def cmd_does_lot_exist_for_item(self, item_type, item_id):
+        answer = operations.sync_request(url=self.url('does-lot-exist-for-item'),
+                                         data=tt_protocol_market_pb2.DoesLotExistForItemRequest(item_type=item_type, item_id=item_id),
+                                         AnswerType=tt_protocol_market_pb2.DoesLotExistForItemResponse)
+        return answer.exists
 
     def cmd_debug_clear_service(self):
         if django_settings.TESTS_RUNNING:

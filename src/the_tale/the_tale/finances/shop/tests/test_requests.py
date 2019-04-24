@@ -234,10 +234,15 @@ class CreateSellLotTests(RequestesTestsBase, bank_helpers.BankTestsMixin):
         response = self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[0].uid, self.cards[1].uid]})
         self.check_ajax_error(response, 'price.not_specified')
 
-    def test_wrong_price(self):
+    def test_min_price(self):
         response = self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[0].uid, self.cards[1].uid],
                                                                      'price': relations.CARDS_MIN_PRICES[self.cards[0].type.rarity] - 1})
         self.check_ajax_error(response, 'too_small_price')
+
+    def test_max_price(self):
+        response = self.post_ajax_json(logic.create_sell_lot_url(), {'card': [self.cards[0].uid, self.cards[1].uid],
+                                                                     'price': conf.settings.MAX_PRICE + 1})
+        self.check_ajax_error(response, 'too_large_price')
 
     def test_not_tradable_card(self):
         wrong_card = cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=False, type=cards_types.CARD.CANCEL_QUEST)
