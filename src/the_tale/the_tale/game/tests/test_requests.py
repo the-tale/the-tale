@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class RequestTestsBase(utils_testcase.TestCase, pvp_helpers.PvPTestsMixin):
+class RequestTestsBase(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
 
     def setUp(self):
         super(RequestTestsBase, self).setUp()
@@ -31,13 +31,11 @@ class GamePageRequestTests(RequestTestsBase):
         self.assertEqual(response.status_code, 200)
 
     def test_game_page_when_pvp_in_queue(self):
-        self.pvp_create_battle(self.account_1, self.account_2)
-        self.pvp_create_battle(self.account_2, self.account_1)
+        self.check_ajax_ok(self.post_ajax_json(pvp_logic.pvp_call_to_arena_url()))
         self.check_html_ok(self.client.get(django_reverse('game:')))
 
     def test_game_page_when_pvp_processing(self):
-        self.pvp_create_battle(self.account_1, self.account_2, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
-        self.pvp_create_battle(self.account_2, self.account_1, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
+        self.create_pvp_battle(account_1=self.account_1, account_2=self.account_2)
         self.check_redirect(django_reverse('game:'), django_reverse('game:pvp:'))
 
 
@@ -86,7 +84,8 @@ class InfoRequestTests(RequestTestsBase):
 
     def test_client_turns_passed_to_data_receiver(self):
         with mock.patch('the_tale.game.heroes.objects.Hero.cached_ui_info_for_hero',
-                        mock.Mock(return_value={'actual_on_turn': 666})) as cached_ui_info_for_hero:
+                        mock.Mock(return_value={'actual_on_turn': 666,
+                                                'action': {}})) as cached_ui_info_for_hero:
             self.check_ajax_ok(self.request_ajax_json(logic.game_info_url(client_turns=[1, 2, 3, 4])))
 
         self.assertEqual(cached_ui_info_for_hero.call_args_list,
@@ -274,3 +273,28 @@ class HeroHistoryStatusTests(RequestTestsBase):
 
     def test_success(self):
         self.check_html_ok(self.client.get(django_reverse('game:hero-history-status')))
+
+
+class SupervisorTaskStatusTests(RequestTestsBase):
+
+    def test_no_task(self):
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+
+        task_url = task.status_url
+
+        task.remove()
+
+        self.check_ajax_ok(self.client.get(task_url))
+
+    def test_has_task(self):
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+
+        task_url = task.status_url
+
+        request = self.client.get(task_url)
+
+        self.check_ajax_processing(request, task_url)
+
+        task.remove()
+
+        self.check_ajax_ok(self.client.get(task_url))

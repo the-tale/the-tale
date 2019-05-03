@@ -1422,8 +1422,11 @@ class ActionMetaProxyPrototype(ActionBase):
     SINGLE = False
     TYPE = relations.ACTION_TYPE.META_PROXY
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False
+
+    @property
+    def HELP_CHOICES(self):
+        return self.meta_action.help_choices()
 
     @property
     def description_text_name(self):

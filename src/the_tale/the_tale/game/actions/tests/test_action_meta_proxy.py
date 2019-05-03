@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class MetaProxyActionForArenaPvP1x1Tests(utils_testcase.TestCase, pvp_helpers.PvPTestsMixin):
+class MetaProxyActionForArenaPvP1x1Tests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
@@ -12,104 +12,86 @@ class MetaProxyActionForArenaPvP1x1Tests(utils_testcase.TestCase, pvp_helpers.Pv
 
         game_logic.create_test_map()
 
-        self.account_1 = self.accounts_factory.create_account()
-        self.account_2 = self.accounts_factory.create_account()
+        pvp_tt_services.matchmaker.cmd_debug_clear_service()
 
-        self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(self.account_1)
-        self.storage.load_account_data(self.account_2)
+        self.battle_info = self.create_pvp_battle()
 
-        self.hero_1 = self.storage.accounts_to_heroes[self.account_1.id]
-        self.hero_2 = self.storage.accounts_to_heroes[self.account_2.id]
-
-        self.action_idl_1 = self.hero_1.actions.current_action
-        self.action_idl_2 = self.hero_2.actions.current_action
-
-        self.pvp_create_battle(self.account_1, self.account_2, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
-        self.pvp_create_battle(self.account_2, self.account_1, pvp_relations.BATTLE_1X1_STATE.PROCESSING)
+        self.action_idl_1 = self.battle_info.hero_1.actions.actions_list[0]
+        self.action_idl_2 = self.battle_info.hero_2.actions.actions_list[0]
 
         self.bundle_id = 666
 
-        meta_action_battle = meta_actions.ArenaPvP1x1.create(self.storage, self.hero_1, self.hero_2)
-
-        self.action_proxy_1 = prototypes.ActionMetaProxyPrototype.create(hero=self.hero_1, _bundle_id=self.bundle_id, meta_action=meta_action_battle)
-        self.action_proxy_2 = prototypes.ActionMetaProxyPrototype.create(hero=self.hero_2, _bundle_id=self.bundle_id, meta_action=meta_action_battle)
-
-        self.storage.merge_bundles([self.action_idl_1.bundle_id, self.action_idl_2.bundle_id], self.bundle_id)
-
-        self.meta_action_battle = list(self.storage.meta_actions.values())[0]
-
-    # renamed to fix segmentation fault
-    def test_z_create(self):
+    def test_create(self):
         self.assertFalse(self.action_idl_1.leader)
         self.assertFalse(self.action_idl_2.leader)
-        self.assertTrue(self.action_proxy_1.leader)
-        self.assertTrue(self.action_proxy_2.leader)
-        self.assertEqual(self.hero_1.actions.number, 2)
-        self.assertEqual(self.hero_2.actions.number, 2)
+        self.assertTrue(self.battle_info.hero_1.actions.current_action.leader)
+        self.assertTrue(self.battle_info.hero_2.actions.current_action.leader)
+        self.assertEqual(self.battle_info.hero_1.actions.number, 2)
+        self.assertEqual(self.battle_info.hero_2.actions.number, 2)
 
-        self.assertNotEqual(self.action_proxy_1.bundle_id, self.action_idl_1.bundle_id)
-        self.assertNotEqual(self.action_proxy_2.bundle_id, self.action_idl_2.bundle_id)
-        self.assertEqual(self.action_proxy_1.bundle_id, self.action_proxy_2.bundle_id)
+        self.assertNotEqual(self.battle_info.hero_1.actions.current_action.bundle_id, self.action_idl_1.bundle_id)
+        self.assertNotEqual(self.battle_info.hero_2.actions.current_action.bundle_id, self.action_idl_2.bundle_id)
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.bundle_id, self.battle_info.hero_2.actions.current_action.bundle_id)
 
-        self.assertEqual(self.action_proxy_1.meta_action, self.action_proxy_2.meta_action)
-        self.assertEqual(self.action_proxy_1.meta_action, self.meta_action_battle)
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.meta_action,
+                         self.battle_info.hero_2.actions.current_action.meta_action)
 
-        self.assertEqual(len(self.storage.meta_actions), 1)
+        self.assertEqual(len(self.battle_info.storage.meta_actions), 1)
 
     def test_one_action_step_one_meta_step(self):
         with mock.patch('the_tale.game.actions.meta_actions.ArenaPvP1x1._process') as meta_action_process_counter:
-            self.action_proxy_1.process()
+            self.battle_info.hero_1.actions.current_action.process()
 
         self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_two_actions_step_one_meta_step(self):
         with mock.patch('the_tale.game.actions.meta_actions.ArenaPvP1x1._process') as meta_action_process_counter:
-            self.action_proxy_1.process()
-            self.action_proxy_2.process()
+            self.battle_info.hero_1.actions.current_action.process()
+            self.battle_info.hero_2.actions.current_action.process()
 
         self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_two_actions_step_one_meta_step_from_storage(self):
         with mock.patch('the_tale.game.actions.meta_actions.ArenaPvP1x1._process') as meta_action_process_counter:
-            self.storage.process_turn()
+            self.battle_info.storage.process_turn()
 
         self.assertEqual(meta_action_process_counter.call_count, 1)
 
     def test_success_processing(self):
-        self.action_proxy_1.process()
+        self.battle_info.hero_1.actions.current_action.process()
 
-        self.assertEqual(self.action_proxy_1.percents, self.meta_action_battle.percents)
-        self.assertNotEqual(self.action_proxy_2.percents, self.meta_action_battle.percents)
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.percents, self.battle_info.meta_action.percents)
+        self.assertNotEqual(self.battle_info.hero_2.actions.current_action.percents, self.battle_info.meta_action.percents)
 
     def test_full_battle(self):
-        while self.action_proxy_1.state != meta_actions.ArenaPvP1x1.STATE.PROCESSED:
-            self.storage.process_turn(continue_steps_if_needed=False)
+        meta_action = self.battle_info.meta_action
+
+        while meta_action.state != meta_actions.ArenaPvP1x1.STATE.PROCESSED:
+            self.battle_info.storage.process_turn(continue_steps_if_needed=False)
             game_turn.increment()
 
-        self.assertEqual(self.meta_action_battle.state, meta_actions.ArenaPvP1x1.STATE.PROCESSED)
-        self.assertTrue(self.hero_1.is_alive and self.hero_2.is_alive)
+        self.assertTrue(self.battle_info.hero_1.is_alive and self.battle_info.hero_2.is_alive)
 
         self.assertTrue(self.action_idl_1.leader)
         self.assertTrue(self.action_idl_2.leader)
 
     def test_get_meta_action__without_storage(self):
-        self.action_proxy_1.storage = None
-        self.assertNotEqual(self.action_proxy_1.meta_action, None)
+        self.battle_info.hero_1.actions.current_action.storage = None
+        self.assertNotEqual(self.battle_info.hero_1.actions.current_action.meta_action, None)
 
     def test_get_meta_action__no_meta_action(self):
-        self.storage.meta_actions = {}
-        self.assertEqual(self.action_proxy_1.meta_action, None)
+        self.battle_info.storage.meta_actions = {}
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.meta_action, None)
 
     def test_get_meta_action(self):
-        self.assertEqual(self.action_proxy_1.meta_action.uid, self.meta_action_battle.uid)
-        self.assertEqual(self.action_proxy_2.meta_action.uid, self.meta_action_battle.uid)
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.meta_action.uid, self.battle_info.meta_action.uid)
+        self.assertEqual(self.battle_info.hero_2.actions.current_action.meta_action.uid, self.battle_info.meta_action.uid)
 
     def test_get_ui_type__without_storage(self):
-        self.action_proxy_1.storage = None
-        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.ARENA_PVP_1X1)
-        self.assertEqual(self.action_proxy_1.description_text_name, 'meta_action_arena_pvp_1x1_description')
+        self.battle_info.hero_1.actions.current_action.storage = None
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.ui_type, relations.ACTION_TYPE.ARENA_PVP_1X1)
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.description_text_name, 'meta_action_arena_pvp_1x1_description')
 
     def test_get_ui_type__with_metaaction(self):
-        self.assertEqual(self.action_proxy_1.ui_type, relations.ACTION_TYPE.ARENA_PVP_1X1)
-        self.assertEqual(self.action_proxy_1.description_text_name, 'meta_action_arena_pvp_1x1_description')
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.ui_type, relations.ACTION_TYPE.ARENA_PVP_1X1)
+        self.assertEqual(self.battle_info.hero_1.actions.current_action.description_text_name, 'meta_action_arena_pvp_1x1_description')

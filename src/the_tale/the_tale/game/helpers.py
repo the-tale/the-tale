@@ -17,7 +17,6 @@ class ComplexChangeTaskMixin(object):
                        step=None,
                        storage=None,
                        highlevel=None,
-                       pvp_balancer=None,
                        critical=False,
                        card=None,
                        battle_id=None,
@@ -65,5 +64,4 @@ class ComplexChangeTaskMixin(object):
         return {'task': task,
                 'data': data,
                 'storage': storage,
-                'pvp_balancer': pvp_balancer,
                 'highlevel': highlevel}

@@ -24,17 +24,6 @@ class SupervisorTaskTests(utils_testcase.TestCase):
         task.capture_member(self.account_1.id)
         task.capture_member(self.account_2.id)
 
-        battle_1 = pvp_prototypes.Battle1x1Prototype.create(self.account_1)
-        battle_1.set_enemy(self.account_2)
-        battle_1.save()
-
-        battle_2 = pvp_prototypes.Battle1x1Prototype.create(self.account_2)
-        battle_2.set_enemy(self.account_1)
-        battle_2.save()
-
-        self.assertEqual(pvp_models.Battle1x1.objects.filter(state=pvp_relations.BATTLE_1X1_STATE.PREPAIRING).count(), 2)
-        self.assertEqual(pvp_models.Battle1x1.objects.filter(state=pvp_relations.BATTLE_1X1_STATE.PROCESSING).count(), 0)
-
         old_hero = heroes_logic.load_hero(account_id=self.account_1.id)
         old_hero.health = 1
         heroes_logic.save_hero(old_hero)
@@ -58,5 +47,29 @@ class SupervisorTaskTests(utils_testcase.TestCase):
         self.assertEqual(new_hero.actions.current_action.meta_action.serialize(),
                          new_hero_2.actions.current_action.meta_action.serialize())
 
-        self.assertEqual(pvp_models.Battle1x1.objects.filter(state=pvp_relations.BATTLE_1X1_STATE.PREPAIRING).count(), 0)
-        self.assertEqual(pvp_models.Battle1x1.objects.filter(state=pvp_relations.BATTLE_1X1_STATE.PROCESSING).count(), 2)
+    @mock.patch('the_tale.game.actions.container.ActionsContainer.has_proxy_actions', lambda container: True)
+    def test_process_arena_pvp_1x1__already_had_proxy_action(self):
+        task = prototypes.SupervisorTaskPrototype.create_arena_pvp_1x1(self.account_1, self.account_2)
+
+        task.capture_member(self.account_1.id)
+        task.capture_member(self.account_2.id)
+
+        old_hero = heroes_logic.load_hero(account_id=self.account_1.id)
+        old_hero.health = 1
+        heroes_logic.save_hero(old_hero)
+
+        task.process(bundle_id=666)
+
+        new_hero = heroes_logic.load_hero(account_id=self.account_1.id)
+        new_hero_2 = heroes_logic.load_hero(account_id=self.account_2.id)
+
+        self.assertNotEqual(new_hero.actions.current_action.bundle_id, new_hero_2.actions.current_action.bundle_id)
+
+        self.assertEqual(old_hero.actions.number, new_hero.actions.number)
+        self.assertNotEqual(new_hero.health, new_hero.max_health)
+
+        self.assertEqual(new_hero.actions.number, 1)
+        self.assertEqual(new_hero_2.actions.number, 1)
+
+        self.assertEqual(new_hero.actions.current_action.meta_action, None)
+        self.assertEqual(new_hero_2.actions.current_action.meta_action, None)

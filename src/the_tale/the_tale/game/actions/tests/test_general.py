@@ -27,7 +27,8 @@ class GeneralTest(utils_testcase.TestCase):
                 not action_class.TYPE.is_BATTLE_PVE_1X1 and     # TODO: check
                 not action_class.TYPE.is_MOVE_SIMPLE and        # TODO: check
                 not action_class.TYPE.is_HEAL_COMPANION and
-                not action_class.TYPE.is_RESURRECT):
+                not action_class.TYPE.is_RESURRECT and
+                not action_class.TYPE.is_META_PROXY):
                 self.assertIn(abilities_relations.HELP_CHOICES.MONEY, action_class.HELP_CHOICES)  # every action MUST has MONEY choice, or it will be great disbalance in energy & experience receiving
 
     def test_TEXTGEN_TYPE(self):

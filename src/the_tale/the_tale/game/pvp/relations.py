@@ -15,3 +15,8 @@ class BATTLE_1X1_STATE(rels_django.DjangoEnum):
     records = (('WAITING', 1, 'в очереди'),
                ('PREPAIRING', 2, 'подготовка'),
                ('PROCESSING', 3, 'идёт бой'))
+
+
+class MATCHMAKER_TYPE(rels_django.DjangoEnum):
+    records = (('BOT', 0, 'бой с существом'),
+               ('ARENA', 1, 'pvp 2x2'))

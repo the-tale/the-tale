@@ -37,6 +37,7 @@ settings = dext_app_settings.app_settings('GAME',
                                           DIARY_API_VERSION='1.0',
                                           NAMES_API_VERSION='1.0',
                                           HERO_HISTORY_API_VERSION='1.0',
+                                          SUPERVISOR_TASK_STATUS_API_VERSION='1.0',
 
                                           SAVE_ON_EXCEPTION_TIMEOUT=60 * 60,
 

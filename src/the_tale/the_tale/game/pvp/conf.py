@@ -5,11 +5,14 @@ smart_imports.all()
 
 
 settings = dext_app_settings.app_settings('PVP',
-                                          BALANCER_SLEEP_TIME=5,
+                                          MAX_RATING_LEVEL_DELTA=4,
 
-                                          BALANCING_TIMEOUT=5 * 60,
-                                          BALANCING_MAX_LEVEL_DELTA=16,
-                                          BALANCING_MIN_LEVEL_DELTA=4,
+                                          REFRESH_INFO_TIMEOUT=60,
 
-                                          BALANCING_WITHOUT_LEVELS=False  # remove level limitation
-                                          )
+                                          CALL_TO_ARENA_API_VERSION='0.1',
+                                          LEAVE_ARENA_API_VERSION='0.1',
+                                          ACCEPT_ARENA_BATTLE_API_VERSION='0.1',
+                                          CREATE_ARENA_BOT_BATTLE_API_VERSION='0.1',
+                                          INFO_API_VERSION='0.1',
+
+                                          TT_MATCHMAKER_ENTRY_POINT='http://localhost:10016/')

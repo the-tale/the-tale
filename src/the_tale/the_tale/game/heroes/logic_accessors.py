@@ -144,7 +144,8 @@ class LogicAccessorsMixin(object):
         return self.is_premium
 
     @property
-    def can_participate_in_pvp(self): return not self.is_fast and not self.is_banned
+    def can_participate_in_pvp(self):
+        return not self.is_fast and not self.is_banned
 
     @property
     def is_ui_caching_required(self):

@@ -25,7 +25,8 @@ def main():
              'timers.proto',
              'impacts.proto',
              'events_log.proto',
-             'properties.proto')
+             'properties.proto',
+             'matchmaker.proto')
 
     files = [os.path.join(SOURCE_DIR, filename) for filename in files]
 

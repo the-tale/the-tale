@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class ActionsContainerTests(utils_testcase.TestCase):
+class ActionsContainerTests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_description', lambda self: 'abrakadabra')
     def setUp(self):
@@ -86,3 +86,15 @@ class ActionsContainerTests(utils_testcase.TestCase):
             with mock.patch('the_tale.game.actions.prototypes.ACTION_TYPES', {**prototypes.ACTION_TYPES,
                                                                               **{helpers.TestAction.TYPE: helpers.TestAction}}):
                 self.assertFalse(container.ActionsContainer.deserialize(self.container.serialize()).is_single)
+
+    def test_has_proxy_actions(self):
+        self.battle_info = self.create_pvp_battle()
+
+        self.assertTrue(self.battle_info.hero_1.actions.has_proxy_actions())
+        self.assertTrue(self.battle_info.hero_2.actions.has_proxy_actions())
+
+        self.battle_info.hero_1.actions.pop_action()
+        self.battle_info.hero_2.actions.pop_action()
+
+        self.assertFalse(self.battle_info.hero_1.actions.has_proxy_actions())
+        self.assertFalse(self.battle_info.hero_2.actions.has_proxy_actions())

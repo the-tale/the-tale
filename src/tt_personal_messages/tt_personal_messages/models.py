@@ -1,12 +1,6 @@
 
-import datetime
-
 from django.db import models
 from django.contrib.postgres import fields as postgres_fields
-
-from rels.django import RelationIntegerField
-
-from . import relations
 
 
 class Account(models.Model):

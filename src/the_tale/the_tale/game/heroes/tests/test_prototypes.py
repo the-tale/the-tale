@@ -1132,16 +1132,25 @@ class HeroUiInfoTest(utils_testcase.TestCase):
 
     def test_cached_ui_info_for_hero__actual_info(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
-        old_info['action']['data'] = {'pvp__last_turn': 'last_turn',
+        old_info['action']['data'] = {'is_pvp': True,
+                                      'pvp__last_turn': 'last_turn',
                                       'pvp__actual': 'actual'}
 
         with mock.patch('dext.common.utils.cache.get', lambda x: copy.deepcopy(old_info)):
-            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id,
+                                                     recache_if_required=False,
+                                                     patch_turns=None,
+                                                     for_last_turn=False)
+
             self.assertEqual(data['action']['data']['pvp'], 'actual')
             self.assertNotIn('pvp__last_turn', data['action']['data'])
             self.assertNotIn('pvp__actual', data['action']['data'])
 
-            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=True)
+            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id,
+                                                     recache_if_required=False,
+                                                     patch_turns=None,
+                                                     for_last_turn=True)
+
             self.assertEqual(data['action']['data']['pvp'], 'last_turn')
             self.assertNotIn('pvp__last_turn', data['action']['data'])
             self.assertNotIn('pvp__actual', data['action']['data'])

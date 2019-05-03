@@ -67,13 +67,12 @@ def remove_game_data(account):
     heroes_logic.remove_hero(account_id=account.id)
 
 
-def _form_game_account_info(turn_number, account, in_pvp_queue, is_own, client_turns=None):
+def _form_game_account_info(turn_number, account, is_own, client_turns=None):
     data = {'id': account.id,
             'last_visit': time.mktime((account.active_end_at - datetime.timedelta(seconds=accounts_conf.settings.ACTIVE_STATE_TIMEOUT)).timetuple()),
             'is_own': is_own,
             'is_old': False,
-            'hero': None,
-            'in_pvp_queue': in_pvp_queue}
+            'hero': None}
 
     hero_data = heroes_objects.Hero.cached_ui_info_for_hero(account_id=account.id,
                                                             recache_if_required=is_own,
@@ -103,18 +102,17 @@ def form_game_info(account=None, is_own=False, client_turns=None):
     if account:
         turn_number = game_turn.number()
 
-        battle = pvp_prototypes.Battle1x1Prototype.get_by_account_id(account.id)
         data['account'] = _form_game_account_info(turn_number,
                                                   account,
-                                                  in_pvp_queue=False if battle is None else battle.state.is_WAITING,
                                                   is_own=is_own,
                                                   client_turns=client_turns)
 
-        if battle and battle.state.is_PROCESSING:
+        action_data = data['account']['hero']['action'].get('data')
+
+        if action_data and action_data.get('is_pvp'):
             data['mode'] = 'pvp'
             data['enemy'] = _form_game_account_info(turn_number,
-                                                    accounts_prototypes.AccountPrototype.get_by_id(battle.enemy_id),
-                                                    in_pvp_queue=False,
+                                                    accounts_prototypes.AccountPrototype.get_by_id(action_data['enemy_id']),
                                                     is_own=False,
                                                     client_turns=client_turns)
 
@@ -332,7 +330,8 @@ def accounts_info(accounts_ids):
                      'name': hero.name,
                      'race': hero.race.value,
                      'gender': hero.gender.value,
-                     'level': hero.level}
+                     'level': hero.level,
+                     'power': hero.power.ui_info()}
 
         account_data = {'id': account.id,
                         'name': account.nick_verbose,

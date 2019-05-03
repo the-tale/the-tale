@@ -49,13 +49,19 @@ class ActionsContainer(object):
         return action
 
     @property
-    def current_action(self): return self.actions_list[-1]
+    def current_action(self):
+        return self.actions_list[-1]
 
     @property
-    def has_actions(self): return len(self.actions_list)
+    def has_actions(self):
+        return len(self.actions_list)
 
     @property
-    def number(self): return len(self.actions_list)
+    def number(self):
+        return len(self.actions_list)
+
+    def has_proxy_actions(self):
+        return any(action.TYPE.is_META_PROXY for action in self.actions_list)
 
     def reset_to_idl(self):
         self.actions_list = self.actions_list[:1]

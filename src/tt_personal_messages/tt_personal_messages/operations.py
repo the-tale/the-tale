@@ -1,14 +1,8 @@
-import datetime
-
-import psycopg2
-
 import asyncio
 
 from tt_web import postgresql as db
-from tt_web import utils
 
 from . import objects
-from . import relations
 
 
 def message_from_row(row):

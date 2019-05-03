@@ -545,9 +545,10 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
     @classmethod
     def modify_ui_info_with_turn(cls, data, for_last_turn):
+
         action_data = data['action']['data']
 
-        if action_data is None or 'pvp__actual' not in action_data:
+        if action_data is None or not action_data.get('is_pvp'):
             return
 
         if for_last_turn:

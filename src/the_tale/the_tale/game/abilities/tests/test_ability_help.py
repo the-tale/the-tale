@@ -4,11 +4,13 @@ import smart_imports
 smart_imports.all()
 
 
-class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
+class HelpAbilityTest(pvp_helpers.PvPTestsMixin,
+                      helpers.UseAbilityTaskMixin,
+                      utils_testcase.TestCase):
     ABILITY = deck.help.Help
 
     def setUp(self):
-        super(HelpAbilityTest, self).setUp()
+        super().setUp()
 
         self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
@@ -20,60 +22,58 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
 
         self.ability = self.ABILITY()
 
-    @property
-    def use_attributes(self):
-        return super(HelpAbilityTest, self).use_attributes(hero=self.hero, storage=self.storage)
+    def use_attributes(self, hero=None, storage=None):
+        if hero is None:
+            hero = self.hero
+
+        if storage is None:
+            storage = self.storage
+
+        return super().use_attributes(hero=hero, storage=storage)
 
     def test_none(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: None):
             with self.check_not_changed(lambda: self.hero.statistics.help_count):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
     def test_success(self):
         with mock.patch('the_tale.game.heroes.objects.Hero.on_help') as on_help:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(on_help.call_count, 1)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_be_helped', lambda hero: False)
     def test_help_restricted(self):
         with self.check_not_changed(lambda: self.hero.statistics.help_count):
-            self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
-    def test_help_when_battle_waiting(self):
-        battle = pvp_prototypes.Battle1x1Prototype.create(self.account)
-        self.assertTrue(battle.state.is_WAITING)
-        with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-            self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+    def test_help_when_battle(self):
+        battle_info = self.create_pvp_battle(account_1=self.account)
 
-    def test_help_when_battle_not_waiting(self):
-        battle = pvp_prototypes.Battle1x1Prototype.create(self.account)
-        battle.state = pvp_relations.BATTLE_1X1_STATE.PREPAIRING
-        battle.save()
-
-        self.assertFalse(battle.state.is_WAITING)
         with self.check_not_changed(lambda: self.hero.statistics.help_count):
-            self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes(hero=battle_info.hero_1,
+                                                                    storage=battle_info.storage)),
+                             (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
     def test_heal(self):
         self.hero.health = 1
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.HEAL):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
                 self.assertTrue(self.hero.health > 1)
 
     def test_start_quest(self):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.START_QUEST):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
                 self.assertTrue(self.action_idl.percents >= 1)
 
     def test_experience(self):
         old_experience = self.hero.experience
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.EXPERIENCE):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(old_experience < self.hero.experience)
 
@@ -81,7 +81,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
         old_hero_money = self.hero.money
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.MONEY):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
                 self.assertTrue(self.hero.money > old_hero_money)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
@@ -105,7 +105,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.TELEPORT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes),
+                self.assertEqual(self.ability.use(**self.use_attributes()),
                                  (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED,
                                   game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS,
                                   ()))
@@ -134,7 +134,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.TELEPORT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes),
+                self.assertEqual(self.ability.use(**self.use_attributes()),
                                  (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED,
                                   game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS,
                                   ()))
@@ -154,7 +154,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.LIGHTING):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(old_mob_health > action_battle.mob.health)
         self.assertEqual(self.hero.actions.current_action.percents, action_battle.percents)
@@ -177,7 +177,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.RESURRECT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 game_turn.increment()
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(self.hero.health, self.hero.max_health)
         self.assertEqual(self.hero.is_alive, True)
@@ -192,7 +192,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
             with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.RESURRECT):
                 with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                     game_turn.increment()
-                    self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                    self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(process_turn__single_hero.call_args_list, [mock.call(hero=self.hero,
                                                                               logger=None,
@@ -205,19 +205,19 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.RESURRECT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
                 game_turn.increment()
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.RESURRECT):
             with self.check_not_changed(lambda: self.hero.statistics.help_count):
                 game_turn.increment()
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.IGNORE, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.IGNORE, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HABIT_MODE', actions_relations.ACTION_HABIT_MODE.AGGRESSIVE)
     def test_update_habits__aggressive_action(self):
 
         with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(update_habits.call_args_list, [mock.call(heroes_relations.HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)])
 
@@ -225,7 +225,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
     def test_update_habits__unaggressive_action(self):
         with mock.patch('the_tale.game.heroes.objects.Hero.update_habits') as update_habits:
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(update_habits.call_args_list, [mock.call(heroes_relations.HABIT_CHANGE_SOURCE.HELP_UNAGGRESSIVE)])
 
@@ -248,14 +248,14 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
 
         with self.check_delta(lambda: self.hero.statistics.gifts_returned, 2):
             with self.check_delta(lambda: self.hero.bag.occupation, -3):
-                self.ability.use(**self.use_attributes)
+                self.ability.use(**self.use_attributes())
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion__no_companion(self):
         self.assertEqual(self.hero.companion, None)
 
         with self.check_not_changed(lambda: self.hero.statistics.help_count):
-            self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.HEAL_COMPANION)
     def test_heal_companion(self):
@@ -266,7 +266,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
 
         with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEAL_AMOUNT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertTrue(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
         self.assertFalse(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
@@ -280,7 +280,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
 
         with self.check_not_changed(lambda: self.hero.companion.health):
             with self.check_not_changed(lambda: self.hero.statistics.help_count):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 
         self.assertFalse(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
         self.assertFalse(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
@@ -295,7 +295,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
 
         with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEAL_CRIT_AMOUNT):
             with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertFalse(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION)
         self.assertTrue(self.hero.journal.messages[-1].key.is_ANGEL_ABILITY_HEAL_COMPANION_CRIT)
@@ -308,7 +308,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
         self.hero.companion.health = 1
 
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.on_heal_companion') as on_heal_companion:
-            self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
         self.assertEqual(on_heal_companion.call_count, 1)
 
@@ -327,7 +327,7 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
         self.hero.companion.health = 1
 
         with self.check_changed(lambda: self.hero.habit_honor.raw_value + self.hero.habit_peacefulness.raw_value):
-            self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HABIT_MODE', actions_relations.ACTION_HABIT_MODE.COMPANION)
     @mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.HEAL_COMPANION)
@@ -344,4 +344,4 @@ class HelpAbilityTest(helpers.UseAbilityTaskMixin, utils_testcase.TestCase):
         self.hero.companion.health = 1
 
         with self.check_not_changed(lambda: self.hero.habit_honor.raw_value + self.hero.habit_peacefulness.raw_value):
-            self.assertEqual(self.ability.use(**self.use_attributes), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
+            self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
