@@ -102,7 +102,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                                description='Влияние города на соответствие специализациям.', formatter=attributes.float_formatter),
 
                attributes.attr('CULTURE', 33, 'культура', verbose_units='%', formatter=attributes.percents_formatter,
-                               description='На сколько развита культура города, влияет на радиусы влияния и изменения ландшафта.'),
+                               description='Насколько развита культура города, влияет на радиусы влияния и изменения ландшафта.'),
 
                attributes.attr('AREA', 34, 'площадь владений', order=0,
                                description='Площадь владений города. Чем больше у города владений, тем больше производство в нём. На Фронтире бонус к производству меньше.'),
