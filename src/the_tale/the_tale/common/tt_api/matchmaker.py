@@ -6,12 +6,12 @@ smart_imports.all()
 class ACCEPT_BATTLE_RESULT(rels_django.DjangoEnum):
     records = (('SUCCESS', 0, 'битва создана'),
                ('NO_BATTLE_REQUEST', 1, 'вызов на битву не обнаружен'),
-               ('ALREADY_IN_BATTLE', 2, 'один из бойцв уже сражается'),)
+               ('ALREADY_IN_BATTLE', 2, 'один из бойцов уже сражается'),)
 
 
 class CREATE_BATTLE_RESULT(rels_django.DjangoEnum):
     records = (('SUCCESS', 0, 'битва создана'),
-               ('ALREADY_IN_BATTLE', 2, 'один из бойцв уже сражается'),)
+               ('ALREADY_IN_BATTLE', 2, 'один из бойцов уже сражается'),)
 
 
 class Client(client.Client):
