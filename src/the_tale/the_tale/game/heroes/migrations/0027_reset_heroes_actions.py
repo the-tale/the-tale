@@ -8,7 +8,7 @@ from django.db import migrations
 
 
 def reset_actions_and_quests(apps, schema_editor):
-    for hero in apps.get_model("heroes", "Hero").objects.all():
+    for hero in apps.get_model("heroes", "Hero").objects.all().iterator():
 
         actions = json.loads(hero.actions)
 
