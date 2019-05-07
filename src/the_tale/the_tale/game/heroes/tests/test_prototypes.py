@@ -1105,6 +1105,7 @@ class HeroUiInfoTest(utils_testcase.TestCase):
         self.assertEqual(data,
                          {'b': 2,
                           'c': 3,
+                          'action': {'data': None},
                           'patch_turn': 666})
 
     def test_cached_ui_info_for_hero__turn_in_patch_turns(self):
@@ -1116,7 +1117,7 @@ class HeroUiInfoTest(utils_testcase.TestCase):
             data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=[665, 666, 667], for_last_turn=False)
 
         self.assertNotEqual(data['patch_turn'], None)
-        self.assertEqual(set(data.keys()) | set(('changed_fields',)), set(old_info['changed_fields']))
+        self.assertEqual(set(data.keys()) | {'changed_fields', 'action'}, set(old_info['changed_fields']))
 
     def test_cached_ui_info_for_hero__turn_not_in_patch_turns(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
