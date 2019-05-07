@@ -393,6 +393,8 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
 
     def test_no_premium_cards_for_not_premium_player(self):
 
+        # account always use personal_only mode for not premium players
+        self.assertTrue(self.account._model.cards_receive_mode.is_ALL)
         self.assertTrue(self.account.cards_receive_mode().is_PERSONAL_ONLY)
 
         accounts_tt_services.players_timers.cmd_change_timer_speed(owner_id=self.account.id,
