@@ -61,6 +61,10 @@ class AccountPrototype(utils_prototypes.BasePrototype):
     def is_developer(self):
         return self.id in conf.settings.DEVELOPERS_IDS
 
+    @utils_decorators.lazy_property
+    def is_moderator(self):
+        return self.id in conf.settings.MODERATORS_IDS
+
     @property
     def description_html(self): return utils_bbcode.render(self.description)
 
@@ -97,10 +101,12 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         self.cmd_update_hero()
 
     @property
-    def is_premium(self): return self.is_premium_infinit or self.premium_end_at > datetime.datetime.now()
+    def is_premium(self):
+        return self.is_premium_infinit or self.premium_end_at > datetime.datetime.now()
 
     @property
-    def can_affect_game(self): return self.is_premium and not self.is_ban_game
+    def can_affect_game(self):
+        return self.is_premium and not self.is_ban_game
 
     @property
     def show_subscription_offer(self):
@@ -154,6 +160,15 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         end_time = datetime.datetime.fromtimestamp(0)
         self._model_class.objects.filter(id=self.id).update(ban_forum_end_at=end_time)
         self._model.ban_forum_end_at = end_time
+
+    def cards_receive_mode(self):
+        if not self.is_premium:
+            return cards_relations.RECEIVE_MODE.PERSONAL_ONLY
+
+        return self._model.cards_receive_mode
+
+    def set_cards_receive_mode(self, mode):
+        self._model.cards_receive_mode = mode
 
     @classmethod
     def send_premium_expired_notifications(cls):

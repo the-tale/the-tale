@@ -7,15 +7,7 @@ smart_imports.all()
 V = lexicon_relations.VARIABLE
 
 
-KEYS = [('ANGEL_ABILITY_ARENA_PVP_1X1', 240000, 'Журнал: Отправка на PvP арену', relations.LEXICON_GROUP.ANGEL_ABILITY,
-         'Герой становится в очередь на PvP арену.',
-         [V.DATE, V.TIME, V.HERO, V.ENERGY], '-energy#EN'),
-
-        ('ANGEL_ABILITY_ARENA_PVP_1X1_LEAVE_QUEUE', 240001, 'Журнал: Выход из очереди на PvP арену', relations.LEXICON_GROUP.ANGEL_ABILITY,
-         'Герой выходит из очереди на PvP арену.',
-         [V.DATE, V.TIME, V.HERO], None),
-
-        ('ANGEL_ABILITY_DROP_ITEM', 240004, 'Журнал: Выкинуть самый дешёвый предмет из рюкзака', relations.LEXICON_GROUP.ANGEL_ABILITY,
+KEYS = [('ANGEL_ABILITY_DROP_ITEM', 240004, 'Журнал: Выкинуть самый дешёвый предмет из рюкзака', relations.LEXICON_GROUP.ANGEL_ABILITY,
          'У героя из рюкзака пропадает самый дешёвый предмет.',
          [V.DATE, V.TIME, V.DROPPED_ITEM, V.HERO, V.ENERGY], '-energy#EN'),
 

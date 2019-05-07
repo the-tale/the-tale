@@ -119,9 +119,9 @@
           <tbody>
             {{places_macros.attribute_record(place, 'size')}}
             {{places_macros.attribute_record(place, 'power_economic')}}
+            {{places_macros.attribute_record(place, 'money_economic')}}
             {{places_macros.attribute_record(place, 'area')}}
             {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
-            {{places_macros.attribute_record(place, 'keepers_goods')}}
             {{places_macros.attribute_record(place, 'stability')}}
             {{places_macros.attribute_record(place, 'production')}}
             {{places_macros.attribute_record(place, 'transport')}}
@@ -200,7 +200,7 @@
       <div class="tab-pane active description" id="pgf-cell-building">
         <table class="table table-striped table-condensed table-bordered table-no-highlighting">
           <p>
-            Строение значительно увеличивает получаемое Мастером влияние. Не забывайте о том, что здание необходимо ремонтировать, иначе его владелец потеряет преимущества, которые давала ему целая постройка.
+            Строение значительно увеличивает получаемое Мастером влияние. Не забывайте о том, что на поддержку здания тратится производство города.
           </p>
           <tbody>
             <tr><th width="150px">строение</th><td>{{building.type.text}}</td></tr>
@@ -217,17 +217,16 @@
             </tr>
             <tr><th>возведено</th><td>{{building.created_at_turn|verbose_game_date}}</td></tr>
             <tr>
-              <th>целостность</th>
+              <th>поддержка</th>
               <td>
-                <span class="pgf-building-integrity" style="vertical-align: middle;">
-                  {% if building.integrity <= 1 %}{{building.integrity|percents(2)}}
-                  {% else %}100% + {{(building.integrity-1)|percents(2)}} запаса
-                  {% endif %}
-                </span>
-                <i class="icon icon-info-sign" style="vertical-align: middle;" rel="tooltip" title="Отремонтировать здание можно с помощью карт судьбы"></i>
+                {{ building.person.attrs.building_support_cost }}
+
+                <i class="icon icon-info-sign"
+                   style="vertical-align: middle;"
+                   rel="tooltip"
+                   title="На поддержку здания город направляет указанную часть своего производства"></i>
               </td>
             </tr>
-            <tr><th>скорость износа</th><td>-{{building.amortization_in_day|percents(2)}} в день</td></tr>
           </tbody>
         </table>
       </div>
@@ -248,6 +247,68 @@
           <li>{{cell.transport(x, y).text}}</li>
           <li>{{cell.safety(x, y).text}}</li>
         </ul>
+
+        <table class="table table-striped table-condensed table-bordered table-no-highlighting">
+          <tbody>
+            {% set cell = cells(x, y) %}
+            <tr><th width="200px">сила магических потоков</th><td>{{cell.magic|percents(2)}}</td></tr>
+            <tr><th>биом</th><td>{{cell.terrain.text}}</td></tr>
+            <tr>
+              <th>транспорт</th>
+              <td>
+                <a href="javascript:void(0);"
+                   class="info-link"
+                   rel="tooltip"
+                   title="{{map_macros.power_incoming_tooltip('Насколько быстро герои путешествуют по этой территории.', cell.transport_effects(), percents=true)}}">
+                  {{cell.transport|percents(2)}}
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>безопасность</th>
+              <td>
+                <a href="javascript:void(0);"
+                   class="info-link"
+                   rel="tooltip"
+                   title="{{map_macros.power_incoming_tooltip('Насколько безопасна эта территория (вероятность пройти по миру, не подвергнувшись нападению).', cell.safety_effects(), percents=true)}}">
+                  {{cell.safety|percents(2)}}
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>сложность путешествия</th>
+              <td>
+                <a href="javascript:void(0);"
+                   class="info-link"
+                   rel="tooltip"
+                   title="Оценка сложности путешествия героем с обычным уровнем риска. Чем меньше, тем лучше.">
+                  {{cell.normal_travel_cost()|round(2)}}
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th>доминирующий город</th>
+              <td>
+                {% if cell.dominant_place_id is not none %}
+                <a href="{{url('game:places:show', cell.dominant_place().id)}}"
+                   target="_blank"
+                   style="vertical-align: middle;">{{ cell.dominant_place().name }}</a>
+                {% else %}
+                —
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th>ближайший город</th>
+              <td>
+                <a href="{{url('game:places:show', cell.nearest_place().id)}}"
+                   target="_blank"
+                   style="vertical-align: middle;">{{ cell.nearest_place().name }}</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
       </div>
 
     </div>

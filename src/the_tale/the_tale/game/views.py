@@ -23,6 +23,15 @@ class NameProcessor(dext_views.ArgumentProcessor):
         return forms
 
 
+class SupervisorTaskIdProcessor(dext_views.ArgumentProcessor):
+    CONTEXT_NAME = 'supervisor_task'
+    ERROR_MESSAGE = 'Неверный номер задачи'
+    GET_NAME = 'supervisor_task'
+
+    def parse(self, context, raw_value):
+        return prototypes.SupervisorTaskPrototype.get_by_id(int(raw_value))
+
+
 ########################################
 # resource and global processors
 ########################################
@@ -40,9 +49,9 @@ resource.add_processor(heroes_views.CurrentHeroProcessor())
 @resource('')
 def game_page(context):
 
-    battle = pvp_prototypes.Battle1x1Prototype.get_by_account_id(context.account.id)
+    enemy_id = pvp_logic.get_enemy_id(context.account.id)
 
-    if battle and battle.state.is_PROCESSING:
+    if enemy_id:
         return dext_views.Redirect(dext_urls.url('game:pvp:'))
 
     clan = None
@@ -117,12 +126,12 @@ def api_diary(context):
 
 
 @utils_api.Processor(versions=(conf.settings.NAMES_API_VERSION,))
-@dext_views.IntArgumentProcessor(error_message='Неверное количество имён', get_name='number', context_name='names_number', default_value=None)
+@dext_views.IntArgumentProcessor(error_message='Неверное количество имён', get_name='number', context_name='names_number', default_value=10)
 @resource('api', 'names', name='api-names')
 def api_names(context):
 
     if context.names_number < 0 or 100 < context.names_number:
-        raise dext_views.ViewError(code='wrong_number', message='Нельзя сгенерировать такое колдичесво имён')
+        raise dext_views.ViewError(code='wrong_number', message='Нельзя сгенерировать такое количество имён')
 
     result_names = game_names.get_names_set(number=context.names_number)
 
@@ -171,6 +180,16 @@ def hero_history_status(context):
     return dext_views.Page('game/hero_history_status.html',
                            content={'resource': context.resource,
                                     'misses': misses})
+
+
+@SupervisorTaskIdProcessor()
+@utils_api.Processor(versions=(conf.settings.SUPERVISOR_TASK_STATUS_API_VERSION,))
+@resource('api', 'supervisor-task-status', name='api-supervisor-task-status')
+def supervisor_task_status(context):
+    if context.supervisor_task is None:
+        return dext_views.AjaxOk()
+
+    return dext_views.AjaxProcessing(context.supervisor_task.status_url)
 
 
 @dext_views.DebugProcessor()

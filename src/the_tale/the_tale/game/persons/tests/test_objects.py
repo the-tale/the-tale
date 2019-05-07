@@ -83,3 +83,24 @@ class PersonTests(utils_testcase.TestCase):
         place_attributes = set(effect.attribute for effect in self.person.place_effects())
 
         self.assertIn(places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, place_attributes)
+
+    @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifiers',
+                mock.Mock(return_value=[]))
+    def test_place_effects__building_support_cost(self):
+        self.person.personality_cosmetic = relations.PERSONALITY_COSMETIC.TRUTH_SEEKER
+        self.person.personality_practical = relations.PERSONALITY_PRACTICAL.RELIABLE
+
+        self.person.refresh_attributes()
+
+        place_attributes = set(effect.attribute for effect in self.person.place_effects())
+
+        self.assertNotIn(places_relations.ATTRIBUTE.PRODUCTION, place_attributes)
+
+        places_logic.create_building(self.person,
+                                     utg_name=game_names.generator().get_test_name(name='building-name'))
+
+        self.person.refresh_attributes()
+
+        place_attributes = set(effect.attribute for effect in self.person.place_effects())
+
+        self.assertIn(places_relations.ATTRIBUTE.PRODUCTION, place_attributes)

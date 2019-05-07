@@ -58,7 +58,15 @@ jQuery(document).ready(function(e){
 
     <ul class="nav nav-tabs">
       <li class=""><a href="#pgf-about-container" class="pgf-about-tab-button" data-toggle="tab">О герое</a></li>
-      <li class=""><a href="#pgf-attributes-container" class="pgf-attributes-tab-button" data-toggle="tab">Атрибуты</a></li>
+      <li class="">
+        <a href="#pgf-attributes-container" class="pgf-attributes-tab-button" data-toggle="tab">
+          Атрибуты
+          <i class="icon-exclamation-sign pgf-free-destiny-points-sign pgf-hidden"
+             style="vertical-align: middle;"
+             rel="tooltip"
+             title="Герой может изучить новую способность"></i>
+        </a>
+      </li>
       <li class=""><a href="#pgf-politics-container" class="pgf-politics-tab-button" data-toggle="tab">Политика</a></li>
       <li class=""><a href="#pgf-statistics-container" class="pgf-statistics-tab-button" data-toggle="tab">Статистика</a></li>
       {% if is_owner %}
@@ -131,6 +139,12 @@ jQuery(document).ready(function(e){
             <a class="btn btn-success pgf-forms-post-simple"
                href="{{ url('game:heroes:reset-name', resource.hero.id) }}"
                data-confirmation="Вы действительно хотите сбросить имя героя?">сбросить имя</a>
+
+            <h3>Сброс описания героя</h3>
+
+            <a class="btn btn-success pgf-forms-post-simple"
+               href="{{ url('game:heroes:reset-description', resource.hero.id) }}"
+               data-confirmation="Вы действительно хотите сбросить описание героя?">сбросить описание</a>
 
             <h3>Выгрузить в базу</h3>
 

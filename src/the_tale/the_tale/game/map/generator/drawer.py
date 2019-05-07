@@ -40,10 +40,7 @@ def get_roads_map(w, h, roads):
             m[-1].append({})
 
     for road in roads:
-        if not road.exists:
-            continue
-
-        point_1 = road.point_1
+        point_1 = road.place_1
         x = point_1.x
         y = point_1.y
 

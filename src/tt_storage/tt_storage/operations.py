@@ -7,6 +7,7 @@ from psycopg2.extras import Json as PGJson
 from tt_web import postgresql as db
 
 from . import objects
+from . import relations
 from . import exceptions
 
 
@@ -122,7 +123,6 @@ async def apply_change_storage(execute, transaction_id, operation):
                     'operation_type': operation.operation_type})
 
 
-
 async def load_items(owner_id):
     result = await db.sql('SELECT id, owner, storage, data FROM items WHERE owner=%(owner)s', {'owner': owner_id})
     return [objects.Item(id=row['id'], owner_id=owner_id, storage_id=row['storage'], data=row['data']) for row in result]
@@ -134,10 +134,20 @@ async def has_items(owner_id, items_ids):
     return len(result) == len(items_ids)
 
 
+async def get_item_logs(item_id):
+    result = await db.sql('SELECT * FROM log_records WHERE item=%(item_id)s ORDER BY created_at ASC',
+                          {'item_id': item_id})
+    return [objects.LogRecord(id=row['id'],
+                              transaction=row['transaction'],
+                              item_id=row['item'],
+                              type=relations.OPERATION(row['type']),
+                              data=row['data'],
+                              created_at=row['created_at'])
+            for row in result]
+
 
 async def clean_database():
-    await db.sql('DELETE FROM log_records')
-    await db.sql('DELETE FROM items')
+    await db.sql('TRUNCATE log_records, items')
 
 
 OPERATIONS = {objects.OperationCreate: apply_create,

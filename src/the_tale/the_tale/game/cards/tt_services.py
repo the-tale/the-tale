@@ -6,11 +6,15 @@ smart_imports.all()
 
 class StorageClient(tt_api_storage.Client):
 
-    def protobuf_to_item(self, pb_item):
+    def protobuf_to_item(self, pb_item, cards=None):
+        if cards is None:
+            cards = types.CARD
+
         id = uuid.UUID(pb_item.id)
         card = objects.Card.deserialize(uid=id,
                                         data=s11n.from_json(pb_item.data),
-                                        storage=relations.STORAGE(pb_item.storage_id))
+                                        storage=relations.STORAGE(pb_item.storage_id),
+                                        cards=cards)
         return id, card
 
     def Create(self, owner_id, card, storage):

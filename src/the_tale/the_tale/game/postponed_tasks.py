@@ -18,7 +18,6 @@ class ComplexChangeTask(PostponedLogic):
         records = (('ERROR', 0, 'ошибка'),
                    ('LOGIC', 1, 'логика'),
                    ('HIGHLEVEL', 2, 'высокоуровневая логика'),
-                   ('PVP_BALANCER', 3, 'pvp балансировщик'),
                    ('SUCCESS', 4, 'обработка завершена'))
 
     class RESULT(rels_django.DjangoEnum):
@@ -87,12 +86,9 @@ class ComplexChangeTask(PostponedLogic):
         if next_step.is_HIGHLEVEL:
             return self.RESULT.CONTINUE, next_step, ((lambda: amqp_environment.environment.workers.highlevel.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
 
-        if next_step.is_PVP_BALANCER:
-            return self.RESULT.CONTINUE, next_step, ((lambda: amqp_environment.environment.workers.pvp_balancer.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
-
         raise exceptions.UnknownNextStepError(next_step=next_step)
 
-    def process(self, main_task, storage=None, highlevel=None, pvp_balancer=None):  # pylint: disable=R0911
+    def process(self, main_task, storage=None, highlevel=None):  # pylint: disable=R0911
 
         self.main_task = main_task
 
@@ -114,7 +110,6 @@ class ComplexChangeTask(PostponedLogic):
 
             result, self.step, postsave_actions = processor.use(task=self,
                                                                 storage=storage,
-                                                                pvp_balancer=pvp_balancer,
                                                                 highlevel=highlevel)
             main_task.extend_postsave_actions(postsave_actions)
 
@@ -144,7 +139,6 @@ class ComplexChangeTask(PostponedLogic):
         else:
             result, self.step, postsave_actions = processor.use(task=self,
                                                                 storage=storage,
-                                                                pvp_balancer=pvp_balancer,
                                                                 highlevel=highlevel)
 
             main_task.extend_postsave_actions(postsave_actions)

@@ -194,32 +194,11 @@ class UICell(object):
 
     @classmethod
     def safety(self, x, y):
-        dominant_place = storage.map_info.item.get_dominant_place(x, y)
-
-        if dominant_place:
-            safety = dominant_place.attrs.safety
-        else:
-            safety = 1.0 - c.BATTLES_PER_TURN - c.WHILD_BATTLES_PER_TURN_BONUS
-
-        return _get_safety(safety)
+        return _get_safety(storage.cells(x, y).safety)
 
     @classmethod
     def transport(self, x, y):
-        from the_tale.game.heroes import position as heroes_position
-
-        dominant_place = storage.map_info.item.get_dominant_place(x, y)
-
-        has_road = storage.map_info.item.roads_map[y][x].get('road')
-
-        if dominant_place:
-            transport = dominant_place.attrs.transport
-        else:
-            transport = heroes_position.Position.raw_transport()
-
-        if has_road:
-            return _get_road_transport(transport)
-        else:
-            return _get_wild_transport(transport)
+        return _get_wild_transport(storage.cells(x, y).transport)
 
 
 class UICells(object):

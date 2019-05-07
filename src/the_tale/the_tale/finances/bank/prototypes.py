@@ -217,6 +217,9 @@ class InvoicePrototype(utils_prototypes.BasePrototype):
         self.confirm()
 
     def cancel(self):
+        if self.state.is_REJECTED:
+            return
+
         if not self.state.is_FROZEN and not self.state.is_REQUESTED:
             raise exceptions.BankError('try to cancel not frozen invoice "%d"' % self.id)
 

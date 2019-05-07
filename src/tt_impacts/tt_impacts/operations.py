@@ -31,8 +31,14 @@ def target_impact_from_row(row):
                                 time=row['updated_at'].replace(tzinfo=None))
 
 
-async def add_impacts(impacts):
-    await db.transaction(_add_impacts, {'impacts': impacts})
+async def add_impacts(impacts,
+                      log_single_impacts=True,
+                      log_actors_impacts=True,
+                      log_target_impacts=True):
+    await db.transaction(_add_impacts, {'impacts': impacts,
+                                        'log_single_impacts': log_single_impacts,
+                                        'log_actors_impacts': log_actors_impacts,
+                                        'log_target_impacts': log_target_impacts})
 
 
 async def _add_impacts(execute, arguments):
@@ -41,18 +47,21 @@ async def _add_impacts(execute, arguments):
 
     impacts = list(arguments['impacts'])
 
-    for impact in impacts:
-        await _add_impact(execute, impact)
+    if arguments['log_single_impacts']:
+        for impact in impacts:
+            await _add_impact(execute, impact)
 
-    impacts.sort(key=lambda impact: (impact.actor.type, impact.actor.id, impact.target.type, impact.target.id))
+    if arguments['log_actors_impacts']:
+        impacts.sort(key=lambda impact: (impact.actor.type, impact.actor.id, impact.target.type, impact.target.id))
 
-    for impact in impacts:
-        await _add_actor_impact(execute, impact)
+        for impact in impacts:
+            await _add_actor_impact(execute, impact)
 
-    impacts.sort(key=lambda impact: (impact.target.type, impact.target.id))
+    if arguments['log_target_impacts']:
+        impacts.sort(key=lambda impact: (impact.target.type, impact.target.id))
 
-    for impact in impacts:
-        await _add_target_impact(execute, impact)
+        for impact in impacts:
+            await _add_target_impact(execute, impact)
 
 
 async def _add_impact(execute, impact):
@@ -252,6 +261,4 @@ async def _scale_impacts(execute, arguments):
 
 
 async def clean_database():
-    await db.sql('DELETE FROM targets_impacts')
-    await db.sql('DELETE FROM actors_impacts')
-    await db.sql('DELETE FROM impacts')
+    await db.sql('TRUNCATE targets_impacts, actors_impacts, impacts')

@@ -19,7 +19,7 @@ if (!pgf.game.events) {
 pgf.game.events.DATA_REFRESHED = 'pgf-data-refreshed';
 pgf.game.events.DATA_REFRESH_NEEDED = 'pgf-data-refresh-needed';
 pgf.game.events.GAME_DATA_SHOWED =  'pgf-game-data-showed';
-pgf.game.events.DIARY_REFRESHED = 'pgs-diary-refreshed';
+pgf.game.events.DIARY_REFRESHED = 'pgf-diary-refreshed';
 
 
 pgf.game.GetRaceText = function(race, gender) {
@@ -659,8 +659,10 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     var actionInfo = jQuery('.pgf-action-info', widget);
 
     var cardsListContainer = jQuery('.pgf-cards-container', widget)
+    var arenaBattlesListContainer = jQuery('.pgf-arena-battles-container', widget)
 
-    var dropdownCountrol = jQuery('.pgf-cards-for-use-dropdown', widget);
+    var cardsDropdownCountrol = jQuery('.pgf-cards-for-use-dropdown', widget);
+    var arenaDropdownCountrol = jQuery('.pgf-arena-dropdown', widget);
 
     var data = {};
 
@@ -684,7 +686,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     }
 
     function RenderCards() {
-        jQuery('.pgf-cards-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
+        // jQuery('.pgf-cards-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
 
         if (widgets.cards) {
             jQuery('.pgf-cards-choices .pgf-no-cards', widget).toggleClass('pgf-hidden', widgets.cards.HasCardsInHand());
@@ -704,7 +706,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             if (widgets.cards) {
                 widgets.cards.GetCard();
             }
-            dropdownCountrol.dropdown('toggle');
+            cardsDropdownCountrol.dropdown('toggle');
         });
 
         jQuery('.pgf-storage-card-button', widget).off().click(function(e){
@@ -713,7 +715,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             if (widgets.cards) {
                 widgets.cards.OpenStorageDialog();
             }
-            dropdownCountrol.dropdown('toggle');
+            cardsDropdownCountrol.dropdown('toggle');
         });
 
         jQuery('.pgf-transformator-card-button').off().click(function(e){
@@ -722,10 +724,63 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
             if (widgets.cards) {
                 widgets.cards.OpenTransformatorDialog();
             }
-            dropdownCountrol.dropdown('toggle');
+            cardsDropdownCountrol.dropdown('toggle');
         });
     }
 
+    function RenderArena() {
+        // jQuery('.pgf-arena-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
+
+        if (widgets.pvp) {
+            jQuery('.pgf-arena-choices .pgf-no-arena-battle-requests', widget).toggleClass('pgf-hidden', widgets.pvp.HasBattleRequests());
+            jQuery('.pgf-arena-battles-table', widget).toggleClass('pgf-hidden', !widgets.pvp.HasBattleRequests());
+
+            jQuery('.pgf-arena-battle-requests-amount', widget).text(widgets.pvp.BattlesAmount());
+
+            var hasRequestFromAccount = false;
+
+            var hero = widgets.heroes.CurrentHero();
+
+            if (hero) {
+                hasRequestFromAccount = widgets.pvp.HasRequestFromAccount(hero.id);
+            }
+
+            jQuery('.pgf-arena-call-active').toggleClass('pgf-hidden', !hasRequestFromAccount);
+
+            jQuery('.pgf-call-to-battle', widget).toggleClass('pgf-hidden', hasRequestFromAccount);
+            jQuery('.pgf-leave-arena', widget).toggleClass('pgf-hidden', !hasRequestFromAccount);
+
+            widgets.pvp.RenderArenaBattleRequests(arenaBattlesListContainer);
+        }
+
+        jQuery('.pgf-call-to-battle', widget).off().click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (widgets.pvp) {
+                widgets.pvp.CallToArena();
+            }
+        });
+
+        jQuery('.pgf-arena-bot-fight', widget).off().click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (widgets.pvp) {
+                widgets.pvp.CreateArenaBotBattle();
+            }
+        });
+
+        jQuery('.pgf-leave-arena', widget).off().click(function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (widgets.pvp) {
+                widgets.pvp.LeaveArena();
+            }
+        });
+
+    }
 
     this.Refresh = function(game_data) {
 
@@ -743,6 +798,7 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
     this.Render = function() {
         RenderAction();
         RenderCards();
+        RenderArena();
     };
 
     this.GetCurrentAction = function() {
@@ -755,12 +811,19 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         }
         else {
             RenderAction();
+            RenderArena();
         }
     });
 
-    jQuery(document).bind(pgf.game.events.CARDS_REFRESHED, function(e, diary){
+    jQuery(document).bind(pgf.game.events.CARDS_REFRESHED, function(e){
         if (widgets.cards) {
             RenderCards();
+        }
+    });
+
+    jQuery(document).bind(pgf.game.events.PVP_REFRESHED, function(e){
+        if (widgets.pvp) {
+            RenderArena();
         }
     });
 
@@ -768,6 +831,13 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
         e.preventDefault();
         if (widgets.cards) {
             widgets.cards.GetCards();
+        }
+    });
+
+    jQuery(".pgf-arena-dropdown", widget).click(function(e){
+        e.preventDefault();
+        if (widgets.pvp) {
+            widgets.pvp.GetInfo();
         }
     });
 
@@ -1344,9 +1414,6 @@ pgf.game.widgets.Abilities = function() {
     var abilitiesWaitingStartTimes = {};
 
     var angelEnergy = 0;
-    var pvpWaiting = false;
-    var canParticipateInPvp = true;
-    var canRepairBuilding = true;
 
     var canRestoreEnergy = false;
 
@@ -1459,16 +1526,6 @@ pgf.game.widgets.Abilities = function() {
             .toggleClass('pgf-hidden', false)
             .toggleClass('no-items', !itemsInBag)
             .toggleClass('pgf-disable', !itemsInBag);
-
-        jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('pgf-hidden', pvpWaiting);
-        jQuery('.pgf-in-pvp-queue-message').toggleClass('pgf-hidden', !pvpWaiting);
-
-        jQuery('.pgf-ability-arena_pvp_1x1').toggleClass('no-registration', !canParticipateInPvp).toggleClass('pgf-disable', !canParticipateInPvp);
-        jQuery('.pgf-ability-building_repair').toggleClass('no-registration', !canRepairBuilding).toggleClass('pgf-disable disabled', !canRepairBuilding);
-
-        if (jQuery('.pgf-ability-building_repair').data('building-workers') ==0) {
-            jQuery('.pgf-ability-building_repair').toggleClass('pgf-disable disabled', true);
-        }
     }
 
     function RenderDeck() {
@@ -1485,10 +1542,6 @@ pgf.game.widgets.Abilities = function() {
         var hero = game_data.account.hero;
 
         angelEnergy = account.energy;
-
-        pvpWaiting = game_data.account.in_pvp_queue;
-        canParticipateInPvp = hero.permissions.can_participate_in_pvp;
-        canRepairBuilding = hero.permissions.can_repair_building;
 
         itemsInBag = false;
         for (var uuid in hero.bag) {

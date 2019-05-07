@@ -19,6 +19,10 @@ async def place_sell_lot(message, **kwargs):
         lots_ids = await operations.place_sell_lots(lots=[protobuf.to_sell_lot(lot) for lot in message.lots])
     except exceptions.SellLotForItemAlreadyCreated as e:
         raise tt_exceptions.ApiError(code='market.apply.sell_lot_for_item_already_created', message=str(e))
+    except exceptions.SellLotMaximumPriceExceeded as e:
+        raise tt_exceptions.ApiError(code='market.apply.sell_lot_maximum_price_exceeded', message=str(e))
+    except exceptions.SellLotPriceBelowZero as e:
+        raise tt_exceptions.ApiError(code='market.apply.sell_lot_price_below_zero', message=str(e))
 
     return market_pb2.PlaceSellLotResponse(lots_ids=[lot_id.hex for lot_id in lots_ids])
 
@@ -39,6 +43,12 @@ async def cancel_sell_lot(message, **kwargs):
                                             price=message.price,
                                             number=message.number)
     return market_pb2.CancelSellLotResponse(lots=[protobuf.from_sell_lot(lot) for lot in lots])
+
+
+@handlers.api(market_pb2.CancelSellLotsByTypeRequest)
+async def cancel_sell_lots_by_type(message, **kwargs):
+    lots = await operations.cancel_sell_lots_by_type(item_type=message.item_type)
+    return market_pb2.CancelSellLotsByTypeResponse(lots=[protobuf.from_sell_lot(lot) for lot in lots])
 
 
 @handlers.api(market_pb2.ListSellLotsRequest)
@@ -97,7 +107,16 @@ async def statistics(message, **kwargs):
 
     return market_pb2.StatisticsResponse(sell_lots_placed=statistics['sell_lots_placed'],
                                          sell_lots_closed=statistics['sell_lots_closed'],
-                                         turnover=statistics['turnover'])
+                                         turnover=str(statistics['turnover']))
+
+
+@handlers.api(market_pb2.DoesLotExistForItemRequest)
+async def does_lot_exist_for_item(message, **kwargs):
+
+    exists = await operations.does_lot_exist_for_item(item_type=message.item_type,
+                                                      item_id=message.item_id)
+
+    return market_pb2.DoesLotExistForItemResponse(exists=exists)
 
 
 @handlers.api(market_pb2.DebugClearServiceRequest)

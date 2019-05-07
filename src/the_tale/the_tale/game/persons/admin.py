@@ -5,13 +5,9 @@ smart_imports.all()
 
 
 class PersonAdmin(django_admin.ModelAdmin):
-    list_display = ('id', 'place', 'type', 'name', 'politic_power', 'created_at')
+    list_display = ('id', 'place', 'type', 'name', 'created_at')
 
     list_filter = ('gender', 'race', 'type', 'place')
-
-    def politic_power(self, obj):
-        from . import logic
-        return logic.load_person(person_model=obj).politic_power
 
     def name(self, obj):
         from . import logic

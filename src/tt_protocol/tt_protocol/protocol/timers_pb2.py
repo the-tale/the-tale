@@ -19,11 +19,33 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='timers.proto',
   package='timers',
   syntax='proto3',
-  serialized_pb=_b('\n\x0ctimers.proto\x12\x06timers\"\xa1\x01\n\x05Timer\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x10\n\x08owner_id\x18\x02 \x01(\x04\x12\x11\n\tentity_id\x18\x03 \x01(\x04\x12\x0c\n\x04type\x18\x04 \x01(\r\x12\r\n\x05speed\x18\x05 \x01(\x01\x12\x0e\n\x06\x62order\x18\x06 \x01(\x01\x12\x11\n\tresources\x18\x07 \x01(\x01\x12\x14\n\x0cresources_at\x18\x08 \x01(\x01\x12\x11\n\tfinish_at\x18\t \x01(\x01\"\x90\x01\n\x12\x43reateTimerRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\x04\x12\x11\n\tentity_id\x18\x02 \x01(\x04\x12\x0c\n\x04type\x18\x03 \x01(\r\x12\r\n\x05speed\x18\x04 \x01(\x01\x12\x0e\n\x06\x62order\x18\x05 \x01(\x01\x12\x15\n\rcallback_data\x18\x06 \x01(\t\x12\x11\n\tresources\x18\x07 \x01(\x01\"3\n\x13\x43reateTimerResponse\x12\x1c\n\x05timer\x18\x01 \x01(\x0b\x32\r.timers.Timer\"V\n\x12\x43hangeSpeedRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\x04\x12\x11\n\tentity_id\x18\x02 \x01(\x04\x12\x0c\n\x04type\x18\x03 \x01(\r\x12\r\n\x05speed\x18\x04 \x01(\x01\"3\n\x13\x43hangeSpeedResponse\x12\x1c\n\x05timer\x18\x01 \x01(\x0b\x32\r.timers.Timer\")\n\x15GetOwnerTimersRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\x04\"7\n\x16GetOwnerTimersResponse\x12\x1d\n\x06timers\x18\x01 \x03(\x0b\x32\r.timers.Timer\"S\n\x0c\x43\x61llbackBody\x12\x1c\n\x05timer\x18\x01 \x01(\x0b\x32\r.timers.Timer\x12\x15\n\rcallback_data\x18\x02 \x01(\t\x12\x0e\n\x06secret\x18\x03 \x01(\t\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
+  serialized_pb=_b('\n\x0ctimers.proto\x12\x06timers\"\xa1\x01\n\x05Timer\x12\n\n\x02id\x18\x01 \x01(\x04\x12\x10\n\x08owner_id\x18\x02 \x01(\x04\x12\x11\n\tentity_id\x18\x03 \x01(\x04\x12\x0c\n\x04type\x18\x04 \x01(\r\x12\r\n\x05speed\x18\x05 \x01(\x01\x12\x0e\n\x06\x62order\x18\x06 \x01(\x01\x12\x11\n\tresources\x18\x07 \x01(\x01\x12\x14\n\x0cresources_at\x18\x08 \x01(\x01\x12\x11\n\tfinish_at\x18\t \x01(\x01\"\x90\x01\n\x12\x43reateTimerRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\x04\x12\x11\n\tentity_id\x18\x02 \x01(\x04\x12\x0c\n\x04type\x18\x03 \x01(\r\x12\r\n\x05speed\x18\x04 \x01(\x01\x12\x0e\n\x06\x62order\x18\x05 \x01(\x01\x12\x15\n\rcallback_data\x18\x06 \x01(\t\x12\x11\n\tresources\x18\x07 \x01(\x01\"3\n\x13\x43reateTimerResponse\x12\x1c\n\x05timer\x18\x01 \x01(\x0b\x32\r.timers.Timer\"V\n\x12\x43hangeSpeedRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\x04\x12\x11\n\tentity_id\x18\x02 \x01(\x04\x12\x0c\n\x04type\x18\x03 \x01(\r\x12\r\n\x05speed\x18\x04 \x01(\x01\"3\n\x13\x43hangeSpeedResponse\x12\x1c\n\x05timer\x18\x01 \x01(\x0b\x32\r.timers.Timer\")\n\x15GetOwnerTimersRequest\x12\x10\n\x08owner_id\x18\x01 \x01(\x04\"7\n\x16GetOwnerTimersResponse\x12\x1d\n\x06timers\x18\x01 \x03(\x0b\x32\r.timers.Timer\"S\n\x0c\x43\x61llbackBody\x12\x1c\n\x05timer\x18\x01 \x01(\x0b\x32\r.timers.Timer\x12\x15\n\rcallback_data\x18\x02 \x01(\t\x12\x0e\n\x06secret\x18\x03 \x01(\t\"~\n\x0e\x43\x61llbackAnswer\x12@\n\x10postprocess_type\x18\x01 \x01(\x0e\x32&.timers.CallbackAnswer.PostprocessType\"*\n\x0fPostprocessType\x12\n\n\x06REMOVE\x10\x00\x12\x0b\n\x07RESTART\x10\x01\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
+
+_CALLBACKANSWER_POSTPROCESSTYPE = _descriptor.EnumDescriptor(
+  name='PostprocessType',
+  full_name='timers.CallbackAnswer.PostprocessType',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='REMOVE', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='RESTART', index=1, number=1,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=798,
+  serialized_end=840,
+)
+_sym_db.RegisterEnumDescriptor(_CALLBACKANSWER_POSTPROCESSTYPE)
 
 
 _TIMER = _descriptor.Descriptor(
@@ -407,6 +429,38 @@ _CALLBACKBODY = _descriptor.Descriptor(
 )
 
 
+_CALLBACKANSWER = _descriptor.Descriptor(
+  name='CallbackAnswer',
+  full_name='timers.CallbackAnswer',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='postprocess_type', full_name='timers.CallbackAnswer.postprocess_type', index=0,
+      number=1, type=14, cpp_type=8, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _CALLBACKANSWER_POSTPROCESSTYPE,
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=714,
+  serialized_end=840,
+)
+
+
 _DEBUGCLEARSERVICEREQUEST = _descriptor.Descriptor(
   name='DebugClearServiceRequest',
   full_name='timers.DebugClearServiceRequest',
@@ -426,8 +480,8 @@ _DEBUGCLEARSERVICEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=714,
-  serialized_end=740,
+  serialized_start=842,
+  serialized_end=868,
 )
 
 
@@ -450,14 +504,16 @@ _DEBUGCLEARSERVICERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=742,
-  serialized_end=769,
+  serialized_start=870,
+  serialized_end=897,
 )
 
 _CREATETIMERRESPONSE.fields_by_name['timer'].message_type = _TIMER
 _CHANGESPEEDRESPONSE.fields_by_name['timer'].message_type = _TIMER
 _GETOWNERTIMERSRESPONSE.fields_by_name['timers'].message_type = _TIMER
 _CALLBACKBODY.fields_by_name['timer'].message_type = _TIMER
+_CALLBACKANSWER.fields_by_name['postprocess_type'].enum_type = _CALLBACKANSWER_POSTPROCESSTYPE
+_CALLBACKANSWER_POSTPROCESSTYPE.containing_type = _CALLBACKANSWER
 DESCRIPTOR.message_types_by_name['Timer'] = _TIMER
 DESCRIPTOR.message_types_by_name['CreateTimerRequest'] = _CREATETIMERREQUEST
 DESCRIPTOR.message_types_by_name['CreateTimerResponse'] = _CREATETIMERRESPONSE
@@ -466,6 +522,7 @@ DESCRIPTOR.message_types_by_name['ChangeSpeedResponse'] = _CHANGESPEEDRESPONSE
 DESCRIPTOR.message_types_by_name['GetOwnerTimersRequest'] = _GETOWNERTIMERSREQUEST
 DESCRIPTOR.message_types_by_name['GetOwnerTimersResponse'] = _GETOWNERTIMERSRESPONSE
 DESCRIPTOR.message_types_by_name['CallbackBody'] = _CALLBACKBODY
+DESCRIPTOR.message_types_by_name['CallbackAnswer'] = _CALLBACKANSWER
 DESCRIPTOR.message_types_by_name['DebugClearServiceRequest'] = _DEBUGCLEARSERVICEREQUEST
 DESCRIPTOR.message_types_by_name['DebugClearServiceResponse'] = _DEBUGCLEARSERVICERESPONSE
 
@@ -524,6 +581,13 @@ CallbackBody = _reflection.GeneratedProtocolMessageType('CallbackBody', (_messag
   # @@protoc_insertion_point(class_scope:timers.CallbackBody)
   ))
 _sym_db.RegisterMessage(CallbackBody)
+
+CallbackAnswer = _reflection.GeneratedProtocolMessageType('CallbackAnswer', (_message.Message,), dict(
+  DESCRIPTOR = _CALLBACKANSWER,
+  __module__ = 'timers_pb2'
+  # @@protoc_insertion_point(class_scope:timers.CallbackAnswer)
+  ))
+_sym_db.RegisterMessage(CallbackAnswer)
 
 DebugClearServiceRequest = _reflection.GeneratedProtocolMessageType('DebugClearServiceRequest', (_message.Message,), dict(
   DESCRIPTOR = _DEBUGCLEARSERVICEREQUEST,

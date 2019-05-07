@@ -19,7 +19,10 @@ BILLS = [place_renaming.PlaceRenaming,
          person_move.PersonMove,
          place_change_race.PlaceRace,
          person_add_social_connection.PersonAddSocialConnection,
-         person_remove_social_connection.PersonRemoveSocialConnection]
+         person_remove_social_connection.PersonRemoveSocialConnection,
+         road_create.RoadCreate,
+         road_destroy.RoadDestroy,
+         road_change.RoadChange]
 
 
 def deserialize_bill(data):

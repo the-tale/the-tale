@@ -53,6 +53,8 @@ def _process_arguments(args):
                                  (lexicon_relations.VARIABLE.TIME.value, game_turn.linguistics_time()),))
 
     for k, v in variables:
+        # if v is None:
+        #     raise Exception('variable {} is None'.format(k))
         word_form, variable_restrictions = lexicon_relations.VARIABLE(k).type.constructor(v)
         externals[k] = word_form
         restrictions.update((k, restriction_id) for restriction_id in variable_restrictions)

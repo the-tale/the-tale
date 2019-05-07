@@ -10,6 +10,7 @@ class ModifiersTests(utils_testcase.TestCase):
         super(ModifiersTests, self).setUp()
         self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
+        self.place_1.attrs.size = 5
         self.place_1.refresh_attributes()
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
@@ -26,6 +27,8 @@ class ModifiersTests(utils_testcase.TestCase):
             with self.check_increased(lambda: self.place_1.attrs.production):
                 self.place_1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
 
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION', -100500)
+    @mock.patch('the_tale.game.balance.constants.PLACE_TYPE_ENOUGH_BORDER', 100)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: False)
     def test_craft_center__modifier_disabled(self):
         with self.check_decreased(lambda: self.place_1.attrs.stability):
@@ -60,11 +63,15 @@ class ModifiersTests(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_transport_node(self):
+        self.place_1.refresh_attributes()
+
         with self.check_increased(lambda: self.place_1.attrs.transport):
             self.place_1.set_modifier(modifiers.CITY_MODIFIERS.TRANSPORT_NODE)
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_outlaws(self):
+        self.place_1.refresh_attributes()
+
         with self.check_increased(lambda: self.place_1.attrs.freedom):
             with self.check_decreased(lambda: self.place_1.attrs.safety):
                 with self.check_increased(lambda: self.place_1.attrs.experience_bonus):
@@ -72,6 +79,10 @@ class ModifiersTests(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_holy_city(self):
+        # size must not be equal 1, becouse in that case production below zero will be compenstated with tax
+        self.place_1.attrs.size = 10
+        self.place_1.refresh_attributes()
+
         with self.check_increased(lambda: self.place_1.attrs.energy_regen_chance):
             with self.check_decreased(lambda: self.place_1.attrs.production):
                 with self.check_increased(lambda: self.place_1.attrs.transport):

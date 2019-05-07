@@ -19,6 +19,7 @@ def register_routers(app):
     app.router.add_post('/apply', handlers.apply)
     app.router.add_post('/get-items', handlers.get_items)
     app.router.add_post('/has-items', handlers.has_items)
+    app.router.add_post('/get-item-logs', handlers.get_item_logs)
 
     app.router.add_post('/debug-clear-service', handlers.debug_clear_service)
 

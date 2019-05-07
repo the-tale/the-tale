@@ -49,12 +49,9 @@ class BaseForm(forms.BaseUserForm):
         place_1 = places_storage.places.get(int(cleaned_data['place_1']))
         place_2 = places_storage.places.get(int(cleaned_data['place_2']))
 
-        if roads_storage.roads.get_by_places(place_1, place_2) is None:
-            raise django_forms.ValidationError('Обмениваться ресурсами могут только города связаные дорогой')
-
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_1)) or
-                c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_2))):
-            raise django_forms.ValidationError('Один город может поддерживать не более чем %(max_exchanges)d активных записей в Книге Судьбы' % {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER})
+            c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(place_2))):
+            raise django_forms.ValidationError('Один город может поддерживать не более чем {max_exchanges} активных записей в Книге Судьбы'.format(max_exchanges=c.PLACE_MAX_BILLS_NUMBER))
 
         resource_1 = cleaned_data.get('resource_1')
         resource_2 = cleaned_data.get('resource_2')
@@ -92,7 +89,9 @@ class PlaceResourceExchange(base_bill.BaseBill):
     ModeratorForm = ModeratorForm
 
     CAPTION = 'Обмен ресурсами между городами'
-    DESCRIPTION = 'Устанавливает обмен ресурсами между городами. Обмен разрешён только между соседними городами (связанными прямой дорогой), один город может иметь не более %(max_exchanges)d активных записей в Книге Судьбы. Обмен не обязан быть равноценным.' % {'max_exchanges': c.PLACE_MAX_BILLS_NUMBER}
+    DESCRIPTION = 'Налаживает обмен ресурсами между городами. Город, указанный вторым, будет тратить производство на поддержку караванов, пропорционально длинне минимального пути между ними (по клеткам, {production} производства за каждую). Город может иметь не более {max_exchanges} активных записей в Книге Судьбы. Обмен не обязан быть равноценным.'.format(
+        max_exchanges=c.PLACE_MAX_BILLS_NUMBER,
+        production=c.RESOURCE_EXCHANGE_COST_PER_CELL)
 
     def __init__(self, place_1_id=None, place_2_id=None, resource_1=None, resource_2=None, old_place_1_name_forms=None, old_place_2_name_forms=None):
         super(PlaceResourceExchange, self).__init__()
@@ -110,13 +109,16 @@ class PlaceResourceExchange(base_bill.BaseBill):
             self.old_place_2_name_forms = self.place_2.utg_name
 
     @property
-    def place_1(self): return places_storage.places[self.place_1_id]
+    def place_1(self):
+        return places_storage.places[self.place_1_id]
 
     @property
-    def place_2(self): return places_storage.places[self.place_2_id]
+    def place_2(self):
+        return places_storage.places[self.place_2_id]
 
     @property
-    def actors(self): return [self.place_1, self.place_2]
+    def actors(self):
+        return [self.place_1, self.place_2]
 
     def user_form_initials(self):
         return {'place_1': self.place_1_id,
@@ -133,10 +135,12 @@ class PlaceResourceExchange(base_bill.BaseBill):
         return self.old_place_2_name != self.place_2.name
 
     @property
-    def old_place_1_name(self): return self.old_place_1_name_forms.normal_form()
+    def old_place_1_name(self):
+        return self.old_place_1_name_forms.normal_form()
 
     @property
-    def old_place_2_name(self): return self.old_place_2_name_forms.normal_form()
+    def old_place_2_name(self):
+        return self.old_place_2_name_forms.normal_form()
 
     def initialize_with_form(self, user_form):
         self.place_1_id = int(user_form.c.place_1)
@@ -147,11 +151,8 @@ class PlaceResourceExchange(base_bill.BaseBill):
         self.old_place_2_name_forms = self.place_2.utg_name
 
     def has_meaning(self):
-        if roads_storage.roads.get_by_places(self.place_1, self.place_2) is None:
-            return False
-
         if (c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(self.place_1)) or
-                c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(self.place_2))):
+            c.PLACE_MAX_BILLS_NUMBER <= len(places_storage.resource_exchanges.get_exchanges_for_place(self.place_2))):
             return False
 
         return True

@@ -32,26 +32,24 @@ class MapInfoPrototype(utils_prototypes.BasePrototype):
         return generator.descriptors.UICells.deserialize(s11n.from_json(self._model.cells))
 
     @utils_decorators.lazy_property
-    def terrain_percents(self): return self.statistics['terrain_percents']
+    def terrain_percents(self):
+        return self.statistics['terrain_percents']
 
     @utils_decorators.lazy_property
-    def race_percents(self): return self.statistics['race_percents']
+    def race_percents(self):
+        return self.statistics['race_percents']
 
     @utils_decorators.lazy_property
     def roads_map(self):
-        return generator.drawer.get_roads_map(w=conf.settings.WIDTH, h=conf.settings.HEIGHT, roads=roads_storage.roads.all_exists_roads())
+        return generator.drawer.get_roads_map(w=conf.settings.WIDTH, h=conf.settings.HEIGHT, roads=roads_storage.roads.all())
 
     @utils_decorators.lazy_property
-    def person_race_percents(self): return self.statistics['person_race_percents']
+    def person_race_percents(self):
+        return self.statistics['person_race_percents']
 
     @property
-    def race_cities(self): return self.statistics['race_cities']
-
-    def get_dominant_place(self, x, y):
-        for place in places_storage.places.all():
-            if (x, y) in place.nearest_cells:
-                return place
-        return None
+    def race_cities(self):
+        return self.statistics['race_cities']
 
     ######################
     # object operations

@@ -359,3 +359,86 @@ class GetStartPlaceForRaceTests(utils_testcase.TestCase):
         found_place = logic.get_start_place_for_race(race)
 
         self.assertEqual(found_place.id, self.places[1].id)
+
+
+class ChoosePlaceCellByTerrainTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.places = list(game_logic.create_test_map())
+
+        self.assertTrue(len(map_storage.cells.place_cells(self.places[0].id)) > 1)
+
+    def test_no_terrains(self):
+        expected_cells = set(map_storage.cells.place_cells(self.places[0].id))
+
+        cells = set()
+
+        while cells != expected_cells:
+            cells.add(logic.choose_place_cell_by_terrain(self.places[0].id, terrains=()))
+
+    def test_filter_by_terrains__has_terrains(self):
+        x, y = logic.choose_place_cell_by_terrain(self.places[0].id, terrains=())
+
+        terrain = map_storage.cells(x, y).terrain
+
+        for i in range(100):
+            test_x, test_y = logic.choose_place_cell_by_terrain(self.places[0].id, terrains=())
+            self.assertEqual(map_storage.cells(test_x, test_y).terrain, terrain)
+
+    def test_filter_by_terrains__no_terrains(self):
+        expected_cells = set(map_storage.cells.place_cells(self.places[0].id))
+
+        cells = set()
+
+        existed_terrains = {map_storage.cells(*cell).terrain for cell in expected_cells}
+
+        unexisted_terrain = map_relations.TERRAIN.random(exclude=existed_terrains)
+
+        while cells != expected_cells:
+            cells.add(logic.choose_place_cell_by_terrain(self.places[0].id, terrains=(unexisted_terrain,)))
+
+
+class SyncPowerEconomicTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.places = game_logic.create_test_map()
+
+        game_tt_services.debug_clear_service()
+
+    def test(self):
+        impacts = []
+        for power, place in zip((100, 300, 200), self.places):
+            impacts.append(game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                     hero_id=1,
+                                                                     place_id=place.id,
+                                                                     amount=power))
+        politic_power_logic.add_power_impacts(impacts)
+
+        politic_power_storage.places.sync(force=True)
+
+        logic.sync_power_economic(self.places, 100)
+
+        self.assertEqual(self.places[0].attrs.power_economic, 34)
+        self.assertEqual(self.places[1].attrs.power_economic, 100)
+        self.assertEqual(self.places[2].attrs.power_economic, 67)
+
+
+class SyncMoneyEconomicTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.places = game_logic.create_test_map()
+
+        game_tt_services.debug_clear_service()
+
+    def test(self):
+        for money, place in zip((100, 300, 200), self.places):
+            logic.register_money_transaction(hero_id=1, place_id=place.id, amount=money)
+
+        logic.sync_money_economic(self.places, 100)
+
+        self.assertEqual(self.places[0].attrs.money_economic, 34)
+        self.assertEqual(self.places[1].attrs.money_economic, 100)
+        self.assertEqual(self.places[2].attrs.money_economic, 67)

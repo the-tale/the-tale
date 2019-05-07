@@ -230,7 +230,7 @@ def remove_member(initiator, clan, member):
                                          recipients_ids=[member.id],
                                          body=message)
 
-    message = '{initiator} исключил(а) Хранителя {keeper} из гильдию'.format(initiator=initiator.nick_verbose,
+    message = '{initiator} исключил(а) Хранителя {keeper} из гильдии'.format(initiator=initiator.nick_verbose,
                                                                              keeper=member.nick_verbose)
 
     tt_services.chronicle.cmd_add_event(clan=clan,

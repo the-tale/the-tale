@@ -22,7 +22,6 @@ class Environment(BaseEnvironment):
         from the_tale.game.workers import highlevel
         from the_tale.game.workers import turns_loop
         from the_tale.game.workers import long_commands as game_long_commands
-        from the_tale.game.pvp.workers import balancer
         from the_tale.game.quests.workers import quests_generator
 
         self.workers.bank_processor = bank_processor.Worker(name='bank_processor')
@@ -42,7 +41,6 @@ class Environment(BaseEnvironment):
         self.workers.highlevel = highlevel.Worker(name='highlevel')
         self.workers.turns_loop = turns_loop.Worker(name='turns_loop')
         self.workers.game_long_commands = game_long_commands.Worker(name='game_long_commands')
-        self.workers.pvp_balancer = balancer.Worker(name='pvp_balancer')
         self.workers.quests_generator = quests_generator.Worker(name='quests_generator')
 
         super(Environment, self).initialize()

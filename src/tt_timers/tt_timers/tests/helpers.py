@@ -1,6 +1,7 @@
 import os
 
 from tt_web import utils
+from tt_web.common import semaphore
 from tt_web.tests import helpers as web_helpers
 
 from .. import service
@@ -13,6 +14,7 @@ class BaseTests(web_helpers.BaseTests):
         return service.create_application(get_config(), loop=self.loop)
 
     async def clean_environment(self, app=None):
+        semaphore.clear()
         await operations.clean_database()
 
 

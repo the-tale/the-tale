@@ -44,3 +44,4 @@ class LogRecord(models.Model):
 
     class Meta:
         db_table = 'log_records'
+        index_together = [('item', 'created_at')]

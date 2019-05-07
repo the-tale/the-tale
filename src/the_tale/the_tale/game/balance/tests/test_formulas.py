@@ -17,7 +17,7 @@ class FormulasTest(utils_testcase.TestCase):
 
     def test_person_power_for_quest(self):
         self.assertTrue(f.person_power_for_quest(100) < f.person_power_for_quest(1000) < f.person_power_for_quest(10000))
-        self.assertEqual(int(f.person_power_for_quest__real(100)), 60)
+        self.assertEqual(int(f.person_power_for_quest__real(100)), 181)
 
     def test_companions_defend_in_battle_probability(self):
         self.assertEqual(round(f.companions_defend_in_battle_probability(0), 5), 0.15)
@@ -40,7 +40,7 @@ class FormulasTest(utils_testcase.TestCase):
         self.assertEqual(f.companions_heal_length(70, 70), 9)
 
     def test_gold_in_path(self):
-        self.assertEqual(f.gold_in_path(10, 100), 555)
+        self.assertEqual(f.gold_in_path(10, 100), 1667)
 
     def test_normal_loot_cost_at_lvl(self):
         self.assertEqual(f.normal_loot_cost_at_lvl(1), 1)

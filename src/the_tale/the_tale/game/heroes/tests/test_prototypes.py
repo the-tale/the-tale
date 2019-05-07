@@ -185,15 +185,7 @@ class HeroTest(utils_testcase.TestCase, personal_messages_helpers.Mixin):
 
         with mock.patch('the_tale.game.places.objects.Place.depends_from_all_heroes', True):
             with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
-                self.assertFalse(self.hero.can_change_person_power(self.place_1))
-
-    def test_can_repair_building(self):
-        self.assertFalse(self.hero.can_repair_building)
-        self.hero.premium_state_end_at = datetime.datetime.now() + datetime.timedelta(seconds=60)
-        self.assertTrue(self.hero.can_repair_building)
-
-        with mock.patch('the_tale.game.heroes.objects.Hero.is_banned', True):
-            self.assertFalse(self.hero.can_repair_building)
+                self.assertFalse(self.hero.can_change_person_power(self.place_1.persons[0]))
 
     def test_update_with_account_data(self):
         self.hero.is_fast = True
@@ -816,7 +808,7 @@ class HeroQuestsTest(utils_testcase.TestCase):
         self.hero.position.set_place(self.place)
         self.assertFalse(quests_relations.QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.position.set_coordinates(0, 0, 0, 0, 0)
+        self.hero.position.set_position(0, 0)
         self.assertTrue(quests_relations.QUESTS.HOMETOWN in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__friend(self):
@@ -826,7 +818,7 @@ class HeroQuestsTest(utils_testcase.TestCase):
         self.hero.position.set_place(self.place)
         self.assertFalse(quests_relations.QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.position.set_coordinates(0, 0, 0, 0, 0)
+        self.hero.position.set_position(0, 0)
         self.assertTrue(quests_relations.QUESTS.HELP_FRIEND in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__enemy(self):
@@ -836,7 +828,7 @@ class HeroQuestsTest(utils_testcase.TestCase):
         self.hero.position.set_place(self.place)
         self.assertFalse(quests_relations.QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.position.set_coordinates(0, 0, 0, 0, 0)
+        self.hero.position.set_position(0, 0)
         self.assertTrue(quests_relations.QUESTS.INTERFERE_ENEMY in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_character_quests__hunt(self):
@@ -865,7 +857,7 @@ class HeroQuestsTest(utils_testcase.TestCase):
         self.hero.position.set_place(self.place)
         self.assertFalse(quests_relations.QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
-        self.hero.position.set_coordinates(0, 0, 0, 0, 0)
+        self.hero.position.set_position(0, 0)
         self.assertTrue(quests_relations.QUESTS.PILGRIMAGE in [quest for quest, priority in self.hero.get_quests_priorities()])
 
     def test_get_minimum_created_time_of_active_quests(self):
@@ -1140,16 +1132,25 @@ class HeroUiInfoTest(utils_testcase.TestCase):
 
     def test_cached_ui_info_for_hero__actual_info(self):
         old_info = self.hero.ui_info(actual_guaranteed=True, old_info=None)
-        old_info['action']['data'] = {'pvp__last_turn': 'last_turn',
+        old_info['action']['data'] = {'is_pvp': True,
+                                      'pvp__last_turn': 'last_turn',
                                       'pvp__actual': 'actual'}
 
         with mock.patch('dext.common.utils.cache.get', lambda x: copy.deepcopy(old_info)):
-            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=False)
+            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id,
+                                                     recache_if_required=False,
+                                                     patch_turns=None,
+                                                     for_last_turn=False)
+
             self.assertEqual(data['action']['data']['pvp'], 'actual')
             self.assertNotIn('pvp__last_turn', data['action']['data'])
             self.assertNotIn('pvp__actual', data['action']['data'])
 
-            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id, recache_if_required=False, patch_turns=None, for_last_turn=True)
+            data = self.hero.cached_ui_info_for_hero(account_id=self.hero.account_id,
+                                                     recache_if_required=False,
+                                                     patch_turns=None,
+                                                     for_last_turn=True)
+
             self.assertEqual(data['action']['data']['pvp'], 'last_turn')
             self.assertNotIn('pvp__last_turn', data['action']['data'])
             self.assertNotIn('pvp__actual', data['action']['data'])
@@ -1200,3 +1201,10 @@ class HeroUiInfoTest(utils_testcase.TestCase):
         self.assertFalse(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.settings.UI_CACHING_TIME - conf.settings.UI_CACHING_CONTINUE_TIME - 1)))
         self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - (conf.settings.UI_CACHING_TIME - conf.settings.UI_CACHING_CONTINUE_TIME + 1)))
         self.assertTrue(objects.Hero.is_ui_continue_caching_required(time.time() - conf.settings.UI_CACHING_TIME))
+
+    def test_register_spenging_on_money_change(self):
+
+        with mock.patch('the_tale.game.heroes.logic.register_spending') as register_spending:
+            self.hero.change_money(relations.MONEY_SOURCE.random(), 100500)
+
+        self.assertEqual(register_spending.call_count, 1)

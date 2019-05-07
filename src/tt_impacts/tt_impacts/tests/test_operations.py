@@ -55,6 +55,34 @@ class AddImpactsTests(helpers.BaseTests):
 
         self.assertEqual(actor_impact, operations.actor_impact_from_row(results[0]))
 
+    async def chech_has_records(self, impacts, actors_impacts, targets_impacts):
+        results = await db.sql('SELECT * FROM impacts')
+        self.assertEqual(len(results), impacts)
+
+        results = await db.sql('SELECT * FROM actors_impacts')
+        self.assertEqual(len(results), actors_impacts)
+
+        results = await db.sql('SELECT * FROM targets_impacts')
+        self.assertEqual(len(results), targets_impacts)
+
+    @test_utils.unittest_run_loop
+    async def test_disable_log_single(self):
+        impact = helpers.test_impact()
+        await operations.add_impacts(impacts=[impact], log_single_impacts=False)
+        await self.chech_has_records(impacts=0, actors_impacts=1, targets_impacts=1)
+
+    @test_utils.unittest_run_loop
+    async def test_disable_log_actors(self):
+        impact = helpers.test_impact()
+        await operations.add_impacts(impacts=[impact], log_actors_impacts=False)
+        await self.chech_has_records(impacts=1, actors_impacts=0, targets_impacts=1)
+
+    @test_utils.unittest_run_loop
+    async def test_disable_log_targets(self):
+        impact = helpers.test_impact()
+        await operations.add_impacts(impacts=[impact], log_target_impacts=False)
+        await self.chech_has_records(impacts=1, actors_impacts=1, targets_impacts=0)
+
     @test_utils.unittest_run_loop
     async def test_update_target_impact(self):
         impact = helpers.test_impact()

@@ -65,7 +65,6 @@ class PlaceSellLotsTests(helpers.BaseTests):
         self.assertEqual(result[0]['price'], lot.price)
         self.assertEqual(result[0]['owner'], lot.owner_id)
 
-
     @test_utils.unittest_run_loop
     async def test_success(self):
         lot = helpers.create_sell_lot()
@@ -82,7 +81,6 @@ class PlaceSellLotsTests(helpers.BaseTests):
         self.assertTrue(soft_reset.called)
 
         await self.check_new_lot(lot)
-
 
     @test_utils.unittest_run_loop
     async def test_already_exists(self):
@@ -107,6 +105,44 @@ class PlaceSellLotsTests(helpers.BaseTests):
             self.assertFalse(soft_reset.called)
 
         await self.check_new_lot(lot)
+
+    @test_utils.unittest_run_loop
+    async def test_too_large_price(self):
+        lot = helpers.create_sell_lot(price=2**63)
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records')
+        self.assertFalse(result)
+
+        with self.assertRaises(exceptions.SellLotMaximumPriceExceeded):
+            await operations.place_sell_lots([lot])
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records')
+        self.assertFalse(result)
+
+    @test_utils.unittest_run_loop
+    async def test_too_low_price(self):
+        lot = helpers.create_sell_lot(price=-1)
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records')
+        self.assertFalse(result)
+
+        with self.assertRaises(exceptions.SellLotPriceBelowZero):
+            await operations.place_sell_lots([lot])
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records')
+        self.assertFalse(result)
 
 
 class CloseSellLotTests(helpers.BaseTests):
@@ -141,7 +177,6 @@ class CloseSellLotTests(helpers.BaseTests):
         self.assertEqual(result[0]['owner'], lot.owner_id)
         self.assertEqual(result[0]['price'], lot.price)
         self.assertEqual(result[0]['data'], {'buyer_id': lot.owner_id+1})
-
 
     @test_utils.unittest_run_loop
     async def test_success__multiple(self):
@@ -198,7 +233,6 @@ class CloseSellLotTests(helpers.BaseTests):
 
         self.assertCountEqual(result_lots, [lots[4]])
 
-
     @test_utils.unittest_run_loop
     async def test_success__owners_distribution(self):
         lot_1 = helpers.create_sell_lot(item_type='type-1', price=1, owner_id=100)
@@ -219,7 +253,6 @@ class CloseSellLotTests(helpers.BaseTests):
 
         self.assertEqual(owners, {100, 200, 300})
 
-
     @test_utils.unittest_run_loop
     async def test_success__number(self):
         lots = [helpers.create_sell_lot(item_type='type-1', price=1),
@@ -234,7 +267,6 @@ class CloseSellLotTests(helpers.BaseTests):
                                                     number=2)
 
         self.assertEqual(len(items_ids), 2)
-
 
     @test_utils.unittest_run_loop
     async def test_no_lot(self):
@@ -287,7 +319,6 @@ class CancelSellLotTests(helpers.BaseTests):
         self.assertEqual(result[0]['price'], lot.price)
         self.assertEqual(result[0]['data'], {})
 
-
     @test_utils.unittest_run_loop
     async def test_success__multiple(self):
         lot_1 = helpers.create_sell_lot()
@@ -318,7 +349,6 @@ class CancelSellLotTests(helpers.BaseTests):
         self.assertEqual(result[0]['operation_type'], relations.OPERATION_TYPE.CANCEL_SELL_LOT.value)
         self.assertEqual(result[1]['operation_type'], relations.OPERATION_TYPE.CANCEL_SELL_LOT.value)
 
-
     @test_utils.unittest_run_loop
     async def test_success__filter(self):
         lots = [helpers.create_sell_lot(item_type='type-1', price=1),
@@ -342,7 +372,6 @@ class CancelSellLotTests(helpers.BaseTests):
             lot.created_at = None
 
         self.assertCountEqual(result_lots, [lots[4]])
-
 
     @test_utils.unittest_run_loop
     async def test_success__filter_by_owner(self):
@@ -368,7 +397,6 @@ class CancelSellLotTests(helpers.BaseTests):
 
         self.assertCountEqual(result_lots, [lots[5]])
 
-
     @test_utils.unittest_run_loop
     async def test_success__number(self):
         lots = [helpers.create_sell_lot(item_type='type-1', price=1),
@@ -384,7 +412,6 @@ class CancelSellLotTests(helpers.BaseTests):
 
         self.assertEqual(len(items_ids), 2)
 
-
     @test_utils.unittest_run_loop
     async def test_no_lot(self):
         with mock.patch.object(operations.MarketInfoCache, 'soft_reset') as soft_reset:
@@ -392,6 +419,79 @@ class CancelSellLotTests(helpers.BaseTests):
                                                          owner_id=777,
                                                          price=23123,
                                                          number=100)
+
+        self.assertEqual(items_ids, [])
+        self.assertFalse(soft_reset.called)
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records')
+        self.assertFalse(result)
+
+
+class CancelSellLotsByTypeTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_success(self):
+        lot = helpers.create_sell_lot()
+        lots_ids = await operations.place_sell_lots([lot])
+        lot_id = lots_ids[0]
+
+        with mock.patch.object(operations.MarketInfoCache, 'soft_reset') as soft_reset:
+            lots = await operations.cancel_sell_lots_by_type(item_type=lot.item_type)
+
+        for lot in lots:
+            lot.created_at = None
+
+        self.assertEqual(lots, [lot])
+        self.assertTrue(soft_reset.called)
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertFalse(result)
+
+        result = await db.sql('SELECT * FROM log_records ORDER BY created_at DESC')
+        self.assertEqual(len(result), 2)
+
+        self.assertEqual(result[0]['operation_type'], relations.OPERATION_TYPE.CANCEL_SELL_LOT.value)
+        self.assertEqual(result[0]['lot_type'], lot.type.value)
+        self.assertEqual(result[0]['item_type'], lot.item_type)
+        self.assertEqual(result[0]['item'], lot.item_id)
+        self.assertEqual(result[0]['owner'], lot.owner_id)
+        self.assertEqual(result[0]['price'], lot.price)
+        self.assertEqual(result[0]['data'], {})
+
+    @test_utils.unittest_run_loop
+    async def test_success__multiple(self):
+        lot_1 = helpers.create_sell_lot(item_type='x', owner_id=666)
+        lot_2 = helpers.create_sell_lot(item_type='y', owner_id=666)
+        lot_3 = helpers.create_sell_lot(item_type='x', owner_id=777)
+
+        lots_ids = await operations.place_sell_lots([lot_1, lot_2, lot_3])
+
+        with mock.patch.object(operations.MarketInfoCache, 'soft_reset') as soft_reset:
+            lots = await operations.cancel_sell_lots_by_type(item_type=lot_1.item_type)
+
+        for lot in lots:
+            lot.created_at = None
+
+        self.assertCountEqual(lots, [lot_1, lot_3])
+        self.assertTrue(soft_reset.called)
+
+        result = await db.sql('SELECT * FROM sell_lots')
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['item'], lots_ids[1])
+
+        result = await db.sql('SELECT * FROM log_records ORDER BY created_at DESC')
+        self.assertEqual(len(result), 5)
+
+        self.assertEqual(result[0]['operation_type'], relations.OPERATION_TYPE.CANCEL_SELL_LOT.value)
+        self.assertEqual(result[1]['operation_type'], relations.OPERATION_TYPE.CANCEL_SELL_LOT.value)
+
+    @test_utils.unittest_run_loop
+    async def test_no_lot(self):
+        with mock.patch.object(operations.MarketInfoCache, 'soft_reset') as soft_reset:
+            items_ids = await operations.cancel_sell_lots_by_type(item_type='some type')
 
         self.assertEqual(items_ids, [])
         self.assertFalse(soft_reset.called)
@@ -422,7 +522,6 @@ class LoadSellLotsTests(helpers.BaseTests):
         lots = await operations.load_sell_lots(owner_id=666)
         self.assertFalse(lots)
 
-
     @test_utils.unittest_run_loop
     async def test_has_info(self):
         existed_lots = await self.prepair_data()
@@ -440,7 +539,6 @@ class LoadMarketInfoTests(helpers.BaseTests):
     async def test_no_info(self):
         info = await operations._load_market_info()
         self.assertFalse(info)
-
 
     @test_utils.unittest_run_loop
     async def test_has_info(self):
@@ -463,14 +561,12 @@ class LoadMarketInfoTests(helpers.BaseTests):
                                 objects.ItemTypeSummary(item_type='test.3', sell_number=2, min_sell_price=4, max_sell_price=4, owner_sell_number=0)])
 
 
-
 class GetTypePricesTests(helpers.BaseTests):
 
     @test_utils.unittest_run_loop
     async def test_no_prices(self):
         info = await operations.get_type_prices('some-type')
         self.assertFalse(info)
-
 
     @test_utils.unittest_run_loop
     async def test_has_prices(self):
@@ -496,7 +592,6 @@ class GetTypePricesForOwnerTests(helpers.BaseTests):
         info = await operations.get_type_prices_for_owner('some-type', owner_id=666)
         self.assertFalse(info)
 
-
     @test_utils.unittest_run_loop
     async def test_has_prices(self):
         lots = [helpers.create_sell_lot(item_type='test.1', price=1, owner_id=777),
@@ -520,7 +615,6 @@ class GetOwnerItemsNumberTests(helpers.BaseTests):
     async def test_no_items(self):
         info = await operations.get_owner_items_number(owner_id=666)
         self.assertFalse(info)
-
 
     @test_utils.unittest_run_loop
     async def test_has_prices(self):
@@ -590,7 +684,6 @@ class StatisticsTests(helpers.BaseTests):
                                       'sell_lots_closed': 0,
                                       'turnover': 0})
 
-
     @test_utils.unittest_run_loop
     async def test_has_records(self):
         await helpers.prepair_history_log()
@@ -600,7 +693,6 @@ class StatisticsTests(helpers.BaseTests):
         self.assertEqual(statistics, {'sell_lots_placed': 7,
                                       'sell_lots_closed': 5,
                                       'turnover': 13})
-
 
     @test_utils.unittest_run_loop
     async def test_time_interval(self):
@@ -616,3 +708,41 @@ class StatisticsTests(helpers.BaseTests):
         self.assertEqual(statistics, {'sell_lots_placed': 5,
                                       'sell_lots_closed': 3,
                                       'turnover': 8})
+
+
+class DoesLotExistForItemTests(helpers.BaseTests):
+
+    @test_utils.unittest_run_loop
+    async def test_no_lot(self):
+        exists = await operations.does_lot_exist_for_item(item_type='xxx', item_id=uuid.uuid4())
+        self.assertFalse(exists)
+
+    @test_utils.unittest_run_loop
+    async def test_no_lot_type(self):
+        item_id = uuid.uuid4()
+
+        lot = helpers.create_sell_lot(item_type='yyy', item_id=item_id)
+
+        await operations.place_sell_lots([lot])
+
+        exists = await operations.does_lot_exist_for_item(item_type='xxx', item_id=item_id)
+        self.assertFalse(exists)
+
+    @test_utils.unittest_run_loop
+    async def test_no_lot_id(self):
+        lot = helpers.create_sell_lot(item_type='xxx')
+
+        await operations.place_sell_lots([lot])
+
+        exists = await operations.does_lot_exist_for_item(item_type='xxx', item_id=uuid.uuid4())
+        self.assertFalse(exists)
+
+    @test_utils.unittest_run_loop
+    async def test_has_lot(self):
+        item_id = uuid.uuid4()
+        lot = helpers.create_sell_lot(item_type='xxx', item_id=item_id)
+
+        await operations.place_sell_lots([lot])
+
+        exists = await operations.does_lot_exist_for_item(item_type='xxx', item_id=item_id)
+        self.assertTrue(exists)

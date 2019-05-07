@@ -514,10 +514,20 @@ class InvoicePrototypeTests(utils_testcase.TestCase, helpers.BankTestsMixin):
         invoice.cancel()
         self.assertTrue(invoice.state.is_CANCELED)
 
-    def test_cancel__not_in_frozen_or_requested_state(self):
+    def test_cancel__raise_if_wrong_state(self):
         invoice = self.create_invoice()
-        invoice.state = relations.INVOICE_STATE.random(exclude=(relations.INVOICE_STATE.REQUESTED, relations.INVOICE_STATE.FROZEN))
+        invoice.state = relations.INVOICE_STATE.random(exclude=(relations.INVOICE_STATE.REQUESTED,
+                                                                relations.INVOICE_STATE.FROZEN,
+                                                                relations.INVOICE_STATE.REJECTED))
         self.assertRaises(exceptions.BankError, invoice.cancel)
+
+    def test_cancel__do_nothing_if_rejected(self):
+        invoice = self.create_invoice()
+        invoice.state = relations.INVOICE_STATE.REJECTED
+
+        invoice.cancel()
+
+        self.assertTrue(invoice.state.is_REJECTED)
 
     def test_reset_all(self):
         for state in relations.INVOICE_STATE.records:

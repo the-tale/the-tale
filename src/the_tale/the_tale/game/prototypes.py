@@ -15,13 +15,22 @@ class SupervisorTaskPrototype(utils_prototypes.BasePrototype):
         self.captured_members = set()
 
     @utils_decorators.lazy_property
-    def members(self): return set(models.SupervisorTaskMember.objects.filter(task=self._model).values_list('account_id', flat=True))
+    def members(self):
+        return set(models.SupervisorTaskMember.objects.filter(task=self._model).values_list('account_id', flat=True))
 
     def capture_member(self, account_id):
         self.captured_members.add(account_id)
 
     @property
-    def all_members_captured(self): return self.members == self.captured_members
+    def all_members_captured(self):
+        return self.members == self.captured_members
+
+    @property
+    def status_url(self):
+        return dext_urls.url('game:api-supervisor-task-status',
+                             api_version=conf.settings.SUPERVISOR_TASK_STATUS_API_VERSION,
+                             api_client=django_settings.API_CLIENT,
+                             supervisor_task=self.id)
 
     @classmethod
     @django_transaction.atomic
@@ -58,6 +67,10 @@ class SupervisorTaskPrototype(utils_prototypes.BasePrototype):
         hero_1 = storage.accounts_to_heroes[account_1_id]
         hero_2 = storage.accounts_to_heroes[account_2_id]
 
+        if hero_1.actions.has_proxy_actions() or hero_2.actions.has_proxy_actions():
+            # do nothing in case of troubles
+            return
+
         old_bundle_1_id = hero_1.actions.current_action.bundle_id
         old_bundle_2_id = hero_2.actions.current_action.bundle_id
 
@@ -69,14 +82,6 @@ class SupervisorTaskPrototype(utils_prototypes.BasePrototype):
         storage.merge_bundles([old_bundle_1_id, old_bundle_2_id], bundle_id)
 
         storage.save_bundle_data(bundle_id)
-
-        battle_1 = pvp_prototypes.Battle1x1Prototype.get_by_account_id(account_1_id)
-        battle_1.state = pvp_relations.BATTLE_1X1_STATE.PROCESSING
-        battle_1.save()
-
-        battle_2 = pvp_prototypes.Battle1x1Prototype.get_by_account_id(account_2_id)
-        battle_2.state = pvp_relations.BATTLE_1X1_STATE.PROCESSING
-        battle_2.save()
 
     def remove(self):
         self._model.delete()

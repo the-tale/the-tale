@@ -377,6 +377,31 @@ class ProfileRequestsTests(utils_testcase.TestCase, third_party_helpers.ThirdPar
         self.assertFalse(prototypes.AccountPrototype.get_by_id(self.account.id).personal_messages_subscription)
         self.check_ajax_ok(response, data={'next_url': dext_urls.url('accounts:profile:edited')})
 
+    def test_profile_update_settings__accept_invites_from_clans(self):
+
+        tt_services.players_properties.cmd_debug_clear_service()
+
+        self.request_login(self.account.email)
+
+        player_properties = tt_services.players_properties.cmd_get_all_object_properties(self.account.id)
+        self.assertTrue(player_properties.accept_invites_from_clans)
+
+        response = self.post_ajax_json(dext_urls.url('accounts:profile:update-settings'),
+                                       {'accept_invites_from_clans': False,
+                                        'gender': game_relations.GENDER.FEMALE})
+        self.check_ajax_ok(response, data={'next_url': dext_urls.url('accounts:profile:edited')})
+
+        player_properties = tt_services.players_properties.cmd_get_all_object_properties(self.account.id)
+        self.assertFalse(player_properties.accept_invites_from_clans)
+
+        response = self.post_ajax_json(dext_urls.url('accounts:profile:update-settings'),
+                                       {'accept_invites_from_clans': True,
+                                        'gender': game_relations.GENDER.FEMALE})
+        self.check_ajax_ok(response, data={'next_url': dext_urls.url('accounts:profile:edited')})
+
+        player_properties = tt_services.players_properties.cmd_get_all_object_properties(self.account.id)
+        self.assertTrue(player_properties.accept_invites_from_clans)
+
     def test_profile_update_settings__bews(self):
         self.request_login(self.account.email)
         self.assertTrue(self.account.news_subscription)

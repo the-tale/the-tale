@@ -1,19 +1,7 @@
 {
+    "cache_dir": "./.smart_imports",
     "rules": [{"type": "rule_custom",
                "variables": {"mock": {"module": "unittest.mock"},
-
-                             "jinja2": {"module": "jinja2"},
-                             "deworld": {"module": "deworld"},
-                             "postmarkup": {"module": "postmarkup"},
-                             "requests": {"module": "requests"},
-                             "xlrd": {"module": "xlrd"},
-                             "markdown": {"module": "markdown"},
-                             "gv": {"module": "gv"},
-                             "psutil": {"module": "psutil"},
-                             "PIL": {"module": "PIL"},
-
-                             "rels": {"module": "rels"},
-                             "pynames": {"module": "pynames"},
 
                              "tt_calendar": {"module": "tt_calendar"},
                              "tt_artifacts_relations": {"module": "tt_logic.artifacts.relations"},
@@ -113,6 +101,7 @@
                              {"prefix": "quests_", "module": "the_tale.game.quests"},
                              {"prefix": "cards_", "module": "the_tale.game.cards"},
                              {"prefix": "map_", "module": "the_tale.game.map"},
+                             {"prefix": "navigation_", "module": "the_tale.game.navigation"},
                              {"prefix": "heroes_abilities_", "module": "the_tale.game.heroes.abilities"},
                              {"prefix": "heroes_", "module": "the_tale.game.heroes"},
                              {"prefix": "game_workers_", "module": "the_tale.game.workers"},
@@ -180,5 +169,7 @@
 
                {"type": "rule_stdlib"},
 
-               {"type": "rule_predefined_names"}]
+               {"type": "rule_predefined_names"},
+
+               {"type": "rule_global_modules"}]
 }

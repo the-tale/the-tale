@@ -19,10 +19,13 @@ class EditProfileForm(dext_forms.Form):
 
 class SettingsForm(dext_forms.Form):
     personal_messages_subscription = dext_fields.BooleanField(required=False,
-                                                              label='получать письма о новых личных сообщениях')
+                                                              label='Получать письма о новых личных сообщениях')
 
     news_subscription = dext_fields.BooleanField(required=False,
-                                                 label='получать письма о новостях')
+                                                 label='Получать письма о новостях')
+
+    accept_invites_from_clans = dext_fields.BooleanField(required=False,
+                                                         label='Гильдии могут приглашать вас присоединиться к ним')
 
     description = utils_bbcode.BBField(required=False, label='Несколько слов о Вас, для страницы Вашего аккаунта', max_length=conf.settings.MAX_ACCOUNT_DESCRIPTION_LENGTH)
 

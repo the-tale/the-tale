@@ -108,9 +108,6 @@ def load_place(place_id=None, place_model=None):
 
     data = s11n.from_json(place_model.data)
 
-    if 'nearest_cells' in data:
-        data['nearest_cells'] = list(map(tuple, data['nearest_cells']))
-
     place = objects.Place(id=place_model.id,
                           x=place_model.x,
                           y=place_model.y,
@@ -131,7 +128,6 @@ def load_place(place_id=None, place_model=None):
                           utg_name=utg_words.Word.deserialize(data['name']),
                           attrs=attributes.Attributes.deserialize(data.get('attributes', {})),
                           races=races.Races.deserialize(data['races']),
-                          nearest_cells=data.get('nearest_cells', []),
                           effects=EffectsContainer.deserialize(data.get('effects')),
                           job=PlaceJob.deserialize(data['job']),
                           modifier=place_model.modifier)
@@ -145,7 +141,6 @@ def save_place(place, new=False):
     data = {'name': place.utg_name.serialize(),
             'attributes': place.attrs.serialize(),
             'races': place.races.serialize(),
-            'nearest_cells': place.nearest_cells,
             'effects': place.effects.serialize(),
             'job': place.job.serialize()}
 
@@ -199,11 +194,10 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           attrs=attributes.Attributes(size=size),
                           utg_name=utg_name,
                           races=races.Races(),
-                          nearest_cells=[],
                           effects=EffectsContainer(),
                           job=jobs_logic.create_job(PlaceJob),
                           modifier=modifiers.CITY_MODIFIERS.NONE)
-    place.refresh_attributes()
+    # place.refresh_attributes()
     save_place(place, new=True)
     return place
 
@@ -249,19 +243,8 @@ def get_available_positions(center_x, center_y, building_position_radius=c.BUILD
     for building in storage.buildings.all():
         removed_positions.add((building.x, building.y))
 
-    for road in roads_storage.roads.all_exists_roads():
-        x, y = road.point_1.x, road.point_1.y
-        for direction in road.path:
-            if direction == roads_relations.PATH_DIRECTION.LEFT.value:
-                x -= 1
-            elif direction == roads_relations.PATH_DIRECTION.RIGHT.value:
-                x += 1
-            elif direction == roads_relations.PATH_DIRECTION.UP.value:
-                y -= 1
-            elif direction == roads_relations.PATH_DIRECTION.DOWN.value:
-                y += 1
-
-            removed_positions.add((x, y))
+    for road in roads_storage.roads.all():
+        removed_positions.update(road.get_cells())
 
     result = positions - removed_positions
 
@@ -352,16 +335,33 @@ def destroy_building(building):
     storage.buildings.refresh()
 
 
-def sync_sizes(places, hours, max_economic):
+def sync_power_economic(places, max_economic):
     if not places:
         return
 
     places = sorted(places, key=lambda place: politic_power_storage.places.total_power_fraction(place.id))
-    places_number = len(places)
 
-    for i, place in enumerate(places):
-        place.attrs.set_power_economic(int(max_economic * float(i) / places_number) + 1)
-        place.attrs.sync_size(hours)
+    values = utils_logic.distribute_values_on_interval(number=len(places), min=1, max=max_economic)
+
+    for place, economic in zip(places, values):
+        place.attrs.set_power_economic(economic)
+
+
+def sync_money_economic(places, max_economic):
+    if not places:
+        return
+
+    impacts = game_tt_services.money_impacts.cmd_get_targets_impacts(targets=[(tt_api_impacts.OBJECT_TYPE.PLACE, place.id)
+                                                                              for place in places])
+
+    places_money = {impact.target_id: impact.amount for impact in impacts}
+
+    places = sorted(places, key=lambda place: places_money.get(place.id, 0))
+
+    values = utils_logic.distribute_values_on_interval(number=len(places), min=1, max=max_economic)
+
+    for place, economic in zip(places, values):
+        place.attrs.set_money_economic(economic)
 
 
 def get_hero_popularity(hero_id):
@@ -391,6 +391,11 @@ def sync_fame():
                                                     scale=c.PLACE_FAME_REDUCE_FRACTION)
 
 
+def sync_money():
+    game_tt_services.money_impacts.cmd_scale_impacts(target_types=[tt_api_impacts.OBJECT_TYPE.PLACE],
+                                                     scale=c.PLACE_MONEY_REDUCE_FRACTION)
+
+
 def get_start_place_for_race(race):
     choices = [place for place in storage.places.all() if not place.is_frontier]
     choices.sort(key=lambda place: -place.attrs.safety)
@@ -401,3 +406,32 @@ def get_start_place_for_race(race):
         choices = [place for place in choices if place.race == race]
 
     return choices[0]
+
+
+def choose_place_cell_by_terrain(place_id, terrains, exclude_place_if_can=False):
+    cell_choices = ()
+
+    if terrains:
+        cell_choices = [cell for cell in map_storage.cells.place_cells(place_id)
+                        if map_storage.cells(*cell).terrain in terrains]
+
+    if not cell_choices:
+        cell_choices = map_storage.cells.place_cells(place_id)
+
+    if exclude_place_if_can and len(cell_choices) > 1:
+        place = storage.places[place_id]
+        coordinates = (place.x, place.y)
+
+        if coordinates in cell_choices:
+            cell_choices.remove(coordinates)
+
+    return random.choice(cell_choices)
+
+
+def register_money_transaction(hero_id, place_id, amount):
+    spending = game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.MONEY,
+                                                         hero_id=hero_id,
+                                                         place_id=place_id,
+                                                         amount=amount,
+                                                         transaction=uuid.uuid4())
+    politic_power_logic.add_power_impacts([spending])

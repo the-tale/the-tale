@@ -34,3 +34,8 @@ class STORAGE(rels_django.DjangoEnum):
     records = (('FAST', 0, 'колода быстрого доступа'),
                ('ARCHIVE', 1, 'хранилище редко используемых карт'),
                ('NEW', 2, 'новые карты'))
+
+
+class RECEIVE_MODE(rels_django.DjangoEnum):
+    records = (('PERSONAL_ONLY', 0, 'получать только обычные карты'),
+               ('ALL', 1, 'получать обычные карты и карты для подписчиков'))

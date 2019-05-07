@@ -7,10 +7,7 @@ smart_imports.all()
 _get_or_create_state = None  # for get_or_create tests
 
 
-class LogicTest(testcase.TestCase):
-
-    def setUp(self):
-        super(LogicTest, self).setUp()
+class LogicTests(testcase.TestCase):
 
     def test_random_value_by_priority(self):
         counter = collections.Counter()
@@ -170,3 +167,16 @@ class LogicTest(testcase.TestCase):
         text = '<a href=""></a> <a href="/">!</a> <a href=\'#\'></a> <a href="https://the-tale.org">!</a>'
         self.assertEqual(logic.absolutize_urls(text),
                          '<a href=""></a> <a href="https://local.the-tale/">!</a> <a href=\'#\'></a> <a href="https://the-tale.org">!</a>')
+
+    def test_distribute_values_on_interval(self):
+        distribute = logic.distribute_values_on_interval
+
+        self.assertEqual(distribute(number=0, min=2, max=5), [])
+        self.assertEqual(distribute(number=1, min=2, max=5), [5])
+        self.assertEqual(distribute(number=2, min=2, max=5), [3, 5])
+        self.assertEqual(distribute(number=3, min=2, max=5), [3, 4, 5])
+        self.assertEqual(distribute(number=4, min=2, max=5), [2, 3, 4, 5])
+        self.assertEqual(distribute(number=5, min=2, max=5), [2, 3, 3, 4, 5])
+        self.assertEqual(distribute(number=6, min=2, max=5), [2, 3, 3, 4, 4, 5])
+        self.assertEqual(distribute(number=7, min=2, max=5), [2, 2, 3, 3, 4, 4, 5])
+        self.assertEqual(distribute(number=8, min=2, max=5), [2, 2, 3, 3, 3, 4, 4, 5])

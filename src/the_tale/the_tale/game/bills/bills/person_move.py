@@ -37,6 +37,16 @@ class BaseForm(forms.BaseUserForm):
 
         return person_id
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if 'person' in cleaned_data and 'new_place' in cleaned_data:
+            new_place = places_storage.places.get(int(cleaned_data['new_place']))
+            person = persons_storage.persons.get(int(cleaned_data['person']))
+
+            if new_place.id == person.place.id:
+                raise django_forms.ValidationError('Мастер уже живёт в указанном городе.')
+
 
 class UserForm(BaseForm):
 

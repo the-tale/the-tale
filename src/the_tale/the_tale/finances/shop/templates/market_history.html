@@ -27,16 +27,24 @@
       </thead>
       <tbody>
         {% for record in records %}
-        {% set card = cards_info[record.item_type]['card'] %}
-        {% set name = cards_info[record.item_type]['name'] %}
           <tr>
             <td>
+              {% if record.item_type not in cards_info %}
+              <span style="cursor: pointer;"
+                    rel="tooltip"
+                    title="карта выведена из игры">
+                карта выведена из игры
+              </span>
+              {% else %}
+              {% set card = cards_info[record.item_type]['card'] %}
+              {% set name = cards_info[record.item_type]['name'] %}
               <span class="{{card.rarity.name|lower}}-card-label"
                     style="cursor: pointer;"
                     rel="tooltip"
                     title="{{card.effect.DESCRIPTION}}">
                 {{name}}
               </span>
+              {% endif %}
             </td>
             <td>{{record.price}}</td>
             <td><span class="pgf-format-datetime" data-timestamp="{{record.created_at|timestamp}}"></span></td>

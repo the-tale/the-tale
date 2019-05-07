@@ -13,7 +13,7 @@ class TestClient(timers.Client):
         return type
 
 
-timers_client = TestClient(entry_point=accounts_conf.settings.TT_PLAYERS_TIMERS_EMPTY_POINTS)
+timers_client = TestClient(entry_point=accounts_conf.settings.TT_PLAYERS_TIMERS_ENTRY_POINT)
 
 
 class CreateTimerTests(utils_testcase.TestCase):

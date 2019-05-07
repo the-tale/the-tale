@@ -283,42 +283,72 @@ class QuestPrototype(object):
         return 1
 
     def _move_hero_to(self, destination, break_at=None):
-        if self.hero.position.is_walking:
-            self._move_hero_near(destination=None, back=True)
-            return
+        places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
 
-        actions_prototypes.ActionMoveToPrototype.create(hero=self.hero, destination=destination, break_at=break_at)
+        path = map_storage.cells.find_path_to_place(from_x=self.hero.position.cell_x,
+                                                    from_y=self.hero.position.cell_y,
+                                                    to_place_id=destination.id,
+                                                    cost_modifiers=places_cost_modifiers,
+                                                    risk_level=self.hero.preferences.risk_level)
+        path.set_start(self.hero.position.x, self.hero.position.y)
 
-    def _move_hero_near(self, destination, terrains=None, back=False):
-        if destination is None:
-            destination = self.hero.position.get_nearest_dominant_place()
+        actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
+                                                            path=path,
+                                                            destination=destination,
+                                                            break_at=break_at)
 
-        actions_prototypes.ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=back, terrains=terrains)
+    def _move_hero_near(self, destination, terrains=None):
+        to_x, to_y = places_logic.choose_place_cell_by_terrain(destination.id, terrains, exclude_place_if_can=True)
 
-    def _move_hero_on_road(self, place_from, place_to, percents):
+        path = navigation_path.simple_path(from_x=self.hero.position.cell_x,
+                                           from_y=self.hero.position.cell_y,
+                                           to_x=to_x,
+                                           to_y=to_y)
+        path.set_start(self.hero.position.x, self.hero.position.y)
 
-        if self.hero.position.is_walking:
-            self._move_hero_near(destination=None, back=True)
-            return
+        actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
+                                                            path=path,
+                                                            destination=destination,
+                                                            break_at=None)
 
-        path_to_position_length = self.hero.position.get_minumum_distance_to(place_from)
-        path_from_position_length = self.hero.position.get_minumum_distance_to(place_to)
+    def _determine_hero_position(self, place_from, place_to):
+        places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
 
-        full_path_length = path_to_position_length + path_from_position_length
+        path_from = map_storage.cells.find_path_to_place(from_x=self.hero.position.cell_x,
+                                                         from_y=self.hero.position.cell_y,
+                                                         to_place_id=place_from.id,
+                                                         cost_modifiers=places_cost_modifiers,
+                                                         risk_level=self.hero.preferences.risk_level)
+        path_from.set_start(self.hero.position.x, self.hero.position.y)
 
-        if path_to_position_length < E:
+        path_to = map_storage.cells.find_path_to_place(from_x=self.hero.position.cell_x,
+                                                       from_y=self.hero.position.cell_y,
+                                                       to_place_id=place_to.id,
+                                                       cost_modifiers=places_cost_modifiers,
+                                                       risk_level=self.hero.preferences.risk_level)
+        path_to.set_start(self.hero.position.x, self.hero.position.y)
+
+        if path_from.length < E:
             current_percents = 0.0
-        elif path_from_position_length < E:
+        elif path_to.length < E:
             current_percents = 1.0
         else:
-            current_percents = path_to_position_length / full_path_length
+            current_percents = path_from.length / (path_from.length + path_to.length)
 
-        if percents <= current_percents:
+        return current_percents, path_from, path_to
+
+    def _move_hero_on_road(self, place_from, place_to, percents):
+        current_percents, path_from, path_to = self._determine_hero_position(place_from, place_to)
+
+        if percents <= current_percents + E:
             return
 
-        path_to_pass = (percents - current_percents) * full_path_length
+        path_to_pass = (percents - current_percents) * (path_from.length + path_to.length)
 
-        self._move_hero_to(destination=place_to, break_at=path_to_pass / path_from_position_length)
+        actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
+                                                            path=path_to,
+                                                            destination=place_to,
+                                                            break_at=min(path_to_pass / path_to.length, 1))
 
     def get_current_power(self, power):
         return power * self.current_info.power
@@ -720,9 +750,12 @@ class QuestPrototype(object):
 
     def do_move_near(self, action):
         if action.place:
-            self._move_hero_near(destination=places_storage.places.get(self.knowledge_base[action.place].externals['id']), terrains=action.terrains)
+            destination = places_storage.places.get(self.knowledge_base[action.place].externals['id'])
+
         else:
-            self._move_hero_near(destination=None, terrains=action.terrains)
+            destination = self.hero.position.cell().nearest_place()
+
+        self._move_hero_near(destination=destination, terrains=action.terrains)
 
     ################################
     # check requirements callbacks
@@ -756,12 +789,12 @@ class QuestPrototype(object):
             if self.hero.id != object_fact.externals['id']:
                 return False
 
-            # если городу принадлежит только одна клетка, нак которой он находится,
+            # если городу принадлежит только одна клетка, на которой он находится,
             # то прогулкой в его окрестностях считается и нахождение в нём самом
-            if self.hero.position.place and len(self.hero.position.place.nearest_cells) > 1:
+            if self.hero.position.place and map_storage.cells.place_area(self.hero.position.place_id) > 1:
                 return False
 
-            hero_place = self.hero.position.get_nearest_dominant_place()
+            hero_place = self.hero.position.cell().nearest_place()
             return place.id == hero_place.id
 
         raise exceptions.UnknownRequirementError(requirement=requirement)
@@ -782,19 +815,9 @@ class QuestPrototype(object):
         place_to = places_storage.places[self.knowledge_base[requirement.place_to].externals['id']]
         percents = requirement.percents
 
-        path_to_position_length = self.hero.position.get_minumum_distance_to(place_from)
-        path_from_position_length = self.hero.position.get_minumum_distance_to(place_to)
+        current_percents, path_from, path_to = self._determine_hero_position(place_from, place_to)
 
-        full_path_length = path_to_position_length + path_from_position_length
-
-        if path_to_position_length < E:
-            current_percents = 0.0
-        elif path_from_position_length < E:
-            current_percents = 1.0
-        else:
-            current_percents = path_to_position_length / full_path_length
-
-        return current_percents >= percents
+        return percents <= current_percents + E
 
     def check_has_money(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
@@ -858,10 +881,12 @@ class QuestPrototype(object):
         if not isinstance(object_fact, questgen_facts.Hero) or self.hero.id != object_fact.externals['id']:
             raise exceptions.UnknownRequirementError(requirement=requirement)
 
-        if requirement.place is None:
-            self._move_hero_near(destination=None, terrains=requirement.terrains)
-        else:
-            self._move_hero_near(destination=places_storage.places.get(self.knowledge_base[requirement.place].externals['id']), terrains=requirement.terrains)
+        destination = None
+
+        if requirement.place is not None:
+            destination = places_storage.places.get(self.knowledge_base[requirement.place].externals['id'])
+
+        self._move_hero_near(destination=destination, terrains=requirement.terrains)
 
     def satisfy_located_on_road(self, requirement):
         object_fact = self.knowledge_base[requirement.object]

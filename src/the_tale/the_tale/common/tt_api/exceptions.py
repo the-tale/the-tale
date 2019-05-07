@@ -34,3 +34,7 @@ class CanNotCreateTimer(TTTimersError):
 
 class CanNotChangeTimerSpeed(TTTimersError):
     MSG = 'can not change cards timer speed'
+
+
+class TTPropertiesError(TTAPIError):
+    MSG = 'unknown property name %(name)s'

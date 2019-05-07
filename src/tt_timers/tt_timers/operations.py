@@ -12,6 +12,8 @@ from tt_protocol.protocol import timers_pb2
 
 from tt_web import postgresql as db
 from tt_web.common import unique_priority_queue
+from tt_web.common import semaphore
+from tt_web.common import sync_point
 
 from . import objects
 from . import protobuf
@@ -20,6 +22,12 @@ from . import exceptions
 
 
 TIMERS_QUEUE = unique_priority_queue.Queue()
+
+FINISH_TIMER_POINT = sync_point.SyncPoint()
+
+
+def push_to_queue(timer_id, finish_at):
+    TIMERS_QUEUE.push(timer_id, finish_at)
 
 
 def timer_from_row(row):
@@ -56,7 +64,7 @@ async def create_timer(owner_id, entity_id, type, speed, border, callback_data, 
 
     timer = timer_from_row(results[0])
 
-    TIMERS_QUEUE.push(timer.id, timer.finish_at)
+    push_to_queue(timer.id, timer.finish_at)
 
     logging.info('timer %s created, owner: %s, entity: %s, type: %s, speed: %s, border: %s, resources: %s, finish_at: %s',
                  timer.id, timer.owner_id, timer.entity_id, timer.type, timer.speed, timer.border, timer.resources, timer.finish_at)
@@ -83,7 +91,7 @@ async def change_speed(owner_id, entity_id, type, speed):
 
     timer = timer_from_row(results[0])
 
-    TIMERS_QUEUE.push(timer.id, timer.finish_at)
+    push_to_queue(timer.id, timer.finish_at)
 
     logging.info('timer %s updated, owner: %s, entity: %s, type: %s, speed: %s, border: %s, resources: %s, finish_at: %s',
                  timer.id, timer.owner_id, timer.entity_id, timer.type, timer.speed, timer.border, timer.resources, timer.finish_at)
@@ -100,7 +108,7 @@ async def load_all_timers():
 
     for row in results:
         logging.info('load timer %s', row['id'])
-        TIMERS_QUEUE.push(row['id'], row['finish_at'].replace(tzinfo=None))
+        push_to_queue(row['id'], row['finish_at'].replace(tzinfo=None))
 
     logging.info('all timers loaded')
 
@@ -124,66 +132,101 @@ def finish_completed_timers(scheduler, config):
         scheduler(finish_timer, timer_id, config)
 
 
-async def make_callback(secret, url, timer, data):
+async def make_http_callback(secret, url, timer, data):
+    async with aiohttp.ClientSession() as session:
+        data = timers_pb2.CallbackBody(timer=protobuf.from_timer(timer),
+                                       secret=secret,
+                                       callback_data=data)
+        async with session.post(url, data=data.SerializeToString()) as response:
+            if response.status != 200:
+                return False, None
+
+            content = await response.read()
+
+            return True, content
+
+
+async def do_callback(secret, url, timer, data, http_caller=make_http_callback):
     logging.info('initialize callback with owner: %s, entity: %s, type: %s to %s',
                  timer.owner_id, timer.entity_id, timer.type, url)
 
     try:
-        async with aiohttp.ClientSession() as session:
-            data = timers_pb2.CallbackBody(timer=protobuf.from_timer(timer),
-                                           secret=secret,
-                                           callback_data=data)
-            async with session.post(url, data=data.SerializeToString()) as response:
-                return response.status == 200
+        success, content = await http_caller(secret, url, timer, data)
+
+        if not success:
+            return False, None
+
+        answer = timers_pb2.CallbackAnswer.FromString(content)
+
+        if answer.postprocess_type == timers_pb2.CallbackAnswer.PostprocessType.Value('REMOVE'):
+            return True, relations.POSTPROCESS_TYPE.REMOVE
+
+        elif answer.postprocess_type == timers_pb2.CallbackAnswer.PostprocessType.Value('RESTART'):
+            return True, relations.POSTPROCESS_TYPE.RESTART
+
+        raise NotImplementedError
+
     except:
         logging.exception('Error while processing timer %s', timer.id)
-        return False
+        return False, None
 
 
-async def postprocess_timer(timer_id, type):
-    if type.upper() == relations.POSTPROCESS_TYPE.RESTART.name:
+async def postprocess_timer(timer_id, postprocess_type):
+    if postprocess_type == relations.POSTPROCESS_TYPE.RESTART:
         return await postprocess_restart(timer_id)
+
+    if postprocess_type == relations.POSTPROCESS_TYPE.REMOVE:
+        return await postprocess_remove(timer_id)
 
     raise NotImplementedError
 
 
-async def finish_timer(timer_id, config, callback=make_callback, postprocess=postprocess_timer):
-    while True:
-        logging.info('try to finish timer %s', timer_id)
+async def finish_timer(timer_id, config, callback=do_callback, postprocess=postprocess_timer):
 
-        results = await db.sql('SELECT * FROM timers WHERE id=%(id)s', {'id': timer_id})
+    async with FINISH_TIMER_POINT.lock(timer_id):
 
-        if not results:
+        step = 0
+
+        while True:
+            step += 1
+
+            logging.info('try to finish timer %s, step %s', timer_id, step)
+
+            results = await db.sql('SELECT * FROM timers WHERE id=%(id)s', {'id': timer_id})
+
+            if not results:
+                logging.info('timer %s not found, do nothing', timer_id)
+                return
+
+            timer = timer_from_row(results[0])
+
+            if datetime.datetime.utcnow() <= timer.finish_at:
+                logging.info('timer %s finish time changed, do nothing', timer_id)
+                # do not add back to TIMERS_QUEUE, since new values should already be there
+                return
+
+            type = str(results[0]['type'])
+
+            if type not in config['types']:
+                raise exceptions.WrongTimerType(type=type, timer_id=timer_id)
+
+            async with semaphore.get('finish_request', config['max_simultaneously_requests']):
+                result, postprocess_type = await callback(secret=config['secret'],
+                                                          url=config['types'][type]['url'],
+                                                          timer=timer,
+                                                          data=results[0]['data']['callback_data'])
+
+            if not result:
+                delay_time = min(step * config['delay_before_callback_retry'], config['max_delay_before_callback_retry'])
+                logging.info('timer %s callback failed, another try after %s seconds', timer_id, delay_time)
+                await asyncio.sleep(delay_time)
+                continue
+
+            logging.info('timer %s callback successed', timer_id)
+
+            await postprocess(timer_id=timer_id,
+                              postprocess_type=postprocess_type)
             return
-
-        timer = timer_from_row(results[0])
-
-        if datetime.datetime.utcnow() <= timer.finish_at:
-            logging.info('timer %s finish time changed, do nothing', timer_id)
-            # do not add back to TIMERS_QUEUE, since new values should already be there
-            return
-
-        type = str(results[0]['type'])
-
-        if type not in config['types']:
-            raise exceptions.WrongTimerType(type=type, timer_id=timer_id)
-
-        type_info = config['types'][type]
-
-        result = await callback(secret=config['secret'],
-                                url=type_info['url'],
-                                timer=timer,
-                                data=results[0]['data']['callback_data'])
-
-        if not result:
-            logging.info('timer %s callback failed, another try after %s seconds', timer_id, config['delay_before_callback_retry'])
-            await asyncio.sleep(config['delay_before_callback_retry'])
-            continue
-
-        logging.info('timer %s callback successed', timer_id)
-
-        await postprocess(timer_id=timer_id, type=type_info['postprocess_type'])
-        return
 
 
 async def postprocess_restart(timer_id):
@@ -198,7 +241,13 @@ async def postprocess_restart(timer_id):
                               WHERE id=%(id)s
                               RETURNING finish_at''', {'id': timer_id})
 
-    TIMERS_QUEUE.push(timer_id, results[0]['finish_at'].replace(tzinfo=None))
+    push_to_queue(timer_id, results[0]['finish_at'].replace(tzinfo=None))
+
+
+async def postprocess_remove(timer_id):
+    logging.info('remove timer %s', timer_id)
+
+    await db.sql('DELETE FROM timers WHERE id=%(id)s', {'id': timer_id})
 
 
 async def get_owner_timers(owner_id):
@@ -212,6 +261,6 @@ async def get_owner_timers(owner_id):
 
 
 async def clean_database():
-    await db.sql('DELETE FROM timers')
+    await db.sql('TRUNCATE timers')
 
     TIMERS_QUEUE.clean()

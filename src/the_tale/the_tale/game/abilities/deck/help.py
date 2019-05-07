@@ -132,15 +132,8 @@ class Help(prototypes.AbilityPrototype):
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911
 
-        battle = pvp_prototypes.Battle1x1Prototype.get_by_account_id(task.hero.account_id)
-
-        if battle and not battle.state.is_WAITING:
-            return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.ERROR)
-
         if not task.hero.can_be_helped():
             return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.ERROR)
-
-        task.hero.on_help()
 
         action = task.hero.actions.current_action
 
@@ -148,6 +141,8 @@ class Help(prototypes.AbilityPrototype):
 
         if choice is None:
             return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.ERROR)
+
+        task.hero.on_help()
 
         if action.HABIT_MODE.is_AGGRESSIVE:
             task.hero.update_habits(heroes_relations.HABIT_CHANGE_SOURCE.HELP_AGGRESSIVE)

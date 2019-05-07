@@ -6,7 +6,9 @@ smart_imports.all()
 
 class BaseForm(forms.BaseUserForm):
     person = dext_fields.ChoiceField(label='Житель')
-    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название', skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
+    name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
+                                       label='Название',
+                                       skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
     x = django_forms.IntegerField(label='координата x')
     y = django_forms.IntegerField(label='координата y')
 
@@ -52,7 +54,8 @@ class BuildingCreate(base_person_bill.BasePersonBill):
         self.y = y
 
     @property
-    def base_name(self): return self.building_name_forms.normal_form()
+    def base_name(self):
+        return self.building_name_forms.normal_form()
 
     def has_meaning(self):
         return (self.person and

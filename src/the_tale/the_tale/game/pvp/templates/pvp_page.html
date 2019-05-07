@@ -78,7 +78,7 @@ jQuery(document).ready(function(e){
 
 {{ game_macros.hero_wait_message() }}
 
-{% if not battle.calculate_rating %}
+{% if not calculate_rating %}
 <div class="alert alert-info pgf-battle-not-in-rating pgf-game-data pgf-hidden">
   Этот бой не попадёт в статистику героя и не будет учитываться в рейтингах. О правилах проведения боёв между игроками можно узнать в разделе Путеводителя <a href="{{url('guide:pvp')}}">PvP</a>.
 </div>

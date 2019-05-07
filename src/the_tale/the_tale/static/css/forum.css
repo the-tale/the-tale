@@ -70,6 +70,15 @@
 .post.developer .info-head {
   background-color: #e9f9e9;
 }
+.post.moderator .head {
+  background-color: #e9e9f9;
+}
+.post.moderator .info {
+  background-color: #e9e9f9;
+}
+.post.moderator .info-head {
+  background-color: #e9e9f9;
+}
 .post.banned .head {
   background-color: #f9e9e9;
 }

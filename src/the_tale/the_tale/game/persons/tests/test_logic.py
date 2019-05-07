@@ -699,3 +699,84 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
                                                   'person': self.concurrent,
                                                   'person_inner_circle': False,
                                                   'place_inner_circle': True}])
+
+    def test_social_connections_between_frontier_and_core(self):
+        self.person.attrs.social_relations_partners_power_modifier = 0.1
+        self.person.attrs.social_relations_concurrents_power_modifier = 0.2
+
+        self.person.place.is_frontier = True
+        self.partner.place.is_frontier = False
+        self.concurrent.place.is_frontier = True
+
+        places_storage.places.save_all()
+
+        logic.create_social_connection(relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, self.person, self.concurrent)
+        logic.create_social_connection(relations.SOCIAL_CONNECTION_TYPE.PARTNER, self.person, self.partner)
+
+        impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
+                                                        person=self.person,
+                                                        power=10000,
+                                                        impacts_generator=fake_tt_power_impacts))
+
+        self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
+                                                  'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                                  'amount': 10000,
+                                                  'fame': 1000,
+                                                  'person': self.person,
+                                                  'person_inner_circle': False,
+                                                  'place_inner_circle': False},
+                                                 {'actor_id': self.hero.id,
+                                                  'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                                  'amount': 0,
+                                                  'fame': 100.0,
+                                                  'person': self.partner,
+                                                  'person_inner_circle': False,
+                                                  'place_inner_circle': False},
+                                                 {'actor_id': self.hero.id,
+                                                  'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                                  'amount': -2000,
+                                                  'fame': 0,
+                                                  'person': self.concurrent,
+                                                  'person_inner_circle': False,
+                                                  'place_inner_circle': False}])
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_premium', True)
+    def test_social_connections_between_core_and_frontier(self):
+        self.person.attrs.social_relations_partners_power_modifier = 0.1
+        self.person.attrs.social_relations_concurrents_power_modifier = 0.2
+
+        self.person.place.is_frontier = False
+        self.partner.place.is_frontier = False
+        self.concurrent.place.is_frontier = True
+
+        places_storage.places.save_all()
+
+        logic.create_social_connection(relations.SOCIAL_CONNECTION_TYPE.CONCURRENT, self.person, self.concurrent)
+        logic.create_social_connection(relations.SOCIAL_CONNECTION_TYPE.PARTNER, self.person, self.partner)
+
+        impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
+                                                        person=self.person,
+                                                        power=10000,
+                                                        impacts_generator=fake_tt_power_impacts))
+
+        self.assertCountEqual(impact_arguments, [{'actor_id': self.hero.id,
+                                                  'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                                  'amount': 10000,
+                                                  'fame': 1000,
+                                                  'person': self.person,
+                                                  'person_inner_circle': False,
+                                                  'place_inner_circle': False},
+                                                 {'actor_id': self.hero.id,
+                                                  'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                                  'amount': 1000,
+                                                  'fame': 100.0,
+                                                  'person': self.partner,
+                                                  'person_inner_circle': False,
+                                                  'place_inner_circle': False},
+                                                 {'actor_id': self.hero.id,
+                                                  'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                                  'amount': -2000,
+                                                  'fame': 0,
+                                                  'person': self.concurrent,
+                                                  'person_inner_circle': False,
+                                                  'place_inner_circle': False}])

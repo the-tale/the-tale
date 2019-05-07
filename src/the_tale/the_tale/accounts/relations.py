@@ -30,7 +30,7 @@ class CHANGE_CREDENTIALS_TASK_STATE(rels_django.DjangoEnum):
 class CHANGE_CREDENTIALS_TASK_RESULT(rels_django.DjangoEnum):
     records = (('PROCESSED', 0, 'обработано'),
                ('ERROR', 1, 'произошла ошибка'),
-               ('EMAIL_SENT', 2, 'отправлен email для подтвреждения'))
+               ('EMAIL_SENT', 2, 'отправлен email для подтверждения'))
 
 
 class BAN_TYPE(rels_django.DjangoEnum):

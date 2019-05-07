@@ -31,9 +31,9 @@ class CARD(rels.Relation):
                ('ADD_BONUS_ENERGY_EPIC', 8, 'энергетический шторм', FOR_ALL, EPIC, effects.AddBonusEnergy(base=10, level=4), [reactors.Simple3()]),
                ('ADD_BONUS_ENERGY_LEGENDARY', 9, 'шквал Силы', FOR_ALL, LEGENDARY, effects.AddBonusEnergy(base=10, level=5), []),
 
-               ('ADD_GOLD_COMMON', 10, 'горсть монет', FOR_ALL, COMMON, effects.AddGold(base=1000, level=1), [reactors.Simple3()]),
-               ('ADD_GOLD_UNCOMMON', 11, 'увесистый кошель', FOR_ALL, UNCOMMON, effects.AddGold(base=1000, level=2), [reactors.Simple3()]),
-               ('ADD_GOLD_RARE', 12, 'сундучок на счастье', FOR_ALL, RARE, effects.AddGold(base=1000, level=3), [reactors.Simple3()]),
+               ('ADD_GOLD_COMMON', 10, 'горсть монет', FOR_PREMIUMS, COMMON, effects.AddGold(base=1000, level=1), [reactors.Simple3()]),
+               ('ADD_GOLD_UNCOMMON', 11, 'увесистый кошель', FOR_PREMIUMS, UNCOMMON, effects.AddGold(base=1000, level=2), [reactors.Simple3()]),
+               ('ADD_GOLD_RARE', 12, 'сундучок на счастье', FOR_PREMIUMS, RARE, effects.AddGold(base=1000, level=3), [reactors.Simple3()]),
 
                ('CHANGE_ABILITIES_CHOICES', 39, 'альтернатива', FOR_ALL, UNCOMMON, effects.ChangeAbilitiesChoices(), [reactors.Special3('RESET_ABILITIES')]),
 
@@ -49,13 +49,11 @@ class CARD(rels.Relation):
 
                ('INSTANT_MONSTER_KILL', 52, 'длань Смерти', FOR_ALL, COMMON, effects.InstantMonsterKill(), []),
 
-               ('KEEPERS_GOODS_COMMON', 53, 'неразменная монета', FOR_PREMIUMS, COMMON, effects.KeepersGoods(base=20, level=1), [reactors.Simple3()]),
-               ('KEEPERS_GOODS_UNCOMMON', 54, 'волшебный горшочек', FOR_PREMIUMS, UNCOMMON, effects.KeepersGoods(base=20, level=2), [reactors.Simple3()]),
-               ('KEEPERS_GOODS_RARE', 55, 'скатерть самобранка', FOR_PREMIUMS, RARE, effects.KeepersGoods(base=20, level=3), [reactors.Simple3()]),
-               ('KEEPERS_GOODS_EPIC', 56, 'несметные богатства', FOR_PREMIUMS, EPIC, effects.KeepersGoods(base=20, level=4), [reactors.Simple3()]),
-               ('KEEPERS_GOODS_LEGENDARY', 0, 'рог изобилия', FOR_PREMIUMS, LEGENDARY, effects.KeepersGoods(base=20, level=5), []),
-
-               ('REPAIR_BUILDING_UNCOMMON', 57, 'волшебный инструмент', FOR_PREMIUMS, UNCOMMON, effects.RepairBuilding(base=c.BUILDING_CARD_REPAIR_BASE, level=2), [reactors.Simple3()]),
+               ('KEEPERS_GOODS_COMMON', 53, 'неразменная монета', FOR_PREMIUMS, COMMON, effects.KeepersGoods(base=1, level=1), [reactors.Simple3()]),
+               ('KEEPERS_GOODS_UNCOMMON', 54, 'волшебный горшочек', FOR_PREMIUMS, UNCOMMON, effects.KeepersGoods(base=1, level=2), [reactors.Simple3()]),
+               ('KEEPERS_GOODS_RARE', 55, 'скатерть самобранка', FOR_PREMIUMS, RARE, effects.KeepersGoods(base=1, level=3), [reactors.Simple3()]),
+               ('KEEPERS_GOODS_EPIC', 56, 'несметные богатства', FOR_PREMIUMS, EPIC, effects.KeepersGoods(base=1, level=4), [reactors.Simple3()]),
+               ('KEEPERS_GOODS_LEGENDARY', 0, 'рог изобилия', FOR_PREMIUMS, LEGENDARY, effects.KeepersGoods(base=1, level=5), []),
 
                ('MOST_COMMON_PLACES_UNCOMMON', 70, 'ошибка в архивах', FOR_ALL, UNCOMMON,
                 effects.PlaceFame(base=c.HERO_FAME_PER_HELP, level=1), [reactors.Simple3()]),
@@ -139,11 +137,8 @@ class CARD(rels.Relation):
 
                ('CREATE_CLAN', 133, 'братство', FOR_ALL, RARE, effects.CreateClan(), []),
 
-               ('REPAIR_BUILDING_COMMON', 134, 'должок мастеровых', FOR_PREMIUMS, COMMON, effects.RepairBuilding(base=c.BUILDING_CARD_REPAIR_BASE, level=1), [reactors.Simple3()]),
-               ('REPAIR_BUILDING_RARE', 135, 'домовой', FOR_PREMIUMS, RARE, effects.RepairBuilding(base=c.BUILDING_CARD_REPAIR_BASE, level=3), []),
-
-               ('ADD_GOLD_EPIC', 136, 'клад', FOR_ALL, EPIC, effects.AddGold(base=1000, level=4), [reactors.Simple3()]),
-               ('ADD_GOLD_LEGENDARY', 137, 'фарт', FOR_ALL, LEGENDARY, effects.AddGold(base=1000, level=5), []),
+               ('ADD_GOLD_EPIC', 136, 'клад', FOR_PREMIUMS, EPIC, effects.AddGold(base=1000, level=4), [reactors.Simple3()]),
+               ('ADD_GOLD_LEGENDARY', 137, 'фарт', FOR_PREMIUMS, LEGENDARY, effects.AddGold(base=1000, level=5), []),
 
                ('FREEZE_COMPANION', 138, 'отгул', FOR_ALL, UNCOMMON, effects.FreezeCompanion(), []),
 

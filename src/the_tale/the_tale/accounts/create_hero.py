@@ -208,8 +208,8 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
                                 buttons=[Button('Выбрать', 'peacefulness:bully')])]),
 
     Choice(attribute='honor',
-           title=['На сколько благороден герой?',
-                  'На сколько благородна героиня?'],
+           title=['Насколько благороден герой?',
+                  'Насколько благородна героиня?'],
            tabs=[Tab(value='truthful',
                      title=['Порядочный', 'Порядочная'],
                      body='''

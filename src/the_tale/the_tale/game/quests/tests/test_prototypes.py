@@ -664,14 +664,21 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_in(object=self.hero_fact, place=self.place_3_fact, result=False)
 
     def test_check_located_in__hero__move_near(self):
-        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x + 1, self.place_1.y + 1, percents=0.5)
+        self.hero.position.set_position(self.place_1.x + 0.5, self.place_1.y + 0.5)
 
         self.check_located_in(object=self.hero_fact, place=self.place_1_fact, result=False)
         self.check_located_in(object=self.hero_fact, place=self.place_2_fact, result=False)
         self.check_located_in(object=self.hero_fact, place=self.place_3_fact, result=False)
 
     def test_check_located_in__hero__road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.5)
+        places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
+
+        path = map_storage.cells.find_path_to_place(from_x=self.place_1.x,
+                                                    from_y=self.place_1.y,
+                                                    to_place_id=self.place_2.id,
+                                                    cost_modifiers=places_cost_modifiers,
+                                                    risk_level=self.hero.preferences.risk_level)
+        self.hero.position.set_position(*path.coordinates(0.5))
 
         self.check_located_in(object=self.hero_fact, place=self.place_1_fact, result=False)
         self.check_located_in(object=self.hero_fact, place=self.place_2_fact, result=False)
@@ -707,14 +714,21 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_near(object=self.hero_fact, place=self.place_3_fact, result=False)
 
     def test_check_located_near__hero__move_near(self):
-        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x + 1, self.place_1.y + 1, percents=0.5)
+        self.hero.position.set_position(self.place_1.x + 0.4, self.place_1.y + 0.4)
 
         self.check_located_near(object=self.hero_fact, place=self.place_1_fact, result=True)
         self.check_located_near(object=self.hero_fact, place=self.place_2_fact, result=False)
         self.check_located_near(object=self.hero_fact, place=self.place_3_fact, result=False)
 
     def test_check_located_near__hero__road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.25)
+        places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
+
+        path = map_storage.cells.find_path_to_place(from_x=self.place_1.x,
+                                                    from_y=self.place_1.y,
+                                                    to_place_id=self.place_2.id,
+                                                    cost_modifiers=places_cost_modifiers,
+                                                    risk_level=self.hero.preferences.risk_level)
+        self.hero.position.set_position(*path.coordinates(0.1))
 
         self.check_located_near(object=self.hero_fact, place=self.place_1_fact, result=True)
         self.check_located_near(object=self.hero_fact, place=self.place_2_fact, result=False)
@@ -728,7 +742,10 @@ class CheckRequirementsTests(PrototypeTestsBase):
     # located on road
 
     def check_located_on_road(self, object, place_from, place_to, percents, result):
-        requirement = questgen_requirements.LocatedOnRoad(object=object.uid, place_from=place_from.uid, place_to=place_to.uid, percents=percents)
+        requirement = questgen_requirements.LocatedOnRoad(object=object.uid,
+                                                          place_from=place_from.uid,
+                                                          place_to=place_to.uid,
+                                                          percents=percents)
         self.assertEqual(self.quest.check_located_on_road(requirement), result)
 
     def test_check_located_on_road__person(self):
@@ -762,7 +779,7 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=True)
 
     def test_check_located_on_road__hero__move_near(self):
-        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x + 1, self.place_1.y + 1, percents=0.5)
+        self.hero.position.set_position(self.place_1.x + 0.5, self.place_1.y + 0.5)
 
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=True)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
@@ -770,7 +787,14 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=False)
 
     def test_check_located_on_road__hero__road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.25)
+        places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
+
+        path = map_storage.cells.find_path_to_place(from_x=self.place_1.x,
+                                                    from_y=self.place_1.y,
+                                                    to_place_id=self.place_2.id,
+                                                    cost_modifiers=places_cost_modifiers,
+                                                    risk_level=self.hero.preferences.risk_level)
+        self.hero.position.set_position(*path.coordinates(0.25))
 
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=True)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
@@ -999,103 +1023,136 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
     # move hero to
 
     def test_move_hero_to__from_walking(self):
-        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x + 1, self.place_1.y + 1, percents=0.5)
+        self.hero.position.set_position(self.place_1.x + 0.5, self.place_1.y + 0.5)
 
         self.quest._move_hero_to(self.place_1)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveNearPlacePrototype))
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
+        self.assertTrue(self.hero.actions.current_action.destination_id, self.place_1.id)
         self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
 
+        self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                         (self.place_1.x, self.place_1.y))
+
     def test_move_hero_to__from_road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.5)
+        places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
+
+        path = map_storage.cells.find_path_to_place(from_x=self.place_1.x,
+                                                    from_y=self.place_1.y,
+                                                    to_place_id=self.place_2.id,
+                                                    cost_modifiers=places_cost_modifiers,
+                                                    risk_level=self.hero.preferences.risk_level)
+        self.hero.position.set_position(*path.coordinates(0.5))
 
         self.quest._move_hero_to(self.place_3)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveToPrototype))
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
         self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
         self.assertEqual(self.hero.actions.current_action.break_at, None)
+
+        self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                         (self.place_3.x, self.place_3.y))
 
     def test_move_hero_to__from_place(self):
         self.hero.position.set_place(self.place_1)
 
         self.quest._move_hero_to(self.place_3)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveToPrototype))
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
         self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
         self.assertEqual(self.hero.actions.current_action.break_at, None)
+
+        self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                         (self.place_3.x, self.place_3.y))
 
     def test_move_hero_to__break_at(self):
         self.hero.position.set_place(self.place_1)
 
         self.quest._move_hero_to(self.place_3, break_at=0.25)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveToPrototype))
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
         self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
         self.assertEqual(self.hero.actions.current_action.break_at, 0.25)
 
-    # move hero to
+        self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                         (self.place_3.x, self.place_3.y))
+
+    # move hero near
 
     def test_move_hero_near__from_walking(self):
-        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x + 1, self.place_1.y + 1, percents=0.5)
+        self.hero.position.set_position(self.place_1.x + 0.5, self.place_1.y + 0.5)
 
         self.quest._move_hero_near(self.place_1)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveNearPlacePrototype))
-        self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
-        self.assertFalse(self.hero.actions.current_action.back)
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
+        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_1.id)
+        self.assertNotEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                            (self.place_1.x, self.place_1.y))
 
     def test_move_hero_near__from_road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.5)
+        places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
+
+        path = map_storage.cells.find_path_to_place(from_x=self.place_1.x,
+                                                    from_y=self.place_1.y,
+                                                    to_place_id=self.place_2.id,
+                                                    cost_modifiers=places_cost_modifiers,
+                                                    risk_level=self.hero.preferences.risk_level)
+        self.hero.position.set_position(*path.coordinates(0.5))
 
         self.quest._move_hero_near(self.place_3)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveNearPlacePrototype))
-        self.assertEqual(self.hero.actions.current_action.place.id, self.place_3.id)
-        self.assertFalse(self.hero.actions.current_action.back)
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
+        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
+        self.assertNotEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                            (self.place_3.x, self.place_3.y))
 
     def test_move_hero_near__from_place(self):
         self.hero.position.set_place(self.place_1)
 
         self.quest._move_hero_near(self.place_1)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveNearPlacePrototype))
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
         self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
-        self.assertFalse(self.hero.actions.current_action.back)
-
-    def test_move_hero_near__back(self):
-        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x + 1, self.place_1.y + 1, percents=0.5)
-
-        self.quest._move_hero_near(self.place_1, back=True)
-
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveNearPlacePrototype))
-        self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
-        self.assertTrue(self.hero.actions.current_action.back)
+        self.assertNotEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                            (self.place_1.x, self.place_1.y))
 
     # move hero on road
 
     def test_move_hero_on_road__from_walking(self):
-        self.hero.position.set_coordinates(self.place_1.x, self.place_1.y, self.place_1.x + 1, self.place_1.y + 1, percents=0.5)
+        self.hero.position.set_position(self.place_1.x + 0.5, self.place_1.y + 0.5)
 
         self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveNearPlacePrototype))
-        self.assertEqual(self.hero.actions.current_action.place.id, self.place_1.id)
-        self.assertTrue(self.hero.actions.current_action.back)
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
+        self.assertEqual(self.hero.actions.current_action.destination_id, self.place_3.id)
+        self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                         (self.place_3.x, self.place_3.y))
 
     def test_move_hero_on_road__from_road(self):
-        self.hero.position.set_road(roads_storage.roads.get_by_places(self.place_1, self.place_2), percents=0.5)
+        places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
+
+        path = map_storage.cells.find_path_to_place(from_x=self.place_1.x,
+                                                    from_y=self.place_1.y,
+                                                    to_place_id=self.place_2.id,
+                                                    cost_modifiers=places_cost_modifiers,
+                                                    risk_level=self.hero.preferences.risk_level)
+        self.hero.position.set_position(*path.coordinates(0.5))
 
         self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveToPrototype))
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
         self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
         self.assertTrue(0 < self.hero.actions.current_action.break_at < 0.9)
+        self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                         (self.place_3.x, self.place_3.y))
 
     def test_move_hero_on_road__from_place(self):
         self.hero.position.set_place(self.place_1)
 
         self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
 
-        self.assertTrue(isinstance(self.hero.actions.current_action, actions_prototypes.ActionMoveToPrototype))
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
         self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
         self.assertEqual(round(self.hero.actions.current_action.break_at, 4), 0.9000)
+        self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
+                         (self.place_3.x, self.place_3.y))

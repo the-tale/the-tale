@@ -148,9 +148,22 @@ class HabilitiesTest(utils_testcase.TestCase):
         self.assertEqual(self.messenger.messages, ['hero_ability_charge_hit_only'])
 
     @mock.patch('the_tale.game.heroes.abilities.battle.CHARGE.STAFF_DESTROY_CHANCE', 1)
-    def test_charge_enemy_with_not_empty_bag(self):
+    def test_charge_enemy_with_not_empty_bag__equipment(self):
         self.defender.bag = bag.Bag()
         artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.artifacts,
+                                                                           1,
+                                                                           rarity=artifacts_relations.RARITY.NORMAL)
+
+        self.defender.bag.put_artifact(artifact)
+        charge = heroes_abilities_battle.CHARGE()
+        charge.use(self.messenger, self.attacker, self.defender)
+        self.assertEqual(self.messenger.messages, ['hero_ability_charge_hit_only'])
+        self.assertFalse(self.defender.bag.is_empty)
+
+    @mock.patch('the_tale.game.heroes.abilities.battle.CHARGE.STAFF_DESTROY_CHANCE', 1)
+    def test_charge_enemy_with_not_empty_bag__loot(self):
+        self.defender.bag = bag.Bag()
+        artifact = artifacts_storage.artifacts.generate_artifact_from_list(artifacts_storage.artifacts.loot,
                                                                            1,
                                                                            rarity=artifacts_relations.RARITY.NORMAL)
 

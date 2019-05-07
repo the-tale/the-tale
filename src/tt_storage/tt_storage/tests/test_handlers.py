@@ -1,20 +1,13 @@
 
 import uuid
 
-import asyncio
-
 from aiohttp import test_utils
 
 from tt_protocol.protocol import base_pb2
 from tt_protocol.protocol import storage_pb2
 
-from tt_web import utils
-from tt_web import exceptions
+from tt_web import s11n
 from tt_web import postgresql as db
-
-from .. import objects
-from .. import protobuf
-from .. import operations
 
 from . import helpers
 
@@ -58,12 +51,10 @@ class ApplyTests(helpers.BaseTests):
                                                                                       owner_id=3,
                                                                                       operation_type='#test'))]
 
-
     @test_utils.unittest_run_loop
     async def test_no_operations(self):
         request = await self.client.post('/apply', data=storage_pb2.ApplyRequest(operations=[]).SerializeToString())
         await self.check_answer(request, storage_pb2.ApplyResponse)
-
 
     @test_utils.unittest_run_loop
     async def test_success(self):
@@ -84,7 +75,6 @@ class ApplyTests(helpers.BaseTests):
                           (self.item_2_id, {'operation_type': '#test', 'new_owner_id': 3, 'old_owner_id': 2, 'new_storage_id': 4}),
                           (self.item_3_id, {'operation_type': '#test', 'owner_id': 3})])
 
-
     @test_utils.unittest_run_loop
     async def test_failed_operations(self):
 
@@ -103,7 +93,6 @@ class ApplyTests(helpers.BaseTests):
 
         self.assertEqual([(row['item'], row['data']) for row in result],
                          [(self.item_3_id, {'item': {'c': 3}, 'operation_type': '#test', 'owner_id': 3, 'storage_id': 3, 'base_type': 'base-type', 'full_type': 'full-type'})])
-
 
 
 class GetItemsTests(helpers.BaseTests):
@@ -134,11 +123,9 @@ class GetItemsTests(helpers.BaseTests):
                                                                                     base_type='base-type',
                                                                                     full_type='full-type'))]
 
-
     async def fill_database(self):
         request = await self.client.post('/apply', data=storage_pb2.ApplyRequest(operations=self.operations).SerializeToString())
         await self.check_answer(request, storage_pb2.ApplyResponse)
-
 
     @test_utils.unittest_run_loop
     async def test_no_items(self):
@@ -147,7 +134,6 @@ class GetItemsTests(helpers.BaseTests):
         request = await self.client.post('/get-items', data=storage_pb2.GetItemsRequest(owner_id=666).SerializeToString())
         data = await self.check_answer(request, storage_pb2.GetItemsResponse)
         self.assertEqual(list(data.items), [])
-
 
     @test_utils.unittest_run_loop
     async def test_has_items(self):
@@ -159,7 +145,6 @@ class GetItemsTests(helpers.BaseTests):
         self.assertCountEqual(list(data.items),
                               [storage_pb2.Item(id=self.item_2_id.hex, owner_id=2, data='{"b": 2}'),
                                storage_pb2.Item(id=self.item_3_id.hex, owner_id=2, data='{"c": 2}')])
-
 
 
 class HasItemsTests(helpers.BaseTests):
@@ -190,11 +175,9 @@ class HasItemsTests(helpers.BaseTests):
                                                                                     base_type='base-type',
                                                                                     full_type='full-type'))]
 
-
     async def fill_database(self):
         request = await self.client.post('/apply', data=storage_pb2.ApplyRequest(operations=self.operations).SerializeToString())
         await self.check_answer(request, storage_pb2.ApplyResponse)
-
 
     @test_utils.unittest_run_loop
     async def test_no_items(self):
@@ -204,7 +187,6 @@ class HasItemsTests(helpers.BaseTests):
         data = await self.check_answer(request, storage_pb2.HasItemsResponse)
         self.assertFalse(data.has)
 
-
     @test_utils.unittest_run_loop
     async def test_has_items(self):
         await self.fill_database()
@@ -213,3 +195,52 @@ class HasItemsTests(helpers.BaseTests):
         data = await self.check_answer(request, storage_pb2.HasItemsResponse)
 
         self.assertTrue(data.has)
+
+
+class GetItemLogsTests(helpers.BaseTests):
+
+    def setUp(self):
+        super().setUp()
+
+    @test_utils.unittest_run_loop
+    async def test_no_logs(self):
+
+        request = await self.client.post('/get-item-logs', data=storage_pb2.GetItemLogsRequest(item_id=uuid.uuid4().hex).SerializeToString())
+        data = await self.check_answer(request, storage_pb2.GetItemLogsResponse)
+
+        self.assertEqual(list(data.logs), [])
+
+    @test_utils.unittest_run_loop
+    async def test_has_logs(self):
+
+        item_id = uuid.uuid4()
+
+        operations = [storage_pb2.Operation(create=storage_pb2.OperationCreate(owner_id=1,
+                                                                               item_id=item_id.hex,
+                                                                               data='{"a": 1}',
+                                                                               operation_type='#test_1',
+                                                                               base_type='base-type',
+                                                                               full_type='full-type')),
+                      storage_pb2.Operation(create=storage_pb2.OperationCreate(owner_id=2,
+                                                                               item_id=uuid.uuid4().hex,
+                                                                               data='{"a": 2}',
+                                                                               operation_type='#test_2',
+                                                                               base_type='base-type',
+                                                                               full_type='full-type')),
+                      storage_pb2.Operation(change_owner=storage_pb2.OperationChangeOwner(item_id=item_id.hex,
+                                                                                          old_owner_id=1,
+                                                                                          new_owner_id=3,
+                                                                                          new_storage_id=4,
+                                                                                          operation_type='#test_3'))]
+
+        for operation in operations:
+            request = await self.client.post('/apply', data=storage_pb2.ApplyRequest(operations=[operation]).SerializeToString())
+            await self.check_answer(request, storage_pb2.ApplyResponse)
+
+        request = await self.client.post('/get-item-logs', data=storage_pb2.GetItemLogsRequest(item_id=item_id.hex).SerializeToString())
+        data = await self.check_answer(request, storage_pb2.GetItemLogsResponse)
+
+        self.assertEqual(len(data.logs), 2)
+
+        self.assertEqual(s11n.from_json(data.logs[0].data)['operation_type'], '#test_1')
+        self.assertEqual(s11n.from_json(data.logs[1].data)['operation_type'], '#test_3')

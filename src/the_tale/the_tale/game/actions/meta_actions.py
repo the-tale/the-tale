@@ -43,7 +43,8 @@ class MetaAction(object):
     def description_text_name(self):
         return '%s_description' % self.TEXTGEN_TYPE
 
-    def set_storage(self, storage): self.storage = storage
+    def set_storage(self, storage):
+        self.storage = storage
 
     def process(self):
         turn_number = game_turn.number()
@@ -54,6 +55,13 @@ class MetaAction(object):
 
     def _process(self):
         pass
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                all(getattr(self, name) == getattr(other, name) for name in self.__slots__))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class ArenaPvP1x1(MetaAction):
@@ -87,6 +95,9 @@ class ArenaPvP1x1(MetaAction):
         self.hero_2_id = hero_2_id
         self.hero_1_pvp = hero_1_pvp
         self.hero_2_pvp = hero_2_pvp
+
+    def help_choices(self):
+        return ()
 
     @property
     def uid(self):
@@ -167,10 +178,14 @@ class ArenaPvP1x1(MetaAction):
     def ui_info(self, hero):
         if hero.id == self.hero_1_id:
             info = self.hero_1_pvp
+            enemy_id = self.hero_2_id
         else:
             info = self.hero_2_pvp
+            enemy_id = self.hero_1_id
 
-        return {'pvp__actual': info.ui_info(),
+        return {'is_pvp': True,
+                'enemy_id': enemy_id,
+                'pvp__actual': info.ui_info(),
                 'pvp__last_turn': info.turn_ui_info()}
 
     @property
@@ -212,34 +227,44 @@ class ArenaPvP1x1(MetaAction):
         pvp.set_effectiveness(pvp.effectiveness - pvp.effectiveness * c.PVP_EFFECTIVENESS_EXTINCTION_FRACTION)
 
     def process_battle_ending(self):
-        battle_1 = pvp_prototypes.Battle1x1Prototype.get_by_account_id(self.hero_1.account_id)
-        battle_2 = pvp_prototypes.Battle1x1Prototype.get_by_account_id(self.hero_2.account_id)
-
         participant_1 = accounts_prototypes.AccountPrototype.get_by_id(self.hero_1.account_id)
         participant_2 = accounts_prototypes.AccountPrototype.get_by_id(self.hero_2.account_id)
 
+        calculate_rating = pvp_logic.calculate_rating_required(self.hero_1, self.hero_2)
+
         if self.hero_1.health <= 0:
             if self.hero_2.health <= 0:
-                pvp_prototypes.Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result=pvp_relations.BATTLE_1X1_RESULT.DRAW)
+                pvp_prototypes.Battle1x1ResultPrototype.create(participant_1=participant_1,
+                                                               participant_2=participant_2,
+                                                               result=pvp_relations.BATTLE_1X1_RESULT.DRAW)
 
-                if battle_1.calculate_rating and battle_2.calculate_rating:
+                if calculate_rating:
                     self.hero_1.statistics.change_pvp_battles_1x1_draws(1)
                     self.hero_2.statistics.change_pvp_battles_1x1_draws(1)
             else:
-                pvp_prototypes.Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result=pvp_relations.BATTLE_1X1_RESULT.DEFEAT)
+                pvp_prototypes.Battle1x1ResultPrototype.create(participant_1=participant_1,
+                                                               participant_2=participant_2,
+                                                               result=pvp_relations.BATTLE_1X1_RESULT.DEFEAT)
 
-                if battle_1.calculate_rating and battle_2.calculate_rating:
+                if calculate_rating:
                     self.hero_2.statistics.change_pvp_battles_1x1_victories(1)
                     self.hero_1.statistics.change_pvp_battles_1x1_defeats(1)
         else:
-            pvp_prototypes.Battle1x1ResultPrototype.create(participant_1=participant_1, participant_2=participant_2, result=pvp_relations.BATTLE_1X1_RESULT.VICTORY)
+            pvp_prototypes.Battle1x1ResultPrototype.create(participant_1=participant_1,
+                                                           participant_2=participant_2,
+                                                           result=pvp_relations.BATTLE_1X1_RESULT.VICTORY)
 
-            if battle_1.calculate_rating and battle_2.calculate_rating:
+            if calculate_rating:
                 self.hero_1.statistics.change_pvp_battles_1x1_victories(1)
                 self.hero_2.statistics.change_pvp_battles_1x1_defeats(1)
 
-        battle_1.remove()
-        battle_2.remove()
+        battles = pvp_tt_services.matchmaker.cmd_get_battles_by_participants(participants_ids=(self.hero_1.account_id,
+                                                                                               self.hero_2.account_id))
+
+        matchmaker_battles_ids = {battle.id for battle in battles}
+
+        for matchmaker_battle_id in matchmaker_battles_ids:
+            pvp_tt_services.matchmaker.cmd_finish_battle(matchmaker_battle_id)
 
         self.hero_1.health = self.hero_1_old_health
         self.hero_2.health = self.hero_2_old_health
@@ -316,6 +341,11 @@ class ArenaPvP1x1(MetaAction):
 
         if self.state == self.STATE.BATTLE_RUNNING:
             self.process_battle_running()
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                super().__eq__(other) and
+                all(getattr(self, name) == getattr(other, name) for name in self.__slots__))
 
 
 ACTION_TYPES = {action_class.TYPE: action_class

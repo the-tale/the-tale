@@ -79,24 +79,14 @@ class LogicAccessorsMixin(object):
         return priority
 
     def modify_move_speed(self, speed):
-        dominant_place = self.position.get_dominant_place()
-
-        if dominant_place is not None:
-            return speed * dominant_place.attrs.transport
-        else:
-            return speed * self.position.raw_transport()
+        return speed * self.position.cell().transport
 
     ################################
     # checkers
     ################################
 
     def is_battle_start_needed(self):
-        dominant_place = self.position.get_dominant_place()
-
-        if dominant_place is not None:
-            battles_per_turn = 1.0 - dominant_place.attrs.safety
-        else:
-            battles_per_turn = c.BATTLES_PER_TURN + c.WHILD_BATTLES_PER_TURN_BONUS
+        battles_per_turn = self.position.cell().battles_per_turn()
 
         battles_per_turn = min(c.MAX_BATTLES_PER_TURN, max(0, battles_per_turn + self.battles_per_turn_summand))
 
@@ -109,10 +99,12 @@ class LogicAccessorsMixin(object):
         return self.is_alive and (c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.max_health > self.health)
 
     @property
-    def need_rest_in_settlement(self): return self.health < self.max_health * c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION * self.preferences.risk_level.health_percent_to_rest
+    def need_rest_in_settlement(self):
+        return self.health < self.max_health * c.HEALTH_IN_SETTLEMENT_TO_START_HEAL_FRACTION * self.preferences.risk_level.health_percent_to_rest
 
     @property
-    def need_rest_in_move(self): return self.health < self.max_health * c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION * self.preferences.risk_level.health_percent_to_rest
+    def need_rest_in_move(self):
+        return self.health < self.max_health * c.HEALTH_IN_MOVE_TO_START_HEAL_FRACTION * self.preferences.risk_level.health_percent_to_rest
 
     @property
     def need_trade_in_town(self):
@@ -140,9 +132,6 @@ class LogicAccessorsMixin(object):
         return self.is_premium
 
     def can_change_person_power(self, person):
-        if self.is_banned:
-            return False
-
         return self.can_change_place_power(person.place)
 
     def can_change_place_power(self, place):
@@ -155,10 +144,8 @@ class LogicAccessorsMixin(object):
         return self.is_premium
 
     @property
-    def can_participate_in_pvp(self): return not self.is_fast and not self.is_banned
-
-    @property
-    def can_repair_building(self): return self.is_premium and not self.is_banned
+    def can_participate_in_pvp(self):
+        return not self.is_fast and not self.is_banned
 
     @property
     def is_ui_caching_required(self):
@@ -182,7 +169,7 @@ class LogicAccessorsMixin(object):
 
     def can_be_helped(self):
         if (self.last_help_on_turn == game_turn.number() and
-                self.helps_in_turn >= conf.settings.MAX_HELPS_IN_TURN):
+            self.helps_in_turn >= conf.settings.MAX_HELPS_IN_TURN):
             return False
 
         return True
@@ -247,7 +234,8 @@ class LogicAccessorsMixin(object):
         return self.statistics.quests_done == 0
 
     @property
-    def bag_is_full(self): return self.bag.occupation >= self.max_bag_size
+    def bag_is_full(self):
+        return self.bag.occupation >= self.max_bag_size
 
     @property
     def can_upgrade_prefered_slot(self):
@@ -273,7 +261,8 @@ class LogicAccessorsMixin(object):
                    conf.settings.ACTIVE_BILLS_MAXIMUM)
 
     @property
-    def power(self): return power.Power.clean_power_for_hero_level(self.level) + self.equipment.get_power()
+    def power(self):
+        return power.Power.clean_power_for_hero_level(self.level) + self.equipment.get_power()
 
     @property
     def basic_damage(self):
@@ -288,10 +277,12 @@ class LogicAccessorsMixin(object):
         return self.race.male_text
 
     @property
-    def health_percents(self): return float(self.health) / self.max_health
+    def health_percents(self):
+        return float(self.health) / self.max_health
 
     @property
-    def birthday(self): return game_turn.game_datetime(self.created_at_turn)
+    def birthday(self):
+        return game_turn.game_datetime(self.created_at_turn)
 
     @property
     def age(self):
@@ -693,7 +684,7 @@ class LogicAccessorsMixin(object):
     def linguistics_restrictions(self):
         constants = self.linguistics_restrictions_constants()
 
-        terrains = map_logic.get_terrain_linguistics_restrictions(self.position.get_terrain())
+        terrains = map_logic.get_terrain_linguistics_restrictions(self.position.cell().terrain)
 
         return (constants +
                 terrains +

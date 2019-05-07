@@ -54,6 +54,15 @@ message Operation {
 }
 
 
+message LogRecord {
+  int64 id = 1;
+  string transaction = 2;
+  string item_id = 3;
+  int32 type = 4;
+  string data = 5;
+  double created_at=6;
+}
+
 message ApplyRequest {
   repeated Operation operations = 1;
 }
@@ -81,6 +90,15 @@ message HasItemsRequest {
 
 message HasItemsResponse {
   bool has = 1;
+}
+
+message GetItemLogsRequest {
+  string item_id = 1;
+}
+
+
+message GetItemLogsResponse {
+  repeated LogRecord logs = 1;
 }
 
 

@@ -22,17 +22,14 @@ class ActionBase(object):
                  'mob',
                  'data',
                  'break_at',
-                 'length',
-                 'destination_x',
-                 'destination_y',
                  'percents_barier',
                  'extra_probability',
                  'mob_context',
                  'textgen_id',
-                 'back',
                  'info_link',
                  'saved_meta_action',
-                 'replane_required')
+                 'replane_required',
+                 'path')
 
     class STATE:
         UNINITIALIZED = 'uninitialized'
@@ -58,18 +55,15 @@ class ActionBase(object):
                  mob=None,
                  data=None,
                  break_at=None,
-                 length=None,
-                 destination_x=None,
-                 destination_y=None,
                  percents_barier=None,
                  extra_probability=None,
                  mob_context=None,
                  textgen_id=None,
-                 back=False,
                  info_link=None,
                  meta_action=None,
                  replane_required=False,
-                 hero=None):
+                 hero=None,
+                 path=None):
 
         self.hero = hero
 
@@ -101,13 +95,9 @@ class ActionBase(object):
 
         self.data = data
         self.break_at = break_at
-        self.length = length
-        self.destination_x = destination_x
-        self.destination_y = destination_y
         self.percents_barier = percents_barier
         self.extra_probability = extra_probability
         self.textgen_id = textgen_id
-        self.back = back
 
         if meta_action is None or isinstance(meta_action, meta_actions.MetaAction):
             self.saved_meta_action = meta_action
@@ -117,6 +107,11 @@ class ActionBase(object):
         self.info_link = info_link
 
         self.replane_required = replane_required
+
+        if path and isinstance(path, dict):
+            self.path = navigation_path.Path.deserialize(path)
+        else:
+            self.path = path
 
     def serialize(self):
         data = {'type': self.TYPE.value,
@@ -137,12 +132,6 @@ class ActionBase(object):
             data['data'] = self.data
         if self.break_at is not None:
             data['break_at'] = self.break_at
-        if self.length is not None:
-            data['length'] = self.length
-        if self.destination_x is not None:
-            data['destination_x'] = self.destination_x
-        if self.destination_y is not None:
-            data['destination_y'] = self.destination_y
         if self.percents_barier is not None:
             data['percents_barier'] = self.percents_barier
         if self.extra_probability is not None:
@@ -151,12 +140,12 @@ class ActionBase(object):
             data['mob_context'] = self.mob_context.serialize()
         if self.textgen_id is not None:
             data['textgen_id'] = self.textgen_id
-        if self.back:
-            data['back'] = self.back
         if self.meta_action is not None:
             data['meta_action'] = self.meta_action.serialize()
         if self.info_link is not None:
             data['info_link'] = self.info_link
+        if self.path is not None:
+            data['path'] = self.path.serialize()
 
         return data
 
@@ -165,7 +154,8 @@ class ActionBase(object):
         return cls(**data)
 
     @property
-    def ui_type(self): return self.TYPE
+    def ui_type(self):
+        return self.TYPE
 
     def ui_info(self):
         if self.description is None:
@@ -189,13 +179,8 @@ class ActionBase(object):
         self.storage = storage
 
     @property
-    def place(self): return places_storage.places[self.place_id]
-
-    def get_destination(self): return self.destination_x, self.destination_y
-
-    def set_destination(self, x, y):
-        self.destination_x = x
-        self.destination_y = y
+    def place(self):
+        return places_storage.places.get(self.place_id)
 
     @property
     def meta_action(self):
@@ -358,24 +343,11 @@ class ActionBase(object):
         pass  # do nothing if there is not quest action
 
     def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                all(getattr(self, name) == getattr(other, name) for name in self.__slots__))
 
-        return (self.removed == other.removed and
-                self.TYPE == other.TYPE and
-                self.percents == other.percents and
-                self.state == other.state and
-                self.hero.id == other.hero.id and
-                self.context == other.context and
-                self.mob_context == other.mob_context and
-                self.place_id == other.place_id and
-                self.mob == other.mob and
-                self.data == other.data and
-                self.break_at == other.break_at and
-                self.length == other.length and
-                self.destination_x == other.destination_x and
-                self.destination_y == other.destination_y and
-                self.percents_barier == other.percents_barier and
-                self.extra_probability == other.extra_probability and
-                self.textgen_id == other.textgen_id)
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class ActionIdlenessPrototype(ActionBase):
@@ -440,17 +412,23 @@ class ActionIdlenessPrototype(ActionBase):
 
     def process_position(self):
         if self.hero.position.place is None:
-            if self.hero.position.road:
-                # choose nearest place in road
-                if bool(self.hero.position.percents < 0.5) != self.hero.position.invert_direction:
-                    destination = self.hero.position.road.point_1
-                else:
-                    destination = self.hero.position.road.point_2
 
-                ActionMoveToPrototype.create(hero=self.hero, destination=destination)
-            else:
-                destination = self.hero.position.get_nearest_dominant_place()
-                ActionMoveNearPlacePrototype.create(hero=self.hero, place=destination, back=True)
+            cell = self.hero.position.cell()
+
+            places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
+
+            path = map_storage.cells.find_path_to_place(from_x=self.hero.position.cell_x,
+                                                        from_y=self.hero.position.cell_y,
+                                                        to_place_id=cell.nearest_place_id,
+                                                        cost_modifiers=places_cost_modifiers,
+                                                        risk_level=self.hero.preferences.risk_level)
+            path.set_start(self.hero.position.x,
+                           self.hero.position.y)
+
+            ActionMoveSimplePrototype.create(hero=self.hero,
+                                             path=path,
+                                             destination=cell.nearest_place(),
+                                             break_at=None)
 
             self.state = self.STATE.RETURN
         else:
@@ -581,309 +559,6 @@ class ActionQuestPrototype(ActionBase):
             if self.hero.quests.current_quest.is_processed:
                 self.hero.quests.pop_quest()
                 self.state = self.STATE.PROCESSED
-
-
-class ActionMoveToPrototype(ActionBase):
-
-    TYPE = relations.ACTION_TYPE.MOVE_TO
-    TEXTGEN_TYPE = 'action_moveto'
-
-    @property
-    def HELP_CHOICES(self):
-        choices = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
-
-        if self.state == self.STATE.MOVING:
-            choices.add(abilities_relations.HELP_CHOICES.TELEPORT)
-
-        return choices
-
-    class STATE(ActionBase.STATE):
-        CHOOSE_ROAD = 'choose_road'
-        MOVING = 'moving'
-        IN_CITY = 'in_city'
-        BATTLE = 'battle'
-        REGENERATE_ENERGY = 'regenerate_energy'
-        RESTING = 'resting'
-        RESURRECT = 'resurrect'
-        HEALING_COMPANION = 'healing_companion'
-
-    @property
-    def destination_id(self): return self.place_id
-
-    @property
-    def destination(self): return self.place
-
-    ###########################################
-    # Object operations
-    ###########################################
-
-    @classmethod
-    def _create(cls, hero, bundle_id, destination, break_at=None):
-        prototype = cls(hero=hero,
-                        bundle_id=bundle_id,
-                        place_id=destination.id,
-                        break_at=break_at,
-                        state=cls.STATE.CHOOSE_ROAD)
-        hero.add_message('action_moveto_start', hero=hero, destination=destination)
-        hero.position.move_out_place()
-        return prototype
-
-    def get_description_arguments(self):
-        args = super(ActionMoveToPrototype, self).get_description_arguments()
-        args.update({'destination': self.place})
-        return args
-
-    def teleport(self, distance, create_inplace_action):
-
-        if self.state != self.STATE.MOVING:
-            return False
-
-        stop_percents = self.break_at if self.break_at else 1
-
-        max_road_distance = self.hero.position.road.length * (1 - self.hero.position.percents)
-        max_action_distance = self.length * (stop_percents - self.percents)
-
-        distance = min(distance, min(max_road_distance, max_action_distance))
-
-        self.hero.position.percents += distance / self.hero.position.road.length
-
-        if self.length > E:
-            self.percents += distance / self.length
-
-        if self.hero.position.percents + E > 1:
-            self.hero.position.percents = 1
-            self.place_hero_in_current_destination(create_action=create_inplace_action)
-
-        if self.percents + E > stop_percents:
-            self.state = self.STATE.PROCESSED
-
-        return True
-
-    def teleport_to_place(self, create_inplace_action):
-
-        if self.state != self.STATE.MOVING:
-            return False
-
-        return self.teleport(distance=self.hero.position.road.length + 1, create_inplace_action=create_inplace_action)
-
-    def teleport_to_end(self):
-        if self.state != self.STATE.MOVING:
-            return False
-
-        while True:
-            if not self.teleport_to_place(create_inplace_action=False):
-                return False
-
-            if self.state == self.STATE.PROCESSED:
-                if self.hero.position.place:
-                    ActionInPlacePrototype.create(hero=self.hero)
-                return True
-
-            self.process_choose_road()
-
-    @property
-    def current_destination(self): return self.hero.position.road.point_2 if not self.hero.position.invert_direction else self.hero.position.road.point_1
-
-    def preprocess(self):
-        if self.replane_required:
-            self.state = self.STATE.PROCESSED
-            return True
-
-        if not self.hero.is_alive:
-            ActionResurrectPrototype.create(hero=self.hero)
-            self.state = self.STATE.RESURRECT
-            return True
-
-        if self.hero.need_rest_in_move:
-            ActionRestPrototype.create(hero=self.hero)
-            self.state = self.STATE.RESTING
-            return True
-
-        if self.hero.companion_need_heal():
-            ActionHealCompanionPrototype.create(hero=self.hero)
-            self.state = self.STATE.HEALING_COMPANION
-            return True
-
-        return False
-
-    def process_choose_road__in_place(self):
-        if self.hero.position.place_id != self.destination_id:
-            waymark = roads_storage.waymarks.look_for_road(point_from=self.hero.position.place_id, point_to=self.destination_id)
-            length = waymark.length
-            self.hero.position.set_road(waymark.road, invert=(self.hero.position.place_id != waymark.road.point_1_id))
-            self.state = self.STATE.MOVING
-        else:
-            length = None
-            self.state = self.STATE.PROCESSED
-
-        return length
-
-    def process_choose_road__in_road(self):
-        waymark = roads_storage.waymarks.look_for_road(point_from=self.hero.position.road.point_1_id, point_to=self.destination_id)
-        road_left = waymark.road
-        length_left = waymark.length
-
-        waymark = roads_storage.waymarks.look_for_road(point_from=self.hero.position.road.point_2_id, point_to=self.destination_id)
-        road_right = waymark.road
-        length_right = waymark.length
-
-        if not self.hero.position.invert_direction:
-            delta_left = self.hero.position.percents * self.hero.position.road.length
-        else:
-            delta_left = (1 - self.hero.position.percents) * self.hero.position.road.length
-        delta_rigth = self.hero.position.road.length - delta_left
-
-        if road_left is None:
-            invert = True
-        elif road_right is None:
-            invert = False
-        else:
-            invert = (length_left + delta_left) < (delta_rigth + length_right)
-
-        if invert:
-            length = length_left + delta_left
-        else:
-            length = length_right + delta_rigth
-
-        percents = self.hero.position.percents
-        if self.hero.position.invert_direction and not invert:
-            percents = 1 - percents
-        elif not self.hero.position.invert_direction and invert:
-            percents = 1 - percents
-
-        if length < 0.01:
-            self.place_hero_in_current_destination()
-        else:
-            self.hero.position.set_road(self.hero.position.road, invert=invert, percents=percents)
-            self.state = self.STATE.MOVING
-
-        return length
-
-    def process_choose_road(self):
-        if self.hero.position.place_id:
-            length = self.process_choose_road__in_place()
-        else:
-            length = self.process_choose_road__in_road()
-
-        if self.length is None:
-            self.length = length
-
-    def normal_move(self):
-
-        if self.hero.companion and self.hero.can_companion_say_wisdom() and random.random() < self.hero.companion_say_wisdom_probability:
-            self.hero.add_experience(c.COMPANIONS_EXP_PER_MOVE_GET_EXP, without_modifications=True)
-            self.hero.add_message('companions_say_wisdom', companion_owner=self.hero, companion=self.hero.companion, experience=c.COMPANIONS_EXP_PER_MOVE_GET_EXP)
-
-        elif random.uniform(0, 1) < c.HABIT_MOVE_EVENTS_IN_TURN:
-            self.do_events()
-
-        elif random.uniform(0, 1) < 0.33:
-            if self.destination.id != self.current_destination.id and random.uniform(0, 1) < 0.04:  # TODO: change probability, when there are move phrases
-                self.hero.add_message('action_moveto_move_long_path',
-                                      hero=self.hero,
-                                      destination=self.destination,
-                                      current_destination=self.current_destination)
-            else:
-                self.hero.add_message('action_moveto_move',
-                                      hero=self.hero,
-                                      destination=self.destination,
-                                      current_destination=self.current_destination)
-
-        if self.hero.companion and random.random() < self.hero.companion_fly_probability:
-            self.hero.add_message('companions_fly', companion_owner=self.hero, companion=self.hero.companion)
-            self.teleport(c.ANGEL_HELP_TELEPORT_DISTANCE, create_inplace_action=True)
-            return
-
-        move_speed = self.hero.modify_move_speed(self.hero.move_speed)
-
-        delta = move_speed / self.hero.position.road.length
-
-        self.hero.position.percents += delta
-
-        if self.length > 0.001:
-            self.percents += move_speed / self.length
-        else:
-            self.percents = 1
-
-    def picked_up_in_road(self):
-        current_destination = self.current_destination  # save destination befor telefort, since it can be reseted after we perfom it
-
-        if self.teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, create_inplace_action=True):
-
-            self.hero.add_message('action_moveto_picked_up_in_road',
-                                  hero=self.hero,
-                                  destination=self.destination,
-                                  current_destination=current_destination)
-
-    def process_moving(self):
-
-        if self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
-            ActionRegenerateEnergyPrototype.create(hero=self.hero)
-            self.state = self.STATE.REGENERATE_ENERGY
-
-        elif self.hero.is_battle_start_needed():
-            mob = mobs_storage.mobs.create_mob_for_hero(self.hero)
-            ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
-            self.state = self.STATE.BATTLE
-
-        else:
-            if self.hero.can_picked_up_in_road():
-                self.picked_up_in_road()
-            else:
-                self.normal_move()
-
-            # state can be changed in can_picked_up_in_road
-            if self.state == self.STATE.MOVING:
-                if self.hero.position.percents >= 1:
-                    self.place_hero_in_current_destination()
-
-                elif self.percents >= 1:
-                    self.state = self.STATE.PROCESSED
-
-                elif self.break_at is not None and self.break_at < self.percents:
-                    self.state = self.STATE.PROCESSED
-
-    def place_hero_in_current_destination(self, create_action=True):
-        self.hero.position.percents = 1
-        self.hero.position.set_place(self.current_destination)
-        self.state = self.STATE.IN_CITY
-        if create_action:
-            ActionInPlacePrototype.create(hero=self.hero)
-
-    def process(self):
-
-        if self.preprocess():
-            return
-
-        if self.state in (self.STATE.RESTING, self.STATE.RESURRECT, self.STATE.REGENERATE_ENERGY, self.STATE.IN_CITY, self.STATE.HEALING_COMPANION):
-            self.state = self.STATE.CHOOSE_ROAD
-
-        if self.state == self.STATE.BATTLE:
-            if not self.hero.is_alive:
-                ActionResurrectPrototype.create(hero=self.hero)
-                self.state = self.STATE.RESURRECT
-            else:
-                if self.hero.need_rest_in_move:
-                    ActionRestPrototype.create(hero=self.hero)
-                    self.state = self.STATE.RESTING
-                elif self.hero.need_regenerate_energy:
-                    ActionRegenerateEnergyPrototype.create(hero=self.hero)
-                    self.state = self.STATE.REGENERATE_ENERGY
-                elif self.hero.companion_need_heal():
-                    ActionHealCompanionPrototype.create(hero=self.hero)
-                    self.state = self.STATE.HEALING_COMPANION
-                else:
-                    self.state = self.STATE.MOVING
-
-        if self.state == self.STATE.CHOOSE_ROAD:
-            self.process_choose_road()
-
-            if self.hero.companion and self.state == self.STATE.MOVING and random.random() < self.hero.companion_teleport_probability:
-                self.hero.add_message('companions_teleport', companion_owner=self.hero, companion=self.hero.companion, destination=self.current_destination)
-                self.teleport_to_place(create_inplace_action=True)
-
-        if self.state == self.STATE.MOVING:
-            self.process_moving()
 
 
 class ActionBattlePvE1x1Prototype(ActionBase):
@@ -1637,183 +1312,6 @@ class ActionTradingPrototype(ActionBase):
                 self.state = self.STATE.PROCESSED
 
 
-class ActionMoveNearPlacePrototype(ActionBase):
-
-    TYPE = relations.ACTION_TYPE.MOVE_NEAR_PLACE
-    TEXTGEN_TYPE = 'action_movenearplace'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
-
-    class STATE(ActionBase.STATE):
-        MOVING = 'MOVING'
-        BATTLE = 'BATTLE'
-        REGENERATE_ENERGY = 'REGENERATE_ENERGY'
-        RESTING = 'RESTING'
-        RESURRECT = 'RESURRECT'
-        IN_CITY = 'IN_CITY'
-        HEALING_COMPANION = 'healing_companion'
-
-    ###########################################
-    # Object operations
-    ###########################################
-
-    @classmethod
-    def _get_destination_coordinates(cls, back, place, terrains):
-        if back:
-            return place.x, place.y
-        else:
-            choices = ()
-
-            if terrains is not None:
-                map_info = map_storage.map_info.item
-                choices = [(x, y) for x, y in place.nearest_cells if map_info.terrain[y][x] in terrains]
-
-            if not choices:
-                choices = place.nearest_cells
-
-            return random.choice(choices)
-
-    @classmethod
-    def _create(cls, hero, bundle_id, place, back, terrains=None):
-
-        x, y = cls._get_destination_coordinates(back=back, place=place, terrains=terrains)
-
-        prototype = cls(hero=hero,
-                        bundle_id=bundle_id,
-                        place_id=place.id,
-                        destination_x=x,
-                        destination_y=y,
-                        state=cls.STATE.MOVING,
-                        back=back)
-
-        from_x, from_y = hero.position.cell_coordinates
-
-        hero.position.set_coordinates(from_x, from_y, x, y, percents=0)
-        hero.position.move_out_place()
-
-        return prototype
-
-    def get_description_arguments(self):
-        args = super(ActionMoveNearPlacePrototype, self).get_description_arguments()
-        args.update({'place': self.place})
-        return args
-
-    def preprocess(self):
-
-        if self.replane_required:
-            self.state = self.STATE.PROCESSED
-            return True
-
-        if not self.hero.is_alive:
-            ActionResurrectPrototype.create(hero=self.hero)
-            self.state = self.STATE.RESURRECT
-            return True
-
-        if self.hero.need_rest_in_move:
-            ActionRestPrototype.create(hero=self.hero)
-            self.state = self.STATE.RESTING
-            return True
-
-        if self.hero.companion_need_heal():
-            ActionHealCompanionPrototype.create(hero=self.hero)
-            self.state = self.STATE.HEALING_COMPANION
-            return True
-
-        return False
-
-    def process_battle(self):
-
-        if self.hero.need_regenerate_energy:
-            ActionRegenerateEnergyPrototype.create(hero=self.hero)
-            self.state = self.STATE.REGENERATE_ENERGY
-            return
-
-        if self.hero.need_rest_in_move:
-            ActionRestPrototype.create(hero=self.hero)
-            self.state = self.STATE.RESTING
-            return
-
-        self.state = self.STATE.MOVING
-
-    def process_moving(self):
-
-        if self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
-            ActionRegenerateEnergyPrototype.create(hero=self.hero)
-            self.state = self.STATE.REGENERATE_ENERGY
-
-        elif self.hero.is_battle_start_needed():
-            mob = mobs_storage.mobs.create_mob_for_hero(self.hero)
-            ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
-            self.state = self.STATE.BATTLE
-
-        else:
-
-            if self.hero.companion and self.hero.can_companion_say_wisdom() and random.random() < c.COMPANIONS_EXP_PER_MOVE_PROBABILITY:
-                self.hero.add_experience(c.COMPANIONS_EXP_PER_MOVE_GET_EXP, without_modifications=True)
-                self.hero.add_message('companions_say_wisdom', companion_owner=self.hero, companion=self.hero.companion, experience=c.COMPANIONS_EXP_PER_MOVE_GET_EXP)
-
-            elif random.uniform(0, 1) < 0.25:
-                self.hero.add_message('action_movenearplace_walk', hero=self.hero, place=self.place)
-
-            if self.hero.position.subroad_len() == 0:
-                self.hero.position.percents += 0.1
-            else:
-                move_speed = self.hero.modify_move_speed(self.hero.move_speed)
-                delta = move_speed / self.hero.position.subroad_len()
-                self.hero.position.percents += delta
-
-            self.percents = self.hero.position.percents
-
-            if self.hero.position.percents >= 1:
-
-                to_x, to_y = self.hero.position.coordinates_to
-
-                if self.back and not (self.place.x == to_x and self.place.y == to_y):
-                    # if place was moved
-                    from_x, from_y = self.hero.position.coordinates_to
-                    self.hero.position.set_coordinates(from_x, from_y, self.place.x, self.place.y, percents=0)
-                    return
-
-                self.hero.position.percents = 1
-                self.percents = 1
-
-                if self.place.x == to_x and self.place.y == to_y:
-                    self.hero.position.set_place(self.place)
-                    ActionInPlacePrototype.create(hero=self.hero)
-                    self.state = self.STATE.IN_CITY
-
-                else:
-                    self.state = self.STATE.PROCESSED
-
-    def process(self):
-
-        if self.preprocess():
-            return
-
-        if self.state == self.STATE.RESTING:
-            self.state = self.STATE.MOVING
-
-        if self.state == self.STATE.RESURRECT:
-            self.state = self.STATE.MOVING
-
-        if self.state == self.STATE.REGENERATE_ENERGY:
-            self.state = self.STATE.MOVING
-
-        if self.state == self.STATE.HEALING_COMPANION:
-            self.state = self.STATE.MOVING
-
-        if self.state == self.STATE.IN_CITY:
-            if self.percents >= 1:
-                self.state = self.STATE.PROCESSED
-            else:
-                self.state = self.STATE.MOVING
-
-        if self.state == self.STATE.BATTLE:
-            self.process_battle()
-
-        if self.state == self.STATE.MOVING:
-            self.process_moving()
-
-
 class ActionRegenerateEnergyPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REGENERATE_ENERGY
@@ -1924,8 +1422,11 @@ class ActionMetaProxyPrototype(ActionBase):
     SINGLE = False
     TYPE = relations.ACTION_TYPE.META_PROXY
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False
+
+    @property
+    def HELP_CHOICES(self):
+        return self.meta_action.help_choices()
 
     @property
     def description_text_name(self):
@@ -2063,6 +1564,354 @@ class ActionHealCompanionPrototype(ActionBase):
 
         if self.state == self.STATE.PROCESSED:
             self.after_processed()
+
+
+class ActionMoveSimplePrototype(ActionBase):
+    TYPE = relations.ACTION_TYPE.MOVE_SIMPLE
+    TEXTGEN_TYPE = None
+
+    @property
+    def HELP_CHOICES(self):
+        choices = set((abilities_relations.HELP_CHOICES.HEAL,
+                       abilities_relations.HELP_CHOICES.MONEY,
+                       abilities_relations.HELP_CHOICES.EXPERIENCE,
+                       abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+
+        if self.state == self.STATE.MOVING:
+            choices.add(abilities_relations.HELP_CHOICES.TELEPORT)
+
+        return choices
+
+    class STATE(ActionBase.STATE):
+        MOVING = 'MOVING'
+        BATTLE = 'BATTLE'
+        REGENERATE_ENERGY = 'REGENERATE_ENERGY'
+        RESTING = 'RESTING'
+        RESURRECT = 'RESURRECT'
+        IN_CITY = 'IN_CITY'
+        HEALING_COMPANION = 'HEALING_COMPANION'
+
+    ###########################################
+    # Object operations
+    ###########################################
+
+    @classmethod
+    def _create(cls, hero, bundle_id, path, destination, break_at):
+        prototype = cls(hero=hero,
+                        bundle_id=bundle_id,
+                        place_id=destination.id if destination else None,
+                        break_at=break_at,
+                        path=path,
+                        state=cls.STATE.MOVING)
+
+        if hero.position.place_id is not None and destination:
+            hero.add_message('action_move_simple_to_start', hero=hero, destination=destination)
+
+        hero.position.move_out_place()
+
+        return prototype
+
+    @property
+    def destination_id(self):
+        return self.place_id
+
+    @property
+    def destination(self):
+        return self.place
+
+    def stop_percents(self):
+        return self.break_at if self.break_at else 1
+
+    @property
+    def description_text_name(self):
+        if self.destination:
+            return 'action_move_simple_to_description'
+
+        return 'action_move_simple_near_description'
+
+    def get_description_arguments(self):
+        args = super().get_description_arguments()
+
+        if self.destination:
+            args['destination'] = self.destination
+        else:
+            x, y = self.path.destination_coordinates()
+            args['place'] = map_storage.cells(x, y).nearest_place()
+
+        return args
+
+    def journal_message(self):
+        cell = self.hero.position.cell()
+
+        current_destination_percent, current_destination_id = self.path.next_place_at(self.percents)
+
+        if not cell.roads_ids or self.destination is None or current_destination_id is None:
+            place = self.destination if self.destination else cell.nearest_place()
+            self.hero.add_message('action_move_simple_near_walk', hero=self.hero, place=place)
+            return
+
+        current_destination = places_storage.places[current_destination_id]
+
+        if self.destination_id != current_destination_id and random.uniform(0, 1) < 0.25:
+            self.hero.add_message('action_move_simple_to_move_long_path',
+                                  hero=self.hero,
+                                  destination=self.destination,
+                                  current_destination=current_destination)
+        else:
+            self.hero.add_message('action_move_simple_to_move',
+                                  hero=self.hero,
+                                  destination=self.destination,
+                                  current_destination=current_destination)
+
+    def _teleport_to(self, percents, create_inplace_action):
+        self.percents = percents
+
+        stop_percents = self.stop_percents()
+
+        if self.percents >= stop_percents:
+            self.percents = stop_percents
+
+        self.hero.position.set_position(*self.path.coordinates(self.percents))
+
+        self.normalize_position_to_end(delta=0.1)
+
+        if self.hero.position.should_visit_current_place(delta=self.move_speed()):
+            self.place_hero_in_current_place(create_action=create_inplace_action)
+            return True
+
+        if self.percents >= stop_percents:
+            self.state = self.STATE.PROCESSED
+
+        return True
+
+    def teleport(self, distance, create_inplace_action):
+
+        if self.state != self.STATE.MOVING:
+            return False
+
+        new_percents = min(self.percents + distance / self.path.length, self.stop_percents())
+
+        if create_inplace_action:
+            current_destination_percent, current_destination_id = self.path.next_place_at(self.percents)
+
+            if current_destination_id is not None:
+                new_percents = min(new_percents, current_destination_percent)
+
+        return self._teleport_to(new_percents, create_inplace_action)
+
+    def teleport_to_place(self, create_inplace_action):
+        if self.state != self.STATE.MOVING:
+            return False
+
+        current_destination_percents, current_destination_id = self.path.next_place_at(self.percents)
+
+        if current_destination_id is None:
+            return False
+
+        new_percents = min(self.stop_percents(), current_destination_percents)
+
+        return self._teleport_to(new_percents, create_inplace_action)
+
+    def teleport_to_end(self):
+        if self.state != self.STATE.MOVING:
+            return False
+
+        return self._teleport_to(self.stop_percents(), create_inplace_action=True)
+
+    def picked_up_in_road(self):
+        # save destination befor teleport, since it can be reseted after we perfom it
+        current_destination_percents, current_destination_id = self.path.next_place_at(self.percents)
+
+        if current_destination_id is None:
+            return False
+
+        current_destination = places_storage.places[current_destination_id]
+
+        if self.teleport(c.PICKED_UP_IN_ROAD_TELEPORT_LENGTH, create_inplace_action=True):
+            self.hero.add_message('action_move_simple_to_picked_up_in_road',
+                                  hero=self.hero,
+                                  destination=current_destination)
+
+            return True
+
+        return False
+
+    def fly_with_companion(self):
+        if self.teleport(c.ANGEL_HELP_TELEPORT_DISTANCE, create_inplace_action=True):
+            self.hero.add_message('companions_fly',
+                                  companion_owner=self.hero,
+                                  companion=self.hero.companion)
+            return True
+
+        return False
+
+    def teleport_with_companion(self):
+        # save destination befor teleport, since it can be reseted after we perfom it
+        current_destination_percents, current_destination_id = self.path.next_place_at(self.percents)
+
+        if current_destination_id is None:
+            return False
+
+        current_destination = places_storage.places[current_destination_id]
+
+        # store companion, since it can be removed at place
+        companion = self.hero.companion
+
+        if self.teleport_to_place(create_inplace_action=True):
+            self.hero.add_message('companions_teleport',
+                                  companion_owner=self.hero,
+                                  companion=companion,
+                                  destination=current_destination)
+            return True
+
+        return False
+
+    def place_hero_in_current_place(self, create_action=True):
+        self.hero.position.set_place(self.hero.position.cell().place())
+        self.state = self.STATE.IN_CITY
+
+        if create_action:
+            ActionInPlacePrototype.create(hero=self.hero)
+            return True
+
+        return False
+
+    def preprocess(self):
+
+        if self.state == self.STATE.IN_CITY and self.percents == 1:
+            self.state = self.STATE.PROCESSED
+            return True
+
+        if self.replane_required:
+            self.state = self.STATE.PROCESSED
+            return True
+
+        if not self.hero.is_alive:
+            ActionResurrectPrototype.create(hero=self.hero)
+            self.state = self.STATE.RESURRECT
+            return True
+
+        if self.hero.need_rest_in_move:
+            ActionRestPrototype.create(hero=self.hero)
+            self.state = self.STATE.RESTING
+            return True
+
+        if self.hero.companion_need_heal():
+            ActionHealCompanionPrototype.create(hero=self.hero)
+            self.state = self.STATE.HEALING_COMPANION
+            return True
+
+        return False
+
+    def process_battle(self):
+
+        if self.hero.need_regenerate_energy:
+            ActionRegenerateEnergyPrototype.create(hero=self.hero)
+            self.state = self.STATE.REGENERATE_ENERGY
+            return
+
+        if self.hero.need_rest_in_move:
+            ActionRestPrototype.create(hero=self.hero)
+            self.state = self.STATE.RESTING
+            return
+
+        self.state = self.STATE.MOVING
+
+    def move_speed(self):
+        return self.hero.modify_move_speed(self.hero.move_speed)
+
+    def process_moving(self):
+
+        if self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
+            ActionRegenerateEnergyPrototype.create(hero=self.hero)
+            self.state = self.STATE.REGENERATE_ENERGY
+            return
+
+        if self.hero.is_battle_start_needed():
+            mob = mobs_storage.mobs.create_mob_for_hero(self.hero)
+            ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
+            self.state = self.STATE.BATTLE
+            return
+
+        if random.uniform(0, 1) < c.HABIT_MOVE_EVENTS_IN_TURN:
+            self.do_events()
+
+        if (self.hero.companion and
+            self.hero.can_companion_say_wisdom() and
+            random.random() < c.COMPANIONS_EXP_PER_MOVE_PROBABILITY):
+
+            self.hero.add_experience(c.COMPANIONS_EXP_PER_MOVE_GET_EXP, without_modifications=True)
+            self.hero.add_message('companions_say_wisdom',
+                                  companion_owner=self.hero,
+                                  companion=self.hero.companion,
+                                  experience=c.COMPANIONS_EXP_PER_MOVE_GET_EXP)
+
+        if random.uniform(0, 1) < 0.33:
+            self.journal_message()
+
+        if self.hero.companion and random.random() < self.hero.companion_fly_probability:
+            if self.fly_with_companion():
+                return
+
+        if self.hero.can_picked_up_in_road():
+            if self.picked_up_in_road():
+                return
+
+        move_speed = self.move_speed()
+
+        if self.path.length <= 1:
+            self.percents = 1
+        else:
+            self.percents += move_speed / self.path.length
+
+        stop_percents = self.stop_percents()
+
+        if self.percents >= stop_percents:
+            self.percents = stop_percents
+
+        self.hero.position.set_position(*self.path.coordinates(self.percents))
+
+        if self.break_at is not None and self.break_at <= self.percents:
+            self.state = self.STATE.PROCESSED
+            return
+
+        self.normalize_position_to_end(delta=move_speed)
+
+        if self.hero.position.should_visit_current_place(delta=move_speed):
+            self.place_hero_in_current_place()
+
+    def normalize_position_to_end(self, delta):
+        destination_coordinates = self.path.destination_coordinates()
+
+        if ((self.hero.position.cell_x, self.hero.position.cell_y) == destination_coordinates and
+            self.hero.position.is_near_cell_center(delta=delta)):
+            self.hero.position.set_position(*destination_coordinates)
+
+            self.percents = 1
+            self.state = self.STATE.PROCESSED
+
+    def process(self):
+        if self.preprocess():
+            return
+
+        if (self.hero.companion and
+            self.state == self.STATE.MOVING and
+            random.random() < self.hero.companion_teleport_probability):
+            if self.teleport_with_companion():
+                return
+
+        if self.state in (self.STATE.RESTING,
+                          self.STATE.RESURRECT,
+                          self.STATE.REGENERATE_ENERGY,
+                          self.STATE.HEALING_COMPANION,
+                          self.STATE.IN_CITY):
+            self.state = self.STATE.MOVING
+
+        if self.state == self.STATE.BATTLE:
+            self.process_battle()
+
+        if self.state == self.STATE.MOVING:
+            self.process_moving()
 
 
 ACTION_TYPES = {action_class.TYPE: action_class

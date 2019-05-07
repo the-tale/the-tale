@@ -293,18 +293,34 @@ def take_card_callback(context):
     account = accounts_prototypes.AccountPrototype.get_by_id(context.tt_request.timer.owner_id)
 
     if account is None:
-        return dext_views.AjaxOk()
+        postprocess_type = tt_protocol_timers_pb2.CallbackAnswer.PostprocessType.Value('REMOVE')
+        return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))
 
-    if not tt_logic_checkers.is_player_participate_in_game(is_banned=account.is_ban_game,
-                                                           active_end_at=account.active_end_at,
-                                                           is_premium=account.is_premium):
-        raise dext_views.ViewError(code='common.player_does_not_participate_in_game', message='игрок не активен, карты ему не выдаются')
+    if tt_logic_checkers.is_player_participate_in_game(is_banned=account.is_ban_game,
+                                                       active_end_at=account.active_end_at,
+                                                       is_premium=account.is_premium):
 
-    accounts_logic.update_cards_timer(account=account)
+        logic.give_new_cards(account_id=account.id,
+                             operation_type='give-card',
+                             allow_premium_cards=account.cards_receive_mode().is_ALL,
+                             available_for_auction=account.is_premium)
 
-    logic.give_new_cards(account_id=account.id,
-                         operation_type='give-card',
-                         allow_premium_cards=account.is_premium,
-                         available_for_auction=account.is_premium)
+    if accounts_logic.cards_timer_speed(account) != context.tt_request.timer.speed:
+        accounts_logic.update_cards_timer(account=account)
 
+    postprocess_type = tt_protocol_timers_pb2.CallbackAnswer.PostprocessType.Value('RESTART')
+    return tt_api_views.ProtobufOk(content=tt_protocol_timers_pb2.CallbackAnswer(postprocess_type=postprocess_type))
+
+
+@accounts_views.LoginRequiredProcessor()
+@accounts_views.PremiumAccountProcessor(error_message='Изменить тип получаемых карт могут только подписчики.')
+@dext_views.RelationArgumentProcessor(relation=relations.RECEIVE_MODE,
+                                      error_message='неверный тип получения карт',
+                                      context_name='receive_mode',
+                                      get_name='mode')
+@utils_api.Processor(versions=(conf.settings.CHANGE_RECEIVE_MODE_API_VERSION, ))
+@resource('api', 'change-receive-mode', name='api-change-receive-mode', method='POST')
+def api_change_receive_mode(context):
+    context.account.set_cards_receive_mode(context.receive_mode)
+    context.account.save()
     return dext_views.AjaxOk()

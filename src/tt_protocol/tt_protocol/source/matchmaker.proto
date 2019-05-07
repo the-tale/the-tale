@@ -1,0 +1,90 @@
+syntax = "proto3";
+package matchmaker;
+
+
+message BattleRequest {
+  uint64 id = 1;
+  uint64 initiator_id = 2;
+  uint32 matchmaker_type = 3;
+  double created_at = 4;
+  double updated_at = 5;
+}
+
+
+message Battle {
+  uint64 id = 1;
+  uint32 matchmaker_type = 2;
+  repeated uint64 participants_ids = 3;
+  double created_at = 4;
+}
+
+
+message CreateBattleRequestRequest {
+  uint64 initiator_id = 1;
+  uint32 matchmaker_type = 2;
+}
+
+message CreateBattleRequestResponse {
+  uint64 battle_request_id = 1;
+}
+
+message CancelBattleRequestRequest {
+  uint64 battle_request_id = 1;
+}
+
+message CancelBattleRequestResponse {
+}
+
+message AcceptBattleRequestRequest {
+  uint64 battle_request_id = 1;
+  uint64 acceptor_id = 2;
+}
+
+message AcceptBattleRequestResponse {
+  uint64 battle_id = 1;
+  repeated uint64 participants_ids = 2;
+}
+
+message CreateBattleRequest {
+  uint32 matchmaker_type = 1;
+  repeated uint64 participants_ids = 2;
+}
+
+message CreateBattleResponse {
+  uint64 battle_id = 1;
+}
+
+message GetInfoRequest {
+  repeated uint32 matchmaker_types = 1;
+}
+
+message GetInfoResponse {
+  repeated BattleRequest battle_requests = 1;
+  map<uint32, uint32> active_battles = 2;
+}
+
+message GetBattleRequestsRequest {
+  repeated uint64 battle_requests_ids = 1;
+}
+
+message GetBattleRequestsResponse {
+  repeated BattleRequest battle_requests = 1;
+}
+
+message FinishBattleRequest {
+  uint64 battle_id = 1;
+}
+
+message FinishBattleResponse {
+}
+
+message GetBattlesByParticipantsRequest {
+  repeated uint64 participants_ids = 1;
+}
+
+message GetBattlesByParticipantsResponse {
+  repeated Battle battles = 1;
+}
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

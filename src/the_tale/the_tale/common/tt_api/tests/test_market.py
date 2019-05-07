@@ -112,6 +112,13 @@ class TTAPiTests(utils_testcase.TestCase):
 
         self.assertEqual(lots, [])
 
+    def test_cancel_lots_by_type(self):
+        market_client.cmd_place_sell_lots(self.lots)
+
+        lots = market_client.cmd_cancel_lots_by_type(item_type=self.lots[0].full_type)
+
+        self.assertCountEqual(lots, [self.lots[0], self.lots[1]])
+
     def test_list_sell_lots__no_lots(self):
         market_client.cmd_place_sell_lots(self.lots)
 
@@ -187,3 +194,15 @@ class TTAPiTests(utils_testcase.TestCase):
         self.assertEqual(statistics, {'sell_lots_closed': 3,
                                       'sell_lots_placed': 3,
                                       'turnover': 101017})
+
+    def test_does_lot_exist_for_item__has_item(self):
+        market_client.cmd_place_sell_lots(self.lots)
+
+        self.assertTrue(market_client.cmd_does_lot_exist_for_item(item_type=self.lots[0].full_type,
+                                                                  item_id=self.lots[0].item_id.hex))
+
+    def test_does_lot_exist_for_item__no_item(self):
+        market_client.cmd_place_sell_lots(self.lots)
+
+        self.assertFalse(market_client.cmd_does_lot_exist_for_item(item_type=self.lots[0].full_type,
+                                                                   item_id=uuid.uuid4().hex))

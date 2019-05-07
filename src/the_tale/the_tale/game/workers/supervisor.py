@@ -46,13 +46,6 @@ class Worker(utils_workers.BaseWorker):
         else:
             self.logger.info('skip initialization of highlevel')
 
-        if conf.settings.ENABLE_PVP:
-            self.logger.info('initialize pvp balancer')
-            amqp_environment.environment.workers.pvp_balancer.cmd_initialize(worker_id='pvp_balancer')
-            self.wait_answers_from('initialize', workers=['pvp_balancer'])
-        else:
-            self.logger.info('skip initialization of pvp balancer')
-
         self.logger.info('child workers initialized')
 
         self.logger.info('register task')
@@ -230,8 +223,6 @@ class Worker(utils_workers.BaseWorker):
 
         if conf.settings.ENABLE_WORKER_HIGHLEVEL:
             amqp_environment.environment.workers.highlevel.cmd_stop()
-        if conf.settings.ENABLE_PVP:
-            amqp_environment.environment.workers.pvp_balancer.cmd_stop()
 
     def on_sigterm(self, signal_code, frame):
         if self.logger:
@@ -257,9 +248,6 @@ class Worker(utils_workers.BaseWorker):
 
         if conf.settings.ENABLE_WORKER_HIGHLEVEL:
             wait_answers_from.append('highlevel')
-
-        if conf.settings.ENABLE_PVP:
-            wait_answers_from.append('pvp_balancer')
 
         self.wait_answers_from('stop', workers=wait_answers_from, timeout=conf.settings.STOP_WAIT_TIMEOUT)
 

@@ -1,4 +1,6 @@
 
+import time
+
 from tt_protocol.protocol import storage_pb2
 
 from tt_web import s11n
@@ -60,3 +62,12 @@ def from_item(item):
                             owner_id=item.owner_id,
                             storage_id=item.storage_id,
                             data=s11n.to_json(item.data))
+
+
+def from_log_record(log_record):
+    return storage_pb2.LogRecord(id=log_record.id,
+                                 transaction=log_record.transaction.hex,
+                                 item_id=log_record.item_id.hex,
+                                 type=log_record.type.value,
+                                 data=s11n.to_json(log_record.data),
+                                 created_at=time.mktime(log_record.created_at.timetuple()) + log_record.created_at.microsecond / 1000000)

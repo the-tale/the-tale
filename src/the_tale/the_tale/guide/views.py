@@ -71,7 +71,9 @@ def get_api_types():
             TypeReference('person_personality_cosmetic', 'Мастер: косметические особенности характера', persons_relations.PERSONALITY_COSMETIC),
             TypeReference('person_personality_practival', 'Мастер: практические особенности характера', persons_relations.PERSONALITY_PRACTICAL),
 
-            TypeReference('job_effect', 'Проекты: типы эфектов', jobs_effects.EFFECT)]
+            TypeReference('job_effect', 'Проекты: типы эфектов', jobs_effects.EFFECT),
+
+            TypeReference('matchmaker_type', 'PvP: тип битвы', pvp_relations.MATCHMAKER_TYPE)]
 
 
 API_TYPES = get_api_types()
@@ -253,3 +255,7 @@ class GuideResource(utils_resources.Resource):
     @dext_old_views.handler('game-resources')
     def game_resources(self):
         return self.template('guide/game_resources.html', {'section': 'game-resources'})
+
+    @dext_old_views.handler('movement')
+    def movement(self):
+        return self.template('guide/movement.html', {'section': 'movement'})

@@ -37,6 +37,7 @@ settings = dext_app_settings.app_settings('GAME',
                                           DIARY_API_VERSION='1.0',
                                           NAMES_API_VERSION='1.0',
                                           HERO_HISTORY_API_VERSION='1.0',
+                                          SUPERVISOR_TASK_STATUS_API_VERSION='1.0',
 
                                           SAVE_ON_EXCEPTION_TIMEOUT=60 * 60,
 
@@ -47,4 +48,5 @@ settings = dext_app_settings.app_settings('GAME',
                                           TT_IMPACTS_PERSONAL_ENTRY_POINT='http://localhost:10007/',
                                           TT_IMPACTS_CROWD_ENTRY_POINT='http://localhost:10008/',
                                           TT_IMPACTS_JOB_ENTRY_POINT='http://localhost:10009/',
-                                          TT_IMPACTS_FAME_ENTRY_POINT='http://localhost:10010/')
+                                          TT_IMPACTS_FAME_ENTRY_POINT='http://localhost:10010/',
+                                          TT_IMPACTS_MONEY_ENTRY_POINT='http://localhost:10013/')

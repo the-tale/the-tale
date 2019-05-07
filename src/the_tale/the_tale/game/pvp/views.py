@@ -4,150 +4,218 @@ import smart_imports
 smart_imports.all()
 
 
-def accept_call_valid_levels(hero_level):
-    return (max(0, hero_level - conf.settings.BALANCING_MIN_LEVEL_DELTA),
-            hero_level + conf.settings.BALANCING_MAX_LEVEL_DELTA)
+########################################
+# processors definition
+########################################
+
+class CanParticipateInPvPProcessor(dext_views.AccessProcessor):
+    ERROR_CODE = 'pvp.no_rights'
+    ERROR_MESSAGE = 'Вы не можете отправить героя на арену. Для этого необходимо завершить регистрацию.'
+
+    def check(self, context):
+        return context.account_hero.can_participate_in_pvp
 
 
-@dext_old_views.validator(code='pvp.no_rights', message='Вы не можете участвовать в PvP')
-def validate_participation_right(resource, *args, **kwargs): return resource.can_participate
+class AbilityProcessor(dext_views.ArgumentProcessor):
+    GET_NAME = 'ability'
+    CONTEXT_NAME = 'ability'
+    DEFAULT_VALUE = None
+    ERROR_MESSAGE = 'Неверный тип способности'
+
+    def parse(self, context, raw_value):
+        try:
+            return abilities.ABILITIES[raw_value]
+        except KeyError:
+            self.raise_wrong_format()
 
 
-class PvPResource(utils_resources.Resource):
+class BattleRequestIdProcessor(dext_views.ArgumentProcessor):
+    CONTEXT_NAME = 'battle_request_id'
+    ERROR_MESSAGE = 'Неверный номер вызова на арену'
+    GET_NAME = 'battle_request_id'
 
-    @utils_decorators.lazy_property
-    def own_hero(self): return heroes_logic.load_hero(account_id=self.account.id) if self.account.is_authenticated else None
+    def parse(self, context, raw_value):
+        return int(raw_value)
 
-    @utils_decorators.lazy_property
-    def can_participate(self):
-        return self.own_hero is not None and self.own_hero.can_participate_in_pvp
 
-    def initialize(self, *args, **kwargs):
-        super(PvPResource, self).initialize(*args, **kwargs)
+########################################
+# resource and global processors
+########################################
+resource = dext_views.Resource(name='pvp')
+resource.add_processor(accounts_views.CurrentAccountProcessor())
+resource.add_processor(utils_views.FakeResourceProcessor())
+resource.add_processor(accounts_views.LoginRequiredProcessor())
+resource.add_processor(heroes_views.CurrentHeroProcessor())
 
-    @utils_decorators.login_required
-    @accounts_views.validate_fast_account()
-    @validate_participation_right()
-    @dext_old_views.handler('', method='get')
-    def pvp_page(self):
+########################################
+# views
+########################################
 
-        battle = prototypes.Battle1x1Prototype.get_by_account_id(self.account.id)
 
-        if battle is None or not battle.state.is_PROCESSING:
-            return self.redirect(django_reverse('game:'))
+@CanParticipateInPvPProcessor()
+@resource('')
+def pvp_page(context):
 
-        own_abilities = sorted(self.own_hero.abilities.all, key=lambda x: x.NAME)
+    enemy_id = logic.get_enemy_id(context.account.id)
 
-        enemy_account = accounts_prototypes.AccountPrototype.get_by_id(battle.enemy_id)
+    if enemy_id is None:
+        return dext_views.Redirect(django_reverse('game:'), permanent=False)
 
-        enemy_hero = heroes_logic.load_hero(account_id=battle.enemy_id)
-        enemy_abilities = sorted(enemy_hero.abilities.all, key=lambda x: x.NAME)
+    own_abilities = sorted(context.account_hero.abilities.all, key=lambda x: x.NAME)
 
-        say_form = forms.SayForm()
+    enemy_account = accounts_prototypes.AccountPrototype.get_by_id(enemy_id)
 
-        clan = None
-        if self.account.clan_id is not None:
-            clan = clans_logic.load_clan(clan_id=self.account.clan_id)
+    enemy_hero = heroes_logic.load_hero(account_id=enemy_id)
+    enemy_abilities = sorted(enemy_hero.abilities.all, key=lambda x: x.NAME)
 
-        enemy_clan = None
-        if enemy_account.clan_id is not None:
-            enemy_clan = clans_logic.load_clan(clan_id=enemy_account.clan_id)
+    say_form = forms.SayForm()
 
-        return self.template('pvp/pvp_page.html',
-                             {'enemy_account': accounts_prototypes.AccountPrototype.get_by_id(battle.enemy_id),
-                              'own_hero': self.own_hero,
-                              'own_abilities': own_abilities,
-                              'enemy_abilities': enemy_abilities,
-                              'game_settings': game_conf.settings,
-                              'say_form': say_form,
-                              'clan': clan,
-                              'enemy_clan': enemy_clan,
-                              'battle': battle,
-                              'EQUIPMENT_SLOT': heroes_relations.EQUIPMENT_SLOT,
-                              'ABILITIES': (abilities.Ice, abilities.Blood, abilities.Flame)})
+    clan = None
+    if context.account.clan_id is not None:
+        clan = clans_logic.load_clan(clan_id=context.account.clan_id)
 
-    @utils_decorators.login_required
-    @accounts_views.validate_fast_account()
-    @validate_participation_right()
-    @dext_old_views.handler('say', method='post')
-    def say(self):
+    enemy_clan = None
+    if enemy_account.clan_id is not None:
+        enemy_clan = clans_logic.load_clan(clan_id=enemy_account.clan_id)
 
-        battle = prototypes.Battle1x1Prototype.get_by_account_id(self.account.id)
+    calculate_rating = logic.calculate_rating_required(context.account_hero, enemy_hero)
 
-        if battle is None or not battle.state.is_PROCESSING:
-            return self.json_error('pvp.say.no_battle', 'Бой не идёт, вы не можете говорить')
+    return dext_views.Page('pvp/pvp_page.html',
+                           content={'enemy_account': accounts_prototypes.AccountPrototype.get_by_id(enemy_id),
+                                    'own_hero': context.account_hero,
+                                    'own_abilities': own_abilities,
+                                    'enemy_abilities': enemy_abilities,
+                                    'game_settings': game_conf.settings,
+                                    'say_form': say_form,
+                                    'clan': clan,
+                                    'enemy_clan': enemy_clan,
+                                    'calculate_rating': calculate_rating,
+                                    'EQUIPMENT_SLOT': heroes_relations.EQUIPMENT_SLOT,
+                                    'ABILITIES': (abilities.Ice, abilities.Blood, abilities.Flame),
+                                    'resource': context.resource})
 
-        say_form = forms.SayForm(self.request.POST)
 
-        if not say_form.is_valid():
-            return self.json_error('pvp.say.form_errors', say_form.errors)
+@CanParticipateInPvPProcessor()
+@dext_views.FormProcessor(form_class=forms.SayForm)
+@resource('say', method='post')
+def say(context):
+    say_task = postponed_tasks.SayInBattleLogTask(speaker_id=context.account.id,
+                                                  text=context.form.c.text)
 
-        say_task = postponed_tasks.SayInBattleLogTask(battle_id=battle.id,
-                                                      text=say_form.c.text)
+    task = PostponedTaskPrototype.create(say_task)
 
-        task = PostponedTaskPrototype.create(say_task)
+    amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
 
-        amqp_environment.environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
+    return dext_views.AjaxProcessing(task.status_url)
 
-        return self.json_processing(task.status_url)
 
-    # @utils_decorators.login_required
-    # @accounts_views.validate_fast_account()
-    # @validate_participation_right()
-    @dext_old_views.handler('calls', method='get')
-    def calls(self):
+@CanParticipateInPvPProcessor()
+@AbilityProcessor()
+@resource('use-ability', method='post')
+def use_ability(context):
+    use_ability_task = postponed_tasks.UsePvPAbilityTask(account_id=context.account.id,
+                                                         ability_id=context.ability.TYPE)
 
-        battles = [prototypes.Battle1x1Prototype(battle_model) for battle_model in models.Battle1x1.objects.filter(state=relations.BATTLE_1X1_STATE.WAITING)]
+    task = PostponedTaskPrototype.create(use_ability_task)
 
-        accounts_ids = [battle.account_id for battle in battles]
+    amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
 
-        current_battles = [prototypes.Battle1x1Prototype(battle_model) for battle_model in models.Battle1x1.objects.filter(state=relations.BATTLE_1X1_STATE.PROCESSING)]
-        current_battle_pairs = set()
+    return dext_views.AjaxProcessing(task.status_url)
 
-        for battle in current_battles:
 
-            if battle.account_id < battle.enemy_id:
-                battle_pair = (battle.account_id, battle.enemy_id)
-            else:
-                battle_pair = (battle.enemy_id, battle.account_id)
+@CanParticipateInPvPProcessor()
+@utils_api.Processor(versions=(conf.settings.CALL_TO_ARENA_API_VERSION,))
+@resource('api', 'call-to-arena', method='post', name='api-call-to-arena')
+def call_to_arena(context):
 
-            current_battle_pairs.add(battle_pair)
+    tt_services.matchmaker.cmd_create_battle_request(matchmaker_type=relations.MATCHMAKER_TYPE.ARENA,
+                                                     initiator_id=context.account.id)
 
-            accounts_ids.append(battle.account_id)
-            accounts_ids.append(battle.enemy_id)
+    return dext_views.AjaxOk(content={'info': logic.arena_info()})
 
-        heroes = heroes_logic.load_heroes_by_account_ids(accounts_ids)
-        heroes = dict((hero.account_id, hero) for hero in heroes)
 
-        ACCEPTED_LEVEL_MIN, ACCEPTED_LEVEL_MAX = None, None
-        if self.own_hero is not None:
-            ACCEPTED_LEVEL_MIN, ACCEPTED_LEVEL_MAX = accept_call_valid_levels(self.own_hero.level)
+@CanParticipateInPvPProcessor()
+@utils_api.Processor(versions=(conf.settings.LEAVE_ARENA_API_VERSION,))
+@resource('api', 'leave-arena', method='post', name='api-leave-arena')
+def leave_arena(context):
 
-        return self.template('pvp/calls.html',
-                             {'battles': battles,
-                              'current_battle_pairs': current_battle_pairs,
-                              'heroes': heroes,
-                              'own_hero': self.own_hero,
-                              'ACCEPTED_LEVEL_MAX': ACCEPTED_LEVEL_MAX,
-                              'ACCEPTED_LEVEL_MIN': ACCEPTED_LEVEL_MIN,
-                              'ABILITY_TYPE': abilities_relations.ABILITY_TYPE})
+    battle_requests, active_battles = tt_services.matchmaker.cmd_get_info(matchmaker_types=(relations.MATCHMAKER_TYPE.ARENA,))
 
-    @utils_decorators.login_required
-    @accounts_views.validate_fast_account()
-    @validate_participation_right()
-    @dext_old_views.validate_argument('ability', lambda ability: abilities.ABILITIES[ability], 'pvp', 'неверный тип способности')
-    @dext_old_views.handler('use-ability', name='use-ability', method='post')
-    def use_ability(self, ability):
+    for request in battle_requests:
+        if request.initiator_id != context.account.id:
+            continue
 
-        battle = prototypes.Battle1x1Prototype.get_by_account_id(self.account.id)
+        tt_services.matchmaker.cmd_cancel_battle_request(battle_request_id=request.id)
 
-        if battle is None or not battle.state.is_PROCESSING:
-            return self.json_error('pvp.use_ability.no_battle', 'Бой не идёт, вы не можете использовать способность')
+        break
 
-        use_ability_task = postponed_tasks.UsePvPAbilityTask(battle_id=battle.id, account_id=self.account.id, ability_id=ability.TYPE)
+    return dext_views.AjaxOk(content={'info': logic.arena_info()})
 
-        task = PostponedTaskPrototype.create(use_ability_task)
 
-        amqp_environment.environment.workers.supervisor.cmd_logic_task(self.account.id, task.id)
+@CanParticipateInPvPProcessor()
+@BattleRequestIdProcessor()
+@utils_api.Processor(versions=(conf.settings.ACCEPT_ARENA_BATTLE_API_VERSION,))
+@resource('api', 'accept-arena-battle', method='post', name='api-accept-arena-battle')
+def accept_arena_battle(context):
 
-        return self.json_processing(task.status_url)
+    result, battle_id, participants_ids = tt_services.matchmaker.cmd_accept_battle_request(battle_request_id=context.battle_request_id,
+                                                                                           acceptor_id=context.account.id)
+
+    if result.is_NO_BATTLE_REQUEST:
+        raise dext_views.ViewError(code='pvp.accept_arena_battle.no_battle_request_found',
+                                   message='Хранитель отозвал свой вызов')
+
+    if result.is_ALREADY_IN_BATTLE:
+        raise dext_views.ViewError(code='pvp.accept_arena_battle.already_in_battle',
+                                   message='Хранитель уже вступил в бой')
+
+    participants_ids.remove(context.account.id)
+
+    supervisor_task = logic.initiate_battle(initiator_id=list(participants_ids)[0],
+                                            acceptor_id=context.account.id,
+                                            battle_id=battle_id)
+
+    return dext_views.AjaxProcessing(supervisor_task.status_url)
+
+
+@CanParticipateInPvPProcessor()
+@utils_api.Processor(versions=(conf.settings.CREATE_ARENA_BOT_BATTLE_API_VERSION,))
+@resource('api', 'create-arena-bot-battle', method='post', name='api-create-arena-bot-battle')
+def create_arena_bot_battle(context):
+
+    # Выбираем всех ботов и перебором пытаемся создать бой с каждым из них
+    # В случае тормозов или нехватки ботов их надо добавить
+    #
+    # Плохое решение, правильным было бы реализовать отдельный метод на стороне matchmaker сервиса,
+    # который сам будет выбирать бота для битвы исходя из переданного (в вызове или в конфигах или ещё как) списка.
+    bots_query = accounts_prototypes.AccountPrototype._model_class.objects.filter(is_bot=True)
+
+    bots_ids = list(bots_query.values_list('id', flat=True))
+
+    random.shuffle(bots_ids)
+
+    for bot_id in bots_ids:
+        result, battle_id = tt_services.matchmaker.cmd_create_battle(matchmaker_type=relations.MATCHMAKER_TYPE.BOT,
+                                                                     participants_ids=(context.account.id, bot_id))
+
+        if result.is_ALREADY_IN_BATTLE:
+            continue
+
+        if not result.is_SUCCESS:
+            raise dext_views.ViewError(code='pvp.create_arena_bot_battle.unknown_error',
+                                       message='Неизвестная ошибка. Пожалуйста, подождите немного и повторите попытку.')
+
+        supervisor_task = logic.initiate_battle(initiator_id=bot_id,
+                                                acceptor_id=context.account.id,
+                                                battle_id=battle_id)
+
+        return dext_views.AjaxProcessing(supervisor_task.status_url)
+
+    raise dext_views.ViewError(code='pvp.create_arena_bot_battle.no_free_bots',
+                               message='Не найдено свободных противников. Пожалуйста, подождите немного и повторите попытку.')
+
+
+@utils_api.Processor(versions=(conf.settings.INFO_API_VERSION,))
+@resource('api', 'info', method='get', name='api-info')
+def info(context):
+    return dext_views.AjaxOk(content={'info': logic.arena_info()})

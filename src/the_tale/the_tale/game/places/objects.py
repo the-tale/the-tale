@@ -24,7 +24,6 @@ class Place(game_names.ManageNameMixin2):
                  'attrs',
                  'utg_name',
                  'races',
-                 'nearest_cells',
                  'effects',
                  'job',
                  '_modifier',
@@ -53,7 +52,6 @@ class Place(game_names.ManageNameMixin2):
                  attrs,
                  utg_name,
                  races,
-                 nearest_cells,
                  effects,
                  job,
                  modifier):
@@ -77,13 +75,13 @@ class Place(game_names.ManageNameMixin2):
         self.attrs = attrs
         self.utg_name = utg_name
         self.races = races
-        self.nearest_cells = nearest_cells
         self.effects = effects
         self.job = job
         self._modifier = modifier
 
     @property
-    def updated_at_game_time(self): return tt_calendar.converter(self.updated_at_turn)
+    def updated_at_game_time(self):
+        return tt_calendar.converter(self.updated_at_turn)
 
     @property
     def is_new(self):
@@ -174,20 +172,16 @@ class Place(game_names.ManageNameMixin2):
                       key=lambda p: politic_power_storage.persons.total_power_fraction(p.id),
                       reverse=True)  # fix persons order
 
-    def mark_as_updated(self): self.updated_at_turn = game_turn.number()
+    def mark_as_updated(self):
+        self.updated_at_turn = game_turn.number()
 
     @property
     def terrains(self):
-        map_info = map_storage.map_info.item
-        terrains = set()
-        for cell in self.nearest_cells:
-            terrains.add(map_info.terrain[cell[1]][cell[0]])
-        return terrains
+        return map_storage.cells.place_terrains(self.id)
 
     @property
     def terrain(self):
-        map_info = map_storage.map_info.item
-        return map_info.terrain[self.y][self.x]
+        return map_storage.map_info.item.terrain[self.y][self.x]
 
     def shift(self, dx, dy):
         self.x += dx
@@ -244,17 +238,28 @@ class Place(game_names.ManageNameMixin2):
 
         for exchange in storage.resource_exchanges.get_exchanges_for_place(self):
             resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
+
             if resource_1.parameter is not None:
                 yield game_effects.Effect(name=place_2.name if place_2 is not None else resource_2.text,
                                           attribute=resource_1.parameter,
                                           value=-resource_1.amount * resource_1.direction)
+
             if resource_2.parameter is not None:
                 yield game_effects.Effect(name=place_2.name if place_2 is not None else resource_1.text,
                                           attribute=resource_2.parameter,
                                           value=resource_2.amount * resource_2.direction)
 
+            if place_2 is not None:
+                distance = navigation_logic.manhattan_distance(self.x, self.y, place_2.x, place_2.y)
+
+                yield game_effects.Effect(name='поддержка караванов в {}'.format(place_2.utg_name.forms[1]),
+                                          attribute=relations.ATTRIBUTE.PRODUCTION,
+                                          value=-distance * c.RESOURCE_EXCHANGE_COST_PER_CELL)
+
         # economic
-        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.AREA, value=len(self.nearest_cells))
+        yield game_effects.Effect(name='город',
+                                  attribute=relations.ATTRIBUTE.AREA,
+                                  value=map_storage.cells.place_area(self.id) if self.id is not None else 1)
 
         # мы ожидаем, что радиус владений города сравним с его размером и домножаем на поправочный коэфициент
         area_size_equivalent = ((math.sqrt(self.attrs.area) - 1) / 2) * 2
@@ -262,29 +267,41 @@ class Place(game_names.ManageNameMixin2):
         if self.is_frontier:
             area_size_equivalent /= 2
 
-        yield game_effects.Effect(name='экономика', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.66 * self.attrs.power_economic * c.PLACE_GOODS_BONUS)
-        yield game_effects.Effect(name='владения', attribute=relations.ATTRIBUTE.PRODUCTION, value=0.34 * area_size_equivalent * c.PLACE_GOODS_BONUS)
+        yield game_effects.Effect(name='экономика',
+                                  attribute=relations.ATTRIBUTE.PRODUCTION,
+                                  value=0.33 * self.attrs.power_economic * c.PLACE_GOODS_BONUS)
+        yield game_effects.Effect(name='торговля',
+                                  attribute=relations.ATTRIBUTE.PRODUCTION,
+                                  value=0.33 * self.attrs.money_economic * c.PLACE_GOODS_BONUS)
+        yield game_effects.Effect(name='владения',
+                                  attribute=relations.ATTRIBUTE.PRODUCTION,
+                                  value=0.34 * area_size_equivalent * c.PLACE_GOODS_BONUS)
 
-        yield game_effects.Effect(name='потребление', attribute=relations.ATTRIBUTE.PRODUCTION, value=-self.attrs.size * c.PLACE_GOODS_BONUS)
-        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.PRODUCTION, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
+        yield game_effects.Effect(name='потребление',
+                                  attribute=relations.ATTRIBUTE.PRODUCTION,
+                                  value=-self.attrs.size * c.PLACE_GOODS_BONUS)
+        yield game_effects.Effect(name='стабильность',
+                                  attribute=relations.ATTRIBUTE.PRODUCTION,
+                                  value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
 
-        if self.attrs.get_next_keepers_goods_spend_amount():
-            yield game_effects.Effect(name='дары Хранителей', attribute=relations.ATTRIBUTE.PRODUCTION, value=self.attrs.get_next_keepers_goods_spend_amount())
+        yield game_effects.Effect(name='стабилизация ландшафта города',
+                                  attribute=relations.ATTRIBUTE.PRODUCTION,
+                                  value=-c.CELL_STABILIZATION_PRICE * map_storage.cells(self.x, self.y).magic)
+
+        for road in roads_logic.get_roads_connected_to(self):
+            destination = road.place_2 if road.place_1_id == self.id else road.place_1
+
+            stabilization_price = road.get_stabilization_price_for(self)
+
+            yield game_effects.Effect(name='стабилизация дороги в {}'.format(destination.utg_name.forms[3]),
+                                      attribute=relations.ATTRIBUTE.PRODUCTION,
+                                      value=-stabilization_price)
 
         # safety
-        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.SAFETY, value=1.0)
-        yield game_effects.Effect(name='монстры', attribute=relations.ATTRIBUTE.SAFETY, value=-c.BATTLES_PER_TURN)
         yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.SAFETY, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)
 
-        if self.is_frontier:
-            yield game_effects.Effect(name='дикие земли', attribute=relations.ATTRIBUTE.SAFETY, value=-c.WHILD_BATTLES_PER_TURN_BONUS)
-
         # transport
-        yield game_effects.Effect(name='дороги', attribute=relations.ATTRIBUTE.TRANSPORT, value=1.0)
         yield game_effects.Effect(name='трафик', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.attrs.size)
-
-        if self.is_frontier:
-            yield game_effects.Effect(name='бездорожье', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.WHILD_TRANSPORT_PENALTY)
 
         yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.TRANSPORT, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)
 
@@ -302,36 +319,23 @@ class Place(game_names.ManageNameMixin2):
 
     def effects_generator(self, order):
         # TODO: do something with postchecks
-        safety = 0
-        transport = 0
         stability = 0
         culture = 0
         freedom = 0
+        production = 0
 
         for effect in self._effects_generator():
             if effect.attribute.order != order:
                 continue
-            if effect.attribute.is_SAFETY:
-                safety += effect.value
-            if effect.attribute.is_TRANSPORT:
-                transport += effect.value
             if effect.attribute.is_STABILITY:
                 stability += effect.value
             if effect.attribute.is_CULTURE:
                 culture += effect.value
             if effect.attribute.is_FREEDOM:
                 freedom += effect.value
+            if effect.attribute.is_PRODUCTION:
+                production += effect.value
             yield effect
-
-        if relations.ATTRIBUTE.SAFETY.order == order:
-            if safety < c.PLACE_MIN_SAFETY:
-                yield game_effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.SAFETY, value=c.PLACE_MIN_SAFETY - safety)
-            if safety > 1:
-                yield game_effects.Effect(name='демоны', attribute=relations.ATTRIBUTE.SAFETY, value=1 - safety)
-
-        if relations.ATTRIBUTE.TRANSPORT.order == order:
-            if transport < c.PLACE_MIN_TRANSPORT:
-                yield game_effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.TRANSPORT, value=c.PLACE_MIN_TRANSPORT - transport)
 
         if relations.ATTRIBUTE.STABILITY.order == order:
             if stability < c.PLACE_MIN_STABILITY:
@@ -346,6 +350,14 @@ class Place(game_names.ManageNameMixin2):
         if relations.ATTRIBUTE.FREEDOM.order == order:
             if freedom < c.PLACE_MIN_FREEDOM:
                 yield game_effects.Effect(name='Пять звёзд', attribute=relations.ATTRIBUTE.FREEDOM, value=c.PLACE_MIN_FREEDOM - freedom)
+
+        if self.attrs.size == 1 and production < 0 and self.attrs.goods == 0:
+            yield game_effects.Effect(name='Компенсация потерь пошлиной',
+                                      attribute=relations.ATTRIBUTE.PRODUCTION,
+                                      value=-production)
+            yield game_effects.Effect(name='Производственный кризис',
+                                      attribute=relations.ATTRIBUTE.TAX,
+                                      value=min(1.0, c.PLACE_TAX_PER_ONE_GOODS * abs(production)))
 
     def effects_for_attribute(self, attribute):
         for effect in self.effects_generator(attribute.order):
@@ -467,28 +479,6 @@ class Building(game_names.ManageNameMixin2):
         # +1 to prevent power == 0
         power = self.place.attrs.terrain_radius * self.logical_integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
         return int(round(power))
-
-    def amortization_delta(self, turns_number):
-        buildings_number = sum(storage.buildings.get_by_person_id(person.id) is not None
-                               for person in self.place.persons)
-
-        per_one_building = float(turns_number) / c.TURNS_IN_HOUR * c.BUILDING_AMORTIZATION_SPEED * self.person.attrs.building_amortization_speed
-        return per_one_building * c.BUILDING_AMORTIZATION_MODIFIER**(buildings_number - 1)
-
-    @property
-    def amortization_in_day(self):
-        return self.amortization_delta(c.TURNS_IN_HOUR * 24)
-
-    def amortize(self, turns_number):
-        self.integrity -= self.amortization_delta(turns_number)
-        if self.integrity <= 0.0001:
-            self.integrity = 0
-
-    @property
-    def repair_delta(self): return float(c.BUILDING_WORKERS_ENERGY_COST) / c.BUILDING_FULL_REPAIR_ENERGY_COST
-
-    def repair(self, delta):
-        self.integrity += delta
 
     @property
     def terrain(self):

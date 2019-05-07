@@ -11,7 +11,10 @@ from . import operations
 async def add_impacts(message, config, **kwargs):
     impacts = [protobuf.to_impact(impact) for impact in message.impacts]
 
-    await operations.add_impacts(impacts=impacts)
+    await operations.add_impacts(impacts=impacts,
+                                 log_single_impacts=config['custom'].get('log_single_impacts', True),
+                                 log_actors_impacts=config['custom'].get('log_actors_impacts', True),
+                                 log_target_impacts=config['custom'].get('log_target_impacts', True))
 
     return impacts_pb2.AddImpactsResponse()
 

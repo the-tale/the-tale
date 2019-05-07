@@ -4,6 +4,33 @@ import smart_imports
 smart_imports.all()
 
 
+class LogRecord:
+    __slots__ = ('id', 'transaction', 'item_id', 'type', 'data', 'created_at')
+
+    def __init__(self, id, transaction, item_id, type, data, created_at):
+        self.id = id
+        self.transaction = transaction
+        self.item_id = item_id
+        self.type = type
+        self.data = data
+        self.created_at = created_at
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                all(getattr(self, name) == getattr(other, name) for name in self.__slots__))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def serialize(self):
+        return {'id': self.id,
+                'transaction': self.transaction,
+                'item_id': self.item_id,
+                'type': self.type,
+                'data': self.data,
+                'created_at': self.created_at}
+
+
 class Client(client.Client):
     __slots__ = ()
 
@@ -51,6 +78,18 @@ class Client(client.Client):
                                          data=tt_protocol_storage_pb2.HasItemsRequest(owner_id=owner_id, items_ids=items_ids),
                                          AnswerType=tt_protocol_storage_pb2.HasItemsResponse)
         return answer.has
+
+    def cmd_get_item_logs(self, item_id):
+        answer = operations.sync_request(url=self.url('get-item-logs'),
+                                         data=tt_protocol_storage_pb2.GetItemLogsRequest(item_id=item_id),
+                                         AnswerType=tt_protocol_storage_pb2.GetItemLogsResponse)
+        return [LogRecord(id=record.id,
+                          transaction=uuid.UUID(record.transaction),
+                          item_id=uuid.UUID(record.item_id),
+                          type=record.type,
+                          data=s11n.from_json(record.data),
+                          created_at=datetime.datetime.fromtimestamp(record.created_at))
+                for record in answer.logs]
 
     def cmd_debug_clear_service(self):
         if not django_settings.TESTS_RUNNING:

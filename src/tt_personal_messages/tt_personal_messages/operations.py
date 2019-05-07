@@ -1,14 +1,8 @@
-import datetime
-
-import psycopg2
-
 import asyncio
 
 from tt_web import postgresql as db
-from tt_web import utils
 
 from . import objects
-from . import relations
 
 
 def message_from_row(row):
@@ -273,7 +267,4 @@ async def load_conversation(account_id, partner_id, text=None, offset=0, limit=N
 
 
 async def clean_messages():
-    await db.sql('DELETE FROM visibilities')
-    await db.sql('DELETE FROM conversations')
-    await db.sql('DELETE FROM messages')
-    await db.sql('DELETE FROM accounts')
+    await db.sql('TRUNCATE visibilities, conversations, messages, accounts')

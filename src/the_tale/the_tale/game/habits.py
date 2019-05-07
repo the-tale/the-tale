@@ -16,6 +16,10 @@ class HabitBase(object):
     def set_habit(self, value):
         self.raw_value = max(-c.HABITS_BORDER, min(c.HABITS_BORDER, value))
 
+        del self.interval
+
+        self.reset_accessors_cache()
+
     @utils_decorators.lazy_property
     def interval(self):
         for interval, right_border in zip(self.TYPE.intervals.records, c.HABITS_RIGHT_BORDERS):
@@ -44,10 +48,6 @@ class HabitBase(object):
             delta *= self.decrease_modifier
 
         self.set_habit(self.raw_value + delta)
-
-        del self.interval
-
-        self.reset_accessors_cache()
 
     def modify_attribute(self, modifier, value):
         return value

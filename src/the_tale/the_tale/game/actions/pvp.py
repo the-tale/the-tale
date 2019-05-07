@@ -89,3 +89,10 @@ class PvPData(object):
         self.turn_effectiveness = self.effectiveness
         self.turn_energy = self.energy
         self.turn_energy_speed = self.energy_speed
+
+    def __eq__(self, other):
+        return (self.__class__ == other.__class__ and
+                all(getattr(self, name) == getattr(other, name) for name in self.__slots__))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

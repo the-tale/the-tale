@@ -249,6 +249,9 @@ class EquipmentMethodsMixin(object):
         return slot, unequipped, equipped
 
     def change_equipment(self, slot, unequipped, equipped):
+
+        self.force_save_required = True
+
         if unequipped:
             self.equipment.unequip(slot)
             self.bag.put_artifact(unequipped)

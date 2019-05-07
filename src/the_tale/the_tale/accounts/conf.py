@@ -33,6 +33,7 @@ settings = dext_app_settings.app_settings('ACCOUNTS',
                                           ACTIVE_STATE_REFRESH_PERIOD=3 * 60 * 60,
                                           SYSTEM_USER_NICK='Смотритель',
                                           DEVELOPERS_IDS=[1, 1022],
+                                          MODERATORS_IDS=[8157],
 
                                           ACCOUNTS_ON_PAGE=25,
 
@@ -85,6 +86,7 @@ settings = dext_app_settings.app_settings('ACCOUNTS',
 
                                           GUIDE_HABITS='https://the-tale.org/guide/hero-habits',
 
-                                          TT_PLAYERS_TIMERS_EMPTY_POINTS='http://localhost:10006/',
+                                          TT_PLAYERS_TIMERS_ENTRY_POINT='http://localhost:10006/',
+                                          TT_PLAYERS_PROPERTIES_ENTRY_POINT='http://localhost:10014/',
 
                                           FREE_CARDS_FOR_REGISTRATION=10)

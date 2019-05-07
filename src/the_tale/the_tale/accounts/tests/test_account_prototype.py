@@ -56,6 +56,25 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
         self.account.prolong_premium(days=1)
         self.assertTrue(self.account.is_premium)
 
+    def test_cards_receive_mode__not_premium(self):
+        self.assertFalse(self.account.is_premium)
+
+        self.account.set_cards_receive_mode(cards_relations.RECEIVE_MODE.PERSONAL_ONLY)
+        self.assertTrue(self.account.cards_receive_mode().is_PERSONAL_ONLY)
+
+        self.account.set_cards_receive_mode(cards_relations.RECEIVE_MODE.ALL)
+        self.assertTrue(self.account.cards_receive_mode().is_PERSONAL_ONLY)
+
+    def test_cards_receive_mode__premium(self):
+        self.account.prolong_premium(days=1)
+        self.assertTrue(self.account.is_premium)
+
+        self.account.set_cards_receive_mode(cards_relations.RECEIVE_MODE.PERSONAL_ONLY)
+        self.assertTrue(self.account.cards_receive_mode().is_PERSONAL_ONLY)
+
+        self.account.set_cards_receive_mode(cards_relations.RECEIVE_MODE.ALL)
+        self.assertTrue(self.account.cards_receive_mode().is_ALL)
+
     def test_notify_about_premium_expiration(self):
         with self.check_new_message(self.account.id, [logic.get_system_user_id()]):
             self.account.notify_about_premium_expiration()

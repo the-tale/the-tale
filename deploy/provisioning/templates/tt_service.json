@@ -4,9 +4,9 @@
                  "password": "{{user}}",
                  "host": "localhost",
                  "port": 5432,
-                 "minsize": 1,
-                 "maxsize": 2,
-                 "timeout": 10 },
+                 "minsize": 2,
+                 "maxsize": 5,
+                 "timeout": 60 },
 
     "log": {"level": "{{tt_log_level}}"},
 

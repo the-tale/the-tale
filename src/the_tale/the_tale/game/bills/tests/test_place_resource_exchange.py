@@ -84,15 +84,6 @@ class PlaceResourceExchangeTests(helpers.BaseTestPrototypes):
                                                          'resource_2': self.resource_2})
         self.assertTrue(form.is_valid())
 
-    def test_user_form_validation__not_connected(self):
-        form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
-                                                         'chronicle_on_accepted': 'chronicle-on-accepted',
-                                                         'place_1': self.place1.id,
-                                                         'place_2': self.place3.id,
-                                                         'resource_1': self.resource_2,
-                                                         'resource_2': self.resource_1})
-        self.assertFalse(form.is_valid())
-
     @mock.patch('the_tale.game.balance.constants.PLACE_MAX_BILLS_NUMBER', 0)
     def test_user_form_validation__maximum_exchanges_reached(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
@@ -216,17 +207,6 @@ class PlaceResourceExchangeTests(helpers.BaseTestPrototypes):
         self.bill.end()
 
         self.assertEqual(old_storage_version, places_storage.resource_exchanges._version)
-
-    def test_has_meaning__not_connected(self):
-        bill_data = bills.place_resource_exchange.PlaceResourceExchange(place_1_id=self.place1.id,
-                                                                        place_2_id=self.place3.id,
-                                                                        resource_1=self.resource_1,
-                                                                        resource_2=self.resource_2)
-
-        bill = prototypes.BillPrototype.create(self.account1, 'bill-1-caption', bill_data,
-                                               chronicle_on_accepted='chronicle-on-accepted')
-
-        self.assertFalse(bill.has_meaning())
 
     @mock.patch('the_tale.game.balance.constants.PLACE_MAX_BILLS_NUMBER', 0)
     def test_has_meaning__maximum_exchanges_reached(self):

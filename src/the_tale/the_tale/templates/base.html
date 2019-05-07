@@ -141,27 +141,47 @@ jQuery(document).ready(function() {
 
           <ul class="nav">
             {{ base_macros.main_menu_item("forum", url("forum:"), "Форум") }}
-            {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [(url("guide:world"), "О мире"),
-                                                                         (url("guide:game"), "Описание игры"),
-                                                                         (url("guide:keepers"), "Хранители"),
-                                                                         (url("guide:hero-abilities"), "Способности героев"),
-                                                                         (url("guide:hero-habits"), "Черты героев"),
-                                                                         (url("guide:hero-preferences"), "Предпочтения героев"),
-                                                                         (url("guide:cards:"), "Карты Судьбы"),
-                                                                         (url("guide:quests"), "Задания"),
-                                                                         (url("guide:persons"), "Мастера"),
-                                                                         (url("guide:cities"), "Города"),
-                                                                         (url("guide:politics"), "Книга Судеб"),
-                                                                         (url("guide:clans"), "Гильдии"),
-                                                                         (url("guide:map"), "Карта"),
-                                                                         (url("guide:pvp"), "PvP"),
-                                                                         (url("guide:mobs:"), "Бестиарий"),
-                                                                         (url("guide:artifacts:"), "Артефакты"),
-                                                                         (url("guide:companions:"), "Спутники"),
-                                                                         (url("guide:account-types"), "Общее"),
-                                                                         (faq_url(), "FAQ"),
-                                                                         (settings.SOCIAL_DOCUMENTATION, "Документация по API и игре"),
-                                                                         (players_projects_url(), "Проекты игроков"),]) }}
+            {{ base_macros.main_menu_item("guide", "#", "Путеводитель", [
+
+            (url("guide:game"), "Описание игры"),
+
+            ('-', '<li class="divider"></li>'),
+            ('-', '<li style="padding-left: 15px; cursor: default;"><strong style="color: black;">Игроки</strong></li>'),
+            (url("guide:keepers"), "Хранители"),
+            (url("guide:cards:"), "Карты Судьбы"),
+            (url("guide:clans"), "Гильдии"),
+
+            ('-', '<li class="divider"></li>'),
+            ('-', '<li style="padding-left: 15px; cursor: default;"><strong style="color: black;">Герои</strong></li>'),
+            (url("guide:hero-abilities"), "Способности"),
+            (url("guide:hero-habits"), "Черты"),
+            (url("guide:hero-preferences"), "Предпочтения"),
+            (url("guide:quests"), "Задания"),
+            (url("guide:movement"), "Передвижение"),
+            (url("guide:pvp"), "PvP"),
+
+            ('-', '<li class="divider"></li>'),
+            ('-', '<li style="padding-left: 15px; cursor: default;"><strong style="color: black;">Мир</strong></li>'),
+            (url("guide:map"), "Карта"),
+            (url("guide:cities"), "Города"),
+            (url("guide:persons"), "Мастера"),
+            (url("guide:politics"), "Книга Судеб"),
+
+            ('-', '<li class="divider"></li>'),
+            ('-', '<li style="padding-left: 15px; cursor: default;"><strong style="color: black;">Объекты</strong></li>'),
+            (url("guide:mobs:"), "Бестиарий"),
+            (url("guide:artifacts:"), "Артефакты"),
+            (url("guide:companions:"), "Спутники"),
+
+            ('-', '<li class="divider"></li>'),
+            ('-', '<li style="padding-left: 15px; cursor: default;"><strong style="color: black;">Прочее</strong></li>'),
+            (url("guide:zpg"), "Zero Player Game"),
+            (faq_url(), "FAQ"),
+            (url("guide:world"), "Предыстория"),
+            (url("guide:account-types"), "Типы аккаунтов"),
+            (settings.SOCIAL_DOCUMENTATION, "Документация по API и игре"),
+            (players_projects_url(), "Проекты игроков"),]) }}
+
             {{ base_macros.main_menu_item("community", "#", "Сообщество", [(url("accounts:"), "Игроки"),
                                                                            (url("clans:"), "Гильдии"),
                                                                            (url("game:ratings:"), "Рейтинги"),
@@ -179,7 +199,6 @@ jQuery(document).ready(function() {
                                                                 (url("linguistics:"), "Лингвистика"),
                                                                 (url("blogs:posts:"), "Фольклор"),
                                                                 (url("game:chronicle:"), "Летопись"),
-                                                                (url("game:pvp:calls"), "Арена"),
                                                                 (url("game:politic-power:history"), "История влияния"), ] ) }}
 
             {% if resource.account.is_authenticated %}

@@ -10,7 +10,7 @@ class SellLot(models.Model):
     item_type = models.CharField(max_length=conf.ITEM_TYPE_NAME_LENGTH)
     item = models.UUIDField(primary_key=True)
 
-    price = models.IntegerField()
+    price = models.BigIntegerField()
 
     owner = models.BigIntegerField(null=True, db_index=True)
 
@@ -33,7 +33,7 @@ class LogRecord(models.Model):
 
     owner = models.BigIntegerField(null=True)
 
-    price = models.IntegerField()
+    price = models.BigIntegerField()
 
     data = postgres_fields.JSONField(default='{}')
 

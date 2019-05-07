@@ -33,10 +33,12 @@ class PlaceFameMixin(helpers.CardsTestMixin):
         self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
 
     def test_wrong_place(self):
+        unexisted_place_id = max(place.id for place in places_storage.places.all()) + 1
+
         with self.check_not_changed(self.get_fame):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(storage=self.storage,
                                                                                         hero=self.hero,
-                                                                                        value=666))
+                                                                                        value=unexisted_place_id))
 
         self.assertEqual((result, step, postsave_actions), (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, game_postponed_tasks.ComplexChangeTask.STEP.ERROR, ()))
 

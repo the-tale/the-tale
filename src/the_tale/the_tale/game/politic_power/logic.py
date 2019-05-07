@@ -91,6 +91,7 @@ def add_power_impacts(impacts):
     outer_circle = []
     jobs = []
     fame = []
+    money = []
 
     for impact in impacts:
         impact.transaction = transaction
@@ -104,6 +105,8 @@ def add_power_impacts(impacts):
             jobs.append(impact)
         elif impact.type.is_FAME:
             fame.append(impact)
+        elif impact.type.is_MONEY:
+            money.append(impact)
         else:
             raise NotImplementedError
 
@@ -118,6 +121,9 @@ def add_power_impacts(impacts):
 
     if fame:
         game_tt_services.fame_impacts.cmd_add_power_impacts(fame)
+
+    if money:
+        game_tt_services.money_impacts.cmd_add_power_impacts(money)
 
 
 def get_last_power_impacts(limit,

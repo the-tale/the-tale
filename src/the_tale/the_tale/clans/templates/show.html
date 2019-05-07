@@ -84,7 +84,11 @@ jQuery(document).ready(function(e){
 
     {% if not has_clan %}
       {% if request_to_this_clan is none %}
-        <li><a class="pgf-create-membership-request btn btn-info" href="#">вступить</a></li>
+        {% if current_clan_properties.accept_requests_from_players %}
+          <li><a class="pgf-create-membership-request btn btn-info" href="#">вступить</a></li>
+        {% else %}
+          <li><a href="#" class="disabled">гильдия не принимает новых игроков</a><li>
+        {% endif %}
       {% elif request_to_this_clan.type.is_FROM_ACCOUNT %}
         <li><a href="#" style="color: green !important;" class="disabled">ваш запрос рассматривается</a><li>
       {% elif request_to_this_clan.type.is_FROM_CLAN %}

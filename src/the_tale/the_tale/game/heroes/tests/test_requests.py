@@ -57,7 +57,7 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                                   ('"pgf-health"', 2),
                                   ('pgf-max-health', 2),
                                   ('pgf-choose-ability-button', 2),
-                                  ('pgf-free-destiny-points', 3),
+                                  ('pgf-free-destiny-points', 7),
                                   ('pgf-no-destiny-points', 2),
                                   ('pgf-settings-container', 2),
                                   ('pgf-settings-tab-button', 2),
@@ -74,7 +74,7 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
                  ('pgf-max-health', 2),
                  ('pgf-choose-ability-button', 0),
                  ('pgf-no-destiny-points', 0),
-                 ('pgf-free-destiny-points', 0),
+                 ('pgf-free-destiny-points', 1),
                  ('pgf-settings-container', 0),
                  ('pgf-settings-tab-button', 1),
                  ('pgf-moderation-container', 0),
@@ -186,6 +186,37 @@ class ResetNameRequestsTests(HeroRequestsTestBase):
         self.assertNotEqual(task.internal_logic.name, self.hero.name)
         self.assertEqual(task.internal_logic.gender, self.hero.gender)
         self.assertEqual(task.internal_logic.race, self.hero.race)
+
+
+class ResetDescriptionRequestsTests(HeroRequestsTestBase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.account_2 = self.accounts_factory.create_account()
+
+        group = utils_permissions.sync_group('accounts moderators group', ['accounts.moderate_account'])
+        group.user_set.add(self.account_2._model)
+
+        self.request_login(self.account_2.email)
+
+    def test_chane_hero_moderation(self):
+        self.request_logout()
+        self.request_login(self.account.email)
+
+        logic.set_hero_description(hero_id=self.hero.id, text='test-description')
+
+        self.check_ajax_error(self.client.post(dext_urls.url('game:heroes:reset-description', self.hero.id)),
+                              'heroes.moderator_rights_required')
+
+        self.assertEqual(logic.get_hero_description(hero_id=self.hero.id), 'test-description')
+
+    def test_change_hero(self):
+        logic.set_hero_description(hero_id=self.hero.id, text='test-description')
+
+        self.check_ajax_ok(self.client.post(dext_urls.url('game:heroes:reset-description', self.hero.id)))
+
+        self.assertEqual(logic.get_hero_description(hero_id=self.hero.id), '')
 
 
 class ForceSaveRequestsTests(HeroRequestsTestBase):

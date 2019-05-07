@@ -69,6 +69,15 @@ class FullAccountProcessor(dext_views.FlaggedAccessProcessor):
         return not argument.is_fast
 
 
+class PremiumAccountProcessor(dext_views.FlaggedAccessProcessor):
+    ERROR_CODE = 'common.premium_account'
+    ERROR_MESSAGE = 'Эта функциональность доступна только подписчикам'
+    ARGUMENT = 'account'
+
+    def validate(self, argument):
+        return argument.is_premium
+
+
 class BanGameProcessor(dext_views.FlaggedAccessProcessor):
     ERROR_CODE = 'common.ban_game'
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
@@ -227,6 +236,8 @@ def show(context):
         master_account_membership_request = clans_logic.request_for_clan_and_account(clan_id=user_clan.id,
                                                                                      account_id=context.master_account.id)
 
+    master_account_properties = tt_services.players_properties.cmd_get_all_object_properties(context.master_account.id)
+
     return dext_views.Page('accounts/show.html',
                            content={'master_hero': master_hero,
                                     'account_meta_object': meta_relations.Account.create_from_object(context.master_account),
@@ -248,7 +259,8 @@ def show(context):
                                     'master_clan_membership': master_clan_membership,
                                     'master_account_membership_request': master_account_membership_request,
                                     'user_clan': user_clan,
-                                    'user_clan_rights': user_clan_rights})
+                                    'user_clan_rights': user_clan_rights,
+                                    'master_account_properties': master_account_properties})
 
 
 @utils_api.Processor(versions=('1.0', ))
@@ -498,12 +510,12 @@ def api_login(context):
 
     account = prototypes.AccountPrototype.get_by_email(context.form.c.email)
     if account is None:
-        return dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
-                                    message='Неверный логин или пароль')
+        raise dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
+                                   message='Неверный логин или пароль')
 
     if not account.check_password(context.form.c.password):
-        return dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
-                                    message='Неверный логин или пароль')
+        raise dext_views.ViewError(code='accounts.auth.login.wrong_credentials',
+                                   message='Неверный логин или пароль')
 
     logic.login_user(context.django_request,
                      nick=account.nick,
@@ -535,10 +547,13 @@ def profile(context):
 
     edit_profile_form = forms.EditProfileForm(data)
 
+    player_properties = tt_services.players_properties.cmd_get_all_object_properties(context.account.id)
+
     settings_form = forms.SettingsForm({'personal_messages_subscription': context.account.personal_messages_subscription,
                                         'news_subscription': context.account.news_subscription,
                                         'description': context.account.description,
-                                        'gender': context.account.gender})
+                                        'gender': context.account.gender,
+                                        'accept_invites_from_clans': player_properties.accept_invites_from_clans})
 
     return dext_views.Page('accounts/profile.html',
                            content={'edit_profile_form': edit_profile_form,
@@ -662,6 +677,10 @@ def confirm_email(context):  # pylint: disable=W0621
 @profile_resource('update-settings', name='update-settings', method='POST')
 def update_settings(context):
     context.account.update_settings(context.form)
+
+    tt_services.players_properties.cmd_set_property(object_id=context.account.id,
+                                                    name='accept_invites_from_clans',
+                                                    value=context.form.c.accept_invites_from_clans)
 
     return dext_views.AjaxOk(content={'next_url': dext_urls.url('accounts:profile:edited')})
 

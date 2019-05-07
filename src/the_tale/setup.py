@@ -52,7 +52,7 @@ setuptools.setup(
                       'pynames==0.2.2',
                       'utg==0.3.1',
                       'rels==0.3.0',
-                      'smart_imports==0.1.1'],
+                      'smart_imports==0.2.1'],
 
     include_package_data=True,
     test_suite='tests')

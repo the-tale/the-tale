@@ -14,8 +14,8 @@ if (!pgf.game.events) {
     pgf.game.events = {};
 }
 
-pgf.game.events.CARDS_REFRESHED = 'pgs-cards-refreshed';
-pgf.game.events.CARDS_TIMER_DATA = 'pgs-cards-timer-data';
+pgf.game.events.CARDS_REFRESHED = 'pgf-cards-refreshed';
+pgf.game.events.CARDS_TIMER_DATA = 'pgf-cards-timer-data';
 
 
 pgf.game.widgets.CreateCardTooltip = function (data, cssClass) {
@@ -165,9 +165,9 @@ pgf.game.widgets.CardsProgress = function (params) {
 
     }
 
-    instance.Update = function(newCardsNumber, timer) {
-        jQuery('.pgf-cards-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
-    }
+    // instance.Update = function(newCardsNumber, timer) {
+    //     jQuery('.pgf-cards-choices .pgf-card', widget).toggleClass('pgf-hidden', true);
+    // }
 
     jQuery(document).bind(pgf.game.events.CARDS_TIMER_DATA, function(e, timerData){
         instance.data = timerData;

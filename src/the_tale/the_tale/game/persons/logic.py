@@ -140,12 +140,14 @@ def impacts_from_hero(hero, person, power, impacts_generator=tt_power_impacts):
         connected_power = partner_power if social_connection_type.is_PARTNER else concurrent_power
         connected_fame = partner_fame if social_connection_type.is_PARTNER else concurrent_fame
 
+        can_change_connected_power = hero.can_change_person_power(connected_person)
+
         yield from impacts_generator(person_inner_circle=has_person_in_preferences,
                                      place_inner_circle=has_place_in_preferences,
                                      actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                      actor_id=hero.id,
                                      person=connected_person,
-                                     amount=connected_power if can_change_power else 0,
+                                     amount=connected_power if can_change_connected_power else 0,
                                      fame=connected_fame if 0 < connected_power else 0)
 
 

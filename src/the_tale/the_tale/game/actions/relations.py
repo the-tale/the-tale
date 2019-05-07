@@ -37,14 +37,14 @@ class ACTION_TYPE(rels_django.DjangoEnum):
 
     records = (('IDLENESS', 0, 'герой бездельничает', False, False),
                ('QUEST', 1, 'герой выполненяет задание', False, False),
-               ('MOVE_TO', 2, 'герой путешествует между городами', False, False),
+               # ('MOVE_TO', 2, 'герой путешествует между городами', False, False),
                ('BATTLE_PVE_1X1', 3, 'герой сражается 1x1 с монстром', False, False),
                ('RESURRECT', 4, 'герой воскресает', False, False),
                ('IN_PLACE', 5, 'герой в городе', False, False),
                ('REST', 6, 'герой лечится', False, False),
                ('EQUIPPING', 7, 'герой экипируется', False, False),
                ('TRADING', 8, 'герой торгует', False, False),
-               ('MOVE_NEAR_PLACE', 9, 'герой путешествует около города', False, False),
+               # ('MOVE_NEAR_PLACE', 9, 'герой путешествует около города', False, False),
                ('REGENERATE_ENERGY', 10, 'герой восстановливает энергию Хранителю', False, False),
                ('DO_NOTHING', 11, 'техническое действие для особых действий героя в заданиях', False, False),
                ('META_PROXY', 12, 'техническое прокси-действие для взаимодействия героев', False, True),
@@ -53,4 +53,7 @@ class ACTION_TYPE(rels_django.DjangoEnum):
                ('TEST', 14, 'техническое действие для тестов', False, True),
 
                ('HEAL_COMPANION', 15, 'герой ухаживает за спутником', False, False),
-               ('FIRST_STEPS', 16, 'действия героя сразу после иницииации', False, False))
+               ('FIRST_STEPS', 16, 'действия героя сразу после иницииации', False, False),
+
+               ('MOVE_SIMPLE', 17, 'герой движется из одной точки в другую', False, False),
+               ('NAVIGATE', 18, 'герой выбирает дальнейший путь', False, False))

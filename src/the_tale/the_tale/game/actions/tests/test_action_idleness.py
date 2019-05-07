@@ -149,36 +149,20 @@ class IdlenessActionTest(utils_testcase.TestCase):
         self.assertFalse(abilities_relations.HELP_CHOICES.START_QUEST in self.action_idl.HELP_CHOICES)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
-    def test_return_from_road__after_quest(self):
-        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
-        self.hero.position.set_road(list(roads_storage.roads.all())[0], percents=0.5)
-        self.storage.process_turn()
-        self.assertEqual(self.hero.actions.number, 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_return_from_wild_terrain__after_quest(self):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.QUEST
-        self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)
+        self.hero.position.set_position(0, 0)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveNearPlacePrototype.TYPE)
-
-    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
-    def test_return_from_road__after_resurrect(self):
-        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.RESURRECT
-        self.hero.position.set_road(list(roads_storage.roads.all())[0], percents=0.5)
-        self.storage.process_turn()
-        self.assertEqual(self.hero.actions.number, 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveToPrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveSimplePrototype.TYPE)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_return_from_wild_terrain__after_resurrect(self):
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.RESURRECT
-        self.hero.position.set_coordinates(0, 0, 5, 5, percents=0)
+        self.hero.position.set_position(0, 0)
         self.storage.process_turn()
         self.assertEqual(self.hero.actions.number, 2)
-        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveNearPlacePrototype.TYPE)
+        self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionMoveSimplePrototype.TYPE)
 
     def test_resurrect(self):
         self.hero.is_alive = False

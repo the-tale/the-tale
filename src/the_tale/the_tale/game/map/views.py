@@ -66,7 +66,7 @@ def cell_info(context):
     cell = map_info.cells.get_cell(x, y)
 
     nearest_place_name = None
-    nearest_place = map_info.get_dominant_place(x, y)
+    nearest_place = storage.cells(x, y).dominant_place()
     if nearest_place:
         nearest_place_name = nearest_place.utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
 
@@ -75,8 +75,6 @@ def cell_info(context):
     exchanges = []
 
     terrain_points = []
-
-    building = places_storage.buildings.get_by_coordinates(x, y)
 
     place_inner_circle = None
     persons_inner_circles = None
@@ -95,7 +93,7 @@ def cell_info(context):
 
     return dext_views.Page('map/cell_info.html',
                            content={'place': place,
-                                    'building': building,
+                                    'building': storage.cells(x, y).building(),
                                     'places_power_storage': politic_power_storage.places,
                                     'persons_power_storage': politic_power_storage.persons,
                                     'persons_inner_circles': persons_inner_circles,
@@ -111,4 +109,5 @@ def cell_info(context):
                                     'terrain_points': terrain_points,
                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account.is_authenticated else None,
                                     'resource': context.resource,
-                                    'ABILITY_TYPE': abilities_relations.ABILITY_TYPE})
+                                    'ABILITY_TYPE': abilities_relations.ABILITY_TYPE,
+                                    'cells': storage.cells})

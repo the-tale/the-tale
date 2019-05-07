@@ -13,6 +13,9 @@ from . import relations
 from . import exceptions
 
 
+MAX_LOT_PRICE = 2**63-1
+
+
 async def log(execute, operation_type, lot_type, item_type, item_id, owner_id, price, data):
     await execute('''INSERT INTO log_records (operation_type, lot_type, item_type, item, owner, price, data, created_at)
                      VALUES (%(operation_type)s, %(lot_type)s, %(item_type)s, %(item_id)s, %(owner_id)s, %(price)s, %(data)s, NOW())''',
@@ -33,6 +36,13 @@ async def place_sell_lots(lots):
 async def _place_sell_lots(execute, arguments):
 
     lots = arguments['lots']
+
+    for lot in lots:
+        if MAX_LOT_PRICE < lot.price:
+            raise exceptions.SellLotMaximumPriceExceeded(price=lot.price)
+
+        if lot.price < 0:
+            raise exceptions.SellLotPriceBelowZero(price=lot.price)
 
     lots_ids = []
 
@@ -176,6 +186,26 @@ async def _cancel_sell_lot(execute, arguments):
     return lots
 
 
+async def cancel_sell_lots_by_type(item_type):
+    lots = await db.transaction(_cancel_sell_lots_by_type, {'item_type': item_type})
+    return lots
+
+
+async def _cancel_sell_lots_by_type(execute, arguments):
+
+    item_type = arguments['item_type']
+
+    results = await execute('SELECT item, owner FROM sell_lots WHERE item_type=%(item_type)s',
+                            {'item_type': item_type})
+
+    lots = await _delete_lots(execute,
+                              candidates_ids=[(row['item'], row['owner']) for row in results],
+                              number=len(results),
+                              operation_type=relations.OPERATION_TYPE.CANCEL_SELL_LOT,
+                              data={})
+    return lots
+
+
 async def load_sell_lots(owner_id):
     results = await db.sql('SELECT * FROM sell_lots WHERE owner=%(owner_id)s',
                            {'owner_id': owner_id})
@@ -267,9 +297,16 @@ async def statistics(time_from, time_till):
                           {'from': time_from, 'till': time_till, 'operation_type': relations.OPERATION_TYPE.CLOSE_SELL_LOT.value})
 
     if result:
-        data['turnover'] = result[0]['turnover']
+        data['turnover'] = int(result[0]['turnover'])
 
     return data
+
+
+async def does_lot_exist_for_item(item_type, item_id):
+    result = await db.sql('SELECT TRUE FROM sell_lots WHERE item_type=%(item_type)s AND item=%(item)s',
+                          {'item_type': item_type,
+                           'item': item_id})
+    return bool(result)
 
 
 def lot_from_row(row, type):
@@ -282,8 +319,7 @@ def lot_from_row(row, type):
 
 
 async def clean_database():
-    await db.sql('DELETE FROM log_records')
-    await db.sql('DELETE FROM sell_lots')
+    await db.sql('TRUNCATE log_records, sell_lots')
     MARKET_INFO_CACHE.soft_reset()
 
 

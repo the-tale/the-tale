@@ -80,7 +80,7 @@ class BillResource(utils_resources.Resource):
         self.bill = bill
 
         if self.bill and self.bill.state.is_REMOVED:
-            return self.auto_error('bills.removed', 'Запись удалёна')
+            return self.auto_error('bills.removed', 'Запись удалена')
 
     @dext_old_views.validate_argument('page', int, 'bills', 'неверная страница')
     @dext_old_views.validate_argument('owner', accounts_prototypes.AccountPrototype.get_by_id, 'bills', 'неверный владелец записи')
@@ -185,7 +185,7 @@ class BillResource(utils_resources.Resource):
 
         if datetime.datetime.now() - self.account.created_at < datetime.timedelta(days=conf.settings.MINIMUM_BILL_OWNER_AGE):
             return self.json_error('bills.create.too_young_owner',
-                                   'Новые игроки не могут создать запись в течении %d дней с момент регистрации' % conf.settings.MINIMUM_BILL_OWNER_AGE)
+                                   'Новые игроки не могут создать запись в течении %d дней с момента регистрации' % conf.settings.MINIMUM_BILL_OWNER_AGE)
 
         if self.active_bills_limit_reached:
             return self.json_error('bills.create.active_bills_limit_reached', 'Вы не можете создать запись, пока не закончилось голосование по вашим предыдущим предложениям')

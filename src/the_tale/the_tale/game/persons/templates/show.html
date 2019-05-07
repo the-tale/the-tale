@@ -53,7 +53,13 @@
       </tr>
       <tr>
         <th>здание</th>
-        <td>{% if person.building %}{{person.building.type.text}}{% else %}нет{% endif %}</td>
+        <td>
+          {% if person.building %}
+          {{person.building.type.text}}: {{person.building.name}}
+          {% else %}
+          нет
+          {% endif %}
+        </td>
       </tr>
       <tr>
         <th>проект</th>

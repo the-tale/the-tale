@@ -5,14 +5,14 @@ package market;
 message Lot {
   string item_type = 1;
   string item_id = 2;
-  uint32 price = 3;
+  uint64 price = 3;
   uint32 owner_id = 4;
 }
 
 message LotInfo {
   string item_type = 1;
   string item_id = 2;
-  uint32 price = 3;
+  uint64 price = 3;
   double created_at = 4;
 }
 
@@ -20,15 +20,15 @@ message LotInfo {
 message ItemTypeSummary {
   string item_type = 1;
   uint32 sell_number = 2;
-  uint32 min_sell_price = 3;
-  uint32 max_sell_price = 4;
+  uint64 min_sell_price = 3;
+  uint64 max_sell_price = 4;
   uint32 owner_sell_number = 5;
 }
 
 message LogRecord {
   string item_type = 1;
   double created_at = 2;
-  uint32 price = 3;
+  uint64 price = 3;
 }
 
 
@@ -44,7 +44,7 @@ message PlaceSellLotResponse {
 
 message CloseSellLotRequest {
   string item_type = 1;
-  uint32 price = 2;
+  uint64 price = 2;
   uint32 number = 3;
   uint32 buyer_id = 4;
 }
@@ -57,7 +57,7 @@ message CloseSellLotResponse {
 
 message CancelSellLotRequest {
   string item_type = 1;
-  uint32 price = 2;
+  uint64 price = 2;
   uint32 number = 3;
   uint32 owner_id = 4;
 }
@@ -67,6 +67,14 @@ message CancelSellLotResponse {
   repeated Lot lots = 1;
 }
 
+message CancelSellLotsByTypeRequest {
+  string item_type = 1;
+}
+
+
+message CancelSellLotsByTypeResponse {
+  repeated Lot lots = 1;
+}
 
 message ListSellLotsRequest {
   uint32 owner_id = 1;
@@ -97,8 +105,8 @@ message ItemTypePricesRequest {
 
 
 message ItemTypePricesResponse {
-  map<uint32, uint32> prices = 1;
-  map<uint32, uint32> owner_prices = 2;
+  map<uint32, uint64> prices = 1;
+  map<uint32, uint64> owner_prices = 2;
 }
 
 
@@ -123,7 +131,17 @@ message StatisticsRequest {
 message StatisticsResponse {
   uint32 sell_lots_placed = 1;
   uint32 sell_lots_closed = 2;
-  uint32 turnover = 3;
+  string turnover = 3;
+}
+
+message DoesLotExistForItemRequest {
+  string item_type = 1;
+  string item_id = 2;
+}
+
+
+message DoesLotExistForItemResponse {
+  bool exists = 1;
 }
 
 

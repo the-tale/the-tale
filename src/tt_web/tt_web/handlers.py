@@ -54,8 +54,6 @@ def api(ExpectedMessage):
                 return web.Response(content_type='application/protobuf',
                                     body=body.SerializeToString())
 
-
-
         return wrapper
 
     return decorator
