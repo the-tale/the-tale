@@ -53,9 +53,13 @@ def _process_arguments(args):
                                  (lexicon_relations.VARIABLE.TIME.value, game_turn.linguistics_time()),))
 
     for k, v in variables:
-        # if v is None:
-        #     raise Exception('variable {} is None'.format(k))
-        word_form, variable_restrictions = lexicon_relations.VARIABLE(k).type.constructor(v)
+        if v is None:
+            logger.warn('unknown variable %s, for variables %s', k, args)
+            word_form = lexicon_dictionary.noun(['потерянная переменная'] * 12, 'од,ср')
+            variable_restrictions = set()
+        else:
+            word_form, variable_restrictions = lexicon_relations.VARIABLE(k).type.constructor(v)
+
         externals[k] = word_form
         restrictions.update((k, restriction_id) for restriction_id in variable_restrictions)
         restrictions.update(get_word_restrictions(k, word_form))
@@ -73,7 +77,7 @@ def prepair_get_text(key, args, quiet=False):
 
     if (not storage.lexicon.item.has_key(lexicon_key) and
         not quiet and
-            not django_settings.TESTS_RUNNING):
+        not django_settings.TESTS_RUNNING):
         logger.warn('no ingame templates for key: %s %s', lexicon_key.__class__, lexicon_key)
 
     return lexicon_key, externals, restrictions

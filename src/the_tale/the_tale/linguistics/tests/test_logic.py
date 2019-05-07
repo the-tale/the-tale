@@ -523,6 +523,10 @@ class LogicTests(utils_testcase.TestCase):
         self.assertEqual(logic.get_text(key.name, args=args),
                          logic._fake_text(key.name, logic.prepair_get_text(key.name, args)[1]))
 
+    def test_process_arguments__no_argument(self):
+        externals, restrictions = logic._process_arguments({'hero': None})
+        self.assertEqual(externals['hero'], lexicon_dictionary.noun(['потерянная переменная'] * 12, 'од,ср'))
+
     def test_get_word_restrictions(self):
 
         normal_noun = utg_words.WordForm(utg_words.Word.create_test_word(type=utg_relations.WORD_TYPE.NOUN, prefix='w-1-', only_required=True))
