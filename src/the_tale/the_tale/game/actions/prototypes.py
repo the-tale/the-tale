@@ -1609,6 +1609,8 @@ class ActionMoveSimplePrototype(ActionBase):
 
         hero.position.move_out_place()
 
+        prototype.try_to_teleport_with_companion()
+
         return prototype
 
     @property
@@ -1699,8 +1701,8 @@ class ActionMoveSimplePrototype(ActionBase):
 
         return self._teleport_to(new_percents, create_inplace_action)
 
-    def teleport_to_place(self, create_inplace_action):
-        if self.state != self.STATE.MOVING:
+    def teleport_to_place(self, create_inplace_action, check_moving_state=True):
+        if check_moving_state and self.state != self.STATE.MOVING:
             return False
 
         current_destination_percents, current_destination_id = self.path.next_place_at(self.percents)
@@ -1757,7 +1759,7 @@ class ActionMoveSimplePrototype(ActionBase):
         # store companion, since it can be removed at place
         companion = self.hero.companion
 
-        if self.teleport_to_place(create_inplace_action=True):
+        if self.teleport_to_place(create_inplace_action=True, check_moving_state=False):
             self.hero.add_message('companions_teleport',
                                   companion_owner=self.hero,
                                   companion=companion,
@@ -1890,21 +1892,29 @@ class ActionMoveSimplePrototype(ActionBase):
             self.percents = 1
             self.state = self.STATE.PROCESSED
 
+    def try_to_teleport_with_companion(self):
+        if (self.hero.companion and
+            random.random() < self.hero.companion_teleport_probability):
+
+            if self.teleport_with_companion():
+                return True
+
+        return False
+
     def process(self):
         if self.preprocess():
             return
 
-        if (self.hero.companion and
-            self.state == self.STATE.MOVING and
-            random.random() < self.hero.companion_teleport_probability):
-            if self.teleport_with_companion():
-                return
-
         if self.state in (self.STATE.RESTING,
                           self.STATE.RESURRECT,
                           self.STATE.REGENERATE_ENERGY,
-                          self.STATE.HEALING_COMPANION,
-                          self.STATE.IN_CITY):
+                          self.STATE.HEALING_COMPANION):
+            self.state = self.STATE.MOVING
+
+        if self.state == self.STATE.IN_CITY:
+            if self.try_to_teleport_with_companion():
+                return
+
             self.state = self.STATE.MOVING
 
         if self.state == self.STATE.BATTLE:
