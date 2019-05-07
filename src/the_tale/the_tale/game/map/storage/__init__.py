@@ -191,10 +191,12 @@ class CellInfo:
         return effects
 
     def normal_travel_cost(self):
+        return self.travel_cost(expected_battle_complexity=1.0)
+
+    def travel_cost(self, expected_battle_complexity):
         return navigation_pathfinder.cell_travel_cost(transport=self.transport,
                                                       safety=self.safety,
-                                                      expected_battle_complexity=1.0)
-
+                                                      expected_battle_complexity=expected_battle_complexity)
 
 class CellsStorage:
     __slots__ = ('_places_version',
