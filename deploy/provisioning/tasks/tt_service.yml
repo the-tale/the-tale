@@ -71,7 +71,7 @@
       when: tt_services[user].get('settings_local') is not none
 
     - name: run migrations
-      raw: "cd /home/{{user}}/current && . /home/{{user}}/current/venv/bin/activate && django-admin migrate --settings {{django_settings}}"
+      raw: "cd /home/{{user}}/current && . /home/{{user}}/current/venv/bin/activate && django-admin migrate --noinput --settings {{django_settings}}"
 
     - name: collect {{name}} static files
       raw: "cd /home/{{user}}/current && . /home/{{user}}/current/venv/bin/activate && django-admin collectstatic --noinput --settings {{django_settings}}"

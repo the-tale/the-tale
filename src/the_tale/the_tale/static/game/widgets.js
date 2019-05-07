@@ -737,6 +737,9 @@ pgf.game.widgets.Action = function(selector, updater, widgets, params) {
 
             jQuery('.pgf-arena-battle-requests-amount', widget).text(widgets.pvp.BattlesAmount());
 
+            jQuery('.pgf-arena-pvp-with-players', widget).text(widgets.pvp.BattlesWithPlayers());
+            jQuery('.pgf-arena-pvp-with-bots', widget).text(widgets.pvp.BattlesWithBots());
+
             var hasRequestFromAccount = false;
 
             var hero = widgets.heroes.CurrentHero();

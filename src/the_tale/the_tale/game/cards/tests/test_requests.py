@@ -164,6 +164,74 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
         self.assertEqual(data['card'], new_card.ui_info())
 
+    def test_created__no_premium_cards(self):
+        # account always use personal_only mode for not premium players
+        self.assertTrue(self.account._model.cards_receive_mode.is_ALL)
+        self.assertTrue(self.account.cards_receive_mode().is_PERSONAL_ONLY)
+
+        self.request_login(self.account.email)
+
+        card_type = types.CARD.ADD_GOLD_COMMON
+        self.assertTrue(card_type.availability.is_FOR_PREMIUMS)
+
+        for i in range(100):
+            card_1 = objects.Card(card_type, uid=uuid.uuid4())
+            card_2 = objects.Card(card_type, uid=uuid.uuid4())
+
+            logic.change_cards(self.hero.account_id, operation_type='#test', to_add=[card_1, card_2])
+
+            response = self.post_ajax_json(logic.combine_cards_url(), {'card': [card_1.uid, card_2.uid]})
+
+            account_cards = tt_services.storage.cmd_get_items(self.hero.account_id)
+
+            self.assertEqual(len(account_cards), 1)
+
+            new_card = list(account_cards.values())[0]
+
+            self.assertTrue(new_card.type.availability.is_FOR_ALL)
+
+            data = self.check_ajax_ok(response)
+
+            self.assertEqual(data['card'], new_card.ui_info())
+
+            tt_services.storage.cmd_debug_clear_service()
+
+    def test_created__allow_premium_cards(self):
+        self.account.prolong_premium(30)
+        self.account.set_cards_receive_mode(relations.RECEIVE_MODE.ALL)
+        self.account.save()
+
+        self.request_login(self.account.email)
+
+        card_type = types.CARD.ADD_GOLD_COMMON
+        self.assertTrue(card_type.availability.is_FOR_PREMIUMS)
+
+        premium_constructed = False
+
+        for i in range(100):
+            card_1 = objects.Card(card_type, uid=uuid.uuid4())
+            card_2 = objects.Card(card_type, uid=uuid.uuid4())
+
+            logic.change_cards(self.hero.account_id, operation_type='#test', to_add=[card_1, card_2])
+
+            response = self.post_ajax_json(logic.combine_cards_url(), {'card': [card_1.uid, card_2.uid]})
+
+            account_cards = tt_services.storage.cmd_get_items(self.hero.account_id)
+
+            self.assertEqual(len(account_cards), 1)
+
+            new_card = list(account_cards.values())[0]
+
+            premium_constructed = premium_constructed or new_card.type.availability.is_FOR_PREMIUMS
+
+            data = self.check_ajax_ok(response)
+
+            self.assertEqual(data['card'], new_card.ui_info())
+
+            tt_services.storage.cmd_debug_clear_service()
+
+        self.assertTrue(premium_constructed)
+
     def test_wrong_cards(self):
         self.request_login(self.account.email)
 
@@ -393,6 +461,8 @@ class TakeCardCallbackTests(CardsRequestsTestsBase, tt_api_testcase.TestCaseMixi
 
     def test_no_premium_cards_for_not_premium_player(self):
 
+        # account always use personal_only mode for not premium players
+        self.assertTrue(self.account._model.cards_receive_mode.is_ALL)
         self.assertTrue(self.account.cards_receive_mode().is_PERSONAL_ONLY)
 
         accounts_tt_services.players_timers.cmd_change_timer_speed(owner_id=self.account.id,

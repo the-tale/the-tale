@@ -278,12 +278,21 @@
             <tr>
               <th>сложность путешествия</th>
               <td>
+                {% for risk in value('the_tale.game.heroes.relations').RISK_LEVEL.records %}
                 <a href="javascript:void(0);"
                    class="info-link"
                    rel="tooltip"
-                   title="Оценка сложности путешествия героем с обычным уровнем риска. Чем меньше, тем лучше.">
-                  {{cell.normal_travel_cost()|round(2)}}
+                   title="Оценка сложности путешествия героем с уровнем риска «{{risk.text}}». Чем меньше, тем лучше.
+                          <br/>
+                          Обратите внимание: сравнивать имеет смысл только значения разных клеток для <strong>одинакового</strong> уровня риска.">
+                  {{cell.travel_cost(risk.expected_battle_complexity)|round(2)}}
                 </a>
+
+                {% if not loop.last %}
+                  /
+                {% endif %}
+
+                {% endfor %}
               </td>
             </tr>
             <tr>

@@ -48,7 +48,8 @@ USE_PVP_ABILITY_TASK_STATE = utils_enum.create_enum('USE_PVP_ABILITY_TASK_STATE'
                                                                                    ('HERO_NOT_FOUND', 1, 'герой не найден'),
                                                                                    ('WRONG_ABILITY_ID', 2, 'неизвестная способность'),
                                                                                    ('NO_ENERGY', 3, 'недостаточно энергии'),
-                                                                                   ('PROCESSED', 4, 'обработана')))
+                                                                                   ('PROCESSED', 4, 'обработана'),
+                                                                                   ('ENEMY_HERO_NOT_FOUND', 5, 'вражеский герой не найден')))
 
 
 class UsePvPAbilityTask(PostponedLogic):
@@ -80,6 +81,11 @@ class UsePvPAbilityTask(PostponedLogic):
             return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         _, enemy_hero = logic.get_arena_heroes(hero)
+
+        if enemy_hero is None:
+            self.state = USE_PVP_ABILITY_TASK_STATE.ENEMY_HERO_NOT_FOUND
+            main_task.comment = 'enemy hero for account %d not found' % self.account_id
+            return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
         pvp_ability_class = abilities.ABILITIES.get(self.ability_id)
 

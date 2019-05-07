@@ -584,6 +584,11 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         if patch_turns is not None and data['patch_turn'] in patch_turns:
             patch_fields = set(data['changed_fields'])
             for field in list(data.keys()):
+
+                # action always required, since it is used in game.logic
+                if field == 'action':
+                    continue
+
                 if field not in patch_fields:
                     del data[field]
         else:

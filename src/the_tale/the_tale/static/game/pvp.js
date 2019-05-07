@@ -82,7 +82,7 @@ pgf.game.widgets.PvP = function (params) {
 
     this.RefreshInfo = function(data) {
         instance.data.arenaBattleRequests = data.arena_battle_requests;
-        instance.data.activeBotBattles = data.active_battles;
+        instance.data.activeBotBattles = data.active_bot_battles;
         instance.data.activeArenaBattles = data.active_arena_battles;
         instance.data.accounts = data.accounts;
         instance.data.clans = data.clans;
@@ -166,6 +166,14 @@ pgf.game.widgets.PvP = function (params) {
 
         return false;
     };
+
+    this.BattlesWithPlayers = function() {
+        return instance.data.activeArenaBattles;
+    }
+
+    this.BattlesWithBots = function() {
+        return instance.data.activeBotBattles;
+    }
 
     this.RenderArenaBattleRequests = function(widget) {
         var requests = [];

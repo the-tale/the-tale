@@ -117,6 +117,7 @@ jQuery(document).ready(function(e) {
 <li>{{CARDS_RECEIVE_MODE.ALL.text}}</li>
 </ul>
 <p>Смена типа влияет только на карты, создаваемые игрой после его изменения. То есть карты, которые вы можете получить прямо сейчас (если такие есть) уже созданы и их тип не изменится.</p>
+<p>Настройка работает в случае получения новых карт и в случае объединения имеющихся (за исключеним срабатывания специфических для карты правил объединения).</p>
  ">
               <span class="pgf-cards-receive-mode-description">{{current_cards_receive_mode.text}}</span>
             </a>
@@ -203,7 +204,15 @@ jQuery(document).ready(function(e) {
         </li>
 
         <li class="pgf-arena-bot-fight">
-            <a href="#">Сразиться с существом</a>
+          <a href="#">Сразиться с существом</a>
+        </li>
+
+        <li class="divider"></li>
+
+        <li>
+          <a href="#" rel="tooltip" title="Количество идущих боёв:<br/> <между игроками> / <между игрокам и существом >">
+            Идёт боёв: <span class="pgf-arena-pvp-with-players">0</span> / <span class="pgf-arena-pvp-with-bots">0</span>
+          </a>
         </li>
 
         <li class="divider"></li>
