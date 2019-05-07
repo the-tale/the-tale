@@ -153,7 +153,8 @@ def api_receive(context):
 @utils_api.Processor(versions=(conf.settings.COMBINE_API_VERSION, ))
 @resource('api', 'combine', name='api-combine', method='post')
 def api_combine(context):
-    card, result = logic.get_combined_card(allow_premium_cards=context.account.is_premium, combined_cards=context.cards)
+    card, result = logic.get_combined_card(allow_premium_cards=context.account.cards_receive_mode().is_ALL,
+                                           combined_cards=context.cards)
 
     if not result.is_SUCCESS:
         raise dext_views.ViewError(code='wrong_cards', message=result.text)
