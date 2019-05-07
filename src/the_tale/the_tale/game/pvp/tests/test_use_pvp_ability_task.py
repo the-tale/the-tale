@@ -33,6 +33,11 @@ class UsePvPAbilityTests(helpers.PvPTestsMixin, utils_testcase.TestCase):
         self.task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.battle_info.storage)
         self.assertEqual(self.task.state, postponed_tasks.USE_PVP_ABILITY_TASK_STATE.HERO_NOT_FOUND)
 
+    def test_process_enemy_hero_not_found(self):
+        self.battle_info.storage.release_account_data(self.battle_info.account_2.id)
+        self.task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.battle_info.storage)
+        self.assertEqual(self.task.state, postponed_tasks.USE_PVP_ABILITY_TASK_STATE.ENEMY_HERO_NOT_FOUND)
+
     def test_wrong_ability_id(self):
         task = postponed_tasks.UsePvPAbilityTask(account_id=self.battle_info.account_1.id,
                                                  ability_id='wrong_ability_id')
