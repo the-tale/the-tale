@@ -252,7 +252,7 @@ class Place(game_names.ManageNameMixin2):
             if place_2 is not None:
                 distance = navigation_logic.manhattan_distance(self.x, self.y, place_2.x, place_2.y)
 
-                yield game_effects.Effect(name='поддержка караванов в {}'.format(place_2.utg_name.forms[1]),
+                yield game_effects.Effect(name='поддержка караванов в {}'.format(place_2.utg_name.forms[3]),
                                           attribute=relations.ATTRIBUTE.PRODUCTION,
                                           value=-distance * c.RESOURCE_EXCHANGE_COST_PER_CELL)
 
