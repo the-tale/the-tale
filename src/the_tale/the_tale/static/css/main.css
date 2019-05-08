@@ -313,7 +313,7 @@ blockquote {
   z-index: 2000 !important;
 }
 .tooltip-inner {
-  max-width: 300px !important;
+  max-width: 400px !important;
 }
 .rss-link {
   text-decoration: none !important;
