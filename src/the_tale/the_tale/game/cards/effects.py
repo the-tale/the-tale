@@ -774,7 +774,7 @@ class ShortTeleport(BaseEffect):
     def get_form(self, card, hero, data):
         return forms.Empty(data)
 
-    DESCRIPTION = 'Телепортирует героя до ближайшего города либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
+    DESCRIPTION = 'Телепортирует героя до ближайшего города либо до ближайшей ключевой точки задания.'
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
         if not task.hero.actions.current_action.TYPE.is_MOVE_SIMPLE:
@@ -792,7 +792,7 @@ class LongTeleport(BaseEffect):
     def get_form(self, card, hero, data):
         return forms.Empty(data)
 
-    DESCRIPTION = 'Телепортирует героя в конечную точку назначения либо до ближайшей ключевой точки задания. Работает только во время движения по дорогам.'
+    DESCRIPTION = 'Телепортирует героя в конечную точку назначения либо до ближайшей ключевой точки задания.'
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
 
