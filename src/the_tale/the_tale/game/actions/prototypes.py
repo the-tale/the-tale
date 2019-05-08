@@ -1648,7 +1648,13 @@ class ActionMoveSimplePrototype(ActionBase):
         current_destination_percent, current_destination_id = self.path.next_place_at(self.percents)
 
         if not cell.roads_ids or self.destination is None or current_destination_id is None:
-            place = self.destination if self.destination else cell.nearest_place()
+            # для фраз хождения в окрестностях города всегда используем доминирующий город либо ближайший, вместо точки назначения
+            # так как герой может идти не по дороге очень далеко от неё.
+            place = cell.dominant_place()
+
+            if place is None:
+                place = cell.nearest_place()
+
             self.hero.add_message('action_move_simple_near_walk', hero=self.hero, place=place)
             return
 
