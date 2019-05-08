@@ -184,7 +184,7 @@ def _default_vegetation_points():
 def get_building_power_points(building):  # pylint: disable=R0912,R0915
 
     # power from race of building must not be equal to power from city. So, multiple it to 0.25
-    points = get_object_race_points(MapObject(building, 'race'), building.person.race, building.integrity * 0.25)
+    points = get_object_race_points(MapObject(building, 'race'), building.person.race, 0.25)
 
     if building.type.is_SMITHY:
         points.append(_point_arrow_height(MapObject(building), borders=(0.3, 1.0), length_normalizer=deworld_normalizers.linear_2, width_normalizer=deworld_normalizers.linear_2, power_percent=1.0))

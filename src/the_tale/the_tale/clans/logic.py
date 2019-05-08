@@ -289,7 +289,7 @@ def change_ownership(clan, initiator, member):
     models.Membership.objects.filter(clan_id=clan.id, role=relations.MEMBER_ROLE.MASTER).update(role=relations.MEMBER_ROLE.COMANDOR)
     models.Membership.objects.filter(clan_id=clan.id, account_id=member.id).update(role=relations.MEMBER_ROLE.MASTER)
 
-    message = 'Мастер гильдии {initiator} передал(а) вам владение гильдией {clan_link}.'
+    message = 'Магистр гильдии {initiator} передал(а) вам владение гильдией {clan_link}.'
     message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
                              clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
@@ -299,7 +299,7 @@ def change_ownership(clan, initiator, member):
                                          recipients_ids=[member.id],
                                          body=message)
 
-    message = 'Мастер гильдии {initiator} передал(а) владение гильдией Хранителю {member}.'
+    message = 'Магистр гильдии {initiator} передал(а) владение гильдией Хранителю {member}.'
     message = message.format(initiator=initiator.nick_verbose,
                              member=member.nick_verbose)
 

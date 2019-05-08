@@ -116,6 +116,12 @@ class CellInfo:
             if self.terrain.meta_vegetation.is_TREES:
                 yield ('леса', c.CELL_TRANSPORT_TREES)
 
+            if self.terrain.meta_terrain.is_SWAMP:
+                yield ('болота', c.CELL_TRANSPORT_SWAMP)
+
+            if self.terrain.meta_terrain.is_JUNGLE:
+                yield ('джунгли', c.CELL_TRANSPORT_JUNGLE)
+
             yield ('магические потоки', c.CELL_TRANSPORT_MAGIC)
 
         dominant_place = self.dominant_place()

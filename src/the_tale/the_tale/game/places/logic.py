@@ -269,7 +269,6 @@ def create_building(person, utg_name, position=None):
                                 x=x,
                                 y=y,
                                 type=person.type.building_type,
-                                integrity=1.0,
                                 created_at_turn=game_turn.number(),
                                 state=relations.BUILDING_STATE.WORKING,
                                 utg_name=utg_name,
@@ -288,7 +287,6 @@ def save_building(building, new=False):
                  'created_at_turn': building.created_at_turn,
                  'state': building.state,
                  'type': building.type,
-                 'integrity': building.integrity,
                  'place_id': building.place.id,
                  'person_id': building.person.id,
                  'data': s11n.to_json(data)}
@@ -320,7 +318,6 @@ def load_building(building_id=None, building_model=None):
                                 created_at_turn=building_model.created_at_turn,
                                 utg_name=utg_words.Word.deserialize(data['name']),
                                 type=building_model.type,
-                                integrity=building_model.integrity,
                                 state=building_model.state,
                                 person_id=building_model.person_id)
 

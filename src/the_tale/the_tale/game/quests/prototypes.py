@@ -4,6 +4,9 @@ import smart_imports
 smart_imports.all()
 
 
+logger = logging.getLogger('the-tale.quests')
+
+
 E = 0.001
 
 
@@ -282,7 +285,7 @@ class QuestPrototype(object):
 
         return 1
 
-    def _move_hero_to(self, destination, break_at=None):
+    def _move_hero_to(self, destination):
         places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
 
         path = map_storage.cells.find_path_to_place(from_x=self.hero.position.cell_x,
@@ -295,7 +298,7 @@ class QuestPrototype(object):
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path,
                                                             destination=destination,
-                                                            break_at=break_at)
+                                                            break_at=None)
 
     def _move_hero_near(self, destination, terrains=None):
         to_x, to_y = places_logic.choose_place_cell_by_terrain(destination.id, terrains, exclude_place_if_can=True)
@@ -341,9 +344,20 @@ class QuestPrototype(object):
         current_percents, path_from, path_to = self._determine_hero_position(place_from, place_to)
 
         if percents <= current_percents + E:
+            logger.info('_move_hero_on_road for hero %s, percents already satisfied (%s <= %s)', self.hero.id, percents, current_percents)
             return
 
         path_to_pass = (percents - current_percents) * (path_from.length + path_to.length)
+
+        log_data = {'hero_id': self.hero.id,
+                    'percents': percents,
+                    'current_percents': current_percents,
+                    'place_from': place_from.id,
+                    'place_to': place_to.id,
+                    'path_from': path_from.serialize(),
+                    'path_to': path_to.serialize()}
+
+        logger.info('_move_hero_on_road for hero %s, properties: %s', self.hero.id, log_data)
 
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path_to,
@@ -816,6 +830,17 @@ class QuestPrototype(object):
         percents = requirement.percents
 
         current_percents, path_from, path_to = self._determine_hero_position(place_from, place_to)
+
+        log_data = {'hero_id': self.hero.id,
+                    'percents': percents,
+                    'current_percents': current_percents,
+                    'place_from': place_from.id,
+                    'place_to': place_to.id,
+                    'path_from': path_from.serialize(),
+                    'path_to': path_to.serialize()}
+
+        logger.info('check_located_on_road for hero %s, check: %s, delta: %s, properties: %s',
+                    self.hero.id, (percents <= current_percents + E), (percents - current_percents - E), log_data)
 
         return percents <= current_percents + E
 

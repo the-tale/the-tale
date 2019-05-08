@@ -33,13 +33,32 @@ jQuery(document).ready(function(e) {
         pgf.base.settings.set("game_map_tileset", jQuery(e.currentTarget).data("tileset"));
         location.reload();
     });
+
+    jQuery('.pgf-switch-hero-path-visualization').click(function(e){
+        e.preventDefault();
+        widgets.map.SwitchHeroPathVisualization();
+    });
 });
 </script>
 
 <div class="easy-block" id="pgf-map-block">
   <div class="map-commands">
+    <a href="#"
+       class="pgf-switch-hero-path-visualization"
+       rel="tooltip"
+       data-tooltip-placement="top"
+       title="Переключить отображение пути героя">
+      <i class="icon icon-road" style="vertical-align: middle;"></i></a>
+    |
     <div class="dropdown" style="display: inline-block;">
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown">карта<b class="caret"></b></a>
+      <a href="#"
+         class="dropdown-toggle"
+         data-toggle="dropdown"
+         rel="tooltip"
+         title="Изменить отображение карты"
+         data-tooltip-placement="top">
+        <i class="icon icon-picture" style="vertical-align: middle;"></i><b class="caret"></b>
+      </a>
       <ul class="pgf-scrollable dropdown-menu" role="menu" style="max-height: 310px; overflow-y: auto;">
         <li><a href="#" class="pgf-change-tileset" data-tileset="main">обычная</a></li>
         <li><a href="#" class="pgf-change-tileset" data-tileset="alternative">альтернативная</a></li>
@@ -47,22 +66,39 @@ jQuery(document).ready(function(e) {
         <li><a href="#" class="pgf-change-tileset" data-tileset="large_pixel">крупный пиксель</a></li>
       </ul>
     </div>
+    {% if resource.account.is_authenticated %}
+    |
+    <a href="#"
+       class="pgf-center-on-hero"
+       rel="tooltip"
+       data-tooltip-placement="top"
+       title="Найти героя">
+      <i class="icon icon-search" style="vertical-align: middle;"></i>
+    </a>
+    {% endif %}
     |
     <div class="dropdown" style="display: inline-block;">
-      <a href="#" class="dropdown-toggle" data-toggle="dropdown">город<b class="caret"></b></a>
+      <a href="#"
+         class="dropdown-toggle"
+         rel="tooltip"
+         title="Найти город"
+         data-tooltip-placement="top"
+         data-toggle="dropdown">
+        <i class="icon icon-home" style="vertical-align: middle;"></i><b class="caret"></b>
+      </a>
       <ul class="pgf-scrollable dropdown-menu" role="menu" style="max-height: 310px; overflow-y: auto;">
         {% for place in all_places() %}
         <li><a href="#" class="pgf-center-on-place" data-place-id="{{place.id}}">{{place.name}}</a></li>
         {% endfor %}
       </ul>
     </div>
-
-    {% if resource.account.is_authenticated %}
     |
-    <a href="#" class="pgf-center-on-hero">герой</a>
-    {% endif %}
-    |
-    <a href="{{url('game:map:')}}" target="_blank" class="">в&nbsp;отдельном&nbsp;окне</a>
+    <a href="{{url('game:map:')}}"
+       target="_blank"
+       rel="tooltip"
+       data-tooltip-placement="top"
+       title="Открыть карту в новом окне">
+      <i class="icon icon-globe" style="vertical-align: middle;"></i></a>
   </div>
 
   <div id="pgf-game-map">

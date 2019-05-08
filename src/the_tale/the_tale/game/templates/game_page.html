@@ -42,8 +42,16 @@ updater = new pgf.game.Updater({url: "{{ game_info_url() }}",
     updater.SetRefreshInterval( {{ game_settings.TURN_DELAY*1000 }});
     {% endif %}
 
-    pgf.base.InitializeTabs('game-tab-main', 'journal', [['.pgf-journal-tab-button', 'journal'], ['.pgf-diary-tab-button', 'diary'], ['.pgf-quests-tab-button', 'quests']]);
-    pgf.base.InitializeTabs('game-tab-equipment', 'equipment', [['.pgf-equipment-tab-button', 'equipment'], ['.pgf-bag-tab-button', 'bag']]);
+    pgf.base.InitializeTabs('game-tab-main',
+                            'journal',
+                            [['.pgf-journal-tab-button', 'journal'],
+                             ['.pgf-diary-tab-button', 'diary'],
+                             ['.pgf-quests-tab-button', 'quests']]);
+
+    pgf.base.InitializeTabs('game-tab-equipment',
+                            'equipment',
+                            [['.pgf-equipment-tab-button', 'equipment'],
+                             ['.pgf-bag-tab-button', 'bag']]);
 
     widgets.placeAndTime = new pgf.game.widgets.Time('#time-block',
                                                      updater, widgets,

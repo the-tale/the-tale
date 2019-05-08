@@ -145,6 +145,8 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(round(c.CELL_TRANSPORT_MIN, 5), 0.25)
         self.assertEqual(round(c.CELL_TRANSPORT_DELTA, 5), 0.05)
         self.assertEqual(round(c.CELL_TRANSPORT_TREES, 5), -0.05)
+        self.assertEqual(round(c.CELL_TRANSPORT_SWAMP, 5), -0.05)
+        self.assertEqual(round(c.CELL_TRANSPORT_JUNGLE, 5), -0.05)
         self.assertEqual(round(c.CELL_TRANSPORT_HILLS, 5), -0.1)
         self.assertEqual(round(c.CELL_TRANSPORT_MOUNTAINS, 5), -0.2)
         self.assertEqual(round(c.CELL_TRANSPORT_MAGIC, 5), -0.05)

@@ -98,3 +98,22 @@ class ActionsContainerTests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
 
         self.assertFalse(self.battle_info.hero_1.actions.has_proxy_actions())
         self.assertFalse(self.battle_info.hero_2.actions.has_proxy_actions())
+
+    def test_find_path(self):
+        path_1 = navigation_path.Path(cells=[(0, 0)])
+        path_2 = navigation_path.Path(cells=[(1, 1)])
+
+        self.assertEqual(self.container.find_path(), None)
+
+        helpers.TestAction.create(hero=self.hero, data=4)
+        self.assertEqual(self.container.find_path(), None)
+        self.container.current_action.path = path_1
+        self.assertEqual(self.container.find_path(), path_1)
+
+        helpers.TestAction.create(hero=self.hero, data=4)
+        self.assertEqual(self.container.find_path(), path_1)
+        self.container.current_action.path = path_2
+        self.assertEqual(self.container.find_path(), path_2)
+
+        self.container.pop_action()
+        self.assertEqual(self.container.find_path(), path_1)

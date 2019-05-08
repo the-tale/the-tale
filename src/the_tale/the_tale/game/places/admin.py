@@ -19,7 +19,7 @@ class PlaceAdmin(django_admin.ModelAdmin):
 
 
 class BuildingAdmin(django_admin.ModelAdmin):
-    list_display = ('id', 'type', 'integrity', 'state', 'person', 'type', 'x', 'y')
+    list_display = ('id', 'type', 'state', 'person', 'type', 'x', 'y')
 
     list_filter = ('state', 'type')
 

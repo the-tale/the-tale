@@ -65,7 +65,7 @@ def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_
     power_multiplier = 1
 
     if person.has_building:
-        power_multiplier += c.BUILDING_PERSON_POWER_BONUS * person.building.logical_integrity
+        power_multiplier += c.BUILDING_PERSON_POWER_BONUS
 
     # this power will go to person and to place
     place_power = amount * power_multiplier

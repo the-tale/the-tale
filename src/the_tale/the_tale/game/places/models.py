@@ -34,7 +34,8 @@ class Place(django_models.Model):
 
     persons_changed_at_turn = django_models.BigIntegerField(default=0)
 
-    def __str__(self): return s11n.from_json(self.data)['name']['forms'][0]
+    def __str__(self):
+        return s11n.from_json(self.data)['name']['forms'][0]
 
 
 class Building(django_models.Model):
@@ -47,8 +48,6 @@ class Building(django_models.Model):
 
     state = rels_django.RelationIntegerField(relation=relations.BUILDING_STATE, relation_column='value', db_index=True)
     type = rels_django.RelationIntegerField(relation=relations.BUILDING_TYPE, relation_column='value')
-
-    integrity = django_models.FloatField(default=1.0, null=False)
 
     place = django_models.ForeignKey(Place, null=False, on_delete=django_models.CASCADE)
 

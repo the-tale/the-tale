@@ -1065,18 +1065,6 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
                          (self.place_3.x, self.place_3.y))
 
-    def test_move_hero_to__break_at(self):
-        self.hero.position.set_place(self.place_1)
-
-        self.quest._move_hero_to(self.place_3, break_at=0.25)
-
-        self.assertTrue(self.hero.actions.current_action.TYPE.is_MOVE_SIMPLE)
-        self.assertEqual(self.hero.actions.current_action.destination.id, self.place_3.id)
-        self.assertEqual(self.hero.actions.current_action.break_at, 0.25)
-
-        self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
-                         (self.place_3.x, self.place_3.y))
-
     # move hero near
 
     def test_move_hero_near__from_walking(self):
