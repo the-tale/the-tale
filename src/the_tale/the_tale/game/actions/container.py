@@ -35,6 +35,15 @@ class ActionsContainer(object):
     def ui_info(self):
         return {'actions': [action.ui_info() for action in self.actions_list]}
 
+    def find_path(self):
+        for action in reversed(self.actions_list):
+            if action.path is None:
+                continue
+
+            return action.path
+
+        return None
+
     @property
     def _is_single(self):
         return all(action.SINGLE for action in self.actions_list)

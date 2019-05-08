@@ -251,6 +251,17 @@ pgf.game.map.Map = function(selector, params) {
 
     var activated = false;
 
+    var showHeroPath = (pgf.base.settings.get("show_hero_path", 'true') == 'true');
+
+    function SwitchHeroPathVisualization() {
+        showHeroPath = !showHeroPath;
+
+        pgf.base.settings.set("show_hero_path", showHeroPath);
+
+        var data = mapManager.GetMapDataForRect(pos.x, pos.y, canvasWidth, canvasHeight);
+        Draw(data);
+    };
+
     jQuery(window).resize(function(e){
         jQuery(document).trigger(pgf.game.map.events.MAP_RESIZED);
     });
@@ -428,6 +439,31 @@ pgf.game.map.Map = function(selector, params) {
         context.fillText(text, x, y+dY);
     }
 
+    function DrawPathPoint(context, x, y) {
+        var pointRadius = 4;
+        var borderWidth = 1;
+
+        context.fillStyle = 'black';
+
+        context.beginPath();
+        context.arc(x,
+                    y,
+                    radius=pointRadius,
+                    startAngle=0,
+                    endAngle=2 * Math.PI);
+        context.fill();
+
+        context.fillStyle = 'red';
+
+        context.beginPath();
+        context.arc(x,
+                    y,
+                    radius=pointRadius - borderWidth,
+                    startAngle=0,
+                    endAngle=2 * Math.PI);
+        context.fill();
+    }
+
     function Draw(fullData) {
 
         if (!IsInitialized()) return;
@@ -496,6 +532,24 @@ pgf.game.map.Map = function(selector, params) {
         }
 
         var hero = dynamicData.hero;
+
+        if (showHeroPath && hero && hero.path) {
+            for (var i = 0; i < hero.path.cells.length; ++i) {
+                var cell = hero.path.cells[i];
+
+                DrawPathPoint(context,
+                              posX + cell[0] * TILE_SIZE + TILE_SIZE / 2,
+                              posY + cell[1] * TILE_SIZE + TILE_SIZE / 2);
+
+                if (i + 1 < hero.path.cells.length) {
+                    var nextCell = hero.path.cells[i + 1];
+
+                    DrawPathPoint(context,
+                                  posX + (cell[0] + nextCell[0]) / 2 * TILE_SIZE + TILE_SIZE / 2,
+                                  posY + (cell[1] + nextCell[1]) / 2 * TILE_SIZE + TILE_SIZE / 2);
+                }
+            }
+        }
 
         if (hero) {
 
@@ -604,6 +658,7 @@ pgf.game.map.Map = function(selector, params) {
     this.Draw = Draw;
     this.CenterOnHero = CenterOnHero;
     this.CenterOnPlace = CenterOnPlace;
+    this.SwitchHeroPathVisualization = SwitchHeroPathVisualization;
     this.Refresh = Refresh;
 };
 

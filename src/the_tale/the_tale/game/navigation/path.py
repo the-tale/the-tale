@@ -141,6 +141,9 @@ class Path:
         path.set_start(*data['start_from'])
         return path
 
+    def ui_info(self):
+        return {'cells': self._cells}
+
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
                 all(getattr(self, name) == getattr(other, name) for name in self.__slots__ if name != '_places_cache'))

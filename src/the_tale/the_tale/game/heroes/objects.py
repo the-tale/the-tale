@@ -492,6 +492,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     ##########################
 
     def ui_info(self, actual_guaranteed, old_info=None):
+        path = self.actions.find_path()
+
         new_info = {'id': self.id,
                     'patch_turn': None if old_info is None else old_info['actual_on_turn'],
                     'actual_on_turn': game_turn.number() if actual_guaranteed else self.saved_at_turn,
@@ -508,6 +510,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
                     'permissions': {'can_participate_in_pvp': self.can_participate_in_pvp,
                                     'can_repair_building': False},  # deprecated, remove in future releases
                     'action': self.actions.current_action.ui_info(),
+                    'path': path.ui_info() if path else None,
                     'companion': self.companion.ui_info() if self.companion else None,
                     'base': {'name': self.name,
                              'level': self.level,
