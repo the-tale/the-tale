@@ -355,7 +355,6 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                                             target_id=self.person.place.id,
                                                             amount=-self.expected_power)])
 
-    @mock.patch('the_tale.game.places.objects.Building.logical_integrity', 0.75)
     def test_has_building(self):
         places_logic.create_building(self.person, utg_name=game_names.generator().get_test_name())
 
@@ -367,7 +366,7 @@ class TTPowerImpactsTests(utils_testcase.TestCase):
                                               amount=self.amount,
                                               fame=self.fame))
 
-        multiplier = (1 + c.BUILDING_PERSON_POWER_BONUS * 0.75)
+        multiplier = (1 + c.BUILDING_PERSON_POWER_BONUS)
 
         expected_power = round(self.person.place.attrs.freedom * self.amount * multiplier)
 

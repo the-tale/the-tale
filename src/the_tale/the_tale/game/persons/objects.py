@@ -224,9 +224,13 @@ class Person(game_names.ManageNameMixin2):
             stabilization_cost = c.CELL_STABILIZATION_PRICE * map_storage.cells(self.building.x,
                                                                                 self.building.y).magic
 
-            yield game_effects.Effect(name='{}: {}'.format(self.name, self.building.name),
+            yield game_effects.Effect(name='стабилизация {} ({})'.format(self.building.name, self.name),
                                       attribute=places_relations.ATTRIBUTE.PRODUCTION,
-                                      value=-(self.attrs.building_support_cost + stabilization_cost))
+                                      value=-stabilization_cost)
+
+            yield game_effects.Effect(name='ремонт {} ({})'.format(self.building.name, self.name),
+                                      attribute=places_relations.ATTRIBUTE.PRODUCTION,
+                                      value=-self.attrs.building_support_cost)
 
     def refresh_attributes(self):
         self.attrs.reset()

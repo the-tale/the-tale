@@ -437,7 +437,6 @@ class Building(game_names.ManageNameMixin2):
                  'x',
                  'y',
                  'type',
-                 'integrity',
                  'created_at_turn',
                  'state',
                  'utg_name',
@@ -447,12 +446,11 @@ class Building(game_names.ManageNameMixin2):
                  '_utg_name_form__lazy',
                  '_name__lazy')
 
-    def __init__(self, id, x, y, type, integrity, created_at_turn, state, utg_name, person_id):
+    def __init__(self, id, x, y, type, created_at_turn, state, utg_name, person_id):
         self.id = id
         self.x = x
         self.y = y
         self.type = type
-        self.integrity = integrity
         self.created_at_turn = created_at_turn
         self.state = state
         self.utg_name = utg_name
@@ -471,13 +469,9 @@ class Building(game_names.ManageNameMixin2):
         return self.person.place
 
     @property
-    def logical_integrity(self):
-        return min(self.integrity, 1.0)
-
-    @property
     def terrain_change_power(self):
         # +1 to prevent power == 0
-        power = self.place.attrs.terrain_radius * self.logical_integrity * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
+        power = self.place.attrs.terrain_radius * c.BUILDING_TERRAIN_POWER_MULTIPLIER + 1
         return int(round(power))
 
     @property

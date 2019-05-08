@@ -120,5 +120,4 @@ def building_info(building):
     return {'id': building.id,
             'position': {'x': building.x, 'y': building.y},
             'type': building.type.value,
-            'integrity': building.integrity,
             'created_at_turn': building.created_at_turn}
