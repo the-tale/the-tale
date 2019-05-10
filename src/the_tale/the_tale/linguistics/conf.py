@@ -27,6 +27,7 @@ settings = dext_app_settings.app_settings('LINGUISTICS_SETTINGS',
                                                                  'ACTION_FIRST_STEPS_FUTURE': 3,
                                                                  'ACTION_FIRST_STEPS_HEROES': 3,
                                                                  'ACTION_FIRST_STEPS_NOW': 3,
-                                                                 'ACTION_FIRST_STEPS_DESCRIPTION': 3},
+                                                                 'ACTION_FIRST_STEPS_DESCRIPTION': 3,
+                                                                 'ACTION_MOVE_SIMPLE_NEAR_WALK': 4},
 
                                           LINGUISTICS_MANAGER_UPDATE_DELAY=datetime.timedelta(minutes=1))
