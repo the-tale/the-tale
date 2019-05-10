@@ -109,13 +109,13 @@ class PlaceTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
-    @mock.patch('the_tale.game.map.storage.CellsStorage.place_area', lambda self, place_id: 100)
     @mock.patch('the_tale.game.roads.objects.Road.get_stabilization_price_for', lambda self, place: 33)
     def test_refresh_attributes__production(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.CRAFT_CENTER)
         self.p1.attrs.size = 3
         self.p1.attrs.power_economic = 6
         self.p1.attrs.money_economic = 4
+        self.p1.attrs.area = 100
 
         self._create_test_exchanges()
 
@@ -130,7 +130,7 @@ class PlaceTests(utils_testcase.TestCase):
 
         expected_production = (0.33 * self.p1.attrs.power_economic * c.PLACE_GOODS_BONUS +
                                0.33 * self.p1.attrs.money_economic * c.PLACE_GOODS_BONUS +
-                               0.34 * 9 * c.PLACE_GOODS_BONUS +
+                               0.34 * self.p1.area_size_equivalent * c.PLACE_GOODS_BONUS +
                                10 * len(self.p1.persons) +
                                - 3 * c.PLACE_GOODS_BONUS +  # place size support
                                c.PLACE_GOODS_BONUS +  # craft center

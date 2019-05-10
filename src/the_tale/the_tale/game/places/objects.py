@@ -196,6 +196,16 @@ class Place(game_names.ManageNameMixin2):
     def is_wrong_race(self):
         return self.races.dominant_race and self.race != self.races.dominant_race
 
+    @property
+    def area_size_equivalent(self):
+        # мы ожидаем, что радиус владений города сравним с его размером и домножаем на поправочный коэфициент
+        area_size_equivalent = ((math.sqrt(self.attrs.area) - 1) / 2) * 2
+
+        if self.is_frontier:
+            area_size_equivalent /= 2
+
+        return area_size_equivalent
+
     def _effects_generator(self):
         yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.TAX, value=0.0)
 
@@ -256,17 +266,6 @@ class Place(game_names.ManageNameMixin2):
                                           attribute=relations.ATTRIBUTE.PRODUCTION,
                                           value=-distance * c.RESOURCE_EXCHANGE_COST_PER_CELL)
 
-        # economic
-        yield game_effects.Effect(name='город',
-                                  attribute=relations.ATTRIBUTE.AREA,
-                                  value=map_storage.cells.place_area(self.id) if self.id is not None else 1)
-
-        # мы ожидаем, что радиус владений города сравним с его размером и домножаем на поправочный коэфициент
-        area_size_equivalent = ((math.sqrt(self.attrs.area) - 1) / 2) * 2
-
-        if self.is_frontier:
-            area_size_equivalent /= 2
-
         yield game_effects.Effect(name='экономика',
                                   attribute=relations.ATTRIBUTE.PRODUCTION,
                                   value=0.33 * self.attrs.power_economic * c.PLACE_GOODS_BONUS)
@@ -275,7 +274,7 @@ class Place(game_names.ManageNameMixin2):
                                   value=0.33 * self.attrs.money_economic * c.PLACE_GOODS_BONUS)
         yield game_effects.Effect(name='владения',
                                   attribute=relations.ATTRIBUTE.PRODUCTION,
-                                  value=0.34 * area_size_equivalent * c.PLACE_GOODS_BONUS)
+                                  value=0.34 * self.area_size_equivalent * c.PLACE_GOODS_BONUS)
 
         yield game_effects.Effect(name='потребление',
                                   attribute=relations.ATTRIBUTE.PRODUCTION,
