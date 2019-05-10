@@ -1,6 +1,6 @@
 
 
-{% macro power_incoming_tooltip(description, power_effects, multiplier_effects=none, percents=false) %}
+{% macro power_incoming_tooltip(description, power_effects, multiplier_effects=none, percents=false, reverse=false) %}
 
 <p style='text-align: left;'>
   <i>{{description}}</i>
@@ -17,10 +17,14 @@
 
     {% if not percents %}
     <span class='pull-right'
-          style='margin-right: 5em; color:{%if power>1%}Chartreuse{%elif power<-1%}red{%else%}yellow{%endif%};'>{{power|round(2)}}</span>
+          style='margin-right: 5em; color: {{power_color(power, percents=percents, reverse=reverse)}};'>
+        {{power|round(2)}}
+    </span>
     {% else %}
     <span class='pull-right'
-          style='margin-right: 5em; color:{%if power>0.01%}Chartreuse{%elif power<-0.01%}red{%else%}yellow{%endif%};'>{{power|percents(2)}}</span>
+          style='margin-right: 5em; color: {{power_color(power, percents=percents, reverse=reverse)}};'>
+        {{power|percents(2)}}
+    </span>
     {% endif %}
   </li>
   {% endfor %}

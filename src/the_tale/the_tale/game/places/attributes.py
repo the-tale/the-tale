@@ -37,6 +37,9 @@ class Attributes(game_attributes.create_attributes_class(relations.ATTRIBUTE)):
     def set_money_economic(self, value):
         self.money_economic = value
 
+    def set_area(self, value):
+        self.area = value
+
     def ui_specializations(self):
         specializations = [record
                            for record in modifiers.CITY_MODIFIERS.records

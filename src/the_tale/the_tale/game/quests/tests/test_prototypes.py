@@ -751,18 +751,18 @@ class CheckRequirementsTests(PrototypeTestsBase):
     def test_check_located_on_road__person(self):
         person_place_fact, nonperson_place_fact = self.get_check_places(self.person.place_id)
 
-        self.check_located_on_road(object=self.person_fact, place_from=person_place_fact, place_to=nonperson_place_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=self.person_fact, place_from=person_place_fact, place_to=nonperson_place_fact, percents=0.02, result=False)
         self.check_located_on_road(object=self.person_fact, place_from=person_place_fact, place_to=nonperson_place_fact, percents=0.99, result=False)
-        self.check_located_on_road(object=self.person_fact, place_from=nonperson_place_fact, place_to=person_place_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=self.person_fact, place_from=nonperson_place_fact, place_to=person_place_fact, percents=0.02, result=False)
         self.check_located_on_road(object=self.person_fact, place_from=nonperson_place_fact, place_to=person_place_fact, percents=0.99, result=False)
 
     def test_check_located_on_road__wrong_hero(self):
         wrong_hero = questgen_facts.Hero(uid='wrong_hero', externals={'id': 666})
         self.quest.knowledge_base += wrong_hero
 
-        self.check_located_on_road(object=wrong_hero, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=wrong_hero, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.02, result=False)
         self.check_located_on_road(object=wrong_hero, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
-        self.check_located_on_road(object=wrong_hero, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=wrong_hero, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.02, result=False)
         self.check_located_on_road(object=wrong_hero, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=False)
 
     def test_check_located_on_road__hero__in_place(self):
@@ -773,17 +773,17 @@ class CheckRequirementsTests(PrototypeTestsBase):
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0, result=True)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=1, result=True)
 
-        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=False)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.02, result=False)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
-        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.02, result=True)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=True)
 
     def test_check_located_on_road__hero__move_near(self):
         self.hero.position.set_position(self.place_1.x + 0.5, self.place_1.y + 0.5)
 
-        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.02, result=True)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
-        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.02, result=True)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=False)
 
     def test_check_located_on_road__hero__road(self):
@@ -796,9 +796,9 @@ class CheckRequirementsTests(PrototypeTestsBase):
                                                     risk_level=self.hero.preferences.risk_level)
         self.hero.position.set_position(*path.coordinates(0.25))
 
-        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.02, result=True)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_1_fact, place_to=self.place_2_fact, percents=0.99, result=False)
-        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.01, result=True)
+        self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.02, result=True)
         self.check_located_on_road(object=self.hero_fact, place_from=self.place_2_fact, place_to=self.place_1_fact, percents=0.99, result=False)
 
     def test_check_located_on_road__wrong_requirement(self):

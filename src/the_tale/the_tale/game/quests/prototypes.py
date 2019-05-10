@@ -839,10 +839,12 @@ class QuestPrototype(object):
                     'path_from': path_from.serialize(),
                     'path_to': path_to.serialize()}
 
-        logger.info('check_located_on_road for hero %s, check: %s, delta: %s, properties: %s',
-                    self.hero.id, (percents <= current_percents + E), (percents - current_percents - E), log_data)
+        DELTA = 0.01
 
-        return percents <= current_percents + E
+        logger.info('check_located_on_road for hero %s, check: %s, delta: %s, properties: %s',
+                    self.hero.id, (percents <= current_percents + DELTA), (percents - current_percents - DELTA), log_data)
+
+        return percents <= current_percents + DELTA
 
     def check_has_money(self, requirement):
         object_fact = self.knowledge_base[requirement.object]

@@ -81,6 +81,11 @@ def cell_info(context):
 
     events = None
 
+    hero = None
+
+    if context.account.is_authenticated:
+        hero = heroes_logic.load_hero(account_id=context.account.id)
+
     if place:
         place_inner_circle = politic_power_logic.get_inner_circle(place_id=place.id)
         persons_inner_circles = {person.id: politic_power_logic.get_inner_circle(person_id=person.id)
@@ -90,6 +95,15 @@ def cell_info(context):
                                                                                    number=conf.settings.CHRONICLE_RECORDS_NUMBER)
 
         tt_api_events_log.fill_events_wtih_meta_objects(events)
+
+    path_modifier = None
+    path_modifier_effects = None
+
+    if hero and place:
+        path_modifier_effects = [(effect.name, effect.value)
+                                 for effect in heroes_logic.get_places_path_modifiers_effects(hero, place)]
+        path_modifier_effects.sort(key=lambda effect: effect[1])
+        path_modifier = sum(value for name, value in path_modifier_effects)
 
     return dext_views.Page('map/cell_info.html',
                            content={'place': place,
@@ -107,7 +121,9 @@ def cell_info(context):
                                     'x': x,
                                     'y': y,
                                     'terrain_points': terrain_points,
-                                    'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account.is_authenticated else None,
+                                    'hero': hero,
                                     'resource': context.resource,
                                     'ABILITY_TYPE': abilities_relations.ABILITY_TYPE,
-                                    'cells': storage.cells})
+                                    'cells': storage.cells,
+                                    'path_modifier': path_modifier,
+                                    'path_modifier_effects': path_modifier_effects})

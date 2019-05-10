@@ -154,10 +154,9 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(round(c.CELL_TRANSPORT_HAS_OFF_ROAD, 5), 0.25)
         self.assertEqual(round(c.CELL_TRANSPORT_BASE, 5), 0.5)
 
-        self.assertEqual(c.PATH_MINIMAL_LENGTH, 1.0)
-
-        self.assertEqual(c.PATH_MODIFIER_MINOR_DELTA, 3.0)
-        self.assertEqual(c.PATH_MODIFIER_NORMAL_DELTA, 9.0)
+        self.assertEqual(c.PATH_MODIFIER_MINOR_DELTA, 0.025)
+        self.assertEqual(c.PATH_MODIFIER_NORMAL_DELTA, 0.075)
+        self.assertEqual(c.PATH_MODIFIER_MINIMUM_MULTIPLIER, 0.1)
 
         self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)

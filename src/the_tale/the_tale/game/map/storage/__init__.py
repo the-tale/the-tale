@@ -204,6 +204,7 @@ class CellInfo:
                                                       safety=self.safety,
                                                       expected_battle_complexity=expected_battle_complexity)
 
+
 class CellsStorage:
     __slots__ = ('_places_version',
                  '_buildings_version',

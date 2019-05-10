@@ -104,7 +104,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                attributes.attr('CULTURE', 33, 'культура', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Насколько развита культура города, влияет на радиусы влияния и изменения ландшафта.'),
 
-               attributes.attr('AREA', 34, 'площадь владений', order=0,
+               attributes.attr('AREA', 34, 'площадь владений', order=0, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
                                description='Площадь владений города. Чем больше у города владений, тем больше производство в нём. На Фронтире бонус к производству меньше.'),
                attributes.attr('MONEY_ECONOMIC', 35, 'торговля', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
                                description='Влияет на скорость производства товаров в городе. Зависит от общего количества потраченных и полученных героями денег в городе за определённый период времени (примерное количество недель: %d). Чем больше сумма по сравнению с другими городами, тем больше размер торговли. Расчитывается отдельно для городов Фронтира и центра.' % c.PLACE_POWER_HISTORY_WEEKS),)

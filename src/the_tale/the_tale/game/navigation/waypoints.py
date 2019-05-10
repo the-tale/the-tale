@@ -55,7 +55,18 @@ def dijkstra(from_id, to_id, edges):
     return path
 
 
-def prepair_data(cost_modifiers, paths):
+def path_length_modifier(length):
+    BEST_LENGTH = 10
+
+    if BEST_LENGTH <= length:
+        return length / BEST_LENGTH - 1
+
+    # return length / BEST_LENGTH
+
+    return 0
+
+
+def prepair_data(cost_modifiers, paths, path_length_modifier=path_length_modifier):
     n = len(cost_modifiers)
 
     index_to_id = list(cost_modifiers.keys())
@@ -71,7 +82,13 @@ def prepair_data(cost_modifiers, paths):
         # поскольку если начислять модификатор только на конечный город (что логичнее), то стоимость коротких путей к нему будет
         # слишком уменьаться и терять отличия дргу от друга, что приведёт к частому игнорированию посещения соседних городов
         # (для города с большим бонусом к длинне путей)
-        edges[id_to_index[from_id]][id_to_index[to_id]] = max(cost + cost_modifiers[from_id] + cost_modifiers[to_id], c.PATH_MINIMAL_LENGTH)
+        cost_delta = cost_modifiers[from_id] + cost_modifiers[to_id]
+
+        length_delta = path_length_modifier(len(path))
+
+        cost *= (1 + cost_delta + length_delta)
+
+        edges[id_to_index[from_id]][id_to_index[to_id]] = cost
         # do not reverse path, since its reversed version must be already in paths
 
     return id_to_index, index_to_id, edges
