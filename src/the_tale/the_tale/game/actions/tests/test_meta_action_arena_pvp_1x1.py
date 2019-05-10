@@ -34,8 +34,8 @@ class ArenaPvP1x1Test(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
 
         self.assertEqual(self.battle_info.meta_action.uid,
                          '%s#%d#%d' % (self.battle_info.meta_action.TYPE.value,
-                                       self.battle_info.hero_1.id,
-                                       self.battle_info.hero_2.id))
+                                       min(self.battle_info.hero_1.id, self.battle_info.hero_2.id),
+                                       max(self.battle_info.hero_1.id, self.battle_info.hero_2.id)))
 
         self.assertEqual(self.battle_info.meta_action.hero_1.health, self.battle_info.hero_1.max_health)
 

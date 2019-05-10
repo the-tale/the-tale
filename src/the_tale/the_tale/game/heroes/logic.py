@@ -414,40 +414,46 @@ def register_spending(hero, amount):
                                             amount=abs(amount))
 
 
+def get_places_path_modifiers_effects(hero, place):
+
+    if place.race == hero.race:
+        yield game_effects.Effect(name='совпадение расы', attribute=None, value=-c.PATH_MODIFIER_MINOR_DELTA)
+
+    if place.is_modifier_active():
+        yield game_effects.Effect(name='есть специализация', attribute=None, value=-c.PATH_MODIFIER_MINOR_DELTA)
+
+    if hero.preferences.place and hero.preferences.place.id == place.id:
+        yield game_effects.Effect(name='родной город', attribute=None, value=-c.PATH_MODIFIER_NORMAL_DELTA)
+
+    if hero.preferences.friend and hero.preferences.friend.place_id == place.id:
+        yield game_effects.Effect(name='живёт соратник', attribute=None, value=-c.PATH_MODIFIER_NORMAL_DELTA)
+
+    if hero.preferences.enemy and hero.preferences.enemy.place_id == place.id:
+        yield game_effects.Effect(name='живёт противник', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
+
+    if place.attrs.tax > 0:
+        yield game_effects.Effect(name='пошлина', attribute=None, value=+c.PATH_MODIFIER_NORMAL_DELTA)
+
+    if (not place.habit_honor.interval.is_NEUTRAL and not hero.habit_honor.interval.is_NEUTRAL):
+        modifier = (place.habit_honor.interval.direction *
+                    hero.habit_honor.interval.direction *
+                    c.PATH_MODIFIER_MINOR_DELTA)
+
+        yield game_effects.Effect(name='честь', attribute=None, value=-modifier)
+
+    if (not place.habit_peacefulness.interval.is_NEUTRAL and not hero.habit_peacefulness.interval.is_NEUTRAL):
+        modifier = (place.habit_peacefulness.interval.direction *
+                    hero.habit_peacefulness.interval.direction *
+                    c.PATH_MODIFIER_MINOR_DELTA)
+
+        yield game_effects.Effect(name='миролюбие', attribute=None, value=-modifier)
+
+
 def get_places_path_modifiers(hero):
     modifiers = {}
 
     for place in places_storage.places.all():
-        modifier = 0
-
-        if place.race == hero.race:
-            modifier -= c.PATH_MODIFIER_MINOR_DELTA
-
-        if place.is_modifier_active():
-            modifier -= c.PATH_MODIFIER_MINOR_DELTA
-
-        if hero.preferences.place and hero.preferences.place.id == place.id:
-            modifier -= c.PATH_MODIFIER_NORMAL_DELTA
-
-        if hero.preferences.friend and hero.preferences.friend.place_id == place.id:
-            modifier -= c.PATH_MODIFIER_NORMAL_DELTA
-
-        if hero.preferences.enemy and hero.preferences.enemy.place_id == place.id:
-            modifier += c.PATH_MODIFIER_NORMAL_DELTA
-
-        if place.attrs.tax > 0:
-            modifier += c.PATH_MODIFIER_NORMAL_DELTA
-
-        if (not place.habit_honor.interval.is_NEUTRAL and not hero.habit_honor.interval.is_NEUTRAL):
-            modifier -= (place.habit_honor.interval.direction *
-                         hero.habit_honor.interval.direction *
-                         c.PATH_MODIFIER_MINOR_DELTA)
-
-        if (not place.habit_peacefulness.interval.is_NEUTRAL and not hero.habit_peacefulness.interval.is_NEUTRAL):
-            modifier -= (place.habit_peacefulness.interval.direction *
-                         hero.habit_peacefulness.interval.direction *
-                         c.PATH_MODIFIER_MINOR_DELTA)
-
-        modifiers[place.id] = modifier
+        modifiers[place.id] = sum(effect.value
+                                  for effect in get_places_path_modifiers_effects(hero, place))
 
     return modifiers

@@ -117,18 +117,31 @@
 
         <table class="table table-condensed">
           <tbody>
-            {{places_macros.attribute_record(place, 'size')}}
-            {{places_macros.attribute_record(place, 'power_economic')}}
-            {{places_macros.attribute_record(place, 'money_economic')}}
-            {{places_macros.attribute_record(place, 'area')}}
-            {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
-            {{places_macros.attribute_record(place, 'stability')}}
-            {{places_macros.attribute_record(place, 'production')}}
-            {{places_macros.attribute_record(place, 'transport')}}
-            {{places_macros.attribute_record(place, 'freedom')}}
-            {{places_macros.attribute_record(place, 'safety')}}
-            {{places_macros.attribute_record(place, 'culture')}}
-            {{places_macros.attribute_record(place, 'tax')}}
+            <tr>
+              <th>оценка пути через город</th>
+              <td>
+                {% if path_modifier is not none %}
+                {{ path_modifier|percents(2) }}
+                {% else %}
+                0%
+                {% endif %}
+              </td>
+              <td>
+                {% set path_description = "Модификатор оценки «сложности» отрезка пути, проходящего через этот город. Отрезок пути — кусок пути героя между двумя городами, на оценку его сложности влияют оба города. Чем меньше, тем легче герой воспринимает путь.<br/><strong>Этот модификатор действует только для ВАШЕГО героя.</strong>" %}
+                {% if path_modifier_effects is not none %}
+                <a href="javascript:void(0)"
+                   class="info-link"
+                   rel="tooltip"
+                   title="{{map_macros.power_incoming_tooltip(path_description, path_modifier_effects, percents=true, reverse=true)}}">подробнее</a>
+                {% else %}
+                <a href="javascript:void(0)"
+                   class="info-link"
+                   rel="tooltip"
+                   title="{{path_description}}">подробнее</a>
+                {% endif %}
+              </td>
+            </tr>
+
             <tr>
               <th>герои (всего)</th>
               <td>{{place_inner_circle.total_positive_heroes_number}} / {{place_inner_circle.total_negative_heroes_number}}</td>
@@ -150,6 +163,19 @@
                    title="помогают / мешают в ближнем круге">подробнее</a>
               </td>
             </tr>
+
+            {{places_macros.attribute_record(place, 'size')}}
+            {{places_macros.attribute_record(place, 'power_economic')}}
+            {{places_macros.attribute_record(place, 'money_economic')}}
+            {{places_macros.attribute_record(place, 'area')}}
+            {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
+            {{places_macros.attribute_record(place, 'stability')}}
+            {{places_macros.attribute_record(place, 'production')}}
+            {{places_macros.attribute_record(place, 'transport')}}
+            {{places_macros.attribute_record(place, 'freedom')}}
+            {{places_macros.attribute_record(place, 'safety')}}
+            {{places_macros.attribute_record(place, 'culture')}}
+            {{places_macros.attribute_record(place, 'tax')}}
           </tbody>
         </table>
 
