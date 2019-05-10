@@ -222,67 +222,6 @@ class MoveSimpleTests(utils_testcase.TestCase):
                              for message in self.hero.journal.messages
                              if message.key is not None))
 
-
-    # @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
-    # @mock.patch('the_tale.game.heroes.objects.Hero.companion_teleport_probability', 1.0)
-    # def test_teleport_by_teleportator_companion__from_place(self):
-    #     companion_record = next(companions_storage.companions.enabled_companions())
-    #     self.hero.set_companion(companions_logic.create_companion(companion_record))
-
-    #     self.assertEqual(self.action_move.state, self.action_move.STATE.MOVING)
-    #     self.assertNotEqual(self.hero.position.place_id, None)
-
-    #     self.storage.process_turn(continue_steps_if_needed=False)
-
-    #     self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
-    #     self.assertEqual(self.action_move.percents, 1)
-    #     self.assertEqual(self.hero.position.place_id, self.place_2.id)
-
-    #     self.assertTrue(any(message.key.is_COMPANIONS_TELEPORT
-    #                         for message in self.hero.journal.messages
-    #                         if message.key is not None))
-
-    # @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
-    # @mock.patch('the_tale.game.heroes.objects.Hero.companion_teleport_probability', 0.0)
-    # def test_teleport_by_teleportator_companion__not_from_place(self):
-    #     companion_record = next(companions_storage.companions.enabled_companions())
-    #     self.hero.set_companion(companions_logic.create_companion(companion_record))
-
-    #     self.storage.process_turn(continue_steps_if_needed=False)
-
-    #     self.assertEqual(self.action_move.state, self.action_move.STATE.MOVING)
-    #     self.assertEqual(self.hero.position.place_id, None)
-
-    #     with mock.patch('the_tale.game.heroes.objects.Hero.companion_teleport_probability', 1.0):
-    #         self.storage.process_turn(continue_steps_if_needed=False)
-
-    #     self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
-    #     self.assertEqual(self.action_move.percents, 1)
-    #     self.assertEqual(self.hero.position.place_id, self.place_2.id)
-
-    #     self.assertTrue(any(message.key.is_COMPANIONS_TELEPORT
-    #                         for message in self.hero.journal.messages
-    #                         if message.key is not None))
-
-    # @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
-    # @mock.patch('the_tale.game.heroes.objects.Hero.companion_teleport_probability', 1.0)
-    # def test_teleport_by_teleportator_companion__not_moving_state(self):
-    #     companion_record = next(companions_storage.companions.enabled_companions())
-    #     self.hero.set_companion(companions_logic.create_companion(companion_record))
-
-    #     self.action_move.state = self.action_move.STATE.IN_CITY
-
-    #     self.storage.process_turn(continue_steps_if_needed=False)
-
-    #     self.assertEqual(self.action_move.state, self.action_move.STATE.MOVING)
-    #     self.assertEqual(self.hero.position.place_id, None)
-
-    #     self.assertTrue(self.action_move.percents < 1)
-
-    #     self.assertFalse(any(message.key.is_COMPANIONS_TELEPORT
-    #                          for message in self.hero.journal.messages
-    #                          if message.key is not None))
-
     @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
     def test_teleport(self):
 
@@ -296,6 +235,24 @@ class MoveSimpleTests(utils_testcase.TestCase):
         self.assertEqual(self.hero.position.place_id, self.place_2.id)
 
         self.assertEqual(self.action_move.state, self.action_move.STATE.IN_CITY)
+
+        self.storage._test_save()
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.is_battle_start_needed', lambda self: False)
+    def test_teleport__zero_length_path(self):
+
+        self.action_move.path = navigation_path.Path(cells=[(self.place_1.x, self.place_1.y)])
+
+        self.assertEqual(self.hero.position.place_id, self.place_1.id)
+
+        with self.check_not_changed(lambda: self.action_move.percents):
+            result = self.action_move.teleport(1, create_inplace_action=True)
+
+        self.assertFalse(result)
+
+        self.assertEqual(self.hero.position.place_id, self.place_1.id)
+
+        self.assertEqual(self.action_move.state, self.action_move.STATE.MOVING)
 
         self.storage._test_save()
 

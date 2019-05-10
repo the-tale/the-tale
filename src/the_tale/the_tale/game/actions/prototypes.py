@@ -1697,6 +1697,9 @@ class ActionMoveSimplePrototype(ActionBase):
         if self.state != self.STATE.MOVING:
             return False
 
+        if self.path.length <= 0:
+            return False
+
         new_percents = min(self.percents + distance / self.path.length, self.stop_percents())
 
         if create_inplace_action:
