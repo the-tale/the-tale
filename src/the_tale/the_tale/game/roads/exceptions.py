@@ -22,3 +22,7 @@ class RoadsAlreadyExistsError(RoadError):
 
 class WaymarkAlreadyExistsError(RoadError):
     MSG = 'waymark (%(start)d, %(stop)d) has already exist'
+
+
+class RoadPathMustEndInPlace(RoadError):
+    MSG = 'road path must end in place, road=%(road)s, path=%(path)s'

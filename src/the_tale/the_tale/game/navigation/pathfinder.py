@@ -50,7 +50,7 @@ def travel_cost(cell_1, cell_2, expected_battle_complexity):
 
 
 class TravelCost:
-    __slots__ = ('_cache', '_map', 'expected_battle_complexity', 'worst_cost')
+    __slots__ = ('_cache', '_map', 'expected_battle_complexity', 'best_cost')
 
     def __init__(self, map, expected_battle_complexity):
         self._cache = {}
@@ -58,9 +58,17 @@ class TravelCost:
 
         self.expected_battle_complexity = expected_battle_complexity
 
-        self.worst_cost = cell_travel_cost(transport=c.CELL_TRANSPORT_MIN,
-                                           safety=c.CELL_SAFETY_MIN,
-                                           expected_battle_complexity=expected_battle_complexity)
+        best_transoport = 0
+        best_safety = 0
+
+        for row in self._map:
+            for cell in row:
+                best_transoport = max(best_transoport, cell.transport)
+                best_safety = max(best_safety, cell.safety)
+
+        self.best_cost = cell_travel_cost(transport=best_transoport,
+                                          safety=best_safety,
+                                          expected_battle_complexity=expected_battle_complexity)
 
     def get_cost(self, x_1, y_1, x_2, y_2):
         key = (x_1, y_1, x_2, y_2)
@@ -75,10 +83,9 @@ class TravelCost:
         return self._cache[key]
 
 
-def find_path_between_places(start_place, finish_place, travel_cost):
-    excluded_cells = {(place.x, place.y)
-                      for place in places_storage.places.all()
-                      if place.id != finish_place.id}
+def find_path_between_places(start_place, finish_place, travel_cost, excluded_cells=()):
+    # не исключаем клетки других городов из поиска пути, так как в этом случаи пути выглядят глупо
+    # обход нежелательных городов полность перекладываем на предпочтения героя
 
     return find_shortest_path(from_x=start_place.x,
                               from_y=start_place.y,
@@ -109,7 +116,8 @@ def find_shortest_path(from_x, from_y, to_x, to_y, width, height, travel_cost, e
                          to_y=to_y,
                          path_map=path_map,
                          width=width,
-                         height=height)
+                         height=height,
+                         travel_cost=travel_cost)
 
 
 def _build_path_map(from_x, from_y, to_x, to_y, width, height, travel_cost, excluded_cells):
@@ -117,7 +125,7 @@ def _build_path_map(from_x, from_y, to_x, to_y, width, height, travel_cost, excl
     path_map = [[logic.MAX_COST for x in range(width)]
                 for y in range(height)]
 
-    heap = [(travel_cost.worst_cost * logic.manhattan_distance(x_1=from_x, y_1=from_y, x_2=to_x, y_2=to_y),
+    heap = [(travel_cost.best_cost * logic.manhattan_distance(x_1=from_x, y_1=from_y, x_2=to_x, y_2=to_y),
              0,
              from_x,
              from_y)]
@@ -142,7 +150,7 @@ def _build_path_map(from_x, from_y, to_x, to_y, width, height, travel_cost, excl
             if path_map[next_y][next_x] < real_cost:
                 continue
 
-            estimated_cost = travel_cost.worst_cost * logic.manhattan_distance(next_x, next_y, to_x, to_y)
+            estimated_cost = travel_cost.best_cost * logic.manhattan_distance(next_x, next_y, to_x, to_y)
 
             heapq.heappush(heap, (real_cost + estimated_cost,
                                   real_cost,
@@ -154,7 +162,7 @@ def _build_path_map(from_x, from_y, to_x, to_y, width, height, travel_cost, excl
     return path_map
 
 
-def _restore_path(from_x, from_y, to_x, to_y, path_map, width, height):
+def _restore_path(from_x, from_y, to_x, to_y, path_map, width, height, travel_cost):
     path = [(to_x, to_y)]
 
     while True:
@@ -163,17 +171,19 @@ def _restore_path(from_x, from_y, to_x, to_y, path_map, width, height):
         if from_x == x and from_y == y:
             break
 
-        min_cost = path_map[y][x]
-        found_x = -1
-        found_y = -1
+        found_cost = logic.MAX_COST
+        found_x = None
+        found_y = None
 
         for next_x, next_y in neighbours_coordinates(x, y, width, height):
-            if min_cost <= path_map[next_y][next_x]:
-                continue
+            move_cost = travel_cost.get_cost(x, y, next_x, next_y)
 
-            min_cost = path_map[next_y][next_x]
-            found_x = next_x
-            found_y = next_y
+            cost = path_map[next_y][next_x] + move_cost
+
+            if cost < found_cost:
+                found_cost = cost
+                found_x = next_x
+                found_y = next_y
 
         path.append((found_x, found_y))
 

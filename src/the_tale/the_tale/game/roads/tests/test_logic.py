@@ -194,6 +194,31 @@ class ChangeRoadTests(utils_testcase.TestCase):
 
         self.assertEqual(road.path, 'rddr')
 
+    def test_create__reversed_path(self):
+        road = logic.road_between_places(self.place_1, self.place_2)
+
+        self.assertEqual(road.path, 'rdrd')
+
+        with self.check_changed(lambda: roads_storage.roads._version):
+            logic.change_road(road.id, path='luul')
+
+        road = logic.road_between_places(self.place_1, self.place_2)
+
+        self.assertEqual(road.path, 'rddr')
+
+    def test_create__wrong_path(self):
+        road = logic.road_between_places(self.place_1, self.place_2)
+
+        self.assertEqual(road.path, 'rdrd')
+
+        with self.assertRaises(exceptions.RoadPathMustEndInPlace):
+            with self.check_not_changed(lambda: roads_storage.roads._version):
+                logic.change_road(road.id, path='luulll')
+
+        road = logic.road_between_places(self.place_1, self.place_2)
+
+        self.assertEqual(road.path, 'rdrd')
+
 
 class RoadSupportCostTests(utils_testcase.TestCase):
 
