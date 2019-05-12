@@ -83,6 +83,18 @@ def delete_road(road_id):
 
 
 def change_road(road_id, path):
+    road = storage.roads[road_id]
+
+    cells = get_path_cells(road.place_1.x, road.place_1.y, path)
+
+    if cells[-1] != (road.place_2.x, road.place_2.y):
+        path = reverse_path(path)
+
+    cells = get_path_cells(road.place_1.x, road.place_1.y, path)
+
+    if cells[-1] != (road.place_2.x, road.place_2.y):
+        raise exceptions.RoadPathMustEndInPlace(road=road_id, path=path)
+
     models.Road.objects.filter(id=road_id).update(path=path)
     storage.roads.update_version()
     storage.roads.refresh()
