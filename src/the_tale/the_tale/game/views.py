@@ -113,6 +113,40 @@ def api_info(context):
     if context.api_version == '1.0':
         data = logic.game_info_from_1_1_to_1_0(data)
 
+    ###################################################
+    # code for test paths
+    ###################################################
+    # map_storage.cells.sync()
+    # travel_cost = map_storage.cells._navigators[heroes_relations.RISK_LEVEL.NORMAL]._travel_cost
+
+    # p1_id = random.choice([p.id for p in places_storage.places.all()])
+    # p2_id = random.choice([p.id for p in places_storage.places.all()])
+
+    # p1 = places_storage.places[p1_id]
+    # p2 = places_storage.places[p2_id]
+
+    # excluded_cells = [(p.x, p.y) for p in places_storage.places.all() if p.id not in (p1.id, p2.id)]
+    # excluded_cells = []
+
+    # print('--------------')
+    # cells, length = navigation_pathfinder.find_shortest_path(from_x=p1.x,
+    #                                                          from_y=p1.y,
+    #                                                          to_x=p2.x,
+    #                                                          to_y=p2.y,
+    #                                                          width=map_conf.settings.WIDTH,
+    #                                                          height=map_conf.settings.HEIGHT,
+    #                                                          travel_cost=travel_cost,
+    #                                                          excluded_cells=excluded_cells)
+
+    # data['account']['hero']['path']['cells'] = cells
+
+    # print(length)
+    # s = sum(map_storage.cells(x, y).travel_cost(heroes_relations.RISK_LEVEL.NORMAL.expected_battle_complexity) for x, y in cells)
+    # print(s)
+    # delta = (map_storage.cells(*cells[0]).travel_cost(heroes_relations.RISK_LEVEL.NORMAL.expected_battle_complexity) +
+    #          map_storage.cells(*cells[-1]).travel_cost(heroes_relations.RISK_LEVEL.NORMAL.expected_battle_complexity)) / 2
+    # print(s - delta)
+
     return dext_views.AjaxOk(content=data)
 
 

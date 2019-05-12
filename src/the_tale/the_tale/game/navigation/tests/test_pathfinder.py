@@ -4,6 +4,25 @@ import smart_imports
 smart_imports.all()
 
 
+class SimpleTravelCost:
+
+    def __init__(self, map):
+        self.map = map
+        self.best_cost = min(min(*row) for row in map)
+
+    def get_cost(self, x_1, y_1, x_2, y_2):
+        return (self.map[y_1][x_1] + self.map[y_2][x_2]) / 2
+
+
+class SimpleRestoreTravelCost:
+
+    def __init__(self):
+        pass
+
+    def get_cost(self, x_1, y_1, x_2, y_2):
+        return 1
+
+
 class NeighboursCoordinatesTests(utils_testcase.TestCase):
 
     def test_borders(self):
@@ -78,13 +97,18 @@ class TravelCostCacheTests(utils_testcase.TestCase):
         self.cache = pathfinder.TravelCost(map=map_storage.cells.get_map(),
                                            expected_battle_complexity=1.2)
 
+    @mock.patch('the_tale.game.map.storage.CellInfo.transport', 3)
+    @mock.patch('the_tale.game.map.storage.CellInfo.safety', 4)
     def test_initialization(self):
-        self.assertEqual(self.cache.expected_battle_complexity, 1.2)
-        self.assertEqual(self.cache.worst_cost,
-                         pathfinder.cell_travel_cost(transport=c.CELL_TRANSPORT_MIN,
-                                                     safety=c.CELL_SAFETY_MIN,
+        cache = pathfinder.TravelCost(map=map_storage.cells.get_map(),
+                                      expected_battle_complexity=1.2)
+
+        self.assertEqual(cache.expected_battle_complexity, 1.2)
+        self.assertEqual(cache.best_cost,
+                         pathfinder.cell_travel_cost(transport=3,
+                                                     safety=4,
                                                      expected_battle_complexity=1.2))
-        self.assertEqual(self.cache._cache, {})
+        self.assertEqual(cache._cache, {})
 
     def test_get_cost(self):
         cost = self.cache.get_cost(0, 1, 1, 1)
@@ -114,19 +138,10 @@ class RestorePathTests(utils_testcase.TestCase):
                                                to_y=4,
                                                path_map=path_map,
                                                width=4,
-                                               height=5)
+                                               height=5,
+                                               travel_cost=SimpleRestoreTravelCost())
         self.assertEqual(cost, 5)
         self.assertEqual(cells, [(1, 1), (2, 1), (2, 2), (2, 3), (2, 4), (1, 4)])
-
-
-class SimpleTravelCost:
-
-    def __init__(self, map, worst_cost):
-        self.map = map
-        self.worst_cost = worst_cost
-
-    def get_cost(self, x_1, y_1, x_2, y_2):
-        return (self.map[y_1][x_1] + self.map[y_2][x_2]) / 2
 
 
 class BuildPathMapTests(utils_testcase.TestCase):
@@ -146,16 +161,15 @@ class BuildPathMapTests(utils_testcase.TestCase):
                                               to_y=4,
                                               width=4,
                                               height=5,
-                                              travel_cost=SimpleTravelCost(map=cost_map,
-                                                                           worst_cost=9999),
+                                              travel_cost=SimpleTravelCost(map=cost_map),
                                               excluded_cells=excluded_cells)
 
         self.assertEqual(path_map,
-                         [[logic.MAX_COST, 5.0,            logic.MAX_COST, logic.MAX_COST],
-                          [1.5,            0,              1.0,            logic.MAX_COST],
-                          [3.5,            1.5,            logic.MAX_COST, logic.MAX_COST],
-                          [5.5,            logic.MAX_COST, logic.MAX_COST, logic.MAX_COST],
-                          [7.5,            10.0,           logic.MAX_COST, logic.MAX_COST]])
+                         [[7.0, 5.0,            6.0,            logic.MAX_COST],
+                          [1.5, 0,              1.0,            6.0],
+                          [3.5, 1.5,            logic.MAX_COST, logic.MAX_COST],
+                          [5.5, logic.MAX_COST, logic.MAX_COST, logic.MAX_COST],
+                          [7.5, 10.0,           logic.MAX_COST, logic.MAX_COST]])
 
 
 class FindPathBetweenPlacesTests(utils_testcase.TestCase):
@@ -189,12 +203,14 @@ class FindPathBetweenPlacesTests(utils_testcase.TestCase):
         for place in places_storage.places.all():
             road_cells.remove((place.x, place.y))
 
-        travel_cost = SimpleTravelCost(map=cost_map,
-                                       worst_cost=logic.MAX_COST)
+        travel_cost = SimpleTravelCost(map=cost_map)
+
+        excluded_cells = [(self.place_3.x, self.place_3.y)]
 
         cells, cost = pathfinder.find_path_between_places(start_place=self.place_1,
                                                           finish_place=self.place_2,
-                                                          travel_cost=travel_cost)
+                                                          travel_cost=travel_cost,
+                                                          excluded_cells=excluded_cells)
 
         self.assertEqual(cost, 503)
 
