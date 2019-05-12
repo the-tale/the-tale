@@ -138,7 +138,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.CELL_SAFETY_MIN, 0.05)
         self.assertEqual(c.CELL_SAFETY_DELTA, 0.01)
         self.assertEqual(c.CELL_SAFETY_TREES, -0.02)
-        self.assertEqual(c.CELL_SAFETY_HILLS, -0.01)
+        self.assertEqual(c.CELL_SAFETY_HILLS, 0.01)
         self.assertEqual(c.CELL_SAFETY_MOUNTAINS, 0.02)
         self.assertEqual(c.CELL_SAFETY_NO_PATRULES, -0.5)
 
