@@ -256,7 +256,7 @@ _SAFETY_TO_TRANSPORT = float(round(-speed_from_safety(0.01, BATTLES_PER_TURN) / 
 # Карта
 ##########################
 
-QUEST_AREA_RADIUS = float(60)  # радиус от позиции героя в котором ОБЫЧНО выбираются города для его заданий
+QUEST_AREA_RADIUS = float(44)  # радиус от позиции героя в котором ОБЫЧНО выбираются города для его заданий
 QUEST_AREA_SHORT_RADIUS = QUEST_AREA_RADIUS / 2  # радиус от позиции героя в котором выбираются города для его заданий на начальных уровнях
 QUEST_AREA_MAXIMUM_RADIUS = float(1000000)  # максимальный радиус для выбора городов для заданий
 
