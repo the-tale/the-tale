@@ -119,6 +119,12 @@ class PlaceTests(utils_testcase.TestCase):
 
         self._create_test_exchanges()
 
+        prototypes.ResourceExchangePrototype.create(place_1=self.p2,
+                                                    place_2=self.p1,
+                                                    resource_1=relations.RESOURCE_EXCHANGE_TYPE.NONE,
+                                                    resource_2=relations.RESOURCE_EXCHANGE_TYPE.TRANSPORT_SMALL,
+                                                    bill=None)
+
         self.p2.attrs.size = 3
 
         map_storage.cells(self.p1.x, self.p1.y).magic = 2.0
@@ -136,9 +142,14 @@ class PlaceTests(utils_testcase.TestCase):
                                c.PLACE_GOODS_BONUS +  # craft center
                                - relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount +
                                relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount +
-                               - 2.0 * c.CELL_STABILIZATION_PRICE +  # place terrain support
-                               - 3 * c.RESOURCE_EXCHANGE_COST_PER_CELL * place_1_2_distance +
-                               - 3 * c.RESOURCE_EXCHANGE_COST_PER_CELL * place_1_3_distance +
+                               - 2.0 * c.CELL_STABILIZATION_PRICE +  # place terrain supporte
+
+                               # production exchanged, when place_1 is first place in exchange
+                               # - c.RESOURCE_EXCHANGE_COST_PER_CELL * place_1_2_distance +
+                               # - c.RESOURCE_EXCHANGE_COST_PER_CELL * place_1_3_distance +
+
+                               # production exchanged, when place_1 is second place in exchange
+                               - c.RESOURCE_EXCHANGE_COST_PER_CELL * place_1_2_distance +
                                - 33)  # roads support
 
         self.assertAlmostEqual(self.p1.attrs.production, expected_production)

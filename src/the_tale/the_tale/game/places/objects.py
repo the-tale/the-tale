@@ -259,7 +259,8 @@ class Place(game_names.ManageNameMixin2):
                                           attribute=resource_2.parameter,
                                           value=resource_2.amount * resource_2.direction)
 
-            if place_2 is not None:
+            # ресурсы тратит только город, указанный вторым
+            if place_2 is not None and exchange.place_2.id == self.id and exchange.place_1 is not None:
                 distance = navigation_logic.manhattan_distance(self.x, self.y, place_2.x, place_2.y)
 
                 yield game_effects.Effect(name='поддержка караванов в {}'.format(place_2.utg_name.forms[3]),
