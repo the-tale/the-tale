@@ -30,15 +30,12 @@ map_info = MapInfoStorage()
 
 
 class CellInfo:
-    __slots__ = ('magic', 'terrain', 'dominant_place_id', 'place_id', 'nearest_place_id', 'building_id', 'roads_ids', 'transport', 'safety')
+    __slots__ = ('terrain', 'dominant_place_id', 'place_id', 'nearest_place_id', 'building_id', 'roads_ids', 'transport', 'safety')
 
     def __init__(self):
-        self.magic = None
         self.reset()
 
     def reset(self):
-        # do not reset magic
-
         self.terrain = None
 
         self.dominant_place_id = None
@@ -236,8 +233,6 @@ class CellsStorage:
         for y in range(map_conf.settings.HEIGHT):
             self._map.append([CellInfo() for x in range(map_conf.settings.WIDTH)])
 
-        self.load_magic()
-
     def is_changed(self):
         return (places_storage.places.version != self._places_version or
                 places_storage.buildings.version != self._buildings_version or
@@ -254,13 +249,6 @@ class CellsStorage:
         for y in range(map_conf.settings.HEIGHT):
             for x in range(map_conf.settings.WIDTH):
                 yield x, y, self._map[y][x]
-
-    def load_magic(self):
-        with open(map_conf.settings.BASE_MAGIC_MAP_FIXTURE) as f:
-            data = json.load(f)
-
-        for x, y, cell in self.cells_iterator():
-            cell.magic = data['magic'][y][x]
 
     def __call__(self, x, y):
         self.sync()

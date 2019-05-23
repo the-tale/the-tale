@@ -237,19 +237,12 @@ class RoadSupportCostTests(utils_testcase.TestCase):
                     (1, 3): 1,
                     (1, 4): 4}[(x, y)]
 
-        def magic_getter(x, y):
-            return {(1, 1): 2.0,
-                    (1, 2): 5.0,
-                    (1, 3): 0.5,
-                    (1, 4): 1.0}[(x, y)]
-
         cost = logic.road_support_cost(cells,
                                        stabilization_price=stabilization_price,
-                                       roads_number_getter=roads_number_getter,
-                                       magic_getter=magic_getter)
+                                       roads_number_getter=roads_number_getter)
 
         self.assertEqual(cost,
-                         3 * 2.0 / 1 +
-                         3 * 5.0 / 2 +
-                         3 * 0.5 / 1 +
-                         3 * 1.0 / 4)
+                         3 / 1 +
+                         3 / 2 +
+                         3 / 1 +
+                         3 / 4)

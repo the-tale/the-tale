@@ -127,8 +127,6 @@ class PlaceTests(utils_testcase.TestCase):
 
         self.p2.attrs.size = 3
 
-        map_storage.cells(self.p1.x, self.p1.y).magic = 2.0
-
         self.p1.refresh_attributes()
 
         place_1_2_distance = navigation_logic.manhattan_distance(self.p1.x, self.p1.y, self.p2.x, self.p2.y)
@@ -142,7 +140,7 @@ class PlaceTests(utils_testcase.TestCase):
                                c.PLACE_GOODS_BONUS +  # craft center
                                - relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_SMALL.amount +
                                relations.RESOURCE_EXCHANGE_TYPE.PRODUCTION_LARGE.amount +
-                               - 2.0 * c.CELL_STABILIZATION_PRICE +  # place terrain supporte
+                               - c.CELL_STABILIZATION_PRICE +  # place terrain supporte
 
                                # production exchanged, when place_1 is first place in exchange
                                # - c.RESOURCE_EXCHANGE_COST_PER_CELL * place_1_2_distance +

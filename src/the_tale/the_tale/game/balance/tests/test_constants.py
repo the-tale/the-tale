@@ -275,7 +275,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_GOODS_FOR_BUILDING_SUPPORT, 30)
 
         self.assertEqual(c.PLACE_AVERAGE_TOTAL_ROADS_PRICE, 150)
-        self.assertEqual(c.CELL_STABILIZATION_PRICE, 16)
+        self.assertEqual(c.CELL_STABILIZATION_PRICE, 10)
 
         self.assertEqual(c.PLACE_TAX_PER_ONE_GOODS, 0.001)
 

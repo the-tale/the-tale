@@ -10,11 +10,6 @@ class BaseMagicMapTests(utils_testcase.TestCase):
         super().setUp()
         self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
-    def test_magic_setupped(self):
-        for x in range(map_conf.settings.WIDTH):
-            for y in range(map_conf.settings.HEIGHT):
-                self.assertTrue(storage.cells(x, y).magic > 0)
-
     def test_roads_on_cell(self):
         self.assertEqual(len(storage.cells(0, 0).roads_ids), 0)
         self.assertEqual(len(storage.cells(self.place_1.x, self.place_1.y).roads_ids), 1)
