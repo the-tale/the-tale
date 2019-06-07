@@ -172,11 +172,11 @@ class LogicTests(testcase.TestCase):
         distribute = logic.distribute_values_on_interval
 
         self.assertEqual(distribute(number=0, min=2, max=5), [])
-        self.assertEqual(distribute(number=1, min=2, max=5), [5])
-        self.assertEqual(distribute(number=2, min=2, max=5), [3, 5])
-        self.assertEqual(distribute(number=3, min=2, max=5), [3, 4, 5])
+        self.assertEqual(distribute(number=1, min=2, max=5), [3])
+        self.assertEqual(distribute(number=2, min=2, max=5), [3, 4])
+        self.assertEqual(distribute(number=3, min=2, max=5), [2, 3, 4])
         self.assertEqual(distribute(number=4, min=2, max=5), [2, 3, 4, 5])
         self.assertEqual(distribute(number=5, min=2, max=5), [2, 3, 3, 4, 5])
         self.assertEqual(distribute(number=6, min=2, max=5), [2, 3, 3, 4, 4, 5])
         self.assertEqual(distribute(number=7, min=2, max=5), [2, 2, 3, 3, 4, 4, 5])
-        self.assertEqual(distribute(number=8, min=2, max=5), [2, 2, 3, 3, 3, 4, 4, 5])
+        self.assertEqual(distribute(number=8, min=2, max=5), [2, 2, 3, 3, 4, 4, 5, 5])
