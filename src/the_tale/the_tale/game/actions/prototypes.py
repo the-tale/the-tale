@@ -1674,21 +1674,7 @@ class ActionMoveSimplePrototype(ActionBase):
     def _teleport_to(self, percents, create_inplace_action):
         self.percents = percents
 
-        stop_percents = self.stop_percents()
-
-        if self.percents >= stop_percents:
-            self.percents = stop_percents
-
-        self.hero.position.set_position(*self.path.coordinates(self.percents))
-
-        self.normalize_position_to_end(delta=0.1)
-
-        if self.hero.position.should_visit_current_place(delta=self.move_speed()):
-            self.place_hero_in_current_place(create_action=create_inplace_action)
-            return True
-
-        if self.percents >= stop_percents:
-            self.state = self.STATE.PROCESSED
+        self.after_move(create_inplace_action=create_inplace_action)
 
         return True
 
@@ -1875,6 +1861,22 @@ class ActionMoveSimplePrototype(ActionBase):
         else:
             self.percents += move_speed / self.path.length
 
+        self.after_move(create_inplace_action=True)
+
+    def normalize_position_to_end(self, delta):
+        destination_coordinates = self.path.destination_coordinates()
+
+        if ((self.hero.position.cell_x, self.hero.position.cell_y) == destination_coordinates and # ???
+            self.hero.position.is_near_cell_center(delta=delta)):
+            self.hero.position.set_position(*destination_coordinates)
+
+            self.percents = 1
+            self.state = self.STATE.PROCESSED
+
+    def after_move(self, create_inplace_action):
+
+        move_speed = self.move_speed()
+
         stop_percents = self.stop_percents()
 
         if self.percents >= stop_percents:
@@ -1889,17 +1891,7 @@ class ActionMoveSimplePrototype(ActionBase):
         self.normalize_position_to_end(delta=move_speed)
 
         if self.hero.position.should_visit_current_place(delta=move_speed):
-            self.place_hero_in_current_place()
-
-    def normalize_position_to_end(self, delta):
-        destination_coordinates = self.path.destination_coordinates()
-
-        if ((self.hero.position.cell_x, self.hero.position.cell_y) == destination_coordinates and
-            self.hero.position.is_near_cell_center(delta=delta)):
-            self.hero.position.set_position(*destination_coordinates)
-
-            self.percents = 1
-            self.state = self.STATE.PROCESSED
+            self.place_hero_in_current_place(create_action=create_inplace_action)
 
     def try_to_teleport_with_companion(self):
         if (self.hero.companion and
