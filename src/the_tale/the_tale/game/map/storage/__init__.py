@@ -330,5 +330,12 @@ class CellsStorage:
                                                                 to_place_id=to_place_id,
                                                                 cost_modifiers=cost_modifiers)
 
+    def get_path_between_places(self, from_place_id, to_place_id, cost_modifiers, risk_level):
+        self.sync()
+
+        return self._navigators[risk_level].get_path_between_places(from_place_id=from_place_id,
+                                                                    to_place_id=to_place_id,
+                                                                    cost_modifiers=cost_modifiers)[0]
+
 
 cells = CellsStorage()

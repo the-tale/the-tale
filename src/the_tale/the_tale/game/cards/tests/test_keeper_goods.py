@@ -45,7 +45,7 @@ class KeepersGoodsMixin(helpers.CardsTestMixin):
 
         self.assertEqual(highlevel_logic_task_counter.call_count, 1)
 
-        with self.check_delta(lambda: round(self.place_1.attrs.production, 2), self.CARD.effect.modificator):
+        with self.check_almost_delta(lambda: round(self.place_1.attrs.production, 2), self.CARD.effect.modificator):
             result, step, postsave_actions = self.CARD.effect.use(**self.use_attributes(hero=self.hero,
                                                                                         step=step,
                                                                                         highlevel=self.highlevel,

@@ -210,8 +210,15 @@ NO_QUEST_INFO__OUT_PLACE = QuestInfo(type='no-quest',
 
 
 class QuestPrototype(object):
+    __slots__ = ('knowledge_base', 'quests_stack', 'created_at', 'states_to_percents', 'hero', 'paths_cache', 'machine')
 
-    def __init__(self, knowledge_base, quests_stack=None, created_at=None, states_to_percents=None, hero=None):
+    def __init__(self,
+                 knowledge_base,
+                 quests_stack=None,
+                 created_at=None,
+                 states_to_percents=None,
+                 hero=None,
+                 paths_cache=None):
         self.hero = hero
         self.quests_stack = [] if quests_stack is None else quests_stack
         self.knowledge_base = knowledge_base
@@ -219,6 +226,7 @@ class QuestPrototype(object):
                                                 interpreter=self)
         self.created_at = datetime.datetime.now() if created_at is None else created_at
         self.states_to_percents = states_to_percents if states_to_percents is not None else {}
+        self.paths_cache = paths_cache if paths_cache is not None else {}
 
     @property
     def current_info(self):
@@ -228,22 +236,27 @@ class QuestPrototype(object):
         return {'quests_stack': [info.serialize() for info in self.quests_stack],
                 'knowledge_base': self.knowledge_base.serialize(short=True),
                 'created_at': time.mktime(self.created_at.timetuple()),
-                'states_to_percents': self.states_to_percents, }
+                'states_to_percents': self.states_to_percents,
+                'paths_cache': {key: path.serialize() for key, path in self.paths_cache.items()} }
 
     @classmethod
     def deserialize(cls, data):
         return cls(knowledge_base=questgen_knowledge_base.KnowledgeBase.deserialize(data['knowledge_base'], fact_classes=questgen_facts.FACTS),
                    quests_stack=[QuestInfo.deserialize(info_data) for info_data in data['quests_stack']],
                    created_at=datetime.datetime.fromtimestamp(data['created_at']),
-                   states_to_percents=data['states_to_percents'])
+                   states_to_percents=data['states_to_percents'],
+                   paths_cache={key: navigation_path.Path.deserialize(path) for key, path in data.get('paths_cache', {}).items()})
 
     @property
-    def percents(self): return self.states_to_percents.get(self.machine.pointer.state, 0.0)
+    def percents(self):
+        return self.states_to_percents.get(self.machine.pointer.state, 0.0)
 
     @property
-    def is_processed(self): return self.machine.is_processed
+    def is_processed(self):
+        return self.machine.is_processed
 
-    def get_nearest_choice(self): return self.machine.get_nearest_choice()
+    def get_nearest_choice(self):
+        return self.machine.get_nearest_choice()
 
     def make_choice(self, option_uid):
         choice, options, defaults = self.get_nearest_choice()
@@ -314,47 +327,35 @@ class QuestPrototype(object):
                                                             destination=destination,
                                                             break_at=None)
 
-    def _determine_hero_position(self, place_from, place_to):
-        places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
+    def _get_fixed_path(self, place_from, place_to):
+        key = '{}_{}'.format(place_from.id, place_to.id)
 
-        path_from = map_storage.cells.find_path_to_place(from_x=self.hero.position.cell_x,
-                                                         from_y=self.hero.position.cell_y,
-                                                         to_place_id=place_from.id,
-                                                         cost_modifiers=places_cost_modifiers,
-                                                         risk_level=self.hero.preferences.risk_level)
-        path_from.set_start(self.hero.position.x, self.hero.position.y)
+        if key not in self.paths_cache:
+            places_cost_modifiers = heroes_logic.get_places_path_modifiers(hero=self.hero)
 
-        path_to = map_storage.cells.find_path_to_place(from_x=self.hero.position.cell_x,
-                                                       from_y=self.hero.position.cell_y,
-                                                       to_place_id=place_to.id,
-                                                       cost_modifiers=places_cost_modifiers,
-                                                       risk_level=self.hero.preferences.risk_level)
-        path_to.set_start(self.hero.position.x, self.hero.position.y)
+            path = map_storage.cells.get_path_between_places(from_place_id=place_from.id,
+                                                             to_place_id=place_to.id,
+                                                             cost_modifiers=places_cost_modifiers,
+                                                             risk_level=self.hero.preferences.risk_level)
 
-        if path_from.length < E:
-            current_percents = 0.0
-        elif path_to.length < E:
-            current_percents = 1.0
-        else:
-            current_percents = path_from.length / (path_from.length + path_to.length)
+            self.paths_cache[key] = path
 
-        return current_percents, path_from, path_to
+        return self.paths_cache[key]
 
     def _move_hero_on_road(self, place_from, place_to, percents):
-        current_percents, path_from, path_to = self._determine_hero_position(place_from, place_to)
+        path = self._get_fixed_path(place_from, place_to)
 
-        if percents <= current_percents + E:
-            logger.info('_move_hero_on_road for hero %s, percents already satisfied (%s <= %s)', self.hero.id, percents, current_percents)
-            return
+        nearest_percents, x, y = path.nearest_coordinates(self.hero.position.x, self.hero.position.y)
 
-        path_to_pass = (percents - current_percents) * (path_from.length + path_to.length)
+        path_to = path.subpath_from_percents(nearest_percents)
 
         log_data = {'hero_id': self.hero.id,
                     'percents': percents,
-                    'current_percents': current_percents,
+                    'nearest_percents': nearest_percents,
+                    'hero_coordinates': (self.hero.position.x, self.hero.position.y),
+                    'path_coordinates': (x, y),
                     'place_from': place_from.id,
                     'place_to': place_to.id,
-                    'path_from': path_from.serialize(),
                     'path_to': path_to.serialize()}
 
         logger.info('_move_hero_on_road for hero %s, properties: %s', self.hero.id, log_data)
@@ -362,7 +363,7 @@ class QuestPrototype(object):
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path_to,
                                                             destination=place_to,
-                                                            break_at=min(path_to_pass / path_to.length, 1))
+                                                            break_at=percents - nearest_percents)
 
     def get_current_power(self, power):
         return power * self.current_info.power
@@ -799,19 +800,19 @@ class QuestPrototype(object):
         if isinstance(object_fact, questgen_facts.Person):
             return False
 
-        if isinstance(object_fact, questgen_facts.Hero):
-            if self.hero.id != object_fact.externals['id']:
-                return False
+        if not isinstance(object_fact, questgen_facts.Hero):
+            raise exceptions.UnknownRequirementError(requirement=requirement)
 
-            # если городу принадлежит только одна клетка, на которой он находится,
-            # то прогулкой в его окрестностях считается и нахождение в нём самом
-            if self.hero.position.place and map_storage.cells.place_area(self.hero.position.place_id) > 1:
-                return False
+        if self.hero.id != object_fact.externals['id']:
+            return False
 
-            hero_place = self.hero.position.cell().nearest_place()
-            return place.id == hero_place.id
+        # если городу принадлежит только одна клетка, на которой он находится,
+        # то прогулкой в его окрестностях считается и нахождение в нём самом
+        if self.hero.position.place and map_storage.cells.place_area(self.hero.position.place_id) > 1:
+            return False
 
-        raise exceptions.UnknownRequirementError(requirement=requirement)
+        hero_place = self.hero.position.cell().nearest_place()
+        return place.id == hero_place.id
 
     def check_located_on_road(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
@@ -825,26 +826,12 @@ class QuestPrototype(object):
         if self.hero.id != object_fact.externals['id']:
             return False
 
-        place_from = places_storage.places[self.knowledge_base[requirement.place_from].externals['id']]
-        place_to = places_storage.places[self.knowledge_base[requirement.place_to].externals['id']]
-        percents = requirement.percents
+        path = self._get_fixed_path(place_from=places_storage.places[self.knowledge_base[requirement.place_from].externals['id']],
+                                    place_to=places_storage.places[self.knowledge_base[requirement.place_to].externals['id']])
 
-        current_percents, path_from, path_to = self._determine_hero_position(place_from, place_to)
+        percents, x, y = path.nearest_coordinates(self.hero.position.x, self.hero.position.y)
 
-        log_data = {'hero_id': self.hero.id,
-                    'percents': percents,
-                    'current_percents': current_percents,
-                    'place_from': place_from.id,
-                    'place_to': place_to.id,
-                    'path_from': path_from.serialize(),
-                    'path_to': path_to.serialize()}
-
-        DELTA = 0.01
-
-        logger.info('check_located_on_road for hero %s, check: %s, delta: %s, properties: %s',
-                    self.hero.id, (percents <= current_percents + DELTA), (percents - current_percents - DELTA), log_data)
-
-        return percents <= current_percents + DELTA
+        return requirement.percents <= percents + 0.01
 
     def check_has_money(self, requirement):
         object_fact = self.knowledge_base[requirement.object]
