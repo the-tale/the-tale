@@ -221,12 +221,9 @@ class Person(game_names.ManageNameMixin2):
                                       value=self.attrs.stability_renewing_bonus)
 
         if self.has_building:
-            stabilization_cost = c.CELL_STABILIZATION_PRICE * map_storage.cells(self.building.x,
-                                                                                self.building.y).magic
-
             yield game_effects.Effect(name='стабилизация {} ({})'.format(self.building.name, self.name),
                                       attribute=places_relations.ATTRIBUTE.PRODUCTION,
-                                      value=-stabilization_cost)
+                                      value=-c.CELL_STABILIZATION_PRICE)
 
             yield game_effects.Effect(name='ремонт {} ({})'.format(self.building.name, self.name),
                                       attribute=places_relations.ATTRIBUTE.PRODUCTION,

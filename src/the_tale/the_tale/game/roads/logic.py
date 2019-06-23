@@ -157,13 +157,9 @@ def is_path_suitable_for_road(start_x, start_y, path):
 
 def road_support_cost(cells,
                       stabilization_price=c.CELL_STABILIZATION_PRICE,
-                      roads_number_getter=None,
-                      magic_getter=None):
+                      roads_number_getter=None):
 
     from the_tale.game.map import storage as map_storage
-
-    if magic_getter is None:
-        magic_getter = lambda x, y: map_storage.cells(x, y).magic
 
     if roads_number_getter is None:
         roads_number_getter = lambda x, y: len(map_storage.cells(x, y).roads_ids)
@@ -173,7 +169,7 @@ def road_support_cost(cells,
     for x, y in cells:
         roads_number = roads_number_getter(x, y)
 
-        cell_price = float(stabilization_price) * magic_getter(x, y) / roads_number
+        cell_price = float(stabilization_price) / roads_number
 
         production += cell_price
 

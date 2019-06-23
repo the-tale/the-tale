@@ -18,7 +18,9 @@ class Path:
         self._places_cache = None
 
     def clone(self):
-        return self.__class__(cells=list(self._cells))
+        path = self.__class__(cells=list(self._cells))
+        path.set_start(*self._start_from)
+        return path
 
     def reverse(self):
         self._cells.reverse()
@@ -127,6 +129,78 @@ class Path:
 
         return (x_1 + (x_2 - x_1) * delta_percents,
                 y_1 + (y_2 - y_1) * delta_percents)
+
+    def _extract_percents(self, percents):
+        if self.length == 0:
+            return
+
+        self._places_cache = None
+
+        start_percents = self._start_length / self.length
+
+        if percents < start_percents:
+            start_x, start_y = self._start_from
+            next_x, next_y = self._cells[0]
+
+            new_start_x = start_x + (next_x - start_x) * percents / start_percents
+            new_start_y = start_y + (next_y - start_y) * percents / start_percents
+
+            self.set_start(new_start_x, new_start_y)
+
+            return
+
+        percents = (percents - start_percents) / (1 - start_percents)
+
+        percents_step = 1 / (len(self._cells) - 1)
+
+        base_index = int(percents // percents_step + sys.float_info.epsilon)
+
+        if len(self._cells) - 1 <= base_index:
+            self._cells = [self._cells[-1]]
+            self.set_start(*self._cells[0])
+            return
+
+        new_start_percents = (percents % percents_step) / percents_step
+
+        start_x, start_y = self._cells[base_index]
+
+        self._cells[:base_index + 1] = []
+
+        new_start_x = start_x + (self._cells[0][0] - start_x) * new_start_percents
+        new_start_y = start_y + (self._cells[0][1] - start_y) * new_start_percents
+
+        self.set_start(new_start_x, new_start_y)
+
+    def subpath_from_percents(self, percents):
+        path = self.clone()
+        path._extract_percents(percents)
+        return path
+
+    def nearest_coordinates(self, expected_x, expected_y):
+        best_distance, best_percents, best_x, best_y = logic.nearest_point_on_section(expected_x, expected_y,
+                                                                                      *self._start_from,
+                                                                                      *self._cells[0])
+
+        processed_percents = self._start_length / self.length
+
+        percents_delta = 1.0 / self.length
+
+        best_percents *= processed_percents
+
+        for i in range(len(self._cells) - 1):
+            distance, percents, x, y = logic.nearest_point_on_section(expected_x, expected_y,
+                                                                      *self._cells[i],
+                                                                      *self._cells[i+1])
+
+            if distance <= best_distance + sys.float_info.epsilon:
+                best_distance = distance
+                best_percents = processed_percents + percents * percents_delta
+                best_x = x
+                best_y = y
+
+            processed_percents += percents_delta
+
+        return best_percents, best_x, best_y
 
     def destination_coordinates(self):
         return self._cells[-1]

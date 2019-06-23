@@ -144,4 +144,20 @@ def absolutize_urls(text):
 
 
 def distribute_values_on_interval(number, min, max):
-    return [int((max - min) * float(i) / number) + min for i in range(1, number+1)]
+    n = max - min + 1
+    base = number // n
+    counts = [base] * n
+
+    delta = number % n
+
+    start = (n - delta) // 2
+
+    for i in range(start, start + delta):
+        counts[i] += 1
+
+    values = []
+
+    for i, m in enumerate(counts):
+        values.extend([i + min] * counts[i])
+
+    return values

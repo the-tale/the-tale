@@ -128,9 +128,11 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.INITIAL_ENERGY_AMOUNT, 100)
 
-        self.assertEqual(c.QUEST_AREA_RADIUS, 60)
-        self.assertEqual(c.QUEST_AREA_SHORT_RADIUS, 30)
+        self.assertEqual(c.QUEST_AREA_RADIUS, 44)
+        self.assertEqual(c.QUEST_AREA_SHORT_RADIUS, 22)
         self.assertEqual(c.QUEST_AREA_MAXIMUM_RADIUS, 1000000)
+
+        self.assertAlmostEqual(c.TURNS_IN_QUEST, 3446.6666666666665)
 
         self.assertEqual(c.MAP_SYNC_TIME_HOURS, 1)
         self.assertEqual(c.MAP_SYNC_TIME, 360)
@@ -273,7 +275,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_GOODS_FOR_BUILDING_SUPPORT, 30)
 
         self.assertEqual(c.PLACE_AVERAGE_TOTAL_ROADS_PRICE, 150)
-        self.assertEqual(c.CELL_STABILIZATION_PRICE, 16)
+        self.assertEqual(c.CELL_STABILIZATION_PRICE, 10)
 
         self.assertEqual(c.PLACE_TAX_PER_ONE_GOODS, 0.001)
 
@@ -340,8 +342,8 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.COMPANIONS_MIN_COHERENCE, 0)
         self.assertEqual(c.COMPANIONS_MAX_COHERENCE, 100)
 
-        self.assertEqual(round(c._QUESTS_REQUIED, 5), 496.34043)
-        self.assertEqual(c.COMPANIONS_COHERENCE_EXP_PER_QUEST, 10)
+        self.assertEqual(round(c._QUESTS_REQUIED, 5), 676.82785)
+        self.assertEqual(c.COMPANIONS_COHERENCE_EXP_PER_QUEST, 7)
 
         self.assertEqual(c.COMPANIONS_MEDIUM_COHERENCE, 50)
 

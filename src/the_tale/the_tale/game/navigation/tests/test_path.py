@@ -264,3 +264,126 @@ class PathTests(utils_testcase.TestCase):
         self.assertEqual(test_path.coordinates(0.00), (0.5, -3))
         self.assertEqual(test_path.coordinates(0.50), (0.75, -3))
         self.assertEqual(test_path.coordinates(1.00), (1, -3))
+
+    def check_nearest_coordinates(self, path, point, expected_percents, expected_point):
+        percents, x, y = path.nearest_coordinates(*point)
+
+        self.assertAlmostEqual(percents, expected_percents)
+        self.assertAlmostEqual(x, expected_point[0])
+        self.assertAlmostEqual(y, expected_point[1])
+
+    def test_nearest_coordinates__start_on_first_cell(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3), (3, 3), (3, 4), (4, 4),
+                                     (4, 3), (4, 2), (3, 2), (3, 1)])
+
+        self.check_nearest_coordinates(test_path, (0.5, 0.5), 0, (1, 1))
+        self.check_nearest_coordinates(test_path, (1, 1), 0, (1, 1))
+        self.check_nearest_coordinates(test_path, (2, 3), 3 / 10, (2, 3))
+        self.check_nearest_coordinates(test_path, (3.5, 4.5), 5.5 / 10, (3.5, 4))
+        self.check_nearest_coordinates(test_path, (5, 2.5), 7.5 / 10, (4, 2.5))
+        self.check_nearest_coordinates(test_path, (3, 1), 1.0, (3, 1))
+
+        # проверяем, что при прочих равных, будет выбрана самая близкая к концу
+        self.check_nearest_coordinates(test_path, (2.5, 2), 9 / 10, (3, 2))
+
+    def test_nearest_coordinates__start_not_on_first_cell(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3), (3, 3), (3, 4), (4, 4),
+                                     (4, 3), (4, 2), (3, 2), (3, 1)])
+        test_path.set_start(0.25, 1)
+
+        self.check_nearest_coordinates(test_path, (0.5, 0.5), 0.25 / 10.75, (0.5, 1))
+        self.check_nearest_coordinates(test_path, (1, 1), 0.75 / 10.75, (1, 1))
+        self.check_nearest_coordinates(test_path, (2, 3), 3.75 / 10.75, (2, 3))
+        self.check_nearest_coordinates(test_path, (3.5, 4.5), 6.25 / 10.75, (3.5, 4))
+        self.check_nearest_coordinates(test_path, (5, 2.5), 8.25 / 10.75, (4, 2.5))
+        self.check_nearest_coordinates(test_path, (3, 1), 1.0, (3, 1))
+
+        # проверяем, что при прочих равных, будет выбрана самая близкая к концу
+        self.check_nearest_coordinates(test_path, (2.5, 2), 9.75 / 10.75, (3, 2))
+
+    def test_extract_percents__0__no_start_point(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3)])
+        test_path._extract_percents(0)
+
+        self.assertEqual(test_path._cells, [(1, 2), (2, 2), (2, 3)])
+        self.assertEqual(test_path._start_from, (1, 1))
+        self.assertEqual(test_path._start_length, 1)
+
+    def test_extract_percents__1__no_start_point(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3)])
+        test_path._extract_percents(1.0)
+
+        self.assertEqual(test_path._cells, [(2, 3)])
+        self.assertEqual(test_path._start_from, (2, 3))
+        self.assertEqual(test_path._start_length, 0)
+
+    def test_extract_percents__middle__no_start_point__on_center(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3), (2, 4)])
+        test_path._extract_percents(0.75)
+
+        self.assertEqual(test_path._cells, [(2, 4)])
+        self.assertEqual(test_path._start_from, (2, 3))
+        self.assertEqual(test_path._start_length, 1.0)
+
+    def test_extract_percents__middle__no_start_point__not_on_center(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3), (2, 4)])
+        test_path._extract_percents(0.375)
+
+        self.assertEqual(test_path._cells, [(2, 2), (2, 3), (2, 4)])
+        self.assertEqual(test_path._start_from, (1.5, 2))
+        self.assertEqual(test_path._start_length, 0.5)
+
+    def test_extract_percents__0__has_start_point(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3)])
+        test_path.set_start(0.5, 1.0)
+        test_path._extract_percents(0)
+
+        self.assertEqual(test_path._cells, [(1, 1), (1, 2), (2, 2), (2, 3)])
+        self.assertEqual(test_path._start_from, (0.5, 1))
+        self.assertEqual(test_path._start_length, 0.5)
+
+    def test_extract_percents__1__has_start_point(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3)])
+        test_path.set_start(0.5, 1.0)
+        test_path._extract_percents(1.0)
+
+        self.assertEqual(test_path._cells, [(2, 3)])
+        self.assertEqual(test_path._start_from, (2, 3))
+        self.assertEqual(test_path._start_length, 0)
+
+    def test_extract_percents__middle__has_start_point(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3), (2, 4)])
+        test_path.set_start(0.5, 1.0)
+        test_path._extract_percents(3.5 / 4.5)
+
+        self.assertEqual(test_path._cells, [(2, 4)])
+        self.assertEqual(test_path._start_from[0], 2)
+        self.assertAlmostEqual(test_path._start_from[1], 3)
+        self.assertAlmostEqual(test_path._start_length, 1.0)
+
+    def test_extract_percents__middle_on_start_point(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3), (2, 4)])
+        test_path.set_start(0.5, 1.0)
+        test_path._extract_percents(0.25 / 4.5)
+
+        self.assertEqual(test_path._cells, [(1, 1), (1, 2), (2, 2), (2, 3), (2, 4)])
+        self.assertEqual(test_path._start_from[0], 0.75)
+        self.assertAlmostEqual(test_path._start_from[1], 1)
+        self.assertAlmostEqual(test_path._start_length, 0.25)
+
+    def test_extract_percents__1_on_start_point(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3), (2, 4)])
+        test_path.set_start(0.5, 1.0)
+        test_path._extract_percents(0.5 / 4.5)
+
+        self.assertEqual(test_path._cells, [(1, 2), (2, 2), (2, 3), (2, 4)])
+        self.assertEqual(test_path._start_from[0], 1)
+        self.assertAlmostEqual(test_path._start_from[1], 1)
+        self.assertAlmostEqual(test_path._start_length, 1.0)
+
+    def test_extract_percents__places_cache_reseted(self):
+        test_path = path.Path(cells=[(1, 1), (1, 2), (2, 2), (2, 3), (2, 4)])
+        test_path._places_cache = {1: 2}
+        test_path._extract_percents(0.5 / 4.5)
+
+        self.assertEqual(test_path._places_cache, None)
