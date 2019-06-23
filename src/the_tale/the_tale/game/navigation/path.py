@@ -211,7 +211,7 @@ class Path:
 
     @classmethod
     def deserialize(cls, data):
-        path = cls(cells=data['cells'])
+        path = cls(cells=[tuple(coordinates) for coordinates in data['cells']])
         path.set_start(*data['start_from'])
         return path
 
