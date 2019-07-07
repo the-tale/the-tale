@@ -16,10 +16,6 @@
 
   <div class="pagination">
     <ul>
-      <li>
-        {{ base_macros.addthis_short(title=news.caption, description=news.html_description|striptags) }}
-      </li>
-
       {% if news.forum_thread_id %}
       <li>
         <a class="pgf-forum-link" href="{{ url('forum:threads:show', news.forum_thread_id) }}">комментарии</a>

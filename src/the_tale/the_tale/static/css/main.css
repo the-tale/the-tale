@@ -291,24 +291,6 @@ blockquote {
   font-style: italic;
   border-left-color: #e1e6e6 !important;
 }
-.addthis_toolbox {
-  display: inline-block;
-  float: right;
-  width: 300px;
-}
-.addthis_toolbox.short {
-  display: inline;
-  float: none;
-  width: auto;
-}
-.addthis_toolbox.short .atclear {
-  display: inline;
-}
-.addthis_toolbox .invitation {
-  float: left;
-  color: #999999;
-  margin-right: 0.5em;
-}
 .tooltip {
   z-index: 2000 !important;
 }

@@ -19,12 +19,6 @@
       </li>
       {% endif %}
 
-      {% if not thread_data.inline %}
-      <li>
-        {{ base_macros.addthis_short("Форум: "+ thread_data.thread.caption, '', url=full_url('https', 'forum:threads:show', thread_data.thread.id)) }}
-      </li>
-      {% endif %}
-
       {% if edit_thread_button and thread_data.can_change_thread %}
       <li><a href="{{ url('forum:threads:edit', thread.id) }}" class="pgf-change-thread-button">редактировать</a></li>
       {% endif %}
