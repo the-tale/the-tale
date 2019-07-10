@@ -260,7 +260,7 @@ class TestShowRequests(BaseTestRequests):
 
     def test_simple(self):
         mob = logic.construct_from_model(models.MobRecord.objects.all()[0])
-        self.check_html_ok(self.request_html(django_reverse('guide:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 5),
+        self.check_html_ok(self.request_html(django_reverse('guide:mobs:show', args=[mob.id])), texts=[(mob.name.capitalize(), 4),
                                                                                                        ('pgf-no-description', 0),
                                                                                                        ('pgf-moderate-button', 0),
                                                                                                        ('pgf-edit-button', 0),

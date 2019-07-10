@@ -179,8 +179,8 @@ class TestShowRequests(BaseTestRequests):
 
     def test_show(self):
 
-        texts = [('caption-a2-0', 4),
-                 ('text-a2-0', 2),
+        texts = [('caption-a2-0', 3),
+                 ('text-a2-0', 1),
                  ('pgf-forum-block', 1),
                  ('pgf-add-vote-button', 0),
                  ('pgf-remove-vote-button', 0),
