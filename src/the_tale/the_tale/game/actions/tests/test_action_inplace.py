@@ -154,12 +154,11 @@ class InPlaceActionTest(utils_testcase.TestCase, helpers.ActionEventsTestsMixin)
 
         self.assertNotEqual(self.hero.position.place, self.hero.position.previous_place)
 
-        with self.check_delta(lambda: self.hero.statistics.money_spend, 20):
-            with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 20):
+        with self.check_delta(lambda: self.hero.statistics.money_spend, 100):
+            with self.check_delta(lambda: self.hero.statistics.money_spend_for_tax, 100):
                 prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
-        self.assertEqual(self.hero.money, 80)
-
+        self.assertEqual(self.hero.money, 0)
         self.storage._test_save()
 
     def test_tax__no_money(self):
@@ -1020,3 +1019,4 @@ class InPlaceActionCompanionStealingTest(utils_testcase.TestCase):
                 self.check_delta(lambda: self.hero.statistics.artifacts_had + self.hero.statistics.loot_had, 1), \
                 self.check_increased(lambda: len(self.hero.journal)):
             self.storage.process_turn(continue_steps_if_needed=False)
+

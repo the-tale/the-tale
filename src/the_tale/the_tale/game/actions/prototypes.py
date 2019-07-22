@@ -906,6 +906,7 @@ class ActionInPlacePrototype(ActionBase):
                              energy=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE)
 
         if hero.position.place.attrs.tax > 0:
+            hero.position.place.attrs.tax = (lambda x: 1 if 0 < x < 1 else x)(hero.position.place.attrs.tax)
 
             if hero.money > 0:
                 tax = int(hero.money * hero.position.place.attrs.tax)
@@ -1927,3 +1928,4 @@ class ActionMoveSimplePrototype(ActionBase):
 
 ACTION_TYPES = {action_class.TYPE: action_class
                 for action_class in dext_discovering.discover_classes(list(globals().values()), ActionBase)}
+
