@@ -1,5 +1,5 @@
 
-{% macro intro(map_button) %}
+{% macro intro(map_button, action=none) %}
 
 <h4>У нас есть живой мир</h4>
 <p style="margin-left: 1em;">
@@ -18,7 +18,7 @@
 
 <div style="text-align: center">
   <a class="btn btn-success"
-     href="{{ url('accounts:registration:create-hero') }}"
+     href="{{ url('accounts:registration:create-hero') }}{% if action %}?action={{action}}{% endif %}"
      style="text-align: center; font-size: 14pt; padding: 0.5em;">
     Найти героя
   </a>
