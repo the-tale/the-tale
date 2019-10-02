@@ -101,7 +101,7 @@ class TTAPiTests(utils_testcase.TestCase):
                                                                        records_on_page=2)
         self.assertEqual(page, 2)
         self.assertEqual(total_records, 5)
-        self.assertEqual([event.attributes['i'] for event in events], [2, 4])
+        self.assertEqual([event.attributes['i'] for event in events], [4, 2])
 
     def test_get_last_events__has_events(self):
         self.prepair_data()
@@ -109,4 +109,4 @@ class TTAPiTests(utils_testcase.TestCase):
         total_records, events = events_log_client.cmd_get_last_events(tags=(1,),
                                                                       number=2)
         self.assertEqual(total_records, 5)
-        self.assertEqual([event.attributes['i'] for event in events], [4, 6])
+        self.assertEqual([event.attributes['i'] for event in events], [6, 4])

@@ -4,7 +4,8 @@ import smart_imports
 smart_imports.all()
 
 
-class QuestsTestBase(utils_testcase.TestCase):
+class QuestsTestBase(utils_testcase.TestCase,
+                     helpers.QuestTestsMixin):
 
     def add_person_to_place(self, place):
         persons_logic.create_person(place=place,
@@ -56,13 +57,7 @@ class QuestsTestBase(utils_testcase.TestCase):
 
 
 class QuestsTest(QuestsTestBase):
-
-    def complete_quest(self):
-        while not self.action_idl.leader:
-            self.storage.process_turn()
-            game_turn.increment()
-
-            self.hero.ui_info(actual_guaranteed=True)  # test if ui info formed correctly
+    pass
 
 
 def create_test_method(quest, quests):
@@ -92,7 +87,7 @@ def create_test_method(quest, quests):
         # test if quest is serializable
         s11n.to_json(self.hero.quests.current_quest.serialize())
 
-        self.complete_quest()
+        self.complete_quest(self.hero)
 
         self.assertEqual(self.hero.actions.current_action.TYPE, actions_prototypes.ActionIdlenessPrototype.TYPE)
 

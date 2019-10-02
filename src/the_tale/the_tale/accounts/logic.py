@@ -137,7 +137,7 @@ def register_user(nick,
     if full_create:
         game_tt_services.energy.cmd_change_balance(account_id=account.id,
                                                    type='initial_contribution',
-                                                   energy=c.INITIAL_ENERGY_AMOUNT,
+                                                   amount=c.INITIAL_ENERGY_AMOUNT,
                                                    async=False,
                                                    autocommit=True)
 

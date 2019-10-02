@@ -19,6 +19,8 @@ class ActionBase(object):
                  'created_at_turn',
                  'context',
                  'place_id',
+                 'emissary_id',
+                 'person_action',
                  'mob',
                  'data',
                  'break_at',
@@ -52,6 +54,8 @@ class ActionBase(object):
                  context=None,
                  description=None,
                  place_id=None,
+                 emissary_id=None,
+                 person_action=None,
                  mob=None,
                  data=None,
                  break_at=None,
@@ -88,6 +92,12 @@ class ActionBase(object):
             self.mob_context = mob_context if mob_context is None or isinstance(mob_context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(mob_context)
 
         self.place_id = place_id
+        self.emissary_id = emissary_id
+
+        self.person_action = None
+
+        if person_action is not None:
+            self.person_action = person_action if isinstance(person_action, rels.Record) else quests_relations.PERSON_ACTION(person_action)
 
         self.mob = None
         if mob:
@@ -126,6 +136,10 @@ class ActionBase(object):
             data['context'] = self.context.serialize()
         if self.place_id is not None:
             data['place_id'] = self.place_id
+        if self.emissary_id is not None:
+            data['emissary_id'] = self.emissary_id
+        if self.person_action is not None:
+            data['person_action'] = self.person_action.value
         if self.mob:
             data['mob'] = self.mob.serialize()
         if self.data:
@@ -357,7 +371,11 @@ class ActionIdlenessPrototype(ActionBase):
 
     @property
     def HELP_CHOICES(self):  # pylint: disable=C0103
-        choices = set((abilities_relations.HELP_CHOICES.START_QUEST, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+        choices = set((abilities_relations.HELP_CHOICES.START_QUEST,
+                       abilities_relations.HELP_CHOICES.HEAL,
+                       abilities_relations.HELP_CHOICES.MONEY,
+                       abilities_relations.HELP_CHOICES.EXPERIENCE,
+                       abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
         if self.percents > 1.0 - E:
             choices.remove(abilities_relations.HELP_CHOICES.START_QUEST)
@@ -480,8 +498,7 @@ class ActionIdlenessPrototype(ActionBase):
             self.percents += 1.0 / self.hero.idle_length
 
             if self.percents >= 1.0:
-                self.state = self.STATE.QUEST
-                ActionQuestPrototype.create(hero=self.hero)
+                self.force_quest_action(quest_kwargs={})
 
             elif self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(hero=self.hero)
@@ -490,6 +507,10 @@ class ActionIdlenessPrototype(ActionBase):
             else:
                 if random.uniform(0, 1) < 1.0 / c.TURNS_TO_IDLE / 2:  # 1 фраза на два уровня героя
                     self.hero.add_message('action_idleness_waiting', hero=self.hero)
+
+    def force_quest_action(self, quest_kwargs):
+        self.state = self.STATE.QUEST
+        ActionQuestPrototype.create(hero=self.hero, **quest_kwargs)
 
 
 class ActionQuestPrototype(ActionBase):
@@ -509,10 +530,12 @@ class ActionQuestPrototype(ActionBase):
     ###########################################
 
     @classmethod
-    def _create(cls, hero, bundle_id):
+    def _create(cls, hero, bundle_id, emissary_id=None, person_action=None):
         return cls(hero=hero,
                    bundle_id=bundle_id,
-                   state=cls.STATE.SEARCHING)
+                   state=cls.STATE.SEARCHING,
+                   emissary_id=emissary_id,
+                   person_action=person_action)
 
     @property
     def searching_quest(self):
@@ -526,18 +549,30 @@ class ActionQuestPrototype(ActionBase):
 
         self.state = self.STATE.PROCESSING
 
+    def technical_setup_quest_required(self):
+        return django_settings.TESTS_RUNNING
+
     def process(self):
 
         if self.state == self.STATE.SEARCHING:
             if self.hero.quests.has_quests:
                 self.state = self.STATE.PROCESSING
             else:
-                # a lot of test depans on complete processing of this action
-                # so it is easie to emulate quest generation here, then place everywere mock objects
-                if django_settings.TESTS_RUNNING:
-                    quests_helpers.setup_quest(self.hero)
+
+                if self.emissary_id is not None and self.emissary_id not in emissaries_storage.emissaries:
+                    self.state = self.STATE.PROCESSED
+                    return
+
+                # a lot of test depands on complete processing of this action
+                # so it is easie to emulate quest generation here, then place everywhere mock objects
+                if self.technical_setup_quest_required():
+                    quests_helpers.setup_quest(self.hero,
+                                               emissary_id=self.emissary_id,
+                                               person_action=self.person_action)
                 else:
-                    quests_logic.request_quest_for_hero(self.hero)
+                    quests_logic.request_quest_for_hero(self.hero,
+                                                        emissary_id=self.emissary_id,
+                                                        person_action=self.person_action)
 
         if self.state == self.STATE.EQUIPPING:
             self.state = self.STATE.PROCESSING
@@ -896,7 +931,7 @@ class ActionInPlacePrototype(ActionBase):
 
             game_tt_services.energy.cmd_change_balance(account_id=hero.account_id,
                                                        type='inplace_regen',
-                                                       energy=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
+                                                       amount=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
                                                        async=True,
                                                        autocommit=True)
 
@@ -1365,7 +1400,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
                     game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
                                                                type='energy_regeneration',
-                                                               energy=energy_delta,
+                                                               amount=energy_delta,
                                                                async=True,
                                                                autocommit=True)
 

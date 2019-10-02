@@ -5,14 +5,11 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    place = dext_fields.ChoiceField(label='Город')
+    place = dext_fields.ChoiceField(label='Город',
+                                    choices=places_storage.places.get_choices)
     name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
                                        label='Название',
                                        skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,))
-
-    def __init__(self, *args, **kwargs):
-        super(BaseForm, self).__init__(*args, **kwargs)
-        self.fields['place'].choices = places_storage.places.get_choices()
 
 
 class UserForm(BaseForm):
@@ -37,10 +34,12 @@ class PlaceRenaming(base_place_bill.BasePlaceBill):
         self.name_forms = name_forms
 
     @property
-    def base_name(self): return self.name_forms.normal_form()
+    def base_name(self):
+        return self.name_forms.normal_form()
 
     @property
-    def old_name(self): return self.old_name_forms.normal_form()
+    def old_name(self):
+        return self.old_name_forms.normal_form()
 
     @property
     def place_name_changed(self):

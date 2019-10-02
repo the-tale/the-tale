@@ -418,11 +418,11 @@ class SyncPowerEconomicTests(utils_testcase.TestCase):
 
         politic_power_storage.places.sync(force=True)
 
-        logic.sync_power_economic(self.places, 100)
+        logic.sync_power_economic(self.places, 5)
 
-        self.assertEqual(self.places[0].attrs.power_economic, 34)
-        self.assertEqual(self.places[1].attrs.power_economic, 100)
-        self.assertEqual(self.places[2].attrs.power_economic, 67)
+        self.assertEqual(self.places[0].attrs.power_economic, 2)
+        self.assertEqual(self.places[1].attrs.power_economic, 4)
+        self.assertEqual(self.places[2].attrs.power_economic, 3)
 
 
 class SyncMoneyEconomicTests(utils_testcase.TestCase):
@@ -437,8 +437,8 @@ class SyncMoneyEconomicTests(utils_testcase.TestCase):
         for money, place in zip((100, 300, 200), self.places):
             logic.register_money_transaction(hero_id=1, place_id=place.id, amount=money)
 
-        logic.sync_money_economic(self.places, 100)
+        logic.sync_money_economic(self.places, 5)
 
-        self.assertEqual(self.places[0].attrs.money_economic, 34)
-        self.assertEqual(self.places[1].attrs.money_economic, 100)
-        self.assertEqual(self.places[2].attrs.money_economic, 67)
+        self.assertEqual(self.places[0].attrs.money_economic, 2)
+        self.assertEqual(self.places[1].attrs.money_economic, 4)
+        self.assertEqual(self.places[2].attrs.money_economic, 3)

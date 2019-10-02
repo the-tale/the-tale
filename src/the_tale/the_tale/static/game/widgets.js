@@ -370,27 +370,55 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
     var popoverContent = undefined;
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PERSON) {
-        nameElement.text(data.name);
 
-        popoverTitle = 'Мастер';
+        if (data.clan_id == undefined) {
+            nameElement.text(data.name);
 
-        var place = widgets.mapManager.GetPlaceData(data.place);
-        var race = pgf.game.GetRaceText(data.race, data.gender);
-        var personalityPractical = pgf.game.GetPersonalityPracticalText(data.personality.practical, data.gender)
-        var personalityCosmetic = pgf.game.GetPersonalityCosmeticText(data.personality.cosmetic, data.gender)
-        var profession = pgf.game.constants.PERSON_TYPE_TO_TEXT[data.profession];
+            popoverTitle = 'Мастер';
 
-        var content = jQuery('#pgf-popover-person').clone();
-        if (place) jQuery('.pgf-place', content).text(place.name);
-        jQuery('.pgf-race', content).text(race);
-        jQuery('.pgf-personality-practical', content).text(personalityPractical);
-        jQuery('.pgf-personality-cosmetic', content).text(personalityCosmetic);
-        jQuery('.pgf-type', content).text(profession);
+            var place = widgets.mapManager.GetPlaceData(data.place);
+            var race = pgf.game.GetRaceText(data.race, data.gender);
+            var personalityPractical = pgf.game.GetPersonalityPracticalText(data.personality.practical, data.gender)
+            var personalityCosmetic = pgf.game.GetPersonalityCosmeticText(data.personality.cosmetic, data.gender)
+            var profession = pgf.game.constants.PERSON_TYPE_TO_TEXT[data.profession];
 
-        nameElement.click(function(e){
-            e.preventDefault();
-            widgets.map.CenterOnPlace(place.id);
-        });
+            var content = jQuery('#pgf-popover-person').clone();
+
+            if (place) {
+                jQuery('.pgf-place', content).text(place.name);
+            }
+
+            jQuery('.pgf-race', content).text(race);
+            jQuery('.pgf-personality-practical', content).text(personalityPractical);
+            jQuery('.pgf-personality-cosmetic', content).text(personalityCosmetic);
+            jQuery('.pgf-type', content).text(profession);
+
+            nameElement.click(function(e){
+                e.preventDefault();
+                widgets.map.CenterOnPlace(place.id);
+            });
+        }
+        else {
+            nameElement.text(data.name);
+
+            popoverTitle = 'Эмиссар';
+
+            var place = widgets.mapManager.GetPlaceData(data.place);
+            var race = pgf.game.GetRaceText(data.race, data.gender);
+
+            var content = jQuery('#pgf-popover-emissary').clone();
+
+            if (place) {
+                jQuery('.pgf-place', content).text(place.name);
+            }
+
+            jQuery('.pgf-race', content).text(race);
+
+            nameElement.click(function(e){
+                e.preventDefault();
+                widgets.map.CenterOnPlace(place.id);
+            });
+        }
     }
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PLACE) {

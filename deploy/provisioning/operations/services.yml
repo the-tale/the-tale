@@ -181,6 +181,26 @@
     port: 10016
     collect_static: false
 
+- name: install TT clans currencies
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT clans currencies
+    user: tt_clans_currencies
+    packages: "{{tt_services['tt_clans_currencies']['packages']}}"
+    django_settings: tt_bank.settings
+    port: 10017
+    collect_static: false
+
+- name: install TT emissary impacts
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT emissary impacts
+    user: tt_emissary_impacts
+    packages: "{{tt_services['tt_emissary_impacts']['packages']}}"
+    django_settings: tt_impacts.settings
+    port: 10018
+    collect_static: false
+
 
 - name: install services cron files
   import_playbook: ../tasks/tt_cron.yml

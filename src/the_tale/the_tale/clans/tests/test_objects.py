@@ -81,3 +81,22 @@ class TestOperationsRights(dext_testcase.TestCase):
                                             role=relations.MEMBER_ROLE.MASTER)
 
             self.assertFalse(rights.can_change_role(membership))
+
+
+class TestAttributes(dext_testcase.TestCase):
+
+    def test_initialize(self):
+        attributes = objects.Attributes(members_maximum_level=1,
+                                        emissary_maximum_level=2,
+                                        points_gain_level=3,
+                                        free_quests_maximum_level=4)
+
+        self.assertEqual(attributes.members_maximum_level, 1)
+        self.assertEqual(attributes.emissary_maximum_level, 2)
+        self.assertEqual(attributes.points_gain_level, 3)
+        self.assertEqual(attributes.free_quests_maximum_level, 4)
+
+        self.assertEqual(attributes.members_maximum, tt_clans_constants.INITIAL_MEMBERS_MAXIMUM + 1)
+        self.assertEqual(attributes.emissary_maximum, tt_clans_constants.INITIAL_EMISSARY_MAXIMUM + 2)
+        self.assertEqual(attributes.points_gain, int(math.ceil((tt_clans_constants.INITIAL_POINTS_GAIN + 3 * 85) / 24)))
+        self.assertEqual(attributes.free_quests_maximum, tt_clans_constants.INITIAL_FREE_QUESTS_MAXIMUM + 4)

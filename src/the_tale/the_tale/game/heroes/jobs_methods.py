@@ -47,7 +47,7 @@ class JobsMethodsMixin(object):
 
         game_tt_services.energy.cmd_change_balance(account_id=self.account_id,
                                                    type='job_energy',
-                                                   energy=energy,
+                                                   amount=energy,
                                                    async=True,
                                                    autocommit=True)
 

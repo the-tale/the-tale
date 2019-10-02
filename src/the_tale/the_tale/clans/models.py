@@ -16,6 +16,10 @@ class Clan(django_models.Model):
     created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = django_models.DateTimeField(auto_now=True, db_index=True)
 
+    state = rels_django.RelationIntegerField(relation=relations.STATE,
+                                             relation_column='value',
+                                             default=relations.STATE.ACTIVE.value)
+
     name = django_models.CharField(max_length=MAX_NAME_LENGTH, unique=True)
     abbr = django_models.CharField(max_length=MAX_ABBR_LENGTH, unique=True)
 

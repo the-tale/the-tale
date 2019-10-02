@@ -162,7 +162,7 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
         data = self.check_ajax_ok(response)
 
-        self.assertEqual(data['card'], new_card.ui_info())
+        self.assertEqual(data['cards'], [new_card.ui_info()])
 
     def test_created__no_premium_cards(self):
         # account always use personal_only mode for not premium players
@@ -192,7 +192,7 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
             data = self.check_ajax_ok(response)
 
-            self.assertEqual(data['card'], new_card.ui_info())
+            self.assertEqual(data['cards'], [new_card.ui_info()])
 
             tt_services.storage.cmd_debug_clear_service()
 
@@ -226,7 +226,7 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
             data = self.check_ajax_ok(response)
 
-            self.assertEqual(data['card'], new_card.ui_info())
+            self.assertEqual(data['cards'], [new_card.ui_info()])
 
             tt_services.storage.cmd_debug_clear_service()
 

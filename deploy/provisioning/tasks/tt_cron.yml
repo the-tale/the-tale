@@ -26,3 +26,45 @@
         minute: 0
         user: the_tale
         job: /home/the_tale/current/venv/bin/django-admin clans_sync_statistics --settings the_tale.settings
+
+    - name: The Tale clans points adding
+      cron:
+        name: clans points adding
+        cron_file: the_tale_clans_pints_adding
+        minute: 0
+        user: the_tale
+        job: /home/the_tale/current/venv/bin/django-admin clans_give_points --interval 3600 --settings the_tale.settings
+
+    - name: TT clans currencies rollback cron
+      cron:
+        name: clans currencies rollback
+        cron_file: tt_clans_currencies_rollback
+        minute: 0
+        user: tt_clans_currencies
+        job: /home/tt_clans_currencies/current/venv/bin/tt_bank_rollback_hanged_transactions -c /etc/tt_clans_currencies/config.json
+
+    - name: The Tale clans free quests reset
+      cron:
+        name: clans free quests reset
+        cron_file: the_tale_clans_reset_free_quests
+        minute: 0
+        hour: 0
+        user: the_tale
+        job: /home/the_tale/current/venv/bin/django-admin clans_reset_free_quests --settings the_tale.settings
+
+    - name: The Tale emissaries step
+      cron:
+        name: emissaries step
+        cron_file: the_tale_emissaries_step
+        minute: 0
+        user: the_tale
+        job: /home/the_tale/current/venv/bin/django-admin emissaries_step --settings the_tale.settings
+
+    - name: The Tale damage and kill emissaries
+      cron:
+        name: damage and kill emissaries
+        cron_file: the_tale_emissaries_damage_and_kill
+        minute: 30
+        hour: 0
+        user: the_tale
+        job: /home/the_tale/current/venv/bin/django-admin emissaries_damage_and_kill_emissaries --settings the_tale.settings

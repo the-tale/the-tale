@@ -1,6 +1,9 @@
 import time
 
+
 from tt_protocol.protocol import bank_pb2
+
+from tt_web import s11n
 
 from . import objects
 
@@ -18,3 +21,10 @@ def from_history(history):
                                   currency=history.currency,
                                   amount=history.amount,
                                   description=history.description)
+
+
+def from_restrictions(pb_restrictions):
+    if not pb_restrictions:
+        return objects.Restrictions()
+
+    return objects.Restrictions(**s11n.from_json(pb_restrictions))

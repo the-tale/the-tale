@@ -605,7 +605,7 @@ class GiveRewardForTemplateTests(utils_testcase.TestCase):
 
     def test_give_cards(self):
         with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_1.id))):
-            with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_2.id)), 1):
+            with self.check_increased(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_2.id))):
                 with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_3.id))):
                     with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account_4.id))):
                         logic.give_reward_for_template(self.template_2)

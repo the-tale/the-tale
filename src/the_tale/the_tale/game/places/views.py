@@ -76,6 +76,15 @@ def show(context):
 
     tt_api_events_log.fill_events_wtih_meta_objects(events)
 
+    emissaries = emissaries_logic.load_emissaries_for_place(context.place.id)
+
+    clans = {clan.id: clan
+             for clan in clans_logic.load_clans([emissary.clan_id for emissary in emissaries])}
+
+    emissaries_powers = politic_power_logic.get_emissaries_power([emissary.id for emissary in emissaries])
+
+    emissaries.sort(key=lambda emissary: (emissary.state.value, clans[emissary.clan_id].name, -emissaries_powers[emissary.id]))
+
     return dext_views.Page('places/show.html',
                            content={'place': context.place,
                                     'place_bills': info.place_info_bills(context.place),
@@ -89,4 +98,7 @@ def show(context):
                                     'places_power_storage': politic_power_storage.places,
                                     'persons_power_storage': politic_power_storage.persons,
                                     'job_power': job_power,
-                                    'resource': context.resource})
+                                    'resource': context.resource,
+                                    'emissaries': emissaries,
+                                    'clans': clans,
+                                    'emissaries_powers': emissaries_powers})

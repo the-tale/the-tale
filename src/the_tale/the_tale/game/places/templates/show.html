@@ -6,6 +6,7 @@
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 {% import 'places/macros.html' as places_macros with context %}
 {% import 'persons/macros.html' as persons_macros with context %}
+{% import 'emissaries/macros.html' as emissaries_macros with context %}
 
 {% block title %} {{ place.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о городе «{{place.name}}»{% endblock %}
@@ -133,6 +134,8 @@
 
 <h3>Мастера</h3>
 
+<p><a href="{{url('guide:persons')}}" target="_blank">Мастера</a> — это <abbr rel="tooltip" title="неигровые персонажи">NPC</abbr>, обладающие большим влиянием в городе.</p>
+
 <table class="table table-condensed">
   <thead>
     <tr>
@@ -159,6 +162,21 @@
     {% endfor %}
   </tbody>
 </table>
+
+<h3>Эмиссары</h3>
+
+<p>
+  <a href="{{url('guide:emissaries')}}" target="_blank">Эмиссары</a> — это представители <a href="{{url('guide:clans')}}">гильдий</a> в городах.
+</p>
+
+{% if emissaries %}
+{{emissaries_macros.emissary_list(emissaries, powers=emissaries_powers, clans=clans)}}
+{% else %}
+<p class="alert alert-info">
+  В городе нет активных эмиссаров.
+</p>
+{% endif %}
+
 
 <div class="accordion" id="pgf-place-accordion">
 

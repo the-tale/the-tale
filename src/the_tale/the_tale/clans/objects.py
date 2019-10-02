@@ -18,7 +18,8 @@ class Clan:
                  'motto',
                  'description',
                  'might',
-                 'statistics_refreshed_at')
+                 'statistics_refreshed_at',
+                 'state')
 
     def __init__(self,
                  id,
@@ -33,7 +34,8 @@ class Clan:
                  motto,
                  description,
                  might,
-                 statistics_refreshed_at):
+                 statistics_refreshed_at,
+                 state):
         self.id = id
         self.created_at = created_at
         self.updated_at = updated_at
@@ -47,6 +49,7 @@ class Clan:
         self.description = description
         self.might = might
         self.statistics_refreshed_at = statistics_refreshed_at
+        self.state = state
 
     @property
     def description_html(self):
@@ -193,3 +196,38 @@ class OperationsRights(metaclass=OperationsMetaClass):
 
         return [role for role in relations.MEMBER_ROLE.records
                 if role.priority > self.initiator_role.priority and not role.is_MASTER]
+
+
+class Attributes:
+    __slots__ = ('members_maximum_level',
+                 'emissary_maximum_level',
+                 'free_quests_maximum_level',
+                 'points_gain_level')
+
+    def __init__(self,
+                 members_maximum_level,
+                 emissary_maximum_level,
+                 free_quests_maximum_level,
+                 points_gain_level):
+        self.members_maximum_level = members_maximum_level
+        self.emissary_maximum_level = emissary_maximum_level
+        self.free_quests_maximum_level = free_quests_maximum_level
+        self.points_gain_level = points_gain_level
+
+    @property
+    def members_maximum(self):
+        return tt_clans_constants.INITIAL_MEMBERS_MAXIMUM + self.members_maximum_level
+
+    @property
+    def emissary_maximum(self):
+        return tt_clans_constants.INITIAL_EMISSARY_MAXIMUM + self.emissary_maximum_level
+
+    @property
+    def free_quests_maximum(self):
+        return tt_clans_constants.INITIAL_FREE_QUESTS_MAXIMUM + self.free_quests_maximum_level
+
+    @property
+    def points_gain(self):
+        return int(math.ceil((tt_clans_constants.INITIAL_POINTS_GAIN +
+                              self.points_gain_level *
+                              tt_clans_constants.POINTS_GAIN_INCREMENT_ON_LEVEL_UP) / 24))

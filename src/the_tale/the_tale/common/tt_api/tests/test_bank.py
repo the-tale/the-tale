@@ -8,6 +8,13 @@ bank_client = bank.Client(entry_point=game_conf.settings.TT_ENERGY_ENTRY_POINT,
                           transaction_lifetime=60)
 
 
+class FakeBalanceError(Exception):
+    pass
+
+
+fake_banker = bank_client.banker(change_balance_error=FakeBalanceError)
+
+
 class TTBankAPiTests(utils_testcase.TestCase):
 
     def setUp(self):
@@ -16,11 +23,11 @@ class TTBankAPiTests(utils_testcase.TestCase):
 
     def test_change_balance__no_autocommit_in_async_request(self):
         with self.assertRaises(exceptions.AutocommitRequiredForAsyncTransaction):
-            bank_client.cmd_change_balance(account_id=666, type='test', energy=1, async=True, autocommit=False)
+            bank_client.cmd_change_balance(account_id=666, type='test', amount=1, async=True, autocommit=False)
 
     def test_change_balance__async(self):
         with self.check_delta(lambda: bank_client.cmd_balance(account_id=666), 1):
-            status, transaction_id = bank_client.cmd_change_balance(account_id=666, type='test', energy=1, async=True, autocommit=True)
+            status, transaction_id = bank_client.cmd_change_balance(account_id=666, type='test', amount=1, async=True, autocommit=True)
             time.sleep(0.1)
 
         self.assertEqual(status, True)
@@ -30,14 +37,14 @@ class TTBankAPiTests(utils_testcase.TestCase):
 
     def test_change_balance__sync(self):
         with self.check_delta(lambda: bank_client.cmd_balance(account_id=666), 2):
-            status, transaction_id = bank_client.cmd_change_balance(account_id=666, type='test', energy=2, async=False, autocommit=True)
+            status, transaction_id = bank_client.cmd_change_balance(account_id=666, type='test', amount=2, async=False, autocommit=True)
 
         self.assertEqual(status, True)
         self.assertNotEqual(transaction_id, None)
 
-    def test_change_balance__sync__no_energy(self):
+    def test_change_balance__sync__no_amount(self):
         with self.check_not_changed(lambda: bank_client.cmd_balance(account_id=666)):
-            status, transaction_id = bank_client.cmd_change_balance(account_id=666, type='test', energy=-100500, async=False, autocommit=True)
+            status, transaction_id = bank_client.cmd_change_balance(account_id=666, type='test', amount=-100500, async=False, autocommit=True)
 
         self.assertEqual(status, False)
         self.assertEqual(transaction_id, None)
@@ -46,13 +53,25 @@ class TTBankAPiTests(utils_testcase.TestCase):
         self.assertEqual(bank_client.cmd_balance(account_id=666), 0)
 
     def test_balance__has_balance(self):
-        bank_client.cmd_change_balance(account_id=666, type='test', energy=3, async=False, autocommit=True)
+        bank_client.cmd_change_balance(account_id=666, type='test', amount=3, async=False, autocommit=True)
         self.assertEqual(bank_client.cmd_balance(account_id=666), 3)
 
-    def test_commit_transaction(self):
-        bank_client.cmd_change_balance(account_id=666, type='test', energy=100, async=False, autocommit=True)
+    def test_change_balance__restrictions(self):
+        with self.check_delta(lambda: bank_client.cmd_balance(account_id=666), 103):
+            status, transaction_id = bank_client.cmd_change_balance(account_id=666,
+                                                                    type='test',
+                                                                    amount=200,
+                                                                    async=False,
+                                                                    autocommit=True,
+                                                                    restrictions=bank_client.Restrictions(soft_maximum=103))
 
-        status, transaction_id = bank_client.cmd_change_balance(account_id=666, type='test', energy=10, async=False, autocommit=False)
+        self.assertEqual(status, True)
+        self.assertNotEqual(transaction_id, None)
+
+    def test_commit_transaction(self):
+        bank_client.cmd_change_balance(account_id=666, type='test', amount=100, async=False, autocommit=True)
+
+        status, transaction_id = bank_client.cmd_change_balance(account_id=666, type='test', amount=10, async=False, autocommit=False)
 
         self.assertEqual(bank_client.cmd_balance(account_id=666), 100)
 
@@ -61,3 +80,48 @@ class TTBankAPiTests(utils_testcase.TestCase):
         time.sleep(0.1)
 
         self.assertEqual(bank_client.cmd_balance(account_id=666), 110)
+
+    def test_rollback_transaction(self):
+        bank_client.cmd_change_balance(account_id=666, type='test', amount=100, async=False, autocommit=True)
+
+        status, transaction_id = bank_client.cmd_change_balance(account_id=666, type='test', amount=10, async=False, autocommit=False)
+
+        self.assertEqual(bank_client.cmd_balance(account_id=666), 100)
+
+        bank_client.cmd_rollback_transaction(transaction_id)
+
+        time.sleep(0.1)
+
+        self.assertEqual(bank_client.cmd_balance(account_id=666), 100)
+
+    def test_banker__balance_error(self):
+        bank_client.cmd_change_balance(account_id=666, type='test', amount=100, async=False, autocommit=True)
+
+        with self.assertRaises(FakeBalanceError):
+            with fake_banker(account_id=666, type='test', amount=-110):
+                pass
+
+        time.sleep(0.1)
+
+        self.assertEqual(bank_client.cmd_balance(account_id=666), 100)
+
+    def test_banker__success(self):
+        bank_client.cmd_change_balance(account_id=666, type='test', amount=100, async=False, autocommit=True)
+
+        with fake_banker(account_id=666, type='test', amount=-10):
+            pass
+
+        time.sleep(0.1)
+
+        self.assertEqual(bank_client.cmd_balance(account_id=666), 90)
+
+    def test_banker__error_while_processing(self):
+        bank_client.cmd_change_balance(account_id=666, type='test', amount=100, async=False, autocommit=True)
+
+        with self.assertRaises(Exception):
+            with fake_banker(account_id=666, type='test', amount=-10):
+                raise Exception('!')
+
+        time.sleep(0.1)
+
+        self.assertEqual(bank_client.cmd_balance(account_id=666), 100)

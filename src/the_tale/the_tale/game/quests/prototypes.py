@@ -46,8 +46,12 @@ class QuestInfo(object):
                 'used_markers': self.used_markers}
 
     def ui_info(self, hero):
-        experience = int(self.experience * hero.experience_modifier) if hero is not None else self.experience  # show experience modified by hero level and abilities
-        power = int(self.power * hero.politics_power_multiplier()) if hero is not None else self.power  # show power modified by hero level and abilities
+        # show experience modified by hero level and abilities
+        experience = int(self.experience * hero.experience_modifier) if hero is not None else self.experience
+
+        # show power modified by hero level and abilities
+        power = int(self.power * hero.politics_power_multiplier()) if hero is not None else self.power
+
         return {'type': self.type,
                 'uid': self.uid,
                 'name': self.name,
@@ -62,12 +66,30 @@ class QuestInfo(object):
         if role not in self.actors:
             return None
 
-        actor_id, actor_name = self.actors[role]
+        if len(self.actors[role]) == 2:
+            # suport of old quests
+            # can be removed after 0.3.30
+            actor_internal_type = None
+            actor_id, actor_name = self.actors[role]
+        else:
+            actor_internal_type, actor_id, actor_name = self.actors[role]
+
         if actor_type.is_PLACE:
             return (actor_name, actor_type.value, {'id': actor_id,
                                                    'name': places_storage.places[actor_id].name})
         if actor_type.is_PERSON:
-            return (actor_name, actor_type.value, persons_storage.persons[actor_id].ui_info())
+            if actor_internal_type is None:
+                actor_internal_type = game_relations.ACTOR.PERSON
+            else:
+                actor_internal_type = game_relations.ACTOR(actor_internal_type)
+
+            if actor_internal_type.is_PERSON:
+                return (actor_name, actor_type.value, persons_storage.persons[actor_id].ui_info())
+            elif actor_internal_type.is_EMISSARY:
+                return (actor_name, actor_type.value, emissaries_storage.emissaries.get_or_load(actor_id).ui_info())
+            else:
+                raise NotImplementedError
+
         if actor_type.is_MONEY_SPENDING:
             return (actor_name, actor_type.value, {'goal': actor_id.text,
                                                    'description': actor_id.description})
@@ -95,7 +117,9 @@ class QuestInfo(object):
 
         writer = writers.get_writer(hero=hero, type=type, message=None, substitution=cls.substitution(uid, knowledge_base, hero))
 
-        actors = {participant.role: (knowledge_base[participant.participant].externals['id'], writer.actor(participant.role))
+        actors = {participant.role: (knowledge_base[participant.participant].externals.get('type'),
+                                     knowledge_base[participant.participant].externals['id'],
+                                     writer.actor(participant.role))
                   for participant in knowledge_base.filter(questgen_facts.QuestParticipant)
                   if participant.start == uid}
 
@@ -122,9 +146,20 @@ class QuestInfo(object):
             actor = knowledge_base[participant.participant]
 
             if isinstance(actor, questgen_facts.Person):
-                person = persons_storage.persons[actor.externals['id']]
+                person_type = logic.extract_person_type(actor)
+
+                if person_type.is_PERSON:
+                    person = persons_storage.persons[actor.externals['id']]
+
+                elif person_type.is_EMISSARY:
+                    person = emissaries_storage.emissaries.get_or_load(actor.externals['id'])
+
+                else:
+                    raise NotImplementedError
+
                 data[participant.role] = person
                 data[participant.role + '_position'] = person.place
+
             elif isinstance(actor, questgen_facts.Place):
                 data[participant.role] = places_storage.places[actor.externals['id']]
 
@@ -390,6 +425,32 @@ class QuestPrototype(object):
 
         actions_prototypes.ActionBattlePvE1x1Prototype.create(hero=self.hero, mob=mob)
 
+    def give_power_to_person(self, hero, object_fact, result):
+        person_id = object_fact.externals['id']
+
+        if result == questgen_quests_base_quest.RESULTS.FAILED:
+            hero.quests.add_interfered_person(person_id)
+
+        person_habits_change_source = persons_storage.persons[person_id].attrs.on_quest_habits.get(result)
+
+        if person_habits_change_source:
+            hero.update_habits(person_habits_change_source)
+
+        power = self.finish_quest_person_power(result, object_fact.uid)
+
+        return persons_logic.impacts_from_hero(hero,
+                                               persons_storage.persons[person_id],
+                                               power)
+
+    def give_power_to_emissary(self, hero, object_fact, result):
+        emissary_id = object_fact.externals['id']
+
+        emissary = emissaries_storage.emissaries.get_or_load(emissary_id)
+
+        power = self.finish_quest_emissary_power(result, object_fact.uid)
+
+        return emissaries_logic.impacts_from_hero(hero, emissary, power)
+
     def _finish_quest(self, finish, hero):
 
         experience = self.current_info.experience
@@ -410,21 +471,16 @@ class QuestPrototype(object):
             object_fact = self.knowledge_base[object_uid]
 
             if isinstance(object_fact, questgen_facts.Person):
-                person_id = object_fact.externals['id']
+                person_type = logic.extract_person_type(object_fact)
 
-                if result == questgen_quests_base_quest.RESULTS.FAILED:
-                    hero.quests.add_interfered_person(person_id)
+                if person_type.is_PERSON:
+                    impacts = self.give_power_to_person(hero, object_fact, result)
+                elif person_type.is_EMISSARY:
+                    impacts = self.give_power_to_emissary(hero, object_fact, result)
+                else:
+                    raise exceptions.UnknownPowerRecipientError(recipient=object_fact)
 
-                person_habits_change_source = persons_storage.persons[person_id].attrs.on_quest_habits.get(result)
-
-                if person_habits_change_source:
-                    self.hero.update_habits(person_habits_change_source)
-
-                power = self.finish_quest_person_power(result, object_uid)
-
-                power_impacts.extend(persons_logic.impacts_from_hero(self.hero,
-                                                                     persons_storage.persons[person_id],
-                                                                     power))
+                power_impacts.extend(impacts)
 
             elif isinstance(object_fact, questgen_facts.Place):
                 power = self.finish_quest_place_power(result, object_uid)
@@ -474,6 +530,10 @@ class QuestPrototype(object):
 
         return object_politic_power + power_bonus
 
+    def finish_quest_emissary_power(self, result, object_uid):
+        object_politic_power, power_bonus = self.finish_quest_power(result)
+        return object_politic_power + power_bonus
+
     def finish_quest_place_power(self, result, object_uid):
         object_politic_power, power_bonus = self.finish_quest_power(result)
         return object_politic_power + power_bonus
@@ -481,7 +541,7 @@ class QuestPrototype(object):
     def get_state_by_jump_pointer(self):
         return self.knowledge_base[self.knowledge_base[self.machine.pointer.jump].state_to]
 
-    def positive_results_persons(self):
+    def positive_results_masters(self):
 
         finish_state = self.get_state_by_jump_pointer()
 
@@ -495,12 +555,15 @@ class QuestPrototype(object):
             if not isinstance(object_fact, questgen_facts.Person):
                 continue
 
+            if not logic.extract_person_type(object_fact).is_PERSON:
+                continue
+
             person_id = object_fact.externals['id']
 
             yield persons_storage.persons[person_id]
 
     def modify_reward_scale(self, scale):
-        for person in self.positive_results_persons():
+        for person in self.positive_results_masters():
             scale += person.attrs.on_profite_reward_bonus
 
         return scale
@@ -510,14 +573,14 @@ class QuestPrototype(object):
             return
 
         energy = sum(person.attrs.on_profite_energy
-                     for person in self.positive_results_persons())
+                     for person in self.positive_results_masters())
 
         if energy == 0:
             return
 
         game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
                                                    type='for_quest',
-                                                   energy=energy,
+                                                   amount=energy,
                                                    async=True,
                                                    autocommit=True)
 
@@ -679,9 +742,21 @@ class QuestPrototype(object):
             fact = self.knowledge_base[participant.participant]
 
             if isinstance(fact, questgen_facts.Person):
-                person = persons_storage.persons.get(fact.externals['id'])
-                person_experience_bonuses[person.id] = person.attrs.experience_bonus
+
+                person_type = logic.extract_person_type(fact)
+
+                if person_type.is_PERSON:
+                    person = persons_storage.persons.get(fact.externals['id'])
+                    person_experience_bonuses[person.id] = person.attrs.experience_bonus
+
+                elif person_type.is_EMISSARY:
+                    person = emissaries_storage.emissaries.get_or_load(fact.externals['id'])
+
+                else:
+                    raise NotImplementedError
+
                 place = person.place
+
             elif isinstance(fact, questgen_facts.Place):
                 place = places_storage.places.get(fact.externals['id'])
 
@@ -698,9 +773,20 @@ class QuestPrototype(object):
 
             fact = self.knowledge_base[participant.participant]
 
-            if isinstance(fact, questgen_facts.Person):
+            if not isinstance(fact, questgen_facts.Person):
+                continue
+
+            person_type = logic.extract_person_type(fact)
+
+            if person_type.is_PERSON:
                 person = persons_storage.persons.get(fact.externals['id'])
                 base_politic_power += person.attrs.politic_power_bonus
+
+            elif person_type.is_EMISSARY:
+                pass
+
+            else:
+                raise NotImplementedError
 
         return base_politic_power
 
@@ -783,7 +869,17 @@ class QuestPrototype(object):
         place = places_storage.places[place_fact.externals['id']]
 
         if isinstance(object_fact, questgen_facts.Person):
-            person = persons_storage.persons[object_fact.externals['id']]
+            person_type = logic.extract_person_type(object_fact)
+
+            if person_type.is_PERSON:
+                person = persons_storage.persons[object_fact.externals['id']]
+
+            elif person_type.is_EMISSARY:
+                person = emissaries_storage.emissaries.get_or_load(object_fact.externals['id'])
+
+            else:
+                raise NotImplementedError
+
             return person.place.id == place.id
 
         if isinstance(object_fact, questgen_facts.Hero):
@@ -868,8 +964,19 @@ class QuestPrototype(object):
         object_fact = self.knowledge_base[requirement.object]
 
         if isinstance(object_fact, questgen_facts.Person):
+
             person_uid = object_fact.uid
-            person = persons_storage.persons[object_fact.externals['id']]
+
+            person_type = logic.extract_person_type(object_fact)
+
+            if person_type.is_PERSON:
+                person = persons_storage.persons[object_fact.externals['id']]
+
+            elif person_type.is_EMISSARY:
+                person = emissaries_storage.emissaries.get_or_load(object_fact.externals['id'])
+
+            else:
+                raise NotImplementedError
 
             new_place_uid = uids.place(person.place.id)
 

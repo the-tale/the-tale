@@ -118,6 +118,21 @@ def create_clan(owner, abbr, name, motto, description):
                                         tags=[owner.meta_object().tag],
                                         message='Гильдия {guild} создана Хранителем {keeper}'.format(guild=clan.name,
                                                                                                      keeper=owner.nick_verbose))
+
+    tt_services.currencies.cmd_change_balance(account_id=clan.id,
+                                              type='initial',
+                                              amount=tt_clans_constants.INITIAL_POINTS,
+                                              async=False,
+                                              autocommit=True,
+                                              currency=relations.CURRENCY.ACTION_POINTS)
+
+    tt_services.currencies.cmd_change_balance(account_id=clan.id,
+                                              type='initial',
+                                              amount=tt_clans_constants.INITIAL_FREE_QUESTS,
+                                              async=False,
+                                              autocommit=True,
+                                              currency=relations.CURRENCY.FREE_QUESTS)
+
     return clan
 
 
@@ -130,7 +145,14 @@ def remove_clan(clan):
 
     forum_prototypes.SubCategoryPrototype.get_by_id(clan.forum_subcategory_id).delete()
 
-    models.Clan.objects.filter(id=clan.id).delete()
+    models.Clan.objects.filter(id=clan.id).update(state=relations.STATE.REMOVED,
+                                                  members_number=0,
+                                                  active_members_number=0,
+                                                  premium_members_number=0,
+                                                  might=0,
+                                                  updated_at=datetime.datetime.now())
+
+    models.MembershipRequest.objects.filter(clan_id=clan.id).delete()
 
 
 def load_clan(clan_id=None, clan_model=None):
@@ -153,7 +175,8 @@ def load_clan(clan_id=None, clan_model=None):
                         motto=clan_model.motto,
                         description=clan_model.description,
                         might=clan_model.might,
-                        statistics_refreshed_at=clan_model.statistics_refreshed_at)
+                        statistics_refreshed_at=clan_model.statistics_refreshed_at,
+                        state=clan_model.state)
 
 
 def load_clans(clans_ids):
@@ -552,3 +575,50 @@ def accept_request(initiator, membership_request):
                                         tags=[initiator.meta_object().tag,
                                               account.meta_object().tag],
                                         message=message)
+
+
+def load_attributes(clan_id):
+    properties = tt_services.properties.cmd_get_all_object_properties(clan_id)
+
+    return objects.Attributes(members_maximum_level=properties.members_maximum_level,
+                              emissary_maximum_level=properties.emissary_maximum_level,
+                              free_quests_maximum_level=properties.free_quests_maximum_level,
+                              points_gain_level=properties.points_gain_level)
+
+
+def give_points_for_time(clan_id, interval):
+
+    attributes = load_attributes(clan_id)
+
+    amount = int(math.ceil(attributes.points_gain * (interval / (60*60))))
+
+    restrictions = tt_services.currencies.Restrictions(hard_minimum=0,
+                                                       soft_maximum=tt_clans_constants.MAXIMUM_POINTS)
+
+    status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
+                                                                             type='time',
+                                                                             amount=amount,
+                                                                             async=False,
+                                                                             autocommit=True,
+                                                                             restrictions=restrictions,
+                                                                             currency=relations.CURRENCY.ACTION_POINTS)
+
+    return status
+
+
+def reset_free_quests(clan_id):
+
+    attributes = load_attributes(clan_id)
+
+    restrictions = tt_services.currencies.Restrictions(hard_minimum=0,
+                                                       soft_maximum=attributes.free_quests_maximum)
+
+    status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
+                                                                             type='time',
+                                                                             amount=tt_clans_constants.MAXIMUM_FREE_QUESTS,
+                                                                             async=False,
+                                                                             autocommit=True,
+                                                                             restrictions=restrictions,
+                                                                             currency=relations.CURRENCY.FREE_QUESTS)
+
+    return status

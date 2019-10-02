@@ -1,0 +1,58 @@
+{% extends "emissaries/base.html" %}
+{% import 'macros.html' as base_macros with context %}
+{% import 'blogs/macros.html' as blogs_macros with context %}
+{% import 'clans/macros.html' as clans_macros with context %}
+{% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'emissaries/macros.html' as emissaries_macros with context %}
+
+{% block title %} {{ emissary.name }} | {{settings.PAGE_TITLE}}{% endblock %}
+{% block description %}Информация об эмиссаре «{{emissary.name}}» гильдии «{{clan.name}}»{% endblock %}
+
+{% block emissaries_content %}
+
+<h2>
+  {{emissary.name}}
+  {{ base_macros.magnet(emissary.meta_object()) }}
+  <small>эмиссар гильдии {{clans_macros.clan_link(clan)}}</small>
+</h2>
+
+<ol>
+  <li>Статус: {{emissaries_macros.emissary_status(emissary)}}</li>
+  <li>Город: <a href="{{url('game:places:show', emissary.place.id)}}">{{emissary.place.name}}</a></li>
+  <li>
+    Влияние: {{emissary_power|int}}
+    <a href="{{ url('game:politic-power:history', emissary=emissary.id) }}">последнее влияние</a>
+  </li>
+</ol>
+
+{% set folclor_objects = posts_about(emissary.meta_object()) %}
+
+<h3>Последние события гильдии</h3>
+
+{% if clan_rights and clan_rights.can_access_chronicle() %}
+{{ chronicle_macros.records_list(clan_events) }}
+{% else %}
+<p class="alert alert-info">
+  У вас недостаточно прав, чтобы смотреть летопись гильдии.
+</p>
+{% endif %}
+
+<h3>Последние события Пандоры</h3>
+
+{% if game_events %}
+{{ chronicle_macros.records_list(game_events) }}
+{% else %}
+<p class="alert alert-info">
+  В летописи мира нет записей об эмиссаре.
+</p>
+{% endif %}
+
+<h3>Произведения об эмиссаре</h3>
+
+{% if folclor_objects %}
+  {{ blogs_macros.meta_posts_list(folclor_objects) }}
+{% else %}
+  <p class="alert alert-info pgf-no-folclor">В настоящее время нет произведений об эмиссаре.</p>
+{% endif %}
+
+{% endblock %}

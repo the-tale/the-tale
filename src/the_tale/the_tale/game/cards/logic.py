@@ -60,7 +60,7 @@ def create_card(allow_premium_cards, rarity=None, exclude=(), available_for_auct
     return utils_logic.random_value_by_priority(prioritites)
 
 
-def get_combined_card(allow_premium_cards, combined_cards):
+def get_combined_cards(allow_premium_cards, combined_cards):
     if not combined_cards:
         return None, relations.COMBINED_CARD_RESULT.NO_CARDS
 
@@ -73,49 +73,54 @@ def get_combined_card(allow_premium_cards, combined_cards):
     available_for_auction = all(card.available_for_auction for card in combined_cards)
 
     if len(combined_cards) == 1:
-        return get_combined_card_1(combined_cards, allow_premium_cards, available_for_auction)
+        return get_combined_cards_1(combined_cards, allow_premium_cards, available_for_auction)
 
     if len(combined_cards) == 2:
-        return get_combined_card_2(combined_cards, allow_premium_cards, available_for_auction)
+        return get_combined_cards_2(combined_cards, allow_premium_cards, available_for_auction)
 
     if len(combined_cards) == 3:
-        return get_combined_card_3(combined_cards, allow_premium_cards, available_for_auction)
+        return get_combined_cards_3(combined_cards, allow_premium_cards, available_for_auction)
 
     return None, relations.COMBINED_CARD_RESULT.TOO_MANY_CARDS
 
 
-def get_combined_card_1(combined_cards, allow_premium_cards, available_for_auction):
+def get_combined_cards_1(combined_cards, allow_premium_cards, available_for_auction):
     if combined_cards[0].type.rarity.is_COMMON:
         return None, relations.COMBINED_CARD_RESULT.COMBINE_1_COMMON
+
+    for reactor in combined_cards[0].type.combiners:
+        cards = reactor.combine(combined_cards)
+        if cards:
+            return cards, relations.COMBINED_CARD_RESULT.SUCCESS
 
     card = create_card(allow_premium_cards=allow_premium_cards,
                        rarity=relations.RARITY(combined_cards[0].type.rarity.value - 1),
                        available_for_auction=available_for_auction)
 
-    return card, relations.COMBINED_CARD_RESULT.SUCCESS
+    return [card], relations.COMBINED_CARD_RESULT.SUCCESS
 
 
-def get_combined_card_2(combined_cards, allow_premium_cards, available_for_auction):
+def get_combined_cards_2(combined_cards, allow_premium_cards, available_for_auction):
 
     for reactor in combined_cards[0].type.combiners:
-        card = reactor.combine(combined_cards)
-        if card:
-            return card, relations.COMBINED_CARD_RESULT.SUCCESS
+        cards = reactor.combine(combined_cards)
+        if cards:
+            return cards, relations.COMBINED_CARD_RESULT.SUCCESS
 
     card = create_card(allow_premium_cards=allow_premium_cards,
                        rarity=combined_cards[0].type.rarity,
                        exclude=combined_cards,
                        available_for_auction=available_for_auction)
 
-    return card, relations.COMBINED_CARD_RESULT.SUCCESS
+    return [card], relations.COMBINED_CARD_RESULT.SUCCESS
 
 
-def get_combined_card_3(combined_cards, allow_premium_cards, available_for_auction):
+def get_combined_cards_3(combined_cards, allow_premium_cards, available_for_auction):
 
     for reactor in combined_cards[0].type.combiners:
-        card = reactor.combine(combined_cards)
-        if card:
-            return card, relations.COMBINED_CARD_RESULT.SUCCESS
+        cards = reactor.combine(combined_cards)
+        if cards:
+            return cards, relations.COMBINED_CARD_RESULT.SUCCESS
 
     if combined_cards[0].type.rarity.is_LEGENDARY:
         return None, relations.COMBINED_CARD_RESULT.COMBINE_3_LEGENDARY
@@ -124,7 +129,7 @@ def get_combined_card_3(combined_cards, allow_premium_cards, available_for_aucti
                        rarity=relations.RARITY(combined_cards[0].type.rarity.value + 1),
                        available_for_auction=available_for_auction)
 
-    return card, relations.COMBINED_CARD_RESULT.SUCCESS
+    return [card], relations.COMBINED_CARD_RESULT.SUCCESS
 
 
 def get_cards_info_by_full_types():

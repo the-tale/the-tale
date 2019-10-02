@@ -345,6 +345,7 @@ def sync_power_economic(places, max_economic):
 
 
 def sync_money_economic(places, max_economic):
+
     if not places:
         return
 

@@ -43,6 +43,7 @@ message StartTransactionRequest {
   repeated Operation operations = 1;
   double lifetime = 2;
   bool autocommit = 3;
+  string restrictions = 4;
 }
 
 

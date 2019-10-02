@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='bank.proto',
   package='bank',
   syntax='proto3',
-  serialized_pb=_b('\n\nbank.proto\x12\x04\x62\x61nk\"d\n\tOperation\x12\x12\n\naccount_id\x18\x01 \x01(\r\x12\x10\n\x08\x63urrency\x18\x02 \x01(\x05\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\x12\x0c\n\x04type\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\"Z\n\rHistoryRecord\x12\x12\n\ncreated_at\x18\x01 \x01(\x01\x12\x10\n\x08\x63urrency\x18\x02 \x01(\x05\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\"+\n\x15\x41\x63\x63ountBalanceRequest\x12\x12\n\naccount_id\x18\x01 \x01(\r\"\x84\x01\n\x16\x41\x63\x63ountBalanceResponse\x12:\n\x07\x62\x61lance\x18\x01 \x03(\x0b\x32).bank.AccountBalanceResponse.BalanceEntry\x1a.\n\x0c\x42\x61lanceEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\r:\x02\x38\x01\"+\n\x15\x41\x63\x63ountHistoryRequest\x12\x12\n\naccount_id\x18\x01 \x01(\r\">\n\x16\x41\x63\x63ountHistoryResponse\x12$\n\x07history\x18\x01 \x03(\x0b\x32\x13.bank.HistoryRecord\"d\n\x17StartTransactionRequest\x12#\n\noperations\x18\x01 \x03(\x0b\x32\x0f.bank.Operation\x12\x10\n\x08lifetime\x18\x02 \x01(\x01\x12\x12\n\nautocommit\x18\x03 \x01(\x08\"2\n\x18StartTransactionResponse\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"2\n\x18\x43ommitTransactionRequest\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"\x1b\n\x19\x43ommitTransactionResponse\"4\n\x1aRollbackTransactionRequest\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"\x1d\n\x1bRollbackTransactionResponse\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
+  serialized_pb=_b('\n\nbank.proto\x12\x04\x62\x61nk\"d\n\tOperation\x12\x12\n\naccount_id\x18\x01 \x01(\r\x12\x10\n\x08\x63urrency\x18\x02 \x01(\x05\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\x12\x0c\n\x04type\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\"Z\n\rHistoryRecord\x12\x12\n\ncreated_at\x18\x01 \x01(\x01\x12\x10\n\x08\x63urrency\x18\x02 \x01(\x05\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\"+\n\x15\x41\x63\x63ountBalanceRequest\x12\x12\n\naccount_id\x18\x01 \x01(\r\"\x84\x01\n\x16\x41\x63\x63ountBalanceResponse\x12:\n\x07\x62\x61lance\x18\x01 \x03(\x0b\x32).bank.AccountBalanceResponse.BalanceEntry\x1a.\n\x0c\x42\x61lanceEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\r:\x02\x38\x01\"+\n\x15\x41\x63\x63ountHistoryRequest\x12\x12\n\naccount_id\x18\x01 \x01(\r\">\n\x16\x41\x63\x63ountHistoryResponse\x12$\n\x07history\x18\x01 \x03(\x0b\x32\x13.bank.HistoryRecord\"z\n\x17StartTransactionRequest\x12#\n\noperations\x18\x01 \x03(\x0b\x32\x0f.bank.Operation\x12\x10\n\x08lifetime\x18\x02 \x01(\x01\x12\x12\n\nautocommit\x18\x03 \x01(\x08\x12\x14\n\x0crestrictions\x18\x04 \x01(\t\"2\n\x18StartTransactionResponse\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"2\n\x18\x43ommitTransactionRequest\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"\x1b\n\x19\x43ommitTransactionResponse\"4\n\x1aRollbackTransactionRequest\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"\x1d\n\x1bRollbackTransactionResponse\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -326,6 +326,13 @@ _STARTTRANSACTIONREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='restrictions', full_name='bank.StartTransactionRequest.restrictions', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -339,7 +346,7 @@ _STARTTRANSACTIONREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=503,
-  serialized_end=603,
+  serialized_end=625,
 )
 
 
@@ -369,8 +376,8 @@ _STARTTRANSACTIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=605,
-  serialized_end=655,
+  serialized_start=627,
+  serialized_end=677,
 )
 
 
@@ -400,8 +407,8 @@ _COMMITTRANSACTIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=657,
-  serialized_end=707,
+  serialized_start=679,
+  serialized_end=729,
 )
 
 
@@ -424,8 +431,8 @@ _COMMITTRANSACTIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=709,
-  serialized_end=736,
+  serialized_start=731,
+  serialized_end=758,
 )
 
 
@@ -455,8 +462,8 @@ _ROLLBACKTRANSACTIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=738,
-  serialized_end=790,
+  serialized_start=760,
+  serialized_end=812,
 )
 
 
@@ -479,8 +486,8 @@ _ROLLBACKTRANSACTIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=792,
-  serialized_end=821,
+  serialized_start=814,
+  serialized_end=843,
 )
 
 
@@ -503,8 +510,8 @@ _DEBUGCLEARSERVICEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=823,
-  serialized_end=849,
+  serialized_start=845,
+  serialized_end=871,
 )
 
 
@@ -527,8 +534,8 @@ _DEBUGCLEARSERVICERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=851,
-  serialized_end=878,
+  serialized_start=873,
+  serialized_end=900,
 )
 
 _ACCOUNTBALANCERESPONSE_BALANCEENTRY.containing_type = _ACCOUNTBALANCERESPONSE

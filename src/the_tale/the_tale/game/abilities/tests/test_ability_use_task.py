@@ -51,7 +51,7 @@ class UseAbilityTasksTests(utils_testcase.TestCase):
 
         status, transaction_id = game_tt_services.energy.cmd_change_balance(account_id=self.account.id,
                                                                             type='test',
-                                                                            energy=1)  # test, that changes will be applied on commit (but not on start)
+                                                                            amount=1)  # test, that changes will be applied on commit (but not on start)
         self.task.data['transaction_id'] = transaction_id
 
         self.assertEqual(game_tt_services.energy.cmd_balance(self.account.id), energy)

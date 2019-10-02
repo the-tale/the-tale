@@ -278,6 +278,11 @@ class TechnicalRemoveMemberTests(BaseClanTests):
 
 class CreateClanTests(BaseClanTests):
 
+    def setUp(self):
+        tt_services.currencies.cmd_debug_clear_service()
+
+        super().setUp()
+
     def test(self):
         # subcategory created
         subcategory = forum_prototypes.SubCategoryPrototype.get_by_id(self.clan.forum_subcategory_id)
@@ -322,6 +327,11 @@ class CreateClanTests(BaseClanTests):
                           relations.EVENT.CREATED.meta_object().tag,
                           self.account.meta_object().tag})
 
+        self.assertEqual(tt_services.currencies.cmd_balance(self.clan.id, currency=relations.CURRENCY.ACTION_POINTS),
+                         tt_clans_constants.INITIAL_POINTS)
+        self.assertEqual(tt_services.currencies.cmd_balance(self.clan.id, currency=relations.CURRENCY.FREE_QUESTS),
+                         tt_clans_constants.INITIAL_FREE_QUESTS)
+
     def test_unique_attributes(self):
         account_2 = self.accounts_factory.create_account()
 
@@ -365,7 +375,8 @@ class RemoveClanTests(BaseClanTests):
 
         logic.remove_clan(self.clan)
 
-        self.assertEqual(list(models.Clan.objects.all().values_list('id', flat=True)), [clan_2.id])
+        self.assertEqual(list(models.Clan.objects.filter(state=relations.STATE.ACTIVE).values_list('id', flat=True)), [clan_2.id])
+        self.assertEqual(list(models.Clan.objects.filter(state=relations.STATE.REMOVED).values_list('id', flat=True)), [self.clan.id])
 
         self.assertEqual(models.Membership.objects.all().count(), 1)
         self.assertTrue(models.Membership.objects.filter(clan_id=clan_2.id).exists())
@@ -1117,3 +1128,95 @@ class AccountRequestTests(BaseClanTests):
 
         loaded_clan = logic.load_clan(clan_id=self.clan.id)
         self.assertEqual(loaded_clan.members_number, 2)
+
+
+class LoadAttributesTests(BaseClanTests):
+
+    def test_defaults(self):
+
+        attributes = logic.load_attributes(self.clan.id)
+
+        self.assertEqual(attributes.members_maximum_level, 0)
+        self.assertEqual(attributes.emissary_maximum_level, 0)
+        self.assertEqual(attributes.points_gain_level, 0)
+
+    def test_loaded(self):
+
+        tt_services.properties.cmd_set_property(object_id=self.clan.id,
+                                                name='members_maximum_level',
+                                                value=3)
+
+        tt_services.properties.cmd_set_property(object_id=self.clan.id,
+                                                name='emissary_maximum_level',
+                                                value=2)
+
+        tt_services.properties.cmd_set_property(object_id=self.clan.id,
+                                                name='points_gain_level',
+                                                value=4)
+
+        attributes = logic.load_attributes(self.clan.id)
+
+        self.assertEqual(attributes.members_maximum_level, 3)
+        self.assertEqual(attributes.emissary_maximum_level, 2)
+        self.assertEqual(attributes.points_gain_level, 4)
+
+
+class GivePointsForTimeTests(BaseClanTests):
+
+    def setUp(self):
+        super().setUp()
+        tt_services.currencies.cmd_debug_clear_service()
+
+    def test_success(self):
+
+        attributes = logic.load_attributes(self.clan.id)
+
+        interval = 60 * 90
+
+        expected_delta = int(math.ceil(attributes.points_gain * interval / (60*60)))
+
+        with self.check_delta(lambda: tt_services.currencies.cmd_balance(self.clan.id, currency=relations.CURRENCY.ACTION_POINTS),
+                              expected_delta):
+            logic.give_points_for_time(clan_id=self.clan.id,
+                                       interval=interval)
+
+    def test_soft_maximum(self):
+
+        interval = 60 * 90000
+
+        balance = tt_services.currencies.cmd_balance(self.clan.id,
+                                                     currency=relations.CURRENCY.ACTION_POINTS)
+
+        expected_delta = tt_clans_constants.MAXIMUM_POINTS - balance
+
+        with self.check_delta(lambda: tt_services.currencies.cmd_balance(self.clan.id, currency=relations.CURRENCY.ACTION_POINTS),
+                              expected_delta):
+            logic.give_points_for_time(clan_id=self.clan.id,
+                                       interval=interval)
+
+
+class ResetFreeQuestsTests(BaseClanTests):
+
+    def setUp(self):
+        tt_services.currencies.cmd_debug_clear_service()
+        super().setUp()
+
+    def test_success(self):
+
+        with self.check_not_changed(lambda: tt_services.currencies.cmd_balance(self.clan.id, currency=relations.CURRENCY.FREE_QUESTS)):
+            logic.reset_free_quests(clan_id=self.clan.id)
+
+        amount = 1
+
+        status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=self.clan.id,
+                                                                                 type='test',
+                                                                                 amount=-amount,
+                                                                                 async=False,
+                                                                                 autocommit=True,
+                                                                                 currency=relations.CURRENCY.FREE_QUESTS)
+
+        self.assertTrue(status)
+
+        with self.check_delta(lambda: tt_services.currencies.cmd_balance(self.clan.id, currency=relations.CURRENCY.FREE_QUESTS),
+                              amount):
+            logic.reset_free_quests(clan_id=self.clan.id)

@@ -1,6 +1,8 @@
 
 from django.db import models
 
+from django.contrib.postgres import fields as postgres_fields
+
 from . import conf
 
 
@@ -11,7 +13,7 @@ class Account(models.Model):
     account = models.BigIntegerField()
 
     currency = models.PositiveIntegerField()
-    amount = models.PositiveIntegerField()
+    amount = models.BigIntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -28,6 +30,8 @@ class Transaction(models.Model):
     state = models.IntegerField(db_index=True)
 
     lifetime = models.DurationField()
+
+    data = postgres_fields.JSONField(default='{}')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

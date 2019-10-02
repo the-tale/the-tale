@@ -51,3 +51,8 @@ class UPGRADE_EQUIPMENT_VARIANTS(rels_django.DjangoEnum):
     records = (('BUY', 0, 'купить'),
                ('SHARP', 1, 'заточить'),
                ('REPAIR', 2, 'починить'))
+
+
+class PERSON_ACTION(rels_django.DjangoEnum):
+    records = (('HELP', 0, 'помочь'),
+               ('HARM', 1, 'навредить'))

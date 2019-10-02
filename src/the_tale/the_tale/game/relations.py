@@ -116,7 +116,8 @@ class ACTOR(rels_django.DjangoEnum):
     records = (('HERO', 0, 'герой'),
                ('MOB', 1, 'монстр'),
                ('PERSON', 2, 'Мастер'),
-               ('COMPANION', 3, 'спутник'))
+               ('COMPANION', 3, 'спутник'),
+               ('EMISSARY', 4, 'эмиссар'))
 
 
 class COINS_AMOUNT(rels_django.DjangoEnum):

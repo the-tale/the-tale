@@ -75,3 +75,14 @@ class DeathType(dext_forms.Form):
 
     def get_card_data(self):
         return {'value': int(self.c.value.value)}
+
+
+class Emissary(dext_forms.Form):
+    value = dext_fields.ChoiceField(label='Эмиссар')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['value'].choices = emissaries_logic.form_choices()
+
+    def get_card_data(self):
+        return {'value': int(self.c.value)}

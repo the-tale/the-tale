@@ -4,6 +4,11 @@ import smart_imports
 smart_imports.all()
 
 
+class STATE(rels_django.DjangoEnum):
+    records = (('ACTIVE', 0, 'активна'),
+               ('REMOVED', 1, 'удалена'),)
+
+
 class ORDER_BY(rels_django.DjangoEnum):
     order_field = rels.Column()
 
@@ -20,7 +25,7 @@ class ORDER_BY(rels_django.DjangoEnum):
                ('MIGHT_DESC', 10, 'могуществу▲', ('-might', 'name')),
                ('MIGHT_ASC', 11, 'могуществу▼', ('might', 'name')),
                ('CREATED_AT_DESC', 12, 'дате создания▲', ('-created_at', 'name')),
-               ('CREATED_AT_ASC', 13, 'дате создания▼', ('created_at', 'name')),               )
+               ('CREATED_AT_ASC', 13, 'дате создания▼', ('created_at', 'name')))
 
 
 class MEMBERSHIP_REQUEST_TYPE(rels_django.DjangoEnum):
@@ -49,22 +54,32 @@ def meta_object_receiver(id):
     return receiver
 
 
+def event(name, value, text):
+    return (name, value, text, meta_object_receiver(value))
+
+
 class EVENT(rels_django.DjangoEnum):
     meta_object = rels.Column()
 
-    records = (('CREATED', 0, 'создание гильдии', meta_object_receiver(0)),
-               ('NEW_MEMBERSHIP_INVITE', 1, 'приглашение в гильдию', meta_object_receiver(1)),
-               ('NEW_MEMBERSHIP_REQUEST', 2, 'просьба вступить в гильдию', meta_object_receiver(2)),
-               ('MEMBERSHIP_INVITE_ACCEPTED', 3, 'приглашение в гильдию принято ', meta_object_receiver(3)),
-               ('MEMBERSHIP_REQUEST_ACCEPTED', 4, 'просьба вступить в гильдию удовлетворена', meta_object_receiver(4)),
-               ('MEMBERSHIP_INVITE_REJECTED', 5, 'приглашение в гильдию отклонено', meta_object_receiver(5)),
-               ('MEMBERSHIP_REQUEST_REJECTED', 6, 'просьба вступить в гильдию отклонена', meta_object_receiver(6)),
-               ('MEMBER_LEFT', 7, 'игрок покинул гильдию', meta_object_receiver(7)),
-               ('MEMBER_REMOVED', 8, 'игрок исключён из гильдии', meta_object_receiver(8)),
-               ('TECHNICAL', 9, 'техническое сообщение', meta_object_receiver(9)),
-               ('ROLE_CHANGED', 10, 'изменение звания', meta_object_receiver(10)),
-               ('OWNER_CHANGED', 11, 'передача владения', meta_object_receiver(11)),
-               ('UPDATED', 12, 'редактирование гильдии', meta_object_receiver(12)))
+    records = (event('CREATED', 0, 'создание гильдии'),
+               event('NEW_MEMBERSHIP_INVITE', 1, 'приглашение в гильдию'),
+               event('NEW_MEMBERSHIP_REQUEST', 2, 'просьба вступить в гильдию'),
+               event('MEMBERSHIP_INVITE_ACCEPTED', 3, 'приглашение в гильдию принято '),
+               event('MEMBERSHIP_REQUEST_ACCEPTED', 4, 'просьба вступить в гильдию удовлетворена'),
+               event('MEMBERSHIP_INVITE_REJECTED', 5, 'приглашение в гильдию отклонено'),
+               event('MEMBERSHIP_REQUEST_REJECTED', 6, 'просьба вступить в гильдию отклонена'),
+               event('MEMBER_LEFT', 7, 'игрок покинул гильдию'),
+               event('MEMBER_REMOVED', 8, 'игрок исключён из гильдии'),
+               event('TECHNICAL', 9, 'техническое сообщение'),
+               event('ROLE_CHANGED', 10, 'изменение звания'),
+               event('OWNER_CHANGED', 11, 'передача владения'),
+               event('UPDATED', 12, 'редактирование гильдии'),
+               event('EMISSARY_CREATED', 13, 'нанят эмиссар'),
+               event('EMISSARY_DISSMISSED', 14, 'уволен эмиссар'),
+               event('EMISSARY_KILLED', 15, 'убит эмиссар'),
+               event('EMISSARY_MOVED', 16, 'перемещён эмиссар'),
+               event('MEMBER_ADD_POINTS', 17, 'Хранитель внёс очки действия'),
+               event('EMISSARY_DAMAGED', 18, 'покушение на эмиссара'))
 
 
 class PERMISSION(rels_django.DjangoEnum):
@@ -77,7 +92,7 @@ class PERMISSION(rels_django.DjangoEnum):
                ('EDIT', 2, 'Редактирование гильдии', False, None, False),
                ('CHANGE_ROLE', 3, 'Изменение звания', True, 'Если старое и новое звание Хранителя меньше вашего', False),
                ('POLITICS', 4, 'Объявление войны/мира другой гильдии', False, None, True),
-               ('EMISSARIES_RELOCATION', 5, 'Назначение/перемещение эмиссаров', False, None, True),
+               ('EMISSARIES_RELOCATION', 5, 'Назначение/перемещение/увольнение эмиссаров', False, None, True),
                ('EMISSARIES_PLANING', 6, 'Управление мероприятиями эмиссаров', False, None, True),
                ('TAKE_MEMBER', 7, 'Принятие в гильдию', False, 'В звании рекрута', False),
                ('REMOVE_MEMBER', 8, 'Исключение из гильдии', True, 'Если ваше звание выше', False),
@@ -130,3 +145,8 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
 
                ('RECRUIT', 1, 'Рекрут', 4,
                 ()))
+
+
+class CURRENCY(rels_django.DjangoEnum):
+    records = (('ACTION_POINTS', 0, 'очки действий'),
+               ('FREE_QUESTS', 1, 'задания для неподписчиков'))

@@ -74,17 +74,39 @@ class ClanRightsProcessor(dext_views.BaseViewProcessor):
                                                                    is_moderator=context.account.has_perm('clans.moderate_clan')))
 
 
+class AccountClanProcessor(dext_views.BaseViewProcessor):
+    ARG_ACCOUNT_ATTRIBUTE = dext_views.ProcessorArgument()
+    ARG_CLAN_ATTRIBUTE = dext_views.ProcessorArgument()
+
+    def preprocess(self, context):
+        account = getattr(context, self.account_attribute, None)
+
+        if account is None:
+            setattr(context, self.clan_attribute, None)
+            return
+
+        clan = account.clan if account.is_authenticated() else None
+
+        setattr(context, self.clan_attribute, clan)
+
+
 class ClanStaticOperationAccessProcessor(dext_views.AccessProcessor):
     ERROR_CODE = 'clans.no_rights'
     ERROR_MESSAGE = 'Вам запрещено проводить эту операцию'
 
     ARG_PERMISSION = dext_views.ProcessorArgument()
+    ARG_PERMISSIONS_ATTRIBUTE = dext_views.ProcessorArgument(default='current_clan_rights')
 
     def validate(self, argument):
         return getattr(argument, self.permission)()
 
     def check(self, context):
-        return getattr(context.current_clan_rights, self.permission)()
+        rights = getattr(context, self.permissions_attribute)
+
+        if rights is None:
+            return False
+
+        return getattr(rights, self.permission)()
 
 
 class ClanMemberOperationAccessProcessor(dext_views.AccessProcessor):
@@ -123,6 +145,27 @@ class CanReceiveRequessProcessor(dext_views.FlaggedAccessProcessor):
                                                                                       name='accept_requests_from_players')
         return accept_requests_from_players
 
+
+class ClanIsActiveProcessor(dext_views.FlaggedAccessProcessor):
+    ERROR_CODE = 'clans.removed'
+    ERROR_MESSAGE = 'Гильдия распущена.'
+    ARGUMENT = 'current_clan'
+
+    def validate(self, argument):
+        return argument.state.is_ACTIVE
+
+
+########################################
+# decorators
+########################################
+
+def change_balance_error_fabric():
+    return dext_views.ViewError(code='clans.no_enought_clan_points',
+                                message='У гильдии не хватает очков действий')
+
+
+points_banker = tt_services.currencies.banker(change_balance_error=change_balance_error_fabric,
+                                              currency=relations.CURRENCY.ACTION_POINTS)
 
 ########################################
 # resource and global processors
@@ -285,13 +328,31 @@ def show(context):
 
     current_clan_properties = tt_services.properties.cmd_get_all_object_properties(context.current_clan.id)
 
+    is_own_clan = (context.account.is_authenticated and context.account.clan_id == context.current_clan.id)
+
+    clan_points = None
+    free_quests_points = None
+
+    if is_own_clan:
+        # TODO: rewrite to single request
+        clan_points = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.ACTION_POINTS)
+        free_quests_points = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.FREE_QUESTS)
+
+    emissaries = emissaries_logic.load_emissaries_for_clan(context.current_clan.id)
+
+    emissaries_powers = politic_power_logic.get_emissaries_power([emissary.id for emissary in emissaries])
+
+    emissaries.sort(key=lambda e: (e.state.value, e.place.name, emissaries_powers[e.id]))
+
+    attributes = logic.load_attributes(context.current_clan.id)
+
     return dext_views.Page('clans/show.html',
                            content={'resource': context.resource,
                                     'page_id': relations.PAGE_ID.SHOW,
                                     'clan_meta_object': meta_relations.Clan.create_from_object(context.current_clan),
                                     'memberships': memberships,
                                     'accounts': accounts,
-                                    'leader': accounts[0],
+                                    'leader': accounts[0] if accounts else None,
                                     'active_state_days': accounts_conf.settings.ACTIVE_STATE_TIMEOUT // (24 * 60 * 60),
                                     'total_frontier_politic_power_multiplier': total_frontier_politic_power_multiplier,
                                     'total_core_politic_power_multiplier': total_core_politic_power_multiplier,
@@ -303,7 +364,14 @@ def show(context):
                                     'current_clan': context.current_clan,
                                     'current_clan_rights': context.current_clan_rights,
                                     'requests_number_for_clan': requests_number_for_clan,
-                                    'current_clan_properties': current_clan_properties})
+                                    'current_clan_properties': current_clan_properties,
+                                    'is_own_clan': is_own_clan,
+                                    'clan_points': clan_points,
+                                    'free_quests_points': free_quests_points,
+                                    'emissaries': emissaries,
+                                    'attributes': attributes,
+                                    'tt_clans_constants': tt_clans_constants,
+                                    'emissaries_powers': emissaries_powers})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -368,6 +436,7 @@ def update(context):
 
 @accounts_views.LoginRequiredProcessor()
 @ClanStaticOperationAccessProcessor(permission='can_destroy')
+@ClanIsActiveProcessor()
 @resource('#clan', 'remove', method='POST')
 def remove(context):
 
@@ -465,6 +534,7 @@ def invite_dialog(context):
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @CanReceiveRequessProcessor()
+@ClanIsActiveProcessor()
 @resource('#clan', 'request-dialog')
 def request_dialog(context):
 
@@ -496,6 +566,7 @@ def invite(context):
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @CanReceiveRequessProcessor()
+@ClanIsActiveProcessor()
 @dext_views.FormProcessor(form_class=forms.MembershipRequestForm)
 @resource('#clan', 'request', method='POST')
 def request(context):

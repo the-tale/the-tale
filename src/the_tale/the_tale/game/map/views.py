@@ -86,6 +86,10 @@ def cell_info(context):
     if context.account.is_authenticated:
         hero = heroes_logic.load_hero(account_id=context.account.id)
 
+    emissaries = None
+    clans = None
+    emissaries_powers = {}
+
     if place:
         place_inner_circle = politic_power_logic.get_inner_circle(place_id=place.id)
         persons_inner_circles = {person.id: politic_power_logic.get_inner_circle(person_id=person.id)
@@ -95,6 +99,15 @@ def cell_info(context):
                                                                                    number=conf.settings.CHRONICLE_RECORDS_NUMBER)
 
         tt_api_events_log.fill_events_wtih_meta_objects(events)
+
+        emissaries = emissaries_logic.load_emissaries_for_place(place.id)
+        emissaries = [emissary for emissary in emissaries if emissary.state.is_IN_GAME]
+
+        clans = {clan.id: clan for clan in clans_logic.load_clans([emissary.clan_id for emissary in emissaries])}
+
+        emissaries_powers = politic_power_logic.get_emissaries_power([emissary.id for emissary in emissaries])
+
+        emissaries.sort(key=lambda emissary: (emissary.state.value, clans[emissary.clan_id].name, -emissaries_powers[emissary.id]))
 
     path_modifier = None
     path_modifier_effects = None
@@ -126,4 +139,7 @@ def cell_info(context):
                                     'ABILITY_TYPE': abilities_relations.ABILITY_TYPE,
                                     'cells': storage.cells,
                                     'path_modifier': path_modifier,
-                                    'path_modifier_effects': path_modifier_effects})
+                                    'path_modifier_effects': path_modifier_effects,
+                                    'emissaries': emissaries,
+                                    'emissaries_powers': emissaries_powers,
+                                    'clans': clans})

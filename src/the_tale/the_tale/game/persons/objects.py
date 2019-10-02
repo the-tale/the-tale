@@ -106,7 +106,8 @@ class Person(game_names.ManageNameMixin2):
         return (self.moved_at_turn + c.PERSON_MOVE_DELAY - game_turn.number()) * c.TURN_DELTA
 
     def linguistics_restrictions(self):
-        return (linguistics_restrictions.get(self.gender),
+        return (linguistics_restrictions.get(game_relations.ACTOR.PERSON),
+                linguistics_restrictions.get(self.gender),
                 linguistics_restrictions.get(self.race),
                 linguistics_restrictions.get(self.type))
 

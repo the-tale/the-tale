@@ -614,7 +614,7 @@ class LogicAccessorsMixin(object):
 
         return max(0, modifier)
 
-    def modify_politics_power(self, power, person=None, place=None):
+    def modify_politics_power(self, power, person=None, place=None, emissary=None):
 
         is_friend = person and self.preferences.friend and person.id == self.preferences.friend.id
         is_enemy = person and self.preferences.enemy and person.id == self.preferences.enemy.id

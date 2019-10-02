@@ -24,25 +24,26 @@ class Simple3Tests(utils_testcase.TestCase):
         self.assertEqual(self.reactor.descrption(), '3 x «магический вихрь» => «энергетический шторм»')
 
     def test_combine__not_3(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__unexpected_types(self):
         wrong_card_type = types.CARD.random(exclude=(self.own_card_type,))
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__success(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
-        self.assertEqual(new_card.type, self.next_card_type)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
+        self.assertEqual(len(new_cards), 1)
+        self.assertEqual(new_cards[0].type, self.next_card_type)
 
 
-class Special3Tests(utils_testcase.TestCase):
+class SpecialTests(utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -52,7 +53,7 @@ class Special3Tests(utils_testcase.TestCase):
 
         self.reactor = self.own_card_type.combiners[0]
 
-        self.assertEqual(self.reactor.__class__, reactors.Special3)
+        self.assertEqual(self.reactor.__class__, reactors.Special)
 
     def test_initialized(self):
         self.assertEqual(self.reactor.own_card_type, self.own_card_type)
@@ -60,25 +61,34 @@ class Special3Tests(utils_testcase.TestCase):
         self.assertEqual(self.reactor.next_card_type, self.next_card_type)
 
     def test_description(self):
-        self.assertEqual(self.reactor.descrption(), '3 x «телепорт» => «ТАРДИС»')
+        self.assertEqual(self.reactor.descrption(), '3 x «телепорт» => 1 x «ТАРДИС»')
 
     def test_combine__not_3(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__unexpected_types(self):
         wrong_card_type = types.CARD.random(exclude=(self.own_card_type,))
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__success(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
-        self.assertEqual(new_card.type, self.next_card_type)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
+
+        self.assertEqual(new_cards[0].type, self.next_card_type)
+
+    def test_multiple_returns(self):
+        card_type = types.CARD.CREATE_CLAN
+        reactor = types.CARD.CREATE_CLAN.combiners[0]
+        new_cards = reactor.combine([card_type.effect.create_card(available_for_auction=True, type=card_type)])
+
+        self.assertEqual(len(new_cards), 3)
+        self.assertTrue(all(card.type.is_EMISSARY_QUEST for card in new_cards))
 
 
 class SameHabbits3Test(utils_testcase.TestCase):
@@ -104,28 +114,60 @@ class SameHabbits3Test(utils_testcase.TestCase):
         self.assertEqual(self.reactor.descrption(), '3 x одинаковых «прозрение» => «откровение» с тем же эффектом')
 
     def test_combine__not_3(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=self.direction)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                habit=self.habit,
+                                                                                direction=self.direction),
+                                         self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                               type=self.own_card_type,
+                                                                               habit=self.habit,
+                                                                               direction=self.direction)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__unexpected_types(self):
         wrong_card_type = types.CARD.random(exclude=(self.own_card_type,))
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                habit=self.habit,
+                                                                                direction=self.direction),
+                                         self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                               type=self.own_card_type,
+                                                                               habit=self.habit,
+                                                                               direction=self.direction),
+                                         self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                               type=wrong_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__data_not_equal(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=-self.direction),))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                habit=self.habit,
+                                                                                direction=self.direction),
+                                         self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                               type=self.own_card_type,
+                                                                               habit=self.habit,
+                                                                               direction=self.direction),
+                                         self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                               type=self.own_card_type,
+                                                                               habit=self.habit,
+                                                                               direction=-self.direction),))
+        self.assertEqual(new_cards, None)
 
     def test_combine__success(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, habit=self.habit, direction=self.direction),))
-        self.assertEqual(new_card.type, self.next_card_type)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                habit=self.habit,
+                                                                                direction=self.direction),
+                                         self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                               type=self.own_card_type,
+                                                                               habit=self.habit,
+                                                                               direction=self.direction),
+                                         self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                               type=self.own_card_type,
+                                                                               habit=self.habit,
+                                                                               direction=self.direction),))
+        self.assertEqual(len(new_cards), 1)
+        self.assertEqual(new_cards[0].type, self.next_card_type)
 
 
 class Same2Tests(utils_testcase.TestCase):
@@ -146,28 +188,33 @@ class Same2Tests(utils_testcase.TestCase):
         self.assertEqual(self.reactor.descrption(), '2 x «свежий взгляд» => «свежий взгляд» с другим эффектом')
 
     def test_combine__not_2(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__unexpected_types(self):
         wrong_card_type = types.CARD.random(exclude=(self.own_card_type,))
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__success(self):
         for i in range(100):
             preference_1 = heroes_relations.PREFERENCE_TYPE.random()
             preference_2 = heroes_relations.PREFERENCE_TYPE.random()
 
-            new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, preference=preference_1),
-                                             self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, preference=preference_2)))
+            new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                    type=self.own_card_type,
+                                                                                    preference=preference_1),
+                                             self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                   type=self.own_card_type,
+                                                                                   preference=preference_2)))
 
-            self.assertNotEqual(new_card.data['preference_id'], preference_1.value)
-            self.assertNotEqual(new_card.data['preference_id'], preference_2.value)
-            self.assertEqual(new_card.type, self.own_card_type)
+            self.assertEqual(len(new_cards), 1)
+            self.assertNotEqual(new_cards[0].data['preference_id'], preference_1.value)
+            self.assertNotEqual(new_cards[0].data['preference_id'], preference_2.value)
+            self.assertEqual(new_cards[0].type, self.own_card_type)
 
 
 class SamePower3Tests(utils_testcase.TestCase):
@@ -192,28 +239,50 @@ class SamePower3Tests(utils_testcase.TestCase):
         self.assertEqual(self.reactor.descrption(), '3 x одинаковых «неожиданное обстоятельство» => «афера» с тем же эффектом')
 
     def test_combine__not_2(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=self.direction)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=self.direction),
+                                          self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=self.direction)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__unexpected_types(self):
         wrong_card_type = types.CARD.random(exclude=(self.own_card_type,))
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=self.direction),
+                                          self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=self.direction),
+                                          self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=wrong_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__data_not_equal(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=-self.direction),))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=self.direction),
+                                          self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=self.direction),
+                                          self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=-self.direction),))
+        self.assertEqual(new_cards, None)
 
     def test_combine__success(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=self.direction),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=self.direction),))
-        self.assertEqual(new_card.type, self.next_card_type)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=self.direction),
+                                          self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=self.direction),
+                                          self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=self.direction),))
+        self.assertEqual(len(new_cards), 1)
+        self.assertEqual(new_cards[0].type, self.next_card_type)
 
 
 class SameEqual2Tests(utils_testcase.TestCase):
@@ -234,31 +303,36 @@ class SameEqual2Tests(utils_testcase.TestCase):
         self.assertEqual(self.reactor.descrption(), '2 x одинаковых «случай» => «случай» с другим эффектом')
 
     def test_combine__not_2(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__unexpected_types(self):
         wrong_card_type = types.CARD.random(exclude=(self.own_card_type,))
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),
+                                          self.own_card_type.effect.create_card(available_for_auction=True, type=wrong_card_type)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__not_equal(self):
-        new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=1),
-                                         self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=-1)))
-        self.assertEqual(new_card, None)
+        new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=1),
+                                          self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                type=self.own_card_type,
+                                                                                direction=-1)))
+        self.assertEqual(new_cards, None)
 
     def test_combine__success(self):
         for i in range(100):
-            preference_1 = heroes_relations.PREFERENCE_TYPE.random()
-            preference_2 = heroes_relations.PREFERENCE_TYPE.random()
-
             old_direction, new_direction = random.sample([-1, 1], 2)
 
-            new_card = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=old_direction),
-                                             self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type, direction=old_direction)))
-
-            self.assertEqual(new_card.data['direction'], new_direction)
-            self.assertEqual(new_card.type, self.own_card_type)
+            new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                    type=self.own_card_type,
+                                                                                    direction=old_direction),
+                                              self.own_card_type.effect.create_card(available_for_auction=True,
+                                                                                    type=self.own_card_type,
+                                                                                    direction=old_direction)))
+            self.assertEqual(len(new_cards), 1)
+            self.assertEqual(new_cards[0].data['direction'], new_direction)
+            self.assertEqual(new_cards[0].type, self.own_card_type)

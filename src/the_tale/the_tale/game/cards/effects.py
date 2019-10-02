@@ -83,6 +83,13 @@ class ModificatorBase(BaseEffect):
         return int(math.ceil(self.modificator))
 
 
+class InvertModificatorBase(ModificatorBase):
+
+    @property
+    def modificator(self):
+        return self.base / tt_cards_constants.LEVEL_MULTIPLIERS[self.level - 1]
+
+
 class LevelUp(BaseEffect):
     __slots__ = ()
 
@@ -139,11 +146,14 @@ class AddPoliticPower(ModificatorBase):
 
     @property
     def DESCRIPTION(self):
-        return 'Увеличивает влияние текущего задания, на %(power)d единиц (учтите, что итоговое влияние задания зависит и от влиятельности вашего героя).' % {'power': self.modificator}
+        return 'Увеличивает влияние текущего задания, на {power} единиц. Можно использовать только одну карту на задание. Учтите, итоговое влияние задания зависит и от влиятельности вашего героя.'.format(power=self.modificator)
 
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
         if not task.hero.quests.has_quests:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='У героя нет задания.')
+
+        if task.hero.quests.current_quest.current_info.power_bonus != 0:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Вы уже добавили влияние для текущего задания.')
 
         task.hero.quests.current_quest.current_info.power_bonus += self.modificator
         task.hero.quests.mark_updated()
@@ -164,7 +174,7 @@ class AddBonusEnergy(ModificatorBase):
     def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
         game_tt_services.energy.cmd_change_balance(account_id=task.hero.account_id,
                                                    type='card',
-                                                   energy=int(self.modificator),
+                                                   amount=int(self.modificator),
                                                    async=True,
                                                    autocommit=True)
         return task.logic_result()
@@ -1191,3 +1201,137 @@ class ChangeHistory(BaseEffect):
 
     def name_for_card(self, card):
         return self._name_for_card(card.type, card.data['history_id'])
+
+
+class AddClansPoints(InvertModificatorBase):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Empty(data)
+
+    @property
+    def DESCRIPTION(self):
+        return 'Ваша гильдия получит {points} очков действия.'.format(points=self.upper_modificator)
+
+    def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
+
+        clan_id = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).clan_id
+
+        restrictions = clans_tt_services.currencies.Restrictions(hard_minimum=0,
+                                                                 hard_maximum=tt_clans_constants.MAXIMUM_POINTS)
+
+        status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
+                                                                                 type='card',
+                                                                                 amount=self.upper_modificator,
+                                                                                 async=False,
+                                                                                 autocommit=True,
+                                                                                 currency=clans_relations.CURRENCY.ACTION_POINTS,
+                                                                                 restrictions=restrictions)
+
+        if not status:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Гильдия не может иметь более {} очков действия'.format(tt_clans_constants.MAXIMUM_POINTS))
+
+        clan = clans_logic.load_clan(clan_id)
+
+        account = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id)
+
+        message = 'Хранитель {keeper} начислил очки действия: {points}'.format(keeper=account.nick_verbose,
+                                                                               points=self.upper_modificator)
+
+        clans_tt_services.chronicle.cmd_add_event(clan=clan,
+                                                  event=clans_relations.EVENT.MEMBER_ADD_POINTS,
+                                                  tags=[account.meta_object().tag],
+                                                  message=message)
+
+        return task.logic_result(message='Ваша гильдия получила {points} очков действия.'.format(points=self.upper_modificator))
+
+
+class EmissaryQuest(BaseEffect):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Emissary(data)
+
+    @property
+    def DESCRIPTION(self):
+        return 'Моментально выдаёт герою задание на помощь или вред эмиссару. Эффект указан в названии карты. Если герой выполняет задания, все они отменяются. Если герой сражается с монстром, тот будет убит. Карту нельзя использовать, когда герой сражается на Арене. Величина влияния за задание рассчитывается по общим правилам. Любой член гильдии может начать квест на помощь или вред эмиссару своей гильдии.'
+
+    def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
+
+        card = objects.Card.deserialize(uuid.UUID(task.data['card']['id']), task.data['card']['data'])
+
+        action = quests_relations.PERSON_ACTION(card.data['action'])
+
+        emissary_id = task.data.get('value')
+
+        if emissary_id not in emissaries_storage.emissaries:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Эмиссар не найден.')
+
+        account_clan_id = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).clan_id
+
+        if account_clan_id is None:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Вы должны быть членом гильдии, чтобы выполнять задания эмиссаров.')
+
+        # emissary = emissaries_storage.emissaries[emissary_id]
+
+        # if emissary.clan_id != account_clan_id:
+
+        if task.hero.actions.has_proxy_actions():
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Карту нельзя использовать, когда герой сражается на Арене.')
+
+        if not card.available_for_auction:
+            status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=account_clan_id,
+                                                                                     type='emissary_quest_card',
+                                                                                     amount=-1,
+                                                                                     async=False,
+                                                                                     autocommit=True,
+                                                                                     currency=clans_relations.CURRENCY.FREE_QUESTS)
+
+            if not status:
+                return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                         message='Ищерпан лимит свободных заданий, попробуйте завтра')
+
+        actions_logic.force_new_hero_quest(hero=task.hero,
+                                           logger=None,
+                                           emissary_id=emissary_id,
+                                           person_action=action)
+
+        return task.logic_result(message='Герой получит задание в ближайшее время.')
+
+    def allowed_actions(self):
+        return [quests_relations.PERSON_ACTION.HELP,
+                quests_relations.PERSON_ACTION.HARM]
+
+    def create_card(self, type, available_for_auction, action=None, uid=None):
+        if action is None:
+            action = random.choice(self.allowed_actions())
+
+        return objects.Card(type=type,
+                            available_for_auction=available_for_auction,
+                            data={'action': action.value},
+                            uid=uid if uid else uuid.uuid4())
+
+    def _item_full_type(self, type, action_value):
+        return '{}-{:+d}'.format(type.value, action_value)
+
+    def item_full_type(self, card):
+        return self._item_full_type(card.type, card.data['action'])
+
+    def full_type_names(self, card_type):
+        names = {}
+
+        for action in self.allowed_actions():
+            full_type = self._item_full_type(card_type, action.value)
+            names[full_type] = self._name_for_card(card_type, action)
+
+        return names
+
+    def _name_for_card(self, type, action):
+        return '{}: {}'.format(type.text, action.text)
+
+    def name_for_card(self, card):
+        return self._name_for_card(card.type, quests_relations.PERSON_ACTION(card.data['action']))

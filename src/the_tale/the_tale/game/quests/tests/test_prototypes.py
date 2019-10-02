@@ -33,7 +33,9 @@ class PrototypeTestsBase(utils_testcase.TestCase):
         self.quest = self.hero.quests.current_quest
 
 
-class PrototypeTests(PrototypeTestsBase):
+class PrototypeTests(PrototypeTestsBase,
+                     clans_helpers.ClansTestsMixin,
+                     emissaries_helpers.EmissariesTestsMixin):
 
     def setUp(self):
         super(PrototypeTests, self).setUp()
@@ -137,6 +139,30 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(power, -10 - 1)
 
         power = self.quest.finish_quest_place_power(questgen_quests_base_quest.RESULTS.NEUTRAL, uids.place(self.place_1.id))
+        self.assertEqual(power, 0)
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    def test_give_emissary_power__power_bonus(self):
+        self.prepair_forum_for_clans()
+
+        account = self.accounts_factory.create_account()
+
+        clan = self.create_clan(owner=account, uid=1)
+
+        emissary = self.create_emissary(clan=clan,
+                                        initiator=account,
+                                        place_id=self.place_1.id)
+
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        power = self.quest.finish_quest_emissary_power(questgen_quests_base_quest.RESULTS.SUCCESSED, uids.emissary(emissary.id))
+        self.assertEqual(power, 10 + 1)
+
+        power = self.quest.finish_quest_emissary_power(questgen_quests_base_quest.RESULTS.FAILED, uids.emissary(emissary.id))
+        self.assertEqual(power, -10 - 1)
+
+        power = self.quest.finish_quest_emissary_power(questgen_quests_base_quest.RESULTS.NEUTRAL, uids.emissary(emissary.id))
         self.assertEqual(power, 0)
 
     def test_power_on_end_quest_for_fast_account_hero(self):
@@ -391,7 +417,7 @@ class PrototypeTests(PrototypeTestsBase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.ARTIFACT_POWER_DELTA', 0.0)
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_persons', lambda self: [])
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_masters', lambda self: [])
     def test_give_reward__artifact_scale(self):
 
         self.assertEqual(self.hero.bag.occupation, 0)
@@ -414,7 +440,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(artifact_1.level + 1, artifact_2.level)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_persons', lambda self: [])
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_masters', lambda self: [])
     def test_give_reward__money_scale(self):
 
         self.assertEqual(self.hero.money, 0)
@@ -429,7 +455,7 @@ class PrototypeTests(PrototypeTestsBase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.quest_money_reward_multiplier', lambda hero: -100)
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_persons', lambda self: [])
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_masters', lambda self: [])
     def test_give_reward__money_scale_less_then_zero(self):
 
         with self.check_delta(lambda: self.hero.money, 1):
