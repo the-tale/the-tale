@@ -98,6 +98,7 @@ def find_path_between_places(start_place, finish_place, travel_cost, excluded_ce
 
 
 def find_shortest_path(from_x, from_y, to_x, to_y, width, height, travel_cost, excluded_cells):
+
     if from_x == to_x and from_y == to_y:
         return [(from_x, from_y)], 0
 
@@ -147,7 +148,7 @@ def _build_path_map(from_x, from_y, to_x, to_y, width, height, travel_cost, excl
 
             real_cost = cost + move_cost
 
-            if path_map[next_y][next_x] < real_cost:
+            if path_map[next_y][next_x] <= real_cost:
                 continue
 
             estimated_cost = travel_cost.best_cost * logic.manhattan_distance(next_x, next_y, to_x, to_y)
