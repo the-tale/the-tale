@@ -78,11 +78,27 @@ class DeathType(dext_forms.Form):
 
 
 class Emissary(dext_forms.Form):
-    value = dext_fields.ChoiceField(label='Эмиссар')
+    value = dext_fields.ChoiceField(label='Эмиссар', required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['value'].choices = emissaries_logic.form_choices()
+
+    def clean_value(self):
+        emissary_id = self.cleaned_data.get('value')
+
+        if emissary_id in (None, ''):
+            raise django_forms.ValidationError('Выберите эмиссара')
+
+        emissary_id = int(emissary_id)
+
+        if emissary_id not in emissaries_storage.emissaries:
+            raise django_forms.ValidationError('Эмиссар покинул игру, пожалуйста, обновите страницу')
+
+        if not emissaries_storage.emissaries[emissary_id].state.is_IN_GAME:
+            raise django_forms.ValidationError('Эмиссар покинул игру, пожалуйста, обновите страницу')
+
+        return emissary_id
 
     def get_card_data(self):
         return {'value': int(self.c.value)}

@@ -83,3 +83,6 @@ class Command(django_management.BaseCommand):
                                                                                       'linguistics.edit_template'])
         utils_permissions.sync_group(linguistics_conf.settings.EDITOR_GROUP_NAME, ['linguistics.moderate_word',
                                                                                    'linguistics.edit_template'])
+
+        # TODO: remove after 0.3.30
+        clans_storage.infos.update_version()

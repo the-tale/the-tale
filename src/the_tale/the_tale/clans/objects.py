@@ -19,7 +19,8 @@ class Clan:
                  'description',
                  'might',
                  'statistics_refreshed_at',
-                 'state')
+                 'state',
+                 'linguistics_name')
 
     def __init__(self,
                  id,
@@ -35,7 +36,8 @@ class Clan:
                  description,
                  might,
                  statistics_refreshed_at,
-                 state):
+                 state,
+                 linguistics_name):
         self.id = id
         self.created_at = created_at
         self.updated_at = updated_at
@@ -50,6 +52,7 @@ class Clan:
         self.might = might
         self.statistics_refreshed_at = statistics_refreshed_at
         self.state = state
+        self.linguistics_name = linguistics_name
 
     @property
     def description_html(self):
@@ -231,3 +234,31 @@ class Attributes:
         return int(math.ceil((tt_clans_constants.INITIAL_POINTS_GAIN +
                               self.points_gain_level *
                               tt_clans_constants.POINTS_GAIN_INCREMENT_ON_LEVEL_UP) / 24))
+
+
+class ClanInfo:
+    __slots__ = ('id', 'name', 'linguistics_name', 'abbr', 'motto', '_utg_name_form__lazy')
+
+    def __init__(self, id, name, linguistics_name, abbr, motto):
+        self.id = id
+        self.name = name
+        self.linguistics_name = linguistics_name
+        self.abbr = abbr
+        self.motto = motto
+
+    @utils_decorators.lazy_property
+    def utg_name_form(self):
+        return utg_words.WordForm(self.linguistics_name)
+
+    def linguistics_variables(self):
+        return [('abbr', self.abbr),
+                ('motto', self.motto)]
+
+    def linguistics_restrictions(self):
+        return ()
+
+    def ui_info(self):
+        return {'id': self.id,
+                'name': self.name,
+                'abbr': self.abbr,
+                'motto': self.motto}

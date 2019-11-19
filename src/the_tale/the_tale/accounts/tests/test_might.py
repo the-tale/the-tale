@@ -269,7 +269,7 @@ class CalculateMightTests(utils_testcase.TestCase):
 
         self.assertEqual(might.calculate_might(self.account), old_might + 5.0 + 5.0 / 1 + 5.0 / 2 + 5.0 / 2)
 
-    def test_might_for_linguistics__templaes___different_sources(self):
+    def test_might_for_linguistics__templaes___different_sources_2(self):
         account_3 = self.accounts_factory.create_account()
 
         old_might = might.calculate_might(self.account)

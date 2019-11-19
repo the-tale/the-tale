@@ -39,18 +39,25 @@ class Client(client.Client):
         super().__init__(**kwargs)
         self.transaction_lifetime = transaction_lifetime
 
-    def cmd_balance(self, account_id, currency=None):
+    def cmd_balances(self, accounts_ids):
+        answer = operations.sync_request(url=self.url('accounts/balances'),
+                                         data=tt_protocol_bank_pb2.AccountsBalancesRequest(accounts_ids=tuple(accounts_ids)),
+                                         AnswerType=tt_protocol_bank_pb2.AccountsBalancesResponse)
 
-        if currency is None:
+        result = {account_id: dict(balances.amounts)
+                  for account_id, balances in answer.balances.items()}
+
+        return result
+
+    def cmd_balance(self, account_id, currency=None):
+        if isinstance(currency, int):
+            pass
+        elif currency is None:
             currency = 0
         else:
             currency = currency.value
 
-        answer = operations.sync_request(url=self.url('accounts/balance'),
-                                         data=tt_protocol_bank_pb2.AccountBalanceRequest(account_id=account_id),
-                                         AnswerType=tt_protocol_bank_pb2.AccountBalanceResponse)
-
-        return answer.balance.get(currency, 0)
+        return self.cmd_balances(accounts_ids=(account_id,))[account_id].get(currency, 0)
 
     def cmd_change_balance(self,
                            account_id,
@@ -59,9 +66,15 @@ class Client(client.Client):
                            async=False,
                            autocommit=False,
                            currency=None,
-                           restrictions=Restrictions()):
+                           restrictions=Restrictions(),
+                           transaction_lifetime=None):
 
-        if currency is None:
+        if transaction_lifetime is None:
+            transaction_lifetime = self.transaction_lifetime
+
+        if isinstance(currency, int):
+            pass
+        elif currency is None:
             currency = 0
         else:
             currency = currency.value
@@ -79,7 +92,7 @@ class Client(client.Client):
         if not async:
             try:
                 answer = operations.sync_request(url=self.url('transactions/start'),
-                                                 data=tt_protocol_bank_pb2.StartTransactionRequest(lifetime=self.transaction_lifetime,
+                                                 data=tt_protocol_bank_pb2.StartTransactionRequest(lifetime=transaction_lifetime,
                                                                                                    operations=applied_operations,
                                                                                                    autocommit=autocommit,
                                                                                                    restrictions=restrictions),
@@ -90,7 +103,7 @@ class Client(client.Client):
             return True, answer.transaction_id
 
         operations.async_request(url=self.url('transactions/start'),
-                                 data=tt_protocol_bank_pb2.StartTransactionRequest(lifetime=self.transaction_lifetime,
+                                 data=tt_protocol_bank_pb2.StartTransactionRequest(lifetime=transaction_lifetime,
                                                                                    operations=applied_operations,
                                                                                    autocommit=autocommit,
                                                                                    restrictions=restrictions))
@@ -127,12 +140,17 @@ class Client(client.Client):
             if not success:
                 raise change_balance_error()
 
-            try:
+            with self.commit_or_rollback(transaction_id):
                 yield
-            except:
-                self.cmd_rollback_transaction(transaction_id)
-                raise
-            else:
-                self.cmd_commit_transaction(transaction_id)
 
         return points_transaction
+
+    @contextlib.contextmanager
+    def commit_or_rollback(self, transaction_id):
+        try:
+            yield
+        except Exception:
+            self.cmd_rollback_transaction(transaction_id)
+            raise
+        else:
+            self.cmd_commit_transaction(transaction_id)

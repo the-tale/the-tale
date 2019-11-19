@@ -371,7 +371,7 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
 
     if (actor[1] == pgf.game.constants.ACTOR_TYPE.PERSON) {
 
-        if (data.clan_id == undefined) {
+        if (data.clan == undefined) {
             nameElement.text(data.name);
 
             popoverTitle = 'Мастер';
@@ -413,6 +413,8 @@ pgf.game.widgets._RenderActor = function(index, actor, element) {
             }
 
             jQuery('.pgf-race', content).text(race);
+            jQuery('.pgf-clan-abbr', content).text(data.clan.abbr);
+            jQuery('.pgf-clan-name', content).text(data.clan.name);
 
             nameElement.click(function(e){
                 e.preventDefault();

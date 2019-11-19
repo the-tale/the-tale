@@ -87,7 +87,7 @@ class SpecialTests(utils_testcase.TestCase):
         reactor = types.CARD.CREATE_CLAN.combiners[0]
         new_cards = reactor.combine([card_type.effect.create_card(available_for_auction=True, type=card_type)])
 
-        self.assertEqual(len(new_cards), 3)
+        self.assertEqual(len(new_cards), 9)
         self.assertTrue(all(card.type.is_EMISSARY_QUEST for card in new_cards))
 
 

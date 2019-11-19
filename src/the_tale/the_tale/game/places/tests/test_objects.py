@@ -7,10 +7,13 @@ smart_imports.all()
 TEST_FREEDOM = 3
 
 
-class PlaceTests(utils_testcase.TestCase):
+class PlaceTests(helpers.PlacesTestsMixin,
+                 utils_testcase.TestCase):
 
     def setUp(self):
         super(PlaceTests, self).setUp()
+        tt_services.effects.cmd_debug_clear_service()
+
         self.p1, self.p2, self.p3 = game_logic.create_test_map()
 
     @mock.patch('the_tale.game.balance.constants.PLACE_NEW_PLACE_LIVETIME', 0)
@@ -106,6 +109,26 @@ class PlaceTests(utils_testcase.TestCase):
                                                     resource_2=relations.RESOURCE_EXCHANGE_TYPE.NONE,
                                                     bill=None)
 
+    def test_refresh_attributes__use_effects_from_storage(self):
+
+        delta = 0.3
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        self.p1.refresh_attributes()
+
+        with self.check_delta(lambda: self.p1.attrs.sell_price, delta):
+            effect = tt_api_effects.Effect(id=None,
+                                           attribute=places_relations.ATTRIBUTE.SELL_PRICE,
+                                           entity=self.p1.id,
+                                           value=delta,
+                                           name='test')
+            tt_services.effects.cmd_register(effect)
+
+            places_storage.effects.refresh()
+
+            self.p1.refresh_attributes()
+
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
@@ -174,7 +197,8 @@ class PlaceTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__transport(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.TRANSPORT_NODE)
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.TRANSPORT, value=1000))
+
+        self.create_effect(self.p1.id, value=1000, attribute=relations.ATTRIBUTE.TRANSPORT)
 
         self._create_test_exchanges()
 
@@ -191,7 +215,7 @@ class PlaceTests(utils_testcase.TestCase):
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__culture__min_value(self):
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.CULTURE, value=-1000))
+        self.create_effect(self.p1.id, value=-1000, attribute=relations.ATTRIBUTE.CULTURE)
 
         self._create_test_exchanges()
 
@@ -203,7 +227,7 @@ class PlaceTests(utils_testcase.TestCase):
     def test_refresh_attributes__tax(self):
 
         # compensate low production
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.PRODUCTION, value=+10000))
+        self.create_effect(self.p1.id, value=10000, attribute=relations.ATTRIBUTE.PRODUCTION)
         self.p1.refresh_attributes()
 
         self._create_test_exchanges()
@@ -219,7 +243,7 @@ class PlaceTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 100)
     def test_refresh_attributes__freedom(self):
         self.p1.set_modifier(modifiers.CITY_MODIFIERS.POLIC)
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.FREEDOM, value=1000))
+        self.create_effect(self.p1.id, value=1000, attribute=relations.ATTRIBUTE.FREEDOM)
 
         self._create_test_exchanges()
 
@@ -228,7 +252,7 @@ class PlaceTests(utils_testcase.TestCase):
         self.assertTrue(-0.001 < self.p1.attrs.freedom - (1000 + 100 * len(self.p1.persons) + 1.0 + 0.1) < 0.001)
 
     def test_refresh_attributes__freedom__min_value(self):
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.FREEDOM, value=-1000))
+        self.create_effect(self.p1.id, value=-1000, attribute=relations.ATTRIBUTE.FREEDOM)
 
         self._create_test_exchanges()
 
@@ -240,8 +264,8 @@ class PlaceTests(utils_testcase.TestCase):
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)
     def test_refresh_attributes__stability(self):
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=0.25))
+        self.create_effect(self.p1.id, value=-0.5, attribute=relations.ATTRIBUTE.STABILITY)
+        self.create_effect(self.p1.id, value=0.25, attribute=relations.ATTRIBUTE.STABILITY)
 
         self.p1.refresh_attributes()
 
@@ -249,23 +273,24 @@ class PlaceTests(utils_testcase.TestCase):
 
     def test_refresh_attributes__stability__minimum(self):
 
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=-0.6))
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=-0.55))
+        self.create_effect(self.p1.id, value=-0.6, attribute=relations.ATTRIBUTE.STABILITY)
+        self.create_effect(self.p1.id, value=-0.55, attribute=relations.ATTRIBUTE.STABILITY)
 
         self.p1.refresh_attributes()
 
         self.assertTrue(-0.001 < self.p1.attrs.stability - c.PLACE_MIN_STABILITY < 0.001)
 
     def test_refresh_attributes__stability_maximum(self):
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=0.6))
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.STABILITY, value=0.55))
+        self.create_effect(self.p1.id, value=0.6, attribute=relations.ATTRIBUTE.STABILITY)
+        self.create_effect(self.p1.id, value=0.55, attribute=relations.ATTRIBUTE.STABILITY)
 
         self.p1.refresh_attributes()
 
         self.assertEqual(self.p1.attrs.stability, 1.0)
 
     def test_refresh_attributes__production__min_value(self):
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.PRODUCTION, value=-1000))
+        self.create_effect(self.p1.id, value=-1000, attribute=relations.ATTRIBUTE.PRODUCTION)
+
         self.p1.attrs.size = 1
         self.p1.attrs.goods = 0
 
@@ -276,7 +301,7 @@ class PlaceTests(utils_testcase.TestCase):
         self.assertTrue(self.p1.attrs.tax > 0)
 
     def test_refresh_attributes__production__min_value__not_min_size(self):
-        self.p1.effects.add(game_effects.Effect(name='test', attribute=relations.ATTRIBUTE.PRODUCTION, value=-1000))
+        self.create_effect(self.p1.id, value=-1000, attribute=relations.ATTRIBUTE.PRODUCTION)
         self.p1.attrs.size = 10
         self.p1.attrs.goods = 0
 
@@ -328,83 +353,13 @@ class PlaceTests(utils_testcase.TestCase):
 
         with self.check_not_changed(lambda: self.p1.attrs.stability):
             self.p1.set_modifier(modifiers.CITY_MODIFIERS.TRADE_CENTER)
-            self.p1.effects.add(game_effects.Effect(name='x', attribute=relations.ATTRIBUTE.MODIFIER_TRADE_CENTER, value=100))
+            self.create_effect(self.p1.id, value=100, attribute=relations.ATTRIBUTE.MODIFIER_TRADE_CENTER)
             self.p1.refresh_attributes()
 
         with self.check_delta(lambda: self.p1.attrs.stability, -0.5):
             self.p1.attrs.modifier_trade_center = 0
-            self.p1.effects.clear()
+            storage.effects.clear()
             self.p1.refresh_attributes()
-
-    @mock.patch('the_tale.game.places.races.Races.dominant_race', game_relations.RACE.ELF)
-    @mock.patch('the_tale.game.places.objects.Place.race', game_relations.RACE.ELF)
-    @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
-    def test_stability__reduce_effects(self):
-        self.p1.effects.add(game_effects.Effect(name='x', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
-        self.p1.effects.add(game_effects.Effect(name='y', attribute=relations.ATTRIBUTE.STABILITY, value=0.25))
-
-        self.p1.refresh_attributes()
-
-        self.assertTrue(-0.001 < self.p1.attrs.stability - 0.75 < 0.001)
-
-        self.p1.effects_update_step()
-
-        self.assertEqual(len(self.p1.effects.effects), 2)
-
-        for effect in self.p1.effects.effects:
-            if effect.name == 'x':
-                self.assertEqual(effect.value, -0.5 + c.PLACE_STABILITY_RECOVER_SPEED * (3 / 4))
-            else:
-                self.assertEqual(effect.value, 0.25 - c.PLACE_STABILITY_RECOVER_SPEED * (1 / 4))
-
-    def test_stability__stability_deltas_sum_equal_to_stability_renewing_speed(self):
-        self.p1.attrs.stability_renewing_speed = 0.25
-
-        self.p1.effects.add(game_effects.Effect(name='x', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
-        self.p1.effects.add(game_effects.Effect(name='y', attribute=relations.ATTRIBUTE.STABILITY, value=0.25))
-        self.p1.effects.add(game_effects.Effect(name='z', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
-
-        self.p1.effects_update_step()
-
-        for i in range(len(self.p1.effects) - 1):
-            self.assertTrue(self.p1.effects.effects[i].delta >= self.p1.effects.effects[i + 1].delta)
-
-        self.assertEqual(self.p1.attrs.stability_renewing_speed, sum(effect.delta for effect in self.p1.effects.effects))
-
-    def test_stability__stability_deltas_sum_equal_to_stability_renewing_speed__a_lot_of_effects(self):
-        self.p1.attrs.stability_renewing_speed = 0.25
-
-        for i in range(10):
-            self.p1.effects.add(game_effects.Effect(name=str(i), attribute=relations.ATTRIBUTE.STABILITY, value=100 * random.choice([-1, 1])))
-
-        self.p1.effects_update_step()
-
-        for i in range(len(self.p1.effects) - 1):
-            self.assertTrue(self.p1.effects.effects[i].delta >= self.p1.effects.effects[i + 1].delta)
-
-        self.assertEqual(self.p1.attrs.stability_renewing_speed, sum(effect.delta for effect in self.p1.effects.effects))
-        self.assertEqual(self.p1.attrs.stability_renewing_speed, sum(abs(effect.delta) for effect in self.p1.effects.effects))
-
-    def test_stability__parameters_removed(self):
-        self.p1.attrs.stability_renewing_speed = 0.25
-
-        self.p1.effects.add(game_effects.Effect(name='x', attribute=relations.ATTRIBUTE.STABILITY, value=-0.5))
-        self.p1.effects.add(game_effects.Effect(name='y', attribute=relations.ATTRIBUTE.STABILITY, value=0.25))
-
-        self.p1.effects_update_step()
-        self.assertEqual(len(self.p1.effects.effects), 2)
-
-        self.p1.effects_update_step()
-        self.assertEqual(len(self.p1.effects.effects), 2)
-
-        self.p1.effects_update_step()
-        self.assertEqual(len(self.p1.effects.effects), 1)
-
-        self.assertEqual(self.p1.effects.effects[0].name, 'y')
-        self.assertEqual(self.p1.effects.effects[0].value, 0.0625)
-
-        self.p1.effects_update_step()
-        self.assertEqual(len(self.p1.effects.effects), 0)
 
     def test_refresh_attributes__stability__parameters_descreased(self):
 
@@ -412,7 +367,7 @@ class PlaceTests(utils_testcase.TestCase):
         self.p1.attrs.size = 5
         self.p1.refresh_attributes()
 
-        self.p1.effects.add(game_effects.Effect(name='x', attribute=relations.ATTRIBUTE.STABILITY, value=-1.0))
+        self.create_effect(self.p1.id, value=-1.0, attribute=relations.ATTRIBUTE.STABILITY)
 
         with self.check_decreased(lambda: self.p1.attrs.production):
             with self.check_increased(lambda: self.p1.attrs.freedom):

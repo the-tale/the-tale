@@ -24,7 +24,8 @@ class Restriction(game_names.ManageNameMixin):
                    external_id=model.external_id,
                    name=model.name)
 
-    def storage_key(self): return (self.group.value, self.external_id)
+    def storage_key(self):
+        return (self.group.value, self.external_id)
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and

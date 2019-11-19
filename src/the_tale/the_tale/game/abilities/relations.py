@@ -10,7 +10,7 @@ class HELP_CHOICES(rels_django.DjangoEnum):
     records = (('HEAL', 0, 'лечение', 160),
                ('TELEPORT', 1, 'телепорт', 160),
                ('LIGHTING', 2, 'молния', 160),
-               ('START_QUEST', 3, 'начало задания', 800),
+               # ('START_QUEST', 3, 'начало задания', 800),
                ('MONEY', 4, 'деньги', 40),
                ('RESURRECT', 5, 'воскрешение', 800),
                ('EXPERIENCE', 6, 'прозрение', 5),

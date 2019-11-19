@@ -19,6 +19,8 @@ class HighlevelTest(utils_testcase.TestCase):
     def setUp(self):
         super(HighlevelTest, self).setUp()
 
+        places_tt_services.effects.cmd_debug_clear_service()
+
         self.p1, self.p2, self.p3 = logic.create_test_map()
 
         self.account = self.accounts_factory.create_account()

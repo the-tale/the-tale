@@ -8,8 +8,12 @@ def forum_subcategory_caption(clan_name):
     return 'Раздел гильдии «{}»'.format(clan_name)
 
 
+def members_number(clan_id):
+    return models.Membership.objects.filter(clan_id=clan_id).count()
+
+
 def sync_clan_statistics(clan):
-    clan.members_number = models.Membership.objects.filter(clan_id=clan.id).count()
+    clan.members_number = members_number(clan.id)
     clan.active_members_number = accounts_models.Account.objects.filter(clan_id=clan.id,
                                                                         active_end_at__gt=datetime.datetime.now()).count()
 
@@ -102,16 +106,22 @@ def create_clan(owner, abbr, name, motto, description):
                                                                      order=subcategory_order,
                                                                      restricted=True)
 
+    data = {'linguistics_name': game_names.generator().get_fast_name(name).serialize()}
+
     clan_model = models.Clan.objects.create(name=name,
                                             abbr=abbr,
                                             motto=motto,
                                             description=description,
                                             members_number=1,
-                                            forum_subcategory=forum_subcategory._model)
+                                            forum_subcategory=forum_subcategory._model,
+                                            data=data)
 
     clan = load_clan(clan_model=clan_model)
 
     _add_member(clan=clan, account=owner, role=relations.MEMBER_ROLE.MASTER)
+
+    storage.infos.update_version()
+    storage.infos.refresh()
 
     tt_services.chronicle.cmd_add_event(clan=clan,
                                         event=relations.EVENT.CREATED,
@@ -176,7 +186,8 @@ def load_clan(clan_id=None, clan_model=None):
                         description=clan_model.description,
                         might=clan_model.might,
                         statistics_refreshed_at=clan_model.statistics_refreshed_at,
-                        state=clan_model.state)
+                        state=clan_model.state,
+                        linguistics_name=utg_words.Word.deserialize(clan_model.data['linguistics_name']))
 
 
 def load_clans(clans_ids):
@@ -190,10 +201,16 @@ def load_clans(clans_ids):
 
 @django_transaction.atomic
 def save_clan(clan):
+    data = {'linguistics_name': clan.linguistics_name.serialize()}
+
     models.Clan.objects.filter(id=clan.id).update(abbr=clan.abbr,
                                                   name=clan.name,
                                                   motto=clan.motto,
-                                                  description=clan.description)
+                                                  description=clan.description,
+                                                  data=data)
+
+    storage.infos.update_version()
+    storage.infos.refresh()
 
     forum_prototypes.SubCategoryPrototype._db_filter(id=clan.forum_subcategory_id).update(caption=forum_subcategory_caption(clan.name))
 
@@ -622,3 +639,20 @@ def reset_free_quests(clan_id):
                                                                              currency=relations.CURRENCY.FREE_QUESTS)
 
     return status
+
+
+def get_clan_memberships(clan_id):
+    return {membership.account_id: membership
+            for membership in models.Membership.objects.filter(clan=clan_id)}
+
+
+def lock_clan_for_update(clan_id):
+    return models.Clan.objects.select_for_update().filter(id=clan_id).exists()
+
+
+def has_correct_players_number(clan_id, attributes):
+    return members_number(clan_id) <= attributes.members_maximum
+
+
+def has_space_for_new_member(clan_id, attributes):
+    return members_number(clan_id) < attributes.members_maximum

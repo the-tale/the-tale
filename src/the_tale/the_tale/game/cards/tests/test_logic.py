@@ -169,7 +169,7 @@ class GetCombinedCardTests(utils_testcase.TestCase):
     def test_combine_1__multiple_results(self):
         cards, result = logic.get_combined_cards(allow_premium_cards=True,
                                                  combined_cards=(self.create_card(types.CARD.CREATE_CLAN),))
-        self.assertEqual(len(cards), 3)
+        self.assertEqual(len(cards), 9)
         self.assertTrue(all(card.type.is_EMISSARY_QUEST for card in cards))
 
         self.assertTrue(cards[0].type.rarity.value < types.CARD.CREATE_CLAN.rarity.value)

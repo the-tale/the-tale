@@ -13,17 +13,30 @@ from . import relations
 from . import exceptions
 
 
+async def load_balances(accounts_ids):
+
+    results = await db.sql('SELECT account, currency, amount FROM accounts WHERE account IN %(accounts_ids)s',
+                           {'accounts_ids': tuple(accounts_ids)})
+
+    balances = {account_id: {} for account_id in accounts_ids}
+
+    for row in results:
+        balances[row['account']][row['currency']] = row['amount']
+
+    return balances
+
+
 async def load_balance(account_id):
-
-    results = await db.sql('SELECT currency, amount FROM accounts WHERE account=%(account_id)s',
-                           {'account_id': account_id})
-
-    return {row['currency']: row['amount'] for row in results}
+    balances = await load_balances((account_id,))
+    return balances[account_id]
 
 
 async def load_history(account_id):
 
-    results = await db.sql('SELECT created_at, currency, amount, description FROM operations WHERE account=%(account_id)s',
+    results = await db.sql('''SELECT created_at, currency, amount, description
+                              FROM operations
+                              WHERE account=%(account_id)s
+                              ORDER BY created_at''',
                            {'account_id': account_id})
 
     return [objects.HistoryRecord(created_at=row['created_at'],
@@ -217,7 +230,11 @@ async def _commit_transaction(execute, arguments):
 
     logger.info('try to commit transaction %s (with log saving)', transaction_id)
 
-    results = await execute('UPDATE transactions SET state=%(new_state)s, updated_at=NOW() WHERE id=%(id)s AND state=%(old_state)s RETURNING id, data',
+    results = await execute('''UPDATE transactions
+                               SET state=%(new_state)s,
+                                   updated_at=NOW()
+                               WHERE id=%(id)s AND state=%(old_state)s AND NOW() < created_at + lifetime
+                               RETURNING id, data''',
                             {'id': transaction_id,
                              'new_state': relations.TRANSACTION_STATE.COMMITED.value,
                              'old_state': relations.TRANSACTION_STATE.OPENED.value})

@@ -17,11 +17,6 @@ class Help(prototypes.AbilityPrototype):
         action.on_heal()
         return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
-    def use_start_quest(self, task, action, hero, critical):  # pylint: disable=W0613
-        hero.add_message('angel_ability_stimulate', hero=hero, energy=self.TYPE.cost)
-        action.init_quest()
-        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
-
     def use_money(self, task, action, hero, critical):  # pylint: disable=W0613
         coins = int(math.ceil(f.normal_loot_cost_at_lvl(hero.level) * random.uniform(*c.ANGEL_HELP_CRIT_MONEY_FRACTION)))
 
@@ -108,9 +103,6 @@ class Help(prototypes.AbilityPrototype):
     def _use(self, task, choice, action, hero, critical):
         if choice.is_HEAL:
             return self.use_heal(task, action, hero, critical)
-
-        elif choice.is_START_QUEST:
-            return self.use_start_quest(task, action, hero, critical)
 
         elif choice.is_MONEY:
             return self.use_money(task, action, hero, critical)

@@ -1,4 +1,5 @@
 {% import 'accounts/macros.html' as accounts_macros with context %}
+{% import 'map/macros.html' as map_macros with context %}
 
 {% macro quest_record_body(choices_list) -%}
 
@@ -184,4 +185,21 @@ jQuery(document).ready(function(e){
   <a href="{{url('game:heroes:show', account_short_info.id)}}">{{hero.name}}</a>
   {{ hero.level }} уровня,
   хранитель: {{accounts_macros.account_link(account_short_info, account_short_info.clan)}}
+{% endmacro %}
+
+
+{% macro attribute_record(entity, attribute_name, extra_text='') %}
+  {% set attribute, value = entity.attribute_ui_info(attribute_name) %}
+  <tr>
+    <th>{{attribute.text}}</th>
+    <td>{{attribute.formatter(value)}}{{extra_text}}{{attribute.verbose_units}}</td>
+    <td>
+      <a href="javascript:void(0);"
+         class="info-link"
+         rel="tooltip"
+         title="{{map_macros.power_incoming_tooltip(attribute.description, entity.tooltip_effects_for_attribute(attribute), percents=true if attribute.verbose_units and attribute.verbose_units[0] == '%' else false)}}">
+        подробнее
+      </a>
+    </td>
+  </tr>
 {% endmacro %}

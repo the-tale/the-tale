@@ -92,7 +92,8 @@ class Place(game_names.ManageNameMixin2):
         return self.created_at + datetime.timedelta(seconds=c.PLACE_NEW_PLACE_LIVETIME)
 
     @property
-    def description_html(self): return utils_bbcode.render(self.description)
+    def description_html(self):
+        return utils_bbcode.render(self.description)
 
     def linguistics_restrictions(self):
         restrictions = [linguistics_restrictions.get(self.race),
@@ -187,8 +188,13 @@ class Place(game_names.ManageNameMixin2):
         self.x += dx
         self.y += dy
 
+    def demographics_pressure_modifires(self):
+        return {race: getattr(self.attrs, 'DEMOGRAPHICS_PRESSURE_{}'.format(race.name).lower())
+                for race in game_relations.RACE.records}
+
     def sync_race(self):
-        self.races.update(persons=self.persons)
+        self.races.update(persons=self.persons,
+                          demographics_pressure_modifires=self.demographics_pressure_modifires())
 
     def is_modifier_active(self):
         return getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0) >= c.PLACE_TYPE_ENOUGH_BORDER
@@ -209,7 +215,7 @@ class Place(game_names.ManageNameMixin2):
     def _effects_generator(self):
         yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.TAX, value=0.0)
 
-        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=1.0)
+        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_BASE_STABILITY)
 
         if len(self.persons) > c.PLACE_MAX_PERSONS:
             yield game_effects.Effect(name='избыток Мастеров',
@@ -234,6 +240,9 @@ class Place(game_names.ManageNameMixin2):
         yield game_effects.Effect(name='культура', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * self.attrs.culture * 0.5)
 
         for effect in self.effects.effects:
+            yield effect
+
+        for effect in storage.effects.effects_for_place(self.id):
             yield effect
 
         if self.is_modifier_active():
@@ -389,24 +398,7 @@ class Place(game_names.ManageNameMixin2):
     def effects_update_step(self):
         stability_effects = [effect for effect in self.effects.effects if effect.attribute.is_STABILITY]
 
-        if stability_effects:
-            speed = self.attrs.stability_renewing_speed
-
-            divider = 2
-            speed_sum = 0
-
-            for effect in stability_effects:
-                delta = 0
-
-                if divider < 1000:
-                    delta = speed / divider
-
-                effect.delta = delta
-                speed_sum += delta
-
-                divider *= 2
-
-            stability_effects[0].delta += (speed - speed_sum)
+        logic.update_stability_effects_deltas(self, stability_effects)
 
         self.effects.update_step()
 

@@ -736,6 +736,7 @@ class QuestPrototype(object):
 
         place_experience_bonuses = {}
         person_experience_bonuses = {}
+        emissaries_experience_bonuses = {}
 
         for participant in self.quest_participants(quest_uid):
 
@@ -751,7 +752,7 @@ class QuestPrototype(object):
 
                 elif person_type.is_EMISSARY:
                     person = emissaries_storage.emissaries.get_or_load(fact.externals['id'])
-
+                    emissaries_experience_bonuses[person.id] = person.attrs.experience_bonus
                 else:
                     raise NotImplementedError
 
@@ -762,9 +763,11 @@ class QuestPrototype(object):
 
             place_experience_bonuses[place.id] = place.attrs.experience_bonus
 
-        experience += experience * (sum(place_experience_bonuses.values()) + sum(person_experience_bonuses.values()))
+        experience += experience * (sum(place_experience_bonuses.values()) +
+                                    sum(person_experience_bonuses.values()) +
+                                    sum(emissaries_experience_bonuses.values()))
 
-        return experience
+        return max(1, experience)
 
     def get_politic_power_for_quest(self, quest_uid, hero):
         base_politic_power = f.person_power_for_quest(c.QUEST_AREA_RADIUS)

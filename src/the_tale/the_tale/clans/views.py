@@ -294,8 +294,7 @@ def chronicle(context):
 @resource('#clan', name='show')
 def show(context):
 
-    memberships = {membership.account_id: membership
-                   for membership in models.Membership.objects.filter(clan=context.current_clan.id)}
+    memberships = logic.get_clan_memberships(context.current_clan.id)
 
     accounts = sorted(accounts_prototypes.AccountPrototype.get_list_by_id(list(memberships.keys())),
                       key=lambda a: (memberships[a.id].role.priority, a.nick_verbose))
@@ -332,11 +331,12 @@ def show(context):
 
     clan_points = None
     free_quests_points = None
+    experience = None
 
     if is_own_clan:
-        # TODO: rewrite to single request
         clan_points = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.ACTION_POINTS)
         free_quests_points = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.FREE_QUESTS)
+        experience = tt_services.currencies.cmd_balance(context.current_clan.id, currency=relations.CURRENCY.EXPERIENCE)
 
     emissaries = emissaries_logic.load_emissaries_for_clan(context.current_clan.id)
 
@@ -345,6 +345,10 @@ def show(context):
     emissaries.sort(key=lambda e: (e.state.value, e.place.name, emissaries_powers[e.id]))
 
     attributes = logic.load_attributes(context.current_clan.id)
+
+    can_participate_in_pvp = emissaries_logic.can_clan_participate_in_pvp(context.current_clan.id)
+
+    has_correct_players_number = clans_logic.has_correct_players_number(context.current_clan.id, attributes)
 
     return dext_views.Page('clans/show.html',
                            content={'resource': context.resource,
@@ -368,10 +372,13 @@ def show(context):
                                     'is_own_clan': is_own_clan,
                                     'clan_points': clan_points,
                                     'free_quests_points': free_quests_points,
+                                    'experience': experience,
                                     'emissaries': emissaries,
                                     'attributes': attributes,
                                     'tt_clans_constants': tt_clans_constants,
-                                    'emissaries_powers': emissaries_powers})
+                                    'emissaries_powers': emissaries_powers,
+                                    'can_participate_in_pvp': can_participate_in_pvp,
+                                    'has_correct_players_number': has_correct_players_number})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -386,6 +393,7 @@ def edit(context):
                                    'abbr': context.current_clan.abbr,
                                    'motto': context.current_clan.motto,
                                    'description': context.current_clan.description,
+                                   'linguistics_name': context.current_clan.linguistics_name,
                                    'accept_requests_from_players': clan_properties.accept_requests_from_players})
 
     return dext_views.Page('clans/edit.html',
@@ -416,6 +424,7 @@ def update(context):
     clan.name = context.form.c.name
     clan.motto = context.form.c.motto
     clan.description = context.form.c.description
+    clan.linguistics_name = context.form.c.linguistics_name
 
     logic.save_clan(clan)
 
@@ -580,6 +589,14 @@ def request(context):
     return dext_views.AjaxOk()
 
 
+def _check_clan_restrictions_for_memebers(clan_id):
+    attributes = clans_logic.load_attributes(clan_id)
+
+    if not logic.has_space_for_new_member(clan_id, attributes):
+        raise dext_views.ViewError(code='clans.members_maximum_reached',
+                                   message='Гильдия достигла максимального размера и не может принимать новых членов.')
+
+
 @django_transaction.atomic
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
@@ -587,6 +604,11 @@ def request(context):
 @ClanStaticOperationAccessProcessor(permission='can_take_member')
 @resource('#clan', 'accept-request', method='POST')
 def accept_request(context):
+
+    logic.lock_clan_for_update(context.membership_request.clan_id)
+
+    _check_clan_restrictions_for_memebers(context.membership_request.clan_id)
+
     logic.accept_request(initiator=context.account,
                          membership_request=context.membership_request)
 
@@ -607,6 +629,10 @@ def accept_invite(context):
     if context.account.clan_id is not None:
         raise dext_views.ViewError(code='clans.already_in_clan',
                                    message='Игрок уже состоит в гильдии')
+
+    logic.lock_clan_for_update(context.membership_request.clan_id)
+
+    _check_clan_restrictions_for_memebers(context.membership_request.clan_id)
 
     logic.accept_invite(membership_request=context.membership_request)
 

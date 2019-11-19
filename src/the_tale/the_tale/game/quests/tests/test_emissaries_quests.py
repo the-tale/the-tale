@@ -137,7 +137,7 @@ class QuestsTests(utils_testcase.TestCase,
 
         self.assertFalse(self.hero.quests.has_quests)
 
-        emissaries_logic.dismiss_emissary(initiator=self.account, emissary_id=self.emissary.id)
+        emissaries_logic.dismiss_emissary(emissary_id=self.emissary.id)
 
         with self.check_not_changed(lambda: politic_power_logic.get_emissaries_power([self.emissary.id])[self.emissary.id]):
             self.complete_quest(self.hero)
@@ -153,7 +153,7 @@ class QuestsTests(utils_testcase.TestCase,
         while not self.hero.quests.has_quests:
             self.storage.process_turn(continue_steps_if_needed=False)
 
-        emissaries_logic.dismiss_emissary(initiator=self.account, emissary_id=self.emissary.id)
+        emissaries_logic.dismiss_emissary(emissary_id=self.emissary.id)
 
         with self.check_not_changed(lambda: politic_power_logic.get_emissaries_power([self.emissary.id])[self.emissary.id]):
             self.complete_quest(self.hero)

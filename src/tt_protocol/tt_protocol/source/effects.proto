@@ -1,0 +1,51 @@
+syntax = "proto3";
+package effects;
+
+
+message DeltaModificator {
+    string delta = 1;
+}
+
+
+message Effect {
+  int64 id = 1;
+  int64 attribute = 2;
+  int64 entity = 3;
+  string value = 4;
+  string caption = 5;
+  string data = 6;
+}
+
+
+message RegisterRequest {
+  Effect effect = 1;
+}
+
+message RegisterResponse {
+  int64 effect_id = 1;
+}
+
+message RemoveRequest {
+  int64 effect_id = 1;
+}
+
+message RemoveResponse {
+}
+
+message UpdateRequest {
+  Effect effect = 1;
+}
+
+message UpdateResponse {
+}
+
+message ListRequest {
+}
+
+message ListResponse {
+  repeated Effect effects = 1;
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

@@ -22,8 +22,8 @@ class Account(meta_relations_objects.MetaType):
         return cls(id=account.id, caption=account.nick_verbose)
 
     @classmethod
-    def create_removed(cls):
-        return cls(id=None, caption='неизвестный Хранитель')
+    def create_removed(cls, id):
+        return cls(id=id, caption='неизвестный Хранитель')
 
     @classmethod
     def create_from_id(cls, id):
@@ -32,7 +32,7 @@ class Account(meta_relations_objects.MetaType):
         account = prototypes.AccountPrototype.get_by_id(id)
 
         if account is None:
-            return cls.create_removed()
+            return cls.create_removed(id)
 
         return cls.create_from_object(account)
 
@@ -40,7 +40,13 @@ class Account(meta_relations_objects.MetaType):
     def create_from_ids(cls, ids):
         records = models.Account.objects.filter(id__in=ids)
 
-        if len(ids) != len(records):
-            raise meta_relations_exceptions.ObjectsNotFound(type=cls.TYPE, ids=ids)
+        meta_objects = {}
 
-        return [cls.create_from_object(prototypes.AccountPrototype(record)) for record in records]
+        for record in records:
+            meta_objects[record.id] = cls.create_from_object(prototypes.AccountPrototype(record))
+
+        for id in ids:
+            if id not in meta_objects:
+                meta_objects[id] = cls.create_removed(id)
+
+        return meta_objects.values()

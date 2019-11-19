@@ -12,4 +12,6 @@ settings = dext_app_settings.app_settings('PLACES',
                                           START_PLACE_SAFETY_PERCENTAGE=0.33,
 
                                           API_LIST_VERSION='1.1',
-                                          API_SHOW_VERSION='2.2')
+                                          API_SHOW_VERSION='2.2',
+
+                                          TT_PLACES_EFFECTS_ENTRY_POINT='http://localhost:10019/')

@@ -279,3 +279,8 @@ class ENERGY_REGENERATION(rels_django.DjangoEnum):
                ('INCENSE', 2, 'благовония', 4, 4 * _PERIOD, 4 * _AMOUNT, 4 * _LENGTH, ('incense', )),
                ('SYMBOLS', 3, 'символы', 3, 3 * _PERIOD, 3 * _AMOUNT, 3 * _LENGTH, ('symbols_stone', 'symbols_ground', 'symbols_tree')),
                ('MEDITATION', 4, 'медитация', 2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, ('meditation', )))
+
+
+class CLAN_MEMBERSHIP(rels_django.DjangoEnum):
+    records = (('NOT_IN_CLAN', 0, 'не состоит в гильдии'),
+               ('IN_CLAN', 1, 'состоит в гильдии'))

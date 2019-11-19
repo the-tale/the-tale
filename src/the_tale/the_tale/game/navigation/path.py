@@ -228,6 +228,9 @@ class Path:
 
 def simple_path(from_x, from_y, to_x, to_y):
 
+    if not all(isinstance(x, int) for x in (from_x, from_y, to_x, to_y)):
+        raise NotImplementedError('coordinates must be integer')
+
     cells = [(from_x, from_y)]
 
     delta = logic.manhattan_distance(to_x, to_y, from_x, from_y)

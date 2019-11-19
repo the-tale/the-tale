@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='bank.proto',
   package='bank',
   syntax='proto3',
-  serialized_pb=_b('\n\nbank.proto\x12\x04\x62\x61nk\"d\n\tOperation\x12\x12\n\naccount_id\x18\x01 \x01(\r\x12\x10\n\x08\x63urrency\x18\x02 \x01(\x05\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\x12\x0c\n\x04type\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\"Z\n\rHistoryRecord\x12\x12\n\ncreated_at\x18\x01 \x01(\x01\x12\x10\n\x08\x63urrency\x18\x02 \x01(\x05\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\"+\n\x15\x41\x63\x63ountBalanceRequest\x12\x12\n\naccount_id\x18\x01 \x01(\r\"\x84\x01\n\x16\x41\x63\x63ountBalanceResponse\x12:\n\x07\x62\x61lance\x18\x01 \x03(\x0b\x32).bank.AccountBalanceResponse.BalanceEntry\x1a.\n\x0c\x42\x61lanceEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\r:\x02\x38\x01\"+\n\x15\x41\x63\x63ountHistoryRequest\x12\x12\n\naccount_id\x18\x01 \x01(\r\">\n\x16\x41\x63\x63ountHistoryResponse\x12$\n\x07history\x18\x01 \x03(\x0b\x32\x13.bank.HistoryRecord\"z\n\x17StartTransactionRequest\x12#\n\noperations\x18\x01 \x03(\x0b\x32\x0f.bank.Operation\x12\x10\n\x08lifetime\x18\x02 \x01(\x01\x12\x12\n\nautocommit\x18\x03 \x01(\x08\x12\x14\n\x0crestrictions\x18\x04 \x01(\t\"2\n\x18StartTransactionResponse\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"2\n\x18\x43ommitTransactionRequest\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"\x1b\n\x19\x43ommitTransactionResponse\"4\n\x1aRollbackTransactionRequest\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"\x1d\n\x1bRollbackTransactionResponse\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
+  serialized_pb=_b('\n\nbank.proto\x12\x04\x62\x61nk\"d\n\tOperation\x12\x12\n\naccount_id\x18\x01 \x01(\r\x12\x10\n\x08\x63urrency\x18\x02 \x01(\x05\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\x12\x0c\n\x04type\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\"Z\n\rHistoryRecord\x12\x12\n\ncreated_at\x18\x01 \x01(\x01\x12\x10\n\x08\x63urrency\x18\x02 \x01(\x05\x12\x0e\n\x06\x61mount\x18\x03 \x01(\x05\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\"h\n\x08\x42\x61lances\x12,\n\x07\x61mounts\x18\x01 \x03(\x0b\x32\x1b.bank.Balances.AmountsEntry\x1a.\n\x0c\x41mountsEntry\x12\x0b\n\x03key\x18\x01 \x01(\x05\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"/\n\x17\x41\x63\x63ountsBalancesRequest\x12\x14\n\x0c\x61\x63\x63ounts_ids\x18\x01 \x03(\r\"\x9b\x01\n\x18\x41\x63\x63ountsBalancesResponse\x12>\n\x08\x62\x61lances\x18\x01 \x03(\x0b\x32,.bank.AccountsBalancesResponse.BalancesEntry\x1a?\n\rBalancesEntry\x12\x0b\n\x03key\x18\x01 \x01(\r\x12\x1d\n\x05value\x18\x02 \x01(\x0b\x32\x0e.bank.Balances:\x02\x38\x01\"+\n\x15\x41\x63\x63ountHistoryRequest\x12\x12\n\naccount_id\x18\x01 \x01(\r\">\n\x16\x41\x63\x63ountHistoryResponse\x12$\n\x07history\x18\x01 \x03(\x0b\x32\x13.bank.HistoryRecord\"z\n\x17StartTransactionRequest\x12#\n\noperations\x18\x01 \x03(\x0b\x32\x0f.bank.Operation\x12\x10\n\x08lifetime\x18\x02 \x01(\x01\x12\x12\n\nautocommit\x18\x03 \x01(\x08\x12\x14\n\x0crestrictions\x18\x04 \x01(\t\"2\n\x18StartTransactionResponse\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"2\n\x18\x43ommitTransactionRequest\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"\x1b\n\x19\x43ommitTransactionResponse\"4\n\x1aRollbackTransactionRequest\x12\x16\n\x0etransaction_id\x18\x01 \x01(\x04\"\x1d\n\x1bRollbackTransactionResponse\"\x1a\n\x18\x44\x65\x62ugClearServiceRequest\"\x1b\n\x19\x44\x65\x62ugClearServiceResponseb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -137,54 +137,23 @@ _HISTORYRECORD = _descriptor.Descriptor(
 )
 
 
-_ACCOUNTBALANCEREQUEST = _descriptor.Descriptor(
-  name='AccountBalanceRequest',
-  full_name='bank.AccountBalanceRequest',
+_BALANCES_AMOUNTSENTRY = _descriptor.Descriptor(
+  name='AmountsEntry',
+  full_name='bank.Balances.AmountsEntry',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='account_id', full_name='bank.AccountBalanceRequest.account_id', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=214,
-  serialized_end=257,
-)
-
-
-_ACCOUNTBALANCERESPONSE_BALANCEENTRY = _descriptor.Descriptor(
-  name='BalanceEntry',
-  full_name='bank.AccountBalanceResponse.BalanceEntry',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='key', full_name='bank.AccountBalanceResponse.BalanceEntry.key', index=0,
+      name='key', full_name='bank.Balances.AmountsEntry.key', index=0,
       number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='value', full_name='bank.AccountBalanceResponse.BalanceEntry.value', index=1,
-      number=2, type=13, cpp_type=3, label=1,
+      name='value', full_name='bank.Balances.AmountsEntry.value', index=1,
+      number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -201,19 +170,19 @@ _ACCOUNTBALANCERESPONSE_BALANCEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=346,
-  serialized_end=392,
+  serialized_start=272,
+  serialized_end=318,
 )
 
-_ACCOUNTBALANCERESPONSE = _descriptor.Descriptor(
-  name='AccountBalanceResponse',
-  full_name='bank.AccountBalanceResponse',
+_BALANCES = _descriptor.Descriptor(
+  name='Balances',
+  full_name='bank.Balances',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='balance', full_name='bank.AccountBalanceResponse.balance', index=0,
+      name='amounts', full_name='bank.Balances.amounts', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -222,7 +191,7 @@ _ACCOUNTBALANCERESPONSE = _descriptor.Descriptor(
   ],
   extensions=[
   ],
-  nested_types=[_ACCOUNTBALANCERESPONSE_BALANCEENTRY, ],
+  nested_types=[_BALANCES_AMOUNTSENTRY, ],
   enum_types=[
   ],
   options=None,
@@ -231,8 +200,107 @@ _ACCOUNTBALANCERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=260,
-  serialized_end=392,
+  serialized_start=214,
+  serialized_end=318,
+)
+
+
+_ACCOUNTSBALANCESREQUEST = _descriptor.Descriptor(
+  name='AccountsBalancesRequest',
+  full_name='bank.AccountsBalancesRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='accounts_ids', full_name='bank.AccountsBalancesRequest.accounts_ids', index=0,
+      number=1, type=13, cpp_type=3, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=320,
+  serialized_end=367,
+)
+
+
+_ACCOUNTSBALANCESRESPONSE_BALANCESENTRY = _descriptor.Descriptor(
+  name='BalancesEntry',
+  full_name='bank.AccountsBalancesResponse.BalancesEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='key', full_name='bank.AccountsBalancesResponse.BalancesEntry.key', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='value', full_name='bank.AccountsBalancesResponse.BalancesEntry.value', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=_descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001')),
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=462,
+  serialized_end=525,
+)
+
+_ACCOUNTSBALANCESRESPONSE = _descriptor.Descriptor(
+  name='AccountsBalancesResponse',
+  full_name='bank.AccountsBalancesResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='balances', full_name='bank.AccountsBalancesResponse.balances', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[_ACCOUNTSBALANCESRESPONSE_BALANCESENTRY, ],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=370,
+  serialized_end=525,
 )
 
 
@@ -262,8 +330,8 @@ _ACCOUNTHISTORYREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=394,
-  serialized_end=437,
+  serialized_start=527,
+  serialized_end=570,
 )
 
 
@@ -293,8 +361,8 @@ _ACCOUNTHISTORYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=439,
-  serialized_end=501,
+  serialized_start=572,
+  serialized_end=634,
 )
 
 
@@ -345,8 +413,8 @@ _STARTTRANSACTIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=503,
-  serialized_end=625,
+  serialized_start=636,
+  serialized_end=758,
 )
 
 
@@ -376,8 +444,8 @@ _STARTTRANSACTIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=627,
-  serialized_end=677,
+  serialized_start=760,
+  serialized_end=810,
 )
 
 
@@ -407,8 +475,8 @@ _COMMITTRANSACTIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=679,
-  serialized_end=729,
+  serialized_start=812,
+  serialized_end=862,
 )
 
 
@@ -431,8 +499,8 @@ _COMMITTRANSACTIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=731,
-  serialized_end=758,
+  serialized_start=864,
+  serialized_end=891,
 )
 
 
@@ -462,8 +530,8 @@ _ROLLBACKTRANSACTIONREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=760,
-  serialized_end=812,
+  serialized_start=893,
+  serialized_end=945,
 )
 
 
@@ -486,8 +554,8 @@ _ROLLBACKTRANSACTIONRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=814,
-  serialized_end=843,
+  serialized_start=947,
+  serialized_end=976,
 )
 
 
@@ -510,8 +578,8 @@ _DEBUGCLEARSERVICEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=845,
-  serialized_end=871,
+  serialized_start=978,
+  serialized_end=1004,
 )
 
 
@@ -534,18 +602,22 @@ _DEBUGCLEARSERVICERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=873,
-  serialized_end=900,
+  serialized_start=1006,
+  serialized_end=1033,
 )
 
-_ACCOUNTBALANCERESPONSE_BALANCEENTRY.containing_type = _ACCOUNTBALANCERESPONSE
-_ACCOUNTBALANCERESPONSE.fields_by_name['balance'].message_type = _ACCOUNTBALANCERESPONSE_BALANCEENTRY
+_BALANCES_AMOUNTSENTRY.containing_type = _BALANCES
+_BALANCES.fields_by_name['amounts'].message_type = _BALANCES_AMOUNTSENTRY
+_ACCOUNTSBALANCESRESPONSE_BALANCESENTRY.fields_by_name['value'].message_type = _BALANCES
+_ACCOUNTSBALANCESRESPONSE_BALANCESENTRY.containing_type = _ACCOUNTSBALANCESRESPONSE
+_ACCOUNTSBALANCESRESPONSE.fields_by_name['balances'].message_type = _ACCOUNTSBALANCESRESPONSE_BALANCESENTRY
 _ACCOUNTHISTORYRESPONSE.fields_by_name['history'].message_type = _HISTORYRECORD
 _STARTTRANSACTIONREQUEST.fields_by_name['operations'].message_type = _OPERATION
 DESCRIPTOR.message_types_by_name['Operation'] = _OPERATION
 DESCRIPTOR.message_types_by_name['HistoryRecord'] = _HISTORYRECORD
-DESCRIPTOR.message_types_by_name['AccountBalanceRequest'] = _ACCOUNTBALANCEREQUEST
-DESCRIPTOR.message_types_by_name['AccountBalanceResponse'] = _ACCOUNTBALANCERESPONSE
+DESCRIPTOR.message_types_by_name['Balances'] = _BALANCES
+DESCRIPTOR.message_types_by_name['AccountsBalancesRequest'] = _ACCOUNTSBALANCESREQUEST
+DESCRIPTOR.message_types_by_name['AccountsBalancesResponse'] = _ACCOUNTSBALANCESRESPONSE
 DESCRIPTOR.message_types_by_name['AccountHistoryRequest'] = _ACCOUNTHISTORYREQUEST
 DESCRIPTOR.message_types_by_name['AccountHistoryResponse'] = _ACCOUNTHISTORYRESPONSE
 DESCRIPTOR.message_types_by_name['StartTransactionRequest'] = _STARTTRANSACTIONREQUEST
@@ -571,27 +643,42 @@ HistoryRecord = _reflection.GeneratedProtocolMessageType('HistoryRecord', (_mess
   ))
 _sym_db.RegisterMessage(HistoryRecord)
 
-AccountBalanceRequest = _reflection.GeneratedProtocolMessageType('AccountBalanceRequest', (_message.Message,), dict(
-  DESCRIPTOR = _ACCOUNTBALANCEREQUEST,
-  __module__ = 'bank_pb2'
-  # @@protoc_insertion_point(class_scope:bank.AccountBalanceRequest)
-  ))
-_sym_db.RegisterMessage(AccountBalanceRequest)
+Balances = _reflection.GeneratedProtocolMessageType('Balances', (_message.Message,), dict(
 
-AccountBalanceResponse = _reflection.GeneratedProtocolMessageType('AccountBalanceResponse', (_message.Message,), dict(
-
-  BalanceEntry = _reflection.GeneratedProtocolMessageType('BalanceEntry', (_message.Message,), dict(
-    DESCRIPTOR = _ACCOUNTBALANCERESPONSE_BALANCEENTRY,
+  AmountsEntry = _reflection.GeneratedProtocolMessageType('AmountsEntry', (_message.Message,), dict(
+    DESCRIPTOR = _BALANCES_AMOUNTSENTRY,
     __module__ = 'bank_pb2'
-    # @@protoc_insertion_point(class_scope:bank.AccountBalanceResponse.BalanceEntry)
+    # @@protoc_insertion_point(class_scope:bank.Balances.AmountsEntry)
     ))
   ,
-  DESCRIPTOR = _ACCOUNTBALANCERESPONSE,
+  DESCRIPTOR = _BALANCES,
   __module__ = 'bank_pb2'
-  # @@protoc_insertion_point(class_scope:bank.AccountBalanceResponse)
+  # @@protoc_insertion_point(class_scope:bank.Balances)
   ))
-_sym_db.RegisterMessage(AccountBalanceResponse)
-_sym_db.RegisterMessage(AccountBalanceResponse.BalanceEntry)
+_sym_db.RegisterMessage(Balances)
+_sym_db.RegisterMessage(Balances.AmountsEntry)
+
+AccountsBalancesRequest = _reflection.GeneratedProtocolMessageType('AccountsBalancesRequest', (_message.Message,), dict(
+  DESCRIPTOR = _ACCOUNTSBALANCESREQUEST,
+  __module__ = 'bank_pb2'
+  # @@protoc_insertion_point(class_scope:bank.AccountsBalancesRequest)
+  ))
+_sym_db.RegisterMessage(AccountsBalancesRequest)
+
+AccountsBalancesResponse = _reflection.GeneratedProtocolMessageType('AccountsBalancesResponse', (_message.Message,), dict(
+
+  BalancesEntry = _reflection.GeneratedProtocolMessageType('BalancesEntry', (_message.Message,), dict(
+    DESCRIPTOR = _ACCOUNTSBALANCESRESPONSE_BALANCESENTRY,
+    __module__ = 'bank_pb2'
+    # @@protoc_insertion_point(class_scope:bank.AccountsBalancesResponse.BalancesEntry)
+    ))
+  ,
+  DESCRIPTOR = _ACCOUNTSBALANCESRESPONSE,
+  __module__ = 'bank_pb2'
+  # @@protoc_insertion_point(class_scope:bank.AccountsBalancesResponse)
+  ))
+_sym_db.RegisterMessage(AccountsBalancesResponse)
+_sym_db.RegisterMessage(AccountsBalancesResponse.BalancesEntry)
 
 AccountHistoryRequest = _reflection.GeneratedProtocolMessageType('AccountHistoryRequest', (_message.Message,), dict(
   DESCRIPTOR = _ACCOUNTHISTORYREQUEST,
@@ -664,6 +751,8 @@ DebugClearServiceResponse = _reflection.GeneratedProtocolMessageType('DebugClear
 _sym_db.RegisterMessage(DebugClearServiceResponse)
 
 
-_ACCOUNTBALANCERESPONSE_BALANCEENTRY.has_options = True
-_ACCOUNTBALANCERESPONSE_BALANCEENTRY._options = _descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001'))
+_BALANCES_AMOUNTSENTRY.has_options = True
+_BALANCES_AMOUNTSENTRY._options = _descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001'))
+_ACCOUNTSBALANCESRESPONSE_BALANCESENTRY.has_options = True
+_ACCOUNTSBALANCESRESPONSE_BALANCESENTRY._options = _descriptor._ParseOptions(descriptor_pb2.MessageOptions(), _b('8\001'))
 # @@protoc_insertion_point(module_scope)

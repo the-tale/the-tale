@@ -18,3 +18,7 @@ class BuildingsStorageError(PlaceError):
 
 class ResourceExchangeStorageError(PlaceError):
     MSG = 'resource exchange storage error: %(message)s'
+
+
+class EffectsStorageError(PlaceError):
+    MSG = 'effects storage error: %(message)s'

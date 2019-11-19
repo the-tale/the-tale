@@ -1,3 +1,4 @@
+import time
 import random
 import datetime
 
@@ -34,6 +35,45 @@ class Base(helpers.BaseTests):
     async def check_balance(self, account_id, expected_balance):
         balance = await operations.load_balance(account_id=account_id)
         self.assertEqual(expected_balance, balance)
+
+    async def check_balances(self, accounts_ids, expected_balances):
+        balances = await operations.load_balances(accounts_ids=accounts_ids)
+        self.assertEqual(expected_balances, balances)
+
+
+class LoadBalancesTests(Base):
+
+    @test_utils.unittest_run_loop
+    async def test_no_record(self):
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {}, 777: {}})
+
+    @test_utils.unittest_run_loop
+    async def test_has_record(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {1: 100500}, 777: {}})
+
+    @test_utils.unittest_run_loop
+    async def test_has_records(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
+        await helpers.call_change_balance(account_id=777, currency=1, amount=100600)
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {1: 100500}, 777: {1: 100600}})
+
+    @test_utils.unittest_run_loop
+    async def test_multiple_currencies(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
+        await helpers.call_change_balance(account_id=666, currency=2, amount=1)
+
+        await helpers.call_change_balance(account_id=777, currency=2, amount=13)
+        await helpers.call_change_balance(account_id=777, currency=3, amount=14)
+
+        await helpers.call_change_balance(account_id=888, currency=2, amount=17)
+
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {1: 100500, 2: 1},
+                                                     777: {2: 13, 3: 14}})
 
 
 class LoadBalanceTests(Base):
@@ -94,7 +134,7 @@ class LoadHistoryTests(Base):
                                                                          amount=-300,
                                                                          type='x.2',
                                                                          description='y.2')],
-                                           lifetime=datetime.timedelta(),
+                                           lifetime=datetime.timedelta(seconds=1),
                                            restrictions=objects.Restrictions(),
                                            logger=helpers.TEST_LOGGER,
                                            autocommit=True)
@@ -109,7 +149,7 @@ class LoadHistoryTests(Base):
                                                                          amount=-1,
                                                                          type='x.4',
                                                                          description='y.4')],
-                                           lifetime=datetime.timedelta(),
+                                           lifetime=datetime.timedelta(seconds=1),
                                            restrictions=objects.Restrictions(),
                                            logger=helpers.TEST_LOGGER,
                                            autocommit=True)
@@ -699,7 +739,7 @@ class RollbackHangedTransactionsTests(Base):
                                                                                             amount=-1,
                                                                                             type='x.1',
                                                                                             description='y.1')],
-                                                              lifetime=datetime.timedelta(seconds=0),
+                                                              lifetime=datetime.timedelta(seconds=1),
                                                               restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
@@ -709,7 +749,7 @@ class RollbackHangedTransactionsTests(Base):
                                                                                             amount=-10,
                                                                                             type='x.2',
                                                                                             description='y.2')],
-                                                              lifetime=datetime.timedelta(seconds=0),
+                                                              lifetime=datetime.timedelta(seconds=1),
                                                               restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
@@ -719,7 +759,7 @@ class RollbackHangedTransactionsTests(Base):
                                                                                             amount=-100,
                                                                                             type='x.3',
                                                                                             description='y.3')],
-                                                              lifetime=datetime.timedelta(seconds=0),
+                                                              lifetime=datetime.timedelta(seconds=1),
                                                               restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
@@ -729,13 +769,15 @@ class RollbackHangedTransactionsTests(Base):
                                                                                             amount=-10,
                                                                                             type='x.4',
                                                                                             description='y.4')],
-                                                              lifetime=datetime.timedelta(seconds=0),
+                                                              lifetime=datetime.timedelta(seconds=1),
                                                               restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
         await operations.rollback_transaction(transaction_id=transaction_3_id, logger=helpers.TEST_LOGGER)
         await operations.commit_transaction(transaction_id=transaction_1_id, logger=helpers.TEST_LOGGER)
+
+        time.sleep(2)
 
         await operations.rollback_hanged_transactions()
 
@@ -833,7 +875,7 @@ class RemoveTransactionsTests(Base):
                                                                                               amount=-1,
                                                                                               type='x.1',
                                                                                               description='y.1')],
-                                                                lifetime=datetime.timedelta(seconds=0),
+                                                                lifetime=datetime.timedelta(seconds=1),
                                                                 restrictions=objects.Restrictions(),
                                                                 logger=helpers.TEST_LOGGER,
                                                                 autocommit=False)
@@ -841,6 +883,8 @@ class RemoveTransactionsTests(Base):
 
         await operations.rollback_transaction(transaction_id=transactions_ids[2], logger=helpers.TEST_LOGGER)
         await operations.commit_transaction(transaction_id=transactions_ids[0], logger=helpers.TEST_LOGGER)
+
+        time.sleep(2)
 
         return transactions_ids
 

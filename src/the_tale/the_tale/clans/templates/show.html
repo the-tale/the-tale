@@ -33,6 +33,12 @@ jQuery(document).ready(function(e){
 </p>
 {% endif %}
 
+{% if not has_correct_players_number %}
+<p class="alert alert-danger">
+  Количество членов гильдии превышает допустимый максимум. Гильдия не может иметь эмиссаров.
+</p>
+{% endif %}
+
 <h2>
   [{{current_clan.abbr}}]
   {{current_clan.name}}
@@ -160,13 +166,13 @@ jQuery(document).ready(function(e){
     </a>
   </li>
   <li style="width: 25%;">
-    <a href="#pgf-clan-events" class="pgf-clan-events-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
-      <h4 class="newspaper-column-header">Летопись</h4>
+    <a href="#pgf-clan-emissaries" class="pgf-clan-emissaries-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Эмиссары</h4>
     </a>
   </li>
   <li style="width: 25%;">
-    <a href="#pgf-clan-emissaries" class="pgf-clan-emissaries-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
-      <h4 class="newspaper-column-header">Эмиссары</h4>
+    <a href="#pgf-clan-events" class="pgf-clan-events-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Летопись</h4>
     </a>
   </li>
 </ul>
@@ -269,18 +275,6 @@ jQuery(document).ready(function(e){
 
   </div>
 
-  <div class="tab-pane" id="pgf-clan-events">
-    <h3>Последние события в гильдии</h3>
-
-    {% if current_clan_rights.can_access_chronicle() %}
-    {{ chronicle_macros.records_list(chronicle_records) }}
-    {% else %}
-    <p class="alert alert-info">
-      У вас недостаточно прав, чтобы смотреть летопись гильдии.
-    </p>
-    {% endif %}
-  </div>
-
   <div class="tab-pane" id="pgf-clan-emissaries">
 
     <p>
@@ -291,7 +285,13 @@ jQuery(document).ready(function(e){
       <tbody>
         <tr>
           <th width="150px">Опыт</th>
-          <td width="250px"></td>
+          <td width="250px">
+            {% if experience is not none %}
+            <span class="pgf-experience-amount">{{experience}}</span>
+            {% else %}
+            <span class="pgf-experience-dummy">скрыто</span>
+            {% endif %}
+          </td>
           <td></td>
         </tr>
 
@@ -345,6 +345,20 @@ jQuery(document).ready(function(e){
           <td>уровень {{attributes.members_maximum_level}} из {{tt_clans_constants.MEMBERS_MAXIMUM_LEVEL_STEPS}}</td>
         </tr>
 
+        <tr>
+          <th>Сторонние задания</th>
+          <td>
+            {% if can_participate_in_pvp %}
+            доступны
+            {% else %}
+            недоступны
+            {% endif %}
+            {{emissaries_macros.pvp_access_marker()}}
+          </td>
+          <td>
+          </td>
+        </tr>
+
       </tbody>
     </table>
 
@@ -360,11 +374,23 @@ jQuery(document).ready(function(e){
     {% if current_clan_rights.can_emissaries_relocation() %}
     <p>
       <a class="pgf-dialog-simple-form btn btn-primary" href="{{ url('game:emissaries:create-dialog') }}">
-        Нанять эмиссара: -{{tt_clans_constants.PRICE_CREATE_EMISSARY}} очков
+        Нанять эмиссара: -{{tt_clans_constants.PRICE_CREATE_EMISSARY}} очков действий
       </a>
     </p>
     {% endif %}
 
+  </div>
+
+  <div class="tab-pane" id="pgf-clan-events">
+    <h3>Последние события в гильдии</h3>
+
+    {% if current_clan_rights.can_access_chronicle() %}
+    {{ chronicle_macros.records_list(chronicle_records) }}
+    {% else %}
+    <p class="alert alert-info">
+      У вас недостаточно прав, чтобы смотреть летопись гильдии.
+    </p>
+    {% endif %}
   </div>
 
 </div>

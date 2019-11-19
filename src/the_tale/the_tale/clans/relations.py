@@ -79,7 +79,11 @@ class EVENT(rels_django.DjangoEnum):
                event('EMISSARY_KILLED', 15, 'убит эмиссар'),
                event('EMISSARY_MOVED', 16, 'перемещён эмиссар'),
                event('MEMBER_ADD_POINTS', 17, 'Хранитель внёс очки действия'),
-               event('EMISSARY_DAMAGED', 18, 'покушение на эмиссара'))
+               event('EMISSARY_DAMAGED', 18, 'покушение на эмиссара'),
+               event('EMISSARY_EVENT_CREATED', 19, 'начало мероприятия'),
+               event('EMISSARY_EVENT_CANCELED', 20, 'мероприятие отменено'),
+               event('EMISSARY_EVENT_FINISHED', 21, 'мероприятие остановлено'),
+               event('EMISSARY_RENAMED', 22, 'эмиссар сменил имя'))
 
 
 class PERMISSION(rels_django.DjangoEnum):
@@ -92,8 +96,8 @@ class PERMISSION(rels_django.DjangoEnum):
                ('EDIT', 2, 'Редактирование гильдии', False, None, False),
                ('CHANGE_ROLE', 3, 'Изменение звания', True, 'Если старое и новое звание Хранителя меньше вашего', False),
                ('POLITICS', 4, 'Объявление войны/мира другой гильдии', False, None, True),
-               ('EMISSARIES_RELOCATION', 5, 'Назначение/перемещение/увольнение эмиссаров', False, None, True),
-               ('EMISSARIES_PLANING', 6, 'Управление мероприятиями эмиссаров', False, None, True),
+               ('EMISSARIES_RELOCATION', 5, 'Назначение/перемещение/увольнение эмиссаров', False, None, False),
+               ('EMISSARIES_PLANING', 6, 'Управление мероприятиями эмиссаров', False, None, False),
                ('TAKE_MEMBER', 7, 'Принятие в гильдию', False, 'В звании рекрута', False),
                ('REMOVE_MEMBER', 8, 'Исключение из гильдии', True, 'Если ваше звание выше', False),
                ('FORUM_MODERATION', 9, 'Модерация гильдейского форума', False, None, True),
@@ -149,4 +153,29 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
 
 class CURRENCY(rels_django.DjangoEnum):
     records = (('ACTION_POINTS', 0, 'очки действий'),
-               ('FREE_QUESTS', 1, 'задания для неподписчиков'))
+               ('FREE_QUESTS', 1, 'задания для неподписчиков'),
+               ('EXPERIENCE', 2, 'опыт'))
+
+
+class UPGRADABLE_PROPERTIES(rels_django.DjangoEnum):
+    property = rels.Column()
+    maximum = rels.Column(unique=False)
+    experience = rels.Column(unique=False)
+    delta = rels.Column(unique=False)
+
+    records = (('MEMBERS_MAXIMUM', 0, 'максимум членов гильдии', 'members_maximum_level',
+                tt_clans_constants.MEMBERS_MAXIMUM_LEVEL_STEPS,
+                tt_clans_constants.MEMBERS_MAXIMUM_LEVELS_EXPERIENCE,
+                1),
+               ('EMISSARIES_MAXIMUM', 1, 'максимум эмиссаров', 'emissary_maximum_level',
+                tt_clans_constants.EMISSARY_MAXIMUM_LEVEL_STEPS,
+                tt_clans_constants.EMISSARY_MEXIMUM_LEVELS_EXPERIENCE,
+                1),
+               ('POINTS_GAIN', 2, 'скорость прироста очков действия', 'points_gain_level',
+                tt_clans_constants.POINTS_GAIN_LEVEL_STEPS,
+                tt_clans_constants.POINTS_GAIN_LEVELS_EXPERIENCE,
+                tt_clans_constants.POINTS_GAIN_INCREMENT_ON_LEVEL_UP),
+               ('FREE_QUESTS_MAXIMUM', 3, 'максимум свободных заданий', 'free_quests_maximum_level',
+                tt_clans_constants.FREE_QUESTS_MAXIMUM_LEVEL_STEPS,
+                tt_clans_constants.FREE_QUESTS_MAXIMUM_LEVELS_EXPERIENCE,
+                1),)

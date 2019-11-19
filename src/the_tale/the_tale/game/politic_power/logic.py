@@ -84,12 +84,15 @@ def get_job_power(place_id=None, person_id=None):
 
 
 def get_emissaries_power(emissaries_ids):
+    emissaries_impacts = {emissary_id: 0 for emissary_id in emissaries_ids}
+
+    if not emissaries_ids:
+        return emissaries_impacts
+
     targets = [(tt_api_impacts.OBJECT_TYPE.EMISSARY, emissary_id)
                for emissary_id in emissaries_ids]
 
     impacts = game_tt_services.emissary_impacts.cmd_get_targets_impacts(targets=targets)
-
-    emissaries_impacts = {emissary_id: 0 for emissary_id in emissaries_ids}
 
     for impact in impacts:
         emissaries_impacts[impact.target_id] += impact.amount

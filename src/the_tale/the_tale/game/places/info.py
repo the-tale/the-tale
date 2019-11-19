@@ -32,7 +32,7 @@ def place_info_persons_data(place, full_building_info):
 def place_info_demographics(place):
     data = []
 
-    for race_info in place.races.demographics(place.persons):
+    for race_info in place.races.demographics(place.persons, place.demographics_pressure_modifires()):
         data.append({'race': race_info.race.value,
                      'percents': race_info.percents,
                      'delta': race_info.delta,

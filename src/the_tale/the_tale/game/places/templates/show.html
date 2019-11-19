@@ -56,18 +56,18 @@
   <h3>Экономика</h3>
   <table class="table table-condensed">
     <tbody>
-      {{places_macros.attribute_record(place, 'size')}}
-      {{places_macros.attribute_record(place, 'power_economic')}}
-      {{places_macros.attribute_record(place, 'money_economic')}}
-      {{places_macros.attribute_record(place, 'area')}}
-      {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
-      {{places_macros.attribute_record(place, 'stability')}}
-      {{places_macros.attribute_record(place, 'production')}}
-      {{places_macros.attribute_record(place, 'transport')}}
-      {{places_macros.attribute_record(place, 'freedom')}}
-      {{places_macros.attribute_record(place, 'safety')}}
-      {{places_macros.attribute_record(place, 'culture')}}
-      {{places_macros.attribute_record(place, 'tax')}}
+      {{game_macros.attribute_record(place, 'size')}}
+      {{game_macros.attribute_record(place, 'power_economic')}}
+      {{game_macros.attribute_record(place, 'money_economic')}}
+      {{game_macros.attribute_record(place, 'area')}}
+      {{game_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
+      {{game_macros.attribute_record(place, 'stability')}}
+      {{game_macros.attribute_record(place, 'production')}}
+      {{game_macros.attribute_record(place, 'transport')}}
+      {{game_macros.attribute_record(place, 'freedom')}}
+      {{game_macros.attribute_record(place, 'safety')}}
+      {{game_macros.attribute_record(place, 'culture')}}
+      {{game_macros.attribute_record(place, 'tax')}}
     </tbody>
   </table>
 </div>
@@ -201,7 +201,7 @@
             <th>влияние Мастеров</th>
           </thead>
           <tbody>
-            {% for race_info in place.races.demographics(place.persons) %}
+            {% for race_info in place.races.demographics(place.persons, place.demographics_pressure_modifires()) %}
               <tr>
                 <td>{{race_info.race.multiple_text}}</td>
                 <td>{{race_info.percents|percents(2)}}</td>
@@ -348,7 +348,7 @@
         <table class="table table-condensed" style="width: 450px;">
           <tbody>
             {% for attribute in place.attrs.attributes_by_name() %}
-            {{places_macros.attribute_record(place, attribute.name)}}
+            {{game_macros.attribute_record(place, attribute.name)}}
             {% endfor %}
           </tbody>
         </table>

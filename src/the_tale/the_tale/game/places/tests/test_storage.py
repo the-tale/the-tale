@@ -154,3 +154,42 @@ class ResourceExchangeStorageTests(utils_testcase.TestCase):
                                                     bill=None)
 
         self.assertEqual(exchange_2.id, storage.resource_exchanges.get_exchange_for_bill_id(bill.id).id)
+
+
+class EffectsStorageTest(utils_testcase.TestCase):
+
+    def setUp(self):
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        super().setUp()
+
+        self.places = game_logic.create_test_map()
+        self.storage = storage.EffectsStorage()
+        self.storage.sync()
+
+    def test_initialize(self):
+        self.assertEqual(self.storage._effects_by_place, {})
+
+    def test_effects_for_place(self):
+        effect_1_id = logic.register_effect(place_id=self.places[0].id,
+                                            attribute=relations.ATTRIBUTE.CULTURE,
+                                            value=0.1,
+                                            name='test.effect.1')
+        effect_2_id = logic.register_effect(place_id=self.places[0].id,
+                                            attribute=relations.ATTRIBUTE.STABILITY,
+                                            value=0.2,
+                                            name='test.effect.2')
+        effect_3_id = logic.register_effect(place_id=self.places[1].id,
+                                            attribute=relations.ATTRIBUTE.STABILITY,
+                                            value=0.3,
+                                            name='test.effect.3')
+
+        self.storage.refresh()
+
+        self.assertEqual({effect.id for effect in self.storage.effects_for_place(self.places[0].id)},
+                         {effect_1_id, effect_2_id})
+        self.assertEqual({effect.id for effect in self.storage.effects_for_place(self.places[1].id)},
+                         {effect_3_id})
+        self.assertEqual({effect.id for effect in self.storage.effects_for_place(self.places[2].id)},
+                         set())

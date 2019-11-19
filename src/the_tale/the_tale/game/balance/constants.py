@@ -318,8 +318,11 @@ PERSON_POWER_FOR_RANDOM_SPEND = int(200)
 MINIMUM_CARD_POWER = int(HERO_POWER_PER_DAY)
 
 # в 2 раза больше, так как карту надо применять к конкретному квесту, а не сразу к мастеру
-# в 5 раз меньше, так как на эффект кеста действуе политический бонус героя, считаем его в среднем равным 500%
-CARD_BONUS_FOR_QUEST = int(2 * MINIMUM_CARD_POWER / 5)
+# в EXPECTED_HERO_QUEST_POWER_MODIFIER раз меньше, так как на эффект квеста действует политический бонус героя, считаем его в среднем равным EXPECTED_HERO_QUEST_POWER_MODIFIER
+
+EXPECTED_HERO_QUEST_POWER_MODIFIER = float(5)
+
+CARD_BONUS_FOR_QUEST = int(2 * MINIMUM_CARD_POWER / EXPECTED_HERO_QUEST_POWER_MODIFIER)
 
 NORMAL_JOB_LENGTH = int(10)  # средняя длительность занятия мастера в днях
 
@@ -464,6 +467,8 @@ PLACE_MAX_PERSONS = 6
 PLACE_MIN_STABILITY = 0
 PLACE_MIN_CULTURE = 0.2
 PLACE_MIN_FREEDOM = 0.1
+
+PLACE_BASE_STABILITY = 1.0
 
 PLACE_MAX_SIZE = int(10)
 PLACE_MAX_ECONOMIC = int(10)

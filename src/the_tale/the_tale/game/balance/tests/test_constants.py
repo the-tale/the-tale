@@ -169,6 +169,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PERSON_POWER_FOR_RANDOM_SPEND, 200)
 
         self.assertEqual(c.MINIMUM_CARD_POWER, 100)
+        self.assertEqual(c.EXPECTED_HERO_QUEST_POWER_MODIFIER, 5)
         self.assertEqual(c.CARD_BONUS_FOR_QUEST, 40)
 
         self.assertEqual(c.NORMAL_JOB_LENGTH, 10)
@@ -247,6 +248,8 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_MIN_STABILITY, 0)
         self.assertEqual(c.PLACE_MIN_CULTURE, 0.2)
         self.assertEqual(c.PLACE_MIN_FREEDOM, 0.1)
+
+        self.assertEqual(c.PLACE_BASE_STABILITY, 1.0)
 
         self.assertEqual(c.PLACE_MAX_SIZE, 10)
         self.assertEqual(c.PLACE_MAX_ECONOMIC, 10)

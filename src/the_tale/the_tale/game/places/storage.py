@@ -17,9 +17,11 @@ class PlacesStorage(dext_storage.Storage):
     def _get_all_query(self):
         return models.Place.objects.all()
 
-    def get_choices(self):
+    def get_choices(self, exclude=()):
         self.sync()
-        return [(place.id, place.name) for place in sorted(self.all(), key=lambda p: p.name)]
+        return [(place.id, place.name)
+                for place in sorted(self.all(), key=lambda p: p.name)
+                if place.id not in exclude]
 
     def get_by_coordinates(self, x, y):
         self.sync()
@@ -125,3 +127,33 @@ class ResourceExchangeStorage(utils_storage.Storage):
 
 
 resource_exchanges = ResourceExchangeStorage()
+
+
+class EffectsStorage(dext_storage.CachedStorage):
+    SETTINGS_KEY = 'effects change time'
+    EXCEPTION = exceptions.EffectsStorageError
+
+    def _construct_object(self, item):
+        return item
+
+    def _save_object(self, item):
+        raise NotImplementedError
+
+    def _get_all_query(self):
+        return tt_services.effects.cmd_list()
+
+    def _reset_cache(self):
+        self._effects_by_place = {}
+
+    def _update_cached_data(self, item):
+        if item.entity not in self._effects_by_place:
+            self._effects_by_place[item.entity] = []
+
+        self._effects_by_place[item.entity].append(item)
+
+    def effects_for_place(self, place_id):
+        self.sync()
+        return self._effects_by_place.get(place_id, ())
+
+
+effects = EffectsStorage()

@@ -17,3 +17,21 @@ class EmissariesTestsMixin(object):
                                                            game_relations.GENDER.MALE)),
                                      race=random.choice(game_relations.RACE.records),
                                      utg_name=game_names.generator().get_test_name('emissary-{}'.format(uid)))
+
+    def enable_emissary_pvp(self, emissary):
+        upper = tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP // len(relations.ABILITY.records) + 1
+
+        for ability in relations.ABILITY.records:
+            emissary.abilities[ability] = upper
+
+        logic.save_emissary(emissary)
+
+        self.assertTrue(emissary.can_participate_in_pvp())
+
+    def disable_emissary_pvp(self, emissary):
+        for ability in relations.ABILITY.records:
+            emissary.abilities[ability] = 0
+
+        logic.save_emissary(emissary)
+
+        self.assertFalse(emissary.can_participate_in_pvp())

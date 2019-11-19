@@ -20,6 +20,10 @@ class Emissary(game_names.ManageNameMixin2):
                  'state',
                  'remove_reason',
                  'health',
+                 'attrs',
+                 'traits',
+                 'abilities',
+                 'place_rating_position',
 
                  # mames mixin
                  '_utg_name_form__lazy',
@@ -40,7 +44,11 @@ class Emissary(game_names.ManageNameMixin2):
                  utg_name,
                  state,
                  remove_reason,
-                 health):
+                 health,
+                 attrs,
+                 traits,
+                 abilities,
+                 place_rating_position):
         self.id = id
         self.updated_at = updated_at
         self.updated_at_turn = updated_at_turn
@@ -56,10 +64,23 @@ class Emissary(game_names.ManageNameMixin2):
         self.state = state
         self.remove_reason = remove_reason
         self.health = health
+        self.attrs = attrs
+        self.traits = traits
+        self.abilities = abilities
+        self.place_rating_position = place_rating_position
+
+    def is_place_leader(self):
+        if self.place_rating_position is None:
+            return False
+
+        return self.place_rating_position < tt_emissaries_constants.PLACE_LEADERS_NUMBER
 
     @property
     def place(self):
         return places_storage.places[self.place_id]
+
+    def active_events(self):
+        return storage.events.emissary_events(self.id)
 
     @property
     def url(self):
@@ -73,24 +94,148 @@ class Emissary(game_names.ManageNameMixin2):
                 linguistics_restrictions.get(self.gender),
                 linguistics_restrictions.get(self.race))
 
-    @property
-    def max_health(self):
-        return tt_clans_constants.MAXIMUM_EMISSARY_HEALTH
+    def _effects_generator(self):
+        yield game_effects.Effect(name='телосложение',
+                                  attribute=relations.ATTRIBUTE.MAX_HEALTH,
+                                  value=tt_emissaries_constants.MAXIMUM_HEALTH)
+
+        for ability in relations.ABILITY.records:
+            yield game_effects.Effect(name='способности',
+                                      attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_MAXIMUM__{}'.format(ability.name)),
+                                      value=tt_emissaries_constants.NORMAL_ATTRIBUTE_MAXIMUM)
+
+            yield game_effects.Effect(name='способности',
+                                      attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_GROW_SPEED__{}'.format(ability.name)),
+                                      value=tt_emissaries_constants.ATTRIBUT_INCREMENT_DELTA)
+
+        yield game_effects.Effect(name='телосложение',
+                                  attribute=relations.ATTRIBUTE.DAMAGE_TO_HEALTH,
+                                  value=tt_emissaries_constants.NORMAL_DAMAGE_TO_HEALTH)
+
+        yield game_effects.Effect(name='способности',
+                                  attribute=relations.ATTRIBUTE.MAXIMUM_SIMULTANEOUSLY_EVENTS,
+                                  value=tt_clans_constants.SIMULTANEOUS_EMISSARY_EVENTS)
+
+        yield game_effects.Effect(name='способности',
+                                  attribute=relations.ATTRIBUTE.POSITIVE_POWER,
+                                  value=1.0)
+
+        yield game_effects.Effect(name='способности',
+                                  attribute=relations.ATTRIBUTE.NEGATIVE_POWER,
+                                  value=1.0)
+
+        yield game_effects.Effect(name='способности',
+                                  attribute=relations.ATTRIBUTE.CLAN_EXPERIENCE,
+                                  value=1.0)
+
+        for trait in self.traits:
+            yield game_effects.Effect(name=trait.text,
+                                      attribute=trait.attribute,
+                                      value=trait.modification)
+
+    def effects_generator(self, order):
+        for effect in self._effects_generator():
+            if effect.attribute.order != order:
+                continue
+            yield effect
+
+    def all_effects(self):
+        for order in relations.ATTRIBUTE.EFFECTS_ORDER:
+            for effect in self.effects_generator(order):
+                yield effect
+
+    def refresh_attributes(self):
+        self.attrs.reset()
+
+        for effect in self.all_effects():
+            effect.apply_to(self.attrs)
+
+    def effects_for_attribute(self, attribute):
+        for effect in self.effects_generator(attribute.order):
+            if effect.attribute == attribute:
+                yield effect
+
+    def tooltip_effects_for_attribute(self, attribute):
+        effects = [(effect.name, effect.value) for effect in self.effects_for_attribute(attribute)]
+        effects.sort(key=lambda x: x[1], reverse=True)
+        return effects
+
+    def attribute_ui_info(self, attribute_name):
+        attribute = getattr(relations.ATTRIBUTE, attribute_name.upper())
+        return (attribute, getattr(self.attrs, attribute_name.lower()))
+
+    def can_participate_in_pvp(self):
+        return tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP <= self.abilities.total_level()
 
     def ui_info(self):
+        clan_info = clans_storage.infos[self.clan_id]
+
         return {'id': self.id,
                 'name': self.name,
                 'race': self.race.value,
                 'gender': self.gender.value,
                 'place': self.place.id,
-                'clan_id': self.clan_id,
+                'clan': clan_info.ui_info(),
                 'health': self.health,
-                'max_health': self.max_health}
+                'max_health': self.attrs.max_health}
 
     def __eq__(self, other):
         return all(getattr(self, field, None) == getattr(other, field, None)
                    for field in self.__slots__
                    if field not in ('_utg_name_form__lazy', '_name__lazy'))
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+
+class Event:
+    __slots__ = ('id',
+                 'emissary_id',
+                 'state',
+                 'stop_reason',
+                 'created_at_turn',
+                 'updated_at_turn',
+                 'concrete_event',
+                 'created_at',
+                 'updated_at',
+                 'steps_processed',
+                 'stop_after_steps')
+
+    def __init__(self,
+                 id,
+                 emissary_id,
+                 state,
+                 stop_reason,
+                 created_at_turn,
+                 updated_at_turn,
+                 concrete_event,
+                 created_at,
+                 updated_at,
+                 steps_processed,
+                 stop_after_steps):
+        self.id = id
+        self.emissary_id = emissary_id
+        self.state = state
+        self.stop_reason = stop_reason
+        self.created_at_turn = created_at_turn
+        self.updated_at_turn = updated_at_turn
+        self.concrete_event = concrete_event
+        self.created_at = created_at
+        self.updated_at = updated_at
+        self.steps_processed = steps_processed
+        self.stop_after_steps = stop_after_steps
+
+    @property
+    def stop_after(self):
+        return self.created_at + datetime.timedelta(hours=self.stop_after_steps)
+
+    @property
+    def emissary(self):
+        return storage.emissaries[self.emissary_id]
+
+    def __eq__(self, other):
+        return all(getattr(self, field, None) == getattr(other, field, None)
+                   for field in self.__slots__)
 
     def __ne__(self, other):
         return not self.__eq__(other)

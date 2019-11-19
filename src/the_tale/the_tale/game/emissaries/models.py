@@ -16,6 +16,16 @@ class Emissary(django_models.Model):
 
     data = django_postgres_fields.JSONField(default='{}')
 
-    class Meta:
-        permissions = (("create_companionrecord", "Может создавать спутников"),
-                       ("moderate_companionrecord", "Может утверждать спутников"),)
+
+class Event(django_models.Model):
+
+    created_at = django_models.DateTimeField(auto_now_add=True, null=False)
+    updated_at = django_models.DateTimeField(auto_now=True, null=False)
+
+    emissary = django_models.ForeignKey(Emissary, related_name='+', on_delete=django_models.PROTECT)
+
+    state = rels_django.RelationIntegerField(relation=relations.EVENT_STATE, db_index=True)
+
+    data = django_postgres_fields.JSONField(default='{}')
+
+    stop_reason = rels_django.RelationIntegerField(relation=relations.EVENT_STOP_REASON, db_index=True)

@@ -11,10 +11,11 @@ from . import operations
 from . import exceptions
 
 
-@handlers.api(bank_pb2.AccountBalanceRequest)
-async def account_balance(message, **kwargs):
-    balance = await operations.load_balance(account_id=message.account_id)
-    return bank_pb2.AccountBalanceResponse(balance=balance)
+@handlers.api(bank_pb2.AccountsBalancesRequest)
+async def accounts_balances(message, **kwargs):
+    balances = await operations.load_balances(accounts_ids=message.accounts_ids)
+    return bank_pb2.AccountsBalancesResponse(balances={account_id: protobuf.from_balances(amounts)
+                                                       for account_id, amounts in balances.items()})
 
 
 @handlers.api(bank_pb2.AccountHistoryRequest)
@@ -32,7 +33,7 @@ async def start_transaction(message, **kwargs):
                                                                         for operation in message.operations],
                                                             lifetime=datetime.timedelta(seconds=message.lifetime),
                                                             autocommit=message.autocommit,
-                                                            restrictions=protobuf.from_restrictions(message.restrictions),
+                                                            restrictions=protobuf.to_restrictions(message.restrictions),
                                                             logger=logger)
 
     except exceptions.NoOperationsInTransaction as e:

@@ -123,6 +123,10 @@ class CardsForNewAccountTests(utils_testcase.TestCase):
             cards_types.CARD.ADD_BONUS_ENERGY_RARE.effect.create_card(available_for_auction=False,
                                                                       type=cards_types.CARD.ADD_BONUS_ENERGY_RARE)]
 
+        for _ in range(5):
+            self.expected_cards.append(cards_types.CARD.STOP_IDLENESS.effect.create_card(available_for_auction=False,
+                                                                                         type=cards_types.CARD.STOP_IDLENESS))
+
     def test_change_and_load(self):
         cards = cards_tt_services.storage.cmd_get_items(self.account.id)
 

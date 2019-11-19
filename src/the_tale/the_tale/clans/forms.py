@@ -11,6 +11,10 @@ class ClanForm(dext_forms.Form):
     motto = dext_fields.CharField(label='Девиз', max_length=models.Clan.MAX_MOTTO_LENGTH)
     description = utils_bbcode.BBField(label='Описание', max_length=models.Clan.MAX_DESCRIPTION_LENGTH)
 
+    linguistics_name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
+                                                   skip_markers=(utg_relations.NOUN_FORM.COUNTABLE,),
+                                                   label='Название гильдии для генерации текста')
+
     accept_requests_from_players = dext_fields.BooleanField(required=False,
                                                             label='Игроки могут отправлять запросы на вступление в гильдию')
 

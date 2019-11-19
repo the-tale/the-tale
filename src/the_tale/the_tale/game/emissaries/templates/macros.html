@@ -42,12 +42,29 @@
 {% endmacro %}
 
 
+{% macro leader_marker() %}
+    <span class="label label-success"
+          style="cursor: default;"
+          rel="tooltip"
+          title="Эмиссар является лидером города по влиянию. Некоторые мероприятия эмиссаров действуют только когда их выполняет лидер. Список лидеров обновляется раз в час.">
+          лидер города
+    </span>
+{% endmacro %}
+
+
+{% macro pvp_access_marker() %}
+    <i class="icon-info-sign"
+       data-tooltip-placement="right"
+       rel="tooltip"
+       title="Сумма способностей эмиссара. Гильдия должна иметь хотя бы одного эмиссара с суммой способностей больше {{tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}}, чтобы её члены могли выполнять задания для эмиссаров чужих гильдийс."></i>
+
+{% endmacro %}
 
 {% macro emissary_list(emissaries, powers, clans=none, show_places=false, show_status=true) %}
 <table class="table table-condensed">
   <thead>
     <tr>
-      <th width="40px">♥</th>
+      <th width="70px" style="text-align: right;">♥</th>
       <th>Эмиссар</th>
       {% if clans %}
       <th>Гильдия</th>
@@ -67,8 +84,35 @@
   <tbody>
     {% for emissary in emissaries %}
     <tr>
-      <td>{{emissary.health}} / {{emissary.max_health}}</td>
-      <td>{{emissary_verbose(emissary)}}</td>
+      <td style="text-align: right;">{{emissary.health}} / {{emissary.attrs.max_health}}</td>
+      <td>
+        {{emissary_verbose(emissary)}}
+
+        {% if emissary.is_place_leader() %}
+        {{leader_marker()}}
+        {% endif %}
+
+        {% set events = emissary.active_events() %}
+
+        {% if events  %}
+        <br/>
+
+        {% if not events %}
+        <span class="label">нет мероприятий</span>
+        {% else %}
+        {% for event in events|sort(attribute="concrete_event.TYPE.text") %}
+        <span class="label label-info"
+              style="cursor: default;"
+              rel="tooltip"
+              title="{{event.concrete_event.event_description(emissary)}}">
+          {{event.concrete_event.TYPE.text}}
+        </span>
+        &nbsp;
+        {% endfor %}
+        {% endif %}
+
+        {% endif %}
+      </td>
 
       {% if clans %}
       <td>{{clans_macros.clan_link(clans[emissary.clan_id])}}</td>

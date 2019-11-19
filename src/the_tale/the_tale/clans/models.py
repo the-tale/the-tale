@@ -36,6 +36,8 @@ class Clan(django_models.Model):
 
     statistics_refreshed_at = django_models.DateTimeField(auto_now_add=True)
 
+    data = django_postgres_fields.JSONField(default='{}')
+
     def __str__(self):
         return '[%s] %s' % (self.abbr, self.name)
 

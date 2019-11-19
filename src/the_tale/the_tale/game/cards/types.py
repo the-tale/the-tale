@@ -189,7 +189,7 @@ class CARD(rels.Relation):
                  effects.AddPlacePower(base=c.MINIMUM_CARD_POWER, level=5), [reactors.SameEqual2()]),
 
                ('CREATE_CLAN', 133, 'братство', FOR_ALL, RARE,
-                effects.CreateClan(), [reactors.Special(1, 'EMISSARY_QUEST', new_cards_number=3)]),
+                effects.CreateClan(), [reactors.Special(1, 'EMISSARY_QUEST', new_cards_number=9)]),
 
                ('ADD_GOLD_EPIC', 136, 'клад', FOR_PREMIUMS, EPIC,
                 effects.AddGold(base=1000, level=4), [reactors.Simple3()]),
@@ -238,8 +238,13 @@ class CARD(rels.Relation):
                ('ADD_CLANS_POINTS_LEGENDARY', 155, 'эндшпиль', FOR_PREMIUMS, LEGENDARY,
                 effects.AddClansPoints(base=tt_clans_constants.TOP_CARD_POINTS_BONUS, level=1), []),
 
-               ('EMISSARY_QUEST', 157, 'Гильдейские дела', FOR_ALL, UNCOMMON,
-                effects.EmissaryQuest(), []),
+               ('EMISSARY_QUEST', 157, 'Гильдейские дела', FOR_ALL, COMMON,
+                effects.EmissaryQuest(), [reactors.SameEqual2(),
+                                          reactors.Special(2, 'STOP_IDLENESS', new_cards_number=1),
+                                          reactors.Special(9, 'CREATE_CLAN', new_cards_number=1)]),
+
+               ('STOP_IDLENESS', 156, 'Снова в путь', FOR_ALL, COMMON,
+                effects.StopIdleness(), [reactors.Special(2, 'EMISSARY_QUEST', new_cards_number=1)]),
 
                )
 

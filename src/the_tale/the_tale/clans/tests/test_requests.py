@@ -195,6 +195,22 @@ class TestShowRequests(BaseTestRequests):
                            texts=[('pgf-clans-free-quests-amount', 0),
                                   ('pgf-clans-free-quests-dummy', 1)])
 
+    def test_experience_access(self):
+        self.check_html_ok(self.request_html(self.show_url),
+                           texts=[('pgf-experience-amount', 0),
+                                  ('pgf-experience-dummy', 1)])
+
+        self.request_login(self.account.email)
+        self.check_html_ok(self.request_html(self.show_url),
+                           texts=[('pgf-experience-amount', 1),
+                                  ('pgf-experience-dummy', 0)])
+
+        clan_2 = self.create_clan(self.accounts_factory.create_account(), 1)
+        self.check_html_ok(self.request_html(dext_urls.url('clans:show', clan_2.id)),
+                           texts=[('pgf-experience-amount', 0),
+                                  ('pgf-experience-dummy', 1)])
+
+
 
 class TestChronicleRequests(BaseTestRequests):
 
@@ -305,10 +321,19 @@ class TestUpdateRequests(BaseTestRequests):
         self.request_login(self.account.email)
 
     def update_data(self, name=None, abbr=None):
-        return {'name': 'clan-1' if name is None else name,
+
+        if name is None:
+            name = 'clan-1'
+
+        data = {'name': name,
                 'abbr': 'CLN-1' if abbr is None else abbr,
                 'motto': 'Clan!',
                 'description': 'ARGH!'}
+
+        data.update(linguistics_helpers.get_word_post_data(game_names.generator().get_test_name(name=name),
+                                                           prefix='linguistics_name'))
+
+        return data
 
     def check_clan_old_data(self):
         self.clan = logic.load_clan(clan_id=self.clan.id)
@@ -673,6 +698,9 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
 
     def setUp(self):
         super().setUp()
+
+        accounts_tt_services.players_properties.cmd_debug_clear_service()
+
         self.clan = self.create_clan(self.account, 0)
         self.account_2 = self.accounts_factory.create_account()
         self.invite_url = dext_urls.url('clans:invite', self.clan.id, account=self.account_2.id)
@@ -913,6 +941,19 @@ class MembershipAcceptRequestRequestsTests(BaseMembershipRequestsTests):
                           self.account.meta_object().tag,
                           self.account_2.meta_object().tag})
 
+    def test_maximum_members_reached(self):
+        clan_attributes = clans_logic.load_attributes(self.clan.id)
+
+        for i in range(clan_attributes.members_maximum):
+            member = self.accounts_factory.create_account()
+            clans_logic._add_member(clan=self.clan,
+                                    account=member,
+                                    role=clans_relations.MEMBER_ROLE.RECRUIT)
+
+        with self.check_not_changed(models.MembershipRequest.objects.count):
+            with self.check_not_changed(models.Membership.objects.count):
+                self.check_ajax_error(self.post_ajax_json(self.accept_url), 'clans.members_maximum_reached')
+
 
 class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
 
@@ -980,6 +1021,19 @@ class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
                          {self.clan.meta_object().tag,
                           relations.EVENT.MEMBERSHIP_INVITE_ACCEPTED.meta_object().tag,
                           self.account_2.meta_object().tag})
+
+    def test_maximum_members_reached(self):
+        clan_attributes = clans_logic.load_attributes(self.clan.id)
+
+        for i in range(clan_attributes.members_maximum):
+            member = self.accounts_factory.create_account()
+            clans_logic._add_member(clan=self.clan,
+                                    account=member,
+                                    role=clans_relations.MEMBER_ROLE.RECRUIT)
+
+        with self.check_not_changed(models.MembershipRequest.objects.count):
+            with self.check_not_changed(models.Membership.objects.count):
+                self.check_ajax_error(self.post_ajax_json(self.accept_url), 'clans.members_maximum_reached')
 
 
 class MembershipRejectRequestRequestsTests(BaseMembershipRequestsTests):

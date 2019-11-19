@@ -442,3 +442,243 @@ class SyncMoneyEconomicTests(utils_testcase.TestCase):
         self.assertEqual(self.places[0].attrs.money_economic, 2)
         self.assertEqual(self.places[1].attrs.money_economic, 4)
         self.assertEqual(self.places[2].attrs.money_economic, 3)
+
+
+class UpdateStabilityEffectsDeltasTests(utils_testcase.TestCase):
+
+    def create_stability_effect(self, id, value):
+        return tt_api_effects.Effect(id=id,
+                                     attribute=places_relations.ATTRIBUTE.STABILITY,
+                                     entity=666,
+                                     value=value,
+                                     name='test')
+
+    def test_reduce_effects(self):
+        effects = [self.create_stability_effect(1, value=-0.5),
+                   self.create_stability_effect(2, value=0.25)]
+
+        logic.update_stability_effects_deltas(c.PLACE_STABILITY_RECOVER_SPEED, effects)
+
+        self.assertEqual(effects[0].delta, c.PLACE_STABILITY_RECOVER_SPEED * (3 / 4))
+        self.assertEqual(effects[1].delta, c.PLACE_STABILITY_RECOVER_SPEED * (1 / 4))
+
+    def test_stability_deltas_sum_equal_to_stability_renewing_speed(self):
+        effects = [self.create_stability_effect(1, value=-0.5),
+                   self.create_stability_effect(2, value=0.25),
+                   self.create_stability_effect(3, value=-0.5)]
+
+        logic.update_stability_effects_deltas(0.25, effects)
+
+        for i in range(len(effects) - 1):
+            self.assertTrue(effects[i].delta >= effects[i + 1].delta)
+
+        self.assertEqual(0.25, sum(effect.delta for effect in effects))
+
+    def test_stability_deltas_sum_equal_to_stability_renewing_speed__a_lot_of_effects(self):
+
+        effects = []
+
+        for i in range(10):
+            effects.append(self.create_stability_effect(i, value=100 * random.choice([-1, 1])))
+
+        logic.update_stability_effects_deltas(0.25, effects)
+
+        for i in range(len(effects) - 1):
+            self.assertTrue(effects[i].delta >= effects[i + 1].delta)
+
+        self.assertEqual(0.25, sum(effect.delta for effect in effects))
+        self.assertEqual(0.25, sum(abs(effect.delta) for effect in effects))
+
+
+class UpdateEffectsTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        self.places = game_logic.create_test_map()
+
+        game_tt_services.debug_clear_service()
+
+    def create_effect(self, place_id, value, attribute, delta=None):
+        effect = tt_api_effects.Effect(id=None,
+                                       attribute=attribute,
+                                       entity=place_id,
+                                       value=value,
+                                       name='test',
+                                       delta=delta)
+        return tt_services.effects.cmd_register(effect)
+
+    def test_stability__reduce_effects(self):
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        effect_1_id = self.create_effect(self.places[0].id, -0.5, places_relations.ATTRIBUTE.STABILITY)
+        effect_2_id = self.create_effect(self.places[0].id, 0.25, places_relations.ATTRIBUTE.STABILITY)
+        effect_3_id = self.create_effect(self.places[1].id, 0.5, places_relations.ATTRIBUTE.STABILITY)
+
+        places_storage.effects.refresh()
+
+        logic.update_effects()
+
+        self.assertAlmostEqual(storage.effects[effect_1_id].value, -0.5 + self.places[0].attrs.stability_renewing_speed * (3 / 4))
+        self.assertAlmostEqual(storage.effects[effect_2_id].value, 0.25 - self.places[0].attrs.stability_renewing_speed * (1 / 4))
+        self.assertAlmostEqual(storage.effects[effect_3_id].value, 0.5 - self.places[1].attrs.stability_renewing_speed)
+
+    def test_normal_attribute_reduce_effects(self):
+        effect_1_id = self.create_effect(self.places[0].id, -500, places_relations.ATTRIBUTE.PRODUCTION, delta=100)
+        effect_2_id = self.create_effect(self.places[0].id, 250, places_relations.ATTRIBUTE.PRODUCTION, delta=150)
+        effect_3_id = self.create_effect(self.places[1].id, 400, places_relations.ATTRIBUTE.PRODUCTION, delta=1)
+
+        places_storage.effects.refresh()
+
+        logic.update_effects()
+
+        self.assertEqual(storage.effects[effect_1_id].value, -400)
+        self.assertEqual(storage.effects[effect_2_id].value, 100)
+        self.assertEqual(storage.effects[effect_3_id].value, 399)
+
+    def test_remove_attribute(self):
+        effect_1_id = self.create_effect(self.places[0].id, 100, places_relations.ATTRIBUTE.PRODUCTION, delta=49)
+        effect_2_id = self.create_effect(self.places[0].id, 100, places_relations.ATTRIBUTE.PRODUCTION, delta=99)
+        effect_3_id = self.create_effect(self.places[1].id, 100, places_relations.ATTRIBUTE.PRODUCTION, delta=33)
+
+        places_storage.effects.refresh()
+
+        logic.update_effects()
+
+        self.assertEqual(set(effect.id for effect in storage.effects.all()),
+                         {effect_1_id, effect_2_id, effect_3_id})
+
+        logic.update_effects()
+
+        self.assertEqual(set(effect.id for effect in storage.effects.all()),
+                         {effect_1_id, effect_3_id})
+
+        logic.update_effects()
+
+        self.assertEqual(set(effect.id for effect in storage.effects.all()),
+                         {effect_3_id})
+
+        logic.update_effects()
+
+        self.assertEqual(set(effect.id for effect in storage.effects.all()),
+                         set())
+
+    def test_skip_effect_without_delta(self):
+        effect_1_id = self.create_effect(self.places[0].id, 100, places_relations.ATTRIBUTE.PRODUCTION, delta=49)
+        effect_2_id = self.create_effect(self.places[0].id, 100, places_relations.ATTRIBUTE.PRODUCTION, delta=None)
+        effect_3_id = self.create_effect(self.places[1].id, 100, places_relations.ATTRIBUTE.PRODUCTION, delta=33)
+
+        places_storage.effects.refresh()
+
+        logic.update_effects()
+
+        self.assertEqual(set(effect.id for effect in storage.effects.all()),
+                         {effect_1_id, effect_2_id, effect_3_id})
+
+        logic.update_effects()
+
+        self.assertEqual(set(effect.id for effect in storage.effects.all()),
+                         {effect_1_id, effect_2_id, effect_3_id})
+
+        logic.update_effects()
+
+        self.assertEqual(set(effect.id for effect in storage.effects.all()),
+                         {effect_2_id, effect_3_id})
+
+        logic.update_effects()
+
+        self.assertEqual(set(effect.id for effect in storage.effects.all()),
+                         {effect_2_id})
+
+        places_storage.effects.refresh()
+        self.assertEqual(places_storage.effects[effect_2_id].value, 100)
+
+
+class RegisterEffectTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        self.places = game_logic.create_test_map()
+
+    def test(self):
+        with self.check_almost_delta(lambda: self.places[0].attrs.culture, 0.33):
+            with self.check_delta(lambda: len(storage.effects.all()), 1):
+                with self.check_changed(lambda: storage.places._version):
+                    with self.check_changed(lambda: storage.effects._version):
+                        effect_id = logic.register_effect(place_id=self.places[0].id,
+                                                          attribute=relations.ATTRIBUTE.CULTURE,
+                                                          value=0.33,
+                                                          name='test.effect',
+                                                          delta=3,
+                                                          info={'test': 'tset'},
+                                                          refresh_effects=True,
+                                                          refresh_places=True)
+
+        effect = storage.effects[effect_id]
+
+        self.assertEqual(effect.id, effect_id)
+        self.assertEqual(effect.entity, self.places[0].id)
+        self.assertTrue(effect.attribute.is_CULTURE)
+        self.assertEqual(effect.value, 0.33)
+        self.assertEqual(effect.name, 'test.effect')
+        self.assertEqual(effect.delta, 3)
+        self.assertEqual(effect.info, {'test': 'tset'})
+
+    def test_without_refresh(self):
+        with self.check_not_changed(lambda: self.places[0].attrs.culture):
+            with self.check_not_changed(lambda: len(storage.effects.all())):
+                with self.check_not_changed(lambda: storage.places._version):
+                    with self.check_not_changed(lambda: storage.effects._version):
+                        logic.register_effect(place_id=self.places[0].id,
+                                              attribute=relations.ATTRIBUTE.CULTURE,
+                                              value=0.33,
+                                              name='test.effect',
+                                              delta=3,
+                                              info={'test': 'tset'})
+
+
+class RemoveEffectTests(utils_testcase.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        self.places = game_logic.create_test_map()
+
+        self.effect_id = logic.register_effect(place_id=self.places[0].id,
+                                               attribute=relations.ATTRIBUTE.CULTURE,
+                                               value=0.33,
+                                               name='test.effect',
+                                               delta=3,
+                                               info={'test': 'tset'},
+                                               refresh_effects=True,
+                                               refresh_places=True)
+
+    def test(self):
+        with self.check_almost_delta(lambda: self.places[0].attrs.culture, -0.33):
+            with self.check_delta(lambda: len(storage.effects.all()), -1):
+                with self.check_changed(lambda: storage.places._version):
+                    with self.check_changed(lambda: storage.effects._version):
+                        logic.remove_effect(effect_id=self.effect_id,
+                                            place_id=self.places[0].id,
+                                            refresh_effects=True,
+                                            refresh_places=True)
+
+        self.assertNotIn(self.effect_id, storage.effects)
+
+    def test_without_refresh(self):
+        with self.check_not_changed(lambda: self.places[0].attrs.culture):
+            with self.check_not_changed(lambda: len(storage.effects.all())):
+                with self.check_not_changed(lambda: storage.places._version):
+                    with self.check_not_changed(lambda: storage.effects._version):
+                        logic.remove_effect(effect_id=self.effect_id,
+                                            place_id=self.places[0].id)
+
+        self.assertIn(self.effect_id, storage.effects)

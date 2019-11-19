@@ -17,11 +17,11 @@ class PrototypeTestsBase(utils_testcase.TestCase):
 
         self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
-        account = self.accounts_factory.create_account(is_fast=True)
+        self.account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
-        self.hero = self.storage.accounts_to_heroes[account.id]
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.action_idl = self.hero.actions.current_action
 
@@ -260,6 +260,43 @@ class PrototypeTests(PrototypeTestsBase,
 
         for person in persons_storage.persons.all():
             person.attrs.experience_bonus = 1.0
+
+        self.assertTrue(self.quest.get_expirience_for_quest(self.quest.current_info.uid, self.hero) > 100)
+
+    @mock.patch('the_tale.game.balance.formulas.experience_for_quest', lambda x: 100)
+    @mock.patch('the_tale.game.heroes.statistics.Statistics.quests_done', 1)
+    def test_get_expirience_for_quest__from_emissary(self):
+        self.prepair_forum_for_clans()
+
+        clan = self.create_clan(owner=self.account, uid=1)
+
+        emissary = self.create_emissary(clan=clan,
+                                        initiator=self.account,
+                                        place_id=self.place_1.id)
+
+        for place in places_storage.places.all():
+            place.attrs.experience_bonus = 0.0
+
+        for person in persons_storage.persons.all():
+            person.attrs.experience_bonus = 0.0
+
+        for emissary in emissaries_storage.emissaries.all():
+            emissary.attrs.experience_bonus = 0.0
+
+        self.hero.quests.pop_quest()
+        self.hero.actions.pop_action()
+
+        self.action_quest = actions_prototypes.ActionQuestPrototype.create(hero=self.hero)
+
+        helpers.setup_quest(self.hero,
+                            emissary_id=emissary.id,
+                            person_action=quests_relations.PERSON_ACTION.random())
+        self.quest = self.hero.quests.current_quest
+
+        self.assertEqual(self.quest.get_expirience_for_quest(self.quest.current_info.uid, self.hero), 100)
+
+        for emissary in emissaries_storage.emissaries.all():
+            emissary.attrs.experience_bonus = 1.0
 
         self.assertTrue(self.quest.get_expirience_for_quest(self.quest.current_info.uid, self.hero) > 100)
 

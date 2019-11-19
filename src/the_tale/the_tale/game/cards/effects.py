@@ -551,35 +551,27 @@ class KeepersGoods(ModificatorBase):
         return 'Временно увеличивает производство в указанном городе на  %(goods)d. Бонус будет постепенно уменьшаться и исчезнет через %(days)s дней.' % {'goods': self.modificator,
                    'days': c.NORMAL_JOB_LENGTH}
 
-    def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
+    def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
 
         place_id = task.data.get('value')
 
         if place_id not in places_storage.places:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
 
-        if task.step.is_LOGIC:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.HIGHLEVEL)
+        account_nick = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).nick
 
-        elif task.step.is_HIGHLEVEL:
-            place = places_storage.places[place_id]
+        places_logic.register_effect(place_id=place_id,
+                                     attribute=places_relations.ATTRIBUTE.PRODUCTION,
+                                     value=self.modificator,
+                                     name='Хранитель {}'.format(account_nick),
+                                     delta=self.modificator * (1.0 / (24 * c.NORMAL_JOB_LENGTH)),
+                                     refresh_effects=True,
+                                     refresh_places=True,
+                                     info={'source': 'cards',
+                                           'card_id': task.data['card']['id'],
+                                           'card_type': task.data['card']['data']['type']})
 
-            effect_delta = self.modificator * (1.0 / (24 * c.NORMAL_JOB_LENGTH))
-
-            account_nick = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).nick
-
-            place.effects.add(game_effects.Effect(name='Хранитель {}'.format(account_nick),
-                                                  attribute=places_relations.ATTRIBUTE.PRODUCTION,
-                                                  value=self.modificator,
-                                                  delta=effect_delta))
-
-            place.refresh_attributes()
-
-            places_logic.save_place(place)
-
-            places_storage.places.update_version()
-
-            return task.logic_result()
+        return task.logic_result()
 
 
 class GiveStability(ModificatorBase):
@@ -599,24 +591,19 @@ class GiveStability(ModificatorBase):
         if place_id not in places_storage.places:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
 
-        if task.step.is_LOGIC:
-            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.HIGHLEVEL)
+        account_nick = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).nick
 
-        elif task.step.is_HIGHLEVEL:
-            place = places_storage.places[place_id]
+        places_logic.register_effect(place_id=place_id,
+                                     attribute=places_relations.ATTRIBUTE.STABILITY,
+                                     value=self.modificator,
+                                     name='Хранитель {}'.format(account_nick),
+                                     refresh_effects=True,
+                                     refresh_places=True,
+                                     info={'source': 'cards',
+                                           'card_id': task.data['card']['id'],
+                                           'card_type': task.data['card']['data']['type']})
 
-            place.effects.add(game_effects.Effect(name='Хранитель {}'.format(accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).nick),
-                                                  attribute=places_relations.ATTRIBUTE.STABILITY,
-                                                  value=self.modificator,
-                                                  delta=place.attrs.stability_renewing_speed))
-
-            place.refresh_attributes()
-
-            places_logic.save_place(place)
-
-            places_storage.places.update_version()
-
-            return task.logic_result()
+        return task.logic_result()
 
 
 class AddPersonPower(ModificatorBase):
@@ -1089,7 +1076,7 @@ class CreateClan(BaseEffect):
                                               motto='Veni, vidi, vici!',
                                               description='')
 
-        return task.logic_result(message='Поздравляем, гильдмастер! Ваша гильдия ждёт Вас! Задайте девиз и описание гильдии на её странице.')
+        return task.logic_result(message='Поздравляем, гильдмастер! Ваша гильдия ждёт Вас! Задайте девиз и описание гильдии на её странице. Так же не забудьте уточнить формы названия гигльдии для текстов в журнале и дневнике героя.')
 
 
 class ChangeHistory(BaseEffect):
@@ -1255,7 +1242,7 @@ class EmissaryQuest(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return 'Моментально выдаёт герою задание на помощь или вред эмиссару. Эффект указан в названии карты. Если герой выполняет задания, все они отменяются. Если герой сражается с монстром, тот будет убит. Карту нельзя использовать, когда герой сражается на Арене. Величина влияния за задание рассчитывается по общим правилам. Любой член гильдии может начать квест на помощь или вред эмиссару своей гильдии.'
+        return 'Моментально выдаёт герою задание на помощь или вред эмиссару. Эффект указан в названии карты. Если герой выполняет задания, все они отменяются. Если герой сражается с монстром, тот будет убит. Карту нельзя использовать, когда герой сражается на Арене. Величина влияния за задание рассчитывается по общим правилам. Любой член гильдии может начать квест на помощь или вред эмиссару своей гильдии. Если карту нельзя продать на аукционе (карта получена неподписчиком), её можно будет использовать только на эмиссарах своей гильдии и при её использовании будет отнято одно свободное задание гильдии.'
 
     def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
 
@@ -1275,13 +1262,20 @@ class EmissaryQuest(BaseEffect):
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Вы должны быть членом гильдии, чтобы выполнять задания эмиссаров.')
 
-        # emissary = emissaries_storage.emissaries[emissary_id]
-
-        # if emissary.clan_id != account_clan_id:
-
         if task.hero.actions.has_proxy_actions():
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Карту нельзя использовать, когда герой сражается на Арене.')
+
+        if emissaries_storage.emissaries[emissary_id].clan_id != account_clan_id:
+            if not card.available_for_auction:
+                return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                         message='Карту, полученную неподписчиком, можно использовать только на эмиссарах своей гильдии.')
+
+            if not emissaries_logic.can_clan_participate_in_pvp(account_clan_id):
+                border = tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP
+
+                return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                         message='Ваша гильдия пока не может выполнять задания чужих эмиссаров. Для этого вам необходо иметь эмиссара с суммарными способностями больше либо равными {border}.'.format(border=border))
 
         if not card.available_for_auction:
             status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=account_clan_id,
@@ -1293,7 +1287,7 @@ class EmissaryQuest(BaseEffect):
 
             if not status:
                 return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
-                                         message='Ищерпан лимит свободных заданий, попробуйте завтра')
+                                         message='Исчерпан лимит свободных заданий, попробуйте завтра')
 
         actions_logic.force_new_hero_quest(hero=task.hero,
                                            logger=None,
@@ -1335,3 +1329,28 @@ class EmissaryQuest(BaseEffect):
 
     def name_for_card(self, card):
         return self._name_for_card(card.type, quests_relations.PERSON_ACTION(card.data['action']))
+
+
+class StopIdleness(BaseEffect):
+    __slots__ = ()
+
+    def get_form(self, card, hero, data):
+        return forms.Empty(data)
+
+    DESCRIPTION = 'Заставляет героя взять задание, если тот бездельничает.'
+
+    def use(self, task, storage, **kwargs):  # pylint: disable=R0911,W0613
+        if not task.hero.actions.current_action.TYPE.is_IDLENESS:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Герой может взять задание только когда он бездельничает.')
+
+        if task.hero.position.place is None:
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Герой может взять задание только находясь в городе.')
+
+        task.hero.actions.current_action.force_quest_action(quest_kwargs={})
+
+        # force quest action to request quest
+        task.hero.actions.current_action.process_turn()
+
+        return task.logic_result()

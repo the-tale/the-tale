@@ -34,3 +34,7 @@ class CanNotDetermineRightsForUnknownClan(ClansError):
 
 class CanNotDetermineRightsForUnknownInitiator(ClansError):
     MSG = 'can not determine rights for unknown initiator'
+
+
+class ClansInfosStorageError(ClansError):
+    MSG = 'clans infos storage error: %(message)s'

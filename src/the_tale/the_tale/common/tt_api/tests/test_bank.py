@@ -49,13 +49,6 @@ class TTBankAPiTests(utils_testcase.TestCase):
         self.assertEqual(status, False)
         self.assertEqual(transaction_id, None)
 
-    def test_balance__no_balance(self):
-        self.assertEqual(bank_client.cmd_balance(account_id=666), 0)
-
-    def test_balance__has_balance(self):
-        bank_client.cmd_change_balance(account_id=666, type='test', amount=3, async=False, autocommit=True)
-        self.assertEqual(bank_client.cmd_balance(account_id=666), 3)
-
     def test_change_balance__restrictions(self):
         with self.check_delta(lambda: bank_client.cmd_balance(account_id=666), 103):
             status, transaction_id = bank_client.cmd_change_balance(account_id=666,
@@ -67,6 +60,23 @@ class TTBankAPiTests(utils_testcase.TestCase):
 
         self.assertEqual(status, True)
         self.assertNotEqual(transaction_id, None)
+
+    def test_balance__no_balance(self):
+        self.assertEqual(bank_client.cmd_balance(account_id=666), 0)
+
+    def test_balance__has_balance(self):
+        bank_client.cmd_change_balance(account_id=666, type='test', amount=3, async=False, autocommit=True)
+        self.assertEqual(bank_client.cmd_balance(account_id=666), 3)
+
+    def test_balances__complext(self):
+        bank_client.cmd_change_balance(account_id=666, type='test', amount=3, currency=0, async=False, autocommit=True)
+        bank_client.cmd_change_balance(account_id=777, type='test', amount=4, currency=0, async=False, autocommit=True)
+        bank_client.cmd_change_balance(account_id=666, type='test', amount=5, currency=1, async=False, autocommit=True)
+        bank_client.cmd_change_balance(account_id=888, type='test', amount=6, currency=0, async=False, autocommit=True)
+
+        self.assertEqual(bank_client.cmd_balances(accounts_ids=(666, 777)),
+                         {666: {0: 3, 1: 5},
+                          777: {0: 4}})
 
     def test_commit_transaction(self):
         bank_client.cmd_change_balance(account_id=666, type='test', amount=100, async=False, autocommit=True)
@@ -121,6 +131,33 @@ class TTBankAPiTests(utils_testcase.TestCase):
         with self.assertRaises(Exception):
             with fake_banker(account_id=666, type='test', amount=-10):
                 raise Exception('!')
+
+        time.sleep(0.1)
+
+        self.assertEqual(bank_client.cmd_balance(account_id=666), 100)
+
+    def test_transaction_lifetime_redefining(self):
+        bank_client.cmd_change_balance(account_id=666,
+                                       type='test',
+                                       amount=100,
+                                       async=False,
+                                       autocommit=True)
+
+        transaction_lifetime = 1
+
+        status, transaction_id = bank_client.cmd_change_balance(account_id=666,
+                                                                type='test',
+                                                                amount=10,
+                                                                async=False,
+                                                                autocommit=False,
+                                                                transaction_lifetime=transaction_lifetime)
+
+        self.assertEqual(bank_client.cmd_balance(account_id=666), 100)
+
+        time.sleep(transaction_lifetime + 1)
+
+        with self.assertRaises(exceptions.TTAPIUnexpectedAPIStatus):
+            bank_client.cmd_commit_transaction(transaction_id)
 
         time.sleep(0.1)
 

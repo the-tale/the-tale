@@ -9,6 +9,11 @@ class ATTRIBUTE_TYPE(rels_django.DjangoEnum):
                ('CALCULATED', 1, 'вычисляемый'))
 
 
+def set_applier(container, value):
+    container.add(value)
+    return container
+
+
 class ATTRIBUTE(rels_django.DjangoEnum):
     default = rels.Column(unique=False, primary=False, single_type=False)
     type = rels.Column(unique=False, primary=False)
@@ -16,8 +21,8 @@ class ATTRIBUTE(rels_django.DjangoEnum):
     description = rels.Column(primary=False)
     apply = rels.Column(primary=False, unique=False, single_type=False)
     verbose_units = rels.Column(unique=False, primary=False)
-    serializer = rels.Column(unique=False)
-    deserializer = rels.Column(unique=False)
+    serializer = rels.Column(unique=False, single_type=False)
+    deserializer = rels.Column(unique=False, single_type=False)
     formatter = rels.Column(unique=False, single_type=False)
 
 
@@ -53,6 +58,12 @@ def create_attributes_class(ATTRIBUTES):
 
         def attributes_by_name(self):
             return sorted(ATTRIBUTES.records, key=lambda x: x.text)
+
+        def __eq__(self, other):
+            return self.serialize() == other.serialize()
+
+        def __ne__(self, other):
+            return not self.__eq__(other)
 
     return Attributes
 

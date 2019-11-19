@@ -60,11 +60,21 @@
         user: the_tale
         job: /home/the_tale/current/venv/bin/django-admin emissaries_step --settings the_tale.settings
 
-    - name: The Tale damage and kill emissaries
+    - name: The Tale emissaries monitoring
       cron:
-        name: damage and kill emissaries
-        cron_file: the_tale_emissaries_damage_and_kill
+        name: emissaries monitoring
+        cron_file: the_tale_emissaries_monitoring
+        # 30 минута исключена, так как в это время обрабатываются суточные эффекты
+        # 00 минута исключена, так как в это время обрабатываются часовые эффекты
+        minute: 5,10,15,20,25,35,40,45,50,55
+        user: the_tale
+        job: /home/the_tale/current/venv/bin/django-admin emissaries_monitoring --settings the_tale.settings
+
+    - name: The Tale emissaries days cycle
+      cron:
+        name: process emissaries days cycle
+        cron_file: the_tale_emissaries_process_day
         minute: 30
         hour: 0
         user: the_tale
-        job: /home/the_tale/current/venv/bin/django-admin emissaries_damage_and_kill_emissaries --settings the_tale.settings
+        job: /home/the_tale/current/venv/bin/django-admin emissaries_process_day --settings the_tale.settings

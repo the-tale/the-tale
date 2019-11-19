@@ -16,6 +16,13 @@ def to_operation(pb_operation):
                              description=pb_operation.description)
 
 
+def to_restrictions(pb_restrictions):
+    if not pb_restrictions:
+        return objects.Restrictions()
+
+    return objects.Restrictions(**s11n.from_json(pb_restrictions))
+
+
 def from_history(history):
     return bank_pb2.HistoryRecord(created_at=time.mktime(history.created_at.timetuple()),
                                   currency=history.currency,
@@ -23,8 +30,5 @@ def from_history(history):
                                   description=history.description)
 
 
-def from_restrictions(pb_restrictions):
-    if not pb_restrictions:
-        return objects.Restrictions()
-
-    return objects.Restrictions(**s11n.from_json(pb_restrictions))
+def from_balances(balances):
+    return bank_pb2.Balances(amounts=balances)

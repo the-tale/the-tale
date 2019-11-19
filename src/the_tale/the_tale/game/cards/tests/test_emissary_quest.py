@@ -34,6 +34,8 @@ class EmissaryQuestsTest(helpers.CardsTestMixin,
                                              initiator=self.account,
                                              place_id=self.places[0].id)
 
+        self.enable_emissary_pvp(self.emissary)
+
     @contextlib.contextmanager
     def check_free_quests_change(self, delta, clan_id=None):
         if clan_id is None:
@@ -122,6 +124,26 @@ class EmissaryQuestsTest(helpers.CardsTestMixin,
             with self.check_not_changed(lambda: self.emissary_power(emissary_id=self.emissary.id)):
                 self.complete_quest(self.hero)
 
+    def test_use__not_own_emissary__not_ready_for_pvp(self):
+        self.disable_emissary_pvp(self.emissary)
+
+        enemy_account = self.accounts_factory.create_account()
+
+        enemy_clan = self.create_clan(enemy_account, 1)
+
+        enemy_emissary = self.create_emissary(clan=enemy_clan,
+                                              initiator=enemy_account,
+                                              place_id=self.places[1].id)
+
+        with self.check_free_quests_change(0):
+            self.use_card(success=False,
+                          action=quests_relations.PERSON_ACTION.random(),
+                          emissary_id=enemy_emissary.id)
+
+        with self.check_not_changed(lambda: self.emissary_power(emissary_id=enemy_emissary.id)):
+            with self.check_not_changed(lambda: self.emissary_power(emissary_id=self.emissary.id)):
+                self.complete_quest(self.hero)
+
     def test_wrong_emissary_id(self):
         with self.check_free_quests_change(0):
             self.use_card(success=False, available_for_auction=False, emissary_id=-1)
@@ -130,7 +152,7 @@ class EmissaryQuestsTest(helpers.CardsTestMixin,
             self.complete_quest(self.hero)
 
     def test_emissary_is_out_game(self):
-        emissaries_logic.dismiss_emissary(self.account, self.emissary.id)
+        emissaries_logic.dismiss_emissary(self.emissary.id)
 
         with self.check_free_quests_change(0):
             self.use_card(success=False, available_for_auction=False)
@@ -163,15 +185,15 @@ class EmissaryQuestsTest(helpers.CardsTestMixin,
 
         enemy_clan = self.create_clan(enemy_account, 1)
 
-        enemy_emissary = self.create_emissary(clan=enemy_clan,
-                                              initiator=enemy_account,
-                                              place_id=self.places[1].id)
+        self.create_emissary(clan=enemy_clan,
+                             initiator=enemy_account,
+                             place_id=self.places[1].id)
 
-        with self.check_free_quests_change(0, clan_id=enemy_clan.id):
-            with self.check_free_quests_change(-1, clan_id=self.clan.id):
-                self.use_card(success=True, available_for_auction=False, emissary_id=enemy_emissary.id)
+        with self.check_free_quests_change(-1, clan_id=self.emissary.clan_id):
+            with self.check_free_quests_change(0, clan_id=enemy_clan.id):
+                self.use_card(success=True, available_for_auction=False, emissary_id=self.emissary.id)
 
-        with self.check_increased(lambda: self.emissary_power(emissary_id=enemy_emissary.id)):
+        with self.check_increased(lambda: self.emissary_power(emissary_id=self.emissary.id)):
             self.complete_quest(self.hero)
 
     def test_no_free_quests(self):
@@ -182,6 +204,23 @@ class EmissaryQuestsTest(helpers.CardsTestMixin,
 
         with self.check_not_changed(lambda: self.emissary_power()):
             self.complete_quest(self.hero)
+
+    def test_has_free_quests__enemy_clan(self):
+        enemy_account = self.accounts_factory.create_account()
+
+        enemy_clan = self.create_clan(enemy_account, 1)
+
+        enemy_emissary = self.create_emissary(clan=enemy_clan,
+                                              initiator=enemy_account,
+                                              place_id=self.places[1].id)
+
+        with self.check_free_quests_change(0, clan_id=self.emissary.clan_id):
+            with self.check_free_quests_change(0, clan_id=enemy_clan.id):
+                self.use_card(success=False, available_for_auction=False, emissary_id=enemy_emissary.id)
+
+        with self.check_not_changed(lambda: self.emissary_power(emissary_id=self.emissary.id)):
+            with self.check_not_changed(lambda: self.emissary_power(emissary_id=enemy_emissary.id)):
+                self.complete_quest(self.hero)
 
     def test_use__no_clan(self):
         new_leader = self.accounts_factory.create_account()

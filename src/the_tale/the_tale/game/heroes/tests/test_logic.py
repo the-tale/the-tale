@@ -182,7 +182,8 @@ class RegisterSpendingTests(utils_testcase.TestCase):
         self.assertEqual(impacts[0].amount, 150)
 
 
-class GetPlacesPathModifiersTests(utils_testcase.TestCase):
+class GetPlacesPathModifiersTests(places_helpers.PlacesTestsMixin,
+                                  utils_testcase.TestCase):
 
     def setUp(self):
         super().setUp()
@@ -213,10 +214,10 @@ class GetPlacesPathModifiersTests(utils_testcase.TestCase):
 
         with self.check_almost_delta(self.place_0_cost, -c.PATH_MODIFIER_MINOR_DELTA):
             self.places[0].set_modifier(places_modifiers.CITY_MODIFIERS.FORT)
-            self.places[0].effects.add(game_effects.Effect(name='test',
-                                                           attribute=places_relations.ATTRIBUTE.MODIFIER_FORT,
-                                                           value=100500,
-                                                           delta=0))
+            self.create_effect(self.places[0].id,
+                               value=100500,
+                               attribute=places_relations.ATTRIBUTE.MODIFIER_FORT,
+                               delta=0)
             self.places[0].refresh_attributes()
 
         self.assertTrue(self.places[0].is_modifier_active())
@@ -239,10 +240,10 @@ class GetPlacesPathModifiersTests(utils_testcase.TestCase):
         self.assertEqual(self.places[0].attrs.tax, 0)
 
         with self.check_almost_delta(self.place_0_cost, c.PATH_MODIFIER_NORMAL_DELTA):
-            self.places[0].effects.add(game_effects.Effect(name='test',
-                                                           attribute=places_relations.ATTRIBUTE.TAX,
-                                                           value=100,
-                                                           delta=0))
+            self.create_effect(self.places[0].id,
+                               value=100,
+                               attribute=places_relations.ATTRIBUTE.TAX,
+                               delta=0)
             self.places[0].refresh_attributes()
 
     HABITS_DELTAS = [(-1, -1, -c.PATH_MODIFIER_MINOR_DELTA),

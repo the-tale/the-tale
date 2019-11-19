@@ -1,5 +1,6 @@
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 {% import 'map/macros.html' as map_macros with context %}
+{% import 'game/macros.html' as game_macros with context %}
 {% import 'places/macros.html' as places_macros with context %}
 {% import 'persons/macros.html' as persons_macros with context %}
 {% import 'emissaries/macros.html' as emissaries_macros with context %}
@@ -181,18 +182,18 @@
               </td>
             </tr>
 
-            {{places_macros.attribute_record(place, 'size')}}
-            {{places_macros.attribute_record(place, 'power_economic')}}
-            {{places_macros.attribute_record(place, 'money_economic')}}
-            {{places_macros.attribute_record(place, 'area')}}
-            {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
-            {{places_macros.attribute_record(place, 'stability')}}
-            {{places_macros.attribute_record(place, 'production')}}
-            {{places_macros.attribute_record(place, 'transport')}}
-            {{places_macros.attribute_record(place, 'freedom')}}
-            {{places_macros.attribute_record(place, 'safety')}}
-            {{places_macros.attribute_record(place, 'culture')}}
-            {{places_macros.attribute_record(place, 'tax')}}
+            {{game_macros.attribute_record(place, 'size')}}
+            {{game_macros.attribute_record(place, 'power_economic')}}
+            {{game_macros.attribute_record(place, 'money_economic')}}
+            {{game_macros.attribute_record(place, 'area')}}
+            {{game_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
+            {{game_macros.attribute_record(place, 'stability')}}
+            {{game_macros.attribute_record(place, 'production')}}
+            {{game_macros.attribute_record(place, 'transport')}}
+            {{game_macros.attribute_record(place, 'freedom')}}
+            {{game_macros.attribute_record(place, 'safety')}}
+            {{game_macros.attribute_record(place, 'culture')}}
+            {{game_macros.attribute_record(place, 'tax')}}
           </tbody>
         </table>
 

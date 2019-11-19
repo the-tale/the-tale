@@ -20,7 +20,9 @@ class BaseClanTests(utils_testcase.TestCase,
                                                                         order=0)
 
         self.account = self.accounts_factory.create_account()
-        self.clan = self.create_clan(owner=self.account, uid=1)
+
+        with self.check_changed(lambda: storage.infos._version):
+            self.clan = self.create_clan(owner=self.account, uid=1)
 
 
 class SyncClanStatisitcsTests(BaseClanTests):
@@ -308,6 +310,7 @@ class CreateClanTests(BaseClanTests):
         self.assertEqual(self.clan.name, loaded_clan.name)
         self.assertEqual(self.clan.motto, loaded_clan.motto)
         self.assertEqual(self.clan.description, loaded_clan.description)
+        self.assertEqual(self.clan.linguistics_name, game_names.generator().get_fast_name(self.clan.name))
 
         # members number calculated
         self.assertEqual(self.clan.members_number, 1)
@@ -409,8 +412,10 @@ class SaveClanTests(BaseClanTests):
         self.clan.name = 'name-x'
         self.clan.motto = 'motto-x'
         self.clan.description = 'description-x'
+        self.clan.linguistics_name = game_names.generator().get_test_name()
 
-        logic.save_clan(self.clan)
+        with self.check_changed(lambda: storage.infos._version):
+            logic.save_clan(self.clan)
 
         subcategory = forum_prototypes.SubCategoryPrototype.get_by_id(self.clan.forum_subcategory_id)
         self.assertEqual(subcategory.caption, logic.forum_subcategory_caption('name-x'))
@@ -421,6 +426,7 @@ class SaveClanTests(BaseClanTests):
         self.assertEqual(loaded_clan.name, 'name-x')
         self.assertEqual(loaded_clan.motto, 'motto-x')
         self.assertEqual(loaded_clan.description, 'description-x')
+        self.assertEqual(loaded_clan.linguistics_name, self.clan.linguistics_name)
 
 
 class GetMemberRoleTests(BaseClanTests):

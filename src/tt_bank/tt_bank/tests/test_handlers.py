@@ -31,9 +31,20 @@ async def load_operations():
 class Base(helpers.BaseTests):
 
     async def check_balance(self, account_id, expected_balance):
-        request = await self.client.post('/accounts/balance', data=bank_pb2.AccountBalanceRequest(account_id=account_id).SerializeToString())
-        answer = await self.check_success(request, bank_pb2.AccountBalanceResponse)
-        self.assertEqual(answer.balance, expected_balance)
+        request = await self.client.post('/accounts/balances',
+                                         data=bank_pb2.AccountsBalancesRequest(accounts_ids=(account_id,)).SerializeToString())
+        answer = await self.check_success(request, bank_pb2.AccountsBalancesResponse)
+        self.assertEqual(answer.balances[account_id].amounts, expected_balance)
+
+    async def check_balances(self, accounts_ids, expected_balances):
+        request = await self.client.post('/accounts/balances',
+                                         data=bank_pb2.AccountsBalancesRequest(accounts_ids=tuple(accounts_ids)).SerializeToString())
+        answer = await self.check_success(request, bank_pb2.AccountsBalancesResponse)
+
+        result = {account_id: dict(balances.amounts)
+                  for account_id, balances in answer.balances.items()}
+
+        self.assertEqual(result, expected_balances)
 
 
 class AccountBalanceTests(Base):
@@ -53,6 +64,19 @@ class AccountBalanceTests(Base):
         await helpers.call_change_balance(account_id=666, currency=2, amount=13)
         await self.check_balance(account_id=666, expected_balance={1: 101, 2: 13})
 
+    @test_utils.unittest_run_loop
+    async def test_multiple_accounts(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
+        await helpers.call_change_balance(account_id=666, currency=2, amount=1)
+
+        await helpers.call_change_balance(account_id=777, currency=2, amount=13)
+        await helpers.call_change_balance(account_id=777, currency=3, amount=14)
+
+        await helpers.call_change_balance(account_id=888, currency=2, amount=17)
+
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {1: 100500, 2: 1},
+                                                     777: {2: 13, 3: 14}})
 
 class AccountHistoryTests(Base):
 

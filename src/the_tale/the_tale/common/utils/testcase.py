@@ -30,6 +30,8 @@ def setUp(self):
     linguistics_storage.dictionary.clear()
     linguistics_storage.lexicon.clear()
     linguistics_storage.restrictions.clear()
+    places_storage.effects.clear()
+    clans_storage.infos.clear()
 
     game_prototypes.GameState.start()
 

@@ -145,7 +145,23 @@ tt_services:
     custom:
         scale_chunk_size: 100
 
+  tt_places_effects:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_effects/"}
 
+  tt_emissaries_events_currencies:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_bank/"}
+
+  tt_emissaries_events_uniquer:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_uniquer/"}
 
 
 tt_RAM: 4096

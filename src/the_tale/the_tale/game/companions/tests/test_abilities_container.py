@@ -209,7 +209,7 @@ class ContainerTests(utils_testcase.TestCase):
         self.assertTrue(self.container_1.can_be_freezed())
         self.assertTrue(self.container_2.can_be_freezed())
 
-    def test_can_be_freezed(self):
+    def test_can_be_freezed_2(self):
         self.container_1.start = frozenset(self.container_1.start | set((effects.ABILITIES.TEMPORARY,)))
 
         self.assertFalse(self.container_1.can_be_freezed())

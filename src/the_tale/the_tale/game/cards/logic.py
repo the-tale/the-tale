@@ -197,3 +197,7 @@ def change_storage(owner_id, operation_type, cards, old_storage, new_storage):
 
 def has_cards(owner_id, cards_ids):
     return tt_services.storage.cmd_has_items(owner_id, [id.hex for id in cards_ids])
+
+
+def get_card_probability(type):
+    return type.rarity.priority / sum(card.rarity.priority for card in types.CARD.records)

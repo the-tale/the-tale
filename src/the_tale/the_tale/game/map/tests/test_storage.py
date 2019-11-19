@@ -24,7 +24,12 @@ class EffectsTests(utils_testcase.TestCase):
         self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
     def test_refresh_attributes__safety__min_value(self):
-        self.place_1.effects.add(game_effects.Effect(name='test', attribute=places_relations.ATTRIBUTE.SAFETY, value=-1000))
+        places_logic.register_effect(place_id=self.place_1.id,
+                                     attribute=places_relations.ATTRIBUTE.SAFETY,
+                                     value=-1000,
+                                     name='test',
+                                     refresh_effects=True,
+                                     refresh_places=True)
 
         self.place_1.refresh_attributes()
 
@@ -33,7 +38,13 @@ class EffectsTests(utils_testcase.TestCase):
         self.assertAlmostEqual(storage.cells(self.place_1.x, self.place_1.y).safety, c.CELL_SAFETY_MIN)
 
     def test_refresh_attributes__safety__max_value(self):
-        self.place_1.effects.add(game_effects.Effect(name='test', attribute=places_relations.ATTRIBUTE.SAFETY, value=1000))
+
+        places_logic.register_effect(place_id=self.place_1.id,
+                                     attribute=places_relations.ATTRIBUTE.SAFETY,
+                                     value=1000,
+                                     name='test',
+                                     refresh_effects=True,
+                                     refresh_places=True)
 
         self.place_1.refresh_attributes()
 
@@ -42,9 +53,12 @@ class EffectsTests(utils_testcase.TestCase):
         self.assertAlmostEqual(storage.cells(self.place_1.x, self.place_1.y).safety, 1)
 
     def test_transport__min_value(self):
-        self.place_1.effects.add(game_effects.Effect(name='test', attribute=places_relations.ATTRIBUTE.TRANSPORT, value=-1000))
-
-        self.place_1.refresh_attributes()
+        places_logic.register_effect(place_id=self.place_1.id,
+                                     attribute=places_relations.ATTRIBUTE.TRANSPORT,
+                                     value=-1000,
+                                     name='test',
+                                     refresh_effects=True,
+                                     refresh_places=True)
 
         storage.cells.sync(force=True)
 

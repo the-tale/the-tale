@@ -74,29 +74,53 @@ class ChangePlaceAttribute(BaseEffect):
         self.base_value = base_value
 
     def apply_positive(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
+        from the_tale.game.places import logic as places_logic
+
         effect_value = self.base_value * job_power
         effect_delta = effect_value * (1.0 / (24 * c.NORMAL_JOB_LENGTH))
-        place.effects.add(game_effects.Effect(name=actor_name, attribute=self.attribute, value=effect_value, delta=effect_delta))
+
+        places_logic.register_effect(place_id=place.id,
+                                     attribute=self.attribute,
+                                     value=effect_value,
+                                     name=actor_name,
+                                     delta=effect_delta,
+                                     refresh_effects=True,
+                                     refresh_places=False,
+                                     info={'source': 'jobs'})
 
         return self.apply_to_heroes(actor_type=actor_type,
                                     effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
                                     method_names=('job_message', 'job_message'),
-                                    method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
+                                    method_kwargs={'place_id': place.id,
+                                                   'person_id': person.id if person else None,
+                                                   'job_power': job_power},
                                     positive_heroes=positive_heroes,
                                     negative_heroes=negative_heroes,
                                     direction='positive')
 
     def apply_negative(self, actor_type, actor_name, place, person, positive_heroes, negative_heroes, job_power):
+        from the_tale.game.places import logic as places_logic
+
         job_power *= c.JOB_NEGATIVE_POWER_MULTIPLIER
 
         effect_value = self.base_value * job_power
         effect_delta = effect_value * (1.0 / c.NORMAL_JOB_LENGTH)
-        place.effects.add(game_effects.Effect(name=actor_name, attribute=self.attribute, value=-effect_value, delta=effect_delta))
+
+        places_logic.register_effect(place_id=place.id,
+                                     attribute=self.attribute,
+                                     value=-effect_value,
+                                     name=actor_name,
+                                     delta=effect_delta,
+                                     refresh_effects=True,
+                                     refresh_places=False,
+                                     info={'source': 'jobs'})
 
         return self.apply_to_heroes(actor_type=actor_type,
                                     effect=getattr(EFFECT, 'PLACE_{}'.format(self.attribute.name)),
                                     method_names=('job_message', 'job_message'),
-                                    method_kwargs={'place_id': place.id, 'person_id': person.id if person else None, 'job_power': job_power},
+                                    method_kwargs={'place_id': place.id,
+                                                   'person_id': person.id if person else None,
+                                                   'job_power': job_power},
                                     positive_heroes=positive_heroes,
                                     negative_heroes=negative_heroes,
                                     direction='negative')
