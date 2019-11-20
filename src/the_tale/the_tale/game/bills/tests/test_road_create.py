@@ -78,6 +78,14 @@ class RoadCreateTests(helpers.BaseTestPrototypes):
                                                          'path': 'dd'})
         self.assertTrue(form.is_valid())
 
+    def test_form_validation__wrong_end_place(self):
+        form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
+                                                         'chronicle_on_accepted': 'chronicle-on-accepted',
+                                                         'place_1': self.place1.id,
+                                                         'place_2': self.place3.id,
+                                                         'path': 'drrd'})
+        self.assertFalse(form.is_valid())
+
     def test_user_form_validation__already_exists(self):
         self.assertTrue(roads_logic.road_between_places(self.place1, self.place2))
         form = self.bill.data.get_user_form_update(post={'caption': 'long caption',
