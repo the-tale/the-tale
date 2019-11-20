@@ -185,7 +185,7 @@ class LogicStorage(object):
 
                 # process new actions if it has been created or remove already processed actions
                 if (continue_steps_if_needed and
-                    leader_action != hero.actions.current_action and
+                    leader_action is not hero.actions.current_action and
                     hero.actions.current_action.APPROVED_FOR_STEPS_CHAIN and
                         leader_action.APPROVED_FOR_STEPS_CHAIN):
 
