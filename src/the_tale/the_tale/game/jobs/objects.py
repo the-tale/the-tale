@@ -51,9 +51,13 @@ class Job(object):
                    effect=effects.EFFECT(data['effect']),
                    power_required=data['power_required'])
 
-    def ui_info(self):
+    def ui_info(self, actor_id):
+        power = self.load_power(actor_id)
+
         return {'name': self.name,
                 'effect': self.effect.value,
+                'positive_power': int(power.positive),
+                'negative_power': int(power.negative),
                 'power_required': int(self.power_required)}
 
     def is_completed(self, job_power):

@@ -37,7 +37,7 @@ def person_info(person):
                                                           attrs=person.attrs,
                                                           relation=relations.ATTRIBUTE),
             'chronicle': [event.ui_info() for event in events],
-            'job': person.job.ui_info(),
+            'job': person.job.ui_info(person.id),
             'accounts': None,
             'clans': None}
 
