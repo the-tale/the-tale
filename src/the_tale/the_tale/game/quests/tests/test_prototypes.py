@@ -1207,3 +1207,35 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.assertEqual(round(self.hero.actions.current_action.break_at, 4), 0.9000)
         self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
                          (self.place_3.x, self.place_3.y))
+
+    def test_move_hero_on_road__break_at_recalculation(self):
+        self.hero.position.set_place(self.place_1)
+
+        base_path = self.quest._get_fixed_path(place_from=self.place_1,
+                                               place_to=self.place_3)
+
+        self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
+
+        self.assertAlmostEqual(self.hero.actions.current_action.break_at, 0.9)
+
+        self.hero.position.set_position(*base_path.coordinates(0.3))
+
+        self.hero.actions.pop_action()
+
+        self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
+
+        new_break_at = self.hero.actions.current_action.break_at
+
+        self.assertAlmostEqual(new_break_at, (0.9 - 0.3) / (1 - 0.3))
+
+        new_path = self.hero.actions.current_action.path
+
+        self.assertTrue(new_path.length < base_path.length)
+
+        expected_position = new_path.coordinates(new_break_at)
+
+        percents, x, y = base_path.nearest_coordinates(*expected_position)
+
+        self.assertAlmostEqual(percents, 0.9)
+        self.assertAlmostEqual(x, expected_position[0])
+        self.assertAlmostEqual(y, expected_position[1])

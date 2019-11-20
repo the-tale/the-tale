@@ -384,6 +384,13 @@ class QuestPrototype(object):
 
         path_to = path.subpath_from_percents(nearest_percents)
 
+        # так как мы пересчитали путь (уменьшили его, начав от текущего положения героя)
+        # то следует нормировать точку останова (увеличить процент пропорционально уменьшению пути)
+        if 1 < nearest_percents + sys.float_info.epsilon:
+            real_break_at = percents
+        else:
+            real_break_at = (percents - nearest_percents) / (1 - nearest_percents)
+
         log_data = {'hero_id': self.hero.id,
                     'percents': percents,
                     'nearest_percents': nearest_percents,
@@ -391,14 +398,15 @@ class QuestPrototype(object):
                     'path_coordinates': (x, y),
                     'place_from': place_from.id,
                     'place_to': place_to.id,
-                    'path_to': path_to.serialize()}
+                    'path_to': path_to.serialize(),
+                    'real_break_at': real_break_at}
 
         logger.info('_move_hero_on_road for hero %s, properties: %s', self.hero.id, log_data)
 
         actions_prototypes.ActionMoveSimplePrototype.create(hero=self.hero,
                                                             path=path_to,
                                                             destination=place_to,
-                                                            break_at=percents - nearest_percents)
+                                                            break_at=real_break_at)
 
     def get_current_power(self, power):
         return power * self.current_info.power
