@@ -239,7 +239,8 @@ def get_membership(account_id):
 
     return objects.Membership(clan_id=membership_model.clan_id,
                               account_id=membership_model.account_id,
-                              role=membership_model.role)
+                              role=membership_model.role,
+                              created_at=membership_model.created_at)
 
 
 def operations_rights(initiator, clan, is_moderator):

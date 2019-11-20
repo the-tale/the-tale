@@ -63,12 +63,17 @@ class Clan:
 
 
 class Membership:
-    __slots__ = ('clan_id', 'account_id', 'role')
+    __slots__ = ('clan_id', 'account_id', 'role', 'created_at')
 
-    def __init__(self, clan_id, account_id, role):
+    def __init__(self, clan_id, account_id, role, created_at):
         self.clan_id = clan_id
         self.account_id = account_id
         self.role = role
+        self.created_at = created_at
+
+    def is_freezed(self):
+        membership_time = (datetime.datetime.now() - self.created_at).total_seconds()
+        return membership_time < conf.settings.NEW_MEMBER_FREEZE_PERIOD * 24 * 60 * 60
 
 
 class MembershipRequest:

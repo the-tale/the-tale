@@ -3,11 +3,23 @@ import smart_imports
 smart_imports.all()
 
 
+class TestMembership(dext_testcase.TestCase):
+
+    def test_is_freezed(self):
+        membership = objects.Membership(clan_id=1,
+                                        account_id=2,
+                                        role=relations.MEMBER_ROLE.RECRUIT,
+                                        created_at=datetime.datetime.now())
+
+        self.assertTrue(membership.is_freezed())
+
+        membership.created_at -= datetime.timedelta(days=conf.settings.NEW_MEMBER_FREEZE_PERIOD)
+
+        self.assertFalse(membership.is_freezed())
+
+
 # for complex permissions tests see test_logic.OperationsRightsTests
 class TestOperationsRights(dext_testcase.TestCase):
-
-    def setUp(self):
-        super().setUp()
 
     def test_initialize(self):
         rights = objects.OperationsRights(clan_id=666,

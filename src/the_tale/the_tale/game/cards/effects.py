@@ -1048,7 +1048,7 @@ class CreateClan(BaseEffect):
     def get_form(self, card, hero, data):
         return forms.CreateClan(data)
 
-    DESCRIPTION = 'Создаёт новую гильдию и делает игрока её лидером.'
+    DESCRIPTION = 'Создаёт новую гильдию и делает игрока её лидером. Обратите внимание, выполнять задания эмиссаров гильдии могут только игроки, состоящие в ней минимум {days} дней.'.format(days=clans_conf.settings.NEW_MEMBER_FREEZE_PERIOD)
 
     def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
         name = task.data.get('name')
@@ -1256,29 +1256,33 @@ class EmissaryQuest(BaseEffect):
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Эмиссар не найден.')
 
-        account_clan_id = accounts_prototypes.AccountPrototype.get_by_id(task.hero_id).clan_id
+        membership = clans_logic.get_membership(task.hero_id)
 
-        if account_clan_id is None:
+        if membership is None:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Вы должны быть членом гильдии, чтобы выполнять задания эмиссаров.')
+
+        if membership.is_freezed():
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Вы недавно вступили в гильдию и пока не можете выполнять задания эмиссаров. Для этого вы должны состоять в гильдии минимум {days} дней.'.format(days=clans_conf.settings.NEW_MEMBER_FREEZE_PERIOD))
 
         if task.hero.actions.has_proxy_actions():
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Карту нельзя использовать, когда герой сражается на Арене.')
 
-        if emissaries_storage.emissaries[emissary_id].clan_id != account_clan_id:
+        if emissaries_storage.emissaries[emissary_id].clan_id != membership.clan_id:
             if not card.available_for_auction:
                 return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                          message='Карту, полученную неподписчиком, можно использовать только на эмиссарах своей гильдии.')
 
-            if not emissaries_logic.can_clan_participate_in_pvp(account_clan_id):
+            if not emissaries_logic.can_clan_participate_in_pvp(membership.clan_id):
                 border = tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP
 
                 return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                          message='Ваша гильдия пока не может выполнять задания чужих эмиссаров. Для этого вам необходо иметь эмиссара с суммарными способностями больше либо равными {border}.'.format(border=border))
 
         if not card.available_for_auction:
-            status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=account_clan_id,
+            status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=membership.clan_id,
                                                                                      type='emissary_quest_card',
                                                                                      amount=-1,
                                                                                      async=False,

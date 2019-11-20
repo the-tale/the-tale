@@ -11,4 +11,5 @@ settings = dext_app_settings.app_settings('CLANS',
                                           TT_CLANS_POINTS_ENTRY_POINT='http://localhost:10017/',
                                           CLANS_POINTS_TRANSACTION_LIFETIME=24 * 60 * 60,
                                           CHRONICLE_RECORDS_ON_CLAN_PAGE=25,
-                                          FORUM_CATEGORY_SLUG='clans',)
+                                          FORUM_CATEGORY_SLUG='clans',
+                                          NEW_MEMBER_FREEZE_PERIOD=7)
