@@ -11,10 +11,12 @@ class PostPrototype(utils_prototypes.BasePrototype):
     _get_by = ('id', )
 
     @utils_decorators.lazy_property
-    def forum_thread(self): return forum_prototypes.ThreadPrototype.get_by_id(self.forum_thread_id)
+    def forum_thread(self):
+        return forum_prototypes.ThreadPrototype.get_by_id(self.forum_thread_id)
 
     @property
-    def text_html(self): return utils_bbcode.render(self.text)
+    def text_html(self):
+        return utils_bbcode.render(self.text)
 
     @utils_decorators.lazy_property
     def author(self):
@@ -50,8 +52,8 @@ class PostPrototype(utils_prototypes.BasePrototype):
 
         VotePrototype.create(post, author)
 
-        for tag_id in conf.settings.DEFAULT_TAGS:
-            models.Tagged.objects.create(post_id=post.id, tag_id=tag_id)
+        for tag in logic.get_default_tags():
+            models.Tagged.objects.create(post_id=post.id, tag_id=tag.id)
 
         return post
 
@@ -97,7 +99,8 @@ class VotePrototype(utils_prototypes.BasePrototype):
             return None
 
     @utils_decorators.lazy_property
-    def voter(self): return accounts_prototypes.AccountPrototype(self._model.voter)
+    def voter(self):
+        return accounts_prototypes.AccountPrototype(self._model.voter)
 
     @classmethod
     def create(cls, post, voter):

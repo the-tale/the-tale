@@ -59,7 +59,8 @@ class TestOperationsRights(dext_testcase.TestCase):
 
         membership = objects.Membership(clan_id=666,
                                         account_id=777,
-                                        role=relations.MEMBER_ROLE.RECRUIT)
+                                        role=relations.MEMBER_ROLE.RECRUIT,
+                                        created_at=datetime.datetime.now())
 
         for permission in relations.PERMISSION.records:
             if not permission.on_member:
@@ -74,7 +75,8 @@ class TestOperationsRights(dext_testcase.TestCase):
 
         membership = objects.Membership(clan_id=666,
                                         account_id=777,
-                                        role=relations.MEMBER_ROLE.MASTER)
+                                        role=relations.MEMBER_ROLE.MASTER,
+                                        created_at=datetime.datetime.now())
 
         for permission in relations.PERMISSION.records:
             if not permission.on_member:
@@ -90,7 +92,8 @@ class TestOperationsRights(dext_testcase.TestCase):
 
             membership = objects.Membership(clan_id=666,
                                             account_id=777,
-                                            role=relations.MEMBER_ROLE.MASTER)
+                                            role=relations.MEMBER_ROLE.MASTER,
+                                            created_at=datetime.datetime.now())
 
             self.assertFalse(rights.can_change_role(membership))
 

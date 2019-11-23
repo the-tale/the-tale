@@ -4,7 +4,8 @@ import smart_imports
 smart_imports.all()
 
 
-class BaseTestRequests(utils_testcase.TestCase):
+class BaseTestRequests(clans_helpers.ClansTestsMixin,
+                       utils_testcase.TestCase):
 
     def setUp(self):
         super(BaseTestRequests, self).setUp()
@@ -14,7 +15,7 @@ class BaseTestRequests(utils_testcase.TestCase):
 
         helpers.prepair_forum()
 
-        forum_prototypes.CategoryPrototype.create(caption='category-1', slug=clans_conf.settings.FORUM_CATEGORY_SLUG, order=0)
+        self.prepair_forum_for_clans()
 
         self.clan_2 = clans_logic.create_clan(self.account_2, abbr='abbr2', name='name2', motto='motto', description='description')
 

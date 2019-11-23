@@ -94,7 +94,8 @@ class PostResource(utils_resources.Resource):
         votes = {}
 
         if self.account.is_authenticated:
-            votes = dict((vote.post_id, prototypes.VotePrototype(vote)) for vote in models.Vote.objects.filter(post_id__in=[post.id for post in posts], voter=self.account._model))
+            votes = dict((vote.post_id, prototypes.VotePrototype(vote))
+                         for vote in models.Vote.objects.filter(post_id__in=[post.id for post in posts], voter=self.account._model))
 
         return self.template('blogs/index.html',
                              {'posts': posts,
@@ -130,11 +131,15 @@ class PostResource(utils_resources.Resource):
         if not form.is_valid():
             return self.json_error('blogs.posts.create.form_errors', form.errors)
 
-        post = prototypes.PostPrototype.create(author=self.account, caption=form.c.caption, text=form.c.text)
+        post = prototypes.PostPrototype.create(author=self.account,
+                                               caption=form.c.caption,
+                                               text=form.c.text)
 
         meta_relations_logic.create_relations_for_objects(meta_relations.IsAbout,
                                                           meta_relations.Post.create_from_object(post),
                                                           form.c.meta_objects)
+
+        logic.sync_technical_tags(post.id)
 
         return self.json_ok(data={'next_url': django_reverse('blogs:posts:show', args=[post.id])})
 
@@ -144,10 +149,7 @@ class PostResource(utils_resources.Resource):
         thread_data = forum_views.ThreadPageData()
         thread_data.initialize(account=self.account, thread=self.post.forum_thread, page=1, inline=True)
 
-        meta_post = meta_relations.Post.create_from_object(self.post)
-
-        is_about_objects = [obj for relation, obj in meta_relations_logic.get_objects_related_from(relation=meta_relations.IsAbout,
-                                                                                                   meta_object=meta_post)]
+        is_about_objects = logic.get_objects_post_about(self.post.id)
 
         is_about_objects.sort(key=lambda obj: (obj.TYPE_CAPTION, obj.caption))
 
@@ -156,7 +158,7 @@ class PostResource(utils_resources.Resource):
                                                  'post_meta_object': meta_relations.Post.create_from_object(self.post),
                                                  'is_about_objects': is_about_objects,
                                                  'thread_data': thread_data,
-                                                 'tags': models.Tag.objects.filter(id__in=models.Tagged.objects.filter(post_id=self.post.id).values_list('tag', flat=True)).order_by('name'),
+                                                 'tags': logic.get_post_tags(self.post.id),
                                                  'vote': None if not self.account.is_authenticated else prototypes.VotePrototype.get_for(self.account, self.post)})
 
     @utils_decorators.login_required
@@ -168,10 +170,12 @@ class PostResource(utils_resources.Resource):
     def edit(self):
         meta_post = meta_relations.Post.create_from_object(self.post)
 
+        meta_uids = meta_relations_logic.get_uids_related_from(relation=meta_relations.IsAbout,
+                                                               meta_object=meta_post)
+
         form = forms.PostForm(initial={'caption': self.post.caption,
                                        'text': self.post.text,
-                                       'meta_objects': ' '.join(sorted(meta_relations_logic.get_uids_related_from(relation=meta_relations.IsAbout,
-                                                                                                                       meta_object=meta_post)))})
+                                       'meta_objects': ' '.join(sorted(meta_uids))})
         return self.template('blogs/edit.html', {'post': self.post,
                                                  'page_type': 'edit',
                                                  'form': form})
@@ -206,6 +210,8 @@ class PostResource(utils_resources.Resource):
         meta_relations_logic.create_relations_for_objects(meta_relations.IsAbout,
                                                           meta_relations.Post.create_from_object(self.post),
                                                           form.c.meta_objects)
+
+        logic.sync_technical_tags(self.post.id)
 
         return self.json_ok()
 
@@ -256,8 +262,11 @@ class PostResource(utils_resources.Resource):
     @validate_moderator_rights()
     @dext_old_views.handler('#post', 'edit-tags', method='get')
     def edit_tags(self):
+
+        tags = logic.get_post_tags(self.post.id)
+
         return self.template('blogs/edit_tags.html', {'post': self.post,
-                                                      'form': forms.TagsForm(),
+                                                      'form': forms.TagsForm(initial={'tags': [tag.id for tag in tags]}),
                                                       'page_type': 'edit'})
 
     @utils_decorators.login_required
@@ -271,8 +280,10 @@ class PostResource(utils_resources.Resource):
         if not form.is_valid():
             return self.json_error('blogs.posts.update_tags.form_errors', form.errors)
 
-        models.Tagged.objects.filter(post_id=self.post.id).delete()
-        for tag_id in form.c.tags:
-            models.Tagged.objects.create(post_id=self.post.id, tag_id=tag_id)
+        logic.sync_tags(self.post.id,
+                        expected_tags_ids=form.c.tags,
+                        work_tags_ids={tag.id for tag in logic.get_manual_tags()})
+
+        logic.sync_technical_tags(self.post.id)
 
         return self.json_ok()

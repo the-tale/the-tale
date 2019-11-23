@@ -35,9 +35,6 @@ def setUp(self):
 
     game_prototypes.GameState.start()
 
-    for tag_id in blogs_conf.settings.DEFAULT_TAGS:
-        blogs_models.Tag.objects.create(id=tag_id, name='{}'.format(tag_id), description='{}'.format(tag_id))
-
 
 class TestAccountsFactory(object):
 

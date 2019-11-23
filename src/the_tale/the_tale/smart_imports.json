@@ -54,6 +54,7 @@
                              "django_contenttypes_models": {"module": "django.contrib.contenttypes.models"},
                              "django_feedgenerator": {"module": "django.utils.feedgenerator"},
                              "django_safestring": {"module": "django.utils.safestring"},
+                             "django_functional": {"module": "django.utils.functional"},
                              "django_mail": {"module": "django.core.mail"},
                              "django_wsgi": {"module": "django.core.wsgi"},
                              "django_static": {"module": "django.conf.urls.static"},

@@ -33,7 +33,8 @@ class Post(django_models.Model):
     class Meta(object):
         permissions = (("moderate_post", "Может редактировать сообщения пользователей"), )
 
-    def __str__(self): return self.caption
+    def __str__(self):
+        return self.caption
 
 
 class Vote(django_models.Model):
@@ -56,7 +57,19 @@ class Tag(django_models.Model):
     name = django_models.CharField(max_length=NAME_MAX_LENGTH)
     description = django_models.TextField()
 
-    def __str__(self): return self.name
+    meta_type = django_models.IntegerField(null=True,
+                                           default=None,
+                                           blank=True,
+                                           choices=[])
+
+    default = django_models.BooleanField(default=False, blank=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._meta.get_field('meta_type').choices = meta_relations_logic.types_choices()
+
+    def __str__(self):
+        return self.name
 
 
 class Tagged(django_models.Model):
@@ -67,4 +80,5 @@ class Tagged(django_models.Model):
     created_at = django_models.DateTimeField(auto_now_add=True, null=False)
     updated_at = django_models.DateTimeField(auto_now=True, null=False)
 
-    def __str__(self): return '<%s - %s>' % (self.tag.name, self.post.caption)
+    def __str__(self):
+        return '<%s - %s>' % (self.tag.name, self.post.caption)
