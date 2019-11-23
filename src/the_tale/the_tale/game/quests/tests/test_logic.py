@@ -129,6 +129,36 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.check_serialization(hero_info)
 
 
+class FactPlaceTests(LogicTestsBase):
+
+    def test_no_midifier(self):
+        self.assertTrue(self.place_1.modifier.is_NONE)
+
+        fact = logic.fact_place(self.place_1)
+
+        self.assertEqual(fact.type, questgen_relations.PLACE_TYPE.NONE)
+
+    def test_active_midifier(self):
+        self.place_1.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
+        self.place_1.attrs.modifier_holy_city = c.PLACE_TYPE_ENOUGH_BORDER
+
+        self.assertTrue(self.place_1.is_modifier_active())
+
+        fact = logic.fact_place(self.place_1)
+
+        self.assertEqual(fact.type, questgen_relations.PLACE_TYPE.HOLY_CITY)
+
+    def test_not_active_midifier(self):
+        self.place_1.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
+        self.place_1.attrs.modifier_holy_city = 0
+
+        self.assertFalse(self.place_1.is_modifier_active())
+
+        fact = logic.fact_place(self.place_1)
+
+        self.assertEqual(fact.type, questgen_relations.PLACE_TYPE.NONE)
+
+
 class FillPlacesTest(LogicTestsBase):
 
     def setUp(self):

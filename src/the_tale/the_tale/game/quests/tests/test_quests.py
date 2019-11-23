@@ -50,6 +50,7 @@ class QuestsTestBase(utils_testcase.TestCase,
         heroes_logic.save_hero(self.hero)
 
         self.p2.set_modifier(places_modifiers.CITY_MODIFIERS.HOLY_CITY)
+        self.p2.attrs.modifier_holy_city = c.PLACE_TYPE_ENOUGH_BORDER
         places_logic.save_place(self.p2)
 
         self.p1.persons[0].type = persons_relations.PERSON_TYPE.BLACKSMITH

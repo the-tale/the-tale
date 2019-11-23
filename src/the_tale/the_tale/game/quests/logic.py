@@ -117,7 +117,7 @@ def fact_place(place):
     return questgen_facts.Place(uid=uids.place(place.id),
                                 terrains=[terrain.value for terrain in place.terrains],
                                 externals={'id': place.id},
-                                type=place._modifier.quest_type)
+                                type=place.modifier_quest_type())
 
 
 def fact_mob(mob):

@@ -410,6 +410,12 @@ class Place(game_names.ManageNameMixin2):
     def modifier(self):
         return self._modifier
 
+    def modifier_quest_type(self):
+        if self.is_modifier_active():
+            return self._modifier.quest_type
+
+        return questgen_relations.PLACE_TYPE.NONE
+
     def get_same_places(self):
         return [place for place in storage.places.all() if self.is_frontier == place.is_frontier]
 
