@@ -531,3 +531,7 @@ def remove_effect(effect_id, place_id, refresh_effects=False, refresh_places=Fal
         places_logic.save_place(place)
 
         places_storage.places.update_version()
+
+
+def task_board_places(x, y):
+    return storage.places.nearest_places(x, y, radius=tt_emissaries_constants.TASK_BOARD_RADIUS)

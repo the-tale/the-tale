@@ -70,6 +70,18 @@ class PlacesStorageTest(utils_testcase.TestCase):
         self.assertTrue(self.p1.id in self.storage)
         self.assertFalse(666 in self.storage)
 
+    def test_nearest_places(self):
+        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=0)],
+                              [self.p1.id])
+        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=1)],
+                              [self.p1.id])
+        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=2)],
+                              [self.p1.id, self.p3.id])
+        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=3)],
+                              [self.p1.id, self.p3.id])
+        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=4)],
+                              [self.p1.id, self.p2.id, self.p3.id])
+
 
 class ResourceExchangeStorageTests(utils_testcase.TestCase):
 

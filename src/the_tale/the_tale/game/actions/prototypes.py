@@ -437,6 +437,19 @@ class ActionIdlenessPrototype(ActionBase):
 
         return self.state in (self.STATE.IN_PLACE, self.STATE.RETURN)
 
+    def find_task_board_place(self):
+
+        if self.hero.clan_id is None:
+            return None
+
+        for place in places_logic.task_board_places(self.hero.position.place.x,
+                                                    self.hero.position.place.y):
+
+            if self.hero.clan_id in place.attrs.task_board:
+                return place
+
+        return None
+
     def process(self):
 
         if self.preprocess():
@@ -479,12 +492,14 @@ class ActionIdlenessPrototype(ActionBase):
 
             self.percents += 1.0 / self.hero.idle_length
 
-            if self.hero.clan_id in self.hero.position.place.attrs.task_board:
+            task_board_place = self.find_task_board_place()
+
+            if task_board_place is not None:
                 self.hero.add_message('action_idleness_task_board', hero=self.hero, clan=clans_storage.infos[self.hero.clan_id])
                 self.percents = 1.0
 
                 emissaries_logic.withdraw_event_points(clan_id=self.hero.clan_id,
-                                                       place_id=self.hero.position.place_id,
+                                                       place_id=task_board_place.id,
                                                        currency=emissaries_relations.EVENT_CURRENCY.TASK_BOARD)
 
             if self.percents >= 1.0:

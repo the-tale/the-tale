@@ -31,9 +31,19 @@ class PlacesStorage(dext_storage.Storage):
 
         return None
 
+    def nearest_places(self, x, y, radius):
+        self.sync()
+
+        for place in self.all():
+            if navigation_logic.manhattan_distance(x, y, place.x, place.y) <= radius:
+                yield place
+
     def shift_all(self, dx, dy):
+        self.sync()
+
         for place in self.all():
             place.shift(dx, dy)
+
         self.save_all()
 
 

@@ -10,7 +10,7 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
     def setUp(self):
         super(IdlenessActionTest, self).setUp()
 
-        game_logic.create_test_map()
+        self.places = game_logic.create_test_map()
 
         self.account = self.accounts_factory.create_account(is_fast=True)
         self.storage = game_logic_storage.LogicStorage()
@@ -160,9 +160,9 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
         self.assertEqual(self.hero.actions.number, 2)
         self.assertEqual(self.hero.actions.current_action.TYPE, prototypes.ActionResurrectPrototype.TYPE)
 
-    def get_task_board_points(self, clan_id):
+    def get_task_board_points(self, clan_id, place_id):
         resource_id = emissaries_logic.resource_id(clan_id=clan_id,
-                                                   place_id=self.hero.position.place_id)
+                                                   place_id=place_id)
 
         return emissaries_tt_services.events_currencies.cmd_balance(resource_id,
                                                                     currency=emissaries_relations.EVENT_CURRENCY.TASK_BOARD)
@@ -182,12 +182,13 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0
 
-        with self.check_not_changed(lambda: self.get_task_board_points(clan_1.id)):
+        with self.check_not_changed(lambda: self.get_task_board_points(clan_1.id, self.hero.position.place_id)):
             with self.check_not_changed(lambda: self.action_idl.state):
                 self.storage.process_turn()
 
         self.assertTrue(0 < self.action_idl.percents < 1)
 
+    @mock.patch('tt_logic.emissaries.constants.TASK_BOARD_RADIUS', 0)
     def test_task_board__hero_clan(self):
         self.prepair_forum_for_clans()
 
@@ -198,7 +199,8 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
         self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
         self.action_idl.percents = 0
 
-        with self.check_delta(lambda: self.get_task_board_points(clan.id), -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER):
+        with self.check_delta(lambda: self.get_task_board_points(clan.id, self.hero.position.place_id),
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER):
             with self.check_changed(lambda: self.action_idl.state):
                 self.storage.process_turn()
 
@@ -208,3 +210,59 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
         self.assertTrue(self.hero.actions.current_action.TYPE.is_QUEST)
 
         self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_IDLENESS_TASK_BOARD)
+
+    @mock.patch('tt_logic.emissaries.constants.TASK_BOARD_RADIUS', 2)
+    def test_task_board_in_near_place(self):
+        self.prepair_forum_for_clans()
+
+        clan = self.create_clan(self.account, uid=1)
+        self.hero.clan_id = clan.id
+        self.hero.position.set_place(self.places[0])
+
+        self.assertTrue(navigation_logic.manhattan_distance(self.places[0].x,
+                                                            self.places[0].y,
+                                                            self.places[2].x,
+                                                            self.places[2].y) <= 2)
+
+        self.places[2].attrs.task_board.add(clan.id)
+
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
+        self.action_idl.percents = 0
+
+        with self.check_delta(lambda: self.get_task_board_points(clan.id, self.places[2].id),
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER):
+            with self.check_not_changed(lambda: self.get_task_board_points(clan.id, self.places[0].id)):
+                with self.check_changed(lambda: self.action_idl.state):
+                    self.storage.process_turn()
+
+        self.assertEqual(self.action_idl.percents, 1)
+        self.assertEqual(self.action_idl.state, prototypes.ActionIdlenessPrototype.STATE.QUEST)
+
+        self.assertTrue(self.hero.actions.current_action.TYPE.is_QUEST)
+
+        self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_IDLENESS_TASK_BOARD)
+
+    @mock.patch('tt_logic.emissaries.constants.TASK_BOARD_RADIUS', 1)
+    def test_task_board_in_far_place(self):
+        self.prepair_forum_for_clans()
+
+        clan = self.create_clan(self.account, uid=1)
+        self.hero.clan_id = clan.id
+        self.hero.position.set_place(self.places[0])
+
+        self.assertTrue(navigation_logic.manhattan_distance(self.places[0].x,
+                                                            self.places[0].y,
+                                                            self.places[2].x,
+                                                            self.places[2].y) > 1)
+
+        self.places[2].attrs.task_board.add(clan.id)
+
+        self.action_idl.state = prototypes.ActionIdlenessPrototype.STATE.WAITING
+        self.action_idl.percents = 0
+
+        with self.check_not_changed(lambda: self.get_task_board_points(clan.id, self.places[2].id)):
+            with self.check_not_changed(lambda: self.get_task_board_points(clan.id, self.places[0].id)):
+                with self.check_not_changed(lambda: self.action_idl.state):
+                    self.storage.process_turn()
+
+        self.assertTrue(0 < self.action_idl.percents < 1)
