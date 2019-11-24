@@ -195,8 +195,8 @@
   import_playbook: ../tasks/tt_service.yml
   vars:
     name: TT emissary impacts
-    user: tt_emissary_impacts
-    packages: "{{tt_services['tt_emissary_impacts']['packages']}}"
+    user: tt_emissaries_impacts
+    packages: "{{tt_services['tt_emissaries_impacts']['packages']}}"
     django_settings: tt_impacts.settings
     port: 10018
     collect_static: false
