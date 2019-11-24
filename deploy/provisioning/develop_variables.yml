@@ -10,6 +10,8 @@ tt_postfix_virtual_aliases: {}
 
 tt_authorized_keys: []
 
+internal_repositories: []
+
 tt_services:
   the_tale:
     packages:

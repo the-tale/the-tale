@@ -1,3 +1,10 @@
+
+- name: download internal repositories
+  import_playbook: ../tasks/internal_repositories.yml
+  vars:
+    internal_repositories: "{{tt_services['internal_repositories']}}"
+  when: not tt_test_enviroment
+
 - name: install The Tale
   import_playbook: ../tasks/tt_service.yml
   vars:

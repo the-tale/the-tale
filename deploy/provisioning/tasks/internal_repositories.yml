@@ -1,0 +1,27 @@
+
+- name: "prepair internal repositories"
+  hosts: all
+  become: yes
+  become_user: root
+  vars:
+    base_path: "/opt/internal-repositories"
+  tasks:
+
+    - name: remove old internal repositories
+      file:
+        path: "{{base_path}}"
+        state: absent
+
+    - name: "create internal repositories directory"
+      file: "path={{base_path}} state=directory mode=0755"
+
+    - name: download & unpack internal repositories
+      unarchive:
+        src: "{{item.repository}}archive/{{item.version}}.zip"
+        dest: "{{base_path}}"
+        remote_src: yes
+      with_items: "{{internal_repositories}}"
+
+    - name: move code up one directory
+      shell: "mv {{base_path}}/{{item.name}}-{{item.version}} {{base_path}}/{{item.name}}"
+      with_items: "{{internal_repositories}}"
