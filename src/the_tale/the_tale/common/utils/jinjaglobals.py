@@ -108,9 +108,7 @@ def now():
 
 @dext_jinja2.jinjafilter
 def up_first(value):
-    if value:
-        return value[0].upper() + value[1:]
-    return value
+    return logic.up_first(value)
 
 
 @dext_jinja2.jinjaglobal

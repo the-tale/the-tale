@@ -161,3 +161,9 @@ def distribute_values_on_interval(number, min, max):
         values.extend([i + min] * counts[i])
 
     return values
+
+
+def up_first(value):
+    if value:
+        return value[0].upper() + value[1:]
+    return value
