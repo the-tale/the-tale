@@ -289,7 +289,7 @@ class EVENT_TYPE(rels_django.DjangoEnum):
 
                event('LEVEL_UP_POINTS_GANE', 4, 'Оптимизация делопроизводства', EVENT_AVAILABILITY.FOR_ALL, 1.0, 0.5,
                      [ABILITY.ECONOMY]),
-               event('LEVEL_UP_MEMBERS_MAXIMUM', 5, 'Работа с кадрами', EVENT_AVAILABILITY.FOR_ALL, 1.0, 0.5,
+               event('LEVEL_UP_FIGHTERS_MAXIMUM', 5, 'Работа с кадрами', EVENT_AVAILABILITY.FOR_ALL, 1.0, 0.5,
                      [ABILITY.SOCIOLOGY]),
                event('LEVEL_UP_EMISSARIES_MAXIMUM', 6, 'Расширение влияния', EVENT_AVAILABILITY.FOR_ALL, 1.0, 0.5,
                      [ABILITY.POLITICAL_SCIENCE]),

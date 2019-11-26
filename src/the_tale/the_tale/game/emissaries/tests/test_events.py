@@ -486,8 +486,8 @@ class PointsGainLevelUpTests(ClanLevelUpMixin, utils_testcase.TestCase):
     Event = events.PointsGainLevelUp
 
 
-class MembersMaximumLevelUpTests(ClanLevelUpMixin, utils_testcase.TestCase):
-    Event = events.MembersMaximumLevelUp
+class FightersMaximumLevelUpTests(ClanLevelUpMixin, utils_testcase.TestCase):
+    Event = events.FightersMaximumLevelUp
 
 
 class EmissariesMaximumLevelUpTests(ClanLevelUpMixin, utils_testcase.TestCase):

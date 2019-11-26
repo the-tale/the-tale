@@ -115,17 +115,6 @@ class CreateDialogTests(BaseRequestsTests):
 
         self.check_html_ok(self.request_ajax_html(self.url), texts=['emissaries.maximum_emissaries'])
 
-    def test_maximum_members_exceeded(self):
-        clan_attributes = clans_logic.load_attributes(self.clan_1.id)
-
-        for i in range(clan_attributes.members_maximum):
-            member = self.accounts_factory.create_account()
-            clans_logic._add_member(clan=self.clan_1,
-                                    account=member,
-                                    role=clans_relations.MEMBER_ROLE.RECRUIT)
-
-        self.check_html_ok(self.request_ajax_html(self.url), texts=['emissaries.maximum_members_exceed'])
-
     def test_success(self):
         self.check_html_ok(self.request_ajax_html(self.url), texts=[('clans.no_rights', 0),
                                                                     'form'])
@@ -202,19 +191,6 @@ class CreateTests(BaseRequestsTests):
 
         with self.check_no_changes_in_emissaries(self.clan_1):
             self.check_ajax_error(self.post_ajax_json(self.url, self.get_post_data()), 'emissaries.maximum_emissaries')
-
-    def test_maximum_members_exceeded(self):
-
-        clan_attributes = clans_logic.load_attributes(self.clan_1.id)
-
-        for i in range(clan_attributes.members_maximum):
-            member = self.accounts_factory.create_account()
-            clans_logic._add_member(clan=self.clan_1,
-                                    account=member,
-                                    role=clans_relations.MEMBER_ROLE.RECRUIT)
-
-        with self.check_no_changes_in_emissaries(self.clan_1):
-            self.check_ajax_error(self.post_ajax_json(self.url, self.get_post_data()), 'emissaries.maximum_members_exceed')
 
     def test_success(self):
         with self.check_changed(lambda: logic.load_emissaries_for_clan(self.clan_1.id)):

@@ -12,4 +12,4 @@ settings = dext_app_settings.app_settings('CLANS',
                                           CLANS_POINTS_TRANSACTION_LIFETIME=24 * 60 * 60,
                                           CHRONICLE_RECORDS_ON_CLAN_PAGE=25,
                                           FORUM_CATEGORY_SLUG='clans',
-                                          NEW_MEMBER_FREEZE_PERIOD=7)
+                                          RECRUITE_FREEZE_PERIOD=7)

@@ -348,8 +348,6 @@ def show(context):
 
     can_participate_in_pvp = emissaries_logic.can_clan_participate_in_pvp(context.current_clan.id)
 
-    has_correct_players_number = clans_logic.has_correct_players_number(context.current_clan.id, attributes)
-
     return dext_views.Page('clans/show.html',
                            content={'resource': context.resource,
                                     'page_id': relations.PAGE_ID.SHOW,
@@ -377,8 +375,7 @@ def show(context):
                                     'attributes': attributes,
                                     'tt_clans_constants': tt_clans_constants,
                                     'emissaries_powers': emissaries_powers,
-                                    'can_participate_in_pvp': can_participate_in_pvp,
-                                    'has_correct_players_number': has_correct_players_number})
+                                    'can_participate_in_pvp': can_participate_in_pvp})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -589,14 +586,6 @@ def request(context):
     return dext_views.AjaxOk()
 
 
-def _check_clan_restrictions_for_memebers(clan_id):
-    attributes = clans_logic.load_attributes(clan_id)
-
-    if not logic.has_space_for_new_member(clan_id, attributes):
-        raise dext_views.ViewError(code='clans.members_maximum_reached',
-                                   message='Гильдия достигла максимального размера и не может принимать новых членов.')
-
-
 @django_transaction.atomic
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
@@ -604,10 +593,6 @@ def _check_clan_restrictions_for_memebers(clan_id):
 @ClanStaticOperationAccessProcessor(permission='can_take_member')
 @resource('#clan', 'accept-request', method='POST')
 def accept_request(context):
-
-    logic.lock_clan_for_update(context.membership_request.clan_id)
-
-    _check_clan_restrictions_for_memebers(context.membership_request.clan_id)
 
     logic.accept_request(initiator=context.account,
                          membership_request=context.membership_request)
@@ -629,10 +614,6 @@ def accept_invite(context):
     if context.account.clan_id is not None:
         raise dext_views.ViewError(code='clans.already_in_clan',
                                    message='Игрок уже состоит в гильдии')
-
-    logic.lock_clan_for_update(context.membership_request.clan_id)
-
-    _check_clan_restrictions_for_memebers(context.membership_request.clan_id)
 
     logic.accept_invite(membership_request=context.membership_request)
 
@@ -681,6 +662,8 @@ def edit_member(context):
 
     target_membership = logic.get_membership(context.target_account.id)
 
+    attributes = logic.load_attributes(context.current_clan.id)
+
     return dext_views.Page('clans/membership/edit.html',
                            content={'resource': context.resource,
                                     'current_clan': context.current_clan,
@@ -689,6 +672,7 @@ def edit_member(context):
                                     'change_role_form': forms.RoleForm(context.current_clan_rights.change_role_candidates(),
                                                                        initial={'role': target_membership.role}),
                                     'current_clan_rights': context.current_clan_rights,
+                                    'attributes': attributes,
                                     'page_id': relations.PAGE_ID.EDIT_MEMBER})
 
 
@@ -717,10 +701,20 @@ def change_role(context):
     if not form.is_valid():
         raise dext_views.ViewError(code='form_errors', message=form.errors)
 
+    logic.lock_clan_for_update(context.current_clan.id)
+
+    old_role = logic.get_membership(context.target_account.id).role
+
+    new_role = form.c.role
+
+    if not logic.is_role_change_get_into_limit(context.current_clan.id, old_role, new_role):
+        raise dext_views.ViewError(code='clans.fighters_maximum',
+                                   message='Достигнут максимум боевого состава. Чтобы ввести Хранителя в боевой состав, необходимо сделать другого Хранителя рекрутом.')
+
     logic.change_role(clan=context.current_clan,
                       initiator=context.account,
                       member=context.target_account,
-                      new_role=form.c.role)
+                      new_role=new_role)
 
     return dext_views.AjaxOk()
 

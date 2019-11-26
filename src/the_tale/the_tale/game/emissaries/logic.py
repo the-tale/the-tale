@@ -641,7 +641,7 @@ def expected_power_per_day():
 
     return int(math.ceil(quests_in_day *
                          power_for_quest *
-                         tt_clans_constants.MEMBERS_TO_EMISSARY))
+                         tt_clans_constants.FIGHTERS_TO_EMISSARY))
 
 
 def resource_id(clan_id, place_id):

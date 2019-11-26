@@ -1048,7 +1048,7 @@ class CreateClan(BaseEffect):
     def get_form(self, card, hero, data):
         return forms.CreateClan(data)
 
-    DESCRIPTION = 'Создаёт новую гильдию и делает игрока её лидером. Обратите внимание, выполнять задания эмиссаров гильдии могут только игроки, состоящие в ней минимум {days} дней.'.format(days=clans_conf.settings.NEW_MEMBER_FREEZE_PERIOD)
+    DESCRIPTION = 'Создаёт новую гильдию и делает игрока её лидером. Обратите внимание, выполнять задания эмиссаров гильдии могут только Хранители, обладающие соответствующим правом.'
 
     def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
         name = task.data.get('name')
@@ -1242,7 +1242,7 @@ class EmissaryQuest(BaseEffect):
 
     @property
     def DESCRIPTION(self):
-        return 'Моментально выдаёт герою задание на помощь или вред эмиссару. Эффект указан в названии карты. Если герой выполняет задания, все они отменяются. Если герой сражается с монстром, тот будет убит. Карту нельзя использовать, когда герой сражается на Арене. Величина влияния за задание рассчитывается по общим правилам. Любой член гильдии может начать квест на помощь или вред эмиссару своей гильдии. Если карту нельзя продать на аукционе (карта получена неподписчиком), её можно будет использовать только на эмиссарах своей гильдии и при её использовании будет отнято одно свободное задание гильдии.'
+        return 'Моментально выдаёт герою задание на помощь или вред эмиссару. Эффект указан в названии карты. Если герой выполняет задания, все они отменяются. Если герой сражается с монстром, тот будет убит. Карту нельзя использовать, когда герой сражается на Арене. Величина влияния за задание рассчитывается по общим правилам. Начать задание может член гильдии с соответствующими правами. Если карту нельзя продать на аукционе (карта получена неподписчиком), её можно будет использовать только на эмиссарах своей гильдии и при её использовании будет отнято одно свободное задание гильдии. Выполнять задания, связанные с эмиссарами чужих гильдий, могут только члены гильдии с достаточно развитым эмиссаром.'
 
     def use(self, task, storage, highlevel=None, **kwargs):  # pylint: disable=R0911,W0613
 
@@ -1262,9 +1262,17 @@ class EmissaryQuest(BaseEffect):
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='Вы должны быть членом гильдии, чтобы выполнять задания эмиссаров.')
 
-        if membership.is_freezed():
+        account = accounts_prototypes.AccountPrototype.get_by_id(membership.account_id)
+
+        clan = clans_logic.load_clan(membership.clan_id)
+
+        clan_rights = clans_logic.operations_rights(initiator=account,
+                                                    clan=clan,
+                                                    is_moderator=False)
+
+        if not clan_rights.can_emissaries_quests():
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
-                                     message='Вы недавно вступили в гильдию и пока не можете выполнять задания эмиссаров. Для этого вы должны состоять в гильдии минимум {days} дней.'.format(days=clans_conf.settings.NEW_MEMBER_FREEZE_PERIOD))
+                                     message='У вас недостаточно прав, чтобы выполнять задания эмиссаров. Выполнять задания эмиссаров могут Хранители со званием «боец» или выше.')
 
         if task.hero.actions.has_proxy_actions():
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,

@@ -18,6 +18,10 @@ class Bill(meta_relations_objects.MetaType):
         return dext_urls.url('game:bills:show', self.id)
 
     @classmethod
+    def create_unknown(cls, id):
+        return cls(id=id, caption='неизвестная запись Книги Судеб')
+
+    @classmethod
     def create_from_object(cls, bill):
         return cls(id=bill.id, caption=bill.caption)
 
@@ -26,10 +30,20 @@ class Bill(meta_relations_objects.MetaType):
         try:
             bill = models.Bill.objects.get(id=id)
         except models.Bill.DoesNotExist:
-            return None
+            return cls.create_unknown(id)
 
         return cls.create_from_object(bill)
 
     @classmethod
     def create_from_ids(cls, ids):
-        return [cls(id=id, caption=caption) for id, caption in models.Bill.objects.filter(id__in=ids).values_list('id', 'caption')]
+        bills = [cls(id=id, caption=caption) for id, caption in models.Bill.objects.filter(id__in=ids).values_list('id', 'caption')]
+
+        found_ids = {bill.id for bill in bills}
+
+        for id in ids:
+            if id in found_ids:
+                continue
+
+            bills.append(cls.create_unknown(id))
+
+        return bills

@@ -25,9 +25,6 @@ class EmissaryQuestsTest(helpers.CardsTestMixin,
 
         self.clan = self.create_clan(self.account, 0)
 
-        correct_created_at = datetime.datetime.now() - datetime.timedelta(days=clans_conf.settings.NEW_MEMBER_FREEZE_PERIOD)
-        clans_models.Membership.objects.update(created_at=correct_created_at)
-
         self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
 
@@ -163,8 +160,8 @@ class EmissaryQuestsTest(helpers.CardsTestMixin,
         with self.check_not_changed(lambda: self.emissary_power()):
             self.complete_quest(self.hero)
 
-    def test_emissary_is_new_member(self):
-        clans_models.Membership.objects.update(created_at=datetime.datetime.now())
+    def test_emissary_no_rights(self):
+        clans_models.Membership.objects.update(role=clans_relations.MEMBER_ROLE.RECRUIT)
 
         with self.check_free_quests_change(0):
             self.use_card(success=False, available_for_auction=False)

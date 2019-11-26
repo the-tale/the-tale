@@ -160,10 +160,6 @@ def show(context):
 def check_clan_restrictions(clan_id):
     clan_attributes = clans_logic.load_attributes(clan_id)
 
-    if not clans_logic.has_correct_players_number(clan_id, clan_attributes):
-        raise dext_views.ViewError(code='emissaries.maximum_members_exceed',
-                                   message='Количество членов вашей гильдии превышает максимально допустимое. Пока это так, вы не можете создавать эмиссаров')
-
     if not logic.has_clan_space_for_emissary(clan_id, clan_attributes):
         raise dext_views.ViewError(code='emissaries.maximum_emissaries',
                                    message='Ваша гильдия уже наняла максимально возможное количество эмиссаров.')

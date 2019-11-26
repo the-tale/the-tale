@@ -702,10 +702,11 @@ class ChangeRoleTests(BaseClanTests):
         logic._add_member(clan=self.clan, account=member, role=relations.MEMBER_ROLE.RECRUIT)
 
         with self.check_new_message(member.id, [self.account.id]):
-            logic.change_role(clan=self.clan,
-                              initiator=self.account,
-                              member=member,
-                              new_role=relations.MEMBER_ROLE.COMANDOR)
+            with self.check_increased(lambda: logic.get_membership(member.id).updated_at):
+                logic.change_role(clan=self.clan,
+                                  initiator=self.account,
+                                  member=member,
+                                  new_role=relations.MEMBER_ROLE.COMANDOR)
 
         self.assertTrue(logic.get_member_role(clan=self.clan, member=member).is_COMANDOR)
 
@@ -1142,14 +1143,14 @@ class LoadAttributesTests(BaseClanTests):
 
         attributes = logic.load_attributes(self.clan.id)
 
-        self.assertEqual(attributes.members_maximum_level, 0)
+        self.assertEqual(attributes.fighters_maximum_level, 0)
         self.assertEqual(attributes.emissary_maximum_level, 0)
         self.assertEqual(attributes.points_gain_level, 0)
 
     def test_loaded(self):
 
         tt_services.properties.cmd_set_property(object_id=self.clan.id,
-                                                name='members_maximum_level',
+                                                name='fighters_maximum_level',
                                                 value=3)
 
         tt_services.properties.cmd_set_property(object_id=self.clan.id,
@@ -1162,7 +1163,7 @@ class LoadAttributesTests(BaseClanTests):
 
         attributes = logic.load_attributes(self.clan.id)
 
-        self.assertEqual(attributes.members_maximum_level, 3)
+        self.assertEqual(attributes.fighters_maximum_level, 3)
         self.assertEqual(attributes.emissary_maximum_level, 2)
         self.assertEqual(attributes.points_gain_level, 4)
 
@@ -1226,3 +1227,76 @@ class ResetFreeQuestsTests(BaseClanTests):
         with self.check_delta(lambda: tt_services.currencies.cmd_balance(self.clan.id, currency=relations.CURRENCY.FREE_QUESTS),
                               amount):
             logic.reset_free_quests(clan_id=self.clan.id)
+
+
+class IsRoleChangeGetIntoLimitTests(BaseClanTests):
+
+    def setUp(self):
+        tt_services.properties.cmd_debug_clear_service()
+        super().setUp()
+
+        self.expected_limit = 5
+
+        attributes = logic.load_attributes(self.clan.id)
+
+        self.assertEqual(attributes.fighters_maximum, self.expected_limit)
+
+    def test_not_limited(self):
+
+        for i in range(self.expected_limit + 1):
+            account = self.accounts_factory.create_account()
+            logic._add_member(clan=self.clan,
+                              account=account,
+                              role=relations.MEMBER_ROLE.RECRUIT)
+
+        self.assertTrue(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                            old_role=relations.MEMBER_ROLE.RECRUIT,
+                                                            new_role=relations.MEMBER_ROLE.FIGHTER))
+
+        self.assertTrue(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                            old_role=relations.MEMBER_ROLE.FIGHTER,
+                                                            new_role=relations.MEMBER_ROLE.RECRUIT))
+
+        self.assertTrue(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                            old_role=relations.MEMBER_ROLE.FIGHTER,
+                                                            new_role=relations.MEMBER_ROLE.OFFICER))
+
+    def test_limited(self):
+
+        for i in range(self.expected_limit - 1):
+            account = self.accounts_factory.create_account()
+            logic._add_member(clan=self.clan,
+                              account=account,
+                              role=relations.MEMBER_ROLE.FIGHTER)
+
+        self.assertFalse(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                            old_role=relations.MEMBER_ROLE.RECRUIT,
+                                                            new_role=relations.MEMBER_ROLE.FIGHTER))
+
+        self.assertTrue(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                            old_role=relations.MEMBER_ROLE.FIGHTER,
+                                                            new_role=relations.MEMBER_ROLE.RECRUIT))
+
+        self.assertTrue(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                            old_role=relations.MEMBER_ROLE.FIGHTER,
+                                                            new_role=relations.MEMBER_ROLE.OFFICER))
+
+    def test_hard_limited(self):
+
+        for i in range(self.expected_limit + 1):
+            account = self.accounts_factory.create_account()
+            logic._add_member(clan=self.clan,
+                              account=account,
+                              role=relations.MEMBER_ROLE.FIGHTER)
+
+        self.assertFalse(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                             old_role=relations.MEMBER_ROLE.RECRUIT,
+                                                             new_role=relations.MEMBER_ROLE.FIGHTER))
+
+        self.assertFalse(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                             old_role=relations.MEMBER_ROLE.FIGHTER,
+                                                             new_role=relations.MEMBER_ROLE.RECRUIT))
+
+        self.assertFalse(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                             old_role=relations.MEMBER_ROLE.FIGHTER,
+                                                             new_role=relations.MEMBER_ROLE.OFFICER))

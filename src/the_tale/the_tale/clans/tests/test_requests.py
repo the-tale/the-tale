@@ -941,19 +941,6 @@ class MembershipAcceptRequestRequestsTests(BaseMembershipRequestsTests):
                           self.account.meta_object().tag,
                           self.account_2.meta_object().tag})
 
-    def test_maximum_members_reached(self):
-        clan_attributes = clans_logic.load_attributes(self.clan.id)
-
-        for i in range(clan_attributes.members_maximum):
-            member = self.accounts_factory.create_account()
-            clans_logic._add_member(clan=self.clan,
-                                    account=member,
-                                    role=clans_relations.MEMBER_ROLE.RECRUIT)
-
-        with self.check_not_changed(models.MembershipRequest.objects.count):
-            with self.check_not_changed(models.Membership.objects.count):
-                self.check_ajax_error(self.post_ajax_json(self.accept_url), 'clans.members_maximum_reached')
-
 
 class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
 
@@ -1021,19 +1008,6 @@ class MembershipAcceptInviteRequestsTests(BaseMembershipRequestsTests):
                          {self.clan.meta_object().tag,
                           relations.EVENT.MEMBERSHIP_INVITE_ACCEPTED.meta_object().tag,
                           self.account_2.meta_object().tag})
-
-    def test_maximum_members_reached(self):
-        clan_attributes = clans_logic.load_attributes(self.clan.id)
-
-        for i in range(clan_attributes.members_maximum):
-            member = self.accounts_factory.create_account()
-            clans_logic._add_member(clan=self.clan,
-                                    account=member,
-                                    role=clans_relations.MEMBER_ROLE.RECRUIT)
-
-        with self.check_not_changed(models.MembershipRequest.objects.count):
-            with self.check_not_changed(models.Membership.objects.count):
-                self.check_ajax_error(self.post_ajax_json(self.accept_url), 'clans.members_maximum_reached')
 
 
 class MembershipRejectRequestRequestsTests(BaseMembershipRequestsTests):
@@ -1283,7 +1257,12 @@ class ChangeRoleRequestsTests(BaseMembershipRequestsTests):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
         self.account_2 = self.accounts_factory.create_account()
+
         logic._add_member(clan=self.clan, account=self.account_2, role=relations.MEMBER_ROLE.RECRUIT)
+
+        far_updated_time = datetime.datetime.now()-datetime.timedelta(days=conf.settings.RECRUITE_FREEZE_PERIOD)
+
+        models.Membership.objects.filter(account_id=self.account_2.id).update(updated_at=far_updated_time)
 
         self.change_role_url = dext_urls.url('clans:change-role', self.clan.id, account=self.account_2.id)
         self.request_login(self.account.email)
@@ -1339,8 +1318,43 @@ class ChangeRoleRequestsTests(BaseMembershipRequestsTests):
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_RECRUIT)
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account_2).is_FIGHTER)
 
+    def test_new_recruite(self):
+        logic.change_role(clan=self.clan,
+                          initiator=self.account,
+                          member=self.account_2,
+                          new_role=relations.MEMBER_ROLE.RECRUIT)
+
+        self.assertTrue(logic.get_membership(self.account_2.id).is_freezed())
+
+        with self.check_not_changed(lambda: logic.get_membership(self.account_2.id).role):
+            self.check_ajax_error(self.post_ajax_json(self.change_role_url, self.data), 'clans.no_rights')
+
+    def test_not_recruite_role(self):
+        logic.change_role(clan=self.clan,
+                          initiator=self.account,
+                          member=self.account_2,
+                          new_role=relations.MEMBER_ROLE.OFFICER)
+
+        self.assertFalse(logic.get_membership(self.account_2.id).is_freezed())
+
+        with self.check_changed(lambda: logic.get_membership(self.account_2.id).role):
+            self.check_ajax_ok(self.post_ajax_json(self.change_role_url, self.data))
+
+    def test_fighters_limit(self):
+        attributes = logic.load_attributes(self.clan.id)
+
+        for i in range(attributes.fighters_maximum):
+            account = self.accounts_factory.create_account()
+            logic._add_member(clan=self.clan,
+                              account=account,
+                              role=relations.MEMBER_ROLE.FIGHTER)
+
+        with self.check_not_changed(lambda: logic.get_membership(self.account_2.id).role):
+            self.check_ajax_error(self.post_ajax_json(self.change_role_url, self.data), 'clans.fighters_maximum')
+
     def test_success(self):
-        self.check_ajax_ok(self.post_ajax_json(self.change_role_url, self.data))
+        with self.check_increased(lambda: logic.get_membership(self.account_2.id).updated_at):
+            self.check_ajax_ok(self.post_ajax_json(self.change_role_url, self.data))
 
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_MASTER)
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account_2).is_FIGHTER)

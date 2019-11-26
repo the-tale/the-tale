@@ -33,12 +33,6 @@ jQuery(document).ready(function(e){
 </p>
 {% endif %}
 
-{% if not has_correct_players_number %}
-<p class="alert alert-danger">
-  Количество членов гильдии превышает допустимый максимум. Гильдия не может иметь эмиссаров.
-</p>
-{% endif %}
-
 <h2>
   [{{current_clan.abbr}}]
   {{current_clan.name}}
@@ -208,8 +202,10 @@ jQuery(document).ready(function(e){
   <div class="tab-pane" id="pgf-clan-members">
 
     <p>
-      <i>Максимум Хранителей в Гильдии: {{attributes.members_maximum}}</i>
-      <i class="icon-info-sign" rel="tooltip" title="Чтобы увеличить максимальный размер гильдии, развивайте её с помощью эмиссаров."></i>
+      <i>Максимальный боевой состав гильдии: {{attributes.fighters_maximum}}</i>
+      <i class="icon-info-sign"
+         rel="tooltip"
+         title="Количество членов гильдии в звании {{value('the_tale.clans.relations').MEMBER_ROLE.FIGHTER.text}} или выше. Чтобы увеличить максимальный размер гильдии, развивайте её с помощью эмиссаров."></i>
     </p>
 
     {% include "clans/permissions_help.html" %}
@@ -245,11 +241,20 @@ jQuery(document).ready(function(e){
             {{loop.index}}
           </span>
         </td>
-        <td>
+        <td style="white-space: nowrap;">
           <a href="{{url('accounts:show', account.id)}}"
              class="{% if not account.is_active %}disabled{% endif %}">
             {{account.nick_verbose}}
           </a>
+
+          {% if memberships[account.id].is_freezed() %}
+          <span class="label label-warning"
+                style="cursor: default;"
+                rel="tooltip"
+                title="Нельзя изменить звание ещё {{memberships[account.id].freeze_delta()|verbose_timedelta}}">
+            заморожен
+          </span>
+          {% endif %}
         </td>
         <td>{{membership.role.text}}</td>
         <td>
@@ -340,9 +345,9 @@ jQuery(document).ready(function(e){
         </tr>
 
         <tr>
-          <th>Максимум Хранителей</th>
-          <td>{{attributes.members_maximum}}</td>
-          <td>уровень {{attributes.members_maximum_level}} из {{tt_clans_constants.MEMBERS_MAXIMUM_LEVEL_STEPS}}</td>
+          <th>Максимальный боевой состав</th>
+          <td>{{attributes.fighters_maximum}}</td>
+          <td>уровень {{attributes.fighters_maximum_level}} из {{tt_clans_constants.FIGHTERS_MAXIMUM_LEVEL_STEPS}}</td>
         </tr>
 
         <tr>

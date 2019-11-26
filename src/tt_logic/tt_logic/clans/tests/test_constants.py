@@ -31,7 +31,7 @@ class ConstantsTest(unittest.TestCase):
 
         self.assertEqual(c.TOP_CARD_POINTS_BONUS, 100)
 
-        self.assertEqual(c.INITIAL_MEMBERS_MAXIMUM, 5)
+        self.assertEqual(c.INITIAL_FIGHTERS_MAXIMUM, 5)
         self.assertEqual(c.INITIAL_EMISSARY_MAXIMUM, 2)
         self.assertEqual(c.INITIAL_FREE_QUESTS_MAXIMUM, 2)
         self.assertEqual(c.INITIAL_POINTS_GAIN, 857)
@@ -40,9 +40,9 @@ class ConstantsTest(unittest.TestCase):
 
         self.assertEqual(c.MAXIMUM_POINTS_GAIN, 2571)
         self.assertEqual(c.MAXIMUM_EMISSARIES, 10)
-        self.assertEqual(c.MEMBERS_TO_EMISSARY, 5)
+        self.assertEqual(c.FIGHTERS_TO_EMISSARY, 5)
 
-        self.assertEqual(c.MAXIMUM_MEMBERS, 50)
+        self.assertEqual(c.MAXIMUM_FIGHTERS, 50)
 
         self.assertEqual(c.MAXIMUM_FREE_QUESTS, 10)
 
@@ -50,7 +50,7 @@ class ConstantsTest(unittest.TestCase):
 
         self.assertEqual(c.EMISSARY_MAXIMUM_LEVEL_STEPS, 8)
         self.assertEqual(c.POINTS_GAIN_LEVEL_STEPS, 20)
-        self.assertEqual(c.MEMBERS_MAXIMUM_LEVEL_STEPS, 45)
+        self.assertEqual(c.FIGHTERS_MAXIMUM_LEVEL_STEPS, 45)
 
         self.assertEqual(c.EXPECTED_LEVELING_TIME, 5 * 365)
 
@@ -60,7 +60,7 @@ class ConstantsTest(unittest.TestCase):
         self.assertEqual(c.EXPERIENCE_IN_DAY_ON_END, 20000)
 
         self.assertEqual(c.MINIMUM_TIME_TO_EMISSARY_LEVEL, 7)
-        self.assertEqual(c.MINIMUM_TIME_TO_MEMBERS_LEVEL, 3)
+        self.assertEqual(c.MINIMUM_TIME_TO_FIGHTERS_LEVEL, 3)
 
         self.assertEqual(c.EMISSARY_MAXIMUM_LEVELS_TIME,
                         [7.0,
@@ -103,7 +103,7 @@ class ConstantsTest(unittest.TestCase):
                           148.39469786530356,
                           246.87196538935143])
 
-        self.assertEqual(c.MEMBERS_MAXIMUM_LEVELS_TIME,
+        self.assertEqual(c.FIGHTERS_MAXIMUM_LEVELS_TIME,
                          [3.0,
                           3.2840292365290225,
                           3.5949493421257985,
@@ -194,7 +194,7 @@ class ConstantsTest(unittest.TestCase):
                           1714800,
                           4136000])
 
-        self.assertEqual(c.MEMBERS_MAXIMUM_LEVELS_EXPERIENCE,
+        self.assertEqual(c.FIGHTERS_MAXIMUM_LEVELS_EXPERIENCE,
                          [12000,
                           13300,
                           14600,

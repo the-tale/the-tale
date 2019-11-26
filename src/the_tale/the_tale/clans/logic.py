@@ -228,6 +228,14 @@ def get_member_role(member, clan):
         return None
 
 
+def construct_membership(membership_model):
+    return objects.Membership(clan_id=membership_model.clan_id,
+                              account_id=membership_model.account_id,
+                              role=membership_model.role,
+                              created_at=membership_model.created_at,
+                              updated_at=membership_model.updated_at)
+
+
 def get_membership(account_id):
     if account_id is None:
         return None
@@ -237,10 +245,7 @@ def get_membership(account_id):
     except models.Membership.DoesNotExist:
         return None
 
-    return objects.Membership(clan_id=membership_model.clan_id,
-                              account_id=membership_model.account_id,
-                              role=membership_model.role,
-                              created_at=membership_model.created_at)
+    return construct_membership(membership_model)
 
 
 def operations_rights(initiator, clan, is_moderator):
@@ -298,7 +303,8 @@ def change_role(clan, initiator, member, new_role):
 
     old_role = get_member_role(member, clan)
 
-    models.Membership.objects.filter(clan_id=clan.id, account_id=member.id).update(role=new_role)
+    models.Membership.objects.filter(clan_id=clan.id, account_id=member.id).update(role=new_role,
+                                                                                   updated_at=datetime.datetime.now())
 
     message = 'Хранитель {initiator} изменил(а) ваше звание в гильдии {clan_link} на «{new_role}».'
     message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
@@ -598,7 +604,7 @@ def accept_request(initiator, membership_request):
 def load_attributes(clan_id):
     properties = tt_services.properties.cmd_get_all_object_properties(clan_id)
 
-    return objects.Attributes(members_maximum_level=properties.members_maximum_level,
+    return objects.Attributes(fighters_maximum_level=properties.fighters_maximum_level,
                               emissary_maximum_level=properties.emissary_maximum_level,
                               free_quests_maximum_level=properties.free_quests_maximum_level,
                               points_gain_level=properties.points_gain_level)
@@ -643,17 +649,24 @@ def reset_free_quests(clan_id):
 
 
 def get_clan_memberships(clan_id):
-    return {membership.account_id: membership
-            for membership in models.Membership.objects.filter(clan=clan_id)}
+    return {membership_model.account_id: construct_membership(membership_model)
+            for membership_model in models.Membership.objects.filter(clan=clan_id)}
 
 
 def lock_clan_for_update(clan_id):
     return models.Clan.objects.select_for_update().filter(id=clan_id).exists()
 
 
-def has_correct_players_number(clan_id, attributes):
-    return members_number(clan_id) <= attributes.members_maximum
+def is_role_change_get_into_limit(clan_id, old_role, new_role):
+    attributes = logic.load_attributes(clan_id)
 
+    combat_personnel = sum(1 for membership in get_clan_memberships(clan_id).values()
+                           if relations.PERMISSION.EMISSARIES_QUESTS in membership.role.permissions)
 
-def has_space_for_new_member(clan_id, attributes):
-    return members_number(clan_id) < attributes.members_maximum
+    if relations.PERMISSION.EMISSARIES_QUESTS in old_role.permissions:
+        combat_personnel -= 1
+
+    if relations.PERMISSION.EMISSARIES_QUESTS in new_role.permissions:
+        combat_personnel += 1
+
+    return combat_personnel <= attributes.fighters_maximum

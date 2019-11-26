@@ -63,17 +63,23 @@ class Clan:
 
 
 class Membership:
-    __slots__ = ('clan_id', 'account_id', 'role', 'created_at')
+    __slots__ = ('clan_id', 'account_id', 'role', 'created_at', 'updated_at')
 
-    def __init__(self, clan_id, account_id, role, created_at):
+    def __init__(self, clan_id, account_id, role, created_at, updated_at):
         self.clan_id = clan_id
         self.account_id = account_id
         self.role = role
         self.created_at = created_at
+        self.updated_at = updated_at
 
     def is_freezed(self):
-        membership_time = (datetime.datetime.now() - self.created_at).total_seconds()
-        return membership_time < conf.settings.NEW_MEMBER_FREEZE_PERIOD * 24 * 60 * 60
+        can_change_role_after = self.updated_at + datetime.timedelta(days=conf.settings.RECRUITE_FREEZE_PERIOD)
+        return self.role.is_RECRUIT and datetime.datetime.now() < can_change_role_after
+
+    def freeze_delta(self):
+        return (self.updated_at +
+                datetime.timedelta(days=conf.settings.RECRUITE_FREEZE_PERIOD) -
+                datetime.datetime.now())
 
 
 class MembershipRequest:
@@ -195,6 +201,10 @@ class OperationsRights(metaclass=OperationsMetaClass):
         if result:
             result = not membership.role.is_MASTER
 
+        if result:
+            # проверка важна для предотвращения выполнения заданий эмиссаров ботами
+            result = not membership.is_freezed()
+
         return result
 
     def change_role_candidates(self):
@@ -207,24 +217,24 @@ class OperationsRights(metaclass=OperationsMetaClass):
 
 
 class Attributes:
-    __slots__ = ('members_maximum_level',
+    __slots__ = ('fighters_maximum_level',
                  'emissary_maximum_level',
                  'free_quests_maximum_level',
                  'points_gain_level')
 
     def __init__(self,
-                 members_maximum_level,
+                 fighters_maximum_level,
                  emissary_maximum_level,
                  free_quests_maximum_level,
                  points_gain_level):
-        self.members_maximum_level = members_maximum_level
+        self.fighters_maximum_level = fighters_maximum_level
         self.emissary_maximum_level = emissary_maximum_level
         self.free_quests_maximum_level = free_quests_maximum_level
         self.points_gain_level = points_gain_level
 
     @property
-    def members_maximum(self):
-        return tt_clans_constants.INITIAL_MEMBERS_MAXIMUM + self.members_maximum_level
+    def fighters_maximum(self):
+        return tt_clans_constants.INITIAL_FIGHTERS_MAXIMUM + self.fighters_maximum_level
 
     @property
     def emissary_maximum(self):

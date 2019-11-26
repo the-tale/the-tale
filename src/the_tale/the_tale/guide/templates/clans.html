@@ -24,6 +24,10 @@
   Члены гильдии различаются по званиям и правам. Только магистру гильдии доступны все операции.
 </p>
 
+<p>
+  Звание членов гильдии в звании «{{value("the_tale.clans.relations").MEMBER_ROLE.RECRUITE.text}}» можеть быть изменено не раньше чем через {{value("the_tale.clans.cons").settings.RECRUITE_FREEZE_PERIOD}} дней с момента прошлого изменения звания или принятия в гильдию.
+</p>
+
 {% include "clans/permissions_help.html" %}
 
 <p>
@@ -31,7 +35,7 @@
 </p>
 
 <p>
-  Члены гильдий могут выполнять задания на помощь и вред эмиссарам (с помощью карты судьбы <strong>Гильдейские дела</strong>). Чтобы иметь возможность выполнять задания для эмиссаров, Хранитель должен состоять в гильдии дольше {{value("the_tale.clans.conf").settings.conf.settings.NEW_MEMBER_FREEZE_PERIOD}} дней.
+  Члены гильдий могут выполнять задания на помощь и вред эмиссарам (с помощью карты судьбы <strong>Гильдейские дела</strong>). Чтобы иметь возможность выполнять задания для эмиссаров, Хранитель должен иметь звание «{{value("the_tale.clans.relations").MEMBER_ROLE.FIGHTER.text}}» или выше.
 </p>
 
 </p>
@@ -65,10 +69,10 @@
       <td>{{tt_clans_constants.MAXIMUM_EMISSARIES}}</td>
     </tr>
     <tr>
-      <th>Максимум Хранителей</th>
-      <td>Максимальное количество Хранителей, которые могут состоять в гильдии.</td>
-      <td>{{tt_clans_constants.INITIAL_MEMBERS_MAXIMUM}}</td>
-      <td>{{tt_clans_constants.MAXIMUM_MEMBERS}}</td>
+      <th>Максимальный боевой состав</th>
+      <td>Максимальное количество Хранителей, которые могут выполнять задание эмиссаров (необхомио иметь соответствующее звание).</td>
+      <td>{{tt_clans_constants.INITIAL_FIGHTERS_MAXIMUM}}</td>
+      <td>{{tt_clans_constants.MAXIMUM_FIGHTERS}}</td>
     </tr>
     <tr>
       <th width="150px">Опыт</th>

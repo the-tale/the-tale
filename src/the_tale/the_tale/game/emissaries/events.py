@@ -443,11 +443,11 @@ class PointsGainLevelUp(ClanLevelUpMixin, EventBase):
     PROPERTY = clans_relations.UPGRADABLE_PROPERTIES.POINTS_GAIN
 
 
-class MembersMaximumLevelUp(ClanLevelUpMixin, EventBase):
+class FightersMaximumLevelUp(ClanLevelUpMixin, EventBase):
     __slots__ = ('transaction_id', 'current_level')
 
-    TYPE = relations.EVENT_TYPE.LEVEL_UP_MEMBERS_MAXIMUM
-    PROPERTY = clans_relations.UPGRADABLE_PROPERTIES.MEMBERS_MAXIMUM
+    TYPE = relations.EVENT_TYPE.LEVEL_UP_FIGHTERS_MAXIMUM
+    PROPERTY = clans_relations.UPGRADABLE_PROPERTIES.FIGHTERS_MAXIMUM
 
 
 class EmissariesMaximumLevelUp(ClanLevelUpMixin, EventBase):
@@ -669,11 +669,11 @@ class TaskBoardUpdating(BaseCountedEvent):
 
     @classmethod
     def minimum_poins_a_day(cls):
-        return tt_clans_constants.MEMBERS_TO_EMISSARY
+        return tt_clans_constants.FIGHTERS_TO_EMISSARY
 
     @classmethod
     def maximum_points_a_day(cls):
-        return 5 * tt_clans_constants.MEMBERS_TO_EMISSARY
+        return 5 * tt_clans_constants.FIGHTERS_TO_EMISSARY
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
@@ -826,7 +826,7 @@ class GloryOfTheKeepers(CountedMixin, EventBase):
 
     @classmethod
     def maximum_points_a_day(cls):
-        return tt_clans_constants.MEMBERS_TO_EMISSARY
+        return tt_clans_constants.FIGHTERS_TO_EMISSARY
 
     def on_step(self, event):
         self.change_points(event.emissary, amount=self.points_per_step())

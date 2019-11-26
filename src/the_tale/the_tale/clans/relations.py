@@ -102,7 +102,8 @@ class PERMISSION(rels_django.DjangoEnum):
                ('REMOVE_MEMBER', 8, 'Исключение из гильдии', True, 'Если ваше звание выше', False),
                ('FORUM_MODERATION', 9, 'Модерация гильдейского форума', False, None, True),
                ('ACCESS_CHRONICLE', 10, 'Просмотр событий гильдии', False, None, False),
-               ('BULK_MAILING', 11, 'Массовая рассылка сообщений', False, 'Отключён интерфейс', False))
+               ('BULK_MAILING', 11, 'Массовая рассылка сообщений', False, 'Отключён интерфейс', False),
+               ('EMISSARIES_QUESTS', 12, 'Выполнение заданий эмиссаров', False, None, False))
 
 
 class MEMBER_ROLE(rels_django.DjangoEnum):
@@ -117,6 +118,7 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.POLITICS,
                  PERMISSION.EMISSARIES_RELOCATION,
                  PERMISSION.EMISSARIES_PLANING,
+                 PERMISSION.EMISSARIES_QUESTS,
                  PERMISSION.TAKE_MEMBER,
                  PERMISSION.REMOVE_MEMBER,
                  PERMISSION.FORUM_MODERATION,
@@ -129,6 +131,7 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.POLITICS,
                  PERMISSION.EMISSARIES_RELOCATION,
                  PERMISSION.EMISSARIES_PLANING,
+                 PERMISSION.EMISSARIES_QUESTS,
                  PERMISSION.TAKE_MEMBER,
                  PERMISSION.REMOVE_MEMBER,
                  PERMISSION.FORUM_MODERATION,
@@ -137,6 +140,7 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
 
                ('OFFICER', 3, 'Офицер', 2,
                 (PERMISSION.EMISSARIES_PLANING,
+                 PERMISSION.EMISSARIES_QUESTS,
                  PERMISSION.TAKE_MEMBER,
                  PERMISSION.REMOVE_MEMBER,
                  PERMISSION.FORUM_MODERATION,
@@ -144,7 +148,8 @@ class MEMBER_ROLE(rels_django.DjangoEnum):
                  PERMISSION.BULK_MAILING)),
 
                ('FIGHTER', 4, 'Боец', 3,
-                (PERMISSION.ACCESS_CHRONICLE,
+                (PERMISSION.EMISSARIES_QUESTS,
+                 PERMISSION.ACCESS_CHRONICLE,
                  PERMISSION.BULK_MAILING)),
 
                ('RECRUIT', 1, 'Рекрут', 4,
@@ -163,9 +168,9 @@ class UPGRADABLE_PROPERTIES(rels_django.DjangoEnum):
     experience = rels.Column(unique=False)
     delta = rels.Column(unique=False)
 
-    records = (('MEMBERS_MAXIMUM', 0, 'максимум членов гильдии', 'members_maximum_level',
-                tt_clans_constants.MEMBERS_MAXIMUM_LEVEL_STEPS,
-                tt_clans_constants.MEMBERS_MAXIMUM_LEVELS_EXPERIENCE,
+    records = (('FIGHTERS_MAXIMUM', 0, 'максимум членов гильдии', 'fighters_maximum_level',
+                tt_clans_constants.FIGHTERS_MAXIMUM_LEVEL_STEPS,
+                tt_clans_constants.FIGHTERS_MAXIMUM_LEVELS_EXPERIENCE,
                 1),
                ('EMISSARIES_MAXIMUM', 1, 'максимум эмиссаров', 'emissary_maximum_level',
                 tt_clans_constants.EMISSARY_MAXIMUM_LEVEL_STEPS,
