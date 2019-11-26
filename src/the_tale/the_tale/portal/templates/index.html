@@ -78,15 +78,11 @@ jQuery(document).ready(function(e){
   <div class="span12" style="min-height: 50px;">
     <div class="alert alert-info">
 
-      {% set action = [none, 'no-time-header', 'sandbox-zpg'] | random %}
+      {% set action = ['first-time'] | random %}
 
       <h2>
-        {% if action is none %}
+        {% if action == 'first-time' %}
         Первый раз в Cказке?
-        {% elif action == 'no-time-header' %}
-        Нет времени на ММО? Тогда вам к нам!
-        {% elif action == 'sandbox-zpg' %}
-        Песочница-самоиграйка
         {% endif %}
         <small><a href="{{url('guide:game')}}">Узнайте больше про игру!</a></small>
       </h2>
