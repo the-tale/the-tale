@@ -8,8 +8,11 @@ def receive_cards_url():
     return dext_urls.url('game:cards:api-receive-cards', api_version=conf.settings.RECEIVE_API_VERSION, api_client=django_settings.API_CLIENT)
 
 
-def combine_cards_url():
-    return dext_urls.url('game:cards:api-combine', api_version=conf.settings.COMBINE_API_VERSION, api_client=django_settings.API_CLIENT)
+def combine_cards_url(api_version=None):
+    if api_version is None:
+        api_version = conf.settings.COMBINE_API_VERSION
+
+    return dext_urls.url('game:cards:api-combine', api_version=api_version, api_client=django_settings.API_CLIENT)
 
 
 def move_to_storage_url():

@@ -150,7 +150,7 @@ def api_receive(context):
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardsProcessor()
-@utils_api.Processor(versions=(conf.settings.COMBINE_API_VERSION, ))
+@utils_api.Processor(versions=(conf.settings.COMBINE_API_VERSION, '2.0'))
 @resource('api', 'combine', name='api-combine', method='post')
 def api_combine(context):
     new_cards, result = logic.get_combined_cards(allow_premium_cards=context.account.cards_receive_mode().is_ALL,
@@ -192,6 +192,10 @@ def api_combine(context):
                   for card in new_cards]
 
     message = MESSAGE.format(cards_list=''.join(cards_list))
+
+    if context.api_version == '2.0':
+        return dext_views.AjaxOk(content={'message': message,
+                                          'card': new_cards[0].ui_info()})
 
     return dext_views.AjaxOk(content={'message': message,
                                       'cards': [card.ui_info() for card in new_cards]})
