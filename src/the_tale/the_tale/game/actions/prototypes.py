@@ -371,7 +371,6 @@ class ActionIdlenessPrototype(ActionBase):
 
     HELP_CHOICES = {abilities_relations.HELP_CHOICES.HEAL,
                     abilities_relations.HELP_CHOICES.MONEY,
-                    abilities_relations.HELP_CHOICES.EXPERIENCE,
                     abilities_relations.HELP_CHOICES.HEAL_COMPANION}
 
     class STATE(ActionBase.STATE):
@@ -524,7 +523,9 @@ class ActionQuestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.QUEST
     TEXTGEN_TYPE = 'action_quest'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False  # all quest actions MUST be done on separated turns
 
     class STATE(ActionBase.STATE):
@@ -614,9 +615,16 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     def HELP_CHOICES(self):  # pylint: disable=C0103
         if not self.hero.is_alive:
             return set((abilities_relations.HELP_CHOICES.RESURRECT,))
+
         if self.mob.health <= 0:
-            return set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
-        return set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.LIGHTING, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+            return set((abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+
+        return set((abilities_relations.HELP_CHOICES.MONEY,
+                    abilities_relations.HELP_CHOICES.LIGHTING,
+                    abilities_relations.HELP_CHOICES.HEAL,
+                    abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -857,7 +865,7 @@ class ActionFirstStepsPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.FIRST_STEPS
     TEXTGEN_TYPE = 'action_first_steps'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY,))
 
     class STATE(ActionBase.STATE):
         THINK_ABOUT_INITIATION = 'THINK_ABOUT_INITIATION'
@@ -898,7 +906,9 @@ class ActionInPlacePrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.IN_PLACE
     TEXTGEN_TYPE = 'action_inplace'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         SPEND_MONEY = 'spend_money'
@@ -1245,7 +1255,9 @@ class ActionRestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REST
     TEXTGEN_TYPE = 'action_rest'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         RESTING = 'resting'
@@ -1296,7 +1308,9 @@ class ActionEquippingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.EQUIPPING
     TEXTGEN_TYPE = 'action_equipping'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         EQUIPPING = 'equipping'
@@ -1335,7 +1349,9 @@ class ActionTradingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.TRADING
     TEXTGEN_TYPE = 'action_trading'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         TRADING = 'trading'
@@ -1378,7 +1394,9 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REGENERATE_ENERGY
     TEXTGEN_TYPE = 'action_regenerate_energy'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         REGENERATE = 'REGENERATE'
@@ -1442,7 +1460,9 @@ class ActionDoNothingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.DO_NOTHING
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         DO_NOTHING = 'DO_NOTHING'
@@ -1636,7 +1656,6 @@ class ActionMoveSimplePrototype(ActionBase):
     def HELP_CHOICES(self):
         choices = set((abilities_relations.HELP_CHOICES.HEAL,
                        abilities_relations.HELP_CHOICES.MONEY,
-                       abilities_relations.HELP_CHOICES.EXPERIENCE,
                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
         if self.state == self.STATE.MOVING:

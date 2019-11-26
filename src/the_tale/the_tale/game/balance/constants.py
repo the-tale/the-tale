@@ -210,18 +210,11 @@ ANGEL_HELP_HEAL_FRACTION = (float(0.25), float(0.5))  # (min, max) процен�
 ANGEL_HELP_TELEPORT_DISTANCE = float(1.0)  # расстяние на которое происходит телепорт
 ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5))  # (min, max) процент урона, который будет нанесён
 
-# считаем, что при эпической удачливости все использования будут давать опыт
-# и предполагаем, что можем разрешить (при такой удачливости), в день получать опыт как за такой же день
-ANGEL_HELP_EXPERIENCE = int(24.0 * EXP_PER_HOUR / (ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST))
-
-ANGEL_HELP_EXPERIENCE_DELTA = float(0.5)
-
 ANGEL_HELP_CRIT_HEAL_FRACTION = (float(0.5), float(0.75))  # (min, max) процент хелсов, которые будут вылечины
 ANGEL_HELP_CRIT_TELEPORT_DISTANCE = float(3.0)  # расстяние на которое происходит телепорт
 ANGEL_HELP_CRIT_LIGHTING_FRACTION = (float(0.5), float(0.75))  # (min, max) процент урона, который будет нанесён
 ANGEL_HELP_CRIT_MONEY_MULTIPLIER = int(10)
 ANGEL_HELP_CRIT_MONEY_FRACTION = (float(0.75), float(1.25))
-ANGEL_HELP_CRIT_EXPERIENCE = int(ANGEL_HELP_EXPERIENCE * 3)
 
 ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE = ANGEL_HELP_COST
 

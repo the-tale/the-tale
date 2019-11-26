@@ -68,19 +68,6 @@ class Help(prototypes.AbilityPrototype):
 
         return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
 
-    def use_experience(self, task, action, hero, critical):  # pylint: disable=W0613
-
-        if critical:
-            experience = int(c.ANGEL_HELP_CRIT_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA)) + 1)
-            real_experience = hero.add_experience(experience)
-            hero.add_message('angel_ability_experience_crit', hero=hero, experience=real_experience, energy=self.TYPE.cost)
-        else:
-            experience = int(c.ANGEL_HELP_EXPERIENCE * (1 + random.uniform(-c.ANGEL_HELP_EXPERIENCE_DELTA, c.ANGEL_HELP_EXPERIENCE_DELTA)) + 1)
-            real_experience = hero.add_experience(experience)
-            hero.add_message('angel_ability_experience', hero=hero, experience=real_experience, energy=self.TYPE.cost)
-
-        return task.logic_result(next_step=game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS)
-
     def use_heal_companion(self, task, action, hero, critical):  # pylint: disable=W0613
 
         if hero.companion is None:
@@ -115,9 +102,6 @@ class Help(prototypes.AbilityPrototype):
 
         elif choice.is_RESURRECT:
             return self.use_resurrect(task, action, hero, critical)
-
-        elif choice.is_EXPERIENCE:
-            return self.use_experience(task, action, hero, critical)
 
         elif choice.is_HEAL_COMPANION:
             return self.use_heal_companion(task, action, hero, critical)

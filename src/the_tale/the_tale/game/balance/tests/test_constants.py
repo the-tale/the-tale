@@ -113,16 +113,12 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.ANGEL_HELP_HEAL_FRACTION, (float(0.25), float(0.5)))
         self.assertEqual(c.ANGEL_HELP_TELEPORT_DISTANCE, float(1.0))
         self.assertEqual(c.ANGEL_HELP_LIGHTING_FRACTION, (float(0.25), float(0.5)))
-        self.assertEqual(c.ANGEL_HELP_EXPERIENCE, 20)
-
-        self.assertEqual(c.ANGEL_HELP_EXPERIENCE_DELTA, 0.5)
 
         self.assertEqual(c.ANGEL_HELP_CRIT_HEAL_FRACTION, (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_TELEPORT_DISTANCE, float(3.0))
         self.assertEqual(c.ANGEL_HELP_CRIT_LIGHTING_FRACTION, (float(0.5), float(0.75)))
         self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_MULTIPLIER, int(10))
         self.assertEqual(c.ANGEL_HELP_CRIT_MONEY_FRACTION, (0.75, 1.25))
-        self.assertEqual(c.ANGEL_HELP_CRIT_EXPERIENCE, 60)
 
         self.assertEqual(c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE, 4)
 
