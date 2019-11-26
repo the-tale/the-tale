@@ -152,7 +152,7 @@ class TestShowRequests(BaseTestRequests):
                            texts=[('pgf-no-folclor', 0),
                                   'folclor-1-caption',
                                   'folclor-2-caption',
-                                  ('folclor-3-caption', 0)])
+                                  'folclor-3-caption'])
 
     def test_folclor__removed_clan(self):
         self.create_folclor()

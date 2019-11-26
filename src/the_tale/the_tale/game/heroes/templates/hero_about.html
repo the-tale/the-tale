@@ -27,11 +27,7 @@
 
   <h3>Произведения о герое</h3>
 
-  {% set folclor_objects = posts_about(hero_meta_object, allowed_for=master_account) %}
-
-  <p>
-    Чтобы произведение появилось в списке, его автор должен указать, что оно об этом герое, а Хранитель героя должен поставить произведению «плюсик».
-  </p>
+  {% set folclor_objects = posts_about(hero_meta_object) %}
 
   {% if folclor_objects %}
   {{ blogs_macros.meta_posts_list(folclor_objects) }}

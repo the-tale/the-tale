@@ -146,15 +146,16 @@ class ShowRequestsTests(AccountRequestsTests):
         blogs_helpers.prepair_forum()
 
         blogs_helpers.create_post_for_meta_object(self.account_2, 'folclor-1-caption', 'folclor-1-text',
-                                                  meta_relations.Account.create_from_object(self.account_1), vote_by=self.account_1)
+                                                  meta_relations.Account.create_from_object(self.account_1))
         blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-2-caption', 'folclor-2-text',
-                                                  meta_relations.Account.create_from_object(self.account_1), vote_by=self.account_1)
-        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-3-caption', 'folclor-3-text', meta_relations.Account.create_from_object(self.account_1))
+                                                  meta_relations.Account.create_from_object(self.account_1))
+        blogs_helpers.create_post_for_meta_object(self.account_3, 'folclor-3-caption', 'folclor-3-text',
+                                                  meta_relations.Account.create_from_object(self.account_1))
 
         self.request_login(self.account_2.email)
 
         self.check_html_ok(self.request_html(django_reverse('accounts:show', args=[self.account_1.id])),
-                           texts=[('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', ('folclor-3-caption', 0)])
+                           texts=[('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', 'folclor-3-caption'])
 
     def test_show_no_folclor(self):
         blogs_helpers.prepair_forum()

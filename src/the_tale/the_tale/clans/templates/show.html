@@ -177,19 +177,11 @@ jQuery(document).ready(function(e){
   <div class="tab-pane active" id="pgf-clan-description">
     {{current_clan.description_html|safe}}
 
-    {% if leader %}
-    {% set folclor_objects = posts_about(clan_meta_object, allowed_for=leader) %}
-    {% else %}
     {% set folclor_objects = posts_about(clan_meta_object) %}
-    {% endif %}
 
     <br/>
     <br/>
     <h3>Произведения о Гильдии</h3>
-
-    <p>
-      Чтобы произведение появилось в списке, его автор должен указать, что оно об этой гильдии, а лидер гильдии должен поставить произведению «плюсик».
-    </p>
 
     {% if folclor_objects %}
     {{ blogs_macros.meta_posts_list(folclor_objects) }}
