@@ -107,3 +107,6 @@ class TestRequests(utils_testcase.TestCase):
 
     def test_movement(self):
         self.check_html_ok(self.request_html(dext_urls.url('guide:movement')))
+
+    def test_emissaries(self):
+        self.check_html_ok(self.request_html(dext_urls.url('guide:emissaries')))
