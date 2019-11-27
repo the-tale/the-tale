@@ -192,6 +192,19 @@ class CreateTests(BaseRequestsTests):
         with self.check_no_changes_in_emissaries(self.clan_1):
             self.check_ajax_error(self.post_ajax_json(self.url, self.get_post_data()), 'emissaries.maximum_emissaries')
 
+    def test_maximum_combat_personnel_reached(self):
+
+        clan_attributes = clans_logic.load_attributes(self.clan_1.id)
+
+        for i in range(clan_attributes.fighters_maximum):
+            account = self.accounts_factory.create_account()
+            clans_logic._add_member(clan=self.clan_1,
+                                    account=account,
+                                    role=clans_relations.MEMBER_ROLE.FIGHTER)
+
+        with self.check_no_changes_in_emissaries(self.clan_1):
+            self.check_ajax_error(self.post_ajax_json(self.url, self.get_post_data()), 'emissaries.maximum_fighters')
+
     def test_success(self):
         with self.check_changed(lambda: logic.load_emissaries_for_clan(self.clan_1.id)):
             with self.check_delta(lambda: clans_tt_services.currencies.cmd_balance(self.clan_1.id,

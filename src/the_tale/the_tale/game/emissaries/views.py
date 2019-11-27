@@ -160,6 +160,10 @@ def show(context):
 def check_clan_restrictions(clan_id):
     clan_attributes = clans_logic.load_attributes(clan_id)
 
+    if clan_attributes.fighters_maximum < clans_logic.get_combat_personnel(clan_id):
+        raise dext_views.ViewError(code='emissaries.maximum_fighters',
+                                   message='Боевой состав вашей гильдии превышает максимально допустимый..')
+
     if not logic.has_clan_space_for_emissary(clan_id, clan_attributes):
         raise dext_views.ViewError(code='emissaries.maximum_emissaries',
                                    message='Ваша гильдия уже наняла максимально возможное количество эмиссаров.')

@@ -657,6 +657,11 @@ def lock_clan_for_update(clan_id):
     return models.Clan.objects.select_for_update().filter(id=clan_id).exists()
 
 
+def get_combat_personnel(clan_id):
+    return sum(1 for membership in get_clan_memberships(clan_id).values()
+               if relations.PERMISSION.EMISSARIES_QUESTS in membership.role.permissions)
+
+
 def is_role_change_get_into_limit(clan_id, old_role, new_role):
 
     if new_role.is_RECRUIT:
@@ -664,8 +669,7 @@ def is_role_change_get_into_limit(clan_id, old_role, new_role):
 
     attributes = logic.load_attributes(clan_id)
 
-    combat_personnel = sum(1 for membership in get_clan_memberships(clan_id).values()
-                           if relations.PERMISSION.EMISSARIES_QUESTS in membership.role.permissions)
+    combat_personnel = get_combat_personnel(clan_id)
 
     if relations.PERMISSION.EMISSARIES_QUESTS in old_role.permissions:
         combat_personnel -= 1
