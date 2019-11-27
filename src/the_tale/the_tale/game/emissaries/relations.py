@@ -76,7 +76,7 @@ def event_modifiers(name_prefix, text, values, verbose_units='', formatter=lambd
 
 class ATTRIBUTE(game_attributes.ATTRIBUTE):
 
-    records = ([game_attributes.attr('MAX_HEALTH', 0, 'максимум здорвья')] +
+    records = ([game_attributes.attr('MAX_HEALTH', 0, 'максимум здоровья')] +
 
                attribute_modifiers('ATTRIBUTE_GROW_SPEED__',
                                    'скорость роста способности «{}»',
