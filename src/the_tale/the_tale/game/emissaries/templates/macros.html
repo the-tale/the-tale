@@ -1,0 +1,139 @@
+{% import 'clans/macros.html' as clans_macros with context %}
+
+{% macro emissary_description(emissary) %}
+
+  {% if emissary.gender.is_MALE %}
+    {{emissary.race.male_text}}
+  {% endif %}
+
+  {% if emissary.gender.is_FEMALE %}
+    {{emissary.race.female_text}}
+  {% endif %}
+
+{% endmacro %}
+
+
+{% macro emissary_verbose(emissary, description=true, clan=none, show_place=false) %}
+
+  {% if clan %}
+    <a href="{{url('clans:show', clan.id)}}">[{{clan.abbr}}]</a>
+  {% endif %}
+
+  {% if description %}
+    {{emissary_description(emissary)}}
+  {% endif %}
+
+  <a href="{{url('game:emissaries:show', emissary.id)}}">{{emissary.name}}</a>
+
+  {% if show_place %}
+    из
+    <a href="{{url('game:places:show', emissary.place.id)}}">{{emissary.place.utg_name.forms[1]}}</a>
+  {% endif %}
+
+{% endmacro %}
+
+
+{% macro emissary_status(emissary) %}
+  {% if emissary.state.is_IN_GAME %}
+    <span style="color:green;">{{emissary.state.text}}</span>
+  {% else %}
+    <span style="color:red;">{{emissary.state.text}} ({{emissary.remove_reason.text|lower}})</span>
+  {% endif %}
+{% endmacro %}
+
+
+{% macro leader_marker() %}
+    <span class="label label-success"
+          style="cursor: default;"
+          rel="tooltip"
+          title="Эмиссар является лидером города по влиянию. Некоторые мероприятия эмиссаров действуют только когда их выполняет лидер. Список лидеров обновляется раз в час.">
+          лидер города
+    </span>
+{% endmacro %}
+
+
+{% macro pvp_access_marker() %}
+    <i class="icon-info-sign"
+       data-tooltip-placement="right"
+       rel="tooltip"
+       title="Сумма способностей эмиссара. Гильдия должна иметь хотя бы одного эмиссара с суммой способностей больше {{tt_emissaries_constants.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP}}, чтобы её члены могли выполнять задания для эмиссаров чужих гильдийс."></i>
+
+{% endmacro %}
+
+{% macro emissary_list(emissaries, powers, clans=none, show_places=false, show_status=true) %}
+<table class="table table-condensed">
+  <thead>
+    <tr>
+      <th width="70px" style="text-align: right;">♥</th>
+      <th>Эмиссар</th>
+      {% if clans %}
+      <th>Гильдия</th>
+      {% endif %}
+
+      {% if show_places %}
+      <th>Город</th>
+      {% endif %}
+
+      <th>Влияние</th>
+
+      {% if show_status %}
+      <th>Статус</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for emissary in emissaries %}
+    <tr>
+      <td style="text-align: right;">{{emissary.health}} / {{emissary.attrs.max_health}}</td>
+      <td>
+        {{emissary_verbose(emissary)}}
+
+        {% if emissary.is_place_leader() %}
+        {{leader_marker()}}
+        {% endif %}
+
+        {% set events = emissary.active_events() %}
+
+        {% if events  %}
+        <br/>
+
+        {% if not events %}
+        <span class="label">нет мероприятий</span>
+        {% else %}
+        {% for event in events|sort(attribute="concrete_event.TYPE.text") %}
+        <span class="label label-info"
+              style="cursor: default;"
+              rel="tooltip"
+              title="{{event.concrete_event.event_description(emissary)}}">
+          {{event.concrete_event.TYPE.text}}
+        </span>
+        &nbsp;
+        {% endfor %}
+        {% endif %}
+
+        {% endif %}
+      </td>
+
+      {% if clans %}
+      <td>{{clans_macros.clan_link(clans[emissary.clan_id])}}</td>
+      {% endif %}
+
+      {% if show_places %}
+      <td><a href="{{url('game:places:show', emissary.place.id)}}">{{emissary.place.name}}</a></td>
+      {% endif %}
+
+      <td>
+        <a href="{{ url('game:politic-power:history', emissary=emissary.id) }}">{{powers[emissary.id]|int}}</a>
+      </td>
+
+      {% if show_status %}
+      <td>
+        {{emissary_status(emissary)}}
+      </td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endmacro %}

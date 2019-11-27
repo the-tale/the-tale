@@ -3,9 +3,9 @@ import setuptools
 VERSION = '0.1'
 
 setuptools.setup(
-    name='TTMarket',
+    name='TTBank',
     version=VERSION,
-    description='Bank service The Tale',
+    description='Bank service for The Tale',
     long_description='Bank service for The Tale',
     url='https://github.com/Tiendil/the-tale',
     author='Aleksey Yeletsky <Tiendil>',

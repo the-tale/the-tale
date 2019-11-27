@@ -9,7 +9,8 @@ class IMPACT_TYPE(rels_django.DjangoEnum):
                ('OUTER_CIRCLE', 1, 'от народа'),
                ('JOB', 2, 'проекты'),
                ('FAME', 3, 'известность'),
-               ('MONEY', 4, 'деньги'))
+               ('MONEY', 4, 'деньги'),
+               ('EMISSARY_POWER', 5, 'влияния эмиссара'))
 
 
 class PowerImpact(tt_api_impacts.Impact):
@@ -117,6 +118,9 @@ fame_impacts = ImpactsClient(entry_point=conf.settings.TT_IMPACTS_FAME_ENTRY_POI
 money_impacts = ImpactsClient(entry_point=conf.settings.TT_IMPACTS_MONEY_ENTRY_POINT,
                               impact_type=IMPACT_TYPE.MONEY,
                               impact_class=PowerImpact)
+emissary_impacts = ImpactsClient(entry_point=conf.settings.TT_IMPACTS_EMISSARY_ENTRY_POINT,
+                                 impact_type=IMPACT_TYPE.EMISSARY_POWER,
+                                 impact_class=PowerImpact)
 
 
 def debug_clear_service():
@@ -128,3 +132,4 @@ def debug_clear_service():
     job_impacts.cmd_debug_clear_service()
     fame_impacts.cmd_debug_clear_service()
     money_impacts.cmd_debug_clear_service()
+    emissary_impacts.cmd_debug_clear_service()

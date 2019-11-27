@@ -153,16 +153,33 @@ class Worker(utils_workers.BaseWorker):
         hero.ui_caching_started_at = datetime.datetime.now()
         self.storage.recache_bundle(hero.actions.current_action.bundle_id)
 
-    def cmd_update_hero_with_account_data(self, account_id, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
+    def cmd_update_hero_with_account_data(self,
+                                          account_id,
+                                          is_fast,
+                                          premium_end_at,
+                                          active_end_at,
+                                          ban_end_at,
+                                          might,
+                                          actual_bills,
+                                          clan_id):
         self.send_cmd('update_hero_with_account_data', {'account_id': account_id,
                                                         'is_fast': is_fast,
                                                         'premium_end_at': premium_end_at,
                                                         'active_end_at': active_end_at,
                                                         'ban_end_at': ban_end_at,
                                                         'might': might,
-                                                        'actual_bills': actual_bills})
+                                                        'actual_bills': actual_bills,
+                                                        'clan_id': clan_id})
 
-    def process_update_hero_with_account_data(self, account_id, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
+    def process_update_hero_with_account_data(self,
+                                              account_id,
+                                              is_fast,
+                                              premium_end_at,
+                                              active_end_at,
+                                              ban_end_at,
+                                              might,
+                                              actual_bills,
+                                              clan_id):
         hero = self.storage.accounts_to_heroes[account_id]
 
         if hero.actions.current_action.bundle_id in self.storage.ignored_bundles:
@@ -173,7 +190,8 @@ class Worker(utils_workers.BaseWorker):
                                       active_end_at=datetime.datetime.fromtimestamp(active_end_at),
                                       ban_end_at=datetime.datetime.fromtimestamp(ban_end_at),
                                       might=might,
-                                      actual_bills=actual_bills)
+                                      actual_bills=actual_bills,
+                                      clan_id=clan_id)
         self.storage.save_bundle_data(hero.actions.current_action.bundle_id)
 
     def cmd_highlevel_data_updated(self):

@@ -235,7 +235,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
            title=['Какое воспитание получил герой?',
                   'Какое воспитание получила героиня?'],
            tabs=[Tab(value='vulgar',
-                     title='Уличное',
+                     title=utils_logic.up_first(tt_beings_relations.UPBRINGING.VULGAR.text),
                      body='''
 <h4>Мой дом — улица</h4>
 <p>У попрошаек и разбойников тоже есть дети. В большинстве случаев родным домом им становятся городские подворотни.</p>
@@ -244,7 +244,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 ''',
                      buttons=[Button('Выбрать', 'upbringing:vulgar')]),
                  Tab(value='rural',
-                     title='Сельское',
+                     title=utils_logic.up_first(tt_beings_relations.UPBRINGING.RURAL.text),
                      body='''
 <h4>Дед мой пахал это поле</h4>
 <p>Большинство жителей Пандоры проживает в небольших деревнях вокруг городов. Их жители гнут спину с рассвета до заказа, чтобы прокормить свои семьи.</p>
@@ -253,7 +253,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 ''',
                      buttons=[Button('Выбрать', 'upbringing:rural')]),
                  Tab(value='philistine',
-                     title='Городское',
+                     title=utils_logic.up_first(tt_beings_relations.UPBRINGING.PHILISTINE.text),
                      body='''
 <h4>Стены моего города высоки</h4>
 <p>Мещане — второе по численности сословие в Пандоре. Жить им куда легче чем крестьянам, но жизнь в перенаселённых городах имеет свои сложности.</p>
@@ -262,7 +262,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 ''',
                      buttons=[Button('Выбрать', 'upbringing:philistine')]),
                  Tab(value='aristocratic',
-                     title='Аристократическое',
+                     title=utils_logic.up_first(tt_beings_relations.UPBRINGING.ARISTOCRATIC.text),
                      body='''
 <h4>Моё слово — закон</h4>
 <p>Немногочисленная аристократия формально владеет большинством известных земель Пандоры. В реальности же её власть ограничена: героями, Мастерами, дикой природой.</p>
@@ -271,7 +271,7 @@ ATTRIBUTE_CHOICES = [Choice(attribute='race',
 ''',
                      buttons=[Button('Выбрать', 'upbringing:aristocratic')]),
                  Tab(value='priestly',
-                     title='Жреческое',
+                     title=utils_logic.up_first(tt_beings_relations.UPBRINGING.PRIESTLY.text),
                      body='''
 <h4>Я служу высшим силам</h4>
 <p>Духовенство — такое же немногочисленное сословие, что и аристократия. Если аристократы владеют землями, то жрецы следят за чистотой духовной жизни Пандорцев.</p>

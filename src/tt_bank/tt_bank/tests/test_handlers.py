@@ -4,6 +4,7 @@ from aiohttp import test_utils
 
 from tt_protocol.protocol import bank_pb2
 
+from tt_web import s11n
 from tt_web import postgresql as db
 
 from .. import relations
@@ -30,9 +31,20 @@ async def load_operations():
 class Base(helpers.BaseTests):
 
     async def check_balance(self, account_id, expected_balance):
-        request = await self.client.post('/accounts/balance', data=bank_pb2.AccountBalanceRequest(account_id=account_id).SerializeToString())
-        answer = await self.check_success(request, bank_pb2.AccountBalanceResponse)
-        self.assertEqual(answer.balance, expected_balance)
+        request = await self.client.post('/accounts/balances',
+                                         data=bank_pb2.AccountsBalancesRequest(accounts_ids=(account_id,)).SerializeToString())
+        answer = await self.check_success(request, bank_pb2.AccountsBalancesResponse)
+        self.assertEqual(answer.balances[account_id].amounts, expected_balance)
+
+    async def check_balances(self, accounts_ids, expected_balances):
+        request = await self.client.post('/accounts/balances',
+                                         data=bank_pb2.AccountsBalancesRequest(accounts_ids=tuple(accounts_ids)).SerializeToString())
+        answer = await self.check_success(request, bank_pb2.AccountsBalancesResponse)
+
+        result = {account_id: dict(balances.amounts)
+                  for account_id, balances in answer.balances.items()}
+
+        self.assertEqual(result, expected_balances)
 
 
 class AccountBalanceTests(Base):
@@ -52,6 +64,19 @@ class AccountBalanceTests(Base):
         await helpers.call_change_balance(account_id=666, currency=2, amount=13)
         await self.check_balance(account_id=666, expected_balance={1: 101, 2: 13})
 
+    @test_utils.unittest_run_loop
+    async def test_multiple_accounts(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
+        await helpers.call_change_balance(account_id=666, currency=2, amount=1)
+
+        await helpers.call_change_balance(account_id=777, currency=2, amount=13)
+        await helpers.call_change_balance(account_id=777, currency=3, amount=14)
+
+        await helpers.call_change_balance(account_id=888, currency=2, amount=17)
+
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {1: 100500, 2: 1},
+                                                     777: {2: 13, 3: 14}})
 
 class AccountHistoryTests(Base):
 
@@ -144,7 +169,7 @@ class StartTransactionTests(Base):
     async def test_small_balance(self):
         request = await self.client.post('/transactions/start', data=bank_pb2.StartTransactionRequest(operations=TEST_OPERATIONS,
                                                                                                       lifetime=0).SerializeToString())
-        await self.check_error(request, error='bank.start_transaction.no_enough_currency')
+        await self.check_error(request, error='bank.start_transaction.restrictions_exceeded')
 
         results = await db.sql('SELECT * FROM transactions')
         self.assertEqual(results, [])
@@ -154,6 +179,29 @@ class StartTransactionTests(Base):
 
         await self.check_balance(account_id=666, expected_balance={})
         await self.check_balance(account_id=667, expected_balance={})
+
+    @test_utils.unittest_run_loop
+    async def test_restrictions_saved(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=1000)
+        await helpers.call_change_balance(account_id=667, currency=1, amount=1000)
+
+        restrictions_data = {'hard_minimum': 0,
+                             'hard_maximum': 10000,
+                             'soft_minimum': 7,
+                             'soft_maximum': 7000}
+
+        restrictions = s11n.to_json(restrictions_data)
+
+        request = await self.client.post('/transactions/start',
+                                         data=bank_pb2.StartTransactionRequest(operations=TEST_OPERATIONS,
+                                                                               lifetime=0,
+                                                                               restrictions=restrictions).SerializeToString())
+
+        answer = await self.check_success(request, bank_pb2.StartTransactionResponse)
+
+        results = await db.sql('SELECT * FROM transactions WHERE id=%(id)s', {'id': answer.transaction_id})
+
+        self.assertEqual(results[0]['data']['restrictions'], restrictions_data)
 
 
 class RollbackTransactionTests(Base):

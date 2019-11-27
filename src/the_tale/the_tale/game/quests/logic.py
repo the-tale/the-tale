@@ -117,7 +117,7 @@ def fact_place(place):
     return questgen_facts.Place(uid=uids.place(place.id),
                                 terrains=[terrain.value for terrain in place.terrains],
                                 externals={'id': place.id},
-                                type=place._modifier.quest_type)
+                                type=place.modifier_quest_type())
 
 
 def fact_mob(mob):
@@ -129,7 +129,15 @@ def fact_mob(mob):
 def fact_person(person):
     return questgen_facts.Person(uid=uids.person(person.id),
                                  profession=person.type.quest_profession,
-                                 externals={'id': person.id})
+                                 externals={'id': person.id,
+                                            'type': game_relations.ACTOR.PERSON.value})
+
+
+def fact_emissary(emissary):
+    return questgen_facts.Person(uid=uids.emissary(emissary.id),
+                                 profession=None,
+                                 externals={'id': emissary.id,
+                                            'type': game_relations.ACTOR.EMISSARY.value})
 
 
 def fact_social_connection(connection_type, person_uid, connected_person_uid):
@@ -325,6 +333,20 @@ def get_knowledge_base(hero_info, without_restrictions=False):  # pylint: disabl
 
 
 def create_random_quest_for_hero(hero_info, logger):
+    constructor = place_quest_constructor_fabric(place_uid=uids.place(hero_info.position_place_id))
+
+    return create_random_quest_with_constructor(hero_info, constructor, logger)
+
+
+def create_random_quest_for_emissary(hero_info, emissary, person_action, logger):
+    constructor = emissary_quest_constructor_fabric(hero_uid=uids.hero(hero_info.id),
+                                                    emissary=emissary,
+                                                    person_action=person_action)
+
+    return create_random_quest_with_constructor(hero_info, constructor, logger)
+
+
+def create_random_quest_with_constructor(hero_info, constructor, logger):
 
     start_time = time.time()
 
@@ -334,11 +356,21 @@ def create_random_quest_for_hero(hero_info, logger):
 
     excluded_quests = hero_info.excluded_quests
 
-    quest_type, knowledge_base = try_to_create_random_quest_for_hero(hero_info, quests, excluded_quests, without_restrictions=False, logger=logger)
+    quest_type, knowledge_base = try_to_create_random_quest_for_hero(hero_info,
+                                                                     quests,
+                                                                     excluded_quests,
+                                                                     without_restrictions=False,
+                                                                     constructor=constructor,
+                                                                     logger=logger)
 
     if knowledge_base is None:
         normal_mode = False
-        quest_type, knowledge_base = try_to_create_random_quest_for_hero(hero_info, quests, excluded_quests=[], without_restrictions=True, logger=logger)
+        quest_type, knowledge_base = try_to_create_random_quest_for_hero(hero_info,
+                                                                         quests,
+                                                                         excluded_quests=[],
+                                                                         without_restrictions=True,
+                                                                         constructor=constructor,
+                                                                         logger=logger)
 
     spent_time = time.time() - start_time
 
@@ -353,14 +385,17 @@ def create_random_quest_for_hero(hero_info, logger):
     return knowledge_base
 
 
-def try_to_create_random_quest_for_hero(hero_info, quests, excluded_quests, without_restrictions, logger):
+def try_to_create_random_quest_for_hero(hero_info, quests, excluded_quests, without_restrictions, constructor, logger):
 
     for quest_type in quests:
         if quest_type.quest_class.TYPE in excluded_quests:
             continue
 
         try:
-            return quest_type, _create_random_quest_for_hero(hero_info, start_quests=[quest_type.quest_class.TYPE], without_restrictions=without_restrictions)
+            return quest_type, _create_random_quest_for_hero(hero_info,
+                                                             constructor=constructor,
+                                                             start_quests=[quest_type.quest_class.TYPE],
+                                                             without_restrictions=without_restrictions)
         except questgen_exceptions.RollBackError as e:
             logger.info('hero[%(hero_id).6d]: can not create quest <%(quest_type)s>: %(exception)s' %
                         {'hero_id': hero_info.id,
@@ -372,20 +407,12 @@ def try_to_create_random_quest_for_hero(hero_info, quests, excluded_quests, with
 
 
 @dext_decorators.retry_on_exception(max_retries=conf.settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
-def _create_random_quest_for_hero(hero_info, start_quests, without_restrictions=False):
+def _create_random_quest_for_hero(hero_info, constructor, start_quests, without_restrictions=False):
     knowledge_base = get_knowledge_base(hero_info, without_restrictions=without_restrictions)
 
     selector = questgen_selectors.Selector(knowledge_base, QUESTS_BASE, social_connection_probability=0)
 
-    hero_uid = uids.hero(hero_info.id)
-
-    quests_facts = selector.create_quest_from_place(nesting=0,
-                                                    initiator_position=selector.place_for(objects=(hero_uid,)),
-                                                    allowed=start_quests,
-                                                    excluded=[],
-                                                    tags=('can_start', ))
-
-    knowledge_base += quests_facts
+    knowledge_base += constructor(selector, start_quests)
 
     questgen_transformators.activate_events(knowledge_base)  # TODO: after remove restricted states
     questgen_transformators.remove_restricted_states(knowledge_base)
@@ -399,11 +426,59 @@ def _create_random_quest_for_hero(hero_info, start_quests, without_restrictions=
     return knowledge_base
 
 
+def place_quest_constructor_fabric(place_uid):
+
+    def constructor(selector, start_quests):
+        initiator_position = selector._kb[place_uid]
+
+        selector.reserve(initiator_position)
+
+        return selector.create_quest_from_place(nesting=0,
+                                                initiator_position=initiator_position,
+                                                allowed=start_quests,
+                                                excluded=[],
+                                                tags=('can_start', ))
+
+    return constructor
+
+
+def emissary_quest_constructor_fabric(hero_uid, emissary, person_action):
+
+    def constructor(selector, start_quests):
+        f_emissary = fact_emissary(emissary)
+        f_emissary_place = fact_place(emissary.place)
+
+        selector._kb += f_emissary
+        selector._kb += questgen_facts.LocatedIn(object=f_emissary.uid, place=uids.place(emissary.place_id))
+
+        if f_emissary_place.uid not in selector._kb:
+            selector._kb += f_emissary_place
+
+        if person_action.is_HELP:
+            selector._kb += questgen_facts.OnlyGoodBranches(object=f_emissary.uid)
+        elif person_action.is_HARM:
+            selector._kb += questgen_facts.OnlyBadBranches(object=f_emissary.uid)
+        else:
+            raise NotImplementedError
+
+        selector.reserve(f_emissary)
+        selector.reserve(f_emissary_place)
+
+        return selector.create_quest_from_person(nesting=0,
+                                                 initiator=f_emissary,
+                                                 allowed=start_quests,
+                                                 excluded=[],
+                                                 tags=('can_start', ))
+
+    return constructor
+
+
 def create_hero_info(hero):
     quests_priorities = hero.get_quests_priorities()
+
     return HeroQuestInfo(id=hero.id,
                          level=hero.level,
-                         position_place_id=hero.position.place.id,
+                         position_place_id=hero.position.cell().nearest_place_id,
                          is_first_quest_path_required=hero.is_first_quest_path_required,
                          is_short_quest_path_required=hero.is_short_quest_path_required,
                          preferences_mob_id=hero.preferences.mob.id if hero.preferences.mob else None,
@@ -417,9 +492,12 @@ def create_hero_info(hero):
                          prefered_quest_markers=hero.prefered_quest_markers())
 
 
-def request_quest_for_hero(hero):
+def request_quest_for_hero(hero, emissary_id=None, person_action=None):
     hero_info = create_hero_info(hero)
-    amqp_environment.environment.workers.quests_generator.cmd_request_quest(hero.account_id, hero_info.serialize())
+    amqp_environment.environment.workers.quests_generator.cmd_request_quest(hero.account_id,
+                                                                            hero_info.serialize(),
+                                                                            emissary_id=emissary_id,
+                                                                            person_action=person_action)
 
 
 def setup_quest_for_hero(hero, knowledge_base_data):
@@ -438,3 +516,7 @@ def setup_quest_for_hero(hero, knowledge_base_data):
         quest.machine.step()  # do first step to setup pointer
 
     hero.actions.current_action.setup_quest(quest)
+
+
+def extract_person_type(fact):
+    return game_relations.ACTOR(fact.externals.get('type', game_relations.ACTOR.PERSON.value))

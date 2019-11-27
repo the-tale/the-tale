@@ -17,11 +17,11 @@ class PrototypeTestsBase(utils_testcase.TestCase):
 
         self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
-        account = self.accounts_factory.create_account(is_fast=True)
+        self.account = self.accounts_factory.create_account(is_fast=True)
 
         self.storage = game_logic_storage.LogicStorage()
-        self.storage.load_account_data(account)
-        self.hero = self.storage.accounts_to_heroes[account.id]
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
 
         self.action_idl = self.hero.actions.current_action
 
@@ -33,7 +33,9 @@ class PrototypeTestsBase(utils_testcase.TestCase):
         self.quest = self.hero.quests.current_quest
 
 
-class PrototypeTests(PrototypeTestsBase):
+class PrototypeTests(PrototypeTestsBase,
+                     clans_helpers.ClansTestsMixin,
+                     emissaries_helpers.EmissariesTestsMixin):
 
     def setUp(self):
         super(PrototypeTests, self).setUp()
@@ -139,6 +141,30 @@ class PrototypeTests(PrototypeTestsBase):
         power = self.quest.finish_quest_place_power(questgen_quests_base_quest.RESULTS.NEUTRAL, uids.place(self.place_1.id))
         self.assertEqual(power, 0)
 
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, person: True)
+    def test_give_emissary_power__power_bonus(self):
+        self.prepair_forum_for_clans()
+
+        account = self.accounts_factory.create_account()
+
+        clan = self.create_clan(owner=account, uid=1)
+
+        emissary = self.create_emissary(clan=clan,
+                                        initiator=account,
+                                        place_id=self.place_1.id)
+
+        self.quest.current_info.power = 10
+        self.quest.current_info.power_bonus = 1
+
+        power = self.quest.finish_quest_emissary_power(questgen_quests_base_quest.RESULTS.SUCCESSED, uids.emissary(emissary.id))
+        self.assertEqual(power, 10 + 1)
+
+        power = self.quest.finish_quest_emissary_power(questgen_quests_base_quest.RESULTS.FAILED, uids.emissary(emissary.id))
+        self.assertEqual(power, -10 - 1)
+
+        power = self.quest.finish_quest_emissary_power(questgen_quests_base_quest.RESULTS.NEUTRAL, uids.emissary(emissary.id))
+        self.assertEqual(power, 0)
+
     def test_power_on_end_quest_for_fast_account_hero(self):
         game_tt_services.debug_clear_service()
 
@@ -234,6 +260,43 @@ class PrototypeTests(PrototypeTestsBase):
 
         for person in persons_storage.persons.all():
             person.attrs.experience_bonus = 1.0
+
+        self.assertTrue(self.quest.get_expirience_for_quest(self.quest.current_info.uid, self.hero) > 100)
+
+    @mock.patch('the_tale.game.balance.formulas.experience_for_quest', lambda x: 100)
+    @mock.patch('the_tale.game.heroes.statistics.Statistics.quests_done', 1)
+    def test_get_expirience_for_quest__from_emissary(self):
+        self.prepair_forum_for_clans()
+
+        clan = self.create_clan(owner=self.account, uid=1)
+
+        emissary = self.create_emissary(clan=clan,
+                                        initiator=self.account,
+                                        place_id=self.place_1.id)
+
+        for place in places_storage.places.all():
+            place.attrs.experience_bonus = 0.0
+
+        for person in persons_storage.persons.all():
+            person.attrs.experience_bonus = 0.0
+
+        for emissary in emissaries_storage.emissaries.all():
+            emissary.attrs.experience_bonus = 0.0
+
+        self.hero.quests.pop_quest()
+        self.hero.actions.pop_action()
+
+        self.action_quest = actions_prototypes.ActionQuestPrototype.create(hero=self.hero)
+
+        helpers.setup_quest(self.hero,
+                            emissary_id=emissary.id,
+                            person_action=quests_relations.PERSON_ACTION.random())
+        self.quest = self.hero.quests.current_quest
+
+        self.assertEqual(self.quest.get_expirience_for_quest(self.quest.current_info.uid, self.hero), 100)
+
+        for emissary in emissaries_storage.emissaries.all():
+            emissary.attrs.experience_bonus = 1.0
 
         self.assertTrue(self.quest.get_expirience_for_quest(self.quest.current_info.uid, self.hero) > 100)
 
@@ -391,7 +454,7 @@ class PrototypeTests(PrototypeTestsBase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: True)
     @mock.patch('the_tale.game.balance.constants.ARTIFACT_POWER_DELTA', 0.0)
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_persons', lambda self: [])
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_masters', lambda self: [])
     def test_give_reward__artifact_scale(self):
 
         self.assertEqual(self.hero.bag.occupation, 0)
@@ -414,7 +477,7 @@ class PrototypeTests(PrototypeTestsBase):
         self.assertEqual(artifact_1.level + 1, artifact_2.level)
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_persons', lambda self: [])
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_masters', lambda self: [])
     def test_give_reward__money_scale(self):
 
         self.assertEqual(self.hero.money, 0)
@@ -429,7 +492,7 @@ class PrototypeTests(PrototypeTestsBase):
 
     @mock.patch('the_tale.game.heroes.objects.Hero.can_get_artifact_for_quest', lambda hero: False)
     @mock.patch('the_tale.game.heroes.objects.Hero.quest_money_reward_multiplier', lambda hero: -100)
-    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_persons', lambda self: [])
+    @mock.patch('the_tale.game.quests.prototypes.QuestPrototype.positive_results_masters', lambda self: [])
     def test_give_reward__money_scale_less_then_zero(self):
 
         with self.check_delta(lambda: self.hero.money, 1):
@@ -1124,7 +1187,7 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
                                                     to_place_id=self.place_2.id,
                                                     cost_modifiers=places_cost_modifiers,
                                                     risk_level=self.hero.preferences.risk_level)
-        self.hero.position.set_position(*path.coordinates(0.5))
+        self.hero.position.set_position(*path.coordinates(0.35))
 
         self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
 
@@ -1144,3 +1207,35 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
         self.assertEqual(round(self.hero.actions.current_action.break_at, 4), 0.9000)
         self.assertEqual(self.hero.actions.current_action.path.destination_coordinates(),
                          (self.place_3.x, self.place_3.y))
+
+    def test_move_hero_on_road__break_at_recalculation(self):
+        self.hero.position.set_place(self.place_1)
+
+        base_path = self.quest._get_fixed_path(place_from=self.place_1,
+                                               place_to=self.place_3)
+
+        self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
+
+        self.assertAlmostEqual(self.hero.actions.current_action.break_at, 0.9)
+
+        self.hero.position.set_position(*base_path.coordinates(0.3))
+
+        self.hero.actions.pop_action()
+
+        self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
+
+        new_break_at = self.hero.actions.current_action.break_at
+
+        self.assertAlmostEqual(new_break_at, (0.9 - 0.3) / (1 - 0.3))
+
+        new_path = self.hero.actions.current_action.path
+
+        self.assertTrue(new_path.length < base_path.length)
+
+        expected_position = new_path.coordinates(new_break_at)
+
+        percents, x, y = base_path.nearest_coordinates(*expected_position)
+
+        self.assertAlmostEqual(percents, 0.9)
+        self.assertAlmostEqual(x, expected_position[0])
+        self.assertAlmostEqual(y, expected_position[1])

@@ -77,11 +77,17 @@ jQuery(document).ready(function(e){
 <div class="row" class="pgf-first-time-introduction">
   <div class="span12" style="min-height: 50px;">
     <div class="alert alert-info">
-    <h2>
-      Первый раз в Cказке? <small><a href="{{url('guide:game')}}">Узнайте больше про игру!</a></small>
-    </h2>
 
-    {{ landing_intro_macros.intro(map_button=true) }}
+      {% set action = ['first-time'] | random %}
+
+      <h2>
+        {% if action == 'first-time' %}
+        Первый раз в Cказке?
+        {% endif %}
+        <small><a href="{{url('guide:game')}}">Узнайте больше про игру!</a></small>
+      </h2>
+
+    {{ landing_intro_macros.intro(map_button=true, action=action) }}
 
     </div>
   </div>

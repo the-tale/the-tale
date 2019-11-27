@@ -1,6 +1,7 @@
 {% extends "clans/base.html" %}
 
 {% import 'macros.html' as base_macros with context %}
+{% import 'clans/macros.html' as clans_macros with context %}
 {% import 'utils/list_filter.html' as list_filter_macros with context %}
 
 {% block title %}Список гильдий | {{settings.PAGE_TITLE}}{% endblock %}
@@ -12,7 +13,7 @@
 
       {% if user_clan %}
       <p class="alert alert-info">
-        Вы состоите в гильдии <a href="{{url('clans:show', user_clan.id)}}">[{{user_clan.abbr}}] {{user_clan.name}}</a>.
+        Вы состоите в гильдии {{clans_macros.clan_link(user_clan)}}.
       </p>
       {% else %}
       <p class="alert alert-info">
@@ -41,9 +42,27 @@
         <tbody>
           {% for clan in clans %}
           <tr>
-            <td><a href="{{url('clans:show', clan.id)}}">{{clan.abbr}}</a></td>
             <td>
-              <a href="{{url('clans:show', clan.id)}}">{{clan.name}}</a>
+              <a href="{{url('clans:show', clan.id)}}"
+                 {% if clan.state.is_REMOVED %}
+                 style="color: red;"
+                 relation="tooltip"
+                 title="Гильдия распущена"
+                 {% endif %}
+                 >
+                {{clan.abbr}}
+              </a>
+            </td>
+            <td>
+              <a href="{{url('clans:show', clan.id)}}"
+                 {% if clan.state.is_REMOVED %}
+                 style="color: red;"
+                 relation="tooltip"
+                 title="Гильдия распущена"
+                 {% endif %}
+                 >
+                {{clan.name}}
+              </a>
               <br/>
               <i>{{clan.motto}}</i>
             </td>

@@ -246,7 +246,8 @@ class SupervisorWorkerTests(utils_testcase.TestCase):
                                                                   active_end_at=account_3.active_end_at,
                                                                   ban_end_at=account_3.ban_game_end_at,
                                                                   might=666,
-                                                                  actual_bills=7)
+                                                                  actual_bills=7,
+                                                                  clan_id=None)
 
         self.assertEqual(logic_task_counter.call_count, 0)
         self.assertEqual(logger_warn_counter.call_count, 1)

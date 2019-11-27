@@ -150,4 +150,9 @@ KEYS = [('ACTION_INPLACE_DESCRIPTION', 80000, 'Описание', relations.LEXI
         ('ACTION_INPLACE_ENTER', 80036, 'Журнал: Герой входит в город', relations.LEXICON_GROUP.ACTION_INPLACE,
          'Описание того, как герой входит в город.',
          [V.DATE, V.TIME, V.HERO, V.PLACE], None),
+
+        ('ACTION_INPLACE_CLAN_COMPANIONS_SUPPORT', 80037, 'Журнал: Лечение спутника героя гильдией', relations.LEXICON_GROUP.ACTION_INPLACE,
+         'При входе в город спутник героя лечится гильдейским мероприятием.',
+         [V.DATE, V.TIME, V.HERO, V.PLACE, V.CLAN, V.COMPANION, V.HEALTH], 'companion#N +health#HP'),
+
         ]

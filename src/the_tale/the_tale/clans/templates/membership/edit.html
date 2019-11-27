@@ -26,13 +26,20 @@ jQuery(document).ready( function(e) {
 
 </script>
 
+<p>
+  <i>Максимальный боевой состав гильдии: {{attributes.fighters_maximum}}</i>
+  <i class="icon-info-sign"
+     rel="tooltip"
+     title="Количество членов гильдии в звании {{value('the_tale.clans.relations').MEMBER_ROLE.FIGHTER.text}} или выше. Чтобы увеличить максимальный размер гильдии, развивайте её с помощью эмиссаров."></i>
+</p>
+
 <form id="pgf-change-role-form" method="post" action="{{ url('clans:change-role', current_clan.id, account=edited_account.id) }}">
   {{ change_role_form.errors_container }}
 
   {{ change_role_form.role.widget }}
 
   <div class="widget">
-    <input type="submit" accesskey="s" class="btn" value="Изменить"/>
+    <input type="submit" accesskey="s" class="btn btn-info" value="Изменить"/>
   </div>
 
 </form>
@@ -41,7 +48,7 @@ jQuery(document).ready( function(e) {
 
 {% if edited_membership.role.is_MASTER %}
 <p class="alert alert-info">
-  Нульзя изменять звание магистра гильдии.
+  Нельзя изменять звание магистра гильдии.
 </p>
 {% else %}
 <p class="alert alert-info pgf-change-role-not-allower">
@@ -84,11 +91,13 @@ jQuery(document).ready( function(e) {
 </p>
 {% else %}
 
+<p>
 <a class="btn btn-danger pgf-forms-post-simple pgf-change-owner-action"
    href="{{ url('clans:change-ownership', current_clan.id, account=edited_account.id) }}"
    data-action-type="redirect"
    data-redirect-url="{{ url('clans:show', current_clan.id) }}"
    data-confirmation="Вы действительно хотите передать владение гильдией Хранителю {{edited_account.nick_verbose}}?">Передать владение гильдией</a>
+</p>
 {% endif %}
 
 {% else %}
@@ -97,7 +106,7 @@ jQuery(document).ready( function(e) {
 </p>
 {% endif %}
 
-<p>
+<p class="alert alert-info">
   Если магистр гильдии не был в игре больше месяца, активный член гильдии может обратиться к администрации игры, с просьбой передать владение гильдией активному члену гильдии с самым высоким званием.
 </p>
 

@@ -289,3 +289,28 @@ jQuery('.pgf-dialog-simple').live('click', function(e) {
                                pgf.base.HideTooltips(dialog);
                            } });
 });
+
+
+
+jQuery('.pgf-dialog-simple-form').live('click', function(e) {
+    e.preventDefault();
+
+    var el = jQuery(this);
+
+    pgf.ui.dialog.Create({ fromUrl: el.attr("href"),
+                           OnOpened: function(dialog) {
+                               jQuery('[rel="tooltip"]', dialog).tooltip(pgf.base.tooltipsArgs);
+
+                               new pgf.forms.Form(jQuery('form', dialog),
+                                                  {
+                                                      OnSuccess: function(form, data){
+                                                          dialog.modal('hide');
+                                                          location.reload();
+                                                      }
+                                                  });
+                           },
+                           OnClosed: function(dialog) {
+                               pgf.base.HideTooltips(dialog);
+                           } });
+
+});

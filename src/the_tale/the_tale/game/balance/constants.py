@@ -210,18 +210,11 @@ ANGEL_HELP_HEAL_FRACTION = (float(0.25), float(0.5))  # (min, max) процен�
 ANGEL_HELP_TELEPORT_DISTANCE = float(1.0)  # расстяние на которое происходит телепорт
 ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5))  # (min, max) процент урона, который будет нанесён
 
-# считаем, что при эпической удачливости все использования будут давать опыт
-# и предполагаем, что можем разрешить (при такой удачливости), в день получать опыт как за такой же день
-ANGEL_HELP_EXPERIENCE = int(24.0 * EXP_PER_HOUR / (ANGEL_ENERGY_IN_DAY / ANGEL_HELP_COST))
-
-ANGEL_HELP_EXPERIENCE_DELTA = float(0.5)
-
 ANGEL_HELP_CRIT_HEAL_FRACTION = (float(0.5), float(0.75))  # (min, max) процент хелсов, которые будут вылечины
 ANGEL_HELP_CRIT_TELEPORT_DISTANCE = float(3.0)  # расстяние на которое происходит телепорт
 ANGEL_HELP_CRIT_LIGHTING_FRACTION = (float(0.5), float(0.75))  # (min, max) процент урона, который будет нанесён
 ANGEL_HELP_CRIT_MONEY_MULTIPLIER = int(10)
 ANGEL_HELP_CRIT_MONEY_FRACTION = (float(0.75), float(1.25))
-ANGEL_HELP_CRIT_EXPERIENCE = int(ANGEL_HELP_EXPERIENCE * 3)
 
 ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE = ANGEL_HELP_COST
 
@@ -318,8 +311,11 @@ PERSON_POWER_FOR_RANDOM_SPEND = int(200)
 MINIMUM_CARD_POWER = int(HERO_POWER_PER_DAY)
 
 # в 2 раза больше, так как карту надо применять к конкретному квесту, а не сразу к мастеру
-# в 5 раз меньше, так как на эффект кеста действуе политический бонус героя, считаем его в среднем равным 500%
-CARD_BONUS_FOR_QUEST = int(2 * MINIMUM_CARD_POWER / 5)
+# в EXPECTED_HERO_QUEST_POWER_MODIFIER раз меньше, так как на эффект квеста действует политический бонус героя, считаем его в среднем равным EXPECTED_HERO_QUEST_POWER_MODIFIER
+
+EXPECTED_HERO_QUEST_POWER_MODIFIER = float(5)
+
+CARD_BONUS_FOR_QUEST = int(2 * MINIMUM_CARD_POWER / EXPECTED_HERO_QUEST_POWER_MODIFIER)
 
 NORMAL_JOB_LENGTH = int(10)  # средняя длительность занятия мастера в днях
 
@@ -464,6 +460,8 @@ PLACE_MAX_PERSONS = 6
 PLACE_MIN_STABILITY = 0
 PLACE_MIN_CULTURE = 0.2
 PLACE_MIN_FREEDOM = 0.1
+
+PLACE_BASE_STABILITY = 1.0
 
 PLACE_MAX_SIZE = int(10)
 PLACE_MAX_ECONOMIC = int(10)

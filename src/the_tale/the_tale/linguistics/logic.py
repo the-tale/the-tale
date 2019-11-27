@@ -308,3 +308,9 @@ def give_reward_for_template(template):
                                          recipients_ids=[template.author_id],
                                          body=message,
                                          async=False)
+
+
+def technical_render(message, externals):
+    template = utg_templates.Template()
+    template.parse(message, externals=externals.keys())
+    return template.substitute(externals, lexicon_dictionary.DICTIONARY)

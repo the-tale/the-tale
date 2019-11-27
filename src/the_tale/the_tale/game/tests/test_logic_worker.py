@@ -78,7 +78,8 @@ class LogicWorkerTests(utils_testcase.TestCase):
                                                               active_end_at=666666,
                                                               ban_end_at=777777,
                                                               might=8888,
-                                                              actual_bills=99)
+                                                              actual_bills=99,
+                                                              clan_id=1010)
         args = update_method.call_args[1]
         self.assertFalse(args['is_fast'])
         self.assertEqual(args['premium_end_at'], datetime.datetime.fromtimestamp(666))
@@ -86,6 +87,7 @@ class LogicWorkerTests(utils_testcase.TestCase):
         self.assertEqual(args['ban_end_at'], datetime.datetime.fromtimestamp(777777))
         self.assertEqual(args['might'], 8888)
         self.assertEqual(args['actual_bills'], 99)
+        self.assertEqual(args['clan_id'], 1010)
 
     def test_stop(self):
         with mock.patch('the_tale.game.logic_storage.LogicStorage.save_all') as save_all:

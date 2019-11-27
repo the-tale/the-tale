@@ -476,7 +476,10 @@ pgf.game.widgets.Cards = function (params) {
 
                     localVersion += 1;
 
-                    instance.data.cards[data.data.card.uid] = data.data.card;
+                    for (var i in data.data.cards) {
+                        var card = data.data.cards[i];
+                        instance.data.cards[card.uid] = card;
+                    }
 
                     pgf.ui.dialog.Alert({message: data.data.message,
                                          title: 'Превращение прошло успешно'});

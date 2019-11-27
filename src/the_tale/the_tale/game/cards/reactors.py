@@ -54,33 +54,45 @@ class Simple3(AutoNextCardReactor):
         if not self.check_types(combined_cards):
             return None
 
-        return self.next_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
-                                                      type=self.next_card_type)
+        return [self.next_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
+                                                       type=self.next_card_type)]
 
 
-class Special3(BaseReactor):
-    __slots__ = ('next_card_type_name',)
+class Special(BaseReactor):
+    __slots__ = ('n', 'next_card_type_name', 'new_cards_number')
 
-    def __init__(self, next_card_type_name):
+    def __init__(self, n, next_card_type_name, new_cards_number=1):
         super().__init__()
+        self.n = n
         self.next_card_type_name = next_card_type_name
+        self.new_cards_number = new_cards_number
 
     @property
     def next_card_type(self):
         return getattr(types.CARD, self.next_card_type_name)
 
     def descrption(self):
-        return '3 x «{}» => «{}»'.format(self.own_card_type.text, self.next_card_type.text)
+        return '{} x «{}» => {} x «{}»'.format(self.n,
+                                               self.own_card_type.text,
+                                               self.new_cards_number,
+                                               self.next_card_type.text)
 
     def combine(self, combined_cards):
-        if len(combined_cards) != 3:
+        if len(combined_cards) != self.n:
             return None
 
         if not self.check_types(combined_cards):
             return None
 
-        return self.next_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
-                                                      type=self.next_card_type)
+        available_for_auction = all(card.available_for_auction for card in combined_cards)
+
+        cards = []
+
+        for _ in range(self.new_cards_number):
+            cards.append(self.next_card_type.effect.create_card(available_for_auction=available_for_auction,
+                                                                type=self.next_card_type))
+
+        return cards
 
 
 class SameHabbits3(AutoNextCardReactor):
@@ -99,10 +111,10 @@ class SameHabbits3(AutoNextCardReactor):
         if not self.check_data_equality(combined_cards):
             return None
 
-        return self.next_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
-                                                      type=self.next_card_type,
-                                                      habit=game_relations.HABIT_TYPE(combined_cards[0].data['habit_id']),
-                                                      direction=combined_cards[0].data['direction'])
+        return [self.next_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
+                                                       type=self.next_card_type,
+                                                       habit=game_relations.HABIT_TYPE(combined_cards[0].data['habit_id']),
+                                                       direction=combined_cards[0].data['direction'])]
 
 
 class Same2(BaseReactor):
@@ -126,7 +138,7 @@ class Same2(BaseReactor):
         while new_card is None or new_card.data in excluded_data:
             new_card = self.own_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
                                                              type=self.own_card_type)
-        return new_card
+        return [new_card]
 
 
 class SameEqual2(AutoNextCardReactor):
@@ -152,7 +164,7 @@ class SameEqual2(AutoNextCardReactor):
             new_card = self.own_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
                                                              type=self.own_card_type)
 
-        return new_card
+        return [new_card]
 
 
 class SamePower3(AutoNextCardReactor):
@@ -170,6 +182,6 @@ class SamePower3(AutoNextCardReactor):
         if not self.check_data_equality(combined_cards):
             return None
 
-        return self.next_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
-                                                      type=self.next_card_type,
-                                                      direction=combined_cards[0].data['direction'])
+        return [self.next_card_type.effect.create_card(available_for_auction=all(card.available_for_auction for card in combined_cards),
+                                                       type=self.next_card_type,
+                                                       direction=combined_cards[0].data['direction'])]

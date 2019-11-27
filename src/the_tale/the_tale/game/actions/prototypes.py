@@ -19,6 +19,8 @@ class ActionBase(object):
                  'created_at_turn',
                  'context',
                  'place_id',
+                 'emissary_id',
+                 'person_action',
                  'mob',
                  'data',
                  'break_at',
@@ -52,6 +54,8 @@ class ActionBase(object):
                  context=None,
                  description=None,
                  place_id=None,
+                 emissary_id=None,
+                 person_action=None,
                  mob=None,
                  data=None,
                  break_at=None,
@@ -88,6 +92,12 @@ class ActionBase(object):
             self.mob_context = mob_context if mob_context is None or isinstance(mob_context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(mob_context)
 
         self.place_id = place_id
+        self.emissary_id = emissary_id
+
+        self.person_action = None
+
+        if person_action is not None:
+            self.person_action = person_action if isinstance(person_action, rels.Record) else quests_relations.PERSON_ACTION(person_action)
 
         self.mob = None
         if mob:
@@ -126,6 +136,10 @@ class ActionBase(object):
             data['context'] = self.context.serialize()
         if self.place_id is not None:
             data['place_id'] = self.place_id
+        if self.emissary_id is not None:
+            data['emissary_id'] = self.emissary_id
+        if self.person_action is not None:
+            data['person_action'] = self.person_action.value
         if self.mob:
             data['mob'] = self.mob.serialize()
         if self.data:
@@ -355,14 +369,9 @@ class ActionIdlenessPrototype(ActionBase):
     TYPE = relations.ACTION_TYPE.IDLENESS
     TEXTGEN_TYPE = 'action_idleness'
 
-    @property
-    def HELP_CHOICES(self):  # pylint: disable=C0103
-        choices = set((abilities_relations.HELP_CHOICES.START_QUEST, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
-
-        if self.percents > 1.0 - E:
-            choices.remove(abilities_relations.HELP_CHOICES.START_QUEST)
-
-        return choices
+    HELP_CHOICES = {abilities_relations.HELP_CHOICES.HEAL,
+                    abilities_relations.HELP_CHOICES.MONEY,
+                    abilities_relations.HELP_CHOICES.HEAL_COMPANION}
 
     class STATE(ActionBase.STATE):
         BEFORE_FIRST_STEPS = 'BEFORE_FIRST_STEPS'
@@ -389,16 +398,6 @@ class ActionIdlenessPrototype(ActionBase):
                        bundle_id=bundle_id,
                        percents=1.0,
                        state=cls.STATE.BEFORE_FIRST_STEPS)
-
-    def init_quest(self):
-
-        if not self.leader:
-            return False
-
-        self.state = self.STATE.WAITING
-
-        self.percents = 1.0
-        self.hero.actions.current_action.percents = self.percents
 
         return True
 
@@ -436,6 +435,19 @@ class ActionIdlenessPrototype(ActionBase):
             ActionInPlacePrototype.create(hero=self.hero)
 
         return self.state in (self.STATE.IN_PLACE, self.STATE.RETURN)
+
+    def find_task_board_place(self):
+
+        if self.hero.clan_id is None:
+            return None
+
+        for place in places_logic.task_board_places(self.hero.position.place.x,
+                                                    self.hero.position.place.y):
+
+            if self.hero.clan_id in place.attrs.task_board:
+                return place
+
+        return None
 
     def process(self):
 
@@ -479,9 +491,18 @@ class ActionIdlenessPrototype(ActionBase):
 
             self.percents += 1.0 / self.hero.idle_length
 
+            task_board_place = self.find_task_board_place()
+
+            if task_board_place is not None:
+                self.hero.add_message('action_idleness_task_board', hero=self.hero, clan=clans_storage.infos[self.hero.clan_id])
+                self.percents = 1.0
+
+                emissaries_logic.withdraw_event_points(clan_id=self.hero.clan_id,
+                                                       place_id=task_board_place.id,
+                                                       currency=emissaries_relations.EVENT_CURRENCY.TASK_BOARD)
+
             if self.percents >= 1.0:
-                self.state = self.STATE.QUEST
-                ActionQuestPrototype.create(hero=self.hero)
+                self.force_quest_action(quest_kwargs={})
 
             elif self.hero.need_regenerate_energy and not self.hero.preferences.energy_regeneration_type.is_SACRIFICE:
                 ActionRegenerateEnergyPrototype.create(hero=self.hero)
@@ -491,12 +512,20 @@ class ActionIdlenessPrototype(ActionBase):
                 if random.uniform(0, 1) < 1.0 / c.TURNS_TO_IDLE / 2:  # 1 фраза на два уровня героя
                     self.hero.add_message('action_idleness_waiting', hero=self.hero)
 
+    def force_quest_action(self, quest_kwargs):
+        self.state = self.STATE.QUEST
+        self.percents = 1.0
+        self.hero.actions.current_action.percents = self.percents
+        ActionQuestPrototype.create(hero=self.hero, **quest_kwargs)
+
 
 class ActionQuestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.QUEST
     TEXTGEN_TYPE = 'action_quest'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
     APPROVED_FOR_STEPS_CHAIN = False  # all quest actions MUST be done on separated turns
 
     class STATE(ActionBase.STATE):
@@ -509,10 +538,12 @@ class ActionQuestPrototype(ActionBase):
     ###########################################
 
     @classmethod
-    def _create(cls, hero, bundle_id):
+    def _create(cls, hero, bundle_id, emissary_id=None, person_action=None):
         return cls(hero=hero,
                    bundle_id=bundle_id,
-                   state=cls.STATE.SEARCHING)
+                   state=cls.STATE.SEARCHING,
+                   emissary_id=emissary_id,
+                   person_action=person_action)
 
     @property
     def searching_quest(self):
@@ -526,18 +557,30 @@ class ActionQuestPrototype(ActionBase):
 
         self.state = self.STATE.PROCESSING
 
+    def technical_setup_quest_required(self):
+        return django_settings.TESTS_RUNNING
+
     def process(self):
 
         if self.state == self.STATE.SEARCHING:
             if self.hero.quests.has_quests:
                 self.state = self.STATE.PROCESSING
             else:
-                # a lot of test depans on complete processing of this action
-                # so it is easie to emulate quest generation here, then place everywere mock objects
-                if django_settings.TESTS_RUNNING:
-                    quests_helpers.setup_quest(self.hero)
+
+                if self.emissary_id is not None and self.emissary_id not in emissaries_storage.emissaries:
+                    self.state = self.STATE.PROCESSED
+                    return
+
+                # a lot of test depands on complete processing of this action
+                # so it is easie to emulate quest generation here, then place everywhere mock objects
+                if self.technical_setup_quest_required():
+                    quests_helpers.setup_quest(self.hero,
+                                               emissary_id=self.emissary_id,
+                                               person_action=self.person_action)
                 else:
-                    quests_logic.request_quest_for_hero(self.hero)
+                    quests_logic.request_quest_for_hero(self.hero,
+                                                        emissary_id=self.emissary_id,
+                                                        person_action=self.person_action)
 
         if self.state == self.STATE.EQUIPPING:
             self.state = self.STATE.PROCESSING
@@ -572,9 +615,16 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     def HELP_CHOICES(self):  # pylint: disable=C0103
         if not self.hero.is_alive:
             return set((abilities_relations.HELP_CHOICES.RESURRECT,))
+
         if self.mob.health <= 0:
-            return set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
-        return set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.LIGHTING, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+            return set((abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+
+        return set((abilities_relations.HELP_CHOICES.MONEY,
+                    abilities_relations.HELP_CHOICES.LIGHTING,
+                    abilities_relations.HELP_CHOICES.HEAL,
+                    abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         BATTLE_RUNNING = 'battle_running'
@@ -815,7 +865,7 @@ class ActionFirstStepsPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.FIRST_STEPS
     TEXTGEN_TYPE = 'action_first_steps'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY,))
 
     class STATE(ActionBase.STATE):
         THINK_ABOUT_INITIATION = 'THINK_ABOUT_INITIATION'
@@ -856,7 +906,9 @@ class ActionInPlacePrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.IN_PLACE
     TEXTGEN_TYPE = 'action_inplace'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         SPEND_MONEY = 'spend_money'
@@ -879,11 +931,31 @@ class ActionInPlacePrototype(ActionBase):
 
         if hero.health < hero.max_health and random.random() < hero.position.place.attrs.hero_regen_chance:
             hero.health = hero.max_health
-            hero.add_message('action_inplace_instant_heal', hero=hero, place=hero.position.place)
+            hero.add_message('action_inplace_instant_heal',
+                             hero=hero,
+                             place=hero.position.place)
 
-        if hero.companion and hero.companion.health < hero.companion.max_health and random.random() < hero.position.place.attrs.companion_regen_chance:
+        if hero.companion_need_heal() and random.random() < hero.position.place.attrs.companion_regen_chance:
             healed_health = hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
-            hero.add_message('action_inplace_companion_heal', hero=hero, place=hero.position.place, companion=hero.companion, health=healed_health)
+            hero.add_message('action_inplace_companion_heal',
+                             hero=hero,
+                             place=hero.position.place,
+                             companion=hero.companion,
+                             health=healed_health)
+
+        if hero.companion_need_heal() and hero.clan_id in hero.position.place.attrs.companions_support:
+            healed_health = hero.companion.heal(c.COMPANIONS_HEAL_AMOUNT)
+
+            hero.add_message('action_inplace_clan_companions_support',
+                             hero=hero,
+                             place=hero.position.place,
+                             clan=clans_storage.infos[hero.clan_id],
+                             companion=hero.companion,
+                             health=healed_health)
+
+            emissaries_logic.withdraw_event_points(clan_id=hero.clan_id,
+                                                   place_id=hero.position.place_id,
+                                                   currency=emissaries_relations.EVENT_CURRENCY.COMPANIONS_SUPPORT)
 
         # process variouse effects only if it is not repeated town visit
         if hero.position.place == hero.position.previous_place:
@@ -896,7 +968,7 @@ class ActionInPlacePrototype(ActionBase):
 
             game_tt_services.energy.cmd_change_balance(account_id=hero.account_id,
                                                        type='inplace_regen',
-                                                       energy=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
+                                                       amount=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
                                                        async=True,
                                                        autocommit=True)
 
@@ -1159,7 +1231,7 @@ class ActionInPlacePrototype(ActionBase):
                 self.state = self.STATE.RESTING
                 ActionRestPrototype.create(hero=self.hero)
 
-            elif self.hero.companion_need_heal():
+            elif self.hero.companion_need_heal_action():
                 self.state = self.STATE.HEALING_COMPANION
                 ActionHealCompanionPrototype.create(hero=self.hero)
 
@@ -1183,7 +1255,9 @@ class ActionRestPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REST
     TEXTGEN_TYPE = 'action_rest'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         RESTING = 'resting'
@@ -1234,7 +1308,9 @@ class ActionEquippingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.EQUIPPING
     TEXTGEN_TYPE = 'action_equipping'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         EQUIPPING = 'equipping'
@@ -1273,7 +1349,9 @@ class ActionTradingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.TRADING
     TEXTGEN_TYPE = 'action_trading'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         TRADING = 'trading'
@@ -1316,7 +1394,9 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.REGENERATE_ENERGY
     TEXTGEN_TYPE = 'action_regenerate_energy'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         REGENERATE = 'REGENERATE'
@@ -1365,7 +1445,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
 
                     game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
                                                                type='energy_regeneration',
-                                                               energy=energy_delta,
+                                                               amount=energy_delta,
                                                                async=True,
                                                                autocommit=True)
 
@@ -1380,7 +1460,9 @@ class ActionDoNothingPrototype(ActionBase):
 
     TYPE = relations.ACTION_TYPE.DO_NOTHING
     TEXTGEN_TYPE = 'no texgen type'
-    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY, abilities_relations.HELP_CHOICES.EXPERIENCE, abilities_relations.HELP_CHOICES.HEAL_COMPANION))
+    HELP_CHOICES = set((abilities_relations.HELP_CHOICES.HEAL,
+                        abilities_relations.HELP_CHOICES.MONEY,
+                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
     class STATE(ActionBase.STATE):
         DO_NOTHING = 'DO_NOTHING'
@@ -1574,7 +1656,6 @@ class ActionMoveSimplePrototype(ActionBase):
     def HELP_CHOICES(self):
         choices = set((abilities_relations.HELP_CHOICES.HEAL,
                        abilities_relations.HELP_CHOICES.MONEY,
-                       abilities_relations.HELP_CHOICES.EXPERIENCE,
                        abilities_relations.HELP_CHOICES.HEAL_COMPANION))
 
         if self.state == self.STATE.MOVING:
@@ -1604,12 +1685,20 @@ class ActionMoveSimplePrototype(ActionBase):
                         path=path,
                         state=cls.STATE.MOVING)
 
-        if hero.position.place_id is not None and destination:
+        leave_place = hero.position.place_id is not None and destination
+
+        if leave_place:
             hero.add_message('action_move_simple_to_start', hero=hero, destination=destination)
 
         hero.position.move_out_place()
 
-        prototype.try_to_teleport_with_companion()
+        teleported = False
+
+        if leave_place:
+            teleported = prototype.try_to_teleport_with_clan()
+
+        if not teleported:
+            teleported = prototype.try_to_teleport_with_companion()
 
         return prototype
 
@@ -1763,6 +1852,23 @@ class ActionMoveSimplePrototype(ActionBase):
 
         return False
 
+    def teleport_with_clan(self):
+
+        # save destination befor teleport, since it can be reseted after we perfom it
+        current_destination_percents, current_destination_id = self.path.next_place_at(self.percents)
+
+        if current_destination_id is None:
+            return False
+
+        current_destination = places_storage.places[current_destination_id]
+
+        if self.teleport_to_place(create_inplace_action=True, check_moving_state=False):
+            self.hero.add_message('action_move_simple_to_teleport_with_clan',
+                                  hero=self.hero,
+                                  clan=clans_storage.infos[self.hero.clan_id],
+                                  destination=current_destination)
+            return True
+
     def place_hero_in_current_place(self, create_action=True):
         self.hero.position.set_place(self.hero.position.cell().place())
         self.state = self.STATE.IN_CITY
@@ -1793,7 +1899,7 @@ class ActionMoveSimplePrototype(ActionBase):
             self.state = self.STATE.RESTING
             return True
 
-        if self.hero.companion_need_heal():
+        if self.hero.companion_need_heal_action():
             ActionHealCompanionPrototype.create(hero=self.hero)
             self.state = self.STATE.HEALING_COMPANION
             return True
@@ -1901,6 +2007,21 @@ class ActionMoveSimplePrototype(ActionBase):
                 return True
 
         return False
+
+    def try_to_teleport_with_clan(self):
+
+        start_place_id = self.hero.position.place_id
+
+        if self.hero.clan_id not in self.hero.position.place.attrs.fast_transportation:
+            return False
+
+        if not self.teleport_with_clan():
+            return False
+
+        emissaries_logic.withdraw_event_points(clan_id=self.hero.clan_id,
+                                               place_id=start_place_id,
+                                               currency=emissaries_relations.EVENT_CURRENCY.FAST_TRANSPORTATION)
+        return True
 
     def process(self):
         if self.preprocess():

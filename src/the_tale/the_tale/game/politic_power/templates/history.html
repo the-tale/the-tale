@@ -3,10 +3,12 @@
 {% import 'accounts/macros.html' as accounts_macros with context %}
 {% import 'heroes/macros.html' as heroes_macros with context %}
 {% import 'persons/macros.html' as persons_macros with context %}
+{% import 'emissaries/macros.html' as emissaries_macros with context %}
 
 
 {% block title %} Влияние | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Влияние{% endblock %}
+
 
 {% macro render_object(type, id) %}
 
@@ -22,12 +24,15 @@
 {% elif type.is_PLACE %}
 город <a href="{{url('game:places:show', id)}}">{{places_storage[id].name}}</a>
 {% elif type.is_BILL %}
-запись <a href="{{url('game:bills:show', id)}}">{{bills[id].caption}}</a>
+  запись <a href="{{url('game:bills:show', id)}}">{{bills[id].caption}}</a>
+{% elif type.is_EMISSARY %}
+{{emissaries_macros.emissary_verbose(emissaries_storage[id], description=false, clan=clans[emissaries_storage[id].clan_id], show_place=true)}}
 {% else %}
 Неизвестно <i class="icon icon-info-sign" rel="tooltip" title="Скорее всего удалённый аккаунт"></i>
 {% endif %}
 
 {% endmacro %}
+
 
 {% block power_content %}
 

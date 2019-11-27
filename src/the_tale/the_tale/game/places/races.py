@@ -29,11 +29,13 @@ class Races(object):
     def get_race_percents(self, race):
         return self._races.get(race, 0)
 
-    def get_next_races(self, persons):
+    def get_next_races(self, persons, demographics_pressure_modifires):
         trends = {race: 0.0 for race in game_relations.RACE.records}
 
         for person in persons:
-            trends[person.race] += politic_power_storage.persons.total_power_fraction(person.id) * person.attrs.demographics_pressure
+            pressure = person.attrs.demographics_pressure + demographics_pressure_modifires.get(person.race, 0)
+            delta = politic_power_storage.persons.total_power_fraction(person.id) * pressure
+            trends[person.race] += delta
 
         # normalize trends
         normalizer = sum(trends.values())
@@ -52,8 +54,8 @@ class Races(object):
 
         return new_races
 
-    def update(self, persons):
-        self._races = self.get_next_races(persons)
+    def update(self, persons, demographics_pressure_modifires):
+        self._races = self.get_next_races(persons, demographics_pressure_modifires)
 
     @property
     def dominant_race(self):
@@ -61,20 +63,23 @@ class Races(object):
             return max(self._races.items(), key=lambda x: x[1])[0]
         return None
 
-    def get_next_delta(self, persons):
-        next_races = self.get_next_races(persons)
+    def get_next_delta(self, persons, demographics_pressure_modifires):
+        next_races = self.get_next_races(persons, demographics_pressure_modifires)
 
         return {race: next_races[race] - self._races[race] for race in game_relations.RACE.records}
 
-    def demographics(self, persons):
+    def demographics(self, persons, demographics_pressure_modifires):
         races = []
 
-        next_delta = self.get_next_delta(persons)
+        next_delta = self.get_next_delta(persons, demographics_pressure_modifires)
 
         persons_percents = map_logic.get_person_race_percents(persons)
 
         for race in game_relations.RACE.records:
-            races.append(RaceInfo(race=race, percents=self._races[race], delta=next_delta[race], persons_percents=persons_percents[race.value]))
+            races.append(RaceInfo(race=race,
+                                  percents=self._races[race],
+                                  delta=next_delta[race],
+                                  persons_percents=persons_percents[race.value]))
 
         return sorted(races, key=lambda r: -r.percents)
 

@@ -1,7 +1,9 @@
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 {% import 'map/macros.html' as map_macros with context %}
+{% import 'game/macros.html' as game_macros with context %}
 {% import 'places/macros.html' as places_macros with context %}
 {% import 'persons/macros.html' as persons_macros with context %}
+{% import 'emissaries/macros.html' as emissaries_macros with context %}
 
 <div class="modal hide place-description-dialog">
 
@@ -52,7 +54,7 @@
     <ul class="nav nav-tabs">
       {% if place %}
       <li><a href="#pgf-cell-description" class="pgf-cell-description-button" data-toggle="tab">Описание</a></li>
-      <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Мастера</a></li>
+      <li><a href="#pgf-cell-persons" class="pgf-cell-persons-button" data-toggle="tab">Резиденты</a></li>
       <li><a href="#pgf-cell-place-parameters" class="pgf-cell-place-parameters-button" data-toggle="tab">Параметры</a></li>
       <li><a href="#pgf-cell-place-bills" class="pgf-cell-place-bills-button" data-toggle="tab">Записи</a></li>
       <li><a href="#pgf-cell-place-chronicle" class="pgf-cell-place-chronicle-button" data-toggle="tab">События</a></li>
@@ -78,12 +80,14 @@
 
       <div class="tab-pane" id="pgf-cell-persons">
 
-        <p><a href="{{url('guide:persons')}}" target="_blank">Мастера</a> — это неигровые персонажи (NPC), обладающие большим влиянием в городе.</p>
+        <h3>Мастера</h3>
+
+        <p><a href="{{url('guide:persons')}}" target="_blank">Мастера</a> — это <abbr rel="tooltip" title="неигровые персонажи">NPC</abbr>, обладающие большим влиянием в городе.</p>
 
         <table class="table table-condensed">
           <thead>
             <tr>
-              <th>Мастер</th>
+              <th></th>
               <th>влияние</th>
               <th width="60px">
                 герои
@@ -107,6 +111,20 @@
             {% endfor %}
           </tbody>
         </table>
+
+        <h3>Эмиссары</h3>
+
+        <p>
+          <a href="{{url('guide:emissaries')}}" target="_blank">Эмиссары</a> — это представители <a href="{{url('guide:clans')}}">гильдий</a> в городах.
+        </p>
+
+        {% if emissaries %}
+        {{emissaries_macros.emissary_list(emissaries, powers=emissaries_powers, clans=clans, show_status=false)}}
+        {% else %}
+        <p class="alert alert-info">
+          В городе нет активных эмиссаров.
+        </p>
+        {% endif %}
 
       </div>
 
@@ -164,18 +182,18 @@
               </td>
             </tr>
 
-            {{places_macros.attribute_record(place, 'size')}}
-            {{places_macros.attribute_record(place, 'power_economic')}}
-            {{places_macros.attribute_record(place, 'money_economic')}}
-            {{places_macros.attribute_record(place, 'area')}}
-            {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
-            {{places_macros.attribute_record(place, 'stability')}}
-            {{places_macros.attribute_record(place, 'production')}}
-            {{places_macros.attribute_record(place, 'transport')}}
-            {{places_macros.attribute_record(place, 'freedom')}}
-            {{places_macros.attribute_record(place, 'safety')}}
-            {{places_macros.attribute_record(place, 'culture')}}
-            {{places_macros.attribute_record(place, 'tax')}}
+            {{game_macros.attribute_record(place, 'size')}}
+            {{game_macros.attribute_record(place, 'power_economic')}}
+            {{game_macros.attribute_record(place, 'money_economic')}}
+            {{game_macros.attribute_record(place, 'area')}}
+            {{game_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
+            {{game_macros.attribute_record(place, 'stability')}}
+            {{game_macros.attribute_record(place, 'production')}}
+            {{game_macros.attribute_record(place, 'transport')}}
+            {{game_macros.attribute_record(place, 'freedom')}}
+            {{game_macros.attribute_record(place, 'safety')}}
+            {{game_macros.attribute_record(place, 'culture')}}
+            {{game_macros.attribute_record(place, 'tax')}}
           </tbody>
         </table>
 
@@ -340,7 +358,7 @@
                    style="vertical-align: middle;">{{ cell.nearest_place().name }}</a>
               </td>
             </tr>
-          </tbody>
+p          </tbody>
         </table>
 
       </div>

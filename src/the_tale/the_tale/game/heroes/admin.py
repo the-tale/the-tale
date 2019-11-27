@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class HeroAdmin(django_admin.ModelAdmin):
-    list_display = ('id', 'name', 'is_alive', 'health', 'account')
+    list_display = ('id', 'name', 'clan_id', 'is_alive', 'health', 'account')
     readonly_fields = ('created_at_turn', 'saved_at_turn', 'saved_at', 'account')
 
     def name(self, obj):

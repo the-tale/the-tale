@@ -87,7 +87,6 @@ SECRET_KEY = 'test secret key, must be replaced'
 TT_SECRET = 'test.secret'
 
 GA_CODE = None
-ADDTHIS = None
 MAIL_RU = None
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -223,6 +222,7 @@ INSTALLED_APPS = [
     'the_tale.game.pvp',
     'the_tale.game.cards',
     'the_tale.game.politic_power',
+    'the_tale.game.emissaries',
 
     'the_tale.news',
 

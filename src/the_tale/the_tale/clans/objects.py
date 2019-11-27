@@ -18,7 +18,9 @@ class Clan:
                  'motto',
                  'description',
                  'might',
-                 'statistics_refreshed_at')
+                 'statistics_refreshed_at',
+                 'state',
+                 'linguistics_name')
 
     def __init__(self,
                  id,
@@ -33,7 +35,9 @@ class Clan:
                  motto,
                  description,
                  might,
-                 statistics_refreshed_at):
+                 statistics_refreshed_at,
+                 state,
+                 linguistics_name):
         self.id = id
         self.created_at = created_at
         self.updated_at = updated_at
@@ -47,6 +51,8 @@ class Clan:
         self.description = description
         self.might = might
         self.statistics_refreshed_at = statistics_refreshed_at
+        self.state = state
+        self.linguistics_name = linguistics_name
 
     @property
     def description_html(self):
@@ -57,12 +63,23 @@ class Clan:
 
 
 class Membership:
-    __slots__ = ('clan_id', 'account_id', 'role')
+    __slots__ = ('clan_id', 'account_id', 'role', 'created_at', 'updated_at')
 
-    def __init__(self, clan_id, account_id, role):
+    def __init__(self, clan_id, account_id, role, created_at, updated_at):
         self.clan_id = clan_id
         self.account_id = account_id
         self.role = role
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+    def is_freezed(self):
+        can_change_role_after = self.updated_at + datetime.timedelta(days=conf.settings.RECRUITE_FREEZE_PERIOD)
+        return self.role.is_RECRUIT and datetime.datetime.now() < can_change_role_after
+
+    def freeze_delta(self):
+        return (self.updated_at +
+                datetime.timedelta(days=conf.settings.RECRUITE_FREEZE_PERIOD) -
+                datetime.datetime.now())
 
 
 class MembershipRequest:
@@ -184,6 +201,10 @@ class OperationsRights(metaclass=OperationsMetaClass):
         if result:
             result = not membership.role.is_MASTER
 
+        if result:
+            # проверка важна для предотвращения выполнения заданий эмиссаров ботами
+            result = not membership.is_freezed()
+
         return result
 
     def change_role_candidates(self):
@@ -193,3 +214,66 @@ class OperationsRights(metaclass=OperationsMetaClass):
 
         return [role for role in relations.MEMBER_ROLE.records
                 if role.priority > self.initiator_role.priority and not role.is_MASTER]
+
+
+class Attributes:
+    __slots__ = ('fighters_maximum_level',
+                 'emissary_maximum_level',
+                 'free_quests_maximum_level',
+                 'points_gain_level')
+
+    def __init__(self,
+                 fighters_maximum_level,
+                 emissary_maximum_level,
+                 free_quests_maximum_level,
+                 points_gain_level):
+        self.fighters_maximum_level = fighters_maximum_level
+        self.emissary_maximum_level = emissary_maximum_level
+        self.free_quests_maximum_level = free_quests_maximum_level
+        self.points_gain_level = points_gain_level
+
+    @property
+    def fighters_maximum(self):
+        return tt_clans_constants.INITIAL_FIGHTERS_MAXIMUM + self.fighters_maximum_level
+
+    @property
+    def emissary_maximum(self):
+        return tt_clans_constants.INITIAL_EMISSARY_MAXIMUM + self.emissary_maximum_level
+
+    @property
+    def free_quests_maximum(self):
+        return tt_clans_constants.INITIAL_FREE_QUESTS_MAXIMUM + self.free_quests_maximum_level
+
+    @property
+    def points_gain(self):
+        return int(math.ceil((tt_clans_constants.INITIAL_POINTS_GAIN +
+                              self.points_gain_level *
+                              tt_clans_constants.POINTS_GAIN_INCREMENT_ON_LEVEL_UP) / 24))
+
+
+class ClanInfo:
+    __slots__ = ('id', 'name', 'linguistics_name', 'abbr', 'motto', '_utg_name_form__lazy')
+
+    def __init__(self, id, name, linguistics_name, abbr, motto):
+        self.id = id
+        self.name = name
+        self.linguistics_name = linguistics_name
+        self.abbr = abbr
+        self.motto = motto
+
+    @utils_decorators.lazy_property
+    def utg_name_form(self):
+        return utg_words.WordForm(self.linguistics_name)
+
+    def linguistics_variables(self):
+        return [('abbr', self.abbr),
+                ('motto', self.motto)]
+
+    def linguistics_restrictions(self):
+        return ()
+
+    def ui_info(self):
+        return {'id': self.id,
+                'name': self.name,
+                'abbr': self.abbr,
+                'motto': self.motto}

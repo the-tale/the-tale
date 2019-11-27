@@ -43,8 +43,6 @@ settings = dext_app_settings.app_settings('PORTAL',
                                           FORUM_RPG_SUBCATEGORY='forum_rpg',
                                           FORUM_GAMES_SUBCATEGORY='forum_games',
 
-                                          FIRST_TIME_LANDING_URLS=['/landing?action=first-time-visit'],
-
                                           SETTINGS_PREV_CLEANING_RUN_TIME_KEY='prev cleaning run time',
                                           CLEANING_RUN_TIME=2,  # UTC time
 

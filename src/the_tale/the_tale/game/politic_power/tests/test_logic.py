@@ -241,13 +241,18 @@ class AddPowerImpactsTests(utils_testcase.TestCase):
 
         loaded_impacts = []
 
-        for api in [game_tt_services.personal_impacts, game_tt_services.crowd_impacts, game_tt_services.job_impacts]:
+        for api in [game_tt_services.personal_impacts,
+                    game_tt_services.crowd_impacts,
+                    game_tt_services.job_impacts,
+                    game_tt_services.emissary_impacts]:
             loaded_impacts.extend(api.cmd_get_last_power_impacts(limit=100))
 
         for impact in loaded_impacts:
             impact.time = None
 
-        self.assertCountEqual([impact for impact in impacts if not impact.type.is_FAME and not impact.type.is_MONEY], loaded_impacts)
+        self.assertCountEqual([impact for impact in impacts
+                               if (not impact.type.is_FAME and
+                                   not impact.type.is_MONEY)], loaded_impacts)
 
         fame_impacts = game_tt_services.fame_impacts.cmd_get_last_power_impacts(limit=100,
                                                                                 actor_type=None,
@@ -290,7 +295,11 @@ class GetLastPowerImpactsTests(utils_testcase.TestCase):
         for impact in loaded_impacts:
             impact.time = None
 
-        self.assertCountEqual([impact for impact in self.impacts if not impact.type.is_JOB and not impact.type.is_FAME and not impact.type.is_MONEY],
+        self.assertCountEqual([impact for impact in self.impacts
+                               if (not impact.type.is_JOB and
+                                   not impact.type.is_FAME and
+                                   not impact.type.is_MONEY and
+                                   not impact.type.is_EMISSARY_POWER)],
                               loaded_impacts)
 
     def test_limit(self):
@@ -301,5 +310,9 @@ class GetLastPowerImpactsTests(utils_testcase.TestCase):
 
         self.impacts.sort(key=lambda impact: (impact.turn, impact.time), reverse=True)
 
-        self.assertEqual([impact for impact in self.impacts if not impact.type.is_JOB and not impact.type.is_FAME and not impact.type.is_MONEY][:3],
+        self.assertEqual([impact for impact in self.impacts
+                          if (not impact.type.is_JOB and
+                              not impact.type.is_FAME and
+                              not impact.type.is_MONEY and
+                              not impact.type.is_EMISSARY_POWER)][:3],
                          loaded_impacts)

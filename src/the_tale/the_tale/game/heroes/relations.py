@@ -39,7 +39,7 @@ class PREFERENCE_TYPE(rels_django.DjangoEnum):
                ('RISK_LEVEL', 6, 'уровень риска', 32, 'risk_level', '_prepair_risk_level', False),
                ('FAVORITE_ITEM', 7, 'любимая вещь', 28, 'favorite_item', '_prepair_equipment_slot', True),
                ('ARCHETYPE', 8, 'архетип', 16, 'archetype', '_prepair_archetype', False),
-               ('COMPANION_DEDICATION', 9, 'отношение со спутником', 2, 'companion_dedication', '_prepair_companion_dedication', False),
+               ('COMPANION_DEDICATION', 9, 'отношения со спутником', 2, 'companion_dedication', '_prepair_companion_dedication', False),
                ('COMPANION_EMPATHY', 10, 'эмпатия', 24, 'companion_empathy', '_prepair_companion_empathy', False))
 
 
@@ -279,3 +279,8 @@ class ENERGY_REGENERATION(rels_django.DjangoEnum):
                ('INCENSE', 2, 'благовония', 4, 4 * _PERIOD, 4 * _AMOUNT, 4 * _LENGTH, ('incense', )),
                ('SYMBOLS', 3, 'символы', 3, 3 * _PERIOD, 3 * _AMOUNT, 3 * _LENGTH, ('symbols_stone', 'symbols_ground', 'symbols_tree')),
                ('MEDITATION', 4, 'медитация', 2, 2 * _PERIOD, 2 * _AMOUNT, 2 * _LENGTH, ('meditation', )))
+
+
+class CLAN_MEMBERSHIP(rels_django.DjangoEnum):
+    records = (('NOT_IN_CLAN', 0, 'не состоит в гильдии'),
+               ('IN_CLAN', 1, 'состоит в гильдии'))

@@ -26,7 +26,9 @@ def main():
              'impacts.proto',
              'events_log.proto',
              'properties.proto',
-             'matchmaker.proto')
+             'matchmaker.proto',
+             'effects.proto',
+             'uniquer.proto')
 
     files = [os.path.join(SOURCE_DIR, filename) for filename in files]
 

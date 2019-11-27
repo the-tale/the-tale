@@ -2,6 +2,7 @@
 
 _UIDS_CACHE_PLACE = {}
 _UIDS_CACHE_PERSON = {}
+_UIDS_CACHE_EMISSARY = {}
 _UIDS_CACHE_HERO = {}
 _UIDS_CACHE_MOB = {}
 
@@ -16,6 +17,12 @@ def person(person_id):
     if person_id not in _UIDS_CACHE_PERSON:
         _UIDS_CACHE_PERSON[person_id] = 'pe_%d' % person_id
     return _UIDS_CACHE_PERSON[person_id]
+
+
+def emissary(emissary_id):
+    if emissary_id not in _UIDS_CACHE_EMISSARY:
+        _UIDS_CACHE_EMISSARY[emissary_id] = 'em_%d' % emissary_id
+    return _UIDS_CACHE_EMISSARY[emissary_id]
 
 
 def hero(hero_id):

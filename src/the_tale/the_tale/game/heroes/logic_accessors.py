@@ -201,14 +201,19 @@ class LogicAccessorsMixin(object):
     def can_companion_eat_corpses(self):
         return self.check_attribute(relations.MODIFIERS.COMPANION_EAT_CORPSES)
 
-    def can_companion_say_wisdom(self): return self.check_attribute(relations.MODIFIERS.COMPANION_SAY_WISDOM)
+    def can_companion_say_wisdom(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_SAY_WISDOM)
 
-    def can_companion_exp_per_heal(self): return self.check_attribute(relations.MODIFIERS.COMPANION_EXP_PER_HEAL)
+    def can_companion_exp_per_heal(self):
+        return self.check_attribute(relations.MODIFIERS.COMPANION_EXP_PER_HEAL)
 
     def companion_heal_disabled(self):
         return self.preferences.companion_dedication.is_EVERY_MAN_FOR_HIMSELF
 
     def companion_need_heal(self):
+        return self.companion and self.companion.health < self.companion.max_health
+
+    def companion_need_heal_action(self):
         return self.companion and not self.companion_heal_disabled() and self.companion.need_heal
 
     def can_kill_before_battle(self):
@@ -614,7 +619,7 @@ class LogicAccessorsMixin(object):
 
         return max(0, modifier)
 
-    def modify_politics_power(self, power, person=None, place=None):
+    def modify_politics_power(self, power, person=None, place=None, emissary=None):
 
         is_friend = person and self.preferences.friend and person.id == self.preferences.friend.id
         is_enemy = person and self.preferences.enemy and person.id == self.preferences.enemy.id
@@ -675,7 +680,9 @@ class LogicAccessorsMixin(object):
 
                         linguistics_restrictions.get(self.upbringing),
                         linguistics_restrictions.get(self.first_death),
-                        linguistics_restrictions.get(self.death_age),)
+                        linguistics_restrictions.get(self.death_age),
+
+                        linguistics_restrictions.get(self.clan_membership()),)
 
         self._cached_modifiers['#linguistics_restrictions'] = restrictions
 

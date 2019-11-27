@@ -15,6 +15,18 @@ def verbose_datetime(value):
     return value.strftime('%d.%m.%Y %H:%M')
 
 
+@dext_jinja2.jinjaglobal
+def verbose_to_datetime(to_time=None):
+
+    now = datetime.datetime.now()
+
+    if to_time is None:
+        to_time = datetime.datetime.combine(now.date() + datetime.timedelta(days=1),
+                                            datetime.time())
+
+    return logic.verbose_timedelta(to_time - now)
+
+
 @dext_jinja2.jinjafilter
 def absolutize_urls(value):
     return logic.absolutize_urls(value)
@@ -96,9 +108,7 @@ def now():
 
 @dext_jinja2.jinjafilter
 def up_first(value):
-    if value:
-        return value[0].upper() + value[1:]
-    return value
+    return logic.up_first(value)
 
 
 @dext_jinja2.jinjaglobal

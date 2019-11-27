@@ -18,6 +18,10 @@ class Place(meta_relations_objects.MetaType):
         return dext_urls.url('game:places:show', self.id)
 
     @classmethod
+    def create_unknown(cls, id):
+        return cls(id=id, caption='неизвестный город')
+
+    @classmethod
     def create_from_object(cls, place):
         return cls(id=place.id, caption=place.name)
 
@@ -26,8 +30,9 @@ class Place(meta_relations_objects.MetaType):
         from . import storage
 
         place = storage.places.get(id)
+
         if place is None:
-            return None
+            return cls.create_unknown(id)
 
         return cls.create_from_object(place)
 

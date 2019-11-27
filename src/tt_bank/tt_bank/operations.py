@@ -2,27 +2,41 @@
 import logging
 import datetime
 
-import psycopg2
+from psycopg2.extras import Json as PGJson
 
 from tt_web import log
 from tt_web import postgresql as db
 
+from . import logic
 from . import objects
 from . import relations
 from . import exceptions
 
 
+async def load_balances(accounts_ids):
+
+    results = await db.sql('SELECT account, currency, amount FROM accounts WHERE account IN %(accounts_ids)s',
+                           {'accounts_ids': tuple(accounts_ids)})
+
+    balances = {account_id: {} for account_id in accounts_ids}
+
+    for row in results:
+        balances[row['account']][row['currency']] = row['amount']
+
+    return balances
+
+
 async def load_balance(account_id):
-
-    results = await db.sql('SELECT currency, amount FROM accounts WHERE account=%(account_id)s',
-                           {'account_id': account_id})
-
-    return {row['currency']: row['amount'] for row in results}
+    balances = await load_balances((account_id,))
+    return balances[account_id]
 
 
 async def load_history(account_id):
 
-    results = await db.sql('SELECT created_at, currency, amount, description FROM operations WHERE account=%(account_id)s',
+    results = await db.sql('''SELECT created_at, currency, amount, description
+                              FROM operations
+                              WHERE account=%(account_id)s
+                              ORDER BY created_at''',
                            {'account_id': account_id})
 
     return [objects.HistoryRecord(created_at=row['created_at'],
@@ -32,7 +46,7 @@ async def load_history(account_id):
             for row in results]
 
 
-async def start_transaction(operations, lifetime, autocommit, logger):
+async def start_transaction(operations, lifetime, autocommit, restrictions, logger):
 
     if not operations:
         raise exceptions.NoOperationsInTransaction()
@@ -40,6 +54,7 @@ async def start_transaction(operations, lifetime, autocommit, logger):
     arguments = {'operations': operations,
                  'autocommit': autocommit,
                  'lifetime': lifetime,
+                 'restrictions': restrictions,
                  'logger': logger}
 
     return await db.transaction(_start_transaction, arguments)
@@ -48,12 +63,16 @@ async def start_transaction(operations, lifetime, autocommit, logger):
 async def _start_transaction(execute, arguments):
     operations = arguments['operations']
     lifetime = arguments['lifetime']
+    restrictions = arguments['restrictions']
     logger = arguments['logger']
 
-    results = await execute('''INSERT INTO transactions (state, lifetime, created_at, updated_at)
-                               VALUES (%(state)s, %(lifetime)s, NOW(), NOW())
+    data = {'restrictions': restrictions.serialize()}
+
+    results = await execute('''INSERT INTO transactions (state, lifetime, data, created_at, updated_at)
+                               VALUES (%(state)s, %(lifetime)s, %(data)s, NOW(), NOW())
                                RETURNING id''',
                             {'state': relations.TRANSACTION_STATE.OPENED.value,
+                             'data': PGJson(data),
                              'lifetime': lifetime})
 
     transaction_id = results[0]['id']
@@ -63,7 +82,12 @@ async def _start_transaction(execute, arguments):
     for operation in operations:
 
         if operation.amount < 0:
-            await _change_balance(execute, operation.account_id, operation.currency, operation.amount, logger=logger)
+            await _change_balance(execute,
+                                  operation.account_id,
+                                  operation.currency,
+                                  operation.amount,
+                                  restrictions=restrictions,
+                                  logger=logger)
 
         await _save_operation(execute, transaction_id, operation, logger=logger)
 
@@ -93,37 +117,44 @@ def _log_balance_changed(logger, account_id, currency, amount, new_amount, tag):
                 new_amount)
 
 
-async def _change_balance(execute, account_id, currency, amount, logger):
-    try:
-        results = await execute('UPDATE accounts SET amount=amount+%(amount)s, updated_at=NOW() WHERE account=%(account_id)s AND currency=%(currency)s RETURNING amount',
-                                {'account_id': account_id,
-                                 'currency': currency,
-                                 'amount': amount})
-    except psycopg2.IntegrityError:
-        _log_no_currency(logger, account_id, currency, amount, tag='has balance')
-        raise exceptions.NoEnoughCurrency(account_id=account_id,
-                                          amount=amount)
+def _validate_amount(amount, restrictions):
+    validated, amount = logic.validate_restrictions(restrictions, amount)
 
-    if results:
-        _log_balance_changed(logger, account_id, currency, amount, results[0]['amount'], tag='has balance')
+    if not validated:
+        raise exceptions.BalanceChangeExceededRestrictions()
+
+    return amount
+
+
+async def _change_balance(execute, account_id, currency, amount, restrictions, logger):
+
+    results = await execute('SELECT amount FROM accounts WHERE account=%(account_id)s AND currency=%(currency)s FOR UPDATE',
+                            {'account_id': account_id,
+                             'currency': currency})
+
+    if not results:
+        await execute('''INSERT INTO accounts (account, currency, amount, created_at, updated_at)
+                         VALUES (%(account_id)s, %(currency)s, 0, NOW(), NOW())
+                         ON CONFLICT DO NOTHING''',
+                      {'account_id': account_id,
+                       'currency': currency})
+
+        await _change_balance(execute, account_id, currency, amount, restrictions, logger=logger)
+
         return
 
-    try:
-        if amount < 0:
-            _log_no_currency(logger, account_id, currency, amount, tag='no balance')
-            raise exceptions.NoEnoughCurrency(account_id=account_id,
-                                              amount=amount)
+    new_balance = _validate_amount(results[0]['amount'] + amount, restrictions)
 
-        await execute('''INSERT INTO accounts (account, currency, amount, created_at, updated_at)
-                         VALUES (%(account_id)s, %(currency)s, %(amount)s, NOW(), NOW())''',
-                      {'account_id': account_id,
-                       'currency': currency,
-                       'amount': amount})
+    await execute('''UPDATE accounts
+                     SET amount=%(new_balance)s,
+                         updated_at=NOW()
+                     WHERE account=%(account_id)s AND currency=%(currency)s
+                     RETURNING amount''',
+                  {'account_id': account_id,
+                   'currency': currency,
+                   'new_balance': new_balance})
 
-        _log_balance_changed(logger, account_id, currency, amount, amount, tag='no balance')
-
-    except psycopg2.IntegrityError:
-        await _change_balance(execute, account_id, currency, amount, logger=logger)
+    _log_balance_changed(logger, account_id, currency, amount, new_balance, tag='has balance')
 
 
 async def _save_operation(execute, transaction_id, operation, logger):
@@ -158,7 +189,7 @@ async def _rollback_transaction(execute, arguments):
 
     logger.info('try to rollback transaction %s (with log saving)', transaction_id)
 
-    results = await execute('UPDATE transactions SET state=%(new_state)s, updated_at=NOW() WHERE id=%(id)s AND state=%(old_state)s RETURNING id',
+    results = await execute('UPDATE transactions SET state=%(new_state)s, updated_at=NOW() WHERE id=%(id)s AND state=%(old_state)s RETURNING id, data',
                             {'id': transaction_id,
                              'new_state': relations.TRANSACTION_STATE.ROLLBACKED.value,
                              'old_state': relations.TRANSACTION_STATE.OPENED.value})
@@ -166,12 +197,19 @@ async def _rollback_transaction(execute, arguments):
         logger.info('can not rollback transaction %s: no transactions to rollback', transaction_id)
         raise exceptions.NoTransactionToRollback(transaction_id=transaction_id)
 
+    restrictions = objects.Restrictions.deserialize(results[0]['data']['restrictions'])
+
     results = await execute('SELECT account, currency, amount FROM operations WHERE transaction=%(transaction)s',
                             {'transaction': transaction_id})
 
     for row in results:
         if row['amount'] < 0:
-            await _change_balance(execute, row['account'], row['currency'], -row['amount'], logger=logger)
+            await _change_balance(execute,
+                                  row['account'],
+                                  row['currency'],
+                                  -row['amount'],
+                                  restrictions=restrictions,
+                                  logger=logger)
 
     await execute('DELETE FROM operations WHERE transaction=%(transaction)s',
                   {'transaction': transaction_id})
@@ -192,7 +230,11 @@ async def _commit_transaction(execute, arguments):
 
     logger.info('try to commit transaction %s (with log saving)', transaction_id)
 
-    results = await execute('UPDATE transactions SET state=%(new_state)s, updated_at=NOW() WHERE id=%(id)s AND state=%(old_state)s RETURNING id',
+    results = await execute('''UPDATE transactions
+                               SET state=%(new_state)s,
+                                   updated_at=NOW()
+                               WHERE id=%(id)s AND state=%(old_state)s AND NOW() < created_at + lifetime
+                               RETURNING id, data''',
                             {'id': transaction_id,
                              'new_state': relations.TRANSACTION_STATE.COMMITED.value,
                              'old_state': relations.TRANSACTION_STATE.OPENED.value})
@@ -200,12 +242,19 @@ async def _commit_transaction(execute, arguments):
         logger.info('can not commit transaction %s: no transactions to commit', transaction_id)
         raise exceptions.NoTransactionToCommit(transaction_id=transaction_id)
 
+    restrictions = objects.Restrictions.deserialize(results[0]['data']['restrictions'])
+
     results = await execute('SELECT account, currency, amount FROM operations WHERE transaction=%(transaction)s',
                             {'transaction': transaction_id})
 
     for row in results:
         if row['amount'] > 0:
-            await _change_balance(execute, row['account'], row['currency'], row['amount'], logger=logger)
+            await _change_balance(execute,
+                                  row['account'],
+                                  row['currency'],
+                                  row['amount'],
+                                  restrictions=restrictions,
+                                  logger=logger)
 
     logger.info('transaction %s commited', transaction_id)
 

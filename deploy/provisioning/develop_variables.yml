@@ -10,6 +10,8 @@ tt_postfix_virtual_aliases: {}
 
 tt_authorized_keys: []
 
+internal_repositories: []
+
 tt_services:
   the_tale:
     packages:
@@ -130,6 +132,38 @@ tt_services:
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_matchmaker/"}
+
+  tt_clans_currencies:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_bank/"}
+
+  tt_emissaries_impacts:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_impacts/"}
+    custom:
+        scale_chunk_size: 100
+
+  tt_places_effects:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_effects/"}
+
+  tt_emissaries_events_currencies:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_bank/"}
+
+  tt_emissaries_events_uniquer:
+    packages:
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_web/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_protocol/"}
+      - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_uniquer/"}
 
 
 tt_RAM: 4096

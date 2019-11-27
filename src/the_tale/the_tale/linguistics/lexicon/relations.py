@@ -51,7 +51,11 @@ class VARIABLE_VERIFICATOR(rels_django.DjangoEnum):
 
                ('COINS', 10, 'монеты', utg_relations.WORD_TYPE.INTEGER, s([1, 2, 5],
                                                                           [21, 23, 25],
-                                                                          [1001, 1054, 1013])),)
+                                                                          [1001, 1054, 1013])),
+
+               ('CLAN', 11, 'гильдия', utg_relations.WORD_TYPE.NOUN, s(['Западная Орда', 'Центральное Информационное Агентство', 'Алый Рассвет', 'Лекари'],
+                                                                       ['Корпорация', 'Молот Севера', 'Братство Волка', 'Драконы'],
+                                                                       ['Шипастый Череп', 'Возмездие', 'Анархия', 'Хренелли'])), )
 
 
 def _construct_utg_name_form(value):
@@ -175,7 +179,9 @@ class VARIABLE_TYPE(rels_django.DjangoEnum):
 
                ('TIME', 11, 'время', VARIABLE_VERIFICATOR.TIME, _construct_utg_name_form, (linguistics_restrictions.GROUP.DAY_TIME,), ()),
 
-               ('COINS', 12, 'монеты', VARIABLE_VERIFICATOR.COINS, _construct_coins, (linguistics_restrictions.GROUP.COINS_AMOUNT,), ()),)
+               ('COINS', 12, 'монеты', VARIABLE_VERIFICATOR.COINS, _construct_coins, (linguistics_restrictions.GROUP.COINS_AMOUNT,), ()),
+
+               ('CLAN', 13, 'гильдия', VARIABLE_VERIFICATOR.CLAN, _construct_utg_name_form, (), ('abbr', 'motto')),)
 
 
 class VARIABLE(rels_django.DjangoEnum):
@@ -231,6 +237,7 @@ class VARIABLE(rels_django.DjangoEnum):
                ('ATTACKER_DAMAGE', 'attacker_damage', 'урон по атакующему', VARIABLE_TYPE.NUMBER),
                ('DATE', 'date', 'дата в мире игры', VARIABLE_TYPE.DATE),
                ('TIME', 'time', 'время в мире игры', VARIABLE_TYPE.TIME),
+               ('CLAN', 'clan', 'гильдия', VARIABLE_TYPE.CLAN),
 
                ('HERO__WEAPON', 'hero.weapon', 'оружие героя', VARIABLE_TYPE.ARTIFACT),
                ('KILLER__WEAPON', 'killer.weapon', 'оружие победителя в pvp', VARIABLE_TYPE.ARTIFACT),
@@ -243,4 +250,6 @@ class VARIABLE(rels_django.DjangoEnum):
                ('ACTOR__WEAPON', 'actor.weapon', 'оружия актора (героя или монстра)', VARIABLE_TYPE.ARTIFACT),
                ('COMPANION__WEAPON', 'companion.weapon', 'оружие спутника', VARIABLE_TYPE.ARTIFACT),
                ('COMPANION_OWNER__WEAPON', 'companion_owner.weapon', 'оружие владельца спутника', VARIABLE_TYPE.ARTIFACT),
+               ('CLAN_ABBR', 'clan.abbr', 'аббревиатура гильдии', VARIABLE_TYPE.TEXT),
+               ('CLAN_MOTTO', 'clan.motto', 'девиз гильдии', VARIABLE_TYPE.TEXT),
                )

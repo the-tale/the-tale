@@ -173,3 +173,27 @@ class UpdateJobTests(utils_testcase.TestCase):
 
         for operation in operations:
             operation()
+
+    @mock.patch.object(FakeJob, 'ACTOR', 'xxx')
+    @mock.patch('the_tale.game.jobs.logic.create_name', lambda actor, effect: uuid.uuid4().hex)
+    def test_apply_effects__linguistics_prefix(self):
+        hero_id = self.accounts_factory.create_account().id
+
+        politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                                            actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                            actor_id=hero_id,
+                                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                                            target_id=self.place_1.id,
+                                                                            amount=1)])
+
+        self.give_power([(hero_id, self.job.power_required)])
+
+        with mock.patch('the_tale.game.jobs.effects.BaseEffect.invoke_hero_method') as invoke_hero_method:
+            operations = logic.update_job(self.job, self.place_1.id)
+
+        self.assertTrue(operations)
+
+        for operation in operations:
+            operation()
+
+        self.assertTrue(invoke_hero_method.mock_calls[0][2]['method_kwargs']['message_type'].startswith('job_diary_xxx'))

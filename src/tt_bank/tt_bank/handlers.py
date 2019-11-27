@@ -11,10 +11,11 @@ from . import operations
 from . import exceptions
 
 
-@handlers.api(bank_pb2.AccountBalanceRequest)
-async def account_balance(message, **kwargs):
-    balance = await operations.load_balance(account_id=message.account_id)
-    return bank_pb2.AccountBalanceResponse(balance=balance)
+@handlers.api(bank_pb2.AccountsBalancesRequest)
+async def accounts_balances(message, **kwargs):
+    balances = await operations.load_balances(accounts_ids=message.accounts_ids)
+    return bank_pb2.AccountsBalancesResponse(balances={account_id: protobuf.from_balances(amounts)
+                                                       for account_id, amounts in balances.items()})
 
 
 @handlers.api(bank_pb2.AccountHistoryRequest)
@@ -28,16 +29,18 @@ async def start_transaction(message, **kwargs):
     logger = log.ContextLogger()
 
     try:
-        transaction_id = await operations.start_transaction(operations=[protobuf.to_operation(operation) for operation in message.operations],
+        transaction_id = await operations.start_transaction(operations=[protobuf.to_operation(operation)
+                                                                        for operation in message.operations],
                                                             lifetime=datetime.timedelta(seconds=message.lifetime),
                                                             autocommit=message.autocommit,
+                                                            restrictions=protobuf.to_restrictions(message.restrictions),
                                                             logger=logger)
 
     except exceptions.NoOperationsInTransaction as e:
         raise tt_exceptions.ApiError(code='bank.start_transaction.no_operations_specified', message=str(e))
 
-    except exceptions.NoEnoughCurrency as e:
-        raise tt_exceptions.ApiError(code='bank.start_transaction.no_enough_currency', message=str(e))
+    except exceptions.BalanceChangeExceededRestrictions as e:
+        raise tt_exceptions.ApiError(code='bank.start_transaction.restrictions_exceeded', message=str(e))
 
     return bank_pb2.StartTransactionResponse(transaction_id=transaction_id)
 
@@ -52,6 +55,9 @@ async def commit_transaction(message, **kwargs):
     except exceptions.NoTransactionToCommit as e:
         raise tt_exceptions.ApiError(code='bank.commit_transaction.no_transacton_to_commit', message=str(e))
 
+    except exceptions.BalanceChangeExceededRestrictions as e:
+        raise tt_exceptions.ApiError(code='bank.start_transaction.restrictions_exceeded', message=str(e))
+
     return bank_pb2.CommitTransactionResponse()
 
 
@@ -64,6 +70,9 @@ async def rollback_transaction(message, **kwargs):
                                               logger=logger)
     except exceptions.NoTransactionToRollback as e:
         raise tt_exceptions.ApiError(code='bank.rollback_transaction.no_transacton_to_rollback', message=str(e))
+
+    except exceptions.BalanceChangeExceededRestrictions as e:
+        raise tt_exceptions.ApiError(code='bank.start_transaction.restrictions_exceeded', message=str(e))
 
     return bank_pb2.RollbackTransactionResponse()
 

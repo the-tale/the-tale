@@ -62,7 +62,8 @@ class QuestsContainer(object):
         return self.quests_list.pop()
 
     @property
-    def current_quest(self): return self.quests_list[-1]
+    def current_quest(self):
+        return self.quests_list[-1]
 
     @property
     def min_quest_created_time(self):
@@ -71,10 +72,12 @@ class QuestsContainer(object):
         return datetime.datetime.now()
 
     @property
-    def has_quests(self): return len(self.quests_list)
+    def has_quests(self):
+        return bool(self.quests_list)
 
     @property
-    def number(self): return len(self.quests_list)
+    def number(self):
+        return len(self.quests_list)
 
     def update_history(self, quest_type, turn_number):
         self.history[quest_type] = turn_number

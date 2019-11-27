@@ -8,8 +8,12 @@ def forum_subcategory_caption(clan_name):
     return 'Раздел гильдии «{}»'.format(clan_name)
 
 
+def members_number(clan_id):
+    return models.Membership.objects.filter(clan_id=clan_id).count()
+
+
 def sync_clan_statistics(clan):
-    clan.members_number = models.Membership.objects.filter(clan_id=clan.id).count()
+    clan.members_number = members_number(clan.id)
     clan.active_members_number = accounts_models.Account.objects.filter(clan_id=clan.id,
                                                                         active_end_at__gt=datetime.datetime.now()).count()
 
@@ -102,22 +106,43 @@ def create_clan(owner, abbr, name, motto, description):
                                                                      order=subcategory_order,
                                                                      restricted=True)
 
+    data = {'linguistics_name': game_names.generator().get_fast_name(name).serialize()}
+
     clan_model = models.Clan.objects.create(name=name,
                                             abbr=abbr,
                                             motto=motto,
                                             description=description,
                                             members_number=1,
-                                            forum_subcategory=forum_subcategory._model)
+                                            forum_subcategory=forum_subcategory._model,
+                                            data=data)
 
     clan = load_clan(clan_model=clan_model)
 
     _add_member(clan=clan, account=owner, role=relations.MEMBER_ROLE.MASTER)
+
+    storage.infos.update_version()
+    storage.infos.refresh()
 
     tt_services.chronicle.cmd_add_event(clan=clan,
                                         event=relations.EVENT.CREATED,
                                         tags=[owner.meta_object().tag],
                                         message='Гильдия {guild} создана Хранителем {keeper}'.format(guild=clan.name,
                                                                                                      keeper=owner.nick_verbose))
+
+    tt_services.currencies.cmd_change_balance(account_id=clan.id,
+                                              type='initial',
+                                              amount=tt_clans_constants.INITIAL_POINTS,
+                                              async=False,
+                                              autocommit=True,
+                                              currency=relations.CURRENCY.ACTION_POINTS)
+
+    tt_services.currencies.cmd_change_balance(account_id=clan.id,
+                                              type='initial',
+                                              amount=tt_clans_constants.INITIAL_FREE_QUESTS,
+                                              async=False,
+                                              autocommit=True,
+                                              currency=relations.CURRENCY.FREE_QUESTS)
+
     return clan
 
 
@@ -130,7 +155,14 @@ def remove_clan(clan):
 
     forum_prototypes.SubCategoryPrototype.get_by_id(clan.forum_subcategory_id).delete()
 
-    models.Clan.objects.filter(id=clan.id).delete()
+    models.Clan.objects.filter(id=clan.id).update(state=relations.STATE.REMOVED,
+                                                  members_number=0,
+                                                  active_members_number=0,
+                                                  premium_members_number=0,
+                                                  might=0,
+                                                  updated_at=datetime.datetime.now())
+
+    models.MembershipRequest.objects.filter(clan_id=clan.id).delete()
 
 
 def load_clan(clan_id=None, clan_model=None):
@@ -153,7 +185,9 @@ def load_clan(clan_id=None, clan_model=None):
                         motto=clan_model.motto,
                         description=clan_model.description,
                         might=clan_model.might,
-                        statistics_refreshed_at=clan_model.statistics_refreshed_at)
+                        statistics_refreshed_at=clan_model.statistics_refreshed_at,
+                        state=clan_model.state,
+                        linguistics_name=utg_words.Word.deserialize(clan_model.data['linguistics_name']))
 
 
 def load_clans(clans_ids):
@@ -167,10 +201,16 @@ def load_clans(clans_ids):
 
 @django_transaction.atomic
 def save_clan(clan):
+    data = {'linguistics_name': clan.linguistics_name.serialize()}
+
     models.Clan.objects.filter(id=clan.id).update(abbr=clan.abbr,
                                                   name=clan.name,
                                                   motto=clan.motto,
-                                                  description=clan.description)
+                                                  description=clan.description,
+                                                  data=data)
+
+    storage.infos.update_version()
+    storage.infos.refresh()
 
     forum_prototypes.SubCategoryPrototype._db_filter(id=clan.forum_subcategory_id).update(caption=forum_subcategory_caption(clan.name))
 
@@ -188,6 +228,14 @@ def get_member_role(member, clan):
         return None
 
 
+def construct_membership(membership_model):
+    return objects.Membership(clan_id=membership_model.clan_id,
+                              account_id=membership_model.account_id,
+                              role=membership_model.role,
+                              created_at=membership_model.created_at,
+                              updated_at=membership_model.updated_at)
+
+
 def get_membership(account_id):
     if account_id is None:
         return None
@@ -197,9 +245,7 @@ def get_membership(account_id):
     except models.Membership.DoesNotExist:
         return None
 
-    return objects.Membership(clan_id=membership_model.clan_id,
-                              account_id=membership_model.account_id,
-                              role=membership_model.role)
+    return construct_membership(membership_model)
 
 
 def operations_rights(initiator, clan, is_moderator):
@@ -257,7 +303,8 @@ def change_role(clan, initiator, member, new_role):
 
     old_role = get_member_role(member, clan)
 
-    models.Membership.objects.filter(clan_id=clan.id, account_id=member.id).update(role=new_role)
+    models.Membership.objects.filter(clan_id=clan.id, account_id=member.id).update(role=new_role,
+                                                                                   updated_at=datetime.datetime.now())
 
     message = 'Хранитель {initiator} изменил(а) ваше звание в гильдии {clan_link} на «{new_role}».'
     message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
@@ -552,3 +599,74 @@ def accept_request(initiator, membership_request):
                                         tags=[initiator.meta_object().tag,
                                               account.meta_object().tag],
                                         message=message)
+
+
+def load_attributes(clan_id):
+    properties = tt_services.properties.cmd_get_all_object_properties(clan_id)
+
+    return objects.Attributes(fighters_maximum_level=properties.fighters_maximum_level,
+                              emissary_maximum_level=properties.emissary_maximum_level,
+                              free_quests_maximum_level=properties.free_quests_maximum_level,
+                              points_gain_level=properties.points_gain_level)
+
+
+def give_points_for_time(clan_id, interval):
+
+    attributes = load_attributes(clan_id)
+
+    amount = int(math.ceil(attributes.points_gain * (interval / (60*60))))
+
+    restrictions = tt_services.currencies.Restrictions(hard_minimum=0,
+                                                       soft_maximum=tt_clans_constants.MAXIMUM_POINTS)
+
+    status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
+                                                                             type='time',
+                                                                             amount=amount,
+                                                                             async=False,
+                                                                             autocommit=True,
+                                                                             restrictions=restrictions,
+                                                                             currency=relations.CURRENCY.ACTION_POINTS)
+
+    return status
+
+
+def reset_free_quests(clan_id):
+
+    attributes = load_attributes(clan_id)
+
+    restrictions = tt_services.currencies.Restrictions(hard_minimum=0,
+                                                       soft_maximum=attributes.free_quests_maximum)
+
+    status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
+                                                                             type='time',
+                                                                             amount=tt_clans_constants.MAXIMUM_FREE_QUESTS,
+                                                                             async=False,
+                                                                             autocommit=True,
+                                                                             restrictions=restrictions,
+                                                                             currency=relations.CURRENCY.FREE_QUESTS)
+
+    return status
+
+
+def get_clan_memberships(clan_id):
+    return {membership_model.account_id: construct_membership(membership_model)
+            for membership_model in models.Membership.objects.filter(clan=clan_id)}
+
+
+def lock_clan_for_update(clan_id):
+    return models.Clan.objects.select_for_update().filter(id=clan_id).exists()
+
+
+def is_role_change_get_into_limit(clan_id, old_role, new_role):
+    attributes = logic.load_attributes(clan_id)
+
+    combat_personnel = sum(1 for membership in get_clan_memberships(clan_id).values()
+                           if relations.PERMISSION.EMISSARIES_QUESTS in membership.role.permissions)
+
+    if relations.PERMISSION.EMISSARIES_QUESTS in old_role.permissions:
+        combat_personnel -= 1
+
+    if relations.PERMISSION.EMISSARIES_QUESTS in new_role.permissions:
+        combat_personnel += 1
+
+    return combat_personnel <= attributes.fighters_maximum

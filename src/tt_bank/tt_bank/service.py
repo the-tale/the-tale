@@ -26,7 +26,7 @@ async def on_cleanup(app):
 def register_routers(app):
     from . import handlers
 
-    app.router.add_post('/accounts/balance', handlers.account_balance)
+    app.router.add_post('/accounts/balances', handlers.accounts_balances)
     app.router.add_post('/accounts/history', handlers.account_history)
 
     app.router.add_post('/transactions/start', handlers.start_transaction)

@@ -259,3 +259,7 @@ class GuideResource(utils_resources.Resource):
     @dext_old_views.handler('movement')
     def movement(self):
         return self.template('guide/movement.html', {'section': 'movement'})
+
+    @dext_old_views.handler('emissaries')
+    def emissaries(self):
+        return self.template('guide/emissaries.html', {'section': 'emissaries'})

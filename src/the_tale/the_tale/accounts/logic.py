@@ -75,6 +75,10 @@ def cards_for_new_account(account):
               cards_types.CARD.ADD_BONUS_ENERGY_RARE.effect.create_card(available_for_auction=False,
                                                                         type=cards_types.CARD.ADD_BONUS_ENERGY_RARE)]
 
+    for _ in range(5):
+        to_add.append(cards_types.CARD.STOP_IDLENESS.effect.create_card(available_for_auction=False,
+                                                                        type=cards_types.CARD.STOP_IDLENESS))
+
     cards_logic.change_cards(owner_id=account.id,
                              operation_type='new-hero-gift',
                              to_add=to_add)
@@ -137,7 +141,7 @@ def register_user(nick,
     if full_create:
         game_tt_services.energy.cmd_change_balance(account_id=account.id,
                                                    type='initial_contribution',
-                                                   energy=c.INITIAL_ENERGY_AMOUNT,
+                                                   amount=c.INITIAL_ENERGY_AMOUNT,
                                                    async=False,
                                                    autocommit=True)
 

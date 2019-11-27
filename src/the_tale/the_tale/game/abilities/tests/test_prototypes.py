@@ -26,7 +26,7 @@ class PrototypesTests(utils_testcase.TestCase):
         energy = game_tt_services.energy.cmd_balance(self.account.id)
         game_tt_services.energy.cmd_change_balance(account_id=self.account.id,
                                                    type='test',
-                                                   energy=-energy,
+                                                   amount=-energy,
                                                    autocommit=True)
 
         task = self.ability.activate(self.hero, self.task_data)
@@ -41,7 +41,7 @@ class PrototypesTests(utils_testcase.TestCase):
         energy = game_tt_services.energy.cmd_balance(self.account.id)
         game_tt_services.energy.cmd_change_balance(account_id=self.account.id,
                                                    type='test',
-                                                   energy=-energy,
+                                                   amount=-energy,
                                                    autocommit=True)
 
         task = self.ability.activate(self.hero, self.task_data)

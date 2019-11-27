@@ -26,7 +26,8 @@ class LogicStorage(object):
                                       active_end_at=account.active_end_at,
                                       ban_end_at=account.ban_game_end_at,
                                       might=account.might,
-                                      actual_bills=account.actual_bills)
+                                      actual_bills=account.actual_bills,
+                                      clan_id=account.clan_id)
         self._add_hero(hero)
 
         return hero
@@ -184,7 +185,7 @@ class LogicStorage(object):
 
                 # process new actions if it has been created or remove already processed actions
                 if (continue_steps_if_needed and
-                    leader_action != hero.actions.current_action and
+                    leader_action is not hero.actions.current_action and
                     hero.actions.current_action.APPROVED_FOR_STEPS_CHAIN and
                         leader_action.APPROVED_FOR_STEPS_CHAIN):
 

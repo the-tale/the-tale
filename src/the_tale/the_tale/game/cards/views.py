@@ -150,11 +150,11 @@ def api_receive(context):
 @accounts_views.LoginRequiredProcessor()
 @AccountCardsLoader()
 @AccountCardsProcessor()
-@utils_api.Processor(versions=(conf.settings.COMBINE_API_VERSION, ))
+@utils_api.Processor(versions=(conf.settings.COMBINE_API_VERSION, '2.0'))
 @resource('api', 'combine', name='api-combine', method='post')
 def api_combine(context):
-    card, result = logic.get_combined_card(allow_premium_cards=context.account.cards_receive_mode().is_ALL,
-                                           combined_cards=context.cards)
+    new_cards, result = logic.get_combined_cards(allow_premium_cards=context.account.cards_receive_mode().is_ALL,
+                                                 combined_cards=context.cards)
 
     if not result.is_SUCCESS:
         raise dext_views.ViewError(code='wrong_cards', message=result.text)
@@ -162,7 +162,7 @@ def api_combine(context):
     try:
         logic.change_cards(owner_id=context.account.id,
                            operation_type='combine-cards',
-                           to_add=[card],
+                           to_add=new_cards,
                            to_remove=context.cards)
     except utils_exceptions.TTAPIUnexpectedAPIStatus:
         # return error, in most cases it is duplicate request
@@ -179,17 +179,26 @@ def api_combine(context):
     ##################################
 
     MESSAGE = '''
-<p>Вы получаете новую карту: <span class="%(rarity)s-card-label">%(name)s</span><br/><br/></p>
+<p>Вы получаете новые карты:
 
-<blockquote>%(description)s</blockquote>
+<ul>{cards_list}</ul>
 '''
 
-    message = MESSAGE % {'name': card.name[0].upper() + card.name[1:],
-                         'description': card.effect.DESCRIPTION,
-                         'rarity': card.type.rarity.name.lower()}
+    card_template = '<li><span class="{rarity}-card-label">{name}</span><br/><br/><blockquote>{description}</blockquote></p></li>'
+
+    cards_list = [card_template.format(rarity=card.type.rarity.name.lower(),
+                                       name=card.name[0].upper() + card.name[1:],
+                                       description=card.effect.DESCRIPTION)
+                  for card in new_cards]
+
+    message = MESSAGE.format(cards_list=''.join(cards_list))
+
+    if context.api_version == '2.0':
+        return dext_views.AjaxOk(content={'message': message,
+                                          'card': new_cards[0].ui_info()})
 
     return dext_views.AjaxOk(content={'message': message,
-                                      'card': card.ui_info()})
+                                      'cards': [card.ui_info() for card in new_cards]})
 
 
 @accounts_views.LoginRequiredProcessor()

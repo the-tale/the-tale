@@ -27,12 +27,7 @@ class BaseForm(forms.BaseUserForm):
         if place_1.id == place_2.id:
             raise django_forms.ValidationError('Дорогу можно проложить только между разными городами')
 
-        path_suitables = roads_logic.is_path_suitable_for_road(start_x=place_1.x,
-                                                               start_y=place_1.y,
-                                                               path=cleaned_data['path'])
-
-        if not path_suitables.is_NO_ERRORS:
-            raise django_forms.ValidationError(path_suitables.text)
+        base_road_bill.check_road_correctness(place_1, place_2, cleaned_data['path'])
 
 
 class UserForm(BaseForm):

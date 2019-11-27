@@ -58,6 +58,10 @@ class ActionsContainer(object):
         return action
 
     @property
+    def first_action(self):
+        return self.actions_list[0]
+
+    @property
     def current_action(self):
         return self.actions_list[-1]
 

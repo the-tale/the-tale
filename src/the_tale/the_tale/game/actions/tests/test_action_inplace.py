@@ -4,7 +4,17 @@ import smart_imports
 smart_imports.all()
 
 
-class InPlaceActionTest(utils_testcase.TestCase, helpers.ActionEventsTestsMixin):
+def get_companions_support_points(clan_id, place_id):
+    resource_id = emissaries_logic.resource_id(clan_id=clan_id,
+                                               place_id=place_id)
+
+    return emissaries_tt_services.events_currencies.cmd_balance(resource_id,
+                                                                currency=emissaries_relations.EVENT_CURRENCY.COMPANIONS_SUPPORT)
+
+
+class InPlaceActionTest(helpers.ActionEventsTestsMixin,
+                        clans_helpers.ClansTestsMixin,
+                        utils_testcase.TestCase):
 
     def setUp(self):
         super(InPlaceActionTest, self).setUp()
@@ -91,6 +101,67 @@ class InPlaceActionTest(utils_testcase.TestCase, helpers.ActionEventsTestsMixin)
         self.assertTrue(any(message.key.is_ACTION_INPLACE_COMPANION_HEAL for message in self.hero.journal.messages))
 
         self.storage._test_save()
+
+    def test_companion_heal_by_clan__healed(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.hero.companion.health = 1
+
+        self.prepair_forum_for_clans()
+
+        clan = self.create_clan(self.account, uid=1)
+
+        self.hero.clan_id = clan.id
+
+        self.hero.position.place.attrs.companions_support.add(clan.id)
+
+        with self.check_delta(lambda: get_companions_support_points(clan_id=clan.id, place_id=self.hero.position.place.id),
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER):
+            with self.check_delta(lambda: self.hero.companion.health, c.COMPANIONS_HEAL_AMOUNT):
+                prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertTrue(any(message.key.is_ACTION_INPLACE_CLAN_COMPANIONS_SUPPORT for message in self.hero.journal.messages))
+
+    def test_companion_heal_by_clan__healthy(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.hero.companion.health = self.hero.companion.max_health
+
+        self.prepair_forum_for_clans()
+
+        clan = self.create_clan(self.account, uid=1)
+
+        self.hero.clan_id = clan.id
+
+        self.hero.position.place.attrs.companions_support.add(clan.id)
+
+        with self.check_not_changed(lambda: get_companions_support_points(clan_id=clan.id, place_id=self.hero.position.place.id)):
+            with self.check_not_changed(lambda: self.hero.companion.health):
+                prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertFalse(any(message.key.is_ACTION_INPLACE_CLAN_COMPANIONS_SUPPORT for message in self.hero.journal.messages))
+
+    def test_companion_heal_by_clan__wrong_clan(self):
+        companion_record = next(companions_storage.companions.enabled_companions())
+        self.hero.set_companion(companions_logic.create_companion(companion_record))
+
+        self.hero.companion.health = 1
+
+        self.prepair_forum_for_clans()
+
+        clan = self.create_clan(self.account, uid=1)
+
+        self.hero.clan_id = clan.id
+
+        self.hero.position.place.attrs.companions_support.add(clan.id + 1)
+
+        with self.check_not_changed(lambda: get_companions_support_points(clan_id=clan.id, place_id=self.hero.position.place.id)):
+            with self.check_not_changed(lambda: self.hero.companion.health):
+                prototypes.ActionInPlacePrototype.create(hero=self.hero)
+
+        self.assertFalse(any(message.key.is_ACTION_INPLACE_CLAN_COMPANIONS_SUPPORT for message in self.hero.journal.messages))
 
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     def test_instant_energy_regen_in_holy_city(self):
@@ -224,8 +295,9 @@ class InPlaceActionTest(utils_testcase.TestCase, helpers.ActionEventsTestsMixin)
 
                 with mock.patch('the_tale.game.places.habits.Honor.interval', honor):
                     with mock.patch('the_tale.game.places.habits.Peacefulness.interval', peacefulness):
-                        with self.check_calls_count('the_tale.game.heroes.tt_services.diary.cmd_push_message', 1):
-                            prototypes.ActionInPlacePrototype.create(hero=self.hero)
+                        with mock.patch('the_tale.game.heroes.tt_services.diary.cmd_push_message') as cmd_push_message:
+                            with self.check_increased(lambda: cmd_push_message.call_count):
+                                prototypes.ActionInPlacePrototype.create(hero=self.hero)
 
         self.storage._test_save()
 

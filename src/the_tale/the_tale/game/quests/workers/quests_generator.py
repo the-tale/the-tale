@@ -25,12 +25,18 @@ class Worker(utils_workers.BaseWorker):
         if self.initialized:
             self.generate_quest()
 
-    def cmd_request_quest(self, account_id, hero_info):
+    def cmd_request_quest(self, account_id, hero_info, emissary_id, person_action):
         self.send_cmd('request_quest', {'account_id': account_id,
-                                        'hero_info': hero_info})
+                                        'hero_info': hero_info,
+                                        'emissary_id': emissary_id,
+                                        'person_action': person_action.value if person_action else None})
 
-    def process_request_quest(self, account_id, hero_info):
-        self.requests_heroes_infos[account_id] = logic.HeroQuestInfo.deserialize(hero_info)
+    def process_request_quest(self, account_id, hero_info, emissary_id, person_action):
+        self.requests_heroes_infos[account_id] = {'info': logic.HeroQuestInfo.deserialize(hero_info),
+                                                  'emissary_id': emissary_id,
+                                                  'person_action': relations.PERSON_ACTION(person_action)
+                                                                   if person_action is not None else None}
+
         if account_id not in self.requests_query:
             self.requests_query.append(account_id)
 
@@ -39,10 +45,23 @@ class Worker(utils_workers.BaseWorker):
             return
 
         account_id = self.requests_query.popleft()
-        hero_info = self.requests_heroes_infos.pop(account_id)
+
+        data = self.requests_heroes_infos.pop(account_id)
+
+        hero_info = data['info']
+        emissary_id = data['emissary_id']
+        person_action = data['person_action']
 
         try:
-            knowledge_base = logic.create_random_quest_for_hero(hero_info, logger=self.logger)
+
+            if emissary_id is None:
+                knowledge_base = logic.create_random_quest_for_hero(hero_info, logger=self.logger)
+            else:
+                knowledge_base = logic.create_random_quest_for_emissary(hero_info=hero_info,
+                                                                        emissary=emissaries_storage.emissaries[emissary_id],
+                                                                        person_action=person_action,
+                                                                        logger=self.logger)
+
         except Exception:
             self.logger.error('exception in quest generation')
             self.logger.error('Exception',

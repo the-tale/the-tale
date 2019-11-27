@@ -38,7 +38,7 @@ class UseAbilityTasksTests(utils_testcase.TestCase):
 
     def test_process_can_not_process(self):
 
-        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, task, storage, highlevel: (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, None, ())):
+        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, task, storage: (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, None, ())):
             self.assertEqual(self.task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
             self.assertEqual(self.task.state, game_postponed_tasks.ComplexChangeTask.STATE.CAN_NOT_PROCESS)
 
@@ -51,7 +51,7 @@ class UseAbilityTasksTests(utils_testcase.TestCase):
 
         status, transaction_id = game_tt_services.energy.cmd_change_balance(account_id=self.account.id,
                                                                             type='test',
-                                                                            energy=1)  # test, that changes will be applied on commit (but not on start)
+                                                                            amount=1)  # test, that changes will be applied on commit (but not on start)
         self.task.data['transaction_id'] = transaction_id
 
         self.assertEqual(game_tt_services.energy.cmd_balance(self.account.id), energy)
@@ -62,27 +62,3 @@ class UseAbilityTasksTests(utils_testcase.TestCase):
         time.sleep(0.1)
 
         self.assertEqual(game_tt_services.energy.cmd_balance(self.account.id), energy + 1)
-
-    def test_process_second_step_success(self):
-
-        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, task, storage, highlevel: (game_postponed_tasks.ComplexChangeTask.RESULT.CONTINUE, game_postponed_tasks.ComplexChangeTask.STEP.HIGHLEVEL, ())):
-            self.assertEqual(self.task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
-
-        self.assertTrue(self.task.step.is_HIGHLEVEL)
-        self.assertEqual(self.task.state, game_postponed_tasks.ComplexChangeTask.STATE.UNPROCESSED)
-
-        self.assertEqual(self.task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
-        self.assertEqual(self.task.state, game_postponed_tasks.ComplexChangeTask.STATE.PROCESSED)
-
-    def test_process_second_step_error(self):
-
-        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, task, storage, highlevel: (game_postponed_tasks.ComplexChangeTask.RESULT.CONTINUE, game_postponed_tasks.ComplexChangeTask.STEP.HIGHLEVEL, ())):
-            self.assertEqual(self.task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
-
-        self.assertTrue(self.task.step.is_HIGHLEVEL)
-        self.assertEqual(self.task.state, game_postponed_tasks.ComplexChangeTask.STATE.UNPROCESSED)
-
-        with mock.patch('the_tale.game.abilities.deck.help.Help.use', lambda self, task, storage, highlevel: (game_postponed_tasks.ComplexChangeTask.RESULT.FAILED, None, ())):
-            self.assertEqual(self.task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-
-        self.assertEqual(self.task.state, game_postponed_tasks.ComplexChangeTask.STATE.CAN_NOT_PROCESS)

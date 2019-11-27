@@ -13,7 +13,7 @@ class VoteAdmin(django_admin.ModelAdmin):
 
 
 class TagAdmin(django_admin.ModelAdmin):
-    list_display = ('id', 'name', 'description', 'created_at', 'updated_at')
+    list_display = ('id', 'name', 'meta_type', 'description', 'created_at', 'updated_at')
 
 
 class TaggedAdmin(django_admin.ModelAdmin):

@@ -81,7 +81,11 @@ def create_container(ATTRIBUTES_RELATION):
             effects = [Effect.deserialize(effect_data, ATTRIBUTES_RELATION) for effect_data in data['effects']]
             return cls(effects=effects)
 
-        def add(self, effect):
+        # disabled due refactoring to effects service
+        # def add(self, effect):
+        #     self.effects.append(effect)
+
+        def _add(self, effect):
             self.effects.append(effect)
 
         def update_step(self, deltas=None):
@@ -90,7 +94,11 @@ def create_container(ATTRIBUTES_RELATION):
 
             self.effects = [effect for effect in self.effects if not effect.remove_required]
 
-        def clear(self):
+        # disabled due refactoring to effects service
+        # def clear(self):
+        #     self.effects = []
+
+        def _clear(self):
             self.effects = []
 
         def __len__(self):

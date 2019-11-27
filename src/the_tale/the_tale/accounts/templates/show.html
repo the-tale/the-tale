@@ -398,13 +398,9 @@ jQuery(document).ready(function(e) {
 
         </div>
 
-        {% set folclor_objects = posts_about(account_meta_object, allowed_for=master_account) %}
+        {% set folclor_objects = posts_about(account_meta_object) %}
 
         <h3>Произведения о Хранителе</h3>
-
-        <p>
-          Чтобы произведение появилось в списке, его автор должен указать, что оно об этом Хранителе, а Хранитель должен поставить произведению «плюсик».
-        </p>
 
         {% if folclor_objects %}
         {{ blogs_macros.meta_posts_list(folclor_objects) }}

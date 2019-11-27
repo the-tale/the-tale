@@ -29,6 +29,9 @@ class Path:
     def _update_length(self):
         self.length = self._start_length + len(self._cells) - 1
 
+    def has_zero_length(self):
+        return self.length < sys.float_info.epsilon
+
     def set_start(self, x, y):
         distance = logic.euclidean_distance(x, y, *self._cells[0])
 
@@ -81,7 +84,7 @@ class Path:
 
         positions = []
 
-        start_percents = self._start_length / self.length if self.length > 0 else 0
+        start_percents = self._start_length / self.length if not self.has_zero_length() else 0
 
         for i, (x, y) in enumerate(self._cells):
             cell = map[y][x]
@@ -89,7 +92,7 @@ class Path:
             if cell.place_id is None:
                 continue
 
-            if self.length > 0:
+            if not self.has_zero_length():
                 positions.append((start_percents + i / self.length, cell.place_id))
             else:
                 positions.append((start_percents, cell.place_id))
@@ -211,7 +214,7 @@ class Path:
 
     @classmethod
     def deserialize(cls, data):
-        path = cls(cells=data['cells'])
+        path = cls(cells=[tuple(coordinates) for coordinates in data['cells']])
         path.set_start(*data['start_from'])
         return path
 
@@ -227,6 +230,9 @@ class Path:
 
 
 def simple_path(from_x, from_y, to_x, to_y):
+
+    if not all(isinstance(x, int) for x in (from_x, from_y, to_x, to_y)):
+        raise NotImplementedError('coordinates must be integer')
 
     cells = [(from_x, from_y)]
 

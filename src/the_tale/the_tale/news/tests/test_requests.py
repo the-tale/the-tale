@@ -88,8 +88,8 @@ class TestFeedRequests(TestRequestsBase):
 class TestShowRequests(TestRequestsBase):
 
     def test_show_page(self):
-        self.check_html_ok(self.client.get(dext_urls.url('news:show', self.news1.id)), texts=(('news1-caption', 4),  # third caption in addthis widget
-                                                                                              ('news1-description', 1),  # description in addthis widget
+        self.check_html_ok(self.client.get(dext_urls.url('news:show', self.news1.id)), texts=(('news1-caption', 3),
+                                                                                              ('news1-description', 0),
                                                                                               ('news1-content', 1),
                                                                                               ('pgf-forum-block', 0),))
 
@@ -257,7 +257,7 @@ class TestPostOnForumRequests(TestRequestsBase):
 
         self.check_ajax_ok(response, data={'next_url': dext_urls.url('forum:threads:show', thread.id)})
 
-        self.check_html_ok(self.client.get(dext_urls.url('forum:threads:show', thread.id)), texts=(('news1-caption', 6),
+        self.check_html_ok(self.client.get(dext_urls.url('forum:threads:show', thread.id)), texts=(('news1-caption', 4),
                                                                                                    ('news1-description', 0),
                                                                                                    ('news1-content', 1)))
 

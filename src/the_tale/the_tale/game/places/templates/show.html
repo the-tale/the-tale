@@ -6,6 +6,7 @@
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 {% import 'places/macros.html' as places_macros with context %}
 {% import 'persons/macros.html' as persons_macros with context %}
+{% import 'emissaries/macros.html' as emissaries_macros with context %}
 
 {% block title %} {{ place.name }} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}Информация о городе «{{place.name}}»{% endblock %}
@@ -55,18 +56,18 @@
   <h3>Экономика</h3>
   <table class="table table-condensed">
     <tbody>
-      {{places_macros.attribute_record(place, 'size')}}
-      {{places_macros.attribute_record(place, 'power_economic')}}
-      {{places_macros.attribute_record(place, 'money_economic')}}
-      {{places_macros.attribute_record(place, 'area')}}
-      {{places_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
-      {{places_macros.attribute_record(place, 'stability')}}
-      {{places_macros.attribute_record(place, 'production')}}
-      {{places_macros.attribute_record(place, 'transport')}}
-      {{places_macros.attribute_record(place, 'freedom')}}
-      {{places_macros.attribute_record(place, 'safety')}}
-      {{places_macros.attribute_record(place, 'culture')}}
-      {{places_macros.attribute_record(place, 'tax')}}
+      {{game_macros.attribute_record(place, 'size')}}
+      {{game_macros.attribute_record(place, 'power_economic')}}
+      {{game_macros.attribute_record(place, 'money_economic')}}
+      {{game_macros.attribute_record(place, 'area')}}
+      {{game_macros.attribute_record(place, 'goods', (' / %s' % c.PLACE_GOODS_TO_LEVEL))}}
+      {{game_macros.attribute_record(place, 'stability')}}
+      {{game_macros.attribute_record(place, 'production')}}
+      {{game_macros.attribute_record(place, 'transport')}}
+      {{game_macros.attribute_record(place, 'freedom')}}
+      {{game_macros.attribute_record(place, 'safety')}}
+      {{game_macros.attribute_record(place, 'culture')}}
+      {{game_macros.attribute_record(place, 'tax')}}
     </tbody>
   </table>
 </div>
@@ -133,6 +134,8 @@
 
 <h3>Мастера</h3>
 
+<p><a href="{{url('guide:persons')}}" target="_blank">Мастера</a> — это <abbr rel="tooltip" title="неигровые персонажи">NPC</abbr>, обладающие большим влиянием в городе.</p>
+
 <table class="table table-condensed">
   <thead>
     <tr>
@@ -160,6 +163,21 @@
   </tbody>
 </table>
 
+<h3>Эмиссары</h3>
+
+<p>
+  <a href="{{url('guide:emissaries')}}" target="_blank">Эмиссары</a> — это представители <a href="{{url('guide:clans')}}">гильдий</a> в городах.
+</p>
+
+{% if emissaries %}
+{{emissaries_macros.emissary_list(emissaries, powers=emissaries_powers, clans=clans)}}
+{% else %}
+<p class="alert alert-info">
+  В городе нет активных эмиссаров.
+</p>
+{% endif %}
+
+
 <div class="accordion" id="pgf-place-accordion">
 
   <div class="accordion-group">
@@ -183,7 +201,7 @@
             <th>влияние Мастеров</th>
           </thead>
           <tbody>
-            {% for race_info in place.races.demographics(place.persons) %}
+            {% for race_info in place.races.demographics(place.persons, place.demographics_pressure_modifires()) %}
               <tr>
                 <td>{{race_info.race.multiple_text}}</td>
                 <td>{{race_info.percents|percents(2)}}</td>
@@ -330,7 +348,7 @@
         <table class="table table-condensed" style="width: 450px;">
           <tbody>
             {% for attribute in place.attrs.attributes_by_name() %}
-            {{places_macros.attribute_record(place, attribute.name)}}
+            {{game_macros.attribute_record(place, attribute.name)}}
             {% endfor %}
           </tbody>
         </table>

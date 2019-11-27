@@ -99,6 +99,7 @@ def get_objects_by_tags(tags):
     objects = {}
 
     for type_id, ids in ids_by_types.items():
+        # print(_TYPES[type_id])
         for object in _TYPES[type_id].create_from_ids(ids):
             objects[object.tag] = object
 
@@ -176,3 +177,14 @@ def get_uids_related_to(meta_object, relation=None):
 
     for type_id, object_id in query.values_list('from_type', 'from_object'):
         yield create_uid(type_id, object_id)
+
+
+def types_choices(empty_choice=True):
+    choices = []
+
+    if empty_choice:
+        choices.append(('', '----'))
+
+    choices.extend((meta_type.TYPE, meta_type.TYPE_CAPTION) for meta_type in _TYPES.values())
+
+    return choices

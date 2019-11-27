@@ -1,3 +1,4 @@
+import time
 import random
 import datetime
 
@@ -34,6 +35,45 @@ class Base(helpers.BaseTests):
     async def check_balance(self, account_id, expected_balance):
         balance = await operations.load_balance(account_id=account_id)
         self.assertEqual(expected_balance, balance)
+
+    async def check_balances(self, accounts_ids, expected_balances):
+        balances = await operations.load_balances(accounts_ids=accounts_ids)
+        self.assertEqual(expected_balances, balances)
+
+
+class LoadBalancesTests(Base):
+
+    @test_utils.unittest_run_loop
+    async def test_no_record(self):
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {}, 777: {}})
+
+    @test_utils.unittest_run_loop
+    async def test_has_record(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {1: 100500}, 777: {}})
+
+    @test_utils.unittest_run_loop
+    async def test_has_records(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
+        await helpers.call_change_balance(account_id=777, currency=1, amount=100600)
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {1: 100500}, 777: {1: 100600}})
+
+    @test_utils.unittest_run_loop
+    async def test_multiple_currencies(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
+        await helpers.call_change_balance(account_id=666, currency=2, amount=1)
+
+        await helpers.call_change_balance(account_id=777, currency=2, amount=13)
+        await helpers.call_change_balance(account_id=777, currency=3, amount=14)
+
+        await helpers.call_change_balance(account_id=888, currency=2, amount=17)
+
+        await self.check_balances(accounts_ids={666, 777},
+                                  expected_balances={666: {1: 100500, 2: 1},
+                                                     777: {2: 13, 3: 14}})
 
 
 class LoadBalanceTests(Base):
@@ -84,15 +124,33 @@ class LoadHistoryTests(Base):
     async def test_has_records(self):
         await helpers.call_change_balance(account_id=666, currency=1, amount=1000)
 
-        await operations.start_transaction(operations=[objects.Operation(account_id=666, currency=1, amount=1000, type='x.1', description='y.1'),
-                                                       objects.Operation(account_id=666, currency=1, amount=-300, type='x.2', description='y.2')],
-                                           lifetime=datetime.timedelta(),
+        await operations.start_transaction(operations=[objects.Operation(account_id=666,
+                                                                         currency=1,
+                                                                         amount=1000,
+                                                                         type='x.1',
+                                                                         description='y.1'),
+                                                       objects.Operation(account_id=666,
+                                                                         currency=1,
+                                                                         amount=-300,
+                                                                         type='x.2',
+                                                                         description='y.2')],
+                                           lifetime=datetime.timedelta(seconds=1),
+                                           restrictions=objects.Restrictions(),
                                            logger=helpers.TEST_LOGGER,
                                            autocommit=True)
 
-        await operations.start_transaction(operations=[objects.Operation(account_id=667, currency=1, amount=50, type='x.3', description='y.3'),
-                                                       objects.Operation(account_id=666, currency=1, amount=-1, type='x.4', description='y.4')],
-                                           lifetime=datetime.timedelta(),
+        await operations.start_transaction(operations=[objects.Operation(account_id=667,
+                                                                         currency=1,
+                                                                         amount=50,
+                                                                         type='x.3',
+                                                                         description='y.3'),
+                                                       objects.Operation(account_id=666,
+                                                                         currency=1,
+                                                                         amount=-1,
+                                                                         type='x.4',
+                                                                         description='y.4')],
+                                           lifetime=datetime.timedelta(seconds=1),
+                                           restrictions=objects.Restrictions(),
                                            logger=helpers.TEST_LOGGER,
                                            autocommit=True)
 
@@ -111,6 +169,7 @@ class StartTransactionTests(Base):
         with self.assertRaises(exceptions.NoOperationsInTransaction):
             await operations.start_transaction(operations=[],
                                                lifetime=datetime.timedelta(),
+                                               restrictions=objects.Restrictions(),
                                                logger=helpers.TEST_LOGGER,
                                                autocommit=False)
 
@@ -124,6 +183,7 @@ class StartTransactionTests(Base):
         transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
                                                             lifetime=lifetime,
                                                             logger=helpers.TEST_LOGGER,
+                                                            restrictions=objects.Restrictions(),
                                                             autocommit=False)
 
         results = await db.sql('SELECT * FROM transactions WHERE id=%(id)s', {'id': transaction_id})
@@ -145,10 +205,11 @@ class StartTransactionTests(Base):
         await self.check_balance(account_id=667, expected_balance={1: 900})
 
     @test_utils.unittest_run_loop
-    async def test_small_balance(self):
-        with self.assertRaises(exceptions.NoEnoughCurrency):
+    async def test_small_balance__hard_minimum(self):
+        with self.assertRaises(exceptions.BalanceChangeExceededRestrictions):
             await operations.start_transaction(operations=TEST_OPERATIONS,
                                                lifetime=datetime.timedelta(seconds=100),
+                                               restrictions=objects.Restrictions(),
                                                logger=helpers.TEST_LOGGER,
                                                autocommit=False)
 
@@ -164,6 +225,105 @@ class StartTransactionTests(Base):
         await self.check_balance(account_id=667, expected_balance={})
 
     @test_utils.unittest_run_loop
+    async def test_small_balance__not_restricted(self):
+
+        lifetime = datetime.timedelta(seconds=100)
+
+        transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
+                                                            lifetime=lifetime,
+                                                            restrictions=objects.Restrictions(hard_minimum=-100000),
+                                                            logger=helpers.TEST_LOGGER,
+                                                            autocommit=False)
+
+        results = await db.sql('SELECT * FROM transactions')
+
+        self.assertEqual(results[0]['state'], relations.TRANSACTION_STATE.OPENED.value)
+        self.assertEqual(results[0]['lifetime'], lifetime)
+
+        results = await db.sql('SELECT * FROM operations ORDER BY created_at ASC')
+
+        for row in results:
+            self.assertEqual(transaction_id, row['transaction'])
+
+        loaded_operations = await load_operations()
+
+        self.assertEqual(TEST_OPERATIONS, loaded_operations)
+
+        await self.check_balance(account_id=666, expected_balance={1: -1000})
+        await self.check_balance(account_id=667, expected_balance={1: -100})
+
+    @test_utils.unittest_run_loop
+    async def test_small_balance__soft_minimum(self):
+
+        lifetime = datetime.timedelta(seconds=100)
+
+        transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
+                                                            lifetime=lifetime,
+                                                            restrictions=objects.Restrictions(hard_minimum=None,
+                                                                                              soft_minimum=-500),
+                                                            logger=helpers.TEST_LOGGER,
+                                                            autocommit=False)
+
+        results = await db.sql('SELECT * FROM transactions')
+
+        self.assertEqual(results[0]['state'], relations.TRANSACTION_STATE.OPENED.value)
+        self.assertEqual(results[0]['lifetime'], lifetime)
+
+        results = await db.sql('SELECT * FROM operations ORDER BY created_at ASC')
+
+        for row in results:
+            self.assertEqual(transaction_id, row['transaction'])
+
+        loaded_operations = await load_operations()
+
+        self.assertEqual(TEST_OPERATIONS, loaded_operations)
+
+        await self.check_balance(account_id=666, expected_balance={1: -500})
+        await self.check_balance(account_id=667, expected_balance={1: -100})
+
+    @test_utils.unittest_run_loop
+    async def test_large_balance__hard_maximum(self):
+        with self.assertRaises(exceptions.BalanceChangeExceededRestrictions):
+            await operations.start_transaction(operations=TEST_OPERATIONS,
+                                               lifetime=datetime.timedelta(seconds=100),
+                                               restrictions=objects.Restrictions(hard_minimum=None,
+                                                                                 hard_maximum=1),
+                                               logger=helpers.TEST_LOGGER,
+                                               autocommit=True)
+
+        await self.check_balance(account_id=666, expected_balance={})
+        await self.check_balance(account_id=667, expected_balance={})
+
+    @test_utils.unittest_run_loop
+    async def test_large_balance__not_restricted(self):
+
+        lifetime = datetime.timedelta(seconds=100)
+
+        await operations.start_transaction(operations=TEST_OPERATIONS,
+                                           lifetime=lifetime,
+                                           restrictions=objects.Restrictions(hard_minimum=None),
+                                           logger=helpers.TEST_LOGGER,
+                                           autocommit=True)
+
+        await self.check_balance(account_id=666, expected_balance={1: -500})
+        await self.check_balance(account_id=667, expected_balance={1: 200})
+
+    @test_utils.unittest_run_loop
+    async def test_large_balance__soft_maximum(self):
+
+        lifetime = datetime.timedelta(seconds=100)
+
+        await operations.start_transaction(operations=TEST_OPERATIONS,
+                                           lifetime=lifetime,
+                                           restrictions=objects.Restrictions(hard_minimum=None,
+                                                                             soft_maximum=133),
+                                           logger=helpers.TEST_LOGGER,
+                                           autocommit=True)
+
+        await self.check_balance(account_id=666, expected_balance={1: -500})
+        await self.check_balance(account_id=667, expected_balance={1: 133})
+
+    @test_utils.unittest_run_loop
     async def test_no_balance_record(self):
         test_operations = [objects.Operation(account_id=666, currency=1, amount=500, type='x.1', description='y.1')]
 
@@ -171,6 +331,7 @@ class StartTransactionTests(Base):
 
         transaction_id = await operations.start_transaction(operations=test_operations,
                                                             lifetime=lifetime,
+                                                            restrictions=objects.Restrictions(),
                                                             logger=helpers.TEST_LOGGER,
                                                             autocommit=False)
 
@@ -194,6 +355,7 @@ class StartTransactionTests(Base):
 
         transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
                                                             lifetime=lifetime,
+                                                            restrictions=objects.Restrictions(),
                                                             logger=helpers.TEST_LOGGER,
                                                             autocommit=True)
 
@@ -210,6 +372,28 @@ class StartTransactionTests(Base):
         await self.check_balance(account_id=666, expected_balance={1: 500})
         await self.check_balance(account_id=667, expected_balance={1: 1200})
 
+    @test_utils.unittest_run_loop
+    async def test_restrictions_saved(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=1000)
+        await helpers.call_change_balance(account_id=667, currency=1, amount=1000)
+
+        lifetime = datetime.timedelta(seconds=100)
+
+        restrictions = objects.Restrictions(hard_minimum=0,
+                                            hard_maximum=100000,
+                                            soft_minimum=-10000,
+                                            soft_maximum=30000)
+
+        transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
+                                                            lifetime=lifetime,
+                                                            logger=helpers.TEST_LOGGER,
+                                                            restrictions=restrictions,
+                                                            autocommit=False)
+
+        results = await db.sql('SELECT * FROM transactions WHERE id=%(id)s', {'id': transaction_id})
+
+        self.assertEqual(results[0]['data']['restrictions'], restrictions.serialize())
+
 
 class ChangeBalanceTests(Base):
 
@@ -220,10 +404,10 @@ class ChangeBalanceTests(Base):
 
     @test_utils.unittest_run_loop
     async def test_no_record__withdraw(self):
-        with self.assertRaises(exceptions.NoEnoughCurrency):
+        with self.assertRaises(exceptions.BalanceChangeExceededRestrictions):
             await helpers.call_change_balance(account_id=666, currency=1, amount=-100500)
 
-        await self.check_balance(account_id=666, expected_balance={})
+        await self.check_balance(account_id=666, expected_balance={1: 0})
 
     @test_utils.unittest_run_loop
     async def test_has_record(self):
@@ -243,7 +427,7 @@ class ChangeBalanceTests(Base):
     async def test_has_record__withdraw_too_match(self):
         await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
 
-        with self.assertRaises(exceptions.NoEnoughCurrency):
+        with self.assertRaises(exceptions.BalanceChangeExceededRestrictions):
             await helpers.call_change_balance(account_id=666, currency=1, amount=-100501)
 
         await self.check_balance(account_id=666, expected_balance={1: 100500})
@@ -259,11 +443,12 @@ class ChangeBalanceTests(Base):
         await self.check_balance(account_id=666, expected_balance={1: 100486,
                                                                    2: 990,
                                                                    3: 14})
+
     @test_utils.unittest_run_loop
     async def test_withdraw_error_when_has_another_currency(self):
         await helpers.call_change_balance(account_id=666, currency=1, amount=100500)
 
-        with self.assertRaises(exceptions.NoEnoughCurrency):
+        with self.assertRaises(exceptions.BalanceChangeExceededRestrictions):
             await helpers.call_change_balance(account_id=666, currency=2, amount=-10)
 
 
@@ -283,6 +468,7 @@ class RollbackTransactionTests(Base):
 
         transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
                                                             lifetime=lifetime,
+                                                            restrictions=objects.Restrictions(),
                                                             logger=helpers.TEST_LOGGER,
                                                             autocommit=False)
 
@@ -302,6 +488,7 @@ class RollbackTransactionTests(Base):
 
         transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
                                                             lifetime=lifetime,
+                                                            restrictions=objects.Restrictions(),
                                                             logger=helpers.TEST_LOGGER,
                                                             autocommit=False)
 
@@ -334,16 +521,19 @@ class RollbackTransactionTests(Base):
 
         transaction_1_id = await operations.start_transaction(operations=test_operations_1,
                                                               lifetime=lifetime,
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
         transaction_2_id = await operations.start_transaction(operations=test_operations_2,
                                                               lifetime=lifetime,
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
         transaction_3_id = await operations.start_transaction(operations=test_operations_3,
                                                               lifetime=lifetime,
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
@@ -381,6 +571,7 @@ class CommitTransactionTests(Base):
 
         transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
                                                             lifetime=lifetime,
+                                                            restrictions=objects.Restrictions(),
                                                             logger=helpers.TEST_LOGGER,
                                                             autocommit=False)
 
@@ -400,6 +591,7 @@ class CommitTransactionTests(Base):
 
         transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
                                                             lifetime=lifetime,
+                                                            restrictions=objects.Restrictions(),
                                                             logger=helpers.TEST_LOGGER,
                                                             autocommit=False)
 
@@ -433,16 +625,19 @@ class CommitTransactionTests(Base):
 
         transaction_1_id = await operations.start_transaction(operations=test_operations_1,
                                                               lifetime=lifetime,
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
         transaction_2_id = await operations.start_transaction(operations=test_operations_2,
                                                               lifetime=lifetime,
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
         transaction_3_id = await operations.start_transaction(operations=test_operations_3,
                                                               lifetime=lifetime,
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
@@ -462,6 +657,34 @@ class CommitTransactionTests(Base):
         await self.check_balance(account_id=666, expected_balance={1: 500})
         await self.check_balance(account_id=667, expected_balance={1: 1199})
 
+    @test_utils.unittest_run_loop
+    async def test_restrictions_applied(self):
+        await helpers.call_change_balance(account_id=666, currency=1, amount=1000)
+        await helpers.call_change_balance(account_id=667, currency=1, amount=1000)
+
+        lifetime = datetime.timedelta(seconds=100)
+
+        transaction_id = await operations.start_transaction(operations=TEST_OPERATIONS,
+                                                            lifetime=lifetime,
+                                                            restrictions=objects.Restrictions(soft_maximum=666),
+                                                            logger=helpers.TEST_LOGGER,
+                                                            autocommit=False)
+
+        await operations.commit_transaction(transaction_id, logger=helpers.TEST_LOGGER)
+
+        results = await db.sql('SELECT * FROM transactions WHERE id=%(id)s', {'id': transaction_id})
+
+        self.assertEqual(results[0]['state'], relations.TRANSACTION_STATE.COMMITED.value)
+        self.assertEqual(results[0]['lifetime'], lifetime)
+
+        loaded_operations = await load_operations()
+
+        self.assertEqual(TEST_OPERATIONS, loaded_operations)
+
+        # only withdraws applied on transaction start
+        await self.check_balance(account_id=666, expected_balance={1: 500})
+        await self.check_balance(account_id=667, expected_balance={1: 666})
+
 
 class RollbackHangedTransactionsTests(Base):
 
@@ -474,13 +697,23 @@ class RollbackHangedTransactionsTests(Base):
         await helpers.call_change_balance(account_id=666, currency=1, amount=1000)
         await helpers.call_change_balance(account_id=667, currency=1, amount=1000)
 
-        await operations.start_transaction(operations=[objects.Operation(account_id=666, currency=1, amount=-1, type='x.1', description='y.1')],
+        await operations.start_transaction(operations=[objects.Operation(account_id=666,
+                                                                         currency=1,
+                                                                         amount=-1,
+                                                                         type='x.1',
+                                                                         description='y.1')],
                                            lifetime=datetime.timedelta(seconds=100),
+                                           restrictions=objects.Restrictions(),
                                            logger=helpers.TEST_LOGGER,
                                            autocommit=False)
 
-        await operations.start_transaction(operations=[objects.Operation(account_id=667, currency=1, amount=-10, type='x.2', description='y.2')],
+        await operations.start_transaction(operations=[objects.Operation(account_id=667,
+                                                                         currency=1,
+                                                                         amount=-10,
+                                                                         type='x.2',
+                                                                         description='y.2')],
                                            lifetime=datetime.timedelta(seconds=0),
+                                           restrictions=objects.Restrictions(),
                                            logger=helpers.TEST_LOGGER,
                                            autocommit=False)
 
@@ -501,28 +734,50 @@ class RollbackHangedTransactionsTests(Base):
         await helpers.call_change_balance(account_id=668, currency=1, amount=1000)
         await helpers.call_change_balance(account_id=669, currency=1, amount=1000)
 
-        transaction_1_id = await operations.start_transaction(operations=[objects.Operation(account_id=666, currency=1, amount=-1, type='x.1', description='y.1')],
-                                                              lifetime=datetime.timedelta(seconds=0),
+        transaction_1_id = await operations.start_transaction(operations=[objects.Operation(account_id=666,
+                                                                                            currency=1,
+                                                                                            amount=-1,
+                                                                                            type='x.1',
+                                                                                            description='y.1')],
+                                                              lifetime=datetime.timedelta(seconds=1),
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
-        transaction_2_id = await operations.start_transaction(operations=[objects.Operation(account_id=667, currency=1, amount=-10, type='x.2', description='y.2')],
-                                                              lifetime=datetime.timedelta(seconds=0),
+        transaction_2_id = await operations.start_transaction(operations=[objects.Operation(account_id=667,
+                                                                                            currency=1,
+                                                                                            amount=-10,
+                                                                                            type='x.2',
+                                                                                            description='y.2')],
+                                                              lifetime=datetime.timedelta(seconds=1),
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
-        transaction_3_id = await operations.start_transaction(operations=[objects.Operation(account_id=668, currency=1, amount=-100, type='x.3', description='y.3')],
-                                                              lifetime=datetime.timedelta(seconds=0),
+        transaction_3_id = await operations.start_transaction(operations=[objects.Operation(account_id=668,
+                                                                                            currency=1,
+                                                                                            amount=-100,
+                                                                                            type='x.3',
+                                                                                            description='y.3')],
+                                                              lifetime=datetime.timedelta(seconds=1),
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
-        transaction_4_id = await operations.start_transaction(operations=[objects.Operation(account_id=669, currency=1, amount=-10, type='x.4', description='y.4')],
-                                                              lifetime=datetime.timedelta(seconds=0),
+        transaction_4_id = await operations.start_transaction(operations=[objects.Operation(account_id=669,
+                                                                                            currency=1,
+                                                                                            amount=-10,
+                                                                                            type='x.4',
+                                                                                            description='y.4')],
+                                                              lifetime=datetime.timedelta(seconds=1),
+                                                              restrictions=objects.Restrictions(),
                                                               logger=helpers.TEST_LOGGER,
                                                               autocommit=False)
 
         await operations.rollback_transaction(transaction_id=transaction_3_id, logger=helpers.TEST_LOGGER)
         await operations.commit_transaction(transaction_id=transaction_1_id, logger=helpers.TEST_LOGGER)
+
+        time.sleep(2)
 
         await operations.rollback_hanged_transactions()
 
@@ -558,6 +813,7 @@ class MultipleCurrenciesTransactionsTests(Base):
 
         transaction_id = await operations.start_transaction(operations=self.TEST_OPERATIONS,
                                                             lifetime=datetime.timedelta(seconds=100),
+                                                            restrictions=objects.Restrictions(),
                                                             logger=helpers.TEST_LOGGER,
                                                             autocommit=False)
 
@@ -612,16 +868,23 @@ class RemoveTransactionsTests(Base):
         transactions_ids = []
 
         for i in range(4):
-            account_id = 666+i
+            account_id = 666 + i
             await helpers.call_change_balance(account_id=account_id, currency=1, amount=1000)
-            transaction_id = await operations.start_transaction(operations=[objects.Operation(account_id=666, currency=1, amount=-1, type='x.1', description='y.1')],
-                                                                lifetime=datetime.timedelta(seconds=0),
+            transaction_id = await operations.start_transaction(operations=[objects.Operation(account_id=666,
+                                                                                              currency=1,
+                                                                                              amount=-1,
+                                                                                              type='x.1',
+                                                                                              description='y.1')],
+                                                                lifetime=datetime.timedelta(seconds=1),
+                                                                restrictions=objects.Restrictions(),
                                                                 logger=helpers.TEST_LOGGER,
                                                                 autocommit=False)
             transactions_ids.append(transaction_id)
 
         await operations.rollback_transaction(transaction_id=transactions_ids[2], logger=helpers.TEST_LOGGER)
         await operations.commit_transaction(transaction_id=transactions_ids[0], logger=helpers.TEST_LOGGER)
+
+        time.sleep(2)
 
         return transactions_ids
 

@@ -1,18 +1,3 @@
-{% macro attribute_record(place, attribute_name, extra_text='') %}
-  {% set attribute, value = place.attribute_ui_info(attribute_name) %}
-  <tr>
-    <th>{{attribute.text}}</th>
-    <td>{{attribute.formatter(value)}}{{extra_text}}{{attribute.verbose_units}}</td>
-    <td>
-      <a href="javascript:void(0);"
-         class="info-link"
-         rel="tooltip"
-         title="{{map_macros.power_incoming_tooltip(attribute.description, place.tooltip_effects_for_attribute(attribute), percents=true if attribute.verbose_units and attribute.verbose_units[0] == '%' else false)}}">
-        подробнее
-      </a>
-    </td>
-  </tr>
-{% endmacro %}
 
 {% macro place_description(place) %}
   Земля

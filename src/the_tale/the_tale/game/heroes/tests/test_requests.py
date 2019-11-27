@@ -91,13 +91,13 @@ class HeroPageRequestsTests(HeroRequestsTestBase):
         blogs_helpers.prepair_forum()
 
         blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(), 'folclor-1-caption', 'folclor-1-text',
-                                                  meta_relations.Hero.create_from_object(self.hero), vote_by=self.account)
+                                                  meta_relations.Hero.create_from_object(self.hero))
         blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(), 'folclor-2-caption', 'folclor-2-text',
-                                                  meta_relations.Hero.create_from_object(self.hero), vote_by=self.account)
+                                                  meta_relations.Hero.create_from_object(self.hero))
         blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(), 'folclor-3-caption', 'folclor-3-text',
                                                   meta_relations.Hero.create_from_object(self.hero))
 
-        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=(('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', ('folclor-3-caption', 0)))
+        self.check_html_ok(self.request_html(dext_urls.url('game:heroes:show', self.hero.id)), texts=(('pgf-no-folclor', 0), 'folclor-1-caption', 'folclor-2-caption', 'folclor-3-caption'))
 
     def test_moderation_tab(self):
         account_2 = self.accounts_factory.create_account()

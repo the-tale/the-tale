@@ -71,8 +71,8 @@ class ATTRIBUTE(game_attributes.ATTRIBUTE):
                game_attributes.attr('STABILITY_RENEWING_BONUS', 10, 'бонус к скорости восстановления стабильности в городе'),
                game_attributes.attr('BUILDING_SUPPORT_COST', 11, 'стоимость поддержи здания Мастера городом', default=lambda: c.PLACE_GOODS_FOR_BUILDING_SUPPORT),
                game_attributes.attr('ON_PROFITE_ENERGY', 12, 'прибавка энергии Хранителя за задание, если Мастер получает выгоду'),
-               game_attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту занятий Мастера'),
-               game_attributes.attr('JOB_GROUP_PRIORITY', 14, 'бонус к приоритету типов занятий Мастера', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
+               game_attributes.attr('JOB_POWER_BONUS', 13, 'бонус к эффекту проектов Мастера'),
+               game_attributes.attr('JOB_GROUP_PRIORITY', 14, 'бонус к приоритету типов проектов Мастера', default=dict, apply=lambda a, b: (a.update(b) or a), serializer=job_group_priority_serialize, deserializer=job_group_priority_deserialize),
                game_attributes.attr('SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 15, 'бонус к влияния для партнёров', default=lambda: 0.1),
                game_attributes.attr('SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 16, 'бонус к влияюнию для конкурентов', default=lambda: 0.1),
                game_attributes.attr('DEMOGRAPHICS_PRESSURE', 17, 'демографическое давление', default=lambda: 1))
@@ -151,22 +151,22 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                            'надёжный', 'надёжная', 'Увеличивает скорость восстановления стабильности.'),
 
                personality('ORDERLY', 8, 'аккуратный', 'BUILDING_SUPPORT_COST', -int(c.PLACE_GOODS_FOR_BUILDING_SUPPORT / 2),
-                           'аккуратный', 'аккуратная', 'Бережливо относится к своему имуществу — уменьшает стоимость поддержки городом своего здания. Не влияет на стоимость стабилизации магических потоков на клетке.'),
+                           'аккуратный', 'аккуратная', 'Бережливо относится к своему имуществу — уменьшает стоимость поддержки городом своего здания.'),
 
                personality('DEVOUT', 9, 'набожный', 'ON_PROFITE_ENERGY', 4,
                            'набожный', 'набожная', 'За каждое задание, в котором Мастер получил выгоду, возносит хвалу Хранителям героев, и те получают немного энергии.'),
 
                personality('HARDWORKING', 10, 'трудолюбивый', 'JOB_POWER_BONUS', 0.5,
-                           'трудолюбивый', 'трудолюбивая', 'У занятий Мастера более сильный эффект.'),
+                           'трудолюбивый', 'трудолюбивая', 'У проектов Мастера более сильный эффект.'),
 
                personality('ENTERPRISING', 11, 'предприимчивый', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_PLACE: 0.5},
-                           'предприимчивый', 'предприимчивая', 'Мастер чаще выполняет занятия, связанные с экономикой города.'),
+                           'предприимчивый', 'предприимчивая', 'Мастер чаще выполняет проекты, связанные с экономикой города.'),
 
                personality('ROMANTIC', 12, 'романтичный', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_HEROES: 0.5},
-                           'романтичный', 'романтичная', 'Мастер чаще выполняет занятия, связанные с помощью героям.'),
+                           'романтичный', 'романтичная', 'Мастер чаще выполняет проекты, связанные с помощью героям.'),
 
                personality('RESPONSIBLE', 13, 'ответственный', 'SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 0.1,
-                           'ответственный', 'ответственная', 'Мастер оказывает более сильное влияние на своих парнёров.'),
+                           'ответственный', 'ответственная', 'Мастер оказывает более сильное влияние на своих партнёров.'),
 
                personality('INSIDIOUS', 14, 'коварный', 'SOCIAL_RELATIONS_CONCURRENTS_POWER_MODIFIER', 0.1,
                            'коварный', 'коварная', 'Мастер оказывает более сильное влияние на своих конкурентов.'))

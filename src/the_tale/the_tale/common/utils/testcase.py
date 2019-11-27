@@ -22,6 +22,7 @@ def setUp(self):
     artifacts_storage.artifacts.clear()
     map_storage.map_info.clear()
     places_storage.resource_exchanges.clear()
+    emissaries_storage.emissaries.clear()
     collections_storage.collections.clear()
     collections_storage.kits.clear()
     collections_storage.items.clear()
@@ -29,11 +30,10 @@ def setUp(self):
     linguistics_storage.dictionary.clear()
     linguistics_storage.lexicon.clear()
     linguistics_storage.restrictions.clear()
+    places_storage.effects.clear()
+    clans_storage.infos.clear()
 
     game_prototypes.GameState.start()
-
-    for tag_id in blogs_conf.settings.DEFAULT_TAGS:
-        blogs_models.Tag.objects.create(id=tag_id, name='{}'.format(tag_id), description='{}'.format(tag_id))
 
 
 class TestAccountsFactory(object):

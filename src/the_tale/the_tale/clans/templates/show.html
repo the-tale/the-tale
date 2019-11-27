@@ -4,6 +4,7 @@
 {% import 'friends/macros.html' as friends_macros with context %}
 {% import 'blogs/macros.html' as blogs_macros with context %}
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
+{% import 'emissaries/macros.html' as emissaries_macros with context %}
 
 {% block title %}{{current_clan.name}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}[{{current_clan.abbr}}] {{current_clan.name}}{% endblock %}
@@ -25,28 +26,11 @@ jQuery(document).ready(function(e){
 {% block clans_content %}
 
 {% set has_clan = (resource.account.is_authenticated and resource.account.clan_id is not none) %}
-{% set is_own_clan = (resource.account.is_authenticated and resource.account.clan_id == current_clan.id) %}
 
-{% if not has_clan %}
-<script type="text/javascript">
-    jQuery(document).ready(function(){
-        jQuery('.pgf-create-membership-request').click(function(e){
-            e.preventDefault();
-            pgf.ui.dialog.Create({ fromUrl: "{{ url('clans:request-dialog', current_clan.id) }}",
-                                   OnOpen: function(dialog) {
-                                       var newMessageForm = new pgf.forms.Form(jQuery('#pgf-request-membership-form', dialog),
-                                                                               {
-                                                                                   OnSuccess: function(form, data){
-                                                                                       dialog.modal('hide');
-                                                                                       location.reload();
-                                                                                   }
-                                                                               });
-                                   }
-                                 });
-        });
-    });
-</script>
-
+{% if current_clan.state.is_REMOVED %}
+<p class="alert alert-danger">
+  Гильдия распущена.
+</p>
 {% endif %}
 
 <h2>
@@ -84,8 +68,8 @@ jQuery(document).ready(function(e){
 
     {% if not has_clan %}
       {% if request_to_this_clan is none %}
-        {% if current_clan_properties.accept_requests_from_players %}
-          <li><a class="pgf-create-membership-request btn btn-info" href="#">вступить</a></li>
+        {% if current_clan_properties.accept_requests_from_players and current_clan.state.is_ACTIVE %}
+          <li><a class="pgf-dialog-simple-form btn btn-info" href="{{ url('clans:request-dialog', current_clan.id) }}">вступить</a></li>
         {% else %}
           <li><a href="#" class="disabled">гильдия не принимает новых игроков</a><li>
         {% endif %}
@@ -131,7 +115,11 @@ jQuery(document).ready(function(e){
         ОБЩЕНИЕ
         <br/>
         <span style="font-size: 20pt;">
+          {% if forum_subcategory %}
           {{forum_subcategory.threads_count}} / {{forum_subcategory.posts_count}}
+          {% else %}
+          —
+          {% endif %}
         </span>
         <br/>
         <span>тем / сообщений на форуме</span>
@@ -172,13 +160,13 @@ jQuery(document).ready(function(e){
     </a>
   </li>
   <li style="width: 25%;">
-    <a href="#pgf-clan-events" class="pgf-clan-events-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
-      <h4 class="newspaper-column-header">Летопись</h4>
+    <a href="#pgf-clan-emissaries" class="pgf-clan-emissaries-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Эмиссары</h4>
     </a>
   </li>
   <li style="width: 25%;">
-    <a href="#pgf-clan-emissaries" class="pgf-clan-emissaries-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
-      <h4 class="newspaper-column-header">Эмиссары</h4>
+    <a href="#pgf-clan-events" class="pgf-clan-events-button" data-toggle="tab" style="color: rgb(51, 51, 51);">
+      <h4 class="newspaper-column-header">Летопись</h4>
     </a>
   </li>
 </ul>
@@ -189,15 +177,11 @@ jQuery(document).ready(function(e){
   <div class="tab-pane active" id="pgf-clan-description">
     {{current_clan.description_html|safe}}
 
-    {% set folclor_objects = posts_about(clan_meta_object, allowed_for=leader) %}
+    {% set folclor_objects = posts_about(clan_meta_object) %}
 
     <br/>
     <br/>
     <h3>Произведения о Гильдии</h3>
-
-    <p>
-      Чтобы произведение появилось в списке, его автор должен указать, что оно об этой гильдии, а лидер гильдии должен поставить произведению «плюсик».
-    </p>
 
     {% if folclor_objects %}
     {{ blogs_macros.meta_posts_list(folclor_objects) }}
@@ -208,6 +192,13 @@ jQuery(document).ready(function(e){
   </div>
 
   <div class="tab-pane" id="pgf-clan-members">
+
+    <p>
+      <i>Максимальный боевой состав гильдии: {{attributes.fighters_maximum}}</i>
+      <i class="icon-info-sign"
+         rel="tooltip"
+         title="Количество членов гильдии в звании {{value('the_tale.clans.relations').MEMBER_ROLE.FIGHTER.text}} или выше. Чтобы увеличить максимальный размер гильдии, развивайте её с помощью эмиссаров."></i>
+    </p>
 
     {% include "clans/permissions_help.html" %}
 
@@ -242,11 +233,20 @@ jQuery(document).ready(function(e){
             {{loop.index}}
           </span>
         </td>
-        <td>
+        <td style="white-space: nowrap;">
           <a href="{{url('accounts:show', account.id)}}"
              class="{% if not account.is_active %}disabled{% endif %}">
             {{account.nick_verbose}}
           </a>
+
+          {% if memberships[account.id].is_freezed() %}
+          <span class="label label-warning"
+                style="cursor: default;"
+                rel="tooltip"
+                title="Нельзя изменить звание ещё {{memberships[account.id].freeze_delta()|verbose_timedelta}}">
+            заморожен
+          </span>
+          {% endif %}
         </td>
         <td>{{membership.role.text}}</td>
         <td>
@@ -272,6 +272,112 @@ jQuery(document).ready(function(e){
 
   </div>
 
+  <div class="tab-pane" id="pgf-clan-emissaries">
+
+    <p>
+      <a href="{{url('guide:emissaries')}}" target="blank_">Эмиссары</a> — представители гильдии в городах. Выполняя задания в поддержку эмиссаров своей гильдии, Хранители зарабатывают для них влияние. Влияние эмиссаров может быть потрачено на проведение мероприятий, которые помогают членам гильдии, городу или вредят вражеским гильдиям.
+    </p>
+
+    <table width="100%" class="table table-condensed">
+      <tbody>
+        <tr>
+          <th width="150px">Опыт</th>
+          <td width="250px">
+            {% if experience is not none %}
+            <span class="pgf-experience-amount">{{experience}}</span>
+            {% else %}
+            <span class="pgf-experience-dummy">скрыто</span>
+            {% endif %}
+          </td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <th>Очки действий</th>
+          <td>
+            {% if clan_points is not none %}
+            <span class="pgf-clans-points-amount">{{clan_points}}</span>
+            {% else %}
+            <span class="pgf-clans-points-dummy">скрыто</span>
+            {% endif %}
+
+            / {{tt_clans_constants.MAXIMUM_POINTS}} + {{attributes.points_gain}} в час
+
+            <i class="icon-info-sign"
+               rel="tooltip"
+               title="Очки действий начисляются раз в час"></i>
+          </td>
+          <td>уровень {{attributes.points_gain_level}} из {{tt_clans_constants.POINTS_GAIN_LEVEL_STEPS}}</td>
+        </tr>
+
+        <tr>
+          <th>Свободные задания</th>
+          <td>
+            {% if free_quests_points is not none %}
+            <span class="pgf-clans-free-quests-amount">{{free_quests_points}}</span>
+            {% else %}
+            <span class="pgf-clans-free-quests-dummy">скрыто</span>
+            {% endif %}
+
+            / {{attributes.free_quests_maximum}}
+
+            до возобновления {{verbose_to_datetime()}}
+
+            <i class="icon-info-sign"
+               rel="tooltip"
+               title="Количество заданий эмиссаров, которые могут быть выполнены Хранителями, не являющимися подписчиками. Одно очко заданий отнимается в момент активации карты «Гильдейские дела». Количество свободных заданий возобновляется раз в сутки."></i>
+          </td>
+          <td>уровень {{attributes.free_quests_maximum_level}} из {{tt_clans_constants.FREE_QUESTS_MAXIMUM_LEVEL_STEPS}}</td>
+        </tr>
+
+        <tr>
+          <th>Максимум эмиссаров</th>
+          <td>{{attributes.emissary_maximum}}</td>
+          <td>уровень {{attributes.emissary_maximum_level}} из {{tt_clans_constants.EMISSARY_MAXIMUM_LEVEL_STEPS}}</td>
+        </tr>
+
+        <tr>
+          <th>Максимальный боевой состав</th>
+          <td>{{attributes.fighters_maximum}}</td>
+          <td>уровень {{attributes.fighters_maximum_level}} из {{tt_clans_constants.FIGHTERS_MAXIMUM_LEVEL_STEPS}}</td>
+        </tr>
+
+        <tr>
+          <th>Сторонние задания</th>
+          <td>
+            {% if can_participate_in_pvp %}
+            доступны
+            {% else %}
+            недоступны
+            {% endif %}
+            {{emissaries_macros.pvp_access_marker()}}
+          </td>
+          <td>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+
+
+    {% if emissaries %}
+    {{ emissaries_macros.emissary_list(emissaries, powers=emissaries_powers, show_places=true) }}
+    {% else %}
+    <p class="alert alert-info">
+      У гильдии нет эмиссаров.
+    </p>
+    {% endif %}
+
+    {% if current_clan_rights.can_emissaries_relocation() %}
+    <p>
+      <a class="pgf-dialog-simple-form btn btn-primary" href="{{ url('game:emissaries:create-dialog') }}">
+        Нанять эмиссара: -{{tt_clans_constants.PRICE_CREATE_EMISSARY}} очков действий
+      </a>
+    </p>
+    {% endif %}
+
+  </div>
+
   <div class="tab-pane" id="pgf-clan-events">
     <h3>Последние события в гильдии</h3>
 
@@ -282,12 +388,6 @@ jQuery(document).ready(function(e){
       У вас недостаточно прав, чтобы смотреть летопись гильдии.
     </p>
     {% endif %}
-  </div>
-
-  <div class="tab-pane" id="pgf-clan-emissaries">
-    <p class="alert alert-info">
-      В процессе разработки.
-    </p>
   </div>
 
 </div>

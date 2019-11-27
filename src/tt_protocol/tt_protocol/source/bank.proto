@@ -18,13 +18,18 @@ message HistoryRecord {
 }
 
 
-message AccountBalanceRequest {
-  uint32 account_id = 1;
+message Balances {
+  map<int32, int32> amounts = 1;
 }
 
 
-message AccountBalanceResponse {
-  map<int32, uint32> balance = 1;
+message AccountsBalancesRequest {
+  repeated uint32 accounts_ids = 1;
+}
+
+
+message AccountsBalancesResponse {
+  map<uint32, Balances> balances = 1;
 }
 
 
@@ -43,6 +48,7 @@ message StartTransactionRequest {
   repeated Operation operations = 1;
   double lifetime = 2;
   bool autocommit = 3;
+  string restrictions = 4;
 }
 
 

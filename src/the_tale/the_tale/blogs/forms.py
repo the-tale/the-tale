@@ -44,11 +44,7 @@ class PostForm(dext_forms.Form):
 
 
 class TagsForm(dext_forms.Form):
-    tags = dext_fields.MultipleChoiceField(label='теги', choices=())
-
-    def __init__(self, *args, **kwargs):
-        super(TagsForm, self).__init__(*args, **kwargs)
-        self.fields['tags'].choices = models.Tag.objects.order_by('name').values_list('id', 'name')
+    tags = dext_fields.MultipleChoiceField(label='теги', choices=logic.manual_tags_choices)
 
     def clean_tags(self):
         tags = self.cleaned_data['tags']

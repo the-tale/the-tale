@@ -8,6 +8,7 @@ from tt_web import postgresql as db
 from tt_web.tests import helpers as web_helpers
 
 from .. import service
+from .. import objects
 from .. import operations
 
 
@@ -36,5 +37,14 @@ def get_config():
     return config
 
 
-async def call_change_balance(account_id, currency, amount):
-    await operations._change_balance(db.sql, account_id=account_id, currency=currency, amount=amount, logger=TEST_LOGGER)
+async def call_change_balance(account_id,
+                              currency,
+                              amount,
+                              restrictions=objects.Restrictions()):
+
+    await operations._change_balance(db.sql,
+                                     account_id=account_id,
+                                     currency=currency,
+                                     amount=amount,
+                                     restrictions=restrictions,
+                                     logger=TEST_LOGGER)

@@ -31,23 +31,23 @@ class EffectsContainerTests(utils_testcase.TestCase):
         self.assertEqual(self.container.effects, [])
 
     def test_serialization(self):
-        self.container.add(self.effect_1)
-        self.container.add(self.effect_2)
-        self.container.add(self.effect_3)
+        self.container._add(self.effect_1)
+        self.container._add(self.effect_2)
+        self.container._add(self.effect_3)
 
         self.assertEqual(self.container, TEST_CONTAINER_CLASS.deserialize(self.container.serialize()))
 
     def test_add(self):
-        self.container.add(self.effect_1)
-        self.container.add(self.effect_2)
-        self.container.add(self.effect_3)
+        self.container._add(self.effect_1)
+        self.container._add(self.effect_2)
+        self.container._add(self.effect_3)
 
         self.assertEqual(self.container.effects, [self.effect_1, self.effect_2, self.effect_3])
 
     def test_update_step(self):
-        self.container.add(self.effect_1)
-        self.container.add(self.effect_2)
-        self.container.add(self.effect_3)
+        self.container._add(self.effect_1)
+        self.container._add(self.effect_2)
+        self.container._add(self.effect_3)
 
         self.container.update_step()
 
@@ -58,9 +58,9 @@ class EffectsContainerTests(utils_testcase.TestCase):
         self.assertEqual(self.container.effects, [self.effect_1, self.effect_3])
 
     def test_update_step__deltas(self):
-        self.container.add(self.effect_1)
-        self.container.add(self.effect_2)
-        self.container.add(self.effect_3)
+        self.container._add(self.effect_1)
+        self.container._add(self.effect_2)
+        self.container._add(self.effect_3)
 
         self.container.update_step({places_relations.ATTRIBUTE.TRANSPORT: 0.4,
                                     places_relations.ATTRIBUTE.SAFETY: 1})
@@ -70,18 +70,18 @@ class EffectsContainerTests(utils_testcase.TestCase):
         self.assertEqual(self.effect_3.value, 2.6)
 
     def test_clear(self):
-        self.container.add(self.effect_1)
-        self.container.add(self.effect_2)
-        self.container.add(self.effect_3)
+        self.container._add(self.effect_1)
+        self.container._add(self.effect_2)
+        self.container._add(self.effect_3)
 
-        self.container.clear()
+        self.container._clear()
 
         self.assertEqual(self.container.effects, [])
 
     def test_effects_sequence_not_changed(self):
-        self.container.add(self.effect_1)
-        self.container.add(self.effect_2)
-        self.container.add(self.effect_3)
+        self.container._add(self.effect_1)
+        self.container._add(self.effect_2)
+        self.container._add(self.effect_3)
 
         container = TEST_CONTAINER_CLASS.deserialize(self.container.serialize())
 

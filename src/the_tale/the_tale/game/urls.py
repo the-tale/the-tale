@@ -19,7 +19,8 @@ urlpatterns = [django_urls.url(r'^heroes/', django_urls.include('the_tale.game.h
                django_urls.url(r'^cards/', django_urls.include('the_tale.game.cards.urls', namespace='cards')),
                django_urls.url(r'^chronicle/', django_urls.include('the_tale.game.chronicle.urls', namespace='chronicle')),
                django_urls.url(r'^places/', django_urls.include('the_tale.game.places.urls', namespace='places')),
-               django_urls.url(r'^politic-power/', django_urls.include('the_tale.game.politic_power.urls', namespace='politic-power'))]
+               django_urls.url(r'^politic-power/', django_urls.include('the_tale.game.politic_power.urls', namespace='politic-power')),
+               django_urls.url(r'^emissaries/', django_urls.include('the_tale.game.emissaries.urls', namespace='emissaries')),]
 
 
 urlpatterns += views.resource.get_urls()

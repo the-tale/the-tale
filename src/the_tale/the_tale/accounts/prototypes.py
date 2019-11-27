@@ -33,7 +33,8 @@ class AccountPrototype(utils_prototypes.BasePrototype):
                                                                                           active_end_at=self.active_end_at,
                                                                                           ban_end_at=self.ban_game_end_at,
                                                                                           might=self.might,
-                                                                                          actual_bills=self.actual_bills)
+                                                                                          actual_bills=self.actual_bills,
+                                                                                          clan_id=self.clan_id)
 
     def update_actual_bills(self):
         self._model.actual_bills = s11n.to_json(bills_logic.actual_bills_accepted_timestamps(self.id))
@@ -48,10 +49,12 @@ class AccountPrototype(utils_prototypes.BasePrototype):
         return s11n.from_json(self._model.actual_bills)
 
     @property
-    def account_id(self): return self.id
+    def account_id(self):
+        return self.id
 
     @classmethod
-    def live_query(cls): return cls._model_class.objects.filter(is_fast=False, is_bot=False).select_related('clan')
+    def live_query(cls):
+        return cls._model_class.objects.filter(is_fast=False, is_bot=False).select_related('clan')
 
     @utils_decorators.lazy_property
     def is_system_user(self):
@@ -206,6 +209,8 @@ class AccountPrototype(utils_prototypes.BasePrototype):
     def set_clan_id(self, clan_id):
         models.Account.objects.filter(id=self.id).update(clan=clan_id)
         self._model.clan_id = clan_id
+
+        self.cmd_update_hero()
 
     @utils_decorators.lazy_property
     def clan(self):

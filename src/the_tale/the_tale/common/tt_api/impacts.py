@@ -12,7 +12,8 @@ class OBJECT_TYPE(rels_django.DjangoEnum):
                ('JOB_PLACE_POSITIVE', 5, 'полезные проект города'),
                ('JOB_PLACE_NEGATIVE', 6, 'вредный проект города'),
                ('JOB_PERSON_POSITIVE', 7, 'полезный проект мастера'),
-               ('JOB_PERSON_NEGATIVE', 8, 'вредный проект мастер'))
+               ('JOB_PERSON_NEGATIVE', 8, 'вредный проект мастера'),
+               ('EMISSARY', 9, 'эмиссар'))
 
 
 class Impact:

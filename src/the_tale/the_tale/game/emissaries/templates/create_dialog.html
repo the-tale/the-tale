@@ -1,0 +1,31 @@
+
+<div class="modal hide" style="text-align: justify;">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">Найм эмиссара для гильдии «{{clan.name}}»</h3>
+  </div>
+
+  <div class="modal-body">
+
+    <p>
+      <a href="{{url('guide:emissaries')}}" target="blank_">Эмиссары</a> — представители гильдии в городах. Выполняя задания в поддержку эмиссаров своей гильдии, Хранители зарабатывают для них влияние. Влияние эмиссаров может быть потрачено на проведение мероприятий, которые помогают членам гильдии, городу или вредят вражеским гильдиям.
+    </p>
+
+    <form class="" method="post" action="{{ url('game:emissaries:create') }}">
+
+      {{ form.errors_container }}
+
+      {{ form.gender.widget }}
+      {{ form.race.widget }}
+      {{ form.place.widget }}
+
+      <div class="widget">
+        <input type="submit" accesskey="u" class="btn btn-success" value="Нанять: -{{tt_clans_constants.PRICE_CREATE_EMISSARY}} очков действий"/>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

@@ -121,7 +121,8 @@ class HeroTest(utils_testcase.TestCase, personal_messages_helpers.Mixin):
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
                                            might=0,
-                                           actual_bills=[])
+                                           actual_bills=[],
+                                           clan_id=None)
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -138,7 +139,8 @@ class HeroTest(utils_testcase.TestCase, personal_messages_helpers.Mixin):
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            ban_end_at=datetime.datetime.now() - datetime.timedelta(seconds=60),
                                            might=666,
-                                           actual_bills=[])
+                                           actual_bills=[],
+                                           clan_id=None)
 
         self.assertEqual(self.hero.experience_modifier, c.EXP_FOR_NORMAL_ACCOUNT)
 
@@ -196,7 +198,8 @@ class HeroTest(utils_testcase.TestCase, personal_messages_helpers.Mixin):
                                            active_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            ban_end_at=datetime.datetime.now() + datetime.timedelta(seconds=60),
                                            might=666,
-                                           actual_bills=[7])
+                                           actual_bills=[7],
+                                           clan_id=None)
 
         self.assertFalse(self.hero.is_fast)
         self.assertTrue(self.hero.active_state_end_at > datetime.datetime.now())

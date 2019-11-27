@@ -27,7 +27,11 @@ chronicle = ClansChronicleClient(entry_point=conf.settings.TT_CHRONICLE_ENTRY_PO
 
 
 class CLAN_PROPERTIES(tt_api_properties.PROPERTIES):
-    records = (('accept_requests_from_players', 0, 'принимать запросы на вступление в гильдию', str, lambda value: value == 'True', True),)
+    records = (('accept_requests_from_players', 0, 'принимать запросы на вступление в гильдию', str, lambda value: value == 'True', True),
+               ('fighters_maximum_level', 1, 'уровень прокачки размера боевого состава', str, lambda value: int(value), 0),
+               ('emissary_maximum_level', 2, 'уровень прокачки количества эмиссаров', str, lambda value: int(value), 0),
+               ('points_gain_level', 3, 'уровень прокачки прироста очков', str, lambda value: int(value), 0),
+               ('free_quests_maximum_level', 4, 'уровень прокачки максимума заданйи для неподписчиков', str, lambda value: int(value), 0),)
 
 
 class ClansPropertiesClient(tt_api_properties.Client):
@@ -36,3 +40,11 @@ class ClansPropertiesClient(tt_api_properties.Client):
 
 properties = ClansPropertiesClient(entry_point=conf.settings.TT_CLANS_PROPERTIES_ENTRY_POINT,
                                    properties=CLAN_PROPERTIES)
+
+
+class ClansCurrenciesClient(tt_api_bank.Client):
+    pass
+
+
+currencies = ClansCurrenciesClient(entry_point=conf.settings.TT_CLANS_POINTS_ENTRY_POINT,
+                                   transaction_lifetime=conf.settings.CLANS_POINTS_TRANSACTION_LIFETIME)

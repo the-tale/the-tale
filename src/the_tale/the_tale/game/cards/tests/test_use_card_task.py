@@ -21,9 +21,6 @@ class UseCardTaskTests(utils_testcase.TestCase):
         amqp_environment.environment.deinitialize()
         amqp_environment.environment.initialize()
 
-        self.highlevel = amqp_environment.environment.workers.highlevel
-        self.highlevel.process_initialize(0, 'highlevel')
-
         self.task_data = {'place_id': self.place_1.id,
                           'person_id': self.place_1.persons[0].id,
                           'building_id': self.building_1.id}
@@ -81,20 +78,3 @@ class UseCardTaskTests(utils_testcase.TestCase):
             self.assertEqual(task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), storage=self.storage), POSTPONED_TASK_LOGIC_RESULT.SUCCESS)
 
         self.assertEqual(task.state, postponed_tasks.UseCardTask.STATE.PROCESSED)
-
-    def test_process_second_step_error(self):
-        card = logic.create_card(allow_premium_cards=True, available_for_auction=True)
-        logic.change_cards(owner_id=self.hero.account_id, operation_type='#test', to_add=[card])
-
-        task = card.activate(self.hero, data=self.task_data).internal_logic
-
-        with mock.patch.object(card.type.effect.__class__, 'use', lambda *argv, **kwargs: (postponed_tasks.UseCardTask.RESULT.CONTINUE, postponed_tasks.UseCardTask.STEP.HIGHLEVEL, ())):
-            self.assertEqual(task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.CONTINUE)
-
-        self.assertTrue(task.step.is_HIGHLEVEL)
-        self.assertEqual(task.state, postponed_tasks.UseCardTask.STATE.UNPROCESSED)
-
-        with mock.patch.object(card.type.effect.__class__, 'use', lambda *argv, **kwargs: (postponed_tasks.UseCardTask.RESULT.FAILED, None, ())):
-            self.assertEqual(task.process(postponed_tasks_helpers.FakePostpondTaskPrototype(), self.storage), POSTPONED_TASK_LOGIC_RESULT.ERROR)
-
-        self.assertEqual(task.state, postponed_tasks.UseCardTask.STATE.CAN_NOT_PROCESS)

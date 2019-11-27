@@ -1,3 +1,10 @@
+
+- name: download internal repositories
+  import_playbook: ../tasks/internal_repositories.yml
+  vars:
+    internal_repositories: "{{tt_services['internal_repositories']}}"
+  when: not tt_test_enviroment
+
 - name: install The Tale
   import_playbook: ../tasks/tt_service.yml
   vars:
@@ -180,6 +187,58 @@
     django_settings: tt_matchmaker.settings
     port: 10016
     collect_static: false
+
+- name: install TT clans currencies
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT clans currencies
+    user: tt_clans_currencies
+    packages: "{{tt_services['tt_clans_currencies']['packages']}}"
+    django_settings: tt_bank.settings
+    port: 10017
+    collect_static: false
+
+- name: install TT emissary impacts
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT emissary impacts
+    user: tt_emissaries_impacts
+    packages: "{{tt_services['tt_emissaries_impacts']['packages']}}"
+    django_settings: tt_impacts.settings
+    port: 10018
+    collect_static: false
+
+- name: install TT places effects
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT places effects
+    user: tt_places_effects
+    packages: "{{tt_services['tt_places_effects']['packages']}}"
+    django_settings: tt_effects.settings
+    port: 10019
+    collect_static: false
+
+- name: install TT emissaries events currencies
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT emissaries events currencies
+    user: tt_emissaries_events_currencies
+    packages: "{{tt_services['tt_emissaries_events_currencies']['packages']}}"
+    django_settings: tt_bank.settings
+    port: 10020
+    collect_static: false
+
+
+- name: install TT emissaries events uniquer
+  import_playbook: ../tasks/tt_service.yml
+  vars:
+    name: TT emissaries events uniquer
+    user: tt_emissaries_events_uniquer
+    packages: "{{tt_services['tt_emissaries_events_uniquer']['packages']}}"
+    django_settings: tt_uniquer.settings
+    port: 10021
+    collect_static: false
+
 
 
 - name: install services cron files

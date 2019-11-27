@@ -23,12 +23,7 @@ class BaseForm(forms.BaseUserForm):
         if roads_logic.road_between_places(place_1, place_2) is None:
             raise django_forms.ValidationError('Дорога между городами не существует')
 
-        path_suitables = roads_logic.is_path_suitable_for_road(start_x=place_1.x,
-                                                               start_y=place_1.y,
-                                                               path=cleaned_data['path'])
-
-        if not path_suitables.is_NO_ERRORS:
-            raise django_forms.ValidationError(path_suitables.text)
+        base_road_bill.check_road_correctness(place_1, place_2, cleaned_data['path'])
 
 
 class UserForm(BaseForm):

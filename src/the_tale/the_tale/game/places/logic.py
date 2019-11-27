@@ -345,6 +345,7 @@ def sync_power_economic(places, max_economic):
 
 
 def sync_money_economic(places, max_economic):
+
     if not places:
         return
 
@@ -432,3 +433,105 @@ def register_money_transaction(hero_id, place_id, amount):
                                                          amount=amount,
                                                          transaction=uuid.uuid4())
     politic_power_logic.add_power_impacts([spending])
+
+
+def update_stability_effects_deltas(renewing_speed, stability_effects):
+    if not stability_effects:
+        return
+
+    stability_effects.sort(key=lambda effect: effect.id)
+
+    divider = 2
+    speed_sum = 0
+
+    for effect in stability_effects:
+        delta = 0
+
+        if divider < 1000:
+            delta = renewing_speed / divider
+
+        effect.delta = delta
+        speed_sum += delta
+
+        divider *= 2
+
+    stability_effects[0].delta += (renewing_speed - speed_sum)
+
+
+def update_effects():
+    effects = list(storage.effects.all())
+
+    for place in storage.places.all():
+        stability_effects = [effect for effect in effects
+                             if effect.attribute.is_STABILITY and
+                                effect.entity == place.id]
+
+        update_stability_effects_deltas(place.attrs.stability_renewing_speed, stability_effects)
+
+    effects_to_remove = []
+    effects_to_update = []
+
+    for effect in effects:
+
+        if not effect.require_updating():
+            continue
+
+        if effect.step():
+            effects_to_update.append(effect)
+        else:
+            effects_to_remove.append(effect)
+
+    for effect in effects_to_remove:
+        tt_services.effects.cmd_remove(effect.id)
+
+    for effect in effects_to_update:
+        tt_services.effects.cmd_update(effect)
+
+    places_storage.effects.update_version()
+    places_storage.effects.refresh()
+
+
+def register_effect(place_id, attribute, value, name, delta=None, info=None, refresh_effects=False, refresh_places=False):
+    effect = tt_api_effects.Effect(id=None,
+                                   attribute=attribute,
+                                   entity=place_id,
+                                   value=value,
+                                   name=name,
+                                   delta=delta,
+                                   info=info)
+
+    effect_id = tt_services.effects.cmd_register(effect)
+
+    if refresh_effects:
+        storage.effects.update_version()
+        storage.effects.refresh()
+
+    if refresh_places:
+        place = places_storage.places[place_id]
+
+        place.refresh_attributes()
+        places_logic.save_place(place)
+
+        places_storage.places.update_version()
+
+    return effect_id
+
+
+def remove_effect(effect_id, place_id, refresh_effects=False, refresh_places=False):
+    tt_services.effects.cmd_remove(effect_id)
+
+    if refresh_effects:
+        storage.effects.update_version()
+        storage.effects.refresh()
+
+    if refresh_places and place_id is not None:
+        place = places_storage.places[place_id]
+
+        place.refresh_attributes()
+        places_logic.save_place(place)
+
+        places_storage.places.update_version()
+
+
+def task_board_places(x, y):
+    return storage.places.nearest_places(x, y, radius=tt_emissaries_constants.TASK_BOARD_RADIUS)

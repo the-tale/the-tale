@@ -17,6 +17,8 @@ class BaseTestRequests(utils_testcase.TestCase, helpers.ClansTestsMixin, persona
         personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
 
         tt_services.chronicle.cmd_debug_clear_service()
+        tt_services.properties.cmd_debug_clear_service()
+        tt_services.currencies.cmd_debug_clear_service()
 
     def check_no_righs__html(self, clan, url, permissions):
         account_2 = self.accounts_factory.create_account()
@@ -110,10 +112,20 @@ class TestShowRequests(BaseTestRequests):
                                                                     self.clan.description_html,
                                                                     (self.clan.description, 0)])
 
+    def test_ok__removed_clan(self):
+        logic.remove_clan(self.clan)
+
+        self.check_html_ok(self.request_html(self.show_url), texts=['pgf-no-folclor',
+                                                                    self.clan.abbr,
+                                                                    self.clan.name,
+                                                                    self.clan.motto,
+                                                                    self.clan.description_html,
+                                                                    (self.clan.description, 0)])
+
     def test_redirect_from_old_urls(self):
         self.check_redirect('/accounts/clans/{}'.format(self.clan.id), self.show_url)
 
-    def test_folclor(self):
+    def create_folclor(self):
         blogs_helpers.prepair_forum()
 
         blogs_helpers.create_post_for_meta_object(self.accounts_factory.create_account(),
@@ -133,11 +145,71 @@ class TestShowRequests(BaseTestRequests):
                                                   'folclor-3-text',
                                                   meta_relations.Clan.create_from_object(self.clan))
 
+    def test_folclor(self):
+        self.create_folclor()
+
         self.check_html_ok(self.request_html(self.show_url),
                            texts=[('pgf-no-folclor', 0),
                                   'folclor-1-caption',
                                   'folclor-2-caption',
-                                  ('folclor-3-caption', 0)])
+                                  'folclor-3-caption'])
+
+    def test_folclor__removed_clan(self):
+        self.create_folclor()
+
+        logic.remove_clan(self.clan)
+
+        self.check_html_ok(self.request_html(self.show_url),
+                           texts=[('pgf-no-folclor', 0),
+                                  'folclor-1-caption',
+                                  'folclor-2-caption',
+                                  'folclor-3-caption'])
+
+    def test_points_access(self):
+        self.check_html_ok(self.request_html(self.show_url),
+                           texts=[('pgf-clans-points-amount', 0),
+                                  ('pgf-clans-points-dummy', 1)])
+
+        self.request_login(self.account.email)
+        self.check_html_ok(self.request_html(self.show_url),
+                           texts=[('pgf-clans-points-amount', 1),
+                                  ('pgf-clans-points-dummy', 0)])
+
+        clan_2 = self.create_clan(self.accounts_factory.create_account(), 1)
+        self.check_html_ok(self.request_html(dext_urls.url('clans:show', clan_2.id)),
+                           texts=[('pgf-clans-points-amount', 0),
+                                  ('pgf-clans-points-dummy', 1)])
+
+    def test_free_quests_access(self):
+        self.check_html_ok(self.request_html(self.show_url),
+                           texts=[('pgf-clans-free-quests-amount', 0),
+                                  ('pgf-clans-free-quests-dummy', 1)])
+
+        self.request_login(self.account.email)
+        self.check_html_ok(self.request_html(self.show_url),
+                           texts=[('pgf-clans-free-quests-amount', 1),
+                                  ('pgf-clans-free-quests-dummy', 0)])
+
+        clan_2 = self.create_clan(self.accounts_factory.create_account(), 1)
+        self.check_html_ok(self.request_html(dext_urls.url('clans:show', clan_2.id)),
+                           texts=[('pgf-clans-free-quests-amount', 0),
+                                  ('pgf-clans-free-quests-dummy', 1)])
+
+    def test_experience_access(self):
+        self.check_html_ok(self.request_html(self.show_url),
+                           texts=[('pgf-experience-amount', 0),
+                                  ('pgf-experience-dummy', 1)])
+
+        self.request_login(self.account.email)
+        self.check_html_ok(self.request_html(self.show_url),
+                           texts=[('pgf-experience-amount', 1),
+                                  ('pgf-experience-dummy', 0)])
+
+        clan_2 = self.create_clan(self.accounts_factory.create_account(), 1)
+        self.check_html_ok(self.request_html(dext_urls.url('clans:show', clan_2.id)),
+                           texts=[('pgf-experience-amount', 0),
+                                  ('pgf-experience-dummy', 1)])
+
 
 
 class TestChronicleRequests(BaseTestRequests):
@@ -249,10 +321,19 @@ class TestUpdateRequests(BaseTestRequests):
         self.request_login(self.account.email)
 
     def update_data(self, name=None, abbr=None):
-        return {'name': 'clan-1' if name is None else name,
+
+        if name is None:
+            name = 'clan-1'
+
+        data = {'name': name,
                 'abbr': 'CLN-1' if abbr is None else abbr,
                 'motto': 'Clan!',
                 'description': 'ARGH!'}
+
+        data.update(linguistics_helpers.get_word_post_data(game_names.generator().get_test_name(name=name),
+                                                           prefix='linguistics_name'))
+
+        return data
 
     def check_clan_old_data(self):
         self.clan = logic.load_clan(clan_id=self.clan.id)
@@ -358,7 +439,8 @@ class TestRemoveRequests(BaseTestRequests):
 
     def test_ok(self):
         self.check_ajax_ok(self.post_ajax_json(self.remove_url, ))
-        self.assertEqual(models.Clan.objects.count(), 0)
+        self.assertEqual(models.Clan.objects.filter(state=relations.STATE.ACTIVE).count(), 0)
+        self.assertEqual(models.Clan.objects.filter(state=relations.STATE.REMOVED).count(), 1)
 
     def test_moderator(self):
         account = self.accounts_factory.create_account()
@@ -369,7 +451,8 @@ class TestRemoveRequests(BaseTestRequests):
         self.request_login(account.email)
 
         self.check_ajax_ok(self.post_ajax_json(self.remove_url))
-        self.assertEqual(models.Clan.objects.count(), 0)
+        self.assertEqual(models.Clan.objects.filter(state=relations.STATE.ACTIVE).count(), 0)
+        self.assertEqual(models.Clan.objects.filter(state=relations.STATE.REMOVED).count(), 1)
 
 
 class BaseMembershipRequestsTests(BaseTestRequests):
@@ -615,6 +698,9 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
 
     def setUp(self):
         super().setUp()
+
+        accounts_tt_services.players_properties.cmd_debug_clear_service()
+
         self.clan = self.create_clan(self.account, 0)
         self.account_2 = self.accounts_factory.create_account()
         self.invite_url = dext_urls.url('clans:invite', self.clan.id, account=self.account_2.id)
@@ -630,7 +716,7 @@ class MembershipInviteRequestsTests(BaseMembershipRequestsTests):
 
     def test_clan_required(self):
         logic.remove_clan(self.clan)
-        self.check_ajax_error(self.post_ajax_json(self.invite_url, self.post_data()), 'clan.wrong_value')
+        self.check_ajax_error(self.post_ajax_json(self.invite_url, self.post_data()), 'clans.no_rights')
         self.assertEqual(models.MembershipRequest.objects.count(), 0)
 
     def test_no_rights(self):
@@ -1171,7 +1257,12 @@ class ChangeRoleRequestsTests(BaseMembershipRequestsTests):
         super().setUp()
         self.clan = self.create_clan(self.account, 0)
         self.account_2 = self.accounts_factory.create_account()
+
         logic._add_member(clan=self.clan, account=self.account_2, role=relations.MEMBER_ROLE.RECRUIT)
+
+        far_updated_time = datetime.datetime.now()-datetime.timedelta(days=conf.settings.RECRUITE_FREEZE_PERIOD)
+
+        models.Membership.objects.filter(account_id=self.account_2.id).update(updated_at=far_updated_time)
 
         self.change_role_url = dext_urls.url('clans:change-role', self.clan.id, account=self.account_2.id)
         self.request_login(self.account.email)
@@ -1227,8 +1318,43 @@ class ChangeRoleRequestsTests(BaseMembershipRequestsTests):
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_RECRUIT)
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account_2).is_FIGHTER)
 
+    def test_new_recruite(self):
+        logic.change_role(clan=self.clan,
+                          initiator=self.account,
+                          member=self.account_2,
+                          new_role=relations.MEMBER_ROLE.RECRUIT)
+
+        self.assertTrue(logic.get_membership(self.account_2.id).is_freezed())
+
+        with self.check_not_changed(lambda: logic.get_membership(self.account_2.id).role):
+            self.check_ajax_error(self.post_ajax_json(self.change_role_url, self.data), 'clans.no_rights')
+
+    def test_not_recruite_role(self):
+        logic.change_role(clan=self.clan,
+                          initiator=self.account,
+                          member=self.account_2,
+                          new_role=relations.MEMBER_ROLE.OFFICER)
+
+        self.assertFalse(logic.get_membership(self.account_2.id).is_freezed())
+
+        with self.check_changed(lambda: logic.get_membership(self.account_2.id).role):
+            self.check_ajax_ok(self.post_ajax_json(self.change_role_url, self.data))
+
+    def test_fighters_limit(self):
+        attributes = logic.load_attributes(self.clan.id)
+
+        for i in range(attributes.fighters_maximum):
+            account = self.accounts_factory.create_account()
+            logic._add_member(clan=self.clan,
+                              account=account,
+                              role=relations.MEMBER_ROLE.FIGHTER)
+
+        with self.check_not_changed(lambda: logic.get_membership(self.account_2.id).role):
+            self.check_ajax_error(self.post_ajax_json(self.change_role_url, self.data), 'clans.fighters_maximum')
+
     def test_success(self):
-        self.check_ajax_ok(self.post_ajax_json(self.change_role_url, self.data))
+        with self.check_increased(lambda: logic.get_membership(self.account_2.id).updated_at):
+            self.check_ajax_ok(self.post_ajax_json(self.change_role_url, self.data))
 
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_MASTER)
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account_2).is_FIGHTER)

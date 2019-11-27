@@ -19,6 +19,8 @@ class BaseEffectsTests(utils_testcase.TestCase):
     def setUp(self):
         super(BaseEffectsTests, self).setUp()
 
+        places_tt_services.effects.cmd_debug_clear_service()
+
         game_logic.create_test_map()
 
         self.account_1 = self.accounts_factory.create_account()
@@ -50,19 +52,37 @@ class BaseEffectsTests(utils_testcase.TestCase):
                                               negative_heroes=set([self.hero_1.id, self.hero_2.id]),
                                               direction='negative')
 
-        self.assertEqual(invoke_hero_method.call_args_list,
-                         [mock.call(method_name='pos', account_id=self.account_1.id,
-                                    method_kwargs={'a': 'b', 'message_type': 'job_diary_person_place_safety_positive_friends'}, hero_id=self.hero_1.id),
-                          mock.call(method_name='pos', account_id=self.account_3.id,
-                                    method_kwargs={'a': 'b', 'message_type': 'job_diary_person_place_safety_positive_friends'}, hero_id=self.hero_3.id),
-                          mock.call(method_name='neg', account_id=self.account_2.id,
-                                    method_kwargs={'a': 'b', 'message_type': 'job_diary_person_place_safety_positive_enemies'}, hero_id=self.hero_2.id),
-                          mock.call(method_name='pos2', account_id=self.account_3.id,
-                                    method_kwargs={'x': 'y', 'message_type': 'job_diary_place_place_safety_negative_friends'}, hero_id=self.hero_3.id),
-                          mock.call(method_name='neg2', account_id=self.account_1.id,
-                                    method_kwargs={'x': 'y', 'message_type': 'job_diary_place_place_safety_negative_enemies'}, hero_id=self.hero_1.id),
-                          mock.call(method_name='neg2', account_id=self.account_2.id,
-                                    method_kwargs={'x': 'y', 'message_type': 'job_diary_place_place_safety_negative_enemies'}, hero_id=self.hero_2.id)])
+        self.assertCountEqual(invoke_hero_method.call_args_list,
+                              [mock.call(method_name='pos',
+                                         account_id=self.account_1.id,
+                                         method_kwargs={'a': 'b',
+                                                        'message_type': 'job_diary_person_place_safety_positive_friends'},
+                                         hero_id=self.hero_1.id),
+                               mock.call(method_name='pos',
+                                         account_id=self.account_3.id,
+                                         method_kwargs={'a': 'b',
+                                                        'message_type': 'job_diary_person_place_safety_positive_friends'},
+                                         hero_id=self.hero_3.id),
+                               mock.call(method_name='neg',
+                                         account_id=self.account_2.id,
+                                         method_kwargs={'a': 'b',
+                                                        'message_type': 'job_diary_person_place_safety_positive_enemies'},
+                                         hero_id=self.hero_2.id),
+                               mock.call(method_name='pos2',
+                                         account_id=self.account_3.id,
+                                         method_kwargs={'x': 'y',
+                                                        'message_type': 'job_diary_place_place_safety_negative_friends'},
+                                         hero_id=self.hero_3.id),
+                               mock.call(method_name='neg2',
+                                         account_id=self.account_1.id,
+                                         method_kwargs={'x': 'y',
+                                                        'message_type': 'job_diary_place_place_safety_negative_enemies'},
+                                         hero_id=self.hero_1.id),
+                               mock.call(method_name='neg2',
+                                         account_id=self.account_2.id,
+                                         method_kwargs={'x': 'y',
+                                                        'message_type': 'job_diary_place_place_safety_negative_enemies'},
+                                         hero_id=self.hero_2.id)])
 
     def test_invoke_hero_method(self):
 
@@ -90,6 +110,8 @@ class EffectsTestsBase(utils_testcase.TestCase):
 
     def setUp(self):
         super(EffectsTestsBase, self).setUp()
+
+        places_tt_services.effects.cmd_debug_clear_service()
 
         self.place_1, self.place_2, self.place_3 = game_logic.create_test_map()
 
@@ -138,7 +160,7 @@ class PlaceEffectTests(EffectsTestsBase):
                                                         'message_type': 'job_diary_x_%s_positive_enemies' % effect.name.lower(),
                                                         'job_power': self.job_power})])
 
-        applied_effect = self.place.effects.effects[0]
+        applied_effect = list(places_storage.effects.all())[0]
 
         self.assertEqual(applied_effect.name, self.actor_name)
         self.assertEqual(applied_effect.attribute, effect.logic.attribute)
@@ -173,7 +195,7 @@ class PlaceEffectTests(EffectsTestsBase):
                                                         'message_type': 'job_diary_y_%s_negative_enemies' % effect.name.lower(),
                                                         'job_power': self.job_power * c.JOB_NEGATIVE_POWER_MULTIPLIER})])
 
-        applied_effect = self.place.effects.effects[0]
+        applied_effect = list(places_storage.effects.all())[0]
 
         self.assertEqual(applied_effect.name, self.actor_name)
         self.assertEqual(applied_effect.attribute, effect.logic.attribute)

@@ -4,7 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-# TODO: merge classes instead subclassing
 class Hero(logic_accessors.LogicAccessorsMixin,
            equipment_methods.EquipmentMethodsMixin,
            jobs_methods.JobsMethodsMixin,
@@ -57,6 +56,8 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
                  'utg_name',
 
+                 'clan_id',
+
                  # mames mixin
                  '_utg_name_form__lazy',
                  '_name__lazy')
@@ -66,6 +67,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     def __init__(self,
                  id,
                  account_id,
+                 clan_id,
                  level,
                  experience,
                  money,
@@ -106,6 +108,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
 
         self.id = id
         self.account_id = account_id
+        self.clan_id = clan_id
 
         self.force_save_required = False
 
@@ -177,6 +180,12 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         self.first_death = first_death
 
         self.utg_name = utg_name
+
+    def clan_membership(self):
+        if self.clan_id is None:
+            return relations.CLAN_MEMBERSHIP.NOT_IN_CLAN
+
+        return relations.CLAN_MEMBERSHIP.IN_CLAN
 
     ##########################
     # experience
@@ -403,13 +412,14 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     # service
     ##########################
 
-    def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills):
+    def update_with_account_data(self, is_fast, premium_end_at, active_end_at, ban_end_at, might, actual_bills, clan_id):
         self.is_fast = is_fast
         self.active_state_end_at = active_end_at
         self.premium_state_end_at = premium_end_at
         self.ban_state_end_at = ban_end_at
         self.might = might
         self.actual_bills = actual_bills
+        self.clan_id = clan_id
 
     def get_achievement_account_id(self):
         return self.account_id

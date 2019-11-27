@@ -117,6 +117,8 @@ class Worker(utils_workers.BaseWorker):
                 places_logic.sync_money_economic(core_places,
                                                  max_economic=c.PLACE_MAX_ECONOMIC)
 
+                places_logic.update_effects()
+
                 for place in places_storage.places.all():
                     place.attrs.sync_size(c.MAP_SYNC_TIME_HOURS)
                     place.attrs.set_area(map_storage.cells.place_area(place.id))
@@ -170,12 +172,3 @@ class Worker(utils_workers.BaseWorker):
         self.logger.info('apply bills completed')
 
         return applied
-
-    def cmd_logic_task(self, account_id, task_id):
-        return self.send_cmd('logic_task', {'task_id': task_id,
-                                            'account_id': account_id})
-
-    def process_logic_task(self, account_id, task_id):  # pylint: disable=W0613
-        task = PostponedTaskPrototype.get_by_id(task_id)
-        task.process(self.logger, highlevel=self)
-        task.do_postsave_actions()

@@ -17,7 +17,7 @@ class ComplexChangeTask(PostponedLogic):
     class STEP(rels_django.DjangoEnum):
         records = (('ERROR', 0, 'ошибка'),
                    ('LOGIC', 1, 'логика'),
-                   ('HIGHLEVEL', 2, 'высокоуровневая логика'),
+                   # ('HIGHLEVEL', 2, 'высокоуровневая логика'),
                    ('SUCCESS', 4, 'обработка завершена'))
 
     class RESULT(rels_django.DjangoEnum):
@@ -83,12 +83,9 @@ class ComplexChangeTask(PostponedLogic):
         if next_step.is_ERROR:
             return self.RESULT.FAILED, next_step, ()
 
-        if next_step.is_HIGHLEVEL:
-            return self.RESULT.CONTINUE, next_step, ((lambda: amqp_environment.environment.workers.highlevel.cmd_logic_task(self.hero.account_id, self.main_task.id)), )
-
         raise exceptions.UnknownNextStepError(next_step=next_step)
 
-    def process(self, main_task, storage=None, highlevel=None):  # pylint: disable=R0911
+    def process(self, main_task, storage=None):  # pylint: disable=R0911
 
         self.main_task = main_task
 
@@ -109,8 +106,7 @@ class ComplexChangeTask(PostponedLogic):
                 return POSTPONED_TASK_LOGIC_RESULT.ERROR
 
             result, self.step, postsave_actions = processor.use(task=self,
-                                                                storage=storage,
-                                                                highlevel=highlevel)
+                                                                storage=storage)
             main_task.extend_postsave_actions(postsave_actions)
 
             if result.is_IGNORE:
@@ -138,8 +134,7 @@ class ComplexChangeTask(PostponedLogic):
 
         else:
             result, self.step, postsave_actions = processor.use(task=self,
-                                                                storage=storage,
-                                                                highlevel=highlevel)
+                                                                storage=storage)
 
             main_task.extend_postsave_actions(postsave_actions)
 

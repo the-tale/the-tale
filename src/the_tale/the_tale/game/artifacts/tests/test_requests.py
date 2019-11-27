@@ -213,7 +213,7 @@ class TestShowRequests(BaseTestRequests):
 
     def test_simple(self):
         artifact = logic.construct_from_model(models.ArtifactRecord.objects.all()[0])
-        self.check_html_ok(self.request_html(django_reverse('guide:artifacts:show', args=[artifact.id])), texts=[(artifact.name.capitalize(), 5),
+        self.check_html_ok(self.request_html(django_reverse('guide:artifacts:show', args=[artifact.id])), texts=[(artifact.name.capitalize(), 4),
                                                                                                                  ('pgf-no-description', 0),
                                                                                                                  ('pgf-moderate-button', 0),
                                                                                                                  ('pgf-edit-button', 0),

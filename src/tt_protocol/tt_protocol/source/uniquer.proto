@@ -1,0 +1,15 @@
+syntax = "proto3";
+package uniquer;
+
+
+message GetIdRequest {
+  string key = 1;
+}
+
+message GetIdResponse {
+  int64 unique_id = 1;
+}
+
+
+message DebugClearServiceRequest {}
+message DebugClearServiceResponse {}

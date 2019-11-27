@@ -162,6 +162,26 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
         data = self.check_ajax_ok(response)
 
+        self.assertEqual(data['cards'], [new_card.ui_info()])
+
+    def test_created__old_api(self):
+        self.request_login(self.account.email)
+
+        card_1 = objects.Card(types.CARD.ADD_GOLD_COMMON, uid=uuid.uuid4())
+        card_2 = objects.Card(types.CARD.ADD_GOLD_COMMON, uid=uuid.uuid4())
+
+        logic.change_cards(self.hero.account_id, operation_type='#test', to_add=[card_1, card_2])
+
+        response = self.post_ajax_json(logic.combine_cards_url(api_version='2.0'), {'card': [card_1.uid, card_2.uid]})
+
+        account_cards = tt_services.storage.cmd_get_items(self.hero.account_id)
+
+        self.assertEqual(len(account_cards), 1)
+
+        new_card = list(account_cards.values())[0]
+
+        data = self.check_ajax_ok(response)
+
         self.assertEqual(data['card'], new_card.ui_info())
 
     def test_created__no_premium_cards(self):
@@ -192,7 +212,7 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
             data = self.check_ajax_ok(response)
 
-            self.assertEqual(data['card'], new_card.ui_info())
+            self.assertEqual(data['cards'], [new_card.ui_info()])
 
             tt_services.storage.cmd_debug_clear_service()
 
@@ -226,7 +246,7 @@ class CombineCardsRequestsTests(CardsRequestsTestsBase):
 
             data = self.check_ajax_ok(response)
 
-            self.assertEqual(data['card'], new_card.ui_info())
+            self.assertEqual(data['cards'], [new_card.ui_info()])
 
             tt_services.storage.cmd_debug_clear_service()
 

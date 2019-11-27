@@ -107,7 +107,37 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                attributes.attr('AREA', 34, 'площадь владений', order=0, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
                                description='Площадь владений города. Чем больше у города владений, тем больше производство в нём. На Фронтире бонус к производству меньше.'),
                attributes.attr('MONEY_ECONOMIC', 35, 'торговля', default=lambda: 1, type=attributes.ATTRIBUTE_TYPE.CALCULATED,
-                               description='Влияет на скорость производства товаров в городе. Зависит от общего количества потраченных и полученных героями денег в городе за определённый период времени (примерное количество недель: %d). Чем больше сумма по сравнению с другими городами, тем больше размер торговли. Расчитывается отдельно для городов Фронтира и центра.' % c.PLACE_POWER_HISTORY_WEEKS),)
+                               description='Влияет на скорость производства товаров в городе. Зависит от общего количества потраченных и полученных героями денег в городе за определённый период времени (примерное количество недель: %d). Чем больше сумма по сравнению с другими городами, тем больше размер торговли. Расчитывается отдельно для городов Фронтира и центра.' % c.PLACE_POWER_HISTORY_WEEKS),
+
+               attributes.attr('TASK_BOARD', 36, 'доска заданий',
+                               default=set, serializer=list, deserializer=set, apply=game_attributes.set_applier,
+                               formatter=lambda attribute: 'кланов: {}'.format(len(attribute)),
+                               description='Перечень гильдий, герои которых не бездельничают в городе. Управляется мероприятиями эмиссаров.'),
+               attributes.attr('FAST_TRANSPORTATION', 37, 'служба сопровождения',
+                               default=set, serializer=list, deserializer=set, apply=game_attributes.set_applier,
+                               formatter=lambda attribute: 'кланов: {}'.format(len(attribute)),
+                               description='Перечень гильдий, которые предоставляют своим героям услуги сопровождения в путешествиях.'),
+
+               attributes.attr('COMPANIONS_SUPPORT', 38, 'поддержка спутников',
+                               default=set, serializer=list, deserializer=set, apply=game_attributes.set_applier,
+                               formatter=lambda attribute: 'кланов: {}'.format(len(attribute)),
+                               description='Перечень гильдий, которые предоставляют лечение спутникам своих героев.'),
+
+               attributes.attr('DEMOGRAPHICS_PRESSURE_HUMAN', 39, 'бонус демографического давления людей',
+                               formatter=attributes.delta_percents_formatter,
+                               description='Модификация демографического давления мастеров людей.'),
+               attributes.attr('DEMOGRAPHICS_PRESSURE_ELF', 40, 'бонус демографического давления эльфов',
+                               formatter=attributes.delta_percents_formatter,
+                               description='Модификация демографического давления мастеров эльфов.'),
+               attributes.attr('DEMOGRAPHICS_PRESSURE_ORC', 41, 'бонус демографического давления орков',
+                               formatter=attributes.delta_percents_formatter,
+                               description='Модификация демографического давления мастеров орков.'),
+               attributes.attr('DEMOGRAPHICS_PRESSURE_GOBLIN', 42, 'бонус демографического давления гоблинов',
+                               formatter=attributes.delta_percents_formatter,
+                               description='Модификация демографического давления мастеров гоблинов.'),
+               attributes.attr('DEMOGRAPHICS_PRESSURE_DWARF', 43, 'бонус демографического давления дварфов',
+                               formatter=attributes.delta_percents_formatter,
+                               description='Модификация демографического давления мастеров дварфов.'),)
 
 
 ATTRIBUTE.EFFECTS_ORDER = sorted(set(record.order for record in ATTRIBUTE.records))

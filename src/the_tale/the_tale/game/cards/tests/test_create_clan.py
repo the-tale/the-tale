@@ -40,6 +40,9 @@ class CreateClanTests(helpers.CardsTestMixin, utils_testcase.TestCase):
         self.assertEqual(clan.name, 'xxx')
         self.assertEqual(clan.abbr, 'yyy')
 
+        # default devis MUST be specified, because it used by linguistics
+        self.assertEqual(clan.motto, 'Veni, vidi, vici!')
+
         membership = clans_models.Membership.objects.all()[0]
 
         self.assertEqual(membership.clan.id, clan.id)

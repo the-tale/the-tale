@@ -63,20 +63,6 @@ class HelpAbilityTest(pvp_helpers.PvPTestsMixin,
                 self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
                 self.assertTrue(self.hero.health > 1)
 
-    def test_start_quest(self):
-        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.START_QUEST):
-            with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
-                self.assertTrue(self.action_idl.percents >= 1)
-
-    def test_experience(self):
-        old_experience = self.hero.experience
-        with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.EXPERIENCE):
-            with self.check_delta(lambda: self.hero.statistics.help_count, 1):
-                self.assertEqual(self.ability.use(**self.use_attributes()), (game_postponed_tasks.ComplexChangeTask.RESULT.SUCCESSED, game_postponed_tasks.ComplexChangeTask.STEP.SUCCESS, ()))
-
-        self.assertTrue(old_experience < self.hero.experience)
-
     def test_money(self):
         old_hero_money = self.hero.money
         with mock.patch('the_tale.game.actions.prototypes.ActionBase.get_help_choice', lambda x: relations.HELP_CHOICES.MONEY):

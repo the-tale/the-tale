@@ -67,6 +67,7 @@ class CreateCardTest(utils_testcase.TestCase):
     @mock.patch('the_tale.game.cards.effects.ChangeHabit.allowed_directions', lambda self: [1])
     @mock.patch('the_tale.game.cards.effects.AddPersonPower.allowed_directions', lambda self: [1])
     @mock.patch('the_tale.game.cards.effects.AddPlacePower.allowed_directions', lambda self: [1])
+    @mock.patch('the_tale.game.cards.effects.EmissaryQuest.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
     @mock.patch('the_tale.game.cards.effects.ChangeHistory.allowed_history', lambda self: [effects.ChangeHistory.HISTORY_TYPE.records[0]])
     def test_exclude(self):
         created_cards = []
@@ -94,6 +95,7 @@ class CreateCardTest(utils_testcase.TestCase):
     @mock.patch('the_tale.game.cards.effects.ChangeHabit.allowed_directions', lambda self: [1])
     @mock.patch('the_tale.game.cards.effects.AddPersonPower.allowed_directions', lambda self: [1])
     @mock.patch('the_tale.game.cards.effects.AddPlacePower.allowed_directions', lambda self: [1])
+    @mock.patch('the_tale.game.cards.effects.EmissaryQuest.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
     @mock.patch('the_tale.game.cards.effects.ChangeHistory.allowed_history', lambda self: [effects.ChangeHistory.HISTORY_TYPE.records[0]])
     def test_exclude__different_data(self):
         created_cards = []
@@ -131,57 +133,67 @@ class GetCombinedCardTests(utils_testcase.TestCase):
                                        available_for_auction=available_for_auction)
 
     def test_no_cards(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=())
-        self.assertEqual(card, None)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=())
+        self.assertEquals(cards, None)
         self.assertTrue(result.is_NO_CARDS)
 
     def test_equal_rarity_required(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.ADD_POWER_COMMON),
-                                                               self.create_card(types.CARD.ADD_POWER_UNCOMMON)))
-        self.assertEqual(card, None)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.ADD_POWER_COMMON),
+                                                                 self.create_card(types.CARD.ADD_POWER_UNCOMMON)))
+        self.assertEqual(cards, None)
         self.assertTrue(result.is_EQUAL_RARITY_REQUIRED)
 
     def test_duplicate_ids(self):
         uid = uuid.uuid4()
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.ADD_POWER_COMMON, uid=uid),
-                                                               self.create_card(types.CARD.ADD_POWER_UNCOMMON, uid=uid)))
-        self.assertEqual(card, None)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.ADD_POWER_COMMON, uid=uid),
+                                                                 self.create_card(types.CARD.ADD_POWER_UNCOMMON, uid=uid)))
+        self.assertEqual(cards, None)
         self.assertTrue(result.is_EQUAL_RARITY_REQUIRED)
 
     def test_combine_1_common(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.ADD_POWER_COMMON),))
-        self.assertEqual(card, None)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.ADD_POWER_COMMON),))
+        self.assertEqual(cards, None)
         self.assertTrue(result.is_COMBINE_1_COMMON)
 
     def test_combine_1(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.ADD_POWER_UNCOMMON),))
-        self.assertNotEqual(card, None)
-        self.assertTrue(card.type.rarity.is_COMMON)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.ADD_POWER_UNCOMMON),))
+        self.assertEqual(len(cards), 1)
+        self.assertTrue(cards[0].type.rarity.is_COMMON)
+        self.assertTrue(result.is_SUCCESS)
+
+    def test_combine_1__multiple_results(self):
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.CREATE_CLAN),))
+        self.assertEqual(len(cards), 9)
+        self.assertTrue(all(card.type.is_EMISSARY_QUEST for card in cards))
+
+        self.assertTrue(cards[0].type.rarity.value < types.CARD.CREATE_CLAN.rarity.value)
+
         self.assertTrue(result.is_SUCCESS)
 
     def test_combine_2_reactor(self):
         combined_card_1 = self.create_card(types.CARD.CHANGE_HABIT_EPIC)
         combined_card_2 = self.create_card(types.CARD.CHANGE_HABIT_EPIC)
 
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(combined_card_1, combined_card_2))
-        self.assertNotEqual(card, None)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(combined_card_1, combined_card_2))
+        self.assertEqual(len(cards), 1)
         self.assertTrue(result.is_SUCCESS)
 
-        self.assertEqual(card.type, types.CARD.CHANGE_HABIT_EPIC)
-        self.assertNotEqual(combined_card_1.data, card.data)
-        self.assertNotEqual(combined_card_2.data, card.data)
+        self.assertEqual(cards[0].type, types.CARD.CHANGE_HABIT_EPIC)
+        self.assertNotEqual(combined_card_1.data, cards[0].data)
+        self.assertNotEqual(combined_card_2.data, cards[0].data)
 
     def test_combine_2_random(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                               self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
-        self.assertNotEqual(card, None)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                 self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
+        self.assertEqual(len(cards), 1)
         self.assertTrue(result.is_SUCCESS)
 
     def test_get_combined_card_3_reactor(self):
@@ -192,49 +204,50 @@ class GetCombinedCardTests(utils_testcase.TestCase):
         combined_card_2.data = combined_card_1.data
         combined_card_3.data = combined_card_1.data
 
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(combined_card_1, combined_card_2, combined_card_3))
-        self.assertNotEqual(card, None)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(combined_card_1, combined_card_2, combined_card_3))
+        self.assertEqual(len(cards), 1)
         self.assertTrue(result.is_SUCCESS)
 
-        self.assertEqual(card.type, types.CARD.CHANGE_HABIT_LEGENDARY)
-        self.assertEqual(combined_card_1.data, card.data)
+        self.assertEqual(cards[0].type, types.CARD.CHANGE_HABIT_LEGENDARY)
+        self.assertEqual(combined_card_1.data, cards[0].data)
 
     def test_get_combined_card_3__random(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                               self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                               self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
-        self.assertNotEqual(card, None)
-        self.assertTrue(card.type.rarity.is_LEGENDARY)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                 self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                 self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
+        self.assertEqual(len(cards), 1)
+        self.assertTrue(cards[0].type.rarity.is_LEGENDARY)
         self.assertTrue(result.is_SUCCESS)
 
     def test_combine_3_legendary(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_LEGENDARY),
-                                                               self.create_card(types.CARD.CHANGE_HABIT_LEGENDARY),
-                                                               self.create_card(types.CARD.ADD_EXPERIENCE_LEGENDARY)))
-        self.assertEqual(card, None)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_LEGENDARY),
+                                                                 self.create_card(types.CARD.CHANGE_HABIT_LEGENDARY),
+                                                                 self.create_card(types.CARD.ADD_EXPERIENCE_LEGENDARY)))
+        self.assertEqual(cards, None)
         self.assertTrue(result.is_COMBINE_3_LEGENDARY)
 
     def test_combine_too_many_cards(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                               self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                               self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                               self.create_card(types.CARD.CHANGE_HABIT_EPIC)))
-        self.assertEqual(card, None)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                 self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                 self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                 self.create_card(types.CARD.CHANGE_HABIT_EPIC)))
+        self.assertEqual(cards, None)
         self.assertTrue(result.is_TOO_MANY_CARDS)
 
     def test_allow_premium_cards__allowed(self):
         availability = set()
 
         for i in range(1000):
-            card, result = logic.get_combined_card(allow_premium_cards=True,
-                                                   combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                                   self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                                   self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
-            availability.add(card.type.availability)
+            cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                     combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                     self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                     self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
+            self.assertEqual(len(cards), 1)
+            availability.add(cards[0].type.availability)
 
         self.assertEqual(availability, set(relations.AVAILABILITY.records))
 
@@ -242,27 +255,31 @@ class GetCombinedCardTests(utils_testcase.TestCase):
         availability = set()
 
         for i in range(1000):
-            card, result = logic.get_combined_card(allow_premium_cards=False,
-                                                   combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                                   self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                                   self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
-            availability.add(card.type.availability)
+            cards, result = logic.get_combined_cards(allow_premium_cards=False,
+                                                     combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                     self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                     self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
+            self.assertEqual(len(cards), 1)
+            availability.add(cards[0].type.availability)
 
         self.assertEqual(availability, {relations.AVAILABILITY.FOR_ALL})
 
     def test_available_for_auction__available(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                               self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                               self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
-        self.assertTrue(card.available_for_auction)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                 self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                 self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
+        self.assertEqual(len(cards), 1)
+        self.assertTrue(cards[0].available_for_auction)
 
     def test_available_for_auction__not_available(self):
-        card, result = logic.get_combined_card(allow_premium_cards=True,
-                                               combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
-                                                               self.create_card(types.CARD.CHANGE_HABIT_EPIC, available_for_auction=False),
-                                                               self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
-        self.assertFalse(card.available_for_auction)
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=(self.create_card(types.CARD.CHANGE_HABIT_EPIC),
+                                                                 self.create_card(types.CARD.CHANGE_HABIT_EPIC,
+                                                                                  available_for_auction=False),
+                                                                 self.create_card(types.CARD.ADD_EXPERIENCE_EPIC)))
+        self.assertEqual(len(cards), 1)
+        self.assertFalse(cards[0].available_for_auction)
 
 
 class StorageOperationsTest(utils_testcase.TestCase):

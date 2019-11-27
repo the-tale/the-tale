@@ -150,6 +150,7 @@ jQuery(document).ready(function() {
             (url("guide:keepers"), "Хранители"),
             (url("guide:cards:"), "Карты Судьбы"),
             (url("guide:clans"), "Гильдии"),
+            (url("guide:emissaries"), "Эмиссары"),
 
             ('-', '<li class="divider"></li>'),
             ('-', '<li style="padding-left: 15px; cursor: default;"><strong style="color: black;">Герои</strong></li>'),
@@ -332,8 +333,5 @@ jQuery(document).ready(function() {
 </script>
 {% endif %}
 
-    {% if settings.ADDTHIS %}
-    <script type="text/javascript" src="https://s7.addthis.com/js/300/addthis_widget.js#pubid={{settings.ADDTHIS}}"></script>
-    {% endif %}
   </body>
 </html>

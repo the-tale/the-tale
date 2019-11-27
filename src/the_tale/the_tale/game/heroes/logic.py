@@ -76,8 +76,6 @@ def load_heroes_by_account_ids(account_ids):
 
 def load_hero(hero_id=None, account_id=None, hero_model=None):
 
-    # TODO: get values instead model
-    # TODO: check that load_hero everywhere called with correct arguments
     try:
         if hero_id is not None:
             hero_model = models.Hero.objects.get(id=hero_id)
@@ -93,14 +91,9 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
     companion_data = data.get('companion')
     companion = companions_objects.Companion.deserialize(companion_data) if companion_data else None
 
-    if 'position' not in data:
-        # TODO: remove after 0.3.29
-        hero_position = position.Position.create(places_logic.get_start_place_for_race(hero_model.race))
-    else:
-        hero_position = position.Position.deserialize(data['position'])
-
     return objects.Hero(id=hero_model.id,
                         account_id=hero_model.account_id,
+                        clan_id=hero_model.clan_id,
                         health=hero_model.health,
                         level=hero_model.level,
                         experience=hero_model.experience,
@@ -108,12 +101,12 @@ def load_hero(hero_id=None, account_id=None, hero_model=None):
                         next_spending=hero_model.next_spending,
                         habit_honor=habits.Honor(raw_value=hero_model.habit_honor),
                         habit_peacefulness=habits.Peacefulness(raw_value=hero_model.habit_peacefulness),
-                        position=hero_position,
+                        position=position.Position.deserialize(data['position']),
                         statistics=hero_statistics_from_model(hero_model),
                         preferences=preferences.HeroPreferences.deserialize(data=s11n.from_json(hero_model.preferences)),
                         actions=actions_container.ActionsContainer.deserialize(s11n.from_json(hero_model.actions)),
                         companion=companion,
-                        journal=messages.JournalContainer(),  # we are not storrings journal in database, since messages in it replaced very fast
+                        journal=messages.JournalContainer(),  # we are not storing journal in database, since messages in it replaced very fast
                         quests=quests_container.QuestsContainer.deserialize(data.get('quests', {})),
                         abilities=abilities.AbilitiesPrototype.deserialize(s11n.from_json(hero_model.abilities)),
                         bag=bag.Bag.deserialize(data['bag']),
@@ -304,6 +297,7 @@ def create_hero(account_id, attributes):
 
     hero = objects.Hero(id=account_id,
                         account_id=account_id,
+                        clan_id=None,
                         health=f.hp_on_lvl(1),
                         level=1,
                         experience=0,

@@ -4,25 +4,49 @@ import smart_imports
 smart_imports.all()
 
 
-def setup_quest(hero):
+def setup_quest(hero, emissary_id=None, person_action=None):
     hero_info = logic.create_hero_info(hero)
-    knowledge_base = logic.create_random_quest_for_hero(hero_info, mock.Mock())
+
+    if emissary_id is None:
+        knowledge_base = logic.create_random_quest_for_hero(hero_info, mock.Mock())
+    else:
+        knowledge_base = logic.create_random_quest_for_emissary(hero_info=hero_info,
+                                                                emissary=emissaries_storage.emissaries[emissary_id],
+                                                                person_action=person_action,
+                                                                logger=mock.Mock())
+
     logic.setup_quest_for_hero(hero, knowledge_base.serialize())
 
 
 class QuestTestsMixin(object):
 
-    def turn_to_quest(self, storage, hero_id):
+    def turn_to_quest(self,
+                      storage,
+                      hero_id,
+                      continue_steps_if_needed=True,
+                      generate_quest=True):
 
         hero = storage.heroes[hero_id]
 
-        while hero.actions.current_action.TYPE != actions_prototypes.ActionQuestPrototype.TYPE or not self.hero.quests.has_quests:
-            storage.process_turn()
+        while ((hero.actions.current_action.TYPE != actions_prototypes.ActionQuestPrototype.TYPE) or
+               (generate_quest and not self.hero.quests.has_quests)):
+            storage.process_turn(continue_steps_if_needed=continue_steps_if_needed)
             game_turn.increment()
 
         storage.save_changed_data()
 
-        return hero.quests.current_quest
+        if hero.quests.has_quests:
+            return hero.quests.current_quest
+
+        return None
+
+    def complete_quest(self, hero):
+
+        while not hero.actions.first_action.leader:
+            hero.actions.current_action.storage.process_turn()
+            game_turn.increment()
+
+            hero.ui_info(actual_guaranteed=True)  # test if ui info formed correctly
 
 
 class QuestWith2ChoicePoints(questgen_quests_base_quest.BaseQuest):

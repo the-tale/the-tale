@@ -1,0 +1,45 @@
+
+<div class="modal hide" style="text-align: justify;">
+
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3 class="pgf-dialog-title dialog-title">Начало мероприятия «{{event_class.TYPE.text}}»</h3>
+  </div>
+
+  <div class="modal-body">
+
+    {% set raw_ability_power = event_class.get_raw_ability_power(emissary) %}
+
+    <p>
+      {{event_class.effect_description(emissary, raw_ability_power)}}
+    </p>
+
+    {% if event_class.TYPE.availability.is_FOR_LEADERS %}
+    <p class="alert alert-info">
+      <strong>Внимание!</strong> Эффект этого события будет работать только если эмиссар является одним из лидеров по влиянию в городе.
+    </p>
+    {% endif %}
+
+    <form class="" method="post" action="{{ url('game:emissaries:start-event', emissary.id, event_type=event_class.TYPE.value) }}">
+
+      {{ form.errors_container }}
+
+      {% if form.place is defined %}
+      {{ form.place.widget }}
+      {% endif %}
+
+      {% if form.name is defined %}
+      {{ form.name.widget }}
+      {% endif %}
+
+      {{ form.period.widget }}
+
+      <div class="widget">
+        <input type="submit" accesskey="u" class="btn btn-success" value="Начать"/>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

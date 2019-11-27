@@ -28,7 +28,7 @@ def update_job(job, actor_id):
 
     job_effect = job.get_apply_effect_method(power)
 
-    effect_kwargs = {'actor_type': 'place',
+    effect_kwargs = {'actor_type': job.ACTOR,
                      'actor_name': job.get_project_name(actor_id),
                      'positive_heroes': inner_circle.positive_heroes,
                      'negative_heroes': inner_circle.negative_heroes,
