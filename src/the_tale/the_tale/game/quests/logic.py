@@ -335,7 +335,10 @@ def get_knowledge_base(hero_info, without_restrictions=False):  # pylint: disabl
 def create_random_quest_for_hero(hero_info, logger):
     constructor = place_quest_constructor_fabric(place_uid=uids.place(hero_info.position_place_id))
 
-    return create_random_quest_with_constructor(hero_info, constructor, logger)
+    return create_random_quest_with_constructor(hero_info,
+                                                constructor,
+                                                logger,
+                                                excluded_quests=hero_info.excluded_quests)
 
 
 def create_random_quest_for_emissary(hero_info, emissary, person_action, logger):
@@ -343,10 +346,17 @@ def create_random_quest_for_emissary(hero_info, emissary, person_action, logger)
                                                     emissary=emissary,
                                                     person_action=person_action)
 
-    return create_random_quest_with_constructor(hero_info, constructor, logger)
+    excluded_quests = [record.quest_class.TYPE
+                       for record in relations.QUESTS.records
+                       if not record.allowed_for_emissary]
+
+    return create_random_quest_with_constructor(hero_info,
+                                                constructor,
+                                                logger,
+                                                excluded_quests=excluded_quests)
 
 
-def create_random_quest_with_constructor(hero_info, constructor, logger):
+def create_random_quest_with_constructor(hero_info, constructor, logger, excluded_quests=None):
 
     start_time = time.time()
 
@@ -354,7 +364,11 @@ def create_random_quest_with_constructor(hero_info, constructor, logger):
 
     quests = utils_logic.shuffle_values_by_priority(hero_info.quests_priorities)
 
-    excluded_quests = hero_info.excluded_quests
+    logger.info('hero[%(hero_id).6d]: try is_normal: %(is_normal)s (allowed: %(allowed)s) (excluded: %(excluded)s)' %
+                {'hero_id': hero_info.id,
+                 'is_normal': normal_mode,
+                 'allowed': ', '.join(quest.quest_class.TYPE for quest in quests),
+                 'excluded': ', '.join(excluded_quests)})
 
     quest_type, knowledge_base = try_to_create_random_quest_for_hero(hero_info,
                                                                      quests,
@@ -364,6 +378,7 @@ def create_random_quest_with_constructor(hero_info, constructor, logger):
                                                                      logger=logger)
 
     if knowledge_base is None:
+        logger.info('hero[%(hero_id).6d]: first try failed' % {'hero_id': hero_info.id})
         normal_mode = False
         quest_type, knowledge_base = try_to_create_random_quest_for_hero(hero_info,
                                                                          quests,
@@ -374,7 +389,7 @@ def create_random_quest_with_constructor(hero_info, constructor, logger):
 
     spent_time = time.time() - start_time
 
-    logger.info('hero[%(hero_id).6d]: %(spent_time)s %(is_normal)s %(quest_type)20s (allowed: %(allowed)s) (excluded: %(excluded)s)' %
+    logger.info('hero[%(hero_id).6d]: %(spent_time)s is_normal: %(is_normal)s %(quest_type)20s (allowed: %(allowed)s) (excluded: %(excluded)s)' %
                 {'hero_id': hero_info.id,
                  'spent_time': spent_time,
                  'is_normal': normal_mode,
