@@ -201,32 +201,34 @@ class Person(game_names.ManageNameMixin2):
                                       value=self.modify_specialization_points(points))
 
     def place_effects(self):
+        effect_name = 'Мастер {}'.format(self.name)
+
         for attribute, modifier in self.get_economic_modifiers():
-            yield game_effects.Effect(name=self.name, attribute=attribute, value=modifier)
+            yield game_effects.Effect(name=effect_name, attribute=attribute, value=modifier)
 
         yield from self.specialization_effects()
 
         if self.attrs.terrain_radius_bonus != 0:
-            yield game_effects.Effect(name=self.name,
+            yield game_effects.Effect(name=effect_name,
                                       attribute=places_relations.ATTRIBUTE.TERRAIN_RADIUS,
                                       value=self.attrs.terrain_radius_bonus)
 
         if self.attrs.politic_radius_bonus != 0:
-            yield game_effects.Effect(name=self.name,
+            yield game_effects.Effect(name=effect_name,
                                       attribute=places_relations.ATTRIBUTE.POLITIC_RADIUS,
                                       value=self.attrs.politic_radius_bonus)
 
         if self.attrs.stability_renewing_bonus != 0:
-            yield game_effects.Effect(name=self.name,
+            yield game_effects.Effect(name=effect_name,
                                       attribute=places_relations.ATTRIBUTE.STABILITY_RENEWING_SPEED,
                                       value=self.attrs.stability_renewing_bonus)
 
         if self.has_building:
-            yield game_effects.Effect(name='стабилизация {} ({})'.format(self.building.name, self.name),
+            yield game_effects.Effect(name='стабилизация {} ({})'.format(self.building.name, effect_name),
                                       attribute=places_relations.ATTRIBUTE.PRODUCTION,
                                       value=-c.CELL_STABILIZATION_PRICE)
 
-            yield game_effects.Effect(name='ремонт {} ({})'.format(self.building.name, self.name),
+            yield game_effects.Effect(name='ремонт {} ({})'.format(self.building.name, effect_name),
                                       attribute=places_relations.ATTRIBUTE.PRODUCTION,
                                       value=-self.attrs.building_support_cost)
 
