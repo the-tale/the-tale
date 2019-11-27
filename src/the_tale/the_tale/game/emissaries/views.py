@@ -124,6 +124,10 @@ resource.add_processor(EmissaryClanRightsProcessor())
 @resource('#emissary', name='show')
 def show(context):
 
+    if context.current_emissary is None:
+        raise dext_views.ViewError(code='emissaries.not_found',
+                                   message='Эмиссар не найден.')
+
     clan_events = None
 
     if context.clan:
@@ -160,12 +164,17 @@ def show(context):
 def check_clan_restrictions(clan_id):
     clan_attributes = clans_logic.load_attributes(clan_id)
 
+    if clan_attributes.fighters_maximum < clans_logic.get_combat_personnel(clan_id):
+        raise dext_views.ViewError(code='emissaries.maximum_fighters',
+                                   message='Боевой состав вашей гильдии превышает максимально допустимый..')
+
     if not logic.has_clan_space_for_emissary(clan_id, clan_attributes):
         raise dext_views.ViewError(code='emissaries.maximum_emissaries',
                                    message='Ваша гильдия уже наняла максимально возможное количество эмиссаров.')
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @clans_views.ClanStaticOperationAccessProcessor(permissions_attribute='clan_rights', permission='can_emissaries_relocation')
 @resource('create-dialog')
 def create_dialog(context):
@@ -180,6 +189,7 @@ def create_dialog(context):
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @clans_views.ClanStaticOperationAccessProcessor(permissions_attribute='clan_rights', permission='can_emissaries_relocation')
 @dext_views.FormProcessor(form_class=forms.EmissaryForm)
 @resource('create', method='POST')
@@ -205,6 +215,7 @@ def create(context):
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @EventTypeProcessor(get_name='event_type')
 @EventPermissionProcessor()
 @resource('#emissary', 'start-event-dialog')
@@ -236,6 +247,7 @@ def _check_emissaries_events(emissary, event_class):
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @EventTypeProcessor(get_name='event_type')
 @EventPermissionProcessor()
 @resource('#emissary', 'start-event', method='POST')
@@ -299,6 +311,7 @@ def start_event(context):
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @EventIdProcessor(get_name='event')
 @EventPermissionProcessor()
 @resource('#emissary', 'stop-event', method='POST')

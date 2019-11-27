@@ -238,6 +238,15 @@ class GetCombinedCardTests(utils_testcase.TestCase):
         self.assertEqual(cards, None)
         self.assertTrue(result.is_TOO_MANY_CARDS)
 
+    def test_combine_too_many_cards_allowed(self):
+        combined_cards = [self.create_card(types.CARD.EMISSARY_QUEST)
+                          for _ in range(9)]
+
+        cards, result = logic.get_combined_cards(allow_premium_cards=True,
+                                                 combined_cards=combined_cards)
+        self.assertEqual(len(cards), 1)
+        self.assertTrue(cards[0].type.is_CREATE_CLAN)
+
     def test_allow_premium_cards__allowed(self):
         availability = set()
 

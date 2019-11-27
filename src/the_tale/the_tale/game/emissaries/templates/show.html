@@ -12,6 +12,7 @@
 {% block emissaries_content %}
 
 <h2>
+  <small>{{emissaries_macros.emissary_description(emissary)}}</small>
   {{emissary.name}}
   {{ base_macros.magnet(emissary.meta_object()) }}
   <small>эмиссар гильдии {{clans_macros.clan_link(clan)}}</small>

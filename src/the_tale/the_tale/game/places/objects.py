@@ -398,7 +398,7 @@ class Place(game_names.ManageNameMixin2):
     def effects_update_step(self):
         stability_effects = [effect for effect in self.effects.effects if effect.attribute.is_STABILITY]
 
-        logic.update_stability_effects_deltas(self, stability_effects)
+        logic.update_stability_effects_deltas(self.attrs.stability_renewing_speed, stability_effects)
 
         self.effects.update_step()
 

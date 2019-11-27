@@ -119,6 +119,10 @@ class CreateDialogTests(BaseRequestsTests):
         self.check_html_ok(self.request_ajax_html(self.url), texts=[('clans.no_rights', 0),
                                                                     'form'])
 
+    def test_banned(self):
+        self.account_1.ban_game(1)
+        self.check_html_ok(self.request_ajax_html(self.url), texts=['common.ban_game'])
+
 
 class CreateTests(BaseRequestsTests):
 
@@ -192,6 +196,19 @@ class CreateTests(BaseRequestsTests):
         with self.check_no_changes_in_emissaries(self.clan_1):
             self.check_ajax_error(self.post_ajax_json(self.url, self.get_post_data()), 'emissaries.maximum_emissaries')
 
+    def test_maximum_combat_personnel_reached(self):
+
+        clan_attributes = clans_logic.load_attributes(self.clan_1.id)
+
+        for i in range(clan_attributes.fighters_maximum):
+            account = self.accounts_factory.create_account()
+            clans_logic._add_member(clan=self.clan_1,
+                                    account=account,
+                                    role=clans_relations.MEMBER_ROLE.FIGHTER)
+
+        with self.check_no_changes_in_emissaries(self.clan_1):
+            self.check_ajax_error(self.post_ajax_json(self.url, self.get_post_data()), 'emissaries.maximum_fighters')
+
     def test_success(self):
         with self.check_changed(lambda: logic.load_emissaries_for_clan(self.clan_1.id)):
             with self.check_delta(lambda: clans_tt_services.currencies.cmd_balance(self.clan_1.id,
@@ -207,6 +224,12 @@ class CreateTests(BaseRequestsTests):
         self.assertTrue(emissaries[0].gender.is_MALE)
         self.assertTrue(emissaries[0].race.is_DWARF)
         self.assertEqual(emissaries[0].place_id, self.places[0].id)
+
+    def test_banned(self):
+        self.account_1.ban_game(1)
+
+        with self.check_no_changes_in_emissaries(self.clan_1):
+            self.check_ajax_error(self.post_ajax_json(self.url, self.get_post_data()), 'common.ban_game')
 
 
 class StartEventDialogTests(BaseRequestsTests):
@@ -257,6 +280,10 @@ class StartEventDialogTests(BaseRequestsTests):
     def test_success(self):
         self.check_html_ok(self.request_ajax_html(self.url), texts=[('emissaries.no_rights', 0),
                                                                      'form'])
+
+    def test_banned(self):
+        self.account_1.ban_game(1)
+        self.check_html_ok(self.request_ajax_html(self.url), texts=['common.ban_game'])
 
 
 class StartEventTests(BaseRequestsTests):
@@ -374,6 +401,12 @@ class StartEventTests(BaseRequestsTests):
             with self.check_decreased(lambda: politic_power_logic.get_emissaries_power([self.emissary.id])[self.emissary.id]):
                 with self.check_decreased(get_points):
                     self.check_ajax_ok(self.post_ajax_json(self.url, self.get_post_data()))
+
+    def test_banned(self):
+        self.account_1.ban_game(1)
+
+        with self.check_no_actions_applied():
+            self.check_ajax_error(self.post_ajax_json(self.url, self.get_post_data()), 'common.ban_game')
 
     def test_dublicate_event(self):
         self.check_ajax_ok(self.post_ajax_json(self.url, self.get_post_data()))
@@ -526,6 +559,12 @@ class StopEventTests(BaseRequestsTests):
         event = logic.load_event(self.event.id)
 
         self.assertTrue(event.state.is_STOPPED)
+
+    def test_banned(self):
+        self.account_1.ban_game(1)
+
+        with self.check_no_actions_applied():
+            self.check_ajax_error(self.post_ajax_json(self.url), 'common.ban_game')
 
     def test_success__already_stopped(self):
         with self.check_delta(models.Event.objects.filter(state=relations.EVENT_STATE.RUNNING).count, -1):

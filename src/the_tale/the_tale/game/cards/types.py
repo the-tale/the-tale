@@ -238,6 +238,7 @@ class CARD(rels.Relation):
                ('ADD_CLANS_POINTS_LEGENDARY', 155, 'эндшпиль', FOR_PREMIUMS, LEGENDARY,
                 effects.AddClansPoints(base=tt_clans_constants.TOP_CARD_POINTS_BONUS, level=1), []),
 
+                # id типа этой карты проброшен в gui объединения карт
                ('EMISSARY_QUEST', 157, 'Гильдейские дела', FOR_ALL, COMMON,
                 effects.EmissaryQuest(), [reactors.SameEqual2(),
                                           reactors.Special(2, 'STOP_IDLENESS', new_cards_number=1),

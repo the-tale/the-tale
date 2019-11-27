@@ -1293,9 +1293,10 @@ class IsRoleChangeGetIntoLimitTests(BaseClanTests):
                                                              old_role=relations.MEMBER_ROLE.RECRUIT,
                                                              new_role=relations.MEMBER_ROLE.FIGHTER))
 
-        self.assertFalse(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
-                                                             old_role=relations.MEMBER_ROLE.FIGHTER,
-                                                             new_role=relations.MEMBER_ROLE.RECRUIT))
+        # we can always change role to recruite (to lover fighters number)
+        self.assertTrue(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
+                                                            old_role=relations.MEMBER_ROLE.FIGHTER,
+                                                            new_role=relations.MEMBER_ROLE.RECRUIT))
 
         self.assertFalse(logic.is_role_change_get_into_limit(clan_id=self.clan.id,
                                                              old_role=relations.MEMBER_ROLE.FIGHTER,

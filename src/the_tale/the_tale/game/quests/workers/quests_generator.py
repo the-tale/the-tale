@@ -54,6 +54,9 @@ class Worker(utils_workers.BaseWorker):
 
         try:
 
+            self.logger.info('try to generate quest for hero %s: emissary_id=%s, person_action=%s',
+                             account_id, emissary_id, person_action)
+
             if emissary_id is None:
                 knowledge_base = logic.create_random_quest_for_hero(hero_info, logger=self.logger)
             else:

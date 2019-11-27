@@ -84,7 +84,7 @@ def get_combined_cards(allow_premium_cards, combined_cards):
     if len(combined_cards) == 3:
         return get_combined_cards_3(combined_cards, allow_premium_cards, available_for_auction)
 
-    return None, relations.COMBINED_CARD_RESULT.TOO_MANY_CARDS
+    return get_combined_cards_more_then_3(combined_cards, allow_premium_cards, available_for_auction)
 
 
 def get_combined_cards_1(combined_cards, allow_premium_cards, available_for_auction):
@@ -133,6 +133,16 @@ def get_combined_cards_3(combined_cards, allow_premium_cards, available_for_auct
                        available_for_auction=available_for_auction)
 
     return [card], relations.COMBINED_CARD_RESULT.SUCCESS
+
+
+def get_combined_cards_more_then_3(combined_cards, allow_premium_cards, available_for_auction):
+
+    for reactor in combined_cards[0].type.combiners:
+        cards = reactor.combine(combined_cards)
+        if cards:
+            return cards, relations.COMBINED_CARD_RESULT.SUCCESS
+
+    return None, relations.COMBINED_CARD_RESULT.TOO_MANY_CARDS
 
 
 def get_cards_info_by_full_types():

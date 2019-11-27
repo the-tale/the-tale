@@ -688,7 +688,7 @@ def remove_from_clan(context):
     return dext_views.AjaxOk()
 
 
-@django_transaction.atomic
+# @django_transaction.atomic
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.BanAnyProcessor()
 @ClanMemberOperationAccessProcessor(permission='can_change_role')
@@ -701,20 +701,21 @@ def change_role(context):
     if not form.is_valid():
         raise dext_views.ViewError(code='form_errors', message=form.errors)
 
-    logic.lock_clan_for_update(context.current_clan.id)
+    with django_transaction.atomic():
+        logic.lock_clan_for_update(context.current_clan.id)
 
-    old_role = logic.get_membership(context.target_account.id).role
+        old_role = logic.get_membership(context.target_account.id).role
 
-    new_role = form.c.role
+        new_role = form.c.role
 
-    if not logic.is_role_change_get_into_limit(context.current_clan.id, old_role, new_role):
-        raise dext_views.ViewError(code='clans.fighters_maximum',
-                                   message='Достигнут максимум боевого состава. Чтобы ввести Хранителя в боевой состав, необходимо сделать другого Хранителя рекрутом.')
+        if not logic.is_role_change_get_into_limit(context.current_clan.id, old_role, new_role):
+            raise dext_views.ViewError(code='clans.fighters_maximum',
+                                       message='Достигнут максимум боевого состава. Чтобы ввести Хранителя в боевой состав, необходимо сделать другого Хранителя рекрутом.')
 
-    logic.change_role(clan=context.current_clan,
-                      initiator=context.account,
-                      member=context.target_account,
-                      new_role=new_role)
+        logic.change_role(clan=context.current_clan,
+                          initiator=context.account,
+                          member=context.target_account,
+                          new_role=new_role)
 
     return dext_views.AjaxOk()
 

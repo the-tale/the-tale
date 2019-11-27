@@ -299,6 +299,26 @@ pgf.game.widgets.Cards = function (params) {
 
     this.CanTransform = function() {
         if (instance.data.transformator.length == 0) return false;
+
+        ////////////////////////////////////////////////////////////
+        // плохое решение, но полноценно прокидывать правила преобразования в интерфейс сложно
+
+        // проверяем, объединение 9 x EMISSARY_QUEST -> CREATE_CLAN
+        if (instance.data.transformator.length == 9) {
+            var all_emissary_quests = true;
+
+            for(var i in instance.data.transformator) {
+                var card = instance.data.transformator[i];
+
+                all_emissary_quests = all_emissary_quests && (card.type === 157);
+            }
+            if (all_emissary_quests) {
+                return true;
+            }
+        }
+
+        ////////////////////////////////////////////////////////////
+
         if (instance.data.transformator.length > 3) return false;
 
         var rarity = instance.data.transformator[0].rarity;

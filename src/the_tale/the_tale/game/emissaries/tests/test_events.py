@@ -590,7 +590,7 @@ class PlaceEffectEventMixin(BaseEventsMixin):
         self.assertEqual(effect.entity, self.emissary.place_id)
         self.assertEqual(effect.attribute, self.ATTRIBUTE)
         self.assertEqual(effect.value, self._get_expected_effect_value())
-        self.assertEqual(effect.name, self.emissary.name)
+        self.assertEqual(effect.name, 'эмиссар [{}] {}'.format(self.clan.abbr, self.emissary.name))
 
     def test_add_effect__already_exists(self):
         self.concrete_event.add_effect(self.get_event())

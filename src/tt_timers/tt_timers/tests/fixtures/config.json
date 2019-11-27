@@ -12,6 +12,7 @@
 
     "custom": {
         "secret": "test.secret",
+        "sleep_if_no_timers_interval": 0.1,
         "delay_before_callback_retry": 0.1,
         "max_delay_before_callback_retry": 3600,
         "max_simultaneously_requests": 5,

@@ -439,7 +439,8 @@ def update_stability_effects_deltas(renewing_speed, stability_effects):
     if not stability_effects:
         return
 
-    stability_effects.sort(key=lambda effect: effect.id)
+    # getattr used for processing of old effects, can be removed after 0.3.30
+    stability_effects.sort(key=lambda effect: getattr(effect, 'id', 0))
 
     divider = 2
     speed_sum = 0

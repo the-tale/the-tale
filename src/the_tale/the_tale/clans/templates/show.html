@@ -213,6 +213,7 @@ jQuery(document).ready(function(e){
         <th width="100px">Игрок</th>
         <th width="100px">Звание</th>
         <th>Герой</th>
+        <th>Был в игре</th>
         <th>Действия</th>
       </tr>
       {% for account in accounts %}
@@ -253,6 +254,9 @@ jQuery(document).ready(function(e){
           {{hero.race_verbose}}
           <a href="{{url('game:heroes:show', hero.id)}}">{{hero.name}}</a>
           {{ hero.level }} уровня
+        </td>
+        <td>
+          <span class="pgf-format-date" data-timestamp="{{ account.was_in_game_at|timestamp}}"></span>
         </td>
         <td>
           {% if current_clan_rights.can_edit_member(membership=membership) %}
