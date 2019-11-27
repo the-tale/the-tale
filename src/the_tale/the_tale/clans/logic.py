@@ -658,6 +658,10 @@ def lock_clan_for_update(clan_id):
 
 
 def is_role_change_get_into_limit(clan_id, old_role, new_role):
+
+    if new_role.is_RECRUIT:
+        return True
+
     attributes = logic.load_attributes(clan_id)
 
     combat_personnel = sum(1 for membership in get_clan_memberships(clan_id).values()
