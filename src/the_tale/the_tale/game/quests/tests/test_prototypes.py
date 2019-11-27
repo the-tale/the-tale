@@ -1187,7 +1187,7 @@ class PrototypeMoveHeroTests(PrototypeTestsBase):
                                                     to_place_id=self.place_2.id,
                                                     cost_modifiers=places_cost_modifiers,
                                                     risk_level=self.hero.preferences.risk_level)
-        self.hero.position.set_position(*path.coordinates(0.5))
+        self.hero.position.set_position(*path.coordinates(0.35))
 
         self.quest._move_hero_on_road(place_from=self.place_1, place_to=self.place_3, percents=0.9)
 
