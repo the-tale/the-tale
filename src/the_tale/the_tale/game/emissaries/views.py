@@ -124,6 +124,10 @@ resource.add_processor(EmissaryClanRightsProcessor())
 @resource('#emissary', name='show')
 def show(context):
 
+    if context.current_emissary is None:
+        raise dext_views.ViewError(code='emissaries.not_found',
+                                   message='Эмиссар не найден.')
+
     clan_events = None
 
     if context.clan:
