@@ -20,6 +20,7 @@
         - g++
         - libssl-dev
         - screen
+        - unzip
 
     - name: start supervisor
       raw: systemctl start supervisor
