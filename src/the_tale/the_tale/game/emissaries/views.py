@@ -174,6 +174,7 @@ def check_clan_restrictions(clan_id):
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @clans_views.ClanStaticOperationAccessProcessor(permissions_attribute='clan_rights', permission='can_emissaries_relocation')
 @resource('create-dialog')
 def create_dialog(context):
@@ -188,6 +189,7 @@ def create_dialog(context):
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @clans_views.ClanStaticOperationAccessProcessor(permissions_attribute='clan_rights', permission='can_emissaries_relocation')
 @dext_views.FormProcessor(form_class=forms.EmissaryForm)
 @resource('create', method='POST')
@@ -213,6 +215,7 @@ def create(context):
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @EventTypeProcessor(get_name='event_type')
 @EventPermissionProcessor()
 @resource('#emissary', 'start-event-dialog')
@@ -244,6 +247,7 @@ def _check_emissaries_events(emissary, event_class):
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @EventTypeProcessor(get_name='event_type')
 @EventPermissionProcessor()
 @resource('#emissary', 'start-event', method='POST')
@@ -307,6 +311,7 @@ def start_event(context):
 
 
 @accounts_views.LoginRequiredProcessor()
+@accounts_views.BanGameProcessor()
 @EventIdProcessor(get_name='event')
 @EventPermissionProcessor()
 @resource('#emissary', 'stop-event', method='POST')
