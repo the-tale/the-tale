@@ -52,8 +52,8 @@ NEGATIVE_TRAITS_NUMBER = int(2)
 
 EVENT_POWER_FRACTION = float(0.5)  # от расчётного дневного влияния
 
-EVENT_EXPERIENCE_BUFF = float(0.5)
-EVENT_EXPERIENCE_DEBUFF = float(0.5)
+EVENT_EXPERIENCE_BUFF = float(0.25)
+EVENT_EXPERIENCE_DEBUFF = float(0.25)
 
 # в час
 MIN_EXPERIENCE_PER_EVENT = int(math.ceil(clans_constants.EXPERIENCE_PER_EVENT / 24 / 2))
