@@ -84,9 +84,19 @@ class BaseEventsMixin(clans_helpers.ClansTestsMixin,
         return {}
 
     def test_serialization(self):
+        self.emissary.place_rating_position = 0
+        self.assertTrue(self.emissary.is_place_leader())
+
         with self.concrete_event.on_create(self.emissary):
-            self.assertEqual(self.concrete_event,
-                             self.Event.deserialize(self.concrete_event.serialize()))
+            event = self.get_event()
+
+        self.concrete_event.after_create(event)
+
+        self.assertEqual(self.concrete_event,
+                         self.Event.deserialize(self.concrete_event.serialize()))
+
+        self.assertEqual(self.concrete_event.serialize(),
+                         self.Event.deserialize(self.concrete_event.serialize()).serialize())
 
     def test_effect_description(self):
         self.concrete_event.effect_description(self.emissary, 1000)

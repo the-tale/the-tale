@@ -140,8 +140,7 @@ class EventBase:
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
-                all(getattr(self, field, None) == getattr(other, field, None)
-                    for field in self.__class__.__slots__))
+                self.raw_ability_power == other.raw_ability_power)
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -238,6 +237,10 @@ class Relocation(EventBase):
         return cls(raw_ability_power=data['raw_ability_power'],
                    place_id=data['data']['place_id'])
 
+    def __eq__(self, other):
+        return (super().__eq__(other) and
+                self.place_id == other.place_id)
+
 
 class Rename(EventBase):
     __slots__ = ('new_name',)
@@ -285,6 +288,10 @@ class Rename(EventBase):
     def deserialize(cls, data):
         return cls(raw_ability_power=data['raw_ability_power'],
                    new_name=utg_words.Word.deserialize(data['data']['new_name']))
+
+    def __eq__(self, other):
+        return (super().__eq__(other) and
+                self.new_name == other.new_name)
 
 
 class ClanLevelUpMixin:
@@ -435,6 +442,11 @@ class ClanLevelUpMixin:
                    transaction_id=data['data']['transaction_id'],
                    current_level=data['data']['current_level'])
 
+    def __eq__(self, other):
+        return (super().__eq__(other) and
+                self.transaction_id == other.transaction_id and
+                self.current_level == other.current_level)
+
 
 class PointsGainLevelUp(ClanLevelUpMixin, EventBase):
     __slots__ = ('transaction_id', 'current_level')
@@ -530,7 +542,7 @@ class PlaceEffectEvent(EventBase):
 
     def __init__(self, effect_id=None, **kwargs):
         super().__init__(**kwargs)
-        self.effect_id = None
+        self.effect_id = effect_id
 
     def attribute(self, event):
         return self.ATTRIBUTE
@@ -597,6 +609,10 @@ class PlaceEffectEvent(EventBase):
         return cls(raw_ability_power=data['raw_ability_power'],
                    effect_id=data['data']['effect_id'])
 
+    def __eq__(self, other):
+        return (super().__eq__(other) and
+                self.effect_id == other.effect_id)
+
 
 class CountedMixin:
 
@@ -662,7 +678,7 @@ class BaseCountedEvent(CountedMixin, PlaceEffectEvent):
 
 
 class TaskBoardUpdating(BaseCountedEvent):
-    __slots__ = ('effect_id',)
+    __slots__ = ()
 
     TYPE = relations.EVENT_TYPE.TASK_BOARD_UPDATING
     CURRENCY = relations.EVENT_CURRENCY.TASK_BOARD
@@ -694,7 +710,7 @@ class TaskBoardUpdating(BaseCountedEvent):
 
 
 class FastTransportation(BaseCountedEvent):
-    __slots__ = ('effect_id',)
+    __slots__ = ()
 
     TYPE = relations.EVENT_TYPE.FAST_TRANSPORTATION
     CURRENCY = relations.EVENT_CURRENCY.FAST_TRANSPORTATION
@@ -707,7 +723,7 @@ class FastTransportation(BaseCountedEvent):
 
 
 class CompanionsSupport(BaseCountedEvent):
-    __slots__ = ('effect_id',)
+    __slots__ = ()
 
     TYPE = relations.EVENT_TYPE.COMPANIONS_SUPPORT
     CURRENCY = relations.EVENT_CURRENCY.COMPANIONS_SUPPORT

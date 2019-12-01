@@ -60,8 +60,8 @@ class ConstantsTest(unittest.TestCase):
 
         self.assertEqual(c.EVENT_POWER_FRACTION, 0.5)
 
-        self.assertEqual(c.EVENT_EXPERIENCE_BUFF, 0.5)
-        self.assertEqual(c.EVENT_EXPERIENCE_DEBUFF, 0.5)
+        self.assertEqual(c.EVENT_EXPERIENCE_BUFF, 0.25)
+        self.assertEqual(c.EVENT_EXPERIENCE_DEBUFF, 0.25)
 
         self.assertEqual(c.MIN_EXPERIENCE_PER_EVENT, 21)
         self.assertEqual(c.MAX_EXPERIENCE_PER_EVENT, 84)

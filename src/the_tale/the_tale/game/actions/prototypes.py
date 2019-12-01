@@ -1866,7 +1866,7 @@ class ActionMoveSimplePrototype(ActionBase):
             self.hero.add_message('action_move_simple_to_teleport_with_clan',
                                   hero=self.hero,
                                   clan=clans_storage.infos[self.hero.clan_id],
-                                  destination=current_destination)
+                                  current_destination=current_destination)
             return True
 
     def place_hero_in_current_place(self, create_action=True):

@@ -186,7 +186,7 @@ class TRAIT(rels_django.DjangoEnum):
                [trait(ATTRIBUTE.DAMAGE_TO_HEALTH, 34, 'толстокожий', -tt_emissaries_constants.DAMAGE_TO_HEALTH_DELTA, True),
                 trait(ATTRIBUTE.DAMAGE_TO_HEALTH, 35, 'хрупкий', tt_emissaries_constants.DAMAGE_TO_HEALTH_DELTA, False),
 
-                trait(ATTRIBUTE.POSITIVE_POWER, 36, 'рассполагающий', tt_emissaries_constants.QUEST_POWER_BONUS, True),
+                trait(ATTRIBUTE.POSITIVE_POWER, 36, 'располагающий', tt_emissaries_constants.QUEST_POWER_BONUS, True),
                 trait(ATTRIBUTE.POSITIVE_POWER, 37, 'отвратный', -tt_emissaries_constants.QUEST_POWER_BONUS, False),
 
                 trait(ATTRIBUTE.NEGATIVE_POWER, 38, 'осторожный', -tt_emissaries_constants.QUEST_POWER_BONUS, True),
@@ -220,7 +220,7 @@ class TRAIT(rels_django.DjangoEnum):
                               positive=False) +
 
                [trait(ATTRIBUTE.CLAN_EXPERIENCE, 74, 'дальновидный', tt_emissaries_constants.EVENT_EXPERIENCE_BUFF, True),
-                trait(ATTRIBUTE.CLAN_EXPERIENCE, 75, 'ветренный', -tt_emissaries_constants.EVENT_EXPERIENCE_DEBUFF, False)])
+                trait(ATTRIBUTE.CLAN_EXPERIENCE, 75, 'ветреный', -tt_emissaries_constants.EVENT_EXPERIENCE_DEBUFF, False)])
 
 
 class EVENT_STATE(rels_django.DjangoEnum):

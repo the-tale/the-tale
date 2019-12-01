@@ -423,7 +423,7 @@ def save_event(event, new=False):
             'event': event.concrete_event.serialize()}
 
     arguments = {'emissary_id': event.emissary_id,
-                 'data': s11n.to_json(data),
+                 'data': data,
                  'state': event.state,
                  'updated_at': datetime.datetime.now(),
                  'stop_reason': event.stop_reason.value}
@@ -490,7 +490,11 @@ def load_event(event_id=None, event_model=None):
     except models.Event.DoesNotExist:
         return None
 
-    data = s11n.from_json(event_model.data)
+    if isinstance(event_model.data, str):
+        # TODO: remove after 0.3.30
+        data = s11n.from_json(event_model.data)
+    else:
+        data = event_model.data
 
     return objects.Event(id=event_model.id,
                          created_at_turn=data['created_at_turn'],
