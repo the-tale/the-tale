@@ -42,8 +42,8 @@ class QUESTS(rels_django.DjangoEnum):
                ('DELIVERY', 4, 'доставка', questgen_quests_delivery.Delivery, QUEST_TYPE.NORMAL, 1.0, True),
                ('CARAVAN', 5, 'караван', questgen_quests_caravan.Caravan, QUEST_TYPE.NORMAL, 1.0, True),
                ('COLLECT_DEBT', 6, 'возвращение долга', questgen_quests_collect_debt.CollectDebt, QUEST_TYPE.NORMAL, 1.0, True),
-               ('HELP_FRIEND', 7, 'помощь соратнику', questgen_quests_help_friend.HelpFriend, QUEST_TYPE.CHARACTER, 1.0, True),
-               ('INTERFERE_ENEMY', 8, 'вред противнику', questgen_quests_interfere_enemy.InterfereEnemy, QUEST_TYPE.CHARACTER, 1.0, True),
+               ('HELP_FRIEND', 7, 'помощь соратнику', questgen_quests_help_friend.HelpFriend, QUEST_TYPE.CHARACTER, 1.0, False),
+               ('INTERFERE_ENEMY', 8, 'вред противнику', questgen_quests_interfere_enemy.InterfereEnemy, QUEST_TYPE.CHARACTER, 1.0, False),
                ('HELP', 9, 'помощь', questgen_quests_help.Help, QUEST_TYPE.NORMAL, 1.0, True),
                ('PILGRIMAGE', 10, 'паломничество', questgen_quests_pilgrimage.Pilgrimage, QUEST_TYPE.UNIQUE, 0.1, False))
 

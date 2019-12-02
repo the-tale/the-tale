@@ -338,7 +338,8 @@ def create_random_quest_for_hero(hero_info, logger):
     return create_random_quest_with_constructor(hero_info,
                                                 constructor,
                                                 logger,
-                                                excluded_quests=hero_info.excluded_quests)
+                                                excluded_quests=hero_info.excluded_quests,
+                                                no_restrictions_on_fail=True)
 
 
 def create_random_quest_for_emissary(hero_info, emissary, person_action, logger):
@@ -353,10 +354,11 @@ def create_random_quest_for_emissary(hero_info, emissary, person_action, logger)
     return create_random_quest_with_constructor(hero_info,
                                                 constructor,
                                                 logger,
-                                                excluded_quests=excluded_quests)
+                                                excluded_quests=excluded_quests,
+                                                no_restrictions_on_fail=False)
 
 
-def create_random_quest_with_constructor(hero_info, constructor, logger, excluded_quests=None):
+def create_random_quest_with_constructor(hero_info, constructor, logger, excluded_quests, no_restrictions_on_fail):
 
     start_time = time.time()
 
@@ -377,7 +379,7 @@ def create_random_quest_with_constructor(hero_info, constructor, logger, exclude
                                                                      constructor=constructor,
                                                                      logger=logger)
 
-    if knowledge_base is None:
+    if knowledge_base is None and no_restrictions_on_fail:
         logger.info('hero[%(hero_id).6d]: first try failed' % {'hero_id': hero_info.id})
         normal_mode = False
         quest_type, knowledge_base = try_to_create_random_quest_for_hero(hero_info,

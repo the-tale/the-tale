@@ -46,11 +46,11 @@ class Worker(utils_workers.BaseWorker):
 
         account_id = self.requests_query.popleft()
 
-        data = self.requests_heroes_infos.pop(account_id)
+        quest_data = self.requests_heroes_infos.pop(account_id)
 
-        hero_info = data['info']
-        emissary_id = data['emissary_id']
-        person_action = data['person_action']
+        hero_info = quest_data['info']
+        emissary_id = quest_data['emissary_id']
+        person_action = quest_data['person_action']
 
         try:
 
@@ -71,6 +71,15 @@ class Worker(utils_workers.BaseWorker):
                               exc_info=sys.exc_info(),
                               extra={})
             self.logger.error('continue processing')
+            return
+
+        if knowledge_base is None:
+            self.logger.info('can not generate quest for hero %s: emissary_id=%s, person_action=%s (push request back to queue)',
+                             account_id, emissary_id, person_action)
+
+            self.requests_query.append(account_id)
+            self.requests_heroes_infos[account_id] = quest_data
+
             return
 
         amqp_environment.environment.workers.supervisor.cmd_setup_quest(account_id, knowledge_base.serialize())
