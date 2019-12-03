@@ -371,6 +371,10 @@ def form_choices(empty_choice=True):
     clans = {clan.id: clan for clan in clans}
 
     for clan_id, emissaries in storage.emissaries.emissaries_by_clan.items():
+
+        if clan_id not in clans:
+            continue
+
         clan = clans[clan_id]
 
         clan_choices = [(emissary.id, emissary.name) for emissary in emissaries]
