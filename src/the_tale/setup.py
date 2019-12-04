@@ -34,7 +34,7 @@ setuptools.setup(
         'Natural Language :: Russian'],
     keywords=['gamedev', 'the-tale', 'game development', 'zpg', 'zero player game'],
     packages=setuptools.find_packages(),
-    install_requires=['Django==1.10.8',
+    install_requires=['Django==1.11.23',
                       'argon2_cffi==16.2.0',
                       'Jinja2>=2.8',
                       'psycopg2==2.7.3.1',
