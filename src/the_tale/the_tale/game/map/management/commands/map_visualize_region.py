@@ -50,7 +50,7 @@ class Command(django_management.BaseCommand):
         format_version = data.get('format_version')
 
         if format_version is None:
-            dext_logic.run_django_command(['map_visualize_old_region', '-r', region, '-o', output])
+            utils_logic.run_django_command(['map_visualize_old_region', '-r', region, '-o', output])
             return
 
         draw_info = data['draw_info']

@@ -35,7 +35,7 @@ class ItemsNewTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsNewTests, self).setUp()
-        self.test_url = dext_urls.url('collections:items:new')
+        self.test_url = utils_urls.url('collections:items:new')
 
     def test_login_required(self):
         self.check_redirect(self.test_url, accounts_logic.login_page_url(self.test_url))
@@ -55,7 +55,7 @@ class ItemsCreateTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsCreateTests, self).setUp()
-        self.test_url = dext_urls.url('collections:items:create')
+        self.test_url = utils_urls.url('collections:items:create')
 
     def get_post_data(self):
         return {'kit': self.kit_1.id,
@@ -81,7 +81,7 @@ class ItemsCreateTests(BaseRequestTests):
 
     def test_success(self):
         self.request_login(self.account_2.email)
-        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()), {'next_url': dext_urls.url('collections:collections:show', self.kit_1.collection_id)})
+        self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()), {'next_url': utils_urls.url('collections:collections:show', self.kit_1.collection_id)})
         self.assertEqual(prototypes.ItemPrototype._db_all().count(), 3)
 
         item = prototypes.ItemPrototype._db_get_object(2)
@@ -96,7 +96,7 @@ class ItemsEditTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsEditTests, self).setUp()
-        self.test_url = dext_urls.url('collections:items:edit', self.item_1_1.id)
+        self.test_url = utils_urls.url('collections:items:edit', self.item_1_1.id)
 
     def test_login_required(self):
         self.check_redirect(self.test_url, accounts_logic.login_page_url(self.test_url))
@@ -137,7 +137,7 @@ class ItemsUpdateTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsUpdateTests, self).setUp()
-        self.test_url = dext_urls.url('collections:items:update', self.item_1_1.id)
+        self.test_url = utils_urls.url('collections:items:update', self.item_1_1.id)
 
     def get_post_data(self):
         return {'caption': 'caption_edited',
@@ -207,7 +207,7 @@ class ItemsApproveTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsApproveTests, self).setUp()
-        self.test_url = dext_urls.url('collections:items:approve', self.item_1_1.id)
+        self.test_url = utils_urls.url('collections:items:approve', self.item_1_1.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.test_url), 'common.login_required')
@@ -228,7 +228,7 @@ class ItemsDisapproveTests(BaseRequestTests):
 
     def setUp(self):
         super(ItemsDisapproveTests, self).setUp()
-        self.test_url = dext_urls.url('collections:items:disapprove', self.item_1_1.id)
+        self.test_url = utils_urls.url('collections:items:disapprove', self.item_1_1.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.test_url), 'common.login_required')

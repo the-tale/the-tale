@@ -9,7 +9,7 @@ def ChoiceField(filter=lambda ability: True, sort_key=None):
                                       for ability in effects.ABILITIES.records
                                       if filter(ability)],
                                      key=sort_key)
-    return dext_fields.TypedChoiceField(label='', choices=choices, required=False, coerce=effects.ABILITIES.get_from_name)
+    return utils_fields.TypedChoiceField(label='', choices=choices, required=False, coerce=effects.ABILITIES.get_from_name)
 
 
 def get_abilities_fields():
@@ -74,11 +74,11 @@ class AbilitiesWidget(django_forms.MultiWidget):
         return decompress_abilities(value)
 
     def format_output(self, rendered_widgets):
-        return jinja2.Markup(dext_jinja2.render('companions/abilities/abilities_field.html', context={'widgets': rendered_widgets,
-                                                                                                      'FIELDS': relations.FIELDS}))
+        return jinja2.Markup(utils_jinja2.render('companions/abilities/abilities_field.html', context={'widgets': rendered_widgets,
+                                                                                                       'FIELDS': relations.FIELDS}))
 
 
-@dext_fields.pgf
+@utils_fields.pgf
 class AbilitiesField(django_forms.MultiValueField):
 
     def __init__(self, **kwargs):

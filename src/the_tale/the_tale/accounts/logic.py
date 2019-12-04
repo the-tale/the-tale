@@ -5,19 +5,19 @@ smart_imports.all()
 
 
 def login_url(target_url='/'):
-    return dext_urls.url('accounts:auth:api-login', api_version='1.0', api_client=django_settings.API_CLIENT, next_url=target_url.encode('utf-8'))
+    return utils_urls.url('accounts:auth:api-login', api_version='1.0', api_client=django_settings.API_CLIENT, next_url=target_url.encode('utf-8'))
 
 
 def login_page_url(target_url='/'):
-    return dext_urls.url('accounts:auth:page-login', next_url=target_url.encode('utf-8'))
+    return utils_urls.url('accounts:auth:page-login', next_url=target_url.encode('utf-8'))
 
 
 def logout_url():
-    return dext_urls.url('accounts:auth:api-logout', api_version='1.0', api_client=django_settings.API_CLIENT)
+    return utils_urls.url('accounts:auth:api-logout', api_version='1.0', api_client=django_settings.API_CLIENT)
 
 
 def register_url():
-    return dext_urls.url('accounts:registration:api-register', api_version='1.0', api_client=django_settings.API_CLIENT)
+    return utils_urls.url('accounts:registration:api-register', api_version='1.0', api_client=django_settings.API_CLIENT)
 
 
 def get_system_user_id():
@@ -257,7 +257,7 @@ def thin_out_accounts(number, prolong_active_to, logger):
 
 # for bank
 def get_account_id_by_email(email):
-    account = prototypes.AccountPrototype.get_by_email(dext_logic.normalize_email(email))
+    account = prototypes.AccountPrototype.get_by_email(utils_logic.normalize_email(email))
     return account.id if account else None
 
 

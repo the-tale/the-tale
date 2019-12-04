@@ -193,7 +193,7 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 
 Вы можете продлить подписку на странице нашего %(shop_link)s.
 ''' % {'verbose_timedelta': utils_logic.verbose_timedelta(self.premium_end_at - current_time),
-            'shop_link': '[url="%s"]магазина[/url]' % dext_urls.full_url('https', 'shop:')}
+            'shop_link': '[url="%s"]магазина[/url]' % utils_urls.full_url('https', 'shop:')}
 
         personal_messages_logic.send_message(logic.get_system_user_id(), [self.id], message, async=True)
 

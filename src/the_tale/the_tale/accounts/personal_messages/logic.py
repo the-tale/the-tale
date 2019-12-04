@@ -13,7 +13,7 @@ def new_messages_number_url():
     arguments = {'api_version': conf.settings.NEW_MESSAGES_NUMNER_API_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
-    return dext_urls.url('accounts:messages:api-new-messages-number', **arguments)
+    return utils_urls.url('accounts:messages:api-new-messages-number', **arguments)
 
 
 def send_message(sender_id, recipients_ids, body, async=False):

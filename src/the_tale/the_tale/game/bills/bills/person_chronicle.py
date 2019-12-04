@@ -5,8 +5,8 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    person = dext_fields.ChoiceField(label='Мастер')
-    power_bonus = dext_fields.RelationField(label='Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
+    person = utils_fields.ChoiceField(label='Мастер')
+    power_bonus = utils_fields.RelationField(label='Изменение влияния', relation=relations.POWER_BONUS_CHANGES)
 
     def __init__(self, choosen_person_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)

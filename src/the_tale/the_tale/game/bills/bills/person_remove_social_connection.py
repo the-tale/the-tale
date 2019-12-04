@@ -5,8 +5,8 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    person_1 = dext_fields.ChoiceField(label='Первый Мастер')
-    person_2 = dext_fields.ChoiceField(label='Второй Мастер')
+    person_1 = utils_fields.ChoiceField(label='Первый Мастер')
+    person_2 = utils_fields.ChoiceField(label='Второй Мастер')
 
     def __init__(self, person_1_id, person_2_id, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)

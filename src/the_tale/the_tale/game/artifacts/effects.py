@@ -420,5 +420,5 @@ class ChildGift(BaseEffect):
 
 
 EFFECTS = {effect.TYPE: effect
-           for effect in dext_discovering.discover_classes(globals().values(), BaseEffect)
+           for effect in utils_discovering.discover_classes(globals().values(), BaseEffect)
            if effect.TYPE is not None}

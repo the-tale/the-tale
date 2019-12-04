@@ -48,7 +48,6 @@ class CodeTests(utils_testcase.TestCase):
                                               ['.',
                                                '..',
                                                'the_tale',
-                                               'dext',
                                                'django',
                                                'rels',
                                                'optparse',
@@ -83,7 +82,7 @@ class CodeTests(utils_testcase.TestCase):
                                                    'threading', 'site', 'tt_calendar', 'importlib', 'smart_imports']))
 
     def test_api_urls_not_changed(self):
-        self.assertEqual(dext_urls.url('portal:api-info'), '/api/info')
-        self.assertEqual(dext_urls.url('accounts:auth:api-login'), '/accounts/auth/api/login')
-        self.assertEqual(dext_urls.url('accounts:auth:api-logout'), '/accounts/auth/api/logout')
-        self.assertEqual(dext_urls.url('game:api-info'), '/game/api/info')
+        self.assertEqual(utils_urls.url('portal:api-info'), '/api/info')
+        self.assertEqual(utils_urls.url('accounts:auth:api-login'), '/accounts/auth/api/login')
+        self.assertEqual(utils_urls.url('accounts:auth:api-logout'), '/accounts/auth/api/logout')
+        self.assertEqual(utils_urls.url('game:api-info'), '/game/api/info')

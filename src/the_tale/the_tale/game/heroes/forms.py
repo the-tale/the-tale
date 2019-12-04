@@ -4,14 +4,14 @@ import smart_imports
 smart_imports.all()
 
 
-class EditNameForm(dext_forms.Form):
+class EditNameForm(utils_forms.Form):
 
-    race = dext_fields.TypedChoiceField(label='раса',
-                                        choices=game_relations.RACE.choices(),
-                                        coerce=game_relations.RACE.get_from_name)
-    gender = dext_fields.TypedChoiceField(label='пол',
-                                          choices=game_relations.GENDER.choices(),
-                                          coerce=game_relations.GENDER.get_from_name)
+    race = utils_fields.TypedChoiceField(label='раса',
+                                         choices=game_relations.RACE.choices(),
+                                         coerce=game_relations.RACE.get_from_name)
+    gender = utils_fields.TypedChoiceField(label='пол',
+                                           choices=game_relations.GENDER.choices(),
+                                           coerce=game_relations.GENDER.get_from_name)
     name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN,
                                        widget_class=linguistics_forms.SimpleNounWidget,
                                        label='имя',

@@ -47,7 +47,7 @@ class LinguisticsResource(utils_resources.Resource):
     def initialize(self, *args, **kwargs):
         super(LinguisticsResource, self).initialize(*args, **kwargs)
 
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def index(self):
         groups_count, keys_count = logic.get_templates_count()
 
@@ -69,20 +69,20 @@ class LinguisticsResource(utils_resources.Resource):
                               'total_templates': sum(groups_count.values()),
                               'page_type': 'keys', })
 
-    @dext_old_views.handler('how-add-phrase', method='get')
+    @old_views.handler('how-add-phrase', method='get')
     def how_add_phrase(self):
         return self.template('linguistics/how_add_phrase.html',
                              {'page_type': 'how-add-phrase',
                               'linguistics_settings': conf.settings})
 
 
-@dext_old_views.validator(code='linguistics.words.moderation_rights', message='У вас нет прав для модерации слова')
+@old_views.validator(code='linguistics.words.moderation_rights', message='У вас нет прав для модерации слова')
 def moderation_word_rights(resource, *args, **kwargs): return resource.can_moderate_words
 
 
 class WordResource(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('word', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', 'неверный идентификатор слова')
+    @old_views.validate_argument('word', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', 'неверный идентификатор слова')
     def initialize(self, word=None, *args, **kwargs):
         super(WordResource, self).initialize(*args, **kwargs)
         self.word = word
@@ -90,11 +90,11 @@ class WordResource(utils_resources.Resource):
         self.can_edit_words = self.account.is_authenticated and not self.account.is_fast
         self.can_be_removed_by_owner = self.word and self.word.state.is_ON_REVIEW and self.account.is_authenticated and self.account.id == self.word.author_id
 
-    @dext_old_views.validate_argument('contributor', accounts_prototypes.AccountPrototype.get_by_id, 'linguistics.words', 'неверный сооавтор')
-    @dext_old_views.validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', 'неверное состояние слова')
-    @dext_old_views.validate_argument('type', lambda v: relations.ALLOWED_WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова')
-    @dext_old_views.validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.words', 'неверный тип сортировки')
-    @dext_old_views.handler('', method='get')
+    @old_views.validate_argument('contributor', accounts_prototypes.AccountPrototype.get_by_id, 'linguistics.words', 'неверный сооавтор')
+    @old_views.validate_argument('state', lambda v: relations.WORD_STATE.index_value.get(int(v)), 'linguistics.words', 'неверное состояние слова')
+    @old_views.validate_argument('type', lambda v: relations.ALLOWED_WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова')
+    @old_views.validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.words', 'неверный тип сортировки')
+    @old_views.handler('', method='get')
     def index(self, page=1, state=None, type=None, filter=None, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
 
         words_query = prototypes.WordPrototype._db_all().order_by('normal_form')
@@ -120,7 +120,7 @@ class WordResource(utils_resources.Resource):
 
         words_count = words_query.count()
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('linguistics:words:'), arguments={'state': state.value if state else None,
+        url_builder = utils_urls.UrlBuilder(django_reverse('linguistics:words:'), arguments={'state': state.value if state else None,
                                                                                             'type': type.value if type else None,
                                                                                             'contributor': contributor.id if contributor else None,
                                                                                             'order_by': order_by.value,
@@ -159,9 +159,9 @@ class WordResource(utils_resources.Resource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', 'неверный идентификатор слова')
-    @dext_old_views.validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова', required=True)
-    @dext_old_views.handler('new', method='get')
+    @old_views.validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', 'неверный идентификатор слова')
+    @old_views.validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова', required=True)
+    @old_views.handler('new', method='get')
     def new(self, type, parent=None):
 
         if parent and type != parent.type:
@@ -191,9 +191,9 @@ class WordResource(utils_resources.Resource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', 'неверный идентификатор слова')
-    @dext_old_views.validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова', required=True)
-    @dext_old_views.handler('create', method='post')
+    @old_views.validate_argument('parent', lambda v: prototypes.WordPrototype.get_by_id(int(v)), 'linguistics.words', 'неверный идентификатор слова')
+    @old_views.validate_argument('type', lambda v: utg_relations.WORD_TYPE.index_value.get(int(v)), 'linguistics.words', 'неверный тип слова', required=True)
+    @old_views.handler('create', method='post')
     def create(self, type, parent=None):
 
         if parent and type != parent.type:
@@ -245,9 +245,9 @@ class WordResource(utils_resources.Resource):
                                                                source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_words else relations.CONTRIBUTION_SOURCE.PLAYER,
                                                                state=word.state.contribution_state)
 
-        return self.json_ok(data={'next_url': dext_urls.url('linguistics:words:show', word.id)})
+        return self.json_ok(data={'next_url': utils_urls.url('linguistics:words:show', word.id)})
 
-    @dext_old_views.handler('#word', name='show', method='get')
+    @old_views.handler('#word', name='show', method='get')
     def show(self):
         word_parent = self.word.get_parent()
         word_child = self.word.get_child()
@@ -272,7 +272,7 @@ class WordResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @moderation_word_rights()
-    @dext_old_views.handler('#word', 'in-game', method='post')
+    @old_views.handler('#word', 'in-game', method='post')
     def in_game(self):
 
         if self.word.state.is_IN_GAME:
@@ -315,7 +315,7 @@ class WordResource(utils_resources.Resource):
         return self.json_ok()
 
     @utils_decorators.login_required
-    @dext_old_views.handler('#word', 'remove', method='post')
+    @old_views.handler('#word', 'remove', method='post')
     def remove(self):
 
         if not (self.can_moderate_words or self.can_be_removed_by_owner):
@@ -330,13 +330,13 @@ class WordResource(utils_resources.Resource):
 
         return self.json_ok()
 
-    @dext_old_views.handler('dictionary-operations', method='get')
+    @old_views.handler('dictionary-operations', method='get')
     def dictionary_operations(self):
         return self.template('linguistics/words/dictionary_operations.html',
                              {'page_type': 'dictionary',
                               'form': forms.LoadDictionaryForm()})
 
-    @dext_old_views.handler('dictionary-download', method='get')
+    @old_views.handler('dictionary-download', method='get')
     def dictionary_download(self):
 
         data = []
@@ -348,7 +348,7 @@ class WordResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @utils_decorators.superuser_required()
-    @dext_old_views.handler('dictionary-load', method='post')
+    @old_views.handler('dictionary-load', method='post')
     def dictionary_load(self):
 
         form = forms.LoadDictionaryForm(self.request.POST)
@@ -370,17 +370,17 @@ class WordResource(utils_resources.Resource):
         return self.json_ok()
 
 
-@dext_old_views.validator(code='linguistics.templates.moderation_rights', message='У вас нет прав для модерации шаблонов')
+@old_views.validator(code='linguistics.templates.moderation_rights', message='У вас нет прав для модерации шаблонов')
 def moderation_template_rights(resource, *args, **kwargs): return resource.can_moderate_templates
 
 
-@dext_old_views.validator(code='linguistics.templates.edition_rights', message='У вас нет прав для редактирования шаблонов')
+@old_views.validator(code='linguistics.templates.edition_rights', message='У вас нет прав для редактирования шаблонов')
 def edition_template_rights(resource, *args, **kwargs): return resource.can_edit_templates
 
 
 class TemplateResource(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('template', lambda v: prototypes.TemplatePrototype.get_by_id(int(v)), 'linguistics.templates', 'неверный идентификатор шаблона')
+    @old_views.validate_argument('template', lambda v: prototypes.TemplatePrototype.get_by_id(int(v)), 'linguistics.templates', 'неверный идентификатор шаблона')
     def initialize(self, template=None, *args, **kwargs):
         super(TemplateResource, self).initialize(*args, **kwargs)
         self._template = template
@@ -388,14 +388,14 @@ class TemplateResource(utils_resources.Resource):
         self.can_edit_templates = self.account.has_perm('linguistics.edit_template') or self.can_moderate_templates
         self.can_be_removed_by_owner = self._template and self._template.state.is_ON_REVIEW and self.account.is_authenticated and self.account.id == self._template.author_id
 
-    @dext_old_views.validate_argument('contributor', accounts_prototypes.AccountPrototype.get_by_id, 'linguistics.templates', 'неверный сооавтор')
-    @dext_old_views.validate_argument('page', int, 'linguistics.templates', 'неверная страница')
-    @dext_old_views.validate_argument('key', lambda v: lexicon_keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы')
-    @dext_old_views.validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', 'неверное состояние шаблона')
-    @dext_old_views.validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.templates', 'неверный тип сортировки')
-    @dext_old_views.validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.templates', 'неверный статус ошибок')
-    @dext_old_views.validate_argument('restriction', lambda v: storage.restrictions[int(v)], 'linguistics.templates', 'неверный тип ограничения')
-    @dext_old_views.handler('', method='get')
+    @old_views.validate_argument('contributor', accounts_prototypes.AccountPrototype.get_by_id, 'linguistics.templates', 'неверный сооавтор')
+    @old_views.validate_argument('page', int, 'linguistics.templates', 'неверная страница')
+    @old_views.validate_argument('key', lambda v: lexicon_keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы')
+    @old_views.validate_argument('state', lambda v: relations.TEMPLATE_STATE.index_value.get(int(v)), 'linguistics.templates', 'неверное состояние шаблона')
+    @old_views.validate_argument('order_by', lambda v: relations.INDEX_ORDER_BY.index_value.get(int(v)), 'linguistics.templates', 'неверный тип сортировки')
+    @old_views.validate_argument('errors_status', lambda v: relations.TEMPLATE_ERRORS_STATUS.index_value.get(int(v)), 'linguistics.templates', 'неверный статус ошибок')
+    @old_views.validate_argument('restriction', lambda v: storage.restrictions[int(v)], 'linguistics.templates', 'неверный тип ограничения')
+    @old_views.handler('', method='get')
     def index(self, key=None, state=None, filter=None, restriction=None, errors_status=None, page=1, contributor=None, order_by=relations.INDEX_ORDER_BY.UPDATED_AT):
         templates_query = prototypes.TemplatePrototype._db_all().order_by('raw_template')
 
@@ -428,7 +428,7 @@ class TemplateResource(utils_resources.Resource):
 
         templates_count = templates_query.count()
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('linguistics:templates:'), arguments={'state': state.value if state else None,
+        url_builder = utils_urls.UrlBuilder(django_reverse('linguistics:templates:'), arguments={'state': state.value if state else None,
                                                                                                 'errors_status': errors_status.value if errors_status else None,
                                                                                                 'contributor': contributor.id if contributor else None,
                                                                                                 'order_by': order_by.value,
@@ -470,8 +470,8 @@ class TemplateResource(utils_resources.Resource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.validate_argument('key', lambda v: lexicon_keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы', required=True)
-    @dext_old_views.handler('new', method='get')
+    @old_views.validate_argument('key', lambda v: lexicon_keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы', required=True)
+    @old_views.handler('new', method='get')
     def new(self, key):
 
         form = forms.TemplateForm(key, prototypes.TemplatePrototype.get_start_verificatos(key=key))
@@ -486,8 +486,8 @@ class TemplateResource(utils_resources.Resource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.validate_argument('key', lambda v: lexicon_keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы', required=True)
-    @dext_old_views.handler('create', method='post')
+    @old_views.validate_argument('key', lambda v: lexicon_keys.LEXICON_KEY.index_value.get(int(v)), 'linguistics.templates', 'неверный ключ фразы', required=True)
+    @old_views.handler('create', method='post')
     def create(self, key):
 
         form = forms.TemplateForm(key,
@@ -513,9 +513,9 @@ class TemplateResource(utils_resources.Resource):
                                                            source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_moderate_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
                                                            state=template.state.contribution_state)
 
-        return self.json_ok(data={'next_url': dext_urls.url('linguistics:templates:show', template.id)})
+        return self.json_ok(data={'next_url': utils_urls.url('linguistics:templates:show', template.id)})
 
-    @dext_old_views.handler('#template', name='show', method='get')
+    @old_views.handler('#template', name='show', method='get')
     def show(self):
         template_parent = self._template.get_parent()
         template_child = self._template.get_child()
@@ -537,7 +537,7 @@ class TemplateResource(utils_resources.Resource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#template', 'edit', method='get')
+    @old_views.handler('#template', 'edit', method='get')
     def edit(self):
 
         if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
@@ -566,7 +566,7 @@ class TemplateResource(utils_resources.Resource):
     @utils_decorators.login_required
     @accounts_views.validate_fast_account()
     @accounts_views.validate_ban_forum()
-    @dext_old_views.handler('#template', 'update', method='post')
+    @old_views.handler('#template', 'update', method='post')
     def update(self):
 
         if self._template.state.is_ON_REVIEW and not self.can_edit_templates and self._template.author_id != self.account.id:
@@ -605,7 +605,7 @@ class TemplateResource(utils_resources.Resource):
                                                                source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_edit_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
                                                                state=self._template.state.contribution_state)
 
-            return self.json_ok(data={'next_url': dext_urls.url('linguistics:templates:show', self._template.id)})
+            return self.json_ok(data={'next_url': utils_urls.url('linguistics:templates:show', self._template.id)})
 
         template = prototypes.TemplatePrototype.create(key=self._template.key,
                                                        raw_template=form.c.template,
@@ -621,11 +621,11 @@ class TemplateResource(utils_resources.Resource):
                                                            source=relations.CONTRIBUTION_SOURCE.MODERATOR if self.can_edit_templates else relations.CONTRIBUTION_SOURCE.PLAYER,
                                                            state=template.state.contribution_state)
 
-        return self.json_ok(data={'next_url': dext_urls.url('linguistics:templates:show', template.id)})
+        return self.json_ok(data={'next_url': utils_urls.url('linguistics:templates:show', template.id)})
 
     @utils_decorators.login_required
     @moderation_template_rights()
-    @dext_old_views.handler('#template', 'replace', method='post')
+    @old_views.handler('#template', 'replace', method='post')
     def replace(self):
 
         if self._template.parent_id is None:
@@ -669,7 +669,7 @@ class TemplateResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @edition_template_rights()
-    @dext_old_views.handler('#template', 'detach', method='post')
+    @old_views.handler('#template', 'detach', method='post')
     def detach(self):
         if self._template.parent_id is None:
             return self.json_error('linguistics.templates.detach.no_parent', 'У шаблона нет родителя.')
@@ -681,7 +681,7 @@ class TemplateResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @moderation_template_rights()
-    @dext_old_views.handler('#template', 'in-game', method='post')
+    @old_views.handler('#template', 'in-game', method='post')
     def in_game(self):
 
         if self._template.parent_id is not None:
@@ -704,7 +704,7 @@ class TemplateResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @moderation_template_rights()
-    @dext_old_views.handler('#template', 'on-review', method='post')
+    @old_views.handler('#template', 'on-review', method='post')
     def on_review(self):
         if self._template.state.is_ON_REVIEW:
             return self.json_ok()
@@ -716,7 +716,7 @@ class TemplateResource(utils_resources.Resource):
         return self.json_ok()
 
     @utils_decorators.login_required
-    @dext_old_views.handler('#template', 'remove', method='post')
+    @old_views.handler('#template', 'remove', method='post')
     def remove(self):
 
         if self._template.get_child():
@@ -744,20 +744,20 @@ class TemplateResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @moderation_template_rights()
-    @dext_old_views.handler('#template', 'restore', method='post')
+    @old_views.handler('#template', 'restore', method='post')
     def restore(self):
         with django_transaction.atomic():
             self._template.state = relations.TEMPLATE_STATE.ON_REVIEW
             self._template.save()
         return self.json_ok()
 
-    @dext_old_views.handler('specification', method='get')
+    @old_views.handler('specification', method='get')
     def specification(self):
         return self.template('linguistics/templates/specification.html',
                              {'page_type': 'templates-specification'})
 
     @utils_decorators.login_required
-    @dext_old_views.handler('#template', 'edit-key', method='get')
+    @old_views.handler('#template', 'edit-key', method='get')
     def edit_key(self):
 
         if not self._template.state.is_ON_REVIEW:
@@ -778,7 +778,7 @@ class TemplateResource(utils_resources.Resource):
                               'form': forms.TemplateKeyForm(initial={'key': self._template.key})})
 
     @utils_decorators.login_required
-    @dext_old_views.handler('#template', 'change-key', method='post')
+    @old_views.handler('#template', 'change-key', method='post')
     def change_key(self):
         if not self._template.state.is_ON_REVIEW:
             return self.auto_error('linguistics.templates.change_key.wrong_state',

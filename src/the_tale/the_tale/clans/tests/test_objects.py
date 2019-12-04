@@ -3,7 +3,7 @@ import smart_imports
 smart_imports.all()
 
 
-class TestMembership(dext_testcase.TestCase):
+class TestMembership(utils_testcase.TestCase):
 
     def test_recruite_is_freezed(self):
         membership = objects.Membership(clan_id=1,
@@ -33,7 +33,7 @@ class TestMembership(dext_testcase.TestCase):
 
 
 # for complex permissions tests see test_logic.OperationsRightsTests
-class TestOperationsRights(dext_testcase.TestCase):
+class TestOperationsRights(utils_testcase.TestCase):
 
     def test_initialize(self):
         rights = objects.OperationsRights(clan_id=666,
@@ -115,7 +115,7 @@ class TestOperationsRights(dext_testcase.TestCase):
             self.assertFalse(rights.can_change_role(membership))
 
 
-class TestAttributes(dext_testcase.TestCase):
+class TestAttributes(utils_testcase.TestCase):
 
     def test_initialize(self):
         attributes = objects.Attributes(fighters_maximum_level=1,

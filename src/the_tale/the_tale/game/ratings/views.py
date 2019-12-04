@@ -6,19 +6,19 @@ smart_imports.all()
 
 class RatingResource(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('rating_type', relations.RATING_TYPE, 'ratings', 'Неверный тип рейтингов')
+    @old_views.validate_argument('rating_type', relations.RATING_TYPE, 'ratings', 'Неверный тип рейтингов')
     def initialize(self, rating_type=None, *args, **kwargs):
         super(RatingResource, self).initialize(*args, **kwargs)
         self.rating_type = rating_type
 
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def index(self):
         return self.redirect(django_reverse('game:ratings:show', args=[relations.RATING_TYPE.MIGHT.value]))
 
-    @dext_old_views.handler('#rating_type', name='show', method='get')
+    @old_views.handler('#rating_type', name='show', method='get')
     def show(self, page=1):  # pylint: disable=R0914
 
-        ratings_updated_at_timestamp = dext_settings.settings.get(conf.settings.SETTINGS_UPDATE_TIMESTEMP_KEY, None)
+        ratings_updated_at_timestamp = global_settings.get(conf.settings.SETTINGS_UPDATE_TIMESTEMP_KEY, None)
 
         ratings_query = models.RatingPlaces.objects.all().select_related()
 
@@ -123,7 +123,7 @@ class RatingResource(utils_resources.Resource):
         except ValueError:
             return self.redirect(django_reverse('game:ratings:show', args=[self.rating_type.value]), permanent=False)
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('game:ratings:show', args=[self.rating_type.value]), arguments={'page': page})
+        url_builder = utils_urls.UrlBuilder(django_reverse('game:ratings:show', args=[self.rating_type.value]), arguments={'page': page})
 
         paginator = utils_pagination.Paginator(page, ratings_count, conf.settings.ACCOUNTS_ON_PAGE, url_builder)
 

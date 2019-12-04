@@ -87,7 +87,8 @@ def _fake_text(lexicon_key, externals):
     return str(lexicon_key) + ': ' + ' '.join('%s=%s' % (k, v.form) for k, v in externals.items())
 
 
-@dext_decorators.retry_on_exception(max_retries=conf.settings.MAX_RENDER_TEXT_RETRIES, exceptions=[utg_exceptions.UtgError])
+@utils_decorators.retry_on_exception(max_retries=conf.settings.MAX_RENDER_TEXT_RETRIES,
+                                     exceptions=[utg_exceptions.UtgError])
 def _render_utg_text(lexicon_key, restrictions, externals, with_nearest_distance=False):
     # dictionary & lexicon can be changed unexpectedly in any time
     # and some rendered data can be obsolete
@@ -301,7 +302,7 @@ def give_reward_for_template(template):
 
     message = '''Поздравляем! Ваша [url={template}]фраза[/url] добавлена в игру!\n\nВ награду вы можете получить дополнительные карты судьбы (на странице игры, в количестве {cards_number} шт.). Карты можно будет продать на рынке.'''
 
-    message = message.format(template=dext_urls.full_url('https', 'linguistics:templates:show', template.id),
+    message = message.format(template=utils_urls.full_url('https', 'linguistics:templates:show', template.id),
                              cards_number=cards_number)
 
     personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),

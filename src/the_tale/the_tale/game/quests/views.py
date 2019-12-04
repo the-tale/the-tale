@@ -11,7 +11,7 @@ class QuestsResource(utils_resources.Resource):
         super(QuestsResource, self).initialize(*argv, **kwargs)
 
     @utils_api.handler(versions=('1.0',))
-    @dext_old_views.handler('api', 'choose', name='api-choose', method='post')
+    @old_views.handler('api', 'choose', name='api-choose', method='post')
     def api_choose(self, option_uid, api_version):
         choose_task = postponed_tasks.MakeChoiceTask(account_id=self.account.id, option_uid=option_uid)
 

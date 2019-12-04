@@ -5,10 +5,10 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    place_1 = dext_fields.ChoiceField(label='Первый город')
-    place_2 = dext_fields.ChoiceField(label='Второй город')
+    place_1 = utils_fields.ChoiceField(label='Первый город')
+    place_2 = utils_fields.ChoiceField(label='Второй город')
 
-    path = dext_fields.CharField(label='Путь')
+    path = utils_fields.CharField(label='Путь')
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)

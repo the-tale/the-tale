@@ -44,7 +44,7 @@ class ShowTests(BaseRequestsTests):
                                         concrete_event=concrete_event,
                                         days=7)
 
-        self.url = dext_urls.url('game:emissaries:show', self.emissary.id)
+        self.url = utils_urls.url('game:emissaries:show', self.emissary.id)
 
     def test_success__unauthorized(self):
         self.request_logout()
@@ -82,7 +82,7 @@ class CreateDialogTests(BaseRequestsTests):
 
     def setUp(self):
         super().setUp()
-        self.url = dext_urls.url('game:emissaries:create-dialog')
+        self.url = utils_urls.url('game:emissaries:create-dialog')
 
         self.request_login(self.account_1.email)
 
@@ -128,7 +128,7 @@ class CreateTests(BaseRequestsTests):
 
     def setUp(self):
         super().setUp()
-        self.url = dext_urls.url('game:emissaries:create')
+        self.url = utils_urls.url('game:emissaries:create')
 
         clans_tt_services.currencies.cmd_debug_clear_service()
 
@@ -241,12 +241,12 @@ class StartEventDialogTests(BaseRequestsTests):
                                              initiator=self.account_1,
                                              place_id=self.places[0].id)
 
-        self.url = dext_urls.url('game:emissaries:start-event-dialog', self.emissary.id, event_type=relations.EVENT_TYPE.REST.value)
+        self.url = utils_urls.url('game:emissaries:start-event-dialog', self.emissary.id, event_type=relations.EVENT_TYPE.REST.value)
 
         self.request_login(self.account_1.email)
 
     def test_no_event_type(self):
-        url = dext_urls.url('game:emissaries:start-event-dialog', self.emissary.id)
+        url = utils_urls.url('game:emissaries:start-event-dialog', self.emissary.id)
 
         self.check_html_ok(self.request_ajax_html(url), texts=['event_type.not_specified'])
 
@@ -295,7 +295,7 @@ class StartEventTests(BaseRequestsTests):
                                              initiator=self.account_1,
                                              place_id=self.places[0].id)
 
-        self.url = dext_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.REST.value)
+        self.url = utils_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.REST.value)
 
         self.request_login(self.account_1.email)
 
@@ -453,7 +453,7 @@ class StartEventTests(BaseRequestsTests):
 
         places_tt_services.effects.cmd_debug_clear_service()
 
-        url = dext_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.ARTISANS_SUPPORT.value)
+        url = utils_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.ARTISANS_SUPPORT.value)
 
         self.emissary.place_rating_position = 0
 
@@ -475,7 +475,7 @@ class StartEventTests(BaseRequestsTests):
 
         places_tt_services.effects.cmd_debug_clear_service()
 
-        url = dext_urls.url('game:emissaries:start-event', self.emissary.id, event_type=event_type.value)
+        url = utils_urls.url('game:emissaries:start-event', self.emissary.id, event_type=event_type.value)
 
         self.emissary.place_rating_position = 0
 
@@ -505,7 +505,7 @@ class StopEventTests(BaseRequestsTests):
                                         concrete_event=concrete_event,
                                         days=7)
 
-        self.url = dext_urls.url('game:emissaries:stop-event', self.emissary.id, event=self.event.id)
+        self.url = utils_urls.url('game:emissaries:stop-event', self.emissary.id, event=self.event.id)
 
         self.request_login(self.account_1.email)
 
@@ -584,7 +584,7 @@ class StopEventTests(BaseRequestsTests):
                                               initiator=self.account_1,
                                               place_id=self.places[0].id)
 
-        url = dext_urls.url('game:emissaries:stop-event', wrong_emissary.id, event=self.event.id)
+        url = utils_urls.url('game:emissaries:stop-event', wrong_emissary.id, event=self.event.id)
 
         with self.check_no_actions_applied():
             self.check_ajax_error(self.post_ajax_json(url), 'emissaries.wrong_emissary')

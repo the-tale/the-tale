@@ -314,7 +314,7 @@ class LogicStorage(object):
             to_cache[cache_key] = hero.ui_info(actual_guaranteed=True,
                                                old_info=None if force_full_data else self.previous_cache.get(cache_key))
 
-        dext_cache.set_many(to_cache, heroes_conf.settings.UI_CACHING_TIMEOUT)
+        utils_cache.set_many(to_cache, heroes_conf.settings.UI_CACHING_TIMEOUT)
 
         self.cache_queue.clear()
 

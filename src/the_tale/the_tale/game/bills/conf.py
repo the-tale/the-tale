@@ -4,15 +4,15 @@ import smart_imports
 smart_imports.all()
 
 
-settings = dext_app_settings.app_settings('BILLS',
-                                          RATIONALE_MIN_LENGTH=100,
-                                          CHRONICLE_MIN_LENGTH=100 if not django_settings.TESTS_RUNNING else 5,
-                                          CHRONICLE_MAX_LENGTH=1000,
-                                          MIN_VOTES_PERCENT=0.6,
-                                          BILL_LIVE_TIME=4 * 24 * 60 * 60,
-                                          BILL_ACTUAL_LIVE_TIME=60,  # IN DAYS
-                                          MINIMUM_BILL_OWNER_AGE=2,  # IN DAYS
-                                          FORUM_CATEGORY_UID='bills',
-                                          BILLS_ON_PAGE=10,
-                                          BILLS_PROCESS_INTERVAL=60,
-                                          PLACES__TO_ACCESS_VOTING=10)
+settings = utils_app_settings.app_settings('BILLS',
+                                           RATIONALE_MIN_LENGTH=100,
+                                           CHRONICLE_MIN_LENGTH=100 if not django_settings.TESTS_RUNNING else 5,
+                                           CHRONICLE_MAX_LENGTH=1000,
+                                           MIN_VOTES_PERCENT=0.6,
+                                           BILL_LIVE_TIME=4 * 24 * 60 * 60,
+                                           BILL_ACTUAL_LIVE_TIME=60,  # IN DAYS
+                                           MINIMUM_BILL_OWNER_AGE=2,  # IN DAYS
+                                           FORUM_CATEGORY_UID='bills',
+                                           BILLS_ON_PAGE=10,
+                                           BILLS_PROCESS_INTERVAL=60,
+                                           PLACES__TO_ACCESS_VOTING=10)

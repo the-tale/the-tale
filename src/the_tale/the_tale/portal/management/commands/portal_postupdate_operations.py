@@ -16,7 +16,7 @@ class Command(django_management.BaseCommand):
         print('UPDATE MAP')
         print()
 
-        dext_logic.run_django_command(['map_update_map'])
+        utils_logic.run_django_command(['map_update_map'])
 
         print()
         print('UPDATE LINGUISTICS')
@@ -39,11 +39,11 @@ class Command(django_management.BaseCommand):
         print()
         print('REMOVE OLD CDN INFO')
 
-        if portal_conf.settings.SETTINGS_CDN_INFO_KEY in dext_settings.settings:
-            del dext_settings.settings[portal_conf.settings.SETTINGS_CDN_INFO_KEY]
+        if portal_conf.settings.SETTINGS_CDN_INFO_KEY in global_settings:
+            del global_settings[portal_conf.settings.SETTINGS_CDN_INFO_KEY]
 
-        if portal_conf.settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY in dext_settings.settings:
-            del dext_settings.settings[portal_conf.settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY]
+        if portal_conf.settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY in global_settings:
+            del global_settings[portal_conf.settings.SETTINGS_PREV_CDN_SYNC_TIME_KEY]
 
         print()
         print('SYNC GROUPS AND PERMISSIONS')

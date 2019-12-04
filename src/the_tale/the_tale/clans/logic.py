@@ -268,9 +268,9 @@ def remove_member(initiator, clan, member):
     _remove_member(clan, member)
 
     message = 'Хранитель {initiator}s исключил(а) вас из гильдии {clan_link}.'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id), clan.name))
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id), clan.name))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
                                          recipients_ids=[member.id],
@@ -307,9 +307,9 @@ def change_role(clan, initiator, member, new_role):
                                                                                    updated_at=datetime.datetime.now())
 
     message = 'Хранитель {initiator} изменил(а) ваше звание в гильдии {clan_link} на «{new_role}».'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name),
                              new_role=new_role.text)
 
@@ -328,7 +328,7 @@ def change_role(clan, initiator, member, new_role):
                                         tags=[initiator.meta_object().tag,
                                               member.meta_object().tag],
                                         message=message)
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @django_transaction.atomic
@@ -337,9 +337,9 @@ def change_ownership(clan, initiator, member):
     models.Membership.objects.filter(clan_id=clan.id, account_id=member.id).update(role=relations.MEMBER_ROLE.MASTER)
 
     message = 'Магистр гильдии {initiator} передал(а) вам владение гильдией {clan_link}.'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
@@ -355,7 +355,7 @@ def change_ownership(clan, initiator, member):
                                         tags=[initiator.meta_object().tag,
                                               member.meta_object().tag],
                                         message=message)
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 
@@ -369,10 +369,10 @@ def _message_about_new_request(initiator, clan, recipient_id, text):
 ----------
 принять или отклонить предложение вы можете на этой странице: {invites_link}
 '''
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
                              text=text,
-                             invites_link='[url="%s"]Заявки в гильдию[/url]' % dext_urls.full_url('https', 'clans:join-requests', clan.id))
+                             invites_link='[url="%s"]Заявки в гильдию[/url]' % utils_urls.full_url('https', 'clans:join-requests', clan.id))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
                                          recipients_ids=[recipient_id],
@@ -428,12 +428,12 @@ def create_invite(initiator, clan, member, text):
 принять или отклонить предложение вы можете на этой странице: {invites_link}
 '''
 
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
                              text=text,
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name),
-                             invites_link='[url="%s"]Приглашения в гильдию [/url]' % dext_urls.full_url('https', 'clans:invites'))
+                             invites_link='[url="%s"]Приглашения в гильдию [/url]' % utils_urls.full_url('https', 'clans:invites'))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
                                          recipients_ids=[member.id],
@@ -510,7 +510,7 @@ def reject_invite(membership_request):
     clan = load_clan(membership_request.clan_id)
 
     message = 'Хранитель {keeper} отказался вступить в вашу гильдию.'
-    message = message.format(keeper='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', account.id),
+    message = message.format(keeper='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', account.id),
                                                             account.nick_verbose))
 
     personal_messages_logic.send_message(sender_id=account.id,
@@ -535,9 +535,9 @@ def reject_request(initiator, membership_request):
     clan = load_clan(membership_request.clan_id)
 
     message = 'Хранитель {initiator} отказал вам в принятии в гильдию {clan_link}.'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name))
 
     personal_messages_logic.send_message(sender_id=initiator.id,
@@ -582,9 +582,9 @@ def accept_request(initiator, membership_request):
     _add_member(clan=clan, account=account, role=relations.MEMBER_ROLE.RECRUIT)
 
     message = 'Хранитель {initiator} принял вас в гильдию {clan_link}.'
-    message = message.format(initiator='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'accounts:show', initiator.id),
-                                                                initiator.nick_verbose),
-                             clan_link='[url="%s"]%s[/url]' % (dext_urls.full_url('https', 'clans:show', clan.id),
+    message = message.format(initiator='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'accounts:show', initiator.id),
+                                                               initiator.nick_verbose),
+                             clan_link='[url="%s"]%s[/url]' % (utils_urls.full_url('https', 'clans:show', clan.id),
                                                                clan.name))
 
     personal_messages_logic.send_message(sender_id=initiator.id,

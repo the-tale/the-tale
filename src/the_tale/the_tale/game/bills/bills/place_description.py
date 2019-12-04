@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    place = dext_fields.ChoiceField(label='Город')
+    place = utils_fields.ChoiceField(label='Город')
     new_description = utils_bbcode.BBField(label='Новое описание', max_length=places_conf.settings.MAX_DESCRIPTION_LENGTH)
 
     def __init__(self, *args, **kwargs):

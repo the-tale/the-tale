@@ -41,7 +41,7 @@ class KitsNewTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsNewTests, self).setUp()
-        self.test_url = dext_urls.url('collections:kits:new')
+        self.test_url = utils_urls.url('collections:kits:new')
 
     def test_login_required(self):
         self.check_redirect(self.test_url, accounts_logic.login_page_url(self.test_url))
@@ -61,7 +61,7 @@ class KitsCreateTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsCreateTests, self).setUp()
-        self.create_url = dext_urls.url('collections:kits:create')
+        self.create_url = utils_urls.url('collections:kits:create')
 
     def get_post_data(self):
         return {'collection': self.collection_1.id,
@@ -102,7 +102,7 @@ class KitsEditTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsEditTests, self).setUp()
-        self.test_url = dext_urls.url('collections:kits:edit', self.kit_2.id)
+        self.test_url = utils_urls.url('collections:kits:edit', self.kit_2.id)
 
     def test_login_required(self):
         self.check_redirect(self.test_url, accounts_logic.login_page_url(self.test_url))
@@ -141,7 +141,7 @@ class KitsUpdateTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsUpdateTests, self).setUp()
-        self.test_url = dext_urls.url('collections:kits:update', self.kit_2.id)
+        self.test_url = utils_urls.url('collections:kits:update', self.kit_2.id)
 
     def get_post_data(self):
         return {'caption': 'kit_edited',
@@ -199,7 +199,7 @@ class KitsUpdateTests(BaseRequestTests):
 
         self.request_login(self.account_3.email)
         self.check_ajax_ok(self.post_ajax_json(self.test_url, self.get_post_data()),
-                           data={'next_url': dext_urls.url('collections:collections:show', self.collection_2.id)})
+                           data={'next_url': utils_urls.url('collections:collections:show', self.collection_2.id)})
 
         self.kit_2.reload()
         self.assertEqual(self.kit_2.caption, 'kit_edited')
@@ -211,7 +211,7 @@ class KitsApproveTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsApproveTests, self).setUp()
-        self.approve_url = dext_urls.url('collections:kits:approve', self.kit_2.id)
+        self.approve_url = utils_urls.url('collections:kits:approve', self.kit_2.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.approve_url), 'common.login_required')
@@ -232,7 +232,7 @@ class KitsDisapproveTests(BaseRequestTests):
 
     def setUp(self):
         super(KitsDisapproveTests, self).setUp()
-        self.disapprove_url = dext_urls.url('collections:kits:disapprove', self.kit_2.id)
+        self.disapprove_url = utils_urls.url('collections:kits:disapprove', self.kit_2.id)
 
     def test_login_required(self):
         self.check_ajax_error(self.post_ajax_json(self.disapprove_url), 'common.login_required')

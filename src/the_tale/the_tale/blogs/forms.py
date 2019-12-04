@@ -4,11 +4,11 @@ import smart_imports
 smart_imports.all()
 
 
-class PostForm(dext_forms.Form):
-    caption = dext_fields.CharField(label='Название', max_length=models.Post.CAPTION_MAX_LENGTH, min_length=models.Post.CAPTION_MIN_LENGTH)
+class PostForm(utils_forms.Form):
+    caption = utils_fields.CharField(label='Название', max_length=models.Post.CAPTION_MAX_LENGTH, min_length=models.Post.CAPTION_MIN_LENGTH)
     text = utils_bbcode.BBField(label='Текст', min_length=conf.settings.MIN_TEXT_LENGTH)
 
-    meta_objects = dext_fields.CharField(label='Текст рассказывает о', required=False)
+    meta_objects = utils_fields.CharField(label='Текст рассказывает о', required=False)
 
     def clean_meta_objects(self):
         data = self.cleaned_data.get('meta_objects', '')
@@ -43,8 +43,8 @@ class PostForm(dext_forms.Form):
         return objects
 
 
-class TagsForm(dext_forms.Form):
-    tags = dext_fields.MultipleChoiceField(label='теги', choices=logic.manual_tags_choices)
+class TagsForm(utils_forms.Form):
+    tags = utils_fields.MultipleChoiceField(label='теги', choices=logic.manual_tags_choices)
 
     def clean_tags(self):
         tags = self.cleaned_data['tags']

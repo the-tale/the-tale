@@ -27,13 +27,13 @@ class Command(django_management.BaseCommand):
         print('GENERATE JAVASCRIPT CONSTANTS')
         print()
 
-        dext_logic.run_django_command(['game_generate_js'])
+        utils_logic.run_django_command(['game_generate_js'])
 
         print()
         print('GENERATE CSS')
         print()
 
-        dext_logic.run_django_command(['less_generate_css'])
+        utils_logic.run_django_command(['less_generate_css'])
 
         print()
         print('GENERATE META CONFIG')

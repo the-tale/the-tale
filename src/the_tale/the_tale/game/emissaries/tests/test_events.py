@@ -54,9 +54,9 @@ class BaseEventsMixin(clans_helpers.ClansTestsMixin,
                                                          currency=self.EVENT_CURRENCY)
 
     def test_start_dialog(self):
-        dialog_url = dext_urls.url('game:emissaries:start-event-dialog',
-                                   self.emissary.id,
-                                   event_type=self.concrete_event.TYPE.value)
+        dialog_url = utils_urls.url('game:emissaries:start-event-dialog',
+                                    self.emissary.id,
+                                    event_type=self.concrete_event.TYPE.value)
         self.check_html_ok(self.request_ajax_html(dialog_url), texts=[])
 
     def test_start_event(self, expected_error=None):
@@ -64,7 +64,7 @@ class BaseEventsMixin(clans_helpers.ClansTestsMixin,
             self.emissary.place_rating_position = 0
             logic.save_emissary(self.emissary)
 
-        start_url = dext_urls.url('game:emissaries:start-event',
+        start_url = utils_urls.url('game:emissaries:start-event',
                                    self.emissary.id,
                                    event_type=self.concrete_event.TYPE.value)
         self.request_login(self.account.email)

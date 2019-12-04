@@ -4,18 +4,18 @@ import smart_imports
 smart_imports.all()
 
 
-class EditCollectionForm(dext_forms.Form):
+class EditCollectionForm(utils_forms.Form):
 
-    caption = dext_fields.CharField(label='Название', max_length=prototypes.CollectionPrototype.CAPTION_MAX_LENGTH, min_length=1)
+    caption = utils_fields.CharField(label='Название', max_length=prototypes.CollectionPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
     description = utils_bbcode.BBField(label='Описание', min_length=1, max_length=prototypes.CollectionPrototype.DESCRIPTION_MAX_LENGTH)
 
 
-class EditKitForm(dext_forms.Form):
+class EditKitForm(utils_forms.Form):
 
-    collection = dext_fields.ChoiceField(label='Коллекция')
+    collection = utils_fields.ChoiceField(label='Коллекция')
 
-    caption = dext_fields.CharField(label='Название', max_length=prototypes.KitPrototype.CAPTION_MAX_LENGTH, min_length=1)
+    caption = utils_fields.CharField(label='Название', max_length=prototypes.KitPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
     description = utils_bbcode.BBField(label='Описание', min_length=1, max_length=prototypes.KitPrototype.DESCRIPTION_MAX_LENGTH)
 
@@ -33,11 +33,11 @@ class EditKitForm(dext_forms.Form):
         return collection
 
 
-class EditItemForm(dext_forms.Form):
+class EditItemForm(utils_forms.Form):
 
-    kit = dext_fields.ChoiceField(label='Набор')
+    kit = utils_fields.ChoiceField(label='Набор')
 
-    caption = dext_fields.CharField(label='Название', max_length=prototypes.ItemPrototype.CAPTION_MAX_LENGTH, min_length=1)
+    caption = utils_fields.CharField(label='Название', max_length=prototypes.ItemPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
     text = utils_bbcode.BBField(label='Текст', min_length=1)
 

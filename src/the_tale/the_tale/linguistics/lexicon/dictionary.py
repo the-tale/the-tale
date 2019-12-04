@@ -167,7 +167,7 @@ forms = [noun(['герой', 'героя', 'герою', 'героя', 'геро
 
 # def extract(id):
 #    import ppritn
-#    from dext.common.utils import s11n
+#    from the_tale.common.utils import s11n
 #    from utg import words as utg_words
 #    from the_tale.linguistics import models
 #

@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class AchievementsStorage(utils_storage.Storage):
+class AchievementsStorage(utils_storage.PrototypeStorage):
     SETTINGS_KEY = 'achievements change time'
     EXCEPTION = exceptions.AchievementsError
 

@@ -42,7 +42,7 @@ class Command(django_management.BaseCommand):
         for i, region_filename in enumerate(regions):
             print('process region %d: %s' % (i, region_filename))
             output_file = os.path.join(temp_dir, '%.10d.png' % i)
-            dext_logic.run_django_command(['map_visualize_region', '-r', region_filename, '-o', output_file])
+            utils_logic.run_django_command(['map_visualize_region', '-r', region_filename, '-o', output_file])
 
         if os.path.exists(output):
             os.remove(output)

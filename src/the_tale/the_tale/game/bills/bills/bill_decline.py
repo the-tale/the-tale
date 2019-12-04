@@ -5,7 +5,7 @@ smart_imports.all()
 
 
 class BaseForm(forms.BaseUserForm):
-    declined_bill = dext_fields.TypedChoiceField(label='Отменяемая запись', coerce=int)
+    declined_bill = utils_fields.TypedChoiceField(label='Отменяемая запись', coerce=int)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)

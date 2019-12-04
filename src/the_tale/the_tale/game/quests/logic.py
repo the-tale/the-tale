@@ -110,7 +110,7 @@ class HeroQuestInfo(object):
 
 
 def choose_quest_path_url():
-    return dext_urls.url('game:quests:api-choose', api_version='1.0', api_client=django_settings.API_CLIENT)
+    return utils_urls.url('game:quests:api-choose', api_version='1.0', api_client=django_settings.API_CLIENT)
 
 
 def fact_place(place):
@@ -423,7 +423,8 @@ def try_to_create_random_quest_for_hero(hero_info, quests, excluded_quests, with
     return None, None
 
 
-@dext_decorators.retry_on_exception(max_retries=conf.settings.MAX_QUEST_GENERATION_RETRIES, exceptions=[questgen_exceptions.RollBackError])
+@utils_decorators.retry_on_exception(max_retries=conf.settings.MAX_QUEST_GENERATION_RETRIES,
+                                     exceptions=[questgen_exceptions.RollBackError])
 def _create_random_quest_for_hero(hero_info, constructor, start_quests, without_restrictions=False):
     knowledge_base = get_knowledge_base(hero_info, without_restrictions=without_restrictions)
 

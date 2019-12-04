@@ -15,7 +15,6 @@ internal_repositories: []
 tt_services:
   the_tale:
     packages:
-      - {editable: True, extra: "-e", name: "/mnt/repos/dext/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/deworld/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/questgen/"}
       - {editable: True, extra: "-e", name: "/mnt/repos/the-tale/src/tt_logic/"}

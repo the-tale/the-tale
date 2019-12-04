@@ -286,7 +286,7 @@ def api_show_url(person):
     arguments = {'api_version': conf.settings.API_SHOW_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
-    return dext_urls.url('game:persons:api-show', person.id, **arguments)
+    return utils_urls.url('game:persons:api-show', person.id, **arguments)
 
 
 def refresh_all_persons_attributes():

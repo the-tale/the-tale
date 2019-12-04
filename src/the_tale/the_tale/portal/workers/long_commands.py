@@ -22,8 +22,8 @@ class Worker(utils_workers.BaseWorker):
         self.logger.info('LONG COMMANDS INITIALIZED')
 
     def _try_run_command_with_delay(self, cmd, settings_key, delay):
-        if time.time() - float(dext_settings.settings.get(settings_key, 0)) > delay:
-            dext_settings.settings[settings_key] = str(time.time())
+        if time.time() - float(global_settings.get(settings_key, 0)) > delay:
+            global_settings[settings_key] = str(time.time())
             cmd()
             return True
 
@@ -32,23 +32,23 @@ class Worker(utils_workers.BaseWorker):
     def process_no_cmd(self):
 
         # check if new real day started
-        if (time.time() - float(dext_settings.settings.get(conf.settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY, 0)) > 23.5 * 60 * 60 and
+        if (time.time() - float(global_settings.get(conf.settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY, 0)) > 23.5 * 60 * 60 and
                 datetime.datetime.now().hour >= conf.settings.REAL_DAY_STARTED_TIME):
             signals.day_started.send(self.__class__)
-            dext_settings.settings[conf.settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY] = str(time.time())
+            global_settings[conf.settings.SETTINGS_PREV_REAL_DAY_STARTED_TIME_KEY] = str(time.time())
             return
 
         # is cleaning run needed
-        if (time.time() - float(dext_settings.settings.get(conf.settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY, 0)) > 23.5 * 60 * 60 and
+        if (time.time() - float(global_settings.get(conf.settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY, 0)) > 23.5 * 60 * 60 and
                 conf.settings.CLEANING_RUN_TIME <= datetime.datetime.now().hour <= conf.settings.CLEANING_RUN_TIME + 1):
-            dext_settings.settings[conf.settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY] = str(time.time())
+            global_settings[conf.settings.SETTINGS_PREV_CLEANING_RUN_TIME_KEY] = str(time.time())
             self.run_cleaning()
             return
 
         # is statistics run needed
-        if (time.time() - float(dext_settings.settings.get(conf.settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY, 0)) > 23.5 * 60 * 60 and
+        if (time.time() - float(global_settings.get(conf.settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY, 0)) > 23.5 * 60 * 60 and
                 conf.settings.STATISTICS_RUN_TIME <= datetime.datetime.now().hour <= conf.settings.STATISTICS_RUN_TIME + 1):
-            dext_settings.settings[conf.settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY] = str(time.time())
+            global_settings[conf.settings.SETTINGS_PREV_STATISTICS_RUN_TIME_KEY] = str(time.time())
             self.run_statistics()
             return
 
@@ -84,7 +84,7 @@ class Worker(utils_workers.BaseWorker):
 
     def _run_django_subprocess(self, name, cmd):
         self.logger.info('run %s command' % name)
-        result = dext_logic.run_django_command(cmd)
+        result = utils_logic.run_django_command(cmd)
         if result:
             self.logger.error('%s ENDED WITH CODE %d' % (name, result))
         else:

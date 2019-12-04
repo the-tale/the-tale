@@ -10,32 +10,32 @@ ORDER_BY = utils_enum.create_enum('ORDER_BY', (('ALPHABET', 'alphabet', 'по а
                                                ('MIGHT', 'might', 'по рейтингу'),))
 
 
-@dext_old_views.validator(code='blogs.posts.fast_account', message='Для выполнения этого действия необходимо завершить регистрацию')
+@old_views.validator(code='blogs.posts.fast_account', message='Для выполнения этого действия необходимо завершить регистрацию')
 def validate_fast_account_restrictions(resource, *args, **kwargs):
     return resource.account.is_authenticated and not resource.account.is_fast
 
 
-@dext_old_views.validator(code='blogs.posts.no_edit_rights', message='Вы не можете редактировать это произведение')
+@old_views.validator(code='blogs.posts.no_edit_rights', message='Вы не можете редактировать это произведение')
 def validate_edit_rights(resource, *args, **kwargs): return resource.account.id == resource.post.author.id or resource.can_moderate_post
 
 
-@dext_old_views.validator(code='blogs.posts.moderator_rights_required', message='Вы не являетесь модератором')
+@old_views.validator(code='blogs.posts.moderator_rights_required', message='Вы не являетесь модератором')
 def validate_moderator_rights(resource, *args, **kwargs): return resource.can_moderate_post
 
 
-@dext_old_views.validator(code='blogs.posts.post_declined', message='Произведение не прошло проверку модератора и отклонено')
+@old_views.validator(code='blogs.posts.post_declined', message='Произведение не прошло проверку модератора и отклонено')
 def validate_declined_state(resource, *args, **kwargs): return not resource.post.state.is_DECLINED
 
 
 class PostResource(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('post', prototypes.PostPrototype.get_by_id, 'blogs.posts', 'Запись не найдена')
+    @old_views.validate_argument('post', prototypes.PostPrototype.get_by_id, 'blogs.posts', 'Запись не найдена')
     def initialize(self, post=None, *args, **kwargs):
         super(PostResource, self).initialize(*args, **kwargs)
         self.post = post
         self.can_moderate_post = self.account.has_perm('blogs.moderate_post')
 
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def index(self, page=1, author_id=None, order_by=ORDER_BY.CREATED_AT, tag_id=None):
 
         posts_query = models.Post.objects.filter(state__in=[relations.POST_STATE.NOT_MODERATED, relations.POST_STATE.ACCEPTED])
@@ -74,9 +74,9 @@ class PostResource(utils_resources.Resource):
                 order_by = ORDER_BY.CREATED_AT
                 posts_query = posts_query.order_by('-created_at')
 
-        url_builder = dext_urls.UrlBuilder(django_reverse('blogs:posts:'), arguments={'author_id': author_id,
-                                                                                      'order_by': order_by,
-                                                                                      'tag_id': tag_id})
+        url_builder = utils_urls.UrlBuilder(django_reverse('blogs:posts:'), arguments={'author_id': author_id,
+                                                                                       'order_by': order_by,
+                                                                                       'tag_id': tag_id})
 
         posts_count = posts_query.count()
 
@@ -114,7 +114,7 @@ class PostResource(utils_resources.Resource):
     @utils_decorators.login_required
     @accounts_views.validate_ban_forum()
     @validate_fast_account_restrictions()
-    @dext_old_views.handler('new', method='get')
+    @old_views.handler('new', method='get')
     def new(self):
         return self.template('blogs/new.html', {'form': forms.PostForm(),
                                                 'page_type': 'new', })
@@ -123,7 +123,7 @@ class PostResource(utils_resources.Resource):
     @accounts_views.validate_ban_forum()
     @validate_fast_account_restrictions()
     @django_transaction.atomic
-    @dext_old_views.handler('create', method='post')
+    @old_views.handler('create', method='post')
     def create(self):
 
         form = forms.PostForm(self.request.POST)
@@ -144,7 +144,7 @@ class PostResource(utils_resources.Resource):
         return self.json_ok(data={'next_url': django_reverse('blogs:posts:show', args=[post.id])})
 
     @validate_declined_state()
-    @dext_old_views.handler('#post', name='show', method='get')
+    @old_views.handler('#post', name='show', method='get')
     def show(self):
         thread_data = forum_views.ThreadPageData()
         thread_data.initialize(account=self.account, thread=self.post.forum_thread, page=1, inline=True)
@@ -166,7 +166,7 @@ class PostResource(utils_resources.Resource):
     @validate_fast_account_restrictions()
     @validate_edit_rights()
     @validate_declined_state()
-    @dext_old_views.handler('#post', 'edit', method='get')
+    @old_views.handler('#post', 'edit', method='get')
     def edit(self):
         meta_post = meta_relations.Post.create_from_object(self.post)
 
@@ -186,7 +186,7 @@ class PostResource(utils_resources.Resource):
     @validate_edit_rights()
     @validate_declined_state()
     @django_transaction.atomic
-    @dext_old_views.handler('#post', 'update', method='post')
+    @old_views.handler('#post', 'update', method='post')
     def update(self):
         form = forms.PostForm(self.request.POST)
 
@@ -218,7 +218,7 @@ class PostResource(utils_resources.Resource):
     @utils_decorators.login_required
     @validate_fast_account_restrictions()
     @validate_moderator_rights()
-    @dext_old_views.handler('#post', 'accept', method='post')
+    @old_views.handler('#post', 'accept', method='post')
     def accept(self):
         self.post.accept(self.account)
         return self.json_ok()
@@ -226,7 +226,7 @@ class PostResource(utils_resources.Resource):
     @utils_decorators.login_required
     @validate_fast_account_restrictions()
     @validate_moderator_rights()
-    @dext_old_views.handler('#post', 'decline', method='post')
+    @old_views.handler('#post', 'decline', method='post')
     def decline(self):
         self.post.decline(self.account)
         return self.json_ok()
@@ -234,7 +234,7 @@ class PostResource(utils_resources.Resource):
     @utils_decorators.login_required
     @validate_fast_account_restrictions()
     @django_transaction.atomic
-    @dext_old_views.handler('#post', 'vote', method='post')
+    @old_views.handler('#post', 'vote', method='post')
     def vote(self):
 
         prototypes.VotePrototype.create_if_not_exists(self.post, self.account)
@@ -247,7 +247,7 @@ class PostResource(utils_resources.Resource):
     @utils_decorators.login_required
     @validate_fast_account_restrictions()
     @django_transaction.atomic
-    @dext_old_views.handler('#post', 'unvote', method='post')
+    @old_views.handler('#post', 'unvote', method='post')
     def unvote(self):
 
         prototypes.VotePrototype.remove_if_exists(self.post, self.account)
@@ -260,7 +260,7 @@ class PostResource(utils_resources.Resource):
     @utils_decorators.login_required
     @validate_fast_account_restrictions()
     @validate_moderator_rights()
-    @dext_old_views.handler('#post', 'edit-tags', method='get')
+    @old_views.handler('#post', 'edit-tags', method='get')
     def edit_tags(self):
 
         tags = logic.get_post_tags(self.post.id)
@@ -273,7 +273,7 @@ class PostResource(utils_resources.Resource):
     @validate_fast_account_restrictions()
     @validate_moderator_rights()
     @django_transaction.atomic
-    @dext_old_views.handler('#post', 'update-tags', method='post')
+    @old_views.handler('#post', 'update-tags', method='post')
     def update_tags(self):
         form = forms.TagsForm(self.request.POST)
 

@@ -6,7 +6,6 @@ smart_imports.all()
 class MapInfoStorage(utils_storage.SingleStorage):
     SETTINGS_KEY = 'map info change time'
     EXCEPTION = map_exceptions.MapStorageError
-    PROTOTYPE = map_prototypes.MapInfoPrototype
 
     def _construct_zero_item(self):
         return None
@@ -20,7 +19,7 @@ class MapInfoStorage(utils_storage.SingleStorage):
         except IndexError:
             self._item = None
 
-        self._version = dext_settings.settings[self.SETTINGS_KEY]
+        self._version = global_settings[self.SETTINGS_KEY]
 
     def _get_next_version(self):
         return '%d-%f' % (game_turn.number(), time.time())

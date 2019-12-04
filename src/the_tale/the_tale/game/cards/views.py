@@ -8,12 +8,12 @@ smart_imports.all()
 # processors definition
 ########################################
 
-class AccountCardsLoader(dext_views.BaseViewProcessor):
+class AccountCardsLoader(utils_views.BaseViewProcessor):
     def preprocess(self, context):
         context.account_cards = tt_services.storage.cmd_get_items(context.account.id)
 
 
-class AccountCardProcessor(dext_views.ArgumentProcessor):
+class AccountCardProcessor(utils_views.ArgumentProcessor):
     ERROR_MESSAGE = 'У Вас нет такой карты'
     GET_NAME = 'card'
     CONTEXT_NAME = 'account_card'
@@ -30,7 +30,7 @@ class AccountCardProcessor(dext_views.ArgumentProcessor):
         return context.account_cards[card_uid]
 
 
-class AccountCardsProcessor(dext_views.ArgumentProcessor):
+class AccountCardsProcessor(utils_views.ArgumentProcessor):
     ERROR_MESSAGE = 'У вас нет как минимум одной из указанных карт'
     POST_NAME = 'card'
     CONTEXT_NAME = 'cards'
@@ -52,16 +52,16 @@ class AccountCardsProcessor(dext_views.ArgumentProcessor):
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='cards')
+resource = utils_views.Resource(name='cards')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 resource.add_processor(heroes_views.CurrentHeroProcessor())
 
-guide_resource = dext_views.Resource(name='cards')
+guide_resource = utils_views.Resource(name='cards')
 guide_resource.add_processor(accounts_views.CurrentAccountProcessor())
 guide_resource.add_processor(utils_views.FakeResourceProcessor())
 
-technical_resource = dext_views.Resource(name='cards')
+technical_resource = utils_views.Resource(name='cards')
 
 ########################################
 # filters
@@ -100,19 +100,19 @@ def use_dialog(context):
                       for slot in heroes_relations.EQUIPMENT_SLOT.records
                       if context.account_hero.equipment.get(slot) is not None}
 
-    return dext_views.Page('cards/use_dialog.html',
-                           content={'hero': context.account_hero,
-                                    'card': context.account_card,
-                                    'form': context.account_card.get_form(hero=context.account_hero),
-                                    'dialog_info': context.account_card.get_dialog_info(hero=context.account_hero),
-                                    'resource': context.resource,
-                                    'EQUIPMENT_SLOT': heroes_relations.EQUIPMENT_SLOT,
-                                    'RISK_LEVEL': heroes_relations.RISK_LEVEL,
-                                    'COMPANION_DEDICATION': heroes_relations.COMPANION_DEDICATION,
-                                    'COMPANION_EMPATHY': heroes_relations.COMPANION_EMPATHY,
-                                    'ENERGY_REGENERATION': heroes_relations.ENERGY_REGENERATION,
-                                    'ARCHETYPE': game_relations.ARCHETYPE,
-                                    'favorite_items': favorite_items})
+    return utils_views.Page('cards/use_dialog.html',
+                            content={'hero': context.account_hero,
+                                     'card': context.account_card,
+                                     'form': context.account_card.get_form(hero=context.account_hero),
+                                     'dialog_info': context.account_card.get_dialog_info(hero=context.account_hero),
+                                     'resource': context.resource,
+                                     'EQUIPMENT_SLOT': heroes_relations.EQUIPMENT_SLOT,
+                                     'RISK_LEVEL': heroes_relations.RISK_LEVEL,
+                                     'COMPANION_DEDICATION': heroes_relations.COMPANION_DEDICATION,
+                                     'COMPANION_EMPATHY': heroes_relations.COMPANION_EMPATHY,
+                                     'ENERGY_REGENERATION': heroes_relations.ENERGY_REGENERATION,
+                                     'ARCHETYPE': game_relations.ARCHETYPE,
+                                     'favorite_items': favorite_items})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -124,11 +124,11 @@ def api_use(context):
     form = context.account_card.get_form(data=context.django_request.POST, hero=context.account_hero)
 
     if not form.is_valid():
-        raise dext_views.ViewError(code='form_errors', message=form.errors)
+        raise utils_views.ViewError(code='form_errors', message=form.errors)
 
     task = context.account_card.activate(context.account_hero, data=form.get_card_data())
 
-    return dext_views.AjaxProcessing(task.status_url)
+    return utils_views.AjaxProcessing(task.status_url)
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -144,7 +144,7 @@ def api_receive(context):
                          old_storage=relations.STORAGE.NEW,
                          new_storage=relations.STORAGE.FAST)
 
-    return dext_views.AjaxOk(content={'cards': [card.ui_info() for card in new_cards]})
+    return utils_views.AjaxOk(content={'cards': [card.ui_info() for card in new_cards]})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -157,7 +157,7 @@ def api_combine(context):
                                                  combined_cards=context.cards)
 
     if not result.is_SUCCESS:
-        raise dext_views.ViewError(code='wrong_cards', message=result.text)
+        raise utils_views.ViewError(code='wrong_cards', message=result.text)
 
     try:
         logic.change_cards(owner_id=context.account.id,
@@ -166,8 +166,8 @@ def api_combine(context):
                            to_remove=context.cards)
     except utils_exceptions.TTAPIUnexpectedAPIStatus:
         # return error, in most cases it is duplicate request
-        raise dext_views.ViewError(code='can_not_combine_cards',
-                                   message='Не удалось объединить карты. Попробуйте обновить страницу и повторить попытку.')
+        raise utils_views.ViewError(code='can_not_combine_cards',
+                                    message='Не удалось объединить карты. Попробуйте обновить страницу и повторить попытку.')
 
     ##################################
     # change combined cards statistics
@@ -194,11 +194,11 @@ def api_combine(context):
     message = MESSAGE.format(cards_list=''.join(cards_list))
 
     if context.api_version == '2.0':
-        return dext_views.AjaxOk(content={'message': message,
-                                          'card': new_cards[0].ui_info()})
+        return utils_views.AjaxOk(content={'message': message,
+                                           'card': new_cards[0].ui_info()})
 
-    return dext_views.AjaxOk(content={'message': message,
-                                      'cards': [card.ui_info() for card in new_cards]})
+    return utils_views.AjaxOk(content={'message': message,
+                                       'cards': [card.ui_info() for card in new_cards]})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -218,11 +218,11 @@ def api_get_cards(context):
             new_card_timer = timer
             break
 
-    return dext_views.AjaxOk(content={'cards': [card.ui_info()
-                                                for card in context.account_cards.values()
-                                                if not card.storage.is_NEW],
-                                      'new_cards': sum(1 for card in context.account_cards.values() if card.storage.is_NEW),
-                                      'new_card_timer': new_card_timer.ui_info()})
+    return utils_views.AjaxOk(content={'cards': [card.ui_info()
+                                                 for card in context.account_cards.values()
+                                                 if not card.storage.is_NEW],
+                                       'new_cards': sum(1 for card in context.account_cards.values() if card.storage.is_NEW),
+                                       'new_card_timer': new_card_timer.ui_info()})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -237,7 +237,7 @@ def api_move_to_storage(context):
                          old_storage=relations.STORAGE.FAST,
                          new_storage=relations.STORAGE.ARCHIVE)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -252,18 +252,18 @@ def api_move_to_hand(context):
                          old_storage=relations.STORAGE.ARCHIVE,
                          new_storage=relations.STORAGE.FAST)
 
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()
 
 
-@dext_views.RelationArgumentProcessor(relation=relations.RARITY, default_value=None,
-                                      error_message='неверный тип редкости карты',
-                                      context_name='cards_rarity', get_name='rarity')
-@dext_views.RelationArgumentProcessor(relation=relations.AVAILABILITY, default_value=None,
-                                      error_message='неверный тип доступности карты',
-                                      context_name='cards_availability', get_name='availability')
-@dext_views.RelationArgumentProcessor(relation=INDEX_ORDER, default_value=INDEX_ORDER.RARITY,
-                                      error_message='неверный тип сортировки карт',
-                                      context_name='cards_order_by', get_name='order_by')
+@utils_views.RelationArgumentProcessor(relation=relations.RARITY, default_value=None,
+                                       error_message='неверный тип редкости карты',
+                                       context_name='cards_rarity', get_name='rarity')
+@utils_views.RelationArgumentProcessor(relation=relations.AVAILABILITY, default_value=None,
+                                       error_message='неверный тип доступности карты',
+                                       context_name='cards_availability', get_name='availability')
+@utils_views.RelationArgumentProcessor(relation=INDEX_ORDER, default_value=INDEX_ORDER.RARITY,
+                                       error_message='неверный тип сортировки карт',
+                                       context_name='cards_order_by', get_name='order_by')
 @guide_resource('')
 def index(context):
     all_cards = types.CARD.records
@@ -279,19 +279,19 @@ def index(context):
     elif context.cards_order_by.is_NAME:
         all_cards = sorted(all_cards, key=lambda c: (c.text, c.rarity.value))
 
-    url_builder = dext_urls.UrlBuilder(dext_urls.url('guide:cards:'), arguments={'rarity': context.cards_rarity.value if context.cards_rarity else None,
-                                                                                 'availability': context.cards_availability.value if context.cards_availability else None,
-                                                                                 'order_by': context.cards_order_by.value})
+    url_builder = utils_urls.UrlBuilder(utils_urls.url('guide:cards:'), arguments={'rarity': context.cards_rarity.value if context.cards_rarity else None,
+                                                                                   'availability': context.cards_availability.value if context.cards_availability else None,
+                                                                                   'order_by': context.cards_order_by.value})
 
     index_filter = CardsFilter(url_builder=url_builder, values={'rarity': context.cards_rarity.value if context.cards_rarity else None,
                                                                 'availability': context.cards_availability.value if context.cards_availability else None,
                                                                 'order_by': context.cards_order_by.value if context.cards_order_by else None})
-    return dext_views.Page('cards/index.html',
-                           content={'section': 'cards',
-                                    'CARDS': all_cards,
-                                    'index_filter': index_filter,
-                                    'CARD_RARITY': relations.RARITY,
-                                    'resource': context.resource})
+    return utils_views.Page('cards/index.html',
+                            content={'section': 'cards',
+                                     'CARDS': all_cards,
+                                     'index_filter': index_filter,
+                                     'CARD_RARITY': relations.RARITY,
+                                     'resource': context.resource})
 
 
 @tt_api_views.RequestProcessor(request_class=tt_protocol_timers_pb2.CallbackBody)
@@ -324,13 +324,13 @@ def take_card_callback(context):
 
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.PremiumAccountProcessor(error_message='Изменить тип получаемых карт могут только подписчики.')
-@dext_views.RelationArgumentProcessor(relation=relations.RECEIVE_MODE,
-                                      error_message='неверный тип получения карт',
-                                      context_name='receive_mode',
-                                      get_name='mode')
+@utils_views.RelationArgumentProcessor(relation=relations.RECEIVE_MODE,
+                                       error_message='неверный тип получения карт',
+                                       context_name='receive_mode',
+                                       get_name='mode')
 @utils_api.Processor(versions=(conf.settings.CHANGE_RECEIVE_MODE_API_VERSION, ))
 @resource('api', 'change-receive-mode', name='api-change-receive-mode', method='POST')
 def api_change_receive_mode(context):
     context.account.set_cards_receive_mode(context.receive_mode)
     context.account.save()
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()

@@ -871,7 +871,7 @@ class GloryOfTheKeepers(CountedMixin, EventBase):
 
             message = 'Благодаря мероприятию эмиссара [url="{emissary_url}"]{emissary}[/url] вы получили дополнительную Карту Судьбы.'
             message = message.format(emissary=event.emissary.utg_name.forms[1],
-                                     emissary_url=dext_urls.full_url('https', 'game:emissaries:show', event.emissary.id))
+                                     emissary_url=utils_urls.full_url('https', 'game:emissaries:show', event.emissary.id))
 
             personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                                  recipients_ids=[account.id],
@@ -886,5 +886,5 @@ class GloryOfTheKeepers(CountedMixin, EventBase):
 
 
 TYPES = {event_class.TYPE: event_class
-         for event_class in dext_discovering.discover_classes(list(globals().values()), EventBase)
+         for event_class in utils_discovering.discover_classes(list(globals().values()), EventBase)
          if event_class not in (BaseCountedEvent, PlaceEffectEvent)}

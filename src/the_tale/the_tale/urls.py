@@ -27,11 +27,11 @@ urlpatterns = [django_urls.url('^folclor/(?P<path>.*)$', RedirectView.as_view(ur
 
 if django_settings.DEBUG:
     urlpatterns += django_static.static(django_settings.STATIC_URL + 'admin/', document_root=os.path.join(os.path.dirname(django_admin.__file__), 'static', 'admin'))
-    urlpatterns += [django_urls.url(r'^{}css/'.format(django_settings.STATIC_URL[1:]), django_urls.include('dext.less.urls'))]
+    urlpatterns += [django_urls.url(r'^{}css/'.format(django_settings.STATIC_URL[1:]), django_urls.include('the_tale.common.less.urls'))]
     urlpatterns += django_static.static(django_settings.STATIC_URL, document_root=os.path.join(django_settings.PROJECT_DIR, 'static'))
 
 
-handlerCSRF = dext_old_views.create_handler_view(portal_views.PortalResource, 'handlerCSRF')
-handler403 = dext_old_views.create_handler_view(portal_views.PortalResource, 'handler403')
-handler404 = dext_old_views.create_handler_view(portal_views.PortalResource, 'handler404')
-handler500 = dext_old_views.create_handler_view(portal_views.PortalResource, 'handler500')
+handlerCSRF = old_views.create_handler_view(portal_views.PortalResource, 'handlerCSRF')
+handler403 = old_views.create_handler_view(portal_views.PortalResource, 'handler403')
+handler404 = old_views.create_handler_view(portal_views.PortalResource, 'handler404')
+handler500 = old_views.create_handler_view(portal_views.PortalResource, 'handler500')

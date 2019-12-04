@@ -91,8 +91,8 @@ class PersonalMessageHandler(BaseMessageHandler):
         context = {'message': message,
                    'sender': accounts_prototypes.AccountPrototype.get_by_id(message.sender_id)}
 
-        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = utils_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = utils_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail([account], subject, text_content, html_content)
 
@@ -132,8 +132,8 @@ class ForumPostHandler(BaseMessageHandler):
 
         context = {'post': post}
 
-        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = utils_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = utils_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail(accounts, subject, text_content, html_content)
 
@@ -176,8 +176,8 @@ class ForumThreadHandler(BaseMessageHandler):
         context = {'thread': thread,
                    'post': post}
 
-        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = utils_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = utils_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail(accounts, subject, text_content, html_content)
 
@@ -219,8 +219,8 @@ class ResetPasswordHandler(BaseMessageHandler):
         context = {'account': account,
                    'task_uuid': self.task_uuid}
 
-        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = utils_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = utils_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail([account], subject, text_content, html_content)
 
@@ -259,8 +259,8 @@ class ChangeEmailNotificationHandler(BaseMessageHandler):
 
         context = {'task': task}
 
-        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = utils_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = utils_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail([(task.account, task.new_email)], subject, text_content, html_content)
 
@@ -299,8 +299,8 @@ class NewsHandler(BaseMessageHandler):
 
         context = {'news': news}
 
-        html_content = dext_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
-        text_content = dext_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
+        html_content = utils_jinja2.render(self.EMAIL_HTML_TEMPLATE, context)
+        text_content = utils_jinja2.render(self.EMAIL_TEXT_TEMPLATE, context)
 
         return logic.send_mail(accounts, subject, text_content, html_content)
 

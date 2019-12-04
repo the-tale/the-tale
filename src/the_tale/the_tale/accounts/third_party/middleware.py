@@ -29,7 +29,7 @@ class ThirdPartyMiddleware(object):
         access_token_uid = request.session[conf.settings.ACCESS_TOKEN_SESSION_KEY]
 
         cache_key = conf.settings.ACCESS_TOKEN_CACHE_KEY % access_token_uid
-        cached_data = dext_cache.get(cache_key)
+        cached_data = utils_cache.get(cache_key)
 
         if cached_data is None:
             access_token = prototypes.AccessTokenPrototype.get_by_uid(access_token_uid)
@@ -44,7 +44,7 @@ class ThirdPartyMiddleware(object):
 
             else:
                 cached_data = access_token.cache_data()
-                dext_cache.set(cache_key, cached_data, conf.settings.ACCESS_TOKEN_CACHE_TIMEOUT)
+                utils_cache.set(cache_key, cached_data, conf.settings.ACCESS_TOKEN_CACHE_TIMEOUT)
 
         account_id = cached_data['account_id']
 

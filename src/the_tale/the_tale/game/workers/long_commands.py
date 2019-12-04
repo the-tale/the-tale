@@ -20,8 +20,8 @@ class Worker(utils_workers.BaseWorker):
         self.logger.info('LONG COMMANDS INITIALIZED')
 
     def _try_run_command_with_delay(self, cmd, settings_key, delay):
-        if time.time() - float(dext_settings.settings.get(settings_key, 0)) > delay:
-            dext_settings.settings[settings_key] = str(time.time())
+        if time.time() - float(global_settings.get(settings_key, 0)) > delay:
+            global_settings[settings_key] = str(time.time())
             cmd()
             return True
 
@@ -29,7 +29,7 @@ class Worker(utils_workers.BaseWorker):
 
     def _run_django_subprocess(self, name, cmd):
         self.logger.info('run %s command' % name)
-        result = dext_logic.run_django_command(cmd)
+        result = utils_logic.run_django_command(cmd)
         if result:
             self.logger.error('%s ENDED WITH CODE %d' % (name, result))
         else:

@@ -10,7 +10,7 @@ class BalanceResource(utils_resources.Resource):
         super(BalanceResource, self).__init__(request, *args, **kwargs)
 
     @utils_decorators.staff_required()
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def show_balance(self):  # pylint: disable=R0914
         tmp_time = ['начало', '8 часов', 'день', 'неделя', 'месяц', '3 месяца', '6 месяцев', '1 год', '2 года', '3 года', '4 года', '5 лет', '6 лет']
         tmp_times = [0, 8, 24, 24 * 7, 24 * 30, 24 * 30 * 3, 24 * 30 * 6, 24 * 30 * 12, 24 * 30 * 12 * 2, 24 * 30 * 12 * 3, 24 * 30 * 12 * 4, 24 * 30 * 12 * 5, 24 * 30 * 12 * 6]

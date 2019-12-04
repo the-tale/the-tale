@@ -8,7 +8,7 @@ smart_imports.all()
 # processors definition
 ########################################
 
-class PersonProcessor(dext_views.ArgumentProcessor):
+class PersonProcessor(utils_views.ArgumentProcessor):
     def parse(self, context, raw_value):
         try:
             id = int(raw_value)
@@ -24,7 +24,7 @@ class PersonProcessor(dext_views.ArgumentProcessor):
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='companions')
+resource = utils_views.Resource(name='companions')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 
@@ -33,7 +33,7 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 @PersonProcessor(error_message='Мастер не найден', url_name='person', context_name='person')
 @resource('#person', 'api', 'show', name='api-show')
 def api_show(context):
-    return dext_views.AjaxOk(content=info.person_info(context.person))
+    return utils_views.AjaxOk(content=info.person_info(context.person))
 
 
 @PersonProcessor(error_message='Мастер не найден', url_name='person', context_name='person')
@@ -51,14 +51,14 @@ def show(context):
 
     tt_api_events_log.fill_events_wtih_meta_objects(events)
 
-    return dext_views.Page('persons/show.html',
-                           content={'person': context.person,
-                                    'person_meta_object': meta_relations.Person.create_from_object(context.person),
-                                    'accounts_short_infos': accounts_short_infos,
-                                    'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
-                                    'social_connections': storage.social_connections.get_connected_persons(context.person),
-                                    'master_chronicle': events,
-                                    'inner_circle': inner_circle,
-                                    'persons_power_storage': politic_power_storage.persons,
-                                    'job_power': job_power,
-                                    'resource': context.resource})
+    return utils_views.Page('persons/show.html',
+                            content={'person': context.person,
+                                     'person_meta_object': meta_relations.Person.create_from_object(context.person),
+                                     'accounts_short_infos': accounts_short_infos,
+                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
+                                     'social_connections': storage.social_connections.get_connected_persons(context.person),
+                                     'master_chronicle': events,
+                                     'inner_circle': inner_circle,
+                                     'persons_power_storage': politic_power_storage.persons,
+                                     'job_power': job_power,
+                                     'resource': context.resource})

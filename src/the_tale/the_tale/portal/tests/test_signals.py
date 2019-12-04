@@ -16,7 +16,7 @@ class DayStartedSignalTests(utils_testcase.TestCase, personal_messages_helpers.M
         personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
 
     def test_day_started_signal(self):
-        self.assertFalse(conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY in dext_settings.settings)
+        self.assertFalse(conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY in global_settings)
 
         with self.check_new_message(self.account.id, [accounts_logic.get_system_user().id]):
             with mock.patch('the_tale.accounts.workers.accounts_manager.Worker.cmd_run_account_method') as cmd_run_account_method:
@@ -27,7 +27,7 @@ class DayStartedSignalTests(utils_testcase.TestCase, personal_messages_helpers.M
                                                                          method_name='prolong_premium',
                                                                          data={'days': conf.settings.PREMIUM_DAYS_FOR_HERO_OF_THE_DAY}))
 
-            self.assertEqual(int(dext_settings.settings[conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY]), self.account.id)
+            self.assertEqual(int(global_settings[conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY]), self.account.id)
 
     def test_day_started_signal__only_not_premium(self):
         self.assertEqual(accounts_prototypes.AccountPrototype._db_count(), 1)

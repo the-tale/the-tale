@@ -32,7 +32,7 @@ class HistoryFilter(utils_list_filter.ListFilter):
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='politic-power')
+resource = utils_views.Resource(name='politic-power')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 
@@ -41,9 +41,9 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 # views
 ########################################
 
-@dext_views.RelationArgumentProcessor(relation=POWER_TYPE_FILTER, error_message='неверный тип влияния',
-                                      default_value=POWER_TYPE_FILTER.ALL,
-                                      get_name='power_type', context_name='power_type')
+@utils_views.RelationArgumentProcessor(relation=POWER_TYPE_FILTER, error_message='неверный тип влияния',
+                                       default_value=POWER_TYPE_FILTER.ALL,
+                                       get_name='power_type', context_name='power_type')
 @accounts_views.AccountProcessor(error_message='Игрок не найден', get_name='account', context_name='account_filter', default_value=None)
 @places_views.PlaceProcessor(error_message='Город не найден', get_name='place', context_name='place', default_value=None)
 @persons_views.PersonProcessor(error_message='Мастер не найден', get_name='person', context_name='person', default_value=None)
@@ -53,11 +53,11 @@ def history(context):
 
     url = django_reverse('game:politic-power:history')
 
-    url_builder = dext_urls.UrlBuilder(url, arguments={'account': context.account_filter.id if context.account_filter else None,
-                                                       'power_type': context.power_type.value if context.power_type else POWER_TYPE_FILTER.ALL.value,
-                                                       'place': context.place.id if context.place else None,
-                                                       'person': context.person.id if context.person else None,
-                                                       'emissary': context.emissary.id if context.emissary else None})
+    url_builder = utils_urls.UrlBuilder(url, arguments={'account': context.account_filter.id if context.account_filter else None,
+                                                        'power_type': context.power_type.value if context.power_type else POWER_TYPE_FILTER.ALL.value,
+                                                        'place': context.place.id if context.place else None,
+                                                        'person': context.person.id if context.person else None,
+                                                        'emissary': context.emissary.id if context.emissary else None})
 
     filter = HistoryFilter(url_builder=url_builder, values={'account': context.account_filter.nick if context.account_filter else None,
                                                             'power_type': context.power_type.value if context.power_type else None,
@@ -66,13 +66,13 @@ def history(context):
                                                             'emissary': context.emissary.name if context.emissary else None})
 
     if 1 < sum(0 if value is None else 1 for value in (context.place, context.person, context.emissary)):
-        return dext_views.Page('politic_power/history.html',
-                               content={'resource': context.resource,
-                                        'error': 'Можно применить только один из фильтров: по городу, по Мастеру, по эмиссару. Пожалуйста, выберите что-то одно.',
-                                        'error_code': 'pgf-cannot-filter-by-place-and-master',
-                                        'impacts': [],
-                                        'limit': conf.settings.MAX_HISTORY_LENGTH,
-                                        'filter': filter})
+        return utils_views.Page('politic_power/history.html',
+                                content={'resource': context.resource,
+                                         'error': 'Можно применить только один из фильтров: по городу, по Мастеру, по эмиссару. Пожалуйста, выберите что-то одно.',
+                                         'error_code': 'pgf-cannot-filter-by-place-and-master',
+                                         'impacts': [],
+                                         'limit': conf.settings.MAX_HISTORY_LENGTH,
+                                         'filter': filter})
     target_type = None
     target_id = None
 
@@ -144,16 +144,16 @@ def history(context):
 
     clans = {clan.id: clan for clan in clans_logic.load_clans(clans_ids)}
 
-    return dext_views.Page('politic_power/history.html',
-                           content={'resource': context.resource,
-                                    'error': None,
-                                    'impacts': impacts,
-                                    'limit': conf.settings.MAX_HISTORY_LENGTH,
-                                    'filter': filter,
-                                    'accounts': accounts,
-                                    'heroes': heroes,
-                                    'bills': bills,
-                                    'places_storage': places_storage.places,
-                                    'persons_storage': persons_storage.persons,
-                                    'emissaries_storage': emissaries_storage.emissaries,
-                                    'clans': clans})
+    return utils_views.Page('politic_power/history.html',
+                            content={'resource': context.resource,
+                                     'error': None,
+                                     'impacts': impacts,
+                                     'limit': conf.settings.MAX_HISTORY_LENGTH,
+                                     'filter': filter,
+                                     'accounts': accounts,
+                                     'heroes': heroes,
+                                     'bills': bills,
+                                     'places_storage': places_storage.places,
+                                     'persons_storage': persons_storage.persons,
+                                     'emissaries_storage': emissaries_storage.emissaries,
+                                     'clans': clans})

@@ -154,7 +154,7 @@ class Place(game_names.ManageNameMixin2):
 
     @property
     def url(self):
-        return dext_urls.url('game:places:show', self.id)
+        return utils_urls.url('game:places:show', self.id)
 
     def name_from(self, with_url=True):
         if with_url:

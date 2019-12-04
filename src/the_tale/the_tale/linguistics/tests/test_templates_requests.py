@@ -29,22 +29,22 @@ class BaseRequestsTests(utils_testcase.TestCase):
 class IndexRequestsTests(BaseRequestsTests):
 
     def test_state_errors(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:', key=lexicon_keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION.value, state='www')),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:', key=lexicon_keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION.value, state='www')),
                            texts=['linguistics.templates.state.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:', key=lexicon_keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION.value, state=666)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:', key=lexicon_keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION.value, state=666)),
                            texts=['linguistics.templates.state.not_found'], status_code=404)
 
     def test_key_errors(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:', key='www')), texts=['linguistics.templates.key.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:', key=666)), texts=['linguistics.templates.key.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:', key='www')), texts=['linguistics.templates.key.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:', key=666)), texts=['linguistics.templates.key.not_found'], status_code=404)
 
     def test_no_templates(self):
         self.assertEqual(prototypes.TemplatePrototype._db_count(), 0)
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:', key=lexicon_keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION.value)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:', key=lexicon_keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION.value)),
                            texts=['pgf-no-templates-message'])
 
     def test_no_key(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:')), texts=[])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:')), texts=[])
 
 
 class NewRequestsTests(BaseRequestsTests):
@@ -54,31 +54,31 @@ class NewRequestsTests(BaseRequestsTests):
         self.request_login(self.account_1.email)
 
     def test_key_errors(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:new')), texts=['linguistics.templates.key.not_specified'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:new', key='www')), texts=['linguistics.templates.key.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:new', key=666)), texts=['linguistics.templates.key.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:new')), texts=['linguistics.templates.key.not_specified'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:new', key='www')), texts=['linguistics.templates.key.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:new', key=666)), texts=['linguistics.templates.key.not_found'], status_code=404)
 
     def test_fast_account(self):
         self.account_1.is_fast = True
         self.account_1.save()
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:new')), texts=['common.fast_account'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:new')), texts=['common.fast_account'])
 
     def test_ban_forum_account(self):
         self.account_1.ban_forum(1)
         self.account_1.save()
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:new')), texts=['common.ban_forum'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:new')), texts=['common.ban_forum'])
 
     def test_login_required(self):
         self.request_logout()
-        url_ = dext_urls.url('linguistics:templates:new')
+        url_ = utils_urls.url('linguistics:templates:new')
         self.check_redirect(url_, accounts_logic.login_page_url(url_))
 
     def test_succcess(self):
         key = lexicon_keys.LEXICON_KEY.ACTION_FIRST_STEPS_INITIATION
         texts = [key.description]
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:new', key=key.value)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:new', key=key.value)),
                            texts=texts)
 
 
@@ -87,7 +87,7 @@ class CreateRequestsTests(BaseRequestsTests):
     def setUp(self):
         super(CreateRequestsTests, self).setUp()
         self.key = lexicon_keys.LEXICON_KEY.HERO_COMMON_JOURNAL_LEVEL_UP
-        self.requested_url = dext_urls.url('linguistics:templates:create', key=self.key.value)
+        self.requested_url = utils_urls.url('linguistics:templates:create', key=self.key.value)
 
         self.template_text = '[hero|загл] [level] [неизвестное слово|level]'
 
@@ -95,9 +95,9 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_key_errors(self):
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:create')), 'linguistics.templates.key.not_specified')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:create', key='www')), 'linguistics.templates.key.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:create', key=666)), 'linguistics.templates.key.not_found')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:create')), 'linguistics.templates.key.not_specified')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:create', key='www')), 'linguistics.templates.key.wrong_format')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:create', key=666)), 'linguistics.templates.key.not_found')
 
     def test_fast_account(self):
         self.account_1.is_fast = True
@@ -136,7 +136,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
         template = prototypes.TemplatePrototype._db_latest()
 
-        self.check_ajax_ok(response, data={'next_url': dext_urls.url('linguistics:templates:show', template.id)})
+        self.check_ajax_ok(response, data={'next_url': utils_urls.url('linguistics:templates:show', template.id)})
 
         self.assertEqual(template.utg_template.template, '%s %s %s')
         self.assertEqual(len(template.verificators), 4)
@@ -180,7 +180,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_create__history_restrictions__success(self):
 
-        requested_url = dext_urls.url('linguistics:templates:create', key=lexicon_keys.LEXICON_KEY.HERO_HISTORY_BIRTH.value)
+        requested_url = utils_urls.url('linguistics:templates:create', key=lexicon_keys.LEXICON_KEY.HERO_HISTORY_BIRTH.value)
 
         race_restriction = restrictions.get(game_relations.RACE.ELF)
 
@@ -197,7 +197,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_create__history_restrictions__wrong_restriction(self):
 
-        requested_url = dext_urls.url('linguistics:templates:create', key=lexicon_keys.LEXICON_KEY.HERO_HISTORY_BIRTH.value)
+        requested_url = utils_urls.url('linguistics:templates:create', key=lexicon_keys.LEXICON_KEY.HERO_HISTORY_BIRTH.value)
 
         restriction_id = restrictions.get(tt_beings_relations.STRUCTURE.STRUCTURE_0)
 
@@ -214,7 +214,7 @@ class CreateRequestsTests(BaseRequestsTests):
 
     def test_create__history_restrictions__wrong_restriction_value(self):
 
-        requested_url = dext_urls.url('linguistics:templates:create', key=lexicon_keys.LEXICON_KEY.HERO_HISTORY_BIRTH.value)
+        requested_url = utils_urls.url('linguistics:templates:create', key=lexicon_keys.LEXICON_KEY.HERO_HISTORY_BIRTH.value)
 
         restriction_id = restrictions.get(game_relations.HABIT_HONOR_INTERVAL.RIGHT_3)
 
@@ -280,11 +280,11 @@ class ShowRequestsTests(BaseRequestsTests):
         self.request_login(self.account_1.email)
 
     def test_template_errors(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', 'www')), texts=['linguistics.templates.template.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', 666)), texts=['linguistics.templates.template.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', 'www')), texts=['linguistics.templates.template.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', 666)), texts=['linguistics.templates.template.not_found'], status_code=404)
 
     def test_success(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', self.template.id)),
                             texts=[('pgf-has-parent-message', 0),
                                    ('pgf-has-child-message', 0),
                                    ('pgf-replace-button', 0),
@@ -299,7 +299,7 @@ class ShowRequestsTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', self.template.id)),
                            texts=[('pgf-has-parent-message', 0),
                                   ('pgf-has-child-message', 0),
                                   ('pgf-replace-button', 0),
@@ -314,7 +314,7 @@ class ShowRequestsTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.REMOVED
         self.template.save()
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', self.template.id)),
                            texts=[('pgf-has-parent-message', 0),
                                   ('pgf-has-child-message', 0),
                                   ('pgf-replace-button', 0),
@@ -331,7 +331,7 @@ class ShowRequestsTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.REMOVED
         self.template.save()
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', self.template.id)),
                            texts=[('pgf-has-parent-message', 0),
                                   ('pgf-has-child-message', 0),
                                   ('pgf-replace-button', 0),
@@ -344,7 +344,7 @@ class ShowRequestsTests(BaseRequestsTests):
 
     def test_success__unlogined(self):
         self.request_logout()
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', self.template.id)),
                            texts=[('pgf-has-parent-message', 0),
                                   ('pgf-has-child-message', 0),
                                   ('pgf-replace-button', 0),
@@ -368,7 +368,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                     author=self.account_1,
                                                     parent=self.template)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', self.template.id)),
                            texts=[('pgf-has-parent-message', 0),
                                   ('pgf-has-child-message', 1),
                                   ('pgf-replace-button', 0),
@@ -377,7 +377,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                   ('pgf-on-review-button', 1),
                                   ('pgf-restore-button', 0),
                                   ('pgf-remove-button', 0)])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', child.id)), texts=[('pgf-has-parent-message', 1),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', child.id)), texts=[('pgf-has-parent-message', 1),
                                                                                                             ('pgf-has-child-message', 0),
                                                                                                             ('pgf-replace-button', 1),
                                                                                                             ('pgf-detach-button', 1),
@@ -394,11 +394,11 @@ class ShowRequestsTests(BaseRequestsTests):
                                                     author=self.account_1,
                                                     parent=self.template)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', child.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', child.id)),
                            texts=[('pgf-has-parent-message', 1),
                                   ('pgf-has-child-message', 0),
                                   ('pgf-remove-button', 0)])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', self.template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', self.template.id)),
                            texts=[('pgf-has-parent-message', 0),
                                   ('pgf-has-child-message', 1),
                                   ('pgf-remove-button', 0)])
@@ -421,7 +421,7 @@ class ShowRequestsTests(BaseRequestsTests):
 
         with mock.patch('the_tale.linguistics.prototypes.TemplatePrototype.get_errors', lambda *argv, **kwargs: errors):
             texts = errors + ['pgf-verificator-error-message'] if errors else [('pgf-verificator-error-message', 0)]
-            self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', prototype.id)), texts=texts)
+            self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', prototype.id)), texts=texts)
 
     def test_no_errors(self):
         self.check_errors(errors=[])
@@ -450,7 +450,7 @@ class ShowRequestsTests(BaseRequestsTests):
                                                         verificators=verificators[:3],
                                                         author=self.account_1)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:show', prototype.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:show', prototype.id)),
                            texts=[verificators[0].text,
                                   verificators[1].text,
                                   verificators[2].text])
@@ -472,13 +472,13 @@ class EditRequestsTests(BaseRequestsTests):
                                                             verificators=[],
                                                             author=self.account_1)
 
-        self.requested_url = dext_urls.url('linguistics:templates:edit', self.template.id)
+        self.requested_url = utils_urls.url('linguistics:templates:edit', self.template.id)
 
         self.account_2 = self.accounts_factory.create_account()
 
     def test_template_errors(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit', 'www')), texts=['linguistics.templates.template.wrong_format'])
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit', 666)), texts=['linguistics.templates.template.not_found'], status_code=404)
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit', 'www')), texts=['linguistics.templates.template.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit', 666)), texts=['linguistics.templates.template.not_found'], status_code=404)
 
     def test_fast_account(self):
         self.account_1.is_fast = True
@@ -494,7 +494,7 @@ class EditRequestsTests(BaseRequestsTests):
 
     def test_login_required(self):
         self.request_logout()
-        url_ = dext_urls.url('linguistics:templates:edit', self.template.id)
+        url_ = utils_urls.url('linguistics:templates:edit', self.template.id)
         self.check_redirect(url_, accounts_logic.login_page_url(url_))
 
     def test_succcess(self):
@@ -514,7 +514,7 @@ class EditRequestsTests(BaseRequestsTests):
                                                                      prototypes.Verificator('wrong-verificator-2', externals={'hero': ('абракадабра', ''), 'level': (2, '')}), ],
                                                        author=self.account_1)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit', template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit', template.id)),
                            texts=['right-verificator-1',
                                   'right-verificator-2',
                                   ('wrong-verificator-1', 0),
@@ -534,7 +534,7 @@ class EditRequestsTests(BaseRequestsTests):
                                                                      prototypes.Verificator('wrong-verificator-2', externals={'hero': ('абракадабра', ''), 'level': (2, '')}), ],
                                                        author=self.account_2)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit', template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit', template.id)),
                            texts=['linguistics.templates.edit.can_not_edit_anothers_template'])
 
     def test_edit_when_template_has_child(self):
@@ -546,7 +546,7 @@ class EditRequestsTests(BaseRequestsTests):
                                             author=account_2,
                                             parent=self.template)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit', self.template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit', self.template.id)),
                            texts=['linguistics.templates.edit.template_has_child'])
 
 
@@ -575,11 +575,11 @@ class UpdateRequestsTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.requested_url = dext_urls.url('linguistics:templates:update', self.template.id)
+        self.requested_url = utils_urls.url('linguistics:templates:update', self.template.id)
 
     def test_template_errors(self):
-        self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:update', 'www'), {}), 'linguistics.templates.template.wrong_format')
-        self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:update', 666), {}), 'linguistics.templates.template.not_found')
+        self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:update', 'www'), {}), 'linguistics.templates.template.wrong_format')
+        self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:update', 666), {}), 'linguistics.templates.template.not_found')
 
     def test_fast_account(self):
         self.account_1.is_fast = True
@@ -629,7 +629,7 @@ class UpdateRequestsTests(BaseRequestsTests):
         self.template.reload()
         self.assertTrue(self.template.state.is_ON_REVIEW)
 
-        self.check_ajax_ok(response, data={'next_url': dext_urls.url('linguistics:templates:show', self.template.id)})
+        self.check_ajax_ok(response, data={'next_url': utils_urls.url('linguistics:templates:show', self.template.id)})
 
         self.assertEqual(self.template.raw_template, 'updated-template')
         self.assertEqual(self.template.utg_template.template, 'updated-template')
@@ -687,7 +687,7 @@ class UpdateRequestsTests(BaseRequestsTests):
 
         self.assertNotEqual(template.id, self.template.id)
 
-        self.check_ajax_ok(response, data={'next_url': dext_urls.url('linguistics:templates:show', template.id)})
+        self.check_ajax_ok(response, data={'next_url': utils_urls.url('linguistics:templates:show', template.id)})
 
         self.assertEqual(template.utg_template.template, 'updated-template')
         self.assertEqual(len(template.verificators), 4)
@@ -751,7 +751,7 @@ class UpdateRequestsTests(BaseRequestsTests):
 
         self.assertEqual(template.id, self.template.id)
 
-        self.check_ajax_ok(response, data={'next_url': dext_urls.url('linguistics:templates:show', template.id)})
+        self.check_ajax_ok(response, data={'next_url': utils_urls.url('linguistics:templates:show', template.id)})
 
         self.assertEqual(template.utg_template.template, 'updated-template')
         self.assertEqual(len(template.verificators), 4)
@@ -812,7 +812,7 @@ class UpdateRequestsTests(BaseRequestsTests):
         self.template.reload()
         self.assertTrue(self.template.state.is_ON_REVIEW)
 
-        self.check_ajax_ok(response, data={'next_url': dext_urls.url('linguistics:templates:show', self.template.id)})
+        self.check_ajax_ok(response, data={'next_url': utils_urls.url('linguistics:templates:show', self.template.id)})
 
         self.assertEqual(self.template.raw_template, 'updated-template')
         self.assertEqual(self.template.utg_template.template, 'updated-template')
@@ -946,13 +946,13 @@ class ReplaceRequestsTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.requested_url = dext_urls.url('linguistics:templates:replace', self.template.id)
+        self.requested_url = utils_urls.url('linguistics:templates:replace', self.template.id)
 
     def test_template_errors(self):
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:replace', 'www'), {}),
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:replace', 'www'), {}),
                                   'linguistics.templates.template.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:replace', 666), {}),
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:replace', 666), {}),
                                   'linguistics.templates.template.not_found')
 
     def test_login_required(self):
@@ -989,7 +989,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
         self.assertTrue(self.template.state.is_ON_REVIEW)
 
         with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
-            self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:templates:replace', template.id), {}))
+            self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:templates:replace', template.id), {}))
 
         self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
 
@@ -1015,7 +1015,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
         self.template.save()
 
         with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
-            self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:templates:replace', template.id), {}))
+            self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:templates:replace', template.id), {}))
 
         self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
 
@@ -1042,7 +1042,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
 
         self.assertNotEqual(template.author_id, self.template.author_id)
 
-        self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:templates:replace', template.id), {}))
+        self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:templates:replace', template.id), {}))
 
         self.assertEqual(prototypes.TemplatePrototype.get_by_id(self.template.id), None)
 
@@ -1082,7 +1082,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
         self.assertTrue(template.errors_status.is_HAS_ERRORS)
 
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:replace', template.id), {}),
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:replace', template.id), {}),
                                   'linguistics.templates.replace.can_not_replace_with_errors')
 
     def test_replace__parent_inheritance(self):
@@ -1107,7 +1107,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
                                                          parent=template_1)
 
         with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
-            self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:templates:replace', template_2.id), {}))
+            self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:templates:replace', template_2.id), {}))
 
         self.template.reload()
         template_2.reload()
@@ -1130,7 +1130,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
                                                        parent=self.template)
 
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:replace', template.id), {}), 'linguistics.templates.replace.not_equal_keys')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:replace', template.id), {}), 'linguistics.templates.replace.not_equal_keys')
 
     def test_reassigning_contributions(self):
         self.request_login(self.moderator.email)
@@ -1165,7 +1165,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
         with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.template.id).count, -2):
             with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=template.id).count, 2):
                 with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
-                    self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:templates:replace', template.id), {}))
+                    self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:templates:replace', template.id), {}))
 
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=self.template.id).count(), 0)
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=template.id).count(), 3)
@@ -1218,7 +1218,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
         with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=self.template.id).count, -2):
             with self.check_delta(prototypes.ContributionPrototype._db_filter(entity_id=template.id).count, 1):
                 with self.check_delta(prototypes.TemplatePrototype._db_count, -1):
-                    self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:templates:replace', template.id), {}))
+                    self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:templates:replace', template.id), {}))
 
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=self.template.id).count(), 0)
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE, entity_id=template.id).count(), 3)
@@ -1264,7 +1264,7 @@ class ReplaceRequestsTests(BaseRequestsTests):
                                                                  source=relations.CONTRIBUTION_SOURCE.random(),
                                                                  state=relations.CONTRIBUTION_STATE.random())
 
-        self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:templates:replace', template.id), {}))
+        self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:templates:replace', template.id), {}))
 
         self.assertEqual(prototypes.ContributionPrototype._db_filter(type=relations.CONTRIBUTION_TYPE.TEMPLATE,
                                                                      entity_id=template.id,
@@ -1297,12 +1297,12 @@ class DetachRequestsTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.requested_url = dext_urls.url('linguistics:templates:detach', self.template.id)
+        self.requested_url = utils_urls.url('linguistics:templates:detach', self.template.id)
 
     def test_template_errors(self):
         with self.check_not_changed(prototypes.TemplatePrototype._db_count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:detach', 'www'), {}), 'linguistics.templates.template.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:detach', 666), {}), 'linguistics.templates.template.not_found')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:detach', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:detach', 666), {}), 'linguistics.templates.template.not_found')
 
     def test_login_required(self):
         self.request_logout()
@@ -1337,7 +1337,7 @@ class DetachRequestsTests(BaseRequestsTests):
 
         self.assertTrue(self.template.state.is_ON_REVIEW)
 
-        self.check_ajax_ok(self.client.post(dext_urls.url('linguistics:templates:detach', template.id), {}))
+        self.check_ajax_ok(self.client.post(utils_urls.url('linguistics:templates:detach', template.id), {}))
 
         template.reload()
         self.assertEqual(template.parent_id, None)
@@ -1371,12 +1371,12 @@ class InGameRequestsTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.requested_url = dext_urls.url('linguistics:templates:in-game', self.template.id)
+        self.requested_url = utils_urls.url('linguistics:templates:in-game', self.template.id)
 
     def test_template_errors(self):
         with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:in-game', 'www'), {}), 'linguistics.templates.template.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:in-game', 666), {}), 'linguistics.templates.template.not_found')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:in-game', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:in-game', 666), {}), 'linguistics.templates.template.not_found')
 
     def test_login_required(self):
         self.request_logout()
@@ -1402,7 +1402,7 @@ class InGameRequestsTests(BaseRequestsTests):
                                                        parent=self.template)
 
         with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.IN_GAME).count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:in-game', template.id), {}), 'linguistics.templates.in_game.has_parent')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:in-game', template.id), {}), 'linguistics.templates.in_game.has_parent')
 
     def test_already_in_game(self):
         self.request_login(self.moderator.email)
@@ -1463,12 +1463,12 @@ class OnReviewRequestsTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.requested_url = dext_urls.url('linguistics:templates:on-review', self.template.id)
+        self.requested_url = utils_urls.url('linguistics:templates:on-review', self.template.id)
 
     def test_template_errors(self):
         with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.ON_REVIEW).count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:on-review', 'www'), {}), 'linguistics.templates.template.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:on-review', 666), {}), 'linguistics.templates.template.not_found')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:on-review', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:on-review', 666), {}), 'linguistics.templates.template.not_found')
 
     def test_login_required(self):
         self.request_logout()
@@ -1528,12 +1528,12 @@ class RemoveRequestsTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.requested_url = dext_urls.url('linguistics:templates:remove', self.template.id)
+        self.requested_url = utils_urls.url('linguistics:templates:remove', self.template.id)
 
     def test_template_errors(self):
         with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:remove', 'www'), {}), 'linguistics.templates.template.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:remove', 666), {}), 'linguistics.templates.template.not_found')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:remove', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:remove', 666), {}), 'linguistics.templates.template.not_found')
 
     def test_login_required(self):
         self.request_logout()
@@ -1608,7 +1608,7 @@ class RemoveRequestsTests(BaseRequestsTests):
                                                        parent=self.template)
 
         with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:remove', template.id), {}), 'linguistics.templates.remove.template_has_parent')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:remove', template.id), {}), 'linguistics.templates.remove.template_has_parent')
 
 
 class RestoreRequestsTests(BaseRequestsTests):
@@ -1636,12 +1636,12 @@ class RestoreRequestsTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.requested_url = dext_urls.url('linguistics:templates:restore', self.template.id)
+        self.requested_url = utils_urls.url('linguistics:templates:restore', self.template.id)
 
     def test_template_errors(self):
         with self.check_not_changed(prototypes.TemplatePrototype._db_filter(state=relations.TEMPLATE_STATE.REMOVED).count):
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:restore', 'www'), {}), 'linguistics.templates.template.wrong_format')
-            self.check_ajax_error(self.client.post(dext_urls.url('linguistics:templates:restore', 666), {}), 'linguistics.templates.template.not_found')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:restore', 'www'), {}), 'linguistics.templates.template.wrong_format')
+            self.check_ajax_error(self.client.post(utils_urls.url('linguistics:templates:restore', 666), {}), 'linguistics.templates.template.not_found')
 
     def test_login_required(self):
         self.request_logout()
@@ -1670,7 +1670,7 @@ class RestoreRequestsTests(BaseRequestsTests):
 class SpecificationTests(BaseRequestsTests):
 
     def test_success(self):
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:specification')), texts=[])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:specification')), texts=[])
 
 
 class EditKeyTests(BaseRequestsTests):
@@ -1695,20 +1695,20 @@ class EditKeyTests(BaseRequestsTests):
 
     def test_success__editor(self):
         self.request_login(self.editor.email)
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit-key', self.template.id)), texts=[str(self.template.key)])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit-key', self.template.id)), texts=[str(self.template.key)])
 
     def test_success__author(self):
         self.request_login(self.account_1.email)
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit-key', self.template.id)), texts=[str(self.template.key)])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit-key', self.template.id)), texts=[str(self.template.key)])
 
     def test_login_required(self):
-        url_ = dext_urls.url('linguistics:templates:edit-key', self.template.id)
+        url_ = utils_urls.url('linguistics:templates:edit-key', self.template.id)
         self.check_redirect(url_, accounts_logic.login_page_url(url_))
 
     def test_no_rights(self):
         account_2 = self.accounts_factory.create_account()
         self.request_login(account_2.email)
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.edit_key.can_not_edit'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.edit_key.can_not_edit'])
 
     def test_no_rights__author_for_ingame(self):
         self.request_login(self.account_1.email)
@@ -1716,7 +1716,7 @@ class EditKeyTests(BaseRequestsTests):
         self.template.state = relations.TEMPLATE_STATE.IN_GAME
         self.template.save()
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.edit_key.wrong_state'])
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit-key', self.template.id)), texts=['pgf-error-linguistics.templates.edit_key.wrong_state'])
 
     def test_has_child(self):
         self.request_login(self.editor.email)
@@ -1727,7 +1727,7 @@ class EditKeyTests(BaseRequestsTests):
                                             author=self.account_1,
                                             parent=self.template)
 
-        self.check_html_ok(self.request_html(dext_urls.url('linguistics:templates:edit-key', self.template.id)),
+        self.check_html_ok(self.request_html(utils_urls.url('linguistics:templates:edit-key', self.template.id)),
                            texts=['pgf-error-linguistics.templates.edit_key.template_has_child'])
 
 
@@ -1757,17 +1757,17 @@ class ChangeKeyTests(BaseRequestsTests):
 
     def test_login_required(self):
         self.request_logout()
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
                               'common.login_required')
 
     def test_no_rights(self):
         account_2 = self.accounts_factory.create_account()
         self.request_login(account_2.email)
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
                               'linguistics.templates.change_key.can_not_change')
 
     def test_form_errors(self):
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('linguistics:templates:change-key', self.template.id), {}),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('linguistics:templates:change-key', self.template.id), {}),
                               'linguistics.templates.change_key.form_errors')
 
     def test_has_child(self):
@@ -1778,11 +1778,11 @@ class ChangeKeyTests(BaseRequestsTests):
                                             author=self.account_1,
                                             parent=self.template)
 
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
                               'linguistics.templates.change_key.template_has_child')
 
     def test_success__editor(self):
-        self.check_ajax_ok(self.post_ajax_json(dext_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}))
+        self.check_ajax_ok(self.post_ajax_json(utils_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}))
 
         self.template.reload()
 
@@ -1797,7 +1797,7 @@ class ChangeKeyTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.check_ajax_ok(self.post_ajax_json(dext_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}))
+        self.check_ajax_ok(self.post_ajax_json(utils_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}))
 
         self.template.reload()
 
@@ -1812,7 +1812,7 @@ class ChangeKeyTests(BaseRequestsTests):
 
         self.request_login(self.account_1.email)
 
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('linguistics:templates:change-key', self.template.id), {'key': str(self.key_2)}),
                               'linguistics.templates.change_key.wrong_state')
 
     def test_has_parent(self):
@@ -1824,7 +1824,7 @@ class ChangeKeyTests(BaseRequestsTests):
                                                     parent=self.template,
                                                     state=relations.TEMPLATE_STATE.ON_REVIEW)
 
-        self.check_ajax_ok(self.post_ajax_json(dext_urls.url('linguistics:templates:change-key', child.id), {'key': str(self.key_2)}))
+        self.check_ajax_ok(self.post_ajax_json(utils_urls.url('linguistics:templates:change-key', child.id), {'key': str(self.key_2)}))
 
         child.reload()
 

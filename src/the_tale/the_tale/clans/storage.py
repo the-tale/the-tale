@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class InfosStorage(dext_storage.Storage):
+class InfosStorage(utils_storage.Storage):
     SETTINGS_KEY = 'clans infos change time'
     EXCEPTION = exceptions.ClansInfosStorageError
 

@@ -48,7 +48,7 @@ class PlacesStorageTest(utils_testcase.TestCase):
         self.storage.sync()
         self.assertNotEqual(self.storage[self.p1.id].attrs.size, 7)
 
-        dext_settings.settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
+        global_settings[self.storage.SETTINGS_KEY] = uuid.uuid4().hex
 
         self.storage.sync()
         self.assertEqual(self.storage[self.p1.id].attrs.size, 7)

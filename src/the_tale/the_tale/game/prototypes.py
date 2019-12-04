@@ -27,10 +27,10 @@ class SupervisorTaskPrototype(utils_prototypes.BasePrototype):
 
     @property
     def status_url(self):
-        return dext_urls.url('game:api-supervisor-task-status',
-                             api_version=conf.settings.SUPERVISOR_TASK_STATUS_API_VERSION,
-                             api_client=django_settings.API_CLIENT,
-                             supervisor_task=self.id)
+        return utils_urls.url('game:api-supervisor-task-status',
+                              api_version=conf.settings.SUPERVISOR_TASK_STATUS_API_VERSION,
+                              api_client=django_settings.API_CLIENT,
+                              supervisor_task=self.id)
 
     @classmethod
     @django_transaction.atomic
@@ -91,11 +91,11 @@ class GameState(object):
 
     @classmethod
     def _set_state(cls, state):
-        dext_settings.settings[conf.settings.GAME_STATE_KEY] = str(state.value)
+        global_settings[conf.settings.GAME_STATE_KEY] = str(state.value)
 
     @classmethod
     def _get_state(cls):
-        return relations.GAME_STATE.index_value[int(dext_settings.settings.get(conf.settings.GAME_STATE_KEY, relations.GAME_STATE.STOPPED.value))]
+        return relations.GAME_STATE.index_value[int(global_settings.get(conf.settings.GAME_STATE_KEY, relations.GAME_STATE.STOPPED.value))]
 
     @classmethod
     def state(cls):

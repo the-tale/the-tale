@@ -39,7 +39,7 @@ class AchievementsIndexTests(_BaseRequestTests):
 
     def setUp(self):
         super(AchievementsIndexTests, self).setUp()
-        self.test_url = dext_urls.url('accounts:achievements:')
+        self.test_url = utils_urls.url('accounts:achievements:')
 
     def test_anonymouse(self):
         self.check_html_ok(self.request_html(self.test_url), texts=[('pgf-last-achievements', 0),
@@ -48,25 +48,25 @@ class AchievementsIndexTests(_BaseRequestTests):
 
     def test_logined_redirect(self):
         self.request_login(self.account_2.email)
-        self.check_redirect(self.test_url, dext_urls.url('accounts:achievements:', account=self.account_2.id))
+        self.check_redirect(self.test_url, utils_urls.url('accounts:achievements:', account=self.account_2.id))
 
     def test_logined(self):
         self.request_login(self.account_2.email)
-        test_url = dext_urls.url('accounts:achievements:', account=self.account_2.id)
+        test_url = utils_urls.url('accounts:achievements:', account=self.account_2.id)
         self.check_html_ok(self.request_html(test_url), texts=[('pgf-last-achievements', 1),
                                                                ('pgf-all-achievements', 1),
                                                                ('pgf-no-last-achievements', 1)] + [group.text for group in relations.ACHIEVEMENT_GROUP.records])
 
     def test_account_specified(self):
         self.request_login(self.account_1.email)
-        test_url = dext_urls.url('accounts:achievements:', account=self.account_2.id)
+        test_url = utils_urls.url('accounts:achievements:', account=self.account_2.id)
         self.check_html_ok(self.request_html(test_url), texts=[('pgf-last-achievements', 1),
                                                                ('pgf-all-achievements', 1),
                                                                ('pgf-no-last-achievements', 1)] + [group.text for group in relations.ACHIEVEMENT_GROUP.records])
 
     def test_last_achievements(self):
         self.request_login(self.account_1.email)
-        test_url = dext_urls.url('accounts:achievements:', account=self.account_1.id)
+        test_url = utils_urls.url('accounts:achievements:', account=self.account_1.id)
         self.check_html_ok(self.request_html(test_url), texts=[('pgf-last-achievements', 1),
                                                                self.achievement_1.caption,
                                                                ('pgf-all-achievements', 1),
@@ -77,7 +77,7 @@ class AchievementsGroupTests(_BaseRequestTests):
 
     def setUp(self):
         super(AchievementsGroupTests, self).setUp()
-        self.test_url = dext_urls.url('accounts:achievements:group', relations.ACHIEVEMENT_GROUP.MONEY.slug)
+        self.test_url = utils_urls.url('accounts:achievements:group', relations.ACHIEVEMENT_GROUP.MONEY.slug)
 
     def test__for_no_user(self):
         self.check_html_ok(self.request_html(self.test_url), texts=[self.achievement_1.caption,
@@ -91,11 +91,11 @@ class AchievementsGroupTests(_BaseRequestTests):
 
     def test_logined_redirect(self):
         self.request_login(self.account_1.email)
-        self.check_redirect(self.test_url, dext_urls.url('accounts:achievements:group', relations.ACHIEVEMENT_GROUP.MONEY.slug, account=self.account_1.id))
+        self.check_redirect(self.test_url, utils_urls.url('accounts:achievements:group', relations.ACHIEVEMENT_GROUP.MONEY.slug, account=self.account_1.id))
 
     def test__for_normal_user(self):
         self.request_login(self.account_1.email)
-        test_url = dext_urls.url('accounts:achievements:group', relations.ACHIEVEMENT_GROUP.MONEY.slug, account=self.account_1.id)
+        test_url = utils_urls.url('accounts:achievements:group', relations.ACHIEVEMENT_GROUP.MONEY.slug, account=self.account_1.id)
         self.check_html_ok(self.request_html(test_url), texts=[self.achievement_1.caption,
                                                                relations.ACHIEVEMENT_GROUP.MONEY.text,
                                                                (self.achievement_2.caption, 0),
@@ -107,7 +107,7 @@ class AchievementsGroupTests(_BaseRequestTests):
 
     def test__for_editor(self):
         self.request_login(self.account_2.email)
-        test_url = dext_urls.url('accounts:achievements:group', relations.ACHIEVEMENT_GROUP.MONEY.slug, account=self.account_2.id)
+        test_url = utils_urls.url('accounts:achievements:group', relations.ACHIEVEMENT_GROUP.MONEY.slug, account=self.account_2.id)
         self.check_html_ok(self.request_html(test_url), texts=[self.achievement_1.caption,
                                                                relations.ACHIEVEMENT_GROUP.MONEY.text,
                                                                self.achievement_2.caption,
@@ -122,7 +122,7 @@ class AchievementsNewTests(_BaseRequestTests):
 
     def setUp(self):
         super(AchievementsNewTests, self).setUp()
-        self.test_url = dext_urls.url('accounts:achievements:new')
+        self.test_url = utils_urls.url('accounts:achievements:new')
 
     def test_login_required(self):
         self.check_redirect(self.test_url, accounts_logic.login_page_url(self.test_url))
@@ -140,7 +140,7 @@ class AchievementsCreateTests(_BaseRequestTests):
 
     def setUp(self):
         super(AchievementsCreateTests, self).setUp()
-        self.test_url = dext_urls.url('accounts:achievements:create')
+        self.test_url = utils_urls.url('accounts:achievements:create')
 
     def get_post_data(self):
         return {'caption': 'caption_create',
@@ -178,7 +178,7 @@ class AchievementsCreateTests(_BaseRequestTests):
 
         achievement = prototypes.AchievementPrototype._db_get_object(3)
 
-        self.check_ajax_ok(response, data={'next_url': dext_urls.url('accounts:achievements:group', achievement.group.slug)})
+        self.check_ajax_ok(response, data={'next_url': utils_urls.url('accounts:achievements:group', achievement.group.slug)})
 
         self.assertEqual(achievement.caption, 'caption_create')
         self.assertEqual(achievement.description, 'description_create')
@@ -196,7 +196,7 @@ class AchievementsEditTests(_BaseRequestTests):
 
     def setUp(self):
         super(AchievementsEditTests, self).setUp()
-        self.test_url = dext_urls.url('accounts:achievements:edit', self.achievement_1.id)
+        self.test_url = utils_urls.url('accounts:achievements:edit', self.achievement_1.id)
 
     def test_login_required(self):
         self.check_redirect(self.test_url, accounts_logic.login_page_url(self.test_url))
@@ -208,7 +208,7 @@ class AchievementsEditTests(_BaseRequestTests):
 
     def test_wrong_format(self):
         self.request_login(self.account_2.email)
-        self.check_html_ok(self.request_html(dext_urls.url('accounts:achievements:edit', 'bla')),
+        self.check_html_ok(self.request_html(utils_urls.url('accounts:achievements:edit', 'bla')),
                            texts=(('accounts.achievements.achievement.wrong_format', 1)))
 
     def test_success(self):
@@ -220,7 +220,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
     def setUp(self):
         super(AchievementsUpdateTests, self).setUp()
-        self.test_url = dext_urls.url('accounts:achievements:update', self.achievement_2.id)
+        self.test_url = utils_urls.url('accounts:achievements:update', self.achievement_2.id)
 
     def get_post_data(self):
         return {'caption': 'caption_edited',
@@ -279,7 +279,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
         self.achievement_2.reload()
 
-        self.check_ajax_ok(response, data={'next_url': dext_urls.url('accounts:achievements:group', self.achievement_2.group.slug)})
+        self.check_ajax_ok(response, data={'next_url': utils_urls.url('accounts:achievements:group', self.achievement_2.group.slug)})
 
         self.assertEqual(self.achievement_2.caption, 'caption_edited')
         self.assertEqual(self.achievement_2.description, 'description_edited')
@@ -300,7 +300,7 @@ class AchievementsUpdateTests(_BaseRequestTests):
 
         self.achievement_2.reload()
 
-        self.check_ajax_ok(response, data={'next_url': dext_urls.url('accounts:achievements:group', self.achievement_2.group.slug)})
+        self.check_ajax_ok(response, data={'next_url': utils_urls.url('accounts:achievements:group', self.achievement_2.group.slug)})
 
         self.assertEqual(self.achievement_2.caption, 'caption_edited')
         self.assertEqual(self.achievement_2.description, 'description_edited')

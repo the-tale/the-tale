@@ -7,7 +7,7 @@ smart_imports.all()
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='chronicle')
+resource = utils_views.Resource(name='chronicle')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 
@@ -46,13 +46,13 @@ def index(context):
 
     page -= 1
 
-    url_builder = dext_urls.UrlBuilder(dext_urls.url('game:chronicle:'),
-                                       arguments={'page': context.page,
-                                                  'place': context.place.id if context.place else None,
-                                                  'person': context.person.id if context.person else None})
+    url_builder = utils_urls.UrlBuilder(utils_urls.url('game:chronicle:'),
+                                        arguments={'page': context.page,
+                                                   'place': context.place.id if context.place else None,
+                                                   'person': context.person.id if context.person else None})
 
     if page != context.page and 'page' in context.django_request.GET:
-        return dext_views.Redirect(url_builder(page=page + 1))
+        return utils_views.Redirect(url_builder(page=page + 1))
 
     filter = IndexFilter(url_builder=url_builder,
                          values={'place': context.place.id if context.place else None,
@@ -66,11 +66,11 @@ def index(context):
 
     tt_api_events_log.fill_events_wtih_meta_objects(events)
 
-    return dext_views.Page('chronicle/index.html',
-                           content={'events': events,
-                                    'place': context.place,
-                                    'person': context.person,
-                                    'paginator': paginator,
-                                    'index_filter': filter,
-                                    'url_builder': url_builder,
-                                    'resource': context.resource})
+    return utils_views.Page('chronicle/index.html',
+                            content={'events': events,
+                                     'place': context.place,
+                                     'person': context.person,
+                                     'paginator': paginator,
+                                     'index_filter': filter,
+                                     'url_builder': url_builder,
+                                     'resource': context.resource})

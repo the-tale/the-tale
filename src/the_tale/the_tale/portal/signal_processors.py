@@ -27,7 +27,7 @@ def portal_day_started(sender, **kwargs):
     else:
         return  # if not premium account does not found
 
-    dext_settings.settings[conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY] = str(account.id)
+    global_settings[conf.settings.SETTINGS_ACCOUNT_OF_THE_DAY_KEY] = str(account.id)
 
     amqp_environment.environment.workers.accounts_manager.cmd_run_account_method(account_id=account.id,
                                                                                  method_name=accounts_prototypes.AccountPrototype.prolong_premium.__name__,

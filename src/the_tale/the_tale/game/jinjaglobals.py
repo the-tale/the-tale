@@ -4,38 +4,38 @@ import smart_imports
 smart_imports.all()
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def game_info_url(account=None, client_turns=None):
-    return dext_jinja2.Markup(logic.game_info_url(account_id=account.id if account is not None else None,
+    return utils_jinja2.Markup(logic.game_info_url(account_id=account.id if account is not None else None,
                                                   client_turns=client_turns))
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def game_diary_url():
-    return dext_jinja2.Markup(logic.game_diary_url())
+    return utils_jinja2.Markup(logic.game_diary_url())
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def game_names_url():
-    return dext_jinja2.Markup(logic.game_names_url())
+    return utils_jinja2.Markup(logic.game_names_url())
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def game_hero_history_url():
-    return dext_jinja2.Markup(logic.game_hero_history_url())
+    return utils_jinja2.Markup(logic.game_hero_history_url())
 
 
-@dext_jinja2.jinjafilter
+@utils_jinja2.jinjafilter
 def verbose_game_date(turn_number):
     return game_turn.game_datetime(turn_number).date.verbose_full()
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def game_datetime(turn_number=None):
     return game_turn.game_datetime(turn_number)
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def communication_abilities(mob):
     levels = []
 

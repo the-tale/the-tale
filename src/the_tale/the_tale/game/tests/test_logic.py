@@ -115,7 +115,7 @@ class FormGameInfoTests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
                           mock.call(account_id=self.account_2.id, recache_if_required=False, patch_turns=None, for_last_turn=True)])
         self.assertEqual(ui_info.call_count, 0)
 
-    @mock.patch.object(dext_cache, 'get', lambda *argv, **kwargs: None)
+    @mock.patch.object(utils_cache, 'get', lambda *argv, **kwargs: None)
     def test_not_own_hero_get_cached_data(self):
         battle_info = self.create_pvp_battle(account_1=self.account_1, account_2=self.account_2)
 
@@ -195,7 +195,7 @@ class FormGameInfoTests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
 
         self.assertEqual(data['enemy']['hero']['action']['data']['pvp']['energy'], 2)
 
-    @mock.patch.object(dext_cache, 'get', lambda *argv, **kwargs: None)
+    @mock.patch.object(utils_cache, 'get', lambda *argv, **kwargs: None)
     def test_game_info_caching(self):
         battle_info = self.create_pvp_battle(account_1=self.account_1, account_2=self.account_2)
 

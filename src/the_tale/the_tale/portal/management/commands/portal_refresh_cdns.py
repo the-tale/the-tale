@@ -14,4 +14,4 @@ class Command(django_management.BaseCommand):
 
         info = utils_cdn.get_cdns_info(django_settings.CDNS)
 
-        dext_settings.settings[conf.settings.SETTINGS_CDN_INFO_KEY] = s11n.to_json(info)
+        global_settings[conf.settings.SETTINGS_CDN_INFO_KEY] = s11n.to_json(info)

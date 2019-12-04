@@ -167,3 +167,14 @@ def up_first(value):
     if value:
         return value[0].upper() + value[1:]
     return value
+
+
+def run_django_command(command):
+    return subprocess.call(['django-admin'] +
+                           command +
+                           ['--settings',
+                            '%s.settings' % django_settings.PROJECT_MODULE])
+
+
+def normalize_email(email):
+    return email.lower()

@@ -8,10 +8,10 @@ smart_imports.all()
 # new view processors
 ###############################
 
-class RefuseThirdPartyProcessor(dext_views.BaseViewProcessor):
+class RefuseThirdPartyProcessor(utils_views.BaseViewProcessor):
     def preprocess(self, context):
         if conf.settings.ACCESS_TOKEN_SESSION_KEY in context.django_request.session:
-            raise dext_views.ViewError(code='third_party.access_restricted', message='Доступ к этой функциональности запрещён для сторонних приложений')
+            raise utils_views.ViewError(code='third_party.access_restricted', message='Доступ к этой функциональности запрещён для сторонних приложений')
 
 ###############################
 # old views
@@ -20,7 +20,7 @@ class RefuseThirdPartyProcessor(dext_views.BaseViewProcessor):
 
 class TokensResource(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('token', prototypes.AccessTokenPrototype.get_by_uid, 'third_party.tokens',
+    @old_views.validate_argument('token', prototypes.AccessTokenPrototype.get_by_uid, 'third_party.tokens',
                                       'Приложение передало неверный токен либо вы уже отказали в предоставлении прав доступа этому приложению')
     def initialize(self, token=None, *args, **kwargs):
         super(TokensResource, self).initialize(*args, **kwargs)
@@ -31,14 +31,14 @@ class TokensResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @decorators.refuse_third_party
-    @dext_old_views.handler('#token', name='show', method='get')
+    @old_views.handler('#token', name='show', method='get')
     def show(self):
         return self.template('third_party/tokens/show.html',
                              {'token': self.token})
 
     @utils_decorators.login_required
     @decorators.refuse_third_party
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def tokens_list(self):
         tokens = prototypes.AccessTokenPrototype.get_list_by_account_id(self.account.id)
 
@@ -49,38 +49,38 @@ class TokensResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @decorators.refuse_third_party
-    @dext_old_views.handler('#token', 'accept', method='post')
+    @old_views.handler('#token', 'accept', method='post')
     def accept(self):
         self.token.accept(self.account)
 
-        dext_cache.delete(conf.settings.ACCESS_TOKEN_CACHE_KEY % self.token.uid)
+        utils_cache.delete(conf.settings.ACCESS_TOKEN_CACHE_KEY % self.token.uid)
 
         return self.json_ok()
 
     @utils_decorators.login_required
     @decorators.refuse_third_party
-    @dext_old_views.handler('#token', 'remove', method='post')
+    @old_views.handler('#token', 'remove', method='post')
     def remove(self):
         self.token.remove()
 
-        dext_cache.delete(conf.settings.ACCESS_TOKEN_CACHE_KEY % self.token.uid)
+        utils_cache.delete(conf.settings.ACCESS_TOKEN_CACHE_KEY % self.token.uid)
 
         return self.json_ok()
 
     @utils_decorators.login_required
     @decorators.refuse_third_party
-    @dext_old_views.handler('remove-all', method='post')
+    @old_views.handler('remove-all', method='post')
     def remove_all(self):
         tokens = prototypes.AccessTokenPrototype.get_list_by_account_id(self.account.id)
 
         for token in tokens:
             token.remove()
-            dext_cache.delete(conf.settings.ACCESS_TOKEN_CACHE_KEY % token.uid)
+            utils_cache.delete(conf.settings.ACCESS_TOKEN_CACHE_KEY % token.uid)
 
         return self.json_ok()
 
     @utils_api.handler(versions=('1.0',))
-    @dext_old_views.handler('api', 'request-authorisation', name='request-authorisation', method='post')
+    @old_views.handler('api', 'request-authorisation', name='request-authorisation', method='post')
     def api_request_authorisation(self, api_version=None):
         form = forms.RequestAccessForm(self.request.POST)
 
@@ -93,10 +93,10 @@ class TokensResource(utils_resources.Resource):
 
         self.request.session[conf.settings.ACCESS_TOKEN_SESSION_KEY] = token.uid
 
-        return self.json_ok(data={'authorisation_page': dext_urls.url('accounts:third-party:tokens:show', token.uid)})
+        return self.json_ok(data={'authorisation_page': utils_urls.url('accounts:third-party:tokens:show', token.uid)})
 
     @utils_api.handler(versions=('1.0',))
-    @dext_old_views.handler('api', 'authorisation-state', name='authorisation-state', method='get')
+    @old_views.handler('api', 'authorisation-state', name='authorisation-state', method='get')
     def api_authorisation_state(self, api_version):
         data = {}
 

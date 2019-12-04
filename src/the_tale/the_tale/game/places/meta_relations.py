@@ -15,7 +15,7 @@ class Place(meta_relations_objects.MetaType):
 
     @property
     def url(self):
-        return dext_urls.url('game:places:show', self.id)
+        return utils_urls.url('game:places:show', self.id)
 
     @classmethod
     def create_unknown(cls, id):

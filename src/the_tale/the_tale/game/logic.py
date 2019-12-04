@@ -129,28 +129,28 @@ def game_info_url(account_id=None, client_turns=None):
     if client_turns:
         arguments['client_turns'] = ','.join(str(turn) for turn in client_turns)
 
-    return dext_urls.url('game:api-info', **arguments)
+    return utils_urls.url('game:api-info', **arguments)
 
 
 def game_diary_url():
     arguments = {'api_version': conf.settings.DIARY_API_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
-    return dext_urls.url('game:api-diary', **arguments)
+    return utils_urls.url('game:api-diary', **arguments)
 
 
 def game_names_url():
     arguments = {'api_version': conf.settings.NAMES_API_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
-    return dext_urls.url('game:api-names', **arguments)
+    return utils_urls.url('game:api-names', **arguments)
 
 
 def game_hero_history_url():
     arguments = {'api_version': conf.settings.HERO_HISTORY_API_VERSION,
                  'api_client': django_settings.API_CLIENT}
 
-    return dext_urls.url('game:api-hero-history', **arguments)
+    return utils_urls.url('game:api-hero-history', **arguments)
 
 
 def _game_info_from_1_1_to_1_0__heroes(data):

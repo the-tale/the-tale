@@ -16,7 +16,7 @@ HOME_DIR = os.getenv("HOME")
 PROJECT_MODULE = os.path.basename(PROJECT_DIR)
 
 META_CONFIG_FILE = os.path.join(PROJECT_DIR, 'meta_config.json')
-META_CONFIG = dext_meta_config.MetaConfig(config_path=META_CONFIG_FILE)
+META_CONFIG = utils_meta_config.MetaConfig(config_path=META_CONFIG_FILE)
 
 DEBUG = False
 
@@ -113,7 +113,7 @@ EMAIL_FILE_PATH = '/tmp/emails'
 
 APPEND_SLASH = True
 
-TEMPLATES = [{'BACKEND': 'dext.common.utils.jinja2.Engine',
+TEMPLATES = [{'BACKEND': 'the_tale.common.utils.jinja2.Engine',
               'OPTIONS': {
                   'context_processors': ('django.contrib.auth.context_processors.auth',
                                          'django.template.context_processors.debug',
@@ -162,7 +162,7 @@ MIDDLEWARE = ('django.middleware.common.CommonMiddleware',
               'django.contrib.auth.middleware.AuthenticationMiddleware',
               'django.contrib.messages.middleware.MessageMiddleware',
               'django.middleware.clickjacking.XFrameOptionsMiddleware',
-              'dext.settings.middleware.SettingsMiddleware',
+              'the_tale.common.settings.middleware.SettingsMiddleware',
               'the_tale.accounts.middleware.RegistrationMiddleware',
               'the_tale.accounts.third_party.middleware.ThirdPartyMiddleware',
               'the_tale.accounts.middleware.FirstTimeVisitMiddleware')
@@ -177,13 +177,11 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.staticfiles',
 
-    'dext.less',
-    'dext.settings',
-    'dext.forms',
-    'dext.common.utils',
-    'dext.common.amqp_queues',
-
+    'the_tale.common.less',
     'the_tale.common.utils',
+    'the_tale.common.settings',
+    'the_tale.common.old_views',
+    'the_tale.common.amqp_queues',
     'the_tale.common.postponed_tasks',
     'the_tale.common.meta_relations',
 

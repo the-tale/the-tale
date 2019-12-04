@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class NameProcessor(dext_views.ArgumentProcessor):
+class NameProcessor(utils_views.ArgumentProcessor):
     CONTEXT_NAME = 'name_forms'
     ERROR_MESSAGE = 'Ошибка при передаче имени героя'
     POST_NAME = 'name'
@@ -23,7 +23,7 @@ class NameProcessor(dext_views.ArgumentProcessor):
         return forms
 
 
-class SupervisorTaskIdProcessor(dext_views.ArgumentProcessor):
+class SupervisorTaskIdProcessor(utils_views.ArgumentProcessor):
     CONTEXT_NAME = 'supervisor_task'
     ERROR_MESSAGE = 'Неверный номер задачи'
     GET_NAME = 'supervisor_task'
@@ -35,7 +35,7 @@ class SupervisorTaskIdProcessor(dext_views.ArgumentProcessor):
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='game')
+resource = utils_views.Resource(name='game')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 resource.add_processor(heroes_views.CurrentHeroProcessor())
@@ -52,7 +52,7 @@ def game_page(context):
     enemy_id = pvp_logic.get_enemy_id(context.account.id)
 
     if enemy_id:
-        return dext_views.Redirect(dext_urls.url('game:pvp:'))
+        return utils_views.Redirect(utils_urls.url('game:pvp:'))
 
     clan = None
     if context.account.clan_id is not None:
@@ -60,20 +60,20 @@ def game_page(context):
 
     cards = sorted(cards_types.CARD.records, key=lambda r: (r.rarity.value, r.text))
 
-    return dext_views.Page('game/game_page.html',
-                           content={'map_settings': map_conf.settings,
-                                    'game_settings': conf.settings,
-                                    'EQUIPMENT_SLOT': heroes_relations.EQUIPMENT_SLOT,
-                                    'current_map_version': map_storage.map_info.version,
-                                    'clan': clan,
-                                    'CARDS': cards,
-                                    'resource': context.resource,
-                                    'hero': context.account_hero,
-                                    'ABILITY_TYPE': abilities_relations.ABILITY_TYPE})
+    return utils_views.Page('game/game_page.html',
+                            content={'map_settings': map_conf.settings,
+                                     'game_settings': conf.settings,
+                                     'EQUIPMENT_SLOT': heroes_relations.EQUIPMENT_SLOT,
+                                     'current_map_version': map_storage.map_info.version,
+                                     'clan': clan,
+                                     'CARDS': cards,
+                                     'resource': context.resource,
+                                     'hero': context.account_hero,
+                                     'ABILITY_TYPE': abilities_relations.ABILITY_TYPE})
 
 
 @utils_api.Processor(versions=(conf.settings.INFO_API_VERSION, '1.8', '1.7', '1.6', '1.5', '1.4', '1.3', '1.2', '1.1', '1.0'))
-@dext_views.IntsArgumentProcessor(error_message='Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
+@utils_views.IntsArgumentProcessor(error_message='Неверный формат номера хода', get_name='client_turns', context_name='client_turns', default_value=None)
 @accounts_views.AccountProcessor(error_message='Запрашиваемый Вами аккаунт не найден', get_name='account', context_name='requested_account', default_value=None)
 @resource('api', 'info', name='api-info')
 def api_info(context):
@@ -147,7 +147,7 @@ def api_info(context):
     #          map_storage.cells(*cells[-1]).travel_cost(heroes_relations.RISK_LEVEL.NORMAL.expected_battle_complexity)) / 2
     # print(s - delta)
 
-    return dext_views.AjaxOk(content=data)
+    return utils_views.AjaxOk(content=data)
 
 
 @utils_api.Processor(versions=(conf.settings.DIARY_API_VERSION,))
@@ -156,20 +156,20 @@ def api_info(context):
 def api_diary(context):
     diary = heroes_tt_services.diary.cmd_diary(context.account.id)
 
-    return dext_views.AjaxOk(content=diary)
+    return utils_views.AjaxOk(content=diary)
 
 
 @utils_api.Processor(versions=(conf.settings.NAMES_API_VERSION,))
-@dext_views.IntArgumentProcessor(error_message='Неверное количество имён', get_name='number', context_name='names_number', default_value=10)
+@utils_views.IntArgumentProcessor(error_message='Неверное количество имён', get_name='number', context_name='names_number', default_value=10)
 @resource('api', 'names', name='api-names')
 def api_names(context):
 
     if context.names_number < 0 or 100 < context.names_number:
-        raise dext_views.ViewError(code='wrong_number', message='Нельзя сгенерировать такое количество имён')
+        raise utils_views.ViewError(code='wrong_number', message='Нельзя сгенерировать такое количество имён')
 
     result_names = game_names.get_names_set(number=context.names_number)
 
-    return dext_views.AjaxOk(content={'names': result_names})
+    return utils_views.AjaxOk(content={'names': result_names})
 
 
 @accounts_views.hero_story_attributes
@@ -186,7 +186,7 @@ def api_hero_history(context):
                                    first_death=context.first_death,
                                    age=context.age)
 
-    return dext_views.AjaxOk(content={'story': texts})
+    return utils_views.AjaxOk(content={'story': texts})
 
 
 @accounts_views.LoginRequiredProcessor()
@@ -211,9 +211,9 @@ def hero_history_status(context):
             if text is None:
                 misses[i].append(', '.join([property.text for property in property_vector]))
 
-    return dext_views.Page('game/hero_history_status.html',
-                           content={'resource': context.resource,
-                                    'misses': misses})
+    return utils_views.Page('game/hero_history_status.html',
+                            content={'resource': context.resource,
+                                     'misses': misses})
 
 
 @SupervisorTaskIdProcessor()
@@ -221,15 +221,15 @@ def hero_history_status(context):
 @resource('api', 'supervisor-task-status', name='api-supervisor-task-status')
 def supervisor_task_status(context):
     if context.supervisor_task is None:
-        return dext_views.AjaxOk()
+        return utils_views.AjaxOk()
 
-    return dext_views.AjaxProcessing(context.supervisor_task.status_url)
+    return utils_views.AjaxProcessing(context.supervisor_task.status_url)
 
 
-@dext_views.DebugProcessor()
+@utils_views.DebugProcessor()
 @accounts_views.LoginRequiredProcessor()
 @accounts_views.SuperuserProcessor()
 @resource('next-turn', method='POST')
 def next_turn(context):
     amqp_environment.environment.workers.supervisor.cmd_next_turn()
-    return dext_views.AjaxOk()
+    return utils_views.AjaxOk()

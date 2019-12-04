@@ -7,7 +7,7 @@ smart_imports.all()
 class TestResource(resources.Resource):
 
     @api.handler(versions=('1.1', '1.0'))
-    @dext_old_views.handler('path')
+    @old_views.handler('path')
     def test_view(self, arg_1, api_version=None):
         return self.ok(data={'arg_1': arg_1})
 

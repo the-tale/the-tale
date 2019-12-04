@@ -8,7 +8,7 @@ smart_imports.all()
 # new view processors
 ###############################
 
-class CurrentHeroProcessor(dext_views.BaseViewProcessor):
+class CurrentHeroProcessor(utils_views.BaseViewProcessor):
     def preprocess(self, context):
         if not context.account.is_authenticated:
             context.account_hero = None
@@ -17,7 +17,7 @@ class CurrentHeroProcessor(dext_views.BaseViewProcessor):
         context.account_hero = logic.load_hero(account_id=context.account.id)
 
 
-class HeroProcessor(dext_views.ArgumentProcessor):
+class HeroProcessor(utils_views.ArgumentProcessor):
     def parse(self, context, raw_value):
         try:
             hero_id = int(raw_value)
@@ -36,17 +36,17 @@ def split_list(items):
     return list(zip(left, right))
 
 
-@dext_old_views.validator(code='heroes.not_owner', message='Вы не являетесь владельцем данного аккаунта')
+@old_views.validator(code='heroes.not_owner', message='Вы не являетесь владельцем данного аккаунта')
 def validate_ownership(resource, *args, **kwargs): return resource.is_owner
 
 
-@dext_old_views.validator(code='heroes.moderator_rights_required', message='Вы не являетесь модератором')
+@old_views.validator(code='heroes.moderator_rights_required', message='Вы не являетесь модератором')
 def validate_moderator_rights(resource, *args, **kwargs): return resource.can_moderate_heroes
 
 
 class HeroResource(utils_resources.Resource):
 
-    @dext_old_views.validate_argument('hero', lambda hero_id: logic.load_hero(hero_id=int(hero_id)), 'heroes', 'Неверный идентификатор героя')
+    @old_views.validate_argument('hero', lambda hero_id: logic.load_hero(hero_id=int(hero_id)), 'heroes', 'Неверный идентификатор героя')
     def initialize(self, hero=None, *args, **kwargs):
         super(HeroResource, self).initialize(*args, **kwargs)
         self.hero = hero
@@ -55,17 +55,17 @@ class HeroResource(utils_resources.Resource):
     @property
     def is_owner(self): return self.account and self.account.id == self.hero.account_id
 
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def index(self):
         return self.redirect('/')
 
     @utils_decorators.login_required
-    @dext_old_views.handler('my-hero', method='get')
+    @old_views.handler('my-hero', method='get')
     def my_hero(self):
         hero = logic.load_hero(account_id=self.account.id)
         return self.redirect(django_reverse('game:heroes:show', args=[hero.id]))
 
-    @dext_old_views.handler('#hero', name='show', method='get')
+    @old_views.handler('#hero', name='show', method='get')
     def hero_page(self):
         abilities = sorted(self.hero.abilities.all, key=lambda x: x.NAME)
         battle_active_abilities = [a for a in abilities if a.type.is_BATTLE and a.activation_type.is_ACTIVE]  # pylint: disable=W0110
@@ -102,15 +102,15 @@ class HeroResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @validate_ownership()
-    @dext_old_views.handler('#hero', 'choose-ability-dialog', method='get')
+    @old_views.handler('#hero', 'choose-ability-dialog', method='get')
     def choose_ability_dialog(self):
         return self.template('heroes/choose_ability.html',
                              {'CARD_TYPE': cards_types.CARD,
                               'hero': self.hero})
 
     @utils_decorators.login_required
-    @dext_old_views.validate_argument('preference', lambda value: relations.PREFERENCE_TYPE(int(value)), 'heroes', 'Неверный идентификатор предпочтения')
-    @dext_old_views.handler('#hero', 'preference-info-dialog', method='get')
+    @old_views.validate_argument('preference', lambda value: relations.PREFERENCE_TYPE(int(value)), 'heroes', 'Неверный идентификатор предпочтения')
+    @old_views.handler('#hero', 'preference-info-dialog', method='get')
     def preference_info_dialog(self, preference):
         favorite_items = {slot: self.hero.equipment.get(slot)
                           for slot in relations.EQUIPMENT_SLOT.records
@@ -130,7 +130,7 @@ class HeroResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @validate_ownership()
-    @dext_old_views.handler('#hero', 'change-hero', method='post')
+    @old_views.handler('#hero', 'change-hero', method='post')
     def change_hero(self):
         edit_name_form = forms.EditNameForm(self.request.POST)
 
@@ -152,7 +152,7 @@ class HeroResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @validate_moderator_rights()
-    @dext_old_views.handler('#hero', 'reset-name', method='post')
+    @old_views.handler('#hero', 'reset-name', method='post')
     def reset_name(self):
         change_task = postponed_tasks.ChangeHeroTask(hero_id=self.hero.id,
                                                      name=game_names.generator().get_name(self.hero.race, self.hero.gender),
@@ -167,21 +167,21 @@ class HeroResource(utils_resources.Resource):
 
     @utils_decorators.login_required
     @validate_moderator_rights()
-    @dext_old_views.handler('#hero', 'reset-description', method='post')
+    @old_views.handler('#hero', 'reset-description', method='post')
     def reset_description(self):
         logic.set_hero_description(hero_id=self.hero.id, text='')
         return self.json_ok()
 
     @utils_decorators.login_required
     @validate_moderator_rights()
-    @dext_old_views.handler('#hero', 'force-save', method='post')
+    @old_views.handler('#hero', 'force-save', method='post')
     def force_save(self):
         amqp_environment.environment.workers.supervisor.cmd_force_save(account_id=self.hero.account_id)
         return self.json_ok()
 
     @utils_decorators.login_required
     @validate_ownership()
-    @dext_old_views.handler('#hero', 'choose-ability', method='post')
+    @old_views.handler('#hero', 'choose-ability', method='post')
     def choose_ability(self, ability_id):
 
         choose_task = postponed_tasks.ChooseHeroAbilityTask(hero_id=self.hero.id, ability_id=ability_id)

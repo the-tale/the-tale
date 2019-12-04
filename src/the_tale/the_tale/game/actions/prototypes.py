@@ -634,7 +634,7 @@ class ActionBattlePvE1x1Prototype(ActionBase):
     ###########################################
 
     def get_info_link(self):
-        return dext_urls.url('guide:mobs:info', self.mob.record.id)
+        return utils_urls.url('guide:mobs:info', self.mob.record.id)
 
     @classmethod
     def _create(cls, hero, bundle_id, mob):
@@ -2047,4 +2047,4 @@ class ActionMoveSimplePrototype(ActionBase):
 
 
 ACTION_TYPES = {action_class.TYPE: action_class
-                for action_class in dext_discovering.discover_classes(list(globals().values()), ActionBase)}
+                for action_class in utils_discovering.discover_classes(list(globals().values()), ActionBase)}

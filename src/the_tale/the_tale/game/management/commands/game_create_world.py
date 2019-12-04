@@ -14,4 +14,4 @@ class Command(django_management.BaseCommand):
 
         logic.create_test_map()
 
-        dext_logic.run_django_command(['map_update_map'])
+        utils_logic.run_django_command(['map_update_map'])

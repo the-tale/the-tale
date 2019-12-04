@@ -1,6 +1,6 @@
 
 
-from dext.common.amqp_queues.environment import BaseEnvironment
+from the_tale.common.amqp_queues.environment import BaseEnvironment
 
 
 class Environment(BaseEnvironment):

@@ -15,7 +15,7 @@ class Companion(meta_relations_objects.MetaType):
 
     @property
     def url(self):
-        return dext_urls.url('guide:companions:show', self.id)
+        return utils_urls.url('guide:companions:show', self.id)
 
     @classmethod
     def create_from_object(cls, companion):

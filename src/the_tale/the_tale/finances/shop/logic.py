@@ -5,23 +5,23 @@ smart_imports.all()
 
 
 def create_sell_lot_url():
-    return dext_urls.url('shop:create-sell-lot')
+    return utils_urls.url('shop:create-sell-lot')
 
 
 def close_sell_lot_url():
-    return dext_urls.url('shop:close-sell-lot')
+    return utils_urls.url('shop:close-sell-lot')
 
 
 def cancel_sell_lot_url():
-    return dext_urls.url('shop:cancel-sell-lot')
+    return utils_urls.url('shop:cancel-sell-lot')
 
 
 def info_url():
-    return dext_urls.url('shop:info')
+    return utils_urls.url('shop:info')
 
 
 def item_type_prices_url():
-    return dext_urls.url('shop:item-type-prices')
+    return utils_urls.url('shop:item-type-prices')
 
 
 def real_amount_to_game(amount):

@@ -8,7 +8,7 @@ smart_imports.all()
 # processors definition
 ########################################
 
-class CanParticipateInPvPProcessor(dext_views.AccessProcessor):
+class CanParticipateInPvPProcessor(utils_views.AccessProcessor):
     ERROR_CODE = 'pvp.no_rights'
     ERROR_MESSAGE = 'Вы не можете отправить героя на арену. Для этого необходимо завершить регистрацию.'
 
@@ -16,7 +16,7 @@ class CanParticipateInPvPProcessor(dext_views.AccessProcessor):
         return context.account_hero.can_participate_in_pvp
 
 
-class AbilityProcessor(dext_views.ArgumentProcessor):
+class AbilityProcessor(utils_views.ArgumentProcessor):
     GET_NAME = 'ability'
     CONTEXT_NAME = 'ability'
     DEFAULT_VALUE = None
@@ -29,7 +29,7 @@ class AbilityProcessor(dext_views.ArgumentProcessor):
             self.raise_wrong_format()
 
 
-class BattleRequestIdProcessor(dext_views.ArgumentProcessor):
+class BattleRequestIdProcessor(utils_views.ArgumentProcessor):
     CONTEXT_NAME = 'battle_request_id'
     ERROR_MESSAGE = 'Неверный номер вызова на арену'
     GET_NAME = 'battle_request_id'
@@ -41,7 +41,7 @@ class BattleRequestIdProcessor(dext_views.ArgumentProcessor):
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='pvp')
+resource = utils_views.Resource(name='pvp')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 resource.add_processor(accounts_views.LoginRequiredProcessor())
@@ -59,7 +59,7 @@ def pvp_page(context):
     enemy_id = logic.get_enemy_id(context.account.id)
 
     if enemy_id is None:
-        return dext_views.Redirect(django_reverse('game:'), permanent=False)
+        return utils_views.Redirect(django_reverse('game:'), permanent=False)
 
     own_abilities = sorted(context.account_hero.abilities.all, key=lambda x: x.NAME)
 
@@ -80,23 +80,23 @@ def pvp_page(context):
 
     calculate_rating = logic.calculate_rating_required(context.account_hero, enemy_hero)
 
-    return dext_views.Page('pvp/pvp_page.html',
-                           content={'enemy_account': accounts_prototypes.AccountPrototype.get_by_id(enemy_id),
-                                    'own_hero': context.account_hero,
-                                    'own_abilities': own_abilities,
-                                    'enemy_abilities': enemy_abilities,
-                                    'game_settings': game_conf.settings,
-                                    'say_form': say_form,
-                                    'clan': clan,
-                                    'enemy_clan': enemy_clan,
-                                    'calculate_rating': calculate_rating,
-                                    'EQUIPMENT_SLOT': heroes_relations.EQUIPMENT_SLOT,
-                                    'ABILITIES': (abilities.Ice, abilities.Blood, abilities.Flame),
-                                    'resource': context.resource})
+    return utils_views.Page('pvp/pvp_page.html',
+                            content={'enemy_account': accounts_prototypes.AccountPrototype.get_by_id(enemy_id),
+                                     'own_hero': context.account_hero,
+                                     'own_abilities': own_abilities,
+                                     'enemy_abilities': enemy_abilities,
+                                     'game_settings': game_conf.settings,
+                                     'say_form': say_form,
+                                     'clan': clan,
+                                     'enemy_clan': enemy_clan,
+                                     'calculate_rating': calculate_rating,
+                                     'EQUIPMENT_SLOT': heroes_relations.EQUIPMENT_SLOT,
+                                     'ABILITIES': (abilities.Ice, abilities.Blood, abilities.Flame),
+                                     'resource': context.resource})
 
 
 @CanParticipateInPvPProcessor()
-@dext_views.FormProcessor(form_class=forms.SayForm)
+@utils_views.FormProcessor(form_class=forms.SayForm)
 @resource('say', method='post')
 def say(context):
     say_task = postponed_tasks.SayInBattleLogTask(speaker_id=context.account.id,
@@ -106,7 +106,7 @@ def say(context):
 
     amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
 
-    return dext_views.AjaxProcessing(task.status_url)
+    return utils_views.AjaxProcessing(task.status_url)
 
 
 @CanParticipateInPvPProcessor()
@@ -120,7 +120,7 @@ def use_ability(context):
 
     amqp_environment.environment.workers.supervisor.cmd_logic_task(context.account.id, task.id)
 
-    return dext_views.AjaxProcessing(task.status_url)
+    return utils_views.AjaxProcessing(task.status_url)
 
 
 @CanParticipateInPvPProcessor()
@@ -131,7 +131,7 @@ def call_to_arena(context):
     tt_services.matchmaker.cmd_create_battle_request(matchmaker_type=relations.MATCHMAKER_TYPE.ARENA,
                                                      initiator_id=context.account.id)
 
-    return dext_views.AjaxOk(content={'info': logic.arena_info()})
+    return utils_views.AjaxOk(content={'info': logic.arena_info()})
 
 
 @CanParticipateInPvPProcessor()
@@ -149,7 +149,7 @@ def leave_arena(context):
 
         break
 
-    return dext_views.AjaxOk(content={'info': logic.arena_info()})
+    return utils_views.AjaxOk(content={'info': logic.arena_info()})
 
 
 @CanParticipateInPvPProcessor()
@@ -162,12 +162,12 @@ def accept_arena_battle(context):
                                                                                            acceptor_id=context.account.id)
 
     if result.is_NO_BATTLE_REQUEST:
-        raise dext_views.ViewError(code='pvp.accept_arena_battle.no_battle_request_found',
-                                   message='Хранитель отозвал свой вызов')
+        raise utils_views.ViewError(code='pvp.accept_arena_battle.no_battle_request_found',
+                                    message='Хранитель отозвал свой вызов')
 
     if result.is_ALREADY_IN_BATTLE:
-        raise dext_views.ViewError(code='pvp.accept_arena_battle.already_in_battle',
-                                   message='Хранитель уже вступил в бой')
+        raise utils_views.ViewError(code='pvp.accept_arena_battle.already_in_battle',
+                                    message='Хранитель уже вступил в бой')
 
     participants_ids.remove(context.account.id)
 
@@ -175,7 +175,7 @@ def accept_arena_battle(context):
                                             acceptor_id=context.account.id,
                                             battle_id=battle_id)
 
-    return dext_views.AjaxProcessing(supervisor_task.status_url)
+    return utils_views.AjaxProcessing(supervisor_task.status_url)
 
 
 @CanParticipateInPvPProcessor()
@@ -202,20 +202,20 @@ def create_arena_bot_battle(context):
             continue
 
         if not result.is_SUCCESS:
-            raise dext_views.ViewError(code='pvp.create_arena_bot_battle.unknown_error',
-                                       message='Неизвестная ошибка. Пожалуйста, подождите немного и повторите попытку.')
+            raise utils_views.ViewError(code='pvp.create_arena_bot_battle.unknown_error',
+                                        message='Неизвестная ошибка. Пожалуйста, подождите немного и повторите попытку.')
 
         supervisor_task = logic.initiate_battle(initiator_id=bot_id,
                                                 acceptor_id=context.account.id,
                                                 battle_id=battle_id)
 
-        return dext_views.AjaxProcessing(supervisor_task.status_url)
+        return utils_views.AjaxProcessing(supervisor_task.status_url)
 
-    raise dext_views.ViewError(code='pvp.create_arena_bot_battle.no_free_bots',
-                               message='Не найдено свободных противников. Пожалуйста, подождите немного и повторите попытку.')
+    raise utils_views.ViewError(code='pvp.create_arena_bot_battle.no_free_bots',
+                                message='Не найдено свободных противников. Пожалуйста, подождите немного и повторите попытку.')
 
 
 @utils_api.Processor(versions=(conf.settings.INFO_API_VERSION,))
 @resource('api', 'info', method='get', name='api-info')
 def info(context):
-    return dext_views.AjaxOk(content={'info': logic.arena_info()})
+    return utils_views.AjaxOk(content={'info': logic.arena_info()})

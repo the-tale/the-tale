@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class PlacesStorage(dext_storage.Storage):
+class PlacesStorage(utils_storage.Storage):
     SETTINGS_KEY = 'places change time'
     EXCEPTION = exceptions.PlacesStorageError
 
@@ -50,7 +50,7 @@ class PlacesStorage(dext_storage.Storage):
 places = PlacesStorage()
 
 
-class BuildingsStorage(dext_storage.CachedStorage):
+class BuildingsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'buildings change time'
     EXCEPTION = exceptions.BuildingsStorageError
 
@@ -116,7 +116,7 @@ class BuildingsStorage(dext_storage.CachedStorage):
 buildings = BuildingsStorage()
 
 
-class ResourceExchangeStorage(utils_storage.Storage):
+class ResourceExchangeStorage(utils_storage.PrototypeStorage):
     SETTINGS_KEY = 'resource exchange change time'
     EXCEPTION = exceptions.ResourceExchangeStorageError
     PROTOTYPE = prototypes.ResourceExchangePrototype
@@ -139,7 +139,7 @@ class ResourceExchangeStorage(utils_storage.Storage):
 resource_exchanges = ResourceExchangeStorage()
 
 
-class EffectsStorage(dext_storage.CachedStorage):
+class EffectsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'effects change time'
     EXCEPTION = exceptions.EffectsStorageError
 

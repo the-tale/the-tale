@@ -8,7 +8,7 @@ TURN_SETTINGS_KEY = 'turn number'
 
 
 def number():
-    return int(dext_settings.settings.get(TURN_SETTINGS_KEY, 0))
+    return int(global_settings.get(TURN_SETTINGS_KEY, 0))
 
 
 def increment(delta=1):
@@ -16,7 +16,7 @@ def increment(delta=1):
 
 
 def set(turn):
-    dext_settings.settings[TURN_SETTINGS_KEY] = str(turn)
+    global_settings[TURN_SETTINGS_KEY] = str(turn)
 
 
 def game_datetime(turn=None):

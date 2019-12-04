@@ -4,40 +4,40 @@ import smart_imports
 smart_imports.all()
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def shop_settings():
     return conf.settings
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def create_sell_lot_url():
-    return dext_jinja2.Markup(logic.create_sell_lot_url())
+    return utils_jinja2.Markup(logic.create_sell_lot_url())
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def close_sell_lot_url():
-    return dext_jinja2.Markup(logic.close_sell_lot_url())
+    return utils_jinja2.Markup(logic.close_sell_lot_url())
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def cancel_sell_lot_url():
-    return dext_jinja2.Markup(logic.cancel_sell_lot_url())
+    return utils_jinja2.Markup(logic.cancel_sell_lot_url())
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def info_url():
-    return dext_jinja2.Markup(logic.info_url())
+    return utils_jinja2.Markup(logic.info_url())
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def item_type_prices_url():
-    return dext_jinja2.Markup(logic.item_type_prices_url())
+    return utils_jinja2.Markup(logic.item_type_prices_url())
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def xsolla_paystaion_widget_link(account):
     # TODO: sign
-    url_builder = dext_urls.UrlBuilder(base=conf.settings.XSOLLA_BASE_LINK)
+    url_builder = utils_urls.UrlBuilder(base=conf.settings.XSOLLA_BASE_LINK)
 
     sign_params = {'v1': account.email,
                    'email': account.email,
@@ -65,7 +65,7 @@ def xsolla_paystaion_widget_link(account):
     return link
 
 
-@dext_jinja2.jinjaglobal
+@utils_jinja2.jinjaglobal
 def market_statistics():
     statistics = tt_services.market.cmd_statistics(time_from=datetime.datetime.utcnow() - datetime.timedelta(seconds=conf.settings.MARKET_STATISTICS_PERIOD),
                                                    time_till=datetime.datetime.utcnow() + datetime.timedelta(days=1))

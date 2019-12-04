@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class Resource(dext_old_views.BaseResource):
+class Resource(old_views.BaseResource):
 
     ERROR_TEMPLATE = 'error.html'
     DIALOG_ERROR_TEMPLATE = 'dialog_error.html'

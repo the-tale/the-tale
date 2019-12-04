@@ -4,9 +4,9 @@ import smart_imports
 smart_imports.all()
 
 
-class RecipientsForm(dext_forms.Form):
+class RecipientsForm(utils_forms.Form):
 
-    recipients = dext_fields.TextField(label='', widget=django_forms.HiddenInput())
+    recipients = utils_fields.TextField(label='', widget=django_forms.HiddenInput())
 
     def clean_recipients(self):
         recipients = self.cleaned_data['recipients']

@@ -4,6 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-class GMForm(dext_forms.Form):
-    amount = dext_fields.IntegerField(label='Печеньки')
-    description = dext_fields.TextField(label='Описание', required=True)
+class GMForm(utils_forms.Form):
+    amount = utils_fields.IntegerField(label='Печеньки')
+    description = utils_fields.TextField(label='Описание', required=True)

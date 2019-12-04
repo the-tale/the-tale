@@ -15,8 +15,8 @@ def can_be_choosen(place, modifier):
 
 
 class BaseForm(forms.BaseUserForm):
-    place = dext_fields.ChoiceField(label='Город')
-    new_modifier = dext_fields.TypedChoiceField(label='Новая специализация', choices=sorted(places_modifiers.CITY_MODIFIERS.choices(), key=lambda g: g[1]), coerce=places_modifiers.CITY_MODIFIERS.get_from_name)
+    place = utils_fields.ChoiceField(label='Город')
+    new_modifier = utils_fields.TypedChoiceField(label='Новая специализация', choices=sorted(places_modifiers.CITY_MODIFIERS.choices(), key=lambda g: g[1]), coerce=places_modifiers.CITY_MODIFIERS.get_from_name)
 
     def __init__(self, *args, **kwargs):
         super(BaseForm, self).__init__(*args, **kwargs)

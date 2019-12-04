@@ -25,10 +25,10 @@ class TestShowRequests(utils_testcase.TestCase):
         self.account = self.accounts_factory.create_account()
 
     def test_wrong_person_id(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:persons:show', 'wrong_id')), texts=['pgf-error-person.wrong_format'])
+        self.check_html_ok(self.request_html(utils_urls.url('game:persons:show', 'wrong_id')), texts=['pgf-error-person.wrong_format'])
 
     def test_person_does_not_exist(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:persons:show', 666)), texts=['pgf-error-person.wrong_value'])
+        self.check_html_ok(self.request_html(utils_urls.url('game:persons:show', 666)), texts=['pgf-error-person.wrong_value'])
 
     def test__has_folclor(self):
         blogs_helpers.prepair_forum()
@@ -36,9 +36,9 @@ class TestShowRequests(utils_testcase.TestCase):
         blogs_helpers.create_post_for_meta_object(self.account, 'folclor-1-caption', 'folclor-1-text', meta_relations.Person.create_from_object(self.person))
         blogs_helpers.create_post_for_meta_object(self.account, 'folclor-2-caption', 'folclor-2-text', meta_relations.Person.create_from_object(self.person))
 
-        self.check_html_ok(self.request_html(dext_urls.url('game:persons:show', self.person.id)), texts=[('pgf-no-folclor', 0),
+        self.check_html_ok(self.request_html(utils_urls.url('game:persons:show', self.person.id)), texts=[('pgf-no-folclor', 0),
                                                                                                          'folclor-1-caption',
                                                                                                          'folclor-2-caption'])
 
     def test__no_folclor(self):
-        self.check_html_ok(self.request_html(dext_urls.url('game:persons:show', self.person.id)), texts=['pgf-no-folclor'])
+        self.check_html_ok(self.request_html(utils_urls.url('game:persons:show', self.person.id)), texts=['pgf-no-folclor'])

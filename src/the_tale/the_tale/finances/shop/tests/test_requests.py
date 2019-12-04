@@ -13,7 +13,7 @@ class PageRequestsMixin(object):
 
     def test_refuse_third_party__profile_page(self):
         self.request_third_party_token(account=self.account)
-        self.check_html_ok(self.request_html(dext_urls.url('accounts:profile:show')), texts=['third_party.access_restricted'])
+        self.check_html_ok(self.request_html(utils_urls.url('accounts:profile:show')), texts=['third_party.access_restricted'])
 
     def test_unlogined(self):
         self.request_logout()
@@ -32,7 +32,7 @@ class PageRequestsMixin(object):
         self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 0)])
 
     def test_xsolla_disabled__settings(self):
-        del dext_settings.settings[conf.settings.SETTINGS_ALLOWED_KEY]
+        del global_settings[conf.settings.SETTINGS_ALLOWED_KEY]
         self.check_html_ok(self.request_html(self.page_url), texts=[('pgf-xsolla-dialog-link', 0)])
 
     @mock.patch('the_tale.finances.shop.conf.settings.ENABLE_REAL_PAYMENTS', False)
@@ -50,7 +50,7 @@ class RequestesTestsBase(utils_testcase.TestCase, third_party_helpers.ThirdParty
 
         self.account = self.accounts_factory.create_account()
 
-        dext_settings.settings[conf.settings.SETTINGS_ALLOWED_KEY] = 'allowed'
+        global_settings[conf.settings.SETTINGS_ALLOWED_KEY] = 'allowed'
 
         self.request_login(self.account.email)
 
@@ -65,7 +65,7 @@ class ShopRequestesTests(RequestesTestsBase, PageRequestsMixin, bank_helpers.Ban
 
     def setUp(self):
         super(ShopRequestesTests, self).setUp()
-        self.page_url = dext_urls.url('shop:')
+        self.page_url = utils_urls.url('shop:')
         self.create_bank_account(self.account.id, amount=666666)
 
     def test_refuse_third_party(self):
@@ -111,7 +111,7 @@ class HistoryRequestesTests(RequestesTestsBase, bank_helpers.BankTestsMixin, Pag
 
     def setUp(self):
         super(HistoryRequestesTests, self).setUp()
-        self.page_url = dext_urls.url('shop:history')
+        self.page_url = utils_urls.url('shop:history')
 
     def test_no_history(self):
         self.check_html_ok(self.request_html(self.page_url), texts=['pgf-no-history-message'])
@@ -174,21 +174,21 @@ class BuyRequestesTests(RequestesTestsBase, bank_helpers.BankTestsMixin):
     def test_for_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_ajax_error(self.client.post(dext_urls.url('shop:buy', purchase=self.purchase.uid)), 'common.fast_account')
+        self.check_ajax_error(self.client.post(utils_urls.url('shop:buy', purchase=self.purchase.uid)), 'common.fast_account')
 
     def test_refuse_third_party(self):
         self.request_third_party_token(account=self.account)
-        self.check_ajax_error(self.client.post(dext_urls.url('shop:buy', purchase=self.purchase.uid)), 'third_party.access_restricted')
+        self.check_ajax_error(self.client.post(utils_urls.url('shop:buy', purchase=self.purchase.uid)), 'third_party.access_restricted')
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('shop:buy', purchase=self.purchase.uid)), 'common.login_required')
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('shop:buy', purchase=self.purchase.uid)), 'common.login_required')
 
     def test_wrong_purchase_uid(self):
-        self.check_ajax_error(self.client.post(dext_urls.url('shop:buy', purchase='wrong-uid')), 'purchase.wrong_value')
+        self.check_ajax_error(self.client.post(utils_urls.url('shop:buy', purchase='wrong-uid')), 'purchase.wrong_value')
 
     def test_success(self):
-        response = self.client.post(dext_urls.url('shop:buy', purchase=self.purchase.uid))
+        response = self.client.post(utils_urls.url('shop:buy', purchase=self.purchase.uid))
         self.check_ajax_processing(response, PostponedTaskPrototype._db_get_object(0).status_url)
 
 
@@ -340,30 +340,30 @@ class GiveMoneyRequestesTests(RequestesTestsBase):
     def test_for_fast_account(self):
         self.account.is_fast = True
         self.account.save()
-        self.check_ajax_error(self.client.post(dext_urls.url('shop:give-money', account=self.account.id), self.post_data()), 'fast_account')
+        self.check_ajax_error(self.client.post(utils_urls.url('shop:give-money', account=self.account.id), self.post_data()), 'fast_account')
         self.assertEqual(bank_prototypes.InvoicePrototype._db_count(), 0)
 
     def test_refuse_third_party(self):
         self.request_third_party_token(account=self.account)
-        self.check_ajax_error(self.client.post(dext_urls.url('shop:give-money', account=self.account.id), self.post_data()), 'third_party.access_restricted')
+        self.check_ajax_error(self.client.post(utils_urls.url('shop:give-money', account=self.account.id), self.post_data()), 'third_party.access_restricted')
 
     def test_for_wront_account(self):
-        self.check_ajax_error(self.client.post(dext_urls.url('shop:give-money', account='xxx'), self.post_data()), 'account.wrong_format')
+        self.check_ajax_error(self.client.post(utils_urls.url('shop:give-money', account='xxx'), self.post_data()), 'account.wrong_format')
         self.assertEqual(bank_prototypes.InvoicePrototype._db_count(), 0)
 
     def test_unlogined(self):
         self.request_logout()
-        self.check_ajax_error(self.post_ajax_json(dext_urls.url('shop:give-money', account=self.account.id), self.post_data()), 'common.login_required')
+        self.check_ajax_error(self.post_ajax_json(utils_urls.url('shop:give-money', account=self.account.id), self.post_data()), 'common.login_required')
         self.assertEqual(bank_prototypes.InvoicePrototype._db_count(), 0)
 
     def test_from_errors(self):
-        self.check_ajax_error(self.client.post(dext_urls.url('shop:give-money', account=self.account.id), {'amount': 'x', 'description': 'bla-bla'}),
+        self.check_ajax_error(self.client.post(utils_urls.url('shop:give-money', account=self.account.id), {'amount': 'x', 'description': 'bla-bla'}),
                               'form_errors')
         self.assertEqual(bank_prototypes.InvoicePrototype._db_count(), 0)
 
     def test_success(self):
         self.assertEqual(bank_prototypes.InvoicePrototype._db_count(), 0)
-        response = self.post_ajax_json(dext_urls.url('shop:give-money', account=self.account.id), self.post_data(amount=5))
+        response = self.post_ajax_json(utils_urls.url('shop:give-money', account=self.account.id), self.post_data(amount=5))
         self.assertEqual(bank_prototypes.InvoicePrototype._db_count(), 1)
 
         invoice = bank_prototypes.InvoicePrototype._db_get_object(0)
@@ -532,7 +532,7 @@ class MarketHistoryTests(RequestesTestsBase, bank_helpers.BankTestsMixin, PageRe
     def setUp(self):
         super(MarketHistoryTests, self).setUp()
 
-        self.page_url = dext_urls.url('shop:market-history')
+        self.page_url = utils_urls.url('shop:market-history')
 
         tt_services.market.cmd_debug_clear_service()
         cards_tt_services.storage.cmd_debug_clear_service()

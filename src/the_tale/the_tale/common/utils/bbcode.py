@@ -160,7 +160,7 @@ def safe_render(*argv, **kwargs):
         return 'Текст нельзя отформатировать. Возможно Вы ошиблись при вводе тегов.'
 
 
-class BBField(dext_fields.TextField):
+class BBField(utils_fields.TextField):
 
     @property
     def command_line(self):

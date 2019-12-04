@@ -8,8 +8,7 @@ class GameStateTests(utils_testcase.TestCase):
 
     def setUp(self):
         super(GameStateTests, self).setUp()
-        dext_settings_models.Setting.objects.all().delete()
-        dext_settings.settings.refresh()
+        global_settings.clear()
 
     def test_no_state(self):
         self.assertTrue(prototypes.GameState.is_stopped())

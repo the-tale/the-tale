@@ -10,7 +10,7 @@ def get_key_records():
 
     keys = []
 
-    for module in dext_discovering.discover_modules_in_directory(GROUPS_DIR, 'the_tale.linguistics.lexicon.groups'):
+    for module in utils_discovering.discover_modules_in_directory(GROUPS_DIR, 'the_tale.linguistics.lexicon.groups'):
 
         for key in getattr(module, 'KEYS', ()):
             key = copy.deepcopy(key)

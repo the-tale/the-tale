@@ -17,7 +17,7 @@ class BaseRequestsTests(utils_testcase.TestCase):
         if 'v1' in kwargs:
             del kwargs['v1']
 
-        return dext_urls.url('bank:xsolla:command',
+        return utils_urls.url('bank:xsolla:command',
                              command=command.value,
                              v1=v1,
                              md5=md5_hash,
@@ -46,7 +46,7 @@ class CommonRequestsTests(BaseRequestsTests):
                               encoding='cp1251')
 
     def test_wrong_command(self):
-        self.check_xml_ok(self.request_xml(dext_urls.url('bank:xsolla:command', command='wrong-command')),
+        self.check_xml_ok(self.request_xml(utils_urls.url('bank:xsolla:command', command='wrong-command')),
                           body=self.construct_answer(relations.COMMON_RESULT.WRONG_COMMAND),
                           encoding='cp1251')
 

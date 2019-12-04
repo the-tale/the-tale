@@ -9,7 +9,7 @@ class StatisticsResource(utils_resources.Resource):
     def initialize(self, *args, **kwargs):
         super(StatisticsResource, self).initialize(*args, **kwargs)
 
-    @dext_old_views.handler('', method='get')
+    @old_views.handler('', method='get')
     def index(self):
         return self.template('statistics/index.html',
                              {'RECORD_TYPE': relations.RECORD_TYPE,

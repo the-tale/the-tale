@@ -51,7 +51,7 @@ class XsollaResource(utils_resources.Resource):
     def create_cancel_answer(self):
         return self.create_answer(relations.CANCEL_RESULT.NOT_SUPPORTED)
 
-    @dext_old_views.handler('command', method='get')
+    @old_views.handler('command', method='get')
     def command(self,
                 command=None, md5=None,
                 v1=None, v2=None, v3=None,
@@ -95,15 +95,15 @@ class XsollaResource(utils_resources.Resource):
             return self.create_answer(relations.COMMON_RESULT.UNKNOWN_ERROR)
 
     @utils_decorators.superuser_required()
-    @dext_decorators.debug_required
-    @dext_old_views.handler('debug', method='get')
+    @utils_decorators.debug_required
+    @old_views.handler('debug', method='get')
     def debug(self, id='13', sum='666', test='0', v1='test@test.com'):
-        check_url = dext_urls.url('bank:xsolla:command',
+        check_url = utils_urls.url('bank:xsolla:command',
                                   command=relations.COMMAND_TYPE.CHECK.value,
                                   v1=v1,
                                   md5=logic.check_user_md5(relations.COMMAND_TYPE.CHECK, v1))
 
-        pay_url = dext_urls.url('bank:xsolla:command',
+        pay_url = utils_urls.url('bank:xsolla:command',
                                 command=relations.COMMAND_TYPE.PAY.value,
                                 v1=v1,
                                 id=id,
@@ -111,7 +111,7 @@ class XsollaResource(utils_resources.Resource):
                                 test=test,
                                 md5=logic.pay_md5(relations.COMMAND_TYPE.PAY, v1, id))
 
-        cancel_url = dext_urls.url('bank:xsolla:command',
+        cancel_url = utils_urls.url('bank:xsolla:command',
                                    command=relations.COMMAND_TYPE.CANCEL.value,
                                    id=id,
                                    md5=logic.cancel_md5(relations.COMMAND_TYPE.CANCEL, id))

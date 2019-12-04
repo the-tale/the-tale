@@ -21,11 +21,11 @@ class MessageSenderTests(utils_testcase.TestCase):
         self.assertTrue(self.message.state.is_SKIPPED)
 
     def test_send_message_processed(self):
-        dext_settings.settings[conf.settings.SETTINGS_ALLOWED_KEY] = 'allowed'
+        global_settings[conf.settings.SETTINGS_ALLOWED_KEY] = 'allowed'
         self.worker.send_message(self.message)
         self.assertTrue(self.message.state.is_PROCESSED)
 
     def test_send_message_forces_process(self):
-        dext_settings.settings[conf.settings.SETTINGS_FORCE_ALLOWED_KEY] = message_handlers.TestHandler().settings_type_uid
+        global_settings[conf.settings.SETTINGS_FORCE_ALLOWED_KEY] = message_handlers.TestHandler().settings_type_uid
         self.worker.send_message(self.message)
         self.assertTrue(self.message.state.is_PROCESSED)

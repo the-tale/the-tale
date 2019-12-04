@@ -7,7 +7,7 @@ smart_imports.all()
 ########################################
 # processors definition
 ########################################
-class PlaceProcessor(dext_views.ArgumentProcessor):
+class PlaceProcessor(utils_views.ArgumentProcessor):
     def parse(self, context, raw_value):
         try:
             place_id = int(raw_value)
@@ -25,7 +25,7 @@ class PlaceProcessor(dext_views.ArgumentProcessor):
 ########################################
 # resource and global processors
 ########################################
-resource = dext_views.Resource(name='places')
+resource = utils_views.Resource(name='places')
 resource.add_processor(accounts_views.CurrentAccountProcessor())
 resource.add_processor(utils_views.FakeResourceProcessor())
 
@@ -48,14 +48,14 @@ def api_list(context):
                       'specialization': place._modifier.value}
         data['places'][place.id] = place_data
 
-    return dext_views.AjaxOk(content=data)
+    return utils_views.AjaxOk(content=data)
 
 
 @utils_api.Processor(versions=(conf.settings.API_SHOW_VERSION,))
 @PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')
 @resource('#place', 'api', 'show', name='api-show')
 def api_show(context):
-    return dext_views.AjaxOk(content=info.place_info(context.place, full_building_info=context.api_version != '2.0'))
+    return utils_views.AjaxOk(content=info.place_info(context.place, full_building_info=context.api_version != '2.0'))
 
 
 @PlaceProcessor(error_message='Город не найден', url_name='place', context_name='place')
@@ -85,20 +85,20 @@ def show(context):
 
     emissaries.sort(key=lambda emissary: (emissary.state.value, clans[emissary.clan_id].name, -emissaries_powers[emissary.id]))
 
-    return dext_views.Page('places/show.html',
-                           content={'place': context.place,
-                                    'place_bills': info.place_info_bills(context.place),
-                                    'place_chronicle': events,
-                                    'accounts_short_infos': accounts_short_infos,
-                                    'inner_circle': inner_circle,
-                                    'persons_inner_circles': persons_inner_circles,
-                                    'HABIT_TYPE': game_relations.HABIT_TYPE,
-                                    'place_meta_object': meta_relations.Place.create_from_object(context.place),
-                                    'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
-                                    'places_power_storage': politic_power_storage.places,
-                                    'persons_power_storage': politic_power_storage.persons,
-                                    'job_power': job_power,
-                                    'resource': context.resource,
-                                    'emissaries': emissaries,
-                                    'clans': clans,
-                                    'emissaries_powers': emissaries_powers})
+    return utils_views.Page('places/show.html',
+                            content={'place': context.place,
+                                     'place_bills': info.place_info_bills(context.place),
+                                     'place_chronicle': events,
+                                     'accounts_short_infos': accounts_short_infos,
+                                     'inner_circle': inner_circle,
+                                     'persons_inner_circles': persons_inner_circles,
+                                     'HABIT_TYPE': game_relations.HABIT_TYPE,
+                                     'place_meta_object': meta_relations.Place.create_from_object(context.place),
+                                     'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
+                                     'places_power_storage': politic_power_storage.places,
+                                     'persons_power_storage': politic_power_storage.persons,
+                                     'job_power': job_power,
+                                     'resource': context.resource,
+                                     'emissaries': emissaries,
+                                     'clans': clans,
+                                     'emissaries_powers': emissaries_powers})

@@ -583,7 +583,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
     @classmethod
     def cached_ui_info_for_hero(cls, account_id, recache_if_required, patch_turns, for_last_turn):
 
-        data = dext_cache.get(cls.cached_ui_info_key_for_hero(account_id))
+        data = utils_cache.get(cls.cached_ui_info_key_for_hero(account_id))
 
         if data is None:
             hero = logic.load_hero(account_id=account_id)

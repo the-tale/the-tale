@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class EmissariesStorage(dext_storage.CachedStorage):
+class EmissariesStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'emissaries change time'
     EXCEPTION = exceptions.EmissariesStorageError
 
@@ -41,7 +41,7 @@ class EmissariesStorage(dext_storage.CachedStorage):
 emissaries = EmissariesStorage()
 
 
-class EventsStorage(dext_storage.CachedStorage):
+class EventsStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'events change time'
     EXCEPTION = exceptions.EventsStorageError
 
