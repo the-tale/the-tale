@@ -13,7 +13,7 @@ def create_handler_view(resource_class, handler):
         handler_path = handler.path[-1]
         result_method_name = None
 
-    def handler_view(request, **kwargs):
+    def handler_view(request, exception=None, **kwargs):
 
         resource = resource_class(request)
         initialize_result = resource.initialize(**kwargs) # *args removeed

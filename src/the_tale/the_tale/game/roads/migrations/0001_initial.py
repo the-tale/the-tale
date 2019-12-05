@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
                 ('length', models.FloatField(default=0.0, blank=True)),
                 ('exists', models.BooleanField(default=True)),
                 ('path', models.TextField(default=b'')),
-                ('point_1', models.ForeignKey(related_name='+', to='places.Place')),
-                ('point_2', models.ForeignKey(related_name='+', to='places.Place')),
+                ('point_1', models.ForeignKey(related_name='+', to='places.Place', on_delete=models.CASCADE)),
+                ('point_2', models.ForeignKey(related_name='+', to='places.Place', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -31,8 +31,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('length', models.FloatField(default=0.0, blank=True)),
-                ('point_from', models.ForeignKey(related_name='+', to='places.Place')),
-                ('point_to', models.ForeignKey(related_name='+', to='places.Place')),
+                ('point_from', models.ForeignKey(related_name='+', to='places.Place', on_delete=models.PROTECT)),
+                ('point_to', models.ForeignKey(related_name='+', to='places.Place', on_delete=models.PROTECT)),
                 ('road', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.SET_NULL, to='roads.Road', null=True)),
             ],
             options={

@@ -73,9 +73,19 @@ class AbilitiesWidget(django_forms.MultiWidget):
     def decompress(self, value):
         return decompress_abilities(value)
 
-    def format_output(self, rendered_widgets):
-        return jinja2.Markup(utils_jinja2.render('companions/abilities/abilities_field.html', context={'widgets': rendered_widgets,
-                                                                                                       'FIELDS': relations.FIELDS}))
+    def render(self, name, value, attrs=None, renderer=None):
+        widgets = []
+
+        subwidgets_context = self.get_context(name, value, attrs)['widget']['subwidgets']
+
+        for subwidget, context in zip(self.widgets, subwidgets_context):
+            widgets.append(subwidget.render(name=context['name'],
+                                            value=context['value'],
+                                            attrs=context['attrs']))
+
+        return jinja2.Markup(utils_jinja2.render('companions/abilities/abilities_field.html',
+                                                 context={'widgets': widgets,
+                                                          'FIELDS': relations.FIELDS}))
 
 
 @utils_fields.pgf

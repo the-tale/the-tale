@@ -18,8 +18,8 @@
                              "django_settings": {"module": "django.conf", "attribute": "settings"},
                              "django_forms": {"module": "django.forms"},
                              "django_postgres_fields": {"module": "django.contrib.postgres.fields"},
-                             "django_reverse": {"module": "django.core.urlresolvers", "attribute": "reverse"},
-                             "django_reverse_lazy": {"module": "django.core.urlresolvers", "attribute": "reverse_lazy"},
+                             "django_reverse": {"module": "django.urls", "attribute": "reverse"},
+                             "django_reverse_lazy": {"module": "django.urls", "attribute": "reverse_lazy"},
                              "django_transaction": {"module": "django.db.transaction"},
                              "django_apps": {"module": "django.apps"},
                              "django_db_utils": {"module": "django.db.utils"},
@@ -37,7 +37,6 @@
                              "django_auth_hashers": {"module": "django.contrib.auth.hashers"},
                              "django_auth": {"module": "django.contrib.auth"},
                              "django_html": {"module": "django.utils.html"},
-                             "django_six": {"module": "django.utils.six"},
                              "django_http": {"module": "django.http"},
                              "django_contenttypes_models": {"module": "django.contrib.contenttypes.models"},
                              "django_feedgenerator": {"module": "django.utils.feedgenerator"},
@@ -75,8 +74,6 @@
                              "POSTPONED_TASK_STATE": {"module": "the_tale.common.postponed_tasks.models",
                                                       "attribute": "POSTPONED_TASK_STATE"},
                              "refrigerator": {"module": "the_tale.common.postponed_tasks.workers.refrigerator"},
-
-                             "raven_client": {"module": "raven.contrib.django.raven_compat.models", "attribute": "client"},
 
                              "urlparse": {"module": "urllib.parse", "attribute": "urlparse"},
                              "URLError": {"module": "urllib.error", "attribute": "URLError"},

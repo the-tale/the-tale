@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('items', models.TextField(default=b'{}')),
-                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, unique=True)),
+                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, unique=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             name='GiveItemTask',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -89,7 +89,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='giveitemtask',
             name='item',
-            field=models.ForeignKey(to='collections.Item'),
+            field=models.ForeignKey(to='collections.Item', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

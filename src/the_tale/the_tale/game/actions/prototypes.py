@@ -969,7 +969,7 @@ class ActionInPlacePrototype(ActionBase):
             game_tt_services.energy.cmd_change_balance(account_id=hero.account_id,
                                                        type='inplace_regen',
                                                        amount=c.ANGEL_ENERGY_INSTANT_REGENERATION_IN_PLACE,
-                                                       async=True,
+                                                       asynchronous=True,
                                                        autocommit=True)
 
             hero.add_message('action_inplace_instant_energy_regen',
@@ -1446,7 +1446,7 @@ class ActionRegenerateEnergyPrototype(ActionBase):
                     game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
                                                                type='energy_regeneration',
                                                                amount=energy_delta,
-                                                               async=True,
+                                                               asynchronous=True,
                                                                autocommit=True)
 
                     self.hero.add_message('%s_energy_received' % self.textgen_id, hero=self.hero, energy=energy_delta)

@@ -87,16 +87,7 @@ class Engine(django_template_backends_base.BaseEngine):
         return Template(self.env.from_string(template_code), engine=self)
 
     def get_template(self, template_name):
-        try:
-            return Template(self.env.get_template(template_name), engine=self)
-        except jinja2.TemplateNotFound as exc:
-            django_six.reraise(django_template.TemplateDoesNotExist,
-                               django_template.TemplateDoesNotExist(exc.args),
-                               sys.exc_info()[2])
-        except jinja2.django_template.TemplateSyntaxError as exc:
-            django_six.reraise(django_template.TemplateSyntaxError,
-                               django_template.TemplateSyntaxError(exc.args),
-                               sys.exc_info()[2])
+        return Template(self.env.get_template(template_name), engine=self)
 
     @django_functional.cached_property
     def template_context_processors(self):

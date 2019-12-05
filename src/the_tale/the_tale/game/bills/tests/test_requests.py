@@ -475,7 +475,7 @@ class TestCreateRequests(BaseTestRequests):
                      'chronicle_on_accepted': 'chronicle-on-accepted',
                      'depends_on': depends_on_id,
                      'place': self.place1.id})
-        return data
+        return {key: value if value is not None else '' for key, value in data.items()}
 
     def test_unlogined(self):
         self.request_logout()
@@ -726,7 +726,7 @@ class TestUpdateRequests(BaseTestRequests):
                      'chronicle_on_accepted': 'chronicle-on-accepted-2',
                      'depends_on': depends_on_id,
                      'place': self.place2.id})
-        return data
+        return {key: value if value is not None else '' for key, value in data.items()}
 
     def test_unlogined(self):
         self.request_logout()
@@ -883,7 +883,7 @@ class TestModerateRequests(BaseTestRequests):
         data = self.bill.user_form_initials
         data.update(linguistics_helpers.get_word_post_data(self.bill.data.name_forms, prefix='name'))
         data['approved'] = True
-        return data
+        return {key: value if value is not None else '' for key, value in data.items()}
 
     def test_unlogined(self):
         self.request_logout()

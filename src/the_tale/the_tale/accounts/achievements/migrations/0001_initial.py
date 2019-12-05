@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('achievements', models.TextField(default=b'{}')),
                 ('points', models.IntegerField(default=0)),
-                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, unique=True)),
+                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, unique=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -54,8 +54,8 @@ class Migration(migrations.Migration):
             name='GiveAchievementTask',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
-                ('achievement', models.ForeignKey(to='achievements.Achievement')),
+                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
+                ('achievement', models.ForeignKey(to='achievements.Achievement', on_delete=models.CASCADE)),
             ],
             options={
             },

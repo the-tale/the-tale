@@ -308,7 +308,7 @@ def give_reward_for_template(template):
     personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                          recipients_ids=[template.author_id],
                                          body=message,
-                                         async=False)
+                                         asynchronous=False)
 
 
 def technical_render(message, externals):

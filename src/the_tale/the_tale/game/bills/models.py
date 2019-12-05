@@ -70,7 +70,7 @@ class Vote(django_models.Model):
 
     created_at = django_models.DateTimeField(auto_now_add=True, null=False)
 
-    owner = django_models.ForeignKey('accounts.Account', null=False, related_name='+', on_delete=django_models.CASCADE)
+    owner = django_models.ForeignKey('accounts.Account', null=True, related_name='+', on_delete=django_models.SET_NULL)
 
     bill = django_models.ForeignKey(Bill, null=False, on_delete=django_models.CASCADE)
 

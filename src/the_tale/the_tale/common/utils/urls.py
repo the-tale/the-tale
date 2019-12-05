@@ -1,11 +1,7 @@
-import copy
 
-import urllib.request
-import urllib.parse
-import urllib.error
+import smart_imports
 
-from django.core.urlresolvers import reverse
-from django.conf import settings as project_settings
+smart_imports.all()
 
 
 class UrlBuilder(object):
@@ -35,7 +31,7 @@ class UrlBuilder(object):
 
 
 def url(*args, **kwargs):
-    base_url = reverse(args[0], args=args[1:])
+    base_url = django_reverse(args[0], args=args[1:])
 
     if kwargs:
         arguments = list(kwargs.items())
@@ -49,11 +45,11 @@ def url(*args, **kwargs):
 
 
 def full_url(protocol, *args, **kwargs):
-    return protocol + '://' + project_settings.SITE_URL + url(*args, **kwargs)
+    return protocol + '://' + django_settings.SITE_URL + url(*args, **kwargs)
 
 
 def absolute_url(relative_url, protocol='https'):
-    return protocol + '://' + project_settings.SITE_URL + relative_url
+    return protocol + '://' + django_settings.SITE_URL + relative_url
 
 
 def modify_url(url, query=()):

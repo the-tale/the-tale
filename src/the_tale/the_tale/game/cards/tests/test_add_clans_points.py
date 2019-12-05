@@ -49,7 +49,7 @@ class AddClansPointsTestMixin(helpers.CardsTestMixin,
         clans_tt_services.currencies.cmd_change_balance(account_id=self.clan_1.id,
                                                         type='test',
                                                         amount=tt_clans_constants.MAXIMUM_POINTS,
-                                                        async=False,
+                                                        asynchronous=False,
                                                         currency=clans_relations.CURRENCY.ACTION_POINTS,
                                                         autocommit=True)
 

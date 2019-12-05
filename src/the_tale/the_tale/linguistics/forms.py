@@ -66,20 +66,33 @@ class WordWidget(django_forms.MultiWidget):
     def decompress(self, value):
         return decompress_word(self.word_type, value)
 
-    def format_output(self, rendered_widgets):
+    def render(self, name, value, attrs=None, renderer=None):
         fields = get_fields(self.word_type)
         keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
 
-        widgets = {key: rendered_widgets[keys[key]] for key in keys}
+        widgets = {}
 
-        drawer = word_drawer.FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
+        subwidgets_context = self.get_context(name, value, attrs)['widget']['subwidgets']
+
+        for key in keys:
+            subwidget = self.widgets[keys[key]]
+            context = subwidgets_context[keys[key]]
+
+            widgets[key] = subwidget.render(name=context['name'],
+                                            value=context['value'],
+                                            attrs=context['attrs'])
+
+        drawer = word_drawer.FormFieldDrawer(type=self.word_type,
+                                             widgets=widgets,
+                                             skip_markers=self.skip_markers,
+                                             show_properties=self.show_properties)
 
         return jinja2.Markup(utils_jinja2.render('linguistics/words/field.html', context={'drawer': drawer}))
 
 
 class SimpleNounWidget(WordWidget):
 
-    def format_output(self, rendered_widgets):
+    def render(self, name, value, attrs=None, renderer=None):
         fields = get_fields(self.word_type)
         keys = {key: i for i, key in enumerate(sorted(fields.keys()))}
 
@@ -88,11 +101,26 @@ class SimpleNounWidget(WordWidget):
                                 key={utg_relations.NUMBER: utg_relations.NUMBER.SINGULAR,
                                      utg_relations.NOUN_FORM: utg_relations.NOUN_FORM.NORMAL})
 
-        widgets = {key: rendered_widgets[keys[key]] for key in keys}
+        widgets = {}
 
-        drawer = word_drawer.FormFieldDrawer(type=self.word_type, widgets=widgets, skip_markers=self.skip_markers, show_properties=self.show_properties)
-        return jinja2.Markup(utils_jinja2.render('linguistics/words/simple_noun_field.html', context={'drawer': drawer,
-                                                                                                      'leaf': leaf}))
+        subwidgets_context = self.get_context(name, value, attrs)['widget']['subwidgets']
+
+        for key in keys:
+            subwidget = self.widgets[keys[key]]
+            context = subwidgets_context[keys[key]]
+
+            widgets[key] = subwidget.render(name=context['name'],
+                                            value=context['value'],
+                                            attrs=context['attrs'])
+
+        drawer = word_drawer.FormFieldDrawer(type=self.word_type,
+                                             widgets=widgets,
+                                             skip_markers=self.skip_markers,
+                                             show_properties=self.show_properties)
+
+        return jinja2.Markup(utils_jinja2.render('linguistics/words/simple_noun_field.html',
+                                                 context={'drawer': drawer,
+                                                          'leaf': leaf}))
 
 
 @utils_fields.pgf

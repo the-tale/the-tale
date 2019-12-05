@@ -44,11 +44,11 @@ class Hero(django_models.Model):
 
     money = django_models.BigIntegerField(null=False, default=0)
 
-    data = django_postgres_fields.JSONField(default='{}')
+    data = django_postgres_fields.JSONField()
 
     abilities = django_models.TextField(null=False, default='', blank=True)
 
-    actions = django_models.TextField(null=False, default='{}')
+    actions = django_models.TextField()
 
     quest_created_time = django_models.DateTimeField(db_index=True, default=datetime.datetime.fromtimestamp(0))
 
@@ -58,7 +58,7 @@ class Hero(django_models.Model):
 
     might = django_models.FloatField(null=False, default=0.0)
 
-    preferences = django_models.TextField(null=False, default='{}')
+    preferences = django_models.TextField()
 
     habit_honor = django_models.FloatField(default=0)
     habit_peacefulness = django_models.FloatField(default=0)
@@ -105,7 +105,8 @@ class Hero(django_models.Model):
 
     stat_politics_multiplier = django_models.FloatField(default=0, null=False)  # for ratings
 
-    def __str__(self): return 'hero[%s] — %s' % (self.id, self.data['name']['forms'][0])
+    def __str__(self):
+        return 'hero[%s] — %s' % (self.id, self.data['name']['forms'][0])
 
 
 # just copy for collection statistics

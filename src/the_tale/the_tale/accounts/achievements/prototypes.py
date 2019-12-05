@@ -132,7 +132,7 @@ class AccountAchievementsPrototype(utils_prototypes.BasePrototype):
                     'description': achievement.description,
                     'rewards_message': rewards_message})
 
-        personal_messages_logic.send_message(accounts_logic.get_system_user().id, [self.account.id], message, async=True)
+        personal_messages_logic.send_message(accounts_logic.get_system_user().id, [self.account.id], message, asynchronous=True)
 
     def remove_achievement(self, achievement):
         self.achievements.remove_achievement(achievement)

@@ -33,8 +33,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='heropreferences',
             name='hero',
-            field=models.ForeignKey(to='heroes.Hero'),
-            preserve_default=True,
+            field=models.ForeignKey(to='heroes.Hero', on_delete=models.CASCADE),
+            preserve_default=True
         ),
         migrations.AddField(
             model_name='heropreferences',
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='hero',
             name='account',
-            field=models.ForeignKey(related_name='heroes', default=None, blank=True, to=settings.AUTH_USER_MODEL, null=True),
+            field=models.ForeignKey(related_name='heroes', default=None, blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(

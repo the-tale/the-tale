@@ -66,7 +66,8 @@ class CodeTests(utils_testcase.TestCase):
                                                'unittest',
                                                'tt_protocol',
                                                'tt_diary',
-                                               'tt_logic']))
+                                               'tt_logic',
+                                               'sentry_sdk']))
 
     def test_only_absolute_imports__import(self):
 

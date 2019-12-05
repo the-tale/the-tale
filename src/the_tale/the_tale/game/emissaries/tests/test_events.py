@@ -339,7 +339,7 @@ class ClanLevelUpMixin(BaseEventsMixin):
         clans_tt_services.currencies.cmd_change_balance(account_id=self.clan.id,
                                                         type='test',
                                                         amount=1005000000,
-                                                        async=False,
+                                                        asynchronous=False,
                                                         autocommit=True,
                                                         currency=clans_relations.CURRENCY.EXPERIENCE)
 
@@ -549,7 +549,7 @@ class ReservesSearchTests(BaseEventsMixin, utils_testcase.TestCase):
         clans_tt_services.currencies.cmd_change_balance(account_id=self.clan.id,
                                                         type='test',
                                                         amount=value,
-                                                        async=False,
+                                                        asynchronous=False,
                                                         autocommit=True,
                                                         restrictions=restrictions,
                                                         currency=clans_relations.CURRENCY.ACTION_POINTS)
@@ -690,7 +690,7 @@ class CountedEventMixin:
         tt_services.events_currencies.cmd_change_balance(account_id=self.concrete_event.resource_id(self.emissary),
                                                          type='test',
                                                          amount=amount,
-                                                         async=False,
+                                                         asynchronous=False,
                                                          autocommit=True,
                                                          currency=self.EVENT_CURRENCY)
 

@@ -85,7 +85,7 @@ class AccountClanProcessor(utils_views.BaseViewProcessor):
             setattr(context, self.clan_attribute, None)
             return
 
-        clan = account.clan if account.is_authenticated() else None
+        clan = account.clan if account.is_authenticated else None
 
         setattr(context, self.clan_attribute, clan)
 

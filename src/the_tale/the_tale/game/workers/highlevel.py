@@ -91,8 +91,8 @@ class Worker(utils_workers.BaseWorker):
                     politic_power_logic.sync_power()
                     places_logic.sync_fame()
                     places_logic.sync_money()
-                except tt_api_exceptions.TTAPIError:
-                    raven_client.captureException()
+                except tt_api_exceptions.TTAPIError as e:
+                    sentry_sdk.capture_exception(e)
                     self.logger.exception('Error while syncing powers')
 
                 # обрабатывает работы только во время запланированного обновления

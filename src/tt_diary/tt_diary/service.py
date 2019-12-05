@@ -8,7 +8,7 @@ from . import operations
 
 
 async def on_startup(app):
-    await postgresql.initialize(app['config']['database'], loop=app.loop)
+    await postgresql.initialize(app['config']['database'])
 
     await operations.initialize_timestamps_cache()
 
@@ -25,8 +25,8 @@ def register_routers(app):
     app.router.add_post('/diary', handlers.diary)
 
 
-def create_application(config, loop=None):
-    app = web.Application(loop=loop)
+def create_application(config):
+    app = web.Application()
 
     app['config'] = config
 

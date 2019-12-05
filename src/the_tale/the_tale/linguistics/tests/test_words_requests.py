@@ -109,7 +109,7 @@ class NewRequestsTests(BaseRequestsTests):
                     continue
                 texts.append(('%s_%d ' % (forms.WORD_FIELD_PREFIX, index)))
 
-            self.check_html_ok(self.request_html(requested_url), texts=texts)
+            self.check_html_ok(self.request_html(requested_url), texts=texts[:3])
 
     def test_displaying_fields_for_all_forms__with_parent(self):
         for word_type in utg_relations.WORD_TYPE.records:

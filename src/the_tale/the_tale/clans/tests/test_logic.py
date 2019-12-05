@@ -1218,7 +1218,7 @@ class ResetFreeQuestsTests(BaseClanTests):
         status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=self.clan.id,
                                                                                  type='test',
                                                                                  amount=-amount,
-                                                                                 async=False,
+                                                                                 asynchronous=False,
                                                                                  autocommit=True,
                                                                                  currency=relations.CURRENCY.FREE_QUESTS)
 

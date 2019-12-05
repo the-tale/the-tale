@@ -63,7 +63,7 @@ class Client(client.Client):
                            account_id,
                            type,
                            amount,
-                           async=False,
+                           asynchronous=False,
                            autocommit=False,
                            currency=None,
                            restrictions=Restrictions(),
@@ -79,7 +79,7 @@ class Client(client.Client):
         else:
             currency = currency.value
 
-        if async and not autocommit:
+        if asynchronous and not autocommit:
             raise exceptions.AutocommitRequiredForAsyncTransaction
 
         applied_operations = [tt_protocol_bank_pb2.Operation(account_id=account_id,
@@ -89,7 +89,7 @@ class Client(client.Client):
 
         restrictions = s11n.to_json(restrictions.serialize())
 
-        if not async:
+        if not asynchronous:
             try:
                 answer = operations.sync_request(url=self.url('transactions/start'),
                                                  data=tt_protocol_bank_pb2.StartTransactionRequest(lifetime=transaction_lifetime,
@@ -133,7 +133,7 @@ class Client(client.Client):
             success, transaction_id = self.cmd_change_balance(account_id=account_id,
                                                               type=type,
                                                               amount=amount,
-                                                              async=False,
+                                                              asynchronous=False,
                                                               autocommit=False,
                                                               currency=currency)
 

@@ -175,7 +175,7 @@ class AddBonusEnergy(ModificatorBase):
         game_tt_services.energy.cmd_change_balance(account_id=task.hero.account_id,
                                                    type='card',
                                                    amount=int(self.modificator),
-                                                   async=True,
+                                                   asynchronous=True,
                                                    autocommit=True)
         return task.logic_result()
 
@@ -1210,7 +1210,7 @@ class AddClansPoints(InvertModificatorBase):
         status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
                                                                                  type='card',
                                                                                  amount=self.upper_modificator,
-                                                                                 async=False,
+                                                                                 asynchronous=False,
                                                                                  autocommit=True,
                                                                                  currency=clans_relations.CURRENCY.ACTION_POINTS,
                                                                                  restrictions=restrictions)
@@ -1293,7 +1293,7 @@ class EmissaryQuest(BaseEffect):
             status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=membership.clan_id,
                                                                                      type='emissary_quest_card',
                                                                                      amount=-1,
-                                                                                     async=False,
+                                                                                     asynchronous=False,
                                                                                      autocommit=True,
                                                                                      currency=clans_relations.CURRENCY.FREE_QUESTS)
 

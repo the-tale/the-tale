@@ -202,7 +202,7 @@ class Hero(logic_accessors.LogicAccessorsMixin,
             personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                                  recipients_ids=[self.account_id],
                                                  body='Поздравляем, Ваш герой получил {} уровень!'.format(self.level),
-                                                 async=True)
+                                                 asynchronous=True)
 
     def add_experience(self, value, without_modifications=False):
         real_experience = int(value) if without_modifications else int(value * self.experience_modifier)

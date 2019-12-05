@@ -627,7 +627,7 @@ def add_clan_experience():
         clans_tt_services.currencies.cmd_change_balance(account_id=event.emissary.clan_id,
                                                         type='event_experience',
                                                         amount=experience,
-                                                        async=False,
+                                                        asynchronous=False,
                                                         autocommit=True,
                                                         currency=clans_relations.CURRENCY.EXPERIENCE)
 
@@ -664,7 +664,7 @@ def change_event_points(resource_id, type, currency, amount):
     tt_services.events_currencies.cmd_change_balance(account_id=resource_id,
                                                      type=type,
                                                      amount=amount,
-                                                     async=False,
+                                                     asynchronous=False,
                                                      autocommit=True,
                                                      restrictions=restrictions,
                                                      currency=currency)

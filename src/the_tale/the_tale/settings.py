@@ -24,7 +24,7 @@ SENTRY_RAVEN_CONFIG = None
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'the_tale',
         'USER': 'the_tale',
         'PASSWORD': 'the_tale',
@@ -284,8 +284,10 @@ except Exception:  # pylint: disable=W0702,W0703
 
 
 if SENTRY_RAVEN_CONFIG:
-    INSTALLED_APPS.append('raven.contrib.django.raven_compat')
-    RAVEN_CONFIG = SENTRY_RAVEN_CONFIG
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    sentry_sdk.init(SENTRY_RAVEN_CONFIG['dsn'],
+                    integrations=[DjangoIntegration()])
 
 
 if RUNSERVER_RUNNING:
@@ -367,12 +369,6 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler',
-            'formatter': 'verbose'
-        },
-        'sentry': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
             'formatter': 'verbose'
         },
         'console': {

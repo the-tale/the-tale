@@ -15,7 +15,7 @@ class PlacesStorage(utils_storage.Storage):
         return logic.save_place(place)
 
     def _get_all_query(self):
-        return models.Place.objects.all()
+        return list(models.Place.objects.all())
 
     def get_choices(self, exclude=()):
         self.sync()

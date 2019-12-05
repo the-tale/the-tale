@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('type', rels.django.RelationIntegerField(default=0, db_index=True)),
                 ('source', rels.django.RelationIntegerField(db_index=True)),
                 ('entity_id', models.BigIntegerField(db_index=True)),
-                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('account', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -65,8 +65,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('variable', models.CharField(max_length=32, db_index=True)),
-                ('restriction', models.ForeignKey(to='linguistics.Restriction')),
-                ('template', models.ForeignKey(to='linguistics.Template')),
+                ('restriction', models.ForeignKey(to='linguistics.Restriction', on_delete=models.CASCADE)),
+                ('template', models.ForeignKey(to='linguistics.Template', on_delete=models.CASCADE)),
             ],
             options={
             },

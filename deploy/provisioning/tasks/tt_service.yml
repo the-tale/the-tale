@@ -31,31 +31,30 @@
   become_user: "{{user}}"
   tasks:
 
+    - name: create environment and install helpfull packages
+      pip:
+        name: "{{item.name}}"
+        virtualenv: "/home/{{user}}/current/venv"
+        virtualenv_command: "{{tt_python_venv_command}}"
+        extra_args: "--upgrade"
+      with_items:
+        - {name: "pip"}
+        - {name: "ipython"}
+
     - name: create environment
       pip:
         name: "{{item.name}}"
         virtualenv: "/home/{{user}}/current/venv"
-        virtualenv_command: virtualenv
-        virtualenv_python: python3.5
+        virtualenv_command: "{{tt_python_venv_command}}"
         editable: "{{item.editable}}"
         extra_args: "{{item.extra}}"
       with_items: "{{packages}}"
-
-    - name: install helpfull packages
-      pip:
-        name: "{{item.name}}"
-        virtualenv: "/home/{{user}}/current/venv"
-        virtualenv_command: virtualenv
-        virtualenv_python: python3.5
-      with_items:
-        - {name: "ipython"}
 
     - name: install packages for test environment
       pip:
         name: "{{item.name}}"
         virtualenv: "/home/{{user}}/current/venv"
-        virtualenv_command: virtualenv
-        virtualenv_python: python3.5
+        virtualenv_command: "{{tt_python_venv_command}}"
       with_items:
         - {name: django-test-without-migrations}
       when: tt_test_enviroment
@@ -63,7 +62,7 @@
     - name: install settings.py
       template:
         src: "{{tt_services[user]['settings_local']}}"
-        dest: "/home/{{user}}/current/venv/lib/python3.5/site-packages/the_tale/settings_local.py"
+        dest: "/home/{{user}}/current/venv/lib/{{tt_python}}/site-packages/the_tale/settings_local.py"
         mode: 0644
         owner: "{{user}}"
         group: "{{user}}"

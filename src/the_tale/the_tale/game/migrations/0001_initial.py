@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('account', models.ForeignKey(related_name='+', on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL)),
-                ('task', models.ForeignKey(related_name='+', to='game.SupervisorTask')),
+                ('task', models.ForeignKey(related_name='+', to='game.SupervisorTask', on_delete=models.CASCADE)),
             ],
             options={
             },

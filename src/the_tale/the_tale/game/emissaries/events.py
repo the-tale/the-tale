@@ -389,7 +389,7 @@ class ClanLevelUpMixin:
         success, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=emissary.clan_id,
                                                                                   type='level_up_{}'.format(self.PROPERTY.name).lower(),
                                                                                   amount=-required_experience,
-                                                                                  async=False,
+                                                                                  asynchronous=False,
                                                                                   autocommit=False,
                                                                                   currency=clans_relations.CURRENCY.EXPERIENCE,
                                                                                   transaction_lifetime=transaction_lifetime)
@@ -493,7 +493,7 @@ class Training(EventBase):
         status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=event.emissary.clan_id,
                                                                                  type='training_experience',
                                                                                  amount=experience,
-                                                                                 async=False,
+                                                                                 asynchronous=False,
                                                                                  autocommit=True,
                                                                                  currency=clans_relations.CURRENCY.EXPERIENCE)
         return status
@@ -524,7 +524,7 @@ class ReservesSearch(EventBase):
         status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=event.emissary.clan_id,
                                                                                  type='reserves_search',
                                                                                  amount=action_points,
-                                                                                 async=False,
+                                                                                 asynchronous=False,
                                                                                  autocommit=True,
                                                                                  restrictions=restrictions,
                                                                                  currency=clans_relations.CURRENCY.ACTION_POINTS)

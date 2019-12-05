@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('application_info', models.CharField(max_length=100)),
                 ('application_description', models.TextField()),
                 ('state', rels.django.RelationIntegerField()),
-                ('account', models.ForeignKey(default=None, to=settings.AUTH_USER_MODEL, null=True)),
+                ('account', models.ForeignKey(default=None, to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
             ],
         ),
     ]

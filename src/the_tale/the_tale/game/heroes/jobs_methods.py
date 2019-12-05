@@ -48,7 +48,7 @@ class JobsMethodsMixin(object):
         game_tt_services.energy.cmd_change_balance(account_id=self.account_id,
                                                    type='job_energy',
                                                    amount=energy,
-                                                   async=True,
+                                                   asynchronous=True,
                                                    autocommit=True)
 
         self.add_message(message_type, diary=True, hero=self, energy=energy, **self.get_job_variables(place_id, person_id))

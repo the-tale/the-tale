@@ -42,4 +42,4 @@ def portal_day_started(sender, **kwargs):
     personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                          recipients_ids=[account.id],
                                          body=message,
-                                         async=True)
+                                         asynchronous=True)

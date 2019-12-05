@@ -142,7 +142,7 @@ def register_user(nick,
         game_tt_services.energy.cmd_change_balance(account_id=account.id,
                                                    type='initial_contribution',
                                                    amount=c.INITIAL_ENERGY_AMOUNT,
-                                                   async=False,
+                                                   asynchronous=False,
                                                    autocommit=True)
 
         create_cards_timer(account.id)

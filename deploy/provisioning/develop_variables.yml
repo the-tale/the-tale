@@ -5,6 +5,8 @@ tt_log_level: debug
 tt_site_workers: 1
 tt_install_nginx: True
 tt_install_postfix: True
+tt_python: python3.8
+tt_python_venv_command: /usr/bin/python3.8 -m venv
 
 tt_postfix_virtual_aliases: {}
 

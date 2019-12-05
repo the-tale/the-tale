@@ -17,7 +17,7 @@ def main():
 
     config = utils.load_config(args.config)
 
-    async def utility(loop):
+    async def utility():
         await operations.rollback_hanged_transactions()
 
     service.run_utility(config, utility)

@@ -11,7 +11,7 @@ from .. import operations
 class BaseTests(web_helpers.BaseTests):
 
     def create_application(self):
-        return service.create_application(get_config(), loop=self.loop)
+        return service.create_application(get_config(), start_timers_loop=False)
 
     async def clean_environment(self, app=None):
         semaphore.clear()

@@ -15,7 +15,7 @@ class BaseTests(test_utils.AioHTTPTestCase):
         super().setUp()
         asyncio.set_event_loop(self.loop)
 
-    def get_app(self, loop):
+    def get_app(self):
         application = self.create_application()
 
         application.on_startup.append(self.clean_environment)
@@ -53,7 +53,7 @@ class BaseTests(test_utils.AioHTTPTestCase):
         pass
 
     def create_application(self):
-        app = web.Application(loop=self.loop)
+        app = web.Application()
 
         app['config'] = {}
 

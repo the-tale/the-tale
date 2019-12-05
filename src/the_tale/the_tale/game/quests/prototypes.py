@@ -589,7 +589,7 @@ class QuestPrototype(object):
         game_tt_services.energy.cmd_change_balance(account_id=self.hero.account_id,
                                                    type='for_quest',
                                                    amount=energy,
-                                                   async=True,
+                                                   asynchronous=True,
                                                    autocommit=True)
 
     def _give_reward(self, hero, reward_type, scale):

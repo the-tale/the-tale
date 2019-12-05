@@ -132,14 +132,14 @@ def create_clan(owner, abbr, name, motto, description):
     tt_services.currencies.cmd_change_balance(account_id=clan.id,
                                               type='initial',
                                               amount=tt_clans_constants.INITIAL_POINTS,
-                                              async=False,
+                                              asynchronous=False,
                                               autocommit=True,
                                               currency=relations.CURRENCY.ACTION_POINTS)
 
     tt_services.currencies.cmd_change_balance(account_id=clan.id,
                                               type='initial',
                                               amount=tt_clans_constants.INITIAL_FREE_QUESTS,
-                                              async=False,
+                                              asynchronous=False,
                                               autocommit=True,
                                               currency=relations.CURRENCY.FREE_QUESTS)
 
@@ -622,7 +622,7 @@ def give_points_for_time(clan_id, interval):
     status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
                                                                              type='time',
                                                                              amount=amount,
-                                                                             async=False,
+                                                                             asynchronous=False,
                                                                              autocommit=True,
                                                                              restrictions=restrictions,
                                                                              currency=relations.CURRENCY.ACTION_POINTS)
@@ -640,7 +640,7 @@ def reset_free_quests(clan_id):
     status, transaction_id = clans_tt_services.currencies.cmd_change_balance(account_id=clan_id,
                                                                              type='time',
                                                                              amount=tt_clans_constants.MAXIMUM_FREE_QUESTS,
-                                                                             async=False,
+                                                                             asynchronous=False,
                                                                              autocommit=True,
                                                                              restrictions=restrictions,
                                                                              currency=relations.CURRENCY.FREE_QUESTS)

@@ -212,7 +212,7 @@ class TransferMoneyTask(PostponedLogic):
             personal_messages_logic.send_message(sender_id=logic.get_system_user_id(),
                                                  recipients_ids=[self.recipient.id],
                                                  body=message,
-                                                 async=True)
+                                                 asynchronous=True)
 
             self.state = self.STATE.PROCESSED
             self.step = self.STEP.SUCCESS

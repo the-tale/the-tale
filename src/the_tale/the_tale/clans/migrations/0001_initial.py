@@ -54,9 +54,9 @@ class Migration(migrations.Migration):
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('type', rels.django.RelationIntegerField()),
                 ('text', models.TextField(max_length=1024)),
-                ('account', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
-                ('clan', models.ForeignKey(to='clans.Clan')),
-                ('initiator', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL)),
+                ('account', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('clan', models.ForeignKey(to='clans.Clan', on_delete=models.CASCADE)),
+                ('initiator', models.ForeignKey(related_name='+', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },

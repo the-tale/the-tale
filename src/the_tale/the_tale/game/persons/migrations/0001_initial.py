@@ -42,8 +42,8 @@ class Migration(migrations.Migration):
                 ('out_game_at_turn', models.BigIntegerField(default=None, null=True)),
                 ('connection', rels.django.RelationIntegerField()),
                 ('state', rels.django.RelationIntegerField()),
-                ('person_1', models.ForeignKey(related_name='+', to='persons.Person')),
-                ('person_2', models.ForeignKey(related_name='+', to='persons.Person')),
+                ('person_1', models.ForeignKey(related_name='+', to='persons.Person', on_delete=models.CASCADE)),
+                ('person_2', models.ForeignKey(related_name='+', to='persons.Person', on_delete=models.CASCADE)),
             ],
             options={
             },

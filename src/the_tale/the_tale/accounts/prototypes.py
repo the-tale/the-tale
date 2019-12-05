@@ -195,7 +195,7 @@ class AccountPrototype(utils_prototypes.BasePrototype):
 ''' % {'verbose_timedelta': utils_logic.verbose_timedelta(self.premium_end_at - current_time),
             'shop_link': '[url="%s"]магазина[/url]' % utils_urls.full_url('https', 'shop:')}
 
-        personal_messages_logic.send_message(logic.get_system_user_id(), [self.id], message, async=True)
+        personal_messages_logic.send_message(logic.get_system_user_id(), [self.id], message, asynchronous=True)
 
     @utils_decorators.lazy_property
     def bank_account(self):
@@ -491,7 +491,7 @@ class RandomPremiumRequestPrototype(utils_prototypes.BasePrototype):
             account.prolong_premium(self.days)
             account.save()
 
-            personal_messages_logic.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, async=True)
+            personal_messages_logic.send_message(logic.get_system_user_id(), [account.id], self.MESSAGE % {'days': self.days}, asynchronous=True)
 
             self.receiver_id = account.id
             self.state = relations.RANDOM_PREMIUM_REQUEST_STATE.PROCESSED

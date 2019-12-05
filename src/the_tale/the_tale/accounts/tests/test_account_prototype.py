@@ -131,21 +131,20 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
                                                                          order=0,
                                                                          restricted=True)
 
-        clan_model = clans_models.Clan.objects.create(name='xxx',
-                                                      abbr='yyy',
-                                                      motto='zzz',
-                                                      description='qqq',
-                                                      members_number=0,
-                                                      forum_subcategory=forum_subcategory._model)
+        clan = clans_logic.create_clan(owner=self.accounts_factory.create_account(),
+                                       name='xxx',
+                                       abbr='yyy',
+                                       motto='zzz',
+                                       description='qqq')
 
         with mock.patch('the_tale.game.workers.supervisor.Worker.cmd_update_hero_with_account_data') as cmd_update_hero_with_account_data:
-            self.account.set_clan_id(clan_model.id)
+            self.account.set_clan_id(clan.id)
 
-        self.assertEqual(self.account.clan_id, clan_model.id)
-        self.assertEqual(models.Account.objects.get(id=self.account.id).clan_id, clan_model.id)
+        self.assertEqual(self.account.clan_id, clan.id)
+        self.assertEqual(models.Account.objects.get(id=self.account.id).clan_id, clan.id)
 
         self.assertEqual(cmd_update_hero_with_account_data.call_count, 1)
-        self.assertEqual(cmd_update_hero_with_account_data.call_args[1]['clan_id'], clan_model.id)
+        self.assertEqual(cmd_update_hero_with_account_data.call_args[1]['clan_id'], clan.id)
 
     def test_ban_game(self):
         self.assertFalse(self.account.is_ban_game)
