@@ -204,8 +204,6 @@ ANGEL_ARENA_COST = int(1)
 ANGEL_ARENA_QUIT_COST = int(0)
 ANGEL_DROP_ITEM_COST = int(1)
 
-ANGEL_HELP_HEAL_IF_LOWER_THEN = float(0.8)  # можем лечить если здоровья меньше чем
-
 ANGEL_HELP_HEAL_FRACTION = (float(0.25), float(0.5))  # (min, max) процент хелсов, которые будут вылечины
 ANGEL_HELP_TELEPORT_DISTANCE = float(1.0)  # расстяние на которое происходит телепорт
 ANGEL_HELP_LIGHTING_FRACTION = (float(0.25), float(0.5))  # (min, max) процент урона, который будет нанесён
