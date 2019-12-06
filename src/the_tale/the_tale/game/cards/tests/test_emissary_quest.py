@@ -169,6 +169,21 @@ class EmissaryQuestsTest(helpers.CardsTestMixin,
         with self.check_not_changed(lambda: self.emissary_power()):
             self.complete_quest(self.hero)
 
+    def test_clan_exceeed_fighters_limit(self):
+
+        for i in range(clans_logic.load_attributes(self.clan.id).fighters_maximum + 1):
+            clans_logic._add_member(clan=self.clan,
+                                    account=self.accounts_factory.create_account(),
+                                    role=clans_relations.MEMBER_ROLE.COMANDOR)
+
+        self.assertFalse(clans_logic.is_clan_in_fighters_limit(self.clan.id, delta=0))
+
+        with self.check_free_quests_change(0):
+            self.use_card(success=False, available_for_auction=False)
+
+        with self.check_not_changed(lambda: self.emissary_power()):
+            self.complete_quest(self.hero)
+
     def test_emissary_hero_in_pvp(self):
         pvp_tt_services.matchmaker.cmd_debug_clear_service()
 

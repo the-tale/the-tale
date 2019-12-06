@@ -209,9 +209,7 @@ class ActionBase(object):
         choices = copy.copy(self.HELP_CHOICES)
 
         if abilities_relations.HELP_CHOICES.HEAL in choices:
-            if len(choices) > 1 and not self.hero.can_be_healed(strict=False):
-                choices.remove(abilities_relations.HELP_CHOICES.HEAL)
-            elif not self.hero.can_be_healed(strict=True):
+            if not self.hero.can_be_healed():
                 choices.remove(abilities_relations.HELP_CHOICES.HEAL)
 
         if abilities_relations.HELP_CHOICES.HEAL_COMPANION in choices:

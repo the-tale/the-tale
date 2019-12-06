@@ -92,11 +92,8 @@ class LogicAccessorsMixin(object):
 
         return random.uniform(0, 1) <= battles_per_turn
 
-    def can_be_healed(self, strict=False):
-        if strict:
-            return self.is_alive and self.max_health > self.health
-
-        return self.is_alive and (c.ANGEL_HELP_HEAL_IF_LOWER_THEN * self.max_health > self.health)
+    def can_be_healed(self):
+        return self.is_alive and self.max_health > self.health
 
     @property
     def need_rest_in_settlement(self):

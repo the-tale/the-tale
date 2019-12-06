@@ -662,19 +662,26 @@ def get_combat_personnel(clan_id):
                if relations.PERMISSION.EMISSARIES_QUESTS in membership.role.permissions)
 
 
-def is_role_change_get_into_limit(clan_id, old_role, new_role):
-
-    if new_role.is_RECRUIT:
-        return True
+def is_clan_in_fighters_limit(clan_id, delta):
 
     attributes = logic.load_attributes(clan_id)
 
     combat_personnel = get_combat_personnel(clan_id)
 
+    return combat_personnel + delta <= attributes.fighters_maximum
+
+
+def is_role_change_get_into_limit(clan_id, old_role, new_role):
+
+    if new_role.is_RECRUIT:
+        return True
+
+    delta = 0
+
     if relations.PERMISSION.EMISSARIES_QUESTS in old_role.permissions:
-        combat_personnel -= 1
+        delta -= 1
 
     if relations.PERMISSION.EMISSARIES_QUESTS in new_role.permissions:
-        combat_personnel += 1
+        delta += 1
 
-    return combat_personnel <= attributes.fighters_maximum
+    return is_clan_in_fighters_limit(clan_id, delta)

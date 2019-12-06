@@ -71,11 +71,6 @@ class GeneralTest(utils_testcase.TestCase):
         self.hero.health = self.hero.max_health - 1
         self.check_heal_in_choices(True)
 
-    @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((abilities_relations.HELP_CHOICES.HEAL, abilities_relations.HELP_CHOICES.MONEY)))
-    def test_help_choice_has_heal__for_large_health_with_alternative(self):
-        self.hero.health = self.hero.max_health - 1
-        self.check_heal_in_choices(False)
-
     @mock.patch('the_tale.game.actions.prototypes.ActionIdlenessPrototype.HELP_CHOICES', set((abilities_relations.HELP_CHOICES.HEAL,)))
     def test_help_choice_has_heal__for_low_health_without_alternative(self):
         self.hero.health = 1

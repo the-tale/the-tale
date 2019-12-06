@@ -1397,6 +1397,19 @@ class ChangeOwnershipTests(BaseMembershipRequestsTests):
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_COMANDOR)
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account_2).is_MASTER)
 
+    def test_fighters_limit(self):
+        for i in range(clans_logic.load_attributes(self.clan.id).fighters_maximum - 1):
+            clans_logic._add_member(clan=self.clan,
+                                    account=self.accounts_factory.create_account(),
+                                    role=clans_relations.MEMBER_ROLE.COMANDOR)
+
+        self.assertTrue(clans_logic.is_clan_in_fighters_limit(self.clan.id, delta=0))
+
+        self.check_ajax_error(self.post_ajax_json(self.change_ownership_url), 'clans.fighters_maximum')
+
+        self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_MASTER)
+        self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account_2).is_RECRUIT)
+
 
 class TestEditMemberRequests(BaseTestRequests):
 

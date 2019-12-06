@@ -726,6 +726,15 @@ def change_role(context):
 @ClanMemberOperationAccessProcessor(permission='can_change_owner')
 @resource('#clan', 'change-ownership', method='POST')
 def change_ownership(context):
+
+    if not logic.is_role_change_get_into_limit(context.current_clan.id,
+                                               # старая роль нового владельца
+                                               old_role=logic.get_membership(context.target_account.id).role,
+                                               # будущая роль старого владельца
+                                               new_role=relations.MEMBER_ROLE.COMANDOR):
+        raise dext_views.ViewError(code='clans.fighters_maximum',
+                                   message='Передача владения гильдией этому Хранителю приведёт к превышению максимального количества боевого состава гильдии.')
+
     logic.change_ownership(clan=context.current_clan,
                            initiator=context.account,
                            member=context.target_account)
