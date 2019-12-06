@@ -1270,6 +1270,10 @@ class EmissaryQuest(BaseEffect):
                                                     clan=clan,
                                                     is_moderator=False)
 
+        if not clans_logic.is_clan_in_fighters_limit(clan.id, delta=0):
+            return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
+                                     message='Боевой состав гильдии превышает допустимый максимум. Вы не можете выполнять задания эмиссаров, пока не уменьшите количетсво членов гильдии, способных выполнять задания эмиссаров.')
+
         if not clan_rights.can_emissaries_quests():
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR,
                                      message='У вас недостаточно прав, чтобы выполнять задания эмиссаров. Выполнять задания эмиссаров могут Хранители со званием «боец» или выше.')
