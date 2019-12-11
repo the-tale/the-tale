@@ -26,7 +26,8 @@
 {% elif type.is_BILL %}
   запись <a href="{{url('game:bills:show', id)}}">{{bills[id].caption}}</a>
 {% elif type.is_EMISSARY %}
-{{emissaries_macros.emissary_verbose(emissaries_storage.get_or_load(id), description=false, clan=clans[emissaries_storage[id].clan_id], show_place=true)}}
+{% set emissary = emissaries_storage.get_or_load(id) %}
+{{emissaries_macros.emissary_verbose(emissary, description=false, clan=clans[emissary.clan_id], show_place=true)}}
 {% else %}
 Неизвестно <i class="icon icon-info-sign" rel="tooltip" title="Скорее всего удалённый аккаунт"></i>
 {% endif %}

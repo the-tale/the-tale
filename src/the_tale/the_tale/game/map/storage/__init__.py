@@ -245,7 +245,7 @@ class CellsStorage:
         self._roads_version = roads_storage.roads.version
         self._map_info_version = map_info.version
 
-    def cells_iterator(self):
+    def _cells_iterator(self):
         for y in range(map_conf.settings.HEIGHT):
             for x in range(map_conf.settings.WIDTH):
                 yield x, y, self._map[y][x]
@@ -294,7 +294,7 @@ class CellsStorage:
     def reset(self):
         from the_tale.game.places import storage as places_storage
 
-        for x, y, cell in self.cells_iterator():
+        for x, y, cell in self._cells_iterator():
             cell.reset()
 
         self._places_terrains = {place.id: set() for place in places_storage.places.all()}
@@ -302,11 +302,11 @@ class CellsStorage:
         self._places_cells = {place.id: [] for place in places_storage.places.all()}
 
     def sync_terrain(self):
-        for x, y, cell in self.cells_iterator():
+        for x, y, cell in self._cells_iterator():
             cell.terrain = map_info.item.terrain[y][x]
 
     def sync_places_caches(self):
-        for x, y, cell in self.cells_iterator():
+        for x, y, cell in self._cells_iterator():
             if cell.dominant_place_id is None:
                 continue
 
@@ -315,11 +315,11 @@ class CellsStorage:
             self._places_cells[cell.dominant_place_id].append((x, y))
 
     def sync_transport(self):
-        for x, y, cell in self.cells_iterator():
+        for x, y, cell in self._cells_iterator():
             cell.transport = sum(value for name, value in cell.transport_effects())
 
     def sync_safety(self):
-        for x, y, cell in self.cells_iterator():
+        for x, y, cell in self._cells_iterator():
             cell.safety = sum(value for name, value in cell.safety_effects())
 
     def find_path_to_place(self, from_x, from_y, to_place_id, cost_modifiers, risk_level):
