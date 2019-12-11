@@ -217,7 +217,7 @@ class Relocation(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        return 'Перемещает эмиссара в другой город.'
+        return 'По завершении мероприятия эмиссар перемещается в указанный город, его влияние становится равным {power}.'.format(power=logic.expected_power_per_day())
 
     def event_description(self, emissary):
         return 'Перемещает эмиссара в {}.'.format(places_storage.places[self.place_id].utg_name.forms[3])
