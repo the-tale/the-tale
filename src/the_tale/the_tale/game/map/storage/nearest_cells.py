@@ -75,6 +75,30 @@ def _get_dominant_place_id_by_position(x, y):
     return nearest_place_id
 
 
+def _get_place_politic_power_on_road(road, x, y):
+    if road.place_1.attrs.politic_radius + road.place_2.attrs.politic_radius == 0:
+        # initial or test map
+        border = 0.5
+    else:
+        border = road.place_1.attrs.politic_radius / (road.place_1.attrs.politic_radius + road.place_2.attrs.politic_radius)
+
+    cells = road.get_cells()
+
+    cell_index = cells.index((x, y))
+
+    cell_percents = cell_index / (len(cells) - 1)
+
+    if cell_percents < border:
+        target_place = road.place_1
+    else:
+        target_place = road.place_2
+        cell_percents = 1.0 - cell_percents
+
+    place_power = (1.0 - cell_percents) * road.place_1.attrs.politic_radius
+
+    return target_place, place_power
+
+
 def _get_dominant_place_id_by_roads(map, x, y):
     dominant_place_id = None
     dominant_place_power = -1
@@ -82,24 +106,7 @@ def _get_dominant_place_id_by_roads(map, x, y):
     for road_id in map[y][x].roads_ids:
         road = roads_storage.roads[road_id]
 
-        if road.place_1.attrs.politic_radius + road.place_2.attrs.politic_radius == 0:
-            # initial or test map
-            border = 0.5
-        else:
-            border = road.place_1.attrs.politic_radius / (road.place_1.attrs.politic_radius + road.place_2.attrs.politic_radius)
-
-        cells = road.get_cells()
-
-        cell_index = cells.index((x, y))
-
-        cell_percents = cell_index / (len(cells) - 1)
-
-        if cell_percents < border:
-            target_place = road.place_1
-        else:
-            target_place = road.place_2
-
-        place_power = cell_percents * road.place_1.attrs.politic_radius
+        target_place, place_power = _get_place_politic_power_on_road(road, x, y)
 
         if dominant_place_power < place_power:
             dominant_place_power = place_power
