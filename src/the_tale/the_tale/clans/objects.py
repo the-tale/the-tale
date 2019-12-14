@@ -207,6 +207,9 @@ class OperationsRights(metaclass=OperationsMetaClass):
 
         return result
 
+    def can_change_owner(self, membership):
+        return self._can_change_owner(membership) and self.can_change_role(membership)
+
     def change_role_candidates(self):
         if self.is_moderator:
             return [role for role in relations.MEMBER_ROLE.records
