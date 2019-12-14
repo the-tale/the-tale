@@ -402,6 +402,29 @@ class StartEventTests(BaseRequestsTests):
                 with self.check_decreased(get_points):
                     self.check_ajax_ok(self.post_ajax_json(self.url, self.get_post_data()))
 
+    def test_success__event_saved(self):
+
+        self.emissary.place_rating_position = 0
+        logic.save_emissary(self.emissary)
+
+        url = dext_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.ARTISANS_SUPPORT.value)
+
+        self.check_ajax_ok(self.post_ajax_json(url, self.get_post_data()))
+
+        emissary_events = storage.events.emissary_events(self.emissary.id)
+
+        self.assertEqual(len(emissary_events), 1)
+
+        new_event = emissary_events[0]
+
+        effect = places_storage.effects[new_event.concrete_event.effect_id]
+
+        self.assertTrue(effect.attribute.is_PRODUCTION)
+
+        loaded_event = logic.load_event(new_event.id)
+
+        self.assertEqual(loaded_event.concrete_event.effect_id, new_event.concrete_event.effect_id)
+
     def test_banned(self):
         self.account_1.ban_game(1)
 

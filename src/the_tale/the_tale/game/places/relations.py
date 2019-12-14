@@ -45,7 +45,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                                description='Радиус в котором город изменяет мир (в клетках).'),
                attributes.attr('POLITIC_RADIUS', 3, 'радиус владений', verbose_units='кл', order=2, formatter=attributes.float_formatter,
                                description='Максимальное расстояние, на которое могут распространяться границы владений города (в клетках).'),
-               attributes.attr('PRODUCTION', 4, 'производство', formatter=int,
+               attributes.attr('PRODUCTION', 4, 'производство', formatter=int, order=3,  # после POLITIC_RADIUS
                                description='Скорость производства товаров. Зависит от размера экономики города, площади владений, Мастеров и многих других эффектов. Если производство станет меньше нуля при отсутствии товаров на складах города и его единичном размере, то в городе начнётся производственный кризис. Для разрешения кризиса будет введена пошлина для всех проходящих героев.'),
                attributes.attr('GOODS', 5, 'товары', type=attributes.ATTRIBUTE_TYPE.CALCULATED, formatter=int,
                                description='Чтобы расти, город должен производить товары. Если их накапливается достаточно, то размер города увеличивается. Если товары кончаются, то уменьшается.'),

@@ -327,6 +327,11 @@ class Place(game_names.ManageNameMixin2):
                 yield effect
 
     def effects_generator(self, order):
+
+        if relations.ATTRIBUTE.PRODUCTION.order == order:
+            # force map to resinc, too recalculate road support cost
+            map_storage.cells.sync(force=True)
+
         # TODO: do something with postchecks
         stability = 0
         culture = 0

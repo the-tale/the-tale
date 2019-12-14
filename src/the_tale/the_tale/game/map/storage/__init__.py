@@ -244,6 +244,12 @@ class CellsStorage:
         self._roads_version = roads_storage.roads.version
         self._map_info_version = map_info.version
 
+    def reset_versions(self):
+        self._places_version = None
+        self._buildings_version = None
+        self._roads_version = None
+        self._map_info_version = None
+
     def _cells_iterator(self):
         for y in range(map_conf.settings.HEIGHT):
             for x in range(map_conf.settings.WIDTH):
@@ -270,6 +276,7 @@ class CellsStorage:
         return self._places_cells[place_id]
 
     def sync(self, force=False):
+
         if not force and not self.is_changed():
             return
 
@@ -292,6 +299,8 @@ class CellsStorage:
 
     def reset(self):
         from the_tale.game.places import storage as places_storage
+
+        self.reset_versions()
 
         for x, y, cell in self._cells_iterator():
             cell.reset()
