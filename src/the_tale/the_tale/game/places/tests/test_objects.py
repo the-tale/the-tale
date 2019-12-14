@@ -129,6 +129,36 @@ class PlaceTests(helpers.PlacesTestsMixin,
 
             self.p1.refresh_attributes()
 
+    def test_refresh_attributes__sync_map_storage_on_production_calculation(self):
+        # тест проверяет, что при изменении радиуса влияния будет корректно пересчитано производство
+        # это требует пересчёта карты, так как карта зависит от радиуса влияния (он определяет владение дорогами),
+        # а дороги определяют траты на их поддержку
+        # так как эффекты в процессе расчёта обрабатываются несколько раз, то в карте появляются неверные данные
+        # (после сброса параметров радиусы влияния обнуляются и замараживаются в момент расчёта эффектов производства,
+        #  которые не идут в расчёт, так как нужны только на следующем проходе).
+
+        tt_services.effects.cmd_debug_clear_service()
+
+        self.p1.attrs.size = 2
+        self.p1.refresh_attributes()
+
+        print(self.p1.attrs.production, self.p1.attrs.size)
+
+        with self.check_not_changed(lambda: self.p1.attrs.production):
+            self.p1.refresh_attributes()
+
+        logic.register_effect(place_id=self.p1.id,
+                              attribute=relations.ATTRIBUTE.CULTURE,
+                              value=10.0,
+                              name='test',
+                              refresh_effects=True)
+
+        print(self.p1.attrs.production, self.p1.attrs.size)
+
+        with self.check_decreased(lambda: self.p1.attrs.production):
+            self.p1.refresh_attributes()
+            print(self.p1.attrs.production, self.p1.attrs.size)
+
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 10)
