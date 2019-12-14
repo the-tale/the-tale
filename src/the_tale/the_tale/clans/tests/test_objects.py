@@ -114,6 +114,36 @@ class TestOperationsRights(utils_testcase.TestCase):
 
             self.assertFalse(rights.can_change_role(membership))
 
+    def test_can_change_role_of_freezed_recruite(self):
+        rights = objects.OperationsRights(clan_id=666,
+                                          initiator_role=relations.MEMBER_ROLE.MASTER,
+                                          is_moderator=False)
+
+        membership = objects.Membership(clan_id=666,
+                                        account_id=777,
+                                        role=relations.MEMBER_ROLE.RECRUIT,
+                                        created_at=datetime.datetime.now(),
+                                        updated_at=datetime.datetime.now())
+
+        self.assertTrue(membership.is_freezed())
+
+        self.assertFalse(rights.can_change_role(membership))
+
+    def test_can_change_owner_for_freezed_recruite(self):
+        rights = objects.OperationsRights(clan_id=666,
+                                          initiator_role=relations.MEMBER_ROLE.MASTER,
+                                          is_moderator=False)
+
+        membership = objects.Membership(clan_id=666,
+                                        account_id=777,
+                                        role=relations.MEMBER_ROLE.RECRUIT,
+                                        created_at=datetime.datetime.now(),
+                                        updated_at=datetime.datetime.now())
+
+        self.assertTrue(membership.is_freezed())
+
+        self.assertFalse(rights.can_change_owner(membership))
+
 
 class TestAttributes(utils_testcase.TestCase):
 

@@ -1376,6 +1376,12 @@ class ChangeOwnershipTests(BaseMembershipRequestsTests):
         self.check_ajax_error(self.post_ajax_json(self.change_ownership_url), 'common.login_required')
         self.assertTrue(models.Membership.objects.filter(account_id=self.account_2.id, role=relations.MEMBER_ROLE.RECRUIT).exists())
 
+    def unfreeze_member(self, account_id):
+        updated_at = datetime.datetime.now() - datetime.timedelta(days=conf.settings.RECRUITE_FREEZE_PERIOD)
+        models.Membership.objects.filter(account_id=account_id).update(updated_at=updated_at)
+
+        self.assertFalse(logic.get_membership(account_id).is_freezed())
+
     def test_wrong_account_id(self):
         self.check_ajax_error(self.post_ajax_json(utils_urls.url('clans:change-ownership', self.clan.id, account=666)),
                               'account.wrong_value')
@@ -1384,6 +1390,8 @@ class ChangeOwnershipTests(BaseMembershipRequestsTests):
         self.assertTrue(models.Membership.objects.filter(account_id=self.account_2.id, role=relations.MEMBER_ROLE.RECRUIT).exists())
 
     def test_no_rights(self):
+        self.unfreeze_member(self.account_2.id)
+
         self.check_no_righs__ajax(self.clan,
                                   url=self.change_ownership_url,
                                   data={},
@@ -1391,13 +1399,36 @@ class ChangeOwnershipTests(BaseMembershipRequestsTests):
 
         self.assertTrue(models.Membership.objects.filter(account_id=self.account_2.id, role=relations.MEMBER_ROLE.RECRUIT).exists())
 
-    def test_success(self):
+    def test_new_recruite(self):
+        self.assertTrue(logic.get_membership(self.account_2.id).is_freezed())
+
+        self.check_ajax_error(self.post_ajax_json(self.change_ownership_url), 'clans.no_rights')
+
+        self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_MASTER)
+        self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account_2).is_RECRUIT)
+
+    def test_success__mature_recruite(self):
+        self.unfreeze_member(self.account_2.id)
+
+        self.check_ajax_ok(self.post_ajax_json(self.change_ownership_url))
+
+        self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_COMANDOR)
+        self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account_2).is_MASTER)
+
+    def test_success__not_recruite(self):
+        logic.change_role(clan=self.clan,
+                          initiator=self.account,
+                          member=self.account_2,
+                          new_role=relations.MEMBER_ROLE.FIGHTER)
+
         self.check_ajax_ok(self.post_ajax_json(self.change_ownership_url))
 
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account).is_COMANDOR)
         self.assertTrue(logic.get_member_role(clan=self.clan, member=self.account_2).is_MASTER)
 
     def test_fighters_limit(self):
+        self.unfreeze_member(self.account_2.id)
+
         for i in range(clans_logic.load_attributes(self.clan.id).fighters_maximum - 1):
             clans_logic._add_member(clan=self.clan,
                                     account=self.accounts_factory.create_account(),
