@@ -303,6 +303,8 @@ def start_event(context):
 
                 concrete_event.after_create(event)
 
+                logic.save_event(event)
+
             except exceptions.OnEventCreateError:
                 raise dext_views.ViewError(code='emissaries.on_create_error',
                                            message='Не выполнено одно из специфичных для мероприятия условий')
