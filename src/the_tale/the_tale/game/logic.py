@@ -40,6 +40,8 @@ def create_test_map():
     for place in places_storage.places.all():
         place.refresh_attributes()
 
+    places_storage.places.save_all()
+
     mob_1 = mobs_logic.create_random_mob_record('mob_1')
     mob_2 = mobs_logic.create_random_mob_record('mob_2')
     mob_3 = mobs_logic.create_random_mob_record('mob_3')
