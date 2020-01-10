@@ -271,7 +271,9 @@
   tasks:
 
     - name: start services
-      raw: "supervisorctl start service:"
+      supervisorctl:
+        name: "service:"
+        state: started
 
 
 - name: The Tale postupdate operations
