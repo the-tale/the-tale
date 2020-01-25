@@ -142,8 +142,6 @@ class PlaceTests(helpers.PlacesTestsMixin,
         self.p1.attrs.size = 2
         self.p1.refresh_attributes()
 
-        print(self.p1.attrs.production, self.p1.attrs.size)
-
         with self.check_not_changed(lambda: self.p1.attrs.production):
             self.p1.refresh_attributes()
 
@@ -153,11 +151,8 @@ class PlaceTests(helpers.PlacesTestsMixin,
                               name='test',
                               refresh_effects=True)
 
-        print(self.p1.attrs.production, self.p1.attrs.size)
-
         with self.check_decreased(lambda: self.p1.attrs.production):
             self.p1.refresh_attributes()
-            print(self.p1.attrs.production, self.p1.attrs.size)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)

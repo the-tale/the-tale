@@ -123,7 +123,6 @@ class Worker(utils_workers.BaseWorker):
                     place.attrs.sync_size(c.MAP_SYNC_TIME_HOURS)
                     place.attrs.set_area(map_storage.cells.place_area(place.id))
 
-                    place.effects_update_step()
                     place.sync_race()
                     place.sync_habits()
                     place.update_heroes_habits()

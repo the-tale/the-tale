@@ -6,7 +6,7 @@ smart_imports.all()
 class Effect:
     __slots__ = ('id', 'attribute', 'entity', 'value', 'name', 'delta', 'info')
 
-    def __init__(self, id, attribute, entity, value, name, delta=None, info=None):
+    def __init__(self, attribute, value, name, entity=None, id=None, delta=None, info=None):
         self.id = id
         self.attribute = attribute
         self.entity = entity
@@ -39,7 +39,7 @@ class Effect:
     def ui_info(self):
         return {'name': self.name,
                 'attribute': self.attribute.value,
-                'value': self.value}
+                'value': self.value if isinstance(self.value, (numbers.Number, str)) else None}
 
     def __eq__(self, other):
         return (self.__class__ == other.__class__ and
@@ -89,6 +89,9 @@ class Client(client.Client):
                                 AnswerType=tt_protocol_effects_pb2.RemoveResponse)
 
     def cmd_update(self, effect):
+        if effect.id is None:
+            raise exceptions.TTEffectRequireId()
+
         operations.sync_request(url=self.url('update'),
                                 data=tt_protocol_effects_pb2.UpdateRequest(effect=self.protobuf_from_effect(effect)),
                                 AnswerType=tt_protocol_effects_pb2.UpdateResponse)

@@ -24,7 +24,6 @@ class Place(game_names.ManageNameMixin2):
                  'attrs',
                  'utg_name',
                  'races',
-                 'effects',
                  'job',
                  '_modifier',
 
@@ -52,7 +51,6 @@ class Place(game_names.ManageNameMixin2):
                  attrs,
                  utg_name,
                  races,
-                 effects,
                  job,
                  modifier):
         self.id = id
@@ -75,7 +73,6 @@ class Place(game_names.ManageNameMixin2):
         self.attrs = attrs
         self.utg_name = utg_name
         self.races = races
-        self.effects = effects
         self.job = job
         self._modifier = modifier
 
@@ -213,34 +210,37 @@ class Place(game_names.ManageNameMixin2):
         return area_size_equivalent
 
     def _effects_generator(self):
-        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.TAX, value=0.0)
+        yield tt_api_effects.Effect(name='город', attribute=relations.ATTRIBUTE.TAX, value=0.0)
 
-        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_BASE_STABILITY)
+        yield tt_api_effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_BASE_STABILITY)
 
         if len(self.persons) > c.PLACE_MAX_PERSONS:
-            yield game_effects.Effect(name='избыток Мастеров',
-                                      attribute=relations.ATTRIBUTE.STABILITY,
-                                      value=c.PLACE_STABILITY_PENALTY_FOR_MASTER * (len(self.persons) - c.PLACE_MAX_PERSONS))
+            yield tt_api_effects.Effect(name='избыток Мастеров',
+                                        attribute=relations.ATTRIBUTE.STABILITY,
+                                        value=c.PLACE_STABILITY_PENALTY_FOR_MASTER * (len(self.persons) - c.PLACE_MAX_PERSONS))
 
         if self.is_wrong_race():
             dominant_race_power = self.races.get_race_percents(self.races.dominant_race)
             current_race_power = self.races.get_race_percents(self.race)
-            yield game_effects.Effect(name='расовая дискриминация',
-                                      attribute=relations.ATTRIBUTE.STABILITY,
-                                      value=c.PLACE_STABILITY_PENALTY_FOR_RACES * (dominant_race_power - current_race_power))
+            yield tt_api_effects.Effect(name='расовая дискриминация',
+                                        attribute=relations.ATTRIBUTE.STABILITY,
+                                        value=c.PLACE_STABILITY_PENALTY_FOR_RACES * (dominant_race_power - current_race_power))
 
-        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED, value=c.PLACE_STABILITY_RECOVER_SPEED)
+        yield tt_api_effects.Effect(name='город',
+                                    attribute=relations.ATTRIBUTE.STABILITY_RENEWING_SPEED,
+                                    value=c.PLACE_STABILITY_RECOVER_SPEED)
 
         # politic radius
-        yield game_effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * 0.625)
-        yield game_effects.Effect(name='культура', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * self.attrs.culture * 0.625)
+        yield tt_api_effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.POLITIC_RADIUS, value=self.attrs.size * 0.625)
+        yield tt_api_effects.Effect(name='культура',
+                                    attribute=relations.ATTRIBUTE.POLITIC_RADIUS,
+                                    value=self.attrs.size * self.attrs.culture * 0.625)
 
         # terrain radius
-        yield game_effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * 0.5)
-        yield game_effects.Effect(name='культура', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * self.attrs.culture * 0.5)
-
-        for effect in self.effects.effects:
-            yield effect
+        yield tt_api_effects.Effect(name='размер города', attribute=relations.ATTRIBUTE.TERRAIN_RADIUS, value=self.attrs.size * 0.5)
+        yield tt_api_effects.Effect(name='культура',
+                                    attribute=relations.ATTRIBUTE.TERRAIN_RADIUS,
+                                    value=self.attrs.size * self.attrs.culture * 0.5)
 
         for effect in storage.effects.effects_for_place(self.id):
             yield effect
@@ -251,76 +251,89 @@ class Place(game_names.ManageNameMixin2):
 
         elif not self.modifier.is_NONE:
             modifier_points = getattr(self.attrs, 'MODIFIER_{}'.format(self.modifier.name).lower(), 0)
-            yield game_effects.Effect(name='Несоответствие специализации',
-                                      attribute=relations.ATTRIBUTE.STABILITY,
-                                      value=c.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION * (c.PLACE_TYPE_ENOUGH_BORDER - modifier_points) / c.PLACE_TYPE_ENOUGH_BORDER)
+            yield tt_api_effects.Effect(name='Несоответствие специализации',
+                                        attribute=relations.ATTRIBUTE.STABILITY,
+                                        value=c.PLACE_STABILITY_PENALTY_FOR_SPECIALIZATION *
+                                              (c.PLACE_TYPE_ENOUGH_BORDER - modifier_points) / c.PLACE_TYPE_ENOUGH_BORDER)
 
         for exchange in storage.resource_exchanges.get_exchanges_for_place(self):
             resource_1, resource_2, place_2 = exchange.get_resources_for_place(self)
 
             if resource_1.parameter is not None:
-                yield game_effects.Effect(name=place_2.name if place_2 is not None else resource_2.text,
-                                          attribute=resource_1.parameter,
-                                          value=-resource_1.amount * resource_1.direction)
+                yield tt_api_effects.Effect(name=place_2.name if place_2 is not None else resource_2.text,
+                                            attribute=resource_1.parameter,
+                                            value=-resource_1.amount * resource_1.direction)
 
             if resource_2.parameter is not None:
-                yield game_effects.Effect(name=place_2.name if place_2 is not None else resource_1.text,
-                                          attribute=resource_2.parameter,
-                                          value=resource_2.amount * resource_2.direction)
+                yield tt_api_effects.Effect(name=place_2.name if place_2 is not None else resource_1.text,
+                                            attribute=resource_2.parameter,
+                                            value=resource_2.amount * resource_2.direction)
 
             # ресурсы тратит только город, указанный вторым
             if place_2 is not None and exchange.place_2.id == self.id and exchange.place_1 is not None:
                 distance = navigation_logic.manhattan_distance(self.x, self.y, place_2.x, place_2.y)
 
-                yield game_effects.Effect(name='поддержка караванов в {}'.format(place_2.utg_name.forms[3]),
-                                          attribute=relations.ATTRIBUTE.PRODUCTION,
-                                          value=-distance * c.RESOURCE_EXCHANGE_COST_PER_CELL)
+                yield tt_api_effects.Effect(name='поддержка караванов в {}'.format(place_2.utg_name.forms[3]),
+                                            attribute=relations.ATTRIBUTE.PRODUCTION,
+                                            value=-distance * c.RESOURCE_EXCHANGE_COST_PER_CELL)
 
-        yield game_effects.Effect(name='экономика',
-                                  attribute=relations.ATTRIBUTE.PRODUCTION,
-                                  value=0.33 * self.attrs.power_economic * c.PLACE_GOODS_BONUS)
-        yield game_effects.Effect(name='торговля',
-                                  attribute=relations.ATTRIBUTE.PRODUCTION,
-                                  value=0.33 * self.attrs.money_economic * c.PLACE_GOODS_BONUS)
-        yield game_effects.Effect(name='владения',
-                                  attribute=relations.ATTRIBUTE.PRODUCTION,
-                                  value=0.34 * self.area_size_equivalent * c.PLACE_GOODS_BONUS)
+        yield tt_api_effects.Effect(name='экономика',
+                                    attribute=relations.ATTRIBUTE.PRODUCTION,
+                                    value=0.33 * self.attrs.power_economic * c.PLACE_GOODS_BONUS)
+        yield tt_api_effects.Effect(name='торговля',
+                                    attribute=relations.ATTRIBUTE.PRODUCTION,
+                                    value=0.33 * self.attrs.money_economic * c.PLACE_GOODS_BONUS)
+        yield tt_api_effects.Effect(name='владения',
+                                    attribute=relations.ATTRIBUTE.PRODUCTION,
+                                    value=0.34 * self.area_size_equivalent * c.PLACE_GOODS_BONUS)
 
-        yield game_effects.Effect(name='потребление',
-                                  attribute=relations.ATTRIBUTE.PRODUCTION,
-                                  value=-self.attrs.size * c.PLACE_GOODS_BONUS)
-        yield game_effects.Effect(name='стабильность',
-                                  attribute=relations.ATTRIBUTE.PRODUCTION,
-                                  value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
+        yield tt_api_effects.Effect(name='потребление',
+                                    attribute=relations.ATTRIBUTE.PRODUCTION,
+                                    value=-self.attrs.size * c.PLACE_GOODS_BONUS)
+        yield tt_api_effects.Effect(name='стабильность',
+                                    attribute=relations.ATTRIBUTE.PRODUCTION,
+                                    value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_PRODUCTION_PENALTY)
 
-        yield game_effects.Effect(name='стабилизация ландшафта города',
-                                  attribute=relations.ATTRIBUTE.PRODUCTION,
-                                  value=-c.CELL_STABILIZATION_PRICE)
+        yield tt_api_effects.Effect(name='стабилизация ландшафта города',
+                                    attribute=relations.ATTRIBUTE.PRODUCTION,
+                                    value=-c.CELL_STABILIZATION_PRICE)
 
         for road in roads_logic.get_roads_connected_to(self):
             destination = road.place_2 if road.place_1_id == self.id else road.place_1
 
             stabilization_price = road.get_stabilization_price_for(self)
 
-            yield game_effects.Effect(name='стабилизация дороги в {}'.format(destination.utg_name.forms[3]),
-                                      attribute=relations.ATTRIBUTE.PRODUCTION,
-                                      value=-stabilization_price)
+            yield tt_api_effects.Effect(name='стабилизация дороги в {}'.format(destination.utg_name.forms[3]),
+                                        attribute=relations.ATTRIBUTE.PRODUCTION,
+                                        value=-stabilization_price)
 
         # safety
-        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.SAFETY, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)
+        yield tt_api_effects.Effect(name='стабильность',
+                                    attribute=relations.ATTRIBUTE.SAFETY,
+                                    value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_SAFETY_PENALTY)
 
         # transport
-        yield game_effects.Effect(name='трафик', attribute=relations.ATTRIBUTE.TRANSPORT, value=-c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.attrs.size)
+        yield tt_api_effects.Effect(name='трафик',
+                                    attribute=relations.ATTRIBUTE.TRANSPORT,
+                                    value=-c.TRANSPORT_FROM_PLACE_SIZE_PENALTY * self.attrs.size)
 
-        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.TRANSPORT, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)
+        yield tt_api_effects.Effect(name='стабильность',
+                                    attribute=relations.ATTRIBUTE.TRANSPORT,
+                                    value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_TRANSPORT_PENALTY)
 
         # freedom
-        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
-        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.FREEDOM, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
+        yield tt_api_effects.Effect(name='город',
+                                    attribute=relations.ATTRIBUTE.FREEDOM, value=1.0)
+        yield tt_api_effects.Effect(name='стабильность',
+                                    attribute=relations.ATTRIBUTE.FREEDOM,
+                                    value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_FREEDOM_PENALTY)
 
         # culture
-        yield game_effects.Effect(name='город', attribute=relations.ATTRIBUTE.CULTURE, value=1.0)
-        yield game_effects.Effect(name='стабильность', attribute=relations.ATTRIBUTE.CULTURE, value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_CULTURE_PENALTY)
+        yield tt_api_effects.Effect(name='город',
+                                    attribute=relations.ATTRIBUTE.CULTURE, value=1.0)
+        yield tt_api_effects.Effect(name='стабильность',
+                                    attribute=relations.ATTRIBUTE.CULTURE,
+                                    value=(1.0 - self.attrs.stability) * c.PLACE_STABILITY_MAX_CULTURE_PENALTY)
 
         for person in self.persons:
             for effect in person.place_effects():
@@ -353,25 +366,33 @@ class Place(game_names.ManageNameMixin2):
 
         if relations.ATTRIBUTE.STABILITY.order == order:
             if stability < c.PLACE_MIN_STABILITY:
-                yield game_effects.Effect(name='Серый Орден', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_MIN_STABILITY - stability)
+                yield tt_api_effects.Effect(name='Серый Орден',
+                                            attribute=relations.ATTRIBUTE.STABILITY,
+                                            value=c.PLACE_MIN_STABILITY - stability)
             if stability > 1:
-                yield game_effects.Effect(name='демоны', attribute=relations.ATTRIBUTE.STABILITY, value=1 - stability)
+                yield tt_api_effects.Effect(name='демоны',
+                                            attribute=relations.ATTRIBUTE.STABILITY,
+                                            value=1 - stability)
 
         if relations.ATTRIBUTE.CULTURE.order == order:
             if culture < c.PLACE_MIN_CULTURE:
-                yield game_effects.Effect(name='бродячие артисты', attribute=relations.ATTRIBUTE.CULTURE, value=c.PLACE_MIN_CULTURE - culture)
+                yield tt_api_effects.Effect(name='бродячие артисты',
+                                            attribute=relations.ATTRIBUTE.CULTURE,
+                                            value=c.PLACE_MIN_CULTURE - culture)
 
         if relations.ATTRIBUTE.FREEDOM.order == order:
             if freedom < c.PLACE_MIN_FREEDOM:
-                yield game_effects.Effect(name='Пять звёзд', attribute=relations.ATTRIBUTE.FREEDOM, value=c.PLACE_MIN_FREEDOM - freedom)
+                yield tt_api_effects.Effect(name='Пять звёзд',
+                                            attribute=relations.ATTRIBUTE.FREEDOM,
+                                            value=c.PLACE_MIN_FREEDOM - freedom)
 
         if self.attrs.size == 1 and production < 0 and self.attrs.goods == 0:
-            yield game_effects.Effect(name='Компенсация потерь пошлиной',
-                                      attribute=relations.ATTRIBUTE.PRODUCTION,
-                                      value=-production)
-            yield game_effects.Effect(name='Производственный кризис',
-                                      attribute=relations.ATTRIBUTE.TAX,
-                                      value=min(1.0, c.PLACE_TAX_PER_ONE_GOODS * abs(production)))
+            yield tt_api_effects.Effect(name='Компенсация потерь пошлиной',
+                                        attribute=relations.ATTRIBUTE.PRODUCTION,
+                                        value=-production)
+            yield tt_api_effects.Effect(name='Производственный кризис',
+                                        attribute=relations.ATTRIBUTE.TAX,
+                                        value=min(1.0, c.PLACE_TAX_PER_ONE_GOODS * abs(production)))
 
     def effects_for_attribute(self, attribute):
         for effect in self.effects_generator(attribute.order):
@@ -399,13 +420,6 @@ class Place(game_names.ManageNameMixin2):
             effect.apply_to(self.attrs)
 
         self.attrs.sync()
-
-    def effects_update_step(self):
-        stability_effects = [effect for effect in self.effects.effects if effect.attribute.is_STABILITY]
-
-        logic.update_stability_effects_deltas(self.attrs.stability_renewing_speed, stability_effects)
-
-        self.effects.update_step()
 
     def set_modifier(self, modifier):
         self._modifier = modifier

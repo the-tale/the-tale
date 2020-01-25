@@ -4,9 +4,6 @@ import smart_imports
 smart_imports.all()
 
 
-EffectsContainer = game_effects.create_container(relations.ATTRIBUTE)
-
-
 class PlaceJob(jobs_objects.Job):
     ACTOR = 'place'
 
@@ -128,7 +125,6 @@ def load_place(place_id=None, place_model=None):
                           utg_name=utg_words.Word.deserialize(data['name']),
                           attrs=attributes.Attributes.deserialize(data.get('attributes', {})),
                           races=races.Races.deserialize(data['races']),
-                          effects=EffectsContainer.deserialize(data.get('effects')),
                           job=PlaceJob.deserialize(data['job']),
                           modifier=place_model.modifier)
 
@@ -141,7 +137,6 @@ def save_place(place, new=False):
     data = {'name': place.utg_name.serialize(),
             'attributes': place.attrs.serialize(),
             'races': place.races.serialize(),
-            'effects': place.effects.serialize(),
             'job': place.job.serialize()}
 
     arguments = {'x': place.x,
@@ -194,7 +189,6 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           attrs=attributes.Attributes(size=size),
                           utg_name=utg_name,
                           races=races.Races(),
-                          effects=EffectsContainer(),
                           job=jobs_logic.create_job(PlaceJob),
                           modifier=modifiers.CITY_MODIFIERS.NONE)
     # place.refresh_attributes()

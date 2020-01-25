@@ -407,7 +407,7 @@ class StartEventTests(BaseRequestsTests):
         self.emissary.place_rating_position = 0
         logic.save_emissary(self.emissary)
 
-        url = dext_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.ARTISANS_SUPPORT.value)
+        url = utils_urls.url('game:emissaries:start-event', self.emissary.id, event_type=relations.EVENT_TYPE.ARTISANS_SUPPORT.value)
 
         self.check_ajax_ok(self.post_ajax_json(url, self.get_post_data()))
 

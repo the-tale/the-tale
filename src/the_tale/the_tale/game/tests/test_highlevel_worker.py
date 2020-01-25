@@ -105,14 +105,12 @@ class HighlevelTest(utils_testcase.TestCase):
         # all that methods tested in places package
         set_power_economic = mock.Mock()
         sync_size = mock.Mock()
-        update_step = mock.Mock()
         sync_habits = mock.Mock()
         refresh_attributes = mock.Mock()
         mark_as_updated = mock.Mock()
 
         with mock.patch('the_tale.game.places.attributes.Attributes.set_power_economic', set_power_economic), \
                 mock.patch('the_tale.game.places.attributes.Attributes.sync_size', sync_size), \
-                mock.patch('the_tale.game.places.objects.Place.effects', mock.Mock(update_step=update_step, effects=[], serialize=lambda: {})), \
                 mock.patch('the_tale.game.places.objects.Place.sync_habits', sync_habits), \
                 mock.patch('the_tale.game.places.objects.Place.refresh_attributes', refresh_attributes), \
                 mock.patch('the_tale.game.places.objects.Place.mark_as_updated', mark_as_updated):

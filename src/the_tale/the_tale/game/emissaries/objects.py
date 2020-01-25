@@ -95,43 +95,43 @@ class Emissary(game_names.ManageNameMixin2):
                 linguistics_restrictions.get(self.race))
 
     def _effects_generator(self):
-        yield game_effects.Effect(name='телосложение',
-                                  attribute=relations.ATTRIBUTE.MAX_HEALTH,
-                                  value=tt_emissaries_constants.MAXIMUM_HEALTH)
+        yield tt_api_effects.Effect(name='телосложение',
+                                    attribute=relations.ATTRIBUTE.MAX_HEALTH,
+                                    value=tt_emissaries_constants.MAXIMUM_HEALTH)
 
         for ability in relations.ABILITY.records:
-            yield game_effects.Effect(name='способности',
-                                      attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_MAXIMUM__{}'.format(ability.name)),
-                                      value=tt_emissaries_constants.NORMAL_ATTRIBUTE_MAXIMUM)
+            yield tt_api_effects.Effect(name='способности',
+                                        attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_MAXIMUM__{}'.format(ability.name)),
+                                        value=tt_emissaries_constants.NORMAL_ATTRIBUTE_MAXIMUM)
 
-            yield game_effects.Effect(name='способности',
-                                      attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_GROW_SPEED__{}'.format(ability.name)),
-                                      value=tt_emissaries_constants.ATTRIBUT_INCREMENT_DELTA)
+            yield tt_api_effects.Effect(name='способности',
+                                        attribute=getattr(relations.ATTRIBUTE, 'ATTRIBUTE_GROW_SPEED__{}'.format(ability.name)),
+                                        value=tt_emissaries_constants.ATTRIBUT_INCREMENT_DELTA)
 
-        yield game_effects.Effect(name='телосложение',
-                                  attribute=relations.ATTRIBUTE.DAMAGE_TO_HEALTH,
-                                  value=tt_emissaries_constants.NORMAL_DAMAGE_TO_HEALTH)
+        yield tt_api_effects.Effect(name='телосложение',
+                                    attribute=relations.ATTRIBUTE.DAMAGE_TO_HEALTH,
+                                    value=tt_emissaries_constants.NORMAL_DAMAGE_TO_HEALTH)
 
-        yield game_effects.Effect(name='способности',
-                                  attribute=relations.ATTRIBUTE.MAXIMUM_SIMULTANEOUSLY_EVENTS,
-                                  value=tt_clans_constants.SIMULTANEOUS_EMISSARY_EVENTS)
+        yield tt_api_effects.Effect(name='способности',
+                                    attribute=relations.ATTRIBUTE.MAXIMUM_SIMULTANEOUSLY_EVENTS,
+                                    value=tt_clans_constants.SIMULTANEOUS_EMISSARY_EVENTS)
 
-        yield game_effects.Effect(name='способности',
-                                  attribute=relations.ATTRIBUTE.POSITIVE_POWER,
-                                  value=1.0)
+        yield tt_api_effects.Effect(name='способности',
+                                    attribute=relations.ATTRIBUTE.POSITIVE_POWER,
+                                    value=1.0)
 
-        yield game_effects.Effect(name='способности',
-                                  attribute=relations.ATTRIBUTE.NEGATIVE_POWER,
-                                  value=1.0)
+        yield tt_api_effects.Effect(name='способности',
+                                    attribute=relations.ATTRIBUTE.NEGATIVE_POWER,
+                                    value=1.0)
 
-        yield game_effects.Effect(name='способности',
-                                  attribute=relations.ATTRIBUTE.CLAN_EXPERIENCE,
-                                  value=1.0)
+        yield tt_api_effects.Effect(name='способности',
+                                    attribute=relations.ATTRIBUTE.CLAN_EXPERIENCE,
+                                    value=1.0)
 
         for trait in self.traits:
-            yield game_effects.Effect(name=trait.text,
-                                      attribute=trait.attribute,
-                                      value=trait.modification)
+            yield tt_api_effects.Effect(name=trait.text,
+                                        attribute=trait.attribute,
+                                        value=trait.modification)
 
     def effects_generator(self, order):
         for effect in self._effects_generator():

@@ -38,3 +38,7 @@ class CanNotChangeTimerSpeed(TTTimersError):
 
 class TTPropertiesError(TTAPIError):
     MSG = 'unknown property name %(name)s'
+
+
+class TTEffectRequireId(TTAPIError):
+    MSG = 'effect required id'

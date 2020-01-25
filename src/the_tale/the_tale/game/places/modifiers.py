@@ -19,7 +19,10 @@ def record(name, value, text, quest, modifier_effects, description):
             quest,
             getattr(technical_words, 'MODIFIER_{}'.format(name)),
             _modifier_linguistics_restrictions(name),
-            tuple([game_effects.Effect(name=text, attribute=getattr(relations.ATTRIBUTE, attribute), value=value) for attribute, value in modifier_effects]),
+            tuple([tt_api_effects.Effect(name=text,
+                                         attribute=getattr(relations.ATTRIBUTE, attribute),
+                                         value=value)
+                   for attribute, value in modifier_effects]),
             description,
             getattr(relations.ATTRIBUTE, 'MODIFIER_{}'.format(name)) if name != 'NONE' else None)
 

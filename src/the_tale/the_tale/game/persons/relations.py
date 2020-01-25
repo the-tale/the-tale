@@ -89,7 +89,9 @@ class PERSONALITY(rels_django.DjangoEnum):
 
 
 def personality(name, value, text, attribute, attribute_value, male_text, female_text, description):
-    return (name, value, text, game_effects.Effect(name=text, attribute=getattr(ATTRIBUTE, attribute), value=attribute_value), male_text, female_text, description)
+    return (name, value, text, tt_api_effects.Effect(name=text,
+                                                     attribute=getattr(ATTRIBUTE, attribute),
+                                                     value=attribute_value), male_text, female_text, description)
 
 
 class PERSONALITY_COSMETIC(PERSONALITY):
