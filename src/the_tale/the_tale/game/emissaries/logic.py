@@ -708,3 +708,7 @@ def has_clan_space_for_emissary(clan_id, attributes):
     in_game_emissaries_number = count_active_emissaries_for_clan(clan_id)
 
     return in_game_emissaries_number < attributes.emissary_maximum
+
+
+def sort_for_ui(emissaries, powers):
+    emissaries.sort(key=lambda emissary: (emissary.state.value, -powers[emissary.id]))

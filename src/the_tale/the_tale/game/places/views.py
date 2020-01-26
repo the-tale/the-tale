@@ -83,7 +83,7 @@ def show(context):
 
     emissaries_powers = politic_power_logic.get_emissaries_power([emissary.id for emissary in emissaries])
 
-    emissaries.sort(key=lambda emissary: (emissary.state.value, clans[emissary.clan_id].name, -emissaries_powers[emissary.id]))
+    emissaries_logic.sort_for_ui(emissaries, emissaries_powers)
 
     return utils_views.Page('places/show.html',
                             content={'place': context.place,
