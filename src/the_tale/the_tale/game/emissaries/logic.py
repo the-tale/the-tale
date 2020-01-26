@@ -297,6 +297,8 @@ def rename_emissary(emissary_id, new_name):
 
         emissary = storage.emissaries[emissary_id]
 
+        game_names.sync_properties(new_name, emissary.gender)
+
         old_name = emissary.utg_name
 
         emissary.utg_name = new_name

@@ -123,3 +123,8 @@ def get_names_set(number):
                 result_names[race_slug][gender_slug].append(name_forms)
 
     return result_names
+
+
+def sync_properties(name, gender):
+    name.properties = name.properties.clone(gender.utg_id,
+                                            utg_relations.NUMBER.SINGULAR)

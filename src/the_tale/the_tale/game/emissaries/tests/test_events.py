@@ -307,7 +307,7 @@ class RenameTests(BaseEventsMixin, utils_testcase.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.new_name = game_names.generator().get_test_name()
+        self.new_name = game_names.generator().get_test_name(gender=game_relations.GENDER.random(exclude=(self.emissary.gender,)))
 
         self.concrete_event = self.Event(raw_ability_power=666,
                                          new_name=self.new_name)
@@ -316,10 +316,15 @@ class RenameTests(BaseEventsMixin, utils_testcase.TestCase):
         return linguistics_helpers.get_word_post_data(self.new_name, prefix='name')
 
     def test_on_finish(self):
+        self.assertNotEqual(self.emissary.gender.utg_id, self.new_name.properties.get(utg_relations.GENDER))
+
         self.concrete_event.on_finish(self.get_event())
 
         self.assertEqual(self.emissary.utg_name, self.new_name)
         self.assertEqual(logic.load_emissary(emissary_id=self.emissary.id).utg_name, self.new_name)
+
+        self.assertEqual(self.emissary.gender.utg_id, self.emissary.utg_name.properties.get(utg_relations.GENDER))
+        self.assertTrue(self.emissary.utg_name.properties.get(utg_relations.INTEGER_FORM).is_SINGULAR)
 
 
 class ClanLevelUpMixin(BaseEventsMixin):

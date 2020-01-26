@@ -33,8 +33,7 @@ class EditNameForm(utils_forms.Form):
             if not success:
                 raise django_forms.ValidationError(message)
 
-            name.properties = name.properties.clone(cleaned_data['gender'].utg_id,
-                                                    utg_relations.NUMBER.SINGULAR)
+            game_names.sync_properties(name, cleaned_data['gender'])
 
         return cleaned_data
 
