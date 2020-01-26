@@ -35,3 +35,24 @@ class EmissaryObjectTests(clans_helpers.ClansTestsMixin,
         self.enable_emissary_pvp(self.emissary)
 
         self.assertTrue(self.emissary.can_participate_in_pvp())
+
+    def test_is_place_leader__no_position(self):
+        self.emissary.place_rating_position = None
+
+        self.assertFalse(self.emissary.is_place_leader())
+
+    def test_is_place_leader__not_leader(self):
+        self.emissary.place_rating_position = tt_emissaries_constants.PLACE_LEADERS_NUMBER
+
+        self.assertFalse(self.emissary.is_place_leader())
+
+    def test_is_place_leader__leader(self):
+        self.emissary.place_rating_position = tt_emissaries_constants.PLACE_LEADERS_NUMBER - 1
+
+        self.assertTrue(self.emissary.is_place_leader())
+
+    def test_is_place_leader__out_game_leader(self):
+        self.emissary.place_rating_position = tt_emissaries_constants.PLACE_LEADERS_NUMBER - 1
+        self.emissary.state = relations.STATE.OUT_GAME
+
+        self.assertFalse(self.emissary.is_place_leader())

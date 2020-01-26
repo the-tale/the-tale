@@ -73,6 +73,9 @@ class Emissary(game_names.ManageNameMixin2):
         if self.place_rating_position is None:
             return False
 
+        if self.state.is_OUT_GAME:
+            return False
+
         return self.place_rating_position < tt_emissaries_constants.PLACE_LEADERS_NUMBER
 
     @property
