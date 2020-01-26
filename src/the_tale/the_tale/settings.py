@@ -115,45 +115,43 @@ EMAIL_FILE_PATH = '/tmp/emails'
 
 APPEND_SLASH = True
 
-TEMPLATES = [{'BACKEND': 'the_tale.common.utils.jinja2.Engine',
+TEMPLATES = [{'BACKEND': 'the_tale.common.utils.jinja2.Backend',
+              'DIRS': (os.path.join(PROJECT_DIR, 'jinja2'),),
+              'APP_DIRS': True,
               'OPTIONS': {
+                  'environment': 'the_tale.common.utils.jinja2.create_environment',
+                  'autoescape': True,
+                  'trim_blocks': True,
+                  'auto_reload': DEBUG,
+                  'undefined': jinja2.StrictUndefined,
+                  'loader': None,
+                  'extensions': ['jinja2.ext.loopcontrols'],
+
                   'context_processors': ('django.contrib.auth.context_processors.auth',
                                          'django.template.context_processors.debug',
                                          'django.template.context_processors.i18n',
                                          'django.template.context_processors.media',
                                          'django.template.context_processors.static',
-                                         'django.contrib.messages.context_processors.messages',
+                                         'the_tale.common.utils.context_processors.common',
                                          'the_tale.portal.context_processors.section',
                                          'the_tale.portal.context_processors.cdn_paths',
                                          'the_tale.game.balance.context_processors.balance',
                                          'the_tale.game.bills.context_processors.bills_context',
                                          'the_tale.linguistics.context_processors.linguistics_context',
                                          'the_tale.guide.context_processors.guide_context',
-                                         'the_tale.blogs.context_processors.blogs_context'
-                                         ),
-                  'directories': (os.path.join(PROJECT_DIR, 'templates'),),
-                  'auto_reload': False,
-                  'undefined': jinja2.StrictUndefined,
-                  'autoescape': True,
-                  'trim_blocks': True,
-                  'extensions': ['jinja2.ext.loopcontrols']
+                                         'the_tale.blogs.context_processors.blogs_context'),
               }},
              {'BACKEND': 'django.template.backends.django.DjangoTemplates',
               'APP_DIRS': True,
               'OPTIONS': {
+                  'debug': False,
+
                   'context_processors': ('django.contrib.auth.context_processors.auth',
                                          'django.template.context_processors.debug',
                                          'django.template.context_processors.i18n',
                                          'django.template.context_processors.media',
                                          'django.template.context_processors.static',
-                                         'django.contrib.messages.context_processors.messages',
-                                         'the_tale.portal.context_processors.section',
-                                         'the_tale.portal.context_processors.cdn_paths',
-                                         'the_tale.game.balance.context_processors.balance',
-                                         'the_tale.game.bills.context_processors.bills_context',
-                                         'the_tale.linguistics.context_processors.linguistics_context'
-                                         ),
-                  'debug': False
+                                         'django.contrib.messages.context_processors.messages')
               }}
              ]
 
