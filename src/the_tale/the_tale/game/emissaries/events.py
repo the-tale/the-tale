@@ -323,24 +323,20 @@ class ClanLevelUpMixin:
         else:
             delta = cls.PROPERTY.delta
 
-        return 'Увеличивает {} на {}. Тратит {} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе законченное не будет иметь эффекта, потраченный опыт вернётся гильдии.'.format(cls.PROPERTY.text,
-                                                                   delta,
-                                                                   required_experience)
+        return f'Увеличивает {cls.PROPERTY.text} на {delta}. Тратит {required_experience} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе не будет иметь эффекта, потраченный опыт вернётся гильдии. При отмене мероприятия потраченный опыт возвращается гильдии.'
 
     def event_description(self, emissary):
         current_level, required_experience = self.experience_and_current_level(emissary, current_level=self.current_level)
 
         if required_experience is None:
-            return 'Увеличивает {}. Этот параметр гильдии уже достиг максимального значения.'.format(self.PROPERTY.text)
+            return 'Увеличивает {self.PROPERTY.text}. Этот параметр гильдии уже достиг максимального значения.'
 
         if self.TYPE.is_LEVEL_UP_POINTS_GANE:
-            delta = '{} в день'.format(self.PROPERTY.delta)
+            delta = '{self.PROPERTY.delta} в день'
         else:
             delta = self.PROPERTY.delta
 
-        return 'Увеличивает {} на {}. Тратит {} опыта гильдии.Если одновременно запущено два мероприятия этого типа, то второе законченное не будет иметь эффекта, потраченный опыт вернётся гильдии.'.format(self.PROPERTY.text,
-                                                                   delta,
-                                                                   required_experience)
+        return 'Увеличивает {self.PROPERTY.text} на {delta}. Тратит {required_experience} опыта гильдии. Если одновременно запущено два мероприятия этого типа, то второе не будет иметь эффекта, потраченный опыт вернётся гильдии. При отмене мероприятия потраченный опыт возвращается гильдии.'
 
     @classmethod
     def experience_and_current_level(cls, emissary, current_level=None):
