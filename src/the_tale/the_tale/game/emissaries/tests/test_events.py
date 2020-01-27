@@ -16,6 +16,7 @@ class BaseEventsMixin(clans_helpers.ClansTestsMixin,
         self.places = game_logic.create_test_map()
 
         clans_tt_services.currencies.cmd_debug_clear_service()
+        accounts_tt_services.players_properties.cmd_debug_clear_service()
         game_tt_services.debug_clear_service()
 
         self.forum_category = forum_prototypes.CategoryPrototype.create(caption='category-1',
@@ -933,6 +934,10 @@ class GloryOfTheKeepersTests(CountedEventMixin,
 
         super().setUp()
 
+        self.properties_client = accounts_tt_services.players_properties
+
+        self.properties_client.cmd_debug_clear_service()
+
         self.concrete_event = self.Event(raw_ability_power=666)
 
     def test_tokens_per_day(self):
@@ -962,23 +967,58 @@ class GloryOfTheKeepersTests(CountedEventMixin,
             with self.check_not_changed(lambda: cards_tt_services.storage.cmd_get_items(self.account.id)):
                 self.concrete_event.on_step(self.get_event())
 
+        card_time = self.properties_client.cmd_get_object_property(self.account.id,
+                                                                   accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary)
+
+        self.assertEqual(card_time, 0)
+
     def test_on_step__single_effect(self):
 
         self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER - 1)
 
+        started_at = time.time()
+
+        accounts_tt_services.players_properties.cmd_set_property(object_id=self.account.id,
+                                                                 name=accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary,
+                                                                 value=time.time() - conf.settings.CARD_RECEIVING_BY_EMISSARY_TIMEOUT)
+
         with self.check_delta(self.get_event_points,
-                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER + self.concrete_event.points_per_step() ):
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER + self.concrete_event.points_per_step()):
             with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id)), 1):
                 with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 1):
                     self.concrete_event.on_step(self.get_event())
+
+        card_time = self.properties_client.cmd_get_object_property(self.account.id,
+                                                                   accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary)
+
+        self.assertTrue(started_at < card_time < time.time())
+
+    def test_on_step__single_effect__blocked(self):
+
+        self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER - 1)
+
+        started_at = time.time() - conf.settings.CARD_RECEIVING_BY_EMISSARY_TIMEOUT + 10
+
+        accounts_tt_services.players_properties.cmd_set_property(object_id=self.account.id,
+                                                                 name=accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary,
+                                                                 value=started_at)
+
+        with self.check_delta(self.get_event_points, self.concrete_event.points_per_step()):
+            with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id))):
+                self.concrete_event.on_step(self.get_event())
+
+        card_time = self.properties_client.cmd_get_object_property(self.account.id,
+                                                                   accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary)
+
+        self.assertEqual(started_at, card_time)
 
     def test_on_step__multiple_effects(self):
         self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 2 - 1)
 
         with self.check_delta(self.get_event_points,
-                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 2 + self.concrete_event.points_per_step() ):
-            with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id)), 2):
-                with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 2):
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 1 + self.concrete_event.points_per_step()):
+            with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id)), 1):
+                with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 1):
                     self.concrete_event.on_step(self.get_event())
 
     def test_on_step__multiple_accounts(self):
@@ -994,7 +1034,7 @@ class GloryOfTheKeepersTests(CountedEventMixin,
         self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * N)
 
         with self.check_delta(self.get_event_points,
-                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * N + self.concrete_event.points_per_step() ):
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER * 2 + self.concrete_event.points_per_step()):
             with self.check_increased(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id))):
                 with self.check_increased(lambda: len(cards_tt_services.storage.cmd_get_items(account_2.id))):
                     with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(account_3.id))):

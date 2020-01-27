@@ -655,7 +655,7 @@ def expected_power_per_day():
 
 
 def resource_id(clan_id, place_id):
-    return tt_services.events_effects_ids.cmd_get_id('f{clan_id}_{place_id}')
+    return tt_services.events_effects_ids.cmd_get_id(f'{clan_id}_{place_id}')
 
 
 def change_event_points(resource_id, type, currency, amount):
@@ -675,7 +675,10 @@ def change_event_points(resource_id, type, currency, amount):
 def withdraw_event_points(clan_id, place_id, currency):
     resource_id = emissaries_logic.resource_id(clan_id=clan_id,
                                                place_id=place_id)
+    withdraw_event_points_by_resource_id(resource_id, currency)
 
+
+def withdraw_event_points_by_resource_id(resource_id, currency):
     emissaries_logic.change_event_points(resource_id=resource_id,
                                          type='on_effect_activation',
                                          currency=currency,

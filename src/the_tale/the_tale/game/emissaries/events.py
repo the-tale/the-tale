@@ -853,52 +853,77 @@ class GloryOfTheKeepers(CountedMixin, EventBase):
         return logic.resource_id(clan_id=emissary.clan_id,
                                  place_id=None)
 
+    def get_receiver(self, event):
+        memberships = clans_logic.get_clan_memberships(event.emissary.clan_id)
+
+        property_name = accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary
+
+        accounts_properties = accounts_tt_services.players_properties.cmd_get_properties({account_id: [property_name]
+                                                                                          for account_id in memberships.keys()})
+
+        allowed_accounts = [account_id
+                            for account_id, properties in accounts_properties.items()
+                            if properties.last_card_by_emissary + conf.settings.CARD_RECEIVING_BY_EMISSARY_TIMEOUT < time.time()]
+
+        if not allowed_accounts:
+            return None
+
+        receiver_id = random.choice(allowed_accounts)
+
+        return accounts_prototypes.AccountPrototype.get_by_id(receiver_id)
+
+    def send_success_message(self, event, account):
+        emissaries_with_event = []
+
+        for event_candiate in storage.events.clan_events(event.emissary.clan_id):
+            if event_candiate.concrete_event.TYPE != self.TYPE:
+                continue
+
+            emissaries_with_event.append(event_candiate.emissary)
+
+        url_template = '[url="{}"]{}[/url]'
+
+        emissaries_text = ', '.join(url_template.format(utils_urls.full_url('https', 'game:emissaries:show', emissary.id),
+                                                        emissary.utg_name.forms[1])
+                                    for emissary in emissaries_with_event)
+
+        if len(emissaries_with_event) == 1:
+            message = f'Благодаря усилиям эмиссара {emissaries_text} вы получили дополнительную Карту Судьбы.'
+        else:
+            message = f'Благодаря усилиям эмиссаров {emissaries_text} вы получили дополнительную Карту Судьбы.'
+
+        personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
+                                             recipients_ids=[account.id],
+                                             body=message)
+
     def on_step(self, event):
         self.change_points(event.emissary, amount=self.points_per_step())
 
         while self.is_effect_allowed(event.emissary):
-            memberships = clans_logic.get_clan_memberships(event.emissary.clan_id)
-            receiver_id = random.choice(list(memberships.keys()))
-            account = accounts_prototypes.AccountPrototype.get_by_id(receiver_id)
+            account = self.get_receiver(event)
 
-            cards_logic.give_new_cards(account_id=receiver_id,
+            if account is None:
+                return True
+
+            cards_logic.give_new_cards(account_id=account.id,
                                        operation_type='give-new-card-by-emissary',
                                        allow_premium_cards=account.cards_receive_mode().is_ALL,
                                        available_for_auction=account.is_premium,
                                        number=1)
 
-            logic.withdraw_event_points(clan_id=event.emissary.clan_id,
-                                        place_id=event.emissary.place_id,
-                                        currency=self.CURRENCY)
+            logic.withdraw_event_points_by_resource_id(self.resource_id(event.emissary), currency=self.CURRENCY)
 
-            emissaries_with_event = []
+            accounts_tt_services.players_properties.cmd_set_property(object_id=account.id,
+                                                                     name=accounts_tt_services.PLAYER_PROPERTIES.last_card_by_emissary,
+                                                                     value=time.time())
 
-            for event_candiate in storage.events.clan_events(event.emissary.clan_id):
-                if event_candiate.concrete_event.TYPE != self.TYPE:
-                    continue
-
-                emissaries_with_event.append(event_candiate.emissary)
-
-            url_template = '[url="{}"]{}[/url]'
-
-            emissaries_text = ', '.join(url_template.format(utils_urls.full_url('https', 'game:emissaries:show', emissary.id),
-                                                            emissary.utg_name.forms[1])
-                                        for emissary in emissaries_with_event)
-
-            if len(emissaries_with_event) == 1:
-                message = f'Благодаря усилиям эмиссара {emissaries_text} вы получили дополнительную Карту Судьбы.'
-            else:
-                message = f'Благодаря усилиям эмиссаров {emissaries_text} вы получили дополнительную Карту Судьбы.'
-
-            personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
-                                                 recipients_ids=[account.id],
-                                                 body=message)
+            self.send_success_message(event, account)
 
         return True
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Случайный игрок гильдии периодически получает карту судьбы. Свойства карты такие же, как и при получении их обычным образом. Количество срабатываний в сутки: {points}.'
+        text = 'Случайный игрок гильдии периодически получает карту судьбы. Свойства карты такие же, как и при получении их обычным образом. Количество срабатываний в сутки: {points}. С помощью мероприятий Хранитель не может получить более одной карты в сутки.'
         return text.format(points=cls.tokens_per_day(raw_ability_power))
 
 
