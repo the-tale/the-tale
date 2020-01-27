@@ -849,6 +849,10 @@ class GloryOfTheKeepers(CountedMixin, EventBase):
     def maximum_points_a_day(cls):
         return tt_clans_constants.FIGHTERS_TO_EMISSARY
 
+    def resource_id(self, emissary):
+        return logic.resource_id(clan_id=emissary.clan_id,
+                                 place_id=None)
+
     def on_step(self, event):
         self.change_points(event.emissary, amount=self.points_per_step())
 
@@ -867,9 +871,24 @@ class GloryOfTheKeepers(CountedMixin, EventBase):
                                         place_id=event.emissary.place_id,
                                         currency=self.CURRENCY)
 
-            message = 'Благодаря мероприятию эмиссара [url="{emissary_url}"]{emissary}[/url] вы получили дополнительную Карту Судьбы.'
-            message = message.format(emissary=event.emissary.utg_name.forms[1],
-                                     emissary_url=utils_urls.full_url('https', 'game:emissaries:show', event.emissary.id))
+            emissaries_with_event = []
+
+            for event_candiate in storage.events.clan_events(event.emissary.clan_id):
+                if event_candiate.concrete_event.TYPE != self.TYPE:
+                    continue
+
+                emissaries_with_event.append(event_candiate.emissary)
+
+            url_template = '[url="{}"]{}[/url]'
+
+            emissaries_text = ', '.join(url_template.format(utils_urls.full_url('https', 'game:emissaries:show', emissary.id),
+                                                            emissary.utg_name.forms[1])
+                                        for emissary in emissaries_with_event)
+
+            if len(emissaries_with_event) == 1:
+                message = f'Благодаря усилиям эмиссара {emissaries_text} вы получили дополнительную Карту Судьбы.'
+            else:
+                message = f'Благодаря усилиям эмиссаров {emissaries_text} вы получили дополнительную Карту Судьбы.'
 
             personal_messages_logic.send_message(sender_id=accounts_logic.get_system_user_id(),
                                                  recipients_ids=[account.id],

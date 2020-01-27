@@ -67,6 +67,17 @@ class EventsStorage(utils_storage.CachedStorage):
         self.sync()
         return self._events_by_emissary.get(emissary_id, ())
 
+    def clan_events(self, clan_id):
+        self.sync()
+
+        events = []
+
+        for emissary in emissaries.emissaries_by_clan[clan_id]:
+            for event in self._events_by_emissary.get(emissary.id, ()):
+                events.append(event)
+
+        return events
+
     def get_or_load(self, event_id):
         if event_id in self:
             return self[event_id]

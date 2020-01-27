@@ -999,3 +999,38 @@ class GloryOfTheKeepersTests(CountedEventMixin,
                 with self.check_increased(lambda: len(cards_tt_services.storage.cmd_get_items(account_2.id))):
                     with self.check_not_changed(lambda: len(cards_tt_services.storage.cmd_get_items(account_3.id))):
                         self.concrete_event.on_step(self.get_event())
+
+    def test_resource_id(self):
+        self.assertEqual(self.concrete_event.resource_id(self.emissary),
+                         logic.resource_id(clan_id=self.emissary.clan_id, place_id=None))
+
+    def test_on_step__multiple_emissaries(self):
+        personal_messages_tt_services.personal_messages.cmd_debug_clear_service()
+
+        emissary_2 = self.create_emissary(clan=self.clan,
+                                          initiator=self.account,
+                                          place_id=self.places[1].id)
+
+        concrete_event_2 = self.Event(raw_ability_power=666)
+
+        event_1 = self.get_event()
+        event_2 = logic.create_event(initiator=self.account,
+                                     emissary=emissary_2,
+                                     concrete_event=concrete_event_2,
+                                     days=7)
+
+        self.give_currency_points(tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER - 1)
+
+        with self.check_delta(self.get_event_points,
+                              -tt_emissaries_constants.EVENT_CURRENCY_MULTIPLIER +
+                              self.concrete_event.points_per_step() +
+                              concrete_event_2.points_per_step()):
+            with self.check_delta(lambda: len(cards_tt_services.storage.cmd_get_items(self.account.id)), 1):
+                with self.check_delta(lambda: personal_messages_tt_services.personal_messages.cmd_new_messages_number(self.account.id), 1):
+                    self.concrete_event.on_step(event_1)
+                    concrete_event_2.on_step(event_2)
+
+        messages_count, messages = personal_messages_tt_services.personal_messages.cmd_get_received_messages(account_id=self.account.id)
+
+        self.assertIn(self.emissary.utg_name.forms[1], messages[0].body)
+        self.assertIn(emissary_2.utg_name.forms[1], messages[0].body)
