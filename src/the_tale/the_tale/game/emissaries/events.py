@@ -574,6 +574,8 @@ class PlaceEffectEvent(EventBase):
                                    refresh_effects=True,
                                    refresh_places=True)
 
+        self.effect_id = None
+
     def is_effect_allowed(self, emissary):
         raise NotImplementedError
 

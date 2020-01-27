@@ -616,8 +616,12 @@ class PlaceEffectEventMixin(BaseEventsMixin):
     def test_remove_effect(self):
         self.concrete_event.add_effect(self.get_event())
 
+        self.assertNotEqual(self.concrete_event.effect_id, None)
+
         with self.check_delta(lambda: len(places_storage.effects.all()), -1):
             self.concrete_event.remove_effect(self.emissary)
+
+        self.assertEqual(self.concrete_event.effect_id, None)
 
     def test_remove_effect__already_removed(self):
         self.concrete_event.add_effect(self.get_event())
