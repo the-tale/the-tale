@@ -20,12 +20,6 @@ class EmissaryForm(utils_forms.Form):
                                           coerce=int)
 
 
-class MoveEmissaryForm(utils_forms.Form):
-    place = utils_fields.TypedChoiceField(label='Город',
-                                          choices=places_storage.places.get_choices,
-                                          coerce=int)
-
-
 class EmptyEventForm(utils_forms.Form):
 
     period = utils_fields.TypedChoiceField(label='длительность',
