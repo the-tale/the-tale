@@ -14,6 +14,13 @@
       {{event_class.effect_description(emissary, raw_ability_power)}}
     </p>
 
+    {% if show_power_warning %}
+    <p class="alert alert-danger pgf-power-warning">
+      <strong>Внимание!</strong> После начала этого мероприятия у эмиссара может остаться слишком мало влияния. Будьте внимательны. <br/>
+      <strong>Сейчас у эмиссара {{current_power}} влияния.</strong>
+    </p>
+    {% endif %}
+
     {% if event_class.TYPE.availability.is_FOR_LEADERS %}
     <p class="alert alert-info">
       <strong>Внимание!</strong> Эффект этого события будет работать только если эмиссар является одним из лидеров по влиянию в городе.

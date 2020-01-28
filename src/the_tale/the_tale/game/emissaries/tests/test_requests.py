@@ -279,6 +279,46 @@ class StartEventDialogTests(BaseRequestsTests):
 
     def test_success(self):
         self.check_html_ok(self.request_ajax_html(self.url), texts=[('emissaries.no_rights', 0),
+                                                                    'form'])
+
+    def test_success__power_warnging(self):
+
+        game_tt_services.emissary_impacts.cmd_debug_clear_service()
+
+        max_power_to_spend = events.Rest.power_cost(self.emissary, days=events.Rest.max_event_length())
+
+        current_power = politic_power_logic.get_emissaries_power(emissaries_ids=[self.emissary.id])[self.emissary.id]
+
+        power_delta = max_power_to_spend + conf.settings.SHOW_START_EVENT_WARNING_BARRIER - current_power
+
+        politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                            actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                            actor_id=self.account_1.id,
+                                                                            target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                            target_id=self.emissary.id,
+                                                                            amount=power_delta - 1)])
+
+        self.check_html_ok(self.request_ajax_html(self.url), texts=[('pgf-power-warning', 1),
+                                                                     'form'])
+
+        politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                            actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                            actor_id=self.account_1.id,
+                                                                            target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                            target_id=self.emissary.id,
+                                                                            amount=1)])
+
+        self.check_html_ok(self.request_ajax_html(self.url), texts=[('pgf-power-warning', 1),
+                                                                     'form'])
+
+        politic_power_logic.add_power_impacts([game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.EMISSARY_POWER,
+                                                                            actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
+                                                                            actor_id=self.account_1.id,
+                                                                            target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
+                                                                            target_id=self.emissary.id,
+                                                                            amount=1)])
+
+        self.check_html_ok(self.request_ajax_html(self.url), texts=[('pgf-power-warning', 0),
                                                                      'form'])
 
     def test_banned(self):

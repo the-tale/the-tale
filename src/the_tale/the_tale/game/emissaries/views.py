@@ -225,11 +225,20 @@ def start_event_dialog(context):
         raise utils_views.ViewError(code='common.argument_required', message='Не указан тип мероприятия')
 
     event_class = events.TYPES[context.event_type]
+
+    max_power_to_spend = event_class.power_cost(context.current_emissary, days=event_class.max_event_length())
+
+    current_power = politic_power_logic.get_emissaries_power(emissaries_ids=[context.current_emissary.id])[context.current_emissary.id]
+
+    show_power_warning = (current_power <= max_power_to_spend + conf.settings.SHOW_START_EVENT_WARNING_BARRIER)
+
     return utils_views.Page('emissaries/start_event_dialog.html',
                             content={'emissary': context.current_emissary,
                                      'form': event_class.form(emissary=context.current_emissary),
                                      'event_class': event_class,
-                                     'resource': context.resource})
+                                     'resource': context.resource,
+                                     'current_power': current_power,
+                                     'show_power_warning': show_power_warning})
 
 
 def _check_emissaries_events(emissary, event_class):

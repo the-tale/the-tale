@@ -13,5 +13,7 @@ settings = utils_app_settings.app_settings('EMISSARIES',
                                            # чтобы на последнем цикле игрок мог получить карту
                                            CARD_RECEIVING_BY_EMISSARY_TIMEOUT=24 * 60 * 60 - 30 * 60,
 
+                                           SHOW_START_EVENT_WARNING_BARRIER=1000,
+
                                            TT_EVENTS_CURRENCIES_ENTRY_POINT='http://localhost:10020/',
                                            TT_EVENTS_UNIQUER_ENTRY_POINT='http://localhost:10021/')
