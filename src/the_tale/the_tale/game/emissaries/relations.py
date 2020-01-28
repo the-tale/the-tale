@@ -232,7 +232,8 @@ class EVENT_STOP_REASON(rels_django.DjangoEnum):
     records = (('NOT_STOPPED', 0, 'не остановлено'),
                ('FINISHED', 1, 'завершено'),
                ('STOPPED_BY_PLAYER', 2, 'остановлено игроком'),
-               ('EMISSARY_LEFT_GAME', 3, 'эмиссар покинул игру'))
+               ('EMISSARY_LEFT_GAME', 3, 'эмиссар покинул игру'),
+               ('EMISSARY_RELOCATED', 4, 'эмиссар был перемещён'))
 
 
 class EVENT_AVAILABILITY(rels_django.DjangoEnum):

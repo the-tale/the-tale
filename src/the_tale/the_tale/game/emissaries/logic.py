@@ -581,6 +581,23 @@ def stop_event_due_emissary_left_game(event):
                                               message=message)
 
 
+def stop_event_due_emissary_relocated(event):
+
+    _stop_event(event, reason=relations.EVENT_STOP_REASON.EMISSARY_RELOCATED)
+
+    message = 'Мероприятие эмиссара [emissary] «[event]» прекращено, так как [он|emissary] [переехал|emissary] в другой город.'
+    message = linguistics_logic.technical_render(message,
+                                                 {'emissary': event.emissary.utg_name_form,
+                                                  'event': lexicon_dictionary.text(event.concrete_event.TYPE.text)})
+
+    clans_tt_services.chronicle.cmd_add_event(clan=clans_logic.load_clan(event.emissary.clan_id),
+                                              event=clans_relations.EVENT.EMISSARY_EVENT_FINISHED,
+                                              tags=[event.emissary.meta_object().tag,
+                                                    event.emissary.place.meta_object().tag,
+                                                    event.concrete_event.TYPE.meta_object().tag],
+                                              message=message)
+
+
 def do_event_step(event_id):
     with django_transaction.atomic():
 
@@ -715,3 +732,11 @@ def has_clan_space_for_emissary(clan_id, attributes):
 
 def sort_for_ui(emissaries, powers):
     emissaries.sort(key=lambda emissary: (emissary.state.value, -powers[emissary.id]))
+
+
+def cancel_events_except_one(event, cancel_event_callback):
+    for emissary_event in storage.events.emissary_events(event.emissary_id):
+        if emissary_event.id == event.id:
+            continue
+
+        cancel_event_callback(emissary_event)

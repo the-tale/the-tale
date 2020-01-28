@@ -277,6 +277,30 @@ class DismissTests(BaseEventsMixin, utils_testcase.TestCase):
 
         self.assertTrue(self.emissary.state.is_OUT_GAME)
 
+    def test_on_finish__cancel_active_events(self):
+        concrete_event_2 = events.Rest(raw_ability_power=666)
+
+        event_1 = self.get_event()
+        event_2 = logic.create_event(initiator=self.account,
+                                     emissary=self.emissary,
+                                     concrete_event=concrete_event_2,
+                                     days=7)
+
+        self.assertEqual(len(storage.events.emissary_events(self.emissary.id)), 2)
+
+        self.concrete_event.on_finish(self.get_event())
+
+        # текущее мероприятие удаляется более высокоуровневым кодом (который вызывает on_finish),
+        # эта логика тут не проверяется
+        loaded_event_1 = storage.events.get_or_load(event_1.id)
+        self.assertTrue(loaded_event_1.state.is_STOPPED)
+        self.assertTrue(loaded_event_1.stop_reason.is_EMISSARY_LEFT_GAME)
+
+        # это мероприятие должно быть удалено
+        loaded_event_2 = storage.events.get_or_load(event_2.id)
+        self.assertTrue(loaded_event_2.state.is_STOPPED)
+        self.assertTrue(loaded_event_2.stop_reason.is_EMISSARY_LEFT_GAME)
+
 
 class RelocationTests(BaseEventsMixin, utils_testcase.TestCase):
 
@@ -299,6 +323,29 @@ class RelocationTests(BaseEventsMixin, utils_testcase.TestCase):
         self.assertEqual(self.emissary.place_id, self.places[1].id)
         self.assertEqual(logic.load_emissary(self.emissary.id).place_id, self.places[1].id)
 
+    def test_on_finish__cancel_active_events(self):
+        concrete_event_2 = events.Rest(raw_ability_power=666)
+
+        event_1 = self.get_event()
+        event_2 = logic.create_event(initiator=self.account,
+                                     emissary=self.emissary,
+                                     concrete_event=concrete_event_2,
+                                     days=7)
+
+        self.assertEqual(len(storage.events.emissary_events(self.emissary.id)), 2)
+
+        self.concrete_event.on_finish(self.get_event())
+
+        # текущее мероприятие удаляется более высокоуровневым кодом (который вызывает on_finish),
+        # эта логика тут не проверяется
+        loaded_event_1 = storage.events.get_or_load(event_1.id)
+        self.assertTrue(loaded_event_1.state.is_RUNNING)
+        self.assertTrue(loaded_event_1.stop_reason.is_NOT_STOPPED)
+
+        # это мероприятие должно быть удалено
+        loaded_event_2 = storage.events.get_or_load(event_2.id)
+        self.assertTrue(loaded_event_2.state.is_STOPPED)
+        self.assertTrue(loaded_event_2.stop_reason.is_EMISSARY_RELOCATED)
 
 class RenameTests(BaseEventsMixin, utils_testcase.TestCase):
 

@@ -23,6 +23,7 @@ def setUp(self):
     map_storage.map_info.clear()
     places_storage.resource_exchanges.clear()
     emissaries_storage.emissaries.clear()
+    emissaries_storage.events.clear()
     collections_storage.collections.clear()
     collections_storage.kits.clear()
     collections_storage.items.clear()

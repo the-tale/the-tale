@@ -186,6 +186,8 @@ class Dismiss(EventBase):
         return 'Увольняет эмиссара. Вернуть эмиссара после увольнения нельзя.'
 
     def on_finish(self, event):
+        logic.cancel_events_except_one(event, logic.stop_event_due_emissary_left_game)
+
         logic.dismiss_emissary(event.emissary.id)
         return True
 
@@ -217,12 +219,14 @@ class Relocation(EventBase):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        return 'По завершении мероприятия эмиссар перемещается в указанный город, его влияние становится равным {power}.'.format(power=logic.expected_power_per_day())
+        return f'По завершении мероприятия эмиссар перемещается в указанный город, его влияние становится равным {logic.expected_power_per_day()}. Все активные мероприятия эмиссара автоматически отменяются.'
 
     def event_description(self, emissary):
         return 'Перемещает эмиссара в {}.'.format(places_storage.places[self.place_id].utg_name.forms[3])
 
     def on_finish(self, event):
+        logic.cancel_events_except_one(event, logic.stop_event_due_emissary_relocated)
+
         logic.move_emissary(emissary_id=event.emissary_id,
                             new_place_id=self.place_id)
         return True
