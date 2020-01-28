@@ -361,7 +361,7 @@ def impacts_from_hero(hero, emissary, power, impacts_generator=tt_power_impacts)
                                  fame=c.HERO_FAME_PER_HELP if 0 < power else 0)
 
 
-def form_choices(empty_choice=True):
+def form_choices(empty_choice=True, own_clan_id=None):
     choices = []
 
     if empty_choice:
@@ -371,6 +371,8 @@ def form_choices(empty_choice=True):
     clans = [clan for clan in clans if clan.state.is_ACTIVE]
 
     clans = {clan.id: clan for clan in clans}
+
+    own_clan_name = None
 
     for clan_id, emissaries in storage.emissaries.emissaries_by_clan.items():
 
@@ -383,9 +385,16 @@ def form_choices(empty_choice=True):
 
         clan_choices.sort(key=lambda choice: choice[1])
 
-        choices.append(('[{}] {}'.format(clan.abbr, clan.name), clan_choices))
+        clan_name = f'[{clan.abbr}] {clan.name}'
 
-    return sorted(choices, key=lambda choice: choice[0])
+        if clan_id == own_clan_id:
+            own_clan_name = clan_name
+
+        choices.append((clan_name, clan_choices))
+
+    choices.sort(key=lambda choice: (choice[0] != '', choice[0] != own_clan_name, choice[0]))
+
+    return choices
 
 
 def sync_power():

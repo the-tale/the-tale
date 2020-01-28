@@ -81,8 +81,11 @@ class Emissary(utils_forms.Form):
     value = utils_fields.ChoiceField(label='Эмиссар', required=False)
 
     def __init__(self, *args, **kwargs):
+        clan_id = kwargs.pop('clan_id', None)
+
         super().__init__(*args, **kwargs)
-        self.fields['value'].choices = emissaries_logic.form_choices()
+
+        self.fields['value'].choices = emissaries_logic.form_choices(own_clan_id=clan_id)
 
     def clean_value(self):
         emissary_id = self.cleaned_data.get('value')
