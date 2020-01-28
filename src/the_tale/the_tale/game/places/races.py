@@ -7,7 +7,7 @@ smart_imports.all()
 E = 0.001
 
 
-class RaceInfo(collections.namedtuple('RaceInfo', ['race', 'percents', 'persons_percents', 'delta'])):
+class RaceInfo(collections.namedtuple('RaceInfo', ['race', 'percents', 'optimal_percents', 'persons_percents', 'delta'])):
     pass
 
 
@@ -29,7 +29,7 @@ class Races(object):
     def get_race_percents(self, race):
         return self._races.get(race, 0)
 
-    def get_next_races(self, persons, demographics_pressure_modifires):
+    def get_optimal_pressure(self, persons, demographics_pressure_modifires):
         trends = {race: 0.0 for race in game_relations.RACE.records}
 
         for person in persons:
@@ -43,7 +43,10 @@ class Races(object):
         if not trends or normalizer < E:
             return copy.copy(self._races)
 
-        trends = {race: float(power) / normalizer for race, power in trends.items()}
+        return {race: float(power) / normalizer for race, power in trends.items()}
+
+    def get_next_races(self, persons, demographics_pressure_modifires):
+        trends = self.get_optimal_pressure(persons, demographics_pressure_modifires)
 
         new_races = {race: max(0.0, percents + c.PLACE_RACE_CHANGE_DELTA * trends[race]) for race, percents in self._races.items()}
 
@@ -71,6 +74,8 @@ class Races(object):
     def demographics(self, persons, demographics_pressure_modifires):
         races = []
 
+        trends = self.get_optimal_pressure(persons, demographics_pressure_modifires)
+
         next_delta = self.get_next_delta(persons, demographics_pressure_modifires)
 
         persons_percents = map_logic.get_person_race_percents(persons)
@@ -78,6 +83,7 @@ class Races(object):
         for race in game_relations.RACE.records:
             races.append(RaceInfo(race=race,
                                   percents=self._races[race],
+                                  optimal_percents=trends[race],
                                   delta=next_delta[race],
                                   persons_percents=persons_percents[race.value]))
 

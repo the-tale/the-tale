@@ -124,19 +124,19 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                                description='Перечень гильдий, которые предоставляют лечение спутникам своих героев.'),
 
                attributes.attr('DEMOGRAPHICS_PRESSURE_HUMAN', 39, 'бонус демографического давления людей',
-                               formatter=attributes.delta_percents_formatter,
+                               formatter=attributes.delta_percents_formatter, verbose_units='%',
                                description='Модификация демографического давления мастеров людей.'),
                attributes.attr('DEMOGRAPHICS_PRESSURE_ELF', 40, 'бонус демографического давления эльфов',
-                               formatter=attributes.delta_percents_formatter,
+                               formatter=attributes.delta_percents_formatter, verbose_units='%',
                                description='Модификация демографического давления мастеров эльфов.'),
                attributes.attr('DEMOGRAPHICS_PRESSURE_ORC', 41, 'бонус демографического давления орков',
-                               formatter=attributes.delta_percents_formatter,
+                               formatter=attributes.delta_percents_formatter, verbose_units='%',
                                description='Модификация демографического давления мастеров орков.'),
                attributes.attr('DEMOGRAPHICS_PRESSURE_GOBLIN', 42, 'бонус демографического давления гоблинов',
-                               formatter=attributes.delta_percents_formatter,
+                               formatter=attributes.delta_percents_formatter, verbose_units='%',
                                description='Модификация демографического давления мастеров гоблинов.'),
                attributes.attr('DEMOGRAPHICS_PRESSURE_DWARF', 43, 'бонус демографического давления дварфов',
-                               formatter=attributes.delta_percents_formatter,
+                               formatter=attributes.delta_percents_formatter, verbose_units='%',
                                description='Модификация демографического давления мастеров дварфов.'),)
 
 
