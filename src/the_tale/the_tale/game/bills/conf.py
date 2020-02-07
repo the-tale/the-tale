@@ -7,7 +7,7 @@ smart_imports.all()
 settings = utils_app_settings.app_settings('BILLS',
                                            RATIONALE_MIN_LENGTH=100,
                                            CHRONICLE_MIN_LENGTH=100 if not django_settings.TESTS_RUNNING else 5,
-                                           CHRONICLE_MAX_LENGTH=1000,
+                                           CHRONICLE_MAX_LENGTH=1500,
                                            MIN_VOTES_PERCENT=0.6,
                                            BILL_LIVE_TIME=4 * 24 * 60 * 60,
                                            BILL_ACTUAL_LIVE_TIME=60,  # IN DAYS

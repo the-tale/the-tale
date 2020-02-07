@@ -11,7 +11,7 @@ class BasePersonBill(base_bill.BaseBill):
     DESCRIPTION = None
 
     def __init__(self, person_id=None, old_place_name_forms=None, place_id=None):
-        super(BasePersonBill, self).__init__()
+        super().__init__()
         self.old_place_name_forms = old_place_name_forms
         self.person_id = person_id
         self.place_id = place_id

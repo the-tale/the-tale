@@ -22,7 +22,8 @@ BILLS = [place_renaming.PlaceRenaming,
          person_remove_social_connection.PersonRemoveSocialConnection,
          road_create.RoadCreate,
          road_destroy.RoadDestroy,
-         road_change.RoadChange]
+         road_change.RoadChange,
+         emissary_chronicle.EmissaryChronicle]
 
 
 def deserialize_bill(data):
@@ -32,4 +33,5 @@ def deserialize_bill(data):
 BILLS_BY_ID = dict((bill.type.value, bill) for bill in BILLS)
 BILLS_BY_STR = dict((bill.type.name.lower(), bill) for bill in BILLS)
 
-BILLS_BY_STR['place_modifier'] = BILLS_BY_STR['place_change_modifier']  # TODO: remove after migrate all saved bills to new name
+# TODO: migrate old bills to new name and remove that line
+BILLS_BY_STR['place_modifier'] = BILLS_BY_STR['place_change_modifier']

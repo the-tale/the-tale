@@ -96,7 +96,10 @@
 </ul>
 
 {% if bill.chronicle_on_accepted %}
-<h4>Запись в летописи о принятии</h4>
+<h4>
+  Запись в летописи о принятии
+  <small>количество символов: {{bill.chronicle_on_accepted|length}}</small>
+</h4>
 <p>{{ bill.chronicle_on_accepted }}</p>
 {% endif %}
 

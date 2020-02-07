@@ -219,11 +219,6 @@ class BillPrototype(utils_prototypes.BasePrototype):
                     places_storage.effects.update_version()
                     places_storage.effects.refresh()
 
-                    # place.refresh_attributes()
-                    # places_logic.save_place(place)
-
-                    # places_storage.places.update_version()
-
         logic.initiate_actual_bills_update(self._model.owner_id)
 
         chronicle_tt_services.chronicle.cmd_add_event(tags=[actor.meta_object().tag for actor in self.actors] + [self.meta_object().tag],
