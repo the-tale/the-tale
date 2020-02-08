@@ -927,6 +927,12 @@ class ActionInPlacePrototype(ActionBase):
                         bundle_id=bundle_id,
                         state=cls.STATE.SPEND_MONEY)
 
+        if hero.companion and hero.position.moved_out_place:
+            # спутники, покидающие героя, должны уходить до входа в город
+            if random.random() < hero.companion_leave_in_place_probability:
+                hero.add_message('companions_left', diary=True, companion_owner=hero, companion=hero.companion)
+                hero.remove_companion()
+
         if hero.health < hero.max_health and random.random() < hero.position.place.attrs.hero_regen_chance:
             hero.health = hero.max_health
             hero.add_message('action_inplace_instant_heal',
@@ -1007,10 +1013,6 @@ class ActionInPlacePrototype(ActionBase):
                 artifact = random.choice(list(hero.bag.values()))
                 hero.pop_loot(artifact)
                 hero.add_message('action_inplace_companion_drink_artifact', hero=hero, place=hero.position.place, artifact=artifact, companion=hero.companion)
-
-            if random.random() < hero.companion_leave_in_place_probability:
-                hero.add_message('companions_left', diary=True, companion_owner=hero, companion=hero.companion)
-                hero.remove_companion()
 
         hero.position.move_in_place()  # <- must be last method
 
