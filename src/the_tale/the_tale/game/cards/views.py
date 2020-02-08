@@ -164,7 +164,7 @@ def api_combine(context):
                            operation_type='combine-cards',
                            to_add=new_cards,
                            to_remove=context.cards)
-    except utils_exceptions.TTAPIUnexpectedAPIStatus:
+    except tt_api_exceptions.TTAPIUnexpectedAPIStatus:
         # return error, in most cases it is duplicate request
         raise utils_views.ViewError(code='can_not_combine_cards',
                                     message='Не удалось объединить карты. Попробуйте обновить страницу и повторить попытку.')
