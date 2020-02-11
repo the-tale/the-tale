@@ -13,19 +13,19 @@ class JobsMethodsMixin(object):
             variables['person'] = persons_storage.persons[person_id]
         return variables
 
-    def job_message(self, place_id, person_id, message_type, job_power):
+    def job_message(self, place_id, person_id, message_type, **kwargs):
         self.add_message(message_type, diary=True, hero=self, **self.get_job_variables(place_id, person_id))
 
-    def job_money(self, place_id, person_id, message_type, job_power):
-        coins = max(1, int(math.ceil(f.normal_action_price(self.level) * job_power * c.NORMAL_JOB_LENGTH * c.JOB_HERO_REWARD_FRACTION)))
-        self.change_money(relations.MONEY_SOURCE.EARNED_FROM_MASTERS, coins)
+    def job_money(self, place_id, person_id, message_type, effect_value):
+        self.change_money(relations.MONEY_SOURCE.EARNED_FROM_MASTERS, effect_value)
 
-        self.add_message(message_type, diary=True, hero=self, coins=coins, **self.get_job_variables(place_id, person_id))
+        self.add_message(message_type, diary=True, hero=self, coins=effect_value, **self.get_job_variables(place_id, person_id))
 
-    def job_artifact(self, place_id, person_id, message_type, job_power):
+    def job_artifact(self, place_id, person_id, message_type, effect_value):
 
-        rarity = utils_logic.random_value_by_priority(((artifacts_relations.RARITY.RARE, c.RARE_ARTIFACT_PROBABILITY),
-                                                       (artifacts_relations.RARITY.EPIC, c.EPIC_ARTIFACT_PROBABILITY * job_power)))
+        rarity_value = utils_logic.random_value_by_priority(list(effect_value.items()))
+
+        rarity = artifacts_relations.RARITY(rarity_value)
 
         artifact, unequipped, sell_price = self.receive_artifact(equip=False,
                                                                  better=True,
@@ -36,19 +36,19 @@ class JobsMethodsMixin(object):
 
         self.add_message(message_type, diary=True, hero=self, artifact=artifact, **self.get_job_variables(place_id, person_id))
 
-    def job_experience(self, place_id, person_id, message_type, job_power):
-        experience = max(1, int(math.ceil(f.experience_for_quest(c.QUEST_AREA_RADIUS) * job_power * c.NORMAL_JOB_LENGTH * c.JOB_HERO_REWARD_FRACTION)))
-        self.add_experience(experience, without_modifications=True)
+    def job_experience(self, place_id, person_id, message_type, effect_value):
+        self.add_experience(effect_value, without_modifications=True)
 
-        self.add_message(message_type, diary=True, hero=self, experience=experience, **self.get_job_variables(place_id, person_id))
+        self.add_message(message_type, diary=True, hero=self, experience=effect_value, **self.get_job_variables(place_id, person_id))
 
-    def job_energy(self, place_id, person_id, message_type, job_power):
-        energy = max(1, int(math.ceil(c.ANGEL_ENERGY_IN_DAY * job_power * c.NORMAL_JOB_LENGTH * c.JOB_HERO_REWARD_FRACTION)))
+    def job_cards(self, place_id, person_id, message_type, effect_value):
 
-        game_tt_services.energy.cmd_change_balance(account_id=self.account_id,
-                                                   type='job_energy',
-                                                   amount=energy,
-                                                   asynchronous=True,
-                                                   autocommit=True)
+        account = accounts_prototypes.AccountPrototype.get_by_id(self.id)
 
-        self.add_message(message_type, diary=True, hero=self, energy=energy, **self.get_job_variables(place_id, person_id))
+        cards_logic.give_new_cards(account_id=account.id,
+                                   operation_type='job-card',
+                                   allow_premium_cards=account.cards_receive_mode().is_ALL,
+                                   available_for_auction=account.is_premium,
+                                   number=effect_value)
+
+        self.add_message(message_type, diary=True, hero=self, **self.get_job_variables(place_id, person_id))

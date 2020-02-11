@@ -18,10 +18,10 @@ class InnerCircleTests(utils_testcase.TestCase):
                        (7, -100),
                        (8, -200)]
 
-        self.circle = objects.InnerCircle(rating=self.rating, size=2)
+        self.circle = objects.InnerCircle(rating=self.rating, size=5)
 
     def test_initialize(self):
-        self.assertEqual(self.circle.size, 2)
+        self.assertEqual(self.circle.size, 5)
         self.assertEqual(self.circle.rating, [(6, 500),
                                               (5, 400),
                                               (3, -300),
@@ -31,11 +31,10 @@ class InnerCircleTests(utils_testcase.TestCase):
                                               (7, -100),
                                               (4, 0)])
         self.assertEqual(self.circle.powers, dict(self.rating))
-        self.assertEqual(self.circle.positive_heroes, {6, 5})
-        self.assertEqual(self.circle.negative_heroes, {3, 8})
+        self.assertEqual(self.circle.circle, {6, 5, 3, 2, 8})
         self.assertEqual(self.circle.total_positive_heroes_number, 4)
         self.assertEqual(self.circle.total_negative_heroes_number, 3)
-        self.assertEqual(self.circle.circle_positive_heroes_number, 2)
+        self.assertEqual(self.circle.circle_positive_heroes_number, 3)
         self.assertEqual(self.circle.circle_negative_heroes_number, 2)
 
     def test_initialize__empty_circle(self):
@@ -44,8 +43,7 @@ class InnerCircleTests(utils_testcase.TestCase):
         self.assertEqual(circle.size, 2)
         self.assertEqual(circle.rating, [])
         self.assertEqual(circle.powers, {})
-        self.assertEqual(circle.positive_heroes, frozenset())
-        self.assertEqual(circle.negative_heroes, frozenset())
+        self.assertEqual(circle.circle, frozenset())
         self.assertEqual(circle.total_positive_heroes_number, 0)
         self.assertEqual(circle.total_negative_heroes_number, 0)
         self.assertEqual(circle.circle_positive_heroes_number, 0)
@@ -53,7 +51,7 @@ class InnerCircleTests(utils_testcase.TestCase):
 
     def test_in_circle(self):
         self.assertFalse(self.circle.in_circle(1))
-        self.assertFalse(self.circle.in_circle(2))
+        self.assertTrue(self.circle.in_circle(2))
         self.assertTrue(self.circle.in_circle(3))
         self.assertFalse(self.circle.in_circle(4))
         self.assertTrue(self.circle.in_circle(5))
@@ -66,7 +64,12 @@ class InnerCircleTests(utils_testcase.TestCase):
 
     def test_ui_info(self):
         self.assertEqual(self.circle.ui_info(),
-                         {'positive': {6: 500,
-                                       5: 400},
-                          'negative': {3: -300,
-                                       8: -200}})
+                         {'size': 5,
+                          'rating': [(6, 500),
+                                     (5, 400),
+                                     (3, -300),
+                                     (2, 200),
+                                     (8, -200),
+                                     (1, 100),
+                                     (7, -100),
+                                     (4, 0)]})

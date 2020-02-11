@@ -101,9 +101,6 @@ class Worker(utils_workers.BaseWorker):
                 for person in persons_storage.persons.all():
                     call_after_transaction.extend(jobs_logic.update_job(person.job, person.id))
 
-                for place in places_storage.places.all():
-                    call_after_transaction.extend(jobs_logic.update_job(place.job, place.id))
-
                 frontier_places = [place for place in places_storage.places.all() if place.is_frontier]
                 core_places = [place for place in places_storage.places.all() if not place.is_frontier]
 

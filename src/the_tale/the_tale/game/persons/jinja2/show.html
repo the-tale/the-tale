@@ -71,6 +71,13 @@
         </td>
       </tr>
       <tr>
+        <th>до завершения проекта</th>
+        <td>
+          {{person.job.will_be_completed_after()|verbose_timedelta}} (минимум)
+          <i class="icon-info-sign" rel="tooltip" title="Проект длится минимум {{c.NORMAL_JOB_LENGTH}} дня"></i>
+        </td>
+      </tr>
+      <tr>
         <th>размер проекта</th>
         <td>
           {{person.job.get_job_power(person.id)|percents(2)}}
@@ -171,6 +178,51 @@
       </div>
     </div>
 
+    <div class="accordion-group">
+      <div class="accordion-heading">
+        <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-person-accordion" href="#pgf-person-jobs">
+          Проекты
+        </a>
+      </div>
+      <div id="pgf-person-jobs" class="accordion-body collapse" style="height: 0px;">
+        <div class="accordion-inner">
+
+          <p>
+            Вероятности выбора проектов Мастером и их ожидаемый эффект.
+          </p>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>проект</th>
+                <th>вероятность</th>
+                <th>
+                  влияние
+                  <i class="icon-info-sign" rel="tooltip" title="Сколько влияния должен получить Мастер, чтобы завершить/провалить проект"></i>
+                </th>
+                <th>при выполнении</th>
+                <th>при провале</th>
+              </tr>
+            </thead>
+
+            {% set job_power = person.job.get_job_power(person.id) %}
+
+            <tbody>
+              {% for effect, priority in job_effects_priorities %}
+              <tr>
+                <td>{{effect.text}}</td>
+                <td>{{priority|percents(2)}}</td>
+                <td>{{effect.logic.power_required(person.job.NORMAL_POWER)}}</td>
+                <td>{{effect.logic.short_effect_description(effect.logic.positive_effect_value(job_power))}}</td>
+                <td>{{effect.logic.short_effect_description(effect.logic.negative_effect_value(job_power))}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
 
     <div class="accordion-group">
       <div class="accordion-heading">
@@ -197,7 +249,11 @@
   </div>
 
 
-  <h3>Герои</h3>
+  <h3>Ближний круг</h3>
+
+<p>
+  В ближний круг попадают герои, специально помогающие или вредящие Мастеру. Подробнее про ближний круг можно прочитать в <a href="{{url('guide:persons')}}">путеводителе</a>.
+</p>
 
   <ul>
     <li>Всего героев помогает: {{inner_circle.total_positive_heroes_number}} (в круге: {{inner_circle.circle_positive_heroes_number}})</li>

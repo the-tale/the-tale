@@ -103,7 +103,7 @@ class GetInnerCircleTests(utils_testcase.TestCase):
         self.person_impacts = []
         self.place_impacts = []
 
-        test_size = conf.settings.PLACE_INNER_CIRCLE_SIZE + conf.settings.PERSON_INNER_CIRCLE_SIZE
+        test_size = 10
 
         self.person_id = 666
         self.place_id = 777
@@ -185,19 +185,7 @@ class GetJobPowerTests(utils_testcase.TestCase):
                                                 actor_id=self.hero_id,
                                                 target_type=tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE,
                                                 target_id=self.person_id,
-                                                amount=2000),
-                   game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
-                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                                actor_id=self.hero_id,
-                                                target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
-                                                target_id=self.place_id,
-                                                amount=3000),
-                   game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
-                                                actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                                                actor_id=self.hero_id,
-                                                target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE,
-                                                target_id=self.place_id,
-                                                amount=4000)]
+                                                amount=2000)]
 
         foreign_impacts = copy.deepcopy(impacts)
         for impact in foreign_impacts:
@@ -206,10 +194,6 @@ class GetJobPowerTests(utils_testcase.TestCase):
 
         logic.add_power_impacts(impacts)
         logic.add_power_impacts(foreign_impacts)
-
-    def test_get_for_place(self):
-        self.assertEqual(logic.get_job_power(place_id=self.place_id),
-                         jobs_objects.JobPower(3000, 4000))
 
     def test_get_for_person(self):
         self.assertEqual(logic.get_job_power(person_id=self.person_id),

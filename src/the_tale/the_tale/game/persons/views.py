@@ -61,4 +61,5 @@ def show(context):
                                      'inner_circle': inner_circle,
                                      'persons_power_storage': politic_power_storage.persons,
                                      'job_power': job_power,
+                                     'job_effects_priorities': jobs.get_priorities(context.person),
                                      'resource': context.resource})

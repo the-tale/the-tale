@@ -161,10 +161,10 @@ class PERSONALITY_PRACTICAL(PERSONALITY):
                personality('HARDWORKING', 10, 'трудолюбивый', 'JOB_POWER_BONUS', 0.5,
                            'трудолюбивый', 'трудолюбивая', 'У проектов Мастера более сильный эффект.'),
 
-               personality('ENTERPRISING', 11, 'предприимчивый', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_PLACE: 0.5},
+               personality('ENTERPRISING', 11, 'предприимчивый', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_PLACE: 1},
                            'предприимчивый', 'предприимчивая', 'Мастер чаще выполняет проекты, связанные с экономикой города.'),
 
-               personality('ROMANTIC', 12, 'романтичный', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_HEROES: 0.5},
+               personality('ROMANTIC', 12, 'романтичный', 'JOB_GROUP_PRIORITY', {jobs_effects.EFFECT_GROUP.ON_HEROES: 1},
                            'романтичный', 'романтичная', 'Мастер чаще выполняет проекты, связанные с помощью героям.'),
 
                personality('RESPONSIBLE', 13, 'ответственный', 'SOCIAL_RELATIONS_PARTNERS_POWER_MODIFIER', 0.1,

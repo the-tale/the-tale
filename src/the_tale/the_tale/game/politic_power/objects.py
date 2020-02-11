@@ -4,8 +4,7 @@ class InnerCircle:
     __slots__ = ('rating',
                  'powers',
                  'size',
-                 'positive_heroes',
-                 'negative_heroes',
+                 'circle',
                  'total_positive_heroes_number',
                  'total_negative_heroes_number',
                  'circle_positive_heroes_number',
@@ -22,33 +21,28 @@ class InnerCircle:
 
         self.powers = dict(self.rating)
 
-        positive_heroes = []
-        negative_heroes = []
+        circle_rating = self.rating[:self.size]
 
-        for hero_id, power in self.rating:
-            if power > 0:
-                positive_heroes.append((power, hero_id))
-            elif power < 0:
-                negative_heroes.append((-power, hero_id))
+        self.circle = frozenset(hero_id for hero_id, power in circle_rating)
 
-        positive_heroes.sort()
-        negative_heroes.sort()
+        self.circle_positive_heroes_number = sum(1 if power > 0 else 0 for hero_id, power in circle_rating)
+        self.circle_negative_heroes_number = sum(1 if power < 0 else 0 for hero_id, power in circle_rating)
 
-        self.total_positive_heroes_number = len(positive_heroes)
-        self.total_negative_heroes_number = len(negative_heroes)
+        self.total_positive_heroes_number = sum(1 if power > 0 else 0 for hero_id, power in self.rating)
+        self.total_negative_heroes_number = sum(1 if power < 0 else 0 for hero_id, power in self.rating)
 
-        self.positive_heroes = frozenset((hero_id for power, hero_id in positive_heroes[-self.size:]))
-        self.negative_heroes = frozenset((hero_id for power, hero_id in negative_heroes[-self.size:]))
+    def get_positive_heroes_ids(self):
+        return {hero_id for hero_id in self.circle if self.powers[hero_id] > 0}
 
-        self.circle_positive_heroes_number = len(self.positive_heroes)
-        self.circle_negative_heroes_number = len(self.negative_heroes)
+    def get_negative_heroes_ids(self):
+        return {hero_id for hero_id in self.circle if self.powers[hero_id] < 0}
 
     def in_circle(self, hero_id):
-        return hero_id in self.positive_heroes or hero_id in self.negative_heroes
+        return hero_id in self.circle
 
     def heroes_ids(self):
         return [hero_id for hero_id, amount in self.rating]
 
     def ui_info(self):
-        return {'positive': {hero_id: self.powers[hero_id] for hero_id in self.positive_heroes},
-                'negative': {hero_id: self.powers[hero_id] for hero_id in self.negative_heroes}}
+        return {'size': self.size,
+                'rating': self.rating}

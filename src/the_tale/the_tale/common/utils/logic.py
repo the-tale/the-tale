@@ -178,3 +178,9 @@ def run_django_command(command):
 
 def normalize_email(email):
     return email.lower()
+
+
+def normalize_dict(values):
+    total = sum(values.values())
+    return {key: float(value) / total
+            for key, value in values.items()}

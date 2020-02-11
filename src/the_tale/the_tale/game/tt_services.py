@@ -74,22 +74,6 @@ class PowerImpact(tt_api_impacts.Impact):
                    turn=turn,
                    transaction=transaction)
 
-    @classmethod
-    def hero_2_place_job(cls, hero_id, place_id, amount, turn=None, transaction=None):
-        target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE
-
-        if amount < 0:
-            target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE
-
-        return cls(type=game_tt_services.IMPACT_TYPE.JOB,
-                   actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
-                   actor_id=hero_id,
-                   target_type=target_type,
-                   target_id=place_id,
-                   amount=abs(amount),
-                   turn=turn,
-                   transaction=transaction)
-
 
 class EnergyClient(tt_api_bank.Client):
     pass

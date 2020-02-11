@@ -24,7 +24,6 @@ class Place(game_names.ManageNameMixin2):
                  'attrs',
                  'utg_name',
                  'races',
-                 'job',
                  '_modifier',
 
                  # mames mixin
@@ -51,7 +50,6 @@ class Place(game_names.ManageNameMixin2):
                  attrs,
                  utg_name,
                  races,
-                 job,
                  modifier):
         self.id = id
         self.x = x
@@ -73,7 +71,6 @@ class Place(game_names.ManageNameMixin2):
         self.attrs = attrs
         self.utg_name = utg_name
         self.races = races
-        self.job = job
         self._modifier = modifier
 
     @property

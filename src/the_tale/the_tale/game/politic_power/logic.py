@@ -55,11 +55,8 @@ def get_inner_circle(place_id=None, person_id=None):
                                size=size)
 
 
-def get_job_power(place_id=None, person_id=None):
-    if place_id is not None:
-        targets = ((tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE, place_id),
-                   (tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE, place_id))
-    elif person_id is not None:
+def get_job_power(person_id=None):
+    if person_id is not None:
         targets = ((tt_api_impacts.OBJECT_TYPE.JOB_PERSON_POSITIVE, person_id),
                    (tt_api_impacts.OBJECT_TYPE.JOB_PERSON_NEGATIVE, person_id))
     else:
@@ -71,11 +68,7 @@ def get_job_power(place_id=None, person_id=None):
     negative_power = 0
 
     for impact in impacts:
-        if impact.target_type.is_JOB_PLACE_POSITIVE:
-            positive_power = impact.amount
-        elif impact.target_type.is_JOB_PLACE_NEGATIVE:
-            negative_power = impact.amount
-        elif impact.target_type.is_JOB_PERSON_POSITIVE:
+        if impact.target_type.is_JOB_PERSON_POSITIVE:
             positive_power = impact.amount
         elif impact.target_type.is_JOB_PERSON_NEGATIVE:
             negative_power = impact.amount

@@ -11,6 +11,8 @@ BEST_PERSON_BONUSES = {places_relations.ATTRIBUTE.PRODUCTION: c.PLACE_GOODS_FROM
                        places_relations.ATTRIBUTE.CULTURE: c.PLACE_CULTURE_FROM_BEST_PERSON,
                        places_relations.ATTRIBUTE.STABILITY: c.PLACE_STABILITY_FROM_BEST_PERSON}
 
+MAXIMUM_RAW_ECONOMIC_ATTRIBUTE = 3.0
+
 
 class Person(game_names.ManageNameMixin2):
     __slots__ = ('id',
@@ -142,7 +144,7 @@ class Person(game_names.ManageNameMixin2):
         return sorted(choices, key=lambda choice: choice[0])
 
     def get_economic_modifier(self, attribute):
-        return self.economic_attributes[attribute] / 3.0 * BEST_PERSON_BONUSES[attribute]
+        return self.economic_attributes[attribute] / MAXIMUM_RAW_ECONOMIC_ATTRIBUTE * BEST_PERSON_BONUSES[attribute]
 
     def get_economic_modifiers(self):
         for attribute in self.economic_attributes.keys():

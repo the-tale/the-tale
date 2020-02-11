@@ -627,7 +627,11 @@ class AddPersonPower(ModificatorBase):
         if person_id not in persons_storage.persons:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Мастер не найден.')
 
-        impacts = [game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+        impacts = [game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                              hero_id=task.hero.id,
+                                                              person_id=person_id,
+                                                              amount=delta),
+                   game_tt_services.PowerImpact.hero_2_person(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                               hero_id=task.hero.id,
                                                               person_id=person_id,
                                                               amount=delta),
@@ -694,13 +698,14 @@ class AddPlacePower(ModificatorBase):
         if place_id not in places_storage.places:
             return task.logic_result(next_step=postponed_tasks.UseCardTask.STEP.ERROR, message='Город не найден.')
 
-        impacts = [game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+        impacts = [game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
                                                              hero_id=task.hero.id,
                                                              place_id=place_id,
                                                              amount=delta),
-                   game_tt_services.PowerImpact.hero_2_place_job(hero_id=task.hero.id,
-                                                                 place_id=place_id,
-                                                                 amount=delta)]
+                   game_tt_services.PowerImpact.hero_2_place(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
+                                                             hero_id=task.hero.id,
+                                                             place_id=place_id,
+                                                             amount=delta)                                                             ]
 
         politic_power_logic.add_power_impacts(impacts)
 

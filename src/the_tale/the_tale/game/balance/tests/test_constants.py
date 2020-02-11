@@ -167,12 +167,11 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.EXPECTED_HERO_QUEST_POWER_MODIFIER, 5)
         self.assertEqual(c.CARD_BONUS_FOR_QUEST, 40)
 
-        self.assertEqual(c.NORMAL_JOB_LENGTH, 10)
+        self.assertEqual(c.NORMAL_JOB_LENGTH, 4)
 
         self.assertEqual(c.JOB_MIN_POWER, 0.5)
         self.assertEqual(c.JOB_MAX_POWER, 2.0)
 
-        self.assertEqual(c.JOB_HERO_REWARD_FRACTION, 0.1)
         self.assertEqual(c.JOB_NEGATIVE_POWER_MULTIPLIER, 2.0)
 
         self.assertEqual(c.PREFERED_MOB_LOOT_PROBABILITY_MULTIPLIER, 2)
@@ -308,14 +307,14 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PLACE_HABITS_CHANGE_SPEED_MAXIMUM_PENALTY, 10)
         self.assertEqual(c.PLACE_HABITS_EVENT_PROBABILITY, 0.025)
 
-        self.assertEqual(c.PLACE_JOB_EFFECT_FRACTION, 0.2)
+        self.assertEqual(c.PLACE_JOB_EFFECT_LIFETIME, 8)
 
-        self.assertEqual(c.JOB_PRODUCTION_BONUS, 20)
-        self.assertAlmostEqual(c.JOB_SAFETY_BONUS, 0.005)
-        self.assertEqual(c.JOB_TRANSPORT_BONUS, 0.025)
-        self.assertEqual(c.JOB_FREEDOM_BONUS, 0.025)
-        self.assertAlmostEqual(c.JOB_STABILITY_BONUS, 0.02)
-        self.assertEqual(c.JOB_CULTURE_BONUS, 0.03)
+        self.assertEqual(c.JOB_PRODUCTION_BONUS, 100)
+        self.assertAlmostEqual(c.JOB_SAFETY_BONUS, 0.025)
+        self.assertEqual(c.JOB_TRANSPORT_BONUS, 0.125)
+        self.assertEqual(c.JOB_FREEDOM_BONUS, 0.125)
+        self.assertAlmostEqual(c.JOB_STABILITY_BONUS, 0.1)
+        self.assertEqual(c.JOB_CULTURE_BONUS, 0.15)
 
         self.assertEqual(c.RESOURCE_EXCHANGE_COST_PER_CELL, 2)
 

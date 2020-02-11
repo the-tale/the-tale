@@ -138,12 +138,14 @@ jQuery(document).ready(function(e){
 
 {% endmacro %}
 
-{% macro inner_circle_heroes(inner_circle, player_account_id) %}
+{% macro inner_circle_heroes(inner_circle, player_account_id, show_job_column=true) %}
   {% if inner_circle.rating %}
   <table class="table table-condensed">
     <thead>
       <tr>
-        <th width="100px">ближний круг</th>
+        {% if show_job_column %}
+          <th width="100px">проекты</th>
+        {% endif %}
         <th>герой</th>
         <th>принесённое влияние</th>
       </tr>
@@ -151,15 +153,22 @@ jQuery(document).ready(function(e){
     <tbody>
       {% for account_id, power in inner_circle.rating %}
         {% if account_id not in	accounts_short_infos %}{% continue %}{%	endif %}
-        <tr {% if player_account_id == account_id %}style="font-weight: bold;"{% endif %}>
-          <td>
-            {% if account_id in inner_circle.positive_heroes %}
-              <span class="label label-success">помогает</span>
+          <tr {% if player_account_id == account_id %}style="font-weight: bold;"{% endif %}>
+            {% if show_job_column %}
+              <td>
+                {% if inner_circle.in_circle(account_id) %}
+                {% if power > 0 %}
+                <span class="label label-success"
+                      rel="tooltip"
+                      title="Герой получит награду за удачное выполнение проекта (если она предусмотрена)">помощник</span>
+                  {% else %}
+                <span class="label label-important"
+                      rel="tooltip"
+                      title="Герой получит награду за провал проекта (если она предусмотрена)">вредитель</span>
+                {% endif %}
+                {% endif %}
+              </td>
             {% endif %}
-            {% if account_id in inner_circle.negative_heroes %}
-              <span class="label label-important">мешает</span>
-            {% endif %}
-          </td>
           <td>{{account_record(accounts_short_infos[account_id])}}</td>
           <td>
             {% if power < 0 %}

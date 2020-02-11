@@ -87,10 +87,3 @@ def percents_formatter(value):
 
 def float_formatter(value):
     return '%.2f' % round(value, 2)
-
-
-def delta_percents_formatter(value):
-    if value <= 0:
-        return '%.2f' % round(value * 100, 2)
-
-    return '+%.2f' % round(value * 100, 2)

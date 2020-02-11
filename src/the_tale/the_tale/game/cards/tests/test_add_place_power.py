@@ -41,30 +41,21 @@ class AddPlacePowerMixin(helpers.CardsTestMixin):
 
             impacts = politic_power_logic.get_last_power_impacts(limit=100)
 
-            self.assertEqual(len(impacts), 1)
+            self.assertEqual(len(impacts), 2)
 
             self.assertEqual(impacts[0].amount, direction * self.CARD.effect.modificator)
-            self.assertTrue(impacts[0].type.is_INNER_CIRCLE)
+            self.assertTrue(impacts[0].type.is_OUTER_CIRCLE)
             self.assertTrue(impacts[0].target_type.is_PLACE)
             self.assertEqual(impacts[0].target_id, self.place_1.id)
             self.assertTrue(impacts[0].actor_type.is_HERO)
             self.assertEqual(impacts[0].actor_id, self.hero.id)
 
-            impacts = politic_power_logic.get_last_power_impacts(limit=100, storages=[game_tt_services.job_impacts])
-
-            self.assertEqual(len(impacts), 1)
-
-            self.assertEqual(impacts[0].amount, self.CARD.effect.modificator)
-            self.assertTrue(impacts[0].type.is_JOB)
-
-            if direction > 0:
-                self.assertTrue(impacts[0].target_type.is_JOB_PLACE_POSITIVE)
-            else:
-                self.assertTrue(impacts[0].target_type.is_JOB_PLACE_NEGATIVE)
-
-            self.assertEqual(impacts[0].target_id, self.place_1.id)
-            self.assertTrue(impacts[0].actor_type.is_HERO)
-            self.assertEqual(impacts[0].actor_id, self.hero.id)
+            self.assertEqual(impacts[1].amount, direction * self.CARD.effect.modificator)
+            self.assertTrue(impacts[1].type.is_INNER_CIRCLE)
+            self.assertTrue(impacts[1].target_type.is_PLACE)
+            self.assertEqual(impacts[1].target_id, self.place_1.id)
+            self.assertTrue(impacts[1].actor_type.is_HERO)
+            self.assertEqual(impacts[1].actor_id, self.hero.id)
 
     def test_no_place(self):
         for direction in (-1, 1):

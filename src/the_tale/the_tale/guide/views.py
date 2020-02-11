@@ -23,15 +23,12 @@ class TypeReference(object):
 
     @utils_decorators.lazy_property
     def records(self):
-        try:
-            records = []
-            for record in self.relation.records:
-                if not self.filter(record):
-                    continue
-                records.append([getattr(record, field_id) for field_name, field_id in self.fields])
-            return records
-        except Exception as e:
-            print(e)
+        records = []
+        for record in self.relation.records:
+            if not self.filter(record):
+                continue
+            records.append([getattr(record, field_id) for field_name, field_id in self.fields])
+        return records
 
 
 def get_api_types():
@@ -135,7 +132,6 @@ class GuideResource(utils_resources.Resource):
     def cities(self):
         return self.template('guide/cities.html', {'section': 'cities',
                                                    'places_settings': places_conf.settings,
-                                                   'INNER_CIRCLE_SIZE': politic_power_conf.settings.PLACE_INNER_CIRCLE_SIZE,
                                                    'ATTRIBUTES': sorted(places_relations.ATTRIBUTE.records, key=lambda modifier: modifier.text),
                                                    'MODIFIERS': sorted(places_modifiers.CITY_MODIFIERS.records, key=lambda modifier: modifier.text)})
 

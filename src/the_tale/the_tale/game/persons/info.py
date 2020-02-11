@@ -42,8 +42,7 @@ def person_info(person):
             'clans': None}
 
     accounts_ids = set()
-    accounts_ids.update(data['politic_power']['heroes']['positive'])
-    accounts_ids.update(data['politic_power']['heroes']['negative'])
+    accounts_ids.update(hero_id for hero_id, power in data['politic_power']['heroes']['rating'])
 
     data['accounts'] = game_logic.accounts_info(accounts_ids)
     data['clans'] = game_logic.clans_info(data['accounts'])

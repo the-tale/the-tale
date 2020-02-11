@@ -92,42 +92,6 @@
         <th>влияние от народа</th>
         <td>{{places_power_storage.outer_power_fraction(place.id)|percents(2)}} — {{places_power_storage.outer_power(place.id)|int}}</td>
       </tr>
-      <tr>
-        <th>проект</th>
-        <td>
-          <div style="cursor: help; display: inline-block;" rel="tooltip" title="{{place.job.effect.description}}">
-            {{place.job.name}}
-          </div>
-          — эффект x {{c.JOB_NEGATIVE_POWER_MULTIPLIER}} в случае провала
-        </td>
-      </tr>
-      <tr>
-        <th>размер проекта</th>
-        <td>
-          {{place.job.get_job_power(place.id)|percents(2)}}
-          <i class="icon-info-sign" rel="tooltip" title="Размер проекта зависит от влияния города относительно других городов Пандоры. Фронтир и Центральный регион считаются отдельно."></i>
-        </td>
-      </tr>
-      {% if place.job.is_completed(job_power) %}
-        <tr>
-          <th>проект почти закончен</th>
-          <td width="400px">Проект будет завершён в ближайшее время. Влияние победившей стороны будет обнулено. Влияние проигравшей стороны пойдёт в счёт следующего проекта.</td>
-        </tr>
-      {% endif %}
-      <tr>
-        <th>помощь в проекте от соратников</th>
-        <td>
-          <span style="color:green;">{{(job_power.positive/place.job.power_required)|percents(2)}}</span>
-          всего влияния: {{job_power.positive|round(0)|int}} из {{place.job.power_required|round(0)|int}}
-        </td>
-      </tr>
-      <tr>
-        <th>вред в проекте от противников</th>
-        <td>
-          <span style="color:red;">{{(job_power.negative/place.job.power_required)|percents(2)}}</span>
-          всего влияния: {{job_power.negative|round(0)|int}} из {{place.job.power_required|round(0)|int}}
-        </td>
-      </tr>
     </tbody>
   </table>
   </div>
@@ -425,14 +389,18 @@
 
 </div>
 
-<h3>Герои</h3>
+<h3>Ближний круг</h3>
+
+<p>
+  В ближний круг попадают герои, специально помогающие или вредящие городу. Подробнее про ближний круг можно прочитать в <a href="{{url('guide:cities')}}">путеводителе</a>.
+</p>
 
 <ul>
   <li>Всего героев помогает: {{inner_circle.total_positive_heroes_number}} (в круге: {{inner_circle.circle_positive_heroes_number}})</li>
   <li>Всего героев мешает: {{inner_circle.total_negative_heroes_number}} (в круге: {{inner_circle.circle_negative_heroes_number}})</li>
 </ul>
 
-{{game_macros.inner_circle_heroes(inner_circle, hero.account_id if hero else none)}}
+{{game_macros.inner_circle_heroes(inner_circle, hero.account_id if hero else none, show_job_column=false)}}
 
 
 {% set folclor_objects = posts_about(place_meta_object) %}

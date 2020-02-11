@@ -180,9 +180,12 @@ class FormGameInfoTests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
         hero_1_pvp.set_energy(1)
         hero_2_pvp.set_energy(2)
 
-        battle_info.storage.save_changed_data()
+        battle_info.storage.save_all()
 
-        data = logic.form_game_info(self.account_1, is_own=True)
+        heroes_objects.Hero.reset_ui_cache(self.account_1.id)
+        heroes_objects.Hero.reset_ui_cache(self.account_2.id)
+
+        data = logic.form_game_info(battle_info.account_1, is_own=True)
 
         self.assertEqual(data['account']['hero']['action']['data']['pvp']['energy'], 1)
         self.assertEqual(data['enemy']['hero']['action']['data']['pvp']['energy'], 0)
@@ -191,7 +194,7 @@ class FormGameInfoTests(pvp_helpers.PvPTestsMixin, utils_testcase.TestCase):
 
         battle_info.storage.save_changed_data()
 
-        data = logic.form_game_info(self.account_1, is_own=True)
+        data = logic.form_game_info(battle_info.account_1, is_own=True)
 
         self.assertEqual(data['enemy']['hero']['action']['data']['pvp']['energy'], 2)
 

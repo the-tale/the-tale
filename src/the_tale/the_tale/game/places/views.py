@@ -66,8 +66,6 @@ def show(context):
 
     accounts_short_infos = game_short_info.get_accounts_accounts_info(inner_circle.heroes_ids())
 
-    job_power = politic_power_logic.get_job_power(place_id=context.place.id)
-
     persons_inner_circles = {person.id: politic_power_logic.get_inner_circle(person_id=person.id)
                              for person in context.place.persons}
 
@@ -97,7 +95,6 @@ def show(context):
                                      'hero': heroes_logic.load_hero(account_id=context.account.id) if context.account else None,
                                      'places_power_storage': politic_power_storage.places,
                                      'persons_power_storage': politic_power_storage.persons,
-                                     'job_power': job_power,
                                      'resource': context.resource,
                                      'emissaries': emissaries,
                                      'clans': clans,

@@ -515,6 +515,12 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                                             target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
                                                             target_id=self.emissary.id,
                                                             amount=round(multiplier * self.expected_power)),
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                            target_id=self.emissary.place.id,
+                                                            amount=round(multiplier * self.expected_power)),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
@@ -526,13 +532,7 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.emissary.place.id,
-                                                            amount=self.fame),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
-                                                            actor_type=self.actor_type,
-                                                            actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
-                                                            target_id=self.emissary.place.id,
-                                                            amount=round(multiplier * self.expected_power))])
+                                                            amount=self.fame)])
 
     def test_can_not_change_place_power(self):
         impacts = list(logic.tt_power_impacts(place_inner_circle=True,
@@ -550,6 +550,12 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                                             target_type=tt_api_impacts.OBJECT_TYPE.EMISSARY,
                                                             target_id=self.emissary.id,
                                                             amount=round(self.expected_power)),
+                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.OUTER_CIRCLE,
+                                                            actor_type=self.actor_type,
+                                                            actor_id=self.actor_id,
+                                                            target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                                            target_id=self.emissary.place.id,
+                                                            amount=0),
                                game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.INNER_CIRCLE,
                                                             actor_type=self.actor_type,
                                                             actor_id=self.actor_id,
@@ -561,13 +567,7 @@ class TTPowerImpactsTests(BaseEmissaryTests):
                                                             actor_id=self.actor_id,
                                                             target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
                                                             target_id=self.emissary.place.id,
-                                                            amount=self.fame),
-                               game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
-                                                            actor_type=self.actor_type,
-                                                            actor_id=self.actor_id,
-                                                            target_type=tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE,
-                                                            target_id=self.emissary.place.id,
-                                                            amount=0)])
+                                                            amount=self.fame)])
 
     def test_amount_below_zero(self):
         multiplier = 0.75

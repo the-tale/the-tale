@@ -581,8 +581,11 @@ class Hero(logic_accessors.LogicAccessorsMixin,
         return self.cached_ui_info_key_for_hero(self.account_id)
 
     @classmethod
-    def cached_ui_info_for_hero(cls, account_id, recache_if_required, patch_turns, for_last_turn):
+    def reset_ui_cache(cls, account_id):
+        utils_cache.delete(cls.cached_ui_info_key_for_hero(account_id))
 
+    @classmethod
+    def cached_ui_info_for_hero(cls, account_id, recache_if_required, patch_turns, for_last_turn):
         data = utils_cache.get(cls.cached_ui_info_key_for_hero(account_id))
 
         if data is None:

@@ -81,6 +81,7 @@ def _form_game_account_info(turn_number, account, is_own, client_turns=None):
                                                             recache_if_required=is_own,
                                                             patch_turns=client_turns,
                                                             for_last_turn=(not is_own))
+
     data['hero'] = hero_data
     data['hero']['diary'] = heroes_tt_services.diary.cmd_version(account.id)
 

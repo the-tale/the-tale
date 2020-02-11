@@ -4,56 +4,21 @@ import smart_imports
 smart_imports.all()
 
 
-class PlaceJob(jobs_objects.Job):
-    ACTOR = 'place'
-
-    ACTOR_TYPE = tt_api_impacts.OBJECT_TYPE.PLACE
-    POSITIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE
-    NEGATIVE_TARGET_TYPE = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE
-
-    # умножаем на 2, так как кажая остановка в городе, по сути, даёт влияние в 2-кратном размере
-    # Город получит влияние и от задания, которое герой выполнил и от того, которое возьмёт
-    NORMAL_POWER = f.normal_job_power(politic_power_conf.settings.PLACE_INNER_CIRCLE_SIZE) * 2
-
-    def load_power(self, actor_id):
-        return politic_power_logic.get_job_power(place_id=actor_id)
-
-    def load_inner_circle(self, actor_id):
-        return politic_power_logic.get_inner_circle(place_id=actor_id)
-
-    def get_job_power(self, actor_id):
-        current_place = storage.places[actor_id]
-
-        return jobs_logic.job_power(power=politic_power_storage.places.total_power_fraction(current_place.id),
-                                    powers=[politic_power_storage.places.total_power_fraction(place.id)
-                                            for place in current_place.get_same_places()])
-
-    def get_project_name(self, actor_id):
-        name = storage.places[actor_id].utg_name.form(utg_words.Properties(utg_relations.CASE.GENITIVE))
-        return 'Проект города {name}'.format(name=name)
-
-    def get_objects(self, actor_id):
-        return {'person': None,
-                'place': storage.places[actor_id]}
-
-    def get_effects_priorities(self, actor_id):
-        return {effect: 1 for effect in jobs_effects.EFFECT.records}
-
-
 def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
     amount = round(amount * place.attrs.freedom)
 
-    impact_type = game_tt_services.IMPACT_TYPE.OUTER_CIRCLE
+    impact_types = [game_tt_services.IMPACT_TYPE.OUTER_CIRCLE]
 
     if inner_circle:
-        impact_type = game_tt_services.IMPACT_TYPE.INNER_CIRCLE
+        impact_types.append(game_tt_services.IMPACT_TYPE.INNER_CIRCLE)
 
-    yield game_tt_services.PowerImpact(type=impact_type,
-                                       actor_type=actor_type,
-                                       actor_id=actor_id,
-                                       target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
-                                       target_id=place.id,
-                                       amount=amount)
+    for impact_type in impact_types:
+        yield game_tt_services.PowerImpact(type=impact_type,
+                                           actor_type=actor_type,
+                                           actor_id=actor_id,
+                                           target_type=tt_api_impacts.OBJECT_TYPE.PLACE,
+                                           target_id=place.id,
+                                           amount=amount)
 
     if actor_type.is_HERO and 0 < fame:
         yield game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.FAME,
@@ -65,18 +30,6 @@ def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
 
     if not inner_circle:
         return
-
-    target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_POSITIVE
-
-    if amount < 0:
-        target_type = tt_api_impacts.OBJECT_TYPE.JOB_PLACE_NEGATIVE
-
-    yield game_tt_services.PowerImpact(type=game_tt_services.IMPACT_TYPE.JOB,
-                                       actor_type=actor_type,
-                                       actor_id=actor_id,
-                                       target_type=target_type,
-                                       target_id=place.id,
-                                       amount=abs(amount))
 
 
 def impacts_from_hero(hero, place, power, impacts_generator=tt_power_impacts):
@@ -125,7 +78,6 @@ def load_place(place_id=None, place_model=None):
                           utg_name=utg_words.Word.deserialize(data['name']),
                           attrs=attributes.Attributes.deserialize(data.get('attributes', {})),
                           races=races.Races.deserialize(data['races']),
-                          job=PlaceJob.deserialize(data['job']),
                           modifier=place_model.modifier)
 
     place.attrs.sync()
@@ -136,8 +88,7 @@ def load_place(place_id=None, place_model=None):
 def save_place(place, new=False):
     data = {'name': place.utg_name.serialize(),
             'attributes': place.attrs.serialize(),
-            'races': place.races.serialize(),
-            'job': place.job.serialize()}
+            'races': place.races.serialize()}
 
     arguments = {'x': place.x,
                  'y': place.y,
@@ -189,7 +140,6 @@ def create_place(x, y, size, utg_name, race, is_frontier=False):
                           attrs=attributes.Attributes(size=size),
                           utg_name=utg_name,
                           races=races.Races(),
-                          job=jobs_logic.create_job(PlaceJob),
                           modifier=modifiers.CITY_MODIFIERS.NONE)
     # place.refresh_attributes()
     save_place(place, new=True)
