@@ -16,7 +16,7 @@ setuptools.setup(
                       'cchardet==2.1.5',
                       'aiodns==2.0.0',
                       'aiopg==1.0.0',
-                      'Django==2.2.8',
+                      'Django==2.2.9',
                       'yarl==1.4.2',
                       'protobuf==3.11.1'],
     entry_points={'console_scripts': ['tt_service=tt_web.commands.tt_service:main']},
