@@ -17,7 +17,6 @@ class HeroPreferencesEnergyRegenerationTypeTest(utils_testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero.level = relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE.level_required
         self.hero.preferences.set(relations.PREFERENCE_TYPE.ENERGY_REGENERATION_TYPE, relations.ENERGY_REGENERATION.SACRIFICE)
         logic.save_hero(self.hero)
 
@@ -44,9 +43,6 @@ class HeroPreferencesMobTest(utils_testcase.TestCase):
         self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
-
-        self.hero.level = relations.PREFERENCE_TYPE.MOB.level_required
-        logic.save_hero(self.hero)
 
         self.mob_uuid = mobs_storage.mobs.get_all_mobs_for_level(level=self.hero.level)[0].uuid
         self.mob_2_uuid = mobs_storage.mobs.get_all_mobs_for_level(level=self.hero.level)[1].uuid
@@ -87,9 +83,6 @@ class HeroPreferencesPlaceTest(utils_testcase.TestCase):
         self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
-
-        self.hero.level = relations.PREFERENCE_TYPE.PLACE.level_required
-        logic.save_hero(self.hero)
 
     def test_preferences_serialization(self):
         self.hero.preferences.set(relations.PREFERENCE_TYPE.PLACE, self.place)
@@ -196,9 +189,6 @@ class HeroPreferencesFriendTest(utils_testcase.TestCase):
         self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
-
-        self.hero.level = relations.PREFERENCE_TYPE.FRIEND.level_required
-        logic.save_hero(self.hero)
 
         self.friend = self.place_1.persons[0]
         self.friend_2 = self.place_2.persons[0]
@@ -316,9 +306,6 @@ class HeroPreferencesEnemyTest(utils_testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero.level = relations.PREFERENCE_TYPE.ENEMY.level_required
-        logic.save_hero(self.hero)
-
         self.enemy = self.place_1.persons[0]
         self.enemy_2 = self.place_2.persons[0]
         self.friend = self.place_3.persons[0]
@@ -435,9 +422,6 @@ class HeroPreferencesEquipmentSlotTest(utils_testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero.level = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
-        logic.save_hero(self.hero)
-
         self.slot_1 = relations.EQUIPMENT_SLOT.HAND_PRIMARY
         self.slot_2 = relations.EQUIPMENT_SLOT.PLATE
 
@@ -465,9 +449,6 @@ class HeroPreferencesFavoriteItemTest(utils_testcase.TestCase):
         self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
-
-        self.hero.level = relations.PREFERENCE_TYPE.FAVORITE_ITEM.level_required
-        logic.save_hero(self.hero)
 
         self.slot_1 = relations.EQUIPMENT_SLOT.HAND_PRIMARY
         self.slot_2 = relations.EQUIPMENT_SLOT.PLATE
@@ -497,9 +478,6 @@ class HeroPreferencesRiskLevelTest(utils_testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero.level = relations.PREFERENCE_TYPE.RISK_LEVEL.level_required
-        logic.save_hero(self.hero)
-
         self.risk_1 = relations.RISK_LEVEL.VERY_HIGH
         self.risk_2 = relations.RISK_LEVEL.VERY_LOW
 
@@ -528,9 +506,6 @@ class HeroPreferencesArchetypeTest(utils_testcase.TestCase):
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
 
-        self.hero.level = relations.PREFERENCE_TYPE.ARCHETYPE.level_required
-        logic.save_hero(self.hero)
-
         self.mage = game_relations.ARCHETYPE.MAGICAL
         self.warior = game_relations.ARCHETYPE.PHYSICAL
 
@@ -557,9 +532,6 @@ class HeroPreferencesCompanionDedicationTest(utils_testcase.TestCase):
         self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
-
-        self.hero.level = relations.PREFERENCE_TYPE.COMPANION_DEDICATION.level_required
-        logic.save_hero(self.hero)
 
         self.egoism = relations.COMPANION_DEDICATION.EGOISM
         self.altruism = relations.COMPANION_DEDICATION.ALTRUISM
@@ -590,9 +562,6 @@ class HeroPreferencesCompanionEmpathyTest(utils_testcase.TestCase):
         self.storage = game_logic_storage.LogicStorage()
         self.storage.load_account_data(self.account)
         self.hero = self.storage.accounts_to_heroes[self.account.id]
-
-        self.hero.level = relations.PREFERENCE_TYPE.COMPANION_EMPATHY.level_required
-        logic.save_hero(self.hero)
 
         self.empath = relations.COMPANION_EMPATHY.EMPATH
         self.egocentric = relations.COMPANION_EMPATHY.EGOCENTRIC

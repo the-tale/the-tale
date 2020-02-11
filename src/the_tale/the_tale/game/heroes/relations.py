@@ -25,22 +25,21 @@ class RISK_LEVEL(rels_django.DjangoEnum):
 
 
 class PREFERENCE_TYPE(rels_django.DjangoEnum):
-    level_required = rels.Column()
     base_name = rels.Column()
     prepair_method = rels.Column(unique=False)
     nullable = rels.Column(unique=False)
 
-    records = (('MOB', 0, 'любимая добыча', 8, 'mob', '_prepair_mob', True),
-               ('PLACE', 1, 'родной город', 4, 'place', '_prepair_place', True),
-               ('FRIEND', 2, 'соратник', 12, 'friend', '_prepair_person', True),
-               ('ENEMY', 3, 'противник', 20, 'enemy', '_prepair_person', True),
-               ('ENERGY_REGENERATION_TYPE', 4, 'религиозность', 1, 'energy_regeneration_type', '_prepair_energy_regeneration', False),
-               ('EQUIPMENT_SLOT', 5, 'экипировка', 36, 'equipment_slot', '_prepair_equipment_slot', True),
-               ('RISK_LEVEL', 6, 'уровень риска', 32, 'risk_level', '_prepair_risk_level', False),
-               ('FAVORITE_ITEM', 7, 'любимая вещь', 28, 'favorite_item', '_prepair_equipment_slot', True),
-               ('ARCHETYPE', 8, 'архетип', 16, 'archetype', '_prepair_archetype', False),
-               ('COMPANION_DEDICATION', 9, 'отношения со спутником', 2, 'companion_dedication', '_prepair_companion_dedication', False),
-               ('COMPANION_EMPATHY', 10, 'эмпатия', 24, 'companion_empathy', '_prepair_companion_empathy', False))
+    records = (('MOB', 0, 'любимая добыча', 'mob', '_prepair_mob', True),
+               ('PLACE', 1, 'родной город', 'place', '_prepair_place', True),
+               ('FRIEND', 2, 'соратник', 'friend', '_prepair_person', True),
+               ('ENEMY', 3, 'противник', 'enemy', '_prepair_person', True),
+               ('ENERGY_REGENERATION_TYPE', 4, 'религиозность', 'energy_regeneration_type', '_prepair_energy_regeneration', False),
+               ('EQUIPMENT_SLOT', 5, 'экипировка', 'equipment_slot', '_prepair_equipment_slot', True),
+               ('RISK_LEVEL', 6, 'уровень риска', 'risk_level', '_prepair_risk_level', False),
+               ('FAVORITE_ITEM', 7, 'любимая вещь', 'favorite_item', '_prepair_equipment_slot', True),
+               ('ARCHETYPE', 8, 'архетип', 'archetype', '_prepair_archetype', False),
+               ('COMPANION_DEDICATION', 9, 'отношения со спутником', 'companion_dedication', '_prepair_companion_dedication', False),
+               ('COMPANION_EMPATHY', 10, 'эмпатия', 'companion_empathy', '_prepair_companion_empathy', False))
 
 
 class COMPANION_DEDICATION(rels_django.DjangoEnum):

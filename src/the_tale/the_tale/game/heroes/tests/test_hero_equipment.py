@@ -17,7 +17,8 @@ class _HeroEquipmentTestsBase(utils_testcase.TestCase):
         self.storage.load_account_data(account)
 
         self.hero = self.storage.accounts_to_heroes[account.id]
-        self.hero.level = relations.PREFERENCE_TYPE.EQUIPMENT_SLOT.level_required
+        self.hero.level = 100  # увеличиваем уровень героя, чтобы сдвинуть лимиты на силу артефактов
+
         logic.save_hero(self.hero)
 
 
@@ -220,7 +221,7 @@ class HeroEquipmentTests(_HeroEquipmentTestsBase):
 
         old_hero_power = self.hero.power
 
-        self.hero.level = 50
+        self.hero.level = 200
 
         self.hero.randomize_equip()
 
