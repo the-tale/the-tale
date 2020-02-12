@@ -143,26 +143,6 @@ jQuery(document).ready(function(e) {
           {{base_macros.magnet(account_meta_object)}}
         </h2>
 
-        {% if master_account.is_ban_forum %}
-          <p class="alert alert-error pgf-ban-forum-message">
-            Игроку запрещено общаться до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
-          </p>
-        {% endif %}
-
-        {% if master_account.is_ban_game %}
-          <p class="alert alert-error pgf-ban-game-message">
-            Герой игрока не оказывает влияние на мир до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_game_end_at|timestamp }}"></span>
-          </p>
-        {% endif %}
-
-        {% if master_account.is_technical %}
-          <p class="alert alert-info pgf-technical">
-            Это технический аккаунт. Игра использует его для организации корректной работы своих механик.
-          </p>
-        {% endif %}
-
-          <br/>
-
           {% set not_own_page = resource.account.is_authenticated and master_account.id != resource.account.id %}
 
           {% if not_own_page or context.can_moderate_accounts %}
@@ -230,6 +210,26 @@ jQuery(document).ready(function(e) {
           </div>
 
           {% endif %}
+
+        {% if master_account.is_ban_forum %}
+          <p class="alert alert-error pgf-ban-forum-message">
+            Игроку запрещено общаться до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_forum_end_at|timestamp }}"></span>
+          </p>
+        {% endif %}
+
+        {% if master_account.is_ban_game %}
+          <p class="alert alert-error pgf-ban-game-message">
+            Герой игрока не оказывает влияние на мир до <span class="pgf-format-datetime" data-timestamp="{{ master_account.ban_game_end_at|timestamp }}"></span>
+          </p>
+        {% endif %}
+
+        {% if master_account.is_technical %}
+          <p class="alert alert-info pgf-technical">
+            Это технический аккаунт. Игра использует его для организации корректной работы своих механик.
+          </p>
+        {% endif %}
+
+          <br/>
 
 
         <table width="100%" style="text-align: center;">
