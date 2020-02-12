@@ -423,6 +423,30 @@ class ProfileRequestsTests(utils_testcase.TestCase, third_party_helpers.ThirdPar
         self.assertEqual(prototypes.AccountPrototype.get_by_id(self.account.id).description, 'new-description')
         self.check_ajax_ok(response, data={'next_url': utils_urls.url('accounts:profile:edited')})
 
+    def test_profile_update_settings__description_banned(self):
+        self.account.ban_forum(1)
+        self.account.description = 'test-1'
+        self.account.save()
+
+        self.request_login(self.account.email)
+
+        response = self.post_ajax_json(utils_urls.url('accounts:profile:update-settings'),
+                                       {'description': 'new-description',
+                                        'gender': game_relations.GENDER.FEMALE})
+
+        self.check_ajax_error(response, 'common.ban_forum')
+
+        self.assertEqual(prototypes.AccountPrototype.get_by_id(self.account.id).description, 'test-1')
+
+        response = self.post_ajax_json(utils_urls.url('accounts:profile:update-settings'),
+                                       {'description': 'test-1',
+                                        'gender': game_relations.GENDER.MALE})
+
+        self.check_ajax_ok(response)
+
+        self.assertEqual(prototypes.AccountPrototype.get_by_id(self.account.id).description, 'test-1')
+        self.assertTrue(prototypes.AccountPrototype.get_by_id(self.account.id).gender.is_MALE)
+
     def test_profile_update_settings__gender(self):
         self.request_login(self.account.email)
 

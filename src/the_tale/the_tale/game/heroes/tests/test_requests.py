@@ -152,6 +152,31 @@ class ChangeHeroRequestsTests(HeroRequestsTestBase):
 
         self.assertEqual(logic.get_hero_description(self.hero.id), 'some description')
 
+    def test_change_hero__ban_forum(self):
+        self.account.ban_forum(1)
+        self.account.save()
+
+        logic.set_hero_description(hero_id=self.hero.id, text='old description')
+
+        with self.check_not_changed(PostponedTask.objects.all().count):
+            response = self.client.post(utils_urls.url('game:heroes:change-hero', self.hero.id), self.get_post_data())
+            self.check_ajax_error(response, 'common.ban_forum')
+
+        with self.check_delta(PostponedTask.objects.all().count, 1):
+            response = self.client.post(utils_urls.url('game:heroes:change-hero', self.hero.id),
+                                        self.get_post_data(description='old description'))
+
+            task = PostponedTaskPrototype._db_get_object(0)
+
+            self.check_ajax_processing(response, task.status_url)
+
+        self.assertEqual(task.internal_logic.name,
+                         game_names.generator().get_test_name(name='новое имя', properties=[utg_relations.NUMBER.SINGULAR]))
+        self.assertEqual(task.internal_logic.gender, game_relations.GENDER.MALE)
+        self.assertEqual(task.internal_logic.race, game_relations.RACE.DWARF)
+
+        self.assertEqual(logic.get_hero_description(self.hero.id), 'old description')
+
 
 class ResetNameRequestsTests(HeroRequestsTestBase):
 

@@ -676,6 +676,11 @@ def confirm_email(context):  # pylint: disable=W0621
 @utils_views.FormProcessor(form_class=forms.SettingsForm)
 @profile_resource('update-settings', name='update-settings', method='POST')
 def update_settings(context):
+
+    if context.account.is_ban_forum and context.form.c.description != context.account.description:
+        raise utils_views.ViewError(code='common.ban_forum',
+                                    message='Вы не можете менять описание аккаунта')
+
     context.account.update_settings(context.form)
 
     tt_services.players_properties.cmd_set_property(object_id=context.account.id,

@@ -137,6 +137,9 @@ class HeroResource(utils_resources.Resource):
         if not edit_name_form.is_valid():
             return self.json_error('heroes.change_name.form_errors', edit_name_form.errors)
 
+        if self.account.is_ban_forum and edit_name_form.c.description != logic.get_hero_description(self.account.id):
+            return self.json_error('common.ban_forum', 'Вы не можете менять историю героя')
+
         change_task = postponed_tasks.ChangeHeroTask(hero_id=self.hero.id,
                                                      name=edit_name_form.c.name,
                                                      race=edit_name_form.c.race,
