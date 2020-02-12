@@ -5,6 +5,7 @@
 {% import 'blogs/macros.html' as blogs_macros with context %}
 {% import 'chronicle/macros.html' as chronicle_macros with context %}
 {% import 'emissaries/macros.html' as emissaries_macros with context %}
+{% import 'map/macros.html' as map_macros with context %}
 
 {% block title %}{{current_clan.name}} | {{settings.PAGE_TITLE}}{% endblock %}
 {% block description %}[{{current_clan.abbr}}] {{current_clan.name}}{% endblock %}
@@ -305,11 +306,15 @@ jQuery(document).ready(function(e){
             <span class="pgf-clans-points-dummy">скрыто</span>
             {% endif %}
 
-            / {{tt_clans_constants.MAXIMUM_POINTS}} + {{attributes.points_gain}} в час
+            / {{tt_clans_constants.MAXIMUM_POINTS}}
 
-            <i class="icon-info-sign"
+            <a href="javascript:void(0);"
+               class="info-link"
                rel="tooltip"
-               title="Очки действий начисляются раз в час"></i>
+               title="{{map_macros.power_incoming_tooltip('Очки действий начисляются раз в час', action_points_effects, percents=false)}}">
+              + {{action_points_total}} в час
+            </a>
+
           </td>
           <td>уровень {{attributes.points_gain_level}} из {{tt_clans_constants.POINTS_GAIN_LEVEL_STEPS}}</td>
         </tr>

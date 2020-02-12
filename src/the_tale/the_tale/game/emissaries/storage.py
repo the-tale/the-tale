@@ -72,7 +72,7 @@ class EventsStorage(utils_storage.CachedStorage):
 
         events = []
 
-        for emissary in emissaries.emissaries_by_clan[clan_id]:
+        for emissary in emissaries.emissaries_by_clan.get(clan_id, ()):
             for event in self._events_by_emissary.get(emissary.id, ()):
                 events.append(event)
 

@@ -348,6 +348,16 @@ def show(context):
 
     can_participate_in_pvp = emissaries_logic.can_clan_participate_in_pvp(context.current_clan.id)
 
+    # считаем дополнительный прирост очков гильдии от мероприятий
+    action_points_effects = [('гильдия', attributes.points_gain)]
+
+    for event in emissaries_storage.events.clan_events(context.current_clan.id):
+        if event.concrete_event.TYPE.is_RESERVES_SEARCH:
+            action_points_effects.append((f'эмиссар {event.emissary.name}',
+                                          event.concrete_event.action_points_per_step(event.concrete_event.raw_ability_power)))
+    action_points_effects.sort(key=lambda effect: effect[0])
+    action_points_total = sum(points for name, points in action_points_effects)
+
     return utils_views.Page('clans/show.html',
                             content={'resource': context.resource,
                                      'page_id': relations.PAGE_ID.SHOW,
@@ -373,6 +383,8 @@ def show(context):
                                      'experience': experience,
                                      'emissaries': emissaries,
                                      'attributes': attributes,
+                                     'action_points_total': action_points_total,
+                                     'action_points_effects': action_points_effects,
                                      'tt_clans_constants': tt_clans_constants,
                                      'emissaries_powers': emissaries_powers,
                                      'can_participate_in_pvp': can_participate_in_pvp})
