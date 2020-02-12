@@ -37,6 +37,7 @@ class FriendsResource(utils_resources.Resource):
                               'heroes': heroes,
                               'clans': clans})
 
+    @accounts_views.validate_ban_forum()
     @old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
     @old_views.handler('request', method='get')
     def request_dialog(self, friend):
@@ -48,6 +49,7 @@ class FriendsResource(utils_resources.Resource):
                              {'friend': friend,
                               'form': forms.RequestForm()})
 
+    @accounts_views.validate_ban_forum()
     @old_views.validate_argument('friend', accounts_prototypes.AccountPrototype.get_by_id, 'friends', 'Игрок не найден')
     @old_views.handler('request', method='post')
     def request_friendship(self, friend):

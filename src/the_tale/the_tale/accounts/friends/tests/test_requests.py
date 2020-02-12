@@ -66,6 +66,12 @@ class FriendshipRequestsTests(utils_testcase.TestCase):
     def test_request_dialog(self):
         self.check_html_ok(self.request_html(utils_urls.url('accounts:friends:request', friend=self.account_2.id)))
 
+    def test_request_dialog__ban_forum(self):
+        self.account_1.ban_forum(1)
+        self.account_1.save()
+        self.check_html_ok(self.request_html(utils_urls.url('accounts:friends:request', friend=self.account_2.id)),
+                           texts=['common.ban_forum'])
+
     def test_request_dialog__system_user(self):
         self.check_html_ok(self.request_html(utils_urls.url('accounts:friends:request', friend=accounts_logic.get_system_user().id)),
                            texts=['friends.request_dialog.system_user'])
@@ -79,6 +85,13 @@ class FriendshipRequestsTests(utils_testcase.TestCase):
         self.check_ajax_ok(self.client.post(utils_urls.url('accounts:friends:request', friend=self.account_2.id), {'text': 'text 1'}))
         self.assertEqual(models.Friendship.objects.all().count(), 1)
         self.assertFalse(models.Friendship.objects.all()[0].is_confirmed)
+
+    def test_request_friendship__ban_forum(self):
+        self.account_1.ban_forum(1)
+        self.account_1.save()
+        self.check_ajax_error(self.client.post(utils_urls.url('accounts:friends:request', friend=self.account_2.id), {'text': 'text 1'}),
+                              'common.ban_forum')
+        self.assertEqual(models.Friendship.objects.all().count(), 0)
 
     def test_request_friendship_system_user(self):
         self.check_ajax_error(self.client.post(utils_urls.url('accounts:friends:request', friend=accounts_logic.get_system_user().id), {'text': 'text 1'}),
