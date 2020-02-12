@@ -155,7 +155,16 @@ jQuery(document).ready(function(e) {
               {% if can_be_invited %}
               <li><a class="pgf-create-invite-to-clan" href="">пригласить в гильдию</a></li>
               {% elif master_account_membership_request %}
-              <li><a class="disabled" style="color: green !important;">приглашён или отправил заявку в гильдию</a></li>
+              <li><a class="disabled" style="color: green !important; cursor: default;">приглашён или отправил заявку в гильдию</a></li>
+              {% elif not master_account_properties.accept_invites_from_clans %}
+              <li>
+                <a class="disabled"
+                   style="color: black !important; cursor: default;"
+                   rel="tooltip"
+                   title="Хранитель не хочет, чтобы его приглашали в гильдии. Приглашение его в гильдию <strong>любым способом</strong> будет считаться спамом.">
+                  <strong>не</strong> приглашать в гильдию
+                </a>
+              </li>
               {% endif %}
 
               {% if friendship is none %}
