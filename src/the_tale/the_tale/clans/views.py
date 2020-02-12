@@ -207,8 +207,8 @@ def index(context):
     clans_query = models.Clan.objects.all()
 
     if context.filter:
-        clans_query = clans_query.filter(django_models.Q(abbr__icontains=context.filter)|
-                                         django_models.Q(name__icontains=context.filter))
+        clans_query = clans_query.filter(django_models.Q(abbr__icontains=context.filter.strip())|
+                                         django_models.Q(name__icontains=context.filter.strip()))
 
     clans_number = clans_query.count()
 
