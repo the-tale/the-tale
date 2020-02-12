@@ -56,6 +56,11 @@ class AccountPrototypeTests(utils_testcase.TestCase, personal_messages_helpers.M
         self.account.prolong_premium(days=1)
         self.assertTrue(self.account.is_premium)
 
+    def is_technical(self):
+        self.assertFalse(self.account.is_technical)
+        self.assertTrue(logic.get_system_user().is_technical)
+        self.assertTrue(self.accounts_factory.create_account(is_bot=True).is_technical)
+
     def test_cards_receive_mode__not_premium(self):
         self.assertFalse(self.account.is_premium)
 

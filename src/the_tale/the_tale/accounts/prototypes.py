@@ -263,6 +263,16 @@ class AccountPrototype(utils_prototypes.BasePrototype):
     @property
     def is_active(self): return self.active_end_at > datetime.datetime.now()
 
+    @property
+    def is_technical(self):
+        if self.is_bot:
+            return True
+
+        if self.id == logic.get_system_user_id():
+            return True
+
+        return False
+
     def get_achievement_account_id(self):
         return self.id
 

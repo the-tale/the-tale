@@ -92,7 +92,13 @@ class ShowRequestsTests(AccountRequestsTests):
                  ('pgf-friends-request-from', 0),
                  ('pgf-friends-request-to', 0),
                  ('pgf-ban-forum-message', 0),
-                 ('pgf-ban-game-message', 0)]
+                 ('pgf-ban-game-message', 0),
+                 ('pgf-technical', 0)]
+        self.check_html_ok(self.request_html(django_reverse('accounts:show', args=[self.account_1.id])), texts=texts)
+
+    @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_technical', True)
+    def test_show__technical_message(self):
+        texts = [('pgf-technical', 1)]
         self.check_html_ok(self.request_html(django_reverse('accounts:show', args=[self.account_1.id])), texts=texts)
 
     @mock.patch('the_tale.accounts.prototypes.AccountPrototype.is_ban_game', True)

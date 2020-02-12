@@ -155,6 +155,12 @@ jQuery(document).ready(function(e) {
           </p>
         {% endif %}
 
+        {% if master_account.is_technical %}
+          <p class="alert alert-info pgf-technical">
+            Это технический аккаунт. Игра использует его для организации корректной работы своих механик.
+          </p>
+        {% endif %}
+
           <br/>
 
           {% set not_own_page = resource.account.is_authenticated and master_account.id != resource.account.id %}
