@@ -11,7 +11,7 @@ class Clan(django_models.Model):
     MAX_ABBR_LENGTH = 5
     MIN_ABBR_LENGTH = 2
     MAX_MOTTO_LENGTH = 256
-    MAX_DESCRIPTION_LENGTH = 2024
+    MAX_DESCRIPTION_LENGTH = 10000
 
     created_at = django_models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = django_models.DateTimeField(auto_now=True, db_index=True)

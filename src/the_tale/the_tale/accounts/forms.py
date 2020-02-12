@@ -27,7 +27,9 @@ class SettingsForm(utils_forms.Form):
     accept_invites_from_clans = utils_fields.BooleanField(required=False,
                                                           label='Гильдии могут приглашать вас присоединиться к ним')
 
-    description = utils_bbcode.BBField(required=False, label='Несколько слов о Вас, для страницы Вашего аккаунта', max_length=conf.settings.MAX_ACCOUNT_DESCRIPTION_LENGTH)
+    description = utils_bbcode.BBField(required=False,
+                                       label='Несколько слов о Вас, для страницы Вашего аккаунта',
+                                       max_length=conf.settings.MAX_ACCOUNT_DESCRIPTION_LENGTH)
 
     gender = utils_fields.TypedChoiceField(required=True,
                                            label='Пол (необходим для корректного создания фраз, в которых упоминается игрок)',
