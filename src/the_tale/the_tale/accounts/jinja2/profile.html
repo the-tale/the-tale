@@ -88,6 +88,9 @@ jQuery(document).ready( function(e) {
 
         {{ settings_form.gender.widget }}
         {{ settings_form.accept_invites_from_clans.widget }}
+        <p class="alert alert-info">
+          Если этот флажок снят, на странице вашего Хранителя будет отображаться предупреждение, что вы не хотите получать приглашения в гильдии в любом виде. Если вас всё равно будут приглашать (например, через личные сообщения), вы можете <strong><a href="{{forum_complaint_theme()}}">пожаловаться</a></strong> на спамеров.
+        </p>
         {{ settings_form.personal_messages_subscription.widget }}
         {{ settings_form.news_subscription.widget }}
         {{ settings_form.description.widget }}
