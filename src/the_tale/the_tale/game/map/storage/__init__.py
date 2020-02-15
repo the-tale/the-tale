@@ -89,16 +89,6 @@ class CellInfo:
         for road_id in self.roads_ids:
             yield roads_storage.roads[road_id]
 
-    def object_effect_name(self):
-        if self.place_id is not None:
-            return self.place().name
-
-        elif self.building_id is not None:
-            return self.building().name
-
-        else:
-            return 'дорога из {}'.format(self.dominant_place().utg_name.forms[1])
-
     def _transport_effects(self):
         yield ('мир', c.CELL_TRANSPORT_BASE)
 
@@ -130,13 +120,13 @@ class CellInfo:
 
         yield (dominant_place.name, dominant_place.attrs.transport)
 
-        if self.roads_ids:
+        if self.place_id:
+            yield ('городские дороги', c.CELL_TRANSPORT_HAS_MAIN_ROAD)
+
+        elif self.roads_ids:
             # дороги всегда должны иметь бонус к транспорту по сравниению с любым другим объектом (кроме города)
             # чтобы при прочих равных герой двигался по дорогам
-            yield (self.object_effect_name(), c.CELL_TRANSPORT_HAS_MAIN_ROAD)
-
-        elif self.place_id:
-            return
+            yield (f'дорога из {self.dominant_place().utg_name.forms[1]}', c.CELL_TRANSPORT_HAS_MAIN_ROAD)
 
         else:
             # building or none
