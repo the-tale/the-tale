@@ -262,7 +262,7 @@ class PlaceTests(helpers.PlacesTestsMixin,
 
         self.p1.refresh_attributes()
 
-        self.assertEqual(self.p1.attrs.tax, 0.05)
+        self.assertEqual(self.p1.attrs.tax, 0.1)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
