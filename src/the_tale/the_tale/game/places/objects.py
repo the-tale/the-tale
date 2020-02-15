@@ -211,10 +211,14 @@ class Place(game_names.ManageNameMixin2):
 
         yield tt_api_effects.Effect(name='город', attribute=relations.ATTRIBUTE.STABILITY, value=c.PLACE_BASE_STABILITY)
 
-        if len(self.persons) > c.PLACE_MAX_PERSONS:
-            yield tt_api_effects.Effect(name='избыток Мастеров',
+        expected_max_persons = c.PLACE_MAX_PERSONS[self.attrs.size]
+
+        excess_persons = len(self.persons) - expected_max_persons
+
+        if excess_persons > 0:
+            yield tt_api_effects.Effect(name=f'избыток Мастеров ({excess_persons})',
                                         attribute=relations.ATTRIBUTE.STABILITY,
-                                        value=c.PLACE_STABILITY_PENALTY_FOR_MASTER * (len(self.persons) - c.PLACE_MAX_PERSONS))
+                                        value=c.PLACE_STABILITY_PENALTY_FOR_MASTER * (len(self.persons) - expected_max_persons))
 
         if self.is_wrong_race():
             dominant_race_power = self.races.get_race_percents(self.races.dominant_race)

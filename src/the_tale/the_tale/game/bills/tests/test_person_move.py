@@ -90,7 +90,7 @@ class PersonMoveTests(helpers.BaseTestPrototypes):
         self.assertFalse(form.is_valid())
 
     @mock.patch('the_tale.game.balance.constants.PERSON_MOVE_DELAY', 0)
-    @mock.patch('the_tale.game.balance.constants.PLACE_MAX_PERSONS', 1)
+    @mock.patch('the_tale.game.balance.constants.PLACE_ABSOLUTE_MAX_PERSONS', 1)
     def test_user_form__max_barrier(self):
         data = {'caption': 'caption-caption',
                 'chronicle_on_accepted': 'chronicle-on-accepted',
@@ -172,7 +172,7 @@ class PersonMoveTests(helpers.BaseTestPrototypes):
     def test_has_meaning__min_barrier(self):
         self.assertFalse(self.bill.has_meaning())
 
-    @mock.patch('the_tale.game.balance.constants.PLACE_MAX_PERSONS', 1)
+    @mock.patch('the_tale.game.balance.constants.PLACE_ABSOLUTE_MAX_PERSONS', 1)
     def test_has_meaning__max_barrier(self):
         self.assertFalse(self.bill.has_meaning())
 

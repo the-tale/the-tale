@@ -237,7 +237,8 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PVP_EFFECTIVENESS_INITIAL, 300)
 
         self.assertEqual(c.PLACE_MIN_PERSONS, 2)
-        self.assertEqual(c.PLACE_MAX_PERSONS, 6)
+        self.assertEqual(c.PLACE_MAX_PERSONS, [None, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6])
+        self.assertEqual(c.PLACE_ABSOLUTE_MAX_PERSONS, 6)
 
         self.assertEqual(c.PLACE_MIN_STABILITY, 0)
         self.assertEqual(c.PLACE_MIN_CULTURE, 0.2)

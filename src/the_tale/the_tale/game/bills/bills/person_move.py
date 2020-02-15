@@ -16,8 +16,8 @@ class BaseForm(forms.BaseUserForm):
     def clean_new_place(self):
         place_id = int(self.cleaned_data['new_place'])
 
-        if len(places_storage.places[place_id].persons) >= c.PLACE_MAX_PERSONS:
-            raise django_forms.ValidationError('В городе достигнут максимум Мастеров. Чтобы переселить Мастера, необходимо кого-нибудь выселить.')
+        if len(places_storage.places[place_id].persons) >= c.PLACE_ABSOLUTE_MAX_PERSONS:
+            raise django_forms.ValidationError('В городе достигнут абсолютный максимум Мастеров. Чтобы переселить Мастера, необходимо кого-нибудь выселить.')
 
         return place_id
 
@@ -103,7 +103,7 @@ class PersonMove(base_person_bill.BasePersonBill):
                 not self.person.on_move_timeout and
                 not self.person.has_building and
                 len(self.person.place.persons) > c.PLACE_MIN_PERSONS and
-                len(self.new_place.persons) < c.PLACE_MAX_PERSONS)
+                len(self.new_place.persons) < c.PLACE_ABSOLUTE_MAX_PERSONS)
 
     def apply(self, bill=None):
         if not self.has_meaning():

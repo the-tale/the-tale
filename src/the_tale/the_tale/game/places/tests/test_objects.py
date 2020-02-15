@@ -201,6 +201,7 @@ class PlaceTests(helpers.PlacesTestsMixin,
         self.assertAlmostEqual(self.p1.attrs.production, expected_production)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_MASTER', 0)
     @mock.patch('the_tale.game.places.objects.Place.is_modifier_active', lambda self: True)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: 0.03)
     def test_refresh_attributes__safety(self):
@@ -286,7 +287,7 @@ class PlaceTests(helpers.PlacesTestsMixin,
         self.assertTrue(-0.001 < self.p1.attrs.freedom - c.PLACE_MIN_FREEDOM < 0.001)
 
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
-    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
+    @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_MASTER', 0)
     @mock.patch('the_tale.game.persons.objects.Person.get_economic_modifier', lambda obj, x: -0.05)
     def test_refresh_attributes__stability(self):
         self.create_effect(self.p1.id, value=-0.5, attribute=relations.ATTRIBUTE.STABILITY)
@@ -338,17 +339,21 @@ class PlaceTests(helpers.PlacesTestsMixin,
 
     @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
     def test_refresh_attributes__stability_penalty_for_masters_number(self):
+
+        self.p1.attrs.size = 7
         self.p1.refresh_attributes()
 
+        expected_max_persons = c.PLACE_MAX_PERSONS[self.p1.attrs.size]
+
         with self.check_not_changed(lambda: self.p1.attrs.stability):
-            while len(self.p1.persons) < c.PLACE_MAX_PERSONS:
+            while len(self.p1.persons) < expected_max_persons:
                 person = random.choice(list(persons_storage.persons.all()))
                 persons_logic.move_person_to_place(person, self.p1)
 
             self.p1.refresh_attributes()
 
         with self.check_delta(lambda: round(self.p1.attrs.stability, 2), -0.15000000000000002):
-            while len(self.p1.persons) <= c.PLACE_MAX_PERSONS:
+            while len(self.p1.persons) <= expected_max_persons:
                 person = random.choice(list(persons_storage.persons.all()))
                 persons_logic.move_person_to_place(person, self.p1)
 
