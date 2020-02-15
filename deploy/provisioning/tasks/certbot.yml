@@ -13,8 +13,6 @@
       - domains:
           - the-tale.org
       - domains:
-          - docs.the-tale.org
-      - domains:
           - temp-informer.the-tale.org
     certbot_create_standalone_stop_services:
       - nginx
