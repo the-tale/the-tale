@@ -27,7 +27,9 @@ def sync_clan_statistics(clan):
 
     clan.premium_members_number = premium_members_number
 
-    clan.might = accounts_models.Account.objects.filter(clan_id=clan.id).aggregate(might=django_models.Sum('might')).get('might', 0)
+    clan_might = accounts_models.Account.objects.filter(clan_id=clan.id).aggregate(might=django_models.Sum('might')).get('might')
+
+    clan.might = clan_might if clan_might is not None else 0
 
     clan.statistics_refreshed_at = datetime.datetime.now()
 

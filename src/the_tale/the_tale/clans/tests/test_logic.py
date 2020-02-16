@@ -105,6 +105,22 @@ class SyncClanStatisitcsTests(BaseClanTests):
 
         self.assertEqual(loaded_clan.might, 11)
 
+    def test_might__for_removed_clan(self):
+        accounts_models.Account.objects.filter(id=self.account.id).update(might=0)
+        accounts_models.Account.objects.filter(id=self.account_2.id).update(might=1)
+        accounts_models.Account.objects.filter(id=self.account_3.id).update(might=10)
+        accounts_models.Account.objects.filter(id=self.account_4.id).update(might=100)
+
+        logic.remove_clan(self.clan)
+
+        logic.sync_clan_statistics(self.clan)
+
+        self.assertEqual(self.clan.might, 0)
+
+        loaded_clan = logic.load_clan(clan_id=self.clan.id)
+
+        self.assertEqual(loaded_clan.might, 0)
+
 
 class AddMemberTests(BaseClanTests):
 
