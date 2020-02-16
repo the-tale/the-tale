@@ -381,7 +381,8 @@ def form_choices(empty_choice=True, own_clan_id=None):
 
         clan = clans[clan_id]
 
-        clan_choices = [(emissary.id, emissary.name) for emissary in emissaries]
+        clan_choices = [(emissary.id, f'{emissary.name} из {emissary.place.utg_name.forms[1]}')
+                        for emissary in emissaries]
 
         clan_choices.sort(key=lambda choice: choice[1])
 

@@ -530,10 +530,18 @@ def setup_quest_for_hero(hero, knowledge_base_data):
 
     quest = prototypes.QuestPrototype(hero=hero, knowledge_base=knowledge_base, states_to_percents=states_to_percents)
 
+    # устанавливаем квест перед его началом,
+    # чтобы он корректно записался в стек
+    hero.actions.current_action.setup_quest(quest)
+
     if quest.machine.can_do_step():
         quest.machine.step()  # do first step to setup pointer
 
-    hero.actions.current_action.setup_quest(quest)
+        # заставляем героя выполнить условия стартового узла задания
+        # необходимо для случая, когда квест инициирует игрок и героя не находится в точке начала задания
+        quest.machine.check_requirements(quest.machine.current_state)
+        quest.machine.satisfy_requirements(quest.machine.current_state)
+
 
 
 def extract_person_type(fact):
