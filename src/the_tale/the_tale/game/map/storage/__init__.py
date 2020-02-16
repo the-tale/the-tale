@@ -92,22 +92,7 @@ class CellInfo:
     def _transport_effects(self):
         yield ('мир', c.CELL_TRANSPORT_BASE)
 
-        if self.terrain.meta_height.is_HILLS:
-            yield ('холмы', c.CELL_TRANSPORT_HILLS)
-
-        if self.terrain.meta_height.is_MOUNTAINS:
-            yield ('горы', c.CELL_TRANSPORT_MOUNTAINS)
-
         if not self.contains_object():
-            if self.terrain.meta_vegetation.is_TREES:
-                yield ('леса', c.CELL_TRANSPORT_TREES)
-
-            if self.terrain.meta_terrain.is_SWAMP:
-                yield ('болота', c.CELL_TRANSPORT_SWAMP)
-
-            if self.terrain.meta_terrain.is_JUNGLE:
-                yield ('джунгли', c.CELL_TRANSPORT_JUNGLE)
-
             yield ('магические потоки', c.CELL_TRANSPORT_MAGIC)
 
         dominant_place = self.dominant_place()
@@ -144,15 +129,6 @@ class CellInfo:
 
     def _safety_effects(self):
         yield ('мир', 1.0 - c.BATTLES_PER_TURN)
-
-        if self.terrain.meta_height.is_HILLS:
-            yield ('холмы', c.CELL_SAFETY_HILLS)
-
-        if self.terrain.meta_height.is_MOUNTAINS:
-            yield ('горы', c.CELL_SAFETY_MOUNTAINS)
-
-        if self.terrain.meta_vegetation.is_TREES:
-            yield ('леса', c.CELL_SAFETY_TREES)
 
         dominant_place = self.dominant_place()
 

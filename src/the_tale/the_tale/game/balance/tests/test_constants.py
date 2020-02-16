@@ -134,18 +134,9 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.CELL_SAFETY_MIN, 0.05)
         self.assertEqual(c.CELL_SAFETY_DELTA, 0.01)
-        self.assertEqual(c.CELL_SAFETY_TREES, -0.02)
-        self.assertEqual(c.CELL_SAFETY_HILLS, 0.01)
-        self.assertEqual(c.CELL_SAFETY_MOUNTAINS, 0.02)
-        self.assertEqual(c.CELL_SAFETY_NO_PATRULES, -0.5)
 
         self.assertEqual(round(c.CELL_TRANSPORT_MIN, 5), 0.25)
         self.assertEqual(round(c.CELL_TRANSPORT_DELTA, 5), 0.05)
-        self.assertEqual(round(c.CELL_TRANSPORT_TREES, 5), -0.05)
-        self.assertEqual(round(c.CELL_TRANSPORT_SWAMP, 5), -0.05)
-        self.assertEqual(round(c.CELL_TRANSPORT_JUNGLE, 5), -0.05)
-        self.assertEqual(round(c.CELL_TRANSPORT_HILLS, 5), -0.1)
-        self.assertEqual(round(c.CELL_TRANSPORT_MOUNTAINS, 5), -0.2)
         self.assertEqual(round(c.CELL_TRANSPORT_MAGIC, 5), -0.05)
         self.assertEqual(round(c.CELL_TRANSPORT_HAS_MAIN_ROAD, 5), 0.5)
         self.assertEqual(round(c.CELL_TRANSPORT_HAS_OFF_ROAD, 5), 0.25)
@@ -421,8 +412,3 @@ class ConstantsTest(utils_testcase.TestCase):
 
         energy_to_heal_in_day = health_in_day / c.COMPANIONS_HEAL_AMOUNT * c.ANGEL_HELP_COST
         self.assertEqual(round(energy_to_heal_in_day / energy_in_day, 5), 0.23148)
-
-    def test_cell_transport_terrain_balance(self):
-        self.assertTrue(abs(c.CELL_TRANSPORT_TREES) < abs(c.CELL_TRANSPORT_HILLS))
-        self.assertTrue(abs(c.CELL_TRANSPORT_HILLS + c.CELL_TRANSPORT_TREES) < abs(c.CELL_TRANSPORT_MOUNTAINS))
-        self.assertTrue(abs(c.CELL_TRANSPORT_MIN) + abs(c.CELL_TRANSPORT_MOUNTAINS + c.CELL_TRANSPORT_MAGIC) <= abs(c.CELL_TRANSPORT_BASE))
