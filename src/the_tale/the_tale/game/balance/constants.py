@@ -499,6 +499,12 @@ CELL_STABILIZATION_PRICE = int(PLACE_AVERAGE_TOTAL_ROADS_PRICE / 15)
 # то в городе вводят пошлину в размере "недостающее производство" * PLACE_TAX_PER_ONE_GOODS
 PLACE_TAX_PER_ONE_GOODS = float(0.1 / PLACE_GOODS_BONUS)
 
+# максимальное производство от пошлины фиксируется статически, а не динамически (например как 1/PLACE_TAX_PER_ONE_GOODS)
+# поскольку последнее:
+# - либо сделает пошлину крайне невыгодной в книге судеб
+# - либо позволит поддерживать город максимального размера при, ожидаемом минимальном размере
+MAX_PRODUCTION_FROM_TAX = int(PLACE_GOODS_BONUS * 2.5)
+
 # исходим из того, что в первую очередь надо балансировать вероятность нападения монстров как самый важный параметр
 PLACE_SAFETY_FROM_BEST_PERSON = float(0.025)
 PLACE_TRANSPORT_FROM_BEST_PERSON = PLACE_SAFETY_FROM_BEST_PERSON * _SAFETY_TO_TRANSPORT

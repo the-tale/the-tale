@@ -23,7 +23,8 @@ BILLS = [place_renaming.PlaceRenaming,
          road_create.RoadCreate,
          road_destroy.RoadDestroy,
          road_change.RoadChange,
-         emissary_chronicle.EmissaryChronicle]
+         emissary_chronicle.EmissaryChronicle,
+         place_change_tax_size_border.PlaceTaxSizeBorder]
 
 
 def deserialize_bill(data):

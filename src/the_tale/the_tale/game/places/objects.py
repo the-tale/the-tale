@@ -387,13 +387,37 @@ class Place(game_names.ManageNameMixin2):
                                             attribute=relations.ATTRIBUTE.FREEDOM,
                                             value=c.PLACE_MIN_FREEDOM - freedom)
 
-        if self.attrs.size == 1 and production < 0 and self.attrs.goods == 0:
-            yield tt_api_effects.Effect(name='Компенсация потерь пошлиной',
-                                        attribute=relations.ATTRIBUTE.PRODUCTION,
-                                        value=-production)
-            yield tt_api_effects.Effect(name='Производственный кризис',
-                                        attribute=relations.ATTRIBUTE.TAX,
-                                        value=min(1.0, c.PLACE_TAX_PER_ONE_GOODS * abs(production)))
+        compensation = 0
+
+        if relations.ATTRIBUTE.PRODUCTION.order == order:
+
+            if ((self.attrs.size == self.attrs.tax_size_border and self.attrs.goods + production <= 0) or
+                (self.attrs.size < self.attrs.tax_size_border)):
+
+                if self.attrs.size < self.attrs.tax_size_border:
+                    compensation = c.MAX_PRODUCTION_FROM_TAX
+                else:
+                    compensation = min(c.MAX_PRODUCTION_FROM_TAX, abs(production))
+
+                production += compensation
+
+                yield tt_api_effects.Effect(name='стабилизация производства пошлиной',
+                                            attribute=relations.ATTRIBUTE.PRODUCTION,
+                                            value=compensation)
+
+                yield tt_api_effects.Effect(name='стабилизация производства пошлиной',
+                                            attribute=relations.ATTRIBUTE.TAX,
+                                            value=min(1.0, c.PLACE_TAX_PER_ONE_GOODS * compensation))
+
+            # если размер города 1 и он полностью в нулях, докручиваем пошлину до полной компенсации производства
+            if self.attrs.size == 1 and production < 0 and self.attrs.goods == 0:
+                yield tt_api_effects.Effect(name='компенсация потерь пошлиной',
+                                            attribute=relations.ATTRIBUTE.PRODUCTION,
+                                            value=abs(production))
+
+                yield tt_api_effects.Effect(name='компенсация потерь пошлиной',
+                                            attribute=relations.ATTRIBUTE.TAX,
+                                            value=min(1.0, c.PLACE_TAX_PER_ONE_GOODS * abs(production)))
 
     def effects_for_attribute(self, attribute):
         for effect in self.effects_generator(attribute.order):

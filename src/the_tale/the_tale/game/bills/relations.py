@@ -37,7 +37,8 @@ class BILL_TYPE(rels_django.DjangoEnum):
                ('ROAD_CREATE', 16, 'проложить дорогу', 3.0 * c.PLACE_STABILITY_UNIT, True),
                ('ROAD_DESTROY', 17, 'разрушить дорогу', 4.0 * c.PLACE_STABILITY_UNIT, True),
                ('ROAD_CHANGE', 18, 'изменить дорогу', 2.0 * c.PLACE_STABILITY_UNIT, True),
-               ('EMISSARY_CHRONICLE', 19, 'запись в летописи об эмиссаре', 0, True),)
+               ('EMISSARY_CHRONICLE', 19, 'запись в летописи об эмиссаре', 0, True),
+               ('PLACE_CHANGE_TAX_SIZE_BORDER', 20, 'установить поддерживаемый размер города', 0, True),)
 
 
 class VOTE_TYPE(rels_django.DjangoEnum):

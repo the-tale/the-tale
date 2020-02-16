@@ -55,7 +55,7 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                                description='Вклад города в развитие транспортной инфраструктуры в его окрестностях.'),
                attributes.attr('FREEDOM', 9, 'свобода', verbose_units='%', formatter=attributes.percents_formatter,
                                description='Насколько активна политическая жизнь в городе (как сильно изменяется влияние Мастеров от действий героев).'),
-               attributes.attr('TAX', 10, 'пошлина', verbose_units='%', formatter=attributes.percents_formatter,
+               attributes.attr('TAX', 10, 'пошлина', verbose_units='%', formatter=attributes.percents_formatter, order=3,
                                description='Размер пошлины, которую платят герои при посещении города (процент от наличности в кошельке героя).'),
                attributes.attr('STABILITY', 11, 'стабильность', order=0, verbose_units='%', formatter=attributes.percents_formatter,
                                description='Отражает текущую ситуацию в городе и влияет на многие его параметры. Уменьшается от изменений, происходящих в городе (при одобрении записи в Книге Судеб), и постепенно восстанавливается до 100%.'),
@@ -137,7 +137,11 @@ class ATTRIBUTE(attributes.ATTRIBUTE):
                                description='Модификация демографического давления мастеров гоблинов.'),
                attributes.attr('DEMOGRAPHICS_PRESSURE_DWARF', 43, 'бонус демографического давления дварфов',
                                formatter=attributes.percents_formatter, verbose_units='%',
-                               description='Модификация демографического давления мастеров дварфов.'),)
+                               description='Модификация демографического давления мастеров дварфов.'),
+
+               attributes.attr('TAX_SIZE_BORDER', 44, 'поддерживаемый размер', default=lambda: 1,
+                               type=attributes.ATTRIBUTE_TYPE.CALCULATED,
+                               description=f'Если есть риск уменьшения размера города ниже этого значения, город автоматически введёт пошлину, чтобы компенсировать недостаток производства. В городах размером больше 1, пошлина может компенсировать не более {c.MAX_PRODUCTION_FROM_TAX} производства.'),)
 
 
 ATTRIBUTE.EFFECTS_ORDER = sorted(set(record.order for record in ATTRIBUTE.records))

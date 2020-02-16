@@ -249,6 +249,11 @@ class PlaceTests(helpers.PlacesTestsMixin,
 
         self.assertTrue(-0.001 < self.p1.attrs.culture - c.PLACE_MIN_CULTURE < 0.001)
 
+    def test_tax_order_equal_to_production_order(self):
+        # необходимо, чтобы корректно работали эффекты аттрибута tax_size_border
+        self.assertEqual(relations.ATTRIBUTE.PRODUCTION.order,
+                         relations.ATTRIBUTE.TAX.order)
+
     @mock.patch('the_tale.game.balance.constants.PLACE_STABILITY_PENALTY_FOR_RACES', 0)
     def test_refresh_attributes__tax(self):
 
@@ -315,16 +320,22 @@ class PlaceTests(helpers.PlacesTestsMixin,
         self.assertEqual(self.p1.attrs.stability, 1.0)
 
     def test_refresh_attributes__production__min_value(self):
-        self.create_effect(self.p1.id, value=-1000, attribute=relations.ATTRIBUTE.PRODUCTION)
-
         self.p1.attrs.size = 1
+        self.p1.attrs.goods = 1000
+        self.p1.refresh_attributes()
+
+        old_production = self.p1.attrs.production
+        old_tax = self.p1.attrs.tax
+
+        self.create_effect(self.p1.id, value=-500, attribute=relations.ATTRIBUTE.PRODUCTION)
+
         self.p1.attrs.goods = 0
 
         self.p1.refresh_attributes()
 
         self.assertTrue(-0.001 < self.p1.attrs.production < 0.001)
 
-        self.assertTrue(self.p1.attrs.tax > 0)
+        self.assertAlmostEqual(self.p1.attrs.tax, old_tax + abs(old_production - 500) * c.PLACE_TAX_PER_ONE_GOODS)
 
     def test_refresh_attributes__production__min_value__not_min_size(self):
         self.create_effect(self.p1.id, value=-1000, attribute=relations.ATTRIBUTE.PRODUCTION)
@@ -336,6 +347,85 @@ class PlaceTests(helpers.PlacesTestsMixin,
         self.assertTrue(self.p1.attrs.production < 0)
 
         self.assertEqual(self.p1.attrs.tax, 0)
+
+    def test_refresh_attributes__tax_size_border__max_allowed_production(self):
+        self.p1.attrs.size = 7
+        self.p1.attrs.goods = 1000
+        self.p1.attrs.set_tax_size_border(7)
+
+        self.p1.refresh_attributes()
+
+        old_production = self.p1.attrs.production
+
+        self.assertTrue(old_production < 0)
+
+        self.assertEqual(self.p1.attrs.tax, 0)
+
+        self.p1.attrs.goods = 0
+
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, old_production + c.MAX_PRODUCTION_FROM_TAX)
+
+        self.assertAlmostEqual(self.p1.attrs.tax, c.MAX_PRODUCTION_FROM_TAX * c.PLACE_TAX_PER_ONE_GOODS)
+
+    def test_refresh_attributes__tax_size_border__medium_production(self):
+        self.p1.attrs.size = 7
+        self.p1.attrs.goods = 1000
+        self.p1.attrs.set_tax_size_border(7)
+
+        self.p1.refresh_attributes()
+
+        self.create_effect(self.p1.id, value=-self.p1.attrs.production, attribute=relations.ATTRIBUTE.PRODUCTION)
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, 0)
+        self.assertEqual(self.p1.attrs.tax, 0)
+
+        test_production = 120
+
+        self.create_effect(self.p1.id, value=-test_production, attribute=relations.ATTRIBUTE.PRODUCTION)
+
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, -test_production)
+
+        self.p1.attrs.goods = 0
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, 0)
+
+        self.assertAlmostEqual(self.p1.attrs.tax, 120 * c.PLACE_TAX_PER_ONE_GOODS)
+
+    def test_refresh_attributes__tax_size_border__lower_size_with_positive_production(self):
+        self.p1.attrs.size = 7
+        self.p1.attrs.goods = 1000
+        self.p1.attrs.set_tax_size_border(7)
+
+        self.p1.refresh_attributes()
+
+        self.create_effect(self.p1.id, value=-self.p1.attrs.production , attribute=relations.ATTRIBUTE.PRODUCTION)
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, 0)
+        self.assertEqual(self.p1.attrs.tax, 0)
+
+        test_production = 120
+
+        self.create_effect(self.p1.id, value=-test_production, attribute=relations.ATTRIBUTE.PRODUCTION)
+
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, -test_production)
+
+        self.p1.attrs.size = 6
+        self.p1.attrs.goods = 0
+
+        self.p1.refresh_attributes()
+
+        self.assertAlmostEqual(self.p1.attrs.production, -test_production + c.PLACE_GOODS_BONUS + c.MAX_PRODUCTION_FROM_TAX)
+
+        self.assertAlmostEqual(self.p1.attrs.tax, c.PLACE_TAX_PER_ONE_GOODS * c.MAX_PRODUCTION_FROM_TAX)
 
     @mock.patch('the_tale.game.persons.objects.Person.place_effects', lambda obj: [])
     def test_refresh_attributes__stability_penalty_for_masters_number(self):

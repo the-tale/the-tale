@@ -276,6 +276,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.CELL_STABILIZATION_PRICE, 10)
 
         self.assertEqual(c.PLACE_TAX_PER_ONE_GOODS, 0.001)
+        self.assertEqual(c.MAX_PRODUCTION_FROM_TAX, 250)
 
         self.assertEqual(c.PLACE_SAFETY_FROM_BEST_PERSON, 0.025)
         self.assertEqual(round(c.PLACE_TRANSPORT_FROM_BEST_PERSON, 5), 0.125)
