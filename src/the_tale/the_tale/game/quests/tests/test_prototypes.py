@@ -49,6 +49,20 @@ class PrototypeTests(PrototypeTestsBase,
 
         self.assertEqual(mark_updated.call_count, 1)
 
+    def test_extend_inner_circle(self):
+        self.assertEqual(self.quest.inner_circle_places, set())
+        self.assertEqual(self.quest.inner_circle_persons, set())
+
+        self.quest.extend_inner_circle(None, None)
+
+        self.assertEqual(self.quest.inner_circle_places, set())
+        self.assertEqual(self.quest.inner_circle_persons, set())
+
+        self.quest.extend_inner_circle({2, 3}, {4, 5, 6})
+
+        self.assertEqual(self.quest.inner_circle_places, {2, 3})
+        self.assertEqual(self.quest.inner_circle_persons, {4, 5, 6})
+
     def complete_quest(self, callback=lambda: None, positive_results=True):
 
         # save link to quest, since it will be removed from hero when quest finished

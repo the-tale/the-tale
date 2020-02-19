@@ -69,6 +69,10 @@ class HeroQuestInfo(object):
         self.excluded_quests = excluded_quests
         self.prefered_quest_markers = prefered_quest_markers
 
+    @property
+    def position_place(self):
+        return places_storage.places[self.position_place_id]
+
     def serialize(self):
         return {'id': self.id,
                 'level': self.level,
@@ -333,7 +337,8 @@ def get_knowledge_base(hero_info, without_restrictions=False):  # pylint: disabl
 
 
 def create_random_quest_for_hero(hero_info, logger):
-    constructor = place_quest_constructor_fabric(place_uid=uids.place(hero_info.position_place_id))
+    constructor = place_quest_constructor_fabric(place=hero_info.position_place,
+                                                 person_action=None)
 
     return create_random_quest_with_constructor(hero_info,
                                                 constructor,
@@ -342,14 +347,45 @@ def create_random_quest_for_hero(hero_info, logger):
                                                 no_restrictions_on_fail=True)
 
 
+def create_random_quest_for_place(hero_info, place, person_action, logger):
+
+    constructor = place_quest_constructor_fabric(place=place,
+                                                 person_action=person_action)
+
+    excluded_quests = [record.quest_class.TYPE
+                       for record in relations.QUESTS.records
+                       if not record.allowed_for_cards]
+
+    return create_random_quest_with_constructor(hero_info,
+                                                constructor,
+                                                logger,
+                                                excluded_quests=excluded_quests,
+                                                no_restrictions_on_fail=False)
+
+
+def create_random_quest_for_person(hero_info, person, person_action, logger):
+
+    constructor = person_quest_constructor_fabric(person=person,
+                                                  person_action=person_action)
+
+    excluded_quests = [record.quest_class.TYPE
+                       for record in relations.QUESTS.records
+                       if not record.allowed_for_cards]
+
+    return create_random_quest_with_constructor(hero_info,
+                                                constructor,
+                                                logger,
+                                                excluded_quests=excluded_quests,
+                                                no_restrictions_on_fail=False)
+
+
 def create_random_quest_for_emissary(hero_info, emissary, person_action, logger):
-    constructor = emissary_quest_constructor_fabric(hero_uid=uids.hero(hero_info.id),
-                                                    emissary=emissary,
+    constructor = emissary_quest_constructor_fabric(emissary=emissary,
                                                     person_action=person_action)
 
     excluded_quests = [record.quest_class.TYPE
                        for record in relations.QUESTS.records
-                       if not record.allowed_for_emissary]
+                       if not record.allowed_for_cards]
 
     return create_random_quest_with_constructor(hero_info,
                                                 constructor,
@@ -444,15 +480,38 @@ def _create_random_quest_for_hero(hero_info, constructor, start_quests, without_
     return knowledge_base
 
 
-def place_quest_constructor_fabric(place_uid):
+def place_quest_constructor_fabric(place, person_action):
 
     def constructor(selector, start_quests):
-        initiator_position = selector._kb[place_uid]
+        f_place = fact_place(place)
 
-        selector.reserve(initiator_position)
+        if f_place.uid not in selector._kb:
+            selector._kb += f_place
+
+        if person_action is not None:
+            if person_action.is_HELP:
+                selector._kb += questgen_facts.OnlyGoodBranches(object=f_place.uid)
+
+            elif person_action.is_HARM:
+                selector._kb += questgen_facts.OnlyBadBranches(object=f_place.uid)
+
+            for person in place.persons:
+                f_person = fact_person(person)
+
+                if f_person.uid not in selector._kb:
+                    selector._kb += f_person
+                    selector._kb += questgen_facts.LocatedIn(object=f_person.uid, place=f_place.uid)
+
+                if person_action.is_HELP:
+                    selector._kb += questgen_facts.OnlyGoodBranches(object=f_person.uid)
+
+                elif person_action.is_HARM:
+                    selector._kb += questgen_facts.OnlyBadBranches(object=f_person.uid)
+
+        selector.reserve(f_place)
 
         return selector.create_quest_from_place(nesting=0,
-                                                initiator_position=initiator_position,
+                                                initiator_position=f_place,
                                                 allowed=start_quests,
                                                 excluded=[],
                                                 tags=('can_start', ))
@@ -460,7 +519,7 @@ def place_quest_constructor_fabric(place_uid):
     return constructor
 
 
-def emissary_quest_constructor_fabric(hero_uid, emissary, person_action):
+def emissary_quest_constructor_fabric(emissary, person_action):
 
     def constructor(selector, start_quests):
         f_emissary = fact_emissary(emissary)
@@ -491,6 +550,38 @@ def emissary_quest_constructor_fabric(hero_uid, emissary, person_action):
     return constructor
 
 
+def person_quest_constructor_fabric(person, person_action):
+
+    def constructor(selector, start_quests):
+        f_person = fact_person(person)
+        f_person_place = fact_place(person.place)
+
+        if f_person_place.uid not in selector._kb:
+            selector._kb += f_person_place
+
+        if f_person.uid not in selector._kb:
+            selector._kb += f_person
+            selector._kb += questgen_facts.LocatedIn(object=f_person.uid, place=f_person_place.uid)
+
+        if person_action.is_HELP:
+            selector._kb += questgen_facts.OnlyGoodBranches(object=f_person.uid)
+        elif person_action.is_HARM:
+            selector._kb += questgen_facts.OnlyBadBranches(object=f_person.uid)
+        else:
+            raise NotImplementedError
+
+        selector.reserve(f_person)
+        selector.reserve(f_person_place)
+
+        return selector.create_quest_from_person(nesting=0,
+                                                 initiator=f_person,
+                                                 allowed=start_quests,
+                                                 excluded=[],
+                                                 tags=('can_start', ))
+
+    return constructor
+
+
 def create_hero_info(hero):
     quests_priorities = hero.get_quests_priorities()
 
@@ -510,11 +601,13 @@ def create_hero_info(hero):
                          prefered_quest_markers=hero.prefered_quest_markers())
 
 
-def request_quest_for_hero(hero, emissary_id=None, person_action=None):
+def request_quest_for_hero(hero, emissary_id=None, place_id=None, person_id=None, person_action=None):
     hero_info = create_hero_info(hero)
     amqp_environment.environment.workers.quests_generator.cmd_request_quest(hero.account_id,
                                                                             hero_info.serialize(),
                                                                             emissary_id=emissary_id,
+                                                                            place_id=place_id,
+                                                                            person_id=person_id,
                                                                             person_action=person_action)
 
 

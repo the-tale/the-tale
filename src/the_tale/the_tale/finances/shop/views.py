@@ -213,7 +213,7 @@ def info(context):
         summary.type = card_info['card'].value
 
     return utils_views.AjaxOk(content={'info': [summary.ui_info() for summary in info],
-                                      'account_balance': context.account.bank_account.amount})
+                                       'account_balance': context.account.bank_account.amount})
 
 
 @utils_views.ArgumentProcessor(error_message='Необходимо указать тип товара', get_name='item_type', context_name='item_type')

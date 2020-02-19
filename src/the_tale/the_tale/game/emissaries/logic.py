@@ -669,7 +669,7 @@ def add_emissaries_experience():
 
 
 def expected_power_per_day():
-    quest_card_probability = cards_logic.get_card_probability(cards_types.CARD.EMISSARY_QUEST)
+    quest_card_probability = cards_logic.get_card_probability(cards_types.CARD.QUEST_FOR_EMISSARY)
 
     quests_in_day = tt_cards_constants.PREMIUM_PLAYER_SPEED * quest_card_probability
 

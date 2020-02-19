@@ -35,6 +35,22 @@ class QuestActionTests(utils_testcase.TestCase):
         self.assertTrue(self.hero.quests.has_quests)
         self.storage._test_save()
 
+    def test_setup_quest__inner_circle(self):
+        self.action_quest.inner_circle_places = {1, 3}
+        self.action_quest.inner_circle_persons = {4, 6}
+
+        quests_helpers.setup_quest(self.hero)
+
+        self.assertEqual(self.hero.quests.current_quest.inner_circle_places, {1, 3})
+        self.assertEqual(self.hero.quests.current_quest.inner_circle_persons, {4, 6})
+
+        self.storage._test_save()
+
+        loaded_hero = heroes_logic.load_hero(self.hero.id)
+
+        self.assertEqual(loaded_hero.quests.current_quest.inner_circle_places, {1, 3})
+        self.assertEqual(loaded_hero.quests.current_quest.inner_circle_persons, {4, 6})
+
     def test_one_step(self):
         self.storage.process_turn()
         # quest can create new action on first step

@@ -188,6 +188,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         place=self.place_1,
                                                         power=1000,
+                                                        inner_circle_places=set(),
                                                         impacts_generator=fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -201,6 +202,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         place=self.place_1,
                                                         power=1000,
+                                                        inner_circle_places={self.place_2.id},
                                                         impacts_generator=fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -216,6 +218,21 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         place=self.place_1,
                                                         power=1000,
+                                                        inner_circle_places=set(),
+                                                        impacts_generator=fake_tt_power_impacts))
+        self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
+                                             'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
+                                             'amount': 1000,
+                                             'fame': c.HERO_FAME_PER_HELP,
+                                             'inner_circle': True,
+                                             'place': self.place_1}])
+
+    @mock.patch('the_tale.game.heroes.objects.Hero.can_change_place_power', lambda self, place: True)
+    def test_inner_circle__extended_inner_circle(self):
+        impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
+                                                        place=self.place_1,
+                                                        power=1000,
+                                                        inner_circle_places={self.place_1.id},
                                                         impacts_generator=fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,
@@ -231,6 +248,7 @@ class ImpactsFromHeroTests(utils_testcase.TestCase):
         impact_arguments = list(logic.impacts_from_hero(hero=self.hero,
                                                         place=self.place_1,
                                                         power=-1000,
+                                                        inner_circle_places=set(),
                                                         impacts_generator=fake_tt_power_impacts))
         self.assertEqual(impact_arguments, [{'actor_id': self.hero.id,
                                              'actor_type': tt_api_impacts.OBJECT_TYPE.HERO,

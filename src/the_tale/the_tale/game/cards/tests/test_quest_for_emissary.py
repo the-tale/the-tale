@@ -4,13 +4,13 @@ import smart_imports
 smart_imports.all()
 
 
-class EmissaryQuestsTest(helpers.CardsTestMixin,
-                         clans_helpers.ClansTestsMixin,
-                         quests_helpers.QuestTestsMixin,
-                         emissaries_helpers.EmissariesTestsMixin,
-                         pvp_helpers.PvPTestsMixin,
-                         utils_testcase.TestCase):
-    CARD = types.CARD.EMISSARY_QUEST
+class QuestsForEmissaryTest(helpers.CardsTestMixin,
+                            clans_helpers.ClansTestsMixin,
+                            quests_helpers.QuestTestsMixin,
+                            emissaries_helpers.EmissariesTestsMixin,
+                            pvp_helpers.PvPTestsMixin,
+                            utils_testcase.TestCase):
+    CARD = types.CARD.QUEST_FOR_EMISSARY
 
     def setUp(self):
         super().setUp()

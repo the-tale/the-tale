@@ -52,7 +52,7 @@ def tt_power_impacts(person_inner_circle, place_inner_circle, actor_type, actor_
                                        amount=abs(person_power))
 
 
-def impacts_from_hero(hero, person, power, impacts_generator=tt_power_impacts):
+def impacts_from_hero(hero, person, power, inner_circle_places, inner_circle_persons, impacts_generator=tt_power_impacts):
     person_power = 0
     partner_power = 0
     concurrent_power = 0
@@ -67,8 +67,8 @@ def impacts_from_hero(hero, person, power, impacts_generator=tt_power_impacts):
     partner_power = person_power * person.attrs.social_relations_partners_power_modifier
     concurrent_power = -person_power * person.attrs.social_relations_concurrents_power_modifier
 
-    has_person_in_preferences = hero.preferences.has_person_in_preferences(person)
-    has_place_in_preferences = hero.preferences.has_place_in_preferences(person.place)
+    has_person_in_preferences = hero.preferences.has_person_in_preferences(person) or (person.id in inner_circle_persons)
+    has_place_in_preferences = hero.preferences.has_place_in_preferences(person.place) or (person.place_id in inner_circle_places)
 
     yield from impacts_generator(person_inner_circle=has_person_in_preferences,
                                  place_inner_circle=has_place_in_preferences,

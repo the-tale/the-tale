@@ -65,9 +65,9 @@ class CreateCardTest(utils_testcase.TestCase):
     @mock.patch('the_tale.game.cards.effects.ChangeItemOfExpenditure.allowed_items', lambda self: [heroes_relations.ITEMS_OF_EXPENDITURE.records[0]])
     @mock.patch('the_tale.game.cards.effects.ChangeHabit.allowed_habits', lambda self: [game_relations.HABIT_TYPE.records[0]])
     @mock.patch('the_tale.game.cards.effects.ChangeHabit.allowed_directions', lambda self: [1])
-    @mock.patch('the_tale.game.cards.effects.AddPersonPower.allowed_directions', lambda self: [1])
-    @mock.patch('the_tale.game.cards.effects.AddPlacePower.allowed_directions', lambda self: [1])
-    @mock.patch('the_tale.game.cards.effects.EmissaryQuest.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
+    @mock.patch('the_tale.game.cards.effects.QuestForEmissary.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
+    @mock.patch('the_tale.game.cards.effects.QuestForPlace.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
+    @mock.patch('the_tale.game.cards.effects.QuestForPerson.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
     @mock.patch('the_tale.game.cards.effects.ChangeHistory.allowed_history', lambda self: [effects.ChangeHistory.HISTORY_TYPE.records[0]])
     def test_exclude(self):
         created_cards = []
@@ -93,9 +93,9 @@ class CreateCardTest(utils_testcase.TestCase):
     @mock.patch('the_tale.game.cards.effects.ChangeItemOfExpenditure.allowed_items', lambda self: [heroes_relations.ITEMS_OF_EXPENDITURE.records[0]])
     @mock.patch('the_tale.game.cards.effects.ChangeHabit.allowed_habits', lambda self: [game_relations.HABIT_TYPE.records[0]])
     @mock.patch('the_tale.game.cards.effects.ChangeHabit.allowed_directions', lambda self: [1])
-    @mock.patch('the_tale.game.cards.effects.AddPersonPower.allowed_directions', lambda self: [1])
-    @mock.patch('the_tale.game.cards.effects.AddPlacePower.allowed_directions', lambda self: [1])
-    @mock.patch('the_tale.game.cards.effects.EmissaryQuest.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
+    @mock.patch('the_tale.game.cards.effects.QuestForEmissary.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
+    @mock.patch('the_tale.game.cards.effects.QuestForPlace.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
+    @mock.patch('the_tale.game.cards.effects.QuestForPerson.allowed_actions', lambda self: [quests_relations.PERSON_ACTION.HARM])
     @mock.patch('the_tale.game.cards.effects.ChangeHistory.allowed_history', lambda self: [effects.ChangeHistory.HISTORY_TYPE.records[0]])
     def test_exclude__different_data(self):
         created_cards = []
@@ -170,7 +170,7 @@ class GetCombinedCardTests(utils_testcase.TestCase):
         cards, result = logic.get_combined_cards(allow_premium_cards=True,
                                                  combined_cards=(self.create_card(types.CARD.CREATE_CLAN),))
         self.assertEqual(len(cards), 9)
-        self.assertTrue(all(card.type.is_EMISSARY_QUEST for card in cards))
+        self.assertTrue(all(card.type.is_QUEST_FOR_EMISSARY for card in cards))
 
         self.assertTrue(cards[0].type.rarity.value < types.CARD.CREATE_CLAN.rarity.value)
 
@@ -239,7 +239,7 @@ class GetCombinedCardTests(utils_testcase.TestCase):
         self.assertTrue(result.is_TOO_MANY_CARDS)
 
     def test_combine_too_many_cards_allowed(self):
-        combined_cards = [self.create_card(types.CARD.EMISSARY_QUEST)
+        combined_cards = [self.create_card(types.CARD.QUEST_FOR_EMISSARY)
                           for _ in range(9)]
 
         cards, result = logic.get_combined_cards(allow_premium_cards=True,

@@ -33,7 +33,7 @@ class QUESTS(rels_django.DjangoEnum):
     quest_class = rels.Column()
     quest_type = rels.Column(unique=False)
     priority = rels.Column(unique=False)
-    allowed_for_emissary = rels.Column(unique=False)
+    allowed_for_cards = rels.Column(unique=False)
 
     records = (('SPYING', 0, 'шпионаж', questgen_quests_spying.Spying, QUEST_TYPE.NORMAL, 1.0, True),
                ('HUNT', 1, 'охота', questgen_quests_hunt.Hunt, QUEST_TYPE.CHARACTER, 1.0, False),

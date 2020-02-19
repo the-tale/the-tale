@@ -19,6 +19,7 @@ class ActionBase(object):
                  'created_at_turn',
                  'context',
                  'place_id',
+                 'person_id',
                  'emissary_id',
                  'person_action',
                  'mob',
@@ -31,7 +32,9 @@ class ActionBase(object):
                  'info_link',
                  'saved_meta_action',
                  'replane_required',
-                 'path')
+                 'path',
+                 'inner_circle_places',
+                 'inner_circle_persons')
 
     class STATE:
         UNINITIALIZED = 'uninitialized'
@@ -54,6 +57,7 @@ class ActionBase(object):
                  context=None,
                  description=None,
                  place_id=None,
+                 person_id=None,
                  emissary_id=None,
                  person_action=None,
                  mob=None,
@@ -67,7 +71,9 @@ class ActionBase(object):
                  meta_action=None,
                  replane_required=False,
                  hero=None,
-                 path=None):
+                 path=None,
+                 inner_circle_places=None,
+                 inner_circle_persons=None):
 
         self.hero = hero
 
@@ -92,6 +98,7 @@ class ActionBase(object):
             self.mob_context = mob_context if mob_context is None or isinstance(mob_context, self.CONTEXT_MANAGER) else self.CONTEXT_MANAGER.deserialize(mob_context)
 
         self.place_id = place_id
+        self.person_id = person_id
         self.emissary_id = emissary_id
 
         self.person_action = None
@@ -123,6 +130,9 @@ class ActionBase(object):
         else:
             self.path = path
 
+        self.inner_circle_places = set(inner_circle_places) if inner_circle_places else set()
+        self.inner_circle_persons = set(inner_circle_persons) if inner_circle_persons else set()
+
     def serialize(self):
         data = {'type': self.TYPE.value,
                 'bundle_id': self.bundle_id,
@@ -136,6 +146,8 @@ class ActionBase(object):
             data['context'] = self.context.serialize()
         if self.place_id is not None:
             data['place_id'] = self.place_id
+        if self.person_id is not None:
+            data['person_id'] = self.person_id
         if self.emissary_id is not None:
             data['emissary_id'] = self.emissary_id
         if self.person_action is not None:
@@ -160,6 +172,10 @@ class ActionBase(object):
             data['info_link'] = self.info_link
         if self.path is not None:
             data['path'] = self.path.serialize()
+        if self.inner_circle_places:
+            data['inner_circle_places'] = list(self.inner_circle_places)
+        if self.inner_circle_persons:
+            data['inner_circle_persons'] = list(self.inner_circle_persons)
 
         return data
 
@@ -195,6 +211,10 @@ class ActionBase(object):
     @property
     def place(self):
         return places_storage.places.get(self.place_id)
+
+    @property
+    def person(self):
+        return persons_storage.persons.get(self.person_id)
 
     @property
     def meta_action(self):
@@ -536,12 +556,24 @@ class ActionQuestPrototype(ActionBase):
     ###########################################
 
     @classmethod
-    def _create(cls, hero, bundle_id, emissary_id=None, person_action=None):
+    def _create(cls,
+                hero,
+                bundle_id,
+                emissary_id=None,
+                place_id=None,
+                person_id=None,
+                person_action=None,
+                inner_circle_places=None,
+                inner_circle_persons=None):
         return cls(hero=hero,
                    bundle_id=bundle_id,
                    state=cls.STATE.SEARCHING,
                    emissary_id=emissary_id,
-                   person_action=person_action)
+                   place_id=place_id,
+                   person_id=person_id,
+                   person_action=person_action,
+                   inner_circle_places=inner_circle_places,
+                   inner_circle_persons=inner_circle_persons)
 
     @property
     def searching_quest(self):
@@ -550,6 +582,9 @@ class ActionQuestPrototype(ActionBase):
     def setup_quest(self, quest):
         if self.state != self.STATE.SEARCHING:
             return
+
+        quest.extend_inner_circle(inner_circle_places=self.inner_circle_places,
+                                  inner_circle_persons=self.inner_circle_persons)
 
         self.hero.quests.push_quest(quest)
 
@@ -574,10 +609,14 @@ class ActionQuestPrototype(ActionBase):
                 if self.technical_setup_quest_required():
                     quests_helpers.setup_quest(self.hero,
                                                emissary_id=self.emissary_id,
+                                               place_id=self.place_id,
+                                               person_id=self.person_id,
                                                person_action=self.person_action)
                 else:
                     quests_logic.request_quest_for_hero(self.hero,
                                                         emissary_id=self.emissary_id,
+                                                        place_id=self.place_id,
+                                                        person_id=self.person_id,
                                                         person_action=self.person_action)
 
         if self.state == self.STATE.EQUIPPING:
@@ -1128,7 +1167,7 @@ class ActionInPlacePrototype(ActionBase):
 
         power = power_direction * f.person_power_for_quest(c.QUEST_AREA_RADIUS)
 
-        impacts = list(persons_logic.impacts_from_hero(self.hero, person, power))
+        impacts = list(persons_logic.impacts_from_hero(self.hero, person, power, inner_circle_places=set(), inner_circle_persons=set()))
 
         politic_power_logic.add_power_impacts(impacts)
 

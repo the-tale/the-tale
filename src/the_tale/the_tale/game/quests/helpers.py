@@ -4,16 +4,26 @@ import smart_imports
 smart_imports.all()
 
 
-def setup_quest(hero, emissary_id=None, person_action=None):
+def setup_quest(hero, emissary_id=None, place_id=None, person_id=None, person_action=None):
     hero_info = logic.create_hero_info(hero)
 
-    if emissary_id is None:
-        knowledge_base = logic.create_random_quest_for_hero(hero_info, mock.Mock())
-    else:
+    if place_id is not None:
+        knowledge_base = logic.create_random_quest_for_place(hero_info=hero_info,
+                                                             place=places_storage.places[place_id],
+                                                             person_action=person_action,
+                                                             logger=mock.Mock())
+    elif person_id is not None:
+        knowledge_base = logic.create_random_quest_for_person(hero_info=hero_info,
+                                                              person=persons_storage.persons[person_id],
+                                                              person_action=person_action,
+                                                              logger=mock.Mock())
+    elif emissary_id is not None:
         knowledge_base = logic.create_random_quest_for_emissary(hero_info=hero_info,
                                                                 emissary=emissaries_storage.emissaries[emissary_id],
                                                                 person_action=person_action,
                                                                 logger=mock.Mock())
+    else:
+        knowledge_base = logic.create_random_quest_for_hero(hero_info, mock.Mock())
 
     logic.setup_quest_for_hero(hero, knowledge_base.serialize())
 

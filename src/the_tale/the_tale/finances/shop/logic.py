@@ -105,11 +105,14 @@ def cancel_lots_by_type(item_type):
     lots = tt_services.market.cmd_cancel_lots_by_type(item_type=item_type)
 
     for lot in lots:
-        cards_logic.change_owner(old_owner_id=accounts_logic.get_system_user_id(),
-                                 new_owner_id=lot.owner_id,
-                                 operation_type='#cancel_sell_lots',
-                                 new_storage=cards_relations.STORAGE.FAST,
-                                 cards_ids=[lot.item_id])
+        try:
+            cards_logic.change_owner(old_owner_id=accounts_logic.get_system_user_id(),
+                                     new_owner_id=lot.owner_id,
+                                     operation_type='#cancel_sell_lots',
+                                     new_storage=cards_relations.STORAGE.FAST,
+                                     cards_ids=[lot.item_id])
+        except Exception as e:
+            print(e)
 
     return lots
 

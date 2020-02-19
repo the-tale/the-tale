@@ -32,14 +32,14 @@ def tt_power_impacts(inner_circle, actor_type, actor_id, place, amount, fame):
         return
 
 
-def impacts_from_hero(hero, place, power, impacts_generator=tt_power_impacts):
+def impacts_from_hero(hero, place, power, inner_circle_places, impacts_generator=tt_power_impacts):
     place_power = 0
 
     can_change_power = hero.can_change_place_power(place)
 
     place_power = hero.modify_politics_power(power, place=place)
 
-    yield from impacts_generator(inner_circle=hero.preferences.has_place_in_preferences(place),
+    yield from impacts_generator(inner_circle=hero.preferences.has_place_in_preferences(place) or (place.id in inner_circle_places),
                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                  actor_id=hero.id,
                                  place=place,
