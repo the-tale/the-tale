@@ -206,19 +206,19 @@ class CARD(rels.Relation):
                 effects.AddClansPoints(base=tt_clans_constants.TOP_CARD_POINTS_BONUS, level=1), []),
 
                 # id типа этой карты проброшен в gui объединения карт
-               ('QUEST_FOR_EMISSARY', 157, 'Гильдейские дела', FOR_ALL, COMMON,
+               ('QUEST_FOR_EMISSARY', 157, 'гильдейские дела', FOR_ALL, COMMON,
                 effects.QuestForEmissary(), [reactors.SameEqual2(),
                                              reactors.Special(2, 'STOP_IDLENESS', new_cards_number=1),
                                              reactors.Special(9, 'CREATE_CLAN', new_cards_number=1)]),
 
-               ('STOP_IDLENESS', 156, 'Снова в путь', FOR_ALL, COMMON,
+               ('STOP_IDLENESS', 156, 'снова в путь', FOR_ALL, COMMON,
                 effects.StopIdleness(), [reactors.Special(2, 'QUEST_FOR_EMISSARY', new_cards_number=1)]),
 
-               ('QUEST_FOR_PLACE', 158, 'Общественные дела', FOR_PREMIUMS, RARE,
+               ('QUEST_FOR_PLACE', 158, 'общественные дела', FOR_PREMIUMS, RARE,
                 effects.QuestForPlace(), [reactors.SameEqual2(),
                                           reactors.Special(3, 'QUEST_FOR_PERSON', new_cards_number=1)]),
 
-               ('QUEST_FOR_PERSON', 159, 'Личные дела', FOR_PREMIUMS, EPIC,
+               ('QUEST_FOR_PERSON', 159, 'личные дела', FOR_PREMIUMS, EPIC,
                 effects.QuestForPerson(), [reactors.SameEqual2(),
                                            reactors.Special(1, 'QUEST_FOR_PLACE', new_cards_number=3)]),
                )
