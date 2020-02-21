@@ -17,11 +17,11 @@ class CancelSellLotsByTypeTests(utils_testcase.TestCase):
         tt_services.market.cmd_debug_clear_service()
         cards_tt_services.storage.cmd_debug_clear_service()
 
-        self.cards = [cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True,
-                                                                   type=cards_types.CARD.LEVEL_UP),
+        self.cards = [cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True,
+                                                                       type=cards_types.CARD.CANCEL_QUEST),
 
-                      cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True,
-                                                                   type=cards_types.CARD.LEVEL_UP),
+                      cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True,
+                                                                       type=cards_types.CARD.CANCEL_QUEST),
 
                       cards_types.CARD.ADD_GOLD_COMMON.effect.create_card(available_for_auction=True,
                                                                           type=cards_types.CARD.ADD_GOLD_COMMON)]

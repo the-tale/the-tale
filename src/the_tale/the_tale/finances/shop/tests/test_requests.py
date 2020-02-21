@@ -200,7 +200,7 @@ class CreateSellLotTests(RequestesTestsBase, bank_helpers.BankTestsMixin):
         tt_services.market.cmd_debug_clear_service()
         cards_tt_services.storage.cmd_debug_clear_service()
 
-        self.cards = [cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True, type=cards_types.CARD.LEVEL_UP),
+        self.cards = [cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True, type=cards_types.CARD.CANCEL_QUEST),
                       cards_types.CARD.ADD_GOLD_COMMON.effect.create_card(available_for_auction=True, type=cards_types.CARD.ADD_GOLD_COMMON)]
 
         cards_logic.change_cards(self.account.id, operation_type='#test', to_add=self.cards)
@@ -263,7 +263,7 @@ class InfoTests(RequestesTestsBase, bank_helpers.BankTestsMixin):
         tt_services.market.cmd_debug_clear_service()
         cards_tt_services.storage.cmd_debug_clear_service()
 
-        self.cards = [cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True, type=cards_types.CARD.LEVEL_UP),
+        self.cards = [cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True, type=cards_types.CARD.CANCEL_QUEST),
                       cards_types.CARD.ADD_GOLD_COMMON.effect.create_card(available_for_auction=True, type=cards_types.CARD.ADD_GOLD_COMMON)]
 
         cards_logic.change_cards(self.account.id, operation_type='#test', to_add=self.cards)
@@ -293,8 +293,8 @@ class ItemTypePricesTests(RequestesTestsBase, bank_helpers.BankTestsMixin):
         tt_services.market.cmd_debug_clear_service()
         cards_tt_services.storage.cmd_debug_clear_service()
 
-        self.cards = [cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True, type=cards_types.CARD.LEVEL_UP),
-                      cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True, type=cards_types.CARD.LEVEL_UP),
+        self.cards = [cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True, type=cards_types.CARD.CANCEL_QUEST),
+                      cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True, type=cards_types.CARD.CANCEL_QUEST),
                       cards_types.CARD.ADD_GOLD_COMMON.effect.create_card(available_for_auction=True, type=cards_types.CARD.ADD_GOLD_COMMON)]
 
         cards_logic.change_cards(self.account.id, operation_type='#test', to_add=self.cards)
@@ -388,7 +388,7 @@ class CloseSellLotTests(RequestesTestsBase, bank_helpers.BankTestsMixin):
         tt_services.market.cmd_debug_clear_service()
         cards_tt_services.storage.cmd_debug_clear_service()
 
-        self.card = cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True, type=cards_types.CARD.LEVEL_UP)
+        self.card = cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True, type=cards_types.CARD.CANCEL_QUEST)
 
         self.bank_account = bank_prototypes.AccountPrototype.create(entity_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
                                                                     entity_id=self.account.id,
@@ -460,7 +460,7 @@ class CancelSellLotTests(RequestesTestsBase, bank_helpers.BankTestsMixin):
         tt_services.market.cmd_debug_clear_service()
         cards_tt_services.storage.cmd_debug_clear_service()
 
-        self.card = cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True, type=cards_types.CARD.LEVEL_UP)
+        self.card = cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True, type=cards_types.CARD.CANCEL_QUEST)
 
         self.item_info = objects.ItemTypeSummary(full_type=self.card.item_full_type,
                                                  sell_number=1,
@@ -537,7 +537,7 @@ class MarketHistoryTests(RequestesTestsBase, bank_helpers.BankTestsMixin, PageRe
         tt_services.market.cmd_debug_clear_service()
         cards_tt_services.storage.cmd_debug_clear_service()
 
-        self.cards = [cards_types.CARD.LEVEL_UP.effect.create_card(available_for_auction=True, type=cards_types.CARD.LEVEL_UP),
+        self.cards = [cards_types.CARD.CANCEL_QUEST.effect.create_card(available_for_auction=True, type=cards_types.CARD.CANCEL_QUEST),
                       cards_types.CARD.ADD_GOLD_COMMON.effect.create_card(available_for_auction=True, type=cards_types.CARD.ADD_GOLD_COMMON)]
 
         cards_logic.change_cards(self.account.id, operation_type='#test', to_add=self.cards)
