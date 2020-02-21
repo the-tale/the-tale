@@ -115,7 +115,7 @@ class PortalResource(utils_resources.Resource):
 
     @old_views.handler('preview', name='preview', method='post')
     def preview(self):
-        return self.string(utils_bbcode.render(self.request.POST.get('text', '')))
+        return self.string(bbcode_renderers.default.render(self.request.POST.get('text', '')))
 
     @utils_api.handler(versions=('1.0',))
     @old_views.handler('api', 'info', name='api-info', method='get')

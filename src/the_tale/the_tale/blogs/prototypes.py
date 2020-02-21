@@ -16,7 +16,7 @@ class PostPrototype(utils_prototypes.BasePrototype):
 
     @property
     def text_html(self):
-        return utils_bbcode.render(self.text)
+        return bbcode_renderers.default.render(self.text)
 
     @utils_decorators.lazy_property
     def author(self):

@@ -18,9 +18,9 @@ class EditNameForm(utils_forms.Form):
                                        skip_markers=(utg_relations.NOUN_FORM.COUNTABLE, utg_relations.NUMBER.PLURAL),
                                        show_properties=False)
 
-    description = utils_bbcode.BBField(required=False,
-                                       label='Несколько слов о вашем герое',
-                                       max_length=conf.settings.MAX_HERO_DESCRIPTION_LENGTH)
+    description = bbcode_fields.BBField(required=False,
+                                        label='Несколько слов о вашем герое',
+                                        max_length=conf.settings.MAX_HERO_DESCRIPTION_LENGTH)
 
     def clean(self):
         cleaned_data = super(EditNameForm, self).clean()

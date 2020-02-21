@@ -25,7 +25,7 @@ class PersonChronicleTests(helpers.BaseTestPrototypes):
         self.assertTrue(self.bill.data.power_bonus.is_UP)
 
     def test_actors(self):
-        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person1.place)])
+        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person1.place), id(self.person1)])
 
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',

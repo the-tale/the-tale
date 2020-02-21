@@ -28,7 +28,7 @@ class MobRecordBaseForm(utils_forms.Form):
 
     abilities = utils_fields.MultipleChoiceField(label='способности', choices=ABILITY_CHOICES)
 
-    description = utils_bbcode.BBField(label='Описание', required=False)
+    description = bbcode_fields.BBField(label='Описание', required=False)
 
     is_mercenary = utils_fields.BooleanField(label='может быть наёмником', required=False)
     is_eatable = utils_fields.BooleanField(label='съедобный', required=False)

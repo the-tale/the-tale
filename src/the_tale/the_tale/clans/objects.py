@@ -56,7 +56,7 @@ class Clan:
 
     @property
     def description_html(self):
-        return utils_bbcode.render(self.description)
+        return bbcode_renderers.default.render(self.description)
 
     def meta_object(self):
         return meta_relations.Clan.create_from_object(self)
@@ -104,7 +104,7 @@ class MembershipRequest:
 
     @property
     def text_html(self):
-        return utils_bbcode.render(self.text)
+        return bbcode_renderers.default.render(self.text)
 
 
 def _construct_member_permission_checker(permission):

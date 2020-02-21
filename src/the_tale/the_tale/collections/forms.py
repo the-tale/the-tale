@@ -8,7 +8,7 @@ class EditCollectionForm(utils_forms.Form):
 
     caption = utils_fields.CharField(label='Название', max_length=prototypes.CollectionPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
-    description = utils_bbcode.BBField(label='Описание', min_length=1, max_length=prototypes.CollectionPrototype.DESCRIPTION_MAX_LENGTH)
+    description = bbcode_fields.BBField(label='Описание', min_length=1, max_length=prototypes.CollectionPrototype.DESCRIPTION_MAX_LENGTH)
 
 
 class EditKitForm(utils_forms.Form):
@@ -17,7 +17,7 @@ class EditKitForm(utils_forms.Form):
 
     caption = utils_fields.CharField(label='Название', max_length=prototypes.KitPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
-    description = utils_bbcode.BBField(label='Описание', min_length=1, max_length=prototypes.KitPrototype.DESCRIPTION_MAX_LENGTH)
+    description = bbcode_fields.BBField(label='Описание', min_length=1, max_length=prototypes.KitPrototype.DESCRIPTION_MAX_LENGTH)
 
     def __init__(self, *args, **kwargs):
         super(EditKitForm, self).__init__(*args, **kwargs)
@@ -39,7 +39,7 @@ class EditItemForm(utils_forms.Form):
 
     caption = utils_fields.CharField(label='Название', max_length=prototypes.ItemPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
-    text = utils_bbcode.BBField(label='Текст', min_length=1)
+    text = bbcode_fields.BBField(label='Текст', min_length=1)
 
     def __init__(self, *args, **kwargs):
         super(EditItemForm, self).__init__(*args, **kwargs)

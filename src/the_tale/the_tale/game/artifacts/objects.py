@@ -295,7 +295,7 @@ class ArtifactRecord(game_names.ManageNameMixin2):
         self.material = material
 
     @property
-    def description_html(self): return utils_bbcode.render(self.description)
+    def description_html(self): return bbcode_renderers.default.render(self.description)
 
     def accepted_for_level(self, level): return self.level <= level
 

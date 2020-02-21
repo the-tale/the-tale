@@ -13,7 +13,7 @@ class ArtifactRecordBaseForm(utils_forms.Form):
 
     name = linguistics_forms.WordField(word_type=utg_relations.WORD_TYPE.NOUN, label='Название')
 
-    description = utils_bbcode.BBField(label='Описание', required=False)
+    description = bbcode_fields.BBField(label='Описание', required=False)
 
     type = utils_fields.TypedChoiceField(label='тип', choices=relations.ARTIFACT_TYPE.choices(), coerce=relations.ARTIFACT_TYPE.get_from_name)
     power_type = utils_fields.TypedChoiceField(label='тип силы', choices=relations.ARTIFACT_POWER_TYPE.choices(), coerce=relations.ARTIFACT_POWER_TYPE.get_from_name)

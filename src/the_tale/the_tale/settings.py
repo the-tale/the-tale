@@ -184,6 +184,7 @@ INSTALLED_APPS = [
     'the_tale.common.amqp_queues',
     'the_tale.common.postponed_tasks',
     'the_tale.common.meta_relations',
+    'the_tale.common.bbcode',
 
     'the_tale.post_service',
 

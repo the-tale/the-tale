@@ -69,7 +69,7 @@ class EmissaryChronicle(base_bill.BaseBill):
 
     @property
     def actors(self):
-        return [self.origin_place]
+        return [self.origin_place, self.emissary]
 
     def apply(self, bill=None):
         pass

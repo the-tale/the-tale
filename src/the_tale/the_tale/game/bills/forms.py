@@ -9,11 +9,11 @@ class BaseUserForm(utils_forms.Form):
                                      max_length=models.Bill.CAPTION_MAX_LENGTH,
                                      min_length=models.Bill.CAPTION_MIN_LENGTH)
 
-    chronicle_on_accepted = utils_fields.TextField(label='Текст летописи при принятии (от {} до {} символов)'.format(conf.settings.CHRONICLE_MIN_LENGTH,
-                                                                                                                     conf.settings.CHRONICLE_MAX_LENGTH),
-                                                   widget=django_forms.Textarea(attrs={'rows': 6}),
-                                                   min_length=conf.settings.CHRONICLE_MIN_LENGTH,
-                                                   max_length=conf.settings.CHRONICLE_MAX_LENGTH)
+    chronicle_on_accepted = bbcode_fields.BBField(label=f'Текст летописи при принятии (от {conf.settings.CHRONICLE_MIN_LENGTH} до {conf.settings.CHRONICLE_MAX_LENGTH} символов)',
+                                                  widget=django_forms.Textarea(attrs={'rows': 6}),
+                                                  min_length=conf.settings.CHRONICLE_MIN_LENGTH,
+                                                  max_length=conf.settings.CHRONICLE_MAX_LENGTH,
+                                                  renderer=bbcode_renderers.chronicle)
 
     depends_on = utils_fields.ChoiceField(label='Зависит от', required=False)
 

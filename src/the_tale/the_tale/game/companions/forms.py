@@ -44,7 +44,7 @@ class CompanionRecordForm(utils_forms.Form):
     material_3 = utils_fields.RelationField(label='материал оружия 3', required=False, relation=tt_artifacts_relations.MATERIAL, sort_key=lambda choice: choice[1])
     power_type_3 = utils_fields.RelationField(label='тип силы оружия 3', required=False, relation=artifacts_relations.ARTIFACT_POWER_TYPE)
 
-    description = utils_bbcode.BBField(label='Описание', required=False)
+    description = bbcode_fields.BBField(label='Описание', required=False)
 
     def clean_features(self):
         features = self.cleaned_data['features']

@@ -115,6 +115,7 @@
                              {"prefix": "linguistics_workers_", "module": "the_tale.linguistics.workers"},
                              {"prefix": "linguistics_", "module": "the_tale.linguistics"},
                              {"prefix": "utils_", "module": "the_tale.common.utils"},
+                             {"prefix": "bbcode_", "module": "the_tale.common.bbcode"},
                              {"prefix": "utg_", "module": "utg"},
                              {"prefix": "rels_", "module": "rels"},
                              {"prefix": "questgen_quests_", "module": "questgen.quests"},

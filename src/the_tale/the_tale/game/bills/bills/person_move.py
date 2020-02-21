@@ -96,7 +96,8 @@ class PersonMove(base_person_bill.BasePersonBill):
         return self.new_place_name != self.new_place.name
 
     @property
-    def actors(self): return [self.place, self.new_place, self.person]
+    def actors(self):
+        return [self.place, self.new_place, self.person]
 
     def has_meaning(self):
         return (self.person.place.id != self.new_place_id and

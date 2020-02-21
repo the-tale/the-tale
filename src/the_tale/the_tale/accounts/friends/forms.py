@@ -9,4 +9,4 @@ DEFAULT_TEXT = '''Здравствуйте!
 
 
 class RequestForm(utils_forms.Form):
-    text = utils_bbcode.BBField(label='Сообщение', initial=DEFAULT_TEXT)
+    text = bbcode_fields.BBField(label='Сообщение', initial=DEFAULT_TEXT)

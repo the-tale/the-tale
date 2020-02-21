@@ -39,7 +39,8 @@ class BasePersonBill(base_bill.BaseBill):
         return places_storage.places.get(self.place_id)
 
     @property
-    def actors(self): return [self.place]
+    def actors(self):
+        return [self.place, self.person]
 
     @property
     def old_place_name(self):

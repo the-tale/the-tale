@@ -27,7 +27,7 @@ class BuildingRenamingTests(helpers.BaseTestPrototypes):
         self.assertEqual(self.bill.data.new_name, 'new-building-name-нс,ед,им')
 
     def test_actors(self):
-        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place)])
+        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.person_1.place), id(self.person_1)])
 
     def test_update(self):
         data = linguistics_helpers.get_word_post_data(game_names.generator().get_test_name('new-building-name-2'), prefix='name')

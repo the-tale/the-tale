@@ -114,7 +114,8 @@ class PersonAddSocialConnection(base_bill.BaseBill):
     def place_2(self): return places_storage.places[self.place_2_id]
 
     @property
-    def actors(self): return [self.place_1, self.place_2, self.person_1, self.person_2]
+    def actors(self):
+        return [self.place_1, self.place_2, self.person_1, self.person_2]
 
     def user_form_initials(self):
         return {'person_1': self.person_1_id,

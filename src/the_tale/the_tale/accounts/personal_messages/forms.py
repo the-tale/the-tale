@@ -21,4 +21,4 @@ class RecipientsForm(utils_forms.Form):
 
 class NewMessageForm(RecipientsForm):
 
-    text = utils_bbcode.BBField(label='Сообщение')
+    text = bbcode_fields.BBField(label='Сообщение')

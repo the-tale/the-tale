@@ -100,7 +100,7 @@
   Запись в летописи о принятии
   <small>количество символов: {{bill.chronicle_on_accepted|length}}</small>
 </h4>
-<p>{{ bill.chronicle_on_accepted }}</p>
+<p>{{ bill.chronicle_on_accepted|bb_chronicle }}</p>
 {% endif %}
 
 {% set folclor_objects = posts_about(bill_meta_object) %}

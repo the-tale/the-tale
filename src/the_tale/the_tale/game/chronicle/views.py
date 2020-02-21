@@ -18,6 +18,7 @@ resource.add_processor(utils_views.FakeResourceProcessor())
 
 class IndexFilter(utils_list_filter.ListFilter):
     ELEMENTS = [utils_list_filter.reset_element(),
+                utils_list_filter.static_element('эмиссар:', attribute='emissary'),
                 utils_list_filter.choice_element('город:',
                                                  attribute='place',
                                                  choices=lambda x: [(None, 'все')] + places_storage.places.get_choices()),
@@ -33,11 +34,12 @@ class IndexFilter(utils_list_filter.ListFilter):
 @utils_views.PageNumberProcessor(default_value=(2 << 31))
 @places_views.PlaceProcessor(error_message='Город не найден', get_name='place', context_name='place', default_value=None)
 @persons_views.PersonProcessor(error_message='Мастер не найден', get_name='person', context_name='person', default_value=None)
+@emissaries_views.EmissaryProcessor(error_message='Эмиссар не найден', get_name='emissary', context_name='emissary', default_value=None)
 @resource('')
 def index(context):
 
     tags = [object.meta_object().tag
-            for object in (context.place, context.person)
+            for object in (context.place, context.person, context.emissary)
             if object is not None]
 
     page, total_records, events = tt_services.chronicle.cmd_get_events(page=context.page+1,
@@ -49,14 +51,16 @@ def index(context):
     url_builder = utils_urls.UrlBuilder(utils_urls.url('game:chronicle:'),
                                         arguments={'page': context.page,
                                                    'place': context.place.id if context.place else None,
-                                                   'person': context.person.id if context.person else None})
+                                                   'person': context.person.id if context.person else None,
+                                                   'emissary': context.emissary.id if context.emissary else None})
 
     if page != context.page and 'page' in context.django_request.GET:
         return utils_views.Redirect(url_builder(page=page + 1))
 
     filter = IndexFilter(url_builder=url_builder,
                          values={'place': context.place.id if context.place else None,
-                                 'person': context.person.id if context.person else None})
+                                 'person': context.person.id if context.person else None,
+                                 'emissary': context.emissary.name if context.emissary else None})
 
     paginator = utils_pagination.Paginator(page,
                                            total_records,

@@ -37,7 +37,7 @@ class EmissaryChronicleTests(clans_helpers.ClansTestsMixin,
         self.assertEqual(self.bill.data.emissary_id, self.emissary_1.id)
 
     def test_actors(self):
-        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.emissary_1.place)])
+        self.assertEqual([id(a) for a in self.bill_data.actors], [id(self.emissary_1.place), id(self.emissary_1)])
 
     def test_update(self):
         form = self.bill.data.get_user_form_update(post={'caption': 'new-caption',

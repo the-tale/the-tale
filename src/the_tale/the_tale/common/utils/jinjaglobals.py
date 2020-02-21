@@ -33,21 +33,6 @@ def absolutize_urls(value):
 
 
 @utils_jinja2.jinjafilter
-def make_paragraphs(value):
-    return utils_jinja2.Markup(value.strip().replace('\n', '<br/>'))
-
-
-@utils_jinja2.jinjafilter
-def bb(value):
-    return utils_jinja2.Markup(bbcode.render(value))
-
-
-@utils_jinja2.jinjafilter
-def bb_safe(value):
-    return utils_jinja2.Markup(bbcode.safe_render(value))
-
-
-@utils_jinja2.jinjafilter
 def json(value):
     return utils_jinja2.Markup(s11n.to_json(value))
 

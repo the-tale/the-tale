@@ -300,7 +300,7 @@ class SameEqual2Tests(utils_testcase.TestCase):
         self.assertEqual(self.reactor.own_card_type, self.own_card_type)
 
     def test_description(self):
-        self.assertEqual(self.reactor.descrption(), '2 x одинаковых «Общественные дела» => «Общественные дела» с другим эффектом')
+        self.assertEqual(self.reactor.descrption(), '2 x одинаковых «общественные дела» => «общественные дела» с другим эффектом')
 
     def test_combine__not_2(self):
         new_cards = self.reactor.combine((self.own_card_type.effect.create_card(available_for_auction=True, type=self.own_card_type),

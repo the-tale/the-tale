@@ -28,7 +28,7 @@ class FriendshipPrototype(utils_prototypes.BasePrototype):
     def friend_2(self): return accounts_prototypes.AccountPrototype(model=self._model.friend_2)
 
     @property
-    def text_html(self): return utils_bbcode.render(self._model.text)
+    def text_html(self): return bbcode_renderers.default.render(self._model.text)
 
     @classmethod
     def _get_for(cls, friend_1, friend_2):

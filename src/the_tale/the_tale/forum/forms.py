@@ -6,7 +6,7 @@ smart_imports.all()
 
 class NewPostForm(utils_forms.Form):
 
-    text = utils_bbcode.BBField(label='Сообщение', min_length=1)
+    text = bbcode_fields.BBField(label='Сообщение', min_length=1)
 
 
 class NewThreadForm(NewPostForm):

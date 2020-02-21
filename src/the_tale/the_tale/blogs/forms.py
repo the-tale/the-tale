@@ -6,7 +6,7 @@ smart_imports.all()
 
 class PostForm(utils_forms.Form):
     caption = utils_fields.CharField(label='Название', max_length=models.Post.CAPTION_MAX_LENGTH, min_length=models.Post.CAPTION_MIN_LENGTH)
-    text = utils_bbcode.BBField(label='Текст', min_length=conf.settings.MIN_TEXT_LENGTH)
+    text = bbcode_fields.BBField(label='Текст', min_length=conf.settings.MIN_TEXT_LENGTH)
 
     meta_objects = utils_fields.CharField(label='Текст рассказывает о', required=False)
 

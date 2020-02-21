@@ -87,7 +87,7 @@ class Place(game_names.ManageNameMixin2):
 
     @property
     def description_html(self):
-        return utils_bbcode.render(self.description)
+        return bbcode_renderers.default.render(self.description)
 
     def linguistics_restrictions(self):
         restrictions = [linguistics_restrictions.get(self.race),

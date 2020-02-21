@@ -28,7 +28,7 @@ class NewAchievementForm(utils_forms.Form):
 
     caption = utils_fields.CharField(label='Название', max_length=prototypes.AchievementPrototype.CAPTION_MAX_LENGTH, min_length=1)
 
-    description = utils_bbcode.BBField(label='Описание', min_length=1, max_length=prototypes.AchievementPrototype.DESCRIPTION_MAX_LENGTH)
+    description = bbcode_fields.BBField(label='Описание', min_length=1, max_length=prototypes.AchievementPrototype.DESCRIPTION_MAX_LENGTH)
 
     barrier = utils_fields.IntegerField(label='Барьер')
 
