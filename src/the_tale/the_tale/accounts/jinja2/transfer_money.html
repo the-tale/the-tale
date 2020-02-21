@@ -14,6 +14,18 @@
       У Вас есть {{context.account.bank_account.amount}} <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
     </h4>
 
+    <h4>
+      {% if max_money_to_transfer > 0 %}
+      Вы можете перевести не более {{max_money_to_transfer}}
+      {% else %}
+      Вы не можете перевести печеньки. Для разблокировки перевода необходимо дополнительно получить больше&nbsp;{{-max_money_to_transfer}}
+      {% endif %}
+      <img src="{{ STATIC_CONTENT }}images/cookies.png" style="vertical-align: middle;"></img>
+      <i class="icon-info-sign"
+         rel="tooltip"
+         title="Перевести другим игрокам можно не больше, чем <сумма купленных напрямую печенек> + <сумма полученных от других игроков> - <цена вечной подписки (если она куплена)> - <сумма отправленных другим игрокам>."></i>
+    </h4>
+
     <p>
       Переводя печеньки игроку «{{context.master_account.nick_verbose}}», Вы соглашаетесь с тем, что:
     </p>

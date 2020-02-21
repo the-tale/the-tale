@@ -367,3 +367,29 @@ def change_credentials(account, new_email=None, new_password=None, new_nick=None
                 account_id=account.referral_of_id,
                 method_name=account.update_referrals_number.__name__,
                 data={})
+
+
+def max_money_to_transfer(account):
+    invoices = account.bank_account.get_history_list()
+
+    bought = sum(abs(invoice.amount) for invoice in invoices
+                 if invoice.sender_type.is_XSOLLA)
+
+    infinit_uid = shop_goods.PURCHAGE_UID.format(shop_price_list.SUBSCRIPTION_INFINIT_UID)
+
+    infinit = sum(abs(invoice.amount) for invoice in invoices
+                  if invoice.operation_uid == infinit_uid)
+
+    transfer_uid = accounts_postponed_tasks.TRANSFER_MONEY_UID
+
+    send = sum(abs(invoice.amount) for invoice in invoices
+               if invoice.sender_type.is_GAME_ACCOUNT and
+                  invoice.sender_id == account.id and
+                  invoice.operation_uid == transfer_uid)
+
+    received = sum(abs(invoice.amount) for invoice in invoices
+                   if invoice.recipient_type.is_GAME_ACCOUNT and
+                      invoice.recipient_id == account.id and
+                      invoice.operation_uid == transfer_uid)
+
+    return bought + received - infinit - send

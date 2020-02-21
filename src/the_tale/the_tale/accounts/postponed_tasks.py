@@ -4,6 +4,9 @@ import smart_imports
 smart_imports.all()
 
 
+TRANSFER_MONEY_UID = 'transfer-money-between-accounts-transfer'
+
+
 class UPDATE_ACCOUNT_STATE(rels_django.DjangoEnum):
     records = (('UNPROCESSED', 1, 'необработана'),
                ('PROCESSED', 2, 'обработана'),
@@ -139,7 +142,7 @@ class TransferMoneyTask(PostponedLogic):
                                                                        amount=self.amount,
                                                                        description_for_sender='Перевод игроку «%s»: «%s».' % (self.recipient.nick_verbose, self.comment),
                                                                        description_for_recipient='Перевод от игрока «%s»: «%s».' % (self.sender.nick_verbose, self.comment),
-                                                                       operation_uid='transfer-money-between-accounts-transfer')
+                                                                       operation_uid=TRANSFER_MONEY_UID)
 
             self.transfer_transaction = bank_transaction.Transaction(transfer_invoice.id)
 

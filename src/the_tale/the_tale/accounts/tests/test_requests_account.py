@@ -442,16 +442,19 @@ class TransferMoneyDialogTests(AccountRequestsTests):
         self.check_html_ok(self.request_ajax_html(utils_urls.url('accounts:transfer-money-dialog', 66666666)), texts=['pgf-error-account.wrong_value'])
 
 
-class TransferMoneyTests(AccountRequestsTests):
+class TransferMoneyTests(bank_helpers.BankTestsMixin, AccountRequestsTests):
 
     def setUp(self):
-        super(TransferMoneyTests, self).setUp()
+        super().setUp()
 
-        bank_account = bank_prototypes.AccountPrototype.create(entity_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
-                                                               entity_id=self.account_1.id,
-                                                               currency=bank_relations.CURRENCY_TYPE.PREMIUM)
-        bank_account.amount = 1000
-        bank_account.save()
+        invoice = self.create_invoice(recipient_type=bank_relations.ENTITY_TYPE.GAME_ACCOUNT,
+                                      recipient_id=self.account_1.id,
+                                      sender_type=bank_relations.ENTITY_TYPE.XSOLLA,
+                                      sender_id=0,
+                                      amount=1000,
+                                      operation_uid=xsolla_prototypes.BANK_OPERATION_UID,
+                                      force=True)
+        invoice.confirm()
 
         self.request_login(self.account_1.email)
 
@@ -506,8 +509,20 @@ class TransferMoneyTests(AccountRequestsTests):
         self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', 666), self.post_data()), 'account.wrong_value')
 
     def test_no_money(self):
+        amount = 1001
+
+        self.assertTrue(amount - logic.get_transfer_commission(amount) < logic.max_money_to_transfer(self.account_1))
+
         with self.check_not_changed(PostponedTaskPrototype._db_count):
-            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data(money=1001)), 'not_enough_money')
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data(money=amount)), 'not_enough_money')
+
+    def test_no_money__no_reserve(self):
+        amount = 10010
+
+        self.assertTrue(logic.max_money_to_transfer(self.account_1) < amount - logic.get_transfer_commission(amount))
+
+        with self.check_not_changed(PostponedTaskPrototype._db_count):
+            self.check_ajax_error(self.post_ajax_json(utils_urls.url('accounts:transfer-money', self.account_2.id), self.post_data(money=amount)), 'money_limit')
 
     def test_low_sum(self):
         with self.check_not_changed(PostponedTaskPrototype._db_count):

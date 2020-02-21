@@ -138,6 +138,7 @@
                              {"prefix": "blogs_", "module": "the_tale.blogs"},
                              {"prefix": "bank_workers_", "module": "the_tale.finances.bank.workers"},
                              {"prefix": "bank_", "module": "the_tale.finances.bank"},
+                             {"prefix": "xsolla_", "module": "the_tale.finances.xsolla"},
                              {"prefix": "friends_", "module": "the_tale.accounts.friends"},
                              {"prefix": "third_party_", "module": "the_tale.accounts.third_party"},
                              {"prefix": "post_service_workers_", "module": "the_tale.post_service.workers"},

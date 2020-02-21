@@ -359,9 +359,12 @@ def transfer_money_dialog(context):
     if context.account.id == context.master_account.id:
         raise utils_views.ViewError(code='own_account', message='Нельзя переводить печеньки самому себе')
 
+    max_money_to_transfer = logic.max_money_to_transfer(context.account)
+
     return utils_views.Page('accounts/transfer_money.html',
                             content={'commission': conf.settings.MONEY_SEND_COMMISSION,
-                                     'form': forms.SendMoneyForm()})
+                                     'form': forms.SendMoneyForm(),
+                                     'max_money_to_transfer': max_money_to_transfer})
 
 
 @LoginRequiredProcessor()
@@ -372,8 +375,14 @@ def transfer_money_dialog(context):
 @utils_views.FormProcessor(form_class=forms.SendMoneyForm)
 @accounts_resource('#account', 'transfer-money', method='POST')
 def transfer_money(context):
+
     if context.account.id == context.master_account.id:
         raise utils_views.ViewError(code='own_account', message='Нельзя переводить печеньки самому себе')
+
+    max_money_to_transfer = logic.max_money_to_transfer(context.account)
+
+    if context.form.c.money - logic.get_transfer_commission(context.form.c.money) > max_money_to_transfer:
+        raise utils_views.ViewError(code='money_limit', message='Вы достигли лимита перевода печенек')
 
     if context.form.c.money > context.account.bank_account.amount:
         raise utils_views.ViewError(code='not_enough_money', message='Недостаточно печенек для перевода')
