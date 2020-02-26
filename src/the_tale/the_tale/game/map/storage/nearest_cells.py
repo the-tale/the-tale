@@ -147,10 +147,6 @@ def _update_nearest_place(map):
         for y in range(0, map_conf.settings.HEIGHT):
             cell = map[y][x]
 
-            if cell.dominant_place_id is not None:
-                cell.nearest_place_id = cell.dominant_place_id
-                continue
-
             best_distance = 999999999
 
             for place in places_storage.places.all():
