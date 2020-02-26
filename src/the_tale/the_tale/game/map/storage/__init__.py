@@ -153,8 +153,8 @@ class CellInfo:
         if safety < c.CELL_SAFETY_MIN:
             effects.append(('Серый Орден', c.CELL_SAFETY_MIN - safety))
 
-        if safety > 1:
-            effects.append(('демоны', 1 - safety))
+        if safety > c.CELL_SAFETY_MAX:
+            effects.append(('демоны', c.CELL_SAFETY_MAX - safety))
 
         return effects
 

@@ -254,6 +254,7 @@ MAP_SYNC_TIME_HOURS = int(1)
 MAP_SYNC_TIME = int(TURNS_IN_HOUR * MAP_SYNC_TIME_HOURS)  # синхронизируем карту раз в N часов
 
 CELL_SAFETY_MIN = float(0.05)
+CELL_SAFETY_MAX = float(0.95)
 
 CELL_SAFETY_DELTA = float(0.01)
 

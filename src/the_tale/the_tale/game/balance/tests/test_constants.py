@@ -130,6 +130,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.MAP_SYNC_TIME, 360)
 
         self.assertEqual(c.CELL_SAFETY_MIN, 0.05)
+        self.assertEqual(c.CELL_SAFETY_MAX, 0.95)
         self.assertEqual(c.CELL_SAFETY_DELTA, 0.01)
 
         self.assertEqual(round(c.CELL_TRANSPORT_MIN, 5), 0.25)
