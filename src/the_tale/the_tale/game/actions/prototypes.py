@@ -459,8 +459,7 @@ class ActionIdlenessPrototype(ActionBase):
         if self.hero.clan_id is None:
             return None
 
-        for place in places_logic.task_board_places(self.hero.position.place.x,
-                                                    self.hero.position.place.y):
+        for place in places_logic.task_board_places(self.hero.position.place):
 
             if self.hero.clan_id in place.attrs.task_board:
                 return place
@@ -1165,7 +1164,7 @@ class ActionInPlacePrototype(ActionBase):
         if not self.hero.can_change_person_power(person):
             return
 
-        power = power_direction * f.person_power_for_quest(c.QUEST_AREA_RADIUS)
+        power = power_direction * f.person_power_for_quest(places_storage.places.expected_minimum_quest_distance())
 
         impacts = list(persons_logic.impacts_from_hero(self.hero, person, power, inner_circle_places=set(), inner_circle_persons=set()))
 

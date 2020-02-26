@@ -68,10 +68,10 @@ def impacts_from_hero(hero, person, power, inner_circle_places, inner_circle_per
     concurrent_power = -person_power * person.attrs.social_relations_concurrents_power_modifier
 
     has_person_in_preferences = hero.preferences.has_person_in_preferences(person) or (person.id in inner_circle_persons)
-    has_place_in_preferences = hero.preferences.has_place_in_preferences(person.place) or (person.place_id in inner_circle_places)
+    place_is_hometown = hero.preferences.place_is_hometown(person.place) or (person.place_id in inner_circle_places)
 
     yield from impacts_generator(person_inner_circle=has_person_in_preferences,
-                                 place_inner_circle=has_place_in_preferences,
+                                 place_inner_circle=place_is_hometown,
                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                  actor_id=hero.id,
                                  person=person,
@@ -87,7 +87,7 @@ def impacts_from_hero(hero, person, power, inner_circle_places, inner_circle_per
         can_change_connected_power = hero.can_change_person_power(connected_person)
 
         yield from impacts_generator(person_inner_circle=has_person_in_preferences,
-                                     place_inner_circle=has_place_in_preferences,
+                                     place_inner_circle=place_is_hometown,
                                      actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                      actor_id=hero.id,
                                      person=connected_person,

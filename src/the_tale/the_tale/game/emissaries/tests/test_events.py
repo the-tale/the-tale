@@ -208,7 +208,7 @@ class RestTests(BaseEventsMixin, utils_testcase.TestCase):
         self.emissary.traits = frozenset()
         self.emissary.refresh_attributes()
 
-        self.assertEqual(self.concrete_event.power_for_day_cost(self.emissary), 50)
+        self.assertEqual(self.concrete_event.power_for_day_cost(self.emissary), 9)
 
     def test_power_cost_modificator(self):
         self.assertCountEqual(self.concrete_event.TYPE.abilities,
@@ -247,7 +247,7 @@ class RestTests(BaseEventsMixin, utils_testcase.TestCase):
         self.emissary.refresh_attributes()
 
         self.assertEqual(self.concrete_event.power_cost(self.emissary, days=7),
-                         int(math.ceil(7 * 50 * (1 - 2 * tt_clans_constants.PRICE_START_EVENT_DELTA))))
+                         int(math.ceil(7 * (logic.expected_power_per_day()/2) * (1 - 2 * tt_clans_constants.PRICE_START_EVENT_DELTA))))
 
     def test_on_step(self):
         self.emissary.health = 1

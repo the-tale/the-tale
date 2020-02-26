@@ -507,7 +507,8 @@ class QuestPrototype(object):
         hero.statistics.change_quests_done(1)
 
         if hero.companion:
-            hero.companion.add_experience(c.COMPANIONS_COHERENCE_EXP_PER_QUEST)
+            expected_quest_path = places_storage.places.expected_minimum_quest_distance()
+            hero.companion.add_experience(companions_logic.coherence_exp_per_quest(expected_quest_path))
 
         power_impacts = []
 
@@ -767,13 +768,12 @@ class QuestPrototype(object):
             yield participant
 
     def get_expirience_for_quest(self, quest_uid, hero):
-        experience = f.experience_for_quest(c.QUEST_AREA_RADIUS)
 
         if hero.statistics.quests_done == 0:
-            # since we get shortest path for first quest
-            # and want to give exp as fast as can
-            # and do not want to give more exp than level up required
-            experience = int(experience / 2)
+            # для первого задания даём столько опыта, чтобы почти получить уровень, но не получить
+            return hero.experience_to_next_level - 1
+
+        experience = f.experience_for_quest(places_storage.places.expected_minimum_quest_distance())
 
         place_experience_bonuses = {}
         person_experience_bonuses = {}
@@ -811,7 +811,7 @@ class QuestPrototype(object):
         return max(1, experience)
 
     def get_politic_power_for_quest(self, quest_uid, hero):
-        base_politic_power = f.person_power_for_quest(c.QUEST_AREA_RADIUS)
+        base_politic_power = f.person_power_for_quest(places_storage.places.expected_minimum_quest_distance())
 
         for participant in self.quest_participants(quest_uid):
 

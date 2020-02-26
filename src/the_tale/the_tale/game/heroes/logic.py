@@ -244,6 +244,8 @@ def preferences_for_new_hero(hero):
         hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_DEDICATION, relations.COMPANION_DEDICATION.NORMAL)
     if hero.preferences.companion_empathy is None:
         hero.preferences.set(relations.PREFERENCE_TYPE.COMPANION_EMPATHY, relations.COMPANION_EMPATHY.ORDINAL)
+    if hero.preferences.quests_region_size is None:
+        hero.preferences.set(relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, c.DEFAULT_QUESTS_REGION_SIZE)
 
 
 def create_hero(account_id, attributes):

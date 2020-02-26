@@ -70,17 +70,43 @@ class PlacesStorageTest(utils_testcase.TestCase):
         self.assertTrue(self.p1.id in self.storage)
         self.assertFalse(666 in self.storage)
 
+    def test_nearest_places_with_distances(self):
+        distances = self.storage.nearest_places_with_distance(self.p1.id)
+        self.assertEqual(distances,
+                         [(0, self.p1.id),
+                          (navigation_logic.manhattan_distance(self.p1.x, self.p1.y, self.p3.x, self.p3.y), self.p3.id),
+                          (navigation_logic.manhattan_distance(self.p1.x, self.p1.y, self.p2.x, self.p2.y), self.p2.id)])
+
+        distances = self.storage.nearest_places_with_distance(self.p3.id)
+        self.assertEqual(distances,
+                         [(0, self.p3.id),
+                          (navigation_logic.manhattan_distance(self.p3.x, self.p3.y, self.p1.x, self.p1.y), self.p1.id),
+                          (navigation_logic.manhattan_distance(self.p3.x, self.p3.y, self.p2.x, self.p2.y), self.p2.id)])
+
+    def test_nearest_places_with_distances__number(self):
+        distances = self.storage.nearest_places_with_distance(self.p1.id, number=2)
+        self.assertEqual(distances,
+                         [(0, self.p1.id),
+                          (navigation_logic.manhattan_distance(self.p1.x, self.p1.y, self.p3.x, self.p3.y), self.p3.id)])
+
+        distances = self.storage.nearest_places_with_distance(self.p3.id, number=2)
+        self.assertEqual(distances,
+                         [(0, self.p3.id),
+                          (navigation_logic.manhattan_distance(self.p3.x, self.p3.y, self.p1.x, self.p1.y), self.p1.id),
+                          (navigation_logic.manhattan_distance(self.p3.x, self.p3.y, self.p2.x, self.p2.y), self.p2.id)])
+
     def test_nearest_places(self):
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=0)],
-                              [self.p1.id])
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=1)],
-                              [self.p1.id])
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=2)],
-                              [self.p1.id, self.p3.id])
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=3)],
-                              [self.p1.id, self.p3.id])
-        self.assertCountEqual([place.id for place in self.storage.nearest_places(self.p1.x, self.p1.y, radius=4)],
-                              [self.p1.id, self.p2.id, self.p3.id])
+        distances = self.storage.nearest_places(self.p1.id)
+        self.assertEqual(distances, [self.storage[self.p1.id],
+                                     self.storage[self.p3.id],
+                                     self.storage[self.p2.id]])
+
+        distances = self.storage.nearest_places(self.p1.id, number=2)
+        self.assertEqual(distances, [self.storage[self.p1.id],
+                                     self.storage[self.p3.id]])
+
+    def test_expected_minimum_quest_distance(self):
+        self.assertAlmostEqual(self.storage.expected_minimum_quest_distance(), 6.666666666666667)
 
 
 class ResourceExchangeStorageTests(utils_testcase.TestCase):

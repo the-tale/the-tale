@@ -579,3 +579,53 @@ class HeroPreferencesCompanionEmpathyTest(utils_testcase.TestCase):
         logic.save_hero(self.hero)
         self.hero = logic.load_hero(hero_id=self.hero.id)
         self.assertEqual(self.hero.preferences.companion_empathy, self.empath)
+
+
+class HeroPreferencesQuestsRegionTest(utils_testcase.TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.QUESTS_REGION
+
+    def setUp(self):
+        super().setUp()
+
+        self.place, self.place_2, self.place_3 = game_logic.create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+        self.storage = game_logic_storage.LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+    def test_preferences_serialization(self):
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.QUESTS_REGION, self.place)
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
+
+    def test_save(self):
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.QUESTS_REGION, self.place)
+        logic.save_hero(self.hero)
+        self.hero = logic.load_hero(hero_id=self.hero.id)
+        self.assertEqual(self.hero.preferences.quests_region.id, self.place.id)
+
+
+class HeroPreferencesQuestsRegionSizeTest(utils_testcase.TestCase):
+    PREFERENCE_TYPE = relations.PREFERENCE_TYPE.QUESTS_REGION
+
+    def setUp(self):
+        super().setUp()
+
+        self.place, self.place_2, self.place_3 = game_logic.create_test_map()
+
+        self.account = self.accounts_factory.create_account()
+        self.storage = game_logic_storage.LogicStorage()
+        self.storage.load_account_data(self.account)
+        self.hero = self.storage.accounts_to_heroes[self.account.id]
+
+    def test_preferences_serialization(self):
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 7)
+        data = self.hero.preferences.serialize()
+        self.assertEqual(data, preferences.HeroPreferences.deserialize(data).serialize())
+
+    def test_save(self):
+        self.hero.preferences.set(relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 7)
+        logic.save_hero(self.hero)
+        self.hero = logic.load_hero(hero_id=self.hero.id)
+        self.assertEqual(self.hero.preferences.quests_region_size, 7)

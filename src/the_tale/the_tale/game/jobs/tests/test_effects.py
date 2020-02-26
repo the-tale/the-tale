@@ -321,14 +321,18 @@ class HeroEffectTests(EffectsTestsBase):
                                                                                                 c.JOB_NEGATIVE_POWER_MULTIPLIER})
 
     def test_experience__positive(self):
+        distance = places_storage.places.expected_minimum_quest_distance()
+
         self.check_apply_positive(effects.EFFECT.HERO_EXPERIENCE,
-                                  expected_effect_value=int(math.ceil(f.experience_for_quest__real(c.QUEST_AREA_RADIUS) *
+                                  expected_effect_value=int(math.ceil(f.experience_for_quest__real(distance) *
                                                                       self.job_power *
                                                                       c.NORMAL_JOB_LENGTH)))
 
     def test_experience__negative(self):
+        distance = places_storage.places.expected_minimum_quest_distance()
+
         self.check_apply_negative(effects.EFFECT.HERO_EXPERIENCE,
-                                  expected_effect_value=int(math.ceil(f.experience_for_quest__real(c.QUEST_AREA_RADIUS) *
+                                  expected_effect_value=int(math.ceil(f.experience_for_quest__real(distance) *
                                                                       self.job_power *
                                                                       c.NORMAL_JOB_LENGTH *
                                                                       c.JOB_NEGATIVE_POWER_MULTIPLIER)))

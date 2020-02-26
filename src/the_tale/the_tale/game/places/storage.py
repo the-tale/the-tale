@@ -4,7 +4,7 @@ import smart_imports
 smart_imports.all()
 
 
-class PlacesStorage(utils_storage.Storage):
+class PlacesStorage(utils_storage.CachedStorage):
     SETTINGS_KEY = 'places change time'
     EXCEPTION = exceptions.PlacesStorageError
 
@@ -16,6 +16,13 @@ class PlacesStorage(utils_storage.Storage):
 
     def _get_all_query(self):
         return list(models.Place.objects.all())
+
+    def _reset_cache(self):
+        self._nearest_places = {}
+
+    def _update_cached_data(self, item):
+        # _nearest_places calculated in there getter
+        pass
 
     def get_choices(self, exclude=()):
         self.sync()
@@ -31,12 +38,44 @@ class PlacesStorage(utils_storage.Storage):
 
         return None
 
-    def nearest_places(self, x, y, radius):
-        self.sync()
+    def nearest_places_with_distance(self, center_place_id, number=None):
+        # sync does not required
 
-        for place in self.all():
-            if navigation_logic.manhattan_distance(x, y, place.x, place.y) <= radius:
-                yield place
+        if number is None:
+            number = len(self)
+
+        if number < 1:
+            return []
+
+        if center_place_id not in self._nearest_places:
+            center_place = self[center_place_id]
+            self._nearest_places[center_place_id] = [(navigation_logic.manhattan_distance(center_place.x, center_place.y,
+                                                                                          place.x, place.y), place.id)
+                                                     for place in self.all()]
+            self._nearest_places[center_place_id].sort()
+
+        places = self._nearest_places[center_place_id]
+
+        if number >= len(places):
+            return places
+
+        stop_distance = places[number - 1][0]
+
+        return [record for record in places if record[0] <= stop_distance]
+
+    def nearest_places(self, center_place_id, number=None):
+        return [self[place_id]
+                for distance, place_id in self.nearest_places_with_distance(center_place_id, number)]
+
+    def expected_minimum_quest_distance(self):
+        radiuses_sum = sum(self.nearest_places_with_distance(p.id, c.MINIMUM_QUESTS_REGION_SIZE)[-1][0]
+                           for p in self.all())
+
+        # считаем как путешествие на среднюю дистанцию туда-обратно
+
+        radius = radiuses_sum / len(self)
+
+        return radius * 2
 
     def shift_all(self, dx, dy):
         self.sync()

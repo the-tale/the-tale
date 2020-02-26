@@ -39,7 +39,7 @@ def impacts_from_hero(hero, place, power, inner_circle_places, impacts_generator
 
     place_power = hero.modify_politics_power(power, place=place)
 
-    yield from impacts_generator(inner_circle=hero.preferences.has_place_in_preferences(place) or (place.id in inner_circle_places),
+    yield from impacts_generator(inner_circle=hero.preferences.place_is_hometown(place) or (place.id in inner_circle_places),
                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                  actor_id=hero.id,
                                  place=place,
@@ -344,8 +344,13 @@ def get_start_place_for_race(race):
 
     choices = choices[:int(len(choices) * conf.settings.START_PLACE_SAFETY_PERCENTAGE) + 1]
 
-    if any(place.race == race for place in choices):
-        choices = [place for place in choices if place.race == race]
+    if not choices:
+        choices = list(storage.places.all())
+
+    race_choices = [place for place in choices if place.race == race]
+
+    if race_choices:
+        choices = race_choices
 
     return choices[0]
 
@@ -478,5 +483,5 @@ def remove_effect(effect_id, place_id, refresh_effects=False, refresh_places=Fal
         places_storage.places.update_version()
 
 
-def task_board_places(x, y):
-    return storage.places.nearest_places(x, y, radius=tt_emissaries_constants.TASK_BOARD_RADIUS)
+def task_board_places(place):
+    return storage.places.nearest_places(place.id, number=tt_emissaries_constants.TASK_BOARD_PLACES_NUMBER)

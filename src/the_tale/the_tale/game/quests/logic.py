@@ -28,12 +28,13 @@ class HeroQuestInfo(object):
                  'level',
                  'position_place_id',
                  'is_first_quest_path_required',
-                 'is_short_quest_path_required',
                  'preferences_mob_id',
                  'preferences_place_id',
                  'preferences_friend_id',
                  'preferences_enemy_id',
                  'preferences_equipment_slot',
+                 'preferences_quests_region_id',
+                 'preferences_quests_region_size',
                  'interfered_persons',
                  'quests_priorities',
                  'excluded_quests',
@@ -44,12 +45,13 @@ class HeroQuestInfo(object):
                  level,
                  position_place_id,
                  is_first_quest_path_required,
-                 is_short_quest_path_required,
                  preferences_mob_id,
                  preferences_place_id,
                  preferences_friend_id,
                  preferences_enemy_id,
                  preferences_equipment_slot,
+                 preferences_quests_region_id,
+                 preferences_quests_region_size,
                  interfered_persons,
                  quests_priorities,
                  excluded_quests,
@@ -58,12 +60,13 @@ class HeroQuestInfo(object):
         self.level = level
         self.position_place_id = position_place_id
         self.is_first_quest_path_required = is_first_quest_path_required
-        self.is_short_quest_path_required = is_short_quest_path_required
         self.preferences_mob_id = preferences_mob_id
         self.preferences_place_id = preferences_place_id
         self.preferences_friend_id = preferences_friend_id
         self.preferences_enemy_id = preferences_enemy_id
         self.preferences_equipment_slot = preferences_equipment_slot
+        self.preferences_quests_region_id = preferences_quests_region_id
+        self.preferences_quests_region_size = preferences_quests_region_size
         self.interfered_persons = interfered_persons
         self.quests_priorities = quests_priorities
         self.excluded_quests = excluded_quests
@@ -78,16 +81,17 @@ class HeroQuestInfo(object):
                 'level': self.level,
                 'position_place_id': self.position_place_id,
                 'is_first_quest_path_required': self.is_first_quest_path_required,
-                'is_short_quest_path_required': self.is_short_quest_path_required,
                 'preferences_mob_id': self.preferences_mob_id,
                 'preferences_place_id': self.preferences_place_id,
                 'preferences_friend_id': self.preferences_friend_id,
                 'preferences_enemy_id': self.preferences_enemy_id,
                 'preferences_equipment_slot': self.preferences_equipment_slot.value if self.preferences_equipment_slot else None,
+                'preferences_quests_region_id': self.preferences_quests_region_id if self.preferences_quests_region_id else None,
+                'preferences_quests_region_size': self.preferences_quests_region_size,
                 'interfered_persons': self.interfered_persons,
                 'quests_priorities': [(quest_type.value, priority) for quest_type, priority in self.quests_priorities],
-                'excluded_quests': list(self.excluded_quests),
-                'prefered_quest_markers': list(self.prefered_quest_markers)}
+                'excluded_quests': list(sorted(self.excluded_quests)),
+                'prefered_quest_markers': list(sorted(self.prefered_quest_markers))}
 
     @classmethod
     def deserialize(cls, data):
@@ -95,12 +99,13 @@ class HeroQuestInfo(object):
                    level=data['level'],
                    position_place_id=data['position_place_id'],
                    is_first_quest_path_required=data['is_first_quest_path_required'],
-                   is_short_quest_path_required=data['is_short_quest_path_required'],
                    preferences_mob_id=data['preferences_mob_id'],
                    preferences_place_id=data['preferences_place_id'],
                    preferences_friend_id=data['preferences_friend_id'],
                    preferences_enemy_id=data['preferences_enemy_id'],
                    preferences_equipment_slot=heroes_relations.EQUIPMENT_SLOT(data['preferences_equipment_slot']) if data['preferences_equipment_slot'] is not None else None,
+                   preferences_quests_region_id=data['preferences_quests_region_id'],
+                   preferences_quests_region_size=data['preferences_quests_region_size'],
                    interfered_persons=data['interfered_persons'],
                    quests_priorities=[(relations.QUESTS(quest_type), priority) for quest_type, priority in data['quests_priorities']],
                    excluded_quests=set(data['excluded_quests']),
@@ -154,63 +159,8 @@ def fact_located_in(person):
     return questgen_facts.LocatedIn(object=uids.person(person.id), place=uids.place(person.place.id))
 
 
-def fill_places_for_first_quest(kb, hero_info):
-    best_distance = c.QUEST_AREA_MAXIMUM_RADIUS
-    best_destination = None
-
-    hero_place = places_storage.places[hero_info.position_place_id]
-
-    for place in places_storage.places.all():
-        if place.id == hero_info.position_place_id:
-            continue
-
-        path_length = navigation_logic.manhattan_distance(hero_place.x,
-                                                          hero_place.y,
-                                                          place.x,
-                                                          place.y)
-
-        if path_length < best_distance:
-            best_distance = path_length
-            best_destination = place
-
-    kb += fact_place(best_destination)
-    kb += fact_place(places_storage.places[hero_info.position_place_id])
-
-
-def fill_places(kb, hero_info, max_distance):
-    places = []
-
-    hero_place = places_storage.places[hero_info.position_place_id]
-
-    for place in places_storage.places.all():
-        path_length = navigation_logic.manhattan_distance(hero_place.x,
-                                                          hero_place.y,
-                                                          place.x,
-                                                          place.y)
-
-        if path_length > max_distance:
-            continue
-
-        places.append((path_length, place))
-
-    places.sort(key=lambda x: x[0])
-
-    chosen_places = []
-
-    for base_distance, place in places:
-        for chosen_place in chosen_places:
-            path_length = navigation_logic.manhattan_distance(chosen_place.x,
-                                                              chosen_place.y,
-                                                              place.x,
-                                                              place.y)
-
-            if path_length > max_distance:
-                break
-
-        else:
-            chosen_places.append(place)
-
-    for place in chosen_places:
+def fill_places(kb, places):
+    for place in places:
         uid = uids.place(place.id)
 
         if uid in kb:
@@ -220,21 +170,29 @@ def fill_places(kb, hero_info, max_distance):
 
 
 def setup_places(kb, hero_info):
+    center_place_id = hero_info.position_place_id
+    quests_region_size = hero_info.preferences_quests_region_size
+
+    if hero_info.preferences_quests_region_id is not None:
+        center_place_id = hero_info.preferences_quests_region_id
+
     if hero_info.is_first_quest_path_required:
-        fill_places_for_first_quest(kb, hero_info)
-    elif hero_info.is_short_quest_path_required:
-        fill_places(kb, hero_info, max_distance=c.QUEST_AREA_SHORT_RADIUS)
-    else:
-        fill_places(kb, hero_info, max_distance=c.QUEST_AREA_RADIUS)
+        quests_region_size = 2
+
+    places = places_storage.places.nearest_places(center_place_id,
+                                                  number=quests_region_size)
+
+    if len(places) < 2:
+        places = places_storage.places.all()
+
+    fill_places(kb, places)
 
     hero_position_uid = uids.place(hero_info.position_place_id)
+
     if hero_position_uid not in kb:
         kb += fact_place(places_storage.places[hero_info.position_place_id])
 
     kb += questgen_facts.LocatedIn(object=uids.hero(hero_info.id), place=hero_position_uid)
-
-    if len(list(kb.filter(questgen_facts.Place))) < 2:
-        fill_places(kb, hero_info, max_distance=c.QUEST_AREA_MAXIMUM_RADIUS)
 
 
 def setup_persons(kb, hero_info):
@@ -589,12 +547,13 @@ def create_hero_info(hero):
                          level=hero.level,
                          position_place_id=hero.position.cell().nearest_place_id,
                          is_first_quest_path_required=hero.is_first_quest_path_required,
-                         is_short_quest_path_required=hero.is_short_quest_path_required,
                          preferences_mob_id=hero.preferences.mob.id if hero.preferences.mob else None,
                          preferences_place_id=hero.preferences.place.id if hero.preferences.place else None,
                          preferences_friend_id=hero.preferences.friend.id if hero.preferences.friend else None,
                          preferences_enemy_id=hero.preferences.enemy.id if hero.preferences.enemy else None,
                          preferences_equipment_slot=hero.preferences.equipment_slot,
+                         preferences_quests_region_id=hero.preferences.quests_region.id if hero.preferences.quests_region else None,
+                         preferences_quests_region_size=hero.preferences.quests_region_size,
                          interfered_persons=hero.quests.get_interfered_persons(),
                          quests_priorities=quests_priorities,
                          excluded_quests=hero.quests.excluded_quests(len(quests_priorities) // 2),

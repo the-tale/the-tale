@@ -1,4 +1,8 @@
 
+import smart_imports
+
+smart_imports.all()
+
 
 class Settings(object):
 

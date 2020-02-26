@@ -125,6 +125,8 @@ class HeroPreferences(django_models.Model):
     archetype = rels_django.RelationIntegerField(relation=game_relations.ARCHETYPE, null=True, default=None, blank=True)
     companion_dedication = rels_django.RelationIntegerField(relation=relations.COMPANION_DEDICATION, null=True, default=None, blank=True)
     companion_empathy = rels_django.RelationIntegerField(relation=relations.COMPANION_EMPATHY, null=True, default=None, blank=True)
+    quests_region = django_models.ForeignKey('places.Place', null=True, default=None, related_name='+', blank=True, on_delete=django_models.PROTECT)
+    quests_region_size = django_models.IntegerField(default=c.DEFAULT_QUESTS_REGION_SIZE)
 
     @classmethod
     def create(cls, hero, energy_regeneration_type, risk_level, archetype, companion_dedication, companion_empathy):

@@ -180,7 +180,8 @@ def experience_for_quest__real(max_path_length):
 
 
 def experience_for_quest(max_path_length):
-    return int(math.ceil(experience_for_quest__real(max_path_length) * random.uniform(1.0 - c.EXP_PER_QUEST_FRACTION, 1 + c.EXP_PER_QUEST_FRACTION)))
+    return int(math.ceil(experience_for_quest__real(max_path_length) * random.uniform(1.0 - c.EXP_PER_QUEST_FRACTION,
+                                                                                      1.0 + c.EXP_PER_QUEST_FRACTION)))
 
 #########################################
 # расчёт изменения влияния песроанажа
@@ -193,7 +194,8 @@ def person_power_for_quest__real(path_length):
 
 
 def person_power_for_quest(path_length):
-    return int(math.ceil(person_power_for_quest__real(path_length) * random.uniform(1.0 - c.PERSON_POWER_PER_QUEST_FRACTION, 1 + c.PERSON_POWER_PER_QUEST_FRACTION)))
+    return int(math.ceil(person_power_for_quest__real(path_length) * random.uniform(1.0 - c.PERSON_POWER_PER_QUEST_FRACTION,
+                                                                                    1.0 + c.PERSON_POWER_PER_QUEST_FRACTION)))
 
 
 def max_ability_points_number(level):

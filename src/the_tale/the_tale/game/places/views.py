@@ -83,6 +83,8 @@ def show(context):
 
     emissaries_logic.sort_for_ui(emissaries, emissaries_powers)
 
+    place_distances = storage.places.nearest_places_with_distance(context.place.id)
+
     return utils_views.Page('places/show.html',
                             content={'place': context.place,
                                      'place_bills': info.place_info_bills(context.place),
@@ -98,4 +100,6 @@ def show(context):
                                      'resource': context.resource,
                                      'emissaries': emissaries,
                                      'clans': clans,
-                                     'emissaries_powers': emissaries_powers})
+                                     'emissaries_powers': emissaries_powers,
+                                     'place_distances': place_distances,
+                                     'places_storage': storage.places})

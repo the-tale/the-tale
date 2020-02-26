@@ -188,7 +188,7 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
 
         self.assertTrue(0 < self.action_idl.percents < 1)
 
-    @mock.patch('tt_logic.emissaries.constants.TASK_BOARD_RADIUS', 0)
+    @mock.patch('tt_logic.emissaries.constants.TASK_BOARD_PLACES_NUMBER', 1)
     def test_task_board__hero_clan(self):
         self.prepair_forum_for_clans()
 
@@ -211,7 +211,7 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
 
         self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_IDLENESS_TASK_BOARD)
 
-    @mock.patch('tt_logic.emissaries.constants.TASK_BOARD_RADIUS', 2)
+    @mock.patch('tt_logic.emissaries.constants.TASK_BOARD_PLACES_NUMBER', 2)
     def test_task_board_in_near_place(self):
         self.prepair_forum_for_clans()
 
@@ -242,7 +242,7 @@ class IdlenessActionTest(clans_helpers.ClansTestsMixin,
 
         self.assertTrue(self.hero.journal.messages[-1].key.is_ACTION_IDLENESS_TASK_BOARD)
 
-    @mock.patch('tt_logic.emissaries.constants.TASK_BOARD_RADIUS', 1)
+    @mock.patch('tt_logic.emissaries.constants.TASK_BOARD_PLACES_NUMBER', 1)
     def test_task_board_in_far_place(self):
         self.prepair_forum_for_clans()
 

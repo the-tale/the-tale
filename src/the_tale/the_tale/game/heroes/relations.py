@@ -39,7 +39,9 @@ class PREFERENCE_TYPE(rels_django.DjangoEnum):
                ('FAVORITE_ITEM', 7, 'любимая вещь', 'favorite_item', '_prepair_equipment_slot', True),
                ('ARCHETYPE', 8, 'архетип', 'archetype', '_prepair_archetype', False),
                ('COMPANION_DEDICATION', 9, 'отношения со спутником', 'companion_dedication', '_prepair_companion_dedication', False),
-               ('COMPANION_EMPATHY', 10, 'эмпатия', 'companion_empathy', '_prepair_companion_empathy', False))
+               ('COMPANION_EMPATHY', 10, 'эмпатия', 'companion_empathy', '_prepair_companion_empathy', False),
+               ('QUESTS_REGION', 11, 'центр области заданий', 'quests_region', '_prepair_place', True),
+               ('QUESTS_REGION_SIZE', 12, 'размер области заданий', 'quests_region_size', '_prepair_quests_region_size', False))
 
 
 class COMPANION_DEDICATION(rels_django.DjangoEnum):

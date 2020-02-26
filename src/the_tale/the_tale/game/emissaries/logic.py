@@ -348,11 +348,11 @@ def impacts_from_hero(hero, emissary, power, impacts_generator=tt_power_impacts)
 
     emissary_power = hero.modify_politics_power(power, emissary=emissary)
 
-    has_place_in_preferences = hero.preferences.has_place_in_preferences(emissary.place)
+    place_is_hometown = hero.preferences.place_is_hometown(emissary.place)
 
     can_change_power = hero.can_change_place_power(emissary.place)
 
-    yield from impacts_generator(place_inner_circle=has_place_in_preferences,
+    yield from impacts_generator(place_inner_circle=place_is_hometown,
                                  can_change_place_power=can_change_power,
                                  actor_type=tt_api_impacts.OBJECT_TYPE.HERO,
                                  actor_id=hero.id,
@@ -674,7 +674,7 @@ def expected_power_per_day():
     quests_in_day = tt_cards_constants.PREMIUM_PLAYER_SPEED * quest_card_probability
 
     # TODO: get from statistics
-    power_for_quest = f.person_power_for_quest__real(c.QUEST_AREA_RADIUS) * c.EXPECTED_HERO_QUEST_POWER_MODIFIER
+    power_for_quest = f.person_power_for_quest__real(places_storage.places.expected_minimum_quest_distance()) * c.EXPECTED_HERO_QUEST_POWER_MODIFIER
 
     return int(math.ceil(quests_in_day *
                          power_for_quest *

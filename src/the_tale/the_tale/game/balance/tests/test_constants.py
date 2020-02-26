@@ -123,11 +123,8 @@ class ConstantsTest(utils_testcase.TestCase):
 
         self.assertEqual(c.INITIAL_ENERGY_AMOUNT, 100)
 
-        self.assertEqual(c.QUEST_AREA_RADIUS, 44)
-        self.assertEqual(c.QUEST_AREA_SHORT_RADIUS, 22)
-        self.assertEqual(c.QUEST_AREA_MAXIMUM_RADIUS, 1000000)
-
-        self.assertAlmostEqual(c.TURNS_IN_QUEST, 3446.6666666666665)
+        self.assertEqual(c.MINIMUM_QUESTS_REGION_SIZE, 15)
+        self.assertEqual(c.DEFAULT_QUESTS_REGION_SIZE, 25)
 
         self.assertEqual(c.MAP_SYNC_TIME_HOURS, 1)
         self.assertEqual(c.MAP_SYNC_TIME, 360)
@@ -146,7 +143,6 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.PATH_MODIFIER_NORMAL_DELTA, 0.075)
         self.assertEqual(c.PATH_MODIFIER_MINIMUM_MULTIPLIER, 0.1)
 
-        self.assertEqual(c.QUESTS_SHORT_PATH_LEVEL_CAP, 4)
         self.assertEqual(c.QUESTS_PILGRIMAGE_FRACTION, 0.025)
 
         self.assertEqual(c.HERO_FAME_PER_HELP, 1000)
@@ -332,8 +328,7 @@ class ConstantsTest(utils_testcase.TestCase):
         self.assertEqual(c.COMPANIONS_MIN_COHERENCE, 0)
         self.assertEqual(c.COMPANIONS_MAX_COHERENCE, 100)
 
-        self.assertEqual(round(c._QUESTS_REQUIED, 5), 676.82785)
-        self.assertEqual(c.COMPANIONS_COHERENCE_EXP_PER_QUEST, 7)
+        self.assertEqual(c.EXPECTED_FULL_COHERENCE_TIME, 9 * 30 * 24 * 60 * 60)
 
         self.assertEqual(c.COMPANIONS_MEDIUM_COHERENCE, 50)
 

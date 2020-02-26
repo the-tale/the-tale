@@ -218,7 +218,11 @@ class HeroExperience(HeroMethod):
     METHOD_NAME = 'job_experience'
 
     def experience(self, job_power):
-        return max(1, int(math.ceil(f.experience_for_quest__real(c.QUEST_AREA_RADIUS) * job_power * c.NORMAL_JOB_LENGTH)))
+        from the_tale.game.places import storage as places_storage
+
+        return max(1, int(math.ceil(f.experience_for_quest__real(places_storage.places.expected_minimum_quest_distance()) *
+                                    job_power *
+                                    c.NORMAL_JOB_LENGTH)))
 
     def positive_effect_value(self, job_power):
         return self.experience(job_power)

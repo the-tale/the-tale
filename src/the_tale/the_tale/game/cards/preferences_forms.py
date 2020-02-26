@@ -126,5 +126,17 @@ class CompanionEmpathy(RelationMixin, form(heroes_relations.PREFERENCE_TYPE.COMP
     value = utils_fields.RelationField(relation=heroes_relations.COMPANION_EMPATHY)
 
 
+class QuestsRegiion(form(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION)):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['value'].choices = [(None, 'забыть предпочтение')] + places_storage.places.get_choices()
+
+
+class QuestsRegiionSize(form(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE)):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['value'].choices = [(str(i), str(i)) for i in range(c.MINIMUM_QUESTS_REGION_SIZE, len(places_storage.places.all()))]
+
+
 FORMS = {form_class.PREFERENCE: form_class
          for form_class in utils_discovering.discover_classes(globals().values(), utils_forms.Form)}

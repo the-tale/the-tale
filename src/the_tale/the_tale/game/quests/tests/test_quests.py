@@ -65,7 +65,6 @@ def create_test_method(quest, quests):
 
     internal_quests = {q.quest_class.TYPE: q.quest_class for q in quests}
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', False)
     @mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', False)
     @mock.patch('the_tale.game.quests.logic.QUESTS_BASE._quests', internal_quests)
     @mock.patch('the_tale.game.heroes.objects.Hero.get_quests_priorities', lambda hero: [(quest, 10000000)] + [(q, 0) for q in quests if q != quest])
@@ -212,7 +211,6 @@ class RawQuestsTest(QuestsTestBase):
 
 def create_test_messages_method(quest, quests):
 
-    @mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', False)
     @mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', False)
     def quest_test_method(self):
         knowledge_base = logic.get_knowledge_base(logic.create_hero_info(self.hero))

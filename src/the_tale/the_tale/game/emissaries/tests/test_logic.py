@@ -1175,10 +1175,12 @@ class AddEmissariesExperienceTests(utils_testcase.TestCase,
         self.check_emissary_abilities(emissary_4_1, {})
 
 
-class ExpectedPowerPerDayTests(utils_testcase.TestCase):
+class ExpectedPowerPerDayTests(BaseEmissaryTests):
 
     def test(self):
-        self.assertEqual(logic.expected_power_per_day(), 100)
+        # на текущий момент значение зависит от количества и рассположения городов
+        # поэтому в тестах оно меньше
+        self.assertEqual(logic.expected_power_per_day(), 17)
 
 
 class RenameEmissaryTests(BaseEmissaryTests):

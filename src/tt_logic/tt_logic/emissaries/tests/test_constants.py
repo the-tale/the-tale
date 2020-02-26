@@ -78,4 +78,4 @@ class ConstantsTest(unittest.TestCase):
         self.assertEqual(c.EXPECTED_ATTRIBUTES_INCREMENT_FROM_EVENT, 28)
         self.assertEqual(c.ATTRIBUTES_FOR_PARTICIPATE_IN_PVP, 840)
 
-        self.assertEqual(c.TASK_BOARD_RADIUS, 15)
+        self.assertEqual(c.TASK_BOARD_PLACES_NUMBER, 10)

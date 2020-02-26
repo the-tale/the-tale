@@ -75,19 +75,22 @@ class HeroQuestInfoTests(LogicTestsBase):
 
         self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.EQUIPMENT_SLOT, heroes_relations.EQUIPMENT_SLOT.HELMET)
 
+        quests_region_center = self.place_2
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION, quests_region_center)
+
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 17)
+
         interfered_person = self.place_3.persons[0]
 
         self.hero.quests.add_interfered_person(interfered_person.id)
 
         is_first_quest_path_required = random.choice((True, False))
-        is_short_quest_path_required = random.choice((True, False))
         prefered_quest_markers = set((questgen_relations.OPTION_MARKERS.HONORABLE, questgen_relations.OPTION_MARKERS.AGGRESSIVE))
 
         self.hero.quests.update_history(quest_type='spying', turn_number=0)
         self.hero.quests.update_history(quest_type='hunt', turn_number=0)
 
         with mock.patch('the_tale.game.heroes.objects.Hero.is_first_quest_path_required', is_first_quest_path_required), \
-                mock.patch('the_tale.game.heroes.objects.Hero.is_short_quest_path_required', is_short_quest_path_required), \
                 mock.patch('the_tale.game.heroes.objects.Hero.prefered_quest_markers', lambda hero: prefered_quest_markers):
             hero_info = logic.create_hero_info(self.hero)
 
@@ -99,9 +102,10 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.assertEqual(hero_info.preferences_friend_id, self.hero.preferences.friend.id)
         self.assertEqual(hero_info.preferences_enemy_id, self.hero.preferences.enemy.id)
         self.assertEqual(hero_info.preferences_equipment_slot, self.hero.preferences.equipment_slot)
+        self.assertEqual(hero_info.preferences_quests_region_id, quests_region_center.id)
+        self.assertEqual(hero_info.preferences_quests_region_size, 17)
         self.assertEqual(hero_info.interfered_persons, [interfered_person.id])
         self.assertEqual(hero_info.is_first_quest_path_required, is_first_quest_path_required)
-        self.assertEqual(hero_info.is_short_quest_path_required, is_short_quest_path_required)
         self.assertCountEqual(hero_info.excluded_quests, list(self.hero.quests.history.keys()))
         self.assertEqual(hero_info.prefered_quest_markers, prefered_quest_markers)
         self.assertEqual(hero_info.quests_priorities, self.hero.get_quests_priorities())
@@ -119,9 +123,10 @@ class HeroQuestInfoTests(LogicTestsBase):
         self.assertEqual(hero_info.preferences_friend_id, None)
         self.assertEqual(hero_info.preferences_enemy_id, None)
         self.assertEqual(hero_info.preferences_equipment_slot, None)
+        self.assertEqual(hero_info.preferences_quests_region_id, None)
+        self.assertEqual(hero_info.preferences_quests_region_size, c.DEFAULT_QUESTS_REGION_SIZE)
         self.assertEqual(hero_info.interfered_persons, [])
         self.assertEqual(hero_info.is_first_quest_path_required, self.hero.is_first_quest_path_required)
-        self.assertEqual(hero_info.is_short_quest_path_required, self.hero.is_short_quest_path_required)
         self.assertCountEqual(hero_info.excluded_quests, list(self.hero.quests.history.keys()))
         self.assertEqual(hero_info.prefered_quest_markers, set())
         self.assertEqual(hero_info.quests_priorities, self.hero.get_quests_priorities())
@@ -161,6 +166,19 @@ class FactPlaceTests(LogicTestsBase):
 
 class FillPlacesTest(LogicTestsBase):
 
+    def test(self):
+
+        f_place_2 = logic.fact_place(self.place_2)
+        f_place_3 = logic.fact_place(self.place_3)
+
+        logic.fill_places(self.knowledge_base,
+                          [self.place_2, self.place_3])
+
+        self.check_facts(places=[f_place_2, f_place_3])
+
+
+class SetupPlacesTest(LogicTestsBase):
+
     def setUp(self):
         super().setUp()
 
@@ -170,53 +188,56 @@ class FillPlacesTest(LogicTestsBase):
 
     def test_prerequiries(self):
         self.assertTrue(self.w_1_2 > self.w_1_3 == self.w_2_3)
-        # self.assertTrue(w_1_3 > w_1_2 > w_2_3)
 
-    def test_radius(self):
+    def test_region_size(self):
         self.hero.position.set_place(self.place_1)
 
-        logic.fill_places(self.knowledge_base,
-                          self.get_hero_info(),
-                          self.w_1_3)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION, self.place_1)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 2)
+
+        hero_info = self.get_hero_info()
+        hero_info.is_first_quest_path_required = False
+
+        logic.setup_places(self.knowledge_base, hero_info)
 
         self.check_facts(places=[logic.fact_place(self.place_1),
-                                 logic.fact_place(self.place_3)])
+                                 logic.fact_place(self.place_3)],
+                         locations=[questgen_facts.LocatedIn(object=uids.hero(hero_info.id),
+                                                             place=logic.fact_place(self.place_1).uid)])
 
-    def test_maximum_radius(self):
-        self.hero.position.set_place(self.place_1)
+    def test_region_size__add_hero_position(self):
+        self.hero.position.set_place(self.place_2)
 
-        logic.fill_places(self.knowledge_base,
-                          self.get_hero_info(),
-                          self.w_1_2)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION, self.place_1)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 2)
+
+        hero_info = self.get_hero_info()
+        hero_info.is_first_quest_path_required = False
+
+        logic.setup_places(self.knowledge_base, hero_info)
 
         self.check_facts(places=[logic.fact_place(self.place_1),
                                  logic.fact_place(self.place_2),
-                                 logic.fact_place(self.place_3)])
+                                 logic.fact_place(self.place_3)],
+                         locations=[questgen_facts.LocatedIn(object=uids.hero(hero_info.id),
+                                                             place=logic.fact_place(self.place_2).uid)])
 
-    def test_diameter(self):
+    def test_region_size_maximum(self):
         self.hero.position.set_place(self.place_2)
 
-        f_place_2 = logic.fact_place(self.place_2)
-        f_place_3 = logic.fact_place(self.place_3)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION, self.place_1)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 3)
 
-        logic.fill_places(self.knowledge_base,
-                          self.get_hero_info(),
-                          self.w_2_3)
+        hero_info = self.get_hero_info()
+        hero_info.is_first_quest_path_required = False
 
-        self.check_facts(places=[f_place_2, f_place_3])
+        logic.setup_places(self.knowledge_base, hero_info)
 
-    def test_diameter__full(self):
-        self.hero.position.set_place(self.place_2)
-
-        f_place_1 = logic.fact_place(self.place_1)
-        f_place_2 = logic.fact_place(self.place_2)
-        f_place_3 = logic.fact_place(self.place_3)
-
-        logic.fill_places(self.knowledge_base,
-                          self.get_hero_info(),
-                          self.w_1_2)
-
-        self.check_facts(places=[f_place_2, f_place_3, f_place_1])
+        self.check_facts(places=[logic.fact_place(self.place_1),
+                                 logic.fact_place(self.place_2),
+                                 logic.fact_place(self.place_3)],
+                         locations=[questgen_facts.LocatedIn(object=uids.hero(hero_info.id),
+                                                             place=logic.fact_place(self.place_2).uid)])
 
 
 class SetupPreferencesTest(LogicTestsBase):
@@ -340,20 +361,15 @@ class SetupPreferencesTest(LogicTestsBase):
 
 class SetupPersonsTest(LogicTestsBase):
 
-    def setUp(self):
-        super().setUp()
-
-        self.w_1_2 = navigation_logic.manhattan_distance(self.place_1.x, self.place_1.y, self.place_2.x, self.place_2.y)
-        self.w_1_3 = navigation_logic.manhattan_distance(self.place_1.x, self.place_1.y, self.place_3.x, self.place_3.y)
-        self.w_2_3 = navigation_logic.manhattan_distance(self.place_2.x, self.place_2.y, self.place_3.x, self.place_3.y)
-
     def test_no_social_connections(self):
         self.hero.position.set_place(self.place_1)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 2)
 
-        logic.fill_places(self.knowledge_base,
-                          self.get_hero_info(),
-                          self.w_1_3)
-        logic.setup_persons(self.knowledge_base, self.get_hero_info())
+        hero_info = self.get_hero_info()
+        hero_info.is_first_quest_path_required = False
+
+        logic.setup_places(self.knowledge_base, hero_info)
+        logic.setup_persons(self.knowledge_base, hero_info)
         logic.setup_social_connections(self.knowledge_base)
 
         self.check_facts(places=[logic.fact_place(self.place_1),
@@ -363,7 +379,9 @@ class SetupPersonsTest(LogicTestsBase):
                                   if person.place_id != self.place_2.id],
                          locations=[logic.fact_located_in(person)
                                     for person in persons_storage.persons.all()
-                                    if person.place_id != self.place_2.id],
+                                    if person.place_id != self.place_2.id] +
+                                   [questgen_facts.LocatedIn(object=uids.hero(hero_info.id),
+                                                             place=logic.fact_place(self.place_1).uid)],
                          social_connections=[])
 
     def test_social_connections(self):
@@ -377,10 +395,12 @@ class SetupPersonsTest(LogicTestsBase):
         persons_logic.create_social_connection(persons_relations.SOCIAL_CONNECTION_TYPE.random(), persons_3[1], persons_2[1])
 
         self.hero.position.set_place(self.place_1)
+        self.hero.preferences.set(heroes_relations.PREFERENCE_TYPE.QUESTS_REGION_SIZE, 2)
 
-        logic.fill_places(self.knowledge_base,
-                          self.get_hero_info(),
-                          self.w_1_3)
+        hero_info = self.get_hero_info()
+        hero_info.is_first_quest_path_required = False
+
+        logic.setup_places(self.knowledge_base, hero_info)
         logic.setup_persons(self.knowledge_base, self.get_hero_info())
         logic.setup_social_connections(self.knowledge_base)
 
@@ -403,5 +423,7 @@ class SetupPersonsTest(LogicTestsBase):
                                   if person.place_id != self.place_2.id],
                          locations=[logic.fact_located_in(person)
                                     for person in persons_storage.persons.all()
-                                    if person.place_id != self.place_2.id],
+                                    if person.place_id != self.place_2.id] +
+                                   [questgen_facts.LocatedIn(object=uids.hero(hero_info.id),
+                                                             place=logic.fact_place(self.place_1).uid)],
                          social_connections=expected_connections)

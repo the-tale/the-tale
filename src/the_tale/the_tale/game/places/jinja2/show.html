@@ -387,6 +387,41 @@
     </div>
   </div>
 
+  <div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#pgf-place-accordion" href="#pgf-place-distances">
+        Расстояния
+      </a>
+    </div>
+    <div id="pgf-place-distances" class="accordion-body collapse" style="height: 0px;">
+      <div class="accordion-inner">
+        <p>
+          Расстояния (манхэттенские) до каждого из городов Пандоры.
+        </p>
+
+        <table class="table table-condensed">
+          <thead>
+            <tr>
+              <th width="25px">№</th>
+              <th width="150px">город</th>
+              <th>расстояние (клеток)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for distance, place_id in place_distances %}
+            <tr>
+              <td>{{loop.index}}</td>
+              <td><a href="{{url('game:places:show', place_id)}}">{{places_storage[place_id].name}}</a></td>
+              <td>{{distance}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <h3>Ближний круг</h3>

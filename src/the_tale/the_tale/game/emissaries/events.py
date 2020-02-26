@@ -696,19 +696,16 @@ class TaskBoardUpdating(BaseCountedEvent):
 
     @classmethod
     def effect_description(cls, emissary, raw_ability_power):
-        text = 'Герои гильдии не бездельничают в городах в радиусе {radius} клеток от города (по манхеттенскому расстоянию). Количество срабатываний в сутки: {points}. {places_text}'
 
         if emissary is not None:
-            places = places_logic.task_board_places(emissary.place.x, emissary.place.y)
+            places = places_logic.task_board_places(emissary.place)
 
             places_text = 'Города:' + ', '.join(sorted(place.name for place in places))
 
         else:
             places_text = ''
 
-        return text.format(points=cls.tokens_per_day(raw_ability_power),
-                           radius=tt_emissaries_constants.TASK_BOARD_RADIUS,
-                           places_text=places_text)
+        return f'Герои гильдии не бездельничают в городе и {tt_emissaries_constants.TASK_BOARD_PLACES_NUMBER - 1} ближайших городах (по манхеттенскому расстоянию). Количество срабатываний в сутки: {cls.tokens_per_day(raw_ability_power)}. {places_text}'
 
 
 class FastTransportation(BaseCountedEvent):

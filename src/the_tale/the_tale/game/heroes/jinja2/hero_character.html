@@ -81,6 +81,8 @@ jQuery(document).ready(function(e){
     {% set pref_archetype = resource.hero.preferences.archetype and resource.hero.preferences.archetype.text %}
     {% set pref_companion_dedication = resource.hero.preferences.companion_dedication and resource.hero.preferences.companion_dedication.text %}
     {% set pref_companion_empathy = resource.hero.preferences.companion_empathy and resource.hero.preferences.companion_empathy.text %}
+    {% set pref_quests_region = resource.hero.preferences.quests_region and resource.hero.preferences.quests_region.name_from() %}
+    {% set pref_quests_region_size = resource.hero.preferences.quests_region_size %}
 
     {% if resource.hero.preferences.favorite_item %}
       {% set pref_favorite_item = resource.hero.equipment.get(resource.hero.preferences.favorite_item) %}
@@ -107,6 +109,8 @@ jQuery(document).ready(function(e){
     {{ preferences_record(PREFERENCE_TYPE.PLACE, pref_place) }}
     {{ preferences_record(PREFERENCE_TYPE.FRIEND, pref_friend) }}
     {{ preferences_record(PREFERENCE_TYPE.ENEMY, pref_enemy) }}
+    {{ preferences_record(PREFERENCE_TYPE.QUESTS_REGION, pref_quests_region) }}
+    {{ preferences_record(PREFERENCE_TYPE.QUESTS_REGION_SIZE, pref_quests_region_size) }}
 
   </ul>
 
