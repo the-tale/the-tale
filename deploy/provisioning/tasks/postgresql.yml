@@ -11,7 +11,7 @@
       postgresql_ctype: 'en_US.UTF-8'
       postgresql_ext_install_dev_headers: yes
 
-      postgresql_max_connections: 100
+      postgresql_max_connections: 200
       postgresql_superuser_reserved_connections: 3
 
       postgresql_shared_buffers: "{{(tt_RAM*0.1)|int}}MB"  # 10% of RAM
